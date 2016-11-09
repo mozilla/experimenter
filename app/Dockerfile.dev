@@ -1,0 +1,7 @@
+FROM app:build
+
+WORKDIR /app
+
+COPY ./requirements_dev.txt /app/requirements_dev.txt
+
+RUN pip install -r requirements_dev.txt --no-cache-dir --disable-pip-version-check
