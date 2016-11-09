@@ -1,2 +1,2 @@
-# experiment-manager
-A web application for managing user experiments in Activity Stream.
+# experimenter
+A web application for managing user experiments in Mozila Activity Stream.
