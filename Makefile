@@ -20,4 +20,7 @@ migrate: compose_build
 	docker-compose run app python manage.py migrate
 
 shell: compose_build
-	docker-compose run app python manage.py shell 
+	docker-compose run app python manage.py shell
+
+bash: compose_build
+	docker-compose run app bash

@@ -7,6 +7,8 @@ app:
     - "7001"
   links:
     - postgres
+  volumes:
+    - ./app:/app 
   command: python /app/manage.py runserver 0:7001 
 
 nginx:
