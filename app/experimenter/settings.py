@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'experimenter.home',
+    'experimenter.projects',
 ]
 
 MIDDLEWARE_CLASSES = [
