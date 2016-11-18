@@ -25,7 +25,9 @@ SECRET_KEY = os.environ['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'cloudvm.jaredkerim.com',  # Dev environment required in Django 1.10
+]
 
 
 # Application definition
