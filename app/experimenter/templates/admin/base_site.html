@@ -1,0 +1,13 @@
+{% extends "admin/base_site.html" %}
+{% load staticfiles %}
+
+{% block title %}Mozilla Experimenter{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="icon" href="{% static "imgs/favicon.png" %}" type="image/x-icon" />
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">Mozilla Experimenter</a></h1>
+{% endblock %}
