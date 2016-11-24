@@ -1,2 +1,5 @@
 Django==1.10.3
+coverage==4.2
+flake8==3.0.4
+ipdb==0.10.1
 psycopg2==2.6.1
