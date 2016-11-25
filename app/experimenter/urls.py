@@ -9,6 +9,6 @@ urlpatterns = [
     url(r'^', include('experimenter.home.urls')),
 ]
 
-if settings.DEBUG:
+if settings.DEBUG:  # pragma: no cover
     urlpatterns += static(
         settings.STATIC_URL, document_root=settings.STATIC_ROOT)

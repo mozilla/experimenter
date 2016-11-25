@@ -8,7 +8,7 @@ up: compose_build
 	docker-compose up
 
 test: compose_build
-	docker-compose run app python /app/manage.py test
+	docker-compose run app bash -c "coverage run manage.py test;coverage report -m --fail-under=100" 
 
 lint: compose_build
 	docker-compose run app flake8 .
