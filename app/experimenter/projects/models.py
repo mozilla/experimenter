@@ -6,7 +6,7 @@ class Project(models.Model):
     slug = models.SlugField(
         max_length=255, unique=True, blank=False, null=False)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return self.name
 
     class Meta:

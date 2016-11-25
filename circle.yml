@@ -6,6 +6,7 @@ dependencies:
   # make sure to keep the docker cache dir
   pre:
     - sudo service postgresql stop
+    - sudo /etc/init.d/postgresql stop
 
   cache_directories:
     - "~/docker"
