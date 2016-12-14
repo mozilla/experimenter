@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 
     'experimenter.home',
     'experimenter.projects',
+    'experimenter.experiments',
 ]
 
 MIDDLEWARE_CLASSES = [
