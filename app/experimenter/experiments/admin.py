@@ -47,4 +47,5 @@ class ExperimentAdmin(admin.ModelAdmin):
     inlines = (ControlVariantInlineAdmin, ExperimentVariantInlineAdmin,)
     prepopulated_fields = {'slug': ('name',)}
 
+
 admin.site.register(Experiment, ExperimentAdmin)
