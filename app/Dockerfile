@@ -17,7 +17,7 @@ COPY bin/dumb-init /usr/local/bin/dumb-init
 RUN chmod a+x /usr/local/bin/dumb-init
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 
-RUN apk add --no-cache gcc musl-dev postgresql-dev postgresql-client bash
+RUN apk add --no-cache gcc musl-dev postgresql-dev postgresql-client bash uwsgi
 
 COPY ./requirements.txt /app/requirements.txt
 
