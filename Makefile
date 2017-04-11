@@ -1,3 +1,6 @@
+secretkey:
+	openssl rand -hex 24
+
 build: 
 	./scripts/build.sh
 
