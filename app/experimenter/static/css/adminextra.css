@@ -1,0 +1,37 @@
+body {
+	background: #F2F2F2;
+	font-family: "Open Sans",X-LocaleSpecific,sans-serif;
+}
+
+.header_logo_icon {
+	height: 1.5em;
+  padding-right: 5px;
+}
+
+#branding h1, #branding h1 a:link, #branding h1 a:visited {
+	color: #fff;
+}
+
+#header {
+	background: #002d5a; 
+	color: #fff;
+}
+
+.module h2, .module caption, .inline-group h2 {
+	background: #5b667d; 
+	color: #fff;
+}
+
+div.breadcrumbs {
+	background: #5b667d; 
+	color: #c2c2c2;
+}
+
+.button, input[type="submit"], input[type="button"], .submit-row input, a.button {
+	background: #002d5a; 
+	color: #fff;
+}
+
+a:link, a:visited {
+	color: #535353;
+}

@@ -6,8 +6,9 @@
 {% block extrahead %}
   {{ block.super }}
   <link rel="icon" href="{% static "imgs/favicon.ico" %}" type="image/x-icon" />
+	<link href="{% static "css/adminextra.css" %}" rel="stylesheet" type="text/css" media="screen,projection" />
 {% endblock %}
 
 {% block branding %}
-<h1 id="site-name"><a href="{% url 'admin:index' %}">Mozilla Experimenter</a></h1>
+<h1 id="site-name"><a href="{% url 'admin:index' %}"><img class="header_logo_icon" src="{% static "imgs/favicon_32_white.png" %}" />Mozilla Experimenter</a></h1>
 {% endblock %}
