@@ -1,33 +1,41 @@
-app:
-  image: app:build
-  env_file: .env
-  stdin_open: true
-  tty: true
-  expose:
-    - "7001"
-  links:
-    - db
-  volumes:
-    - ./app:/app 
-  command: ["/app/bin/wait-for-it.sh", "db:5432", "--", "python", "/app/manage.py", "runserver", "0:7001"]
+version: "3"
 
-nginx:
-  build: ./nginx
-  links:
-    - app
-  ports:
-    - "80:80"
+services:
+  app:
+    image: app:build
+    env_file: .env
+    stdin_open: true
+    tty: true
+    links:
+      - db
+    volumes:
+      - ./app:/app
+    command: ["/app/bin/wait-for-it.sh", "db:5432", "--", "python", "/app/manage.py", "runserver", "0:7001"]
+    networks:
+      - private_nw
 
-db:
-  restart: always
-  image: postgres:9.6
-  volumes_from:
-    - data
-  ports:
-    - "5432:5432"
+  nginx:
+    build: ./nginx
+    links:
+      - app
+    ports:
+      - "80:80"
+    networks:
+      - private_nw
+      - public_nw
 
-data:
-  image: busybox 
-  volumes:
-    - /var/lib/postgresql
-  command: "true"
+  db:
+    restart: always
+    image: postgres:9.6
+    volumes:
+      - db_volume:/var/lib/postgresql
+    networks:
+      - private_nw
+
+volumes:
+  db_volume:
+
+networks:
+  private_nw:
+    internal: true
+  public_nw:
