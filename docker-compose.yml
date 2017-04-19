@@ -9,7 +9,7 @@ app:
     - postgres
   volumes:
     - ./app:/app 
-  command: python /app/manage.py runserver 0:7001 
+  command: ["./wait-for-it.sh", "db:5432", "--", "python", "/app/manage.py", "runserver", "0:7001"]
 
 nginx:
   build: ./nginx
