@@ -6,10 +6,10 @@ app:
   expose:
     - "7001"
   links:
-    - postgres
+    - db
   volumes:
     - ./app:/app 
-  command: ["./wait-for-it.sh", "db:5432", "--", "python", "/app/manage.py", "runserver", "0:7001"]
+  command: ["/app/bin/wait-for-it.sh", "db:5432", "--", "python", "/app/manage.py", "runserver", "0:7001"]
 
 nginx:
   build: ./nginx
@@ -18,7 +18,7 @@ nginx:
   ports:
     - "80:80"
 
-postgres:
+db:
   restart: always
   image: postgres:9.6
   volumes_from:
