@@ -4,7 +4,8 @@ body {
 }
 
 .header_logo_icon {
-	height: 1.5em;
+	height: 1.7em;
+  margin-top: -5px;
   padding-right: 5px;
 }
 
