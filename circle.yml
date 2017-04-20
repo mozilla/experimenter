@@ -9,6 +9,7 @@ dependencies:
     - sudo /etc/init.d/postgresql stop
     - sudo apt-get remove -y postgresql-9.5
     - sudo apt-get remove -y postgresql-9.6
+    - mv docker-compose.yml.circleci docker-compose.yml
 
   cache_directories:
     - "~/docker"
