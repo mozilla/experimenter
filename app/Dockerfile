@@ -15,6 +15,10 @@ COPY bin/dumb-init /usr/local/bin/dumb-init
 RUN chmod +x /usr/local/bin/dumb-init
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 
+
+RUN apt-get update
+RUN apt-get install -y postgresql-client 
+
 COPY ./requirements.txt /app/requirements.txt
 
 RUN pip install -r requirements.txt --no-cache-dir --disable-pip-version-check
