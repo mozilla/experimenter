@@ -1,5 +1,7 @@
 # ![Logo](https://raw.githubusercontent.com/mozilla/experimenter/22/app/experimenter/static/imgs/favicon_24.png) Experimenter 
 
+[![CircleCI](https://circleci.com/gh/mozilla/experimenter.svg?style=svg)](https://circleci.com/gh/mozilla/experimenter)
+
 Experimenter is a Python/Django application for managing experiments in Mozilla projects, such as [Activity Stream](https://github.com/mozilla/activity-stream).
 
 ### What is an experiment?
