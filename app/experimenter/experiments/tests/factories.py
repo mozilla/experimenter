@@ -17,6 +17,7 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     slug = factory.LazyAttribute(lambda o: slugify(o.name))
     objectives = factory.LazyAttribute(lambda o: faker.paragraphs())
     success_criteria = factory.LazyAttribute(lambda o: faker.paragraphs())
+    analysis = factory.LazyAttribute(lambda o: faker.paragraphs())
     start_date = factory.LazyAttribute(lambda o: datetime.datetime.now())
     end_date = factory.LazyAttribute(
         lambda o: o.start_date + datetime.timedelta(weeks=2))

@@ -11,6 +11,7 @@ class Experiment(models.Model):
         max_length=255, unique=True, blank=False, null=False)
     objectives = models.TextField(default='')
     success_criteria = models.TextField(default='')
+    analysis = models.TextField(default='')
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
 
