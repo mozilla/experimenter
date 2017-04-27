@@ -25,5 +25,11 @@ migrate: compose_build
 shell: compose_build
 	docker-compose run app python manage.py shell
 
+dbshell: compose_build
+	docker-compose run app python manage.py dbshell
+
 bash: compose_build
 	docker-compose run app bash
+
+kill:
+	docker ps -a -q | xargs docker kill;docker ps -a -q | xargs docker rm
