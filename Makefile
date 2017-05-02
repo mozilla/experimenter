@@ -33,6 +33,3 @@ bash: compose_build
 
 kill:
 	docker ps -a -q | xargs docker kill;docker ps -a -q | xargs docker rm
-
-sh: compose_build
-	docker-compose run app sh
