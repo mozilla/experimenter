@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 '''
-
+import json
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'rest_framework',
 
     'experimenter.projects',
     'experimenter.experiments',
@@ -136,3 +138,16 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'served')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+# Django Rest Framework configuration
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+}
+
+# Git version info can be found in version.json
+try:
+    GIT_VERSION_INFO = json.loads(open(os.path.join(BASE_DIR, 'version.json')).read())
+except (IOError, ValueError): # pragma: no cover
+    # Unable to find version.json
+    GIT_VERSION_INFO = ''
