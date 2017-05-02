@@ -1,7 +1,7 @@
 secretkey:
 	openssl rand -hex 24
 
-build: 
+build:
 	./scripts/build.sh
 
 compose_build: build
@@ -11,7 +11,7 @@ up: compose_build
 	docker-compose up
 
 test: compose_build
-	docker-compose run app bash -c "/app/bin/wait-for-it.sh db:5432;coverage run manage.py test;coverage report -m --fail-under=100"
+	docker-compose run app sh -c "/app/bin/wait-for-it.sh db:5432;coverage run manage.py test;coverage report -m --fail-under=100"
 
 lint: compose_build
 	docker-compose run app flake8 .
@@ -33,3 +33,6 @@ bash: compose_build
 
 kill:
 	docker ps -a -q | xargs docker kill;docker ps -a -q | xargs docker rm
+
+sh: compose_build
+	docker-compose run app sh
