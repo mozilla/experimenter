@@ -11,7 +11,7 @@ up: compose_build
 	docker-compose up
 
 test: compose_build
-	docker-compose run app sh -c "/app/bin/wait-for-it.sh db:5432;coverage run manage.py test;coverage report -m --fail-under=100"
+	docker-compose run app sh -c "/app/bin/wait-for-it.sh db:5432 -- coverage run manage.py test;coverage report -m --fail-under=100"
 
 lint: compose_build
 	docker-compose run app flake8 .
