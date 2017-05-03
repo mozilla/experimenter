@@ -1,6 +1,5 @@
 Django==1.11
 coverage==4.3.4
-djangorestframework==3.6.2
 factory-boy==2.8.1
 flake8==3.2.1
 ipdb==0.10.1
