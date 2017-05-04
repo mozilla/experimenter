@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from experimenter.experiments.models import ExperimentVariant
 from experimenter.experiments.tests.factories import (
-    ControlVariantFactory,
+    ExperimentControlFactory,
     ExperimentFactory,
 )
 from experimenter.experiments.admin import (
@@ -27,7 +27,7 @@ class ControlVariantModelFormTests(TestCase):
     def test_save_sets_is_control_to_True(self):
         experiment = ExperimentFactory.create()
 
-        variant_data = ControlVariantFactory.attributes()
+        variant_data = ExperimentControlFactory.attributes()
         variant_data['experiment'] = experiment.id
         variant_data['is_control'] = False
 

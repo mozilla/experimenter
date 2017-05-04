@@ -25,6 +25,9 @@ makemigrations: compose_build
 migrate: compose_build
 	docker-compose run app python manage.py migrate
 
+createuser: compose_build
+	docker-compose run app python manage.py createsuperuser
+
 shell: compose_build
 	docker-compose run app python manage.py shell
 

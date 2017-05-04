@@ -28,7 +28,7 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     @classmethod
     def create_with_variants(cls, *args, **kwargs):
         experiment = cls.create(*args, **kwargs)
-        ControlVariantFactory.create(experiment=experiment)
+        ExperimentControlFactory.create(experiment=experiment)
         ExperimentVariantFactory.create(experiment=experiment)
         return experiment
 
@@ -43,7 +43,7 @@ class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
         model = ExperimentVariant
 
 
-class ControlVariantFactory(BaseExperimentVariantFactory):
+class ExperimentControlFactory(BaseExperimentVariantFactory):
     is_control = True
     threshold = 0
     value = 'false'
