@@ -32,6 +32,17 @@ engagement.
 
         make test
 
+1) Run database migrations
+
+        make migrate
+
+1) Make a local user
+
+        make createuser
+
+1) Run a dev instance
+
+        make up
 Done!
 
 ## Usage
@@ -61,12 +72,42 @@ Run both test and lint
 ### migrate
 Apply all django migrations
 
+### createuser
+Create an admin user in the local dev instance
+
 ### shell
 Start an ipython shell inside the container (this lets you import and test code, interact with the db, etc)
 
 ### bash
 Start a bash shell inside the container (this lets you interact with the containerized filesystem)
 
+## API
+
+### **GET /api/v1/<project_slug>/experiments.json**
+List all of the active experiments for a project.
+
+Example:
+
+        [
+          {
+            "name": "New Feature",
+            "slug": "new-feature",
+            "active": true,
+            "start_date": 1493928948000.0,
+            "end_date": 1495138548000.0,
+            "variant": {
+              "slug": "enabled",
+              "experiment_variant_slug": "new-feature:enabled",
+              "value": "true",
+              "threshold": 10
+            },
+            "control": {
+              "slug": "disabled",
+              "experiment_variant_slug": "new-feature:disabled",
+              "value": "false"
+            }
+          }
+        ]
 
 ## Contributing
 
