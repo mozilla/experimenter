@@ -26,9 +26,9 @@ class Experiment(models.Model):
 class ExperimentVariant(models.Model):
     experiment = models.ForeignKey(Experiment, blank=False, null=False)
     name = models.CharField(
-        max_length=255, unique=True, blank=False, null=False)
+        max_length=255, blank=False, null=False)
     slug = models.SlugField(
-        max_length=255, unique=True, blank=False, null=False)
+        max_length=255, blank=False, null=False)
     is_control = models.BooleanField(default=False)
     description = models.TextField(default='')
     threshold = models.PositiveIntegerField(default=0)
@@ -40,3 +40,4 @@ class ExperimentVariant(models.Model):
     class Meta:
         verbose_name = 'Experiment Variant'
         verbose_name_plural = 'Experiment Variants'
+        unique_together = ('slug', 'experiment')
