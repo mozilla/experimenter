@@ -40,4 +40,7 @@ class ExperimentVariant(models.Model):
     class Meta:
         verbose_name = 'Experiment Variant'
         verbose_name_plural = 'Experiment Variants'
-        unique_together = ('slug', 'experiment')
+        unique_together = (
+            ('slug', 'experiment'),
+            ('is_control', 'experiment'),
+        )
