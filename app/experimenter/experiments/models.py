@@ -23,9 +23,17 @@ class Experiment(models.Model):
         verbose_name = 'Experiment'
         verbose_name_plural = 'Experiments'
 
+    @property
+    def control(self):
+        return self.variants.get(is_control=True)
+
+    @property
+    def variant(self):
+        return self.variants.get(is_control=False)
+
 
 class ExperimentVariant(models.Model):
-    experiment = models.ForeignKey(Experiment, blank=False, null=False)
+    experiment = models.ForeignKey(Experiment, blank=False, null=False, related_name='variants')
     name = models.CharField(
         max_length=255, blank=False, null=False)
     slug = models.SlugField(
