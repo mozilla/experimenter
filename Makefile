@@ -19,6 +19,9 @@ lint: compose_build
 check: compose_build lint test
 	echo "Success"
 
+makemigrations: compose_build
+	docker-compose run app python manage.py makemigrations
+
 migrate: compose_build
 	docker-compose run app python manage.py migrate
 
