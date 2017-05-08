@@ -1,0 +1,38 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    working_directory: ~/experimenter
+    steps:
+      - run:
+          name: Install Docker Compose
+          command: |
+            set -x
+            sudo bash -c "curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose"
+            sudo chmod +x /usr/local/bin/docker-compose
+      - run:
+          name: Docker info
+          command: docker -v
+      - run:
+          name: Docker compose info
+          command: docker-compose -v
+      - checkout
+      - run:
+          name: Setting up .env
+          command: cp .env.circle .env
+      - run:
+          name: Setting up docker-compose.yml
+          command: mv docker-compose.yml.circleci docker-compose.yml
+      - run:
+          name: Run tests
+          command: make check
+      - deploy:
+          command: |
+            if [ "${CIRCLE_TAG}" ]; then
+              [ -n \"$DOCKERHUB_REPO\" ]
+              docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+              echo ${DOCKERHUB_REPO}:${CIRCLE_TAG}
+              docker tag app:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}
+              docker images
+              docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}
+            fi
