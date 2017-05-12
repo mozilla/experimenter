@@ -13,12 +13,6 @@ EXPOSE 7001
 COPY bin/wait-for-it.sh /app/bin/wait-for-it.sh
 RUN chmod +x /app/bin/wait-for-it.sh
 
-# S3 bucket in Cloud Services prod IAM
-COPY bin/dumb-init /usr/local/bin/dumb-init
-RUN chmod +x /usr/local/bin/dumb-init
-ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
-
-
 RUN apt-get update
 RUN apt-get install -y postgresql-client 
 
