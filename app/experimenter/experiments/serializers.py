@@ -16,6 +16,7 @@ class JSTimestampField(serializers.Field):
 
 
 class ExperimentVariantSerializer(serializers.ModelSerializer):
+    threshold = serializers.FloatField()
 
     class Meta:
         model = ExperimentVariant

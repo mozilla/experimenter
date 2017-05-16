@@ -32,7 +32,7 @@ class TestExperimentVariantSerializer(TestCase):
         self.assertEqual(serialized.data, {
             'slug': variant.slug,
             'experiment_variant_slug': variant.experiment_variant_slug,
-            'threshold': variant.threshold,
+            'threshold': float(variant.threshold),
             'value': variant.value,
         })
 

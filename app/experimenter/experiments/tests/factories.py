@@ -1,3 +1,4 @@
+import decimal
 import datetime
 
 import factory
@@ -45,11 +46,11 @@ class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
 
 class ExperimentControlFactory(BaseExperimentVariantFactory):
     is_control = True
-    threshold = 0
+    threshold = decimal.Decimal('0')
     value = 'false'
 
 
 class ExperimentVariantFactory(BaseExperimentVariantFactory):
     is_control = False
-    threshold = 10
+    threshold = decimal.Decimal('0.1')
     value = 'true'
