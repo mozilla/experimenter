@@ -68,3 +68,5 @@ target/
 .env
 
 version.json
+
+.psql_history

@@ -15,5 +15,4 @@ class ExperimentListView(ListAPIView):
         if not Project.objects.filter(slug=project_slug).exists():
             raise Http404
 
-        return Experiment.objects.filter(
-            project__slug=project_slug).filter(active=True)
+        return Experiment.objects.started().filter(project__slug=project_slug)

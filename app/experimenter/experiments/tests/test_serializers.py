@@ -23,6 +23,10 @@ class TestJSTimestampField(TestCase):
         self.assertEqual(
             field.to_representation(example_datetime), 946688461000.0)
 
+    def test_field_returns_none_if_no_datetime_passed_in(self):
+        field = JSTimestampField()
+        self.assertEqual(field.to_representation(None), None)
+
 
 class TestExperimentVariantSerializer(TestCase):
 
@@ -57,7 +61,6 @@ class TestExperimentSerializer(TestCase):
         self.assertEqual(serialized.data, {
             'name': experiment.name,
             'slug': experiment.slug,
-            'active': experiment.active,
             'start_date': JSTimestampField().to_representation(
                 experiment.start_date),
             'end_date': JSTimestampField().to_representation(
