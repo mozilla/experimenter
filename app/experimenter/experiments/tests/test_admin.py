@@ -10,8 +10,9 @@ from experimenter.experiments.tests.factories import (
 from experimenter.experiments.admin import (
     BaseVariantInlineAdmin,
     ControlVariantInlineAdmin,
-    ExperimentVariantInlineAdmin,
     ControlVariantModelForm,
+    ExperimentAdmin,
+    ExperimentVariantInlineAdmin,
 )
 
 
@@ -57,7 +58,7 @@ class ControlVariantInlineAdminTest(TestCase):
 
 class ExperimentVariantInlineAdminTest(TestCase):
 
-    def test_queryset_filters_is_control_True(self):
+    def test_queryset_filters_is_control_False(self):
         ExperimentFactory.create_with_variants()
 
         self.assertEqual(ExperimentVariant.objects.all().count(), 2)
@@ -67,3 +68,31 @@ class ExperimentVariantInlineAdminTest(TestCase):
         self.assertEqual(variants.count(), 1)
         self.assertEqual(variants.filter(is_control=False).count(), 1)
         self.assertEqual(variants.filter(is_control=True).count(), 0)
+
+
+class ExperimentAdminTest(TestCase):
+
+    def test_status_is_readonly_for_new_experiment(self):
+        experiment_admin = ExperimentAdmin(mock.Mock(), mock.Mock())
+
+        readonly_fields = experiment_admin.get_readonly_fields(
+            request=mock.Mock(), obj=None)
+        self.assertIn('status', readonly_fields)
+
+    def test_status_is_not_readonly_for_not_started_experiment(self):
+        experiment_admin = ExperimentAdmin(mock.Mock(), mock.Mock())
+        experiment = ExperimentFactory.create_with_variants()
+
+        readonly_fields = experiment_admin.get_readonly_fields(
+            request=mock.Mock(), obj=experiment)
+        self.assertNotIn('status', readonly_fields)
+
+    def test_status_is_not_readonly_for_started_experiment(self):
+        experiment_admin = ExperimentAdmin(mock.Mock(), mock.Mock())
+        experiment = ExperimentFactory.create_with_variants()
+        experiment.status = experiment.EXPERIMENT_STARTED
+        experiment.save()
+
+        readonly_fields = experiment_admin.get_readonly_fields(
+            request=mock.Mock(), obj=experiment)
+        self.assertNotIn('status', readonly_fields)

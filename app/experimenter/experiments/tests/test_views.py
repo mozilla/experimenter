@@ -9,22 +9,24 @@ from experimenter.experiments.tests.factories import ExperimentFactory
 
 class TestExperimentListView(TestCase):
 
-    def test_list_view_returns_active_experiments_for_project(self):
+    def test_list_view_returns_started_experiments_for_project(self):
         project = ProjectFactory.create()
 
-        active_experiments = [
-            ExperimentFactory.create_with_variants(project=project)
-            for i in range(3)
-        ]
+        started_experiments = []
+        for i in range(3):
+            experiment = ExperimentFactory.create_with_variants(
+                project=project)
+            experiment.status = experiment.EXPERIMENT_STARTED
+            experiment.save()
+            started_experiments.append(experiment)
 
         # another projects experiments should be excluded
         for i in range(2):
             ExperimentFactory.create_with_variants()
 
-        # inactive experiments should be excluded
+        # instarted experiments should be excluded
         for i in range(2):
-            ExperimentFactory.create_with_variants(
-                project=project, active=False)
+            ExperimentFactory.create_with_variants(project=project)
 
         response = self.client.get(
             reverse('experiments-list', kwargs={'project_slug': project.slug}))
@@ -32,11 +34,11 @@ class TestExperimentListView(TestCase):
 
         json_data = json.loads(response.content)
 
-        self.assertEqual(len(json_data), len(active_experiments))
+        self.assertEqual(len(json_data), len(started_experiments))
 
         self.assertEqual(
             set(exp_data['slug'] for exp_data in json_data),
-            set(exp.slug for exp in active_experiments),
+            set(exp.slug for exp in started_experiments),
         )
 
     def test_list_view_returns_404_for_invalid_project_slug(self):

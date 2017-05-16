@@ -44,23 +44,30 @@ class ExperimentVariantInlineAdmin(BaseVariantInlineAdmin):
 
 
 class ExperimentAdmin(admin.ModelAdmin):
-    readonly_fields = ('created_date',)
     inlines = (ControlVariantInlineAdmin, ExperimentVariantInlineAdmin,)
     prepopulated_fields = {'slug': ('name',)}
     fields = (
-        'active',
-        'project',
-        'name',
-        'slug',
+        'status',
         'created_date',
         'start_date',
         'end_date',
+        'project',
+        'name',
+        'slug',
         'objectives',
         'success_criteria',
         'analysis',
     )
     list_display = (
-        'name', 'project', 'created_date', 'start_date', 'end_date')
+        'name', 'project', 'status', 'created_date', 'start_date', 'end_date')
+
+    readonly_fields = ('created_date', 'start_date', 'end_date')
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None or obj.is_complete:
+            return super().get_readonly_fields(request, obj=obj) + ('status',)
+
+        return super().get_readonly_fields(request, obj=obj)
 
 
 admin.site.register(Experiment, ExperimentAdmin)

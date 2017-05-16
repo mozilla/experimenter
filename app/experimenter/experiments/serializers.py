@@ -12,7 +12,10 @@ class JSTimestampField(serializers.Field):
     """
 
     def to_representation(self, obj):
-        return time.mktime(obj.timetuple()) * 1000
+        if obj:
+            return time.mktime(obj.timetuple()) * 1000
+        else:
+            return None
 
 
 class ExperimentVariantSerializer(serializers.ModelSerializer):
@@ -50,7 +53,6 @@ class ExperimentSerializer(serializers.ModelSerializer):
         fields = (
             'name',
             'slug',
-            'active',
             'start_date',
             'end_date',
             'variant',
