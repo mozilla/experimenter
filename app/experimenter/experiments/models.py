@@ -41,7 +41,7 @@ class ExperimentVariant(models.Model):
         max_length=255, blank=False, null=False)
     is_control = models.BooleanField(default=False)
     description = models.TextField(default='')
-    threshold = models.PositiveIntegerField(default=0)
+    threshold = models.DecimalField(max_digits=6, decimal_places=4)
     value = JSONField(default=False)
 
     def __str__(self):  # pragma: no cover
