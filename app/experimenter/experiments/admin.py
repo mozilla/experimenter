@@ -64,7 +64,12 @@ class ExperimentAdmin(admin.ModelAdmin):
     readonly_fields = ('created_date', 'start_date', 'end_date')
 
     def get_readonly_fields(self, request, obj=None):
-        if obj is None or obj.is_complete:
+        db_complete = False
+        if obj is not None:
+            db_obj = Experiment.objects.get(pk=obj.pk)
+            db_complete = db_obj.is_complete
+
+        if obj is None or db_complete:
             return super().get_readonly_fields(request, obj=obj) + ('status',)
 
         return super().get_readonly_fields(request, obj=obj)
