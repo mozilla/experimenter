@@ -61,6 +61,7 @@ class TestExperimentSerializer(TestCase):
         self.assertEqual(serialized.data, {
             'name': experiment.name,
             'slug': experiment.slug,
+            'addon_versions': experiment.addon_versions,
             'start_date': JSTimestampField().to_representation(
                 experiment.start_date),
             'end_date': JSTimestampField().to_representation(

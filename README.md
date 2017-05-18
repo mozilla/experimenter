@@ -92,7 +92,10 @@ Example:
           {
             "name": "New Feature",
             "slug": "new-feature",
-            "active": true,
+            "addon_versions": [
+              "1.0",
+              "2.0"
+            ],
             "start_date": 1493928948000.0,
             "end_date": 1495138548000.0,
             "variant": {

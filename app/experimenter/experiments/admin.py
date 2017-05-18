@@ -72,7 +72,7 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
 
     fieldsets = (
         ('Overview', {
-            'fields': ('project', 'name', 'slug'),
+            'fields': ('project', 'name', 'slug', 'addon_versions'),
         }),
         ('Notes', {
             'fields': ('objectives', 'success_criteria', 'analysis'),
@@ -102,7 +102,8 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
                 readonly_fields += ('status',)
 
             if db_obj.is_begun:
-                readonly_fields += ('project', 'name', 'slug')
+                readonly_fields += (
+                    'project', 'name', 'slug', 'addon_versions')
 
         return readonly_fields
 

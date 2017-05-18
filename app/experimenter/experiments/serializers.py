@@ -53,6 +53,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
         fields = (
             'name',
             'slug',
+            'addon_versions',
             'start_date',
             'end_date',
             'variant',
