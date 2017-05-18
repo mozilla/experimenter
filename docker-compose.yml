@@ -13,6 +13,7 @@ services:
     command: ["/app/bin/wait-for-it.sh", "db:5432", "--", "python", "/app/manage.py", "runserver", "0:7001"]
     networks:
       - private_nw
+      - public_nw
 
   nginx:
     build: ./nginx
