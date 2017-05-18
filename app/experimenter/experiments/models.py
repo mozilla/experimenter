@@ -32,6 +32,7 @@ class Experiment(models.Model):
         max_length=255, unique=True, blank=False, null=False)
     slug = models.SlugField(
         max_length=255, unique=True, blank=False, null=False)
+    addon_versions = JSONField(default=[])
     objectives = models.TextField(default='')
     success_criteria = models.TextField(default='')
     analysis = models.TextField(default='')
@@ -48,7 +49,19 @@ class Experiment(models.Model):
         verbose_name = 'Experiment'
         verbose_name_plural = 'Experiments'
 
-    def clean(self):
+    def clean_addon_versions(self):
+        if not (
+            type(self.addon_versions) is list and
+            all([type(version) is str for version in self.addon_versions])
+        ):
+            raise ValidationError({
+                'addon_versions': (
+                    'addon_versions must be a list of '
+                    'strings, ex: ["1.0.0", "1.0.1"]'
+                ),
+            })
+
+    def clean_status(self):
         if not self.pk:
             return
 
@@ -69,11 +82,15 @@ class Experiment(models.Model):
                 self.end_date = datetime.datetime.now()
 
             else:
-                raise ValidationError((
+                raise ValidationError({'status': (
                     'You can not change an Experiment\'s status '
                     'from {old_status} to {new_status}'
                 ).format(
-                    old_status=old_state.status, new_status=new_state.status))
+                    old_status=old_state.status, new_status=new_state.status)})
+
+    def clean(self):
+        self.clean_addon_versions()
+        self.clean_status()
 
     def save(self, *args, **kwargs):
         self.clean()
