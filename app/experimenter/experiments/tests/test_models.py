@@ -19,6 +19,42 @@ class TestExperimentModel(TestCase):
             experiment=experiment, is_control=False)
         self.assertEqual(experiment.variant, variant)
 
+    def test_is_begun_property_is_false_for_not_started(self):
+        experiment = ExperimentFactory.create_with_variants()
+        self.assertFalse(experiment.is_begun)
+
+    def test_is_begun_property_is_true_for_started(self):
+        experiment = ExperimentFactory.create_with_variants()
+        experiment.status = experiment.EXPERIMENT_STARTED
+        experiment.save()
+        self.assertTrue(experiment.is_begun)
+
+    def test_is_begun_property_is_true_for_complete(self):
+        experiment = ExperimentFactory.create_with_variants()
+        experiment.status = experiment.EXPERIMENT_STARTED
+        experiment.save()
+        experiment.status = experiment.EXPERIMENT_COMPLETE
+        experiment.save()
+        self.assertTrue(experiment.is_begun)
+
+    def test_is_complete_property_is_false_for_not_started(self):
+        experiment = ExperimentFactory.create_with_variants()
+        self.assertFalse(experiment.is_complete)
+
+    def test_is_complete_property_is_false_for_started(self):
+        experiment = ExperimentFactory.create_with_variants()
+        experiment.status = experiment.EXPERIMENT_STARTED
+        experiment.save()
+        self.assertFalse(experiment.is_complete)
+
+    def test_is_complete_property_is_true_for_complete(self):
+        experiment = ExperimentFactory.create_with_variants()
+        experiment.status = experiment.EXPERIMENT_STARTED
+        experiment.save()
+        experiment.status = experiment.EXPERIMENT_COMPLETE
+        experiment.save()
+        self.assertTrue(experiment.is_complete)
+
     def test_setting_status_from_not_started_to_started_sets_start_date(self):
         experiment = ExperimentFactory.create()
         self.assertEqual(experiment.status, experiment.EXPERIMENT_NOT_STARTED)
