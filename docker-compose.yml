@@ -17,6 +17,7 @@ services:
 
   nginx:
     build: ./nginx
+    env_file: .env
     links:
       - app
     ports:

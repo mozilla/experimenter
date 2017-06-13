@@ -23,7 +23,7 @@ makemigrations: compose_build
 	docker-compose run app python manage.py makemigrations
 
 migrate: compose_build
-	docker-compose run app python manage.py migrate
+	docker-compose run app sh -c "/app/bin/wait-for-it.sh db:5432 -- python manage.py migrate"
 
 createuser: compose_build
 	docker-compose run app python manage.py createsuperuser
