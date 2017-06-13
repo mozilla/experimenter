@@ -45,8 +45,9 @@ INSTALLED_APPS = [
     'raven.contrib.django.raven_compat',
     'rest_framework',
 
-    'experimenter.projects',
+    'experimenter.openidc',
     'experimenter.experiments',
+    'experimenter.projects',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -54,12 +55,12 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     'dockerflow.django.middleware.DockerflowMiddleware',
+
+    'experimenter.openidc.middleware.OpenIDCAuthMiddleware',
 ]
 
 ROOT_URLCONF = 'experimenter.urls'
@@ -117,6 +118,11 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+OPENIDC_EMAIL_HEADER = 'HTTP_X_FORWARDED_USER'
+OPENIDC_AUTH_WHITELIST = (
+    'experiments-list',
+)
 
 
 # Internationalization
