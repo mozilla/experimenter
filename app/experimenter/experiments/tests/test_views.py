@@ -11,8 +11,17 @@ class TestExperimentListView(TestCase):
 
     def test_list_view_returns_started_experiments_for_project(self):
         project = ProjectFactory.create()
-
         started_experiments = []
+
+        # unstarted experiments should be excluded
+        for i in range(2):
+            ExperimentFactory.create_with_variants()
+
+        # another projects experiments should be excluded
+        for i in range(2):
+            ExperimentFactory.create_with_variants(project=project)
+
+        # started experiments should be included
         for i in range(3):
             experiment = ExperimentFactory.create_with_variants(
                 project=project)
@@ -20,13 +29,17 @@ class TestExperimentListView(TestCase):
             experiment.save()
             started_experiments.append(experiment)
 
-        # another projects experiments should be excluded
-        for i in range(2):
-            ExperimentFactory.create_with_variants()
+        # completed experiments should be included
+        for i in range(3):
+            experiment = ExperimentFactory.create_with_variants(
+                project=project)
+            experiment.status = experiment.EXPERIMENT_STARTED
+            experiment.save()
 
-        # instarted experiments should be excluded
-        for i in range(2):
-            ExperimentFactory.create_with_variants(project=project)
+            experiment.status = experiment.EXPERIMENT_COMPLETE
+            experiment.save()
+
+            started_experiments.append(experiment)
 
         response = self.client.get(
             reverse('experiments-list', kwargs={'project_slug': project.slug}))
