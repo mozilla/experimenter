@@ -10,5 +10,22 @@
 {% endblock %}
 
 {% block branding %}
-<h1 id="site-name"><a href="{% url 'admin:index' %}"><img class="header_logo_icon" src="{% static "imgs/favicon_128_white.png" %}" />Mozilla Experimenter</a></h1>
+<h1 id="site-name">
+  <a href="{% url 'admin:index' %}">
+    <img class="header_logo_icon" src="{% static "imgs/favicon_128_white.png" %}" />
+    Mozilla Experimenter
+  </a>
+</h1>
+{% endblock %}
+
+{% block usertools %}
+  {{ block.super}}
+  <a style="float:right" href="https://github.com/mozilla/experimenter/issues/new">Leave feedback!</a>
+{% endblock %}
+
+{% block userlinks %}
+{% endblock %}
+
+{% block welcome-msg %}
+	<strong>{% firstof user.get_short_name user.get_username %}</strong>
 {% endblock %}
