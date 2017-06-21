@@ -8,7 +8,8 @@ from django.db import models
 class ExperimentManager(models.Manager):
 
     def started(self):
-        return self.get_queryset().filter(status=Experiment.EXPERIMENT_STARTED)
+        return self.get_queryset().filter(status__in=(
+            Experiment.EXPERIMENT_STARTED, Experiment.EXPERIMENT_COMPLETE))
 
 
 class Experiment(models.Model):
