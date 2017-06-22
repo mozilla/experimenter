@@ -70,3 +70,6 @@ target/
 version.json
 
 .psql_history
+
+# Static assets
+app/experimenter/served/
