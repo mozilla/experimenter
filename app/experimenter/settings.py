@@ -79,8 +79,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-
-                'experimenter.context_processors.disqus_context',
             ],
         },
     },
@@ -195,6 +193,3 @@ RAVEN_CONFIG = {
     # release based on the git info.
     #'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
 }
-
-# Disqus config
-DISQUS_URL = config('DISQUS_URL')
