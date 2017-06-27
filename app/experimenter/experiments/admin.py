@@ -81,6 +81,9 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
 
     readonly_fields = ('created_date', 'start_date', 'end_date')
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj=obj)
 
