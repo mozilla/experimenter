@@ -68,7 +68,12 @@ class ExperimentVariantInlineAdmin(BaseVariantInlineAdmin):
 class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
     inlines = (ControlVariantInlineAdmin, ExperimentVariantInlineAdmin,)
     list_display = (
-        'name', 'project', 'status', 'created_date', 'start_date', 'end_date')
+        'name', 'project', 'status', 'start_date', 'end_date')
+
+    list_filter = (
+        'project',
+        'status',
+    )
 
     fieldsets = (
         ('Overview', {
@@ -81,6 +86,9 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
 
     readonly_fields = (
         'created_date', 'start_date', 'end_date', 'dashboard_url')
+
+    def get_actions(self, request):
+        return []
 
     def has_delete_permission(self, request, obj=None):
         return False

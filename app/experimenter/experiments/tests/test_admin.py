@@ -128,6 +128,10 @@ class ExperimentVariantInlineAdminTest(TestCase):
 
 class ExperimentAdminTest(TestCase):
 
+    def test_no_actions(self):
+        experiment_admin = ExperimentAdmin(mock.Mock(), mock.Mock())
+        self.assertEqual(experiment_admin.get_actions(mock.Mock()), [])
+
     def test_no_delete_permission(self):
         experiment_admin = ExperimentAdmin(mock.Mock(), mock.Mock())
         self.assertFalse(experiment_admin.has_delete_permission(mock.Mock()))
