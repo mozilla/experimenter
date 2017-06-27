@@ -40,6 +40,7 @@ class Experiment(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
+    dashboard_url = models.URLField(blank=True, null=True)
 
     objects = ExperimentManager()
 

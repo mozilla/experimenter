@@ -79,7 +79,8 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
         }),
     )
 
-    readonly_fields = ('created_date', 'start_date', 'end_date')
+    readonly_fields = (
+        'created_date', 'start_date', 'end_date', 'dashboard_url')
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -90,7 +91,10 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
         if obj is not None:
             fieldsets = (('Status', {
                 'fields': (
-                    'status', ('created_date', 'start_date', 'end_date')),
+                    'status',
+                    ('created_date', 'start_date', 'end_date'),
+                    'dashboard_url',
+                ),
             }),) + fieldsets
 
         return fieldsets
