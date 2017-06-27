@@ -128,6 +128,10 @@ class ExperimentVariantInlineAdminTest(TestCase):
 
 class ExperimentAdminTest(TestCase):
 
+    def test_no_delete_permission(self):
+        experiment_admin = ExperimentAdmin(mock.Mock(), mock.Mock())
+        self.assertFalse(experiment_admin.has_delete_permission(mock.Mock()))
+
     def test_readonly_fields_for_not_started_experiment(self):
         experiment_admin = ExperimentAdmin(mock.Mock(), mock.Mock())
         experiment = ExperimentFactory.create_with_variants()
