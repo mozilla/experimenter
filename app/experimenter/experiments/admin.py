@@ -1,5 +1,6 @@
-from django.contrib import admin
 from django import forms
+from django.contrib import admin
+from django.utils.html import format_html
 
 from experimenter.experiments.models import Experiment, ExperimentVariant
 
@@ -85,13 +86,20 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
     )
 
     readonly_fields = (
-        'created_date', 'start_date', 'end_date', 'dashboard_url')
+        'created_date', 'start_date', 'end_date', 'show_dashboard_url')
 
     def get_actions(self, request):
         return []
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def show_dashboard_url(self, obj):
+        return format_html(
+            '<a href="{url}" target="_blank">{url}</a>'.format(
+                url=obj.dashboard_url))
+
+    show_dashboard_url.short_description = 'Dashboard URL'
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj=obj)
@@ -101,7 +109,7 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
                 'fields': (
                     'status',
                     ('created_date', 'start_date', 'end_date'),
-                    'dashboard_url',
+                    'show_dashboard_url',
                 ),
             }),) + fieldsets
 
