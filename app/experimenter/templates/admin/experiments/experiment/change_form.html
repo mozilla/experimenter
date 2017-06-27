@@ -1,0 +1,29 @@
+{% extends "admin/change_form.html" %}
+
+{% block field_sets %}
+  {% if original.pk %}
+		<div class="module" style="display:table">
+			<table> 
+				<caption>
+					Menu
+				</caption>
+        {% for fieldset in adminform %}
+          <tr>
+            <th scope="row"><a href="#{{ fieldset.name }}">{{ fieldset.name }}</a></th>
+          </tr>
+        {% endfor %}
+        {% for inline_admin_formset in inline_admin_formsets %}
+          <tr>
+            <th scope="row"><a href="#Status">{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</a></th>
+          </tr>
+        {% endfor %}
+        <tr>
+          <th scope="row"><a href="#Dashboard">Dashboard</a></th>
+        </tr>
+			</table>
+		</div>
+  {% endif %}
+	{% for fieldset in adminform %}
+		{% include "admin/experiments/experiment/fieldset.html" %}
+	{% endfor %}
+{% endblock %}
