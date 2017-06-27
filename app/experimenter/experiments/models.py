@@ -99,6 +99,10 @@ class Experiment(models.Model):
         return super().save(*args, **kwargs)
 
     @property
+    def active(self):
+        return self.status == self.EXPERIMENT_STARTED
+
+    @property
     def is_begun(self):
         return self.status != self.EXPERIMENT_NOT_STARTED
 

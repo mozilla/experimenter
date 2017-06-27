@@ -59,6 +59,7 @@ class TestExperimentSerializer(TestCase):
         experiment = ExperimentFactory.create_with_variants()
         serialized = ExperimentSerializer(experiment)
         self.assertEqual(serialized.data, {
+            'active': experiment.active,
             'name': experiment.name,
             'slug': experiment.slug,
             'addon_versions': experiment.addon_versions,
