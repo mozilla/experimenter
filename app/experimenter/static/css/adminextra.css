@@ -38,3 +38,16 @@ div.breadcrumbs {
 a:link, a:visited {
 	color: #535353;
 }
+
+.aligned label {
+  width: 180px;
+}
+
+.aligned label + p, .aligned label + div.help, .aligned label + div.readonly {
+  margin-left: 0px;
+}
+
+#id_addon_versions {
+  height: 20px;
+  width: 400px;
+}

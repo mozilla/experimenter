@@ -78,6 +78,26 @@ class BaseVariantInlineAdminTest(TestCase):
             mock.Mock(), obj=experiment)
         self.assertEqual(set(readonly_fields), set(inline_admin.fields))
 
+    def test_get_fieldsets_return_fields_when_experiment_not_started(self):
+        experiment = ExperimentFactory.create_with_variants()
+
+        inline_admin = BaseVariantInlineAdmin(mock.Mock(), mock.Mock())
+        inline_admin.fields = ('a', 'b', 'c')
+
+        fieldsets = inline_admin.get_fieldsets(mock.Mock(), obj=experiment)
+        self.assertEqual(fieldsets, [(None, {'fields': ('a', 'b', 'c')})])
+
+    def test_get_fieldsets_return_one_row_when_experiment_started(self):
+        experiment = ExperimentFactory.create_with_variants()
+        experiment.status = experiment.EXPERIMENT_STARTED
+        experiment.save()
+
+        inline_admin = BaseVariantInlineAdmin(mock.Mock(), mock.Mock())
+        inline_admin.fields = ('a', 'b', 'c')
+
+        fieldsets = inline_admin.get_fieldsets(mock.Mock(), obj=experiment)
+        self.assertEqual(fieldsets, ((None, {'fields': (('a', 'b', 'c'),)}),))
+
 
 class ControlVariantModelFormTests(TestCase):
 

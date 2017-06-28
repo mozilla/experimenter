@@ -35,6 +35,20 @@ class BaseVariantInlineAdmin(SlugPrepopulatedMixin, admin.StackedInline):
     def has_delete_permission(self, request, obj=None):
         return False
 
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj=obj)
+
+        if obj is not None and obj.is_begun:
+            fieldsets = (
+                (None, {
+                    'fields': (
+                        self.get_readonly_fields(request, obj=obj),
+                    ),
+                }),
+            )
+
+        return fieldsets
+
 
 class ControlVariantModelForm(forms.ModelForm):
 
@@ -105,13 +119,20 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
         fieldsets = super().get_fieldsets(request, obj=obj)
 
         if obj is not None:
-            fieldsets = (('Status', {
-                'fields': (
-                    'status',
-                    ('created_date', 'start_date', 'end_date'),
-                    'show_dashboard_url',
-                ),
-            }),) + fieldsets
+            fieldsets = (
+                ('Status', {
+                    'fields': (
+                        ('status', 'project', 'name', 'slug'),
+                        ('created_date', 'start_date', 'end_date'),
+                        'addon_versions',
+                    ),
+                }),
+                ('Notes', {
+                    'fields': (
+                        ('objectives', 'success_criteria', 'analysis'),
+                    ),
+                }),
+            )
 
         return fieldsets
 
@@ -126,7 +147,7 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
 
             if db_obj.is_begun:
                 readonly_fields += (
-                    'project', 'name', 'slug', 'addon_versions')
+                    'project', 'name', 'slug')
 
         return readonly_fields
 
