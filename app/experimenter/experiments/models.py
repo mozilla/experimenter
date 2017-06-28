@@ -16,11 +16,13 @@ class Experiment(models.Model):
     EXPERIMENT_NOT_STARTED = 'Not Started'
     EXPERIMENT_STARTED = 'Started'
     EXPERIMENT_COMPLETE = 'Complete'
+    EXPERIMENT_REJECTED = 'Rejected'
 
     EXPERIMENT_STATUS_CHOICES = (
         (EXPERIMENT_NOT_STARTED, EXPERIMENT_NOT_STARTED),
         (EXPERIMENT_STARTED, EXPERIMENT_STARTED),
         (EXPERIMENT_COMPLETE, EXPERIMENT_COMPLETE),
+        (EXPERIMENT_REJECTED, EXPERIMENT_REJECTED),
     )
 
     status = models.CharField(
@@ -81,6 +83,9 @@ class Experiment(models.Model):
                 new_state.status == self.EXPERIMENT_COMPLETE
             ):
                 self.end_date = datetime.datetime.now()
+
+            elif new_state.status == self.EXPERIMENT_REJECTED:
+                pass
 
             else:
                 raise ValidationError({'status': (
