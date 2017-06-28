@@ -7,7 +7,7 @@ body {
 	height: 25px;
   fill: white;
   float: left;
-  margin-top: 5px;
+  margin-top: 6px;
   margin-right: 5px;
 }
 
@@ -23,6 +23,7 @@ body {
 .module h2, .module caption, .inline-group h2 {
 	background: #5b667d; 
 	color: #fff;
+  border-radius: 5px 5px 0px 0px;
 }
 
 div.breadcrumbs {
