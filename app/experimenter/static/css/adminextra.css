@@ -3,10 +3,12 @@ body {
 	font-family: "Open Sans",X-LocaleSpecific,sans-serif;
 }
 
-.header_logo_icon {
-	height: 1.7em;
-  margin-top: -5px;
-  padding-right: 5px;
+#header_icon_svg {
+	height: 25px;
+  fill: white;
+  float: left;
+  margin-top: 5px;
+  margin-right: 5px;
 }
 
 #branding h1, #branding h1 a:link, #branding h1 a:visited {
