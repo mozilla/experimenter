@@ -7,6 +7,9 @@
   {{ block.super }}
   <link rel="icon" href="{% static "imgs/favicon.svg" %}" type="image/x-icon" />
 	<link href="{% static "css/adminextra.css" %}" rel="stylesheet" type="text/css" media="screen,projection" />
+  <style>
+    {% include "admin/adminstyle.css" %}
+  </style>
 {% endblock %}
 
 {% block branding %}
