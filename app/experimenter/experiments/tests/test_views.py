@@ -21,6 +21,13 @@ class TestExperimentListView(TestCase):
         for i in range(2):
             ExperimentFactory.create_with_variants(project=project)
 
+        # rejected experiments should be excluded
+        for i in range(2):
+            experiment = ExperimentFactory.create_with_variants(
+                project=project)
+            experiment.status = experiment.EXPERIMENT_REJECTED
+            experiment.save()
+
         # started experiments should be included
         for i in range(3):
             experiment = ExperimentFactory.create_with_variants(
