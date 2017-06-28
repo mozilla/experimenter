@@ -95,7 +95,7 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
             'fields': ('project', 'name', 'slug', 'addon_versions'),
         }),
         ('Notes', {
-            'fields': ('objectives', 'success_criteria', 'analysis'),
+            'fields': ('objectives', 'analysis'),
         }),
     )
 
@@ -129,7 +129,7 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
                 }),
                 ('Notes', {
                     'fields': (
-                        ('objectives', 'success_criteria', 'analysis'),
+                        ('objectives', 'analysis'),
                     ),
                 }),
             )
