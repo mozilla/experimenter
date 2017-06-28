@@ -35,7 +35,6 @@ class Experiment(models.Model):
         max_length=255, unique=True, blank=False, null=False)
     addon_versions = JSONField(default=[])
     objectives = models.TextField(default='')
-    success_criteria = models.TextField(default='')
     analysis = models.TextField(default='')
     created_date = models.DateTimeField(auto_now_add=True)
     start_date = models.DateTimeField(blank=True, null=True)

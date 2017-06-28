@@ -16,7 +16,6 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     slug = factory.LazyAttribute(lambda o: slugify(o.name))
     addon_versions = ['1.0', '2.0']
     objectives = factory.LazyAttribute(lambda o: faker.paragraphs())
-    success_criteria = factory.LazyAttribute(lambda o: faker.paragraphs())
     analysis = factory.LazyAttribute(lambda o: faker.paragraphs())
     dashboard_url = 'http://www.example.com/dashboard'
 
