@@ -85,11 +85,6 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
     list_display = (
         'name', 'project', 'status', 'start_date', 'end_date')
 
-    list_filter = (
-        'project',
-        'status',
-    )
-
     fieldsets = (
         ('Overview', {
             'fields': ('project', 'name', 'slug', 'addon_versions'),
