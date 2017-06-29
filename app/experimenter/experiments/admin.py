@@ -137,9 +137,6 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
         if obj is not None:
             db_obj = Experiment.objects.get(pk=obj.pk)
 
-            if db_obj.is_complete:
-                readonly_fields += ('status',)
-
             if db_obj.is_begun:
                 readonly_fields += (
                     'project', 'name', 'slug')

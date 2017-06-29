@@ -199,7 +199,7 @@ class ExperimentAdminTest(TestCase):
 
         readonly_fields = experiment_admin.get_readonly_fields(
             request=mock.Mock(), obj=experiment)
-        self.assertIn('status', readonly_fields)
+        self.assertNotIn('status', readonly_fields)
         self.assertIn('project', readonly_fields)
         self.assertIn('name', readonly_fields)
         self.assertIn('slug', readonly_fields)
