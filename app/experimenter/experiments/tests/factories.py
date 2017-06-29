@@ -18,6 +18,7 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     objectives = factory.LazyAttribute(lambda o: faker.paragraphs())
     analysis = factory.LazyAttribute(lambda o: faker.paragraphs())
     dashboard_url = 'http://www.example.com/dashboard'
+    dashboard_image_url = 'http://www.example.com/dashboard.png'
 
     class Meta:
         model = Experiment

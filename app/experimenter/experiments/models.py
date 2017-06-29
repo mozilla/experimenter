@@ -44,6 +44,7 @@ class Experiment(models.Model):
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
     dashboard_url = models.URLField(blank=True, null=True)
+    dashboard_image_url = models.URLField(blank=True, null=True)
 
     objects = ExperimentManager()
 

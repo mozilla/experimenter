@@ -3,7 +3,11 @@
 {% block content %}
   {{ block.super }}
 
-	{% if original.dashboard_url %}
+  {% if original.dashboard_image_url %}
+    <a target="_blank" href="{{ original.dashboard_url }}">
+      <img src="{{ original.dashboard_image_url }}" style="width:100%" />
+    </a>
+	{% elif original.dashboard_url %}
     <iframe src="{{ original.dashboard_url }}" frameborder="0" scrolling="no" width="100%" height="9000px" onload="resizeIframe(this)" />
   {% else %}
       <h2>Dashboard Unavailable</h2>
