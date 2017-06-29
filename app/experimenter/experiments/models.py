@@ -17,12 +17,14 @@ class Experiment(models.Model):
     EXPERIMENT_STARTED = 'Started'
     EXPERIMENT_COMPLETE = 'Complete'
     EXPERIMENT_REJECTED = 'Rejected'
+    EXPERIMENT_INVALID = 'Invalid'
 
     EXPERIMENT_STATUS_CHOICES = (
         (EXPERIMENT_NOT_STARTED, EXPERIMENT_NOT_STARTED),
         (EXPERIMENT_STARTED, EXPERIMENT_STARTED),
         (EXPERIMENT_COMPLETE, EXPERIMENT_COMPLETE),
         (EXPERIMENT_REJECTED, EXPERIMENT_REJECTED),
+        (EXPERIMENT_INVALID, EXPERIMENT_INVALID),
     )
 
     status = models.CharField(
@@ -84,7 +86,13 @@ class Experiment(models.Model):
             ):
                 self.end_date = datetime.datetime.now()
 
-            elif new_state.status == self.EXPERIMENT_REJECTED:
+            elif (
+                old_state.status == self.EXPERIMENT_NOT_STARTED and
+                new_state.status == self.EXPERIMENT_REJECTED
+            ):
+                pass
+
+            elif new_state.status == self.EXPERIMENT_INVALID:
                 pass
 
             else:

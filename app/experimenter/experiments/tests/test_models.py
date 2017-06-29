@@ -114,8 +114,9 @@ class TestExperimentModel(TestCase):
         experiment.status = experiment.EXPERIMENT_STARTED
         experiment.save()
 
-        experiment.status = experiment.EXPERIMENT_REJECTED
-        experiment.save()
+        with self.assertRaises(ValidationError):
+            experiment.status = experiment.EXPERIMENT_REJECTED
+            experiment.save()
 
     def test_setting_status_from_complete_to_rejected(self):
         experiment = ExperimentFactory.create()
@@ -125,5 +126,48 @@ class TestExperimentModel(TestCase):
         experiment.status = experiment.EXPERIMENT_COMPLETE
         experiment.save()
 
+        with self.assertRaises(ValidationError):
+            experiment.status = experiment.EXPERIMENT_REJECTED
+            experiment.save()
+
+    def test_setting_status_from_invalid_to_rejected(self):
+        experiment = ExperimentFactory.create()
+        experiment.status = experiment.EXPERIMENT_INVALID
+        experiment.save()
+
+        with self.assertRaises(ValidationError):
+            experiment.status = experiment.EXPERIMENT_REJECTED
+            experiment.save()
+
+    def test_setting_status_from_not_started_to_invalid(self):
+        experiment = ExperimentFactory.create()
+        experiment.status = experiment.EXPERIMENT_INVALID
+        experiment.save()
+
+    def test_setting_status_from_started_to_invalid(self):
+        experiment = ExperimentFactory.create()
+        experiment.status = experiment.EXPERIMENT_STARTED
+        experiment.save()
+
+        experiment.status = experiment.EXPERIMENT_INVALID
+        experiment.save()
+
+    def test_setting_status_from_complete_to_invalid(self):
+        experiment = ExperimentFactory.create()
+        experiment.status = experiment.EXPERIMENT_STARTED
+        experiment.save()
+
+        experiment.status = experiment.EXPERIMENT_COMPLETE
+        experiment.save()
+
+        experiment.status = experiment.EXPERIMENT_INVALID
+        experiment.save()
+
+    def test_setting_status_from_rejected_to_invalid(self):
+        experiment = ExperimentFactory.create()
+
         experiment.status = experiment.EXPERIMENT_REJECTED
+        experiment.save()
+
+        experiment.status = experiment.EXPERIMENT_INVALID
         experiment.save()
