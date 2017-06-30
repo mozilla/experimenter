@@ -70,3 +70,5 @@ target/
 version.json
 
 .psql_history
+
+app/experimenter/media/
