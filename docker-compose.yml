@@ -10,8 +10,7 @@ services:
       - db
     volumes:
       - ./app:/app
-      - static_volume:/app/experimenter/served/
-    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py collectstatic --noinput; python /app/manage.py runserver 0:7001"
+    command: ["/app/bin/wait-for-it.sh", "db:5432", "--", "python", "/app/manage.py", "runserver", "0:7001"]
     networks:
       - private_nw
       - public_nw
@@ -26,8 +25,6 @@ services:
     networks:
       - private_nw
       - public_nw
-    volumes:
-      - static_volume:/app/experimenter/served/
 
   db:
     restart: always
@@ -39,7 +36,6 @@ services:
 
 volumes:
   db_volume:
-  static_volume:
 
 networks:
   private_nw:
