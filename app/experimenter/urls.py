@@ -6,6 +6,7 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^api/v1/', include('experimenter.experiments.urls')),
+    url(r'^new/projects/', include('experimenter.projects.urls')),
     url(r'^', admin.site.urls),
 ]
 
