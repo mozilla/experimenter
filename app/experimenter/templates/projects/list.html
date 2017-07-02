@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div id="content_header" class="row">
+    <div class="col-md-6">
+      <h2>Projects</h2>
+    </div>
+    <div class="col-md-6 text-right">
+      <button id="new_project_button" type="button" class="btn btn-primary">New Project</button>
+    </div>
+  </div>
+  <div id="projects_list" class="row">
+    {% for project in object_list %}
+      <div class="col-md-4">
+        <div class="project">
+          <div class="project-image" style="background-image: url({{ project.image.url }})">
+          </div>
+          <div class="project-info">
+            <h4 class="project_experiment_name">{{ project.name }}</h4>
+            <h5 class="project_experiment_count">{{ project.experiments.count }} experiments</h5>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

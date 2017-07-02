@@ -32,7 +32,12 @@ class Experiment(models.Model):
         default=EXPERIMENT_NOT_STARTED,
         choices=EXPERIMENT_STATUS_CHOICES,
     )
-    project = models.ForeignKey('projects.Project', blank=False, null=False)
+    project = models.ForeignKey(
+        'projects.Project',
+        blank=False,
+        null=False,
+        related_name='experiments',
+    )
     name = models.CharField(
         max_length=255, unique=True, blank=False, null=False)
     slug = models.SlugField(
