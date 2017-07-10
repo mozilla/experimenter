@@ -196,3 +196,11 @@ RAVEN_CONFIG = {
     # release based on the git info.
     #'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
 }
+
+
+# Django Rest Framework Configuration
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
