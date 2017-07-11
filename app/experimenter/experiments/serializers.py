@@ -55,6 +55,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             'name',
             'slug',
             'addon_versions',
+            'pref_key',
             'start_date',
             'end_date',
             'variant',

@@ -90,8 +90,10 @@ Example:
 
         [
           {
+            "active": true,
             "name": "New Feature",
             "slug": "new-feature",
+            "pref_key": "new.feature",
             "addon_versions": [
               "1.0",
               "2.0"
@@ -101,13 +103,13 @@ Example:
             "variant": {
               "slug": "enabled",
               "experiment_variant_slug": "new-feature:enabled",
-              "value": "true",
-              "threshold": 10
+              "value": true,
+              "threshold": 0.2
             },
             "control": {
               "slug": "disabled",
               "experiment_variant_slug": "new-feature:disabled",
-              "value": "false"
+              "value": false
             }
           }
         ]
