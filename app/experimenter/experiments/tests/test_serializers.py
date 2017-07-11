@@ -63,6 +63,7 @@ class TestExperimentSerializer(TestCase):
             'name': experiment.name,
             'slug': experiment.slug,
             'addon_versions': experiment.addon_versions,
+            'pref_key': experiment.pref_key,
             'start_date': JSTimestampField().to_representation(
                 experiment.start_date),
             'end_date': JSTimestampField().to_representation(
