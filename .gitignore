@@ -70,4 +70,6 @@ version.json
 
 .psql_history
 
+# Hosted assets
 app/experimenter/media/
+app/experimenter/served/
