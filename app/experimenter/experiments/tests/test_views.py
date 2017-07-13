@@ -21,13 +21,6 @@ class TestExperimentListView(TestCase):
         for i in range(2):
             ExperimentFactory.create_with_variants(project=project)
 
-        # rejected experiments should be excluded
-        for i in range(2):
-            experiment = ExperimentFactory.create_with_variants(
-                project=project)
-            experiment.status = experiment.EXPERIMENT_REJECTED
-            experiment.save()
-
         # started experiments should be included
         for i in range(3):
             experiment = ExperimentFactory.create_with_variants(
@@ -47,6 +40,28 @@ class TestExperimentListView(TestCase):
             experiment.save()
 
             started_experiments.append(experiment)
+
+        # invalid experiments should be included
+        experiment = ExperimentFactory.create_with_variants(
+            project=project)
+        experiment.status = experiment.EXPERIMENT_STARTED
+        experiment.save()
+
+        experiment.status = experiment.EXPERIMENT_INVALID
+        experiment.save()
+
+        started_experiments.append(experiment)
+
+        # rejected experiments should be included
+        experiment = ExperimentFactory.create_with_variants(
+            project=project)
+        experiment.status = experiment.EXPERIMENT_STARTED
+        experiment.save()
+
+        experiment.status = experiment.EXPERIMENT_REJECTED
+        experiment.save()
+
+        started_experiments.append(experiment)
 
         response = self.client.get(
             reverse('experiments-list', kwargs={'project_slug': project.slug}))
