@@ -8,8 +8,8 @@ from django.db import models
 class ExperimentManager(models.Manager):
 
     def started(self):
-        return self.get_queryset().filter(status__in=(
-            Experiment.EXPERIMENT_STARTED, Experiment.EXPERIMENT_COMPLETE))
+        return self.get_queryset().exclude(
+            status=Experiment.EXPERIMENT_NOT_STARTED)
 
 
 class Experiment(models.Model):
@@ -93,10 +93,7 @@ class Experiment(models.Model):
             ):
                 self.end_date = datetime.datetime.now()
 
-            elif (
-                old_state.status == self.EXPERIMENT_NOT_STARTED and
-                new_state.status == self.EXPERIMENT_REJECTED
-            ):
+            elif new_state.status == self.EXPERIMENT_REJECTED:
                 pass
 
             elif new_state.status == self.EXPERIMENT_INVALID:
