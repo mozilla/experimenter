@@ -83,10 +83,13 @@ Start a bash shell inside the container (this lets you interact with the contain
 
 ## API
 
-### **GET /api/v1/<project_slug>/experiments.json**
-List all of the active experiments for a project.
+### GET /api/v1/experiments/
+List all of the started experiments.
 
-Example:
+#### Optional Query Parameters
+project__slug - Return only the experiments for a given project, an invalid slug will raise 404
+
+Example: GET /api/v1/experiments/?project__slug=project-slug
 
         [
           {

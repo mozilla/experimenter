@@ -27,7 +27,7 @@ class TestExperimentListView(TestCase):
             project_experiments.append(experiment)
 
         response = self.client.get(
-            reverse('experiments-list', kwargs={'project_slug': project.slug}))
+            reverse('experiments-list'), {'project__slug': project.slug})
         self.assertEqual(response.status_code, 200)
 
         json_data = json.loads(response.content)
@@ -39,5 +39,5 @@ class TestExperimentListView(TestCase):
 
     def test_list_view_returns_404_for_invalid_project_slug(self):
         response = self.client.get(
-            reverse('experiments-list', kwargs={'project_slug': 'bad slug'}))
+            reverse('experiments-list'), {'project__slug': 'bad-slug'})
         self.assertEqual(response.status_code, 404)
