@@ -3,65 +3,28 @@ import json
 from django.test import TestCase
 from django.urls import reverse
 
-from experimenter.projects.tests.factories import ProjectFactory
+from experimenter.experiments.serializers import ExperimentSerializer
 from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.projects.tests.factories import ProjectFactory
 
 
 class TestExperimentListView(TestCase):
 
-    def test_list_view_returns_started_experiments_for_project(self):
+    def test_list_view_returns_experiments_for_project(self):
         project = ProjectFactory.create()
-        started_experiments = []
-
-        # unstarted experiments should be excluded
-        for i in range(2):
-            ExperimentFactory.create_with_variants()
+        project_experiments = []
 
         # another projects experiments should be excluded
         for i in range(2):
-            ExperimentFactory.create_with_variants(project=project)
+            ExperimentFactory.create_with_variants()
 
-        # started experiments should be included
+        # started project experiments should be included
         for i in range(3):
             experiment = ExperimentFactory.create_with_variants(
                 project=project)
             experiment.status = experiment.EXPERIMENT_STARTED
             experiment.save()
-            started_experiments.append(experiment)
-
-        # completed experiments should be included
-        for i in range(3):
-            experiment = ExperimentFactory.create_with_variants(
-                project=project)
-            experiment.status = experiment.EXPERIMENT_STARTED
-            experiment.save()
-
-            experiment.status = experiment.EXPERIMENT_COMPLETE
-            experiment.save()
-
-            started_experiments.append(experiment)
-
-        # invalid experiments should be included
-        experiment = ExperimentFactory.create_with_variants(
-            project=project)
-        experiment.status = experiment.EXPERIMENT_STARTED
-        experiment.save()
-
-        experiment.status = experiment.EXPERIMENT_INVALID
-        experiment.save()
-
-        started_experiments.append(experiment)
-
-        # rejected experiments should be included
-        experiment = ExperimentFactory.create_with_variants(
-            project=project)
-        experiment.status = experiment.EXPERIMENT_STARTED
-        experiment.save()
-
-        experiment.status = experiment.EXPERIMENT_REJECTED
-        experiment.save()
-
-        started_experiments.append(experiment)
+            project_experiments.append(experiment)
 
         response = self.client.get(
             reverse('experiments-list', kwargs={'project_slug': project.slug}))
@@ -69,12 +32,10 @@ class TestExperimentListView(TestCase):
 
         json_data = json.loads(response.content)
 
-        self.assertEqual(len(json_data), len(started_experiments))
+        serialized_experiments = ExperimentSerializer(
+            project.experiments.started(), many=True).data
 
-        self.assertEqual(
-            set(exp_data['slug'] for exp_data in json_data),
-            set(exp.slug for exp in started_experiments),
-        )
+        self.assertEqual(serialized_experiments, json_data)
 
     def test_list_view_returns_404_for_invalid_project_slug(self):
         response = self.client.get(
