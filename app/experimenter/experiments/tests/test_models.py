@@ -1,8 +1,29 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from experimenter.experiments.models import ExperimentVariant
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentVariant,
+)
 from experimenter.experiments.tests.factories import ExperimentFactory
+
+
+class TestExperimentManager(TestCase):
+
+    def test_started_excludes_not_started_experiment(self):
+        started_experiments = []
+
+        for experiment_status, _ in Experiment.EXPERIMENT_STATUS_CHOICES:
+            experiment = ExperimentFactory.create_with_variants(
+                status=experiment_status)
+
+            if experiment_status != Experiment.EXPERIMENT_NOT_STARTED:
+                started_experiments.append(experiment)
+
+        self.assertEqual(
+            set(Experiment.objects.started()),
+            set(started_experiments)
+        )
 
 
 class TestExperimentModel(TestCase):
