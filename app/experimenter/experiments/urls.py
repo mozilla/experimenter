@@ -5,7 +5,7 @@ from experimenter.experiments.views import ExperimentListView
 
 urlpatterns = [
     url(
-        r'^(?P<project_slug>.+)/experiments.json',
+        r'^$',
         ExperimentListView.as_view(),
         name='experiments-list',
     ),
