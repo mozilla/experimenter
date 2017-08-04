@@ -53,7 +53,7 @@ class BaseVariantInlineAdminTest(TestCase):
         inline_admin = BaseVariantInlineAdmin(mock.Mock(), mock.Mock())
         self.assertFalse(inline_admin.has_delete_permission(mock.Mock()))
 
-    def test_get_readonly_fields_when_experiment_is_not_started(self):
+    def test_get_readonly_fields_when_experiment_is_created(self):
         experiment = ExperimentFactory.create_with_variants()
 
         inline_admin = BaseVariantInlineAdmin(mock.Mock(), mock.Mock())
@@ -65,9 +65,9 @@ class BaseVariantInlineAdminTest(TestCase):
         self.assertEqual(
             set(readonly_fields), set(inline_admin.readonly_fields))
 
-    def test_get_readonly_fields_when_experiment_is_started(self):
+    def test_get_readonly_fields_when_experiment_is_readonly(self):
         experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.EXPERIMENT_STARTED
+        experiment.status = experiment.STATUS_PENDING
         experiment.save()
 
         inline_admin = BaseVariantInlineAdmin(mock.Mock(), mock.Mock())
@@ -78,7 +78,7 @@ class BaseVariantInlineAdminTest(TestCase):
             mock.Mock(), obj=experiment)
         self.assertEqual(set(readonly_fields), set(inline_admin.fields))
 
-    def test_get_fieldsets_return_fields_when_experiment_not_started(self):
+    def test_get_fieldsets_return_fields_when_experiment_created(self):
         experiment = ExperimentFactory.create_with_variants()
 
         inline_admin = BaseVariantInlineAdmin(mock.Mock(), mock.Mock())
@@ -87,9 +87,9 @@ class BaseVariantInlineAdminTest(TestCase):
         fieldsets = inline_admin.get_fieldsets(mock.Mock(), obj=experiment)
         self.assertEqual(fieldsets, [(None, {'fields': ('a', 'b', 'c')})])
 
-    def test_get_fieldsets_return_one_row_when_experiment_started(self):
+    def test_get_fieldsets_return_one_row_when_experiment_readonly(self):
         experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.EXPERIMENT_STARTED
+        experiment.status = experiment.STATUS_PENDING
         experiment.save()
 
         inline_admin = BaseVariantInlineAdmin(mock.Mock(), mock.Mock())
@@ -165,7 +165,7 @@ class ExperimentAdminTest(TestCase):
                 url=experiment.dashboard_url)
         )
 
-    def test_readonly_fields_for_not_started_experiment(self):
+    def test_readonly_fields_for_created_experiment(self):
         experiment_admin = ExperimentAdmin(mock.Mock(), mock.Mock())
         experiment = ExperimentFactory.create_with_variants()
 
@@ -176,25 +176,10 @@ class ExperimentAdminTest(TestCase):
         self.assertNotIn('name', readonly_fields)
         self.assertNotIn('slug', readonly_fields)
 
-    def test_readonly_fields_for_started_experiment(self):
+    def test_readonly_fields_for_readonly_experiment(self):
         experiment_admin = ExperimentAdmin(mock.Mock(), mock.Mock())
         experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.EXPERIMENT_STARTED
-        experiment.save()
-
-        readonly_fields = experiment_admin.get_readonly_fields(
-            request=mock.Mock(), obj=experiment)
-        self.assertNotIn('status', readonly_fields)
-        self.assertIn('project', readonly_fields)
-        self.assertIn('name', readonly_fields)
-        self.assertIn('slug', readonly_fields)
-
-    def test_readonly_fields_for_completed_experiment(self):
-        experiment_admin = ExperimentAdmin(mock.Mock(), mock.Mock())
-        experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.EXPERIMENT_STARTED
-        experiment.save()
-        experiment.status = experiment.EXPERIMENT_COMPLETE
+        experiment.status = experiment.STATUS_PENDING
         experiment.save()
 
         readonly_fields = experiment_admin.get_readonly_fields(

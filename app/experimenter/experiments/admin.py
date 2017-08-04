@@ -27,7 +27,7 @@ class BaseVariantInlineAdmin(SlugPrepopulatedMixin, admin.StackedInline):
 
         if obj is not None:
             db_obj = Experiment.objects.get(pk=obj.pk)
-            if db_obj.is_begun:
+            if db_obj.is_readonly:
                 readonly_fields = self.fields
 
         return readonly_fields
@@ -38,7 +38,7 @@ class BaseVariantInlineAdmin(SlugPrepopulatedMixin, admin.StackedInline):
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj=obj)
 
-        if obj is not None and obj.is_begun:
+        if obj is not None and obj.is_readonly:
             fieldsets = (
                 (None, {
                     'fields': (
@@ -137,7 +137,7 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
         if obj is not None:
             db_obj = Experiment.objects.get(pk=obj.pk)
 
-            if db_obj.is_begun:
+            if db_obj.is_readonly:
                 readonly_fields += (
                     'project', 'name', 'slug')
 

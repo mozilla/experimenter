@@ -1,36 +1,51 @@
-import datetime
-
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
 
 
-class ExperimentManager(models.Manager):
-
-    def started(self):
-        return self.get_queryset().exclude(
-            status=Experiment.EXPERIMENT_NOT_STARTED)
-
-
 class Experiment(models.Model):
-    EXPERIMENT_NOT_STARTED = 'Not Started'
-    EXPERIMENT_STARTED = 'Started'
-    EXPERIMENT_COMPLETE = 'Complete'
-    EXPERIMENT_REJECTED = 'Rejected'
-    EXPERIMENT_INVALID = 'Invalid'
+    STATUS_CREATED = 'Created'
+    STATUS_PENDING = 'Pending Review'
+    STATUS_ACCEPTED = 'Accepted'
+    STATUS_LAUNCHED = 'Launched'
+    STATUS_COMPLETE = 'Complete'
+    STATUS_REJECTED = 'Rejected'
 
-    EXPERIMENT_STATUS_CHOICES = (
-        (EXPERIMENT_NOT_STARTED, EXPERIMENT_NOT_STARTED),
-        (EXPERIMENT_STARTED, EXPERIMENT_STARTED),
-        (EXPERIMENT_COMPLETE, EXPERIMENT_COMPLETE),
-        (EXPERIMENT_REJECTED, EXPERIMENT_REJECTED),
-        (EXPERIMENT_INVALID, EXPERIMENT_INVALID),
+    STATUS_CHOICES = (
+        (STATUS_CREATED, STATUS_CREATED),
+        (STATUS_PENDING, STATUS_PENDING),
+        (STATUS_ACCEPTED, STATUS_ACCEPTED),
+        (STATUS_LAUNCHED, STATUS_LAUNCHED),
+        (STATUS_COMPLETE, STATUS_COMPLETE),
+        (STATUS_REJECTED, STATUS_REJECTED),
     )
+
+    STATUS_TRANSITIONS = {
+        STATUS_CREATED: [
+            STATUS_PENDING,
+            STATUS_REJECTED,
+        ],
+        STATUS_PENDING: [
+            STATUS_ACCEPTED,
+            STATUS_REJECTED,
+        ],
+        STATUS_ACCEPTED: [
+            STATUS_LAUNCHED,
+            STATUS_REJECTED,
+        ],
+        STATUS_LAUNCHED: [
+            STATUS_COMPLETE,
+        ],
+        STATUS_COMPLETE: [
+        ],
+        STATUS_REJECTED: [
+        ],
+    }
 
     status = models.CharField(
         max_length=255,
-        default=EXPERIMENT_NOT_STARTED,
-        choices=EXPERIMENT_STATUS_CHOICES,
+        default=STATUS_CREATED,
+        choices=STATUS_CHOICES,
     )
     project = models.ForeignKey(
         'projects.Project',
@@ -51,8 +66,6 @@ class Experiment(models.Model):
     end_date = models.DateTimeField(blank=True, null=True)
     dashboard_url = models.URLField(blank=True, null=True)
     dashboard_image_url = models.URLField(blank=True, null=True)
-
-    objects = ExperimentManager()
 
     def __str__(self):  # pragma: no cover
         return self.name
@@ -77,34 +90,16 @@ class Experiment(models.Model):
         if not self.pk:
             return
 
-        old_state = Experiment.objects.get(pk=self.pk)
-        new_state = self
+        old_status = Experiment.objects.get(pk=self.pk).status
+        new_status = self.status
+        expected_new_status = new_status in self.STATUS_TRANSITIONS[old_status]
 
-        if old_state.status != new_state.status:
-            if (
-                old_state.status == self.EXPERIMENT_NOT_STARTED and
-                new_state.status == self.EXPERIMENT_STARTED
-            ):
-                self.start_date = datetime.datetime.now()
-
-            elif (
-                old_state.status == self.EXPERIMENT_STARTED and
-                new_state.status == self.EXPERIMENT_COMPLETE
-            ):
-                self.end_date = datetime.datetime.now()
-
-            elif new_state.status == self.EXPERIMENT_REJECTED:
-                pass
-
-            elif new_state.status == self.EXPERIMENT_INVALID:
-                pass
-
-            else:
-                raise ValidationError({'status': (
-                    'You can not change an Experiment\'s status '
-                    'from {old_status} to {new_status}'
-                ).format(
-                    old_status=old_state.status, new_status=new_state.status)})
+        if old_status != new_status and not expected_new_status:
+            raise ValidationError({'status': (
+                'You can not change an Experiment\'s status '
+                'from {old_status} to {new_status}'
+            ).format(
+                old_status=old_status, new_status=new_status)})
 
     def clean(self):
         self.clean_addon_versions()
@@ -115,24 +110,16 @@ class Experiment(models.Model):
         return super().save(*args, **kwargs)
 
     @property
-    def active(self):
-        return self.status == self.EXPERIMENT_STARTED
-
-    @property
-    def is_begun(self):
-        return self.status != self.EXPERIMENT_NOT_STARTED
-
-    @property
-    def is_complete(self):
-        return self.status == self.EXPERIMENT_COMPLETE
-
-    @property
     def control(self):
         return self.variants.get(is_control=True)
 
     @property
     def variant(self):
         return self.variants.get(is_control=False)
+
+    @property
+    def is_readonly(self):
+        return self.status != self.STATUS_CREATED
 
 
 class ExperimentVariant(models.Model):
