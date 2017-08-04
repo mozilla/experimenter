@@ -51,7 +51,6 @@ class ExperimentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experiment
         fields = (
-            'active',
             'name',
             'slug',
             'addon_versions',

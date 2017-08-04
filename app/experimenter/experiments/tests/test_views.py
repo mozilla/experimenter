@@ -22,8 +22,6 @@ class TestExperimentListView(TestCase):
         for i in range(3):
             experiment = ExperimentFactory.create_with_variants(
                 project=project)
-            experiment.status = experiment.EXPERIMENT_STARTED
-            experiment.save()
             project_experiments.append(experiment)
 
         response = self.client.get(
@@ -33,7 +31,7 @@ class TestExperimentListView(TestCase):
         json_data = json.loads(response.content)
 
         serialized_experiments = ExperimentSerializer(
-            project.experiments.started(), many=True).data
+            project.experiments.all(), many=True).data
 
         self.assertEqual(serialized_experiments, json_data)
 

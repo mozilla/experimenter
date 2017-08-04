@@ -2,28 +2,9 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from experimenter.experiments.models import (
-    Experiment,
     ExperimentVariant,
 )
 from experimenter.experiments.tests.factories import ExperimentFactory
-
-
-class TestExperimentManager(TestCase):
-
-    def test_started_excludes_not_started_experiment(self):
-        started_experiments = []
-
-        for experiment_status, _ in Experiment.EXPERIMENT_STATUS_CHOICES:
-            experiment = ExperimentFactory.create_with_variants(
-                status=experiment_status)
-
-            if experiment_status != Experiment.EXPERIMENT_NOT_STARTED:
-                started_experiments.append(experiment)
-
-        self.assertEqual(
-            set(Experiment.objects.started()),
-            set(started_experiments)
-        )
 
 
 class TestExperimentModel(TestCase):
@@ -44,148 +25,24 @@ class TestExperimentModel(TestCase):
             experiment=experiment, is_control=False)
         self.assertEqual(experiment.variant, variant)
 
-    def test_is_begun_property_is_false_for_not_started(self):
+    def test_experiment_change_status_to_expected_status_allowed(self):
         experiment = ExperimentFactory.create_with_variants()
-        self.assertFalse(experiment.is_begun)
+        experiment.status = experiment.STATUS_PENDING
+        experiment.save()
 
-    def test_is_begun_property_is_true_for_started(self):
+    def test_experiment_change_status_to_unexpected_status_raises(self):
         experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.EXPERIMENT_STARTED
-        experiment.save()
-        self.assertTrue(experiment.is_begun)
-
-    def test_is_begun_property_is_true_for_complete(self):
-        experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.EXPERIMENT_STARTED
-        experiment.save()
-        experiment.status = experiment.EXPERIMENT_COMPLETE
-        experiment.save()
-        self.assertTrue(experiment.is_begun)
-
-    def test_is_complete_property_is_false_for_not_started(self):
-        experiment = ExperimentFactory.create_with_variants()
-        self.assertFalse(experiment.is_complete)
-
-    def test_is_complete_property_is_false_for_started(self):
-        experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.EXPERIMENT_STARTED
-        experiment.save()
-        self.assertFalse(experiment.is_complete)
-
-    def test_is_complete_property_is_true_for_complete(self):
-        experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.EXPERIMENT_STARTED
-        experiment.save()
-        experiment.status = experiment.EXPERIMENT_COMPLETE
-        experiment.save()
-        self.assertTrue(experiment.is_complete)
-
-    def test_setting_status_from_not_started_to_started_sets_start_date(self):
-        experiment = ExperimentFactory.create()
-        self.assertEqual(experiment.status, experiment.EXPERIMENT_NOT_STARTED)
-        self.assertEqual(experiment.is_complete, False)
-        self.assertIsNotNone(experiment.created_date)
-        self.assertIsNone(experiment.start_date)
-        self.assertIsNone(experiment.end_date)
-
-        experiment.status = experiment.EXPERIMENT_STARTED
-        experiment.save()
-
-        self.assertEqual(experiment.status, experiment.EXPERIMENT_STARTED)
-        self.assertEqual(experiment.is_complete, False)
-        self.assertIsNotNone(experiment.created_date)
-        self.assertIsNotNone(experiment.start_date)
-        self.assertIsNone(experiment.end_date)
-
-    def test_setting_status_from_started_to_complete_sets_end_date(self):
-        experiment = ExperimentFactory.create()
-        experiment.status = experiment.EXPERIMENT_STARTED
-        experiment.save()
-
-        self.assertEqual(experiment.status, experiment.EXPERIMENT_STARTED)
-        self.assertIsNotNone(experiment.created_date)
-        self.assertIsNotNone(experiment.start_date)
-        self.assertIsNone(experiment.end_date)
-
-        experiment.status = experiment.EXPERIMENT_COMPLETE
-        experiment.save()
-
-        self.assertEqual(experiment.status, experiment.EXPERIMENT_COMPLETE)
-        self.assertEqual(experiment.is_complete, True)
-        self.assertIsNotNone(experiment.created_date)
-        self.assertIsNotNone(experiment.start_date)
-        self.assertIsNotNone(experiment.end_date)
-
-    def test_setting_from_started_to_not_started_raises_validation_error(self):
-        experiment = ExperimentFactory.create()
-        experiment.status = experiment.EXPERIMENT_STARTED
-        experiment.save()
+        experiment.status = experiment.STATUS_ACCEPTED
 
         with self.assertRaises(ValidationError):
-            experiment.status = experiment.EXPERIMENT_NOT_STARTED
             experiment.save()
 
-    def test_setting_status_from_not_started_to_rejected(self):
-        experiment = ExperimentFactory.create()
-        experiment.status = experiment.EXPERIMENT_REJECTED
-        experiment.save()
+    def test_experiment_with_created_status_is_not_readonly(self):
+        experiment = ExperimentFactory.create_with_variants()
+        self.assertFalse(experiment.is_readonly)
 
-    def test_setting_status_from_started_to_rejected(self):
-        experiment = ExperimentFactory.create()
-        experiment.status = experiment.EXPERIMENT_STARTED
+    def test_experiment_with_any_status_after_created_is_readonly(self):
+        experiment = ExperimentFactory.create_with_variants()
+        experiment.status = experiment.STATUS_PENDING
         experiment.save()
-
-        experiment.status = experiment.EXPERIMENT_REJECTED
-        experiment.save()
-
-    def test_setting_status_from_complete_to_rejected(self):
-        experiment = ExperimentFactory.create()
-        experiment.status = experiment.EXPERIMENT_STARTED
-        experiment.save()
-
-        experiment.status = experiment.EXPERIMENT_COMPLETE
-        experiment.save()
-
-        experiment.status = experiment.EXPERIMENT_REJECTED
-        experiment.save()
-
-    def test_setting_status_from_invalid_to_rejected(self):
-        experiment = ExperimentFactory.create()
-        experiment.status = experiment.EXPERIMENT_INVALID
-        experiment.save()
-
-        experiment.status = experiment.EXPERIMENT_REJECTED
-        experiment.save()
-
-    def test_setting_status_from_not_started_to_invalid(self):
-        experiment = ExperimentFactory.create()
-        experiment.status = experiment.EXPERIMENT_INVALID
-        experiment.save()
-
-    def test_setting_status_from_started_to_invalid(self):
-        experiment = ExperimentFactory.create()
-        experiment.status = experiment.EXPERIMENT_STARTED
-        experiment.save()
-
-        experiment.status = experiment.EXPERIMENT_INVALID
-        experiment.save()
-
-    def test_setting_status_from_complete_to_invalid(self):
-        experiment = ExperimentFactory.create()
-        experiment.status = experiment.EXPERIMENT_STARTED
-        experiment.save()
-
-        experiment.status = experiment.EXPERIMENT_COMPLETE
-        experiment.save()
-
-        experiment.status = experiment.EXPERIMENT_INVALID
-        experiment.save()
-
-    def test_setting_status_from_rejected_to_invalid(self):
-        experiment = ExperimentFactory.create()
-
-        experiment.status = experiment.EXPERIMENT_REJECTED
-        experiment.save()
-
-        experiment.status = experiment.EXPERIMENT_INVALID
-        experiment.save()
+        self.assertTrue(experiment.is_readonly)
