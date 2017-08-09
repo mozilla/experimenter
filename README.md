@@ -1,46 +1,70 @@
-# ![Logo](https://raw.githubusercontent.com/mozilla/experimenter/22/app/experimenter/static/imgs/favicon_24.png) Experimenter 
-
+# ![Logo](https://raw.githubusercontent.com/mozilla/experimenter/master/app/experimenter/static/imgs/favicon_24.png) Experimenter 
 [![CircleCI](https://circleci.com/gh/mozilla/experimenter.svg?style=svg)](https://circleci.com/gh/mozilla/experimenter)
 
-Experimenter is a Python/Django application for managing experiments in Mozilla projects, such as [Activity Stream](https://github.com/mozilla/activity-stream).
+<p align="center">
+  <img src="https://cdn1.iconfinder.com/data/icons/simple-arrow/512/arrow_20-128.png"><br/>
+  <b>1. Design 2. Launch 3. Analyze</b>
+  <br><br>
+</p>
 
-### What is an experiment?
+Experimenter is a platform for managing experiments in [Mozilla Firefox](https://www.mozilla.org/en-US/firefox/?utm_medium=referral&utm_source=firefox-com). 
 
-An experiment is a way to measure how a change to an application will affect its usage and behaviour. For example
-you could change the way your application processes data in a way that affects its performance characteristics, as well
-as how it presents that data to the user.  To make that change into an experiment, you could create a flag which optionally
-enables the new code path, and then enable it for a subset of users and measure how it affects things like performance and
-engagement.
+## What is an experiment?
+
+An experiment is a way to measure how a change to your product affects how people use it.
+
+An experiment has three parts:
+
+1. A new feature that can be selectively enabled
+1. A group of users to test the new feature 
+1. Telemetry to measure how people interact with the new feature 
+
+## How do I run an experiment? 
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/mozilla/experimenter/164/app/experimenter/static/imgs/architecture.png"><br/>
+</p>
+
+1. Build a new feature behind a pref flag
+1. Define an experiment for that feature in Experimenter
+1. Send it to Shield
+1. After Shield reviews and approves it, it is sent to Firefox
+1. Firefox clients check whether they should enroll in the experiment and configure themselves accordingly
+1. Telemetry about the experiment is collected
+1. Dashboards are created to visualize the telemetry 
+1. Analyze and collect the results to understand how the new feature impacted users 
+1. Do it again!
+
 
 ## Installation
 
-1) Install [docker](https://www.docker.com/) on your machine 
+1. Install [docker](https://www.docker.com/) on your machine 
 
-1) Clone the repo
+1. Clone the repo
 
         git clone <your fork>
 
-1) Copy the sample env file
+1. Copy the sample env file
 
         cp .env.sample .env
 
-1) Create a new secret key and put it in .env
+1. Create a new secret key and put it in .env
 
         make secretkey
 
-1) Run tests
+1. Run tests
 
         make test
 
-1) Run database migrations
+1. Run database migrations
 
         make migrate
 
-1) Make a local user
+1. Make a local user
 
         make createuser
 
-1) Run a dev instance
+1. Run a dev instance
 
         make up
 Done!
