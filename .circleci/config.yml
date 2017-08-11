@@ -27,6 +27,7 @@ jobs:
           name: Run tests
           command: make check
       - deploy:
+          name: Deploy to tag
           command: |
             if [ "${CIRCLE_TAG}" ]; then
               [ -n \"$DOCKERHUB_REPO\" ]
@@ -36,3 +37,11 @@ jobs:
               docker images
               docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}
             fi
+      - deploy:
+          name: Deploy to latest
+          command: |
+            docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+            echo ${DOCKERHUB_REPO}:latest
+            docker tag app:build ${DOCKERHUB_REPO}:latest
+            docker images
+            docker push ${DOCKERHUB_REPO}:latest
