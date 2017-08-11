@@ -27,9 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = [
-    'localhost',
-    'cloudvm.jaredkerim.com',  # Dev environment required in Django 1.10
-    'experimenter.dev.mozaws.net',
+    config('HOSTNAME'), # locally configured hostname from environment
 ]
 
 
