@@ -1,0 +1,5 @@
+version: "3"
+
+services:
+  app:
+    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py collectstatic --noinput;gunicorn -b 0.0.0.0:7001 experimenter.wsgi"

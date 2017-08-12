@@ -10,6 +10,9 @@ compose_build: build
 up: compose_build
 	docker-compose up
 
+gunicorn: compose_build
+	docker-compose -f docker-compose.yml -f docker-compose-gunicorn.yml up
+
 test: compose_build
 	docker-compose run app sh -c "/app/bin/wait-for-it.sh db:5432 -- coverage run manage.py test;coverage report -m --fail-under=100"
 
