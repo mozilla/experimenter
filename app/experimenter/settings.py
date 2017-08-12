@@ -50,6 +50,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE_CLASSES = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -141,10 +143,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-if DEBUG: # pragma: no cover
-    STATIC_URL = '/staticdev/'
-else: # pragma: no cover
-    STATIC_URL = '/static/'
+STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(os.path.join(BASE_DIR, 'served'), 'static')
 
