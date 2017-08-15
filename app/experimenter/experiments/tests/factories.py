@@ -14,7 +14,6 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     project = factory.SubFactory(ProjectFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: slugify(o.name))
-    addon_versions = ['1.0', '2.0']
     pref_key = 'experiment'
     objectives = factory.LazyAttribute(lambda o: faker.paragraphs())
     analysis = factory.LazyAttribute(lambda o: faker.paragraphs())

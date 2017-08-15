@@ -1,6 +1,7 @@
 Django==1.11
 coverage==4.3.4
 django-filter==1.0.4
+django-multiselectfield==0.1.8
 djangorestframework==3.6.2
 dockerflow==2017.4.0
 factory-boy==2.8.1
