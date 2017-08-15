@@ -26,22 +26,71 @@ jobs:
       - run:
           name: Run tests
           command: make check
-      - deploy:
-          name: Deploy to tag
+      - run:
+          name: Save Docker image
           command: |
-            if [ "${CIRCLE_TAG}" ]; then
-              [ -n \"$DOCKERHUB_REPO\" ]
-              docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-              echo ${DOCKERHUB_REPO}:${CIRCLE_TAG}
-              docker tag app:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}
-              docker images
-              docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}
-            fi
+            mkdir ~/experimenter/caches
+            docker save -o ~/experimenter/caches/app.tar app
+      - persist_to_workspace:
+          root: ~/experimenter/caches
+          paths:
+            - app.tar
+
+  deploy_latest:
+    working_directory: ~/experimenter
+    docker:
+      - image: docker:17.06.0-ce-git
+    steps:
+      - attach_workspace:
+          at: ~/experimenter/caches
+      - setup_remote_docker
       - deploy:
           name: Deploy to latest
           command: |
-            docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+            docker load -i ~/experimenter/caches/app.tar
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
             echo ${DOCKERHUB_REPO}:latest
             docker tag app:build ${DOCKERHUB_REPO}:latest
             docker images
             docker push ${DOCKERHUB_REPO}:latest
+
+  deploy_tagged:
+    working_directory: ~/experimenter
+    docker:
+      - image: docker:17.06.0-ce-git
+    steps:
+      - attach_workspace:
+          at: ~/experimenter/caches
+      - setup_remote_docker
+      - deploy:
+          name: Deploy to tag
+          command: |
+            docker load -i ~/experimenter/caches/app.tar
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            echo ${DOCKERHUB_REPO}:${CIRCLE_TAG}
+            docker tag app:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}
+            docker images
+            docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/
+      - deploy_latest:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - deploy_tagged:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
