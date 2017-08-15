@@ -152,3 +152,25 @@ class ExperimentVariant(models.Model):
             experiment_slug=self.experiment.slug,
             variant_slug=self.slug,
         )
+
+
+class ExperimentChangeLog(models.Model):
+    experiment = models.ForeignKey(
+        Experiment, blank=False, null=False, related_name='changes')
+    changed_on = models.DateTimeField(auto_now_add=True)
+    changed_by = models.CharField(max_length=255, blank=False, null=False)
+    message = models.TextField()
+
+    def __str__(self):  # pragma: no cover
+        return (
+            '{changed_by} changed {experiment} on {datetime}: {message}'
+        ).format(
+            changed_by=self.changed_by,
+            experiment=self.experiment,
+            datetime=self.changed_on,
+            message=self.message,
+        )
+
+    class Meta:
+        verbose_name = 'Experiment Change Log'
+        verbose_name_plural = 'Experiment Change Logs'
