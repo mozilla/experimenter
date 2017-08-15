@@ -65,7 +65,7 @@ class ControlVariantInlineAdmin(BaseVariantInlineAdmin):
     form = ControlVariantModelForm
     verbose_name = 'Control Variant'
     verbose_name_plural = 'Control Variant'
-    fields = ('name', 'slug', 'description', 'value')
+    fields = ('name', 'slug', 'ratio', 'description', 'value')
 
     def get_queryset(self, request):
         return super().get_queryset(request).filter(is_control=True)
@@ -74,7 +74,7 @@ class ControlVariantInlineAdmin(BaseVariantInlineAdmin):
 class ExperimentVariantInlineAdmin(BaseVariantInlineAdmin):
     verbose_name = 'Experiment Variant'
     verbose_name_plural = 'Experiment Variant'
-    fields = ('name', 'slug', 'threshold', 'description', 'value')
+    fields = ('name', 'slug', 'ratio', 'description', 'value')
 
     def get_queryset(self, request):
         return super().get_queryset(request).filter(is_control=False)
@@ -95,6 +95,7 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
                 'pref_type',
                 'firefox_channels',
                 'firefox_versions',
+                'population_percent',
             ),
         }),
         ('Notes', {

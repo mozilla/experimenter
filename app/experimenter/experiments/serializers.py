@@ -19,7 +19,6 @@ class JSTimestampField(serializers.Field):
 
 
 class ExperimentVariantSerializer(serializers.ModelSerializer):
-    threshold = serializers.FloatField()
 
     class Meta:
         model = ExperimentVariant
@@ -27,18 +26,7 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
             'slug',
             'experiment_variant_slug',
             'value',
-            'threshold',
-        )
-
-
-class ExperimentControlSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = ExperimentVariant
-        fields = (
-            'slug',
-            'experiment_variant_slug',
-            'value',
+            'ratio',
         )
 
 
@@ -46,7 +34,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
     start_date = JSTimestampField()
     end_date = JSTimestampField()
     variant = ExperimentVariantSerializer()
-    control = ExperimentControlSerializer()
+    control = ExperimentVariantSerializer()
 
     class Meta:
         model = Experiment
@@ -56,6 +44,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             'firefox_versions',
             'firefox_channels',
             'pref_key',
+            'pref_type',
             'start_date',
             'end_date',
             'variant',
