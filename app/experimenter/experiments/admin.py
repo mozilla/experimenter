@@ -87,7 +87,15 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
 
     fieldsets = (
         ('Overview', {
-            'fields': ('project', 'name', 'slug', 'addon_versions'),
+            'fields': (
+                'project',
+                'name',
+                'slug',
+                'pref_key',
+                'pref_type',
+                'firefox_channels',
+                'firefox_versions',
+            ),
         }),
         ('Notes', {
             'fields': ('objectives', 'analysis'),
@@ -119,7 +127,7 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
                     'fields': (
                         ('status', 'project', 'name', 'slug'),
                         ('created_date', 'start_date', 'end_date'),
-                        'addon_versions',
+                        'firefox_versions',
                     ),
                 }),
                 ('Notes', {

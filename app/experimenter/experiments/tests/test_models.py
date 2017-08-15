@@ -9,9 +9,9 @@ from experimenter.experiments.tests.factories import ExperimentFactory
 
 class TestExperimentModel(TestCase):
 
-    def test_invalid_addon_versions_raises_validation_error(self):
+    def test_invalid_firefox_versions_raises_validation_error(self):
         with self.assertRaises(ValidationError):
-            ExperimentFactory.create_with_variants(addon_versions='invalid')
+            ExperimentFactory.create_with_variants(firefox_versions='invalid')
 
     def test_control_property_returns_experiment_control(self):
         experiment = ExperimentFactory.create_with_variants()

@@ -53,7 +53,8 @@ class ExperimentSerializer(serializers.ModelSerializer):
         fields = (
             'name',
             'slug',
-            'addon_versions',
+            'firefox_versions',
+            'firefox_channels',
             'pref_key',
             'start_date',
             'end_date',

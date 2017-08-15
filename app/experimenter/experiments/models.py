@@ -1,6 +1,7 @@
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
+from multiselectfield import MultiSelectField
 
 
 class Experiment(models.Model):
@@ -42,6 +43,26 @@ class Experiment(models.Model):
         ],
     }
 
+    CHANNEL_NIGHTLY = 'Nightly'
+    CHANNEL_BETA = 'Beta'
+    CHANNEL_RELEASE = 'Release'
+
+    CHANNEL_CHOICES = (
+        (CHANNEL_NIGHTLY, CHANNEL_NIGHTLY),
+        (CHANNEL_BETA, CHANNEL_BETA),
+        (CHANNEL_RELEASE, CHANNEL_RELEASE),
+    )
+
+    PREF_TYPE_BOOL = 'bool'
+    PREF_TYPE_INT = 'int'
+    PREF_TYPE_STR = 'str'
+
+    PREF_TYPE_CHOICES = (
+        (PREF_TYPE_BOOL, PREF_TYPE_BOOL),
+        (PREF_TYPE_INT, PREF_TYPE_INT),
+        (PREF_TYPE_STR, PREF_TYPE_STR),
+    )
+
     status = models.CharField(
         max_length=255,
         default=STATUS_CREATED,
@@ -53,12 +74,19 @@ class Experiment(models.Model):
         null=False,
         related_name='experiments',
     )
+    pref_key = models.CharField(max_length=255, blank=True, null=True)
+    pref_type = models.CharField(
+        max_length=255,
+        choices=PREF_TYPE_CHOICES,
+        default=PREF_TYPE_BOOL,
+    )
+    firefox_versions = JSONField(default=[])
+    firefox_channels = MultiSelectField(
+        choices=CHANNEL_CHOICES, default=CHANNEL_NIGHTLY)
     name = models.CharField(
         max_length=255, unique=True, blank=False, null=False)
     slug = models.SlugField(
         max_length=255, unique=True, blank=False, null=False)
-    pref_key = models.CharField(max_length=255, blank=True, null=True)
-    addon_versions = JSONField(default=[])
     objectives = models.TextField(default='')
     analysis = models.TextField(default='')
     created_date = models.DateTimeField(auto_now_add=True)
@@ -74,14 +102,14 @@ class Experiment(models.Model):
         verbose_name = 'Experiment'
         verbose_name_plural = 'Experiments'
 
-    def clean_addon_versions(self):
+    def clean_firefox_versions(self):
         if not (
-            type(self.addon_versions) is list and
-            all([type(version) is str for version in self.addon_versions])
+            type(self.firefox_versions) is list and
+            all([type(version) is str for version in self.firefox_versions])
         ):
             raise ValidationError({
-                'addon_versions': (
-                    'addon_versions must be a list of '
+                'firefox_versions': (
+                    'firefox_versions must be a list of '
                     'strings, ex: ["1.0.0", "1.0.1"]'
                 ),
             })
@@ -102,7 +130,7 @@ class Experiment(models.Model):
                 old_status=old_status, new_status=new_status)})
 
     def clean(self):
-        self.clean_addon_versions()
+        self.clean_firefox_versions()
         self.clean_status()
 
     def save(self, *args, **kwargs):
