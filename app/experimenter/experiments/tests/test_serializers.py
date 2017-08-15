@@ -4,13 +4,11 @@ from django.test import TestCase
 
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
-    ExperimentControlFactory,
     ExperimentVariantFactory,
 )
 from experimenter.experiments.serializers import (
     JSTimestampField,
     ExperimentVariantSerializer,
-    ExperimentControlSerializer,
     ExperimentSerializer,
 )
 
@@ -36,20 +34,8 @@ class TestExperimentVariantSerializer(TestCase):
         self.assertEqual(serialized.data, {
             'slug': variant.slug,
             'experiment_variant_slug': variant.experiment_variant_slug,
-            'threshold': float(variant.threshold),
+            'ratio': variant.ratio,
             'value': variant.value,
-        })
-
-
-class TestExperimentControlSerializer(TestCase):
-
-    def test_serializer_outputs_expected_schema(self):
-        control = ExperimentControlFactory.create()
-        serialized = ExperimentControlSerializer(control)
-        self.assertEqual(serialized.data, {
-            'slug': control.slug,
-            'experiment_variant_slug': control.experiment_variant_slug,
-            'value': control.value,
         })
 
 
@@ -64,10 +50,11 @@ class TestExperimentSerializer(TestCase):
             'firefox_versions': experiment.firefox_versions,
             'firefox_channels': experiment.firefox_channels,
             'pref_key': experiment.pref_key,
+            'pref_type': experiment.pref_type,
             'start_date': JSTimestampField().to_representation(
                 experiment.start_date),
             'end_date': JSTimestampField().to_representation(
                 experiment.end_date),
             'variant': ExperimentVariantSerializer(experiment.variant).data,
-            'control': ExperimentControlSerializer(experiment.control).data,
+            'control': ExperimentVariantSerializer(experiment.control).data,
         })

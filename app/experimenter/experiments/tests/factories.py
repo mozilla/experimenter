@@ -1,5 +1,3 @@
-import decimal
-
 import factory
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
@@ -43,11 +41,11 @@ class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
 
 class ExperimentControlFactory(BaseExperimentVariantFactory):
     is_control = True
-    threshold = decimal.Decimal('0')
+    ratio = 1
     value = 'false'
 
 
 class ExperimentVariantFactory(BaseExperimentVariantFactory):
     is_control = False
-    threshold = decimal.Decimal('0.1')
+    ratio = 1
     value = 'true'

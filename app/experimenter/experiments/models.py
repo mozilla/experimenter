@@ -94,6 +94,8 @@ class Experiment(models.Model):
     end_date = models.DateTimeField(blank=True, null=True)
     dashboard_url = models.URLField(blank=True, null=True)
     dashboard_image_url = models.URLField(blank=True, null=True)
+    population_percent = models.DecimalField(
+        max_digits=6, decimal_places=4, default='0')
 
     def __str__(self):  # pragma: no cover
         return self.name
@@ -159,8 +161,7 @@ class ExperimentVariant(models.Model):
         max_length=255, blank=False, null=False)
     is_control = models.BooleanField(default=False)
     description = models.TextField(default='')
-    threshold = models.DecimalField(
-        max_digits=6, decimal_places=4, default='0')
+    ratio = models.PositiveIntegerField(default=1)
     value = JSONField(default=False)
 
     def __str__(self):  # pragma: no cover
