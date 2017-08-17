@@ -41,10 +41,10 @@ jobs:
     docker:
       - image: docker:17.06.0-ce-git
     steps:
+      - checkout
       - attach_workspace:
           at: ~/experimenter/caches
       - setup_remote_docker
-      - checkout
       - deploy:
           name: Deploy to latest
           command: |
@@ -60,10 +60,10 @@ jobs:
     docker:
       - image: docker:17.06.0-ce-git
     steps:
+      - checkout
       - attach_workspace:
           at: ~/experimenter/caches
       - setup_remote_docker
-      - checkout
       - deploy:
           name: Deploy to tag
           command: |
