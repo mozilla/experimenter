@@ -30,7 +30,6 @@ jobs:
           name: Save Docker image
           command: |
             mkdir ~/experimenter/caches
-            docker images --digests
             docker save -o ~/experimenter/caches/app.tar app
       - persist_to_workspace:
           root: ~/experimenter/caches
@@ -42,6 +41,7 @@ jobs:
     docker:
       - image: docker:17.06.0-ce-git
     steps:
+      - checkout
       - attach_workspace:
           at: ~/experimenter/caches
       - setup_remote_docker
@@ -49,6 +49,8 @@ jobs:
           name: Deploy to latest
           command: |
             docker load -i ~/experimenter/caches/app.tar
+            rm -rf ~/experimenter/caches
+            ./scripts/build.sh
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker tag app:build ${DOCKERHUB_REPO}:latest
             docker push ${DOCKERHUB_REPO}:latest
@@ -58,6 +60,7 @@ jobs:
     docker:
       - image: docker:17.06.0-ce-git
     steps:
+      - checkout
       - attach_workspace:
           at: ~/experimenter/caches
       - setup_remote_docker
@@ -65,6 +68,8 @@ jobs:
           name: Deploy to tag
           command: |
             docker load -i ~/experimenter/caches/app.tar
+            rm -rf ~/experimenter/caches
+            ./scripts/build.sh
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker tag app:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}
             docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}
