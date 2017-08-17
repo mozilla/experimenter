@@ -30,6 +30,7 @@ jobs:
           name: Save Docker image
           command: |
             mkdir ~/experimenter/caches
+            docker images --digests
             docker save -o ~/experimenter/caches/app.tar app
       - persist_to_workspace:
           root: ~/experimenter/caches
@@ -49,9 +50,7 @@ jobs:
           command: |
             docker load -i ~/experimenter/caches/app.tar
             docker login -u $DOCKER_USER -p $DOCKER_PASS
-            echo ${DOCKERHUB_REPO}:latest
             docker tag app:build ${DOCKERHUB_REPO}:latest
-            docker images
             docker push ${DOCKERHUB_REPO}:latest
 
   deploy_tagged:
@@ -67,9 +66,7 @@ jobs:
           command: |
             docker load -i ~/experimenter/caches/app.tar
             docker login -u $DOCKER_USER -p $DOCKER_PASS
-            echo ${DOCKERHUB_REPO}:${CIRCLE_TAG}
             docker tag app:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}
-            docker images
             docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}
 
 workflows:
