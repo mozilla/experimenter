@@ -2,7 +2,10 @@ import time
 
 from rest_framework import serializers
 
-from experimenter.experiments.models import Experiment, ExperimentVariant
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentVariant,
+)
 
 
 class JSTimestampField(serializers.Field):
