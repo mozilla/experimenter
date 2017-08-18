@@ -141,13 +141,29 @@ Example: GET /api/v1/experiments/?project__slug=project-slug
           }
         ]
 
+### PATCH /api/v1/experiments/<experiment_slug>/accept
+        Body: None
+
+Set the status of a Pending experiment to Accepted.
+
+Example: PATCH /api/v1/experiments/my-first-experiment/accept
+
+### PATCH /api/v1/experiments/<experiment_slug>/reject
+        content-type: application/json
+        Body: {message: "This experiment was rejected for reasons."}
+
+Set the status of a Pending experiment to Rejected.
+
+Example: PATCH /api/v1/experiments/my-first-experiment/accept
+
 ## Contributing
 
-1. Fork it!
-2. Create your feature branch: `git checkout -b my-new-feature`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin my-new-feature`
-5. Submit a pull request :D
+1. Fork the repo!
+1. File a new issue describing the change you want to make: Change the things #123
+1. Create your feature branch with the issue number: `git checkout -b 123`
+1. Commit your changes: `git commit -am 'Changed the things fixes #123'`
+1. Push to the branch: `git push origin 123`
+1. Submit a pull request :D
 
 
 ## License

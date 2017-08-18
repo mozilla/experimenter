@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -187,7 +188,19 @@ class ExperimentChangeLog(models.Model):
     experiment = models.ForeignKey(
         Experiment, blank=False, null=False, related_name='changes')
     changed_on = models.DateTimeField(auto_now_add=True)
-    changed_by = models.CharField(max_length=255, blank=False, null=False)
+    changed_by = models.ForeignKey(get_user_model())
+    old_status = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=Experiment.STATUS_CHOICES,
+    )
+    new_status = models.CharField(
+        max_length=255,
+        blank=False,
+        null=False,
+        choices=Experiment.STATUS_CHOICES,
+    )
     message = models.TextField()
 
     def __str__(self):  # pragma: no cover
