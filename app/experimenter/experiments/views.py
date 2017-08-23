@@ -1,8 +1,6 @@
-from rest_framework.exceptions import NotFound
 from rest_framework.generics import ListAPIView, UpdateAPIView
 from rest_framework.response import Response
 
-from experimenter.projects.models import Project
 from experimenter.experiments.models import Experiment, ExperimentChangeLog
 from experimenter.experiments.serializers import (
     ExperimentSerializer,
@@ -10,22 +8,9 @@ from experimenter.experiments.serializers import (
 
 
 class ExperimentListView(ListAPIView):
+    filter_fields = ('project__slug', 'status')
     queryset = Experiment.objects.all()
     serializer_class = ExperimentSerializer
-    project_slug_field = 'project__slug'
-    filter_fields = (project_slug_field,)
-
-    def get(self, request, *args, **kwargs):
-        project_slug = request.query_params.get(
-            self.project_slug_field, None)
-
-        if project_slug:
-            project_exists = Project.objects.filter(slug=project_slug).exists()
-
-            if not project_exists:
-                raise NotFound('A project with that slug does not exist.')
-
-        return super().get(request, *args, **kwargs)
 
 
 class ExperimentAcceptView(UpdateAPIView):

@@ -7,7 +7,7 @@ from multiselectfield import MultiSelectField
 
 class Experiment(models.Model):
     STATUS_CREATED = 'Created'
-    STATUS_PENDING = 'Pending Review'
+    STATUS_PENDING = 'Pending'
     STATUS_ACCEPTED = 'Accepted'
     STATUS_LAUNCHED = 'Launched'
     STATUS_COMPLETE = 'Complete'

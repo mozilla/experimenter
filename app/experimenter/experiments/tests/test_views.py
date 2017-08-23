@@ -12,7 +12,24 @@ from experimenter.projects.tests.factories import ProjectFactory
 
 class TestExperimentListView(TestCase):
 
-    def test_list_view_returns_experiments_for_project(self):
+    def test_list_view_serializes_experiments(self):
+        experiments = []
+
+        for i in range(3):
+            experiment = ExperimentFactory.create_with_variants()
+            experiments.append(experiment)
+
+        response = self.client.get(reverse('experiments-list'))
+        self.assertEqual(response.status_code, 200)
+
+        json_data = json.loads(response.content)
+
+        serialized_experiments = ExperimentSerializer(
+            Experiment.objects.all(), many=True).data
+
+        self.assertEqual(serialized_experiments, json_data)
+
+    def test_list_view_filters_by_project_slug(self):
         project = ProjectFactory.create()
         project_experiments = []
 
@@ -37,10 +54,33 @@ class TestExperimentListView(TestCase):
 
         self.assertEqual(serialized_experiments, json_data)
 
-    def test_list_view_returns_404_for_invalid_project_slug(self):
+    def test_list_view_filters_by_status(self):
+        pending_experiments = []
+
+        # new experiments should be excluded
+        for i in range(2):
+            ExperimentFactory.create_with_variants()
+
+        # pending experiments should be included
+        for i in range(3):
+            experiment = ExperimentFactory.create_with_variants()
+            experiment.status = experiment.STATUS_PENDING
+            experiment.save()
+            pending_experiments.append(experiment)
+
         response = self.client.get(
-            reverse('experiments-list'), {'project__slug': 'bad-slug'})
-        self.assertEqual(response.status_code, 404)
+            reverse('experiments-list'),
+            {'status': Experiment.STATUS_PENDING},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        json_data = json.loads(response.content)
+
+        serialized_experiments = ExperimentSerializer(
+            Experiment.objects.filter(
+                status=Experiment.STATUS_PENDING), many=True).data
+
+        self.assertEqual(serialized_experiments, json_data)
 
 
 class TestExperimentAcceptView(TestCase):

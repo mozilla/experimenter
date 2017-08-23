@@ -112,8 +112,15 @@ List all of the started experiments.
 
 #### Optional Query Parameters
 project__slug - Return only the experiments for a given project, an invalid slug will raise 404
+status - Return only the experiments with the given status, options are:
+- 'Created'
+- 'Pending'
+- 'Accepted'
+- 'Launched'
+- 'Complete'
+- 'Rejected'
 
-Example: GET /api/v1/experiments/?project__slug=project-slug
+Example: GET /api/v1/experiments/?project__slug=project-slug&status=Pending
 
         [
           {
