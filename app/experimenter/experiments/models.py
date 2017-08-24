@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
-from multiselectfield import MultiSelectField
 
 
 class Experiment(models.Model):
@@ -81,9 +80,9 @@ class Experiment(models.Model):
         choices=PREF_TYPE_CHOICES,
         default=PREF_TYPE_BOOL,
     )
-    firefox_versions = JSONField(default=[])
-    firefox_channels = MultiSelectField(
-        choices=CHANNEL_CHOICES, default=CHANNEL_NIGHTLY)
+    firefox_version = models.CharField(max_length=255)
+    firefox_channel = models.CharField(
+        max_length=255, choices=CHANNEL_CHOICES, default=CHANNEL_NIGHTLY)
     name = models.CharField(
         max_length=255, unique=True, blank=False, null=False)
     slug = models.SlugField(
@@ -105,18 +104,6 @@ class Experiment(models.Model):
         verbose_name = 'Experiment'
         verbose_name_plural = 'Experiments'
 
-    def clean_firefox_versions(self):
-        if not (
-            type(self.firefox_versions) is list and
-            all([type(version) is str for version in self.firefox_versions])
-        ):
-            raise ValidationError({
-                'firefox_versions': (
-                    'firefox_versions must be a list of '
-                    'strings, ex: ["1.0.0", "1.0.1"]'
-                ),
-            })
-
     def clean_status(self):
         if not self.pk:
             return
@@ -133,7 +120,6 @@ class Experiment(models.Model):
                 old_status=old_status, new_status=new_status)})
 
     def clean(self):
-        self.clean_firefox_versions()
         self.clean_status()
 
     def save(self, *args, **kwargs):
