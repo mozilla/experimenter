@@ -12,9 +12,11 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     project = factory.SubFactory(ProjectFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: slugify(o.name))
-    pref_key = 'experiment'
-    objectives = factory.LazyAttribute(lambda o: faker.paragraphs())
-    analysis = factory.LazyAttribute(lambda o: faker.paragraphs())
+    pref_key = factory.LazyAttribute(
+        lambda o: o.name.replace(' ', '.').lower())
+    firefox_version = '57.0'
+    objectives = factory.LazyAttribute(lambda o: faker.text())
+    analysis = factory.LazyAttribute(lambda o: faker.text())
     dashboard_url = 'http://www.example.com/dashboard'
     dashboard_image_url = 'http://www.example.com/dashboard.png'
 
@@ -33,7 +35,7 @@ class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
     experiment = factory.SubFactory(ExperimentFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: slugify(o.name))
-    description = factory.LazyAttribute(lambda o: faker.paragraphs())
+    description = factory.LazyAttribute(lambda o: faker.text())
 
     class Meta:
         model = ExperimentVariant
