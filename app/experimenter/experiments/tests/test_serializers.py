@@ -47,8 +47,8 @@ class TestExperimentSerializer(TestCase):
         self.assertEqual(serialized.data, {
             'name': experiment.name,
             'slug': experiment.slug,
-            'firefox_versions': experiment.firefox_versions,
-            'firefox_channels': experiment.firefox_channels,
+            'firefox_version': experiment.firefox_version,
+            'firefox_channel': experiment.firefox_channel,
             'pref_key': experiment.pref_key,
             'pref_type': experiment.pref_type,
             'start_date': JSTimestampField().to_representation(
