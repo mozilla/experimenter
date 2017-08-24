@@ -49,6 +49,7 @@ class TestExperimentSerializer(TestCase):
             'slug': experiment.slug,
             'firefox_version': experiment.firefox_version,
             'firefox_channel': experiment.firefox_channel,
+            'objectives': experiment.objectives,
             'pref_key': experiment.pref_key,
             'pref_type': experiment.pref_type,
             'start_date': JSTimestampField().to_representation(
