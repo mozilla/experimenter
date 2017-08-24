@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     'raven.contrib.django.raven_compat',
     'rest_framework',
+    'corsheaders',
 
     'experimenter.openidc',
     'experimenter.experiments',
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE_CLASSES = [
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
 
     'django.middleware.security.SecurityMiddleware',
@@ -208,3 +210,6 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
 }
+
+# CORS Security Header Config
+CORS_ORIGIN_ALLOW_ALL = True

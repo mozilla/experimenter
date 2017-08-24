@@ -1,5 +1,6 @@
 Django==1.11
 coverage==4.3.4
+django-cors-headers==2.1.0
 django-filter==1.0.4
 django-multiselectfield==0.1.8
 djangorestframework==3.6.2
