@@ -12,16 +12,6 @@ services:
     networks:
       - private_nw
 
-  nginx:
-    build: ./nginx
-    links:
-      - app
-    ports:
-      - "80:80"
-    networks:
-      - private_nw
-      - public_nw
-
   db:
     restart: always
     image: postgres:9.6
@@ -36,4 +26,3 @@ volumes:
 networks:
   private_nw:
     internal: true
-  public_nw:

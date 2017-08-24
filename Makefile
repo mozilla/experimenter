@@ -42,3 +42,6 @@ bash: compose_build
 
 kill:
 	docker ps -a -q | xargs docker kill;docker ps -a -q | xargs docker rm
+
+ssl:
+	openssl req -x509 -newkey rsa:4096 -keyout nginx/key.pem -out nginx/cert.pem -days 365 -nodes
