@@ -46,6 +46,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             'slug',
             'firefox_version',
             'firefox_channel',
+            'objectives',
             'pref_key',
             'pref_type',
             'start_date',
