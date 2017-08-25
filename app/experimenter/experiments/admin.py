@@ -83,7 +83,7 @@ class ExperimentVariantInlineAdmin(BaseVariantInlineAdmin):
 class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
     inlines = (ControlVariantInlineAdmin, ExperimentVariantInlineAdmin,)
     list_display = (
-        'name', 'project', 'status', 'start_date', 'end_date')
+        'name', 'project', 'status')
 
     fieldsets = (
         ('Overview', {
@@ -93,8 +93,8 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
                 'slug',
                 'pref_key',
                 'pref_type',
-                'firefox_channels',
-                'firefox_versions',
+                'firefox_channel',
+                'firefox_version',
                 'population_percent',
             ),
         }),
@@ -103,8 +103,7 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
         }),
     )
 
-    readonly_fields = (
-        'created_date', 'start_date', 'end_date', 'show_dashboard_url')
+    readonly_fields = ('show_dashboard_url',)
 
     def get_actions(self, request):
         return []
@@ -127,8 +126,7 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
                 ('Status', {
                     'fields': (
                         ('status', 'project', 'name', 'slug'),
-                        ('created_date', 'start_date', 'end_date'),
-                        'firefox_versions',
+                        'firefox_version',
                     ),
                 }),
                 ('Notes', {

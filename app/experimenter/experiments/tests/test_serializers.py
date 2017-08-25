@@ -1,5 +1,3 @@
-import datetime
-
 from django.test import TestCase
 
 from experimenter.experiments.tests.factories import (
@@ -7,23 +5,9 @@ from experimenter.experiments.tests.factories import (
     ExperimentVariantFactory,
 )
 from experimenter.experiments.serializers import (
-    JSTimestampField,
     ExperimentVariantSerializer,
     ExperimentSerializer,
 )
-
-
-class TestJSTimestampField(TestCase):
-
-    def test_field_serializes_to_js_time_format(self):
-        field = JSTimestampField()
-        example_datetime = datetime.datetime(2000, 1, 1, 1, 1, 1, 1)
-        self.assertEqual(
-            field.to_representation(example_datetime), 946688461000.0)
-
-    def test_field_returns_none_if_no_datetime_passed_in(self):
-        field = JSTimestampField()
-        self.assertEqual(field.to_representation(None), None)
 
 
 class TestExperimentVariantSerializer(TestCase):
@@ -54,10 +38,6 @@ class TestExperimentSerializer(TestCase):
             'objectives': experiment.objectives,
             'pref_key': experiment.pref_key,
             'pref_type': experiment.pref_type,
-            'start_date': JSTimestampField().to_representation(
-                experiment.start_date),
-            'end_date': JSTimestampField().to_representation(
-                experiment.end_date),
             'variant': ExperimentVariantSerializer(experiment.variant).data,
             'control': ExperimentVariantSerializer(experiment.control).data,
         })
