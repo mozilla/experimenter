@@ -13,7 +13,8 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: slugify(o.name))
     pref_key = factory.LazyAttribute(
-        lambda o: o.name.replace(' ', '.').lower())
+        lambda o: 'browser.{pref}.enabled'.format(
+            pref=faker.catch_phrase().replace(' ', '.').lower()))
     firefox_version = '57.0'
     objectives = factory.LazyAttribute(lambda o: faker.text())
     analysis = factory.LazyAttribute(lambda o: faker.text())
