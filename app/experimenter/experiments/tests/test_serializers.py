@@ -45,8 +45,10 @@ class TestExperimentSerializer(TestCase):
         experiment = ExperimentFactory.create_with_variants()
         serialized = ExperimentSerializer(experiment)
         self.assertEqual(serialized.data, {
+            'project_name': experiment.project.name,
             'name': experiment.name,
             'slug': experiment.slug,
+            'experiment_slug': experiment.experiment_slug,
             'firefox_version': experiment.firefox_version,
             'firefox_channel': experiment.firefox_channel,
             'objectives': experiment.objectives,
