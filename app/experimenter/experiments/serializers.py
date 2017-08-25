@@ -11,10 +11,11 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExperimentVariant
         fields = (
+            'name',
             'slug',
-            'experiment_variant_slug',
-            'value',
+            'description',
             'ratio',
+            'value',
         )
 
 
