@@ -16,8 +16,9 @@ class TestExperimentVariantSerializer(TestCase):
         variant = ExperimentVariantFactory.create()
         serialized = ExperimentVariantSerializer(variant)
         self.assertEqual(serialized.data, {
+            'name': variant.name,
+            'description': variant.description,
             'slug': variant.slug,
-            'experiment_variant_slug': variant.experiment_variant_slug,
             'ratio': variant.ratio,
             'value': variant.value,
         })

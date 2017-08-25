@@ -166,13 +166,6 @@ class ExperimentVariant(models.Model):
             ('is_control', 'experiment'),
         )
 
-    @property
-    def experiment_variant_slug(self):
-        return '{experiment_slug}:{variant_slug}'.format(
-            experiment_slug=self.experiment.slug,
-            variant_slug=self.slug,
-        )
-
 
 class ExperimentChangeLog(models.Model):
     experiment = models.ForeignKey(
