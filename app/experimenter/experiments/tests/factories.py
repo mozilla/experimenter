@@ -1,3 +1,6 @@
+import decimal
+import random
+
 import factory
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
@@ -20,6 +23,8 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     analysis = factory.LazyAttribute(lambda o: faker.text())
     dashboard_url = 'http://www.example.com/dashboard'
     dashboard_image_url = 'http://www.example.com/dashboard.png'
+    population_percent = factory.LazyAttribute(
+        lambda o: decimal.Decimal(random.randint(1, 10) * 10))
 
     class Meta:
         model = Experiment

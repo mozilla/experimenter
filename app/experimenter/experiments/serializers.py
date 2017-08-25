@@ -32,6 +32,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             'experiment_slug',
             'firefox_version',
             'firefox_channel',
+            'population_percent',
             'objectives',
             'pref_key',
             'pref_type',

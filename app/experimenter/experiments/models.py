@@ -92,7 +92,7 @@ class Experiment(models.Model):
     dashboard_url = models.URLField(blank=True, null=True)
     dashboard_image_url = models.URLField(blank=True, null=True)
     population_percent = models.DecimalField(
-        max_digits=6, decimal_places=4, default='0')
+        max_digits=7, decimal_places=4, default='0')
 
     def __str__(self):  # pragma: no cover
         return self.name
