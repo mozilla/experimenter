@@ -138,6 +138,13 @@ class Experiment(models.Model):
     def is_readonly(self):
         return self.status != self.STATUS_CREATED
 
+    @property
+    def experiment_slug(self):
+        return 'pref-flip-{project_slug}-{experiment_slug}'.format(
+            project_slug=self.project.slug,
+            experiment_slug=self.slug,
+        )
+
 
 class ExperimentVariant(models.Model):
     experiment = models.ForeignKey(

@@ -34,6 +34,7 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
 
 
 class ExperimentSerializer(serializers.ModelSerializer):
+    project_name = serializers.ReadOnlyField(source='project.name')
     start_date = JSTimestampField()
     end_date = JSTimestampField()
     variant = ExperimentVariantSerializer()
@@ -42,8 +43,10 @@ class ExperimentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experiment
         fields = (
+            'project_name',
             'name',
             'slug',
+            'experiment_slug',
             'firefox_version',
             'firefox_channel',
             'objectives',
