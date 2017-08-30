@@ -1,6 +1,10 @@
+from urllib.parse import urljoin
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.db import models
 
 
@@ -140,6 +144,13 @@ class Experiment(models.Model):
         return 'pref-flip-{project_slug}-{experiment_slug}'.format(
             project_slug=self.project.slug,
             experiment_slug=self.slug,
+        )
+
+    @property
+    def experiment_url(self):
+        return urljoin(
+            'https://{host}'.format(host=settings.HOSTNAME),
+            reverse('admin:experiments_experiment_change', args=[self.pk])
         )
 
 

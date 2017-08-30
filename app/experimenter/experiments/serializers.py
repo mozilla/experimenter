@@ -31,6 +31,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             'name',
             'slug',
             'experiment_slug',
+            'experiment_url',
             'firefox_version',
             'firefox_channel',
             'population_percent',
