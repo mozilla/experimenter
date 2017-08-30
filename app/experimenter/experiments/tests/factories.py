@@ -50,10 +50,10 @@ class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
 class ExperimentControlFactory(BaseExperimentVariantFactory):
     is_control = True
     ratio = 1
-    value = 'false'
+    value = False
 
 
 class ExperimentVariantFactory(BaseExperimentVariantFactory):
     is_control = False
     ratio = 1
-    value = 'true'
+    value = True
