@@ -53,9 +53,9 @@ class Experiment(models.Model):
         (CHANNEL_RELEASE, CHANNEL_RELEASE),
     )
 
-    PREF_TYPE_BOOL = 'bool'
-    PREF_TYPE_INT = 'int'
-    PREF_TYPE_STR = 'str'
+    PREF_TYPE_BOOL = 'boolean'
+    PREF_TYPE_INT = 'integer'
+    PREF_TYPE_STR = 'string'
 
     PREF_TYPE_CHOICES = (
         (PREF_TYPE_BOOL, PREF_TYPE_BOOL),
