@@ -82,7 +82,6 @@ class Experiment(models.Model):
     pref_type = models.CharField(
         max_length=255,
         choices=PREF_TYPE_CHOICES,
-        default=PREF_TYPE_BOOL,
     )
     firefox_version = models.CharField(max_length=255)
     firefox_channel = models.CharField(
