@@ -18,6 +18,8 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     pref_key = factory.LazyAttribute(
         lambda o: 'browser.{pref}.enabled'.format(
             pref=faker.catch_phrase().replace(' ', '.').lower()))
+    pref_type = factory.LazyAttribute(
+        lambda o: random.choice(Experiment.PREF_TYPE_CHOICES)[0])
     firefox_version = '57.0'
     objectives = factory.LazyAttribute(lambda o: faker.text())
     analysis = factory.LazyAttribute(lambda o: faker.text())
@@ -47,13 +49,19 @@ class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
         model = ExperimentVariant
 
 
-class ExperimentControlFactory(BaseExperimentVariantFactory):
-    is_control = True
-    ratio = 1
-    value = False
-
-
 class ExperimentVariantFactory(BaseExperimentVariantFactory):
     is_control = False
-    ratio = 1
-    value = True
+    ratio = factory.LazyAttribute(lambda o: random.randint(1, 10))
+
+    @factory.lazy_attribute
+    def value(self):
+        if self.experiment.pref_type == Experiment.PREF_TYPE_BOOL:
+            return self.is_control
+        elif self.experiment.pref_type == Experiment.PREF_TYPE_INT:
+            return random.randint(1, 100)
+        elif self.experiment.pref_type == Experiment.PREF_TYPE_STR:
+            return slugify(faker.catch_phrase())
+
+
+class ExperimentControlFactory(ExperimentVariantFactory):
+    is_control = True
