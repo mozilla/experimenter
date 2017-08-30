@@ -152,6 +152,20 @@ class Experiment(models.Model):
             reverse('admin:experiments_experiment_change', args=[self.pk])
         )
 
+    @property
+    def accept_url(self):
+        return urljoin(
+            'https://{host}'.format(host=settings.HOSTNAME),
+            reverse('experiments-accept', kwargs={'slug': self.slug})
+        )
+
+    @property
+    def reject_url(self):
+        return urljoin(
+            'https://{host}'.format(host=settings.HOSTNAME),
+            reverse('experiments-reject', kwargs={'slug': self.slug})
+        )
+
 
 class ExperimentVariant(models.Model):
     experiment = models.ForeignKey(

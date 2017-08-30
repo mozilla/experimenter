@@ -35,6 +35,8 @@ class TestExperimentSerializer(TestCase):
             'slug': experiment.slug,
             'experiment_slug': experiment.experiment_slug,
             'experiment_url': experiment.experiment_url,
+            'accept_url': experiment.accept_url,
+            'reject_url': experiment.reject_url,
             'firefox_version': experiment.firefox_version,
             'firefox_channel': experiment.firefox_channel,
             'population_percent': '{0:.4f}'.format(
