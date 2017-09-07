@@ -1,3 +1,4 @@
+import json
 import decimal
 import random
 
@@ -60,7 +61,7 @@ class ExperimentVariantFactory(BaseExperimentVariantFactory):
         elif self.experiment.pref_type == Experiment.PREF_TYPE_INT:
             return random.randint(1, 100)
         elif self.experiment.pref_type == Experiment.PREF_TYPE_STR:
-            return slugify(faker.catch_phrase())
+            return json.dumps(slugify(faker.catch_phrase()))
 
 
 class ExperimentControlFactory(ExperimentVariantFactory):
