@@ -12,6 +12,7 @@ from experimenter.experiments.admin import (
     ControlVariantInlineAdmin,
     ControlVariantModelForm,
     ExperimentAdmin,
+    ExperimentChangeLogInlineAdmin,
     ExperimentVariantInlineAdmin,
     SlugPrepopulatedMixin,
 )
@@ -144,6 +145,17 @@ class ExperimentVariantInlineAdminTest(TestCase):
         self.assertEqual(variants.count(), 1)
         self.assertEqual(variants.filter(is_control=False).count(), 1)
         self.assertEqual(variants.filter(is_control=True).count(), 0)
+
+
+class ExperimentChangeLogInlineAdminTest(TestCase):
+
+    def test_has_no_add_permission(self):
+        change_admin = ExperimentChangeLogInlineAdmin(mock.Mock(), mock.Mock())
+        self.assertFalse(change_admin.has_add_permission(mock.Mock()))
+
+    def test_has_no_delete_permission(self):
+        change_admin = ExperimentChangeLogInlineAdmin(mock.Mock(), mock.Mock())
+        self.assertFalse(change_admin.has_delete_permission(mock.Mock()))
 
 
 class ExperimentAdminTest(TestCase):

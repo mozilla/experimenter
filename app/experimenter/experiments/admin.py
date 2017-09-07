@@ -2,7 +2,11 @@ from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
 
-from experimenter.experiments.models import Experiment, ExperimentVariant
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentVariant,
+    ExperimentChangeLog,
+)
 
 
 class SlugPrepopulatedMixin(object):
@@ -80,8 +84,30 @@ class ExperimentVariantInlineAdmin(BaseVariantInlineAdmin):
         return super().get_queryset(request).filter(is_control=False)
 
 
+class ExperimentChangeLogInlineAdmin(admin.TabularInline):
+    model = ExperimentChangeLog
+    readonly_fields = (
+        'changed_by',
+        'changed_on',
+        'experiment',
+        'message',
+        'new_status',
+        'old_status',
+    )
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
-    inlines = (ControlVariantInlineAdmin, ExperimentVariantInlineAdmin,)
+    inlines = (
+        ControlVariantInlineAdmin,
+        ExperimentVariantInlineAdmin,
+        ExperimentChangeLogInlineAdmin,
+    )
     list_display = (
         'name', 'project', 'status')
 
