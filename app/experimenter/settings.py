@@ -211,6 +211,9 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'experimenter.openidc.middleware.OpenIDCRestFrameworkAuthenticator',
+    ),
 }
 
 # CORS Security Header Config
