@@ -123,30 +123,37 @@ status - Return only the experiments with the given status, options are:
 Example: GET /api/v1/experiments/?project__slug=project-slug&status=Pending
 
         [
-          {
-            "active": true,
-            "name": "New Feature",
-            "slug": "new-feature",
-            "pref_key": "new.feature",
-            "addon_versions": [
-              "1.0",
-              "2.0"
-            ],
-            "start_date": 1493928948000.0,
-            "end_date": 1495138548000.0,
-            "variant": {
-              "slug": "enabled",
-              "experiment_variant_slug": "new-feature:enabled",
-              "value": true,
-              "threshold": 0.2
-            },
-            "control": {
-              "slug": "disabled",
-              "experiment_variant_slug": "new-feature:disabled",
-              "value": false
-            }
-          }
+           {
+              "project_name":"Monitored empowering website",
+              "name":"Devolved real-time groupware",
+              "slug":"devolved-real-time-groupware",
+              "experiment_slug":"pref-flip-monitored-empowering-website-devolved-real-time-groupware",
+              "experiment_url":"https://localhost/experiments/experiment/143/change/",
+              "accept_url":"https://localhost/api/v1/experiments/devolved-real-time-groupware/accept",
+              "reject_url":"https://localhost/api/v1/experiments/devolved-real-time-groupware/reject",
+              "firefox_version":"57.0",
+              "firefox_channel":"Nightly",
+              "population_percent":"100.0000",
+              "objectives":"Placeat ducimus impedit inventore ipsam laboriosam fugit architecto. Animi accusamus at excepturi nisi expedita placeat eaque. Maxime sint nisi dicta illum.",
+              "pref_key":"browser.ergonomic.6thgeneration.focus.group.enabled",
+              "pref_type":"boolean",
+              "variant":{
+                 "name":"Intuitive disintermediate standardization",
+                 "slug":"intuitive-disintermediate-standardization",
+                 "description":"A in quaerat adipisci dignissimos nam esse maiores. Tempora fugit corporis possimus fuga sit praesentium nemo. Molestias ducimus eius qui nihil recusandae minima.",
+                 "ratio":7,
+                 "value":false
+              },
+              "control":{
+                 "name":"Profit-focused zero administration throughput",
+                 "slug":"profit-focused-zero-administration-throughput",
+                 "description":"Aliquid id placeat iure alias. Cum facere vel voluptatibus corporis dolore. Sint cupiditate aut earum tempora quas.",
+                 "ratio":8,
+                 "value":true
+              }
+           }
         ]
+
 
 ### PATCH /api/v1/experiments/<experiment_slug>/accept
         Body: None
