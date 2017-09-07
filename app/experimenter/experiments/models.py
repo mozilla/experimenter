@@ -223,3 +223,4 @@ class ExperimentChangeLog(models.Model):
     class Meta:
         verbose_name = 'Experiment Change Log'
         verbose_name_plural = 'Experiment Change Logs'
+        ordering = ('changed_on',)
