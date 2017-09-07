@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group, Permission
 from django.http import HttpResponse
+from rest_framework.authentication import SessionAuthentication
 
 
 class OpenIDCAuthMiddleware(object):
@@ -56,3 +57,14 @@ class OpenIDCAuthMiddleware(object):
             user.groups.add(self.get_experimenter_group())
 
         request.user = user
+
+
+class OpenIDCRestFrameworkAuthenticator(SessionAuthentication):
+
+    def authenticate(self, request):
+        authenticated_user = getattr(request._request, 'user', None)
+
+        if authenticated_user:
+            return (authenticated_user, None)
+
+        return super().authenticate(request)
