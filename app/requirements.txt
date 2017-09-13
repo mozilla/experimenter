@@ -13,3 +13,4 @@ psycopg2==2.6.2
 python-decouple==3.0
 raven==6.0.0
 whitenoise==3.3.0
+redash-client==0.1.9
