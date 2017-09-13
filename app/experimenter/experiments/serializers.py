@@ -11,10 +11,10 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExperimentVariant
         fields = (
-            'name',
-            'slug',
             'description',
+            'name',
             'ratio',
+            'slug',
             'value',
         )
 
@@ -27,19 +27,21 @@ class ExperimentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experiment
         fields = (
-            'project_name',
-            'name',
-            'slug',
+            'accept_url',
+            'client_matching',
+            'control',
             'experiment_slug',
             'experiment_url',
-            'accept_url',
-            'reject_url',
-            'firefox_version',
             'firefox_channel',
-            'population_percent',
+            'firefox_version',
+            'name',
             'objectives',
+            'population_percent',
+            'pref_branch',
             'pref_key',
             'pref_type',
+            'project_name',
+            'reject_url',
+            'slug',
             'variant',
-            'control',
         )

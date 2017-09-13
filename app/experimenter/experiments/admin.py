@@ -122,6 +122,7 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
                 'firefox_channel',
                 'firefox_version',
                 'population_percent',
+                'client_matching',
             ),
         }),
         ('Notes', {
@@ -152,7 +153,8 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
                 ('Status', {
                     'fields': (
                         ('status', 'project', 'name', 'slug'),
-                        'firefox_version',
+                        ('firefox_version', 'firefox_channel'),
+                        'client_matching',
                     ),
                 }),
                 ('Notes', {
@@ -172,7 +174,13 @@ class ExperimentAdmin(SlugPrepopulatedMixin, admin.ModelAdmin):
 
             if db_obj.is_readonly:
                 readonly_fields += (
-                    'project', 'name', 'slug')
+                    'client_matching',
+                    'firefox_channel',
+                    'firefox_version',
+                    'name',
+                    'project',
+                    'slug',
+                )
 
         return readonly_fields
 

@@ -67,6 +67,13 @@ class Experiment(models.Model):
         (PREF_TYPE_STR, PREF_TYPE_STR),
     )
 
+    PREF_BRANCH_USER = 'user'
+    PREF_BRANCH_DEFAULT = 'default'
+    PREF_BRANCH_CHOICES = (
+        (PREF_BRANCH_DEFAULT, PREF_BRANCH_DEFAULT),
+        (PREF_BRANCH_USER, PREF_BRANCH_USER),
+    )
+
     status = models.CharField(
         max_length=255,
         default=STATUS_CREATED,
@@ -83,9 +90,11 @@ class Experiment(models.Model):
         max_length=255,
         choices=PREF_TYPE_CHOICES,
     )
+    pref_branch = models.CharField(max_length=255, choices=PREF_BRANCH_CHOICES)
     firefox_version = models.CharField(max_length=255)
     firefox_channel = models.CharField(
         max_length=255, choices=CHANNEL_CHOICES, default=CHANNEL_NIGHTLY)
+    client_matching = models.TextField(default='')
     name = models.CharField(
         max_length=255, unique=True, blank=False, null=False)
     slug = models.SlugField(
