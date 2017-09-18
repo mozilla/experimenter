@@ -6,7 +6,9 @@ import factory
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
 
-from experimenter.experiments.models import Experiment, ExperimentVariant
+from experimenter.openidc.tests.factories import UserFactory
+from experimenter.experiments.models import (
+    Experiment, ExperimentVariant, ExperimentChangeLog)
 from experimenter.projects.tests.factories import ProjectFactory
 
 faker = FakerFactory.create()
@@ -47,6 +49,21 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
         ExperimentVariantFactory.create(experiment=experiment)
         return experiment
 
+    @classmethod
+    def create_complete_with_variants(cls, *args, **kwargs):
+        experiment = cls.create_with_variants(*args, **kwargs)
+        ExperimentChangeLogFactory(
+            experiment=experiment,
+            old_status=Experiment.STATUS_ACCEPTED,
+            new_status=Experiment.STATUS_LAUNCHED,
+        )
+        ExperimentChangeLogFactory(
+            experiment=experiment,
+            old_status=Experiment.STATUS_LAUNCHED,
+            new_status=Experiment.STATUS_COMPLETE,
+        )
+        return experiment
+
 
 class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
     experiment = factory.SubFactory(ExperimentFactory)
@@ -74,3 +91,16 @@ class ExperimentVariantFactory(BaseExperimentVariantFactory):
 
 class ExperimentControlFactory(ExperimentVariantFactory):
     is_control = True
+
+
+class ExperimentChangeLogFactory(factory.django.DjangoModelFactory):
+    experiment = factory.SubFactory(ExperimentFactory)
+    changed_by = factory.SubFactory(UserFactory)
+    old_status = factory.LazyAttribute(lambda o: random.choice(
+        Experiment.STATUS_CHOICES)[0])
+    new_status = factory.LazyAttribute(lambda o: random.choice(
+        Experiment.STATUS_TRANSITIONS[o.old_status] or [o.old_status]))
+    message = factory.LazyAttribute(lambda o: faker.text())
+
+    class Meta:
+        model = ExperimentChangeLog

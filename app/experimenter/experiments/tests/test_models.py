@@ -2,12 +2,34 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from experimenter.experiments.models import (
-    ExperimentVariant,
-)
-from experimenter.experiments.tests.factories import ExperimentFactory
+    Experiment, ExperimentVariant)
+from experimenter.experiments.tests.factories import (
+    ExperimentFactory, ExperimentChangeLogFactory)
 
 
 class TestExperimentModel(TestCase):
+
+    def test_start_date_returns_none_if_change_is_missing(self):
+        experiment = ExperimentFactory.create_with_variants()
+        self.assertEqual(experiment.start_date, None)
+
+    def test_start_date_returns_datetime_if_change_exists(self):
+        change = ExperimentChangeLogFactory.create(
+            old_status=Experiment.STATUS_ACCEPTED,
+            new_status=Experiment.STATUS_LAUNCHED,
+        )
+        self.assertEqual(change.experiment.start_date, change.changed_on)
+
+    def test_end_date_returns_none_if_change_is_missing(self):
+        experiment = ExperimentFactory.create_with_variants()
+        self.assertEqual(experiment.end_date, None)
+
+    def test_end_date_returns_datetime_if_change_exists(self):
+        change = ExperimentChangeLogFactory.create(
+            old_status=Experiment.STATUS_LAUNCHED,
+            new_status=Experiment.STATUS_COMPLETE,
+        )
+        self.assertEqual(change.experiment.end_date, change.changed_on)
 
     def test_control_property_returns_experiment_control(self):
         experiment = ExperimentFactory.create_with_variants()
