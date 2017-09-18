@@ -145,6 +145,7 @@ Example: GET /api/v1/experiments/?project__slug=project-slug&status=Pending
               "pref_key":"browser.phased.hybrid.implementation.enabled",
               "pref_type":"string",
               "project_name":"Re-contextualized systemic synergy",
+              "project_slug":"re-contextualized-systemic-synergy",
               "reject_url":"https://localhost/api/v1/experiments/self-enabling-needs-based-hardware/reject",
               "slug":"self-enabling-needs-based-hardware",
               "start_date":1505767052000.0,
