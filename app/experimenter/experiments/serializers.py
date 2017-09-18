@@ -38,6 +38,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
     control = ExperimentVariantSerializer()
     end_date = JSTimestampField()
     project_name = serializers.ReadOnlyField(source='project.name')
+    project_slug = serializers.ReadOnlyField(source='project.slug')
     start_date = JSTimestampField()
     variant = ExperimentVariantSerializer()
 
@@ -59,6 +60,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             'pref_key',
             'pref_type',
             'project_name',
+            'project_slug',
             'reject_url',
             'slug',
             'start_date',
