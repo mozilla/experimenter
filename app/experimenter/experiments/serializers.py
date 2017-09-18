@@ -1,9 +1,24 @@
+import time
+
 from rest_framework import serializers
 
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
 )
+
+
+class JSTimestampField(serializers.Field):
+    """
+    Serialize a datetime object into javascript timestamp
+    ie unix time in ms
+    """
+
+    def to_representation(self, obj):
+        if obj:
+            return time.mktime(obj.timetuple()) * 1000
+        else:
+            return None
 
 
 class ExperimentVariantSerializer(serializers.ModelSerializer):
@@ -20,9 +35,11 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
 
 
 class ExperimentSerializer(serializers.ModelSerializer):
-    project_name = serializers.ReadOnlyField(source='project.name')
-    variant = ExperimentVariantSerializer()
     control = ExperimentVariantSerializer()
+    end_date = JSTimestampField()
+    project_name = serializers.ReadOnlyField(source='project.name')
+    start_date = JSTimestampField()
+    variant = ExperimentVariantSerializer()
 
     class Meta:
         model = Experiment
@@ -30,6 +47,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             'accept_url',
             'client_matching',
             'control',
+            'end_date',
             'experiment_slug',
             'experiment_url',
             'firefox_channel',
@@ -43,5 +61,6 @@ class ExperimentSerializer(serializers.ModelSerializer):
             'project_name',
             'reject_url',
             'slug',
+            'start_date',
             'variant',
         )

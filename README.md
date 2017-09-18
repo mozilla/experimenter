@@ -124,34 +124,38 @@ Example: GET /api/v1/experiments/?project__slug=project-slug&status=Pending
 
         [
            {
-              "project_name":"Monitored empowering website",
-              "name":"Devolved real-time groupware",
-              "slug":"devolved-real-time-groupware",
-              "experiment_slug":"pref-flip-monitored-empowering-website-devolved-real-time-groupware",
-              "experiment_url":"https://localhost/experiments/experiment/143/change/",
-              "accept_url":"https://localhost/api/v1/experiments/devolved-real-time-groupware/accept",
-              "reject_url":"https://localhost/api/v1/experiments/devolved-real-time-groupware/reject",
-              "firefox_version":"57.0",
-              "firefox_channel":"Nightly",
-              "population_percent":"100.0000",
-              "objectives":"Placeat ducimus impedit inventore ipsam laboriosam fugit architecto. Animi accusamus at excepturi nisi expedita placeat eaque. Maxime sint nisi dicta illum.",
-              "pref_key":"browser.ergonomic.6thgeneration.focus.group.enabled",
-              "pref_type":"boolean",
-              "variant":{
-                 "name":"Intuitive disintermediate standardization",
-                 "slug":"intuitive-disintermediate-standardization",
-                 "description":"A in quaerat adipisci dignissimos nam esse maiores. Tempora fugit corporis possimus fuga sit praesentium nemo. Molestias ducimus eius qui nihil recusandae minima.",
-                 "ratio":7,
-                 "value":false
-              },
+              "accept_url":"https://localhost/api/v1/experiments/self-enabling-needs-based-hardware/accept",
+              "client_matching":"Locales: en-US, en-CA, en-GB\nGeos: US, CA, GB\nSome \"additional\" filtering",
               "control":{
-                 "name":"Profit-focused zero administration throughput",
-                 "slug":"profit-focused-zero-administration-throughput",
-                 "description":"Aliquid id placeat iure alias. Cum facere vel voluptatibus corporis dolore. Sint cupiditate aut earum tempora quas.",
-                 "ratio":8,
-                 "value":true
+                 "description":"Eos sunt adipisci beatae. Aut sunt totam maiores reprehenderit sed vero. Nam fugit sequi repellendus cumque. Fugit maxime suscipit eius quas iure exercitationem voluptatibus.",
+                 "name":"Seamless 5thgeneration task-force",
+                 "ratio":7,
+                 "slug":"seamless-5thgeneration-task-force",
+                 "value":"\"synergized-client-driven-artificial-intelligence\""
+              },
+              "end_date":1505767052000.0,
+              "experiment_slug":"pref-flip-re-contextualized-systemic-synergy-self-enabling-needs-based-hardware",
+              "experiment_url":"https://localhost/experiments/experiment/144/change/",
+              "firefox_channel":"Release",
+              "firefox_version":"57.0",
+              "name":"Self-enabling needs-based hardware",
+              "objectives":"Illo maiores libero ratione. Dolorum nostrum molestiae blanditiis cumque. Libero saepe ipsum accusantium maxime.",
+              "population_percent":"60.0000",
+              "pref_branch":"default",
+              "pref_key":"browser.phased.hybrid.implementation.enabled",
+              "pref_type":"string",
+              "project_name":"Re-contextualized systemic synergy",
+              "reject_url":"https://localhost/api/v1/experiments/self-enabling-needs-based-hardware/reject",
+              "slug":"self-enabling-needs-based-hardware",
+              "start_date":1505767052000.0,
+              "variant":{
+                 "description":"Modi perferendis repudiandae ducimus dolorem eum rem. Esse porro iure consectetur facere. Quidem nam enim dolore eius ab facilis.",
+                 "name":"Business-focused upward-trending Graphic Interface",
+                 "ratio":2,
+                 "slug":"business-focused-upward-trending-graphic-interface",
+                 "value":"\"synchronized-upward-trending-knowledgebase\""
               }
-           }
+           },
         ]
 
 

@@ -1,3 +1,5 @@
+import datetime
+
 from django.test import TestCase
 
 from experimenter.experiments.tests.factories import (
@@ -5,9 +7,23 @@ from experimenter.experiments.tests.factories import (
     ExperimentVariantFactory,
 )
 from experimenter.experiments.serializers import (
-    ExperimentVariantSerializer,
+    JSTimestampField,
     ExperimentSerializer,
+    ExperimentVariantSerializer,
 )
+
+
+class TestJSTimestampField(TestCase):
+
+    def test_field_serializes_to_js_time_format(self):
+        field = JSTimestampField()
+        example_datetime = datetime.datetime(2000, 1, 1, 1, 1, 1, 1)
+        self.assertEqual(
+            field.to_representation(example_datetime), 946688461000.0)
+
+    def test_field_returns_none_if_no_datetime_passed_in(self):
+        field = JSTimestampField()
+        self.assertEqual(field.to_representation(None), None)
 
 
 class TestExperimentVariantSerializer(TestCase):
@@ -27,12 +43,14 @@ class TestExperimentVariantSerializer(TestCase):
 class TestExperimentSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_with_variants()
+        experiment = ExperimentFactory.create_complete_with_variants()
         serialized = ExperimentSerializer(experiment)
         expected_data = {
             'accept_url': experiment.accept_url,
             'client_matching': experiment.client_matching,
             'control': ExperimentVariantSerializer(experiment.control).data,
+            'end_date': JSTimestampField().to_representation(
+                experiment.end_date),
             'experiment_slug': experiment.experiment_slug,
             'experiment_url': experiment.experiment_url,
             'firefox_channel': experiment.firefox_channel,
@@ -47,6 +65,8 @@ class TestExperimentSerializer(TestCase):
             'project_name': experiment.project.name,
             'reject_url': experiment.reject_url,
             'slug': experiment.slug,
+            'start_date': JSTimestampField().to_representation(
+                experiment.start_date),
             'variant': ExperimentVariantSerializer(experiment.variant).data,
         }
 

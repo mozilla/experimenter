@@ -147,6 +147,29 @@ class Experiment(models.Model):
     def is_readonly(self):
         return self.status != self.STATUS_CREATED
 
+    def _transition_date(self, start_state, end_state):
+        change = self.changes.filter(
+            old_status=start_state,
+            new_status=end_state,
+        )
+
+        if change.count() == 1:
+            return change.get().changed_on
+
+    @property
+    def start_date(self):
+        return self._transition_date(
+            self.STATUS_ACCEPTED,
+            self.STATUS_LAUNCHED,
+        )
+
+    @property
+    def end_date(self):
+        return self._transition_date(
+            self.STATUS_LAUNCHED,
+            self.STATUS_COMPLETE,
+        )
+
     @property
     def experiment_slug(self):
         return 'pref-flip-{project_slug}-{experiment_slug}'.format(
@@ -220,12 +243,15 @@ class ExperimentChangeLog(models.Model):
     message = models.TextField()
 
     def __str__(self):  # pragma: no cover
-        return (
-            '{changed_by} changed {experiment} on {datetime}: {message}'
-        ).format(
+        return ((
+            '{changed_by} changed {experiment} on {datetime} '
+            'from {old_status} to {new_status}: {message}'
+        )).format(
             changed_by=self.changed_by,
             experiment=self.experiment,
             datetime=self.changed_on,
+            old_status=self.old_status,
+            new_status=self.new_status,
             message=self.message,
         )
 
