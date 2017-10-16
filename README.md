@@ -64,9 +64,18 @@ An experiment has three parts:
 
         make createuser
 
+1. Add dummy SSL certs
+
+        make ssl
+
 1. Run a dev instance
 
         make up
+
+1. Navigate to it and add an SSL exception to your browser
+
+        https://localhost/
+
 Done!
 
 ## Usage
@@ -104,6 +113,9 @@ Start an ipython shell inside the container (this lets you import and test code,
 
 ### bash
 Start a bash shell inside the container (this lets you interact with the containerized filesystem)
+
+### ssl
+Create dummy SSL certs to use the dev server over a locally secure connection (this helps test client behaviour with a secure connection)
 
 ## API
 
