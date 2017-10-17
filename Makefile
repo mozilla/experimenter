@@ -4,7 +4,7 @@ secretkey:
 build:
 	./scripts/build.sh
 
-compose_build: build
+compose_build: build ssl
 	docker-compose build
 
 up: compose_build
@@ -43,5 +43,13 @@ bash: compose_build
 kill:
 	docker ps -a -q | xargs docker kill;docker ps -a -q | xargs docker rm
 
-ssl:
-	openssl req -x509 -newkey rsa:4096 -keyout nginx/key.pem -out nginx/cert.pem -days 365 -nodes
+
+ssl: nginx/key.pem nginx/cert.pem
+
+nginx/key.pem:
+	openssl genrsa -out nginx/key.pem 4096
+
+nginx/cert.pem: nginx/key.pem
+	openssl req -new -x509 -nodes -sha256 -key nginx/key.pem \
+		-subj "/C=US/ST=California/L=Mountain View/O=Mozilla/CN=experiment_local" \
+		> nginx/cert.pem
