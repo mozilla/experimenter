@@ -100,7 +100,7 @@ class Experiment(models.Model):
     slug = models.SlugField(
         max_length=255, unique=True, blank=False, null=False)
     objectives = models.TextField(default='')
-    analysis = models.TextField(default='')
+    analysis = models.TextField(default='', blank=True, null=True)
     dashboard_url = models.URLField(blank=True, null=True)
     dashboard_image_url = models.URLField(blank=True, null=True)
     population_percent = models.DecimalField(
@@ -227,6 +227,7 @@ class ExperimentChangeLog(models.Model):
     experiment = models.ForeignKey(
         Experiment, blank=False, null=False, related_name='changes')
     changed_on = models.DateTimeField(auto_now_add=True)
+    changed_on.editable = True
     changed_by = models.ForeignKey(get_user_model())
     old_status = models.CharField(
         max_length=255,
@@ -240,7 +241,7 @@ class ExperimentChangeLog(models.Model):
         null=False,
         choices=Experiment.STATUS_CHOICES,
     )
-    message = models.TextField()
+    message = models.TextField(blank=True, null=True)
 
     def __str__(self):  # pragma: no cover
         return ((
