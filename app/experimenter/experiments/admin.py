@@ -81,6 +81,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                 'slug',
                 'pref_key',
                 'pref_type',
+                'pref_branch',
                 'firefox_channel',
                 'firefox_version',
                 'population_percent',

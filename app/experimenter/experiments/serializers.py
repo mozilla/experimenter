@@ -59,6 +59,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             'pref_branch',
             'pref_key',
             'pref_type',
+            'pref_branch',
             'project_name',
             'project_slug',
             'reject_url',
