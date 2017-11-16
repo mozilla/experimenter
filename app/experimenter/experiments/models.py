@@ -90,7 +90,11 @@ class Experiment(models.Model):
         max_length=255,
         choices=PREF_TYPE_CHOICES,
     )
-    pref_branch = models.CharField(max_length=255, choices=PREF_BRANCH_CHOICES)
+    pref_branch = models.CharField(
+        max_length=255,
+        choices=PREF_BRANCH_CHOICES,
+        default=PREF_BRANCH_DEFAULT,
+    )
     firefox_version = models.CharField(max_length=255)
     firefox_channel = models.CharField(
         max_length=255, choices=CHANNEL_CHOICES, default=CHANNEL_NIGHTLY)
