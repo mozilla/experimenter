@@ -98,7 +98,7 @@ class Experiment(models.Model):
     firefox_version = models.CharField(max_length=255)
     firefox_channel = models.CharField(
         max_length=255, choices=CHANNEL_CHOICES, default=CHANNEL_NIGHTLY)
-    client_matching = models.TextField(default='')
+    client_matching = models.TextField(default='', blank=True)
     name = models.CharField(
         max_length=255, unique=True, blank=False, null=False)
     slug = models.SlugField(
@@ -232,7 +232,6 @@ class ExperimentChangeLog(models.Model):
     experiment = models.ForeignKey(
         Experiment, blank=False, null=False, related_name='changes')
     changed_on = models.DateTimeField(auto_now_add=True)
-    changed_on.editable = True
     changed_by = models.ForeignKey(get_user_model())
     old_status = models.CharField(
         max_length=255,
