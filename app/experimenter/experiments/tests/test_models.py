@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
+from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.experiments.models import (
     Experiment, ExperimentVariant)
 from experimenter.experiments.tests.factories import (
@@ -48,12 +49,25 @@ class TestExperimentModel(TestCase):
         experiment.status = experiment.STATUS_PENDING
         experiment.save()
 
-    def test_experiment_change_status_to_unexpected_status_raises(self):
+    def test_experiment_status_validation_raises_if_enabled(self):
         experiment = ExperimentFactory.create_with_variants()
         experiment.status = experiment.STATUS_ACCEPTED
 
         with self.assertRaises(ValidationError):
-            experiment.save()
+            experiment.save(validate=True)
+
+    def test_experiment_status_validation_should_not_raise_if_disabled(self):
+        experiment = ExperimentFactory.create_with_variants()
+        experiment.status = experiment.STATUS_ACCEPTED
+
+        experiment.save()
+
+    def test_experiment_status_validation_should_not_raise_for_new_exp(self):
+        project = ProjectFactory.create()
+        experiment = ExperimentFactory.build(project=project)
+        experiment.status = experiment.STATUS_ACCEPTED
+
+        experiment.save(validate=True)
 
     def test_experiment_with_created_status_is_not_readonly(self):
         experiment = ExperimentFactory.create_with_variants()

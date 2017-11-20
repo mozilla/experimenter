@@ -132,11 +132,12 @@ class Experiment(models.Model):
             ).format(
                 old_status=old_status, new_status=new_status)})
 
-    def clean(self):
-        self.clean_status()
+    def clean(self, validate=False):
+        if validate:
+            self.clean_status()
 
-    def save(self, *args, **kwargs):
-        self.clean()
+    def save(self, validate=False, *args, **kwargs):
+        self.clean(validate=validate)
         return super().save(*args, **kwargs)
 
     @property
