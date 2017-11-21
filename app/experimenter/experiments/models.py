@@ -6,6 +6,7 @@ from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils import timezone
 
 
 class Experiment(models.Model):
@@ -229,9 +230,12 @@ class ExperimentVariant(models.Model):
 
 
 class ExperimentChangeLog(models.Model):
+    def current_datetime():
+        return timezone.now()
+
     experiment = models.ForeignKey(
         Experiment, blank=False, null=False, related_name='changes')
-    changed_on = models.DateTimeField(auto_now_add=True)
+    changed_on = models.DateTimeField(default=current_datetime)
     changed_by = models.ForeignKey(get_user_model())
     old_status = models.CharField(
         max_length=255,
