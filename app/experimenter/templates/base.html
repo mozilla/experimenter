@@ -7,13 +7,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<!-- Latest compiled and minified CSS -->
+    <link rel="icon" href="{% static "imgs/favicon.svg" %}" type="image/x-icon" />
+		
+    <!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="{% static "lib/bootstrap/css/bootstrap.min.css" %}">
 
 		<!-- Optional theme -->
 		<link rel="stylesheet" href="{% static "lib/bootstrap/css/bootstrap-theme.min.css" %}">
 		
 		<link rel="stylesheet" href="{% static "css/experimenter.css" %}">
+
+    {% block title %}
+      <title>Mozilla Experimenter</title>
+    {% endblock %}
 
   </head>
   <body>

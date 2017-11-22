@@ -1,23 +1,28 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
   <div id="content_header" class="row">
-    <div class="col-md-6">
-      <h2>Projects</h2>
-    </div>
-    <div class="col-md-6 text-right">
-      <button id="new_project_button" type="button" class="btn btn-primary">New Project</button>
+    <div class="col-md-12 text-right">
+      <span id="projects_count">{{ object_list.count }} Project{{ object_list.count|pluralize }}</span>
     </div>
   </div>
   <div id="projects_list" class="row">
     {% for project in object_list %}
       <div class="col-md-4">
         <div class="project">
-          <div class="project-image" style="background-image: url({{ project.image.url }})">
-          </div>
+          {% if project.image %} 
+            <div class="project-image" style="background-image: url({{ project.image.url }})">
+            </div>
+          {% else %}
+            <div class="project-image">
+              <img class="project-default-image" src="{% static "imgs/project.svg" %}" />
+            </div>
+          {% endif %}
           <div class="project-info">
             <h4 class="project_experiment_name">{{ project.name }}</h4>
-            <h5 class="project_experiment_count">{{ project.experiments.count }} experiments</h5>
+            <h5 class="project_experiment_count">{{ project.experiments.count }} experiment{{ project.experiments.count|pluralize }}</h5>
           </div>
         </div>
       </div>
