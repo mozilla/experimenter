@@ -1,5 +1,6 @@
 body {
-  background-color: #FAFAFA;
+  background-color: #F8F8F8;
+  color: #212121;
 }
 
 #header {
@@ -51,15 +52,12 @@ footer {
 
 #content_header {
   margin-top: 15px;
-}
-
-#content_header h2 {
-  margin-top: 10px;
-}
-
-#projects_count {
   font-size: 28px;
   font-weight: lighter;
+}
+
+#projects-list a {
+  text-decoration: none;
 }
 
 .project {
@@ -68,6 +66,7 @@ footer {
   box-shadow: 0 2px 5px 0 rgba(12, 12, 13, 0.1);
   transition: box-shadow ease-in-out .25s;
   border-radius: 5px;
+  background-color: white;
 }
 
 .project:hover {
@@ -83,18 +82,17 @@ footer {
   border-top-left-radius: 5px;
   text-align: center;
   padding-top: 60px;
-  background-color: #F1F1F1;
 }
 
 .project-default-image {
   width: 50%;
+  opacity: 0.1;
 }
 
 .project-info {
   padding: 12px;
   padding-top: 2px;
   padding-bottom: 2px;
-  background-color: #FAFAFA;
   border-bottom-right-radius: 5px;
   border-bottom-left-radius: 5px;
 }
@@ -110,4 +108,108 @@ footer {
   letter-spacing: 0.5px;
   font-size: 12px;
   margin-top: 0px;
+}
+
+.project-name {
+  font-weight: normal;
+}
+
+.experiment {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 5px 0 rgba(12, 12, 13, 0.1);
+  transition: box-shadow ease-in-out .25s;
+  border-radius: 5px;
+  padding-left: 0px;
+  background-color: white;
+  padding-right: 0px;
+}
+
+.experiment:hover {
+  box-shadow: 0 3px 8px 0 rgba(6, 6, 6, 0.2);
+}
+
+.experiment-preview {
+  padding-left: 0px;
+  padding-right: 0px;
+  margin-left: 0px;
+  border-radius: 5px;
+}
+
+.experiment-status {
+  border-top-left-radius: 5px;
+}
+
+.experiment-status h4 {
+  padding: 10px;
+  margin-top: 0px;
+  margin-left: 10px;
+  margin-bottom: 0px;
+  color: white;
+}
+
+.experiment-status-Created {
+  background-color: #00c5ff;
+}
+
+.experiment-status-Pending {
+  background-color: #ffa21e;
+}
+
+.experiment-status-Accepted {
+  background-color: #ffa21e;
+}
+
+.experiment-status-Launched {
+  background-color: #34c834;
+}
+
+.experiment-status-Complete {
+  background-color: #1c81d8;
+}
+
+.experiment-status-Rejected {
+  background-color: #e9433e;
+}
+
+.experiment-image {
+  text-align: center;
+}
+
+.experiment-image img {
+  opacity: 0.1;
+  width: 180px;
+}
+
+.experiment-overview {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.experiment-overview h4{
+  background-color: #EFEFEF;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding: 10px 20px;
+}
+
+.experiment-objectives {
+  overflow: hidden;
+  max-height: 120px;
+}
+
+.experiment-population {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.experiment-population h4 {
+  border-top-right-radius: 5px;
+  background-color: #EFEFEF;
+  margin: 0px;
+  padding: 10px 20px;
+}
+
+.experiment-content {
+  padding: 10px 20px;
 }
