@@ -2,6 +2,7 @@ import datetime
 
 from django.test import TestCase
 
+from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
@@ -43,7 +44,8 @@ class TestExperimentVariantSerializer(TestCase):
 class TestExperimentSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_complete_with_variants()
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_COMPLETE)
         serialized = ExperimentSerializer(experiment)
         expected_data = {
             'accept_url': experiment.accept_url,

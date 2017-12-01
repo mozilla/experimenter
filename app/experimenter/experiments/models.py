@@ -6,7 +6,18 @@ from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models import Max
 from django.utils import timezone
+
+
+class ExperimentManager(models.Manager):
+
+    def most_recently_changed(self):
+        return (
+            self.all()
+            .annotate(latest_change=Max('changes__changed_on'))
+            .order_by('-latest_change')
+        )
 
 
 class Experiment(models.Model):
@@ -111,6 +122,8 @@ class Experiment(models.Model):
     population_percent = models.DecimalField(
         max_digits=7, decimal_places=4, default='0')
 
+    objects = ExperimentManager()
+
     def __str__(self):  # pragma: no cover
         return self.name
 
@@ -143,11 +156,11 @@ class Experiment(models.Model):
 
     @property
     def control(self):
-        return self.variants.get(is_control=True)
+        return self.variants.filter(is_control=True).first()
 
     @property
     def variant(self):
-        return self.variants.get(is_control=False)
+        return self.variants.filter(is_control=False).first()
 
     @property
     def is_readonly(self):
@@ -229,6 +242,12 @@ class ExperimentVariant(models.Model):
         )
 
 
+class ExperimentChangeLogManager(models.Manager):
+
+    def latest(self):
+        return self.all().order_by('-changed_on').first()
+
+
 class ExperimentChangeLog(models.Model):
     def current_datetime():
         return timezone.now()
@@ -251,17 +270,13 @@ class ExperimentChangeLog(models.Model):
     )
     message = models.TextField(blank=True, null=True)
 
+    objects = ExperimentChangeLogManager()
+
     def __str__(self):  # pragma: no cover
-        return ((
-            '{changed_by} changed {experiment} on {datetime} '
-            'from {old_status} to {new_status}: {message}'
-        )).format(
-            changed_by=self.changed_by,
-            experiment=self.experiment,
-            datetime=self.changed_on,
-            old_status=self.old_status,
-            new_status=self.new_status,
-            message=self.message,
+        return '{status} by {updater} on {datetime}'.format(
+          status=self.new_status,
+          updater=self.changed_by,
+          datetime=self.changed_on.date(),
         )
 
     class Meta:

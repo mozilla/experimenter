@@ -1,3 +1,4 @@
+import datetime
 import decimal
 import json
 import random
@@ -28,8 +29,10 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     firefox_version = '57.0'
     firefox_channel = factory.LazyAttribute(
         lambda o: random.choice(Experiment.CHANNEL_CHOICES)[0])
-    objectives = factory.LazyAttribute(lambda o: faker.text())
-    analysis = factory.LazyAttribute(lambda o: faker.text())
+    objectives = factory.LazyAttribute(
+        lambda o: faker.text(random.randint(500, 5000)))
+    analysis = factory.LazyAttribute(
+        lambda o: faker.text(random.randint(500, 5000)))
     dashboard_url = 'http://www.example.com/dashboard'
     dashboard_image_url = 'http://www.example.com/dashboard.png'
     population_percent = factory.LazyAttribute(
@@ -50,18 +53,33 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
         return experiment
 
     @classmethod
-    def create_complete_with_variants(cls, *args, **kwargs):
+    def create_with_status(cls, target_status, *args, **kwargs):
         experiment = cls.create_with_variants(*args, **kwargs)
-        ExperimentChangeLogFactory(
-            experiment=experiment,
-            old_status=Experiment.STATUS_ACCEPTED,
-            new_status=Experiment.STATUS_LAUNCHED,
+
+        now = (
+            datetime.datetime.now() -
+            datetime.timedelta(days=random.randint(100, 200))
         )
-        ExperimentChangeLogFactory(
-            experiment=experiment,
-            old_status=Experiment.STATUS_LAUNCHED,
-            new_status=Experiment.STATUS_COMPLETE,
-        )
+
+        old_status = None
+        for status_value, status_label in Experiment.STATUS_CHOICES:
+            experiment.status = status_value
+            experiment.save()
+
+            change = ExperimentChangeLogFactory.create(
+                experiment=experiment,
+                old_status=old_status,
+                new_status=status_value,
+            )
+            change.changed_on = now
+            change.save()
+
+            if status_value == target_status:
+                break
+
+            old_status = status_value
+            now += datetime.timedelta(days=random.randint(5, 20))
+
         return experiment
 
 

@@ -1,3 +1,5 @@
+import datetime
+
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
@@ -6,6 +8,44 @@ from experimenter.experiments.models import (
     Experiment, ExperimentVariant)
 from experimenter.experiments.tests.factories import (
     ExperimentFactory, ExperimentChangeLogFactory)
+
+
+class TestExperimentManager(TestCase):
+
+    def test_most_recently_changed_orders_by_latest_changes(self):
+        now = datetime.datetime.now()
+        experiment1 = ExperimentFactory.create_with_variants()
+        experiment2 = ExperimentFactory.create_with_variants()
+
+        ExperimentChangeLogFactory.create(
+            experiment=experiment1,
+            old_status=None,
+            new_status=Experiment.STATUS_CREATED,
+            changed_on=(now - datetime.timedelta(days=2)),
+        )
+
+        ExperimentChangeLogFactory.create(
+            experiment=experiment2,
+            old_status=None,
+            new_status=Experiment.STATUS_CREATED,
+            changed_on=(now - datetime.timedelta(days=1)),
+        )
+
+        self.assertEqual(
+            list(Experiment.objects.most_recently_changed()),
+            [experiment2, experiment1],
+        )
+
+        ExperimentChangeLogFactory.create(
+            experiment=experiment1,
+            old_status=experiment1.status,
+            new_status=Experiment.STATUS_PENDING,
+        )
+
+        self.assertEqual(
+            list(Experiment.objects.most_recently_changed()),
+            [experiment1, experiment2],
+        )
 
 
 class TestExperimentModel(TestCase):
@@ -78,3 +118,28 @@ class TestExperimentModel(TestCase):
         experiment.status = experiment.STATUS_PENDING
         experiment.save()
         self.assertTrue(experiment.is_readonly)
+
+
+class TestExperimentChangeLogManager(TestCase):
+
+    def test_latest_returns_most_recent_changelog(self):
+        now = datetime.datetime.now()
+        experiment = ExperimentFactory.create_with_variants()
+
+        changelog1 = ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            old_status=None,
+            new_status=Experiment.STATUS_CREATED,
+            changed_on=(now - datetime.timedelta(days=2)),
+        )
+
+        self.assertEqual(experiment.changes.latest(), changelog1)
+
+        changelog2 = ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            old_status=Experiment.STATUS_CREATED,
+            new_status=Experiment.STATUS_PENDING,
+            changed_on=(now - datetime.timedelta(days=1)),
+        )
+
+        self.assertEqual(experiment.changes.latest(), changelog2)
