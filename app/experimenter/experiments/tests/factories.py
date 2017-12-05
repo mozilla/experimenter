@@ -33,6 +33,9 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
         lambda o: faker.text(random.randint(500, 5000)))
     analysis = factory.LazyAttribute(
         lambda o: faker.text(random.randint(500, 5000)))
+    total_users = factory.LazyAttribute(
+        lambda o: random.randint(100000, 1000000))
+    enrollment_dashboard_url = 'http://www.example.com/enrollment'
     dashboard_url = 'http://www.example.com/dashboard'
     dashboard_image_url = 'http://www.example.com/dashboard.png'
     population_percent = factory.LazyAttribute(
