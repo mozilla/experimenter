@@ -3,44 +3,44 @@
 {% load static %}
 
 {% block content %}
-  <div id="content_header" class="row">
-    <div class="project-name col-md-6">
+  <div id="content-header" class="row">
+    <div class="col-md-6">
       {{ object.name }}
     </div>
-    <div class="col-md-6 text-right">
+    <div class="col-md-6 text-right light-text">
       {{ object.experiments.count }} Experiment{{ object.experiments.count|pluralize }}
     </div>
   </div>
-  <div id="experiments_list" class="row">
+  <div id="card-list" class="row">
     {% for experiment in object.experiments.most_recently_changed %}
-      <div class="experiment col-md-12">
-        <div class="experiment-preview col-md-2">
-          <div class="experiment-status experiment-status-{{ experiment.status }}">
+      <div class="card col-md-12">
+        <div class="no-padding col-md-2">
+          <div class="card-status card-status-{{ experiment.status }}">
             <h4>{{ experiment.status }}</h4>
           </div>
-          <div class="experiment-image">
+          <div class="card-image">
             <img src="{% static "imgs/experiment.svg" %}" />
           </div>
         </div>
-        <div class="experiment-overview col-md-7">
-          <h4>{{ experiment.name }}</h4>
-          <div class="experiment-content">
+        <div class="no-padding col-md-7">
+          <h4 class="card-title">{{ experiment.name }}</h4>
+          <div class="card-content">
             <p>
               <strong>
                 {{ experiment.changes.latest }}
               </strong>
             </p>
-            <p class="experiment-objectives">{{ experiment.objectives }}</p>
+            <p class="card-content-body">{{ experiment.objectives }}</p>
           </div>
         </div>
-        <div class="experiment-population col-md-3">
-          <h4>
+        <div class="no-padding col-md-3">
+          <h4 class="card-title">
             {{ experiment.population_percent|stringformat:"17g" }}% of
             Firefox 
             {{ experiment.firefox_version }}
             {{ experiment.firefox_channel }} 
           </h4>
-          <div class="experiment-content">
+          <div class="card-content">
             <p>
               <strong>
                 {{ experiment.control.ratio }} 
@@ -49,7 +49,7 @@
                 Variant
               </strong>
             </p>
-            <p>{{ experiment.client_matching }}</p>
+            <p class="card-content-body">{{ experiment.client_matching }}</p>
           </div>
         </div>
       </div>
