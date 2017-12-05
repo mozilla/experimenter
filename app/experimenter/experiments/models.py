@@ -117,6 +117,8 @@ class Experiment(models.Model):
         max_length=255, unique=True, blank=False, null=False)
     objectives = models.TextField(default='')
     analysis = models.TextField(default='', blank=True, null=True)
+    total_users = models.PositiveIntegerField(default=0)
+    enrollment_dashboard_url = models.URLField(blank=True, null=True)
     dashboard_url = models.URLField(blank=True, null=True)
     dashboard_image_url = models.URLField(blank=True, null=True)
     population_percent = models.DecimalField(
