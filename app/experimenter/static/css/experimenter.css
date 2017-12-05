@@ -1,48 +1,55 @@
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
 body {
   background-color: #F8F8F8;
   color: #212121;
 }
 
+.light-text {
+  font-weight: lighter;
+}
+
+.no-padding {
+  padding: 0px;
+}
+
 #header {
-  height: 60px;
   background: #002d5a;
   color: #dedede;
   fill: #dedede;
+  padding: 10px 0px;
   box-shadow: 0 2px 10px 0 rgba(6, 6, 6, 0.3);
 }
 
-#experimenter_logo {
-  margin-top: 14px;
+#site-logo {
+  font-size: 30px;
   font-weight: lighter;
   transition: color ease-in-out .15s, fill ease-in-out .15s;
 }
 
-#experimenter_logo:hover {
+#site-logo:hover {
   color: #fff;
   fill: #fff;
 }
 
-#header a {
-  color: #dedede;
-  text-decoration: none;
-}
-
-#header a:hover {
-  color: #dedede;
-}
-
-#header_icon_svg {
+#site-icon {
   height: 30px;
   margin-bottom: -4px;
   margin-right: -3px;
 }
 
-#header #header_right {
-  margin-top: 14px;
-}
-
-#header #header_right a {
-  margin-left: 5px;
+#header-user-name {
+  display: inline-block;
+  height: 34px;
+  line-height: 34px;
 }
 
 footer {
@@ -50,17 +57,12 @@ footer {
   margin-bottom: 20px;
 }
 
-#content_header {
+#content-header {
   margin-top: 15px;
   font-size: 28px;
-  font-weight: lighter;
 }
 
-#projects-list a {
-  text-decoration: none;
-}
-
-.project {
+.tile {
   margin-top: 15px;
   margin-bottom: 15px;
   box-shadow: 0 2px 5px 0 rgba(12, 12, 13, 0.1);
@@ -69,11 +71,15 @@ footer {
   background-color: white;
 }
 
-.project:hover {
+.tile:hover {
   box-shadow: 0 3px 8px 0 rgba(6, 6, 6, 0.2);
+
+.card-preview {
+  padding: 0px;
+}
 }
 
-.project-image {
+.tile-image {
   height: 300px;
   background-repeat: no-repeat;
   background-size: cover;
@@ -84,12 +90,12 @@ footer {
   padding-top: 60px;
 }
 
-.project-default-image {
+.tile-default-image {
   width: 50%;
   opacity: 0.1;
 }
 
-.project-info {
+.tile-info {
   padding: 12px;
   padding-top: 2px;
   padding-bottom: 2px;
@@ -97,11 +103,11 @@ footer {
   border-bottom-left-radius: 5px;
 }
 
-.project_experiment_name {
+.tile-name {
   margin-bottom: 4px;
 }
 
-.project_experiment_count {
+.tile-subheader {
   text-transform: uppercase;
   font-weight: normal;
   color: #888;
@@ -110,11 +116,7 @@ footer {
   margin-top: 0px;
 }
 
-.project-name {
-  font-weight: normal;
-}
-
-.experiment {
+.card {
   margin-top: 10px;
   margin-bottom: 10px;
   box-shadow: 0 2px 5px 0 rgba(12, 12, 13, 0.1);
@@ -125,22 +127,15 @@ footer {
   padding-right: 0px;
 }
 
-.experiment:hover {
+.card:hover {
   box-shadow: 0 3px 8px 0 rgba(6, 6, 6, 0.2);
 }
 
-.experiment-preview {
-  padding-left: 0px;
-  padding-right: 0px;
-  margin-left: 0px;
-  border-radius: 5px;
-}
-
-.experiment-status {
+.card-status {
   border-top-left-radius: 5px;
 }
 
-.experiment-status h4 {
+.card-status h4 {
   padding: 10px;
   margin-top: 0px;
   margin-left: 10px;
@@ -148,68 +143,51 @@ footer {
   color: white;
 }
 
-.experiment-status-Created {
+.card-status-Created {
   background-color: #00c5ff;
 }
 
-.experiment-status-Pending {
+.card-status-Pending {
   background-color: #ffa21e;
 }
 
-.experiment-status-Accepted {
+.card-status-Accepted {
   background-color: #ffa21e;
 }
 
-.experiment-status-Launched {
+.card-status-Launched {
   background-color: #34c834;
 }
 
-.experiment-status-Complete {
+.card-status-Complete {
   background-color: #1c81d8;
 }
 
-.experiment-status-Rejected {
+.card-status-Rejected {
   background-color: #e9433e;
 }
 
-.experiment-image {
+.card-image {
   text-align: center;
 }
 
-.experiment-image img {
+.card-image img {
   opacity: 0.1;
   width: 180px;
 }
 
-.experiment-overview {
-  padding-left: 0px;
-  padding-right: 0px;
-}
-
-.experiment-overview h4{
+.card-title {
   background-color: #EFEFEF;
   margin-top: 0px;
   margin-bottom: 0px;
   padding: 10px 20px;
 }
 
-.experiment-objectives {
+.card-content {
+  padding: 10px 20px;
+}
+
+.card-content-body {
   overflow: hidden;
   max-height: 120px;
-}
-
-.experiment-population {
-  padding-left: 0px;
-  padding-right: 0px;
-}
-
-.experiment-population h4 {
-  border-top-right-radius: 5px;
-  background-color: #EFEFEF;
-  margin: 0px;
-  padding: 10px 20px;
-}
-
-.experiment-content {
-  padding: 10px 20px;
 }
