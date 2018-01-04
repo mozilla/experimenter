@@ -5,22 +5,20 @@
 {% block content %}
   <div id="content-header" class="row">
     <div class="col-md-6">
-      {{ object.name }}
+      <a href="{% url "projects-detail" slug=object.slug %}">
+        {{ object.name }}
+      </a>
     </div>
     <div class="col-md-6 text-right light-text">
       {{ object.experiments.count }} Experiment{{ object.experiments.count|pluralize }}
     </div>
   </div>
-  <div id="card-list" class="row">
-    {% for experiment in object.experiments.most_recently_changed %}
-      <div class="card col-md-12">
+  {% for experiment in object.experiments.most_recently_changed %}
+    <a href="{% url "experiments-detail" slug=experiment.slug %}">
+      <div class="row card bottom-margin">
         <div class="no-padding col-md-2">
-          <div class="card-status card-status-{{ experiment.status }}">
-            <h4>{{ experiment.status }}</h4>
-          </div>
-          <div class="card-image">
-            <img src="{% static "imgs/experiment.svg" %}" />
-          </div>
+          <h4 class="card-title top-left-rounded status-color-{{ experiment.status }}">{{ experiment.status }}</h4>
+          <img class="card-image" src="{% static "imgs/experiment.svg" %}" />
         </div>
         <div class="no-padding col-md-7">
           <h4 class="card-title">{{ experiment.name }}</h4>
@@ -34,7 +32,7 @@
           </div>
         </div>
         <div class="no-padding col-md-3">
-          <h4 class="card-title">
+          <h4 class="card-title top-right-rounded">
             {{ experiment.population_percent|stringformat:"17g" }}% of
             Firefox 
             {{ experiment.firefox_version }}
@@ -53,6 +51,6 @@
           </div>
         </div>
       </div>
-    {% endfor %}
-  </div>
+    </a>
+  {% endfor %}
 {% endblock %}

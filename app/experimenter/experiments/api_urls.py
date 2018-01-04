@@ -1,8 +1,8 @@
 from django.conf.urls import url
 
 from experimenter.experiments.views import (
-    ExperimentListView,
     ExperimentAcceptView,
+    ExperimentListView,
     ExperimentRejectView,
 )
 

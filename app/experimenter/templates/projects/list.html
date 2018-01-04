@@ -4,8 +4,8 @@
 
 {% block content %}
   <div id="content-header" class="row">
-    <div class="col-md-12 text-right">
-      <span id="projects_count">{{ object_list.count }} Project{{ object_list.count|pluralize }}</span>
+    <div class="col-md-12">
+      {{ object_list.count }} Project{{ object_list.count|pluralize }}
     </div>
   </div>
   <div class="row">

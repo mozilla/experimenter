@@ -79,6 +79,10 @@ class ExperimentAdmin(admin.ModelAdmin):
                 'project',
                 'name',
                 'slug',
+            ),
+        }),
+        ('Client Config', {
+            'fields': (
                 'pref_key',
                 'pref_type',
                 'pref_branch',
@@ -90,6 +94,14 @@ class ExperimentAdmin(admin.ModelAdmin):
         }),
         ('Notes', {
             'fields': ('objectives', 'analysis'),
+        }),
+        ('Telemetry', {
+            'fields': (
+                'dashboard_url',
+                'dashboard_image_url',
+                'enrollment_dashboard_url',
+                'total_users',
+            ),
         }),
     )
 
