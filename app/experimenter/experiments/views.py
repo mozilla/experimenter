@@ -1,3 +1,4 @@
+from django.views.generic import DetailView
 from rest_framework.generics import ListAPIView, UpdateAPIView
 from rest_framework.response import Response
 
@@ -5,6 +6,11 @@ from experimenter.experiments.models import Experiment, ExperimentChangeLog
 from experimenter.experiments.serializers import (
     ExperimentSerializer,
 )
+
+
+class ExperimentDetailView(DetailView):
+    model = Experiment
+    template_name = 'experiments/detail.html'
 
 
 class ExperimentListView(ListAPIView):

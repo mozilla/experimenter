@@ -8,9 +8,17 @@ a:hover {
   text-decoration: none;
 }
 
+h1 {
+  margin: 0px;
+}
+
 body {
   background-color: #F8F8F8;
   color: #212121;
+}
+
+.spaced-text {
+  letter-spacing: 0.8px;
 }
 
 .light-text {
@@ -21,16 +29,37 @@ body {
   padding: 0px;
 }
 
+.no-left-padding {
+  padding-left: 0px;
+}
+
+.no-right-padding {
+  padding-right: 0px;
+}
+
+.no-margin {
+  margin: 0px;
+}
+
+.bottom-margin {
+  margin-bottom: 20px;
+}
+
+.spaced-line {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 #header {
   background: #002d5a;
   color: #dedede;
   fill: #dedede;
-  padding: 10px 0px;
+  padding: 15px 0px;
   box-shadow: 0 2px 10px 0 rgba(6, 6, 6, 0.3);
 }
 
 #site-logo {
-  font-size: 30px;
+  font-size: 26px;
   font-weight: lighter;
   transition: color ease-in-out .15s, fill ease-in-out .15s;
 }
@@ -58,8 +87,9 @@ footer {
 }
 
 #content-header {
-  margin-top: 15px;
-  font-size: 28px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 24px;
 }
 
 .tile {
@@ -73,10 +103,6 @@ footer {
 
 .tile:hover {
   box-shadow: 0 3px 8px 0 rgba(6, 6, 6, 0.2);
-
-.card-preview {
-  padding: 0px;
-}
 }
 
 .tile-image {
@@ -117,8 +143,6 @@ footer {
 }
 
 .card {
-  margin-top: 10px;
-  margin-bottom: 10px;
   box-shadow: 0 2px 5px 0 rgba(12, 12, 13, 0.1);
   transition: box-shadow ease-in-out .25s;
   border-radius: 5px;
@@ -131,56 +155,33 @@ footer {
   box-shadow: 0 3px 8px 0 rgba(6, 6, 6, 0.2);
 }
 
-.card-status {
+.top-left-rounded {
   border-top-left-radius: 5px;
 }
 
-.card-status h4 {
-  padding: 10px;
-  margin-top: 0px;
-  margin-left: 10px;
-  margin-bottom: 0px;
-  color: white;
+.top-right-rounded {
+  border-top-right-radius: 5px;
 }
 
-.card-status-Created {
-  background-color: #00c5ff;
-}
-
-.card-status-Pending {
-  background-color: #ffa21e;
-}
-
-.card-status-Accepted {
-  background-color: #ffa21e;
-}
-
-.card-status-Launched {
-  background-color: #34c834;
-}
-
-.card-status-Complete {
-  background-color: #1c81d8;
-}
-
-.card-status-Rejected {
-  background-color: #e9433e;
+.bottom-rounded {
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
 }
 
 .card-image {
   text-align: center;
 }
 
-.card-image img {
+.card-image {
   opacity: 0.1;
-  width: 180px;
+  width: 100%; 
 }
 
 .card-title {
-  background-color: #EFEFEF;
-  margin-top: 0px;
-  margin-bottom: 0px;
+  background-color: #828b93;
   padding: 10px 20px;
+  margin: 0px;
+  color: white;
 }
 
 .card-content {
@@ -190,4 +191,49 @@ footer {
 .card-content-body {
   overflow: hidden;
   max-height: 120px;
+}
+
+.summary-content {
+  background: #FFF;
+  border-radius: 5px;
+  padding: 0px;
+  box-shadow: 0 2px 5px 0 rgba(12, 12, 13, 0.1);
+}
+
+.summary-embedded-graph {
+  height: 435px;
+}
+
+.status-color-Created {
+  color: white;
+  background-color: #00c5ff;
+}
+
+.status-color-Pending {
+  color: white;
+  background-color: #ffa21e;
+}
+
+.status-color-Accepted {
+  color: white;
+  background-color: #ffa21e;
+}
+
+.status-color-Launched {
+  color: white;
+  background-color: #34c834;
+}
+
+.status-color-Complete {
+  color: white;
+  background-color: #1cb7d8;
+}
+
+.status-color-Rejected {
+  color: white;
+  background-color: #e9433e;
+}
+
+.btn-large {
+  display: block;
 }

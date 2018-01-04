@@ -119,6 +119,41 @@ class TestExperimentModel(TestCase):
         experiment.save()
         self.assertTrue(experiment.is_readonly)
 
+    def test_experiment_population_returns_correct_string(self):
+        experiment = ExperimentFactory(
+            population_percent='0.5',
+            firefox_version='57.0',
+            firefox_channel='Nightly',
+        )
+        self.assertEqual(
+            experiment.population,
+            '0.5% of Firefox 57.0 Nightly'
+        )
+
+    def test_experiment_variants_returns_correct_string(self):
+        experiment = ExperimentFactory.create_with_variants()
+
+        experiment.control.name = 'Control'
+        experiment.control.ratio = 1
+        experiment.control.save()
+
+        experiment.variant.name = 'Variant'
+        experiment.variant.ratio = 1
+        experiment.variant.save()
+
+        self.assertEqual(
+            experiment.variant_ratios,
+            '1 Variant : 1 Control',
+        )
+
+    def test_experiments_viewer_link_is_correct(self):
+        experiment = ExperimentFactory.create(slug='experiment')
+        self.assertEqual(
+            experiment.experiments_viewer_url,
+            ('https://moz-experiments-viewer.herokuapp.com/?ds=experiment'
+             '&metrics=ALL&next=%2F&pop=ALL&scale=linear&showOutliers=false'),
+        )
+
 
 class TestExperimentChangeLogManager(TestCase):
 

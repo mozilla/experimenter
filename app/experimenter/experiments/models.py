@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Max
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 
 class ExperimentManager(models.Manager):
@@ -86,17 +87,21 @@ class Experiment(models.Model):
         (PREF_BRANCH_USER, PREF_BRANCH_USER),
     )
 
-    status = models.CharField(
-        max_length=255,
-        default=STATUS_CREATED,
-        choices=STATUS_CHOICES,
-    )
     project = models.ForeignKey(
         'projects.Project',
         blank=False,
         null=False,
         related_name='experiments',
     )
+    status = models.CharField(
+        max_length=255,
+        default=STATUS_CREATED,
+        choices=STATUS_CHOICES,
+    )
+    name = models.CharField(
+        max_length=255, unique=True, blank=False, null=False)
+    slug = models.SlugField(
+        max_length=255, unique=True, blank=False, null=False)
     pref_key = models.CharField(max_length=255, blank=True, null=True)
     pref_type = models.CharField(
         max_length=255,
@@ -107,22 +112,18 @@ class Experiment(models.Model):
         choices=PREF_BRANCH_CHOICES,
         default=PREF_BRANCH_DEFAULT,
     )
+    population_percent = models.DecimalField(
+        max_digits=7, decimal_places=4, default='0')
     firefox_version = models.CharField(max_length=255)
     firefox_channel = models.CharField(
         max_length=255, choices=CHANNEL_CHOICES, default=CHANNEL_NIGHTLY)
     client_matching = models.TextField(default='', blank=True)
-    name = models.CharField(
-        max_length=255, unique=True, blank=False, null=False)
-    slug = models.SlugField(
-        max_length=255, unique=True, blank=False, null=False)
     objectives = models.TextField(default='')
     analysis = models.TextField(default='', blank=True, null=True)
     total_users = models.PositiveIntegerField(default=0)
     enrollment_dashboard_url = models.URLField(blank=True, null=True)
     dashboard_url = models.URLField(blank=True, null=True)
     dashboard_image_url = models.URLField(blank=True, null=True)
-    population_percent = models.DecimalField(
-        max_digits=7, decimal_places=4, default='0')
 
     objects = ExperimentManager()
 
@@ -156,11 +157,11 @@ class Experiment(models.Model):
         self.clean(validate=validate)
         return super().save(*args, **kwargs)
 
-    @property
+    @cached_property
     def control(self):
         return self.variants.filter(is_control=True).first()
 
-    @property
+    @cached_property
     def variant(self):
         return self.variants.filter(is_control=False).first()
 
@@ -176,6 +177,21 @@ class Experiment(models.Model):
 
         if change.count() == 1:
             return change.get().changed_on
+
+    @property
+    def population(self):
+        return '{percent:g}% of Firefox {version} {channel}'.format(
+            percent=float(self.population_percent),
+            version=self.firefox_version,
+            channel=self.firefox_channel,
+        )
+
+    @property
+    def variant_ratios(self):
+        return ' : '.join([
+            '{r} {v}'.format(r=variant.ratio, v=variant.name)
+            for variant in self.variants.all()
+        ])
 
     @property
     def start_date(self):
@@ -218,6 +234,13 @@ class Experiment(models.Model):
             'https://{host}'.format(host=settings.HOSTNAME),
             reverse('experiments-reject', kwargs={'slug': self.slug})
         )
+
+    @property
+    def experiments_viewer_url(self):
+        return (
+            'https://moz-experiments-viewer.herokuapp.com/?ds={slug}'
+            '&metrics=ALL&next=%2F&pop=ALL&scale=linear&showOutliers=false'
+        ).format(slug=self.slug)
 
 
 class ExperimentVariant(models.Model):
