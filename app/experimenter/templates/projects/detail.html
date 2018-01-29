@@ -8,6 +8,9 @@
       <a href="{% url "projects-detail" slug=object.slug %}">
         {{ object.name }}
       </a>
+      <a class="settings-gear" href="{% url "projects-update" slug=object.slug %}">
+        &#9881;
+      </a>
     </div>
     <div class="col-md-6 text-right light-text">
       {{ object.experiments.count }} Experiment{{ object.experiments.count|pluralize }}
