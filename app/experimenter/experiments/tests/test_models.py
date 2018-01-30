@@ -154,6 +154,20 @@ class TestExperimentModel(TestCase):
              '&metrics=ALL&next=%2F&pop=ALL&scale=linear&showOutliers=false'),
         )
 
+    def test_accept_url_is_correct(self):
+        experiment = ExperimentFactory.create(slug='experiment')
+        self.assertEqual(
+            experiment.accept_url,
+            'https://localhost/api/v1/experiments/experiment/accept/',
+        )
+
+    def test_reject_url_is_correct(self):
+        experiment = ExperimentFactory.create(slug='experiment')
+        self.assertEqual(
+            experiment.reject_url,
+            'https://localhost/api/v1/experiments/experiment/reject/',
+        )
+
 
 class TestExperimentChangeLogManager(TestCase):
 
