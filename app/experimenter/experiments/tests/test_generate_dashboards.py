@@ -3,7 +3,7 @@ import mock
 from django.core.management import call_command
 from django.conf import settings
 from django.test import TestCase
-from redash_client.client import RedashClient
+from stmoab.StatisticalDashboard import StatisticalDashboard
 
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
@@ -12,6 +12,9 @@ from experimenter.experiments.tests.factories import ExperimentFactory
 class GenerateDashboardsTest(TestCase):
 
     def setUp(self):
+        self.ORIGINAL_EXTERNAL_API_EXCEPTION = (
+            StatisticalDashboard.ExternalAPIError)
+
         dashboard_patcher = mock.patch((
             'experimenter.experiments.management.commands.'
             'generate_dashboards.StatisticalDashboard'))
@@ -20,6 +23,8 @@ class GenerateDashboardsTest(TestCase):
             'generate_dashboards.logging'))
         self.mock_logger = logging_patcher.start()
         self.MockExperimentDashboard = dashboard_patcher.start()
+        self.MockExperimentDashboard.ExternalAPIError = (
+            self.ORIGINAL_EXTERNAL_API_EXCEPTION)
         self.addCleanup(logging_patcher.stop)
         self.addCleanup(dashboard_patcher.stop)
 
@@ -55,7 +60,7 @@ class GenerateDashboardsTest(TestCase):
         for idx, call_args in enumerate(
                 self.MockExperimentDashboard.call_args_list):
             args, kwargs = call_args
-            self.assertTrue(isinstance(args[0], RedashClient))
+            self.assertEqual(args[0], settings.REDASH_API_KEY)
             self.assertEqual(args[1:], expected_call_args[idx])
 
         for experiment in self.experiments:
@@ -69,17 +74,17 @@ class GenerateDashboardsTest(TestCase):
         self.assertEqual(len(
             mock_instance.add_ttable.mock_calls), 2)
 
-    def test_redash_client_error_is_caught(self):
+    def test_external_api_error_is_caught(self):
         ERROR_MESSAGE = 'Unable to communicate with Redash'
 
         self.MockExperimentDashboard.side_effect = (
-            RedashClient.RedashClientException((
+            StatisticalDashboard.ExternalAPIError((
                 ERROR_MESSAGE)))
 
         call_command('generate_dashboards')
 
         self.mock_logger.error.assert_any_call((
-          'Redash Client Error '
+          'ExternalAPIError '
           'for {exp}: {err}').format(
           exp=self.experiment_complete, err=ERROR_MESSAGE))
 
@@ -92,6 +97,6 @@ class GenerateDashboardsTest(TestCase):
         call_command('generate_dashboards')
 
         self.mock_logger.error.assert_any_call((
-          'Redash Client Value Error '
+          'StatisticalDashboard Value Error '
           'for {exp}: {err}').format(
           exp=self.experiment_complete, err=ERROR_MESSAGE))
