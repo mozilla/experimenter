@@ -2,9 +2,7 @@ import logging
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from redash_client.client import RedashClient
-from redash_client.dashboards.StatisticalDashboard import (
-    StatisticalDashboard)
+from stmoab.StatisticalDashboard import StatisticalDashboard
 
 from experimenter.experiments.models import Experiment
 
@@ -16,8 +14,6 @@ class Command(BaseCommand):
     help = 'Generates Redash dashboards'
 
     def generate_dashboards(self):
-        redash_client = RedashClient(settings.REDASH_API_KEY)
-
         relevant_experiments = Experiment.objects.filter(
             status__in=(
                 Experiment.STATUS_LAUNCHED,
@@ -28,7 +24,7 @@ class Command(BaseCommand):
                         else exp.end_date.strftime("%Y-%m-%d"))
             try:
                 dash = StatisticalDashboard(
-                  redash_client,
+                  settings.REDASH_API_KEY,
                   settings.AWS_ACCESS_KEY,
                   settings.AWS_SECRET_KEY,
                   settings.S3_BUCKET_ID_STATS,
@@ -48,14 +44,14 @@ class Command(BaseCommand):
 
                 exp.dashboard_url = dash.public_url
                 exp.save()
-            except RedashClient.RedashClientException as redash_err:
+            except StatisticalDashboard.ExternalAPIError as external_api_err:
                 logging.error((
-                  'Redash Client Error '
+                  'ExternalAPIError '
                   'for {experiment}: {err}').format(
-                  experiment=exp, err=redash_err))
+                  experiment=exp, err=external_api_err))
             except ValueError as val_err:
                 logging.error((
-                  'Redash Client Value Error '
+                  'StatisticalDashboard Value Error '
                   'for {experiment}: {err}').format(
                   experiment=exp, err=val_err))
 
