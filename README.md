@@ -48,6 +48,10 @@ An experiment has three parts:
 
         cp .env.sample .env
 
+1. Set DEBUG=True for local development
+
+        vi .env
+
 1. Create a new secret key and put it in .env
 
         make secretkey
@@ -114,6 +118,10 @@ Start a bash shell inside the container (this lets you interact with the contain
 Create dummy SSL certs to use the dev server over a locally secure
 connection. This helps test client behaviour with a secure
 connection. This task is run automatically when needed.
+
+### kill
+Stop and delete all docker containers.  
+WARNING: this will remove your database and all data.  Use this to reset your dev environment.
 
 ## API
 
