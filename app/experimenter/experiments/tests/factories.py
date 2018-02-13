@@ -28,7 +28,8 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
         lambda o: random.choice(Experiment.PREF_TYPE_CHOICES)[0])
     pref_branch = factory.LazyAttribute(
         lambda o: random.choice(Experiment.PREF_BRANCH_CHOICES)[0])
-    firefox_version = '57.0'
+    firefox_version = factory.LazyAttribute(
+        lambda o: random.choice(Experiment.VERSION_CHOICES)[0])
     firefox_channel = factory.LazyAttribute(
         lambda o: random.choice(Experiment.CHANNEL_CHOICES)[0])
     objectives = factory.LazyAttribute(
