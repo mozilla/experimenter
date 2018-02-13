@@ -60,6 +60,19 @@ class Experiment(models.Model):
         ],
     }
 
+    VERSION_CHOICES = (
+        ('55.0', '55.0'),
+        ('56.0', '56.0'),
+        ('57.0', '57.0'),
+        ('58.0', '58.0'),
+        ('59.0', '59.0'),
+        ('60.0', '60.0'),
+        ('61.0', '61.0'),
+        ('62.0', '62.0'),
+        ('63.0', '63.0'),
+        ('64.0', '64.0'),
+    )
+
     CHANNEL_NIGHTLY = 'Nightly'
     CHANNEL_BETA = 'Beta'
     CHANNEL_RELEASE = 'Release'
@@ -115,7 +128,7 @@ class Experiment(models.Model):
     )
     population_percent = models.DecimalField(
         max_digits=7, decimal_places=4, default='0')
-    firefox_version = models.CharField(max_length=255)
+    firefox_version = models.CharField(max_length=255, choices=VERSION_CHOICES)
     firefox_channel = models.CharField(
         max_length=255, choices=CHANNEL_CHOICES, default=CHANNEL_NIGHTLY)
     client_matching = models.TextField(default='', blank=True)
