@@ -102,6 +102,7 @@ class Experiment(models.Model):
         max_length=255, unique=True, blank=False, null=False)
     slug = models.SlugField(
         max_length=255, unique=True, blank=False, null=False)
+    short_description = models.TextField(default='', blank=True, null=True)
     pref_key = models.CharField(max_length=255, blank=True, null=True)
     pref_type = models.CharField(
         max_length=255,
