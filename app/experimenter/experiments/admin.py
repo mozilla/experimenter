@@ -79,6 +79,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                 'project',
                 'name',
                 'slug',
+                'short_description',
             ),
         }),
         ('Client Config', {
