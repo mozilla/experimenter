@@ -21,6 +21,16 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     slug = factory.LazyAttribute(lambda o: slugify(o.name))
     short_description = factory.LazyAttribute(
         lambda o: faker.text(random.randint(100, 500)))
+    proposed_start_date = factory.LazyAttribute(
+        lambda o: (
+            datetime.date.today() +
+            datetime.timedelta(days=random.randint(1, 10))
+        ))
+    proposed_end_date = factory.LazyAttribute(
+        lambda o: (
+            o.proposed_start_date +
+            datetime.timedelta(days=random.randint(1, 10))
+        ))
     pref_key = factory.LazyAttribute(
         lambda o: 'browser.{pref}.enabled'.format(
             pref=faker.catch_phrase().replace(' ', '.').lower()))
