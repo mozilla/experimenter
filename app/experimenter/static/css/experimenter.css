@@ -25,29 +25,8 @@ body {
   font-weight: lighter;
 }
 
-.no-padding {
-  padding: 0px;
-}
-
-.no-left-padding {
-  padding-left: 0px;
-}
-
-.no-right-padding {
-  padding-right: 0px;
-}
-
-.no-margin {
-  margin: 0px;
-}
-
-.bottom-margin {
-  margin-bottom: 20px;
-}
-
-.spaced-line {
-  margin-top: 10px;
-  margin-bottom: 10px;
+.low-opacity {
+  opacity: 0.1;
 }
 
 #header {
@@ -153,12 +132,11 @@ footer {
 }
 
 .card {
-  box-shadow: 0 2px 5px 0 rgba(12, 12, 13, 0.1);
-  transition: box-shadow ease-in-out .25s;
-  border-radius: 5px;
-  padding-left: 0px;
   background-color: white;
-  padding-right: 0px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px 0 rgba(12, 12, 13, 0.1);
+  margin-bottom: 20px;
+  transition: box-shadow ease-in-out .25s;
 }
 
 .card:hover {
@@ -169,49 +147,12 @@ footer {
   border-top-left-radius: 5px;
 }
 
-.top-right-rounded {
-  border-top-right-radius: 5px;
-}
-
-.bottom-rounded {
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-}
-
-.card-image {
-  text-align: center;
-}
-
-.card-image {
-  opacity: 0.1;
-  width: 100%; 
-}
-
 .card-title {
   background-color: #828b93;
-  padding: 10px 20px;
-  margin: 0px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
   color: white;
-}
-
-.card-content {
-  padding: 10px 20px;
-}
-
-.card-content-body {
-  overflow: hidden;
-  max-height: 120px;
-}
-
-.summary-content {
-  background: #FFF;
-  border-radius: 5px;
-  padding: 0px;
-  box-shadow: 0 2px 5px 0 rgba(12, 12, 13, 0.1);
-}
-
-.summary-embedded-graph {
-  height: 435px;
+  margin: 0px;
 }
 
 .status-color-Created {
