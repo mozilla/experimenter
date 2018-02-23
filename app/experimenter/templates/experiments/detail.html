@@ -7,7 +7,7 @@
 
 {% block content %}
   <div id="content-header" class="row">
-    <div class="col-md-8">
+    <div class="col-md-12">
       <a href="{% url "projects-detail" slug=object.project.slug %}">
         {{ object.project.name }}
       </a>
@@ -16,79 +16,79 @@
         {{ object.name }}
       </a>
     </div>
-    <div class="col-md-4 text-right light-text spaced-text">
-    </div>
   </div>
+
   <div class="row">
-    <div class="col-md-9 no-padding bottom-margin">
-      <div class="no-padding col-md-3">
-        <h4 class="card-title status-color-{{ object.status }} no-margin top-left-rounded">
-          {{ object.status }}
-        </h4>
-      </div>
-      <div class="no-padding col-md-9 text-right">
-        <h4 class="card-title no-margin top-right-rounded">
-          {{ object.population }}
-        </h4>
-      </div>
-      <iframe class="summary-embedded-graph bottom-margin bottom-rounded" scrolling="no" frameBorder="0" width="100%" src="{{ object.enrollment_dashboard_url }}" ></iframe>
-      <div class="row">
-        <div class="col-md-6">
-          <a target="_blank" class="btn btn-success btn-large no-padding"><h4>&#128200; reDash</h4></a>
+
+    <div class="col-md-9">
+
+      <div class="row card">
+
+        <div class="row card-title">
+          <div class="col-md-3 status-color-{{ object.status }} top-left-rounded">
+            <h4>
+              {{ object.status }}
+            </h4>
+          </div>
+
+          <h4 class="col-md-9 text-right">
+            {{ object.population }}
+          </h4>
         </div>
-        <div class="col-md-6">
-          <a target="_blank" class="btn btn-success btn-large no-padding"><h4>&#128200; Experiments Viewer</h4></a>
+
+        <iframe style="display:block" scrolling="no" frameBorder="0" width="100%" height="450px" src="{{ object.enrollment_dashboard_url }}" ></iframe>
+      </div>
+      
+      <div class="row card">
+        <div class="row card-title">
+          <h4 class="col-md-12">
+            Objectives
+          </h4>
+        </div>
+       
+        <div class="col-md-12">
+          <p>{{ object.objectives|linebreaks }}</p>
         </div>
       </div>
-    </div>
-    <div class="col-md-3 no-right-padding">
-      <div class="row">
-        {% for change in object.changes.all reversed %}
-          <div class="row spaced-line no-margin">
-            <div class="col-md-6">
-              <strong>{{ change.new_status }}</strong>
-            </div>
-            <div class="col-md-6 text-right">
-              <div>{{ change.changed_by }}</div>
-              <div>{{ change.changed_on.date }}</div>
-            </div>
+
+      <div class="row card">
+        <div class="row card-title">
+          <h4 class="col-md-12">Configuration</h4>
+        </div>
+
+        <div class="col-md-12">
+          <h4>
+            {{ object.population }} ({{ object.variant_ratios }})
+          </h4>
+
+          <p>{{ object.client_matching }}</p>
+        </div>
+        
+        {% for variant in object.variants.all %}
+          <div class="col-md-6">
+            <h4>{{ variant.name }}</h4>
+            <p>{{ variant.description }}</p>
+            <p><strong>{{ object.pref_key }} = {{ variant.value }}</strong></p>
           </div>
         {% endfor %}
       </div>
+
     </div>
-  </div>
-  <div class="row bottom-margin">
-    <div class="col-md-9 no-padding summary-content">
-      <div class="card-title top-left-rounded top-right-rounded">
-        <h4 class="no-margin">Objectives</h4>
-      </div>
-      <div class="card-content">
-        {{ object.objectives|linebreaks }}
-      </div>
-    </div>
-  </div>
-  <div class="row bottom-margin">
-    <div class="col-md-9 no-padding summary-content">
-      <div class="card-title top-left-rounded top-right-rounded">
-        <h4 class="no-margin">Configuration</h4>
-      </div>
-      <div class="card-content">
-        <h4>
-          {{ object.population }} ({{ object.variant_ratios }})
-        </h4>
-        <p>{{ object.client_matching }}</p>
-        <h4 class="spaced-text">
-        </h4>
+
+    <div class="col-md-3">
+
+      {% for change in object.changes.all reversed %}
         <div class="row">
-          {% for variant in object.variants.all %}
-            <div class="col-md-6">
-              <h4>{{ variant.name }}</h4>
-              <p>{{ variant.description }}</p>
-              <strong>{{ object.pref_key }} = {{ variant.value }}</strong>
-            </div>
-          {% endfor %}
+          <div class="col-md-6">
+            <strong>{{ change.new_status }}</strong>
+          </div>
+          <div class="col-md-6 text-right">
+            <div>{{ change.changed_by }}</div>
+            <div>{{ change.changed_on.date }}</div>
+          </div>
         </div>
-      </div>
+      {% endfor %}
+
     </div>
   </div>
 {% endblock %}

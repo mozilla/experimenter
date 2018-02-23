@@ -16,44 +16,50 @@
       {{ object.experiments.count }} Experiment{{ object.experiments.count|pluralize }}
     </div>
   </div>
+
   {% for experiment in object.experiments.most_recently_changed %}
     <a href="{% url "experiments-detail" slug=experiment.slug %}">
-      <div class="row card bottom-margin">
-        <div class="no-padding col-md-2">
-          <h4 class="card-title top-left-rounded status-color-{{ experiment.status }}">{{ experiment.status }}</h4>
-          <img class="card-image" src="{% static "imgs/experiment.svg" %}" />
-        </div>
-        <div class="no-padding col-md-7">
-          <h4 class="card-title">{{ experiment.name }}</h4>
-          <div class="card-content">
-            <p>
-              <strong>
-                {{ experiment.changes.latest }}
-              </strong>
-            </p>
-            <p class="card-content-body">{{ experiment.objectives }}</p>
+
+      <div class="row card">
+
+        <div class="row card-title">
+          <div class="col-md-2 top-left-rounded status-color-{{ experiment.status }}">
+            <h4>{{ experiment.status }}</h4>
           </div>
-        </div>
-        <div class="no-padding col-md-3">
-          <h4 class="card-title top-right-rounded">
+
+          <h4 class="col-md-7">{{ experiment.name }}</h4>
+
+          <h4 class="col-md-3">
             {{ experiment.population_percent|stringformat:"17g" }}% of
-            Firefox 
+            Firefox
             {{ experiment.firefox_version }}
-            {{ experiment.firefox_channel }} 
+            {{ experiment.firefox_channel }}
           </h4>
-          <div class="card-content">
-            <p>
-              <strong>
-                {{ experiment.control.ratio }} 
-                Control :
-                {{ experiment.variant.ratio }}
-                Variant
-              </strong>
-            </p>
-            <p class="card-content-body">{{ experiment.client_matching }}</p>
-          </div>
         </div>
+
+        <img class="col-md-2 low-opacity" src="{% static "imgs/experiment.svg" %}" />
+
+        <div class="col-md-7">
+          <h5>
+            {{ experiment.changes.latest }}
+          </h5>
+          <p>{{ experiment.short_description }}</p>
+        </div>
+
+        <div class="col-md-3">
+          <h5>
+            {{ experiment.control.ratio }}
+            Control :
+            {{ experiment.variant.ratio }}
+            Variant
+          </h5>
+
+          <p>{{ experiment.client_matching|linebreaks }}</p>
+        </div>
+
       </div>
+
     </a>
   {% endfor %}
+
 {% endblock %}
