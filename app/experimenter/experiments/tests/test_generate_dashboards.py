@@ -1,4 +1,5 @@
 import mock
+from datetime import datetime, timezone, timedelta
 
 from django.core.management import call_command
 from django.conf import settings
@@ -28,11 +29,29 @@ class GenerateDashboardsTest(TestCase):
         self.addCleanup(logging_patcher.stop)
         self.addCleanup(dashboard_patcher.stop)
 
+        # A launched experiment
         self.experiment_launched = ExperimentFactory.create_with_status(
             Experiment.STATUS_LAUNCHED)
+
+        # A recently complete experiment
         self.experiment_complete = ExperimentFactory.create_with_status(
             Experiment.STATUS_COMPLETE)
-        self.experiments = [self.experiment_launched, self.experiment_complete]
+        relevant_change = self.experiment_complete.changes.filter(
+            old_status=Experiment.STATUS_LAUNCHED,
+            new_status=Experiment.STATUS_COMPLETE).get()
+        relevant_change.changed_on = (
+                datetime.now(timezone.utc) - timedelta(days=1))
+        relevant_change.save()
+
+        # An experiment with a missing dashboard
+        self.experiment_missing_dash = ExperimentFactory.create_with_status(
+            Experiment.STATUS_COMPLETE)
+        self.experiment_missing_dash.dashboard_url = None
+        self.experiment_missing_dash.save()
+
+        self.experiments = [self.experiment_launched,
+                            self.experiment_complete,
+                            self.experiment_missing_dash]
 
     def test_dashboard_object_generated(self):
         expected_call_args = [(
@@ -51,11 +70,14 @@ class GenerateDashboardsTest(TestCase):
 
         mock_instance = self.MockExperimentDashboard.return_value
         mock_instance.public_url = expected_public_url
+        mock_instance.get_update_range.return_value = {
+            "min": datetime.now() - timedelta(days=2)
+        }
 
         call_command('generate_dashboards')
 
         self.assertTrue(self.MockExperimentDashboard.called)
-        self.assertEqual(self.MockExperimentDashboard.call_count, 2)
+        self.assertEqual(self.MockExperimentDashboard.call_count, 3)
 
         for idx, call_args in enumerate(
                 self.MockExperimentDashboard.call_args_list):
@@ -68,11 +90,27 @@ class GenerateDashboardsTest(TestCase):
             self.assertEqual(experiment_obj.dashboard_url, expected_public_url)
 
         self.assertEqual(len(
-            mock_instance.add_graph_templates.mock_calls), 2)
+            mock_instance.add_graph_templates.mock_calls), 3)
         self.assertEqual(len(
-            mock_instance.add_ttable_data.mock_calls), 2)
+            mock_instance.add_ttable_data.mock_calls), 3)
         self.assertEqual(len(
-            mock_instance.add_ttable.mock_calls), 2)
+            mock_instance.add_ttable.mock_calls), 3)
+        self.assertEqual(len(
+            mock_instance.get_update_range.mock_calls), 3)
+
+    def test_recently_updated_dashboard_is_ignored(self):
+        mock_instance = self.MockExperimentDashboard.return_value
+        mock_instance.get_update_range.return_value = {
+            "min": datetime.now()
+        }
+
+        call_command('generate_dashboards')
+
+        self.assertTrue(self.MockExperimentDashboard.called)
+        self.assertEqual(self.MockExperimentDashboard.call_count, 3)
+
+        self.assertEqual(len(
+            mock_instance.add_graph_templates.mock_calls), 0)
 
     def test_external_api_error_is_caught(self):
         ERROR_MESSAGE = 'Unable to communicate with Redash'

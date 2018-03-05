@@ -1,10 +1,11 @@
 import logging
+from datetime import datetime, timezone, timedelta
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from stmoab.StatisticalDashboard import StatisticalDashboard
 
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import Experiment, ExperimentChangeLog
 
 
 class Command(BaseCommand):
@@ -14,10 +15,26 @@ class Command(BaseCommand):
     help = 'Generates Redash dashboards'
 
     def generate_dashboards(self):
-        relevant_experiments = Experiment.objects.filter(
-            status__in=(
-                Experiment.STATUS_LAUNCHED,
-                Experiment.STATUS_COMPLETE))
+        recent_changelog_complete = ExperimentChangeLog.objects.filter(
+            old_status=Experiment.STATUS_LAUNCHED,
+            new_status=Experiment.STATUS_COMPLETE).filter(
+            changed_on__gte=(datetime.now(timezone.utc) - timedelta(days=3)))
+
+        recently_ended_experiments = Experiment.objects.filter(
+            status=Experiment.STATUS_COMPLETE).filter(
+            changes__in=recent_changelog_complete)
+
+        in_flight_experiments = Experiment.objects.filter(
+            status=Experiment.STATUS_LAUNCHED
+        )
+
+        missing_dashboard_experiments = Experiment.objects.filter(
+            dashboard_url__isnull=True)
+        relevant_experiments = (
+            recently_ended_experiments |
+            missing_dashboard_experiments |
+            in_flight_experiments).distinct()
+
         for exp in relevant_experiments:
             end_date = (None
                         if exp.end_date is None
@@ -34,6 +51,13 @@ class Command(BaseCommand):
                   exp.start_date.strftime("%Y-%m-%d"),
                   end_date
                 )
+
+                # This dashboard was recently updated, no need to update again.
+                update_begin = dash.get_update_range().get("min", None)
+                if update_begin is not None and (
+                  update_begin > (datetime.now() - timedelta(days=1))):
+                    continue
+
                 dash.add_graph_templates(self.POPULATION_TEMPLATE)
                 dash.add_ttable_data(
                   self.EVENTS_PER_HOUR_TEMPLATE,
