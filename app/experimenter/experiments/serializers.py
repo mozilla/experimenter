@@ -55,6 +55,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             'firefox_version',
             'name',
             'objectives',
+            'short_description',
             'population_percent',
             'population',
             'pref_branch',
