@@ -56,6 +56,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             'name',
             'objectives',
             'population_percent',
+            'population',
             'pref_branch',
             'pref_key',
             'pref_type',
