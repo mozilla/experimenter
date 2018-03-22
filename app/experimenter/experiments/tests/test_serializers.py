@@ -61,6 +61,7 @@ class TestExperimentSerializer(TestCase):
             'objectives': experiment.objectives,
             'population_percent': '{0:.4f}'.format(
                 experiment.population_percent),
+            'population': experiment.population,
             'pref_branch': experiment.pref_branch,
             'pref_key': experiment.pref_key,
             'pref_type': experiment.pref_type,
