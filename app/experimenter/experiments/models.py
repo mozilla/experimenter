@@ -234,7 +234,7 @@ class Experiment(models.Model):
     def experiment_url(self):
         return urljoin(
             'https://{host}'.format(host=settings.HOSTNAME),
-            reverse('admin:experiments_experiment_change', args=[self.pk])
+            reverse('experiments-detail', args=[self.slug])
         )
 
     @property
