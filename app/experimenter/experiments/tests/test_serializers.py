@@ -59,16 +59,20 @@ class TestExperimentSerializer(TestCase):
             'firefox_version': experiment.firefox_version,
             'name': experiment.name,
             'objectives': experiment.objectives,
-            'short_description': experiment.short_description,
+            'population': experiment.population,
             'population_percent': '{0:.4f}'.format(
                 experiment.population_percent),
-            'population': experiment.population,
             'pref_branch': experiment.pref_branch,
             'pref_key': experiment.pref_key,
             'pref_type': experiment.pref_type,
             'project_name': experiment.project.name,
             'project_slug': experiment.project.slug,
+            'proposed_end_date': JSTimestampField().to_representation(
+                experiment.proposed_end_date),
+            'proposed_start_date': JSTimestampField().to_representation(
+                experiment.proposed_start_date),
             'reject_url': experiment.reject_url,
+            'short_description': experiment.short_description,
             'slug': experiment.slug,
             'start_date': JSTimestampField().to_representation(
                 experiment.start_date),

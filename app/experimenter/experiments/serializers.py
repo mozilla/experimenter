@@ -39,6 +39,8 @@ class ExperimentSerializer(serializers.ModelSerializer):
     end_date = JSTimestampField()
     project_name = serializers.ReadOnlyField(source='project.name')
     project_slug = serializers.ReadOnlyField(source='project.slug')
+    proposed_end_date = JSTimestampField()
+    proposed_start_date = JSTimestampField()
     start_date = JSTimestampField()
     variant = ExperimentVariantSerializer()
 
@@ -55,16 +57,18 @@ class ExperimentSerializer(serializers.ModelSerializer):
             'firefox_version',
             'name',
             'objectives',
-            'short_description',
-            'population_percent',
             'population',
+            'population_percent',
+            'pref_branch',
             'pref_branch',
             'pref_key',
             'pref_type',
-            'pref_branch',
             'project_name',
             'project_slug',
+            'proposed_end_date',
+            'proposed_start_date',
             'reject_url',
+            'short_description',
             'slug',
             'start_date',
             'variant',
