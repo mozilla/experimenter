@@ -12,7 +12,7 @@
   <div class="row">
     {% for project in object_list %}
       <div class="col-md-4">
-        <a href="{% url "projects-detail" slug=project.slug %}">
+        <a class="noanchorstyle" href="{% url "projects-detail" slug=project.slug %}">
           <div class="tile">
             {% if project.image %} 
               <div class="tile-image" style="background-image: url({{ project.image.url }})">

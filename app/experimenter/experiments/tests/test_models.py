@@ -119,6 +119,132 @@ class TestExperimentModel(TestCase):
         experiment.save()
         self.assertTrue(experiment.is_readonly)
 
+    def test_experiment_is_not_begun(self):
+        statuses = (
+            Experiment.STATUS_CREATED,
+            Experiment.STATUS_PENDING,
+            Experiment.STATUS_REJECTED,
+        )
+
+        for status in statuses:
+            experiment = ExperimentFactory.create_with_status(status)
+            self.assertFalse(experiment.is_begun)
+
+    def test_experiment_is_begun(self):
+        for status in Experiment.STATUS_LAUNCHED, Experiment.STATUS_COMPLETE:
+            experiment = ExperimentFactory.create_with_status(status)
+            self.assertTrue(experiment.is_begun)
+
+    def test_overview_is_not_complete_when_not_saved(self):
+        experiment = ExperimentFactory.build()
+        self.assertFalse(experiment.completed_overview)
+
+    def test_overview_is_complete_when_saved(self):
+        experiment = ExperimentFactory.create()
+        self.assertTrue(experiment.completed_overview)
+
+    def test_variants_is_not_complete_when_no_variants_saved(self):
+        experiment = ExperimentFactory.create()
+        self.assertFalse(experiment.completed_variants)
+
+    def test_variants_is_complete_when_variants_saved(self):
+        experiment = ExperimentFactory.create_with_variants()
+        self.assertTrue(experiment.completed_variants)
+
+    def test_objectives_is_not_complete_with_still_default(self):
+        experiment = ExperimentFactory.create(
+            objectives=Experiment.OBJECTIVES_DEFAULT,
+            analysis=Experiment.ANALYSIS_DEFAULT,
+        )
+        self.assertFalse(experiment.completed_objectives)
+
+    def test_objectives_is_complete_with_non_defaults(self):
+        experiment = ExperimentFactory.create(
+            objectives='Some objectives!',
+            analysis='Some analysis!',
+        )
+        self.assertTrue(experiment.completed_objectives)
+
+    def test_risk_questions_returns_a_tuple(self):
+        experiment = ExperimentFactory.create(
+            risk_partner_related=False,
+            risk_brand=True,
+            risk_fast_shipped=False,
+            risk_confidential=True,
+            risk_release_population=False,
+        )
+        self.assertEqual(
+            experiment._risk_questions,
+            (False, True, False, True, False),
+        )
+
+    def test_risk_not_completed_when_risk_questions_not_answered(self):
+        experiment = ExperimentFactory.create(
+            risk_partner_related=None,
+            risk_brand=None,
+            risk_fast_shipped=None,
+            risk_confidential=None,
+            risk_release_population=None,
+            testing='A test plan!',
+        )
+        self.assertFalse(experiment.completed_risks)
+
+    def test_risk_not_completed_when_risk_questions_answered_not_testing(self):
+        experiment = ExperimentFactory.create(
+            risk_partner_related=False,
+            risk_brand=True,
+            risk_fast_shipped=False,
+            risk_confidential=True,
+            risk_release_population=False,
+            testing=Experiment.TESTING_DEFAULT,
+        )
+        self.assertFalse(experiment.completed_risks)
+
+    def test_risk_completed_when_risk_questions_and_testing_completed(self):
+        experiment = ExperimentFactory.create(
+            risk_partner_related=False,
+            risk_brand=True,
+            risk_fast_shipped=False,
+            risk_confidential=True,
+            risk_release_population=False,
+            testing='A test plan!',
+        )
+        self.assertTrue(experiment.completed_risks)
+
+    def test_is_not_launchable_when_not_all_sections_completed(self):
+        experiment = ExperimentFactory.create()
+        self.assertFalse(experiment.is_launchable)
+
+    def test_is_launchable_when_all_sections_complete(self):
+        experiment = ExperimentFactory.create_with_variants()
+        self.assertTrue(experiment.is_launchable)
+
+    def test_is_not_high_risk_if_no_risk_questions_are_true(self):
+        experiment = ExperimentFactory.create(
+            risk_partner_related=False,
+            risk_brand=False,
+            risk_fast_shipped=False,
+            risk_confidential=False,
+            risk_release_population=False,
+        )
+        self.assertFalse(experiment.is_high_risk)
+
+    def test_is_high_risk_if_any_risk_questions_are_true(self):
+        risk_fields = (
+            'risk_partner_related',
+            'risk_brand',
+            'risk_fast_shipped',
+            'risk_confidential',
+            'risk_release_population',
+        )
+
+        for true_risk_field in risk_fields:
+            instance_risk_fields = {field: False for field in risk_fields}
+            instance_risk_fields[true_risk_field] = True
+
+            experiment = ExperimentFactory.create(**instance_risk_fields)
+            self.assertTrue(experiment.is_high_risk)
+
     def test_experiment_population_returns_correct_string(self):
         experiment = ExperimentFactory(
             population_percent='0.5',
@@ -127,7 +253,7 @@ class TestExperimentModel(TestCase):
         )
         self.assertEqual(
             experiment.population,
-            '0.5% of Firefox 57.0 Nightly'
+            '0.5% of Nightly Firefox 57.0'
         )
 
     def test_experiment_variants_returns_correct_string(self):
@@ -192,3 +318,25 @@ class TestExperimentChangeLogManager(TestCase):
         )
 
         self.assertEqual(experiment.changes.latest(), changelog2)
+
+    def test_pretty_status_created_draft(self):
+        experiment = ExperimentFactory.create_with_variants()
+
+        changelog = ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            old_status=None,
+            new_status=Experiment.STATUS_CREATED,
+        )
+        self.assertEqual(
+            changelog.pretty_status, changelog.STATUS_CREATED_DRAFT)
+
+    def test_pretty_status_edited_draft(self):
+        experiment = ExperimentFactory.create_with_variants()
+
+        changelog = ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            old_status=Experiment.STATUS_CREATED,
+            new_status=Experiment.STATUS_CREATED,
+        )
+        self.assertEqual(
+            changelog.pretty_status, changelog.STATUS_EDITED_DRAFT)

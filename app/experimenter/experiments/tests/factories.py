@@ -35,9 +35,9 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
         lambda o: 'browser.{pref}.enabled'.format(
             pref=faker.catch_phrase().replace(' ', '.').lower()))
     pref_type = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.PREF_TYPE_CHOICES)[0])
+        lambda o: random.choice(Experiment.PREF_TYPE_CHOICES[1:])[0])
     pref_branch = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.PREF_BRANCH_CHOICES)[0])
+        lambda o: random.choice(Experiment.PREF_BRANCH_CHOICES[1:])[0])
     firefox_version = factory.LazyAttribute(
         lambda o: random.choice(Experiment.VERSION_CHOICES[1:])[0])
     firefox_channel = factory.LazyAttribute(
@@ -46,8 +46,17 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
         lambda o: faker.text(random.randint(500, 5000)))
     analysis = factory.LazyAttribute(
         lambda o: faker.text(random.randint(500, 5000)))
+    testing = factory.LazyAttribute(
+        lambda o: faker.text(random.randint(500, 5000)))
+    risks = factory.LazyAttribute(
+        lambda o: faker.text(random.randint(500, 5000)))
     total_users = factory.LazyAttribute(
         lambda o: random.randint(100000, 1000000))
+    risk_partner_related = False
+    risk_brand = False
+    risk_fast_shipped = False
+    risk_confidential = False
+    risk_release_population = False
     enrollment_dashboard_url = 'http://www.example.com/enrollment'
     dashboard_url = 'http://www.example.com/dashboard'
     dashboard_image_url = 'http://www.example.com/dashboard.png'
@@ -115,12 +124,12 @@ class ExperimentVariantFactory(BaseExperimentVariantFactory):
 
     @factory.lazy_attribute
     def value(self):
-        if self.experiment.pref_type == Experiment.PREF_TYPE_BOOL:
-            return self.is_control
-        elif self.experiment.pref_type == Experiment.PREF_TYPE_INT:
-            return random.randint(1, 100)
+        value = self.is_control
+        if self.experiment.pref_type == Experiment.PREF_TYPE_INT:
+            value = random.randint(1, 100)
         elif self.experiment.pref_type == Experiment.PREF_TYPE_STR:
-            return json.dumps(slugify(faker.catch_phrase()))
+            value = slugify(faker.catch_phrase())
+        return json.dumps(value)
 
 
 class ExperimentControlFactory(ExperimentVariantFactory):

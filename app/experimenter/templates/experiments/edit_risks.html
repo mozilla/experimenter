@@ -1,0 +1,73 @@
+{% extends "experiments/edit_base.html" %}
+
+{% load static %}
+      
+{% block edit_title %}
+  <h3>Edit {{ object.name }} Risks & Testing</h3>
+{% endblock %}
+
+{% block edit_nav %}
+  {% include "experiments/edit_nav_inline.html" with step=4 object=object %}
+{% endblock %}
+
+{% block edit_form %}
+  <form 
+    class="form-horizontal" 
+    method="POST" 
+    enctype='multipart/form-data'
+  >
+    {% csrf_token %}
+
+    {% include "experiments/radio_field_inline.html" with field=form.risk_partner_related %}
+    
+    {% include "experiments/radio_field_inline.html" with field=form.risk_brand %}
+    
+    {% include "experiments/radio_field_inline.html" with field=form.risk_fast_shipped %}
+    
+    {% include "experiments/radio_field_inline.html" with field=form.risk_confidential %}
+    
+    {% include "experiments/radio_field_inline.html" with field=form.risk_release_population %}
+
+    <div id="risks_field" class="collapse">
+      {% include "experiments/field_inline.html" with field=form.risks %}
+    </div>
+    
+    {% include "experiments/field_inline.html" with field=form.testing %}
+    
+    <div class="form-group">
+      <div class="col-md-12 text-right">
+        {{ form.errors }}
+        {% if object %}
+          <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">Cancel Editing</a>
+        {% endif %}
+        <button type="submit" name="action" value="continue" class="btn btn-success">Save Risks &amp; Testing and Finish</button>
+      </div>
+    </div>
+
+  </form>
+{% endblock %}
+
+{% block edit_info %}
+  <h4><span class="glyphicon glyphicon-info-sign"></span> Risks & Testing</h4>
+  <p>
+    An experiment may have risks to its user population or the entire Firefox population, help identify them here.
+  </p>
+  <p>
+    The testing plan should describe how this experiment can be tested locally before it is launched to ensure
+    it is behaving as expected and does not cause unintended negative effects to other features or the rest of the browser.
+  </p>
+{% endblock %}
+
+{% block extrascripts %}
+  <script>
+    $(function () {
+      $('[type="radio"]').change(function (e) {
+        if ($('[type="radio"][value="True"]:checked').length > 0) {
+          $('#risks_field').show(); 
+        } else {
+          $('#risks_field').hide(); 
+        }
+      });
+    });
+  </script>
+{% endblock %}

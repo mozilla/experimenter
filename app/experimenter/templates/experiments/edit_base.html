@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+  <div class="row">
+
+    <div class="col-md-12 md-mb-10">
+      {% block edit_title %}
+      {% endblock %}
+    </div>
+    
+    <div class="col-md-9 md-pr-20">
+
+      <div class="row">
+        <div class="col-md-12">
+          {% block edit_nav %}
+          {% endblock %}
+        </div>
+        
+        <div class="col-md-12 md-mt-10">
+          {% block edit_form %}
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="alert alert-info">
+        {% block edit_info %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

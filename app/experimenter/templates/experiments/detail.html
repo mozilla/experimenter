@@ -8,83 +8,207 @@
 {% block content %}
   <div id="content-header" class="row">
     <div class="col-md-12">
-      <a href="{% url "projects-detail" slug=object.project.slug %}">
-        {{ object.project.name }}
-      </a>
-      <span class="light-text">/</span>
-      <a class="light-text spaced-text" href="{% url "experiments-detail" slug=experiment.slug %}">
+      {% if object.project %}
+        <a class="noanchorstyle" href="{% url "projects-detail" slug=object.project.slug %}">
+          {{ object.project.name }}
+        </a>
+        <span class="light-text">/</span>
+      {% endif %}
+      <a class="noanchorstyle spaced-text" href="{% url "experiments-detail" slug=experiment.slug %}">
         {{ object.name }}
       </a>
     </div>
   </div>
 
-  <div class="row">
+  <div class="row md-mt-20">
 
-    <div class="col-md-9">
+    <div class="col-md-9 md-pr-40">
 
-      <div class="row card">
+      <div class="row">
+        <h4 class="col-md-8">
+          Overview
+        </h4>
 
-        <div class="row card-title">
-          <div class="col-md-3 status-color-{{ object.status }} top-left-rounded">
-            <h4>
-              {{ object.status }}
-            </h4>
-          </div>
-
-          <h4 class="col-md-9 text-right">
-            {{ object.population }}
-          </h4>
-        </div>
-
-        <iframe style="display:block" scrolling="no" frameBorder="0" width="100%" height="450px" src="{{ object.enrollment_dashboard_url }}" ></iframe>
-      </div>
-      
-      <div class="row card">
-        <div class="row card-title">
-          <h4 class="col-md-12">
-            Objectives
-          </h4>
-        </div>
-       
-        <div class="col-md-12">
-          <p>{{ object.objectives|linebreaks }}</p>
+        <div class="col-md-4 text-right">
+          <a class="noanchorstyle" href="{% url "experiments-overview-update" slug=object.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
         </div>
       </div>
 
-      <div class="row card">
-        <div class="row card-title">
-          <h4 class="col-md-12">Configuration</h4>
-        </div>
-
-        <div class="col-md-12">
-          <h4>
-            {{ object.population }} ({{ object.variant_ratios }})
-          </h4>
-
-          <p>{{ object.client_matching }}</p>
-        </div>
-        
-        {% for variant in object.variants.all %}
-          <div class="col-md-6">
-            <h4>{{ variant.name }}</h4>
-            <p>{{ variant.description }}</p>
-            <p><strong>{{ object.pref_key }} = {{ variant.value }}</strong></p>
+      <div class="row card md-pt-15 md-pb-10">
+        {% if object.is_launched %}
+          <iframe style="display:block" scrolling="no" frameBorder="0" width="100%" height="450px" src="{{ object.enrollment_dashboard_url }}" ></iframe>
+        {% else %}
+          <div class="col-md-12">
+            <h4 class="md-mt-0">{{ object.population }}</h4>
+            <p><strong>{{ object.proposed_start_date }} - {{ object.proposed_end_date }}</strong></p>
+            {{ object.short_description|linebreaks }}
           </div>
-        {% endfor %}
+        {% endif %}
+      </div>
+
+      <div class="row md-mt-20">
+        <h4 class="col-md-8">
+          {% if not object.completed_variants %}
+            <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
+          {% endif %}
+          Firefox Pref & Variants
+        </h4>
+        <div class="col-md-4 text-right">
+          <a class="noanchorstyle" href="{% url "experiments-variants-update" slug=object.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
+        </div>
+      </div>
+
+      <div class="row card md-pt-15 md-pb-10">
+        {% if object.variants.all %}
+          {% for variant in object.variants.all %}
+            <div class="col-md-12 {% if not forloop.last %}md-mb-15{% endif %}">
+              <h4 class="md-mt-0">{{ variant.ratio }}% {{ variant.name }}</h4>
+              <p><strong>{{ object.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
+              <p>{{ variant.description }}</p>
+
+            </div>
+          {% endfor %}
+        {% else %}
+          
+          <p class="col-md-12">You must <a href="{% url "experiments-variants-update" slug=object.slug %}">define your variants</a> before you can launch your experiment.</p>
+        {% endif %}
+
+      </div>
+
+      <div class="row md-mt-20">
+        <h4 class="col-md-8">
+          {% if not object.completed_objectives %}
+            <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
+          {% endif %}
+          Objectives
+        </h4>
+        <div class="col-md-4 text-right">
+          <a class="noanchorstyle" href="{% url "experiments-objectives-update" slug=object.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
+        </div>
+      </div>
+
+      <div class="row card md-pt-15 md-pb-10">
+        <div class="col-md-12">
+          {% if object.completed_objectives %}
+            {{ object.objectives|linebreaks }}
+          {% else %}
+            <p>You must <a href="{% url "experiments-objectives-update" slug=object.slug %}">define the objectives and analysis plan</a> before you can launch your experiment.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="row md-mt-20">
+        <h4 class="col-md-8">
+          {% if not object.completed_objectives %}
+            <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
+          {% endif %}
+          Analysis
+        </h4>
+        <div class="col-md-4 text-right">
+          <a class="noanchorstyle" href="{% url "experiments-objectives-update" slug=object.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
+        </div>
+      </div>
+
+      <div class="row card md-pt-15 md-pb-10">
+        <div class="col-md-12">
+          {% if object.completed_objectives %}
+            {{ object.analysis|linebreaks }}
+          {% else %}
+            
+            <p>You must <a href="{% url "experiments-objectives-update" slug=object.slug %}">define the objectives and analysis plan</a> before you can launch your experiment.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="row md-mt-20">
+        <h4 class="col-md-8">
+          {% if not object.completed_risks %}
+            <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
+          {% endif %}
+          Risk Assessment 
+        </h4>
+        <div class="col-md-4 text-right">
+          <a class="noanchorstyle" href="{% url "experiments-risks-update" slug=object.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
+        </div>
+      </div>
+
+      <div class="row card md-pt-15 md-pb-10">
+        <div class="col-md-12">
+          {% if object.completed_risks %}
+            <p><strong>{{ object.RISK_PARTNER_RELATED_LABEL }}</strong></p>
+            <p>{{ object.risk_partner_related|yesno:"Yes,No" }}</p>
+
+            <p><strong>{{ object.RISK_BRAND_LABEL }}</strong></p>
+            <p>{{ object.risk_brand|yesno:"Yes,No" }}</p>
+
+            <p><strong>{{ object.RISK_FAST_SHIPPED_LABEL }}</strong></p>
+            <p>{{ object.risk_fast_shipped|yesno:"Yes,No" }}</p>
+
+            <p><strong>{{ object.RISK_CONFIDENTIAL_LABEL }}</strong></p>
+            <p>{{ object.risk_confidential|yesno:"Yes,No" }}</p>
+
+            <p><strong>{{ object.RISK_RELEASE_POPULATION_LABEL }}</strong></p>
+            <p>{{ object.risk_release_population|yesno:"Yes,No" }}</p>
+
+            {% if object.is_high_risk %}
+              <h5>RASCI Owners and Deliverables</h5>
+              {{ object.risks|linebreaks }}
+            {% endif %}
+          {% else %}
+            <p>You must <a href="{% url "experiments-risks-update" slug=object.slug %}">define the risk owners and QA plan</a> before you can launch your experiment.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="row md-mt-20">
+        <h4 class="col-md-8">
+          {% if not object.completed_risks %}
+            <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
+          {% endif %}
+          Testing Plan
+        </h4>
+        <div class="col-md-4 text-right">
+          <a class="noanchorstyle" href="{% url "experiments-risks-update" slug=object.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
+        </div>
+      </div>
+
+      <div class="row card md-pt-15 md-pb-10">
+        <div class="col-md-12">
+          {% if object.completed_risks %}
+            {{ object.testing|linebreaks }}
+          {% else %}
+            <p>You must <a href="{% url "experiments-risks-update" slug=object.slug %}">define the risk owners and QA plan</a> before you can launch your experiment.</p>
+          {% endif %}
+        </div>
       </div>
 
     </div>
 
     <div class="col-md-3">
 
+      <div class="row form-group">
+        <div class="col-md-12">
+          <a id="launch-button" class="col-md-12 btn btn-success {% if not object.is_launchable %}disabled{% endif %}">
+            {% if not object.is_launchable %}<span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>{% endif %}
+            Launch Experiment
+          </a>
+          {% if not object.is_launchable %}
+            <p class="help-block">You must complete every section before you can launch this experiment.</p>
+          {% endif %}
+        </div>
+      </div>
+
       {% for change in object.changes.all reversed %}
-        <div class="row">
+        <div class="row help-block">
+          <div class="col-md-12">
+            <p>{{ change.changed_on.date }}</p>
+          </div>
+          <hr/>
           <div class="col-md-6">
-            <strong>{{ change.new_status }}</strong>
+            <p>{{ change.changed_by }}</p>
           </div>
           <div class="col-md-6 text-right">
-            <div>{{ change.changed_by }}</div>
-            <div>{{ change.changed_on.date }}</div>
+            <p>{{ change.pretty_status }}</p>
           </div>
         </div>
       {% endfor %}
