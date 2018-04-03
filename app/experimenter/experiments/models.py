@@ -10,6 +10,8 @@ from django.db.models import Max
 from django.utils import timezone
 from django.utils.functional import cached_property
 
+from experimenter.experiments.constants import ExperimentConstants
+
 
 class ExperimentManager(models.Manager):
 
@@ -21,95 +23,17 @@ class ExperimentManager(models.Manager):
         )
 
 
-class Experiment(models.Model):
-    STATUS_CREATED = 'Created'
-    STATUS_PENDING = 'Pending'
-    STATUS_ACCEPTED = 'Accepted'
-    STATUS_LAUNCHED = 'Launched'
-    STATUS_COMPLETE = 'Complete'
-    STATUS_REJECTED = 'Rejected'
-
-    STATUS_CHOICES = (
-        (STATUS_CREATED, STATUS_CREATED),
-        (STATUS_PENDING, STATUS_PENDING),
-        (STATUS_ACCEPTED, STATUS_ACCEPTED),
-        (STATUS_LAUNCHED, STATUS_LAUNCHED),
-        (STATUS_COMPLETE, STATUS_COMPLETE),
-        (STATUS_REJECTED, STATUS_REJECTED),
-    )
-
-    STATUS_TRANSITIONS = {
-        STATUS_CREATED: [
-            STATUS_PENDING,
-            STATUS_REJECTED,
-        ],
-        STATUS_PENDING: [
-            STATUS_ACCEPTED,
-            STATUS_REJECTED,
-        ],
-        STATUS_ACCEPTED: [
-            STATUS_LAUNCHED,
-            STATUS_REJECTED,
-        ],
-        STATUS_LAUNCHED: [
-            STATUS_COMPLETE,
-        ],
-        STATUS_COMPLETE: [
-        ],
-        STATUS_REJECTED: [
-        ],
-    }
-
-    VERSION_CHOICES = (
-        ('55.0', '55.0'),
-        ('56.0', '56.0'),
-        ('57.0', '57.0'),
-        ('58.0', '58.0'),
-        ('59.0', '59.0'),
-        ('60.0', '60.0'),
-        ('61.0', '61.0'),
-        ('62.0', '62.0'),
-        ('63.0', '63.0'),
-        ('64.0', '64.0'),
-    )
-
-    CHANNEL_NIGHTLY = 'Nightly'
-    CHANNEL_BETA = 'Beta'
-    CHANNEL_RELEASE = 'Release'
-
-    CHANNEL_CHOICES = (
-        (CHANNEL_NIGHTLY, CHANNEL_NIGHTLY),
-        (CHANNEL_BETA, CHANNEL_BETA),
-        (CHANNEL_RELEASE, CHANNEL_RELEASE),
-    )
-
-    PREF_TYPE_BOOL = 'boolean'
-    PREF_TYPE_INT = 'integer'
-    PREF_TYPE_STR = 'string'
-
-    PREF_TYPE_CHOICES = (
-        (PREF_TYPE_BOOL, PREF_TYPE_BOOL),
-        (PREF_TYPE_INT, PREF_TYPE_INT),
-        (PREF_TYPE_STR, PREF_TYPE_STR),
-    )
-
-    PREF_BRANCH_USER = 'user'
-    PREF_BRANCH_DEFAULT = 'default'
-    PREF_BRANCH_CHOICES = (
-        (PREF_BRANCH_DEFAULT, PREF_BRANCH_DEFAULT),
-        (PREF_BRANCH_USER, PREF_BRANCH_USER),
-    )
-
+class Experiment(ExperimentConstants, models.Model):
     project = models.ForeignKey(
         'projects.Project',
-        blank=False,
-        null=False,
+        blank=True,
+        null=True,
         related_name='experiments',
     )
     status = models.CharField(
         max_length=255,
-        default=STATUS_CREATED,
-        choices=STATUS_CHOICES,
+        default=ExperimentConstants.STATUS_CREATED,
+        choices=ExperimentConstants.STATUS_CHOICES,
     )
     name = models.CharField(
         max_length=255, unique=True, blank=False, null=False)
@@ -121,21 +45,41 @@ class Experiment(models.Model):
     pref_key = models.CharField(max_length=255, blank=True, null=True)
     pref_type = models.CharField(
         max_length=255,
-        choices=PREF_TYPE_CHOICES,
+        choices=ExperimentConstants.PREF_TYPE_CHOICES,
+        blank=True,
+        null=True,
     )
     pref_branch = models.CharField(
         max_length=255,
-        choices=PREF_BRANCH_CHOICES,
-        default=PREF_BRANCH_DEFAULT,
+        choices=ExperimentConstants.PREF_BRANCH_CHOICES,
+        blank=True,
+        null=True,
     )
     population_percent = models.DecimalField(
         max_digits=7, decimal_places=4, default='0')
-    firefox_version = models.CharField(max_length=255, choices=VERSION_CHOICES)
+    firefox_version = models.CharField(
+        max_length=255, choices=ExperimentConstants.VERSION_CHOICES)
     firefox_channel = models.CharField(
-        max_length=255, choices=CHANNEL_CHOICES, default=CHANNEL_NIGHTLY)
+        max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES)
     client_matching = models.TextField(default='', blank=True)
-    objectives = models.TextField(default='')
-    analysis = models.TextField(default='', blank=True, null=True)
+    objectives = models.TextField(
+        default=ExperimentConstants.OBJECTIVES_DEFAULT, blank=True, null=True)
+    analysis = models.TextField(
+        default=ExperimentConstants.ANALYSIS_DEFAULT, blank=True, null=True)
+    risk_partner_related = models.NullBooleanField(
+        default=None, blank=True, null=True)
+    risk_brand = models.NullBooleanField(
+        default=None, blank=True, null=True)
+    risk_fast_shipped = models.NullBooleanField(
+        default=None, blank=True, null=True)
+    risk_confidential = models.NullBooleanField(
+        default=None, blank=True, null=True)
+    risk_release_population = models.NullBooleanField(
+        default=None, blank=True, null=True)
+    risks = models.TextField(
+        default=ExperimentConstants.RISKS_DEFAULT, blank=True, null=True)
+    testing = models.TextField(
+        default=ExperimentConstants.TESTING_DEFAULT, blank=True, null=True)
     total_users = models.PositiveIntegerField(default=0)
     enrollment_dashboard_url = models.URLField(blank=True, null=True)
     dashboard_url = models.URLField(blank=True, null=True)
@@ -185,6 +129,10 @@ class Experiment(models.Model):
     def is_readonly(self):
         return self.status != self.STATUS_CREATED
 
+    @property
+    def is_begun(self):
+        return self.status in (self.STATUS_LAUNCHED, self.STATUS_COMPLETE)
+
     def _transition_date(self, start_state, end_state):
         change = self.changes.filter(
             old_status=start_state,
@@ -196,7 +144,7 @@ class Experiment(models.Model):
 
     @property
     def population(self):
-        return '{percent:g}% of Firefox {version} {channel}'.format(
+        return '{percent:g}% of {channel} Firefox {version}'.format(
             percent=float(self.population_percent),
             version=self.firefox_version,
             channel=self.firefox_channel,
@@ -258,6 +206,51 @@ class Experiment(models.Model):
             '&metrics=ALL&next=%2F&pop=ALL&scale=linear&showOutliers=false'
         ).format(slug=self.slug)
 
+    @property
+    def _risk_questions(self):
+        return (
+            self.risk_partner_related,
+            self.risk_brand,
+            self.risk_fast_shipped,
+            self.risk_confidential,
+            self.risk_release_population,
+        )
+
+    @property
+    def is_high_risk(self):
+        return True in self._risk_questions
+
+    @property
+    def completed_overview(self):
+        return self.pk is not None
+
+    @property
+    def completed_variants(self):
+        return self.variants.exists()
+
+    @property
+    def completed_objectives(self):
+        return (
+            self.objectives != self.OBJECTIVES_DEFAULT and
+            self.analysis != self.ANALYSIS_DEFAULT
+        )
+
+    @property
+    def completed_risks(self):
+        return (
+            None not in self._risk_questions and
+            self.testing != self.TESTING_DEFAULT
+        )
+
+    @property
+    def is_launchable(self):
+        return (
+            self.completed_overview and
+            self.completed_variants and
+            self.completed_objectives and
+            self.completed_risks
+        )
+
 
 class ExperimentVariant(models.Model):
     experiment = models.ForeignKey(
@@ -290,6 +283,9 @@ class ExperimentChangeLogManager(models.Manager):
 
 
 class ExperimentChangeLog(models.Model):
+    STATUS_CREATED_DRAFT = 'Created Draft'
+    STATUS_EDITED_DRAFT = 'Edited Draft'
+
     def current_datetime():
         return timezone.now()
 
@@ -313,6 +309,11 @@ class ExperimentChangeLog(models.Model):
 
     objects = ExperimentChangeLogManager()
 
+    class Meta:
+        verbose_name = 'Experiment Change Log'
+        verbose_name_plural = 'Experiment Change Logs'
+        ordering = ('changed_on',)
+
     def __str__(self):  # pragma: no cover
         return '{status} by {updater} on {datetime}'.format(
           status=self.new_status,
@@ -320,7 +321,15 @@ class ExperimentChangeLog(models.Model):
           datetime=self.changed_on.date(),
         )
 
-    class Meta:
-        verbose_name = 'Experiment Change Log'
-        verbose_name_plural = 'Experiment Change Logs'
-        ordering = ('changed_on',)
+    @property
+    def pretty_status(self):
+        if (
+            self.new_status == Experiment.STATUS_CREATED and
+            not self.old_status
+        ):
+            return self.STATUS_CREATED_DRAFT
+        elif (
+            self.new_status == Experiment.STATUS_CREATED and
+            self.old_status == Experiment.STATUS_CREATED
+        ):
+            return self.STATUS_EDITED_DRAFT

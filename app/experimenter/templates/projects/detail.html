@@ -5,7 +5,7 @@
 {% block content %}
   <div id="content-header" class="row">
     <div class="col-md-6">
-      <a href="{% url "projects-detail" slug=object.slug %}">
+      <a class="noanchorstyle" href="{% url "projects-detail" slug=object.slug %}">
         {{ object.name }}
       </a>
       <a class="settings-gear" href="{% url "projects-update" slug=object.slug %}">
@@ -14,11 +14,12 @@
     </div>
     <div class="col-md-6 text-right light-text">
       {{ object.experiments.count }} Experiment{{ object.experiments.count|pluralize }}
+      <a class="btn btn-info btn-circle" href="{% url "experiments-create" %}?project={{ object.id }}">+</a>
     </div>
   </div>
 
   {% for experiment in object.experiments.most_recently_changed %}
-    <a href="{% url "experiments-detail" slug=experiment.slug %}">
+    <a class="noanchorstyle" href="{% url "experiments-detail" slug=experiment.slug %}">
 
       <div class="row card">
 

@@ -1,0 +1,97 @@
+{% extends "experiments/edit_base.html" %}
+
+{% load static %}
+      
+{% block edit_title %}
+  {% if object %}
+    <h3>Edit {{ object.name }}</h3>
+  {% else %}
+    <h3>New Experiment</h3>
+  {% endif %}
+{% endblock %}
+
+{% block edit_nav %}
+  {% include "experiments/edit_nav_inline.html" with step=1 object=object %}
+{% endblock %}
+
+{% block edit_form %}
+  <form 
+    class="form-horizontal" 
+    method="POST" 
+    enctype='multipart/form-data'
+  >
+    {% csrf_token %}
+
+    {% include "experiments/field_inline.html" with field=form.project %}
+    
+    {% include "experiments/field_inline.html" with field=form.name %}
+    
+    {% include "experiments/field_inline.html" with field=form.short_description %}
+
+    <div class="form-group">
+      <div class="{% if form.errors.population_percent %}has-error{% endif %}">
+        <label class="col-md-3 control-label" for="{{ form.population_percent.id_for_label }}">{{ form.population_percent.label }}</label>
+        <div class="col-md-2 ">
+          {{ form.population_percent }} 
+        </div>
+      </div>
+      <div class="col-md-1">
+        <h5>% of</h5>
+      </div>
+      <div class="col-md-3">
+        {{ form.firefox_channel }}
+      </div>
+      <div class="col-md-3">
+        {{ form.firefox_version }}
+      </div>
+      {% if form.errors.population_percent %}
+        <div class="col-md-9 col-md-offset-3 has-error text-right">
+          {% for error in form.errors.population_percent %}
+            <label for="{{ form.population_percent.id_for_label }}" class="control-label">{{ error }}</label> 
+          {% endfor %}
+        </div>
+      {% endif %}
+      <div class="col-md-9 col-md-offset-3 text-right">
+        <a href="#population-percent-help" data-toggle="collapse" aria-expanded="false" aria-controls="population-percent-help">Help</a>
+      </div>
+      <div id="population-percent-help" class="collapse col-md-9 col-md-offset-3 help-block">
+        {{ form.population_percent.help_text|safe }}
+      </div>
+    </div>
+
+    {% include "experiments/field_inline.html" with field=form.client_matching %}
+    
+    {% include "experiments/field_inline.html" with field=form.proposed_start_date %}
+    
+    {% include "experiments/field_inline.html" with field=form.proposed_end_date %}
+
+    <div class="form-group">
+      <div class="col-md-12 text-right">
+        {{ form.errors }}
+        {% if object %}
+          <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">Cancel Editing</a>
+        {% endif %}
+        <button type="submit" name="action" value="save" class="btn btn-info">Save Draft</button>
+        <button type="submit" name="action" value="continue" class="btn btn-success">Save Overview and Continue</button>
+      </div>
+    </div>
+  </form>
+{% endblock %}
+
+{% block edit_info %}
+  <h4><span class="glyphicon glyphicon-info-sign"></span> Getting Started</h4>
+  <p>
+    Your experiment will start as a draft. 
+  </p>
+  <p>
+    Fill out the information on this page to save your draft.
+  </p>
+  <p>
+    After your draft is created, you can fill out the remaining sections
+    now or later.
+  </p>
+  <p>
+    When all of the sections are complete and reviewed, you can 
+    launch your experiment to Shield.
+  </p>
+{% endblock %}

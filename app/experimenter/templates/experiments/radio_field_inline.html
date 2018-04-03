@@ -1,0 +1,22 @@
+            <div class="form-group {% if field.errors %}has-error{% endif %}">
+              <label class="col-md-9 col-md-offset-3 text-left" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              <div class="col-md-9 col-md-offset-3">
+                {{ field }}
+              </div>
+              {% if field.errors %}
+                <div class="col-md-12 text-right">
+                  {% for error in field.errors %}
+                    <label for="{{ field.id_for_label }}" class="control-label">
+                      <span class="glyphicon glyphicon-exclamation-sign"></span>
+                      {{ error }}
+                    </label> 
+                  {% endfor %}
+                </div>
+              {% endif %}
+              <div class="col-md-9 col-md-offset-3 text-right">
+                <a href="#{{ field.id_for_label }}-help" data-toggle="collapse" aria-expanded="false" aria-controls="{{ field.id_for_label }}-help">Help</a>
+              </div>
+              <div id="{{ field.id_for_label }}-help" class="col-md-9 col-md-offset-3 help-block collapse {% if field.errors %}in{% endif %}">
+                {{ field.help_text|safe }}
+              </div>
+            </div>

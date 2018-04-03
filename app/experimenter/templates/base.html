@@ -15,7 +15,9 @@
 		<!-- Optional theme -->
 		<link rel="stylesheet" href="{% static "lib/bootstrap/css/bootstrap-theme.min.css" %}">
 		
-		<link rel="stylesheet" href="{% static "css/experimenter.css" %}">
+    <link rel="stylesheet" href="{% static "lib/ezspace/ez-space.css" %}">
+		
+    <link rel="stylesheet" href="{% static "css/experimenter.css" %}">
 
     {% block title %}
       <title>Mozilla Experimenter</title>
@@ -27,19 +29,17 @@
       <div class="container">
         <div class="row">
           <div id="site-logo" class="col-md-6 spaced-text">
-            <a href="{% url "projects-list" %}">
-              <svg id="site-icon" enable-background="new 0 0 32 32" version="1.1" viewBox="0 0 32 32" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="GLYPH"><path d="M16,0L1.565,8v16L16,32l14.435-8V8L16,0z M24.237,20.565L16,25.131l-8.237-4.565v-9.131L16,6.869l8.237,4.565V20.565z"/><polygon points="10.364,12.877 16,9.753 21.636,12.877 21.636,19.123 16,22.247 10.364,19.123  "/></g>
-              </svg>
+            <a class="noanchorstyle" href="{% url "projects-list" %}">
+              <span class="glyphicon glyphicon-stats"></span>
               <strong>Mozilla</strong> Experimenter
             </a>
             {% block breadcrumbs %}
             {% endblock %}
           </div>
           <div id="header-user-info" class="col-md-6 text-right">
-            <span id="header-user-name">{{ request.user }}</span>
-            <a class="btn btn-success" target="_blank" href="https://github.com/mozilla/experimenter/issues/new">
-              Feedback
-            </a>
+            {{ request.user }}
+            <br/>
+            <a target="_blank" href="https://github.com/mozilla/experimenter/issues/new">Feedback</a>
           </div>
         </div>
       </div>
@@ -65,5 +65,8 @@
     <script src="{% static "lib/jquery/jquery-3.2.1.min.js" %}"></script>
 		<!-- Latest compiled and minified JavaScript -->
 		<script src="{% static "lib/bootstrap/js/bootstrap.min.js" %}"></script>
+
+    {% block extrascripts %}
+    {% endblock %}
   </body>
 </html>

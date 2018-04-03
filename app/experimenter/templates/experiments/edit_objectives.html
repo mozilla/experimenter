@@ -1,0 +1,53 @@
+{% extends "experiments/edit_base.html" %}
+
+{% load static %}
+      
+{% block edit_title %}
+  <h3>Edit {{ object.name }} Objectives & Analysis</h3>
+{% endblock %}
+
+{% block edit_nav %}
+  {% include "experiments/edit_nav_inline.html" with step=3 object=object %}
+{% endblock %}
+
+{% block edit_form %}
+  <form 
+    class="form-horizontal" 
+    method="POST" 
+    enctype='multipart/form-data'
+  >
+    {% csrf_token %}
+
+    {% for field in form %}
+      
+      {% include "experiments/field_inline.html" with field=field %}
+
+    {% endfor %}
+    
+    <div class="form-group">
+      <div class="col-md-12 text-right">
+        {{ form.errors }}
+        {% if object %}
+          <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">Cancel Editing</a>
+        {% endif %}
+        <button type="submit" name="action" value="save" class="btn btn-info">Save Draft</button>
+        <button type="submit" name="action" value="continue" class="btn btn-success">Save Objectives &amp; Analysis and Continue</button>
+      </div>
+    </div>
+
+  </form>
+{% endblock %}
+
+{% block edit_info %}
+  <h4><span class="glyphicon glyphicon-info-sign"></span> Objectives & Analysis</h4>
+  <p>
+    The objective of your experiment is the thing you are trying to measure or learn
+    by doing the experiment.
+  </p>
+  <p>
+    The analysis plan is how you will use metrics to satisfy that objective.
+  </p>
+  <p>
+    Describe both in detail here.
+  </p>
+{% endblock %}

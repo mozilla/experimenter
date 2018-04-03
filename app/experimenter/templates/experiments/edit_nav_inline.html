@@ -1,0 +1,51 @@
+<ul class="nav nav-pills nav-justified">
+
+  <li class="li-nav {% if step == 1 %}active{% endif %}">
+    <a {% if object %}href="{% url "experiments-overview-update" slug=object.slug %}"{% endif %}>
+      <h4 class="list-group-item-heading">
+        1. Overview
+        {% if object.completed_overview %}
+          <span class="glyphicon glyphicon-ok-circle"></span>
+        {% endif %}
+      </h4>
+      <p class="list-group-item-text">Provide the basic information required to plan an experiment</p>
+    </a>
+  </li>
+
+  <li class="li-nav {% if step == 2 %}active{% endif %} {% if not object.completed_overview %}disabled{% endif %}">
+    <a {% if object %}href="{% url "experiments-variants-update" slug=object.slug %}"{% endif %}>
+      <h4 class="list-group-item-heading">
+        2. Variants
+        {% if object.completed_variants %}
+          <span class="glyphicon glyphicon-ok-circle"></span>
+        {% endif %}
+      </h4>
+      <p class="list-group-item-text">Define the Firefox pref and the values of each variant</p>
+    </a>
+  </li>
+
+  <li class="li-nav {% if step == 3 %}active{% endif %} {% if not object.completed_variants %}disabled{% endif %}">
+    <a {% if object %}href="{% url "experiments-objectives-update" slug=object.slug %}"{% endif %}>
+      <h4 class="list-group-item-heading">
+        3. Objectives &amp; Analysis
+        {% if object.completed_objectives %}
+          <span class="glyphicon glyphicon-ok-circle"></span>
+        {% endif %}
+      </h4>
+      <p class="list-group-item-text">Define the experiment's outcomes and how they'll be measured</p>
+    </a>
+  </li>
+
+  <li class="li-nav {% if step == 4 %}active{% endif %} {% if not object.completed_risks %}disabled{% endif %}">
+    <a {% if object %}href="{% url "experiments-risks-update" slug=object.slug %}"{% endif %}>
+      <h4 class="list-group-item-heading">
+        4. Risks &amp; Testing 
+        {% if object.completed_risks %}
+          <span class="glyphicon glyphicon-ok-circle"></span>
+        {% endif %}
+      </h4>
+      <p class="list-group-item-text">Identify risks, their owners, and the testing plan</p>
+    </a>
+  </li>
+
+</ul>

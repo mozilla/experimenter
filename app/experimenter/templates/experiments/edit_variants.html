@@ -1,0 +1,114 @@
+{% extends "experiments/edit_base.html" %}
+
+{% load static %}
+      
+{% block edit_title %}
+  <h3>Edit {{ object.name }} Variants</h3>
+{% endblock %}
+
+{% block edit_nav %}
+  {% include "experiments/edit_nav_inline.html" with step=2 object=object %}
+{% endblock %}
+
+{% block edit_form %}
+  <form 
+    class="form-horizontal card-content" 
+    method="POST" 
+    enctype='multipart/form-data'
+  >
+    {% csrf_token %}
+    
+    <div class="form-group">
+      <h4 class="col-md-9 col-md-offset-3">Firefox Pref</h4>
+    </div>
+    
+    {% include "experiments/field_inline.html" with field=form.pref_key %}
+    
+    {% include "experiments/field_inline.html" with field=form.pref_type %}
+    
+    {% include "experiments/field_inline.html" with field=form.pref_branch %}
+    
+
+    <div class="form-group">
+      <div class="col-md-9 col-md-offset-3 text-center">
+        <h4>
+          <span id="control-ratio">{{ form.control_form.ratio.value }}</span>
+          % Control Variant  :  
+          <span id="experimental-ratio">{{ form.experimental_form.ratio.value }}</span> 
+          % Experimental Variant
+        </h4>
+      </div>
+    </div>
+    
+    {% include "experiments/field_inline.html" with field=form.control_form.ratio %}
+
+    <div class="form-group">
+      <h4 class="col-md-9 col-md-offset-3">Control Variant</h4>
+    </div>
+
+    {{ form.control_form.errors }}
+
+    {% include "experiments/field_inline.html" with field=form.control_form.name %}
+    
+    {% include "experiments/field_inline.html" with field=form.control_form.description %}
+    
+    {% include "experiments/field_inline.html" with field=form.control_form.value %}
+    
+    <div class="form-group">
+      <h4 class="col-md-9 col-md-offset-3">Experimental Variant</h4>
+    </div>
+
+    {{ form.experimental_form.errors }}
+    
+    {% include "experiments/field_inline.html" with field=form.experimental_form.name %}
+    
+    {% include "experiments/field_inline.html" with field=form.experimental_form.description %}
+    
+    {% include "experiments/field_inline.html" with field=form.experimental_form.value %}
+
+    <div class="form-group">
+      <div class="col-md-12 text-right">
+        {{ form.errors }}
+        {% if object %}
+          <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">Cancel Editing</a>
+        {% endif %}
+        <button type="submit" name="action" value="save" class="btn btn-info">Save Draft</button>
+        <button type="submit" name="action" value="continue" class="btn btn-success">Save Variants and Continue</button>
+      </div>
+    </div>
+
+  </form>
+{% endblock %}
+
+{% block edit_info %}
+  <h4><span class="glyphicon glyphicon-info-sign"></span> Variants</h4>
+  <p>
+    An experiment will set a specific Firefox pref to a different value
+    for each variant.
+  </p>
+  <p>
+    An experiment has two variants: Control and Experimental.
+  </p>
+  <p>
+    The Control Variant represents the pref value you want to compare against.
+  </p>
+  <p>
+    The Experimental Variant represents
+  </p>
+  <p>
+    When all of the sections are complete and reviewed, you can 
+    launch your experiment to Shield.
+  </p>
+{% endblock %}
+
+{% block extrascripts %}
+  <script>
+    $(function () {
+      $('#{{ form.control_form.ratio.id_for_label }}').change(function (e) {
+        const value = e.target.value;
+        $('#control-ratio').html(value);
+        $('#experimental-ratio').html(100 - value);
+      });
+    });
+  </script>
+{% endblock %}
