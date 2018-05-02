@@ -1,3 +1,12 @@
+select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	background: url(/static/imgs/select.png) right / 20px no-repeat #fff !important;
+	background-image: url(/static/imgs/select.png) right / 20px no-repeat #fff !important;
+	padding-right: 20px;
+}
+
 a.noanchorstyle {
   color: inherit;
   text-decoration: none;
@@ -25,17 +34,11 @@ body {
   font-weight: lighter;
 }
 
-.low-opacity {
-  opacity: 0.1;
-}
-
 #header {
   background: #2680da;
   color: #efefef;
   fill: #efefef;
   padding: 15px 0px;
-  box-shadow: 0 2px 10px 0 rgba(6, 6, 6, 0.3);
-  margin-bottom: 20px;
 }
 
 #header-user-info a {
@@ -45,90 +48,13 @@ body {
 #site-logo {
   font-size: 26px;
   font-weight: lighter;
-  transition: color ease-in-out .15s, fill ease-in-out .15s;
-}
-
-#site-logo:hover {
-  color: #fff;
-  fill: #fff;
-}
-
-#site-icon {
-  height: 30px;
-  margin-bottom: -4px;
-  margin-right: -3px;
-}
-
-#header-user-name {
-  display: inline-block;
-  height: 34px;
-  line-height: 34px;
 }
 
 #content-header {
   font-size: 24px;
-}
-
-.tile {
-  box-shadow: 0 2px 5px 0 rgba(12, 12, 13, 0.1);
-  transition: box-shadow ease-in-out .25s;
-  border-radius: 5px;
   background-color: white;
-}
-
-.tile:hover {
-  box-shadow: 0 3px 8px 0 rgba(6, 6, 6, 0.2);
-}
-
-.tile-image {
-  height: 300px;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  border-top-right-radius: 5px;
-  border-top-left-radius: 5px;
-  text-align: center;
-  padding-top: 60px;
-}
-
-.tile-default-image {
-  width: 50%;
-  opacity: 0.1;
-}
-
-.tile-info {
-  padding: 12px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  border-bottom-right-radius: 5px;
-  border-bottom-left-radius: 5px;
-}
-
-.tile-name {
-  margin-bottom: 4px;
-}
-
-.tile-subheader {
-  text-transform: uppercase;
-  font-weight: normal;
-  color: #888;
-  letter-spacing: 0.5px;
-  font-size: 12px;
-  margin-top: 0px;
-}
-
-.settings-gear {
-  opacity: 0.5;
-  transition: opacity ease-in-out .25s;
-}
-
-.settings-gear:hover {
-  opacity: 1.0;
-
-}
-
-.top-left-rounded {
-  border-top-left-radius: 5px;
+  box-shadow: inset 0 10px 10px -10px rgba(6, 6, 6, 0.3);
+  border-bottom: 1px solid #ccc;
 }
 
 .card {
@@ -176,19 +102,4 @@ body {
 .status-color-Rejected {
   color: white;
   background-color: #e9433e;
-}
-
-.btn-large {
-  display: block;
-}
-
-.btn-circle {
-  width: 40px;
-  height: 40px;
-  text-align: center;
-  padding: 0px;
-  font-size: 30px;
-  line-height: 1.05;
-  border-radius: 20px;
-  margin-top: -5px;
 }

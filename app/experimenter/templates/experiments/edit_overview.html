@@ -4,9 +4,9 @@
       
 {% block edit_title %}
   {% if object %}
-    <h3>Edit {{ object.name }}</h3>
+    Edit {{ object.name }}
   {% else %}
-    <h3>New Experiment</h3>
+    New Experiment
   {% endif %}
 {% endblock %}
 
@@ -22,8 +22,6 @@
   >
     {% csrf_token %}
 
-    {% include "experiments/field_inline.html" with field=form.project %}
-    
     {% include "experiments/field_inline.html" with field=form.name %}
     
     {% include "experiments/field_inline.html" with field=form.short_description %}

@@ -2,16 +2,16 @@
 
 {% load static %}
 
+{% block content_header %}
+  <div class="col-md-12">
+    {% block edit_title %}
+    {% endblock %}
+  </div>
+{% endblock %}
+
 {% block content %}
-  <div class="row">
-
-    <div class="col-md-12 md-mb-10">
-      {% block edit_title %}
-      {% endblock %}
-    </div>
-    
+  <div class="row md-mt-20">
     <div class="col-md-9 md-pr-20">
-
       <div class="row">
         <div class="col-md-12">
           {% block edit_nav %}

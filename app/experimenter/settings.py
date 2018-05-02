@@ -137,7 +137,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 OPENIDC_EMAIL_HEADER = config('OPENIDC_HEADER')
 OPENIDC_AUTH_WHITELIST = (
-    'experiments-list',
+    'experiments-api-list',
 )
 
 

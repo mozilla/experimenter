@@ -5,21 +5,22 @@
 {% block breadcrumbs %}
 {% endblock %}
 
-{% block content %}
-  <div id="content-header" class="row">
-    <div class="col-md-12">
-      {% if object.project %}
-        <a class="noanchorstyle" href="{% url "projects-detail" slug=object.project.slug %}">
-          {{ object.project.name }}
-        </a>
-        <span class="light-text">/</span>
-      {% endif %}
-      <a class="noanchorstyle spaced-text" href="{% url "experiments-detail" slug=experiment.slug %}">
-        {{ object.name }}
-      </a>
-    </div>
+{% block content_header %}
+  <div class="col-md-9">
+    <a class="noanchorstyle spaced-text" href="{% url "experiments-detail" slug=experiment.slug %}">
+      {{ object.name }}
+    </a>
+    <span class="badge status-color-{{ experiment.status }}">{{ experiment.status }}</span>
   </div>
+  <div class="col-md-3 text-right">
+    <a id="launch-button" class="col-md-12 btn btn-success {% if not object.is_launchable %}disabled{% endif %}">
+      {% if not object.is_launchable %}<span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>{% endif %}
+      Submit for Review 
+    </a>
+  </div>
+{% endblock %}
 
+{% block content %}
   <div class="row md-mt-20">
 
     <div class="col-md-9 md-pr-40">
@@ -38,9 +39,13 @@
         {% if object.is_launched %}
           <iframe style="display:block" scrolling="no" frameBorder="0" width="100%" height="450px" src="{{ object.enrollment_dashboard_url }}" ></iframe>
         {% else %}
-          <div class="col-md-12">
-            <h4 class="md-mt-0">{{ object.population }}</h4>
+          <div class="col-md-6">
             <p><strong>{{ object.proposed_start_date }} - {{ object.proposed_end_date }}</strong></p>
+          </div>
+          <div class="col-md-6 text-right">
+            <h4 class="md-mt-0">{{ object.population }}</h4>
+          </div>
+          <div class="col-md-12 md-mt-10">
             {{ object.short_description|linebreaks }}
           </div>
         {% endif %}
@@ -185,18 +190,13 @@
     </div>
 
     <div class="col-md-3">
-
-      <div class="row form-group">
-        <div class="col-md-12">
-          <a id="launch-button" class="col-md-12 btn btn-success {% if not object.is_launchable %}disabled{% endif %}">
-            {% if not object.is_launchable %}<span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>{% endif %}
-            Launch Experiment
-          </a>
-          {% if not object.is_launchable %}
-            <p class="help-block">You must complete every section before you can launch this experiment.</p>
-          {% endif %}
+      {% if not object.is_launchable %}
+        <div class="row form-group">
+          <div class="col-md-12">
+              <p class="help-block">You must complete every section before you can launch this experiment.</p>
+          </div>
         </div>
-      </div>
+      {% endif %}
 
       {% for change in object.changes.all reversed %}
         <div class="row help-block">

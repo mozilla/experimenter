@@ -22,25 +22,32 @@
     {% block title %}
       <title>Mozilla Experimenter</title>
     {% endblock %}
-
   </head>
+
   <body>
     <div id="header">
       <div class="container">
         <div class="row">
           <div id="site-logo" class="col-md-6 spaced-text">
-            <a class="noanchorstyle" href="{% url "projects-list" %}">
+            <a class="noanchorstyle" href="{% url "home" %}">
               <span class="glyphicon glyphicon-stats"></span>
               <strong>Mozilla</strong> Experimenter
             </a>
-            {% block breadcrumbs %}
-            {% endblock %}
           </div>
           <div id="header-user-info" class="col-md-6 text-right">
             {{ request.user }}
             <br/>
             <a target="_blank" href="https://github.com/mozilla/experimenter/issues/new">Feedback</a>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="content-header">
+      <div class="container">
+        <div class="row md-pt-15 md-pb-15">
+          {% block content_header %}
+          {% endblock %}
         </div>
       </div>
     </div>

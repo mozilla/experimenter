@@ -1,7 +1,7 @@
 import datetime
 import decimal
-import json
 import random
+from urllib.parse import urlencode
 
 import mock
 from django.conf import settings
@@ -9,13 +9,147 @@ from django.test import TestCase
 from django.urls import reverse
 
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.serializers import ExperimentSerializer
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.views import (
-    ExperimentFormMixin,
     ExperimentCreateView,
+    ExperimentFilter,
+    ExperimentFormMixin,
+    ExperimentOrderingForm,
 )
 from experimenter.projects.tests.factories import ProjectFactory
+
+
+class TestExperimentFilter(TestCase):
+
+    def test_filters_by_status(self):
+        for i in range(3):
+            ExperimentFactory.create_with_status(Experiment.STATUS_CREATED)
+            ExperimentFactory.create_with_status(Experiment.STATUS_PENDING)
+        filter = ExperimentFilter(
+            {'status': Experiment.STATUS_CREATED},
+            queryset=Experiment.objects.all(),
+        )
+        self.assertEqual(
+            set(filter.qs),
+            set(Experiment.objects.filter(status=Experiment.STATUS_CREATED)),
+        )
+
+    def test_filters_by_firefox_version(self):
+        include_version = Experiment.VERSION_CHOICES[1][0]
+        exclude_version = Experiment.VERSION_CHOICES[2][0]
+
+        for i in range(3):
+            ExperimentFactory.create_with_variants(
+                firefox_version=include_version)
+            ExperimentFactory.create_with_variants(
+                firefox_version=exclude_version)
+
+        filter = ExperimentFilter(
+            {'firefox_version': include_version},
+            queryset=Experiment.objects.all(),
+        )
+        self.assertEqual(
+            set(filter.qs),
+            set(Experiment.objects.filter(firefox_version=include_version)),
+        )
+
+    def test_filters_by_firefox_channel(self):
+        include_channel = Experiment.CHANNEL_CHOICES[1][0]
+        exclude_channel = Experiment.CHANNEL_CHOICES[2][0]
+
+        for i in range(3):
+            ExperimentFactory.create_with_variants(
+                firefox_channel=include_channel)
+            ExperimentFactory.create_with_variants(
+                firefox_channel=exclude_channel)
+
+        filter = ExperimentFilter(
+            {'firefox_channel': include_channel},
+            queryset=Experiment.objects.all(),
+        )
+        self.assertEqual(
+            set(filter.qs),
+            set(Experiment.objects.filter(firefox_channel=include_channel)),
+        )
+
+
+class TestExperimengOrderingForm(TestCase):
+
+    def test_accepts_valid_ordering(self):
+        ordering = ExperimentOrderingForm.ORDERING_CHOICES[1][0]
+        form = ExperimentOrderingForm({'ordering': ordering})
+        self.assertTrue(form.is_valid())
+
+    def test_rejects_invalid_ordering(self):
+        form = ExperimentOrderingForm({'ordering': 'invalid ordering'})
+        self.assertFalse(form.is_valid())
+
+
+class TestExperimentListView(TestCase):
+
+    def test_list_view_lists_experiments(self):
+        user_email = 'user@example.com'
+
+        experiments = []
+
+        for i in range(3):
+            experiment = ExperimentFactory.create_with_status(
+                random.choice(Experiment.STATUS_CHOICES)[0])
+            experiments.append(experiment)
+
+        response = self.client.get(
+            reverse('home'),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        context = response.context[0]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(set(context['experiments']), set(experiments))
+
+    def test_list_view_filters_and_orders_experiments(self):
+        user_email = 'user@example.com'
+
+        ordering = 'latest_change'
+        filtered_status = Experiment.STATUS_CREATED
+        filtered_version = Experiment.VERSION_CHOICES[1][0]
+        filtered_channel = Experiment.CHANNEL_CHOICES[1][0]
+
+        for i in range(10):
+            ExperimentFactory.create_with_status(
+                target_status=filtered_status,
+                firefox_version=filtered_version,
+                firefox_channel=filtered_channel,
+            )
+
+        for i in range(10):
+            ExperimentFactory.create_with_status(
+                random.choice(Experiment.STATUS_CHOICES)[0])
+
+        filtered_ordered_experiments = Experiment.objects.filter(
+            status=filtered_status,
+            firefox_version=filtered_version,
+            firefox_channel=filtered_channel,
+        ).order_by(ordering)
+
+        response = self.client.get(
+            '{url}?{params}'.format(
+                url=reverse('home'),
+                params=urlencode({
+                    'status': filtered_status,
+                    'firefox_version': filtered_version,
+                    'firefox_channel': filtered_channel,
+                    'ordering': ordering,
+                }),
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        context = response.context[0]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            list(context['experiments']),
+            list(filtered_ordered_experiments),
+        )
 
 
 class TestExperimentFormMixin(TestCase):
@@ -368,150 +502,3 @@ class TestExperimentDetailView(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-
-
-class TestExperimentListView(TestCase):
-
-    def test_list_view_serializes_experiments(self):
-        experiments = []
-
-        for i in range(3):
-            experiment = ExperimentFactory.create_with_variants()
-            experiments.append(experiment)
-
-        response = self.client.get(reverse('experiments-list'))
-        self.assertEqual(response.status_code, 200)
-
-        json_data = json.loads(response.content)
-
-        serialized_experiments = ExperimentSerializer(
-            Experiment.objects.all(), many=True).data
-
-        self.assertEqual(serialized_experiments, json_data)
-
-    def test_list_view_filters_by_project_slug(self):
-        project = ProjectFactory.create()
-        project_experiments = []
-
-        # another projects experiments should be excluded
-        for i in range(2):
-            ExperimentFactory.create_with_variants()
-
-        # started project experiments should be included
-        for i in range(3):
-            experiment = ExperimentFactory.create_with_variants(
-                project=project)
-            project_experiments.append(experiment)
-
-        response = self.client.get(
-            reverse('experiments-list'), {'project__slug': project.slug})
-        self.assertEqual(response.status_code, 200)
-
-        json_data = json.loads(response.content)
-
-        serialized_experiments = ExperimentSerializer(
-            project.experiments.all(), many=True).data
-
-        self.assertEqual(serialized_experiments, json_data)
-
-    def test_list_view_filters_by_status(self):
-        pending_experiments = []
-
-        # new experiments should be excluded
-        for i in range(2):
-            ExperimentFactory.create_with_variants()
-
-        # pending experiments should be included
-        for i in range(3):
-            experiment = ExperimentFactory.create_with_variants()
-            experiment.status = experiment.STATUS_PENDING
-            experiment.save()
-            pending_experiments.append(experiment)
-
-        response = self.client.get(
-            reverse('experiments-list'),
-            {'status': Experiment.STATUS_PENDING},
-        )
-        self.assertEqual(response.status_code, 200)
-
-        json_data = json.loads(response.content)
-
-        serialized_experiments = ExperimentSerializer(
-            Experiment.objects.filter(
-                status=Experiment.STATUS_PENDING), many=True).data
-
-        self.assertEqual(serialized_experiments, json_data)
-
-
-class TestExperimentAcceptView(TestCase):
-
-    def test_post_to_accept_view_sets_status_accepted(self):
-        user_email = 'user@example.com'
-
-        experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.STATUS_PENDING
-        experiment.save()
-
-        response = self.client.patch(
-            reverse('experiments-accept', kwargs={'slug': experiment.slug}),
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-
-        self.assertEqual(response.status_code, 200)
-
-        experiment = Experiment.objects.get(pk=experiment.pk)
-        self.assertEqual(experiment.status, experiment.STATUS_ACCEPTED)
-
-        change = experiment.changes.get()
-        self.assertEqual(change.old_status, experiment.STATUS_PENDING)
-        self.assertEqual(change.new_status, experiment.STATUS_ACCEPTED)
-        self.assertEqual(change.changed_by.email, user_email)
-
-    def test_post_to_accept_raises_404_for_non_pending_experiment(self):
-        experiment = ExperimentFactory.create_with_variants()
-
-        response = self.client.patch(
-            reverse('experiments-accept', kwargs={'slug': experiment.slug}),
-            **{settings.OPENIDC_EMAIL_HEADER: 'user@example.com'},
-        )
-
-        self.assertEqual(response.status_code, 404)
-
-
-class TestExperimentRejectView(TestCase):
-
-    def test_post_to_reject_view_sets_status_rejected(self):
-        user_email = 'user@example.com'
-        rejection_message = 'This experiment was rejected for reasons.'
-
-        experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.STATUS_PENDING
-        experiment.save()
-
-        response = self.client.patch(
-            reverse('experiments-reject', kwargs={'slug': experiment.slug}),
-            data=json.dumps({'message': rejection_message}),
-            content_type='application/json',
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-
-        self.assertEqual(response.status_code, 200)
-
-        experiment = Experiment.objects.get(pk=experiment.pk)
-        self.assertEqual(experiment.status, experiment.STATUS_REJECTED)
-
-        change = experiment.changes.get()
-        self.assertEqual(change.old_status, experiment.STATUS_PENDING)
-        self.assertEqual(change.new_status, experiment.STATUS_REJECTED)
-        self.assertEqual(change.changed_by.email, user_email)
-        self.assertEqual(change.message, rejection_message)
-
-    def test_post_to_reject_raises_404_for_non_pending_experiment(self):
-        experiment = ExperimentFactory.create_with_variants()
-
-        response = self.client.patch(
-            reverse('experiments-reject', kwargs={'slug': experiment.slug}),
-            **{settings.OPENIDC_EMAIL_HEADER: 'user@example.com'},
-        )
-
-        self.assertEqual(response.status_code, 404)
