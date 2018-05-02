@@ -12,7 +12,7 @@ from experimenter.experiments.tests.factories import (
 
 class TestExperimentManager(TestCase):
 
-    def test_most_recently_changed_orders_by_latest_changes(self):
+    def test_queryset_annotated_with_latest_change(self):
         now = datetime.datetime.now()
         experiment1 = ExperimentFactory.create_with_variants()
         experiment2 = ExperimentFactory.create_with_variants()
@@ -32,7 +32,7 @@ class TestExperimentManager(TestCase):
         )
 
         self.assertEqual(
-            list(Experiment.objects.most_recently_changed()),
+            list(Experiment.objects.order_by('-latest_change')),
             [experiment2, experiment1],
         )
 
@@ -43,7 +43,7 @@ class TestExperimentManager(TestCase):
         )
 
         self.assertEqual(
-            list(Experiment.objects.most_recently_changed()),
+            list(Experiment.objects.order_by('-latest_change')),
             [experiment1, experiment2],
         )
 
@@ -254,22 +254,6 @@ class TestExperimentModel(TestCase):
         self.assertEqual(
             experiment.population,
             '0.5% of Nightly Firefox 57.0'
-        )
-
-    def test_experiment_variants_returns_correct_string(self):
-        experiment = ExperimentFactory.create_with_variants()
-
-        experiment.control.name = 'Control'
-        experiment.control.ratio = 1
-        experiment.control.save()
-
-        experiment.variant.name = 'Variant'
-        experiment.variant.ratio = 1
-        experiment.variant.save()
-
-        self.assertEqual(
-            experiment.variant_ratios,
-            '1 Variant : 1 Control',
         )
 
     def test_experiments_viewer_link_is_correct(self):

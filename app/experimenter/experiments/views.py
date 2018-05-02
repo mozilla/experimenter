@@ -1,7 +1,8 @@
+import django_filters as filters
+from django import forms
 from django.core.urlresolvers import reverse
 from django.views.generic import CreateView, DetailView, UpdateView
-from rest_framework.generics import ListAPIView, UpdateAPIView
-from rest_framework.response import Response
+from django_filters.views import FilterView
 
 from experimenter.experiments.forms import (
     ExperimentOverviewForm,
@@ -9,10 +10,70 @@ from experimenter.experiments.forms import (
     ExperimentObjectivesForm,
     ExperimentRisksForm,
 )
-from experimenter.experiments.models import Experiment, ExperimentChangeLog
-from experimenter.experiments.serializers import (
-    ExperimentSerializer,
-)
+from experimenter.experiments.models import Experiment
+
+
+class ExperimentFilter(filters.FilterSet):
+    status = filters.ChoiceFilter(
+        empty_label='All Statuses',
+        choices=Experiment.STATUS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
+    firefox_channel = filters.ChoiceFilter(
+        empty_label='All Channels',
+        choices=Experiment.CHANNEL_CHOICES[1:],
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
+    firefox_version = filters.ChoiceFilter(
+        empty_label='All Versions',
+        choices=Experiment.VERSION_CHOICES[1:],
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
+
+    class Meta:
+        model = Experiment
+        fields = (
+            'firefox_channel',
+            'firefox_version',
+            'status',
+        )
+
+
+class ExperimentOrderingForm(forms.Form):
+    ORDERING_CHOICES = (
+        ('-latest_change', 'Most Recently Updated'),
+        ('latest_change', 'Least Recently Updated'),
+        ('firefox_version', 'Firefox Version Ascending'),
+        ('-firefox_version', 'Firefox Version Descending'),
+        ('firefox_channel', 'Firefox Channel Ascending'),
+        ('-firefox_channel', 'Firefox Channel Descending'),
+    )
+
+    ordering = forms.ChoiceField(
+        choices=ORDERING_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
+
+
+class ExperimentListView(FilterView):
+    model = Experiment
+    context_object_name = 'experiments'
+    template_name = 'experiments/list.html'
+    filterset_class = ExperimentFilter
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ordering_form = None
+
+    def get_ordering(self):
+        self.ordering_form = ExperimentOrderingForm(self.request.GET)
+
+        if self.ordering_form.is_valid():
+            return self.ordering_form.cleaned_data['ordering']
+
+    def get_context_data(self, *args, **kwargs):
+        return super().get_context_data(
+            ordering_form=self.ordering_form, *args, **kwargs)
 
 
 class ExperimentFormMixin(object):
@@ -75,54 +136,3 @@ class ExperimentRisksUpdateView(ExperimentFormMixin, UpdateView):
 class ExperimentDetailView(DetailView):
     model = Experiment
     template_name = 'experiments/detail.html'
-
-
-class ExperimentListView(ListAPIView):
-    filter_fields = ('project__slug', 'status')
-    queryset = Experiment.objects.all()
-    serializer_class = ExperimentSerializer
-
-
-class ExperimentAcceptView(UpdateAPIView):
-    queryset = Experiment.objects.filter(status=Experiment.STATUS_PENDING)
-    lookup_field = 'slug'
-
-    def update(self, request, *args, **kwargs):
-        experiment = self.get_object()
-
-        old_status = experiment.status
-
-        experiment.status = experiment.STATUS_ACCEPTED
-        experiment.save()
-
-        ExperimentChangeLog.objects.create(
-            experiment=experiment,
-            old_status=old_status,
-            new_status=experiment.status,
-            changed_by=self.request.user,
-        )
-
-        return Response()
-
-
-class ExperimentRejectView(UpdateAPIView):
-    queryset = Experiment.objects.filter(status=Experiment.STATUS_PENDING)
-    lookup_field = 'slug'
-
-    def update(self, request, *args, **kwargs):
-        experiment = self.get_object()
-
-        old_status = experiment.status
-
-        experiment.status = experiment.STATUS_REJECTED
-        experiment.save()
-
-        ExperimentChangeLog.objects.create(
-            experiment=experiment,
-            old_status=old_status,
-            new_status=experiment.status,
-            changed_by=self.request.user,
-            message=self.request.data.get('message', ''),
-        )
-
-        return Response()

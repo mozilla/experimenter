@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content_header %}
+  <div class="col-md-9">
+    {{ experiments.count }}
+
+    {% if filter.form.status.value %}
+      {{ filter.form.status.value }}
+    {% endif %}
+
+    {% if filter.form.firefox_channel.value %}
+      {{ filter.form.firefox_channel.value }}
+    {% endif %}
+    
+    {% if filter.form.firefox_version.value %}
+      Firefox
+      {{ filter.form.firefox_version.value }} 
+    {% endif %}
+    Experiment{{ experiments|pluralize:"s" }}
+  </div>
+  <div class="col-md-3 text-right">
+    <div class="row">
+      <div class="col-md-12">
+        <a class="col-md-12 btn btn-info" href="{% url "experiments-create" %}">
+          Create Experiment
+        </a>
+      </div>
+    </div>
+  </div>
+      
+{% endblock %}
+
+{% block content %}
+  <div class="row md-mt-20">
+
+    <div class="col-md-9 md-pr-40">
+
+      {% for experiment in experiments %}
+        <a class="noanchorstyle" href="{% url "experiments-detail" slug=experiment.slug %}">
+
+          <div class="row">
+            <div class="col-md-8">
+              <h4 class="md-mt-0">
+                {{ experiment.name }}
+              </h4>
+            </div>
+          </div>
+
+          <div class="row card md-mb-30">
+
+            <div class="col-md-8">
+              <h5>
+                <span class="badge status-color-{{ experiment.status }}">{{ experiment.status }}</span>
+                by
+                {{ experiment.changes.latest.changed_by }}
+                on
+                {{ experiment.changes.latest.changed_on.date }}
+              </h5>
+            </div>
+
+            <div class="col-md-4 text-right">
+              <h4>
+                {{ experiment.population }}
+              </h4>
+            </div>
+            
+            <div class="col-md-12 md-mt-5">
+              <p>{{ experiment.short_description }}</p>
+            </div>
+            
+          </div>
+
+        </a>
+
+      {% endfor %}
+
+    </div>
+   
+    <form method="GET">
+
+      <div class="col-md-3">
+
+        <div class="row md-mb-10">
+          <strong class="col-md-12">Sort Experiments</strong>
+        </div>
+        
+        <div class="row md-mb-10">
+          <div class="col-md-12">
+            {{ ordering_form.ordering }}
+          </div>
+        </div>
+
+        <div class="row md-mt-20 md-mb-10">
+          <strong class="col-md-12">Filter Experiments</strong>
+        </div>
+
+        <div class="row md-mb-10">
+          <div class="col-md-12">
+            {{ filter.form.status }}
+          </div>
+        </div>
+      
+        <div class="row md-mb-10">
+          <div class="col-md-12">
+            {{ filter.form.firefox_channel }} 
+          </div>
+        </div>
+        
+        <div class="row md-mb-10">
+          <div class="col-md-12">
+            {{ filter.form.firefox_version }}
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-12 text-right">
+            <input type="submit" class="btn btn-info" value="Apply">
+          </div>
+        </div>
+
+      </div>
+
+    </form>
+
+  </div>
+{% endblock %}

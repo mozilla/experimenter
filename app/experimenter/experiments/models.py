@@ -15,11 +15,10 @@ from experimenter.experiments.constants import ExperimentConstants
 
 class ExperimentManager(models.Manager):
 
-    def most_recently_changed(self):
+    def get_queryset(self):
         return (
-            self.all()
+            super().get_queryset()
             .annotate(latest_change=Max('changes__changed_on'))
-            .order_by('-latest_change')
         )
 
 
@@ -151,13 +150,6 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
-    def variant_ratios(self):
-        return ' : '.join([
-            '{r} {v}'.format(r=variant.ratio, v=variant.name)
-            for variant in self.variants.all()
-        ])
-
-    @property
     def start_date(self):
         return self._transition_date(
             self.STATUS_ACCEPTED,
@@ -189,14 +181,14 @@ class Experiment(ExperimentConstants, models.Model):
     def accept_url(self):
         return urljoin(
             'https://{host}'.format(host=settings.HOSTNAME),
-            reverse('experiments-accept', kwargs={'slug': self.slug})
+            reverse('experiments-api-accept', kwargs={'slug': self.slug})
         )
 
     @property
     def reject_url(self):
         return urljoin(
             'https://{host}'.format(host=settings.HOSTNAME),
-            reverse('experiments-reject', kwargs={'slug': self.slug})
+            reverse('experiments-api-reject', kwargs={'slug': self.slug})
         )
 
     @property
