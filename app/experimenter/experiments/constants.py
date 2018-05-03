@@ -194,7 +194,7 @@ class ExperimentConstants(object):
       <p>
         Enter the full name of the Firefox pref key that this experiment
         will control.  A pref experiment can control exactly one pref,
-        and each variant will receive a different value for that pref.
+        and each branch will receive a different value for that pref.
         You can find all Firefox prefs in about:config and any pref
         that appears there can be the target of an experiment.
       </p>
@@ -233,7 +233,7 @@ class ExperimentConstants(object):
         unchanged version of what you're testing.  For example,
         if you're testing making a button larger to see
         if users click on it more often, the control group would receive
-        the existing button size.  You should name your control variant
+        the existing button size.  You should name your control branch
         based on the experience or functionality
         that group of users will be receiving.  Don't name it 'Control Group',
         we already know it's the control group!
