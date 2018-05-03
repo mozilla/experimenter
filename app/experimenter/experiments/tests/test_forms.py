@@ -160,8 +160,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         self.assertEqual(change.changed_by, self.user)
 
     def test_mixin_sets_old_and_new_status(self):
-        old_status = Experiment.STATUS_CREATED
-        new_status = Experiment.STATUS_PENDING
+        old_status = Experiment.STATUS_DRAFT
+        new_status = Experiment.STATUS_REVIEW
         experiment = ExperimentFactory.create_with_status(old_status)
 
         self.assertEqual(experiment.changes.count(), 1)
@@ -215,7 +215,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         experiment = form.save()
 
         self.assertEqual(experiment.project, self.project)
-        self.assertEqual(experiment.status, experiment.STATUS_CREATED)
+        self.assertEqual(experiment.status, experiment.STATUS_DRAFT)
         self.assertEqual(experiment.name, self.data['name'])
         self.assertEqual(experiment.slug, 'a-new-experiment')
         self.assertEqual(
@@ -280,7 +280,7 @@ class TestExperimentVariantsForm(MockRequestMixin, TestCase):
 
     def test_form_saves_variants(self):
         created_experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_CREATED)
+            Experiment.STATUS_DRAFT)
 
         form = ExperimentVariantsForm(
             request=self.request, data=self.data, instance=created_experiment)
@@ -309,7 +309,7 @@ class TestExperimentVariantsForm(MockRequestMixin, TestCase):
 
     def test_form_is_invalid_if_control_is_invalid(self):
         created_experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_CREATED)
+            Experiment.STATUS_DRAFT)
         self.data['control-ratio'] = 'invalid'
         form = ExperimentVariantsForm(
             request=self.request, data=self.data, instance=created_experiment)
@@ -317,7 +317,7 @@ class TestExperimentVariantsForm(MockRequestMixin, TestCase):
 
     def test_form_is_invalid_if_experimental_is_invalid(self):
         created_experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_CREATED)
+            Experiment.STATUS_DRAFT)
         self.data['experimental-ratio'] = 'invalid'
         form = ExperimentVariantsForm(
             request=self.request, data=self.data, instance=created_experiment)
@@ -328,7 +328,7 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
 
     def test_form_saves_objectives(self):
         created_experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_CREATED)
+            Experiment.STATUS_DRAFT)
 
         data = {
             'objectives': 'The objective is to experiment!',
@@ -350,7 +350,7 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
 
     def test_form_saves_risks(self):
         created_experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_CREATED)
+            Experiment.STATUS_DRAFT)
 
         data = {
             'risk_partner_related': False,

@@ -31,13 +31,13 @@ class GenerateDashboardsTest(TestCase):
 
         # A launched experiment
         self.experiment_launched = ExperimentFactory.create_with_status(
-            Experiment.STATUS_LAUNCHED)
+            Experiment.STATUS_LIVE)
 
         # A recently complete experiment
         self.experiment_complete = ExperimentFactory.create_with_status(
             Experiment.STATUS_COMPLETE)
         relevant_change = self.experiment_complete.changes.filter(
-            old_status=Experiment.STATUS_LAUNCHED,
+            old_status=Experiment.STATUS_LIVE,
             new_status=Experiment.STATUS_COMPLETE).get()
         relevant_change.changed_on = (
                 datetime.now(timezone.utc) - timedelta(days=1))

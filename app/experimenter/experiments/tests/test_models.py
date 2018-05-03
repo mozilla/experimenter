@@ -20,14 +20,14 @@ class TestExperimentManager(TestCase):
         ExperimentChangeLogFactory.create(
             experiment=experiment1,
             old_status=None,
-            new_status=Experiment.STATUS_CREATED,
+            new_status=Experiment.STATUS_DRAFT,
             changed_on=(now - datetime.timedelta(days=2)),
         )
 
         ExperimentChangeLogFactory.create(
             experiment=experiment2,
             old_status=None,
-            new_status=Experiment.STATUS_CREATED,
+            new_status=Experiment.STATUS_DRAFT,
             changed_on=(now - datetime.timedelta(days=1)),
         )
 
@@ -39,7 +39,7 @@ class TestExperimentManager(TestCase):
         ExperimentChangeLogFactory.create(
             experiment=experiment1,
             old_status=experiment1.status,
-            new_status=Experiment.STATUS_PENDING,
+            new_status=Experiment.STATUS_REVIEW,
         )
 
         self.assertEqual(
@@ -57,7 +57,7 @@ class TestExperimentModel(TestCase):
     def test_start_date_returns_datetime_if_change_exists(self):
         change = ExperimentChangeLogFactory.create(
             old_status=Experiment.STATUS_ACCEPTED,
-            new_status=Experiment.STATUS_LAUNCHED,
+            new_status=Experiment.STATUS_LIVE,
         )
         self.assertEqual(change.experiment.start_date, change.changed_on)
 
@@ -67,7 +67,7 @@ class TestExperimentModel(TestCase):
 
     def test_end_date_returns_datetime_if_change_exists(self):
         change = ExperimentChangeLogFactory.create(
-            old_status=Experiment.STATUS_LAUNCHED,
+            old_status=Experiment.STATUS_LIVE,
             new_status=Experiment.STATUS_COMPLETE,
         )
         self.assertEqual(change.experiment.end_date, change.changed_on)
@@ -86,7 +86,7 @@ class TestExperimentModel(TestCase):
 
     def test_experiment_change_status_to_expected_status_allowed(self):
         experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.STATUS_PENDING
+        experiment.status = experiment.STATUS_REVIEW
         experiment.save()
 
     def test_experiment_status_validation_raises_if_enabled(self):
@@ -115,14 +115,14 @@ class TestExperimentModel(TestCase):
 
     def test_experiment_with_any_status_after_created_is_readonly(self):
         experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.STATUS_PENDING
+        experiment.status = experiment.STATUS_REVIEW
         experiment.save()
         self.assertTrue(experiment.is_readonly)
 
     def test_experiment_is_not_begun(self):
         statuses = (
-            Experiment.STATUS_CREATED,
-            Experiment.STATUS_PENDING,
+            Experiment.STATUS_DRAFT,
+            Experiment.STATUS_REVIEW,
             Experiment.STATUS_REJECTED,
         )
 
@@ -131,7 +131,7 @@ class TestExperimentModel(TestCase):
             self.assertFalse(experiment.is_begun)
 
     def test_experiment_is_begun(self):
-        for status in Experiment.STATUS_LAUNCHED, Experiment.STATUS_COMPLETE:
+        for status in Experiment.STATUS_LIVE, Experiment.STATUS_COMPLETE:
             experiment = ExperimentFactory.create_with_status(status)
             self.assertTrue(experiment.is_begun)
 
@@ -288,7 +288,7 @@ class TestExperimentChangeLogManager(TestCase):
         changelog1 = ExperimentChangeLogFactory.create(
             experiment=experiment,
             old_status=None,
-            new_status=Experiment.STATUS_CREATED,
+            new_status=Experiment.STATUS_DRAFT,
             changed_on=(now - datetime.timedelta(days=2)),
         )
 
@@ -296,8 +296,8 @@ class TestExperimentChangeLogManager(TestCase):
 
         changelog2 = ExperimentChangeLogFactory.create(
             experiment=experiment,
-            old_status=Experiment.STATUS_CREATED,
-            new_status=Experiment.STATUS_PENDING,
+            old_status=Experiment.STATUS_DRAFT,
+            new_status=Experiment.STATUS_REVIEW,
             changed_on=(now - datetime.timedelta(days=1)),
         )
 
@@ -309,7 +309,7 @@ class TestExperimentChangeLogManager(TestCase):
         changelog = ExperimentChangeLogFactory.create(
             experiment=experiment,
             old_status=None,
-            new_status=Experiment.STATUS_CREATED,
+            new_status=Experiment.STATUS_DRAFT,
         )
         self.assertEqual(
             changelog.pretty_status, changelog.STATUS_CREATED_DRAFT)
@@ -319,8 +319,8 @@ class TestExperimentChangeLogManager(TestCase):
 
         changelog = ExperimentChangeLogFactory.create(
             experiment=experiment,
-            old_status=Experiment.STATUS_CREATED,
-            new_status=Experiment.STATUS_CREATED,
+            old_status=Experiment.STATUS_DRAFT,
+            new_status=Experiment.STATUS_DRAFT,
         )
         self.assertEqual(
             changelog.pretty_status, changelog.STATUS_EDITED_DRAFT)

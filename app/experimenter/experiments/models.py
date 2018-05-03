@@ -31,7 +31,7 @@ class Experiment(ExperimentConstants, models.Model):
     )
     status = models.CharField(
         max_length=255,
-        default=ExperimentConstants.STATUS_CREATED,
+        default=ExperimentConstants.STATUS_DRAFT,
         choices=ExperimentConstants.STATUS_CHOICES,
     )
     name = models.CharField(
@@ -126,11 +126,11 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def is_readonly(self):
-        return self.status != self.STATUS_CREATED
+        return self.status != self.STATUS_DRAFT
 
     @property
     def is_begun(self):
-        return self.status in (self.STATUS_LAUNCHED, self.STATUS_COMPLETE)
+        return self.status in (self.STATUS_LIVE, self.STATUS_COMPLETE)
 
     def _transition_date(self, start_state, end_state):
         change = self.changes.filter(
@@ -153,13 +153,13 @@ class Experiment(ExperimentConstants, models.Model):
     def start_date(self):
         return self._transition_date(
             self.STATUS_ACCEPTED,
-            self.STATUS_LAUNCHED,
+            self.STATUS_LIVE,
         )
 
     @property
     def end_date(self):
         return self._transition_date(
-            self.STATUS_LAUNCHED,
+            self.STATUS_LIVE,
             self.STATUS_COMPLETE,
         )
 
@@ -316,12 +316,12 @@ class ExperimentChangeLog(models.Model):
     @property
     def pretty_status(self):
         if (
-            self.new_status == Experiment.STATUS_CREATED and
+            self.new_status == Experiment.STATUS_DRAFT and
             not self.old_status
         ):
             return self.STATUS_CREATED_DRAFT
         elif (
-            self.new_status == Experiment.STATUS_CREATED and
-            self.old_status == Experiment.STATUS_CREATED
+            self.new_status == Experiment.STATUS_DRAFT and
+            self.old_status == Experiment.STATUS_DRAFT
         ):
             return self.STATUS_EDITED_DRAFT

@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     def generate_dashboards(self):
         recent_changelog_complete = ExperimentChangeLog.objects.filter(
-            old_status=Experiment.STATUS_LAUNCHED,
+            old_status=Experiment.STATUS_LIVE,
             new_status=Experiment.STATUS_COMPLETE).filter(
             changed_on__gte=(datetime.now(timezone.utc) - timedelta(days=3)))
 
@@ -25,7 +25,7 @@ class Command(BaseCommand):
             changes__in=recent_changelog_complete)
 
         in_flight_experiments = Experiment.objects.filter(
-            status=Experiment.STATUS_LAUNCHED
+            status=Experiment.STATUS_LIVE
         )
 
         missing_dashboard_experiments = Experiment.objects.filter(
