@@ -3,7 +3,7 @@
 {% load static %}
       
 {% block edit_title %}
-  Edit {{ object.name }} Variants
+  Edit {{ object.name }} Branches 
 {% endblock %}
 
 {% block edit_nav %}
@@ -33,9 +33,9 @@
       <div class="col-md-9 col-md-offset-3 text-center">
         <h4>
           <span id="control-ratio">{{ form.control_form.ratio.value }}</span>
-          % Control Variant  :  
+          % Control Branch  :  
           <span id="experimental-ratio">{{ form.experimental_form.ratio.value }}</span> 
-          % Experimental Variant
+          % Experimental Branch 
         </h4>
       </div>
     </div>
@@ -43,7 +43,7 @@
     {% include "experiments/field_inline.html" with field=form.control_form.ratio %}
 
     <div class="form-group">
-      <h4 class="col-md-9 col-md-offset-3">Control Variant</h4>
+      <h4 class="col-md-9 col-md-offset-3">Control Branch</h4>
     </div>
 
     {{ form.control_form.errors }}
@@ -55,7 +55,7 @@
     {% include "experiments/field_inline.html" with field=form.control_form.value %}
     
     <div class="form-group">
-      <h4 class="col-md-9 col-md-offset-3">Experimental Variant</h4>
+      <h4 class="col-md-9 col-md-offset-3">Experimental Branch</h4>
     </div>
 
     {{ form.experimental_form.errors }}
@@ -73,7 +73,7 @@
           <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">Cancel Editing</a>
         {% endif %}
         <button type="submit" name="action" value="save" class="btn btn-info">Save Draft</button>
-        <button type="submit" name="action" value="continue" class="btn btn-success">Save Variants and Continue</button>
+        <button type="submit" name="action" value="continue" class="btn btn-success">Save Branches and Continue</button>
       </div>
     </div>
 
@@ -81,19 +81,19 @@
 {% endblock %}
 
 {% block edit_info %}
-  <h4><span class="glyphicon glyphicon-info-sign"></span> Variants</h4>
+  <h4><span class="glyphicon glyphicon-info-sign"></span> Branches</h4>
   <p>
     An experiment will set a specific Firefox pref to a different value
-    for each variant.
+    for each branch.
   </p>
   <p>
-    An experiment has two variants: Control and Experimental.
+    An experiment has two branches: Control and Experimental.
   </p>
   <p>
-    The Control Variant represents the pref value you want to compare against.
+    The Control Branch represents the pref value you want to compare against.
   </p>
   <p>
-    The Experimental Variant represents
+    The Experimental Branch represents
   </p>
   <p>
     When all of the sections are complete and reviewed, you can 

@@ -15,12 +15,12 @@
   <li class="li-nav {% if step == 2 %}active{% endif %} {% if not object.completed_overview %}disabled{% endif %}">
     <a {% if object %}href="{% url "experiments-variants-update" slug=object.slug %}"{% endif %}>
       <h4 class="list-group-item-heading">
-        2. Variants
+        2. Branches 
         {% if object.completed_variants %}
           <span class="glyphicon glyphicon-ok-circle"></span>
         {% endif %}
       </h4>
-      <p class="list-group-item-text">Define the Firefox pref and the values of each variant</p>
+      <p class="list-group-item-text">Define the Firefox pref and the values of each branch</p>
     </a>
   </li>
 
