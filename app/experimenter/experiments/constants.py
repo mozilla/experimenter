@@ -4,36 +4,36 @@ from django.core.urlresolvers import reverse_lazy
 
 class ExperimentConstants(object):
     # Status stuff
-    STATUS_CREATED = 'Created'
-    STATUS_PENDING = 'Pending'
+    STATUS_DRAFT = 'Draft'
+    STATUS_REVIEW = 'Review'
     STATUS_ACCEPTED = 'Accepted'
-    STATUS_LAUNCHED = 'Launched'
+    STATUS_LIVE = 'Live'
     STATUS_COMPLETE = 'Complete'
     STATUS_REJECTED = 'Rejected'
 
     STATUS_CHOICES = (
-        (STATUS_CREATED, STATUS_CREATED),
-        (STATUS_PENDING, STATUS_PENDING),
+        (STATUS_DRAFT, STATUS_DRAFT),
+        (STATUS_REVIEW, STATUS_REVIEW),
         (STATUS_ACCEPTED, STATUS_ACCEPTED),
-        (STATUS_LAUNCHED, STATUS_LAUNCHED),
+        (STATUS_LIVE, STATUS_LIVE),
         (STATUS_COMPLETE, STATUS_COMPLETE),
         (STATUS_REJECTED, STATUS_REJECTED),
     )
 
     STATUS_TRANSITIONS = {
-        STATUS_CREATED: [
-            STATUS_PENDING,
+        STATUS_DRAFT: [
+            STATUS_REVIEW,
             STATUS_REJECTED,
         ],
-        STATUS_PENDING: [
+        STATUS_REVIEW: [
             STATUS_ACCEPTED,
             STATUS_REJECTED,
         ],
         STATUS_ACCEPTED: [
-            STATUS_LAUNCHED,
+            STATUS_LIVE,
             STATUS_REJECTED,
         ],
-        STATUS_LAUNCHED: [
+        STATUS_LIVE: [
             STATUS_COMPLETE,
         ],
         STATUS_COMPLETE: [

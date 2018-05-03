@@ -14,7 +14,7 @@ class ExperimentListView(ListAPIView):
 
 
 class ExperimentAcceptView(UpdateAPIView):
-    queryset = Experiment.objects.filter(status=Experiment.STATUS_PENDING)
+    queryset = Experiment.objects.filter(status=Experiment.STATUS_REVIEW)
     lookup_field = 'slug'
 
     def update(self, request, *args, **kwargs):
@@ -36,7 +36,7 @@ class ExperimentAcceptView(UpdateAPIView):
 
 
 class ExperimentRejectView(UpdateAPIView):
-    queryset = Experiment.objects.filter(status=Experiment.STATUS_PENDING)
+    queryset = Experiment.objects.filter(status=Experiment.STATUS_REVIEW)
     lookup_field = 'slug'
 
     def update(self, request, *args, **kwargs):

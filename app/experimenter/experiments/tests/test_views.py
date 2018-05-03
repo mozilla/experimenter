@@ -23,15 +23,15 @@ class TestExperimentFilter(TestCase):
 
     def test_filters_by_status(self):
         for i in range(3):
-            ExperimentFactory.create_with_status(Experiment.STATUS_CREATED)
-            ExperimentFactory.create_with_status(Experiment.STATUS_PENDING)
+            ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+            ExperimentFactory.create_with_status(Experiment.STATUS_REVIEW)
         filter = ExperimentFilter(
-            {'status': Experiment.STATUS_CREATED},
+            {'status': Experiment.STATUS_DRAFT},
             queryset=Experiment.objects.all(),
         )
         self.assertEqual(
             set(filter.qs),
-            set(Experiment.objects.filter(status=Experiment.STATUS_CREATED)),
+            set(Experiment.objects.filter(status=Experiment.STATUS_DRAFT)),
         )
 
     def test_filters_by_firefox_version(self):
@@ -110,7 +110,7 @@ class TestExperimentListView(TestCase):
         user_email = 'user@example.com'
 
         ordering = 'latest_change'
-        filtered_status = Experiment.STATUS_CREATED
+        filtered_status = Experiment.STATUS_DRAFT
         filtered_version = Experiment.VERSION_CHOICES[1][0]
         filtered_channel = Experiment.CHANNEL_CHOICES[1][0]
 
@@ -257,7 +257,7 @@ class TestExperimentCreateView(TestCase):
         self.assertEqual(response.status_code, 302)
 
         experiment = Experiment.objects.get()
-        self.assertEqual(experiment.status, experiment.STATUS_CREATED)
+        self.assertEqual(experiment.status, experiment.STATUS_DRAFT)
         self.assertEqual(experiment.project, project)
         self.assertEqual(experiment.name, data['name'])
 
@@ -267,7 +267,7 @@ class TestExperimentCreateView(TestCase):
 
         self.assertEqual(change.changed_by.email, user_email)
         self.assertEqual(change.old_status, None)
-        self.assertEqual(change.new_status, experiment.STATUS_CREATED)
+        self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
     def test_view_finds_project_id_in_get_args(self):
         project = ProjectFactory.create()
@@ -286,7 +286,7 @@ class TestExperimentOverviewUpdateView(TestCase):
     def test_view_saves_experiment(self):
         user_email = 'user@example.com'
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_CREATED)
+            Experiment.STATUS_DRAFT)
 
         new_start_date = (
             datetime.date.today() +
@@ -336,8 +336,8 @@ class TestExperimentOverviewUpdateView(TestCase):
         change = experiment.changes.latest()
 
         self.assertEqual(change.changed_by.email, user_email)
-        self.assertEqual(change.old_status, experiment.STATUS_CREATED)
-        self.assertEqual(change.new_status, experiment.STATUS_CREATED)
+        self.assertEqual(change.old_status, experiment.STATUS_DRAFT)
+        self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
 
 class TestExperimentVariantsUpdateView(TestCase):
@@ -345,7 +345,7 @@ class TestExperimentVariantsUpdateView(TestCase):
     def test_view_saves_experiment(self):
         user_email = 'user@example.com'
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_CREATED)
+            Experiment.STATUS_DRAFT)
 
         data = {
             'pref_key': 'browser.testing.tests-enabled',
@@ -398,8 +398,8 @@ class TestExperimentVariantsUpdateView(TestCase):
         change = experiment.changes.latest()
 
         self.assertEqual(change.changed_by.email, user_email)
-        self.assertEqual(change.old_status, experiment.STATUS_CREATED)
-        self.assertEqual(change.new_status, experiment.STATUS_CREATED)
+        self.assertEqual(change.old_status, experiment.STATUS_DRAFT)
+        self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
 
 class TestExperimentObjectivesUpdateView(TestCase):
@@ -407,7 +407,7 @@ class TestExperimentObjectivesUpdateView(TestCase):
     def test_view_saves_experiment(self):
         user_email = 'user@example.com'
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_CREATED)
+            Experiment.STATUS_DRAFT)
 
         data = {
             'objectives': 'Some new objectives!',
@@ -433,8 +433,8 @@ class TestExperimentObjectivesUpdateView(TestCase):
         change = experiment.changes.latest()
 
         self.assertEqual(change.changed_by.email, user_email)
-        self.assertEqual(change.old_status, experiment.STATUS_CREATED)
-        self.assertEqual(change.new_status, experiment.STATUS_CREATED)
+        self.assertEqual(change.old_status, experiment.STATUS_DRAFT)
+        self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
 
 class TestExperimentRisksUpdateView(TestCase):
@@ -442,7 +442,7 @@ class TestExperimentRisksUpdateView(TestCase):
     def test_view_saves_experiment(self):
         user_email = 'user@example.com'
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_CREATED)
+            Experiment.STATUS_DRAFT)
 
         data = {
             'risk_partner_related': False,
@@ -485,8 +485,8 @@ class TestExperimentRisksUpdateView(TestCase):
         change = experiment.changes.latest()
 
         self.assertEqual(change.changed_by.email, user_email)
-        self.assertEqual(change.old_status, experiment.STATUS_CREATED)
-        self.assertEqual(change.new_status, experiment.STATUS_CREATED)
+        self.assertEqual(change.old_status, experiment.STATUS_DRAFT)
+        self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
 
 class TestExperimentDetailView(TestCase):
@@ -494,7 +494,7 @@ class TestExperimentDetailView(TestCase):
     def test_view_renders_correctly(self):
         user_email = 'user@example.com'
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_CREATED)
+            Experiment.STATUS_DRAFT)
 
         response = self.client.get(
             reverse('experiments-detail', kwargs={'slug': experiment.slug}),

@@ -64,13 +64,13 @@ class TestExperimentListView(TestCase):
         # pending experiments should be included
         for i in range(3):
             experiment = ExperimentFactory.create_with_variants()
-            experiment.status = experiment.STATUS_PENDING
+            experiment.status = experiment.STATUS_REVIEW
             experiment.save()
             pending_experiments.append(experiment)
 
         response = self.client.get(
             reverse('experiments-api-list'),
-            {'status': Experiment.STATUS_PENDING},
+            {'status': Experiment.STATUS_REVIEW},
         )
         self.assertEqual(response.status_code, 200)
 
@@ -78,7 +78,7 @@ class TestExperimentListView(TestCase):
 
         serialized_experiments = ExperimentSerializer(
             Experiment.objects.filter(
-                status=Experiment.STATUS_PENDING), many=True).data
+                status=Experiment.STATUS_REVIEW), many=True).data
 
         self.assertEqual(serialized_experiments, json_data)
 
@@ -89,7 +89,7 @@ class TestExperimentAcceptView(TestCase):
         user_email = 'user@example.com'
 
         experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.STATUS_PENDING
+        experiment.status = experiment.STATUS_REVIEW
         experiment.save()
 
         response = self.client.patch(
@@ -104,7 +104,7 @@ class TestExperimentAcceptView(TestCase):
         self.assertEqual(experiment.status, experiment.STATUS_ACCEPTED)
 
         change = experiment.changes.get()
-        self.assertEqual(change.old_status, experiment.STATUS_PENDING)
+        self.assertEqual(change.old_status, experiment.STATUS_REVIEW)
         self.assertEqual(change.new_status, experiment.STATUS_ACCEPTED)
         self.assertEqual(change.changed_by.email, user_email)
 
@@ -127,7 +127,7 @@ class TestExperimentRejectView(TestCase):
         rejection_message = 'This experiment was rejected for reasons.'
 
         experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.STATUS_PENDING
+        experiment.status = experiment.STATUS_REVIEW
         experiment.save()
 
         response = self.client.patch(
@@ -144,7 +144,7 @@ class TestExperimentRejectView(TestCase):
         self.assertEqual(experiment.status, experiment.STATUS_REJECTED)
 
         change = experiment.changes.get()
-        self.assertEqual(change.old_status, experiment.STATUS_PENDING)
+        self.assertEqual(change.old_status, experiment.STATUS_REVIEW)
         self.assertEqual(change.new_status, experiment.STATUS_REJECTED)
         self.assertEqual(change.changed_by.email, user_email)
         self.assertEqual(change.message, rejection_message)

@@ -143,7 +143,7 @@ class ChangeLogMixin(object):
             ExperimentChangeLog.objects.create(
                 experiment=experiment,
                 changed_by=self.request.user,
-                new_status=Experiment.STATUS_CREATED,
+                new_status=Experiment.STATUS_DRAFT,
             )
 
         return experiment
