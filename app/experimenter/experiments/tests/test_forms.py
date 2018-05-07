@@ -14,6 +14,7 @@ from experimenter.experiments.models import (
 from experimenter.experiments.forms import (
     ChangeLogMixin,
     ControlVariantForm,
+    ExperimentStatusForm,
     ExperimentObjectivesForm,
     ExperimentOverviewForm,
     ExperimentRisksForm,
@@ -382,3 +383,31 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         )
         self.assertEqual(experiment.risks, data['risks'])
         self.assertEqual(experiment.testing, data['testing'])
+
+
+class TestExperimentStatusForm(MockRequestMixin, TestCase):
+
+    def test_form_allows_valid_state_transition_and_creates_changelog(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT)
+        form = ExperimentStatusForm(
+            request=self.request,
+            data={'status': experiment.STATUS_REVIEW},
+            instance=experiment,
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+        self.assertEqual(experiment.status, experiment.STATUS_REVIEW)
+        change = experiment.changes.latest()
+        self.assertEqual(change.old_status, experiment.STATUS_DRAFT)
+        self.assertEqual(change.new_status, experiment.STATUS_REVIEW)
+
+    def test_form_rejects_invalid_state_transitions(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT)
+        form = ExperimentStatusForm(
+            request=self.request,
+            data={'status': experiment.STATUS_LIVE},
+            instance=experiment,
+        )
+        self.assertFalse(form.is_valid())

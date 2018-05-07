@@ -87,15 +87,15 @@ class TestExperimengOrderingForm(TestCase):
 
 class TestExperimentListView(TestCase):
 
-    def test_list_view_lists_experiments(self):
+    def test_list_view_lists_experiments_with_default_order(self):
         user_email = 'user@example.com'
 
-        experiments = []
-
         for i in range(3):
-            experiment = ExperimentFactory.create_with_status(
+            ExperimentFactory.create_with_status(
                 random.choice(Experiment.STATUS_CHOICES)[0])
-            experiments.append(experiment)
+
+        experiments = Experiment.objects.all().order_by(
+            ExperimentOrderingForm.ORDERING_CHOICES[0][0])
 
         response = self.client.get(
             reverse('home'),
@@ -104,7 +104,7 @@ class TestExperimentListView(TestCase):
 
         context = response.context[0]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(set(context['experiments']), set(experiments))
+        self.assertEqual(list(context['experiments']), list(experiments))
 
     def test_list_view_filters_and_orders_experiments(self):
         user_email = 'user@example.com'
@@ -502,3 +502,49 @@ class TestExperimentDetailView(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+
+
+class TestExperimentStatusUpdateView(TestCase):
+
+    def test_view_updates_status_and_redirects(self):
+        user_email = 'user@example.com'
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT)
+
+        new_status = experiment.STATUS_REVIEW
+
+        response = self.client.post(
+            reverse(
+                'experiments-status-update', kwargs={'slug': experiment.slug}),
+            {'status': new_status},
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertRedirects(
+            response,
+            reverse('experiments-detail', kwargs={'slug': experiment.slug}),
+            fetch_redirect_response=False,
+        )
+        updated_experiment = Experiment.objects.get(slug=experiment.slug)
+        self.assertEqual(updated_experiment.status, new_status)
+
+    def test_view_redirects_on_failure(self):
+        user_email = 'user@example.com'
+        original_status = Experiment.STATUS_DRAFT
+        experiment = ExperimentFactory.create_with_status(
+            original_status)
+
+        response = self.client.post(
+            reverse(
+                'experiments-status-update', kwargs={'slug': experiment.slug}),
+            {'status': Experiment.STATUS_COMPLETE},
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertRedirects(
+            response,
+            reverse('experiments-detail', kwargs={'slug': experiment.slug}),
+            fetch_redirect_response=False,
+        )
+        updated_experiment = Experiment.objects.get(slug=experiment.slug)
+        self.assertEqual(updated_experiment.status, original_status)

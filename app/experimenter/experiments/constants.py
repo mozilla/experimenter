@@ -26,6 +26,7 @@ class ExperimentConstants(object):
             STATUS_REJECTED,
         ],
         STATUS_REVIEW: [
+            STATUS_DRAFT,
             STATUS_ACCEPTED,
             STATUS_REJECTED,
         ],

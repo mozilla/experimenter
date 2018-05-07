@@ -81,12 +81,12 @@ body {
   padding: 0px 10px;
 }
 
-.status-color-Created {
+.status-color-Draft {
   color: white;
-  background-color: #00c5ff;
+  background-color: #6000ff;
 }
 
-.status-color-Pending {
+.status-color-Review {
   color: white;
   background-color: #ffa21e;
 }
@@ -96,7 +96,7 @@ body {
   background-color: #ffa21e;
 }
 
-.status-color-Launched {
+.status-color-Live {
   color: white;
   background-color: #34c834;
 }
