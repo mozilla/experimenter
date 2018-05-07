@@ -1,14 +1,16 @@
 import django_filters as filters
 from django import forms
+from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.views.generic import CreateView, DetailView, UpdateView
 from django_filters.views import FilterView
 
 from experimenter.experiments.forms import (
-    ExperimentOverviewForm,
-    ExperimentVariantsForm,
+    ExperimentStatusForm,
     ExperimentObjectivesForm,
+    ExperimentOverviewForm,
     ExperimentRisksForm,
+    ExperimentVariantsForm,
 )
 from experimenter.experiments.models import Experiment
 
@@ -70,6 +72,8 @@ class ExperimentListView(FilterView):
 
         if self.ordering_form.is_valid():
             return self.ordering_form.cleaned_data['ordering']
+
+        return self.ordering_form.ORDERING_CHOICES[0][0]
 
     def get_context_data(self, *args, **kwargs):
         return super().get_context_data(
@@ -136,3 +140,15 @@ class ExperimentRisksUpdateView(ExperimentFormMixin, UpdateView):
 class ExperimentDetailView(DetailView):
     model = Experiment
     template_name = 'experiments/detail.html'
+
+
+class ExperimentStatusUpdateView(ExperimentFormMixin, UpdateView):
+    form_class = ExperimentStatusForm
+    model = Experiment
+
+    def get_success_url(self):
+        return reverse('experiments-detail', kwargs={'slug': self.object.slug})
+
+    def form_invalid(self, form):
+        return redirect(
+            reverse('experiments-detail', kwargs={'slug': self.object.slug}))

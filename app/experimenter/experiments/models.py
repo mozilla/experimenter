@@ -3,7 +3,6 @@ from urllib.parse import urljoin
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
-from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Max
@@ -93,29 +92,6 @@ class Experiment(ExperimentConstants, models.Model):
         verbose_name = 'Experiment'
         verbose_name_plural = 'Experiments'
 
-    def clean_status(self):
-        if not self.pk:
-            return
-
-        old_status = Experiment.objects.get(pk=self.pk).status
-        new_status = self.status
-        expected_new_status = new_status in self.STATUS_TRANSITIONS[old_status]
-
-        if old_status != new_status and not expected_new_status:
-            raise ValidationError({'status': (
-                'You can not change an Experiment\'s status '
-                'from {old_status} to {new_status}'
-            ).format(
-                old_status=old_status, new_status=new_status)})
-
-    def clean(self, validate=False):
-        if validate:
-            self.clean_status()
-
-    def save(self, validate=False, *args, **kwargs):
-        self.clean(validate=validate)
-        return super().save(*args, **kwargs)
-
     @cached_property
     def control(self):
         return self.variants.filter(is_control=True).first()
@@ -125,8 +101,16 @@ class Experiment(ExperimentConstants, models.Model):
         return self.variants.filter(is_control=False).first()
 
     @property
+    def is_draft(self):
+        return self.status == self.STATUS_DRAFT
+
+    @property
+    def is_in_review(self):
+        return self.status == self.STATUS_REVIEW
+
+    @property
     def is_readonly(self):
-        return self.status != self.STATUS_DRAFT
+        return not self.is_draft
 
     @property
     def is_begun(self):
@@ -235,7 +219,7 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
-    def is_launchable(self):
+    def is_ready_for_review(self):
         return (
             self.completed_overview and
             self.completed_variants and
@@ -277,6 +261,21 @@ class ExperimentChangeLogManager(models.Manager):
 class ExperimentChangeLog(models.Model):
     STATUS_CREATED_DRAFT = 'Created Draft'
     STATUS_EDITED_DRAFT = 'Edited Draft'
+    STATUS_BEGIN_REVIEW = 'Submitted for Review'
+    STATUS_CANCEL_REVIEW = 'Cancelled Review Request'
+
+    PRETTY_STATUS_LABELS = {
+        None: {
+            Experiment.STATUS_DRAFT: STATUS_CREATED_DRAFT,
+        },
+        Experiment.STATUS_DRAFT: {
+            Experiment.STATUS_DRAFT: STATUS_EDITED_DRAFT,
+            Experiment.STATUS_REVIEW: STATUS_BEGIN_REVIEW,
+        },
+        Experiment.STATUS_REVIEW: {
+            Experiment.STATUS_DRAFT: STATUS_CANCEL_REVIEW,
+        },
+    }
 
     def current_datetime():
         return timezone.now()
@@ -315,13 +314,5 @@ class ExperimentChangeLog(models.Model):
 
     @property
     def pretty_status(self):
-        if (
-            self.new_status == Experiment.STATUS_DRAFT and
-            not self.old_status
-        ):
-            return self.STATUS_CREATED_DRAFT
-        elif (
-            self.new_status == Experiment.STATUS_DRAFT and
-            self.old_status == Experiment.STATUS_DRAFT
-        ):
-            return self.STATUS_EDITED_DRAFT
+        return self.PRETTY_STATUS_LABELS.get(
+            self.old_status, {}).get(self.new_status, '')

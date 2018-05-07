@@ -1,11 +1,9 @@
 import datetime
 
-from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.experiments.models import (
-    Experiment, ExperimentVariant)
+    Experiment, ExperimentVariant, ExperimentChangeLog)
 from experimenter.experiments.tests.factories import (
     ExperimentFactory, ExperimentChangeLogFactory)
 
@@ -83,31 +81,6 @@ class TestExperimentModel(TestCase):
         variant = ExperimentVariant.objects.get(
             experiment=experiment, is_control=False)
         self.assertEqual(experiment.variant, variant)
-
-    def test_experiment_change_status_to_expected_status_allowed(self):
-        experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.STATUS_REVIEW
-        experiment.save()
-
-    def test_experiment_status_validation_raises_if_enabled(self):
-        experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.STATUS_ACCEPTED
-
-        with self.assertRaises(ValidationError):
-            experiment.save(validate=True)
-
-    def test_experiment_status_validation_should_not_raise_if_disabled(self):
-        experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.STATUS_ACCEPTED
-
-        experiment.save()
-
-    def test_experiment_status_validation_should_not_raise_for_new_exp(self):
-        project = ProjectFactory.create()
-        experiment = ExperimentFactory.build(project=project)
-        experiment.status = experiment.STATUS_ACCEPTED
-
-        experiment.save(validate=True)
 
     def test_experiment_with_created_status_is_not_readonly(self):
         experiment = ExperimentFactory.create_with_variants()
@@ -213,11 +186,11 @@ class TestExperimentModel(TestCase):
 
     def test_is_not_launchable_when_not_all_sections_completed(self):
         experiment = ExperimentFactory.create()
-        self.assertFalse(experiment.is_launchable)
+        self.assertFalse(experiment.is_ready_for_review)
 
-    def test_is_launchable_when_all_sections_complete(self):
+    def test_is_ready_for_review_when_all_sections_complete(self):
         experiment = ExperimentFactory.create_with_variants()
-        self.assertTrue(experiment.is_launchable)
+        self.assertTrue(experiment.is_ready_for_review)
 
     def test_is_not_high_risk_if_no_risk_questions_are_true(self):
         experiment = ExperimentFactory.create(
@@ -306,21 +279,16 @@ class TestExperimentChangeLogManager(TestCase):
     def test_pretty_status_created_draft(self):
         experiment = ExperimentFactory.create_with_variants()
 
-        changelog = ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            old_status=None,
-            new_status=Experiment.STATUS_DRAFT,
-        )
-        self.assertEqual(
-            changelog.pretty_status, changelog.STATUS_CREATED_DRAFT)
+        for old_status in ExperimentChangeLog.PRETTY_STATUS_LABELS.keys():
+            for new_status in ExperimentChangeLog.PRETTY_STATUS_LABELS[
+                    old_status].keys():
+                expected_label = ExperimentChangeLog.PRETTY_STATUS_LABELS[
+                    old_status][new_status]
 
-    def test_pretty_status_edited_draft(self):
-        experiment = ExperimentFactory.create_with_variants()
-
-        changelog = ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            old_status=Experiment.STATUS_DRAFT,
-            new_status=Experiment.STATUS_DRAFT,
-        )
-        self.assertEqual(
-            changelog.pretty_status, changelog.STATUS_EDITED_DRAFT)
+                changelog = ExperimentChangeLogFactory.create(
+                    experiment=experiment,
+                    old_status=old_status,
+                    new_status=new_status,
+                )
+                self.assertEqual(
+                    changelog.pretty_status, expected_label)

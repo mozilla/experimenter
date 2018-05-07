@@ -7,6 +7,7 @@ from experimenter.projects.forms import AutoNameSlugFormMixin
 from experimenter.projects.models import Project
 from experimenter.experiments.models import (
     Experiment, ExperimentVariant, ExperimentChangeLog)
+from experimenter.experiments.constants import ExperimentConstants
 
 
 class JSONField(forms.CharField):
@@ -363,3 +364,25 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
             'risks',
             'testing',
         )
+
+
+class ExperimentStatusForm(
+        ExperimentConstants, ChangeLogMixin, forms.ModelForm):
+
+    class Meta:
+        model = Experiment
+        fields = ('status',)
+
+    def clean_status(self):
+        old_status = self.instance.status
+        new_status = self.cleaned_data['status']
+        expected_new_status = new_status in self.STATUS_TRANSITIONS[old_status]
+
+        if old_status != new_status and not expected_new_status:
+            raise forms.ValidationError((
+                'You can not change an Experiment\'s status '
+                'from {old_status} to {new_status}'
+            ).format(
+                old_status=old_status, new_status=new_status))
+
+        return new_status
