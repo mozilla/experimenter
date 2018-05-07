@@ -1,10 +1,10 @@
 select {
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	background: url(/static/imgs/select.png) right / 20px no-repeat #fff !important;
-	background-image: url(/static/imgs/select.png) right / 20px no-repeat #fff !important;
-	padding-right: 20px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: url(/static/imgs/select.png) right / 20px no-repeat #fff !important;
+  background-image: url(/static/imgs/select.png) right / 20px no-repeat #fff !important;
+  padding-right: 20px;
 }
 
 a.noanchorstyle {
@@ -39,6 +39,13 @@ body {
   color: #efefef;
   fill: #efefef;
   padding: 15px 0px;
+}
+
+#header-icon {
+  height: 30px;
+  width: 30px;
+  margin-bottom: -2px;
+  fill: white;
 }
 
 #header-user-info a {

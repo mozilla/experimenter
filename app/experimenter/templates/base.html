@@ -7,16 +7,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="icon" href="{% static "imgs/favicon.svg" %}" type="image/x-icon" />
-		
-    <!-- Latest compiled and minified CSS -->
-		<link rel="stylesheet" href="{% static "lib/bootstrap/css/bootstrap.min.css" %}">
+    <link rel="icon" href="{% static "imgs/favicon.ico" %}" type="image/x-icon" />
 
-		<!-- Optional theme -->
-		<link rel="stylesheet" href="{% static "lib/bootstrap/css/bootstrap-theme.min.css" %}">
-		
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="{% static "lib/bootstrap/css/bootstrap.min.css" %}">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="{% static "lib/bootstrap/css/bootstrap-theme.min.css" %}">
+
     <link rel="stylesheet" href="{% static "lib/ezspace/ez-space.css" %}">
-		
+
     <link rel="stylesheet" href="{% static "css/experimenter.css" %}">
 
     {% block title %}
@@ -30,7 +30,9 @@
         <div class="row">
           <div id="site-logo" class="col-md-6 spaced-text">
             <a class="noanchorstyle" href="{% url "home" %}">
-              <span class="glyphicon glyphicon-stats"></span>
+              <svg id="header-icon">
+                <?xml version="1.0" ?><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs></defs><title/><rect class="a" height="21" rx="4" ry="4" width="12" x="2" y="40"/><rect class="a" height="40" rx="4" ry="4" width="12" x="18" y="21"/><rect class="a" height="30" rx="4" ry="4" width="12" x="34" y="31"/><rect class="a" height="51" rx="4" ry="4" width="12" x="50" y="10"/></svg>
+              </svg>
               <strong>Mozilla</strong> Experimenter
             </a>
           </div>
@@ -70,8 +72,8 @@
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="{% static "lib/jquery/jquery-3.2.1.min.js" %}"></script>
-		<!-- Latest compiled and minified JavaScript -->
-		<script src="{% static "lib/bootstrap/js/bootstrap.min.js" %}"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="{% static "lib/bootstrap/js/bootstrap.min.js" %}"></script>
 
     {% block extrascripts %}
     {% endblock %}
