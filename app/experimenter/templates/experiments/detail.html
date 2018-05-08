@@ -9,7 +9,7 @@
 
   <div class="col-md-9">
     <a class="noanchorstyle spaced-text" href="{% url "experiments-detail" slug=experiment.slug %}">
-      {{ object.name }}
+      {{ experiment.name }}
     </a>
     <span class="badge status-color-{{ experiment.status }}">{{ experiment.status }}</span>
   </div>
@@ -29,30 +29,31 @@
 
         {% if experiment.is_draft %}
           <div class="col-md-4 text-right">
-            <a class="noanchorstyle" href="{% url "experiments-overview-update" slug=object.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
+            <a class="noanchorstyle" href="{% url "experiments-overview-update" slug=experiment.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
           </div>
         {% endif %}
       </div>
 
       <div class="row card md-pt-15 md-pb-10">
-        {% if object.is_launched %}
-          <iframe style="display:block" scrolling="no" frameBorder="0" width="100%" height="450px" src="{{ object.enrollment_dashboard_url }}" ></iframe>
+        {% if experiment.is_launched %}
+          <iframe style="display:block" scrolling="no" frameBorder="0" width="100%" height="450px" src="{{ experiment.enrollment_dashboard_url }}" ></iframe>
         {% else %}
-          <div class="col-md-6">
-            <p><strong>{{ object.proposed_start_date }} - {{ object.proposed_end_date }}</strong></p>
+          <div class="col-md-8">
+            <p><strong>Owner: {{ experiment.owner }}</strong></p> 
           </div>
-          <div class="col-md-6 text-right">
-            <h4 class="md-mt-0">{{ object.population }}</h4>
+          <div class="col-md-4 text-right">
+            <h4 class="md-mt-0">{{ experiment.population }}</h4>
+            <p><strong>{{ experiment.proposed_start_date }} - {{ experiment.proposed_end_date }}</strong></p>
           </div>
-          <div class="col-md-12 md-mt-10">
-            {{ object.short_description|linebreaks }}
+          <div class="col-md-12">
+            {{ experiment.short_description|linebreaks }}
           </div>
         {% endif %}
       </div>
 
       <div class="row md-mt-20">
         <h4 class="col-md-8">
-          {% if not object.completed_variants %}
+          {% if not experiment.completed_variants %}
             <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
           {% endif %}
           Firefox Pref &amp; Branches
@@ -60,31 +61,31 @@
 
         {% if experiment.is_draft %}
           <div class="col-md-4 text-right">
-            <a class="noanchorstyle" href="{% url "experiments-variants-update" slug=object.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
+            <a class="noanchorstyle" href="{% url "experiments-variants-update" slug=experiment.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
           </div>
         {% endif %}
       </div>
 
       <div class="row card md-pt-15 md-pb-10">
-        {% if object.variants.all %}
-          {% for variant in object.variants.all %}
+        {% if experiment.variants.all %}
+          {% for variant in experiment.variants.all %}
             <div class="col-md-12 {% if not forloop.last %}md-mb-15{% endif %}">
               <h4 class="md-mt-0">{{ variant.ratio }}% {{ variant.name }}</h4>
-              <p><strong>{{ object.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
+              <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
               <p>{{ variant.description }}</p>
 
             </div>
           {% endfor %}
         {% else %}
 
-          <p class="col-md-12">You must <a href="{% url "experiments-variants-update" slug=object.slug %}">define your branches</a> before you can launch your experiment.</p>
+          <p class="col-md-12">You must <a href="{% url "experiments-variants-update" slug=experiment.slug %}">define your branches</a> before you can launch your experiment.</p>
         {% endif %}
 
       </div>
 
       <div class="row md-mt-20">
         <h4 class="col-md-8">
-          {% if not object.completed_objectives %}
+          {% if not experiment.completed_objectives %}
             <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
           {% endif %}
           Objectives
@@ -92,24 +93,24 @@
 
         {% if experiment.is_draft %}
           <div class="col-md-4 text-right">
-            <a class="noanchorstyle" href="{% url "experiments-objectives-update" slug=object.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
+            <a class="noanchorstyle" href="{% url "experiments-objectives-update" slug=experiment.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
           </div>
         {% endif %}
       </div>
 
       <div class="row card md-pt-15 md-pb-10">
         <div class="col-md-12">
-          {% if object.completed_objectives %}
-            {{ object.objectives|linebreaks }}
+          {% if experiment.completed_objectives %}
+            {{ experiment.objectives|linebreaks }}
           {% else %}
-            <p>You must <a href="{% url "experiments-objectives-update" slug=object.slug %}">define the objectives</a> before you can launch your experiment.</p>
+            <p>You must <a href="{% url "experiments-objectives-update" slug=experiment.slug %}">define the objectives</a> before you can launch your experiment.</p>
           {% endif %}
         </div>
       </div>
 
       <div class="row md-mt-20">
         <h4 class="col-md-8">
-          {% if not object.completed_objectives %}
+          {% if not experiment.completed_objectives %}
             <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
           {% endif %}
           Analysis
@@ -117,25 +118,25 @@
 
         {% if experiment.is_draft %}
           <div class="col-md-4 text-right">
-            <a class="noanchorstyle" href="{% url "experiments-objectives-update" slug=object.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
+            <a class="noanchorstyle" href="{% url "experiments-objectives-update" slug=experiment.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
           </div>
         {% endif %}
       </div>
 
       <div class="row card md-pt-15 md-pb-10">
         <div class="col-md-12">
-          {% if object.completed_objectives %}
-            {{ object.analysis|linebreaks }}
+          {% if experiment.completed_objectives %}
+            {{ experiment.analysis|linebreaks }}
           {% else %}
 
-            <p>You must <a href="{% url "experiments-objectives-update" slug=object.slug %}">define the analysis plan</a> before you can launch your experiment.</p>
+            <p>You must <a href="{% url "experiments-objectives-update" slug=experiment.slug %}">define the analysis plan</a> before you can launch your experiment.</p>
           {% endif %}
         </div>
       </div>
 
       <div class="row md-mt-20">
         <h4 class="col-md-8">
-          {% if not object.completed_risks %}
+          {% if not experiment.completed_risks %}
             <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
           {% endif %}
           Risk Assessment
@@ -143,42 +144,42 @@
 
         {% if experiment.is_draft %}
           <div class="col-md-4 text-right">
-            <a class="noanchorstyle" href="{% url "experiments-risks-update" slug=object.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
+            <a class="noanchorstyle" href="{% url "experiments-risks-update" slug=experiment.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
           </div>
         {% endif %}
       </div>
 
       <div class="row card md-pt-15 md-pb-10">
         <div class="col-md-12">
-          {% if object.completed_risks %}
-            <p><strong>{{ object.RISK_PARTNER_RELATED_LABEL }}</strong></p>
-            <p>{{ object.risk_partner_related|yesno:"Yes,No" }}</p>
+          {% if experiment.completed_risks %}
+            <p><strong>{{ experiment.RISK_PARTNER_RELATED_LABEL }}</strong></p>
+            <p>{{ experiment.risk_partner_related|yesno:"Yes,No" }}</p>
 
-            <p><strong>{{ object.RISK_BRAND_LABEL }}</strong></p>
-            <p>{{ object.risk_brand|yesno:"Yes,No" }}</p>
+            <p><strong>{{ experiment.RISK_BRAND_LABEL }}</strong></p>
+            <p>{{ experiment.risk_brand|yesno:"Yes,No" }}</p>
 
-            <p><strong>{{ object.RISK_FAST_SHIPPED_LABEL }}</strong></p>
-            <p>{{ object.risk_fast_shipped|yesno:"Yes,No" }}</p>
+            <p><strong>{{ experiment.RISK_FAST_SHIPPED_LABEL }}</strong></p>
+            <p>{{ experiment.risk_fast_shipped|yesno:"Yes,No" }}</p>
 
-            <p><strong>{{ object.RISK_CONFIDENTIAL_LABEL }}</strong></p>
-            <p>{{ object.risk_confidential|yesno:"Yes,No" }}</p>
+            <p><strong>{{ experiment.RISK_CONFIDENTIAL_LABEL }}</strong></p>
+            <p>{{ experiment.risk_confidential|yesno:"Yes,No" }}</p>
 
-            <p><strong>{{ object.RISK_RELEASE_POPULATION_LABEL }}</strong></p>
-            <p>{{ object.risk_release_population|yesno:"Yes,No" }}</p>
+            <p><strong>{{ experiment.RISK_RELEASE_POPULATION_LABEL }}</strong></p>
+            <p>{{ experiment.risk_release_population|yesno:"Yes,No" }}</p>
 
-            {% if object.is_high_risk %}
+            {% if experiment.is_high_risk %}
               <h5>RASCI Owners and Deliverables</h5>
-              {{ object.risks|linebreaks }}
+              {{ experiment.risks|linebreaks }}
             {% endif %}
           {% else %}
-            <p>You must <a href="{% url "experiments-risks-update" slug=object.slug %}">define the risks</a> before you can launch your experiment.</p>
+            <p>You must <a href="{% url "experiments-risks-update" slug=experiment.slug %}">define the risks</a> before you can launch your experiment.</p>
           {% endif %}
         </div>
       </div>
 
       <div class="row md-mt-20">
         <h4 class="col-md-8">
-          {% if not object.completed_risks %}
+          {% if not experiment.completed_risks %}
             <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
           {% endif %}
           Testing Plan
@@ -186,17 +187,17 @@
 
         {% if experiment.is_draft %}
           <div class="col-md-4 text-right">
-            <a class="noanchorstyle" href="{% url "experiments-risks-update" slug=object.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
+            <a class="noanchorstyle" href="{% url "experiments-risks-update" slug=experiment.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
           </div>
         {% endif %}
       </div>
 
       <div class="row card md-pt-15 md-pb-10">
         <div class="col-md-12">
-          {% if object.completed_risks %}
-            {{ object.testing|linebreaks }}
+          {% if experiment.completed_risks %}
+            {{ experiment.testing|linebreaks }}
           {% else %}
-            <p>You must <a href="{% url "experiments-risks-update" slug=object.slug %}">define the QA plan</a> before you can launch your experiment.</p>
+            <p>You must <a href="{% url "experiments-risks-update" slug=experiment.slug %}">define the QA plan</a> before you can launch your experiment.</p>
           {% endif %}
         </div>
       </div>
@@ -206,7 +207,7 @@
     <div class="col-md-3">
 
       {% if experiment.is_draft %}
-        {% if object.is_ready_for_review %}
+        {% if experiment.is_ready_for_review %}
           <form
             action="{% url "experiments-status-update" slug=experiment.slug %}"
             method="POST"
@@ -253,7 +254,7 @@
       {% endif %}
 
       <h5>History</h5>
-      {% for change in object.changes.all reversed %}
+      {% for change in experiment.changes.all reversed %}
         <div class="row help-block">
           <div class="col-md-12">
             <p>{{ change.changed_on.date }}</p>

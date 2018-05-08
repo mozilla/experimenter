@@ -100,6 +100,14 @@ class ExperimentConstants(object):
         'Does this study affect a large number of Release users?')
 
     # Help texts
+    OWNER_HELP_TEXT = """
+      <p>
+        The owner of the experiment is the person responsible for ensuring
+        that it is run in its entirety and is the primary stake holder in
+        its analysis.
+      </p>
+    """
+
     PROJECT_HELP_TEXT = format_lazy("""
       <p>
         Choose which project this experiment belongs to.

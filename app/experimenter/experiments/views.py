@@ -110,6 +110,8 @@ class ExperimentCreateView(ExperimentFormMixin, CreateView):
         if 'project' in self.request.GET:
             initial['project'] = self.request.GET['project']
 
+        initial['owner'] = self.request.user.id
+
         return initial
 
 
