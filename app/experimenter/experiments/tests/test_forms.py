@@ -198,6 +198,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.project = ProjectFactory.create()
 
         self.data = {
+            'owner': self.user.id,
             'project': self.project.id,
             'name': 'A new experiment!',
             'short_description': 'Let us learn new things',
@@ -215,6 +216,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertTrue(form.is_valid())
         experiment = form.save()
 
+        self.assertEqual(experiment.owner, self.user)
         self.assertEqual(experiment.project, self.project)
         self.assertEqual(experiment.status, experiment.STATUS_DRAFT)
         self.assertEqual(experiment.name, self.data['name'])

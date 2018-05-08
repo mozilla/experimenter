@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 
 from experimenter.projects.forms import AutoNameSlugFormMixin
@@ -36,6 +37,7 @@ class NameSlugMixin(object):
 
 
 class ControlVariantForm(NameSlugMixin, forms.ModelForm):
+
     description = forms.CharField(
         label='Description',
         help_text=Experiment.CONTROL_DESCRIPTION_HELP_TEXT,
@@ -84,6 +86,7 @@ class ControlVariantForm(NameSlugMixin, forms.ModelForm):
 
 
 class ExperimentalVariantForm(NameSlugMixin, forms.ModelForm):
+
     slug = forms.CharField(required=False)
     experiment = forms.ModelChoiceField(
         required=False, queryset=Experiment.objects.all())
@@ -152,6 +155,14 @@ class ChangeLogMixin(object):
 
 class ExperimentOverviewForm(
         AutoNameSlugFormMixin, ChangeLogMixin, forms.ModelForm):
+
+    owner = forms.ModelChoiceField(
+        required=False,
+        label='Owner',
+        help_text=Experiment.OWNER_HELP_TEXT,
+        queryset=get_user_model().objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
     project = forms.ModelChoiceField(
         required=False,
         label='Project',
@@ -206,6 +217,7 @@ class ExperimentOverviewForm(
     class Meta:
         model = Experiment
         fields = [
+            'owner',
             'project',
             'name',
             'slug',

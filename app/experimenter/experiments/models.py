@@ -22,6 +22,7 @@ class ExperimentManager(models.Manager):
 
 
 class Experiment(ExperimentConstants, models.Model):
+    owner = models.ForeignKey(get_user_model(), blank=True, null=True)
     project = models.ForeignKey(
         'projects.Project',
         blank=True,
