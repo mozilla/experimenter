@@ -75,11 +75,14 @@ class ExperimentAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Overview', {
             'fields': (
-                'status',
+                'owner',
                 'project',
+                'status',
                 'name',
                 'slug',
                 'short_description',
+                'proposed_start_date',
+                'proposed_end_date',
             ),
         }),
         ('Client Config', {
@@ -95,6 +98,17 @@ class ExperimentAdmin(admin.ModelAdmin):
         }),
         ('Notes', {
             'fields': ('objectives', 'analysis'),
+        }),
+        ('Risks & Testing', {
+            'fields': (
+                'risk_partner_related',
+                'risk_brand',
+                'risk_fast_shipped',
+                'risk_confidential',
+                'risk_release_population',
+                'risks',
+                'testing',
+            ),
         }),
         ('Telemetry', {
             'fields': (
