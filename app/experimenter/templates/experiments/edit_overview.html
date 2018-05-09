@@ -28,6 +28,10 @@
 
     {% include "experiments/field_inline.html" with field=form.short_description %}
 
+    {% include "experiments/field_inline.html" with field=form.proposed_start_date %}
+
+    {% include "experiments/field_inline.html" with field=form.proposed_end_date %}
+
     <div class="form-group">
       <div class="{% if form.errors.population_percent %}has-error{% endif %}">
         <label class="col-md-3 control-label" for="{{ form.population_percent.id_for_label }}">{{ form.population_percent.label }}</label>
@@ -60,10 +64,6 @@
     </div>
 
     {% include "experiments/field_inline.html" with field=form.client_matching %}
-
-    {% include "experiments/field_inline.html" with field=form.proposed_start_date %}
-
-    {% include "experiments/field_inline.html" with field=form.proposed_end_date %}
 
     <div class="form-group">
       <div class="col-md-12 text-right">

@@ -35,20 +35,34 @@
       </div>
 
       <div class="row card md-pt-15 md-pb-10">
-        {% if experiment.is_launched %}
-          <iframe style="display:block" scrolling="no" frameBorder="0" width="100%" height="450px" src="{{ experiment.enrollment_dashboard_url }}" ></iframe>
-        {% else %}
-          <div class="col-md-8">
-            <p><strong>Owner: {{ experiment.owner }}</strong></p> 
-          </div>
+        <div class="col-md-8">
+          <p><strong>Owner: {{ experiment.owner }}</strong></p> 
+        </div>
+        <div class="col-md-4 text-right">
+          <p><strong>{{ experiment.proposed_start_date }} - {{ experiment.proposed_end_date }}</strong></p>
+        </div>
+        <div class="col-md-12">
+          {{ experiment.short_description|linebreaks }}
+        </div>
+      </div>
+
+      <div class="row md-mt-20">
+        <h4 class="col-md-8">
+          Population
+        </h4>
+
+        {% if experiment.is_draft %}
           <div class="col-md-4 text-right">
-            <h4 class="md-mt-0">{{ experiment.population }}</h4>
-            <p><strong>{{ experiment.proposed_start_date }} - {{ experiment.proposed_end_date }}</strong></p>
-          </div>
-          <div class="col-md-12">
-            {{ experiment.short_description|linebreaks }}
+            <a class="noanchorstyle" href="{% url "experiments-overview-update" slug=experiment.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
           </div>
         {% endif %}
+      </div>
+
+      <div class="row card md-pt-15 md-pb-10">
+        <div class="col-md-12">
+          <h4 class="md-mt-0">{{ experiment.population }}</h4>
+          {{ experiment.client_matching|linebreaks }}
+        </div>
       </div>
 
       <div class="row md-mt-20">
