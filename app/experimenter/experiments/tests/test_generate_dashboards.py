@@ -4,7 +4,7 @@ from datetime import datetime, timezone, timedelta
 from django.core.management import call_command
 from django.conf import settings
 from django.test import TestCase
-from stmoab.StatisticalDashboard import StatisticalDashboard
+from stmoab.ExperimentDashboard import ExperimentDashboard
 
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
@@ -14,11 +14,11 @@ class GenerateDashboardsTest(TestCase):
 
     def setUp(self):
         self.ORIGINAL_EXTERNAL_API_EXCEPTION = (
-            StatisticalDashboard.ExternalAPIError)
+            ExperimentDashboard.ExternalAPIError)
 
         dashboard_patcher = mock.patch((
             'experimenter.experiments.management.commands.'
-            'generate_dashboards.StatisticalDashboard'))
+            'generate_dashboards.ExperimentDashboard'))
         logging_patcher = mock.patch((
             'experimenter.experiments.management.commands.'
             'generate_dashboards.logging'))
@@ -55,9 +55,7 @@ class GenerateDashboardsTest(TestCase):
 
     def test_dashboard_object_generated(self):
         expected_call_args = [(
-            settings.AWS_ACCESS_KEY,
-            settings.AWS_SECRET_KEY,
-            settings.S3_BUCKET_ID_STATS,
+            settings.REDASH_API_KEY,
             experiment.project.name,
             experiment.name,
             experiment.slug,
@@ -82,8 +80,7 @@ class GenerateDashboardsTest(TestCase):
         for idx, call_args in enumerate(
                 self.MockExperimentDashboard.call_args_list):
             args, kwargs = call_args
-            self.assertEqual(args[0], settings.REDASH_API_KEY)
-            self.assertEqual(args[1:], expected_call_args[idx])
+            self.assertEqual(args, expected_call_args[idx])
 
         for experiment in self.experiments:
             experiment_obj = Experiment.objects.get(pk=experiment.pk)
@@ -91,10 +88,6 @@ class GenerateDashboardsTest(TestCase):
 
         self.assertEqual(len(
             mock_instance.add_graph_templates.mock_calls), 3)
-        self.assertEqual(len(
-            mock_instance.add_ttable_data.mock_calls), 3)
-        self.assertEqual(len(
-            mock_instance.add_ttable.mock_calls), 3)
         self.assertEqual(len(
             mock_instance.get_update_range.mock_calls), 3)
 
@@ -116,7 +109,7 @@ class GenerateDashboardsTest(TestCase):
         ERROR_MESSAGE = 'Unable to communicate with Redash'
 
         self.MockExperimentDashboard.side_effect = (
-            StatisticalDashboard.ExternalAPIError((
+            ExperimentDashboard.ExternalAPIError((
                 ERROR_MESSAGE)))
 
         call_command('generate_dashboards')
@@ -135,6 +128,6 @@ class GenerateDashboardsTest(TestCase):
         call_command('generate_dashboards')
 
         self.mock_logger.error.assert_any_call((
-          'StatisticalDashboard Value Error '
+          'ExperimentDashboard Value Error '
           'for {exp}: {err}').format(
           exp=self.experiment_complete, err=ERROR_MESSAGE))

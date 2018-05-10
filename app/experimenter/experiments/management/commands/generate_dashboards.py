@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from stmoab.StatisticalDashboard import StatisticalDashboard
+from stmoab.ExperimentDashboard import ExperimentDashboard
 
 from experimenter.experiments.models import Experiment, ExperimentChangeLog
 
@@ -40,11 +40,8 @@ class Command(BaseCommand):
                         if exp.end_date is None
                         else exp.end_date.strftime("%Y-%m-%d"))
             try:
-                dash = StatisticalDashboard(
+                dash = ExperimentDashboard(
                   settings.REDASH_API_KEY,
-                  settings.AWS_ACCESS_KEY,
-                  settings.AWS_SECRET_KEY,
-                  settings.S3_BUCKET_ID_STATS,
                   exp.project.name,
                   exp.name,
                   exp.slug,
@@ -59,23 +56,16 @@ class Command(BaseCommand):
                     continue
 
                 dash.add_graph_templates(self.POPULATION_TEMPLATE)
-                dash.add_ttable_data(
-                  self.EVENTS_PER_HOUR_TEMPLATE,
-                  self.UT_HOURLY_TTABLE,
-                  dash.UT_HOURLY_EVENTS
-                )
-                dash.add_ttable(self.UT_HOURLY_TTABLE)
-
                 exp.dashboard_url = dash.public_url
                 exp.save()
-            except StatisticalDashboard.ExternalAPIError as external_api_err:
+            except ExperimentDashboard.ExternalAPIError as external_api_err:
                 logging.error((
                   'ExternalAPIError '
                   'for {experiment}: {err}').format(
                   experiment=exp, err=external_api_err))
             except ValueError as val_err:
                 logging.error((
-                  'StatisticalDashboard Value Error '
+                  'ExperimentDashboard Value Error '
                   'for {experiment}: {err}').format(
                   experiment=exp, err=val_err))
 
