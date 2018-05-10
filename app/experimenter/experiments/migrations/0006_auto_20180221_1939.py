@@ -32,6 +32,14 @@ def update_versions(apps, schema_editor): # pragma: no cover
         experiment.save()
 
 
+def add_project_to_name(apps, schema_editor): #pragma: no cover
+    Experiment = apps.get_model('experiments', 'Experiment')
+
+    for experiment in Experiment.objects.all():
+        experiment.name = '{} {}'.format(experiment.project.name, experiment.name)
+        experiment.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -56,4 +64,5 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(update_dates),
         migrations.RunPython(update_versions),
+        migrations.RunPython(add_project_to_name),
     ]
