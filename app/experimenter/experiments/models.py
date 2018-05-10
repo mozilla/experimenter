@@ -259,21 +259,33 @@ class ExperimentChangeLogManager(models.Manager):
 
 
 class ExperimentChangeLog(models.Model):
-    STATUS_CREATED_DRAFT = 'Created Draft'
-    STATUS_EDITED_DRAFT = 'Edited Draft'
-    STATUS_BEGIN_REVIEW = 'Submitted for Review'
-    STATUS_CANCEL_REVIEW = 'Cancelled Review Request'
+    STATUS_NONE_DRAFT = 'Created Draft'
+    STATUS_DRAFT_DRAFT = 'Edited Draft'
+    STATUS_DRAFT_REVIEW = 'Submitted for Review'
+    STATUS_REVIEW_DRAFT = 'Cancelled Review Request'
+    STATUS_REVIEW_ACCEPTED = 'Review Approved'
+    STATUS_REVIEW_REJECTED = 'Review Rejected'
+    STATUS_ACCEPTED_LIVE = 'Launched'
+    STATUS_LIVE_COMPLETE = 'Complete'
 
     PRETTY_STATUS_LABELS = {
         None: {
-            Experiment.STATUS_DRAFT: STATUS_CREATED_DRAFT,
+            Experiment.STATUS_DRAFT: STATUS_NONE_DRAFT,
         },
         Experiment.STATUS_DRAFT: {
-            Experiment.STATUS_DRAFT: STATUS_EDITED_DRAFT,
-            Experiment.STATUS_REVIEW: STATUS_BEGIN_REVIEW,
+            Experiment.STATUS_DRAFT: STATUS_DRAFT_DRAFT,
+            Experiment.STATUS_REVIEW: STATUS_DRAFT_REVIEW,
         },
         Experiment.STATUS_REVIEW: {
-            Experiment.STATUS_DRAFT: STATUS_CANCEL_REVIEW,
+            Experiment.STATUS_DRAFT: STATUS_REVIEW_DRAFT,
+            Experiment.STATUS_ACCEPTED: STATUS_REVIEW_ACCEPTED,
+            Experiment.STATUS_REJECTED: STATUS_REVIEW_REJECTED,
+        },
+        Experiment.STATUS_ACCEPTED: {
+            Experiment.STATUS_LIVE: STATUS_ACCEPTED_LIVE,
+        },
+        Experiment.STATUS_LIVE: {
+            Experiment.STATUS_COMPLETE: STATUS_LIVE_COMPLETE,
         },
     }
 
