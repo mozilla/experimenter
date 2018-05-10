@@ -68,7 +68,11 @@ body {
   background-color: white;
   border-radius: 4px;
   border: 1px solid #ddd;
-  transition: box-shadow ease-in-out .25s;
+  transition: box-shadow ease-in-out .1s;
+}
+
+.clickhighlight:hover > .card {
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 }
 
 .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
