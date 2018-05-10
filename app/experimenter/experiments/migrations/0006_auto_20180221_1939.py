@@ -24,6 +24,14 @@ def update_dates(apps, schema_editor): # pragma: no cover
         experiment.save()
 
 
+def update_versions(apps, schema_editor): # pragma: no cover
+    Experiment = apps.get_model('experiments', 'Experiment')
+
+    for experiment in Experiment.objects.all():
+        experiment.firefox_version = '{}.0'.format(experiment.firefox_version)
+        experiment.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -47,4 +55,5 @@ class Migration(migrations.Migration):
             field=models.CharField(choices=[('55.0', '55.0'), ('56.0', '56.0'), ('57.0', '57.0'), ('58.0', '58.0'), ('59.0', '59.0'), ('60.0', '60.0'), ('61.0', '61.0'), ('62.0', '62.0'), ('63.0', '63.0'), ('64.0', '64.0')], max_length=255),
         ),
         migrations.RunPython(update_dates),
+        migrations.RunPython(update_versions),
     ]
