@@ -66,13 +66,19 @@ class GenerateDashboardsTest(TestCase):
                 if not experiment.end_date
                 else experiment.end_date.strftime("%Y-%m-%d")))
             for experiment in self.experiments]
-        expected_public_url = 'www.example.com/some_dashboard_url'
+
+        DEFAULT_PUBLIC_URL = 'http://www.example.com/dashboard'
+        NEW_PUBLIC_URL = 'www.example.com/some_dashboard_url'
 
         mock_instance = self.MockExperimentDashboard.return_value
-        mock_instance.public_url = expected_public_url
+        mock_instance.public_url = NEW_PUBLIC_URL
+        mock_instance.UT_HOURLY_EVENTS = [1, 2, 3, 4]
+        mock_instance.MAPPED_UT_EVENTS = [1, 2, 3]
         mock_instance.get_update_range.return_value = {
             "min": datetime.now() - timedelta(days=2)
         }
+        mock_instance.get_query_ids_and_names.return_value = (
+            [i for i in range(3)])
 
         call_command('generate_dashboards')
 
@@ -84,20 +90,46 @@ class GenerateDashboardsTest(TestCase):
             args, kwargs = call_args
             self.assertEqual(args, expected_call_args[idx])
 
+        # The dashboards were not complete, so dashboard_url is not set
         for experiment in self.experiments:
             experiment_obj = Experiment.objects.get(pk=experiment.pk)
-            self.assertEqual(experiment_obj.dashboard_url, expected_public_url)
+            self.assertTrue(
+                experiment_obj.dashboard_url in [None, DEFAULT_PUBLIC_URL])
 
         self.assertEqual(len(
             mock_instance.add_graph_templates.mock_calls), 15)
         self.assertEqual(len(
             mock_instance.get_update_range.mock_calls), 3)
 
+        self.call_count = 0
+
+        def get_widgets():
+            num_widgets = 3
+            if self.call_count % 2 != 0:
+                num_widgets = 7
+            self.call_count += 1
+            widgets = [i for i in range(num_widgets)]
+            return widgets
+
+        mock_instance.get_query_ids_and_names.side_effect = get_widgets
+
+        call_command('generate_dashboards')
+
+        # The dashboards are now complete, so dashboard_url is set
+        self.assertEqual(len(
+            mock_instance.add_graph_templates.mock_calls), 30)
+        for experiment in self.experiments:
+            experiment_obj = Experiment.objects.get(pk=experiment.pk)
+            self.assertEqual(experiment_obj.dashboard_url, NEW_PUBLIC_URL)
+
     def test_recently_updated_dashboard_is_ignored(self):
         mock_instance = self.MockExperimentDashboard.return_value
+        mock_instance.public_url = 'www.example.com/dashboard'
         mock_instance.get_update_range.return_value = {
-            "min": datetime.now()
+            "min": datetime.now(timezone.utc)
         }
+        mock_instance.get_query_ids_and_names.return_value = (
+            [i for i in range(int(15 / 2))])
 
         call_command('generate_dashboards')
 
