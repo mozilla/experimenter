@@ -1,11 +1,16 @@
 import logging
 from datetime import datetime, timezone, timedelta
 
+from django.utils.text import slugify
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from stmoab.ExperimentDashboard import ExperimentDashboard
 
 from experimenter.experiments.models import Experiment, ExperimentChangeLog
+
+
+def sanitize_name(name):
+    return slugify(name).replace('-', ' ').title()
 
 
 class Command(BaseCommand):
@@ -43,7 +48,7 @@ class Command(BaseCommand):
                 dash = ExperimentDashboard(
                   settings.REDASH_API_KEY,
                   exp.project.name,
-                  exp.name,
+                  sanitize_name(exp.name),
                   exp.slug,
                   exp.start_date.strftime("%Y-%m-%d"),
                   end_date
