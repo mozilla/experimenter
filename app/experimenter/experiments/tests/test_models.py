@@ -229,12 +229,11 @@ class TestExperimentModel(TestCase):
             '0.5% of Nightly Firefox 57.0'
         )
 
-    def test_experiments_viewer_link_is_correct(self):
+    def test_test_tube_link_is_correct(self):
         experiment = ExperimentFactory.create(slug='experiment')
         self.assertEqual(
-            experiment.experiments_viewer_url,
-            ('https://moz-experiments-viewer.herokuapp.com/?ds=experiment'
-             '&metrics=ALL&next=%2F&pop=ALL&scale=linear&showOutliers=false'),
+            experiment.test_tube_url,
+            'https://firefox-test-tube.herokuapp.com/experiments/experiment/',
         )
 
     def test_accept_url_is_correct(self):
