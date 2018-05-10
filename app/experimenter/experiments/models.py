@@ -177,10 +177,9 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
-    def experiments_viewer_url(self):
+    def test_tube_url(self):
         return (
-            'https://moz-experiments-viewer.herokuapp.com/?ds={slug}'
-            '&metrics=ALL&next=%2F&pop=ALL&scale=linear&showOutliers=false'
+            'https://firefox-test-tube.herokuapp.com/experiments/{slug}/'
         ).format(slug=self.slug)
 
     @property
