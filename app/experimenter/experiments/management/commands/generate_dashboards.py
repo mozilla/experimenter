@@ -18,6 +18,13 @@ DASHBOARD_TAG_NAME = 'Experimenter Dashboard'
 
 class Command(BaseCommand):
     POPULATION_TEMPLATE = 'UT Experiment Template: Population Size'
+    EXISTING_USERS_SCALARS_TEMPLATE = (
+        "Experiment Template Rate Scalars: [Existing Users]")
+    EXISTING_USERS_MAPS_TEMPLATE = (
+        "Experiment Template Rate Maps: [Existing Users]")
+    NEW_USERS_SCALARS_TEMPLATE = (
+        "Experiment Template Rate Scalars: [New Users]")
+    NEW_USERS_MAPS_TEMPLATE = "Experiment Template Rate Maps: [New Users]"
     EVENTS_PER_HOUR_TEMPLATE = 'TTests Template Per Hour UT Five:'
     UT_HOURLY_TTABLE = 'Statistical Analysis (Per Active Hour) - UT'
     help = 'Generates Redash dashboards'
@@ -64,6 +71,23 @@ class Command(BaseCommand):
                     continue
 
                 dash.add_graph_templates(self.POPULATION_TEMPLATE)
+
+                # Existing Users
+                dash.add_graph_templates(
+                    self.EXISTING_USERS_SCALARS_TEMPLATE,
+                    dash.UT_HOURLY_EVENTS
+                )
+                dash.add_graph_templates(
+                    self.EXISTING_USERS_MAPS_TEMPLATE,
+                    dash.MAPPED_UT_EVENTS
+                )
+
+                # New Users
+                dash.add_graph_templates(
+                    self.NEW_USERS_SCALARS_TEMPLATE, dash.UT_HOURLY_EVENTS)
+                dash.add_graph_templates(
+                    self.NEW_USERS_MAPS_TEMPLATE, dash.MAPPED_UT_EVENTS)
+
                 exp.dashboard_url = dash.public_url
                 exp.save()
             except ExperimentDashboard.ExternalAPIError as external_api_err:
