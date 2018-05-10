@@ -9,7 +9,7 @@ from stmoab.ExperimentDashboard import ExperimentDashboard
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.management.commands.generate_dashboards import (
-    sanitize_name)
+    DASHBOARD_TAG_NAME, sanitize_name)
 
 
 class GenerateDashboardsTest(TestCase):
@@ -58,7 +58,7 @@ class GenerateDashboardsTest(TestCase):
     def test_dashboard_object_generated(self):
         expected_call_args = [(
             settings.REDASH_API_KEY,
-            experiment.project.name,
+            DASHBOARD_TAG_NAME,
             sanitize_name(experiment.name),
             experiment.slug,
             experiment.start_date.strftime("%Y-%m-%d"),
