@@ -13,6 +13,9 @@ def sanitize_name(name):
     return slugify(name).replace('-', ' ').title()
 
 
+DASHBOARD_TAG_NAME = 'Experimenter Dashboard'
+
+
 class Command(BaseCommand):
     POPULATION_TEMPLATE = 'UT Experiment Template: Population Size'
     EVENTS_PER_HOUR_TEMPLATE = 'TTests Template Per Hour UT Five:'
@@ -47,7 +50,7 @@ class Command(BaseCommand):
             try:
                 dash = ExperimentDashboard(
                   settings.REDASH_API_KEY,
-                  exp.project.name,
+                  DASHBOARD_TAG_NAME,
                   sanitize_name(exp.name),
                   exp.slug,
                   exp.start_date.strftime("%Y-%m-%d"),
