@@ -64,10 +64,21 @@ class Command(BaseCommand):
                   end_date
                 )
 
+                expected_widget_count = (
+                    int((1 + 2 * len(dash.UT_HOURLY_EVENTS)
+                         + 2 * len(dash.MAPPED_UT_EVENTS)) / 2))
+                widget_count = len(dash.get_query_ids_and_names())
+
+                dashboard_presentable = widget_count >= expected_widget_count
+                if dashboard_presentable:
+                    exp.dashboard_url = dash.public_url
+                    exp.save()
+
                 # This dashboard was recently updated, no need to update again.
                 update_begin = dash.get_update_range().get("min", None)
-                if update_begin is not None and (
-                  update_begin > (datetime.now() - timedelta(days=1))):
+                if update_begin is not None and dashboard_presentable and (
+                  update_begin > (
+                      datetime.now(timezone.utc) - timedelta(days=1))):
                     continue
 
                 dash.add_graph_templates(self.POPULATION_TEMPLATE)
@@ -88,8 +99,12 @@ class Command(BaseCommand):
                 dash.add_graph_templates(
                     self.NEW_USERS_MAPS_TEMPLATE, dash.MAPPED_UT_EVENTS)
 
-                exp.dashboard_url = dash.public_url
-                exp.save()
+                # recompute widget count after graphs are added
+                widget_count = len(dash.get_query_ids_and_names())
+
+                if widget_count >= expected_widget_count:
+                    exp.dashboard_url = dash.public_url
+                    exp.save()
             except ExperimentDashboard.ExternalAPIError as external_api_err:
                 logging.error((
                   'ExternalAPIError '
