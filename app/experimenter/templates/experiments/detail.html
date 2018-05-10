@@ -36,7 +36,7 @@
 
       <div class="row card md-pt-15 md-pb-10">
         <div class="col-md-8">
-          <p><strong>Owner: {{ experiment.owner }}</strong></p> 
+          <p><strong>Owner: {{ experiment.owner }}</strong></p>
         </div>
         <div class="col-md-4 text-right">
           <p><strong>{{ experiment.proposed_start_date }} - {{ experiment.proposed_end_date }}</strong></p>
@@ -45,6 +45,21 @@
           {{ experiment.short_description|linebreaks }}
         </div>
       </div>
+
+
+      {% if experiment.is_begun %}
+        <div class="row md-mt-20">
+          <h4 class="col-md-12">
+            Dashboards
+          </h4>
+
+          <div class="col-md-12">
+            <a class="btn btn-info" href="{{ experiment.test_tube_url }}" target="_blank">
+              <span class="glyphicon glyphicon-signal"></span> Test Tube
+            </a>
+          </div>
+        </div>
+      {% endif %}
 
       <div class="row md-mt-20">
         <h4 class="col-md-8">
