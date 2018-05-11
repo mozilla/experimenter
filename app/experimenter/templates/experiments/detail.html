@@ -49,6 +49,12 @@
             <a class="btn btn-info" href="{{ experiment.test_tube_url }}" target="_blank">
               <span class="glyphicon glyphicon-signal"></span> Test Tube Dashboard
             </a>
+
+            {% if experiment.dashboard_url %}
+              <a class="btn btn-info" href="{{ experiment.dashboard_url }}" target="_blank">
+                <span class="glyphicon glyphicon-signal"></span> reDash Dashboard
+              </a>
+            {% endif %}
           </div>
         {% endif %}
       </div>
