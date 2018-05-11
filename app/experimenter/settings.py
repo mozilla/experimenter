@@ -229,3 +229,7 @@ REST_FRAMEWORK = {
 
 # CORS Security Header Config
 CORS_ORIGIN_ALLOW_ALL = True
+
+# reDash Rate Limit
+# Number of dashboards to deploy per hour
+DASHBOARD_RATE_LIMIT = 2

@@ -80,47 +80,48 @@ class GenerateDashboardsTest(TestCase):
         mock_instance.get_query_ids_and_names.return_value = (
             [i for i in range(3)])
 
-        call_command('generate_dashboards')
+        with self.settings(DASHBOARD_RATE_LIMIT=len(self.experiments)):
+            call_command('generate_dashboards')
 
-        self.assertTrue(self.MockExperimentDashboard.called)
-        self.assertEqual(self.MockExperimentDashboard.call_count, 3)
+            self.assertTrue(self.MockExperimentDashboard.called)
+            self.assertEqual(self.MockExperimentDashboard.call_count, 3)
 
-        for idx, call_args in enumerate(
-                self.MockExperimentDashboard.call_args_list):
-            args, kwargs = call_args
-            self.assertEqual(args, expected_call_args[idx])
+            for idx, call_args in enumerate(
+                    self.MockExperimentDashboard.call_args_list):
+                args, kwargs = call_args
+                self.assertEqual(args, expected_call_args[idx])
 
-        # The dashboards were not complete, so dashboard_url is not set
-        for experiment in self.experiments:
-            experiment_obj = Experiment.objects.get(pk=experiment.pk)
-            self.assertTrue(
-                experiment_obj.dashboard_url in [None, DEFAULT_PUBLIC_URL])
+            # The dashboards were not complete, so dashboard_url is not set
+            for experiment in self.experiments:
+                experiment_obj = Experiment.objects.get(pk=experiment.pk)
+                self.assertTrue(
+                    experiment_obj.dashboard_url in [None, DEFAULT_PUBLIC_URL])
 
-        self.assertEqual(len(
-            mock_instance.add_graph_templates.mock_calls), 15)
-        self.assertEqual(len(
-            mock_instance.get_update_range.mock_calls), 3)
+            self.assertEqual(len(
+                mock_instance.add_graph_templates.mock_calls), 15)
+            self.assertEqual(len(
+                mock_instance.get_update_range.mock_calls), 3)
 
-        self.call_count = 0
+            self.call_count = 0
 
-        def get_widgets():
-            num_widgets = 3
-            if self.call_count % 2 != 0:
-                num_widgets = 7
-            self.call_count += 1
-            widgets = [i for i in range(num_widgets)]
-            return widgets
+            def get_widgets():
+                num_widgets = 3
+                if self.call_count % 2 != 0:
+                    num_widgets = 7
+                self.call_count += 1
+                widgets = [i for i in range(num_widgets)]
+                return widgets
 
-        mock_instance.get_query_ids_and_names.side_effect = get_widgets
+            mock_instance.get_query_ids_and_names.side_effect = get_widgets
 
-        call_command('generate_dashboards')
+            call_command('generate_dashboards')
 
-        # The dashboards are now complete, so dashboard_url is set
-        self.assertEqual(len(
-            mock_instance.add_graph_templates.mock_calls), 30)
-        for experiment in self.experiments:
-            experiment_obj = Experiment.objects.get(pk=experiment.pk)
-            self.assertEqual(experiment_obj.dashboard_url, NEW_PUBLIC_URL)
+            # The dashboards are now complete, so dashboard_url is set
+            self.assertEqual(len(
+                mock_instance.add_graph_templates.mock_calls), 30)
+            for experiment in self.experiments:
+                experiment_obj = Experiment.objects.get(pk=experiment.pk)
+                self.assertEqual(experiment_obj.dashboard_url, NEW_PUBLIC_URL)
 
     def test_recently_updated_dashboard_is_ignored(self):
         mock_instance = self.MockExperimentDashboard.return_value
@@ -131,13 +132,31 @@ class GenerateDashboardsTest(TestCase):
         mock_instance.get_query_ids_and_names.return_value = (
             [i for i in range(int(15 / 2))])
 
-        call_command('generate_dashboards')
+        with self.settings(DASHBOARD_RATE_LIMIT=len(self.experiments)):
+            call_command('generate_dashboards')
 
-        self.assertTrue(self.MockExperimentDashboard.called)
-        self.assertEqual(self.MockExperimentDashboard.call_count, 3)
+            self.assertTrue(self.MockExperimentDashboard.called)
+            self.assertEqual(self.MockExperimentDashboard.call_count, 3)
 
-        self.assertEqual(len(
-            mock_instance.add_graph_templates.mock_calls), 0)
+            self.assertEqual(len(
+                mock_instance.add_graph_templates.mock_calls), 0)
+
+    def test_dashboards_are_rate_limited(self):
+        mock_instance = self.MockExperimentDashboard.return_value
+        mock_instance.public_url = 'www.example.com/dashboard'
+        mock_instance.get_update_range.return_value = {
+            "min": datetime.now(timezone.utc)
+        }
+        mock_instance.get_query_ids_and_names.return_value = (
+            [i for i in range(int(15 / 2))])
+
+        rate_limit = len(self.experiments) - 1
+        with self.settings(DASHBOARD_RATE_LIMIT=rate_limit):
+            call_command('generate_dashboards')
+
+            self.assertTrue(self.MockExperimentDashboard.called)
+            self.assertEqual(
+                self.MockExperimentDashboard.call_count, rate_limit)
 
     def test_external_api_error_is_caught(self):
         ERROR_MESSAGE = 'Unable to communicate with Redash'
