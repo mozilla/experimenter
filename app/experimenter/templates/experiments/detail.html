@@ -22,6 +22,12 @@
 
     <div class="col-md-9 md-pr-40">
 
+      {% if experiment.enrollment_dashboard_url %}
+        <div class="row">
+          <iframe frameBorder="0" src="{{ experiment.enrollment_dashboard_url }}" width="100%" height="530" scrolling="no" ></iframe>
+        </div>
+      {% endif %}
+
       <div class="row">
         <h4 class="col-md-8 md-mt-0">
           Overview
