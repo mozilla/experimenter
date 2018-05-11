@@ -45,10 +45,12 @@ class Command(BaseCommand):
 
         missing_dashboard_experiments = Experiment.objects.filter(
             dashboard_url__isnull=True)
+
         relevant_experiments = (
             recently_ended_experiments |
             missing_dashboard_experiments |
-            in_flight_experiments).distinct()
+            in_flight_experiments
+        ).distinct()[:settings.DASHBOARD_RATE_LIMIT]
 
         for exp in relevant_experiments:
             end_date = (None
