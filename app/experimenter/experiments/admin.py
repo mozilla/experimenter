@@ -75,6 +75,7 @@ class ExperimentAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Overview', {
             'fields': (
+                'archived',
                 'owner',
                 'project',
                 'status',
