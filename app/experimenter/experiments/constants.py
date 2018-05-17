@@ -134,7 +134,7 @@ class ExperimentConstants(object):
 
     POPULATION_PERCENT_HELP_TEXT = """
       <p>Describe the Firefox population that will receive this experiment.<p>
-      <p><strong>Example:</strong> 10% of Firefox 60.0 Nightly<p>
+      <p><strong>Example:</strong> 10% of Nightly Firefox 60.0<p>
     """
 
     CLIENT_MATCHING_HELP_TEXT = """
