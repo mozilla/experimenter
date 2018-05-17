@@ -90,11 +90,15 @@ class TestExperimentListView(TestCase):
     def test_list_view_lists_experiments_with_default_order(self):
         user_email = 'user@example.com'
 
+        # Archived experiment is ommitted
+        ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, archived=True)
+
         for i in range(3):
             ExperimentFactory.create_with_status(
                 random.choice(Experiment.STATUS_CHOICES)[0])
 
-        experiments = Experiment.objects.all().order_by(
+        experiments = Experiment.objects.all().filter(archived=False).order_by(
             ExperimentOrderingForm.ORDERING_CHOICES[0][0])
 
         response = self.client.get(

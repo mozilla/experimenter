@@ -34,6 +34,7 @@ class Experiment(ExperimentConstants, models.Model):
         default=ExperimentConstants.STATUS_DRAFT,
         choices=ExperimentConstants.STATUS_CHOICES,
     )
+    archived = models.BooleanField(default=False)
     name = models.CharField(
         max_length=255, unique=True, blank=False, null=False)
     slug = models.SlugField(

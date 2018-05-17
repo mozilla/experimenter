@@ -58,7 +58,7 @@ class ExperimentOrderingForm(forms.Form):
 
 
 class ExperimentListView(FilterView):
-    model = Experiment
+    queryset = Experiment.objects.filter(archived=False)
     context_object_name = 'experiments'
     template_name = 'experiments/list.html'
     filterset_class = ExperimentFilter

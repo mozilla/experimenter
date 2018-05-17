@@ -20,6 +20,7 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     project = factory.SubFactory(ProjectFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: slugify(o.name))
+    archived = False
     short_description = factory.LazyAttribute(
         lambda o: faker.text(random.randint(100, 500)))
     proposed_start_date = factory.LazyAttribute(
