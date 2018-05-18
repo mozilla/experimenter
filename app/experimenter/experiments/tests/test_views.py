@@ -12,23 +12,63 @@ from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.views import (
     ExperimentCreateView,
-    ExperimentFilter,
+    ExperimentFilterset,
     ExperimentFormMixin,
     ExperimentOrderingForm,
 )
 from experimenter.projects.tests.factories import ProjectFactory
 
 
-class TestExperimentFilter(TestCase):
+class TestExperimentFilterset(TestCase):
+
+    def test_filters_out_archived_by_default(self):
+        for i in range(3):
+            ExperimentFactory.create_with_status(
+                Experiment.STATUS_DRAFT, archived=False)
+
+        for i in range(3):
+            ExperimentFactory.create_with_status(
+                Experiment.STATUS_DRAFT, archived=True)
+
+        filter = ExperimentFilterset(
+            data={},
+            queryset=Experiment.objects.all(),
+        )
+
+        self.assertEqual(
+            set(filter.qs),
+            set(Experiment.objects.filter(archived=False)),
+        )
+
+    def test_allows_archived_if_True(self):
+        for i in range(3):
+            ExperimentFactory.create_with_status(
+                Experiment.STATUS_DRAFT, archived=False)
+
+        for i in range(3):
+            ExperimentFactory.create_with_status(
+                Experiment.STATUS_DRAFT, archived=True)
+
+        filter = ExperimentFilterset(
+            data={'archived': True},
+            queryset=Experiment.objects.all(),
+        )
+
+        self.assertEqual(
+            set(filter.qs),
+            set(Experiment.objects.all()),
+        )
 
     def test_filters_by_status(self):
         for i in range(3):
             ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
             ExperimentFactory.create_with_status(Experiment.STATUS_REVIEW)
-        filter = ExperimentFilter(
+
+        filter = ExperimentFilterset(
             {'status': Experiment.STATUS_DRAFT},
             queryset=Experiment.objects.all(),
         )
+
         self.assertEqual(
             set(filter.qs),
             set(Experiment.objects.filter(status=Experiment.STATUS_DRAFT)),
@@ -44,7 +84,7 @@ class TestExperimentFilter(TestCase):
             ExperimentFactory.create_with_variants(
                 firefox_version=exclude_version)
 
-        filter = ExperimentFilter(
+        filter = ExperimentFilterset(
             {'firefox_version': include_version},
             queryset=Experiment.objects.all(),
         )
@@ -63,7 +103,7 @@ class TestExperimentFilter(TestCase):
             ExperimentFactory.create_with_variants(
                 firefox_channel=exclude_channel)
 
-        filter = ExperimentFilter(
+        filter = ExperimentFilterset(
             {'firefox_channel': include_channel},
             queryset=Experiment.objects.all(),
         )
@@ -87,7 +127,7 @@ class TestExperimengOrderingForm(TestCase):
 
 class TestExperimentListView(TestCase):
 
-    def test_list_view_lists_experiments_with_default_order(self):
+    def test_list_view_lists_experiments_with_default_order_no_archived(self):
         user_email = 'user@example.com'
 
         # Archived experiment is ommitted
@@ -109,6 +149,33 @@ class TestExperimentListView(TestCase):
         context = response.context[0]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(list(context['experiments']), list(experiments))
+
+    def test_list_view_shows_all_including_archived(self):
+        user_email = 'user@example.com'
+
+        # Archived experiment is included
+        ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, archived=True)
+
+        for i in range(3):
+            ExperimentFactory.create_with_status(
+                random.choice(Experiment.STATUS_CHOICES)[0])
+
+        experiments = Experiment.objects.all()
+
+        response = self.client.get(
+            '{url}?{params}'.format(
+                url=reverse('home'),
+                params=urlencode({
+                    'archived': True,
+                }),
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        context = response.context[0]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(set(context['experiments']), set(experiments))
 
     def test_list_view_filters_and_orders_experiments(self):
         user_email = 'user@example.com'
