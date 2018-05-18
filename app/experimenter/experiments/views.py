@@ -15,7 +15,31 @@ from experimenter.experiments.forms import (
 from experimenter.experiments.models import Experiment
 
 
-class ExperimentFilter(filters.FilterSet):
+class ExperimentFiltersetForm(forms.ModelForm):
+
+    class Meta:
+        model = Experiment
+        fields = (
+            'archived',
+        )
+
+    def clean_archived(self):
+        allow_archived = self.cleaned_data.get('archived', False)
+
+        # If we pass in archived=True what we actually mean is
+        # don't filter on archived at all, ie show all experiments
+        # including archived
+        if allow_archived:
+            return None
+
+        return False
+
+
+class ExperimentFilterset(filters.FilterSet):
+    archived = filters.BooleanFilter(
+        label='Show archived experiments',
+        widget=forms.CheckboxInput(),
+    )
     status = filters.ChoiceFilter(
         empty_label='All Statuses',
         choices=Experiment.STATUS_CHOICES,
@@ -34,7 +58,9 @@ class ExperimentFilter(filters.FilterSet):
 
     class Meta:
         model = Experiment
+        form = ExperimentFiltersetForm
         fields = (
+            'archived',
             'firefox_channel',
             'firefox_version',
             'status',
@@ -58,14 +84,23 @@ class ExperimentOrderingForm(forms.Form):
 
 
 class ExperimentListView(FilterView):
-    queryset = Experiment.objects.filter(archived=False)
+    model = Experiment
     context_object_name = 'experiments'
     template_name = 'experiments/list.html'
-    filterset_class = ExperimentFilter
+    filterset_class = ExperimentFilterset
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ordering_form = None
+
+    def get_filterset_kwargs(self, *args, **kwargs):
+        kwargs = super().get_filterset_kwargs(*args, **kwargs)
+
+        # Always pass in request.GET otherwise the
+        # filterset form will be unbound and our custom
+        # validation won't kick in
+        kwargs['data'] = self.request.GET
+        return kwargs
 
     def get_ordering(self):
         self.ordering_form = ExperimentOrderingForm(self.request.GET)
