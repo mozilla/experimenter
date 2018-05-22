@@ -13,10 +13,10 @@
     {% if filter.form.firefox_channel.value %}
       {{ filter.form.firefox_channel.value }}
     {% endif %}
-    
+
     {% if filter.form.firefox_version.value %}
       Firefox
-      {{ filter.form.firefox_version.value }} 
+      {{ filter.form.firefox_version.value }}
     {% endif %}
     Experiment{{ experiments|pluralize:"s" }}
   </div>
@@ -29,7 +29,7 @@
       </div>
     </div>
   </div>
-      
+
 {% endblock %}
 
 {% block content %}
@@ -62,7 +62,7 @@
               <h4>{{ experiment.population }}</h4>
               <p><strong>{{ experiment.proposed_start_date }} - {{ experiment.proposed_end_date }}</strong></p>
             </div>
-            
+
           </div>
 
         </a>
@@ -70,7 +70,7 @@
       {% endfor %}
 
     </div>
-   
+
     <form method="GET">
 
       <div class="col-md-3">
@@ -78,7 +78,7 @@
         <div class="row md-mb-10">
           <strong class="col-md-12">Sort Experiments</strong>
         </div>
-        
+
         <div class="row md-mb-10">
           <div class="col-md-12">
             {{ ordering_form.ordering }}
@@ -91,16 +91,22 @@
 
         <div class="row md-mb-10">
           <div class="col-md-12">
+            {{ filter.form.owner }}
+          </div>
+        </div>
+
+        <div class="row md-mb-10">
+          <div class="col-md-12">
             {{ filter.form.status }}
           </div>
         </div>
-      
+
         <div class="row md-mb-10">
           <div class="col-md-12">
-            {{ filter.form.firefox_channel }} 
+            {{ filter.form.firefox_channel }}
           </div>
         </div>
-        
+
         <div class="row md-mb-10">
           <div class="col-md-12">
             {{ filter.form.firefox_version }}
@@ -113,7 +119,7 @@
             {{ filter.form.archived.label }}
           </label>
         </div>
-        
+
         <div class="row">
           <div class="col-md-12 text-right">
             <input type="submit" class="btn btn-info" value="Apply">

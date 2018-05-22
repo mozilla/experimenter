@@ -1,7 +1,8 @@
 import django_filters as filters
 from django import forms
-from django.shortcuts import redirect
+from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 from django.views.generic import CreateView, DetailView, UpdateView
 from django_filters.views import FilterView
 
@@ -39,6 +40,11 @@ class ExperimentFilterset(filters.FilterSet):
     archived = filters.BooleanFilter(
         label='Show archived experiments',
         widget=forms.CheckboxInput(),
+    )
+    owner = filters.ModelChoiceFilter(
+        empty_label='All Owners',
+        queryset=get_user_model().objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
     )
     status = filters.ChoiceFilter(
         empty_label='All Statuses',

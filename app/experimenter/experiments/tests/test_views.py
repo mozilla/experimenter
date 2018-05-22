@@ -10,6 +10,7 @@ from django.urls import reverse
 
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.openidc.tests.factories import UserFactory
 from experimenter.experiments.views import (
     ExperimentCreateView,
     ExperimentFilterset,
@@ -57,6 +58,24 @@ class TestExperimentFilterset(TestCase):
         self.assertEqual(
             set(filter.qs),
             set(Experiment.objects.all()),
+        )
+
+    def test_filters_by_owner(self):
+        owner = UserFactory.create()
+
+        for i in range(3):
+            ExperimentFactory.create_with_status(
+                Experiment.STATUS_DRAFT, owner=owner)
+            ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+
+        filter = ExperimentFilterset(
+            {'owner': owner.id},
+            queryset=Experiment.objects.all(),
+        )
+
+        self.assertEqual(
+            set(filter.qs),
+            set(Experiment.objects.filter(owner=owner)),
         )
 
     def test_filters_by_status(self):
@@ -180,6 +199,7 @@ class TestExperimentListView(TestCase):
     def test_list_view_filters_and_orders_experiments(self):
         user_email = 'user@example.com'
 
+        owner = UserFactory.create()
         ordering = 'latest_change'
         filtered_status = Experiment.STATUS_DRAFT
         filtered_version = Experiment.VERSION_CHOICES[1][0]
@@ -190,6 +210,7 @@ class TestExperimentListView(TestCase):
                 target_status=filtered_status,
                 firefox_version=filtered_version,
                 firefox_channel=filtered_channel,
+                owner=owner,
             )
 
         for i in range(10):
@@ -200,12 +221,14 @@ class TestExperimentListView(TestCase):
             status=filtered_status,
             firefox_version=filtered_version,
             firefox_channel=filtered_channel,
+            owner=owner,
         ).order_by(ordering)
 
         response = self.client.get(
             '{url}?{params}'.format(
                 url=reverse('home'),
                 params=urlencode({
+                    'owner': owner.id,
                     'status': filtered_status,
                     'firefox_version': filtered_version,
                     'firefox_channel': filtered_channel,
