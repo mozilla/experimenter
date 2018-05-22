@@ -24,7 +24,7 @@
     </a>
   </li>
 
-  <li class="li-nav {% if step == 3 %}active{% endif %} {% if not object.completed_variants %}disabled{% endif %}">
+  <li class="li-nav {% if step == 3 %}active{% endif %} {% if not object.completed_overview %}disabled{% endif %}">
     <a {% if object %}href="{% url "experiments-objectives-update" slug=object.slug %}"{% endif %}>
       <h4 class="list-group-item-heading">
         3. Objectives &amp; Analysis
@@ -36,7 +36,7 @@
     </a>
   </li>
 
-  <li class="li-nav {% if step == 4 %}active{% endif %} {% if not object.completed_risks %}disabled{% endif %}">
+  <li class="li-nav {% if step == 4 %}active{% endif %} {% if not object.completed_overview %}disabled{% endif %}">
     <a {% if object %}href="{% url "experiments-risks-update" slug=object.slug %}"{% endif %}>
       <h4 class="list-group-item-heading">
         4. Risks &amp; Testing 
