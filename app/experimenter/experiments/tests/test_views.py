@@ -60,6 +60,24 @@ class TestExperimentFilterset(TestCase):
             set(Experiment.objects.all()),
         )
 
+    def test_filters_by_project(self):
+        project = ProjectFactory.create()
+
+        for i in range(3):
+            ExperimentFactory.create_with_status(
+                Experiment.STATUS_DRAFT, project=project)
+            ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+
+        filter = ExperimentFilterset(
+            {'project': project.id},
+            queryset=Experiment.objects.all(),
+        )
+
+        self.assertEqual(
+            set(filter.qs),
+            set(Experiment.objects.filter(project=project)),
+        )
+
     def test_filters_by_owner(self):
         owner = UserFactory.create()
 
@@ -199,18 +217,20 @@ class TestExperimentListView(TestCase):
     def test_list_view_filters_and_orders_experiments(self):
         user_email = 'user@example.com'
 
-        owner = UserFactory.create()
         ordering = 'latest_change'
+        filtered_channel = Experiment.CHANNEL_CHOICES[1][0]
+        filtered_owner = UserFactory.create()
+        filtered_project = ProjectFactory.create()
         filtered_status = Experiment.STATUS_DRAFT
         filtered_version = Experiment.VERSION_CHOICES[1][0]
-        filtered_channel = Experiment.CHANNEL_CHOICES[1][0]
 
         for i in range(10):
             ExperimentFactory.create_with_status(
-                target_status=filtered_status,
-                firefox_version=filtered_version,
                 firefox_channel=filtered_channel,
-                owner=owner,
+                firefox_version=filtered_version,
+                owner=filtered_owner,
+                project=filtered_project,
+                target_status=filtered_status,
             )
 
         for i in range(10):
@@ -218,21 +238,23 @@ class TestExperimentListView(TestCase):
                 random.choice(Experiment.STATUS_CHOICES)[0])
 
         filtered_ordered_experiments = Experiment.objects.filter(
-            status=filtered_status,
-            firefox_version=filtered_version,
             firefox_channel=filtered_channel,
-            owner=owner,
+            firefox_version=filtered_version,
+            owner=filtered_owner,
+            project=filtered_project,
+            status=filtered_status,
         ).order_by(ordering)
 
         response = self.client.get(
             '{url}?{params}'.format(
                 url=reverse('home'),
                 params=urlencode({
-                    'owner': owner.id,
-                    'status': filtered_status,
-                    'firefox_version': filtered_version,
                     'firefox_channel': filtered_channel,
+                    'firefox_version': filtered_version,
                     'ordering': ordering,
+                    'owner': filtered_owner.id,
+                    'project': filtered_project.id,
+                    'status': filtered_status,
                 }),
             ),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
