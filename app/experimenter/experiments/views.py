@@ -6,6 +6,7 @@ from django.shortcuts import redirect
 from django.views.generic import CreateView, DetailView, UpdateView
 from django_filters.views import FilterView
 
+from experimenter.projects.models import Project
 from experimenter.experiments.forms import (
     ExperimentStatusForm,
     ExperimentObjectivesForm,
@@ -41,6 +42,11 @@ class ExperimentFilterset(filters.FilterSet):
         label='Show archived experiments',
         widget=forms.CheckboxInput(),
     )
+    project = filters.ModelChoiceFilter(
+        empty_label='All Projects',
+        queryset=Project.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
     owner = filters.ModelChoiceFilter(
         empty_label='All Owners',
         queryset=get_user_model().objects.all(),
@@ -69,6 +75,8 @@ class ExperimentFilterset(filters.FilterSet):
             'archived',
             'firefox_channel',
             'firefox_version',
+            'owner',
+            'project',
             'status',
         )
 
