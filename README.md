@@ -1,4 +1,4 @@
-# ![Logo](https://raw.githubusercontent.com/mozilla/experimenter/master/app/experimenter/static/imgs/favicon_24.png) Experimenter 
+# Mozilla Experimenter 
 [![CircleCI](https://circleci.com/gh/mozilla/experimenter.svg?style=svg)](https://circleci.com/gh/mozilla/experimenter)
 
 <p align="center">
@@ -8,6 +8,21 @@
 </p>
 
 Experimenter is a platform for managing experiments in [Mozilla Firefox](https://www.mozilla.org/en-US/firefox/?utm_medium=referral&utm_source=firefox-com). 
+
+## Deployments
+
+### Shared Dev
+
+[https://experimenter-app.dev.mozaws.net/](https://experimenter-app.dev.mozaws.net/)
+
+### Staging
+
+[https://experimenter.stage.mozaws.net/](https://experimenter.stage.mozaws.net/)
+
+### Production
+
+[https://experimenter.services.mozilla.com/](https://experimenter.services.mozilla.com/)
+
 
 ## What is an experiment?
 
