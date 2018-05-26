@@ -14,7 +14,8 @@ class OpenIDCAuthMiddlewareTests(TestCase):
         self.middleware = OpenIDCAuthMiddleware()
 
         mock_resolve_patcher = mock.patch(
-            'experimenter.openidc.middleware.resolve')
+            "experimenter.openidc.middleware.resolve"
+        )
         self.mock_resolve = mock_resolve_patcher.start()
         self.addCleanup(mock_resolve_patcher.stop)
 
@@ -24,11 +25,13 @@ class OpenIDCAuthMiddlewareTests(TestCase):
         self.assertTrue(Group.objects.all().exists())
         self.assertEqual(group.permissions.all().count(), 12)
         self.assertEqual(
-            set([
-                permission.content_type.app_label for
-                permission in group.permissions.all()
-            ]),
-            set(['projects', 'experiments']),
+            set(
+                [
+                    permission.content_type.app_label
+                    for permission in group.permissions.all()
+                ]
+            ),
+            set(["projects", "experiments"]),
         )
 
     def test_get_group_only_creates_one_group(self):
@@ -40,8 +43,8 @@ class OpenIDCAuthMiddlewareTests(TestCase):
 
     def test_whitelisted_url_is_not_authed(self):
         request = mock.Mock()
-        request.path = '/whitelisted-view/'
-        whitelisted_view_name = 'whitelisted-view'
+        request.path = "/whitelisted-view/"
+        whitelisted_view_name = "whitelisted-view"
 
         with self.settings(OPENIDC_AUTH_WHITELIST=[whitelisted_view_name]):
             mock_view = mock.Mock()
@@ -53,8 +56,7 @@ class OpenIDCAuthMiddlewareTests(TestCase):
 
     def test_404_path_forces_authentication(self):
         request = mock.Mock()
-        request.META = {
-        }
+        request.META = {}
 
         self.mock_resolve.side_effect = Resolver404
 
@@ -63,8 +65,7 @@ class OpenIDCAuthMiddlewareTests(TestCase):
 
     def test_request_missing_headers_raises_401(self):
         request = mock.Mock()
-        request.META = {
-        }
+        request.META = {}
 
         with self.settings(OPENIDC_AUTH_WHITELIST=[]):
             response = self.middleware.process_request(request)
@@ -72,12 +73,10 @@ class OpenIDCAuthMiddlewareTests(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_user_created_with_correct_email_from_header(self):
-        user_email = 'user@example.com'
+        user_email = "user@example.com"
 
         request = mock.Mock()
-        request.META = {
-            settings.OPENIDC_EMAIL_HEADER: user_email,
-        }
+        request.META = {settings.OPENIDC_EMAIL_HEADER: user_email}
 
         self.assertEqual(User.objects.all().count(), 0)
 

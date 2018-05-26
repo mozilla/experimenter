@@ -8,19 +8,15 @@ from experimenter.experiments.api_views import (
 
 
 urlpatterns = [
+    url(r"^$", ExperimentListView.as_view(), name="experiments-api-list"),
     url(
-        r'^$',
-        ExperimentListView.as_view(),
-        name='experiments-api-list',
-    ),
-    url(
-        r'^(?P<slug>[\w-]+)/accept/$',
+        r"^(?P<slug>[\w-]+)/accept/$",
         ExperimentAcceptView.as_view(),
-        name='experiments-api-accept',
+        name="experiments-api-accept",
     ),
     url(
-        r'^(?P<slug>[\w-]+)/reject/$',
+        r"^(?P<slug>[\w-]+)/reject/$",
         ExperimentRejectView.as_view(),
-        name='experiments-api-reject',
+        name="experiments-api-reject",
     ),
 ]

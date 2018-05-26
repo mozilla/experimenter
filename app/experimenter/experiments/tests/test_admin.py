@@ -29,8 +29,8 @@ class ControlVariantModelFormTests(TestCase):
         experiment = ExperimentFactory.create()
 
         variant_data = ExperimentControlFactory.attributes()
-        variant_data['experiment'] = experiment.id
-        variant_data['is_control'] = False
+        variant_data["experiment"] = experiment.id
+        variant_data["is_control"] = False
 
         form = ControlVariantModelForm(data=variant_data)
 
@@ -86,5 +86,6 @@ class ExperimentAdminTest(TestCase):
         self.assertEqual(
             experiment_admin.show_dashboard_url(experiment),
             '<a href="{url}" target="_blank">{url}</a>'.format(
-                url=experiment.dashboard_url)
+                url=experiment.dashboard_url
+            ),
         )

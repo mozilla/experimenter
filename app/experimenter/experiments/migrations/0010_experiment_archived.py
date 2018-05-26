@@ -7,14 +7,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('experiments', '0009_experiment_owner'),
-    ]
+    dependencies = [("experiments", "0009_experiment_owner")]
 
     operations = [
         migrations.AddField(
-            model_name='experiment',
-            name='archived',
+            model_name="experiment",
+            name="archived",
             field=models.BooleanField(default=False),
-        ),
+        )
     ]

@@ -18,13 +18,15 @@ class OpenIDCAuthMiddleware(object):
 
     def get_experimenter_group(self):
         experimenter_group, created = Group.objects.get_or_create(
-            name='Experimenters')
+            name="Experimenters"
+        )
 
         if created:
-            apps = ('projects', 'experiments')
+            apps = ("projects", "experiments")
             content_types = ContentType.objects.filter(app_label__in=apps)
             permissions = Permission.objects.filter(
-                content_type__in=content_types)
+                content_type__in=content_types
+            )
             experimenter_group.permissions.add(*permissions)
 
         return experimenter_group
@@ -45,7 +47,8 @@ class OpenIDCAuthMiddleware(object):
             # If a user has bypassed the OpenIDC flow entirely and no header
             # is set then we reject the request entirely
             return HttpResponse(
-                'Please login using OpenID Connect', status=401)
+                "Please login using OpenID Connect", status=401
+            )
 
         try:
             user = User.objects.get(username=openidc_email)
@@ -62,7 +65,7 @@ class OpenIDCAuthMiddleware(object):
 class OpenIDCRestFrameworkAuthenticator(SessionAuthentication):
 
     def authenticate(self, request):
-        authenticated_user = getattr(request._request, 'user', None)
+        authenticated_user = getattr(request._request, "user", None)
 
         if authenticated_user:
             return (authenticated_user, None)

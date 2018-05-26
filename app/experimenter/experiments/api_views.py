@@ -2,20 +2,18 @@ from rest_framework.generics import ListAPIView, UpdateAPIView
 from rest_framework.response import Response
 
 from experimenter.experiments.models import Experiment, ExperimentChangeLog
-from experimenter.experiments.serializers import (
-    ExperimentSerializer,
-)
+from experimenter.experiments.serializers import ExperimentSerializer
 
 
 class ExperimentListView(ListAPIView):
-    filter_fields = ('project__slug', 'status')
+    filter_fields = ("project__slug", "status")
     queryset = Experiment.objects.all()
     serializer_class = ExperimentSerializer
 
 
 class ExperimentAcceptView(UpdateAPIView):
+    lookup_field = "slug"
     queryset = Experiment.objects.filter(status=Experiment.STATUS_REVIEW)
-    lookup_field = 'slug'
 
     def update(self, request, *args, **kwargs):
         experiment = self.get_object()
@@ -36,8 +34,8 @@ class ExperimentAcceptView(UpdateAPIView):
 
 
 class ExperimentRejectView(UpdateAPIView):
+    lookup_field = "slug"
     queryset = Experiment.objects.filter(status=Experiment.STATUS_REVIEW)
-    lookup_field = 'slug'
 
     def update(self, request, *args, **kwargs):
         experiment = self.get_object()
@@ -52,7 +50,7 @@ class ExperimentRejectView(UpdateAPIView):
             old_status=old_status,
             new_status=experiment.status,
             changed_by=self.request.user,
-            message=self.request.data.get('message', ''),
+            message=self.request.data.get("message", ""),
         )
 
         return Response()

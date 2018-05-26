@@ -16,18 +16,16 @@ class ExperimentManager(models.Manager):
 
     def get_queryset(self):
         return (
-            super().get_queryset()
-            .annotate(latest_change=Max('changes__changed_on'))
+            super()
+            .get_queryset()
+            .annotate(latest_change=Max("changes__changed_on"))
         )
 
 
 class Experiment(ExperimentConstants, models.Model):
     owner = models.ForeignKey(get_user_model(), blank=True, null=True)
     project = models.ForeignKey(
-        'projects.Project',
-        blank=True,
-        null=True,
-        related_name='experiments',
+        "projects.Project", blank=True, null=True, related_name="experiments"
     )
     status = models.CharField(
         max_length=255,
@@ -36,10 +34,12 @@ class Experiment(ExperimentConstants, models.Model):
     )
     archived = models.BooleanField(default=False)
     name = models.CharField(
-        max_length=255, unique=True, blank=False, null=False)
+        max_length=255, unique=True, blank=False, null=False
+    )
     slug = models.SlugField(
-        max_length=255, unique=True, blank=False, null=False)
-    short_description = models.TextField(default='', blank=True, null=True)
+        max_length=255, unique=True, blank=False, null=False
+    )
+    short_description = models.TextField(default="", blank=True, null=True)
     proposed_start_date = models.DateField(blank=True, null=True)
     proposed_end_date = models.DateField(blank=True, null=True)
     pref_key = models.CharField(max_length=255, blank=True, null=True)
@@ -56,30 +56,40 @@ class Experiment(ExperimentConstants, models.Model):
         null=True,
     )
     population_percent = models.DecimalField(
-        max_digits=7, decimal_places=4, default='0')
+        max_digits=7, decimal_places=4, default="0"
+    )
     firefox_version = models.CharField(
-        max_length=255, choices=ExperimentConstants.VERSION_CHOICES)
+        max_length=255, choices=ExperimentConstants.VERSION_CHOICES
+    )
     firefox_channel = models.CharField(
-        max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES)
-    client_matching = models.TextField(default='', blank=True)
+        max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES
+    )
+    client_matching = models.TextField(default="", blank=True)
     objectives = models.TextField(
-        default=ExperimentConstants.OBJECTIVES_DEFAULT, blank=True, null=True)
+        default=ExperimentConstants.OBJECTIVES_DEFAULT, blank=True, null=True
+    )
     analysis = models.TextField(
-        default=ExperimentConstants.ANALYSIS_DEFAULT, blank=True, null=True)
+        default=ExperimentConstants.ANALYSIS_DEFAULT, blank=True, null=True
+    )
     risk_partner_related = models.NullBooleanField(
-        default=None, blank=True, null=True)
-    risk_brand = models.NullBooleanField(
-        default=None, blank=True, null=True)
+        default=None, blank=True, null=True
+    )
+    risk_brand = models.NullBooleanField(default=None, blank=True, null=True)
     risk_fast_shipped = models.NullBooleanField(
-        default=None, blank=True, null=True)
+        default=None, blank=True, null=True
+    )
     risk_confidential = models.NullBooleanField(
-        default=None, blank=True, null=True)
+        default=None, blank=True, null=True
+    )
     risk_release_population = models.NullBooleanField(
-        default=None, blank=True, null=True)
+        default=None, blank=True, null=True
+    )
     risks = models.TextField(
-        default=ExperimentConstants.RISKS_DEFAULT, blank=True, null=True)
+        default=ExperimentConstants.RISKS_DEFAULT, blank=True, null=True
+    )
     testing = models.TextField(
-        default=ExperimentConstants.TESTING_DEFAULT, blank=True, null=True)
+        default=ExperimentConstants.TESTING_DEFAULT, blank=True, null=True
+    )
     total_users = models.PositiveIntegerField(default=0)
     enrollment_dashboard_url = models.URLField(blank=True, null=True)
     dashboard_url = models.URLField(blank=True, null=True)
@@ -91,8 +101,8 @@ class Experiment(ExperimentConstants, models.Model):
         return self.name
 
     class Meta:
-        verbose_name = 'Experiment'
-        verbose_name_plural = 'Experiments'
+        verbose_name = "Experiment"
+        verbose_name_plural = "Experiments"
 
     @cached_property
     def control(self):
@@ -120,8 +130,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     def _transition_date(self, start_state, end_state):
         change = self.changes.filter(
-            old_status=start_state,
-            new_status=end_state,
+            old_status=start_state, new_status=end_state
         )
 
         if change.count() == 1:
@@ -129,7 +138,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def population(self):
-        return '{percent:g}% of {channel} Firefox {version}'.format(
+        return "{percent:g}% of {channel} Firefox {version}".format(
             percent=float(self.population_percent),
             version=self.firefox_version,
             channel=self.firefox_channel,
@@ -137,50 +146,43 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def start_date(self):
-        return self._transition_date(
-            self.STATUS_ACCEPTED,
-            self.STATUS_LIVE,
-        )
+        return self._transition_date(self.STATUS_ACCEPTED, self.STATUS_LIVE)
 
     @property
     def end_date(self):
-        return self._transition_date(
-            self.STATUS_LIVE,
-            self.STATUS_COMPLETE,
-        )
+        return self._transition_date(self.STATUS_LIVE, self.STATUS_COMPLETE)
 
     @property
     def experiment_slug(self):
-        return 'pref-flip-{project_slug}-{experiment_slug}'.format(
-            project_slug=self.project.slug,
-            experiment_slug=self.slug,
+        return "pref-flip-{project_slug}-{experiment_slug}".format(
+            project_slug=self.project.slug, experiment_slug=self.slug
         )
 
     @property
     def experiment_url(self):
         return urljoin(
-            'https://{host}'.format(host=settings.HOSTNAME),
-            reverse('experiments-detail', args=[self.slug])
+            "https://{host}".format(host=settings.HOSTNAME),
+            reverse("experiments-detail", args=[self.slug]),
         )
 
     @property
     def accept_url(self):
         return urljoin(
-            'https://{host}'.format(host=settings.HOSTNAME),
-            reverse('experiments-api-accept', kwargs={'slug': self.slug})
+            "https://{host}".format(host=settings.HOSTNAME),
+            reverse("experiments-api-accept", kwargs={"slug": self.slug}),
         )
 
     @property
     def reject_url(self):
         return urljoin(
-            'https://{host}'.format(host=settings.HOSTNAME),
-            reverse('experiments-api-reject', kwargs={'slug': self.slug})
+            "https://{host}".format(host=settings.HOSTNAME),
+            reverse("experiments-api-reject", kwargs={"slug": self.slug}),
         )
 
     @property
     def test_tube_url(self):
         return (
-            'https://firefox-test-tube.herokuapp.com/experiments/{slug}/'
+            "https://firefox-test-tube.herokuapp.com/experiments/{slug}/"
         ).format(slug=self.slug)
 
     @property
@@ -208,36 +210,35 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def completed_objectives(self):
         return (
-            self.objectives != self.OBJECTIVES_DEFAULT and
-            self.analysis != self.ANALYSIS_DEFAULT
+            self.objectives != self.OBJECTIVES_DEFAULT
+            and self.analysis != self.ANALYSIS_DEFAULT
         )
 
     @property
     def completed_risks(self):
         return (
-            None not in self._risk_questions and
-            self.testing != self.TESTING_DEFAULT
+            None not in self._risk_questions
+            and self.testing != self.TESTING_DEFAULT
         )
 
     @property
     def is_ready_for_review(self):
         return (
-            self.completed_overview and
-            self.completed_variants and
-            self.completed_objectives and
-            self.completed_risks
+            self.completed_overview
+            and self.completed_variants
+            and self.completed_objectives
+            and self.completed_risks
         )
 
 
 class ExperimentVariant(models.Model):
     experiment = models.ForeignKey(
-        Experiment, blank=False, null=False, related_name='variants')
-    name = models.CharField(
-        max_length=255, blank=False, null=False)
-    slug = models.SlugField(
-        max_length=255, blank=False, null=False)
+        Experiment, blank=False, null=False, related_name="variants"
+    )
+    name = models.CharField(max_length=255, blank=False, null=False)
+    slug = models.SlugField(max_length=255, blank=False, null=False)
     is_control = models.BooleanField(default=False)
-    description = models.TextField(default='')
+    description = models.TextField(default="")
     ratio = models.PositiveIntegerField(default=1)
     value = JSONField(default=False)
 
@@ -245,34 +246,32 @@ class ExperimentVariant(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = 'Experiment Variant'
-        verbose_name_plural = 'Experiment Variants'
+        verbose_name = "Experiment Variant"
+        verbose_name_plural = "Experiment Variants"
         unique_together = (
-            ('slug', 'experiment'),
-            ('is_control', 'experiment'),
+            ("slug", "experiment"),
+            ("is_control", "experiment"),
         )
 
 
 class ExperimentChangeLogManager(models.Manager):
 
     def latest(self):
-        return self.all().order_by('-changed_on').first()
+        return self.all().order_by("-changed_on").first()
 
 
 class ExperimentChangeLog(models.Model):
-    STATUS_NONE_DRAFT = 'Created Draft'
-    STATUS_DRAFT_DRAFT = 'Edited Draft'
-    STATUS_DRAFT_REVIEW = 'Submitted for Review'
-    STATUS_REVIEW_DRAFT = 'Cancelled Review Request'
-    STATUS_REVIEW_ACCEPTED = 'Review Approved'
-    STATUS_REVIEW_REJECTED = 'Review Rejected'
-    STATUS_ACCEPTED_LIVE = 'Launched'
-    STATUS_LIVE_COMPLETE = 'Complete'
+    STATUS_NONE_DRAFT = "Created Draft"
+    STATUS_DRAFT_DRAFT = "Edited Draft"
+    STATUS_DRAFT_REVIEW = "Submitted for Review"
+    STATUS_REVIEW_DRAFT = "Cancelled Review Request"
+    STATUS_REVIEW_ACCEPTED = "Review Approved"
+    STATUS_REVIEW_REJECTED = "Review Rejected"
+    STATUS_ACCEPTED_LIVE = "Launched"
+    STATUS_LIVE_COMPLETE = "Complete"
 
     PRETTY_STATUS_LABELS = {
-        None: {
-            Experiment.STATUS_DRAFT: STATUS_NONE_DRAFT,
-        },
+        None: {Experiment.STATUS_DRAFT: STATUS_NONE_DRAFT},
         Experiment.STATUS_DRAFT: {
             Experiment.STATUS_DRAFT: STATUS_DRAFT_DRAFT,
             Experiment.STATUS_REVIEW: STATUS_DRAFT_REVIEW,
@@ -283,10 +282,10 @@ class ExperimentChangeLog(models.Model):
             Experiment.STATUS_REJECTED: STATUS_REVIEW_REJECTED,
         },
         Experiment.STATUS_ACCEPTED: {
-            Experiment.STATUS_LIVE: STATUS_ACCEPTED_LIVE,
+            Experiment.STATUS_LIVE: STATUS_ACCEPTED_LIVE
         },
         Experiment.STATUS_LIVE: {
-            Experiment.STATUS_COMPLETE: STATUS_LIVE_COMPLETE,
+            Experiment.STATUS_COMPLETE: STATUS_LIVE_COMPLETE
         },
     }
 
@@ -294,7 +293,8 @@ class ExperimentChangeLog(models.Model):
         return timezone.now()
 
     experiment = models.ForeignKey(
-        Experiment, blank=False, null=False, related_name='changes')
+        Experiment, blank=False, null=False, related_name="changes"
+    )
     changed_on = models.DateTimeField(default=current_datetime)
     changed_by = models.ForeignKey(get_user_model())
     old_status = models.CharField(
@@ -314,18 +314,19 @@ class ExperimentChangeLog(models.Model):
     objects = ExperimentChangeLogManager()
 
     class Meta:
-        verbose_name = 'Experiment Change Log'
-        verbose_name_plural = 'Experiment Change Logs'
-        ordering = ('changed_on',)
+        verbose_name = "Experiment Change Log"
+        verbose_name_plural = "Experiment Change Logs"
+        ordering = ("changed_on",)
 
     def __str__(self):  # pragma: no cover
-        return '{status} by {updater} on {datetime}'.format(
-          status=self.new_status,
-          updater=self.changed_by,
-          datetime=self.changed_on.date(),
+        return "{status} by {updater} on {datetime}".format(
+            status=self.new_status,
+            updater=self.changed_by,
+            datetime=self.changed_on.date(),
         )
 
     @property
     def pretty_status(self):
-        return self.PRETTY_STATUS_LABELS.get(
-            self.old_status, {}).get(self.new_status, '')
+        return self.PRETTY_STATUS_LABELS.get(self.old_status, {}).get(
+            self.new_status, ""
+        )

@@ -3,9 +3,14 @@ import datetime
 from django.test import TestCase
 
 from experimenter.experiments.models import (
-    Experiment, ExperimentVariant, ExperimentChangeLog)
+    Experiment,
+    ExperimentVariant,
+    ExperimentChangeLog,
+)
 from experimenter.experiments.tests.factories import (
-    ExperimentFactory, ExperimentChangeLogFactory)
+    ExperimentFactory,
+    ExperimentChangeLogFactory,
+)
 
 
 class TestExperimentManager(TestCase):
@@ -30,7 +35,7 @@ class TestExperimentManager(TestCase):
         )
 
         self.assertEqual(
-            list(Experiment.objects.order_by('-latest_change')),
+            list(Experiment.objects.order_by("-latest_change")),
             [experiment2, experiment1],
         )
 
@@ -41,7 +46,7 @@ class TestExperimentManager(TestCase):
         )
 
         self.assertEqual(
-            list(Experiment.objects.order_by('-latest_change')),
+            list(Experiment.objects.order_by("-latest_change")),
             [experiment1, experiment2],
         )
 
@@ -73,13 +78,15 @@ class TestExperimentModel(TestCase):
     def test_control_property_returns_experiment_control(self):
         experiment = ExperimentFactory.create_with_variants()
         control = ExperimentVariant.objects.get(
-            experiment=experiment, is_control=True)
+            experiment=experiment, is_control=True
+        )
         self.assertEqual(experiment.control, control)
 
     def test_variant_property_returns_experiment_variant(self):
         experiment = ExperimentFactory.create_with_variants()
         variant = ExperimentVariant.objects.get(
-            experiment=experiment, is_control=False)
+            experiment=experiment, is_control=False
+        )
         self.assertEqual(experiment.variant, variant)
 
     def test_experiment_with_created_status_is_not_readonly(self):
@@ -133,8 +140,7 @@ class TestExperimentModel(TestCase):
 
     def test_objectives_is_complete_with_non_defaults(self):
         experiment = ExperimentFactory.create(
-            objectives='Some objectives!',
-            analysis='Some analysis!',
+            objectives="Some objectives!", analysis="Some analysis!"
         )
         self.assertTrue(experiment.completed_objectives)
 
@@ -147,8 +153,7 @@ class TestExperimentModel(TestCase):
             risk_release_population=False,
         )
         self.assertEqual(
-            experiment._risk_questions,
-            (False, True, False, True, False),
+            experiment._risk_questions, (False, True, False, True, False)
         )
 
     def test_risk_not_completed_when_risk_questions_not_answered(self):
@@ -158,7 +163,7 @@ class TestExperimentModel(TestCase):
             risk_fast_shipped=None,
             risk_confidential=None,
             risk_release_population=None,
-            testing='A test plan!',
+            testing="A test plan!",
         )
         self.assertFalse(experiment.completed_risks)
 
@@ -180,7 +185,7 @@ class TestExperimentModel(TestCase):
             risk_fast_shipped=False,
             risk_confidential=True,
             risk_release_population=False,
-            testing='A test plan!',
+            testing="A test plan!",
         )
         self.assertTrue(experiment.completed_risks)
 
@@ -204,11 +209,11 @@ class TestExperimentModel(TestCase):
 
     def test_is_high_risk_if_any_risk_questions_are_true(self):
         risk_fields = (
-            'risk_partner_related',
-            'risk_brand',
-            'risk_fast_shipped',
-            'risk_confidential',
-            'risk_release_population',
+            "risk_partner_related",
+            "risk_brand",
+            "risk_fast_shipped",
+            "risk_confidential",
+            "risk_release_population",
         )
 
         for true_risk_field in risk_fields:
@@ -220,34 +225,31 @@ class TestExperimentModel(TestCase):
 
     def test_experiment_population_returns_correct_string(self):
         experiment = ExperimentFactory(
-            population_percent='0.5',
-            firefox_version='57.0',
-            firefox_channel='Nightly',
+            population_percent="0.5",
+            firefox_version="57.0",
+            firefox_channel="Nightly",
         )
-        self.assertEqual(
-            experiment.population,
-            '0.5% of Nightly Firefox 57.0'
-        )
+        self.assertEqual(experiment.population, "0.5% of Nightly Firefox 57.0")
 
     def test_test_tube_link_is_correct(self):
-        experiment = ExperimentFactory.create(slug='experiment')
+        experiment = ExperimentFactory.create(slug="experiment")
         self.assertEqual(
             experiment.test_tube_url,
-            'https://firefox-test-tube.herokuapp.com/experiments/experiment/',
+            "https://firefox-test-tube.herokuapp.com/experiments/experiment/",
         )
 
     def test_accept_url_is_correct(self):
-        experiment = ExperimentFactory.create(slug='experiment')
+        experiment = ExperimentFactory.create(slug="experiment")
         self.assertEqual(
             experiment.accept_url,
-            'https://localhost/api/v1/experiments/experiment/accept/',
+            "https://localhost/api/v1/experiments/experiment/accept/",
         )
 
     def test_reject_url_is_correct(self):
-        experiment = ExperimentFactory.create(slug='experiment')
+        experiment = ExperimentFactory.create(slug="experiment")
         self.assertEqual(
             experiment.reject_url,
-            'https://localhost/api/v1/experiments/experiment/reject/',
+            "https://localhost/api/v1/experiments/experiment/reject/",
         )
 
 
@@ -280,14 +282,15 @@ class TestExperimentChangeLogManager(TestCase):
 
         for old_status in ExperimentChangeLog.PRETTY_STATUS_LABELS.keys():
             for new_status in ExperimentChangeLog.PRETTY_STATUS_LABELS[
-                    old_status].keys():
+                old_status
+            ].keys():
                 expected_label = ExperimentChangeLog.PRETTY_STATUS_LABELS[
-                    old_status][new_status]
+                    old_status
+                ][new_status]
 
                 changelog = ExperimentChangeLogFactory.create(
                     experiment=experiment,
                     old_status=old_status,
                     new_status=new_status,
                 )
-                self.assertEqual(
-                    changelog.pretty_status, expected_label)
+                self.assertEqual(changelog.pretty_status, expected_label)
