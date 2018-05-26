@@ -7,19 +7,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('experiments', '0002_auto_20171115_1918'),
-    ]
+    dependencies = [("experiments", "0002_auto_20171115_1918")]
 
     operations = [
         migrations.AlterField(
-            model_name='experiment',
-            name='client_matching',
-            field=models.TextField(blank=True, default=''),
+            model_name="experiment",
+            name="client_matching",
+            field=models.TextField(blank=True, default=""),
         ),
         migrations.AlterField(
-            model_name='experiment',
-            name='pref_branch',
-            field=models.CharField(choices=[('default', 'default'), ('user', 'user')], default='default', max_length=255),
+            model_name="experiment",
+            name="pref_branch",
+            field=models.CharField(
+                choices=[("default", "default"), ("user", "user")],
+                default="default",
+                max_length=255,
+            ),
         ),
     ]

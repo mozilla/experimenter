@@ -9,21 +9,27 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('projects', '0001_initial'),
-    ]
+    dependencies = [("projects", "0001_initial")]
 
     operations = [
         migrations.CreateModel(
-            name='Project',
+            name="Project",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('slug', models.SlugField(max_length=255, unique=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("slug", models.SlugField(max_length=255, unique=True)),
             ],
             options={
-                'verbose_name_plural': 'Projects',
-                'verbose_name': 'Project',
+                "verbose_name_plural": "Projects",
+                "verbose_name": "Project",
             },
-        ),
+        )
     ]

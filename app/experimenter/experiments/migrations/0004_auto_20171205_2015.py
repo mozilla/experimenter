@@ -8,24 +8,24 @@ import experimenter.experiments.models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('experiments', '0003_auto_20171120_2205'),
-    ]
+    dependencies = [("experiments", "0003_auto_20171120_2205")]
 
     operations = [
         migrations.AddField(
-            model_name='experiment',
-            name='enrollment_dashboard_url',
+            model_name="experiment",
+            name="enrollment_dashboard_url",
             field=models.URLField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='experiment',
-            name='total_users',
+            model_name="experiment",
+            name="total_users",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='experimentchangelog',
-            name='changed_on',
-            field=models.DateTimeField(default=experimenter.experiments.models.ExperimentChangeLog.current_datetime),
+            model_name="experimentchangelog",
+            name="changed_on",
+            field=models.DateTimeField(
+                default=experimenter.experiments.models.ExperimentChangeLog.current_datetime
+            ),
         ),
     ]

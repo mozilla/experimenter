@@ -12,9 +12,7 @@ from experimenter.experiments.models import (
 class BaseVariantInlineAdmin(admin.StackedInline):
     max_num = 1
     model = ExperimentVariant
-    prepopulated_fields = {
-      'slug': ('name',)
-    }
+    prepopulated_fields = {"slug": ("name",)}
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -32,34 +30,34 @@ class ControlVariantModelForm(forms.ModelForm):
 
 
 class ControlVariantInlineAdmin(BaseVariantInlineAdmin):
+    fields = ("name", "slug", "ratio", "description", "value")
     form = ControlVariantModelForm
-    verbose_name = 'Control Variant'
-    verbose_name_plural = 'Control Variant'
-    fields = ('name', 'slug', 'ratio', 'description', 'value')
+    verbose_name = "Control Variant"
+    verbose_name_plural = "Control Variant"
 
     def get_queryset(self, request):
         return super().get_queryset(request).filter(is_control=True)
 
 
 class ExperimentVariantInlineAdmin(BaseVariantInlineAdmin):
-    verbose_name = 'Experiment Variant'
-    verbose_name_plural = 'Experiment Variant'
-    fields = ('name', 'slug', 'ratio', 'description', 'value')
+    fields = ("name", "slug", "ratio", "description", "value")
+    verbose_name = "Experiment Variant"
+    verbose_name_plural = "Experiment Variant"
 
     def get_queryset(self, request):
         return super().get_queryset(request).filter(is_control=False)
 
 
 class ExperimentChangeLogInlineAdmin(admin.TabularInline):
-    model = ExperimentChangeLog
     extra = 1
+    model = ExperimentChangeLog
 
     fields = (
-        'changed_by',
-        'changed_on',
-        'old_status',
-        'new_status',
-        'message',
+        "changed_by",
+        "changed_on",
+        "old_status",
+        "new_status",
+        "message",
     )
 
 
@@ -69,61 +67,68 @@ class ExperimentAdmin(admin.ModelAdmin):
         ExperimentVariantInlineAdmin,
         ExperimentChangeLogInlineAdmin,
     )
-    list_display = (
-        'name', 'project', 'status')
+    list_display = ("name", "project", "status")
 
     fieldsets = (
-        ('Overview', {
-            'fields': (
-                'archived',
-                'owner',
-                'project',
-                'status',
-                'name',
-                'slug',
-                'short_description',
-                'proposed_start_date',
-                'proposed_end_date',
-            ),
-        }),
-        ('Client Config', {
-            'fields': (
-                'pref_key',
-                'pref_type',
-                'pref_branch',
-                'firefox_channel',
-                'firefox_version',
-                'population_percent',
-                'client_matching',
-            ),
-        }),
-        ('Notes', {
-            'fields': ('objectives', 'analysis'),
-        }),
-        ('Risks & Testing', {
-            'fields': (
-                'risk_partner_related',
-                'risk_brand',
-                'risk_fast_shipped',
-                'risk_confidential',
-                'risk_release_population',
-                'risks',
-                'testing',
-            ),
-        }),
-        ('Telemetry', {
-            'fields': (
-                'dashboard_url',
-                'dashboard_image_url',
-                'enrollment_dashboard_url',
-                'total_users',
-            ),
-        }),
+        (
+            "Overview",
+            {
+                "fields": (
+                    "archived",
+                    "owner",
+                    "project",
+                    "status",
+                    "name",
+                    "slug",
+                    "short_description",
+                    "proposed_start_date",
+                    "proposed_end_date",
+                )
+            },
+        ),
+        (
+            "Client Config",
+            {
+                "fields": (
+                    "pref_key",
+                    "pref_type",
+                    "pref_branch",
+                    "firefox_channel",
+                    "firefox_version",
+                    "population_percent",
+                    "client_matching",
+                )
+            },
+        ),
+        ("Notes", {"fields": ("objectives", "analysis")}),
+        (
+            "Risks & Testing",
+            {
+                "fields": (
+                    "risk_partner_related",
+                    "risk_brand",
+                    "risk_fast_shipped",
+                    "risk_confidential",
+                    "risk_release_population",
+                    "risks",
+                    "testing",
+                )
+            },
+        ),
+        (
+            "Telemetry",
+            {
+                "fields": (
+                    "dashboard_url",
+                    "dashboard_image_url",
+                    "enrollment_dashboard_url",
+                    "total_users",
+                )
+            },
+        ),
     )
 
-    prepopulated_fields = {
-      'slug': ('name',)
-    }
+    prepopulated_fields = {"slug": ("name",)}
 
     def get_actions(self, request):
         return []
@@ -134,9 +139,11 @@ class ExperimentAdmin(admin.ModelAdmin):
     def show_dashboard_url(self, obj):
         return format_html(
             '<a href="{url}" target="_blank">{url}</a>'.format(
-                url=obj.dashboard_url))
+                url=obj.dashboard_url
+            )
+        )
 
-    show_dashboard_url.short_description = 'Dashboard URL'
+    show_dashboard_url.short_description = "Dashboard URL"
 
 
 admin.site.register(Experiment, ExperimentAdmin)

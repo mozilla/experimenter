@@ -19,7 +19,10 @@ test: compose_build
 lint: compose_build
 	docker-compose run app flake8 .
 
-check: compose_build lint test
+black: compose_build
+	docker-compose run app black -l 79 .
+
+check: compose_build lint black test
 	echo "Success"
 
 makemigrations: compose_build

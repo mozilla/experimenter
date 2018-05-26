@@ -7,24 +7,24 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('projects', '0002_project'),
-    ]
+    dependencies = [("projects", "0002_project")]
 
     operations = [
         migrations.AddField(
-            model_name='project',
-            name='dashboard_image_url',
+            model_name="project",
+            name="dashboard_image_url",
             field=models.URLField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='project',
-            name='dashboard_url',
+            model_name="project",
+            name="dashboard_url",
             field=models.URLField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='project',
-            name='image',
-            field=models.FileField(blank=True, null=True, upload_to='projects/'),
+            model_name="project",
+            name="image",
+            field=models.FileField(
+                blank=True, null=True, upload_to="projects/"
+            ),
         ),
     ]

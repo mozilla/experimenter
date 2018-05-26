@@ -19,13 +19,14 @@ class TestExperimentListView(TestCase):
             experiment = ExperimentFactory.create_with_variants()
             experiments.append(experiment)
 
-        response = self.client.get(reverse('experiments-api-list'))
+        response = self.client.get(reverse("experiments-api-list"))
         self.assertEqual(response.status_code, 200)
 
         json_data = json.loads(response.content)
 
         serialized_experiments = ExperimentSerializer(
-            Experiment.objects.all(), many=True).data
+            Experiment.objects.all(), many=True
+        ).data
 
         self.assertEqual(serialized_experiments, json_data)
 
@@ -40,17 +41,20 @@ class TestExperimentListView(TestCase):
         # started project experiments should be included
         for i in range(3):
             experiment = ExperimentFactory.create_with_variants(
-                project=project)
+                project=project
+            )
             project_experiments.append(experiment)
 
         response = self.client.get(
-            reverse('experiments-api-list'), {'project__slug': project.slug})
+            reverse("experiments-api-list"), {"project__slug": project.slug}
+        )
         self.assertEqual(response.status_code, 200)
 
         json_data = json.loads(response.content)
 
         serialized_experiments = ExperimentSerializer(
-            project.experiments.all(), many=True).data
+            project.experiments.all(), many=True
+        ).data
 
         self.assertEqual(serialized_experiments, json_data)
 
@@ -69,16 +73,17 @@ class TestExperimentListView(TestCase):
             pending_experiments.append(experiment)
 
         response = self.client.get(
-            reverse('experiments-api-list'),
-            {'status': Experiment.STATUS_REVIEW},
+            reverse("experiments-api-list"),
+            {"status": Experiment.STATUS_REVIEW},
         )
         self.assertEqual(response.status_code, 200)
 
         json_data = json.loads(response.content)
 
         serialized_experiments = ExperimentSerializer(
-            Experiment.objects.filter(
-                status=Experiment.STATUS_REVIEW), many=True).data
+            Experiment.objects.filter(status=Experiment.STATUS_REVIEW),
+            many=True,
+        ).data
 
         self.assertEqual(serialized_experiments, json_data)
 
@@ -86,7 +91,7 @@ class TestExperimentListView(TestCase):
 class TestExperimentAcceptView(TestCase):
 
     def test_post_to_accept_view_sets_status_accepted(self):
-        user_email = 'user@example.com'
+        user_email = "user@example.com"
 
         experiment = ExperimentFactory.create_with_variants()
         experiment.status = experiment.STATUS_REVIEW
@@ -94,7 +99,8 @@ class TestExperimentAcceptView(TestCase):
 
         response = self.client.patch(
             reverse(
-                'experiments-api-accept', kwargs={'slug': experiment.slug}),
+                "experiments-api-accept", kwargs={"slug": experiment.slug}
+            ),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
@@ -113,8 +119,9 @@ class TestExperimentAcceptView(TestCase):
 
         response = self.client.patch(
             reverse(
-                'experiments-api-accept', kwargs={'slug': experiment.slug}),
-            **{settings.OPENIDC_EMAIL_HEADER: 'user@example.com'},
+                "experiments-api-accept", kwargs={"slug": experiment.slug}
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: "user@example.com"},
         )
 
         self.assertEqual(response.status_code, 404)
@@ -123,8 +130,8 @@ class TestExperimentAcceptView(TestCase):
 class TestExperimentRejectView(TestCase):
 
     def test_post_to_reject_view_sets_status_rejected(self):
-        user_email = 'user@example.com'
-        rejection_message = 'This experiment was rejected for reasons.'
+        user_email = "user@example.com"
+        rejection_message = "This experiment was rejected for reasons."
 
         experiment = ExperimentFactory.create_with_variants()
         experiment.status = experiment.STATUS_REVIEW
@@ -132,9 +139,10 @@ class TestExperimentRejectView(TestCase):
 
         response = self.client.patch(
             reverse(
-                'experiments-api-reject', kwargs={'slug': experiment.slug}),
-            data=json.dumps({'message': rejection_message}),
-            content_type='application/json',
+                "experiments-api-reject", kwargs={"slug": experiment.slug}
+            ),
+            data=json.dumps({"message": rejection_message}),
+            content_type="application/json",
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
@@ -154,8 +162,9 @@ class TestExperimentRejectView(TestCase):
 
         response = self.client.patch(
             reverse(
-                'experiments-api-reject', kwargs={'slug': experiment.slug}),
-            **{settings.OPENIDC_EMAIL_HEADER: 'user@example.com'},
+                "experiments-api-reject", kwargs={"slug": experiment.slug}
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: "user@example.com"},
         )
 
         self.assertEqual(response.status_code, 404)

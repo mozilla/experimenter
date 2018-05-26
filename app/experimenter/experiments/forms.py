@@ -7,7 +7,10 @@ from django.utils.text import slugify
 from experimenter.projects.forms import AutoNameSlugFormMixin
 from experimenter.projects.models import Project
 from experimenter.experiments.models import (
-    Experiment, ExperimentVariant, ExperimentChangeLog)
+    Experiment,
+    ExperimentChangeLog,
+    ExperimentVariant,
+)
 from experimenter.experiments.constants import ExperimentConstants
 
 
@@ -20,7 +23,7 @@ class JSONField(forms.CharField):
             try:
                 json.loads(cleaned_value)
             except json.JSONDecodeError:
-                raise forms.ValidationError('This is not valid JSON.')
+                raise forms.ValidationError("This is not valid JSON.")
 
         return cleaned_value
 
@@ -30,8 +33,8 @@ class NameSlugMixin(object):
     def clean(self):
         cleaned_data = super().clean()
 
-        name = cleaned_data.get('name')
-        cleaned_data['slug'] = slugify(name)
+        name = cleaned_data.get("name")
+        cleaned_data["slug"] = slugify(name)
 
         return cleaned_data
 
@@ -39,46 +42,47 @@ class NameSlugMixin(object):
 class ControlVariantForm(NameSlugMixin, forms.ModelForm):
 
     description = forms.CharField(
-        label='Description',
+        label="Description",
         help_text=Experiment.CONTROL_DESCRIPTION_HELP_TEXT,
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
     )
     experiment = forms.ModelChoiceField(
-        queryset=Experiment.objects.all(), required=False)
+        queryset=Experiment.objects.all(), required=False
+    )
     is_control = forms.BooleanField(required=False)
     slug = forms.CharField(required=False)
     ratio = forms.IntegerField(
         required=False,
-        label='Variant Split',
-        initial='50',
+        label="Variant Split",
+        initial="50",
         help_text=Experiment.CONTROL_RATIO_HELP_TEXT,
         widget=forms.NumberInput(
-            attrs={'type': 'range', 'min': '1', 'max': '99', 'step': '1'}
-        )
+            attrs={"type": "range", "min": "1", "max": "99", "step": "1"}
+        ),
     )
     name = forms.CharField(
-        label='Name',
+        label="Name",
         help_text=Experiment.CONTROL_NAME_HELP_TEXT,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     value = JSONField(
-        label='Pref Value',
+        label="Pref Value",
         help_text=Experiment.CONTROL_VALUE_HELP_TEXT,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
-    prefix = 'control'
+    prefix = "control"
 
     class Meta:
         model = ExperimentVariant
         fields = [
-            'description',
-            'experiment',
-            'is_control',
-            'name',
-            'ratio',
-            'slug',
-            'value',
+            "description",
+            "experiment",
+            "is_control",
+            "name",
+            "ratio",
+            "slug",
+            "value",
         ]
 
     def clean_is_control(self):
@@ -89,36 +93,37 @@ class ExperimentalVariantForm(NameSlugMixin, forms.ModelForm):
 
     slug = forms.CharField(required=False)
     experiment = forms.ModelChoiceField(
-        required=False, queryset=Experiment.objects.all())
-    ratio = forms.IntegerField(required=False, initial='50')
+        required=False, queryset=Experiment.objects.all()
+    )
+    ratio = forms.IntegerField(required=False, initial="50")
     name = forms.CharField(
-        label='Name',
+        label="Name",
         help_text=Experiment.VARIANT_NAME_HELP_TEXT,
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     description = forms.CharField(
-        label='Description',
+        label="Description",
         help_text=Experiment.VARIANT_DESCRIPTION_HELP_TEXT,
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
     )
     value = JSONField(
-        label='Pref Value',
+        label="Pref Value",
         help_text=Experiment.VARIANT_VALUE_HELP_TEXT,
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
-    prefix = 'experimental'
+    prefix = "experimental"
 
     class Meta:
         model = ExperimentVariant
         fields = [
-            'slug',
-            'experiment',
-            'ratio',
-            'name',
-            'description',
-            'value',
-            'is_control',
+            "slug",
+            "experiment",
+            "ratio",
+            "name",
+            "description",
+            "value",
+            "is_control",
         ]
 
     def clean_is_control(self):
@@ -154,136 +159,134 @@ class ChangeLogMixin(object):
 
 
 class ExperimentOverviewForm(
-        AutoNameSlugFormMixin, ChangeLogMixin, forms.ModelForm):
+    AutoNameSlugFormMixin, ChangeLogMixin, forms.ModelForm
+):
 
     owner = forms.ModelChoiceField(
         required=False,
-        label='Owner',
+        label="Owner",
         help_text=Experiment.OWNER_HELP_TEXT,
         queryset=get_user_model().objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
     project = forms.ModelChoiceField(
         required=False,
-        label='Project',
+        label="Project",
         help_text=Experiment.PROJECT_HELP_TEXT,
         queryset=Project.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
     name = forms.CharField(
-        label='Name',
+        label="Name",
         help_text=Experiment.NAME_HELP_TEXT,
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     slug = forms.CharField(required=False)
     short_description = forms.CharField(
-        label='Short Description',
+        label="Short Description",
         help_text=Experiment.SHORT_DESCRIPTION_HELP_TEXT,
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
     )
     population_percent = forms.DecimalField(
-        label='Population Size',
+        label="Population Size",
         help_text=Experiment.POPULATION_PERCENT_HELP_TEXT,
-        initial='0.00',
-        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        initial="0.00",
+        widget=forms.NumberInput(attrs={"class": "form-control"}),
     )
     firefox_version = forms.ChoiceField(
         choices=Experiment.VERSION_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
     firefox_channel = forms.ChoiceField(
         choices=Experiment.CHANNEL_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
     client_matching = forms.CharField(
-        label='Population Filtering',
+        label="Population Filtering",
         help_text=Experiment.CLIENT_MATCHING_HELP_TEXT,
         initial=Experiment.CLIENT_MATCHING_DEFAULT,
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 10}),
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
     )
     proposed_start_date = forms.DateField(
-        label='Proposed Start Date',
+        label="Proposed Start Date",
         help_text=Experiment.PROPOSED_START_DATE_HELP_TEXT,
         widget=forms.DateInput(
-            attrs={'type': 'date', 'class': 'form-control'}),
+            attrs={"type": "date", "class": "form-control"}
+        ),
     )
     proposed_end_date = forms.DateField(
-        label='Proposed End Date',
+        label="Proposed End Date",
         help_text=Experiment.PROPOSED_END_DATE_HELP_TEXT,
         widget=forms.DateInput(
-            attrs={'type': 'date', 'class': 'form-control'}),
+            attrs={"type": "date", "class": "form-control"}
+        ),
     )
 
     class Meta:
         model = Experiment
         fields = [
-            'owner',
-            'project',
-            'name',
-            'slug',
-            'short_description',
-            'population_percent',
-            'firefox_version',
-            'firefox_channel',
-            'client_matching',
-            'proposed_start_date',
-            'proposed_end_date',
+            "owner",
+            "project",
+            "name",
+            "slug",
+            "short_description",
+            "population_percent",
+            "firefox_version",
+            "firefox_channel",
+            "client_matching",
+            "proposed_start_date",
+            "proposed_end_date",
         ]
 
     def clean_population_percent(self):
-        population_percent = self.cleaned_data['population_percent']
+        population_percent = self.cleaned_data["population_percent"]
 
         if not (0 < population_percent <= 100):
             raise forms.ValidationError(
-                'The population size must be between 0 and 100 percent.')
+                "The population size must be between 0 and 100 percent."
+            )
 
         return population_percent
 
 
 class ExperimentVariantsForm(ChangeLogMixin, forms.ModelForm):
     pref_key = forms.CharField(
-        label='Pref Name',
+        label="Pref Name",
         help_text=Experiment.PREF_KEY_HELP_TEXT,
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     pref_type = forms.ChoiceField(
-        label='Pref Type',
+        label="Pref Type",
         help_text=Experiment.PREF_TYPE_HELP_TEXT,
         choices=Experiment.PREF_TYPE_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
     pref_branch = forms.ChoiceField(
-        label='Pref Branch',
+        label="Pref Branch",
         help_text=Experiment.PREF_BRANCH_HELP_TEXT,
         choices=Experiment.PREF_BRANCH_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
 
     class Meta:
         model = Experiment
-        fields = [
-            'pref_key',
-            'pref_type',
-            'pref_branch',
-        ]
+        fields = ["pref_key", "pref_type", "pref_branch"]
 
     def __init__(self, data=None, instance=None, *args, **kwargs):
         super().__init__(data=data, instance=instance, *args, **kwargs)
 
         self.control_form = ControlVariantForm(
-            data=data,
-            instance=instance.control if instance else None,
+            data=data, instance=instance.control if instance else None
         )
         self.experimental_form = ExperimentalVariantForm(
-            data=data,
-            instance=instance.variant if instance else None,
+            data=data, instance=instance.variant if instance else None
         )
 
     def is_valid(self, *args, **kwargs):
         return (
-            super().is_valid(*args, **kwargs) and
-            self.control_form.is_valid(*args, **kwargs) and
-            self.experimental_form.is_valid(*args, **kwargs)
+            super().is_valid(*args, **kwargs)
+            and self.control_form.is_valid(*args, **kwargs)
+            and self.experimental_form.is_valid(*args, **kwargs)
         )
 
     def save(self, *args, **kwargs):
@@ -296,7 +299,8 @@ class ExperimentVariantsForm(ChangeLogMixin, forms.ModelForm):
         if self.experimental_form.instance.slug:
             self.experimental_form.instance.experiment = experiment
             self.experimental_form.instance.ratio = (
-                100 - self.control_form.instance.ratio)
+                100 - self.control_form.instance.ratio
+            )
             self.experimental_form.save(*args, **kwargs)
 
         return experiment
@@ -304,30 +308,27 @@ class ExperimentVariantsForm(ChangeLogMixin, forms.ModelForm):
 
 class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
     objectives = forms.CharField(
-        label='Objectives',
+        label="Objectives",
         help_text=Experiment.OBJECTIVES_HELP_TEXT,
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 20}),
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
     analysis = forms.CharField(
-        label='Analysis Plan',
+        label="Analysis Plan",
         help_text=Experiment.ANALYSIS_HELP_TEXT,
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 20}),
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
 
     class Meta:
         model = Experiment
-        fields = ('objectives', 'analysis')
+        fields = ("objectives", "analysis")
 
 
 class RadioWidget(forms.widgets.RadioSelect):
-    template_name = 'experiments/radio_widget.html'
+    template_name = "experiments/radio_widget.html"
 
 
 class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
-    RADIO_OPTIONS = (
-        (False, 'No'),
-        (True, 'Yes'),
-    )
+    RADIO_OPTIONS = ((False, "No"), (True, "Yes"))
 
     risk_partner_related = forms.ChoiceField(
         label=Experiment.RISK_PARTNER_RELATED_LABEL,
@@ -355,46 +356,48 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         widget=RadioWidget,
     )
     risks = forms.CharField(
-        label='Risks',
+        label="Risks",
         help_text=Experiment.RISKS_HELP_TEXT,
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 20}),
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
     testing = forms.CharField(
-        label='Test Plan',
+        label="Test Plan",
         help_text=Experiment.TESTING_HELP_TEXT,
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 20}),
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
 
     class Meta:
         model = Experiment
         fields = (
-            'risk_partner_related',
-            'risk_brand',
-            'risk_fast_shipped',
-            'risk_confidential',
-            'risk_release_population',
-            'risks',
-            'testing',
+            "risk_partner_related",
+            "risk_brand",
+            "risk_fast_shipped",
+            "risk_confidential",
+            "risk_release_population",
+            "risks",
+            "testing",
         )
 
 
 class ExperimentStatusForm(
-        ExperimentConstants, ChangeLogMixin, forms.ModelForm):
+    ExperimentConstants, ChangeLogMixin, forms.ModelForm
+):
 
     class Meta:
         model = Experiment
-        fields = ('status',)
+        fields = ("status",)
 
     def clean_status(self):
         old_status = self.instance.status
-        new_status = self.cleaned_data['status']
+        new_status = self.cleaned_data["status"]
         expected_new_status = new_status in self.STATUS_TRANSITIONS[old_status]
 
         if old_status != new_status and not expected_new_status:
-            raise forms.ValidationError((
-                'You can not change an Experiment\'s status '
-                'from {old_status} to {new_status}'
-            ).format(
-                old_status=old_status, new_status=new_status))
+            raise forms.ValidationError(
+                (
+                    "You can not change an Experiment's status "
+                    "from {old_status} to {new_status}"
+                ).format(old_status=old_status, new_status=new_status)
+            )
 
         return new_status

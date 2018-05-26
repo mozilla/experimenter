@@ -4,12 +4,12 @@ from django.core.urlresolvers import reverse_lazy
 
 class ExperimentConstants(object):
     # Status stuff
-    STATUS_DRAFT = 'Draft'
-    STATUS_REVIEW = 'Review'
-    STATUS_ACCEPTED = 'Accepted'
-    STATUS_LIVE = 'Live'
-    STATUS_COMPLETE = 'Complete'
-    STATUS_REJECTED = 'Rejected'
+    STATUS_DRAFT = "Draft"
+    STATUS_REVIEW = "Review"
+    STATUS_ACCEPTED = "Accepted"
+    STATUS_LIVE = "Live"
+    STATUS_COMPLETE = "Complete"
+    STATUS_REJECTED = "Rejected"
 
     STATUS_CHOICES = (
         (STATUS_DRAFT, STATUS_DRAFT),
@@ -21,83 +21,71 @@ class ExperimentConstants(object):
     )
 
     STATUS_TRANSITIONS = {
-        STATUS_DRAFT: [
-            STATUS_REVIEW,
-            STATUS_REJECTED,
-        ],
-        STATUS_REVIEW: [
-            STATUS_DRAFT,
-            STATUS_ACCEPTED,
-            STATUS_REJECTED,
-        ],
-        STATUS_ACCEPTED: [
-            STATUS_LIVE,
-            STATUS_REJECTED,
-        ],
-        STATUS_LIVE: [
-            STATUS_COMPLETE,
-        ],
-        STATUS_COMPLETE: [
-        ],
-        STATUS_REJECTED: [
-        ],
+        STATUS_DRAFT: [STATUS_REVIEW, STATUS_REJECTED],
+        STATUS_REVIEW: [STATUS_DRAFT, STATUS_ACCEPTED, STATUS_REJECTED],
+        STATUS_ACCEPTED: [STATUS_LIVE, STATUS_REJECTED],
+        STATUS_LIVE: [STATUS_COMPLETE],
+        STATUS_COMPLETE: [],
+        STATUS_REJECTED: [],
     }
 
     # Version stuff
     VERSION_CHOICES = (
-        (None, 'Firefox Version'),
-        ('55.0', 'Firefox 55.0'),
-        ('56.0', 'Firefox 56.0'),
-        ('57.0', 'Firefox 57.0'),
-        ('58.0', 'Firefox 58.0'),
-        ('59.0', 'Firefox 59.0'),
-        ('60.0', 'Firefox 60.0'),
-        ('61.0', 'Firefox 61.0'),
-        ('62.0', 'Firefox 62.0'),
-        ('63.0', 'Firefox 63.0'),
-        ('64.0', 'Firefox 64.0'),
+        (None, "Firefox Version"),
+        ("55.0", "Firefox 55.0"),
+        ("56.0", "Firefox 56.0"),
+        ("57.0", "Firefox 57.0"),
+        ("58.0", "Firefox 58.0"),
+        ("59.0", "Firefox 59.0"),
+        ("60.0", "Firefox 60.0"),
+        ("61.0", "Firefox 61.0"),
+        ("62.0", "Firefox 62.0"),
+        ("63.0", "Firefox 63.0"),
+        ("64.0", "Firefox 64.0"),
     )
 
     # Channel stuff
-    CHANNEL_NIGHTLY = 'Nightly'
-    CHANNEL_BETA = 'Beta'
-    CHANNEL_RELEASE = 'Release'
+    CHANNEL_NIGHTLY = "Nightly"
+    CHANNEL_BETA = "Beta"
+    CHANNEL_RELEASE = "Release"
 
     CHANNEL_CHOICES = (
-        (None, 'Firefox Channel'),
+        (None, "Firefox Channel"),
         (CHANNEL_NIGHTLY, CHANNEL_NIGHTLY),
         (CHANNEL_BETA, CHANNEL_BETA),
         (CHANNEL_RELEASE, CHANNEL_RELEASE),
     )
 
     # Pref stuff
-    PREF_TYPE_BOOL = 'boolean'
-    PREF_TYPE_INT = 'integer'
-    PREF_TYPE_STR = 'string'
+    PREF_TYPE_BOOL = "boolean"
+    PREF_TYPE_INT = "integer"
+    PREF_TYPE_STR = "string"
 
     PREF_TYPE_CHOICES = (
-        (None, 'Firefox Pref Type'),
+        (None, "Firefox Pref Type"),
         (PREF_TYPE_BOOL, PREF_TYPE_BOOL),
         (PREF_TYPE_INT, PREF_TYPE_INT),
         (PREF_TYPE_STR, PREF_TYPE_STR),
     )
 
-    PREF_BRANCH_USER = 'user'
-    PREF_BRANCH_DEFAULT = 'default'
+    PREF_BRANCH_USER = "user"
+    PREF_BRANCH_DEFAULT = "default"
     PREF_BRANCH_CHOICES = (
-        (None, 'Firefox Pref Branch'),
+        (None, "Firefox Pref Branch"),
         (PREF_BRANCH_DEFAULT, PREF_BRANCH_DEFAULT),
         (PREF_BRANCH_USER, PREF_BRANCH_USER),
     )
 
     # Labels
-    RISK_PARTNER_RELATED_LABEL = 'Is this study partner related?'
-    RISK_BRAND_LABEL = 'Does this have a high risk to the brand?'
+    RISK_PARTNER_RELATED_LABEL = "Is this study partner related?"
+    RISK_BRAND_LABEL = "Does this have a high risk to the brand?"
     RISK_FAST_SHIPPED_LABEL = (
-        'Does this need to be shipped outside the normal release process?')
-    RISK_CONFIDENTIAL_LABEL = 'Is this study confidential to Mozilla?'
+        "Does this need to be shipped outside the normal release process?"
+    )
+    RISK_CONFIDENTIAL_LABEL = "Is this study confidential to Mozilla?"
     RISK_RELEASE_POPULATION_LABEL = (
-        'Does this study affect a large number of Release users?')
+        "Does this study affect a large number of Release users?"
+    )
 
     # Help texts
     OWNER_HELP_TEXT = """
@@ -108,14 +96,17 @@ class ExperimentConstants(object):
       </p>
     """
 
-    PROJECT_HELP_TEXT = format_lazy("""
+    PROJECT_HELP_TEXT = format_lazy(
+        """
       <p>
         Choose which project this experiment belongs to.
         A project should correspond to a Firefox product or effort.
         If you do not see your project in this list, you can
         <a href="{project_create_url}">create one here</a>.
       </p>
-    """, project_create_url=reverse_lazy('projects-create'))
+    """,
+        project_create_url=reverse_lazy("projects-create"),
+    )
 
     NAME_HELP_TEXT = """
       <p>
@@ -231,8 +222,8 @@ class ExperimentConstants(object):
       <p><strong>Example:</strong> default</p>
     """.format(
         url=(
-            'https://developer.mozilla.org/en-US/docs/Archive/'
-            'Add-ons/Code_snippets/Preferences#Default_preferences'
+            "https://developer.mozilla.org/en-US/docs/Archive/"
+            "Add-ons/Code_snippets/Preferences#Default_preferences"
         )
     )
 
@@ -390,10 +381,11 @@ Prefs:
 Studies:
 
 Any additional filters:
-    """)
+    """
+    )
 
     OBJECTIVES_DEFAULT = (
-        'What is the objective of this study?  Explain in detail.'
+        "What is the objective of this study?  Explain in detail."
     )
 
     ANALYSIS_DEFAULT = (
@@ -406,7 +398,8 @@ Who is the owner of the data analysis for this study?
 
 Do you plan on surveying users at the end of the study? Yes/No.
 Strategy and Insights can help create surveys if needed
-    """)
+    """
+    )
 
     RISKS_DEFAULT = (
         """If you answered yes to any of the above, your study is considered
@@ -445,7 +438,8 @@ Accountable: Shield Team
 Risk Matrix
 Responsible: Experiment owner
 Accountable: Shield Team
-    """)
+    """
+    )
 
     TESTING_DEFAULT = (
         """QA Status of your code: Green, yellow, red.
@@ -453,4 +447,5 @@ Accountable: Shield Team
 
 If additional QA is required, provide a plan for
 testing each branch of this study:
-    """)
+    """
+    )

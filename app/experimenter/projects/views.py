@@ -8,10 +8,10 @@ from experimenter.projects.models import Project
 class ProjectEditMixin(object):
     model = Project
     form_class = ProjectForm
-    template_name = 'projects/edit.html'
+    template_name = "projects/edit.html"
 
     def get_success_url(self):
-        return reverse('projects-detail', kwargs={'slug': self.object.slug})
+        return reverse("projects-detail", kwargs={"slug": self.object.slug})
 
 
 class ProjectCreateView(ProjectEditMixin, CreateView):
@@ -24,9 +24,9 @@ class ProjectUpdateView(ProjectEditMixin, UpdateView):
 
 class ProjectListView(ListView):
     model = Project
-    template_name = 'projects/list.html'
+    template_name = "projects/list.html"
 
 
 class ProjectDetailView(DetailView):
     model = Project
-    template_name = 'projects/detail.html'
+    template_name = "projects/detail.html"
