@@ -179,20 +179,60 @@
       <div class="row card md-pt-15 md-pb-10">
         <div class="col-md-12">
           {% if experiment.completed_risks %}
-            <p><strong>{{ experiment.RISK_PARTNER_RELATED_LABEL }}</strong></p>
-            <p>{{ experiment.risk_partner_related|yesno:"Yes,No" }}</p>
+            <p>{{ experiment.RISK_PARTNER_RELATED_LABEL }}</p>
+            <p class="
+              {% if experiment.risk_partner_related %}
+                text-danger
+              {% endif %}
+            ">
+              <strong>
+                {{ experiment.risk_partner_related|yesno:"Yes,No" }}
+              </strong>
+            </p>
 
-            <p><strong>{{ experiment.RISK_BRAND_LABEL }}</strong></p>
-            <p>{{ experiment.risk_brand|yesno:"Yes,No" }}</p>
+            <p>{{ experiment.RISK_BRAND_LABEL }}</p>
+            <p class="
+              {% if experiment.risk_brand %}
+                text-danger
+              {% endif %}
+            ">
+              <strong>
+                {{ experiment.risk_brand|yesno:"Yes,No" }}
+              </strong>
+            </p>
 
-            <p><strong>{{ experiment.RISK_FAST_SHIPPED_LABEL }}</strong></p>
-            <p>{{ experiment.risk_fast_shipped|yesno:"Yes,No" }}</p>
+            <p>{{ experiment.RISK_FAST_SHIPPED_LABEL }}</p>
+            <p class="
+              {% if experiment.risk_fast_shipped %}
+                text-danger
+              {% endif %}
+            ">
+              <strong>
+                {{ experiment.risk_fast_shipped|yesno:"Yes,No" }}
+              </strong>
+            </p>
 
-            <p><strong>{{ experiment.RISK_CONFIDENTIAL_LABEL }}</strong></p>
-            <p>{{ experiment.risk_confidential|yesno:"Yes,No" }}</p>
+            <p>{{ experiment.RISK_CONFIDENTIAL_LABEL }}</p>
+            <p class="
+              {% if experiment.risk_confidential %}
+                text-danger
+              {% endif %}
+            ">
+              <strong>
+                {{ experiment.risk_confidential|yesno:"Yes,No" }}
+              </strong>
+            </p>
 
-            <p><strong>{{ experiment.RISK_RELEASE_POPULATION_LABEL }}</strong></p>
-            <p>{{ experiment.risk_release_population|yesno:"Yes,No" }}</p>
+            <p>{{ experiment.RISK_RELEASE_POPULATION_LABEL }}</p>
+            <p class="
+              {% if experiment.risk_release_population %}
+                text-danger
+              {% endif %}
+            ">
+              <strong>
+                {{ experiment.risk_release_population|yesno:"Yes,No" }}
+              </strong>
+            </p>
 
             {% if experiment.is_high_risk %}
               <h5>RASCI Owners and Deliverables</h5>
