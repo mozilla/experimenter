@@ -10,6 +10,10 @@
       {{ filter.form.status.value }}
     {% endif %}
 
+    {% if filter.form.project.value %}
+      {{ filter.form.get_project_display_value }}
+    {% endif %}
+
     {% if filter.form.firefox_channel.value %}
       {{ filter.form.firefox_channel.value }}
     {% endif %}
@@ -19,6 +23,10 @@
       {{ filter.form.firefox_version.value }}
     {% endif %}
     Experiment{{ experiments|pluralize:"s" }}
+
+    {% if filter.form.owner.value %}
+      by {{ filter.form.get_owner_display_value }}
+    {% endif %}
   </div>
   <div class="col-md-3 text-right">
     <div class="row">

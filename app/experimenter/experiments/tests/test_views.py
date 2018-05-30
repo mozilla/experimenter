@@ -14,10 +14,24 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.experiments.views import (
     ExperimentCreateView,
     ExperimentFilterset,
+    ExperimentFiltersetForm,
     ExperimentFormMixin,
     ExperimentOrderingForm,
 )
 from experimenter.projects.tests.factories import ProjectFactory
+
+
+class TestExperimentFiltersetForm(TestCase):
+
+    def test_get_project_display_value_returns_project_str(self):
+        project = ProjectFactory.create()
+        form = ExperimentFiltersetForm({"project": project.id})
+        self.assertEqual(form.get_project_display_value(), str(project))
+
+    def test_get_owner_display_value_returns_user_str(self):
+        user = UserFactory.create()
+        form = ExperimentFiltersetForm({"owner": user.id})
+        self.assertEqual(form.get_owner_display_value(), str(user))
 
 
 class TestExperimentFilterset(TestCase):
