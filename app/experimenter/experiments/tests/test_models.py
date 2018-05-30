@@ -89,15 +89,26 @@ class TestExperimentModel(TestCase):
         )
         self.assertEqual(experiment.variant, variant)
 
-    def test_experiment_with_created_status_is_not_readonly(self):
-        experiment = ExperimentFactory.create_with_variants()
-        self.assertFalse(experiment.is_readonly)
+    def test_experiment_is_editable_when_is_draft(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        self.assertTrue(experiment.is_editable)
 
-    def test_experiment_with_any_status_after_created_is_readonly(self):
-        experiment = ExperimentFactory.create_with_variants()
-        experiment.status = experiment.STATUS_REVIEW
-        experiment.save()
-        self.assertTrue(experiment.is_readonly)
+    def test_experiment_is_editable_when_is_in_review(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW
+        )
+        self.assertTrue(experiment.is_editable)
+
+    def test_experient_is_not_editable_after_review(self):
+        all_statuses = set([status[0] for status in Experiment.STATUS_CHOICES])
+        editable_statuses = set(
+            [Experiment.STATUS_DRAFT, Experiment.STATUS_REVIEW]
+        )
+        for status in all_statuses - editable_statuses:
+            experiment = ExperimentFactory.create_with_status(status)
+            self.assertFalse(experiment.is_editable)
 
     def test_experiment_is_not_begun(self):
         statuses = (
