@@ -41,6 +41,26 @@ class GenerateDashboardsTest(TestCase):
         self.addCleanup(logging_patcher.stop)
         self.addCleanup(dashboard_patcher.stop)
 
+        # A draft experiment with no dashboard should be ignored
+        self.experiment_draft = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, dashboard_url=None
+        )
+
+        # A review experiment with no dashboard should be ignored
+        self.experiment_review = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW, dashboard_url=None
+        )
+
+        # An accepted experiment with no dashboard should be ignored
+        self.experiment_review = ExperimentFactory.create_with_status(
+            Experiment.STATUS_ACCEPTED, dashboard_url=None
+        )
+
+        # A rejected experiment with no dashboard should be ignored
+        self.experiment_review = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REJECTED, dashboard_url=None
+        )
+
         # A launched experiment
         self.experiment_launched = ExperimentFactory.create_with_status(
             Experiment.STATUS_LIVE

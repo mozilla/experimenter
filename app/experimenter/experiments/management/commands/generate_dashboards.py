@@ -48,8 +48,11 @@ class Command(BaseCommand):
             status=Experiment.STATUS_LIVE
         )
 
+        # We can manually enter past experiments into the admin
+        # so we should generate dashboards for them even though they
+        # completed long ago.  Perhaps this can be removed in the future.
         missing_dashboard_experiments = Experiment.objects.filter(
-            dashboard_url__isnull=True
+            dashboard_url__isnull=True, status=Experiment.STATUS_COMPLETE
         )
 
         relevant_experiments = (
