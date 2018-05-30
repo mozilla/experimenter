@@ -27,7 +27,7 @@
           Overview
         </h4>
 
-        {% if experiment.is_draft %}
+        {% if experiment.is_editable %}
           <div class="col-md-4 text-right">
             <a class="noanchorstyle" href="{% url "experiments-overview-update" slug=experiment.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
           </div>
@@ -64,7 +64,7 @@
           Population
         </h4>
 
-        {% if experiment.is_draft %}
+        {% if experiment.is_editable %}
           <div class="col-md-4 text-right">
             <a class="noanchorstyle" href="{% url "experiments-overview-update" slug=experiment.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
           </div>
@@ -86,7 +86,7 @@
           Firefox Pref &amp; Branches
         </h4>
 
-        {% if experiment.is_draft %}
+        {% if experiment.is_editable %}
           <div class="col-md-4 text-right">
             <a class="noanchorstyle" href="{% url "experiments-variants-update" slug=experiment.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
           </div>
@@ -118,7 +118,7 @@
           Objectives
         </h4>
 
-        {% if experiment.is_draft %}
+        {% if experiment.is_editable %}
           <div class="col-md-4 text-right">
             <a class="noanchorstyle" href="{% url "experiments-objectives-update" slug=experiment.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
           </div>
@@ -143,7 +143,7 @@
           Analysis
         </h4>
 
-        {% if experiment.is_draft %}
+        {% if experiment.is_editable %}
           <div class="col-md-4 text-right">
             <a class="noanchorstyle" href="{% url "experiments-objectives-update" slug=experiment.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
           </div>
@@ -169,7 +169,7 @@
           Risk Assessment
         </h4>
 
-        {% if experiment.is_draft %}
+        {% if experiment.is_editable %}
           <div class="col-md-4 text-right">
             <a class="noanchorstyle" href="{% url "experiments-risks-update" slug=experiment.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
           </div>
@@ -252,7 +252,7 @@
           Testing Plan
         </h4>
 
-        {% if experiment.is_draft %}
+        {% if experiment.is_editable %}
           <div class="col-md-4 text-right">
             <a class="noanchorstyle" href="{% url "experiments-risks-update" slug=experiment.slug %}"><h5><span class="glyphicon glyphicon-pencil"></span> Edit</h5></a>
           </div>

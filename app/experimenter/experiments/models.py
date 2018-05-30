@@ -121,8 +121,8 @@ class Experiment(ExperimentConstants, models.Model):
         return self.status == self.STATUS_REVIEW
 
     @property
-    def is_readonly(self):
-        return not self.is_draft
+    def is_editable(self):
+        return self.is_draft or self.is_in_review
 
     @property
     def is_begun(self):
@@ -135,6 +135,51 @@ class Experiment(ExperimentConstants, models.Model):
 
         if change.count() == 1:
             return change.get().changed_on
+
+    @property
+    def is_high_risk(self):
+        return True in self._risk_questions
+
+    @property
+    def completed_overview(self):
+        return self.pk is not None
+
+    @property
+    def completed_variants(self):
+        return self.variants.exists()
+
+    @property
+    def completed_objectives(self):
+        return (
+            self.objectives != self.OBJECTIVES_DEFAULT
+            and self.analysis != self.ANALYSIS_DEFAULT
+        )
+
+    @property
+    def _risk_questions(self):
+        return (
+            self.risk_partner_related,
+            self.risk_brand,
+            self.risk_fast_shipped,
+            self.risk_confidential,
+            self.risk_release_population,
+        )
+
+    @property
+    def completed_risks(self):
+        return (
+            None not in self._risk_questions
+            and self.testing != self.TESTING_DEFAULT
+        )
+
+    @property
+    def is_ready_for_review(self):
+        return (
+            self.completed_overview
+            and self.completed_variants
+            and self.completed_objectives
+            and self.completed_risks
+        )
 
     @property
     def population(self):
@@ -184,51 +229,6 @@ class Experiment(ExperimentConstants, models.Model):
         return (
             "https://firefox-test-tube.herokuapp.com/experiments/{slug}/"
         ).format(slug=self.slug)
-
-    @property
-    def _risk_questions(self):
-        return (
-            self.risk_partner_related,
-            self.risk_brand,
-            self.risk_fast_shipped,
-            self.risk_confidential,
-            self.risk_release_population,
-        )
-
-    @property
-    def is_high_risk(self):
-        return True in self._risk_questions
-
-    @property
-    def completed_overview(self):
-        return self.pk is not None
-
-    @property
-    def completed_variants(self):
-        return self.variants.exists()
-
-    @property
-    def completed_objectives(self):
-        return (
-            self.objectives != self.OBJECTIVES_DEFAULT
-            and self.analysis != self.ANALYSIS_DEFAULT
-        )
-
-    @property
-    def completed_risks(self):
-        return (
-            None not in self._risk_questions
-            and self.testing != self.TESTING_DEFAULT
-        )
-
-    @property
-    def is_ready_for_review(self):
-        return (
-            self.completed_overview
-            and self.completed_variants
-            and self.completed_objectives
-            and self.completed_risks
-        )
 
 
 class ExperimentVariant(models.Model):

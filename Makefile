@@ -22,7 +22,7 @@ lint: compose_build
 black: compose_build
 	docker-compose run app black -l 79 .
 
-check: compose_build lint black test
+check: compose_build black lint test
 	echo "Success"
 
 makemigrations: compose_build
