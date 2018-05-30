@@ -34,6 +34,18 @@ class ExperimentFiltersetForm(forms.ModelForm):
 
         return False
 
+    def get_project_display_value(self):
+        project_id = self.data.get("project", None)
+
+        if project_id is not None:
+            return str(Project.objects.get(id=project_id))
+
+    def get_owner_display_value(self):
+        user_id = self.data.get("owner", None)
+
+        if user_id is not None:
+            return str(get_user_model().objects.get(id=user_id))
+
 
 class ExperimentFilterset(filters.FilterSet):
     archived = filters.BooleanFilter(
