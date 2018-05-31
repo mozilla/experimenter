@@ -89,7 +89,7 @@ class Command(BaseCommand):
 
                 dashboard_presentable = widget_count >= expected_widget_count
                 if dashboard_presentable:
-                    exp.dashboard_url = dash.public_url
+                    exp.dashboard_url = dash.slug_url
                     exp.save()
 
                 # This dashboard was recently updated, no need to update again.
@@ -126,7 +126,7 @@ class Command(BaseCommand):
                 widget_count = len(dash.get_query_ids_and_names())
 
                 if widget_count >= expected_widget_count:
-                    exp.dashboard_url = dash.public_url
+                    exp.dashboard_url = dash.slug_url
                     exp.save()
             except ExperimentDashboard.ExternalAPIError as external_api_err:
                 logging.error(

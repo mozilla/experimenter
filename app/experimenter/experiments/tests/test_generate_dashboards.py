@@ -113,7 +113,7 @@ class GenerateDashboardsTest(TestCase):
         NEW_PUBLIC_URL = "www.example.com/some_dashboard_url"
 
         mock_instance = self.MockDashboard.return_value
-        mock_instance.public_url = NEW_PUBLIC_URL
+        mock_instance.slug_url = NEW_PUBLIC_URL
         mock_instance.UT_HOURLY_EVENTS = [1, 2, 3, 4]
         mock_instance.MAPPED_UT_EVENTS = [1, 2, 3]
         mock_instance.get_update_range.return_value = {
@@ -169,7 +169,7 @@ class GenerateDashboardsTest(TestCase):
 
     def test_recently_updated_dashboard_is_ignored(self):
         mock_instance = self.MockDashboard.return_value
-        mock_instance.public_url = "www.example.com/dashboard"
+        mock_instance.slug_url = "www.example.com/dashboard"
         mock_instance.get_update_range.return_value = {
             "min": datetime.now(timezone.utc)
         }
@@ -189,7 +189,7 @@ class GenerateDashboardsTest(TestCase):
 
     def test_dashboards_are_rate_limited(self):
         mock_instance = self.MockDashboard.return_value
-        mock_instance.public_url = "www.example.com/dashboard"
+        mock_instance.slug_url = "www.example.com/dashboard"
         mock_instance.get_update_range.return_value = {
             "min": datetime.now(timezone.utc)
         }
