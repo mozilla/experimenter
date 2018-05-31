@@ -283,7 +283,6 @@
             <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}" />
             <input
               type="submit"
-              id="launch-button"
               class="col-md-12 md-mb-10 btn btn-success"
               value="Submit for Review"
             />
@@ -291,7 +290,6 @@
         {% else %}
           <input
             type="submit"
-            id="launch-button"
             class="col-md-12 md-mb-10 btn btn-success disabled"
             value="Submit for Review"
           />
@@ -310,12 +308,41 @@
           class="md-mb-20"
         >
           {% csrf_token %}
+          <input type="hidden" name="status" value="{{ experiment.STATUS_SHIP }}" />
+          <input
+            type="submit"
+            class="col-md-12 md-mb-10 btn btn-success"
+            value="Ready to Ship"
+          />
+        </form>
+
+        <form
+          action="{% url "experiments-status-update" slug=experiment.slug %}"
+          method="POST"
+          class="md-mb-20"
+        >
+          {% csrf_token %}
           <input type="hidden" name="status" value="{{ experiment.STATUS_DRAFT }}" />
           <input
             type="submit"
-            id="launch-button"
             class="col-md-12 md-mb-10 btn btn-warning"
             value="Cancel Review Request"
+          />
+        </form>
+      {% endif %}
+
+      {% if experiment.is_ready_to_ship %}
+        <form
+          action="{% url "experiments-status-update" slug=experiment.slug %}"
+          method="POST"
+          class="md-mb-20"
+        >
+          {% csrf_token %}
+          <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}" />
+          <input
+            type="submit"
+            class="col-md-12 md-mb-10 btn btn-warning"
+            value="Cancel Ready to Ship"
           />
         </form>
       {% endif %}
