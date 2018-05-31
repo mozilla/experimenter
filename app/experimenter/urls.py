@@ -11,7 +11,7 @@ urlpatterns = [
     url(r"^admin/", admin.site.urls),
     url(r"^experiments/", include("experimenter.experiments.web_urls")),
     url(r"^projects/", include("experimenter.projects.urls")),
-    url(r"^", ExperimentListView.as_view(), name="home"),
+    url(r"^$", ExperimentListView.as_view(), name="home"),
 ]
 
 if settings.DEBUG:  # pragma: no cover
