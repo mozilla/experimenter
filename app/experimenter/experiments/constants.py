@@ -12,12 +12,12 @@ class ExperimentConstants(object):
     STATUS_REJECTED = "Rejected"
 
     STATUS_CHOICES = (
-        (STATUS_DRAFT, STATUS_DRAFT),
-        (STATUS_REVIEW, STATUS_REVIEW),
-        (STATUS_ACCEPTED, STATUS_ACCEPTED),
-        (STATUS_LIVE, STATUS_LIVE),
-        (STATUS_COMPLETE, STATUS_COMPLETE),
-        (STATUS_REJECTED, STATUS_REJECTED),
+        (STATUS_DRAFT, "Draft"),
+        (STATUS_REVIEW, "Ready for Review"),
+        (STATUS_ACCEPTED, "Accepted by Shield"),
+        (STATUS_LIVE, "Live"),
+        (STATUS_COMPLETE, "Complete"),
+        (STATUS_REJECTED, "Rejected"),
     )
 
     STATUS_TRANSITIONS = {
