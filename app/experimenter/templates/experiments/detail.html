@@ -11,7 +11,7 @@
     <a class="noanchorstyle spaced-text" href="{% url "experiments-detail" slug=experiment.slug %}">
       {{ experiment.name }}
     </a>
-    <span class="badge status-color-{{ experiment.status }}">{{ experiment.status }}</span>
+    <span class="badge status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
   </div>
 
 
