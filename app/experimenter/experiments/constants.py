@@ -6,6 +6,7 @@ class ExperimentConstants(object):
     # Status stuff
     STATUS_DRAFT = "Draft"
     STATUS_REVIEW = "Review"
+    STATUS_SHIP = "Ship"
     STATUS_ACCEPTED = "Accepted"
     STATUS_LIVE = "Live"
     STATUS_COMPLETE = "Complete"
@@ -14,6 +15,7 @@ class ExperimentConstants(object):
     STATUS_CHOICES = (
         (STATUS_DRAFT, "Draft"),
         (STATUS_REVIEW, "Ready for Review"),
+        (STATUS_SHIP, "Ready to Ship"),
         (STATUS_ACCEPTED, "Accepted by Shield"),
         (STATUS_LIVE, "Live"),
         (STATUS_COMPLETE, "Complete"),
@@ -22,7 +24,8 @@ class ExperimentConstants(object):
 
     STATUS_TRANSITIONS = {
         STATUS_DRAFT: [STATUS_REVIEW, STATUS_REJECTED],
-        STATUS_REVIEW: [STATUS_DRAFT, STATUS_ACCEPTED, STATUS_REJECTED],
+        STATUS_REVIEW: [STATUS_DRAFT, STATUS_SHIP, STATUS_REJECTED],
+        STATUS_SHIP: [STATUS_REVIEW, STATUS_ACCEPTED, STATUS_REJECTED],
         STATUS_ACCEPTED: [STATUS_LIVE, STATUS_REJECTED],
         STATUS_LIVE: [STATUS_COMPLETE],
         STATUS_COMPLETE: [],

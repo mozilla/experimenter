@@ -121,6 +121,10 @@ class Experiment(ExperimentConstants, models.Model):
         return self.status == self.STATUS_REVIEW
 
     @property
+    def is_ready_to_ship(self):
+        return self.status == self.STATUS_SHIP
+
+    @property
     def is_editable(self):
         return self.is_draft or self.is_in_review
 
