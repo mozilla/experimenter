@@ -7,7 +7,10 @@ build:
 compose_build: build ssl
 	docker-compose build
 
-up: compose_build
+compose_kill:
+	docker-compose kill
+
+up: compose_kill compose_build
 	docker-compose up
 
 gunicorn: compose_build
@@ -45,7 +48,6 @@ bash: compose_build
 
 kill:
 	docker ps -a -q | xargs docker kill;docker ps -a -q | xargs docker rm
-
 
 ssl: nginx/key.pem nginx/cert.pem
 

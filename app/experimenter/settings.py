@@ -38,6 +38,7 @@ HOSTNAME = config("HOSTNAME")
 
 ALLOWED_HOSTS = [HOSTNAME]
 
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Application definition
 
@@ -213,3 +214,20 @@ CORS_ORIGIN_ALLOW_ALL = True
 # reDash Rate Limit
 # Number of dashboards to deploy per hour
 DASHBOARD_RATE_LIMIT = 2
+
+# Automated email destinations
+
+# SMTP configuration
+EMAIL_SENDER = config("EMAIL_SENDER")
+EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_PORT = config("EMAIL_PORT")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = not DEBUG
+EMAIL_USE_SSL = False
+
+# Email to send to when an experiment is ready for review
+EMAIL_REVIEW = config("EMAIL_REVIEW")
+
+# Email to send to when an experiment is ready to ship
+EMAIL_SHIP = config("EMAIL_SHIP")

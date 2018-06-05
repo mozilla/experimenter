@@ -104,6 +104,10 @@ class Experiment(ExperimentConstants, models.Model):
         verbose_name = "Experiment"
         verbose_name_plural = "Experiments"
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ("experiments-detail", (), {"slug": self.slug})
+
     @cached_property
     def control(self):
         return self.variants.filter(is_control=True).first()

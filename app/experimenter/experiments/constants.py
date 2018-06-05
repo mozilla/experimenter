@@ -452,3 +452,18 @@ If additional QA is required, provide a plan for
 testing each branch of this study:
     """
     )
+
+    ATTENTION_MESSAGE = (
+        "This experiment requires special attention "
+        "and should be reviewed ASAP"
+    )
+
+    REVIEW_EMAIL_SUBJECT = "Experimenter Review Request: {name}"
+
+    REVIEW_EMAIL_TEMPLATE = (
+        """Please add the following experiment to the Shield review queue:
+
+{experiment_url}
+
+{attention}"""
+    )

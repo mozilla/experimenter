@@ -8,6 +8,7 @@ services:
     tty: true
     links:
       - db
+      - smtp
     volumes:
       - ./app:/app
       - static_volume:/app/experimenter/served/
@@ -37,6 +38,16 @@ services:
       - db_volume:/var/lib/postgresql
     networks:
       - private_nw
+
+  smtp:
+    image: python:3.6
+    ports:
+      - "25:25"
+    networks:
+      - private_nw
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python -m smtpd -n -c DebuggingServer 0.0.0.0:25
 
 volumes:
   db_volume:
