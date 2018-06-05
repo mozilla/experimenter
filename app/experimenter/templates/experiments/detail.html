@@ -348,7 +348,7 @@
       {% endif %}
 
       <h5>History</h5>
-      {% for change in experiment.changes.all reversed %}
+      {% for change in experiment.ordered_changes %}
         <div class="row help-block">
           <div class="col-md-12">
             <p>{{ change.changed_on.date }}</p>
