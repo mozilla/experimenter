@@ -26,7 +26,6 @@
         <h4 class="col-md-8 md-mt-0">
           Overview
         </h4>
-
       </div>
 
       <div class="row card md-pt-15 md-pb-10">
@@ -64,7 +63,6 @@
         <h4 class="col-md-8 md-mt-0">
           Population
         </h4>
-
       </div>
 
       <div class="row card md-pt-15 md-pb-10">
@@ -90,7 +88,6 @@
           {% endif %}
           Firefox Pref &amp; Branches
         </h4>
-
       </div>
 
       <div class="row card md-pt-15 md-pb-10">
@@ -132,7 +129,6 @@
           {% endif %}
           Objectives
         </h4>
-
       </div>
 
       <div class="row card md-pt-15 md-pb-10">
@@ -162,7 +158,6 @@
           {% endif %}
           Analysis
         </h4>
-
       </div>
 
       <div class="row card md-pt-15 md-pb-10">
@@ -275,7 +270,6 @@
           {% endif %}
           Testing Plan
         </h4>
-
       </div>
 
       <div class="row card md-pt-15 md-pb-10">
@@ -310,6 +304,13 @@
             {% csrf_token %}
 
             <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
+
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" name="attention" value="{{ experiment.ATTENTION_MESSAGE }}"> 
+                {{ experiment.ATTENTION_MESSAGE }}
+              </label>
+            </div> 
 
             <input
               type="submit"

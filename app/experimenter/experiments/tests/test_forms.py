@@ -411,6 +411,14 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
 
 class TestExperimentStatusForm(MockRequestMixin, TestCase):
 
+    def setUp(self):
+        super().setUp()
+        mock_send_mail_patcher = mock.patch(
+            "experimenter.experiments.email.send_mail"
+        )
+        self.mock_send_mail = mock_send_mail_patcher.start()
+        self.addCleanup(mock_send_mail_patcher.stop)
+
     def test_form_allows_valid_state_transition_and_creates_changelog(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT
@@ -437,3 +445,16 @@ class TestExperimentStatusForm(MockRequestMixin, TestCase):
             instance=experiment,
         )
         self.assertFalse(form.is_valid())
+
+    def test_sends_review_mail_when_draft_becomes_review(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        form = ExperimentStatusForm(
+            request=self.request,
+            data={"status": experiment.STATUS_REVIEW},
+            instance=experiment,
+        )
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.mock_send_mail.assert_called()

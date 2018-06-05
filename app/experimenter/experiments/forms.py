@@ -4,14 +4,15 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 
-from experimenter.projects.forms import AutoNameSlugFormMixin
-from experimenter.projects.models import Project
+from experimenter.experiments.constants import ExperimentConstants
+from experimenter.experiments.email import send_review_email
 from experimenter.experiments.models import (
     Experiment,
     ExperimentChangeLog,
     ExperimentVariant,
 )
-from experimenter.experiments.constants import ExperimentConstants
+from experimenter.projects.forms import AutoNameSlugFormMixin
+from experimenter.projects.models import Project
 
 
 class JSONField(forms.CharField):
@@ -380,21 +381,45 @@ class ExperimentStatusForm(
     ExperimentConstants, ChangeLogMixin, forms.ModelForm
 ):
 
+    attention = forms.CharField(required=False)
+
     class Meta:
         model = Experiment
-        fields = ("status",)
+        fields = ("status", "attention")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.old_status = self.instance.status
+
+    @property
+    def new_status(self):
+        return self.cleaned_data["status"]
 
     def clean_status(self):
-        old_status = self.instance.status
-        new_status = self.cleaned_data["status"]
-        expected_new_status = new_status in self.STATUS_TRANSITIONS[old_status]
+        expected_status = (
+            self.new_status in self.STATUS_TRANSITIONS[self.old_status]
+        )
 
-        if old_status != new_status and not expected_new_status:
+        if self.old_status != self.new_status and not expected_status:
             raise forms.ValidationError(
                 (
                     "You can not change an Experiment's status "
                     "from {old_status} to {new_status}"
-                ).format(old_status=old_status, new_status=new_status)
+                ).format(
+                    old_status=self.old_status, new_status=self.new_status
+                )
             )
 
-        return new_status
+        return self.new_status
+
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+
+        if (
+            self.old_status == Experiment.STATUS_DRAFT
+            and self.new_status == Experiment.STATUS_REVIEW
+        ):
+            needs_attention = len(self.cleaned_data.get("attention", "")) > 0
+            send_review_email(experiment, needs_attention)
+
+        return experiment
