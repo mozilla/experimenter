@@ -139,21 +139,18 @@ class ChangeLogMixin(object):
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
 
-        latest_change = experiment.changes.latest()
+        old_status = None
 
+        latest_change = experiment.changes.latest()
         if latest_change:
-            ExperimentChangeLog.objects.create(
-                experiment=experiment,
-                changed_by=self.request.user,
-                old_status=latest_change.new_status,
-                new_status=experiment.status,
-            )
-        else:
-            ExperimentChangeLog.objects.create(
-                experiment=experiment,
-                changed_by=self.request.user,
-                new_status=Experiment.STATUS_DRAFT,
-            )
+            old_status = latest_change.new_status
+
+        ExperimentChangeLog.objects.create(
+            experiment=experiment,
+            changed_by=self.request.user,
+            old_status=old_status,
+            new_status=experiment.status,
+        )
 
         return experiment
 

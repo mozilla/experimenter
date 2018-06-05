@@ -113,6 +113,10 @@ class Experiment(ExperimentConstants, models.Model):
         return self.variants.filter(is_control=False).first()
 
     @property
+    def ordered_changes(self):
+        return self.changes.all().order_by("-changed_on").select_related()
+
+    @property
     def is_draft(self):
         return self.status == self.STATUS_DRAFT
 
