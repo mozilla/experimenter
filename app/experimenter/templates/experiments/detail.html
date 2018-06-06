@@ -163,6 +163,7 @@
       <div class="row card md-pt-15 md-pb-10">
         <div class="col-md-10">
           {% if experiment.completed_objectives %}
+            <p><strong>Analysis Owner: {{ experiment.analysis_owner }}</strong></p>
             {{ experiment.analysis|linebreaks }}
           {% else %}
             <p>You must <a href="{% url "experiments-objectives-update" slug=experiment.slug %}">define the analysis plan</a> before you can launch your experiment.</p>

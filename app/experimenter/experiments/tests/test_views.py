@@ -552,6 +552,7 @@ class TestExperimentObjectivesUpdateView(TestCase):
 
         data = {
             "objectives": "Some new objectives!",
+            "analysis_owner": "Suzy Data Science",
             "analysis": "Some new analysis!",
         }
 

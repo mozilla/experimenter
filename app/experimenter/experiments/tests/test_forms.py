@@ -352,6 +352,7 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
 
         data = {
             "objectives": "The objective is to experiment!",
+            "analysis_owner": "Jim Bob The Data Scientist",
             "analysis": "Lets analyze the results!",
         }
 

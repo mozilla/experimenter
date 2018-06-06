@@ -71,6 +71,7 @@ class Experiment(ExperimentConstants, models.Model):
     analysis = models.TextField(
         default=ExperimentConstants.ANALYSIS_DEFAULT, blank=True, null=True
     )
+    analysis_owner = models.CharField(max_length=255, blank=True, null=True)
     risk_partner_related = models.NullBooleanField(
         default=None, blank=True, null=True
     )

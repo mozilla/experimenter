@@ -310,6 +310,11 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.OBJECTIVES_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
+    analysis_owner = forms.CharField(
+        label="Analysis Owner",
+        help_text=Experiment.ANALYSIS_OWNER_HELP_TEXT,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
     analysis = forms.CharField(
         label="Analysis Plan",
         help_text=Experiment.ANALYSIS_HELP_TEXT,
@@ -318,7 +323,7 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
 
     class Meta:
         model = Experiment
-        fields = ("objectives", "analysis")
+        fields = ("objectives", "analysis_owner", "analysis")
 
 
 class RadioWidget(forms.widgets.RadioSelect):
