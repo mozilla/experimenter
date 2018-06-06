@@ -10,10 +10,6 @@
       {{ filter.form.status.value }}
     {% endif %}
 
-    {% if filter.form.project.value %}
-      {{ filter.form.get_project_display_value }}
-    {% endif %}
-
     {% if filter.form.firefox_channel.value %}
       {{ filter.form.firefox_channel.value }}
     {% endif %}
@@ -22,12 +18,18 @@
       Firefox
       {{ filter.form.firefox_version.value }}
     {% endif %}
+
+    {% if filter.form.project.value %}
+      {{ filter.form.get_project_display_value }}
+    {% endif %}
+
     Experiment{{ experiments|pluralize:"s" }}
 
     {% if filter.form.owner.value %}
       by {{ filter.form.get_owner_display_value }}
     {% endif %}
   </div>
+
   <div class="col-md-3 text-right">
     <div class="row">
       <div class="col-md-12">
@@ -97,42 +99,22 @@
           <strong class="col-md-12">Filter Experiments</strong>
         </div>
 
-        <div class="row md-mb-10">
-          <div class="col-md-12">
-            {{ filter.form.project }}
+        {% for field in filter.form %}
+          <div class="row md-mb-10">
+            <div class="col-md-12">
+              {% ifequal field.name "archived" %}
+                <div class="checkbox md-m-0">
+                  <label>
+                    {{ field }}
+                    {{ field.label }}
+                  </label>
+                </div>
+              {% else %}
+                {{ field }}
+              {% endifequal %}
+            </div>
           </div>
-        </div>
-
-        <div class="row md-mb-10">
-          <div class="col-md-12">
-            {{ filter.form.owner }}
-          </div>
-        </div>
-
-        <div class="row md-mb-10">
-          <div class="col-md-12">
-            {{ filter.form.status }}
-          </div>
-        </div>
-
-        <div class="row md-mb-10">
-          <div class="col-md-12">
-            {{ filter.form.firefox_channel }}
-          </div>
-        </div>
-
-        <div class="row md-mb-10">
-          <div class="col-md-12">
-            {{ filter.form.firefox_version }}
-          </div>
-        </div>
-
-        <div class="checkbox">
-          <label>
-            {{ filter.form.archived }}
-            {{ filter.form.archived.label }}
-          </label>
-        </div>
+        {% endfor %}
 
         <div class="row">
           <div class="col-md-12 text-right">
