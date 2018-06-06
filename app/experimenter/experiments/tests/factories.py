@@ -59,6 +59,7 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     objectives = factory.LazyAttribute(
         lambda o: faker.text(random.randint(500, 5000))
     )
+    analysis_owner = factory.LazyAttribute(lambda o: faker.name())
     analysis = factory.LazyAttribute(
         lambda o: faker.text(random.randint(500, 5000))
     )

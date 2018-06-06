@@ -335,6 +335,14 @@ class ExperimentConstants(object):
       we will improve [retention/page views/performance/satisfaction]</p>
     """
 
+    ANALYSIS_OWNER_HELP_TEXT = """
+      <p>
+        The analysis owner is the person responsible for designing and
+        implementating the bulk of the data analysis that will determine
+        the outcome of the experiment.
+      </p>
+    """
+
     ANALYSIS_HELP_TEXT = """
       <p>
         Describe how this study will be analyzed, including
@@ -394,10 +402,6 @@ Any additional filters:
     ANALYSIS_DEFAULT = (
         """What is the main effect you are looking for and what data will
 you use to make these decisions? What metrics are you using to measure success
-
-
-Who is the owner of the data analysis for this study?
-
 
 Do you plan on surveying users at the end of the study? Yes/No.
 Strategy and Insights can help create surveys if needed
