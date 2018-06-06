@@ -21,7 +21,14 @@ class ExperimentFiltersetForm(forms.ModelForm):
 
     class Meta:
         model = Experiment
-        fields = ("archived",)
+        fields = (
+            "status",
+            "firefox_channel",
+            "firefox_version",
+            "project",
+            "owner",
+            "archived",
+        )
 
     def clean_archived(self):
         allow_archived = self.cleaned_data.get("archived", False)
@@ -48,19 +55,6 @@ class ExperimentFiltersetForm(forms.ModelForm):
 
 
 class ExperimentFilterset(filters.FilterSet):
-    archived = filters.BooleanFilter(
-        label="Show archived experiments", widget=forms.CheckboxInput()
-    )
-    project = filters.ModelChoiceFilter(
-        empty_label="All Projects",
-        queryset=Project.objects.all(),
-        widget=forms.Select(attrs={"class": "form-control"}),
-    )
-    owner = filters.ModelChoiceFilter(
-        empty_label="All Owners",
-        queryset=get_user_model().objects.all(),
-        widget=forms.Select(attrs={"class": "form-control"}),
-    )
     status = filters.ChoiceFilter(
         empty_label="All Statuses",
         choices=Experiment.STATUS_CHOICES,
@@ -76,17 +70,30 @@ class ExperimentFilterset(filters.FilterSet):
         choices=Experiment.VERSION_CHOICES[1:],
         widget=forms.Select(attrs={"class": "form-control"}),
     )
+    project = filters.ModelChoiceFilter(
+        empty_label="All Projects",
+        queryset=Project.objects.all(),
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+    owner = filters.ModelChoiceFilter(
+        empty_label="All Owners",
+        queryset=get_user_model().objects.all(),
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+    archived = filters.BooleanFilter(
+        label="Show archived experiments", widget=forms.CheckboxInput()
+    )
 
     class Meta:
         model = Experiment
         form = ExperimentFiltersetForm
         fields = (
-            "archived",
+            "status",
             "firefox_channel",
             "firefox_version",
             "owner",
             "project",
-            "status",
+            "archived",
         )
 
 
