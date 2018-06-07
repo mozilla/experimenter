@@ -53,27 +53,29 @@ class TestExperimentManager(TestCase):
 
 class TestExperimentModel(TestCase):
 
-    def test_start_date_returns_none_if_change_is_missing(self):
+    def test_start_date_returns_proposed_start_date_if_change_is_missing(self):
         experiment = ExperimentFactory.create_with_variants()
-        self.assertEqual(experiment.start_date, None)
+        self.assertEqual(experiment.start_date, experiment.proposed_start_date)
+
+    def test_end_date_returns_proposed_end_date_if_change_is_missing(self):
+        experiment = ExperimentFactory.create_with_variants()
+        self.assertEqual(experiment.end_date, experiment.proposed_end_date)
 
     def test_start_date_returns_datetime_if_change_exists(self):
         change = ExperimentChangeLogFactory.create(
             old_status=Experiment.STATUS_ACCEPTED,
             new_status=Experiment.STATUS_LIVE,
         )
-        self.assertEqual(change.experiment.start_date, change.changed_on)
-
-    def test_end_date_returns_none_if_change_is_missing(self):
-        experiment = ExperimentFactory.create_with_variants()
-        self.assertEqual(experiment.end_date, None)
+        self.assertEqual(
+            change.experiment.start_date, change.changed_on.date()
+        )
 
     def test_end_date_returns_datetime_if_change_exists(self):
         change = ExperimentChangeLogFactory.create(
             old_status=Experiment.STATUS_LIVE,
             new_status=Experiment.STATUS_COMPLETE,
         )
-        self.assertEqual(change.experiment.end_date, change.changed_on)
+        self.assertEqual(change.experiment.end_date, change.changed_on.date())
 
     def test_control_property_returns_experiment_control(self):
         experiment = ExperimentFactory.create_with_variants()
