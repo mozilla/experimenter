@@ -109,6 +109,45 @@ class Experiment(ExperimentConstants, models.Model):
     def get_absolute_url(self):
         return ("experiments-detail", (), {"slug": self.slug})
 
+    def _transition_date(self, start_state, end_state):
+        change = self.changes.filter(
+            old_status=start_state, new_status=end_state
+        )
+
+        if change.count() == 1:
+            return change.get().changed_on.date()
+
+    @property
+    def start_date(self):
+        return (
+            self._transition_date(self.STATUS_ACCEPTED, self.STATUS_LIVE)
+            or self.proposed_start_date
+        )
+
+    @property
+    def end_date(self):
+        return (
+            self._transition_date(self.STATUS_LIVE, self.STATUS_COMPLETE)
+            or self.proposed_end_date
+        )
+
+    @property
+    def duration(self):
+        if self.proposed_end_date and self.proposed_start_date:
+            return (self.proposed_end_date - self.proposed_start_date).days
+
+    @property
+    def dates(self):
+        return "{start} - {end} ({duration} days)".format(
+            start=self.start_date.strftime("%b %d, %Y")
+            if self.start_date
+            else "Unknown",
+            end=self.end_date.strftime("%b %d, %Y")
+            if self.end_date
+            else "Unknown",
+            duration=self.duration,
+        )
+
     @cached_property
     def control(self):
         return self.variants.filter(is_control=True).first()
@@ -140,14 +179,6 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def is_begun(self):
         return self.status in (self.STATUS_LIVE, self.STATUS_COMPLETE)
-
-    def _transition_date(self, start_state, end_state):
-        change = self.changes.filter(
-            old_status=start_state, new_status=end_state
-        )
-
-        if change.count() == 1:
-            return change.get().changed_on
 
     @property
     def is_high_risk(self):
@@ -201,14 +232,6 @@ class Experiment(ExperimentConstants, models.Model):
             version=self.firefox_version,
             channel=self.firefox_channel,
         )
-
-    @property
-    def start_date(self):
-        return self._transition_date(self.STATUS_ACCEPTED, self.STATUS_LIVE)
-
-    @property
-    def end_date(self):
-        return self._transition_date(self.STATUS_LIVE, self.STATUS_COMPLETE)
 
     @property
     def experiment_slug(self):
