@@ -1,5 +1,6 @@
 import datetime
 
+from django.conf import settings
 from django.test import TestCase
 
 from experimenter.experiments.models import (
@@ -263,6 +264,21 @@ class TestExperimentModel(TestCase):
         self.assertEqual(
             experiment.reject_url,
             "https://localhost/api/v1/experiments/experiment/reject/",
+        )
+
+    def test_experiment_missing_bugzilla_id_returns_url_None(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, bugzilla_id=None
+        )
+        self.assertEqual(experiment.bugzilla_url, None)
+
+    def test_bugzilla_url_is_correct(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, bugzilla_id="1234"
+        )
+        self.assertEqual(
+            experiment.bugzilla_url,
+            settings.BUGZILLA_DETAIL_URL.format(id=experiment.bugzilla_id),
         )
 
 

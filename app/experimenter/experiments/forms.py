@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 
+from experimenter.experiments import bugzilla
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.email import send_review_email
 from experimenter.experiments.models import (
@@ -423,8 +424,10 @@ class ExperimentStatusForm(
         if (
             self.old_status == Experiment.STATUS_DRAFT
             and self.new_status == Experiment.STATUS_REVIEW
+            and not experiment.bugzilla_id
         ):
             needs_attention = len(self.cleaned_data.get("attention", "")) > 0
             send_review_email(experiment, needs_attention)
+            bugzilla.create_experiment_bug(experiment)
 
         return experiment

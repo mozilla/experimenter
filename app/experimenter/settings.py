@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 from decouple import config
+from urllib.parse import urljoin
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -231,3 +233,13 @@ EMAIL_REVIEW = config("EMAIL_REVIEW")
 
 # Email to send to when an experiment is ready to ship
 EMAIL_SHIP = config("EMAIL_SHIP")
+
+# Bugzilla API Integration
+BUGZILLA_HOST = config("BUGZILLA_HOST")
+BUGZILLA_API_KEY = config("BUGZILLA_API_KEY")
+BUGZILLA_CC_LIST = config("BUGZILLA_CC_LIST")
+BUGZILLA_CREATE_PATH = "/rest/bug"
+BUGZILLA_CREATE_URL = "{path}?api_key={api_key}".format(
+    path=urljoin(BUGZILLA_HOST, BUGZILLA_CREATE_PATH), api_key=BUGZILLA_API_KEY
+)
+BUGZILLA_DETAIL_URL = urljoin(BUGZILLA_HOST, "/show_bug.cgi?id={id}")

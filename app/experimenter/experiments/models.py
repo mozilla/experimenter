@@ -95,6 +95,7 @@ class Experiment(ExperimentConstants, models.Model):
     enrollment_dashboard_url = models.URLField(blank=True, null=True)
     dashboard_url = models.URLField(blank=True, null=True)
     dashboard_image_url = models.URLField(blank=True, null=True)
+    bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
 
     objects = ExperimentManager()
 
@@ -108,6 +109,18 @@ class Experiment(ExperimentConstants, models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ("experiments-detail", (), {"slug": self.slug})
+
+    @property
+    def experiment_url(self):
+        return urljoin(
+            "https://{host}".format(host=settings.HOSTNAME),
+            self.get_absolute_url(),
+        )
+
+    @property
+    def bugzilla_url(self):
+        if self.bugzilla_id:
+            return settings.BUGZILLA_DETAIL_URL.format(id=self.bugzilla_id)
 
     def _transition_date(self, start_state, end_state):
         change = self.changes.filter(
@@ -237,13 +250,6 @@ class Experiment(ExperimentConstants, models.Model):
     def experiment_slug(self):
         return "pref-flip-{project_slug}-{experiment_slug}".format(
             project_slug=self.project.slug, experiment_slug=self.slug
-        )
-
-    @property
-    def experiment_url(self):
-        return urljoin(
-            "https://{host}".format(host=settings.HOSTNAME),
-            reverse("experiments-detail", args=[self.slug]),
         )
 
     @property

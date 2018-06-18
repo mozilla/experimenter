@@ -21,6 +21,8 @@ from experimenter.experiments.forms import (
 )
 from experimenter.experiments.models import Experiment, ExperimentVariant
 from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.test_bugzilla import MockBugzillaMixin
+from experimenter.experiments.tests.test_email import MockMailMixin
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 
@@ -410,15 +412,9 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.testing, data["testing"])
 
 
-class TestExperimentStatusForm(MockRequestMixin, TestCase):
-
-    def setUp(self):
-        super().setUp()
-        mock_send_mail_patcher = mock.patch(
-            "experimenter.experiments.email.send_mail"
-        )
-        self.mock_send_mail = mock_send_mail_patcher.start()
-        self.addCleanup(mock_send_mail_patcher.stop)
+class TestExperimentStatusForm(
+    MockMailMixin, MockBugzillaMixin, MockRequestMixin, TestCase
+):
 
     def test_form_allows_valid_state_transition_and_creates_changelog(self):
         experiment = ExperimentFactory.create_with_status(
