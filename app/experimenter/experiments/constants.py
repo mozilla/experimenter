@@ -471,3 +471,59 @@ testing each branch of this study:
 
 {attention}"""
     )
+
+    BUGZILLA_TEMPLATE = (
+        """
+Basic description of experiment
+
+{experiment.short_description}
+
+What is the preference we will be changing
+
+{experiment.pref_key}
+
+What are the branches of the study and what values should
+each branch be set to?
+
+Control (value: {experiment.control.value}): {experiment.control.description}
+
+Treatment (value: {experiment.variant.value}): {experiment.variant.description}
+
+What percentage of users do you want in each branch
+
+{experiment.control.ratio}% Control : {experiment.variant.ratio}% Treatment
+
+What version and channel do you intend to ship to?
+
+{experiment.population}
+
+Are there specific criteria for participants?
+
+{experiment.client_matching}
+
+What is your intended go live date and how long will the study run?
+
+{experiment.dates}
+
+What is the main effect you are looking for and what data will you use to make
+these decisions?
+
+{experiment.analysis}
+
+Who is the owner of the data analysis for this study?
+
+{experiment.analysis_owner}
+
+Will this experiment require uplift?
+
+{experiment.risk_fast_shipped}
+
+QA Status of your code:
+
+{experiment.testing}
+
+Link to more information about this study:
+
+{experiment.experiment_url}
+        """
+    )

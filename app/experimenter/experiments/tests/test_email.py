@@ -6,7 +6,7 @@ from experimenter.experiments.email import send_review_email
 from experimenter.experiments.tests.factories import ExperimentFactory
 
 
-class TestSendReviewEmail(TestCase):
+class MockMailMixin(object):
 
     def setUp(self):
         super().setUp()
@@ -15,6 +15,9 @@ class TestSendReviewEmail(TestCase):
         )
         self.mock_send_mail = mock_send_mail_patcher.start()
         self.addCleanup(mock_send_mail_patcher.stop)
+
+
+class TestSendReviewEmail(MockMailMixin, TestCase):
 
     def test_send_review_email_without_needs_attention(self):
         experiment = ExperimentFactory.create(

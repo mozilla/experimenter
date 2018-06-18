@@ -22,6 +22,15 @@
 
     <div class="col-md-9 md-pr-40">
 
+      {% if experiment.bugzilla_url %}
+        <div class="row">
+          <div class="col-md-12 alert alert-info" role="alert">
+            <p><span class="glyphicon glyphicon-info-sign"></span> A <a target="_blank" href="{{ experiment.bugzilla_url }}">Bugzilla Ticket</a> was created for this experiment</p>
+            <p><span class="glyphicon glyphicon-info-sign"></span> An email was sent to <a>experiments-review@mozilla.com</a> about this experiment</p>
+          </div>
+        </div>
+      {% endif %}
+
       <div class="row">
         <h4 class="col-md-8 md-mt-0">
           Overview
@@ -31,6 +40,9 @@
       <div class="row card md-pt-15 md-pb-10">
 
         <div class="col-md-10">
+          {% if experiment.bugzilla_url %}
+            <p><strong><a target="_blank" href="{{ experiment.bugzilla_url }}">Bugzilla Ticket</a></strong></p>
+          {% endif %}
           <p><strong>Owner: {{ experiment.owner }}</strong></p>
           <p><strong>{{ experiment.dates }}</strong></p>
           {{ experiment.short_description|linebreaks }}

@@ -10,7 +10,10 @@ from django.urls import reverse
 
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.test_bugzilla import MockBugzillaMixin
+from experimenter.experiments.tests.test_email import MockMailMixin
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.experiments.views import (
     ExperimentCreateView,
     ExperimentFilterset,
@@ -18,7 +21,6 @@ from experimenter.experiments.views import (
     ExperimentFormMixin,
     ExperimentOrderingForm,
 )
-from experimenter.projects.tests.factories import ProjectFactory
 
 
 class TestExperimentFiltersetForm(TestCase):
@@ -649,7 +651,9 @@ class TestExperimentDetailView(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class TestExperimentStatusUpdateView(TestCase):
+class TestExperimentStatusUpdateView(
+    MockMailMixin, MockBugzillaMixin, TestCase
+):
 
     def test_view_updates_status_and_redirects(self):
         user_email = "user@example.com"
