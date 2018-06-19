@@ -20,11 +20,13 @@ def create_experiment_bug(experiment):
         "cc": settings.BUGZILLA_CC_LIST,
     }
 
+    response_data = {}
     try:
         response = requests.post(settings.BUGZILLA_CREATE_URL, bug_data)
         response_data = json.loads(response.content)
-
-        experiment.bugzilla_id = response_data["id"]
-        experiment.save()
     except requests.exceptions.RequestException:
         logging.exception("Error creating Bugzilla Ticket")
+    except json.JSONDecodeError:
+        logging.exception("Error parsing JSON Bugzilla response")
+
+    return response_data.get("id", None)

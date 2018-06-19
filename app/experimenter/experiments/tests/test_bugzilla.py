@@ -54,9 +54,6 @@ class TestBugzilla(MockBugzillaMixin, TestCase):
             },
         )
 
-        experiment = Experiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.bugzilla_id, self.bugzilla_id)
-
     def test_request_error_passes_silently(self):
         self.mock_bugzilla_requests_post.side_effect = RequestException()
 
@@ -64,7 +61,17 @@ class TestBugzilla(MockBugzillaMixin, TestCase):
             Experiment.STATUS_DRAFT, name="An Experiment"
         )
 
-        create_experiment_bug(experiment)
+        bugzilla_id = create_experiment_bug(experiment)
+        self.assertEqual(bugzilla_id, None)
 
-        experiment = Experiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.bugzilla_id, None)
+    def test_json_parse_error_passes_silently(self):
+        mock_response = mock.Mock()
+        mock_response.content = "{invalid json"
+        self.mock_bugzilla_requests_post.return_value = mock_response
+
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, name="An Experiment"
+        )
+
+        bugzilla_id = create_experiment_bug(experiment)
+        self.assertEqual(bugzilla_id, None)

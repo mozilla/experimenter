@@ -22,11 +22,12 @@
 
     <div class="col-md-9 md-pr-40">
 
-      {% if experiment.bugzilla_url %}
+      {% if messages %}
         <div class="row">
           <div class="col-md-12 alert alert-info" role="alert">
-            <p><span class="glyphicon glyphicon-info-sign"></span> A <a target="_blank" href="{{ experiment.bugzilla_url }}">Bugzilla Ticket</a> was created for this experiment</p>
-            <p><span class="glyphicon glyphicon-info-sign"></span> An email was sent to <a>experiments-review@mozilla.com</a> about this experiment</p>
+            {% for message in messages %}
+              <p><span class="glyphicon glyphicon-info-sign"></span> {{ message }}</p>
+            {% endfor %}
           </div>
         </div>
       {% endif %}
