@@ -146,10 +146,11 @@ List all of the started experiments.
 #### Optional Query Parameters
 project__slug - Return only the experiments for a given project, an invalid slug will raise 404
 status - Return only the experiments with the given status, options are:
-- 'Created'
-- 'Pending'
+- 'Draft'
+- 'Review'
+- 'Ship'
 - 'Accepted'
-- 'Launched'
+- 'Live'
 - 'Complete'
 - 'Rejected'
 
@@ -191,6 +192,46 @@ Example: GET /api/v1/experiments/?project__slug=project-slug&status=Pending
               }
            },
         ]
+
+### GET /api/v1/experiments/<experiment_slug>/
+Return a serialization of the requested experiment.
+
+Example: GET /api/v1/experiments/self-enabled-needs-based-hardware/
+
+         {
+            "accept_url":"https://localhost/api/v1/experiments/self-enabling-needs-based-hardware/accept",
+            "client_matching":"Locales: en-US, en-CA, en-GB\nGeos: US, CA, GB\nSome \"additional\" filtering",
+            "control":{
+               "description":"Eos sunt adipisci beatae. Aut sunt totam maiores reprehenderit sed vero. Nam fugit sequi repellendus cumque. Fugit maxime suscipit eius quas iure exercitationem voluptatibus.",
+               "name":"Seamless 5thgeneration task-force",
+               "ratio":7,
+               "slug":"seamless-5thgeneration-task-force",
+               "value":"\"synergized-client-driven-artificial-intelligence\""
+            },
+            "end_date":1505767052000.0,
+            "experiment_slug":"pref-flip-re-contextualized-systemic-synergy-self-enabling-needs-based-hardware",
+            "experiment_url":"https://localhost/experiments/experiment/144/change/",
+            "firefox_channel":"Release",
+            "firefox_version":"57.0",
+            "name":"Self-enabling needs-based hardware",
+            "objectives":"Illo maiores libero ratione. Dolorum nostrum molestiae blanditiis cumque. Libero saepe ipsum accusantium maxime.",
+            "population_percent":"60.0000",
+            "pref_branch":"default",
+            "pref_key":"browser.phased.hybrid.implementation.enabled",
+            "pref_type":"string",
+            "project_name":"Re-contextualized systemic synergy",
+            "project_slug":"re-contextualized-systemic-synergy",
+            "reject_url":"https://localhost/api/v1/experiments/self-enabling-needs-based-hardware/reject",
+            "slug":"self-enabling-needs-based-hardware",
+            "start_date":1505767052000.0,
+            "variant":{
+               "description":"Modi perferendis repudiandae ducimus dolorem eum rem. Esse porro iure consectetur facere. Quidem nam enim dolore eius ab facilis.",
+               "name":"Business-focused upward-trending Graphic Interface",
+               "ratio":2,
+               "slug":"business-focused-upward-trending-graphic-interface",
+               "value":"\"synchronized-upward-trending-knowledgebase\""
+            }
+         }
 
 
 ### PATCH /api/v1/experiments/<experiment_slug>/accept

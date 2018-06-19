@@ -1,4 +1,4 @@
-from rest_framework.generics import ListAPIView, UpdateAPIView
+from rest_framework.generics import ListAPIView, UpdateAPIView, RetrieveAPIView
 from rest_framework.response import Response
 
 from experimenter.experiments.models import Experiment, ExperimentChangeLog
@@ -7,6 +7,12 @@ from experimenter.experiments.serializers import ExperimentSerializer
 
 class ExperimentListView(ListAPIView):
     filter_fields = ("project__slug", "status")
+    queryset = Experiment.objects.all()
+    serializer_class = ExperimentSerializer
+
+
+class ExperimentDetailView(RetrieveAPIView):
+    lookup_field = "slug"
     queryset = Experiment.objects.all()
     serializer_class = ExperimentSerializer
 
