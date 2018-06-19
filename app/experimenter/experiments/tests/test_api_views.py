@@ -88,6 +88,29 @@ class TestExperimentListView(TestCase):
         self.assertEqual(serialized_experiments, json_data)
 
 
+class TestExperimentDetailView(TestCase):
+
+    def test_get_experiment_returns_experiment_info(self):
+        user_email = "user@example.com"
+
+        experiment = ExperimentFactory.create_with_variants()
+
+        response = self.client.get(
+            reverse(
+                "experiments-api-detail", kwargs={"slug": experiment.slug}
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        json_data = json.loads(response.content)
+
+        serialized_experiment = ExperimentSerializer(experiment).data
+
+        self.assertEqual(serialized_experiment, json_data)
+
+
 class TestExperimentAcceptView(TestCase):
 
     def test_post_to_accept_view_sets_status_accepted(self):
