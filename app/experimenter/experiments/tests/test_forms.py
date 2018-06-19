@@ -455,3 +455,16 @@ class TestExperimentStatusForm(
         self.assertTrue(form.is_valid())
         form.save()
         self.mock_send_mail.assert_called()
+
+    def test_sets_bugzilla_id_when_draft_becomes_review(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        form = ExperimentStatusForm(
+            request=self.request,
+            data={"status": experiment.STATUS_REVIEW},
+            instance=experiment,
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+        self.assertEqual(experiment.bugzilla_id, self.bugzilla_id)

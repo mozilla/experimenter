@@ -1,6 +1,9 @@
 import json
 
+from django.utils.safestring import mark_safe
 from django import forms
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 
@@ -428,6 +431,27 @@ class ExperimentStatusForm(
         ):
             needs_attention = len(self.cleaned_data.get("attention", "")) > 0
             send_review_email(experiment, needs_attention)
-            bugzilla.create_experiment_bug(experiment)
+            messages.add_message(
+                self.request,
+                messages.INFO,
+                "An email was sent to {email} about this experiment".format(
+                    email=settings.EMAIL_REVIEW
+                ),
+            )
+
+            bugzilla_id = bugzilla.create_experiment_bug(experiment)
+            if bugzilla_id is not None:
+                experiment.bugzilla_id = bugzilla_id
+                experiment.save()
+                messages.add_message(
+                    self.request,
+                    messages.INFO,
+                    mark_safe(
+                        (
+                            'A <a target="_blank" href="{bug_url}">Bugzilla '
+                            "Ticket</a> was created for this experiment"
+                        ).format(bug_url=experiment.bugzilla_url)
+                    ),
+                )
 
         return experiment
