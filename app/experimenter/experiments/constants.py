@@ -45,6 +45,12 @@ class ExperimentConstants(object):
         ("62.0", "Firefox 62.0"),
         ("63.0", "Firefox 63.0"),
         ("64.0", "Firefox 64.0"),
+        ("65.0", "Firefox 65.0"),
+        ("66.0", "Firefox 66.0"),
+        ("67.0", "Firefox 67.0"),
+        ("68.0", "Firefox 68.0"),
+        ("69.0", "Firefox 69.0"),
+        ("70.0", "Firefox 70.0"),
     )
 
     # Channel stuff
