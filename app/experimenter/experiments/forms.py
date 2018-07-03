@@ -141,6 +141,9 @@ class ChangeLogMixin(object):
         self.request = request
         super().__init__(*args, **kwargs)
 
+    def get_changelog_message(self):
+        return ""
+
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
 
@@ -155,6 +158,7 @@ class ChangeLogMixin(object):
             changed_by=self.request.user,
             old_status=old_status,
             new_status=experiment.status,
+            message=self.get_changelog_message(),
         )
 
         return experiment
@@ -384,6 +388,105 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
             "risks",
             "testing",
         )
+
+
+class ExperimentReviewForm(
+    ExperimentConstants, ChangeLogMixin, forms.ModelForm
+):
+    review_phd = forms.BooleanField(
+        required=False,
+        label="PHD Review",
+        help_text=Experiment.REVIEW_PHD_HELP_TEXT,
+    )
+    review_science = forms.BooleanField(
+        required=False,
+        label="Science Review",
+        help_text=Experiment.REVIEW_SCIENCE_HELP_TEXT,
+    )
+    review_peer = forms.BooleanField(
+        required=False,
+        label="Firefox Peer Review",
+        help_text=Experiment.REVIEW_PEER_HELP_TEXT,
+    )
+    review_relman = forms.BooleanField(
+        required=False,
+        label="Release Management Review",
+        help_text=Experiment.REVIEW_RELMAN_HELP_TEXT,
+    )
+    review_qa = forms.BooleanField(
+        required=False,
+        label="QA Review",
+        help_text=Experiment.REVIEW_QA_HELP_TEXT,
+    )
+    review_legal = forms.BooleanField(
+        required=False,
+        label="Legal Review (Optional)",
+        help_text=Experiment.REVIEW_LEGAL_HELP_TEXT,
+    )
+    review_ux = forms.BooleanField(
+        required=False,
+        label="UX Review (Optional)",
+        help_text=Experiment.REVIEW_UX_HELP_TEXT,
+    )
+    review_security = forms.BooleanField(
+        required=False,
+        label="Security Review (Optional)",
+        help_text=Experiment.REVIEW_SECURITY_HELP_TEXT,
+    )
+
+    class Meta:
+        model = Experiment
+        fields = (
+            "review_phd",
+            "review_science",
+            "review_peer",
+            "review_relman",
+            "review_qa",
+            "review_legal",
+            "review_ux",
+            "review_security",
+        )
+
+    @property
+    def added_reviews(self):
+        return [
+            self.fields[field_name].label
+            for field_name in self.changed_data
+            if self.cleaned_data[field_name]
+        ]
+
+    @property
+    def removed_reviews(self):
+        return [
+            self.fields[field_name].label
+            for field_name in self.changed_data
+            if not self.cleaned_data[field_name]
+        ]
+
+    def get_changelog_message(self):
+        message = ""
+
+        if self.added_reviews:
+            message += "Added reviews: {reviews} ".format(
+                reviews=", ".join(self.added_reviews)
+            )
+
+        if self.removed_reviews:
+            message += "Removed reviews: {reviews} ".format(
+                reviews=", ".join(self.removed_reviews)
+            )
+
+        return message
+
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+
+        if self.changed_data:
+            messages.add_message(
+                self.request, messages.INFO, self.get_changelog_message()
+            )
+
+        return experiment
 
 
 class ExperimentStatusForm(

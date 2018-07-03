@@ -4,12 +4,14 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.views.generic import CreateView, DetailView, UpdateView
+from django.views.generic.edit import ModelFormMixin
 from django_filters.views import FilterView
 
 from experimenter.projects.models import Project
 from experimenter.experiments.forms import (
     ExperimentObjectivesForm,
     ExperimentOverviewForm,
+    ExperimentReviewForm,
     ExperimentRisksForm,
     ExperimentStatusForm,
     ExperimentVariantsForm,
@@ -206,8 +208,9 @@ class ExperimentRisksUpdateView(ExperimentFormMixin, UpdateView):
     template_name = "experiments/edit_risks.html"
 
 
-class ExperimentDetailView(DetailView):
+class ExperimentDetailView(ExperimentFormMixin, ModelFormMixin, DetailView):
     model = Experiment
+    form_class = ExperimentReviewForm
     template_name = "experiments/detail.html"
 
 
@@ -222,3 +225,11 @@ class ExperimentStatusUpdateView(ExperimentFormMixin, UpdateView):
         return redirect(
             reverse("experiments-detail", kwargs={"slug": self.object.slug})
         )
+
+
+class ExperimentReviewUpdateView(ExperimentFormMixin, UpdateView):
+    form_class = ExperimentReviewForm
+    model = Experiment
+
+    def get_success_url(self):
+        return reverse("experiments-detail", kwargs={"slug": self.object.slug})

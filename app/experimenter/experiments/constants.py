@@ -381,6 +381,43 @@ class ExperimentConstants(object):
       </p>
     """
 
+    REVIEW_PHD_HELP_TEXT = """
+        All experiments must be reviewed in the PHD Review meeting.
+    """
+    REVIEW_SCIENCE_HELP_TEXT = """
+        All experiments must have their telemetry and analysis
+        plan reviewed by a member of the Data Science team.
+    """
+    REVIEW_PEER_HELP_TEXT = """
+        All experimental code must be reviewed by a Firefox Peer
+        before it can land in the tree and be deployed with
+        a release.
+    """
+    REVIEW_RELMAN_HELP_TEXT = """
+        All experiments must be reviewed by the Release Management
+        team to determine the potential impact on a release.
+    """
+    REVIEW_QA_HELP_TEXT = """
+        All experiments must be reviewed by a member of the QA team
+        to validate the expected behaviour of the experimental
+        code.
+    """
+    REVIEW_LEGAL_HELP_TEXT = """
+        (Optional) High Risk experiments may require review by a
+        member of the legal team to ensure all legal constraints
+        and requirements are being met.
+    """
+    REVIEW_UX_HELP_TEXT = """
+        (Optional) Experiments which feature major UI changes
+        may require a review from the UX team to ensure consistent
+        design principles are being maintained.
+    """
+    REVIEW_SECURITY_HELP_TEXT = """
+        (Optional) High Risk experiments may require review by a
+        member of the security team to ensure there are no
+        security risks to the browser or telemetry being collected.
+    """
+
     # Text defaults
     CLIENT_MATCHING_DEFAULT = (
         """Locales:

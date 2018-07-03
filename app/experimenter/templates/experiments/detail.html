@@ -6,23 +6,19 @@
 {% endblock %}
 
 {% block content_header %}
-
   <div class="col-md-9">
     <a class="noanchorstyle spaced-text" href="{% url "experiments-detail" slug=experiment.slug %}">
       {{ experiment.name }}
     </a>
     <span class="badge status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
   </div>
-
-
 {% endblock %}
 
 {% block content %}
   <div class="row md-mt-20">
 
-    <div class="col-md-9 md-pr-40">
-
-      {% if messages %}
+    {% if messages %}
+      <div class="col-md-9 md-pr-40">
         <div class="row">
           <div class="col-md-12 alert alert-info" role="alert">
             {% for message in messages %}
@@ -30,7 +26,10 @@
             {% endfor %}
           </div>
         </div>
-      {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="col-md-9 md-pr-40">
 
       <div class="row">
         <h4 class="col-md-8 md-mt-0">
@@ -71,6 +70,7 @@
           </div>
         {% endif %}
       </div>
+
 
       <div class="row md-mt-20">
         <h4 class="col-md-8 md-mt-0">
@@ -305,7 +305,7 @@
 
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-3 md-mt-30">
 
       {% if experiment.is_draft %}
         {% if experiment.is_ready_for_review %}
@@ -318,18 +318,20 @@
 
             <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
 
-            <div class="checkbox">
+            <div class="checkbox md-mt-0">
               <label>
-                <input type="checkbox" name="attention" value="{{ experiment.ATTENTION_MESSAGE }}"> 
+                <input type="checkbox" name="attention" value="{{ experiment.ATTENTION_MESSAGE }}">
                 {{ experiment.ATTENTION_MESSAGE }}
               </label>
-            </div> 
+            </div>
 
-            <input
+            <button
               type="submit"
               class="col-md-12 md-mb-10 btn btn-success"
-              value="Submit for Review"
             >
+              <span class="glyphicon glyphicon-eye-open"></span>
+              Submit for Review
+            </button>
 
           </form>
         {% else %}
@@ -347,20 +349,52 @@
       {% endif %}
 
       {% if experiment.is_in_review %}
-        <form
-          action="{% url "experiments-status-update" slug=experiment.slug %}"
-          method="POST"
-          class="md-mb-20"
-        >
-          {% csrf_token %}
-          <input type="hidden" name="status" value="{{ experiment.STATUS_SHIP }}">
-          <input
-            type="submit"
-            class="col-md-12 md-mb-10 btn btn-success"
-            value="Ready to Ship"
+        {% if experiment.completed_required_reviews %}
+          <form
+            action="{% url "experiments-status-update" slug=experiment.slug %}"
+            method="POST"
+            class="md-mb-20"
           >
-        </form>
+            {% csrf_token %}
+            <input type="hidden" name="status" value="{{ experiment.STATUS_SHIP }}">
+            <button
+              type="submit"
+              class="col-md-12 md-mb-10 btn btn-success"
+            >
+              <span class="glyphicon glyphicon-send"></span>
+              Ready to Ship
+            </button>
+          </form>
+        {% else %}
+          <button
+            type="submit"
+            class="col-md-12 md-mb-10 btn btn-success disabled"
+          >
+            <span class="glyphicon glyphicon-send"></span>
+            Ready to Ship
+          </button>
+          <strong>Complete the following reviews before the experiment can ship:</strong>
+        {% endif %}
+        <div class="row form-group">
+          <div class="col-md-12">
+            <form action="{% url "experiments-review-update" slug=experiment.slug %}" method="POST">
+              {% csrf_token %}
 
+              {% for field in form %}
+                  <div class="checkbox">
+                    <label data-toggle="tooltip" data-placement="top" title="{{ field.help_text }}">
+                      {{ field }}
+                      {{ field.label }}
+                    </label>
+                  </div>
+              {% endfor %}
+
+              <button class="col-md-12 btn btn-info">
+                <span class="glyphicon glyphicon-floppy-saved"></span> Save Reviews
+              </button>
+            </form>
+          </div>
+        </div>
         <form
           action="{% url "experiments-status-update" slug=experiment.slug %}"
           method="POST"
@@ -368,12 +402,15 @@
         >
           {% csrf_token %}
           <input type="hidden" name="status" value="{{ experiment.STATUS_DRAFT }}">
-          <input
+          <button
             type="submit"
-            class="col-md-12 md-mb-10 btn btn-warning"
-            value="Cancel Review Request"
+            class="col-md-12 md-mb-10 btn btn-default"
           >
+            <span class="glyphicon glyphicon-remove"></span>
+            Cancel Review Request
+          </button>
         </form>
+
       {% endif %}
 
       {% if experiment.is_ready_to_ship %}
@@ -384,13 +421,32 @@
         >
           {% csrf_token %}
           <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
-          <input
+          <button
             type="submit"
-            class="col-md-12 md-mb-10 btn btn-warning"
-            value="Cancel Ready to Ship"
+            class="col-md-12 md-mb-10 btn btn-default"
           >
+            <span class="glyphicon glyphicon-remove"></span>
+            Cancel Ready to Ship
+          </button>
         </form>
       {% endif %}
+
+      {% if not experiment.is_editable %}
+        <h5 class="md-mt-20 col-md-12 md-p-0 text-right">Reviews</h5>
+        {% for field in form %}
+          <div class="row help-block">
+            <div class="col-md-12">
+              {% if field.value %}
+                <span class="glyphicon glyphicon-ok"></span>
+              {% else %}
+                <span class="glyphicon glyphicon-remove"></span>
+              {% endif %}
+              {{ field.label }}
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+
 
       <h5 class="md-mt-20 col-md-12 md-p-0 text-right">History</h5>
       {% for change in experiment.ordered_changes %}
@@ -403,7 +459,7 @@
             <p>{{ change.changed_by }}</p>
           </div>
           <div class="col-md-6 text-right">
-            <p>{{ change.pretty_status }}</p>
+            <p>{{ change }}</p>
           </div>
         </div>
       {% endfor %}

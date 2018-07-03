@@ -281,6 +281,20 @@ class TestExperimentModel(TestCase):
             settings.BUGZILLA_DETAIL_URL.format(id=experiment.bugzilla_id),
         )
 
+    def test_completed_required_reviews_false_when_reviews_not_complete(self):
+        experiment = ExperimentFactory.create()
+        self.assertFalse(experiment.completed_required_reviews)
+
+    def test_completed_required_reviews_true_when_reviews_complete(self):
+        experiment = ExperimentFactory.create(
+            review_phd=True,
+            review_science=True,
+            review_peer=True,
+            review_relman=True,
+            review_qa=True,
+        )
+        self.assertTrue(experiment.completed_required_reviews)
+
 
 class TestExperimentChangeLogManager(TestCase):
 

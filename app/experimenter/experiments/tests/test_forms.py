@@ -12,6 +12,7 @@ from experimenter.experiments.forms import (
     ControlVariantForm,
     ExperimentObjectivesForm,
     ExperimentOverviewForm,
+    ExperimentReviewForm,
     ExperimentRisksForm,
     ExperimentStatusForm,
     ExperimentVariantsForm,
@@ -378,11 +379,11 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         )
 
         data = {
-            "risk_partner_related": False,
+            "risk_partner_related": True,
             "risk_brand": True,
-            "risk_fast_shipped": False,
+            "risk_fast_shipped": True,
             "risk_confidential": True,
-            "risk_release_population": False,
+            "risk_release_population": True,
             "risks": "There are some risks",
             "testing": "Always be sure to test!",
         }
@@ -392,24 +393,88 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         )
 
         self.assertTrue(form.is_valid())
-
         experiment = form.save()
-
-        self.assertEqual(
-            experiment.risk_partner_related, data["risk_partner_related"]
-        )
-        self.assertEqual(experiment.risk_brand, data["risk_brand"])
-        self.assertEqual(
-            experiment.risk_fast_shipped, data["risk_fast_shipped"]
-        )
-        self.assertEqual(
-            experiment.risk_confidential, data["risk_confidential"]
-        )
-        self.assertEqual(
-            experiment.risk_release_population, data["risk_release_population"]
-        )
+        self.assertTrue(experiment.risk_partner_related)
+        self.assertTrue(experiment.risk_brand)
+        self.assertTrue(experiment.risk_fast_shipped)
+        self.assertTrue(experiment.risk_confidential)
+        self.assertTrue(experiment.risk_release_population)
         self.assertEqual(experiment.risks, data["risks"])
         self.assertEqual(experiment.testing, data["testing"])
+
+
+class TestExperimentReviewForm(MockRequestMixin, TestCase):
+
+    def test_form_saves_reviews(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW
+        )
+
+        data = {
+            "review_phd": True,
+            "review_science": True,
+            "review_peer": True,
+            "review_relman": True,
+            "review_qa": True,
+            "review_legal": True,
+            "review_ux": True,
+            "review_security": True,
+        }
+
+        form = ExperimentReviewForm(
+            request=self.request, data=data, instance=experiment
+        )
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+        self.assertTrue(experiment.review_phd)
+        self.assertTrue(experiment.review_science)
+        self.assertTrue(experiment.review_peer)
+        self.assertTrue(experiment.review_relman)
+        self.assertTrue(experiment.review_qa)
+        self.assertTrue(experiment.review_legal)
+        self.assertTrue(experiment.review_ux)
+        self.assertTrue(experiment.review_security)
+
+    def test_added_reviews_property(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW
+        )
+
+        data = {"review_phd": True, "review_science": True}
+
+        form = ExperimentReviewForm(
+            request=self.request, data=data, instance=experiment
+        )
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(len(form.added_reviews), 2)
+        self.assertEqual(len(form.removed_reviews), 0)
+        self.assertIn(form.fields["review_phd"].label, form.added_reviews)
+        self.assertIn(form.fields["review_science"].label, form.added_reviews)
+
+    def test_removed_reviews_property(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW, review_phd=True, review_science=True
+        )
+
+        data = {"review_phd": False, "review_science": False}
+
+        form = ExperimentReviewForm(
+            request=self.request, data=data, instance=experiment
+        )
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(len(form.added_reviews), 0)
+        self.assertEqual(len(form.removed_reviews), 2)
+        self.assertIn(form.fields["review_phd"].label, form.removed_reviews)
+        self.assertIn(
+            form.fields["review_science"].label, form.removed_reviews
+        )
 
 
 class TestExperimentStatusForm(
