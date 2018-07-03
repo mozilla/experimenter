@@ -699,3 +699,53 @@ class TestExperimentStatusUpdateView(
         )
         updated_experiment = Experiment.objects.get(slug=experiment.slug)
         self.assertEqual(updated_experiment.status, original_status)
+
+
+class TestExperimentReviewUpdateView(TestCase):
+
+    def test_view_updates_reviews_and_redirects(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW
+        )
+
+        data = {
+            "review_phd": True,
+            "review_science": True,
+            "review_peer": True,
+            "review_relman": True,
+            "review_qa": True,
+            "review_legal": True,
+            "review_ux": True,
+            "review_security": True,
+        }
+
+        response = self.client.post(
+            reverse(
+                "experiments-review-update", kwargs={"slug": experiment.slug}
+            ),
+            data,
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertRedirects(
+            response,
+            reverse("experiments-detail", kwargs={"slug": experiment.slug}),
+            fetch_redirect_response=False,
+        )
+
+        experiment = Experiment.objects.get()
+
+        self.assertTrue(experiment.review_phd)
+        self.assertTrue(experiment.review_science)
+        self.assertTrue(experiment.review_peer)
+        self.assertTrue(experiment.review_relman)
+        self.assertTrue(experiment.review_qa)
+        self.assertTrue(experiment.review_legal)
+        self.assertTrue(experiment.review_ux)
+        self.assertTrue(experiment.review_security)
+
+        change = experiment.changes.latest()
+
+        self.assertEqual(change.changed_by.email, user_email)
+        self.assertEqual(change.old_status, experiment.STATUS_REVIEW)
+        self.assertEqual(change.new_status, experiment.STATUS_REVIEW)

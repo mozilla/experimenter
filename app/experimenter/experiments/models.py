@@ -72,6 +72,17 @@ class Experiment(ExperimentConstants, models.Model):
         default=ExperimentConstants.ANALYSIS_DEFAULT, blank=True, null=True
     )
     analysis_owner = models.CharField(max_length=255, blank=True, null=True)
+
+    testing = models.TextField(
+        default=ExperimentConstants.TESTING_DEFAULT, blank=True, null=True
+    )
+    total_users = models.PositiveIntegerField(default=0)
+    enrollment_dashboard_url = models.URLField(blank=True, null=True)
+    dashboard_url = models.URLField(blank=True, null=True)
+    dashboard_image_url = models.URLField(blank=True, null=True)
+    bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
+
+    # Risk fields
     risk_partner_related = models.NullBooleanField(
         default=None, blank=True, null=True
     )
@@ -88,14 +99,22 @@ class Experiment(ExperimentConstants, models.Model):
     risks = models.TextField(
         default=ExperimentConstants.RISKS_DEFAULT, blank=True, null=True
     )
-    testing = models.TextField(
-        default=ExperimentConstants.TESTING_DEFAULT, blank=True, null=True
+
+    # Review Fields
+    review_phd = models.NullBooleanField(default=None, blank=True, null=True)
+    review_science = models.NullBooleanField(
+        default=None, blank=True, null=True
     )
-    total_users = models.PositiveIntegerField(default=0)
-    enrollment_dashboard_url = models.URLField(blank=True, null=True)
-    dashboard_url = models.URLField(blank=True, null=True)
-    dashboard_image_url = models.URLField(blank=True, null=True)
-    bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
+    review_peer = models.NullBooleanField(default=None, blank=True, null=True)
+    review_relman = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    review_qa = models.NullBooleanField(default=None, blank=True, null=True)
+    review_legal = models.NullBooleanField(default=None, blank=True, null=True)
+    review_ux = models.NullBooleanField(default=None, blank=True, null=True)
+    review_security = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
 
     objects = ExperimentManager()
 
@@ -239,6 +258,20 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
+    def _required_reviews(self):
+        return (
+            self.review_phd,
+            self.review_science,
+            self.review_peer,
+            self.review_relman,
+            self.review_qa,
+        )
+
+    @property
+    def completed_required_reviews(self):
+        return all(self._required_reviews)
+
+    @property
     def population(self):
         return "{percent:g}% of {channel} Firefox {version}".format(
             percent=float(self.population_percent),
@@ -361,11 +394,10 @@ class ExperimentChangeLog(models.Model):
         ordering = ("changed_on",)
 
     def __str__(self):  # pragma: no cover
-        return "{status} by {updater} on {datetime}".format(
-            status=self.new_status,
-            updater=self.changed_by,
-            datetime=self.changed_on.date(),
-        )
+        if self.message:
+            return self.message
+        else:
+            return self.pretty_status
 
     @property
     def pretty_status(self):

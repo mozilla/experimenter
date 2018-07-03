@@ -5,6 +5,7 @@ from experimenter.experiments.views import (
     ExperimentDetailView,
     ExperimentObjectivesUpdateView,
     ExperimentOverviewUpdateView,
+    ExperimentReviewUpdateView,
     ExperimentRisksUpdateView,
     ExperimentStatusUpdateView,
     ExperimentVariantsUpdateView,
@@ -37,6 +38,11 @@ urlpatterns = [
         r"^(?P<slug>[a-zA-Z0-9-]+)/status-update/$",
         ExperimentStatusUpdateView.as_view(),
         name="experiments-status-update",
+    ),
+    url(
+        r"^(?P<slug>[a-zA-Z0-9-]+)/review-update/$",
+        ExperimentReviewUpdateView.as_view(),
+        name="experiments-review-update",
     ),
     url(
         r"^(?P<slug>[a-zA-Z0-9-]+)/$",
