@@ -1,10 +1,5 @@
 {% extends "base.html" %}
 
-{% load static %}
-
-{% block breadcrumbs %}
-{% endblock %}
-
 {% block header_content %}
   <h3>
     <a class="noanchorstyle spaced-text" href="{% url "experiments-detail" slug=experiment.slug %}">
@@ -291,132 +286,12 @@
 {% block main_sidebar %}
   <div class="md-mt-30">
   </div>
-  {% if experiment.is_draft %}
-    {% if experiment.is_ready_for_review %}
-      <form
-        action="{% url "experiments-status-update" slug=experiment.slug %}"
-        method="POST"
-      >
 
-        {% csrf_token %}
-
-        <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
-
-        <div class="checkbox md-mt-0">
-          <label>
-            <input type="checkbox" name="attention" value="{{ experiment.ATTENTION_MESSAGE }}">
-            {{ experiment.ATTENTION_MESSAGE }}
-          </label>
-        </div>
-
-        <button
-          type="submit"
-          class="col-md-12 md-mb-10 btn btn-success"
-        >
-          <span class="glyphicon glyphicon-eye-open"></span>
-          Submit for Review
-        </button>
-
-      </form>
-    {% else %}
-      <input
-        type="submit"
-        class="col-md-12 md-mb-10 btn btn-success disabled"
-        value="Submit for Review"
-      >
-      <div class="row form-group">
-        <div class="col-md-12">
-            <p class="help-block">You must complete every section before you can launch this experiment.</p>
-        </div>
-      </div>
-    {% endif %}
-  {% endif %}
-
-  {% if experiment.is_in_review %}
-    {% if experiment.completed_required_reviews %}
-      <form
-        action="{% url "experiments-status-update" slug=experiment.slug %}"
-        method="POST"
-        class="md-mb-20"
-      >
-        {% csrf_token %}
-        <input type="hidden" name="status" value="{{ experiment.STATUS_SHIP }}">
-        <button
-          type="submit"
-          class="col-md-12 md-mb-10 btn btn-success"
-        >
-          <span class="glyphicon glyphicon-send"></span>
-          Ready to Ship
-        </button>
-      </form>
-    {% else %}
-      <button
-        type="submit"
-        class="col-md-12 md-mb-10 btn btn-success disabled"
-      >
-        <span class="glyphicon glyphicon-send"></span>
-        Ready to Ship
-      </button>
-      <strong>Complete the following reviews before the experiment can ship:</strong>
-    {% endif %}
-    <div class="row form-group">
-      <div class="col-md-12">
-        <form action="{% url "experiments-review-update" slug=experiment.slug %}" method="POST">
-          {% csrf_token %}
-
-          {% for field in form %}
-              <div class="checkbox">
-                <label data-toggle="tooltip" data-placement="top" title="{{ field.help_text }}">
-                  {{ field }}
-                  {{ field.label }}
-                </label>
-              </div>
-          {% endfor %}
-
-          <button class="col-md-12 btn btn-info">
-            <span class="glyphicon glyphicon-floppy-saved"></span> Save Reviews
-          </button>
-        </form>
-      </div>
-    </div>
-    <form
-      action="{% url "experiments-status-update" slug=experiment.slug %}"
-      method="POST"
-      class="md-mb-20"
-    >
-      {% csrf_token %}
-      <input type="hidden" name="status" value="{{ experiment.STATUS_DRAFT }}">
-      <button
-        type="submit"
-        class="col-md-12 md-mb-10 btn btn-default"
-      >
-        <span class="glyphicon glyphicon-remove"></span>
-        Cancel Review Request
-      </button>
-    </form>
-
-  {% endif %}
-
-  {% if experiment.is_ready_to_ship %}
-    <form
-      action="{% url "experiments-status-update" slug=experiment.slug %}"
-      method="POST"
-      class="md-mb-20"
-    >
-      {% csrf_token %}
-      <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
-      <button
-        type="submit"
-        class="col-md-12 md-mb-10 btn btn-default"
-      >
-        <span class="glyphicon glyphicon-remove"></span>
-        Cancel Ready to Ship
-      </button>
-    </form>
-  {% endif %}
+  {% block main_sidebar_extra %}
+  {% endblock %}
 
   {% if not experiment.is_editable %}
-    <h5 class="md-mt-20 col-md-12 md-p-0 text-right">Reviews</h5>
+    <h5 class="col-md-12 md-p-0 text-right">Reviews</h5>
     {% for field in form %}
       <div class="row help-block">
         <div class="col-md-12">
@@ -432,7 +307,7 @@
   {% endif %}
 
 
-  <h5 class="md-mt-20 col-md-12 md-p-0 text-right">History</h5>
+  <h5 class="col-md-12 md-p-0 text-right">History</h5>
   {% for change in experiment.ordered_changes %}
     <div class="row help-block">
       <div class="col-md-12">

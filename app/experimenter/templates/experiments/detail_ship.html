@@ -1,0 +1,19 @@
+{% extends "experiments/detail_base.html" %}
+
+{% block main_sidebar_extra %}
+  <form
+    action="{% url "experiments-status-update" slug=experiment.slug %}"
+    method="POST"
+    class="md-mb-20"
+  >
+    {% csrf_token %}
+    <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
+    <button
+      type="submit"
+      class="col-md-12 md-mb-10 btn btn-default"
+    >
+      <span class="glyphicon glyphicon-remove"></span>
+      Cancel Ready to Ship
+    </button>
+  </form>
+{% endblock %}

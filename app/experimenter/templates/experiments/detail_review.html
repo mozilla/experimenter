@@ -1,0 +1,66 @@
+{% extends "experiments/detail_base.html" %}
+
+{% block main_sidebar_extra %}
+  {% if experiment.completed_required_reviews %}
+    <form
+      action="{% url "experiments-status-update" slug=experiment.slug %}"
+      method="POST"
+      class="md-mb-20"
+    >
+      {% csrf_token %}
+      <input type="hidden" name="status" value="{{ experiment.STATUS_SHIP }}">
+      <button
+        type="submit"
+        class="col-md-12 md-mb-10 btn btn-success"
+      >
+        <span class="glyphicon glyphicon-send"></span>
+        Ready to Ship
+      </button>
+    </form>
+  {% else %}
+    <button
+      type="submit"
+      class="col-md-12 md-mb-10 btn btn-success disabled"
+    >
+      <span class="glyphicon glyphicon-send"></span>
+      Ready to Ship
+    </button>
+    <strong>Complete the following reviews before the experiment can ship:</strong>
+  {% endif %}
+
+  <div class="row form-group">
+    <div class="col-md-12">
+      <form action="{% url "experiments-review-update" slug=experiment.slug %}" method="POST">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="checkbox">
+              <label data-toggle="tooltip" data-placement="top" title="{{ field.help_text }}">
+                {{ field }}
+                {{ field.label }}
+              </label>
+            </div>
+        {% endfor %}
+
+        <button class="col-md-12 btn btn-info">
+          <span class="glyphicon glyphicon-floppy-saved"></span> Save Reviews
+        </button>
+      </form>
+    </div>
+  </div>
+  <form
+    action="{% url "experiments-status-update" slug=experiment.slug %}"
+    method="POST"
+    class="md-mb-20"
+  >
+    {% csrf_token %}
+    <input type="hidden" name="status" value="{{ experiment.STATUS_DRAFT }}">
+    <button
+      type="submit"
+      class="col-md-12 md-mb-10 btn btn-default"
+    >
+      <span class="glyphicon glyphicon-remove"></span>
+      Cancel Review Request
+    </button>
+  </form>
+{% endblock %}
