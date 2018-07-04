@@ -5,464 +5,446 @@
 {% block breadcrumbs %}
 {% endblock %}
 
-{% block content_header %}
-  <div class="col-md-9">
+{% block header_content %}
+  <h3>
     <a class="noanchorstyle spaced-text" href="{% url "experiments-detail" slug=experiment.slug %}">
       {{ experiment.name }}
     </a>
     <span class="badge status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
-  </div>
+  </h3>
 {% endblock %}
 
-{% block content %}
-  <div class="row md-mt-20">
+{% block main_content %}
+  <div class="row">
+    <h4 class="col-md-8 md-mt-0">
+      Overview
+    </h4>
+  </div>
 
-    {% if messages %}
-      <div class="col-md-9 md-pr-40">
-        <div class="row">
-          <div class="col-md-12 alert alert-info" role="alert">
-            {% for message in messages %}
-              <p><span class="glyphicon glyphicon-info-sign"></span> {{ message }}</p>
-            {% endfor %}
-          </div>
-        </div>
+  <div class="row card md-pt-15 md-pb-10">
+
+    <div class="col-md-10">
+      {% if experiment.bugzilla_url %}
+        <p><strong><a target="_blank" href="{{ experiment.bugzilla_url }}">Bugzilla Ticket</a></strong></p>
+      {% endif %}
+      <p><strong>Owner: {{ experiment.owner }}</strong></p>
+      <p><strong>{{ experiment.dates }}</strong></p>
+      {{ experiment.short_description|linebreaks }}
+    </div>
+
+    {% if experiment.is_editable %}
+      <div class="col-md-2 text-muted text-right">
+        <a class="noanchorstyle" href="{% url "experiments-overview-update" slug=experiment.slug %}">
+          <span class="glyphicon glyphicon-pencil"></span> Edit
+        </a>
       </div>
     {% endif %}
 
-    <div class="col-md-9 md-pr-40">
+    {% if experiment.is_begun %}
+      <div class="col-md-12 text-center">
+        <a class="btn btn-info" href="{{ experiment.test_tube_url }}" target="_blank">
+          <span class="glyphicon glyphicon-signal"></span> Test Tube Dashboard
+        </a>
 
-      <div class="row">
-        <h4 class="col-md-8 md-mt-0">
-          Overview
-        </h4>
-      </div>
-
-      <div class="row card md-pt-15 md-pb-10">
-
-        <div class="col-md-10">
-          {% if experiment.bugzilla_url %}
-            <p><strong><a target="_blank" href="{{ experiment.bugzilla_url }}">Bugzilla Ticket</a></strong></p>
-          {% endif %}
-          <p><strong>Owner: {{ experiment.owner }}</strong></p>
-          <p><strong>{{ experiment.dates }}</strong></p>
-          {{ experiment.short_description|linebreaks }}
-        </div>
-
-        {% if experiment.is_editable %}
-          <div class="col-md-2 text-muted text-right">
-            <a class="noanchorstyle" href="{% url "experiments-overview-update" slug=experiment.slug %}">
-              <span class="glyphicon glyphicon-pencil"></span> Edit
-            </a>
-          </div>
-        {% endif %}
-
-        {% if experiment.is_begun %}
-          <div class="col-md-12 text-center">
-            <a class="btn btn-info" href="{{ experiment.test_tube_url }}" target="_blank">
-              <span class="glyphicon glyphicon-signal"></span> Test Tube Dashboard
-            </a>
-
-            {% if experiment.dashboard_url %}
-              <a class="btn btn-info" href="{{ experiment.dashboard_url }}" target="_blank">
-                <span class="glyphicon glyphicon-signal"></span> reDash Dashboard
-              </a>
-            {% endif %}
-          </div>
+        {% if experiment.dashboard_url %}
+          <a class="btn btn-info" href="{{ experiment.dashboard_url }}" target="_blank">
+            <span class="glyphicon glyphicon-signal"></span> reDash Dashboard
+          </a>
         {% endif %}
       </div>
+    {% endif %}
+  </div>
 
 
-      <div class="row md-mt-20">
-        <h4 class="col-md-8 md-mt-0">
-          Population
-        </h4>
-      </div>
+  <div class="row md-mt-20">
+    <h4 class="col-md-8 md-mt-0">
+      Population
+    </h4>
+  </div>
 
-      <div class="row card md-pt-15 md-pb-10">
-        <div class="col-md-10">
-          <h4 class="md-mt-0">{{ experiment.population }}</h4>
-          {{ experiment.client_matching|linebreaks }}
-        </div>
-
-        {% if experiment.is_editable %}
-          <div class="col-md-2 text-muted text-right">
-            <a class="noanchorstyle" href="{% url "experiments-overview-update" slug=experiment.slug %}">
-              <span class="glyphicon glyphicon-pencil"></span> Edit
-            </a>
-          </div>
-        {% endif %}
-
-      </div>
-
-      <div class="row md-mt-20">
-        <h4 class="col-md-8 md-mt-0">
-          {% if not experiment.completed_variants %}
-            <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
-          {% endif %}
-          Firefox Pref &amp; Branches
-        </h4>
-      </div>
-
-      <div class="row card md-pt-15 md-pb-10">
-        <div class="col-md-10">
-
-        {% if experiment.variants.all %}
-
-          {% for variant in experiment.variants.all %}
-            <div class="{% if not forloop.last %}md-mb-15{% endif %}">
-              <h4 class="md-mt-0">{{ variant.ratio }}% {{ variant.name }}</h4>
-              <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
-              <p>{{ variant.description }}</p>
-
-            </div>
-          {% endfor %}
-
-        {% else %}
-
-          <p>You must <a href="{% url "experiments-variants-update" slug=experiment.slug %}">define your branches</a> before you can launch your experiment.</p>
-
-        {% endif %}
-        </div>
-
-        {% if experiment.is_editable %}
-          <div class="col-md-2 text-muted text-right">
-            <a class="noanchorstyle" href="{% url "experiments-variants-update" slug=experiment.slug %}">
-              <span class="glyphicon glyphicon-pencil"></span> Edit
-            </a>
-          </div>
-        {% endif %}
-
-      </div>
-
-      <div class="row md-mt-20">
-        <h4 class="col-md-8 md-mt-0">
-          {% if not experiment.completed_objectives %}
-            <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
-          {% endif %}
-          Objectives
-        </h4>
-      </div>
-
-      <div class="row card md-pt-15 md-pb-10">
-
-        <div class="col-md-10">
-          {% if experiment.completed_objectives %}
-            {{ experiment.objectives|linebreaks }}
-          {% else %}
-            <p>You must <a href="{% url "experiments-objectives-update" slug=experiment.slug %}">define the objectives</a> before you can launch your experiment.</p>
-          {% endif %}
-        </div>
-
-        {% if experiment.is_editable %}
-          <div class="col-md-2 text-muted text-right">
-            <a class="noanchorstyle" href="{% url "experiments-objectives-update" slug=experiment.slug %}">
-              <span class="glyphicon glyphicon-pencil"></span> Edit
-            </a>
-          </div>
-        {% endif %}
-
-      </div>
-
-      <div class="row md-mt-20">
-        <h4 class="col-md-8 md-mt-0">
-          {% if not experiment.completed_objectives %}
-            <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
-          {% endif %}
-          Analysis
-        </h4>
-      </div>
-
-      <div class="row card md-pt-15 md-pb-10">
-        <div class="col-md-10">
-          {% if experiment.completed_objectives %}
-            <p><strong>Analysis Owner: {{ experiment.analysis_owner }}</strong></p>
-            {{ experiment.analysis|linebreaks }}
-          {% else %}
-            <p>You must <a href="{% url "experiments-objectives-update" slug=experiment.slug %}">define the analysis plan</a> before you can launch your experiment.</p>
-          {% endif %}
-        </div>
-
-        {% if experiment.is_editable %}
-          <div class="col-md-2 text-muted text-right">
-            <a class="noanchorstyle" href="{% url "experiments-objectives-update" slug=experiment.slug %}">
-              <span class="glyphicon glyphicon-pencil"></span> Edit
-            </a>
-          </div>
-        {% endif %}
-      </div>
-
-      <div class="row md-mt-20">
-        <h4 class="col-md-8 md-mt-0">
-          {% if not experiment.completed_risks %}
-            <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
-          {% endif %}
-          Risk Assessment
-        </h4>
-      </div>
-
-      <div class="row card md-pt-15 md-pb-10">
-        <div class="col-md-10">
-          {% if experiment.completed_risks %}
-            <p>{{ experiment.RISK_PARTNER_RELATED_LABEL }}</p>
-            <p class="
-              {% if experiment.risk_partner_related %}
-                text-danger
-              {% endif %}
-            ">
-              <strong>
-                {{ experiment.risk_partner_related|yesno:"Yes,No" }}
-              </strong>
-            </p>
-
-            <p>{{ experiment.RISK_BRAND_LABEL }}</p>
-            <p class="
-              {% if experiment.risk_brand %}
-                text-danger
-              {% endif %}
-            ">
-              <strong>
-                {{ experiment.risk_brand|yesno:"Yes,No" }}
-              </strong>
-            </p>
-
-            <p>{{ experiment.RISK_FAST_SHIPPED_LABEL }}</p>
-            <p class="
-              {% if experiment.risk_fast_shipped %}
-                text-danger
-              {% endif %}
-            ">
-              <strong>
-                {{ experiment.risk_fast_shipped|yesno:"Yes,No" }}
-              </strong>
-            </p>
-
-            <p>{{ experiment.RISK_CONFIDENTIAL_LABEL }}</p>
-            <p class="
-              {% if experiment.risk_confidential %}
-                text-danger
-              {% endif %}
-            ">
-              <strong>
-                {{ experiment.risk_confidential|yesno:"Yes,No" }}
-              </strong>
-            </p>
-
-            <p>{{ experiment.RISK_RELEASE_POPULATION_LABEL }}</p>
-            <p class="
-              {% if experiment.risk_release_population %}
-                text-danger
-              {% endif %}
-            ">
-              <strong>
-                {{ experiment.risk_release_population|yesno:"Yes,No" }}
-              </strong>
-            </p>
-
-            {% if experiment.is_high_risk %}
-              <h5>RASCI Owners and Deliverables</h5>
-              {{ experiment.risks|linebreaks }}
-            {% endif %}
-          {% else %}
-            <p>You must <a href="{% url "experiments-risks-update" slug=experiment.slug %}">define the risks</a> before you can launch your experiment.</p>
-          {% endif %}
-        </div>
-
-        {% if experiment.is_editable %}
-          <div class="col-md-2 text-muted text-right">
-            <a class="noanchorstyle" href="{% url "experiments-risks-update" slug=experiment.slug %}">
-              <span class="glyphicon glyphicon-pencil"></span> Edit
-            </a>
-          </div>
-        {% endif %}
-      </div>
-
-      <div class="row md-mt-20">
-        <h4 class="col-md-8 md-mt-0">
-          {% if not experiment.completed_risks %}
-            <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
-          {% endif %}
-          Testing Plan
-        </h4>
-      </div>
-
-      <div class="row card md-pt-15 md-pb-10">
-        <div class="col-md-10">
-          {% if experiment.completed_risks %}
-            {{ experiment.testing|linebreaks }}
-          {% else %}
-            <p>You must <a href="{% url "experiments-risks-update" slug=experiment.slug %}">define the QA plan</a> before you can launch your experiment.</p>
-          {% endif %}
-        </div>
-
-        {% if experiment.is_editable %}
-          <div class="col-md-2 text-muted text-right">
-            <a class="noanchorstyle" href="{% url "experiments-risks-update" slug=experiment.slug %}">
-              <span class="glyphicon glyphicon-pencil"></span> Edit
-            </a>
-          </div>
-        {% endif %}
-      </div>
-
+  <div class="row card md-pt-15 md-pb-10">
+    <div class="col-md-10">
+      <h4 class="md-mt-0">{{ experiment.population }}</h4>
+      {{ experiment.client_matching|linebreaks }}
     </div>
 
-    <div class="col-md-3 md-mt-30">
+    {% if experiment.is_editable %}
+      <div class="col-md-2 text-muted text-right">
+        <a class="noanchorstyle" href="{% url "experiments-overview-update" slug=experiment.slug %}">
+          <span class="glyphicon glyphicon-pencil"></span> Edit
+        </a>
+      </div>
+    {% endif %}
 
-      {% if experiment.is_draft %}
-        {% if experiment.is_ready_for_review %}
-          <form
-            action="{% url "experiments-status-update" slug=experiment.slug %}"
-            method="POST"
-          >
+  </div>
 
-            {% csrf_token %}
-
-            <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
-
-            <div class="checkbox md-mt-0">
-              <label>
-                <input type="checkbox" name="attention" value="{{ experiment.ATTENTION_MESSAGE }}">
-                {{ experiment.ATTENTION_MESSAGE }}
-              </label>
-            </div>
-
-            <button
-              type="submit"
-              class="col-md-12 md-mb-10 btn btn-success"
-            >
-              <span class="glyphicon glyphicon-eye-open"></span>
-              Submit for Review
-            </button>
-
-          </form>
-        {% else %}
-          <input
-            type="submit"
-            class="col-md-12 md-mb-10 btn btn-success disabled"
-            value="Submit for Review"
-          >
-          <div class="row form-group">
-            <div class="col-md-12">
-                <p class="help-block">You must complete every section before you can launch this experiment.</p>
-            </div>
-          </div>
-        {% endif %}
+  <div class="row md-mt-20">
+    <h4 class="col-md-8 md-mt-0">
+      {% if not experiment.completed_variants %}
+        <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
       {% endif %}
+      Firefox Pref &amp; Branches
+    </h4>
+  </div>
 
-      {% if experiment.is_in_review %}
-        {% if experiment.completed_required_reviews %}
-          <form
-            action="{% url "experiments-status-update" slug=experiment.slug %}"
-            method="POST"
-            class="md-mb-20"
-          >
-            {% csrf_token %}
-            <input type="hidden" name="status" value="{{ experiment.STATUS_SHIP }}">
-            <button
-              type="submit"
-              class="col-md-12 md-mb-10 btn btn-success"
-            >
-              <span class="glyphicon glyphicon-send"></span>
-              Ready to Ship
-            </button>
-          </form>
-        {% else %}
-          <button
-            type="submit"
-            class="col-md-12 md-mb-10 btn btn-success disabled"
-          >
-            <span class="glyphicon glyphicon-send"></span>
-            Ready to Ship
-          </button>
-          <strong>Complete the following reviews before the experiment can ship:</strong>
-        {% endif %}
-        <div class="row form-group">
-          <div class="col-md-12">
-            <form action="{% url "experiments-review-update" slug=experiment.slug %}" method="POST">
-              {% csrf_token %}
+  <div class="row card md-pt-15 md-pb-10">
+    <div class="col-md-10">
 
-              {% for field in form %}
-                  <div class="checkbox">
-                    <label data-toggle="tooltip" data-placement="top" title="{{ field.help_text }}">
-                      {{ field }}
-                      {{ field.label }}
-                    </label>
-                  </div>
-              {% endfor %}
+    {% if experiment.variants.all %}
 
-              <button class="col-md-12 btn btn-info">
-                <span class="glyphicon glyphicon-floppy-saved"></span> Save Reviews
-              </button>
-            </form>
-          </div>
-        </div>
-        <form
-          action="{% url "experiments-status-update" slug=experiment.slug %}"
-          method="POST"
-          class="md-mb-20"
-        >
-          {% csrf_token %}
-          <input type="hidden" name="status" value="{{ experiment.STATUS_DRAFT }}">
-          <button
-            type="submit"
-            class="col-md-12 md-mb-10 btn btn-default"
-          >
-            <span class="glyphicon glyphicon-remove"></span>
-            Cancel Review Request
-          </button>
-        </form>
+      {% for variant in experiment.variants.all %}
+        <div class="{% if not forloop.last %}md-mb-15{% endif %}">
+          <h4 class="md-mt-0">{{ variant.ratio }}% {{ variant.name }}</h4>
+          <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
+          <p>{{ variant.description }}</p>
 
-      {% endif %}
-
-      {% if experiment.is_ready_to_ship %}
-        <form
-          action="{% url "experiments-status-update" slug=experiment.slug %}"
-          method="POST"
-          class="md-mb-20"
-        >
-          {% csrf_token %}
-          <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
-          <button
-            type="submit"
-            class="col-md-12 md-mb-10 btn btn-default"
-          >
-            <span class="glyphicon glyphicon-remove"></span>
-            Cancel Ready to Ship
-          </button>
-        </form>
-      {% endif %}
-
-      {% if not experiment.is_editable %}
-        <h5 class="md-mt-20 col-md-12 md-p-0 text-right">Reviews</h5>
-        {% for field in form %}
-          <div class="row help-block">
-            <div class="col-md-12">
-              {% if field.value %}
-                <span class="glyphicon glyphicon-ok"></span>
-              {% else %}
-                <span class="glyphicon glyphicon-remove"></span>
-              {% endif %}
-              {{ field.label }}
-            </div>
-          </div>
-        {% endfor %}
-      {% endif %}
-
-
-      <h5 class="md-mt-20 col-md-12 md-p-0 text-right">History</h5>
-      {% for change in experiment.ordered_changes %}
-        <div class="row help-block">
-          <div class="col-md-12">
-            <p>{{ change.changed_on.date }}</p>
-          </div>
-          <hr/>
-          <div class="col-md-6">
-            <p>{{ change.changed_by }}</p>
-          </div>
-          <div class="col-md-6 text-right">
-            <p>{{ change }}</p>
-          </div>
         </div>
       {% endfor %}
+
+    {% else %}
+
+      <p>You must <a href="{% url "experiments-variants-update" slug=experiment.slug %}">define your branches</a> before you can launch your experiment.</p>
+
+    {% endif %}
     </div>
+
+    {% if experiment.is_editable %}
+      <div class="col-md-2 text-muted text-right">
+        <a class="noanchorstyle" href="{% url "experiments-variants-update" slug=experiment.slug %}">
+          <span class="glyphicon glyphicon-pencil"></span> Edit
+        </a>
+      </div>
+    {% endif %}
+
   </div>
+
+  <div class="row md-mt-20">
+    <h4 class="col-md-8 md-mt-0">
+      {% if not experiment.completed_objectives %}
+        <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
+      {% endif %}
+      Objectives
+    </h4>
+  </div>
+
+  <div class="row card md-pt-15 md-pb-10">
+
+    <div class="col-md-10">
+      {% if experiment.completed_objectives %}
+        {{ experiment.objectives|linebreaks }}
+      {% else %}
+        <p>You must <a href="{% url "experiments-objectives-update" slug=experiment.slug %}">define the objectives</a> before you can launch your experiment.</p>
+      {% endif %}
+    </div>
+
+    {% if experiment.is_editable %}
+      <div class="col-md-2 text-muted text-right">
+        <a class="noanchorstyle" href="{% url "experiments-objectives-update" slug=experiment.slug %}">
+          <span class="glyphicon glyphicon-pencil"></span> Edit
+        </a>
+      </div>
+    {% endif %}
+
+  </div>
+
+  <div class="row md-mt-20">
+    <h4 class="col-md-8 md-mt-0">
+      {% if not experiment.completed_objectives %}
+        <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
+      {% endif %}
+      Analysis
+    </h4>
+  </div>
+
+  <div class="row card md-pt-15 md-pb-10">
+    <div class="col-md-10">
+      {% if experiment.completed_objectives %}
+        <p><strong>Analysis Owner: {{ experiment.analysis_owner }}</strong></p>
+        {{ experiment.analysis|linebreaks }}
+      {% else %}
+        <p>You must <a href="{% url "experiments-objectives-update" slug=experiment.slug %}">define the analysis plan</a> before you can launch your experiment.</p>
+      {% endif %}
+    </div>
+
+    {% if experiment.is_editable %}
+      <div class="col-md-2 text-muted text-right">
+        <a class="noanchorstyle" href="{% url "experiments-objectives-update" slug=experiment.slug %}">
+          <span class="glyphicon glyphicon-pencil"></span> Edit
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="row md-mt-20">
+    <h4 class="col-md-8 md-mt-0">
+      {% if not experiment.completed_risks %}
+        <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
+      {% endif %}
+      Risk Assessment
+    </h4>
+  </div>
+
+  <div class="row card md-pt-15 md-pb-10">
+    <div class="col-md-10">
+      {% if experiment.completed_risks %}
+        <p>{{ experiment.RISK_PARTNER_RELATED_LABEL }}</p>
+        <p class="
+          {% if experiment.risk_partner_related %}
+            text-danger
+          {% endif %}
+        ">
+          <strong>
+            {{ experiment.risk_partner_related|yesno:"Yes,No" }}
+          </strong>
+        </p>
+
+        <p>{{ experiment.RISK_BRAND_LABEL }}</p>
+        <p class="
+          {% if experiment.risk_brand %}
+            text-danger
+          {% endif %}
+        ">
+          <strong>
+            {{ experiment.risk_brand|yesno:"Yes,No" }}
+          </strong>
+        </p>
+
+        <p>{{ experiment.RISK_FAST_SHIPPED_LABEL }}</p>
+        <p class="
+          {% if experiment.risk_fast_shipped %}
+            text-danger
+          {% endif %}
+        ">
+          <strong>
+            {{ experiment.risk_fast_shipped|yesno:"Yes,No" }}
+          </strong>
+        </p>
+
+        <p>{{ experiment.RISK_CONFIDENTIAL_LABEL }}</p>
+        <p class="
+          {% if experiment.risk_confidential %}
+            text-danger
+          {% endif %}
+        ">
+          <strong>
+            {{ experiment.risk_confidential|yesno:"Yes,No" }}
+          </strong>
+        </p>
+
+        <p>{{ experiment.RISK_RELEASE_POPULATION_LABEL }}</p>
+        <p class="
+          {% if experiment.risk_release_population %}
+            text-danger
+          {% endif %}
+        ">
+          <strong>
+            {{ experiment.risk_release_population|yesno:"Yes,No" }}
+          </strong>
+        </p>
+
+        {% if experiment.is_high_risk %}
+          <h5>RASCI Owners and Deliverables</h5>
+          {{ experiment.risks|linebreaks }}
+        {% endif %}
+      {% else %}
+        <p>You must <a href="{% url "experiments-risks-update" slug=experiment.slug %}">define the risks</a> before you can launch your experiment.</p>
+      {% endif %}
+    </div>
+
+    {% if experiment.is_editable %}
+      <div class="col-md-2 text-muted text-right">
+        <a class="noanchorstyle" href="{% url "experiments-risks-update" slug=experiment.slug %}">
+          <span class="glyphicon glyphicon-pencil"></span> Edit
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="row md-mt-20">
+    <h4 class="col-md-8 md-mt-0">
+      {% if not experiment.completed_risks %}
+        <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
+      {% endif %}
+      Testing Plan
+    </h4>
+  </div>
+
+  <div class="row card md-pt-15 md-pb-10">
+    <div class="col-md-10">
+      {% if experiment.completed_risks %}
+        {{ experiment.testing|linebreaks }}
+      {% else %}
+        <p>You must <a href="{% url "experiments-risks-update" slug=experiment.slug %}">define the QA plan</a> before you can launch your experiment.</p>
+      {% endif %}
+    </div>
+
+    {% if experiment.is_editable %}
+      <div class="col-md-2 text-muted text-right">
+        <a class="noanchorstyle" href="{% url "experiments-risks-update" slug=experiment.slug %}">
+          <span class="glyphicon glyphicon-pencil"></span> Edit
+        </a>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block main_sidebar %}
+  <div class="md-mt-30">
+  </div>
+  {% if experiment.is_draft %}
+    {% if experiment.is_ready_for_review %}
+      <form
+        action="{% url "experiments-status-update" slug=experiment.slug %}"
+        method="POST"
+      >
+
+        {% csrf_token %}
+
+        <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
+
+        <div class="checkbox md-mt-0">
+          <label>
+            <input type="checkbox" name="attention" value="{{ experiment.ATTENTION_MESSAGE }}">
+            {{ experiment.ATTENTION_MESSAGE }}
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          class="col-md-12 md-mb-10 btn btn-success"
+        >
+          <span class="glyphicon glyphicon-eye-open"></span>
+          Submit for Review
+        </button>
+
+      </form>
+    {% else %}
+      <input
+        type="submit"
+        class="col-md-12 md-mb-10 btn btn-success disabled"
+        value="Submit for Review"
+      >
+      <div class="row form-group">
+        <div class="col-md-12">
+            <p class="help-block">You must complete every section before you can launch this experiment.</p>
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  {% if experiment.is_in_review %}
+    {% if experiment.completed_required_reviews %}
+      <form
+        action="{% url "experiments-status-update" slug=experiment.slug %}"
+        method="POST"
+        class="md-mb-20"
+      >
+        {% csrf_token %}
+        <input type="hidden" name="status" value="{{ experiment.STATUS_SHIP }}">
+        <button
+          type="submit"
+          class="col-md-12 md-mb-10 btn btn-success"
+        >
+          <span class="glyphicon glyphicon-send"></span>
+          Ready to Ship
+        </button>
+      </form>
+    {% else %}
+      <button
+        type="submit"
+        class="col-md-12 md-mb-10 btn btn-success disabled"
+      >
+        <span class="glyphicon glyphicon-send"></span>
+        Ready to Ship
+      </button>
+      <strong>Complete the following reviews before the experiment can ship:</strong>
+    {% endif %}
+    <div class="row form-group">
+      <div class="col-md-12">
+        <form action="{% url "experiments-review-update" slug=experiment.slug %}" method="POST">
+          {% csrf_token %}
+
+          {% for field in form %}
+              <div class="checkbox">
+                <label data-toggle="tooltip" data-placement="top" title="{{ field.help_text }}">
+                  {{ field }}
+                  {{ field.label }}
+                </label>
+              </div>
+          {% endfor %}
+
+          <button class="col-md-12 btn btn-info">
+            <span class="glyphicon glyphicon-floppy-saved"></span> Save Reviews
+          </button>
+        </form>
+      </div>
+    </div>
+    <form
+      action="{% url "experiments-status-update" slug=experiment.slug %}"
+      method="POST"
+      class="md-mb-20"
+    >
+      {% csrf_token %}
+      <input type="hidden" name="status" value="{{ experiment.STATUS_DRAFT }}">
+      <button
+        type="submit"
+        class="col-md-12 md-mb-10 btn btn-default"
+      >
+        <span class="glyphicon glyphicon-remove"></span>
+        Cancel Review Request
+      </button>
+    </form>
+
+  {% endif %}
+
+  {% if experiment.is_ready_to_ship %}
+    <form
+      action="{% url "experiments-status-update" slug=experiment.slug %}"
+      method="POST"
+      class="md-mb-20"
+    >
+      {% csrf_token %}
+      <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
+      <button
+        type="submit"
+        class="col-md-12 md-mb-10 btn btn-default"
+      >
+        <span class="glyphicon glyphicon-remove"></span>
+        Cancel Ready to Ship
+      </button>
+    </form>
+  {% endif %}
+
+  {% if not experiment.is_editable %}
+    <h5 class="md-mt-20 col-md-12 md-p-0 text-right">Reviews</h5>
+    {% for field in form %}
+      <div class="row help-block">
+        <div class="col-md-12">
+          {% if field.value %}
+            <span class="glyphicon glyphicon-ok"></span>
+          {% else %}
+            <span class="glyphicon glyphicon-remove"></span>
+          {% endif %}
+          {{ field.label }}
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+
+  <h5 class="md-mt-20 col-md-12 md-p-0 text-right">History</h5>
+  {% for change in experiment.ordered_changes %}
+    <div class="row help-block">
+      <div class="col-md-12">
+        <p>{{ change.changed_on.date }}</p>
+      </div>
+      <hr/>
+      <div class="col-md-6">
+        <p>{{ change.changed_by }}</p>
+      </div>
+      <div class="col-md-6 text-right">
+        <p>{{ change }}</p>
+      </div>
+    </div>
+  {% endfor %}
 {% endblock %}

@@ -2,8 +2,8 @@
 
 {% load static %}
 
-{% block content_header %}
-  <div class="col-md-9">
+{% block header_content %}
+  <h3>
     {{ experiments.count }}
 
     {% if filter.form.status.value %}
@@ -28,106 +28,88 @@
     {% if filter.form.owner.value %}
       by {{ filter.form.get_owner_display_value }}
     {% endif %}
-  </div>
-
-  <div class="col-md-3 text-right">
-    <div class="row">
-      <div class="col-md-12">
-        <a class="col-md-12 btn btn-info" href="{% url "experiments-create" %}">
-          <span class="glyphicon glyphicon-edit"></span>
-          Create Experiment
-        </a>
-      </div>
-    </div>
-  </div>
-
+  </h3>
 {% endblock %}
 
-{% block content %}
-  <div class="row md-mt-20">
-
-    <div class="col-md-9 md-pr-40">
-
-      {% for experiment in experiments %}
-        <a class="noanchorstyle clickhighlight" href="{% url "experiments-detail" slug=experiment.slug %}">
-
-          <div class="row">
-            <div class="col-md-12">
-              <h4 class="md-mt-0">
-                {{ experiment.name }}
-                <span class="badge status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
-              </h4>
-            </div>
-          </div>
-
-          <div class="row card md-mb-30">
-
-            <div class="col-md-8">
-              <h5>
-                Owner: {{ experiment.owner }}
-              </h5>
-              {{ experiment.short_description|linebreaks }}
-            </div>
-
-            <div class="col-md-4 text-right">
-              <h4>{{ experiment.population }}</h4>
-              <p><strong>{{ experiment.dates }}</strong></p>
-            </div>
-
-          </div>
-
-        </a>
-
-      {% endfor %}
-
+{% block header_sidebar %}
+  <div class="row">
+    <div class="col-md-12">
+      <a class="col-md-12 btn btn-info" href="{% url "experiments-create" %}">
+        <span class="glyphicon glyphicon-edit"></span>
+        Create Experiment
+      </a>
     </div>
+  </div>
+{% endblock %}
 
-    <form method="GET">
-
-      <div class="col-md-3">
-
-        <div class="row md-mb-10">
-          <strong class="col-md-12">Sort Experiments</strong>
+{% block main_content %}
+  {% for experiment in experiments %}
+    <a class="noanchorstyle clickhighlight" href="{% url "experiments-detail" slug=experiment.slug %}">
+      <div class="row">
+        <div class="col-md-12">
+          <h4 class="md-mt-0">
+            {{ experiment.name }}
+            <span class="badge status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
+          </h4>
         </div>
-
-        <div class="row md-mb-10">
-          <div class="col-md-12">
-            {{ ordering_form.ordering }}
-          </div>
-        </div>
-
-        <div class="row md-mt-20 md-mb-10">
-          <strong class="col-md-12">Filter Experiments</strong>
-        </div>
-
-        {% for field in filter.form %}
-          <div class="row md-mb-10">
-            <div class="col-md-12">
-              {% ifequal field.name "archived" %}
-                <div class="checkbox md-m-0">
-                  <label>
-                    {{ field }}
-                    {{ field.label }}
-                  </label>
-                </div>
-              {% else %}
-                {{ field }}
-              {% endifequal %}
-            </div>
-          </div>
-        {% endfor %}
-
-        <div class="row">
-          <div class="col-md-12 text-right">
-            <button type="submit" class="btn btn-info">
-              <span class="glyphicon glyphicon-ok"></span> Apply
-            </button>
-          </div>
-        </div>
-
       </div>
 
-    </form>
+      <div class="row card md-mb-30">
+        <div class="col-md-8">
+          <h5>
+            Owner: {{ experiment.owner }}
+          </h5>
+          {{ experiment.short_description|linebreaks }}
+        </div>
 
-  </div>
+        <div class="col-md-4 text-right">
+          <h4>{{ experiment.population }}</h4>
+          <p><strong>{{ experiment.dates }}</strong></p>
+        </div>
+      </div>
+    </a>
+  {% endfor %}
+{% endblock %}
+
+{% block main_sidebar %}
+  <form method="GET">
+    <div class="row md-mb-10">
+      <strong class="col-md-12">Sort Experiments</strong>
+    </div>
+
+    <div class="row md-mb-10">
+      <div class="col-md-12">
+        {{ ordering_form.ordering }}
+      </div>
+    </div>
+
+    <div class="row md-mt-20 md-mb-10">
+      <strong class="col-md-12">Filter Experiments</strong>
+    </div>
+
+    {% for field in filter.form %}
+      <div class="row md-mb-10">
+        <div class="col-md-12">
+          {% ifequal field.name "archived" %}
+            <div class="checkbox md-m-0">
+              <label>
+                {{ field }}
+                {{ field.label }}
+              </label>
+            </div>
+          {% else %}
+            {{ field }}
+          {% endifequal %}
+        </div>
+      </div>
+    {% endfor %}
+
+    <div class="row">
+      <div class="col-md-12 text-right">
+        <button type="submit" class="btn btn-info">
+          <span class="glyphicon glyphicon-ok"></span> Apply
+        </button>
+      </div>
+    </div>
+  </form>
 {% endblock %}
