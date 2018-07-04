@@ -45,18 +45,49 @@
       </div>
     </div>
 
-    <div id="content-header">
+    <div id="sub-header">
       <div class="container">
         <div class="row md-pt-15 md-pb-15">
-          {% block content_header %}
-          {% endblock %}
+          <div class="col-md-9 md-pr-40">
+            {% block header_content %}
+            {% endblock %}
+          </div>
+
+          <div class="col-md-3">
+            {% block header_sidebar %}
+            {% endblock %}
+          </div>
         </div>
       </div>
     </div>
 
+    {% if messages %}
+      <div class="alert-info">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-12 md-pt-10">
+              {% for message in messages %}
+                <p><span class="glyphicon glyphicon-info-sign"></span> {{ message }}</p>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
     <div class="container">
-      {% block content %}
-      {% endblock %}
+      <div class="row md-mt-20">
+
+        <div class="col-md-9 md-pr-40">
+          {% block main_content %}
+          {% endblock %}
+        </div>
+
+        <div class="col-md-3">
+          {% block main_sidebar %}
+          {% endblock %}
+        </div>
+      </div>
     </div>
 
     <footer>
