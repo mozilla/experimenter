@@ -649,6 +649,8 @@ class TestExperimentDetailView(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "experiments/detail_draft.html")
+        self.assertTemplateUsed(response, "experiments/detail_base.html")
 
 
 class TestExperimentStatusUpdateView(

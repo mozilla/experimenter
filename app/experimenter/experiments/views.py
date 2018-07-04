@@ -211,7 +211,14 @@ class ExperimentRisksUpdateView(ExperimentFormMixin, UpdateView):
 class ExperimentDetailView(ExperimentFormMixin, ModelFormMixin, DetailView):
     model = Experiment
     form_class = ExperimentReviewForm
-    template_name = "experiments/detail.html"
+
+    def get_template_names(self):
+        return [
+            "experiments/detail_{status}.html".format(
+                status=self.object.status.lower()  # OSX is case insensitive
+            ),
+            "experiments/detail_base.html",
+        ]
 
 
 class ExperimentStatusUpdateView(ExperimentFormMixin, UpdateView):
