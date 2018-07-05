@@ -7,6 +7,7 @@
     </a>
     <span class="badge status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
   </h3>
+  <p class="md-mt-5 md-mb-0">{{ experiment.dates }}</p>
 {% endblock %}
 
 {% block main_content %}
@@ -19,11 +20,7 @@
   <div class="row card md-pt-15 md-pb-10">
 
     <div class="col-md-10">
-      {% if experiment.bugzilla_url %}
-        <p><strong><a target="_blank" href="{{ experiment.bugzilla_url }}">Bugzilla Ticket</a></strong></p>
-      {% endif %}
       <p><strong>Owner: {{ experiment.owner }}</strong></p>
-      <p><strong>{{ experiment.dates }}</strong></p>
       {{ experiment.short_description|linebreaks }}
     </div>
 
@@ -289,6 +286,11 @@
 
   {% block main_sidebar_extra %}
   {% endblock %}
+
+  {% if experiment.bugzilla_url %}
+  <h5 class="col-md-12 md-p-0 text-right">Links</h5>
+  <p><a target="_blank" href="{{ experiment.bugzilla_url }}">Bugzilla Ticket</a></p>
+  {% endif %}
 
   {% if not experiment.is_editable %}
     <h5 class="col-md-12 md-p-0 text-right">Reviews</h5>
