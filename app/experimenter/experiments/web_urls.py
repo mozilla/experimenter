@@ -1,6 +1,7 @@
 from django.conf.urls import url
 
 from experimenter.experiments.views import (
+    ExperimentCommentCreateView,
     ExperimentCreateView,
     ExperimentDetailView,
     ExperimentObjectivesUpdateView,
@@ -43,6 +44,11 @@ urlpatterns = [
         r"^(?P<slug>[a-zA-Z0-9-]+)/review-update/$",
         ExperimentReviewUpdateView.as_view(),
         name="experiments-review-update",
+    ),
+    url(
+        r"^(?P<slug>[a-zA-Z0-9-]+)/comment/$",
+        ExperimentCommentCreateView.as_view(),
+        name="experiments-comment-create",
     ),
     url(
         r"^(?P<slug>[a-zA-Z0-9-]+)/$",

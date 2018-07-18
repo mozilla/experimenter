@@ -11,6 +11,7 @@ from experimenter.experiments.models import (
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentChangeLogFactory,
+    ExperimentCommentFactory,
 )
 
 
@@ -296,7 +297,7 @@ class TestExperimentModel(TestCase):
         self.assertTrue(experiment.completed_required_reviews)
 
 
-class TestExperimentChangeLogManager(TestCase):
+class TestExperimentChangeLog(TestCase):
 
     def test_latest_returns_most_recent_changelog(self):
         now = datetime.datetime.now()
@@ -337,3 +338,33 @@ class TestExperimentChangeLogManager(TestCase):
                     new_status=new_status,
                 )
                 self.assertEqual(changelog.pretty_status, expected_label)
+
+
+class TestExperimentComments(TestCase):
+
+    def test_manager_returns_sections(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        risk_comment = ExperimentCommentFactory.create(
+            experiment=experiment, section=Experiment.SECTION_RISKS
+        )
+        testing_comment = ExperimentCommentFactory.create(
+            experiment=experiment, section=Experiment.SECTION_TESTING
+        )
+        self.assertIn(
+            risk_comment,
+            experiment.comments.sections[experiment.SECTION_RISKS],
+        )
+        self.assertIn(
+            testing_comment,
+            experiment.comments.sections[experiment.SECTION_TESTING],
+        )
+        self.assertNotIn(
+            risk_comment,
+            experiment.comments.sections[experiment.SECTION_TESTING],
+        )
+        self.assertNotIn(
+            testing_comment,
+            experiment.comments.sections[experiment.SECTION_RISKS],
+        )

@@ -751,3 +751,60 @@ class TestExperimentReviewUpdateView(TestCase):
         self.assertEqual(change.changed_by.email, user_email)
         self.assertEqual(change.old_status, experiment.STATUS_REVIEW)
         self.assertEqual(change.new_status, experiment.STATUS_REVIEW)
+
+
+class TestExperimentCommentCreateView(TestCase):
+
+    def test_view_creates_comment_redirects_to_detail_page(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+
+        section = experiment.SECTION_OBJECTIVES
+        text = "Hello!"
+
+        response = self.client.post(
+            reverse(
+                "experiments-comment-create", kwargs={"slug": experiment.slug}
+            ),
+            {"experiment": experiment.id, "section": section, "text": text},
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertRedirects(
+            response,
+            "{url}#{section}-comments".format(
+                url=reverse(
+                    "experiments-detail", kwargs={"slug": experiment.slug}
+                ),
+                section=section,
+            ),
+            fetch_redirect_response=False,
+        )
+        comment = experiment.comments.sections[section][0]
+        self.assertEqual(comment.text, text)
+        self.assertEqual(comment.created_by.email, user_email)
+
+    def test_view_redirects_to_detail_page_when_form_is_invalid(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+
+        section = "invalid section"
+        text = ""
+
+        response = self.client.post(
+            reverse(
+                "experiments-comment-create", kwargs={"slug": experiment.slug}
+            ),
+            {"experiment": experiment.id, "section": section, "text": text},
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("experiments-detail", kwargs={"slug": experiment.slug}),
+            fetch_redirect_response=False,
+        )

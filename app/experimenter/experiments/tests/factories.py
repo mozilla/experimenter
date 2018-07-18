@@ -11,6 +11,7 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.experiments.models import (
     Experiment,
     ExperimentChangeLog,
+    ExperimentComment,
     ExperimentVariant,
 )
 from experimenter.projects.tests.factories import ProjectFactory
@@ -179,3 +180,15 @@ class ExperimentChangeLogFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = ExperimentChangeLog
+
+
+class ExperimentCommentFactory(factory.django.DjangoModelFactory):
+    experiment = factory.SubFactory(ExperimentFactory)
+    section = factory.LazyAttribute(
+        lambda o: random.choice(Experiment.SECTION_CHOICES)[0]
+    )
+    created_by = factory.SubFactory(UserFactory)
+    text = factory.LazyAttribute(lambda o: faker.text())
+
+    class Meta:
+        model = ExperimentComment

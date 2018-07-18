@@ -1,0 +1,80 @@
+  <div class="row">
+    <h4 id="{{ section_name }}" class="section-title col-md-12">
+      {% block section_title %}
+        {% if not section_complete %}
+          <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
+        {% endif %}
+        {{ section_title }}
+      {% endblock %}
+      <a class="section-anchor-link" href="#{{ section_name }}">
+        <span class="glyphicon glyphicon-link"></span>
+      </a>
+    </h4>
+  </div>
+
+  <div class="row card">
+    <div class="col-md-10">
+      {% block section_content %}
+        {{ section_content|linebreaks }}
+      {% endblock %}
+    </div>
+
+    {% if experiment.is_editable %}
+      <div class="col-md-2 text-right">
+        <a href="{% url edit_url_name slug=experiment.slug %}">
+          <span class="glyphicon glyphicon-pencil"></span> Edit
+        </a>
+      </div>
+    {% endif %}
+   
+    <div id="{{ section_name }}-comments" class="col-md-12">
+      <hr/>
+    </div>
+
+    {% for comment in comments %} 
+      <div class="col-md-12 md-mb-10">
+        <div class="row">
+          <div class="col-md-3">
+            <a id="comment{{ comment.id }}" href="#comment{{ comment.id }}">
+              <span class="glyphicon glyphicon-comment"></span>
+              <strong>{{ comment.created_by }}</strong> 
+              <h6 class="md-m-0 md-pl-15 text-muted">{{ comment.created_on }}</h6>
+            </a>
+          </div>
+          <div class="col-md-9">
+            {{ comment.text|linebreaks }}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+    <div class="col-md-12 text-muted text-right">
+      <a href="#new{{ section_name }}Comment" data-toggle="collapse">
+        <p>
+          <span class="glyphicon glyphicon-comment"></span>
+          Comment
+        </p>
+      </a>
+    </div>
+   
+    <div class="col-md-12">
+      <form method="POST" action="{% url "experiments-comment-create" slug=experiment.slug %}">
+        {% csrf_token %}
+        <input type="hidden" name="experiment" value="{{ experiment.id }}">
+        <input type="hidden" name="section" value="{{ section_name }}">
+
+        <div id="new{{ section_name }}Comment" class="collapse">
+          <div class="form-group">
+            <textarea class="form-control" name="text" required></textarea>
+          </div>
+          <div class="form-group text-right">
+            <button class="btn btn-info" type="submit">
+              <span class="glyphicon glyphicon-comment"></span>
+              Save Comment
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  

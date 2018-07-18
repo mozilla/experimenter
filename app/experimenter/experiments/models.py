@@ -1,3 +1,4 @@
+from collections import defaultdict
 from urllib.parse import urljoin
 
 from django.conf import settings
@@ -397,4 +398,38 @@ class ExperimentChangeLog(models.Model):
     def pretty_status(self):
         return self.PRETTY_STATUS_LABELS.get(self.old_status, {}).get(
             self.new_status, ""
+        )
+
+
+class ExperimentCommentManager(models.Manager):
+
+    @cached_property
+    def sections(self):
+        sections = defaultdict(list)
+
+        for comment in self.all():
+            sections[comment.section].append(comment)
+
+        return sections
+
+
+class ExperimentComment(ExperimentConstants, models.Model):
+    experiment = models.ForeignKey(Experiment, related_name="comments")
+    created_by = models.ForeignKey(get_user_model())
+    created_on = models.DateTimeField(auto_now_add=True)
+    section = models.CharField(
+        max_length=255, choices=ExperimentConstants.SECTION_CHOICES
+    )
+    text = models.TextField()
+
+    objects = ExperimentCommentManager()
+
+    class Meta:
+        verbose_name = "Experiment Comment"
+        verbose_name_plural = "Experiment Comments"
+        ordering = ("created_on",)
+
+    def __str__(self):  # pragma: no cover
+        return "{author} ({date}): {text}".format(
+            author=self.created_by, date=self.created_on, text=self.text
         )

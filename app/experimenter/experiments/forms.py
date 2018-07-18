@@ -12,6 +12,7 @@ from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.email import send_review_email
 from experimenter.experiments.models import (
     Experiment,
+    ExperimentComment,
     ExperimentChangeLog,
     ExperimentVariant,
 )
@@ -558,3 +559,22 @@ class ExperimentStatusForm(
                 )
 
         return experiment
+
+
+class ExperimentCommentForm(forms.ModelForm):
+    created_by = forms.CharField(required=False)
+    text = forms.CharField(required=True)
+    section = forms.ChoiceField(
+        required=True, choices=Experiment.SECTION_CHOICES
+    )
+
+    class Meta:
+        model = ExperimentComment
+        fields = ("experiment", "section", "created_by", "text")
+
+    def __init__(self, request, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+
+    def clean_created_by(self):
+        return self.request.user

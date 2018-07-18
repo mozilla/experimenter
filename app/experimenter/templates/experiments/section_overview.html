@@ -1,0 +1,10 @@
+{% extends "experiments/section_base.html" %}
+
+{% block section_title %}
+Overview
+{% endblock %}
+
+{% block section_content %}
+  <p><strong>Owner: {{ experiment.owner }}</strong></p>
+  {{ experiment.short_description|linebreaks }}
+{% endblock %}

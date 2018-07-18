@@ -10,6 +10,7 @@ from django.test import TestCase
 from experimenter.experiments.forms import (
     ChangeLogMixin,
     ControlVariantForm,
+    ExperimentCommentForm,
     ExperimentObjectivesForm,
     ExperimentOverviewForm,
     ExperimentReviewForm,
@@ -533,3 +534,61 @@ class TestExperimentStatusForm(
         self.assertTrue(form.is_valid())
         experiment = form.save()
         self.assertEqual(experiment.bugzilla_id, self.bugzilla_id)
+
+
+class TestExperimentCommentForm(MockRequestMixin, TestCase):
+
+    def test_form_creates_comment(self):
+        text = "hello"
+        section = Experiment.SECTION_OVERVIEW
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        form = ExperimentCommentForm(
+            request=self.request,
+            data={
+                "experiment": experiment.id,
+                "section": section,
+                "text": text,
+            },
+        )
+        self.assertTrue(form.is_valid())
+        comment = form.save()
+        self.assertEqual(comment.experiment, experiment)
+        self.assertEqual(comment.section, section)
+        self.assertEqual(comment.created_by, self.user)
+        self.assertEqual(comment.text, text)
+
+    def test_section_must_be_valid(self):
+        text = "hello"
+        section = "invalid section"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        form = ExperimentCommentForm(
+            request=self.request,
+            data={
+                "experiment": experiment.id,
+                "section": section,
+                "text": text,
+            },
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("section", form.errors)
+
+    def test_text_is_required(self):
+        text = ""
+        section = Experiment.SECTION_OVERVIEW
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        form = ExperimentCommentForm(
+            request=self.request,
+            data={
+                "experiment": experiment.id,
+                "section": section,
+                "text": text,
+            },
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("text", form.errors)

@@ -85,6 +85,25 @@ class ExperimentConstants(object):
         (PREF_BRANCH_USER, PREF_BRANCH_USER),
     )
 
+    SECTION_OVERVIEW = "overview"
+    SECTION_POPULATION = "population"
+    SECTION_BRANCHES = "branches"
+    SECTION_OBJECTIVES = "objectives"
+    SECTION_ANALYSIS = "analysis"
+    SECTION_RISKS = "risks"
+    SECTION_TESTING = "testing"
+
+    # Detail Sections
+    SECTION_CHOICES = (
+        (SECTION_OVERVIEW, "Overview"),
+        (SECTION_POPULATION, "Population"),
+        (SECTION_BRANCHES, "Firefox & Branches"),
+        (SECTION_OBJECTIVES, "Objectives"),
+        (SECTION_ANALYSIS, "Analysis"),
+        (SECTION_RISKS, "Risks"),
+        (SECTION_TESTING, "Testing"),
+    )
+
     # Labels
     RISK_PARTNER_RELATED_LABEL = "Is this study partner related?"
     RISK_BRAND_LABEL = "Does this have a high risk to the brand?"

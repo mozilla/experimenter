@@ -34,6 +34,15 @@ body {
   font-weight: lighter;
 }
 
+.section-anchor-link {
+  display: none;
+}
+
+.section-title:hover .section-anchor-link {
+  display: inline;
+  font-size: 12pt;
+}
+
 #header {
   background: #2680da;
   color: #efefef;
@@ -73,6 +82,8 @@ body {
   border-radius: 4px;
   border: 1px solid #ddd;
   transition: box-shadow ease-in-out .1s;
+  padding-top: 10px;
+  margin-bottom: 20px;
 }
 
 .clickhighlight:hover > .card {
