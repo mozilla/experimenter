@@ -23,7 +23,7 @@ class OpenIDCAuthMiddlewareTests(TestCase):
         self.assertFalse(Group.objects.all().exists())
         group = self.middleware.get_experimenter_group()
         self.assertTrue(Group.objects.all().exists())
-        self.assertEqual(group.permissions.all().count(), 12)
+        self.assertEqual(group.permissions.all().count(), 15)
         self.assertEqual(
             set(
                 [

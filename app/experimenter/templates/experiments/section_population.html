@@ -1,0 +1,10 @@
+{% extends "experiments/section_base.html" %}
+
+{% block section_title %}
+Population
+{% endblock %}
+
+{% block section_content %}
+  <h4 class="md-mt-0">{{ experiment.population }}</h4>
+  {{ experiment.client_matching|linebreaks }}
+{% endblock %}
