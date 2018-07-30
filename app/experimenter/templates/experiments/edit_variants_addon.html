@@ -1,0 +1,91 @@
+{% extends "experiments/edit_base.html" %}
+
+{% load static %}
+      
+{% block edit_title %}
+  Edit {{ object.name }} Branches 
+{% endblock %}
+
+{% block edit_nav %}
+  {% include "experiments/edit_nav_inline.html" with step=2 object=object %}
+{% endblock %}
+
+{% block edit_form %}
+  <form 
+    class="form-horizontal card-content" 
+    method="POST" 
+    enctype='multipart/form-data'
+  >
+    {% csrf_token %}
+    
+    <div class="form-group">
+      <div class="col-md-9 col-md-offset-3 text-center">
+        <h4>
+          <span id="control-ratio">{{ form.control_form.ratio.value }}</span>
+          % Control Branch  :  
+          <span id="experimental-ratio">{{ form.experimental_form.ratio.value }}</span> 
+          % Experimental Branch 
+        </h4>
+      </div>
+    </div>
+    
+    {% include "experiments/field_inline.html" with field=form.control_form.ratio %}
+
+    <div class="form-group">
+      <h4 class="col-md-9 col-md-offset-3">Control Branch</h4>
+    </div>
+
+    {{ form.control_form.errors }}
+
+    {% include "experiments/field_inline.html" with field=form.control_form.name %}
+    
+    {% include "experiments/field_inline.html" with field=form.control_form.description %}
+    
+    <div class="form-group">
+      <h4 class="col-md-9 col-md-offset-3">Experimental Branch</h4>
+    </div>
+
+    {{ form.experimental_form.errors }}
+    
+    {% include "experiments/field_inline.html" with field=form.experimental_form.name %}
+    
+    {% include "experiments/field_inline.html" with field=form.experimental_form.description %}
+
+    <div class="form-group">
+      <div class="col-md-12 text-right">
+        {{ form.errors }}
+        {% if object %}
+          <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">Cancel Editing</a>
+        {% endif %}
+        <button type="submit" name="action" value="save" class="btn btn-info">Save Draft</button>
+        <button type="submit" name="action" value="continue" class="btn btn-info">Save Draft and Continue</button>
+      </div>
+    </div>
+
+  </form>
+{% endblock %}
+
+{% block edit_info %}
+  <h4><span class="glyphicon glyphicon-info-sign"></span> Branches</h4>
+  <p>
+    An experiment has two branches: Control and Experimental.
+  </p>
+  <p>
+    The Control Branch represents the existing experience/functionality you want to compare against. 
+  </p>
+  <p>
+    The Experimental Branch represents the new experience/functionality you want to test.
+  </p>
+{% endblock %}
+
+{% block extrascripts %}
+  <script>
+    $(function () {
+      $('#{{ form.control_form.ratio.id_for_label }}').change(function (e) {
+        const value = e.target.value;
+        $('#control-ratio').html(value);
+        $('#experimental-ratio').html(100 - value);
+      });
+    });
+  </script>
+{% endblock %}

@@ -22,6 +22,8 @@
   >
     {% csrf_token %}
 
+    {% include "experiments/field_inline.html" with field=form.type %}
+    
     {% include "experiments/field_inline.html" with field=form.owner %}
 
     {% include "experiments/field_inline.html" with field=form.name %}

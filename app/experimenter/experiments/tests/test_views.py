@@ -8,6 +8,10 @@ from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
+from experimenter.experiments.forms import (
+    ExperimentVariantsAddonForm,
+    ExperimentVariantsPrefForm,
+)
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.test_bugzilla import MockBugzillaMixin
@@ -20,6 +24,7 @@ from experimenter.experiments.views import (
     ExperimentFiltersetForm,
     ExperimentFormMixin,
     ExperimentOrderingForm,
+    ExperimentVariantsUpdateView,
 )
 
 
@@ -34,6 +39,13 @@ class TestExperimentFiltersetForm(TestCase):
         user = UserFactory.create()
         form = ExperimentFiltersetForm({"owner": user.id})
         self.assertEqual(form.get_owner_display_value(), str(user))
+
+    def test_get_type_display_value_returns_type_str(self):
+        form = ExperimentFiltersetForm({"type": Experiment.TYPE_ADDON})
+        self.assertEqual(
+            form.get_type_display_value(),
+            dict(Experiment.TYPE_CHOICES)[Experiment.TYPE_ADDON],
+        )
 
 
 class TestExperimentFilterset(TestCase):
@@ -381,6 +393,7 @@ class TestExperimentCreateView(TestCase):
         project = ProjectFactory.create()
 
         data = {
+            "type": Experiment.TYPE_PREF,
             "project": project.id,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
@@ -442,6 +455,7 @@ class TestExperimentOverviewUpdateView(TestCase):
         )
 
         data = {
+            "type": Experiment.TYPE_PREF,
             "name": "A new name!",
             "short_description": "A new description!",
             "population_percent": "11",
@@ -485,6 +499,70 @@ class TestExperimentOverviewUpdateView(TestCase):
 
 
 class TestExperimentVariantsUpdateView(TestCase):
+
+    def test_uses_addon_form_for_addon_experiment(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, type=Experiment.TYPE_ADDON
+        )
+        response = self.client.get(
+            reverse(
+                "experiments-variants-update", kwargs={"slug": experiment.slug}
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(
+            response.context["form"], ExperimentVariantsAddonForm
+        )
+
+    def test_uses_pref_form_for_pref_experiment(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, type=Experiment.TYPE_PREF
+        )
+        response = self.client.get(
+            reverse(
+                "experiments-variants-update", kwargs={"slug": experiment.slug}
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(
+            response.context["form"], ExperimentVariantsPrefForm
+        )
+
+    def test_uses_addon_template_for_addon_experiment(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, type=Experiment.TYPE_ADDON
+        )
+        response = self.client.get(
+            reverse(
+                "experiments-variants-update", kwargs={"slug": experiment.slug}
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response, ExperimentVariantsUpdateView.ADDON_TEMPLATE_NAME
+        )
+
+    def test_uses_pref_template_for_pref_experiment(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, type=Experiment.TYPE_PREF
+        )
+        response = self.client.get(
+            reverse(
+                "experiments-variants-update", kwargs={"slug": experiment.slug}
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response, ExperimentVariantsUpdateView.PREF_TEMPLATE_NAME
+        )
 
     def test_view_saves_experiment(self):
         user_email = "user@example.com"

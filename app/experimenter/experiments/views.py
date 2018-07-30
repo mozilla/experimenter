@@ -15,7 +15,8 @@ from experimenter.experiments.forms import (
     ExperimentReviewForm,
     ExperimentRisksForm,
     ExperimentStatusForm,
-    ExperimentVariantsForm,
+    ExperimentVariantsAddonForm,
+    ExperimentVariantsPrefForm,
 )
 from experimenter.experiments.models import Experiment
 
@@ -25,6 +26,7 @@ class ExperimentFiltersetForm(forms.ModelForm):
     class Meta:
         model = Experiment
         fields = (
+            "type",
             "status",
             "firefox_channel",
             "firefox_version",
@@ -44,6 +46,9 @@ class ExperimentFiltersetForm(forms.ModelForm):
 
         return False
 
+    def get_type_display_value(self):
+        return dict(Experiment.TYPE_CHOICES).get(self.data.get("type"))
+
     def get_project_display_value(self):
         project_id = self.data.get("project", None)
 
@@ -58,6 +63,11 @@ class ExperimentFiltersetForm(forms.ModelForm):
 
 
 class ExperimentFilterset(filters.FilterSet):
+    type = filters.ChoiceFilter(
+        empty_label="All Types",
+        choices=Experiment.TYPE_CHOICES,
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
     status = filters.ChoiceFilter(
         empty_label="All Statuses",
         choices=Experiment.STATUS_CHOICES,
@@ -90,14 +100,7 @@ class ExperimentFilterset(filters.FilterSet):
     class Meta:
         model = Experiment
         form = ExperimentFiltersetForm
-        fields = (
-            "status",
-            "firefox_channel",
-            "firefox_version",
-            "owner",
-            "project",
-            "archived",
-        )
+        fields = ExperimentFiltersetForm.Meta.fields
 
 
 class ExperimentOrderingForm(forms.Form):
@@ -192,9 +195,22 @@ class ExperimentOverviewUpdateView(ExperimentFormMixin, UpdateView):
 
 
 class ExperimentVariantsUpdateView(ExperimentFormMixin, UpdateView):
-    form_class = ExperimentVariantsForm
+    ADDON_TEMPLATE_NAME = "experiments/edit_variants_addon.html"
+    PREF_TEMPLATE_NAME = "experiments/edit_variants_pref.html"
+
     next_view_name = "experiments-objectives-update"
-    template_name = "experiments/edit_variants.html"
+
+    def get_form_class(self):
+        if self.object.is_addon_study:
+            return ExperimentVariantsAddonForm
+        elif self.object.is_pref_study:
+            return ExperimentVariantsPrefForm
+
+    def get_template_names(self):
+        if self.object.is_addon_study:
+            return (self.ADDON_TEMPLATE_NAME,)
+        elif self.object.is_pref_study:
+            return (self.PREF_TEMPLATE_NAME,)
 
 
 class ExperimentObjectivesUpdateView(ExperimentFormMixin, UpdateView):

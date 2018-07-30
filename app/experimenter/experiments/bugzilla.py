@@ -6,6 +6,11 @@ from django.conf import settings
 
 
 def create_experiment_bug(experiment):
+    if experiment.is_addon_study:
+        template = experiment.BUGZILLA_ADDON_TEMPLATE
+    else:
+        template = experiment.BUGZILLA_PREF_TEMPLATE
+
     bug_data = {
         "product": "Shield",
         "component": "Shield Study",
@@ -13,9 +18,7 @@ def create_experiment_bug(experiment):
         "summary": "[Shield] Pref Flip Study: {name}".format(
             name=experiment.name
         ),
-        "description": experiment.BUGZILLA_TEMPLATE.format(
-            experiment=experiment
-        ),
+        "description": template.format(experiment=experiment),
         "assigned_to": experiment.owner.email,
         "cc": settings.BUGZILLA_CC_LIST,
     }
