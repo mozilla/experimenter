@@ -16,7 +16,8 @@ from experimenter.experiments.forms import (
     ExperimentReviewForm,
     ExperimentRisksForm,
     ExperimentStatusForm,
-    ExperimentVariantsForm,
+    ExperimentVariantsAddonForm,
+    ExperimentVariantsPrefForm,
     ExperimentalVariantForm,
     JSONField,
     NameSlugMixin,
@@ -199,6 +200,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.project = ProjectFactory.create()
 
         self.data = {
+            "type": Experiment.TYPE_PREF,
             "owner": self.user.id,
             "project": self.project.id,
             "name": "A new experiment!",
@@ -270,7 +272,72 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertIn("population_percent", form.errors)
 
 
-class TestExperimentVariantsForm(MockRequestMixin, TestCase):
+class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = {
+            "control-name": "The Control Variant",
+            "control-description": "Its the control! So controlly.",
+            "control-ratio": 60,
+            "experimental-name": "The Experimental Variant",
+            "experimental-description": (
+                "Its the experimental! So experimentally."
+            ),
+            "experimental-ratio": 40,
+        }
+
+    def test_form_saves_variants(self):
+        created_experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=created_experiment
+        )
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.control.name, self.data["control-name"])
+        self.assertEqual(
+            experiment.control.description, self.data["control-description"]
+        )
+        self.assertEqual(experiment.control.ratio, self.data["control-ratio"])
+        self.assertEqual(
+            experiment.variant.name, self.data["experimental-name"]
+        )
+        self.assertEqual(
+            experiment.variant.description,
+            self.data["experimental-description"],
+        )
+        self.assertEqual(
+            experiment.variant.ratio, self.data["experimental-ratio"]
+        )
+
+    def test_form_is_invalid_if_control_is_invalid(self):
+        created_experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        self.data["control-ratio"] = "invalid"
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=created_experiment
+        )
+        self.assertFalse(form.is_valid())
+
+    def test_form_is_invalid_if_experimental_is_invalid(self):
+        created_experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        self.data["experimental-ratio"] = "invalid"
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=created_experiment
+        )
+        self.assertFalse(form.is_valid())
+
+
+class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
@@ -296,7 +363,7 @@ class TestExperimentVariantsForm(MockRequestMixin, TestCase):
             Experiment.STATUS_DRAFT
         )
 
-        form = ExperimentVariantsForm(
+        form = ExperimentVariantsPrefForm(
             request=self.request, data=self.data, instance=created_experiment
         )
         self.assertTrue(form.is_valid())
@@ -325,26 +392,6 @@ class TestExperimentVariantsForm(MockRequestMixin, TestCase):
         self.assertEqual(
             experiment.variant.value, self.data["experimental-value"]
         )
-
-    def test_form_is_invalid_if_control_is_invalid(self):
-        created_experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
-        )
-        self.data["control-ratio"] = "invalid"
-        form = ExperimentVariantsForm(
-            request=self.request, data=self.data, instance=created_experiment
-        )
-        self.assertFalse(form.is_valid())
-
-    def test_form_is_invalid_if_experimental_is_invalid(self):
-        created_experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
-        )
-        self.data["experimental-ratio"] = "invalid"
-        form = ExperimentVariantsForm(
-            request=self.request, data=self.data, instance=created_experiment
-        )
-        self.assertFalse(form.is_valid())
 
 
 class TestExperimentObjectivesForm(MockRequestMixin, TestCase):

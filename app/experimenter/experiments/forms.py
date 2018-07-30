@@ -47,16 +47,9 @@ class NameSlugMixin(object):
 
 class ControlVariantForm(NameSlugMixin, forms.ModelForm):
 
-    description = forms.CharField(
-        label="Description",
-        help_text=Experiment.CONTROL_DESCRIPTION_HELP_TEXT,
-        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-    )
     experiment = forms.ModelChoiceField(
         queryset=Experiment.objects.all(), required=False
     )
-    is_control = forms.BooleanField(required=False)
-    slug = forms.CharField(required=False)
     ratio = forms.IntegerField(
         required=False,
         label="Variant Split",
@@ -71,11 +64,19 @@ class ControlVariantForm(NameSlugMixin, forms.ModelForm):
         help_text=Experiment.CONTROL_NAME_HELP_TEXT,
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )
+    description = forms.CharField(
+        label="Description",
+        help_text=Experiment.CONTROL_DESCRIPTION_HELP_TEXT,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+    )
+    slug = forms.CharField(required=False)
     value = JSONField(
+        required=False,
         label="Pref Value",
         help_text=Experiment.CONTROL_VALUE_HELP_TEXT,
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )
+    is_control = forms.BooleanField(required=False)
 
     prefix = "control"
 
@@ -97,7 +98,6 @@ class ControlVariantForm(NameSlugMixin, forms.ModelForm):
 
 class ExperimentalVariantForm(NameSlugMixin, forms.ModelForm):
 
-    slug = forms.CharField(required=False)
     experiment = forms.ModelChoiceField(
         required=False, queryset=Experiment.objects.all()
     )
@@ -112,7 +112,9 @@ class ExperimentalVariantForm(NameSlugMixin, forms.ModelForm):
         help_text=Experiment.VARIANT_DESCRIPTION_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
     )
+    slug = forms.CharField(required=False)
     value = JSONField(
+        required=False,
         label="Pref Value",
         help_text=Experiment.VARIANT_VALUE_HELP_TEXT,
         widget=forms.TextInput(attrs={"class": "form-control"}),
@@ -123,13 +125,13 @@ class ExperimentalVariantForm(NameSlugMixin, forms.ModelForm):
     class Meta:
         model = ExperimentVariant
         fields = [
-            "slug",
-            "experiment",
-            "ratio",
-            "name",
             "description",
-            "value",
+            "experiment",
             "is_control",
+            "name",
+            "ratio",
+            "slug",
+            "value",
         ]
 
     def clean_is_control(self):
@@ -168,6 +170,13 @@ class ChangeLogMixin(object):
 class ExperimentOverviewForm(
     AutoNameSlugFormMixin, ChangeLogMixin, forms.ModelForm
 ):
+
+    type = forms.ChoiceField(
+        label="Type",
+        choices=Experiment.TYPE_CHOICES,
+        help_text=Experiment.TYPE_HELP_TEXT,
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
 
     owner = forms.ModelChoiceField(
         required=False,
@@ -232,6 +241,7 @@ class ExperimentOverviewForm(
     class Meta:
         model = Experiment
         fields = [
+            "type",
             "owner",
             "project",
             "name",
@@ -256,28 +266,11 @@ class ExperimentOverviewForm(
         return population_percent
 
 
-class ExperimentVariantsForm(ChangeLogMixin, forms.ModelForm):
-    pref_key = forms.CharField(
-        label="Pref Name",
-        help_text=Experiment.PREF_KEY_HELP_TEXT,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-    )
-    pref_type = forms.ChoiceField(
-        label="Pref Type",
-        help_text=Experiment.PREF_TYPE_HELP_TEXT,
-        choices=Experiment.PREF_TYPE_CHOICES,
-        widget=forms.Select(attrs={"class": "form-control"}),
-    )
-    pref_branch = forms.ChoiceField(
-        label="Pref Branch",
-        help_text=Experiment.PREF_BRANCH_HELP_TEXT,
-        choices=Experiment.PREF_BRANCH_CHOICES,
-        widget=forms.Select(attrs={"class": "form-control"}),
-    )
+class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
 
     class Meta:
         model = Experiment
-        fields = ["pref_key", "pref_type", "pref_branch"]
+        fields = []
 
     def __init__(self, data=None, instance=None, *args, **kwargs):
         super().__init__(data=data, instance=instance, *args, **kwargs)
@@ -311,6 +304,30 @@ class ExperimentVariantsForm(ChangeLogMixin, forms.ModelForm):
             self.experimental_form.save(*args, **kwargs)
 
         return experiment
+
+
+class ExperimentVariantsPrefForm(ExperimentVariantsAddonForm):
+    pref_key = forms.CharField(
+        label="Pref Name",
+        help_text=Experiment.PREF_KEY_HELP_TEXT,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    pref_type = forms.ChoiceField(
+        label="Pref Type",
+        help_text=Experiment.PREF_TYPE_HELP_TEXT,
+        choices=Experiment.PREF_TYPE_CHOICES,
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+    pref_branch = forms.ChoiceField(
+        label="Pref Branch",
+        help_text=Experiment.PREF_BRANCH_HELP_TEXT,
+        choices=Experiment.PREF_BRANCH_CHOICES,
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+
+    class Meta:
+        model = Experiment
+        fields = ["pref_key", "pref_type", "pref_branch"]
 
 
 class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):

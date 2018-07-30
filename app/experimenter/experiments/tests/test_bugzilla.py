@@ -32,7 +32,7 @@ class MockBugzillaMixin(object):
 
 class TestBugzilla(MockBugzillaMixin, TestCase):
 
-    def test_creating_bugzilla_ticket_returns_ticket_id(self):
+    def test_creating_pref_bugzilla_ticket_returns_ticket_id(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, name="An Experiment"
         )
@@ -46,7 +46,31 @@ class TestBugzilla(MockBugzillaMixin, TestCase):
                 "component": "Shield Study",
                 "version": "unspecified",
                 "summary": "[Shield] Pref Flip Study: An Experiment",
-                "description": experiment.BUGZILLA_TEMPLATE.format(
+                "description": experiment.BUGZILLA_PREF_TEMPLATE.format(
+                    experiment=experiment
+                ),
+                "assigned_to": experiment.owner.email,
+                "cc": settings.BUGZILLA_CC_LIST,
+            },
+        )
+
+    def test_creating_addon_bugzilla_ticket_returns_ticket_id(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            name="An Experiment",
+            type=Experiment.TYPE_ADDON,
+        )
+
+        create_experiment_bug(experiment)
+
+        self.mock_bugzilla_requests_post.assert_called_with(
+            settings.BUGZILLA_CREATE_URL,
+            {
+                "product": "Shield",
+                "component": "Shield Study",
+                "version": "unspecified",
+                "summary": "[Shield] Pref Flip Study: An Experiment",
+                "description": experiment.BUGZILLA_ADDON_TEMPLATE.format(
                     experiment=experiment
                 ),
                 "assigned_to": experiment.owner.email,

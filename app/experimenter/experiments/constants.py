@@ -3,6 +3,15 @@ from django.core.urlresolvers import reverse_lazy
 
 
 class ExperimentConstants(object):
+    # Type stuff
+    TYPE_PREF = "pref"
+    TYPE_ADDON = "addon"
+
+    TYPE_CHOICES = (
+        (TYPE_PREF, "Pref-Flip Study"),
+        (TYPE_ADDON, "Addon Study"),
+    )
+
     # Status stuff
     STATUS_DRAFT = "Draft"
     STATUS_REVIEW = "Review"
@@ -116,6 +125,25 @@ class ExperimentConstants(object):
     )
 
     # Help texts
+    TYPE_HELP_TEXT = """
+      <p>
+        The study type will determine how the experimental feature is
+        delivered to Firefox users.
+      </p>
+      <p>
+        A <strong>Pref-Flip Study</strong> uses prefs to enable code which
+        has already been merged into Firefox and deployed with a standard
+        Firefox release in a disabled state, and will be selectively enabled
+        for users that enroll into the experiment.
+      </p>
+      <p>
+        An <strong>Addon Study</strong> sends a Firefox addon which
+        contains the code for the experimental feature to the users that
+        enroll in the study.  After the experiment is complete, that addon
+        is automatically removed.
+      </p>
+    """
+
     OWNER_HELP_TEXT = """
       <p>
         The owner of the experiment is the person responsible for ensuring
@@ -534,8 +562,10 @@ testing each branch of this study:
 {attention}"""
     )
 
-    BUGZILLA_TEMPLATE = (
+    BUGZILLA_PREF_TEMPLATE = (
         """
+Experiment Type: Pref Flip Study
+
 Basic description of experiment
 
 {experiment.short_description}
@@ -547,9 +577,64 @@ What is the preference we will be changing
 What are the branches of the study and what values should
 each branch be set to?
 
-Control (value: {experiment.control.value}): {experiment.control.description}
+Control (value: {experiment.control.value}) {experiment.control.name}:
+{experiment.control.description}
 
-Treatment (value: {experiment.variant.value}): {experiment.variant.description}
+Treatment (value: {experiment.variant.value}) {experiment.variant.name}:
+{experiment.variant.description}
+
+What percentage of users do you want in each branch
+
+{experiment.control.ratio}% Control : {experiment.variant.ratio}% Treatment
+
+What version and channel do you intend to ship to?
+
+{experiment.population}
+
+Are there specific criteria for participants?
+
+{experiment.client_matching}
+
+What is your intended go live date and how long will the study run?
+
+{experiment.dates}
+
+What is the main effect you are looking for and what data will you use to make
+these decisions?
+
+{experiment.analysis}
+
+Who is the owner of the data analysis for this study?
+
+{experiment.analysis_owner}
+
+Will this experiment require uplift?
+
+{experiment.risk_fast_shipped}
+
+QA Status of your code:
+
+{experiment.testing}
+
+Link to more information about this study:
+
+{experiment.experiment_url}
+        """
+    )
+
+    BUGZILLA_ADDON_TEMPLATE = (
+        """
+Experiment Type: Addon Study
+
+Basic description of experiment
+
+{experiment.short_description}
+
+What are the branches of the study:
+
+Control {experiment.control.name}: {experiment.control.description}
+
+Treatment {experiment.variant.name}: {experiment.variant.description}
 
 What percentage of users do you want in each branch
 

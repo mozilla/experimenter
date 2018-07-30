@@ -24,6 +24,11 @@ class ExperimentManager(models.Manager):
 
 
 class Experiment(ExperimentConstants, models.Model):
+    type = models.CharField(
+        max_length=255,
+        default=ExperimentConstants.TYPE_PREF,
+        choices=ExperimentConstants.TYPE_CHOICES,
+    )
     owner = models.ForeignKey(get_user_model(), blank=True, null=True)
     project = models.ForeignKey(
         "projects.Project", blank=True, null=True, related_name="experiments"
@@ -192,6 +197,14 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def ordered_changes(self):
         return self.changes.all().order_by("-changed_on").select_related()
+
+    @property
+    def is_addon_study(self):
+        return self.type == self.TYPE_ADDON
+
+    @property
+    def is_pref_study(self):
+        return self.type == self.TYPE_PREF
 
     @property
     def is_editable(self):

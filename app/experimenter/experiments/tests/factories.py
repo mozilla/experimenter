@@ -20,6 +20,7 @@ faker = FakerFactory.create()
 
 
 class ExperimentFactory(factory.django.DjangoModelFactory):
+    type = Experiment.TYPE_PREF
     owner = factory.SubFactory(UserFactory)
     project = factory.SubFactory(ProjectFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
