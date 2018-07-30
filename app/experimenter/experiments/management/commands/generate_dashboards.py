@@ -44,22 +44,9 @@ class Command(BaseCommand):
             status=Experiment.STATUS_COMPLETE
         ).filter(changes__in=recent_changelog_complete)
 
-        in_flight_experiments = Experiment.objects.filter(
-            status=Experiment.STATUS_LIVE
-        )
-
-        # We can manually enter past experiments into the admin
-        # so we should generate dashboards for them even though they
-        # completed long ago.  Perhaps this can be removed in the future.
-        missing_dashboard_experiments = Experiment.objects.filter(
-            dashboard_url__isnull=True, status=Experiment.STATUS_COMPLETE
-        )
-
-        relevant_experiments = (
-            recently_ended_experiments
-            | missing_dashboard_experiments
-            | in_flight_experiments
-        ).distinct()[: settings.DASHBOARD_RATE_LIMIT]
+        relevant_experiments = recently_ended_experiments.distinct()[
+            : settings.DASHBOARD_RATE_LIMIT
+        ]
 
         for exp in relevant_experiments:
             end_date = (
@@ -130,7 +117,7 @@ class Command(BaseCommand):
                     exp.save()
             except ExperimentDashboard.ExternalAPIError as external_api_err:
                 logging.error(
-                    ("ExternalAPIError " "for {experiment}: {err}").format(
+                    ("ExternalAPIError for {experiment}: {err}").format(
                         experiment=exp, err=external_api_err
                     )
                 )
