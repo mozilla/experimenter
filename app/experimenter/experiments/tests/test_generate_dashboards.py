@@ -61,36 +61,38 @@ class GenerateDashboardsTest(TestCase):
             Experiment.STATUS_REJECTED, dashboard_url=None
         )
 
-        # A launched experiment
+        # A launched experiment should be ignored
         self.experiment_launched = ExperimentFactory.create_with_status(
             Experiment.STATUS_LIVE
         )
 
-        # A recently complete experiment
-        self.experiment_complete = ExperimentFactory.create_with_status(
-            Experiment.STATUS_COMPLETE
-        )
-        relevant_change = self.experiment_complete.changes.filter(
-            old_status=Experiment.STATUS_LIVE,
-            new_status=Experiment.STATUS_COMPLETE,
-        ).get()
-        relevant_change.changed_on = datetime.now(timezone.utc) - timedelta(
-            days=1
-        )
-        relevant_change.save()
-
-        # An experiment with a missing dashboard
+        # An old experiment with a missing dashboard should be ignored
         self.experiment_missing_dash = ExperimentFactory.create_with_status(
             Experiment.STATUS_COMPLETE
         )
         self.experiment_missing_dash.dashboard_url = None
         self.experiment_missing_dash.save()
 
-        self.experiments = [
-            self.experiment_launched,
-            self.experiment_complete,
-            self.experiment_missing_dash,
-        ]
+        self.experiments = []
+
+        for i in range(3):
+            # A recently complete experiment
+            experiment_complete = ExperimentFactory.create_with_status(
+                Experiment.STATUS_COMPLETE
+            )
+
+            relevant_change = experiment_complete.changes.filter(
+                old_status=Experiment.STATUS_LIVE,
+                new_status=Experiment.STATUS_COMPLETE,
+            ).get()
+
+            relevant_change.changed_on = datetime.now(
+                timezone.utc
+            ) - timedelta(days=1)
+
+            relevant_change.save()
+
+            self.experiments.append(experiment_complete)
 
     def test_dashboard_object_generated(self):
         expected_call_args = [
@@ -127,7 +129,9 @@ class GenerateDashboardsTest(TestCase):
             call_command("generate_dashboards")
 
             self.assertTrue(self.MockDashboard.called)
-            self.assertEqual(self.MockDashboard.call_count, 3)
+            self.assertEqual(
+                self.MockDashboard.call_count, len(self.experiments)
+            )
 
             for idx, call_args in enumerate(self.MockDashboard.call_args_list):
                 args, kwargs = call_args
@@ -141,9 +145,13 @@ class GenerateDashboardsTest(TestCase):
                 )
 
             self.assertEqual(
-                len(mock_instance.add_graph_templates.mock_calls), 15
+                len(mock_instance.add_graph_templates.mock_calls),
+                5 * len(self.experiments),
             )
-            self.assertEqual(len(mock_instance.get_update_range.mock_calls), 3)
+            self.assertEqual(
+                len(mock_instance.get_update_range.mock_calls),
+                len(self.experiments),
+            )
 
             self.call_count = 0
 
@@ -161,7 +169,8 @@ class GenerateDashboardsTest(TestCase):
 
             # The dashboards are now complete, so dashboard_url is set
             self.assertEqual(
-                len(mock_instance.add_graph_templates.mock_calls), 30
+                len(mock_instance.add_graph_templates.mock_calls),
+                10 * len(self.experiments),
             )
             for experiment in self.experiments:
                 experiment_obj = Experiment.objects.get(pk=experiment.pk)
@@ -208,16 +217,12 @@ class GenerateDashboardsTest(TestCase):
         ERROR_MESSAGE = "Unable to communicate with Redash"
 
         self.MockDashboard.side_effect = ExperimentDashboard.ExternalAPIError(
-            (ERROR_MESSAGE)
+            ERROR_MESSAGE
         )
 
         call_command("generate_dashboards")
 
-        self.mock_logger.error.assert_any_call(
-            ("ExternalAPIError " "for {exp}: {err}").format(
-                exp=self.experiment_complete, err=ERROR_MESSAGE
-            )
-        )
+        self.assertTrue(self.mock_logger.error.called)
 
     def test_value_error_is_caught(self):
         ERROR_MESSAGE = "column_mapping value required"
@@ -226,8 +231,4 @@ class GenerateDashboardsTest(TestCase):
 
         call_command("generate_dashboards")
 
-        self.mock_logger.error.assert_any_call(
-            ("ExperimentDashboard Value Error " "for {exp}: {err}").format(
-                exp=self.experiment_complete, err=ERROR_MESSAGE
-            )
-        )
+        self.assertTrue(self.mock_logger.error.called)
