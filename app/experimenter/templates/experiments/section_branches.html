@@ -1,29 +1,18 @@
 {% extends "experiments/section_base.html" %}
 
 {% block section_title %}
-  {% if not experiment.completed_variants %}
-    <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
-  {% endif %}
   Branches
 {% endblock %}
 
 {% block section_content %}
-  {% if experiment.variants.all %}
+  {% for variant in experiment.variants.all %}
+    <div class="{% if not forloop.last %}md-mb-15{% endif %}">
+      <h4 class="md-mt-0">{{ variant.ratio }}% {{ variant.name }}</h4>
+      {% if experiment.is_pref_study %}
+        <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
+      {% endif %}
+      <p>{{ variant.description }}</p>
 
-    {% for variant in experiment.variants.all %}
-      <div class="{% if not forloop.last %}md-mb-15{% endif %}">
-        <h4 class="md-mt-0">{{ variant.ratio }}% {{ variant.name }}</h4>
-        {% if experiment.is_pref_study %}
-          <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
-        {% endif %}
-        <p>{{ variant.description }}</p>
-
-      </div>
-    {% endfor %}
-
-  {% else %}
-
-    <p>You must <a href="{% url edit_url_name slug=experiment.slug %}">define your branches</a> before you can launch your experiment.</p>
-
-  {% endif %}
+    </div>
+  {% endfor %}
 {% endblock %}

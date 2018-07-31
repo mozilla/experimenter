@@ -1,74 +1,67 @@
 {% extends "experiments/section_base.html" %}
 
 {% block section_title %}
-  {% if not experiment.completed_risks %}
-    <span class="icon-warning glyphicon glyphicon-exclamation-sign"></span>
-  {% endif %}
   Risks
 {% endblock %}
 
 {% block section_content %}
-  {% if experiment.completed_risks %}
-    <p>{{ experiment.RISK_PARTNER_RELATED_LABEL }}</p>
-    <p class="
-      {% if experiment.risk_partner_related %}
-        text-danger
-      {% endif %}
-    ">
-      <strong>
-        {{ experiment.risk_partner_related|yesno:"Yes,No" }}
-      </strong>
-    </p>
-
-    <p>{{ experiment.RISK_BRAND_LABEL }}</p>
-    <p class="
-      {% if experiment.risk_brand %}
-        text-danger
-      {% endif %}
-    ">
-      <strong>
-        {{ experiment.risk_brand|yesno:"Yes,No" }}
-      </strong>
-    </p>
-
-    <p>{{ experiment.RISK_FAST_SHIPPED_LABEL }}</p>
-    <p class="
-      {% if experiment.risk_fast_shipped %}
-        text-danger
-      {% endif %}
-    ">
-      <strong>
-        {{ experiment.risk_fast_shipped|yesno:"Yes,No" }}
-      </strong>
-    </p>
-
-    <p>{{ experiment.RISK_CONFIDENTIAL_LABEL }}</p>
-    <p class="
-      {% if experiment.risk_confidential %}
-        text-danger
-      {% endif %}
-    ">
-      <strong>
-        {{ experiment.risk_confidential|yesno:"Yes,No" }}
-      </strong>
-    </p>
-
-    <p>{{ experiment.RISK_RELEASE_POPULATION_LABEL }}</p>
-    <p class="
-      {% if experiment.risk_release_population %}
-        text-danger
-      {% endif %}
-    ">
-      <strong>
-        {{ experiment.risk_release_population|yesno:"Yes,No" }}
-      </strong>
-    </p>
-
-    {% if experiment.is_high_risk %}
-      <h5>RASCI Owners and Deliverables</h5>
-      {{ experiment.risks|linebreaks }}
+  <p>{{ experiment.RISK_PARTNER_RELATED_LABEL }}</p>
+  <p class="
+    {% if experiment.risk_partner_related %}
+      text-danger
     {% endif %}
-  {% else %}
-    <p>You must <a href="{% url "experiments-risks-update" slug=experiment.slug %}">define the risks</a> before you can launch your experiment.</p>
+  ">
+    <strong>
+      {{ experiment.risk_partner_related|yesno:"Yes,No" }}
+    </strong>
+  </p>
+
+  <p>{{ experiment.RISK_BRAND_LABEL }}</p>
+  <p class="
+    {% if experiment.risk_brand %}
+      text-danger
+    {% endif %}
+  ">
+    <strong>
+      {{ experiment.risk_brand|yesno:"Yes,No" }}
+    </strong>
+  </p>
+
+  <p>{{ experiment.RISK_FAST_SHIPPED_LABEL }}</p>
+  <p class="
+    {% if experiment.risk_fast_shipped %}
+      text-danger
+    {% endif %}
+  ">
+    <strong>
+      {{ experiment.risk_fast_shipped|yesno:"Yes,No" }}
+    </strong>
+  </p>
+
+  <p>{{ experiment.RISK_CONFIDENTIAL_LABEL }}</p>
+  <p class="
+    {% if experiment.risk_confidential %}
+      text-danger
+    {% endif %}
+  ">
+    <strong>
+      {{ experiment.risk_confidential|yesno:"Yes,No" }}
+    </strong>
+  </p>
+
+  <p>{{ experiment.RISK_RELEASE_POPULATION_LABEL }}</p>
+  <p class="
+    {% if experiment.risk_release_population %}
+      text-danger
+    {% endif %}
+  ">
+    <strong>
+      {{ experiment.risk_release_population|yesno:"Yes,No" }}
+    </strong>
+  </p>
+
+  {% if experiment.is_high_risk %}
+    <h5>RASCI Owners and Deliverables</h5>
+    {{ experiment.risks|linebreaks }}
   {% endif %}
 {% endblock %}
