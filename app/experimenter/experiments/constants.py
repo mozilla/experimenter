@@ -308,12 +308,12 @@ class ExperimentConstants(object):
 
     CONTROL_RATIO_HELP_TEXT = """
       <p>
-        Choose the relative size of the control and experimental groups.
-        For most cases, a 50% : 50% split will be best,
-        but if for some reason you want
-        more of one or the other, just adjust the slider to the desired split.
+        Choose the size of this branch represented as a whole number.
+        The size of all branches together must be less than or equal to 100.
+        It does not have to be exact, so these sizes are simply a
+        recommendation of the relative distrubution of the branches.
       </p>
-      <p><strong>Example</strong> 50% Control : 50% Experimental
+      <p><strong>Example</strong> 50
     """
 
     CONTROL_VALUE_HELP_TEXT = """
@@ -562,114 +562,116 @@ testing each branch of this study:
 {attention}"""
     )
 
+    BUGZILLA_VARIANT_PREF_TEMPLATE = (
+        """- {variant.type} {variant.name} {variant.ratio}%:
+
+Value: {variant.value}
+
+{variant.description}
+        """
+    )
+
     BUGZILLA_PREF_TEMPLATE = (
         """
-Experiment Type: Pref Flip Study
+    Experiment Type: Pref Flip Study
 
-Basic description of experiment
+    Basic description of experiment
 
 {experiment.short_description}
 
-What is the preference we will be changing
+    What is the preference we will be changing
 
 {experiment.pref_key}
 
-What are the branches of the study and what values should
-each branch be set to?
+    What are the branches of the study and what values should
+    each branch be set to?
 
-Control (value: {experiment.control.value}) {experiment.control.name}:
-{experiment.control.description}
+{variants}
 
-Treatment (value: {experiment.variant.value}) {experiment.variant.name}:
-{experiment.variant.description}
-
-What percentage of users do you want in each branch
-
-{experiment.control.ratio}% Control : {experiment.variant.ratio}% Treatment
-
-What version and channel do you intend to ship to?
+    What version and channel do you intend to ship to?
 
 {experiment.population}
 
-Are there specific criteria for participants?
+    Are there specific criteria for participants?
 
 {experiment.client_matching}
 
-What is your intended go live date and how long will the study run?
+    What is your intended go live date and how long will the study run?
 
 {experiment.dates}
 
-What is the main effect you are looking for and what data will you use to make
-these decisions?
+    What is the main effect you are looking for and what data will you use to
+    make these decisions?
 
 {experiment.analysis}
 
-Who is the owner of the data analysis for this study?
+    Who is the owner of the data analysis for this study?
 
 {experiment.analysis_owner}
 
-Will this experiment require uplift?
+    Will this experiment require uplift?
 
 {experiment.risk_fast_shipped}
 
-QA Status of your code:
+    QA Status of your code:
 
 {experiment.testing}
 
-Link to more information about this study:
+    Link to more information about this study:
 
 {experiment.experiment_url}
         """
     )
 
+    BUGZILLA_VARIANT_ADDON_TEMPLATE = (
+        """- {variant.type} {variant.name} {variant.ratio}%:
+
+{variant.description}
+        """
+    )
+
     BUGZILLA_ADDON_TEMPLATE = (
         """
-Experiment Type: Addon Study
+    Experiment Type: Addon Study
 
-Basic description of experiment
+    Basic description of experiment
 
 {experiment.short_description}
 
-What are the branches of the study:
+    What are the branches of the study:
 
-Control {experiment.control.name}: {experiment.control.description}
+{variants}
 
-Treatment {experiment.variant.name}: {experiment.variant.description}
-
-What percentage of users do you want in each branch
-
-{experiment.control.ratio}% Control : {experiment.variant.ratio}% Treatment
-
-What version and channel do you intend to ship to?
+    What version and channel do you intend to ship to?
 
 {experiment.population}
 
-Are there specific criteria for participants?
+    Are there specific criteria for participants?
 
 {experiment.client_matching}
 
-What is your intended go live date and how long will the study run?
+    What is your intended go live date and how long will the study run?
 
 {experiment.dates}
 
-What is the main effect you are looking for and what data will you use to make
-these decisions?
+    What is the main effect you are looking for and what data will you use to
+    make these decisions?
 
 {experiment.analysis}
 
-Who is the owner of the data analysis for this study?
+    Who is the owner of the data analysis for this study?
 
 {experiment.analysis_owner}
 
-Will this experiment require uplift?
+    Will this experiment require uplift?
 
 {experiment.risk_fast_shipped}
 
-QA Status of your code:
+    QA Status of your code:
 
 {experiment.testing}
 
-Link to more information about this study:
+    Link to more information about this study:
 
 {experiment.experiment_url}
         """

@@ -195,22 +195,14 @@ class ExperimentOverviewUpdateView(ExperimentFormMixin, UpdateView):
 
 
 class ExperimentVariantsUpdateView(ExperimentFormMixin, UpdateView):
-    ADDON_TEMPLATE_NAME = "experiments/edit_variants_addon.html"
-    PREF_TEMPLATE_NAME = "experiments/edit_variants_pref.html"
-
     next_view_name = "experiments-objectives-update"
+    template_name = "experiments/edit_variants.html"
 
     def get_form_class(self):
         if self.object.is_addon_study:
             return ExperimentVariantsAddonForm
         elif self.object.is_pref_study:
             return ExperimentVariantsPrefForm
-
-    def get_template_names(self):
-        if self.object.is_addon_study:
-            return (self.ADDON_TEMPLATE_NAME,)
-        elif self.object.is_pref_study:
-            return (self.PREF_TEMPLATE_NAME,)
 
 
 class ExperimentObjectivesUpdateView(ExperimentFormMixin, UpdateView):

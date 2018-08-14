@@ -86,13 +86,6 @@ class TestExperimentModel(TestCase):
         )
         self.assertEqual(experiment.control, control)
 
-    def test_variant_property_returns_experiment_variant(self):
-        experiment = ExperimentFactory.create_with_variants()
-        variant = ExperimentVariant.objects.get(
-            experiment=experiment, is_control=False
-        )
-        self.assertEqual(experiment.variant, variant)
-
     def test_experiment_is_editable_when_is_draft(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT

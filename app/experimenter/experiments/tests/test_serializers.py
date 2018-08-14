@@ -37,6 +37,7 @@ class TestExperimentVariantSerializer(TestCase):
             serialized.data,
             {
                 "description": variant.description,
+                "is_control": variant.is_control,
                 "name": variant.name,
                 "ratio": variant.ratio,
                 "slug": variant.slug,
@@ -53,13 +54,12 @@ class TestExperimentSerializer(TestCase):
         )
         serialized = ExperimentSerializer(experiment)
         expected_data = {
-            "accept_url": experiment.accept_url,
+            "analysis": experiment.analysis,
+            "analysis_owner": experiment.analysis_owner,
             "client_matching": experiment.client_matching,
-            "control": ExperimentVariantSerializer(experiment.control).data,
             "end_date": JSTimestampField().to_representation(
                 experiment.end_date
             ),
-            "experiment_slug": experiment.experiment_slug,
             "experiment_url": experiment.experiment_url,
             "firefox_channel": experiment.firefox_channel,
             "firefox_version": experiment.firefox_version,
@@ -72,21 +72,22 @@ class TestExperimentSerializer(TestCase):
             "pref_branch": experiment.pref_branch,
             "pref_key": experiment.pref_key,
             "pref_type": experiment.pref_type,
-            "project_name": experiment.project.name,
-            "project_slug": experiment.project.slug,
             "proposed_end_date": JSTimestampField().to_representation(
                 experiment.proposed_end_date
             ),
             "proposed_start_date": JSTimestampField().to_representation(
                 experiment.proposed_start_date
             ),
-            "reject_url": experiment.reject_url,
             "short_description": experiment.short_description,
             "slug": experiment.slug,
             "start_date": JSTimestampField().to_representation(
                 experiment.start_date
             ),
-            "variant": ExperimentVariantSerializer(experiment.variant).data,
+            "type": experiment.type,
+            "variants": [
+                ExperimentVariantSerializer(variant).data
+                for variant in experiment.variants.all()
+            ],
         }
 
         self.assertEqual(

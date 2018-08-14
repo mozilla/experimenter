@@ -5,20 +5,44 @@ import requests
 from django.conf import settings
 
 
-def create_experiment_bug(experiment):
-    if experiment.is_addon_study:
-        template = experiment.BUGZILLA_ADDON_TEMPLATE
-    else:
-        template = experiment.BUGZILLA_PREF_TEMPLATE
+def format_bug_body(experiment):
+    bug_body = ""
 
+    if experiment.is_addon_study:
+        variants_body = "\n".join(
+            [
+                experiment.BUGZILLA_VARIANT_ADDON_TEMPLATE.format(
+                    variant=variant
+                )
+                for variant in experiment.variants.all()
+            ]
+        )
+        bug_body = experiment.BUGZILLA_ADDON_TEMPLATE.format(
+            experiment=experiment, variants=variants_body
+        )
+    elif experiment.is_pref_study:
+        variants_body = "\n".join(
+            [
+                experiment.BUGZILLA_VARIANT_PREF_TEMPLATE.format(
+                    variant=variant
+                )
+                for variant in experiment.variants.all()
+            ]
+        )
+        bug_body = experiment.BUGZILLA_PREF_TEMPLATE.format(
+            experiment=experiment, variants=variants_body
+        )
+
+    return bug_body
+
+
+def create_experiment_bug(experiment):
     bug_data = {
         "product": "Shield",
         "component": "Shield Study",
         "version": "unspecified",
-        "summary": "[Shield] Pref Flip Study: {name}".format(
-            name=experiment.name
-        ),
-        "description": template.format(experiment=experiment),
+        "summary": "[Shield] {experiment}".format(experiment=experiment),
+        "description": format_bug_body(experiment),
         "assigned_to": experiment.owner.email,
         "cc": settings.BUGZILLA_CC_LIST,
     }

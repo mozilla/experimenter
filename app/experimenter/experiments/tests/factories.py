@@ -102,10 +102,15 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
         model = Experiment
 
     @classmethod
-    def create_with_variants(cls, *args, **kwargs):
+    def create_with_variants(cls, num_variants=3, *args, **kwargs):
         experiment = cls.create(*args, **kwargs)
-        ExperimentControlFactory.create(experiment=experiment)
-        ExperimentVariantFactory.create(experiment=experiment)
+
+        for i in range(num_variants):
+            if i == 0:
+                ExperimentControlFactory.create(experiment=experiment)
+            else:
+                ExperimentVariantFactory.create(experiment=experiment)
+
         return experiment
 
     @classmethod
