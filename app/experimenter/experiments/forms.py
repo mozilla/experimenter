@@ -1,10 +1,12 @@
 import json
 
-from django.utils.safestring import mark_safe
 from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.forms import BaseInlineFormSet
+from django.forms import inlineformset_factory
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
 from experimenter.experiments import bugzilla
@@ -43,99 +45,6 @@ class NameSlugMixin(object):
         cleaned_data["slug"] = slugify(name)
 
         return cleaned_data
-
-
-class ControlVariantForm(NameSlugMixin, forms.ModelForm):
-
-    experiment = forms.ModelChoiceField(
-        queryset=Experiment.objects.all(), required=False
-    )
-    ratio = forms.IntegerField(
-        required=False,
-        label="Variant Split",
-        initial="50",
-        help_text=Experiment.CONTROL_RATIO_HELP_TEXT,
-        widget=forms.NumberInput(
-            attrs={"type": "range", "min": "1", "max": "99", "step": "1"}
-        ),
-    )
-    name = forms.CharField(
-        label="Name",
-        help_text=Experiment.CONTROL_NAME_HELP_TEXT,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-    )
-    description = forms.CharField(
-        label="Description",
-        help_text=Experiment.CONTROL_DESCRIPTION_HELP_TEXT,
-        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-    )
-    slug = forms.CharField(required=False)
-    value = JSONField(
-        required=False,
-        label="Pref Value",
-        help_text=Experiment.CONTROL_VALUE_HELP_TEXT,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-    )
-    is_control = forms.BooleanField(required=False)
-
-    prefix = "control"
-
-    class Meta:
-        model = ExperimentVariant
-        fields = [
-            "description",
-            "experiment",
-            "is_control",
-            "name",
-            "ratio",
-            "slug",
-            "value",
-        ]
-
-    def clean_is_control(self):
-        return True
-
-
-class ExperimentalVariantForm(NameSlugMixin, forms.ModelForm):
-
-    experiment = forms.ModelChoiceField(
-        required=False, queryset=Experiment.objects.all()
-    )
-    ratio = forms.IntegerField(required=False, initial="50")
-    name = forms.CharField(
-        label="Name",
-        help_text=Experiment.VARIANT_NAME_HELP_TEXT,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-    )
-    description = forms.CharField(
-        label="Description",
-        help_text=Experiment.VARIANT_DESCRIPTION_HELP_TEXT,
-        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-    )
-    slug = forms.CharField(required=False)
-    value = JSONField(
-        required=False,
-        label="Pref Value",
-        help_text=Experiment.VARIANT_VALUE_HELP_TEXT,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-    )
-
-    prefix = "experimental"
-
-    class Meta:
-        model = ExperimentVariant
-        fields = [
-            "description",
-            "experiment",
-            "is_control",
-            "name",
-            "ratio",
-            "slug",
-            "value",
-        ]
-
-    def clean_is_control(self):
-        return False
 
 
 class ChangeLogMixin(object):
@@ -266,47 +175,135 @@ class ExperimentOverviewForm(
         return population_percent
 
 
+class ExperimentVariantAddonForm(NameSlugMixin, forms.ModelForm):
+
+    experiment = forms.ModelChoiceField(
+        queryset=Experiment.objects.all(), required=False
+    )
+    is_control = forms.BooleanField(required=False)
+    ratio = forms.IntegerField(
+        label="Branch Size",
+        initial="50",
+        help_text=Experiment.CONTROL_RATIO_HELP_TEXT,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    name = forms.CharField(
+        label="Name",
+        help_text=Experiment.CONTROL_NAME_HELP_TEXT,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    description = forms.CharField(
+        label="Description",
+        help_text=Experiment.CONTROL_DESCRIPTION_HELP_TEXT,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+    )
+    slug = forms.CharField(required=False)
+
+    class Meta:
+        model = ExperimentVariant
+        fields = [
+            "description",
+            "experiment",
+            "is_control",
+            "name",
+            "ratio",
+            "slug",
+        ]
+
+
+class ExperimentVariantPrefForm(ExperimentVariantAddonForm):
+
+    value = JSONField(
+        label="Pref Value",
+        help_text=Experiment.CONTROL_VALUE_HELP_TEXT,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+
+    class Meta:
+        model = ExperimentVariant
+        fields = [
+            "description",
+            "experiment",
+            "is_control",
+            "name",
+            "ratio",
+            "slug",
+            "value",
+        ]
+
+
+class ExperimentVariantsFormSet(BaseInlineFormSet):
+
+    def clean(self):
+        alive_forms = [
+            form for form in self.forms if not form.cleaned_data["DELETE"]
+        ]
+
+        total_percentage = sum(
+            [form.cleaned_data["ratio"] for form in alive_forms]
+        )
+
+        if total_percentage != 100:
+            for form in alive_forms:
+                form._errors["ratio"] = [
+                    "The size of all branches must add up to 100"
+                ]
+
+        unique_slugs = set([form.cleaned_data["slug"] for form in alive_forms])
+
+        if not len(unique_slugs) == len(alive_forms):
+            for form in alive_forms:
+                form._errors["name"] = ["All branches must have a unique name"]
+
+
 class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
+
+    FORMSET_FORM_CLASS = ExperimentVariantAddonForm
 
     class Meta:
         model = Experiment
         fields = []
 
-    def __init__(self, data=None, instance=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        data = kwargs.pop("data", None)
+        instance = kwargs.pop("instance", None)
         super().__init__(data=data, instance=instance, *args, **kwargs)
 
-        self.control_form = ControlVariantForm(
-            data=data, instance=instance.control if instance else None
-        )
-        self.experimental_form = ExperimentalVariantForm(
-            data=data, instance=instance.variant if instance else None
+        extra = 0
+        if instance.variants.count() == 0:
+            extra = 2
+
+        FormSet = inlineformset_factory(
+            can_delete=True,
+            extra=extra,
+            form=self.FORMSET_FORM_CLASS,
+            formset=ExperimentVariantsFormSet,
+            model=ExperimentVariant,
+            parent_model=Experiment,
         )
 
-    def is_valid(self, *args, **kwargs):
-        return (
-            super().is_valid(*args, **kwargs)
-            and self.control_form.is_valid(*args, **kwargs)
-            and self.experimental_form.is_valid(*args, **kwargs)
-        )
+        self.variants_formset = FormSet(data=data, instance=instance)
+
+    def is_valid(self):
+        return super().is_valid() and self.variants_formset.is_valid()
 
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
 
-        if self.control_form.instance.slug:
-            self.control_form.instance.experiment = experiment
-            self.control_form.save(*args, **kwargs)
-
-        if self.experimental_form.instance.slug:
-            self.experimental_form.instance.experiment = experiment
-            self.experimental_form.instance.ratio = (
-                100 - self.control_form.instance.ratio
-            )
-            self.experimental_form.save(*args, **kwargs)
+        for form in self.variants_formset.forms:
+            if form.cleaned_data["DELETE"] and form.cleaned_data["id"]:
+                form.instance.delete()
+            elif form.is_valid():
+                form.instance.experiment = experiment
+                form.save(*args, **kwargs)
 
         return experiment
 
 
 class ExperimentVariantsPrefForm(ExperimentVariantsAddonForm):
+
+    FORMSET_FORM_CLASS = ExperimentVariantPrefForm
+
     pref_key = forms.CharField(
         label="Pref Name",
         help_text=Experiment.PREF_KEY_HELP_TEXT,
@@ -331,6 +328,7 @@ class ExperimentVariantsPrefForm(ExperimentVariantsAddonForm):
 
 
 class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
+
     objectives = forms.CharField(
         label="Objectives",
         help_text=Experiment.OBJECTIVES_HELP_TEXT,

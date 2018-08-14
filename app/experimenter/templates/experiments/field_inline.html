@@ -12,17 +12,15 @@
     {{ field }}
 
     {% if field.errors %}
-      <div class="col-md-12 text-right">
-        {% for error in field.errors %}
-          <label for="{{ field.id_for_label }}" class="control-label">
-            <span class="glyphicon glyphicon-exclamation-sign"></span>
-            {{ error }}
-          </label>
-        {% endfor %}
-      </div>
+      {% for error in field.errors %}
+        <label for="{{ field.id_for_label }}" class="control-label">
+          <span class="glyphicon glyphicon-exclamation-sign"></span>
+          {{ error }}
+        </label>
+      {% endfor %}
     {% endif %}
 
-    <div id="{{ field.id_for_label }}-help" class="help-block collapse {% if field.errors %}in{% endif %}">
+    <div id="{{ field.id_for_label }}-help" class="md-mt-10 help-block collapse {% if field.errors %}in{% endif %}">
       {{ field.help_text|safe }}
     </div>
 

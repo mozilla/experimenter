@@ -125,7 +125,9 @@ class Experiment(ExperimentConstants, models.Model):
     objects = ExperimentManager()
 
     def __str__(self):  # pragma: no cover
-        return self.name
+        return "{type}: {name}".format(
+            type=self.get_type_display(), name=self.name
+        )
 
     class Meta:
         verbose_name = "Experiment"
@@ -188,11 +190,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @cached_property
     def control(self):
-        return self.variants.filter(is_control=True).first()
-
-    @cached_property
-    def variant(self):
-        return self.variants.filter(is_control=False).first()
+        return self.variants.get(is_control=True)
 
     @property
     def ordered_changes(self):
@@ -282,12 +280,6 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
-    def experiment_slug(self):
-        return "pref-flip-{project_slug}-{experiment_slug}".format(
-            project_slug=self.project.slug, experiment_slug=self.slug
-        )
-
-    @property
     def accept_url(self):
         return urljoin(
             "https://{host}".format(host=settings.HOSTNAME),
@@ -317,18 +309,22 @@ class ExperimentVariant(models.Model):
     is_control = models.BooleanField(default=False)
     description = models.TextField(default="")
     ratio = models.PositiveIntegerField(default=1)
-    value = JSONField(default=False)
-
-    def __str__(self):  # pragma: no cover
-        return self.name
+    value = JSONField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Experiment Variant"
         verbose_name_plural = "Experiment Variants"
-        unique_together = (
-            ("slug", "experiment"),
-            ("is_control", "experiment"),
-        )
+        unique_together = (("slug", "experiment"),)
+
+    def __str__(self):  # pragma: no cover
+        return self.name
+
+    @property
+    def type(self):
+        if self.is_control:
+            return "Control"
+        else:
+            return "Treatment"
 
 
 class ExperimentChangeLogManager(models.Manager):

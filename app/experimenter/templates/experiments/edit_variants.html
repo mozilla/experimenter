@@ -1,0 +1,116 @@
+{% extends "experiments/edit_base.html" %}
+
+{% load formset_tags %}
+{% load static %}
+
+{% block edit_title %}
+  Edit {{ object.name }} Branches
+{% endblock %}
+
+{% block edit_nav %}
+  {% include "experiments/edit_nav_inline.html" with step=2 object=object %}
+{% endblock %}
+
+{% block edit_form %}
+  <form
+    class="form-horizontal card-content"
+    method="POST"
+    enctype='multipart/form-data'
+  >
+    {% csrf_token %}
+ 
+    {% if experiment.is_pref_study %}
+      <div class="form-group">
+        <h4 class="col-md-9 col-md-offset-3">Firefox Pref</h4>
+      </div>
+
+      {% include "experiments/field_inline.html" with field=form.pref_key %}
+
+      {% include "experiments/field_inline.html" with field=form.pref_type %}
+
+      {% include "experiments/field_inline.html" with field=form.pref_branch %}
+      
+      <hr class="heavy-line md-mt-40 md-mb-40"/>
+    {% endif %}
+            
+
+    <div id="formset" data-formset-prefix="{{ form.variants_formset.prefix }}">
+      {{ form.variants_formset.management_form }}
+
+      <div data-formset-body>
+        {% for variant_form in form.variants_formset %}
+          {% if forloop.counter0 == 0 %}
+            {% include "experiments/edit_branch_inline.html" with form=variant_form is_control=True is_pref=experiment.is_pref_study %}
+          {% else %}
+            {% include "experiments/edit_branch_inline.html" with form=variant_form is_control=False is_pref=experiment.is_pref_study branch_num=forloop.counter0 %}
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="form-group">
+        <div class="col-md-9 col-md-offset-3 text-right">
+          <!-- This button will add a new form when clicked -->
+          <button type="button" class="btn btn-success" data-formset-add>
+            <span class="glyphicon glyphicon-plus"></span> Add Branch
+          </button>
+        </div>
+      </div>
+
+      <!-- The empty form template. By wrapping this in a <script> tag, the
+      __prefix__ placeholder can easily be replaced in both attributes and
+      any scripts -->
+      <script type="form-template" data-formset-empty-form>
+        {% escapescript %}
+          {% include "experiments/edit_branch_inline.html" with form=form.variants_formset.empty_form is_control=False is_pref=experiment.is_pref_study branch_num="__prefix__" %}
+        {% endescapescript %}
+      </script>
+    </div>
+
+    <div class="form-group md-mt-40">
+      <div class="col-md-12 text-right">
+        {% if object %}
+          <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">Cancel Editing</a>
+        {% endif %}
+        <button type="submit" name="action" value="save" class="btn btn-info">Save Draft</button>
+        <button type="submit" name="action" value="continue" class="btn btn-info">Save Draft and Continue</button>
+      </div>
+    </div>
+
+  </form>
+{% endblock %}
+
+{% block edit_info %}
+  <h4><span class="glyphicon glyphicon-info-sign"></span> Branches</h4>
+  
+  <p>
+    Define the branches for your experiment.  Users will be split
+    into the branches you define according to the size of each branch.
+  </p>
+  
+  {% if experiment.is_pref_study %}
+    <p>
+      The experimental pref will be set to the value of the branch
+      they are assigned to.  When the experiment completes,
+      the pref will be reset to its original value before the
+      experiment started.
+    </p>
+  {% else %}
+    <p>
+      The functionality each user receives in each branch will be
+      determined by your addon.
+    </p>
+  {% endif %}
+{% endblock %}
+
+{% block extrascripts %}
+  <script src="{% static "js/jquery.formset.js" %}"></script>
+
+  <script>
+    jQuery(function($) {
+      $("#formset").formset({
+        animateForms: true,
+        reorderMode: 'dom',
+      });
+    });
+  </script>
+{% endblock %}

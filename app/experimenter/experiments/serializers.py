@@ -22,45 +22,45 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExperimentVariant
-        fields = ("description", "name", "ratio", "slug", "value")
+        fields = (
+            "description",
+            "is_control",
+            "name",
+            "ratio",
+            "slug",
+            "value",
+        )
 
 
 class ExperimentSerializer(serializers.ModelSerializer):
-    control = ExperimentVariantSerializer()
+    start_date = JSTimestampField()
     end_date = JSTimestampField()
-    project_name = serializers.ReadOnlyField(source="project.name")
-    project_slug = serializers.ReadOnlyField(source="project.slug")
     proposed_end_date = JSTimestampField()
     proposed_start_date = JSTimestampField()
-    start_date = JSTimestampField()
-    variant = ExperimentVariantSerializer()
+    variants = ExperimentVariantSerializer(many=True)
 
     class Meta:
         model = Experiment
         fields = (
-            "accept_url",
-            "client_matching",
-            "control",
-            "end_date",
-            "experiment_slug",
             "experiment_url",
-            "firefox_channel",
-            "firefox_version",
+            "type",
             "name",
-            "objectives",
+            "slug",
+            "short_description",
+            "client_matching",
+            "start_date",
+            "end_date",
             "population",
             "population_percent",
-            "pref_branch",
+            "firefox_channel",
+            "firefox_version",
+            "objectives",
+            "analysis_owner",
+            "analysis",
             "pref_branch",
             "pref_key",
             "pref_type",
-            "project_name",
-            "project_slug",
             "proposed_end_date",
             "proposed_start_date",
-            "reject_url",
-            "short_description",
-            "slug",
-            "start_date",
-            "variant",
+            "variants",
         )

@@ -5,20 +5,22 @@ import json
 import mock
 from django import forms
 from django.core.exceptions import ValidationError
+from django.forms import inlineformset_factory
 from django.test import TestCase
 
 from experimenter.experiments.forms import (
     ChangeLogMixin,
-    ControlVariantForm,
     ExperimentCommentForm,
     ExperimentObjectivesForm,
     ExperimentOverviewForm,
     ExperimentReviewForm,
     ExperimentRisksForm,
     ExperimentStatusForm,
+    ExperimentVariantAddonForm,
+    ExperimentVariantPrefForm,
     ExperimentVariantsAddonForm,
+    ExperimentVariantsFormSet,
     ExperimentVariantsPrefForm,
-    ExperimentalVariantForm,
     JSONField,
     NameSlugMixin,
 )
@@ -63,25 +65,20 @@ class TestNameSlugMixin(TestCase):
         self.assertEqual(form.cleaned_data["slug"], expected_slug)
 
 
-class TestControlVariantForm(TestCase):
+class TestExperimentVariantAddonForm(TestCase):
 
-    def test_form_creates_control_variant(self):
+    def test_form_creates_variant(self):
         experiment = ExperimentFactory.create()
 
         data = {
-            "experiment": experiment.id,
-            "name": "The Control Variant",
             "description": "Its the control! So controlly.",
+            "experiment": experiment.id,
+            "is_control": True,
+            "name": "The Control Variant",
             "ratio": 50,
-            "value": "true",
         }
 
-        prefixed_data = {
-            "{}-{}".format(ControlVariantForm.prefix, key): value
-            for key, value in data.items()
-        }
-
-        form = ControlVariantForm(prefixed_data)
+        form = ExperimentVariantAddonForm(data)
 
         self.assertTrue(form.is_valid())
 
@@ -90,32 +87,27 @@ class TestControlVariantForm(TestCase):
 
         self.assertEqual(variant.experiment.id, experiment.id)
         self.assertTrue(variant.is_control)
-        self.assertEqual(variant.name, data["name"])
         self.assertEqual(variant.description, data["description"])
-        self.assertEqual(variant.slug, "the-control-variant")
+        self.assertEqual(variant.name, data["name"])
         self.assertEqual(variant.ratio, data["ratio"])
-        self.assertEqual(variant.value, "true")
+        self.assertEqual(variant.slug, "the-control-variant")
 
 
-class TestExperimentalVariantForm(TestCase):
+class TestExperimentVariantPrefForm(TestCase):
 
-    def test_form_creates_experimental_variant(self):
+    def test_form_creates_variant(self):
         experiment = ExperimentFactory.create()
 
         data = {
+            "description": "Its the control! So controlly.",
             "experiment": experiment.id,
-            "name": "The Experimental Variant",
-            "description": "Its the experimental! So experimentally.",
+            "is_control": True,
+            "name": "The Control Variant",
             "ratio": 50,
-            "value": "false",
+            "value": "true",
         }
 
-        prefixed_data = {
-            "{}-{}".format(ExperimentalVariantForm.prefix, key): value
-            for key, value in data.items()
-        }
-
-        form = ExperimentalVariantForm(prefixed_data)
+        form = ExperimentVariantPrefForm(data)
 
         self.assertTrue(form.is_valid())
 
@@ -123,12 +115,12 @@ class TestExperimentalVariantForm(TestCase):
         variant = ExperimentVariant.objects.get(id=saved_variant.id)
 
         self.assertEqual(variant.experiment.id, experiment.id)
-        self.assertFalse(variant.is_control)
-        self.assertEqual(variant.name, data["name"])
+        self.assertTrue(variant.is_control)
         self.assertEqual(variant.description, data["description"])
-        self.assertEqual(variant.slug, "the-experimental-variant")
+        self.assertEqual(variant.name, data["name"])
         self.assertEqual(variant.ratio, data["ratio"])
-        self.assertEqual(variant.value, "false")
+        self.assertEqual(variant.slug, "the-control-variant")
+        self.assertEqual(variant.value, "true")
 
 
 class MockRequestMixin(object):
@@ -272,69 +264,304 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertIn("population_percent", form.errors)
 
 
+class TestExperimentVariantsFormSet(TestCase):
+
+    def setUp(self):
+        self.FormSet = inlineformset_factory(
+            formset=ExperimentVariantsFormSet,
+            model=ExperimentVariant,
+            parent_model=Experiment,
+            fields=["is_control", "ratio", "name", "slug", "description"],
+        )
+
+        self.data = {
+            "variants-TOTAL_FORMS": "3",
+            "variants-INITIAL_FORMS": "0",
+            "variants-MIN_NUM_FORMS": "0",
+            "variants-MAX_NUM_FORMS": "1000",
+            "variants-0-is_control": True,
+            "variants-0-ratio": "34",
+            "variants-0-name": "control name",
+            "variants-0-slug": "control-slug",
+            "variants-0-description": "control desc",
+            "variants-1-is_control": False,
+            "variants-1-ratio": "33",
+            "variants-1-name": "branch 1 name",
+            "variants-1-slug": "branch-1-slug",
+            "variants-1-description": "branch 1 desc",
+            "variants-2-is_control": False,
+            "variants-2-ratio": "33",
+            "variants-2-name": "branch 2 name",
+            "variants-2-slug": "branch-2-slug",
+            "variants-2-description": "branch 2 desc",
+        }
+
+    def test_formset_valid_if_sizes_sum_to_100(self):
+        formset = self.FormSet(data=self.data)
+        self.assertTrue(formset.is_valid())
+
+    def test_formset_invalid_if_sizes_sum_to_less_than_100(self):
+        self.data["variants-0-ratio"] = 30
+        formset = self.FormSet(data=self.data)
+        self.assertFalse(formset.is_valid())
+
+        for form in formset.forms:
+            self.assertIn("ratio", form.errors)
+
+    def test_formset_invalid_if_sizes_sum_to_more_than_100(self):
+        self.data["variants-0-ratio"] = 40
+        formset = self.FormSet(data=self.data)
+        self.assertFalse(formset.is_valid())
+
+        for form in formset.forms:
+            self.assertIn("ratio", form.errors)
+
+    def test_formset_invalid_if_duplicate_slugs_appear(self):
+        self.data["variants-0-slug"] = self.data["variants-1-slug"]
+        formset = self.FormSet(data=self.data)
+        self.assertFalse(formset.is_valid())
+
+        for form in formset.forms:
+            self.assertIn("name", form.errors)
+
+
 class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
 
+        self.experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, num_variants=0
+        )
+
         self.data = {
-            "control-name": "The Control Variant",
-            "control-description": "Its the control! So controlly.",
-            "control-ratio": 60,
-            "experimental-name": "The Experimental Variant",
-            "experimental-description": (
-                "Its the experimental! So experimentally."
-            ),
-            "experimental-ratio": 40,
+            "variants-TOTAL_FORMS": "3",
+            "variants-INITIAL_FORMS": "0",
+            "variants-MIN_NUM_FORMS": "0",
+            "variants-MAX_NUM_FORMS": "1000",
+            "variants-0-is_control": True,
+            "variants-0-ratio": "34",
+            "variants-0-name": "control name",
+            "variants-0-description": "control desc",
+            "variants-1-is_control": False,
+            "variants-1-ratio": "33",
+            "variants-1-name": "branch 1 name",
+            "variants-1-description": "branch 1 desc",
+            "variants-2-is_control": False,
+            "variants-2-ratio": "33",
+            "variants-2-name": "branch 2 name",
+            "variants-2-description": "branch 2 desc",
         }
 
-    def test_form_saves_variants(self):
-        created_experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
+    def test_form_saves_new_variants(self):
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=self.experiment
         )
 
-        form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=created_experiment
+        self.assertTrue(form.is_valid())
+
+        self.assertEqual(self.experiment.variants.count(), 0)
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.variants.count(), 3)
+
+        branch0 = experiment.variants.get(name=self.data["variants-0-name"])
+        self.assertTrue(branch0.is_control)
+        self.assertEqual(branch0.ratio, 34)
+        self.assertEqual(
+            branch0.description, self.data["variants-0-description"]
         )
+
+        branch1 = experiment.variants.get(name=self.data["variants-1-name"])
+        self.assertFalse(branch1.is_control)
+        self.assertEqual(branch1.ratio, 33)
+        self.assertEqual(
+            branch1.description, self.data["variants-1-description"]
+        )
+
+        branch2 = experiment.variants.get(name=self.data["variants-2-name"])
+        self.assertFalse(branch2.is_control)
+        self.assertEqual(branch2.ratio, 33)
+        self.assertEqual(
+            branch2.description, self.data["variants-2-description"]
+        )
+
+    def test_form_edits_existing_variants(self):
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=self.experiment
+        )
+
+        self.assertTrue(form.is_valid())
+
+        self.assertEqual(self.experiment.variants.count(), 0)
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.variants.count(), 3)
+
+        self.data["variants-INITIAL_FORMS"] = 3
+
+        branch0 = experiment.variants.get(name=self.data["variants-0-name"])
+        self.data["variants-0-id"] = branch0.id
+        self.data["variants-0-DELETE"] = False
+        self.data["variants-0-name"] = "new branch 0 name"
+        self.data["variants-0-description"] = "new branch 0 description"
+
+        branch1 = experiment.variants.get(name=self.data["variants-1-name"])
+        self.data["variants-1-id"] = branch1.id
+        self.data["variants-1-DELETE"] = False
+        self.data["variants-1-name"] = "new branch 1 name"
+        self.data["variants-1-description"] = "new branch 1 description"
+
+        branch2 = experiment.variants.get(name=self.data["variants-2-name"])
+        self.data["variants-2-id"] = branch2.id
+        self.data["variants-2-DELETE"] = False
+        self.data["variants-2-name"] = "new branch 2 name"
+        self.data["variants-2-description"] = "new branch 2 description"
+
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+
         self.assertTrue(form.is_valid())
 
         experiment = form.save()
 
-        self.assertEqual(experiment.control.name, self.data["control-name"])
+        self.assertEqual(experiment.variants.count(), 3)
+
+        branch0 = experiment.variants.get(name=self.data["variants-0-name"])
+        self.assertTrue(branch0.is_control)
+        self.assertEqual(branch0.ratio, 34)
         self.assertEqual(
-            experiment.control.description, self.data["control-description"]
-        )
-        self.assertEqual(experiment.control.ratio, self.data["control-ratio"])
-        self.assertEqual(
-            experiment.variant.name, self.data["experimental-name"]
-        )
-        self.assertEqual(
-            experiment.variant.description,
-            self.data["experimental-description"],
-        )
-        self.assertEqual(
-            experiment.variant.ratio, self.data["experimental-ratio"]
+            branch0.description, self.data["variants-0-description"]
         )
 
-    def test_form_is_invalid_if_control_is_invalid(self):
-        created_experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
+        branch1 = experiment.variants.get(name=self.data["variants-1-name"])
+        self.assertFalse(branch1.is_control)
+        self.assertEqual(branch1.ratio, 33)
+        self.assertEqual(
+            branch1.description, self.data["variants-1-description"]
         )
-        self.data["control-ratio"] = "invalid"
-        form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=created_experiment
-        )
-        self.assertFalse(form.is_valid())
 
-    def test_form_is_invalid_if_experimental_is_invalid(self):
-        created_experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
+        branch2 = experiment.variants.get(name=self.data["variants-2-name"])
+        self.assertFalse(branch2.is_control)
+        self.assertEqual(branch2.ratio, 33)
+        self.assertEqual(
+            branch2.description, self.data["variants-2-description"]
         )
-        self.data["experimental-ratio"] = "invalid"
+
+    def test_form_adds_new_variant(self):
         form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=created_experiment
+            request=self.request, data=self.data, instance=self.experiment
         )
-        self.assertFalse(form.is_valid())
+
+        self.assertTrue(form.is_valid())
+
+        self.assertEqual(self.experiment.variants.count(), 0)
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.variants.count(), 3)
+
+        self.data["variants-INITIAL_FORMS"] = 3
+        self.data["variants-TOTAL_FORMS"] = 4
+
+        branch0 = experiment.variants.get(name=self.data["variants-0-name"])
+        self.data["variants-0-id"] = branch0.id
+        self.data["variants-0-ratio"] = 25
+
+        branch1 = experiment.variants.get(name=self.data["variants-1-name"])
+        self.data["variants-1-id"] = branch1.id
+        self.data["variants-1-ratio"] = 25
+
+        branch2 = experiment.variants.get(name=self.data["variants-2-name"])
+        self.data["variants-2-id"] = branch2.id
+        self.data["variants-2-ratio"] = 25
+
+        self.data["variants-3-DELETE"] = False
+        self.data["variants-3-name"] = "new branch 0 name"
+        self.data["variants-3-description"] = "new branch 0 description"
+        self.data["variants-3-ratio"] = 25
+
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.variants.count(), 4)
+
+        branch0 = experiment.variants.get(name=self.data["variants-0-name"])
+        self.assertEqual(branch0.ratio, 25)
+
+        branch1 = experiment.variants.get(name=self.data["variants-1-name"])
+        self.assertEqual(branch1.ratio, 25)
+
+        branch2 = experiment.variants.get(name=self.data["variants-2-name"])
+        self.assertEqual(branch2.ratio, 25)
+
+        branch3 = experiment.variants.get(name=self.data["variants-3-name"])
+        self.assertEqual(branch3.ratio, 25)
+        self.assertEqual(
+            branch3.description, self.data["variants-3-description"]
+        )
+
+    def test_form_removes_variant(self):
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=self.experiment
+        )
+
+        self.assertTrue(form.is_valid())
+
+        self.assertEqual(self.experiment.variants.count(), 0)
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.variants.count(), 3)
+
+        self.data["variants-INITIAL_FORMS"] = 3
+        self.data["variants-TOTAL_FORMS"] = 3
+
+        branch0 = experiment.variants.get(name=self.data["variants-0-name"])
+        self.data["variants-0-id"] = branch0.id
+        self.data["variants-0-ratio"] = 50
+
+        branch1 = experiment.variants.get(name=self.data["variants-1-name"])
+        self.data["variants-1-id"] = branch1.id
+        self.data["variants-1-DELETE"] = True
+
+        branch2 = experiment.variants.get(name=self.data["variants-2-name"])
+        self.data["variants-2-id"] = branch2.id
+        self.data["variants-2-ratio"] = 50
+
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.variants.count(), 2)
+
+        self.assertTrue(
+            experiment.variants.filter(
+                name=self.data["variants-0-name"]
+            ).exists()
+        )
+        self.assertFalse(
+            experiment.variants.filter(
+                name=self.data["variants-1-name"]
+            ).exists()
+        )
+        self.assertTrue(
+            experiment.variants.filter(
+                name=self.data["variants-2-name"]
+            ).exists()
+        )
 
 
 class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
@@ -342,56 +569,73 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
     def setUp(self):
         super().setUp()
 
+        self.branch0_name = "control name"
+        self.branch1_name = "branch 1 name"
+        self.branch2_name = "branch 2 name"
+
         self.data = {
-            "pref_key": "browser.testing.tests-enabled",
-            "pref_type": Experiment.PREF_TYPE_BOOL,
+            "pref_key": "browser.test.example",
+            "pref_type": Experiment.PREF_TYPE_STR,
             "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
-            "control-name": "The Control Variant",
-            "control-description": "Its the control! So controlly.",
-            "control-ratio": 60,
-            "control-value": "false",
-            "experimental-name": "The Experimental Variant",
-            "experimental-description": (
-                "Its the experimental! So experimentally."
-            ),
-            "experimental-ratio": 40,
-            "experimental-value": "true",
+            "variants-TOTAL_FORMS": "3",
+            "variants-INITIAL_FORMS": "0",
+            "variants-MIN_NUM_FORMS": "0",
+            "variants-MAX_NUM_FORMS": "1000",
+            "variants-0-is_control": True,
+            "variants-0-ratio": "34",
+            "variants-0-name": self.branch0_name,
+            "variants-0-description": "control desc",
+            "variants-0-value": '"control value"',
+            "variants-1-is_control": False,
+            "variants-1-ratio": "33",
+            "variants-1-name": self.branch1_name,
+            "variants-1-description": "branch 1 desc",
+            "variants-1-value": '"branch 1 value"',
+            "variants-2-is_control": False,
+            "variants-2-ratio": "33",
+            "variants-2-name": self.branch2_name,
+            "variants-2-description": "branch 2 desc",
+            "variants-2-value": '"branch 2 value"',
         }
 
     def test_form_saves_variants(self):
         created_experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
+            Experiment.STATUS_DRAFT, num_variants=0
         )
 
         form = ExperimentVariantsPrefForm(
             request=self.request, data=self.data, instance=created_experiment
         )
+
         self.assertTrue(form.is_valid())
 
         experiment = form.save()
 
-        self.assertEqual(experiment.pref_key, self.data["pref_key"])
-        self.assertEqual(experiment.pref_type, self.data["pref_type"])
-        self.assertEqual(experiment.pref_branch, self.data["pref_branch"])
-        self.assertEqual(experiment.control.name, self.data["control-name"])
+        self.assertEqual(experiment.variants.count(), 3)
+
+        branch0 = experiment.variants.get(name=self.branch0_name)
+        self.assertTrue(branch0.is_control)
+        self.assertEqual(branch0.ratio, 34)
         self.assertEqual(
-            experiment.control.description, self.data["control-description"]
+            branch0.description, self.data["variants-0-description"]
         )
-        self.assertEqual(experiment.control.ratio, self.data["control-ratio"])
-        self.assertEqual(experiment.control.value, self.data["control-value"])
+        self.assertEqual(branch0.value, self.data["variants-0-value"])
+
+        branch1 = experiment.variants.get(name=self.branch1_name)
+        self.assertFalse(branch1.is_control)
+        self.assertEqual(branch1.ratio, 33)
         self.assertEqual(
-            experiment.variant.name, self.data["experimental-name"]
+            branch1.description, self.data["variants-1-description"]
         )
+        self.assertEqual(branch1.value, self.data["variants-1-value"])
+
+        branch2 = experiment.variants.get(name=self.branch2_name)
+        self.assertFalse(branch2.is_control)
+        self.assertEqual(branch2.ratio, 33)
         self.assertEqual(
-            experiment.variant.description,
-            self.data["experimental-description"],
+            branch2.description, self.data["variants-2-description"]
         )
-        self.assertEqual(
-            experiment.variant.ratio, self.data["experimental-ratio"]
-        )
-        self.assertEqual(
-            experiment.variant.value, self.data["experimental-value"]
-        )
+        self.assertEqual(branch2.value, self.data["variants-2-value"])
 
 
 class TestExperimentObjectivesForm(MockRequestMixin, TestCase):

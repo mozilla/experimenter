@@ -1,4 +1,3 @@
-from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
 
@@ -9,43 +8,13 @@ from experimenter.experiments.models import (
 )
 
 
-class BaseVariantInlineAdmin(admin.StackedInline):
-    max_num = 1
+class ExperimentVariantInlineAdmin(admin.StackedInline):
+    extra = 0
+    fields = ("is_control", "name", "slug", "ratio", "description", "value")
     model = ExperimentVariant
     prepopulated_fields = {"slug": ("name",)}
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-
-class ControlVariantModelForm(forms.ModelForm):
-
-    def save(self, commit=True):
-        self.instance.is_control = True
-        return super().save(commit=commit)
-
-    class Meta:
-        model = ExperimentVariant
-        exclude = []
-
-
-class ControlVariantInlineAdmin(BaseVariantInlineAdmin):
-    fields = ("name", "slug", "ratio", "description", "value")
-    form = ControlVariantModelForm
-    verbose_name = "Control Variant"
-    verbose_name_plural = "Control Variant"
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).filter(is_control=True)
-
-
-class ExperimentVariantInlineAdmin(BaseVariantInlineAdmin):
-    fields = ("name", "slug", "ratio", "description", "value")
     verbose_name = "Experiment Variant"
-    verbose_name_plural = "Experiment Variant"
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).filter(is_control=False)
+    verbose_name_plural = "Experiment Variants"
 
 
 class ExperimentChangeLogInlineAdmin(admin.TabularInline):
@@ -62,12 +31,8 @@ class ExperimentChangeLogInlineAdmin(admin.TabularInline):
 
 
 class ExperimentAdmin(admin.ModelAdmin):
-    inlines = (
-        ControlVariantInlineAdmin,
-        ExperimentVariantInlineAdmin,
-        ExperimentChangeLogInlineAdmin,
-    )
-    list_display = ("name", "project", "status")
+    inlines = (ExperimentVariantInlineAdmin, ExperimentChangeLogInlineAdmin)
+    list_display = ("name", "type", "status")
 
     fieldsets = (
         (
@@ -75,6 +40,7 @@ class ExperimentAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "archived",
+                    "type",
                     "owner",
                     "project",
                     "status",
@@ -83,6 +49,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "short_description",
                     "proposed_start_date",
                     "proposed_end_date",
+                    "bugzilla_id",
                 )
             },
         ),
@@ -90,17 +57,32 @@ class ExperimentAdmin(admin.ModelAdmin):
             "Client Config",
             {
                 "fields": (
-                    "pref_key",
-                    "pref_type",
-                    "pref_branch",
                     "firefox_channel",
                     "firefox_version",
                     "population_percent",
+                    "pref_key",
+                    "pref_type",
+                    "pref_branch",
                     "client_matching",
                 )
             },
         ),
-        ("Notes", {"fields": ("objectives", "analysis")}),
+        ("Notes", {"fields": ("objectives", "analysis_owner", "analysis")}),
+        (
+            "Reviews",
+            {
+                "fields": (
+                    "review_phd",
+                    "review_science",
+                    "review_peer",
+                    "review_relman",
+                    "review_qa",
+                    "review_legal",
+                    "review_ux",
+                    "review_security",
+                )
+            },
+        ),
         (
             "Risks & Testing",
             {

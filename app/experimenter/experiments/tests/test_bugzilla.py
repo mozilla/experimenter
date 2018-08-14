@@ -6,7 +6,10 @@ from django.test import TestCase
 from django.conf import settings
 
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.bugzilla import create_experiment_bug
+from experimenter.experiments.bugzilla import (
+    format_bug_body,
+    create_experiment_bug,
+)
 from experimenter.experiments.tests.factories import ExperimentFactory
 
 
@@ -45,10 +48,10 @@ class TestBugzilla(MockBugzillaMixin, TestCase):
                 "product": "Shield",
                 "component": "Shield Study",
                 "version": "unspecified",
-                "summary": "[Shield] Pref Flip Study: An Experiment",
-                "description": experiment.BUGZILLA_PREF_TEMPLATE.format(
+                "summary": "[Shield] {experiment}".format(
                     experiment=experiment
                 ),
+                "description": format_bug_body(experiment),
                 "assigned_to": experiment.owner.email,
                 "cc": settings.BUGZILLA_CC_LIST,
             },
@@ -69,10 +72,10 @@ class TestBugzilla(MockBugzillaMixin, TestCase):
                 "product": "Shield",
                 "component": "Shield Study",
                 "version": "unspecified",
-                "summary": "[Shield] Pref Flip Study: An Experiment",
-                "description": experiment.BUGZILLA_ADDON_TEMPLATE.format(
+                "summary": "[Shield] {experiment}".format(
                     experiment=experiment
                 ),
+                "description": format_bug_body(experiment),
                 "assigned_to": experiment.owner.email,
                 "cc": settings.BUGZILLA_CC_LIST,
             },
