@@ -1,0 +1,4 @@
+update: all
+search: False
+requirements:
+  - app/requirements.txt
