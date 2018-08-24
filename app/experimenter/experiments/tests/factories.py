@@ -24,7 +24,7 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     owner = factory.SubFactory(UserFactory)
     project = factory.SubFactory(ProjectFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
-    slug = factory.LazyAttribute(lambda o: slugify(o.name))
+    slug = factory.LazyAttribute(lambda o: "{}_".format(slugify(o.name)))
     archived = False
     short_description = factory.LazyAttribute(
         lambda o: faker.text(random.randint(100, 500))

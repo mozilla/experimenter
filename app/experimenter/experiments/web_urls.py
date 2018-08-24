@@ -16,42 +16,42 @@ from experimenter.experiments.views import (
 urlpatterns = [
     url(r"^new/$", ExperimentCreateView.as_view(), name="experiments-create"),
     url(
-        r"^(?P<slug>[a-zA-Z0-9-]+)/edit/$",
+        r"^(?P<slug>[\w-]+)/edit/$",
         ExperimentOverviewUpdateView.as_view(),
         name="experiments-overview-update",
     ),
     url(
-        r"^(?P<slug>[a-zA-Z0-9-]+)/edit-variants/$",
+        r"^(?P<slug>[\w-]+)/edit-variants/$",
         ExperimentVariantsUpdateView.as_view(),
         name="experiments-variants-update",
     ),
     url(
-        r"^(?P<slug>[a-zA-Z0-9-]+)/edit-objectives/$",
+        r"^(?P<slug>[\w-]+)/edit-objectives/$",
         ExperimentObjectivesUpdateView.as_view(),
         name="experiments-objectives-update",
     ),
     url(
-        r"^(?P<slug>[a-zA-Z0-9-]+)/edit-risks/$",
+        r"^(?P<slug>[\w-]+)/edit-risks/$",
         ExperimentRisksUpdateView.as_view(),
         name="experiments-risks-update",
     ),
     url(
-        r"^(?P<slug>[a-zA-Z0-9-]+)/status-update/$",
+        r"^(?P<slug>[\w-]+)/status-update/$",
         ExperimentStatusUpdateView.as_view(),
         name="experiments-status-update",
     ),
     url(
-        r"^(?P<slug>[a-zA-Z0-9-]+)/review-update/$",
+        r"^(?P<slug>[\w-]+)/review-update/$",
         ExperimentReviewUpdateView.as_view(),
         name="experiments-review-update",
     ),
     url(
-        r"^(?P<slug>[a-zA-Z0-9-]+)/comment/$",
+        r"^(?P<slug>[\w-]+)/comment/$",
         ExperimentCommentCreateView.as_view(),
         name="experiments-comment-create",
     ),
     url(
-        r"^(?P<slug>[a-zA-Z0-9-]+)/$",
+        r"^(?P<slug>[\w-]+)/$",
         ExperimentDetailView.as_view(),
         name="experiments-detail",
     ),
