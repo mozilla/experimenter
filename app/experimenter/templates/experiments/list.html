@@ -58,16 +58,18 @@
         </div>
       </div>
 
-      <div class="row card">
+      <div class="md-mb-30 row card">
         <div class="col-md-8">
-          <h5>
-            Owner: {{ experiment.owner }}
-          </h5>
+          <p>
+            <strong>
+              Owner: {{ experiment.owner }}
+            </strong>
+          </p>
           {{ experiment.short_description|linebreaks }}
         </div>
 
         <div class="col-md-4 text-right">
-          <h4>{{ experiment.population }}</h4>
+          <h4 class="md-mt-0">{{ experiment.population }}</h4>
           <p><strong>{{ experiment.dates }}</strong></p>
         </div>
       </div>
