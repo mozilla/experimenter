@@ -30,37 +30,39 @@
         </a>
       </div>
     {% endif %}
-   
+
     <div id="{{ section_name }}-comments" class="col-md-12">
-      <hr/>
+      <hr class="md-mt-0 md-mb-10"/>
     </div>
 
-    {% for comment in comments %} 
-      <div class="col-md-12 md-mb-10">
-        <div class="row">
-          <div class="col-md-3">
-            <a id="comment{{ comment.id }}" href="#comment{{ comment.id }}">
-              <span class="glyphicon glyphicon-comment"></span>
-              <strong>{{ comment.created_by }}</strong> 
-              <h6 class="md-m-0 md-pl-15 text-muted">{{ comment.created_on }}</h6>
-            </a>
-          </div>
-          <div class="col-md-9">
-            {{ comment.text|linebreaks }}
+    {% if comments %}
+      {% for comment in comments %}
+        <div class="col-md-12 md-mb-15">
+          <div class="row">
+            <div class="col-md-3">
+              <a id="comment{{ comment.id }}" href="#comment{{ comment.id }}">
+                <span class="glyphicon glyphicon-comment"></span>
+                {{ comment.created_by }}
+                <h6 class="md-m-0 md-pl-15 text-muted">{{ comment.created_on }}</h6>
+              </a>
+            </div>
+            <div class="col-md-9">
+              {{ comment.text|linebreaks }}
+            </div>
           </div>
         </div>
-      </div>
-    {% endfor %}
+      {% endfor %}
+    {% endif %}
 
-    <div class="col-md-12 text-muted text-right">
+    <div class="col-md-12 text-muted">
       <a href="#new{{ section_name }}Comment" data-toggle="collapse">
         <p>
-          <span class="glyphicon glyphicon-comment"></span>
-          Comment
+          <span class="glyphicon glyphicon-plus-sign"></span>
+          Add Comment
         </p>
       </a>
     </div>
-   
+
     <div class="col-md-12">
       <form method="POST" action="{% url "experiments-comment-create" slug=experiment.slug %}">
         {% csrf_token %}
@@ -80,5 +82,5 @@
         </div>
       </form>
     </div>
+
   </div>
-  
