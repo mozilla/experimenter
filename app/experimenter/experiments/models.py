@@ -145,9 +145,34 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
+    def accept_url(self):
+        return urljoin(
+            "https://{host}".format(host=settings.HOSTNAME),
+            reverse("experiments-api-accept", kwargs={"slug": self.slug}),
+        )
+
+    @property
+    def reject_url(self):
+        return urljoin(
+            "https://{host}".format(host=settings.HOSTNAME),
+            reverse("experiments-api-reject", kwargs={"slug": self.slug}),
+        )
+
+    @property
     def bugzilla_url(self):
         if self.bugzilla_id:
             return settings.BUGZILLA_DETAIL_URL.format(id=self.bugzilla_id)
+
+    @property
+    def test_tube_url(self):
+        if self.is_begun:
+            return (
+                "https://firefox-test-tube.herokuapp.com/experiments/{slug}/"
+            ).format(slug=self.slug)
+
+    @property
+    def has_external_urls(self):
+        return self.bugzilla_url or self.test_tube_url
 
     def _transition_date(self, start_state, end_state):
         change = self.changes.filter(
@@ -278,26 +303,6 @@ class Experiment(ExperimentConstants, models.Model):
             version=self.firefox_version,
             channel=self.firefox_channel,
         )
-
-    @property
-    def accept_url(self):
-        return urljoin(
-            "https://{host}".format(host=settings.HOSTNAME),
-            reverse("experiments-api-accept", kwargs={"slug": self.slug}),
-        )
-
-    @property
-    def reject_url(self):
-        return urljoin(
-            "https://{host}".format(host=settings.HOSTNAME),
-            reverse("experiments-api-reject", kwargs={"slug": self.slug}),
-        )
-
-    @property
-    def test_tube_url(self):
-        return (
-            "https://firefox-test-tube.herokuapp.com/experiments/{slug}/"
-        ).format(slug=self.slug)
 
 
 class ExperimentVariant(models.Model):

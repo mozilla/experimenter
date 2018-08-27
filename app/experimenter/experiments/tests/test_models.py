@@ -55,6 +55,81 @@ class TestExperimentManager(TestCase):
 
 class TestExperimentModel(TestCase):
 
+    def test_get_absolute_url(self):
+        experiment = ExperimentFactory.create(slug="experiment-slug")
+        self.assertEqual(
+            experiment.get_absolute_url(), "/experiments/experiment-slug/"
+        )
+
+    def test_experiment_url(self):
+        experiment = ExperimentFactory.create(slug="experiment-slug")
+        self.assertEqual(
+            experiment.experiment_url,
+            "https://localhost/experiments/experiment-slug/",
+        )
+
+    def test_accept_url(self):
+        experiment = ExperimentFactory.create(slug="experiment")
+        self.assertEqual(
+            experiment.accept_url,
+            "https://localhost/api/v1/experiments/experiment/accept/",
+        )
+
+    def test_reject_url(self):
+        experiment = ExperimentFactory.create(slug="experiment")
+        self.assertEqual(
+            experiment.reject_url,
+            "https://localhost/api/v1/experiments/experiment/reject/",
+        )
+
+    def test_bugzilla_url_returns_none_if_bugzilla_id_not_set(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        self.assertIsNone(experiment.bugzilla_url)
+
+    def test_bugzilla_url_returns_url_when_bugzilla_id_is_set(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, bugzilla_id="1234"
+        )
+        self.assertEqual(
+            experiment.bugzilla_url,
+            settings.BUGZILLA_DETAIL_URL.format(id=experiment.bugzilla_id),
+        )
+
+    def test_test_tube_url_is_none_when_experiment_not_begun(self):
+        experiment = ExperimentFactory.create(
+            slug="experiment", status=Experiment.STATUS_DRAFT
+        )
+        self.assertIsNone(experiment.test_tube_url)
+
+    def test_test_tube_url_returns_url_when_experiment_is_begun(self):
+        experiment = ExperimentFactory.create(
+            slug="experiment", status=Experiment.STATUS_LIVE
+        )
+        self.assertEqual(
+            experiment.test_tube_url,
+            "https://firefox-test-tube.herokuapp.com/experiments/experiment/",
+        )
+
+    def test_has_external_urls_is_false_when_no_external_urls(self):
+        experiment = ExperimentFactory.create()
+        self.assertFalse(experiment.has_external_urls)
+
+    def test_has_external_urls_is_true_when_bugzilla_url_is_set(self):
+        experiment = ExperimentFactory.create(bugzilla_id="1234")
+        self.assertTrue(experiment.has_external_urls)
+
+    def test_has_external_urls_is_true_when_test_tube_url_is_set(self):
+        experiment = ExperimentFactory.create(status=Experiment.STATUS_LIVE)
+        self.assertTrue(experiment.has_external_urls)
+
+    def test_has_external_urls_is_true_when_bugzilla_and_test_tube_urls(self):
+        experiment = ExperimentFactory.create(
+            status=Experiment.STATUS_LIVE, bugzilla_id="1234"
+        )
+        self.assertTrue(experiment.has_external_urls)
+
     def test_start_date_returns_proposed_start_date_if_change_is_missing(self):
         experiment = ExperimentFactory.create_with_variants()
         self.assertEqual(experiment.start_date, experiment.proposed_start_date)
@@ -238,42 +313,6 @@ class TestExperimentModel(TestCase):
             firefox_channel="Nightly",
         )
         self.assertEqual(experiment.population, "0.5% of Nightly Firefox 57.0")
-
-    def test_test_tube_link_is_correct(self):
-        experiment = ExperimentFactory.create(slug="experiment")
-        self.assertEqual(
-            experiment.test_tube_url,
-            "https://firefox-test-tube.herokuapp.com/experiments/experiment/",
-        )
-
-    def test_accept_url_is_correct(self):
-        experiment = ExperimentFactory.create(slug="experiment")
-        self.assertEqual(
-            experiment.accept_url,
-            "https://localhost/api/v1/experiments/experiment/accept/",
-        )
-
-    def test_reject_url_is_correct(self):
-        experiment = ExperimentFactory.create(slug="experiment")
-        self.assertEqual(
-            experiment.reject_url,
-            "https://localhost/api/v1/experiments/experiment/reject/",
-        )
-
-    def test_experiment_missing_bugzilla_id_returns_url_None(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, bugzilla_id=None
-        )
-        self.assertEqual(experiment.bugzilla_url, None)
-
-    def test_bugzilla_url_is_correct(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, bugzilla_id="1234"
-        )
-        self.assertEqual(
-            experiment.bugzilla_url,
-            settings.BUGZILLA_DETAIL_URL.format(id=experiment.bugzilla_id),
-        )
 
     def test_completed_required_reviews_false_when_reviews_not_complete(self):
         experiment = ExperimentFactory.create()
