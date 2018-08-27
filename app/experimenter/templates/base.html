@@ -62,7 +62,7 @@
     </div>
 
     {% if messages %}
-      <div class="alert-info">
+      <div class="alert-success">
         <div class="container">
           <div class="row">
             <div class="col-md-12 md-pt-10">
@@ -74,6 +74,15 @@
         </div>
       </div>
     {% endif %}
+
+    <div class="alert-info">
+      <div class="container">
+        <div class="row">
+          {% block header_links %}
+          {% endblock %}
+        </div>
+      </div>
+    </div>
 
     <div class="container">
       <div class="row md-mt-20">
