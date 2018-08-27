@@ -1,4 +1,4 @@
-Django==1.11
+Django==1.11.15
 black==18.5b0
 coverage==4.3.4
 django-cors-headers==2.1.0
