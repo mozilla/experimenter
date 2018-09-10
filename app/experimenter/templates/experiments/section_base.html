@@ -19,7 +19,7 @@
           {{ section_content|linebreaks }}
         {% endblock %}
       {% else %}
-        You must <a href="{% url edit_url_name slug=experiment.slug %}">complete the {{ section_name }} form</a> before you can launch your experiment.
+        <p>You must <a href="{% url edit_url_name slug=experiment.slug %}">complete the {{ section_name }} form</a> before you can launch your experiment.</p>
       {% endif %}
     </div>
 
