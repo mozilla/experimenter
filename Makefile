@@ -19,6 +19,9 @@ gunicorn: compose_build
 test: compose_build
 	docker-compose run app sh -c "/app/bin/wait-for-it.sh db:5432 -- coverage run manage.py test;coverage report -m --fail-under=100"
 
+test-watch: compose_build
+	docker-compose run app sh -c "/app/bin/wait-for-it.sh db:5432 -- ptw -- --testmon --show-capture=no --disable-warnings"
+
 lint: compose_build
 	docker-compose run app flake8 .
 

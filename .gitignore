@@ -76,3 +76,7 @@ app/experimenter/served/
 
 # Key files
 *.pem
+
+# test files
+.pytest_cache
+.testmondata
