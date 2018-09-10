@@ -3,6 +3,7 @@ import datetime
 from django.conf import settings
 from django.test import TestCase
 
+from experimenter.openidc.tests.factories import UserFactory
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
@@ -160,6 +161,211 @@ class TestExperimentModel(TestCase):
             experiment=experiment, is_control=True
         )
         self.assertEqual(experiment.control, control)
+
+    def test_grouped_changes_groups_by_date_then_user(self):
+        experiment = ExperimentFactory.create()
+
+        date1 = datetime.datetime.now() - datetime.timedelta(days=2)
+        date2 = datetime.datetime.now() - datetime.timedelta(days=1)
+        date3 = datetime.datetime.now()
+
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        user3 = UserFactory.create()
+
+        change1 = ExperimentChangeLogFactory.create(
+            experiment=experiment, changed_by=user1, changed_on=date1
+        )
+        change2 = ExperimentChangeLogFactory.create(
+            experiment=experiment, changed_by=user1, changed_on=date1
+        )
+        change3 = ExperimentChangeLogFactory.create(
+            experiment=experiment, changed_by=user1, changed_on=date1
+        )
+        change4 = ExperimentChangeLogFactory.create(
+            experiment=experiment, changed_by=user2, changed_on=date1
+        )
+
+        change5 = ExperimentChangeLogFactory.create(
+            experiment=experiment, changed_by=user2, changed_on=date2
+        )
+        change6 = ExperimentChangeLogFactory.create(
+            experiment=experiment, changed_by=user3, changed_on=date2
+        )
+        change7 = ExperimentChangeLogFactory.create(
+            experiment=experiment, changed_by=user3, changed_on=date2
+        )
+
+        change8 = ExperimentChangeLogFactory.create(
+            experiment=experiment, changed_by=user1, changed_on=date3
+        )
+        change9 = ExperimentChangeLogFactory.create(
+            experiment=experiment, changed_by=user1, changed_on=date3
+        )
+        change10 = ExperimentChangeLogFactory.create(
+            experiment=experiment, changed_by=user2, changed_on=date3
+        )
+        change11 = ExperimentChangeLogFactory.create(
+            experiment=experiment, changed_by=user3, changed_on=date3
+        )
+
+        self.assertEqual(
+            set(experiment.grouped_changes.keys()),
+            set([date1.date(), date2.date(), date3.date()]),
+        )
+        self.assertEqual(
+            set(experiment.grouped_changes[date1.date()].keys()),
+            set([user1, user2]),
+        )
+        self.assertEqual(
+            set(experiment.grouped_changes[date2.date()].keys()),
+            set([user2, user3]),
+        )
+        self.assertEqual(
+            set(experiment.grouped_changes[date3.date()].keys()),
+            set([user1, user2, user3]),
+        )
+
+        self.assertEqual(
+            experiment.grouped_changes[date1.date()][user1],
+            set([change1, change2, change3]),
+        )
+        self.assertEqual(
+            experiment.grouped_changes[date1.date()][user2], set([change4])
+        )
+
+        self.assertEqual(
+            experiment.grouped_changes[date2.date()][user2], set([change5])
+        )
+        self.assertEqual(
+            experiment.grouped_changes[date2.date()][user3],
+            set([change6, change7]),
+        )
+
+        self.assertEqual(
+            experiment.grouped_changes[date3.date()][user1],
+            set([change8, change9]),
+        )
+        self.assertEqual(
+            experiment.grouped_changes[date3.date()][user2], set([change10])
+        )
+        self.assertEqual(
+            experiment.grouped_changes[date3.date()][user3], set([change11])
+        )
+
+    def test_ordered_changes_orders_by_date(self):
+        experiment = ExperimentFactory.create()
+
+        date1 = datetime.datetime.now() - datetime.timedelta(days=2)
+        date2 = datetime.datetime.now() - datetime.timedelta(days=1)
+        date3 = datetime.datetime.now()
+
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+        user3 = UserFactory.create()
+
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=user1,
+            changed_on=date1,
+            message="a",
+        )
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=user1,
+            changed_on=date1,
+            message="b",
+        )
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=user1,
+            changed_on=date1,
+            message="b",
+        )
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=user2,
+            changed_on=date1,
+            message="c",
+        )
+
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=user2,
+            changed_on=date2,
+            message="d",
+        )
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=user3,
+            changed_on=date2,
+            message="e",
+        )
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=user3,
+            changed_on=date2,
+            message="f",
+        )
+
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=user1,
+            changed_on=date3,
+            message="g",
+        )
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=user1,
+            changed_on=date3,
+            message="h",
+        )
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=user2,
+            changed_on=date3,
+            message="i",
+        )
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            changed_by=user3,
+            changed_on=date3,
+            message="j",
+        )
+
+        expected_changes = {
+            date1.date(): {user1: set(["a", "b"]), user2: set(["c"])},
+            date2.date(): {user2: set(["d"]), user3: set(["e", "f"])},
+            date3.date(): {
+                user1: set(["g", "h"]),
+                user2: set(["i"]),
+                user3: set(["j"]),
+            },
+        }
+
+        ordered_dates = [date for date, changes in experiment.ordered_changes]
+        self.assertEqual(
+            ordered_dates, [date3.date(), date2.date(), date1.date()]
+        )
+
+        day3_users = [
+            user for user, user_changes in experiment.ordered_changes[0][1]
+        ]
+        self.assertEqual(set(day3_users), set([user1, user2, user3]))
+
+        day2_users = [
+            user for user, user_changes in experiment.ordered_changes[1][1]
+        ]
+        self.assertEqual(set(day2_users), set([user2, user3]))
+
+        day1_users = [
+            user for user, user_changes in experiment.ordered_changes[2][1]
+        ]
+        self.assertEqual(set(day1_users), set([user1, user2]))
+
+        for date, date_changes in experiment.ordered_changes:
+            for user, user_changes in date_changes:
+                self.assertEqual(user_changes, expected_changes[date][user])
 
     def test_experiment_is_editable_when_is_draft(self):
         experiment = ExperimentFactory.create_with_status(

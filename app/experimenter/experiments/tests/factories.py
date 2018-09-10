@@ -182,7 +182,6 @@ class ExperimentChangeLogFactory(factory.django.DjangoModelFactory):
             Experiment.STATUS_TRANSITIONS[o.old_status] or [o.old_status]
         )
     )
-    message = factory.LazyAttribute(lambda o: faker.text())
 
     class Meta:
         model = ExperimentChangeLog

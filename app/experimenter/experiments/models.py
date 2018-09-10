@@ -19,6 +19,13 @@ class ExperimentManager(models.Manager):
         return (
             super()
             .get_queryset()
+            .prefetch_related(
+                "changes",
+                "changes__changed_by",
+                "owner",
+                "comments",
+                "comments__created_by",
+            )
             .annotate(latest_change=Max("changes__changed_on"))
         )
 
@@ -174,13 +181,13 @@ class Experiment(ExperimentConstants, models.Model):
     def has_external_urls(self):
         return self.bugzilla_url or self.test_tube_url
 
-    def _transition_date(self, start_state, end_state):
-        change = self.changes.filter(
-            old_status=start_state, new_status=end_state
-        )
-
-        if change.count() == 1:
-            return change.get().changed_on.date()
+    def _transition_date(self, old_status, new_status):
+        for change in self.changes.all():
+            if (
+                change.old_status == old_status
+                and change.new_status == new_status
+            ):
+                return change.changed_on.date()
 
     @property
     def start_date(self):
@@ -218,8 +225,30 @@ class Experiment(ExperimentConstants, models.Model):
         return self.variants.get(is_control=True)
 
     @property
+    def grouped_changes(self):
+        grouped_changes = defaultdict(lambda: defaultdict(set))
+
+        for change in self.changes.all():
+            grouped_changes[change.changed_on.date()][change.changed_by].add(
+                change
+            )
+
+        return grouped_changes
+
+    @property
     def ordered_changes(self):
-        return self.changes.all().order_by("-changed_on").select_related()
+        date_ordered_changes = []
+        for date, users in sorted(self.grouped_changes.items(), reverse=True):
+
+            date_changes = []
+            for user, user_changes in users.items():
+                date_changes.append(
+                    (user, set([str(c) for c in list(user_changes)]))
+                )
+
+            date_ordered_changes.append((date, date_changes))
+
+        return date_ordered_changes
 
     @property
     def is_addon_study(self):
@@ -341,14 +370,15 @@ class ExperimentChangeLogManager(models.Manager):
 class ExperimentChangeLog(models.Model):
     STATUS_NONE_DRAFT = "Created Draft"
     STATUS_DRAFT_DRAFT = "Edited Draft"
-    STATUS_DRAFT_REVIEW = "Submitted for Review"
+    STATUS_DRAFT_REVIEW = "Submitted Draft for Review"
     STATUS_REVIEW_DRAFT = "Cancelled Review Request"
-    STATUS_REVIEW_SHIP = "Ready to Ship"
+    STATUS_REVIEW_SHIP = "Marked as Ready to Ship"
     STATUS_REVIEW_REJECTED = "Review Rejected"
     STATUS_SHIP_ACCEPTED = "Accepted by Shield"
     STATUS_SHIP_REVIEW = "Canceled Ready to Ship"
-    STATUS_ACCEPTED_LIVE = "Launched"
-    STATUS_LIVE_COMPLETE = "Complete"
+    STATUS_ACCEPTED_LIVE = "Launched Experiment"
+    STATUS_LIVE_COMPLETE = "Completed Experiment"
+    STATUS_REJECTED = "Rejected Experiment"
 
     PRETTY_STATUS_LABELS = {
         None: {Experiment.STATUS_DRAFT: STATUS_NONE_DRAFT},
