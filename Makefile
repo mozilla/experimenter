@@ -17,7 +17,7 @@ gunicorn: compose_build
 	docker-compose -f docker-compose.yml -f docker-compose-gunicorn.yml up
 
 test: compose_build
-	docker-compose run app sh -c "/app/bin/wait-for-it.sh db:5432 -- coverage run manage.py test;coverage report -m --fail-under=100"
+	docker-compose run app sh -c "/app/bin/wait-for-it.sh db:5432 -- coverage run manage.py test --settings=experimenter.settings_test;coverage report -m --fail-under=100"
 
 test-watch: compose_build
 	docker-compose run app sh -c "/app/bin/wait-for-it.sh db:5432 -- ptw -- --testmon --show-capture=no --disable-warnings"
