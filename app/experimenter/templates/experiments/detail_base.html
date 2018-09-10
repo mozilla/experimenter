@@ -76,18 +76,22 @@
   {% endif %}
 
   <h5 class="col-md-12 md-p-0">History</h5>
-  {% for change in experiment.ordered_changes %}
-    <div class="row help-block">
+  {% for date, users_changes in experiment.ordered_changes %}
+    <div class="row md-mb-10">
       <div class="col-md-12">
-        <p>{{ change.changed_on.date }}</p>
+        <strong>{{ date }}</strong>
+        <hr class="heavy-line md-mt-0 md-mb-5">
       </div>
-      <hr/>
-      <div class="col-md-6">
-        <p>{{ change.changed_by }}</p>
-      </div>
-      <div class="col-md-6 text-right">
-        <p>{{ change }}</p>
-      </div>
+
+      {% for user, user_changes in users_changes %}
+        <div class="col-md-12">
+          {{ user }}
+
+          {% for user_change in user_changes %}
+            <p class="help-block md-ml-10">{{ user_change }}</p>
+          {% endfor %}
+        </div>
+      {% endfor %}
     </div>
   {% endfor %}
 {% endblock %}
