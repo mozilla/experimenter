@@ -104,9 +104,19 @@ class TestExperimentModel(TestCase):
         )
         self.assertIsNone(experiment.test_tube_url)
 
-    def test_test_tube_url_returns_url_when_experiment_is_begun(self):
+    def test_test_tube_url_is_none_when_experiment_is_addon_and_begun(self):
         experiment = ExperimentFactory.create(
-            slug="experiment", status=Experiment.STATUS_LIVE
+            type=Experiment.TYPE_ADDON,
+            slug="experiment",
+            status=Experiment.STATUS_LIVE,
+        )
+        self.assertIsNone(experiment.test_tube_url)
+
+    def test_test_tube_url_returns_url_when_experiment_is_pref_and_begun(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_PREF,
+            slug="experiment",
+            status=Experiment.STATUS_LIVE,
         )
         self.assertEqual(
             experiment.test_tube_url,

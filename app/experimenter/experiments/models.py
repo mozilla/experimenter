@@ -172,7 +172,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def test_tube_url(self):
-        if self.is_begun:
+        if self.is_begun and self.is_pref_study:
             return (
                 "https://firefox-test-tube.herokuapp.com/experiments/{slug}/"
             ).format(slug=self.slug)
