@@ -7,8 +7,10 @@ from django.conf import settings
 
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.bugzilla import (
-    format_bug_body,
+    add_experiment_comment,
     create_experiment_bug,
+    format_bug_body,
+    make_bugzilla_call,
 )
 from experimenter.experiments.tests.factories import ExperimentFactory
 
@@ -40,7 +42,9 @@ class TestBugzilla(MockBugzillaMixin, TestCase):
             Experiment.STATUS_DRAFT, name="An Experiment"
         )
 
-        create_experiment_bug(experiment)
+        bugzilla_id = create_experiment_bug(experiment)
+
+        self.assertEqual(bugzilla_id, self.bugzilla_id)
 
         self.mock_bugzilla_requests_post.assert_called_with(
             settings.BUGZILLA_CREATE_URL,
@@ -51,54 +55,56 @@ class TestBugzilla(MockBugzillaMixin, TestCase):
                 "summary": "[Shield] {experiment}".format(
                     experiment=experiment
                 ),
-                "description": format_bug_body(experiment),
+                "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
+                    experiment=experiment
+                ),
                 "assigned_to": experiment.owner.email,
                 "cc": settings.BUGZILLA_CC_LIST,
             },
         )
 
-    def test_creating_addon_bugzilla_ticket_returns_ticket_id(self):
+    def test_add_bugzilla_comment_pref_study(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             name="An Experiment",
+            bugzilla_id="123",
+            type=Experiment.TYPE_PREF,
+        )
+
+        comment_id = add_experiment_comment(experiment)
+
+        self.assertEqual(comment_id, self.bugzilla_id)
+
+        self.mock_bugzilla_requests_post.assert_called_with(
+            settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
+            {"comment": format_bug_body(experiment)},
+        )
+
+    def test_add_bugzilla_comment_addon_study(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            name="An Experiment",
+            bugzilla_id="123",
             type=Experiment.TYPE_ADDON,
         )
 
-        create_experiment_bug(experiment)
+        comment_id = add_experiment_comment(experiment)
+
+        self.assertEqual(comment_id, self.bugzilla_id)
 
         self.mock_bugzilla_requests_post.assert_called_with(
-            settings.BUGZILLA_CREATE_URL,
-            {
-                "product": "Shield",
-                "component": "Shield Study",
-                "version": "unspecified",
-                "summary": "[Shield] {experiment}".format(
-                    experiment=experiment
-                ),
-                "description": format_bug_body(experiment),
-                "assigned_to": experiment.owner.email,
-                "cc": settings.BUGZILLA_CC_LIST,
-            },
+            settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
+            {"comment": format_bug_body(experiment)},
         )
 
     def test_request_error_passes_silently(self):
         self.mock_bugzilla_requests_post.side_effect = RequestException()
-
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, name="An Experiment"
-        )
-
-        bugzilla_id = create_experiment_bug(experiment)
+        bugzilla_id = make_bugzilla_call("/url/", {})
         self.assertEqual(bugzilla_id, None)
 
     def test_json_parse_error_passes_silently(self):
         mock_response = mock.Mock()
         mock_response.content = "{invalid json"
         self.mock_bugzilla_requests_post.return_value = mock_response
-
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, name="An Experiment"
-        )
-
-        bugzilla_id = create_experiment_bug(experiment)
+        bugzilla_id = make_bugzilla_call("/url/", {})
         self.assertEqual(bugzilla_id, None)

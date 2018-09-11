@@ -4,10 +4,12 @@ import json
 
 import mock
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory
 from django.test import TestCase
 
+from experimenter.experiments.bugzilla import format_bug_body
 from experimenter.experiments.forms import (
     ChangeLogMixin,
     ExperimentCommentForm,
@@ -831,6 +833,22 @@ class TestExperimentStatusForm(
         self.assertTrue(form.is_valid())
         experiment = form.save()
         self.assertEqual(experiment.bugzilla_id, self.bugzilla_id)
+
+    def test_adds_bugzilla_comment_when_review_becomes_ready_to_ship(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW, bugzilla_id="123"
+        )
+        form = ExperimentStatusForm(
+            request=self.request,
+            data={"status": experiment.STATUS_SHIP},
+            instance=experiment,
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+        self.mock_bugzilla_requests_post.assert_called_with(
+            settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
+            {"comment": format_bug_body(experiment)},
+        )
 
 
 class TestExperimentCommentForm(MockRequestMixin, TestCase):
