@@ -19,7 +19,6 @@ from experimenter.experiments.tests.test_email import MockMailMixin
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.experiments.views import (
-    ExperimentCreateView,
     ExperimentFilterset,
     ExperimentFiltersetForm,
     ExperimentFormMixin,
@@ -415,7 +414,6 @@ class TestExperimentCreateView(TestCase):
 
         experiment = Experiment.objects.get()
         self.assertEqual(experiment.status, experiment.STATUS_DRAFT)
-        self.assertEqual(experiment.project, project)
         self.assertEqual(experiment.name, data["name"])
 
         self.assertEqual(experiment.changes.count(), 1)
@@ -425,17 +423,6 @@ class TestExperimentCreateView(TestCase):
         self.assertEqual(change.changed_by.email, user_email)
         self.assertEqual(change.old_status, None)
         self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
-
-    def test_view_finds_project_id_in_get_args(self):
-        project = ProjectFactory.create()
-
-        request = mock.Mock()
-        request.GET = {"project": project.id}
-
-        view = ExperimentCreateView(request=request)
-        initial = view.get_initial()
-
-        self.assertEqual(initial["project"], project.id)
 
 
 class TestExperimentOverviewUpdateView(TestCase):
@@ -457,10 +444,6 @@ class TestExperimentOverviewUpdateView(TestCase):
             "type": Experiment.TYPE_PREF,
             "name": "A new name!",
             "short_description": "A new description!",
-            "population_percent": "11",
-            "firefox_version": Experiment.VERSION_CHOICES[-1][0],
-            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-            "client_matching": "New matching!",
             "proposed_start_date": new_start_date,
             "proposed_end_date": new_end_date,
         }
@@ -479,12 +462,6 @@ class TestExperimentOverviewUpdateView(TestCase):
         self.assertEqual(
             experiment.short_description, data["short_description"]
         )
-        self.assertEqual(
-            experiment.population_percent,
-            decimal.Decimal(data["population_percent"]),
-        )
-        self.assertEqual(experiment.firefox_version, data["firefox_version"])
-        self.assertEqual(experiment.firefox_channel, data["firefox_channel"])
         self.assertEqual(experiment.proposed_start_date, new_start_date)
         self.assertEqual(experiment.proposed_end_date, new_end_date)
 
@@ -538,6 +515,10 @@ class TestExperimentVariantsUpdateView(TestCase):
         )
 
         data = {
+            "population_percent": "11",
+            "firefox_version": Experiment.VERSION_CHOICES[-1][0],
+            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
+            "client_matching": "New matching!",
             "pref_key": "browser.test.example",
             "pref_type": Experiment.PREF_TYPE_STR,
             "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
@@ -572,6 +553,13 @@ class TestExperimentVariantsUpdateView(TestCase):
         self.assertEqual(response.status_code, 302)
 
         experiment = Experiment.objects.get()
+
+        self.assertEqual(
+            experiment.population_percent,
+            decimal.Decimal(data["population_percent"]),
+        )
+        self.assertEqual(experiment.firefox_version, data["firefox_version"])
+        self.assertEqual(experiment.firefox_channel, data["firefox_channel"])
 
         self.assertEqual(experiment.pref_key, data["pref_key"])
         self.assertEqual(experiment.pref_type, data["pref_type"])

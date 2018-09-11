@@ -23,7 +23,7 @@
     {% csrf_token %}
 
     {% include "experiments/field_inline.html" with field=form.type %}
-    
+
     {% include "experiments/field_inline.html" with field=form.owner %}
 
     {% include "experiments/field_inline.html" with field=form.name %}
@@ -33,51 +33,6 @@
     {% include "experiments/field_inline.html" with field=form.proposed_start_date %}
 
     {% include "experiments/field_inline.html" with field=form.proposed_end_date %}
-
-
-
-    <div class="form-group {% if field.errors %}has-error{% endif %} md-mt-20">
-
-      <div class="col-md-3 text-right">
-        <label class="control-label" for="{{ form.population_percent.id_for_label }}">{{ form.population_percent.label }}</label>
-        <br/>
-        <a href="#population-percent-help" data-toggle="collapse" aria-expanded="false" aria-controls="population-percent-help">Help</a>
-      </div>
-
-      <div class="col-md-9">
-        <div class="row">
-          <div class="col-md-3">
-            {{ form.population_percent }}
-          </div>
-          <div class="col-md-2 text-center">
-            <h5>% of</h5>
-          </div>
-          <div class="col-md-3">
-            {{ form.firefox_channel }}
-          </div>
-          <div class="col-md-4">
-            {{ form.firefox_version }}
-          </div>
-        </div>
-
-        {% if form.errors.population_percent %}
-          <div class="col-md-12 text-right">
-            {% for error in form.errors.population_percent %}
-              <label for="{{ form.population_percent.id_for_label }}" class="control-label">{{ error }}</label>
-                <span class="glyphicon glyphicon-exclamation-sign"></span>
-                {{ error }}
-              </label>
-            {% endfor %}
-          </div>
-        {% endif %}
-
-        <div id="population-percent-help" class="collapse help-block">
-          {{ form.population_percent.help_text|safe }}
-        </div>
-      </div>
-    </div>
-
-    {% include "experiments/field_inline.html" with field=form.client_matching %}
 
     <div class="form-group">
       <div class="col-md-12 text-right">

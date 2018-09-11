@@ -2,7 +2,7 @@
             <div class="form-group">
               <h4 class="col-md-4 col-md-offset-3">
                 {% if is_control %}
-                  Control
+                  Control Branch
                 {% else %}
                   Branch {{ branch_num }}
                 {% endif %}
@@ -17,11 +17,11 @@
               {% endif %}
             </div>
 
-            <input 
-              style="display:none;" 
-              type="checkbox" 
-              name="{{ form.DELETE.html_name }}" 
-              id="{{ form.DELETE.id_for_label }}" 
+            <input
+              style="display:none;"
+              type="checkbox"
+              name="{{ form.DELETE.html_name }}"
+              id="{{ form.DELETE.id_for_label }}"
               {% if form.DELETE.value %}checked{% endif %}
             >
 
@@ -36,6 +36,6 @@
             {% if is_pref %}
               {% include "experiments/field_inline.html" with field=form.value %}
             {% endif %}
-            
+
             <hr class="heavy-line md-mt-40 md-mb-40"/>
           </div>

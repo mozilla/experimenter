@@ -179,12 +179,7 @@ class ExperimentCreateView(ExperimentFormMixin, CreateView):
 
     def get_initial(self):
         initial = super().get_initial()
-
-        if "project" in self.request.GET:
-            initial["project"] = self.request.GET["project"]
-
         initial["owner"] = self.request.user.id
-
         return initial
 
 

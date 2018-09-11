@@ -1,7 +1,7 @@
 {% extends "experiments/detail_base.html" %}
 
 {% block main_sidebar_extra %}
-  {% if experiment.completed_required_reviews %}
+  {% if experiment.is_ready_to_launch %}
     <form
       action="{% url "experiments-status-update" slug=experiment.slug %}"
       method="POST"

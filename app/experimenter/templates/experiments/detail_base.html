@@ -38,7 +38,7 @@
 
   {% include "experiments/section_overview.html" with section_name=experiment.SECTION_OVERVIEW section_complete=True experiment=experiment edit_url_name="experiments-overview-update" comments=experiment.comments.sections.overview %}
 
-  {% include "experiments/section_population.html" with section_name=experiment.SECTION_POPULATION section_complete=True experiment=experiment edit_url_name="experiments-overview-update" comments=experiment.comments.sections.population %}
+  {% include "experiments/section_population.html" with section_name=experiment.SECTION_POPULATION section_complete=True experiment=experiment edit_url_name="experiments-variants-update" comments=experiment.comments.sections.population %}
 
   {% include "experiments/section_branches.html" with section_name=experiment.SECTION_BRANCHES section_complete=experiment.variants.count experiment=experiment edit_url_name="experiments-variants-update" comments=experiment.comments.sections.branches %}
 
@@ -47,7 +47,7 @@
   {% include "experiments/section_analysis.html" with section_name=experiment.SECTION_ANALYSIS section_title="Analysis" section_complete=experiment.completed_objectives section_content=experiment.analysis experiment=experiment edit_url_name="experiments-objectives-update" comments=experiment.comments.sections.analysis %}
 
   {% include "experiments/section_risks.html" with section_name=experiment.SECTION_RISKS section_complete=experiment.completed_risks experiment=experiment edit_url_name="experiments-risks-update" comments=experiment.comments.sections.risks %}
-  
+
   {% include "experiments/section_base.html" with section_name=experiment.SECTION_TESTING section_title="Testing" section_complete=experiment.completed_risks section_content=experiment.testing experiment=experiment edit_url_name="experiments-objectives-update" comments=experiment.comments.sections.testing %}
 
 {% endblock %}

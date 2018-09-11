@@ -303,15 +303,6 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
-    def is_ready_for_review(self):
-        return (
-            self.completed_overview
-            and self.completed_variants
-            and self.completed_objectives
-            and self.completed_risks
-        )
-
-    @property
     def _required_reviews(self):
         return (
             self.review_phd,
@@ -324,6 +315,23 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def completed_required_reviews(self):
         return all(self._required_reviews)
+
+    @property
+    def completed_all_sections(self):
+        return (
+            self.completed_overview
+            and self.completed_variants
+            and self.completed_objectives
+            and self.completed_risks
+        )
+
+    @property
+    def is_ready_for_review(self):
+        return self.completed_overview
+
+    @property
+    def is_ready_to_launch(self):
+        return self.completed_all_sections and self.completed_required_reviews
 
     @property
     def population(self):
