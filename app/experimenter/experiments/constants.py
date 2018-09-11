@@ -562,6 +562,14 @@ testing each branch of this study:
 {attention}"""
     )
 
+    BUGZILLA_OVERVIEW_TEMPLATE = (
+        """
+{experiment.name}
+
+{experiment.short_description}
+        """
+    )
+
     BUGZILLA_VARIANT_PREF_TEMPLATE = (
         """- {variant.type} {variant.name} {variant.ratio}%:
 
@@ -574,10 +582,6 @@ Value: {variant.value}
     BUGZILLA_PREF_TEMPLATE = (
         """
     Experiment Type: Pref Flip Study
-
-    Basic description of experiment
-
-{experiment.short_description}
 
     What is the preference we will be changing
 
@@ -633,10 +637,6 @@ Value: {variant.value}
     BUGZILLA_ADDON_TEMPLATE = (
         """
     Experiment Type: Addon Study
-
-    Basic description of experiment
-
-{experiment.short_description}
 
     What are the branches of the study:
 

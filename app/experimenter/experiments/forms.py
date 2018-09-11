@@ -568,6 +568,24 @@ class ExperimentStatusForm(
                         ).format(bug_url=experiment.bugzilla_url)
                     ),
                 )
+        elif (
+            self.old_status == Experiment.STATUS_REVIEW
+            and self.new_status == Experiment.STATUS_SHIP
+            and experiment.bugzilla_id
+        ):
+            comment_id = bugzilla.add_experiment_comment(experiment)
+            if comment_id is not None:
+                messages.add_message(
+                    self.request,
+                    messages.INFO,
+                    mark_safe(
+                        (
+                            'The <a target="_blank" href="{bug_url}">Bugzilla '
+                            "Ticket</a> was updated with the details "
+                            "of this experiment"
+                        ).format(bug_url=experiment.bugzilla_url)
+                    ),
+                )
 
         return experiment
 

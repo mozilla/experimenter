@@ -36,20 +36,10 @@ def format_bug_body(experiment):
     return bug_body
 
 
-def create_experiment_bug(experiment):
-    bug_data = {
-        "product": "Shield",
-        "component": "Shield Study",
-        "version": "unspecified",
-        "summary": "[Shield] {experiment}".format(experiment=experiment),
-        "description": format_bug_body(experiment),
-        "assigned_to": experiment.owner.email,
-        "cc": settings.BUGZILLA_CC_LIST,
-    }
-
+def make_bugzilla_call(url, data):
     response_data = {}
     try:
-        response = requests.post(settings.BUGZILLA_CREATE_URL, bug_data)
+        response = requests.post(url, data)
         response_data = json.loads(response.content)
     except requests.exceptions.RequestException:
         logging.exception("Error creating Bugzilla Ticket")
@@ -57,3 +47,28 @@ def create_experiment_bug(experiment):
         logging.exception("Error parsing JSON Bugzilla response")
 
     return response_data.get("id", None)
+
+
+def create_experiment_bug(experiment):
+    bug_data = {
+        "product": "Shield",
+        "component": "Shield Study",
+        "version": "unspecified",
+        "summary": "[Shield] {experiment}".format(experiment=experiment),
+        "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
+            experiment=experiment
+        ),
+        "assigned_to": experiment.owner.email,
+        "cc": settings.BUGZILLA_CC_LIST,
+    }
+
+    return make_bugzilla_call(settings.BUGZILLA_CREATE_URL, bug_data)
+
+
+def add_experiment_comment(experiment):
+    comment_data = {"comment": format_bug_body(experiment)}
+
+    return make_bugzilla_call(
+        settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
+        comment_data,
+    )
