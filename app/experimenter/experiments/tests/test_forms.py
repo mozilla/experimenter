@@ -29,7 +29,6 @@ from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.test_bugzilla import MockBugzillaMixin
 from experimenter.experiments.tests.test_email import MockMailMixin
 from experimenter.openidc.tests.factories import UserFactory
-from experimenter.projects.tests.factories import ProjectFactory
 
 
 class TestJSONField(TestCase):
@@ -189,18 +188,11 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
     def setUp(self):
         super().setUp()
 
-        self.project = ProjectFactory.create()
-
         self.data = {
             "type": Experiment.TYPE_PREF,
             "owner": self.user.id,
-            "project": self.project.id,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
-            "population_percent": "10",
-            "firefox_version": Experiment.VERSION_CHOICES[-1][0],
-            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-            "client_matching": "en-us only please",
             "proposed_start_date": datetime.date.today(),
             "proposed_end_date": (
                 datetime.date.today() + datetime.timedelta(days=1)
@@ -213,24 +205,11 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         experiment = form.save()
 
         self.assertEqual(experiment.owner, self.user)
-        self.assertEqual(experiment.project, self.project)
         self.assertEqual(experiment.status, experiment.STATUS_DRAFT)
         self.assertEqual(experiment.name, self.data["name"])
         self.assertEqual(experiment.slug, "a-new-experiment")
         self.assertEqual(
             experiment.short_description, self.data["short_description"]
-        )
-        self.assertEqual(
-            experiment.population_percent, decimal.Decimal("10.000")
-        )
-        self.assertEqual(
-            experiment.firefox_version, self.data["firefox_version"]
-        )
-        self.assertEqual(
-            experiment.firefox_channel, self.data["firefox_channel"]
-        )
-        self.assertEqual(
-            experiment.client_matching, self.data["client_matching"]
         )
         self.assertEqual(
             experiment.proposed_start_date, self.data["proposed_start_date"]
@@ -244,24 +223,6 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertEqual(change.old_status, None)
         self.assertEqual(change.new_status, experiment.status)
         self.assertEqual(change.changed_by, self.request.user)
-
-    def test_form_is_invalid_if_population_percent_is_0(self):
-        self.data["population_percent"] = "0"
-        form = ExperimentOverviewForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("population_percent", form.errors)
-
-    def test_form_is_invalid_if_population_percent_below_0(self):
-        self.data["population_percent"] = "-1"
-        form = ExperimentOverviewForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("population_percent", form.errors)
-
-    def test_form_is_invalid_if_population_percent_above_100(self):
-        self.data["population_percent"] = "101"
-        form = ExperimentOverviewForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("population_percent", form.errors)
 
 
 class TestExperimentVariantsFormSet(TestCase):
@@ -335,6 +296,10 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         )
 
         self.data = {
+            "population_percent": "10",
+            "firefox_version": Experiment.VERSION_CHOICES[-1][0],
+            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
+            "client_matching": "en-us only please",
             "variants-TOTAL_FORMS": "3",
             "variants-INITIAL_FORMS": "0",
             "variants-MIN_NUM_FORMS": "0",
@@ -353,6 +318,30 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
             "variants-2-description": "branch 2 desc",
         }
 
+    def test_form_is_invalid_if_population_percent_is_0(self):
+        self.data["population_percent"] = "0"
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("population_percent", form.errors)
+
+    def test_form_is_invalid_if_population_percent_below_0(self):
+        self.data["population_percent"] = "-1"
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("population_percent", form.errors)
+
+    def test_form_is_invalid_if_population_percent_above_100(self):
+        self.data["population_percent"] = "101"
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("population_percent", form.errors)
+
     def test_form_saves_new_variants(self):
         form = ExperimentVariantsAddonForm(
             request=self.request, data=self.data, instance=self.experiment
@@ -363,6 +352,19 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         self.assertEqual(self.experiment.variants.count(), 0)
 
         experiment = form.save()
+
+        self.assertEqual(
+            experiment.population_percent, decimal.Decimal("10.000")
+        )
+        self.assertEqual(
+            experiment.firefox_version, self.data["firefox_version"]
+        )
+        self.assertEqual(
+            experiment.firefox_channel, self.data["firefox_channel"]
+        )
+        self.assertEqual(
+            experiment.client_matching, self.data["client_matching"]
+        )
 
         self.assertEqual(experiment.variants.count(), 3)
 
@@ -574,6 +576,10 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
         self.branch2_name = "branch 2 name"
 
         self.data = {
+            "population_percent": "10",
+            "firefox_version": Experiment.VERSION_CHOICES[-1][0],
+            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
+            "client_matching": "en-us only please",
             "pref_key": "browser.test.example",
             "pref_type": Experiment.PREF_TYPE_STR,
             "pref_branch": Experiment.PREF_BRANCH_DEFAULT,

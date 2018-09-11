@@ -19,7 +19,6 @@ from experimenter.experiments.models import (
     ExperimentVariant,
 )
 from experimenter.projects.forms import AutoNameSlugFormMixin
-from experimenter.projects.models import Project
 
 
 class JSONField(forms.CharField):
@@ -86,19 +85,11 @@ class ExperimentOverviewForm(
         help_text=Experiment.TYPE_HELP_TEXT,
         widget=forms.Select(attrs={"class": "form-control"}),
     )
-
     owner = forms.ModelChoiceField(
         required=False,
         label="Owner",
         help_text=Experiment.OWNER_HELP_TEXT,
         queryset=get_user_model().objects.all(),
-        widget=forms.Select(attrs={"class": "form-control"}),
-    )
-    project = forms.ModelChoiceField(
-        required=False,
-        label="Project",
-        help_text=Experiment.PROJECT_HELP_TEXT,
-        queryset=Project.objects.all(),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
     name = forms.CharField(
@@ -111,26 +102,6 @@ class ExperimentOverviewForm(
         label="Short Description",
         help_text=Experiment.SHORT_DESCRIPTION_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-    )
-    population_percent = forms.DecimalField(
-        label="Population Size",
-        help_text=Experiment.POPULATION_PERCENT_HELP_TEXT,
-        initial="0.00",
-        widget=forms.NumberInput(attrs={"class": "form-control"}),
-    )
-    firefox_version = forms.ChoiceField(
-        choices=Experiment.VERSION_CHOICES,
-        widget=forms.Select(attrs={"class": "form-control"}),
-    )
-    firefox_channel = forms.ChoiceField(
-        choices=Experiment.CHANNEL_CHOICES,
-        widget=forms.Select(attrs={"class": "form-control"}),
-    )
-    client_matching = forms.CharField(
-        label="Population Filtering",
-        help_text=Experiment.CLIENT_MATCHING_HELP_TEXT,
-        initial=Experiment.CLIENT_MATCHING_DEFAULT,
-        widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
     )
     proposed_start_date = forms.DateField(
         label="Proposed Start Date",
@@ -152,27 +123,12 @@ class ExperimentOverviewForm(
         fields = [
             "type",
             "owner",
-            "project",
             "name",
             "slug",
             "short_description",
-            "population_percent",
-            "firefox_version",
-            "firefox_channel",
-            "client_matching",
             "proposed_start_date",
             "proposed_end_date",
         ]
-
-    def clean_population_percent(self):
-        population_percent = self.cleaned_data["population_percent"]
-
-        if not (0 < population_percent <= 100):
-            raise forms.ValidationError(
-                "The population size must be between 0 and 100 percent."
-            )
-
-        return population_percent
 
 
 class ExperimentVariantAddonForm(NameSlugMixin, forms.ModelForm):
@@ -260,9 +216,35 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
 
     FORMSET_FORM_CLASS = ExperimentVariantAddonForm
 
+    population_percent = forms.DecimalField(
+        label="Population Size",
+        help_text=Experiment.POPULATION_PERCENT_HELP_TEXT,
+        initial="0.00",
+        widget=forms.NumberInput(attrs={"class": "form-control"}),
+    )
+    firefox_version = forms.ChoiceField(
+        choices=Experiment.VERSION_CHOICES,
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+    firefox_channel = forms.ChoiceField(
+        choices=Experiment.CHANNEL_CHOICES,
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+    client_matching = forms.CharField(
+        label="Population Filtering",
+        help_text=Experiment.CLIENT_MATCHING_HELP_TEXT,
+        initial=Experiment.CLIENT_MATCHING_DEFAULT,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
+    )
+
     class Meta:
         model = Experiment
-        fields = []
+        fields = [
+            "population_percent",
+            "firefox_version",
+            "firefox_channel",
+            "client_matching",
+        ]
 
     def __init__(self, *args, **kwargs):
         data = kwargs.pop("data", None)
@@ -270,7 +252,7 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
         super().__init__(data=data, instance=instance, *args, **kwargs)
 
         extra = 0
-        if instance.variants.count() == 0:
+        if instance and instance.variants.count() == 0:
             extra = 2
 
         FormSet = inlineformset_factory(
@@ -283,6 +265,16 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
         )
 
         self.variants_formset = FormSet(data=data, instance=instance)
+
+    def clean_population_percent(self):
+        population_percent = self.cleaned_data["population_percent"]
+
+        if not (0 < population_percent <= 100):
+            raise forms.ValidationError(
+                "The population size must be between 0 and 100 percent."
+            )
+
+        return population_percent
 
     def is_valid(self):
         return super().is_valid() and self.variants_formset.is_valid()
@@ -324,7 +316,11 @@ class ExperimentVariantsPrefForm(ExperimentVariantsAddonForm):
 
     class Meta:
         model = Experiment
-        fields = ["pref_key", "pref_type", "pref_branch"]
+        fields = ExperimentVariantsAddonForm.Meta.fields + [
+            "pref_key",
+            "pref_type",
+            "pref_branch",
+        ]
 
 
 class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):

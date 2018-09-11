@@ -15,12 +15,12 @@
   <li class="li-nav {% if step == 2 %}active{% endif %} {% if not object.completed_overview %}disabled{% endif %}">
     <a {% if object %}href="{% url "experiments-variants-update" slug=object.slug %}"{% endif %}>
       <h4 class="list-group-item-heading">
-        2. Branches 
+        2. Population
         {% if object.completed_variants %}
           <span class="glyphicon glyphicon-ok-circle"></span>
         {% endif %}
       </h4>
-      <p class="list-group-item-text">Define the branches of the experiment</p>
+      <p class="list-group-item-text">Define the population and branches of the experiment</p>
     </a>
   </li>
 
@@ -39,7 +39,7 @@
   <li class="li-nav {% if step == 4 %}active{% endif %} {% if not object.completed_overview %}disabled{% endif %}">
     <a {% if object %}href="{% url "experiments-risks-update" slug=object.slug %}"{% endif %}>
       <h4 class="list-group-item-heading">
-        4. Risks &amp; Testing 
+        4. Risks &amp; Testing
         {% if object.completed_risks %}
           <span class="glyphicon glyphicon-ok-circle"></span>
         {% endif %}

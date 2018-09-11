@@ -488,14 +488,6 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.completed_risks)
 
-    def test_is_not_launchable_when_not_all_sections_completed(self):
-        experiment = ExperimentFactory.create()
-        self.assertFalse(experiment.is_ready_for_review)
-
-    def test_is_ready_for_review_when_all_sections_complete(self):
-        experiment = ExperimentFactory.create_with_variants()
-        self.assertTrue(experiment.is_ready_for_review)
-
     def test_is_not_high_risk_if_no_risk_questions_are_true(self):
         experiment = ExperimentFactory.create(
             risk_partner_related=False,
@@ -522,14 +514,6 @@ class TestExperimentModel(TestCase):
             experiment = ExperimentFactory.create(**instance_risk_fields)
             self.assertTrue(experiment.is_high_risk)
 
-    def test_experiment_population_returns_correct_string(self):
-        experiment = ExperimentFactory(
-            population_percent="0.5",
-            firefox_version="57.0",
-            firefox_channel="Nightly",
-        )
-        self.assertEqual(experiment.population, "0.5% of Nightly Firefox 57.0")
-
     def test_completed_required_reviews_false_when_reviews_not_complete(self):
         experiment = ExperimentFactory.create()
         self.assertFalse(experiment.completed_required_reviews)
@@ -543,6 +527,39 @@ class TestExperimentModel(TestCase):
             review_qa=True,
         )
         self.assertTrue(experiment.completed_required_reviews)
+
+    def test_completed_all_sections_false_when_incomplete(self):
+        experiment = ExperimentFactory.create()
+        self.assertFalse(experiment.completed_all_sections)
+
+    def test_completed_all_sections_true_when_complete(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW
+        )
+        self.assertTrue(experiment.completed_all_sections)
+
+    def test_is_ready_for_review_true_when_not_all_sections_completed(self):
+        experiment = ExperimentFactory.create()
+        self.assertTrue(experiment.is_ready_for_review)
+
+    def test_is_ready_to_launch_true_when_reviews_and_sections_complete(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW,
+            review_phd=True,
+            review_science=True,
+            review_peer=True,
+            review_relman=True,
+            review_qa=True,
+        )
+        self.assertTrue(experiment.is_ready_to_launch)
+
+    def test_experiment_population_returns_correct_string(self):
+        experiment = ExperimentFactory(
+            population_percent="0.5",
+            firefox_version="57.0",
+            firefox_channel="Nightly",
+        )
+        self.assertEqual(experiment.population, "0.5% of Nightly Firefox 57.0")
 
 
 class TestExperimentChangeLog(TestCase):
