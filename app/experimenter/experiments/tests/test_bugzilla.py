@@ -32,6 +32,7 @@ class MockBugzillaMixin(object):
         mock_response_data = {"id": self.bugzilla_id}
         mock_response = mock.Mock()
         mock_response.content = json.dumps(mock_response_data)
+        mock_response.status_code = 200
         self.mock_bugzilla_requests_post.return_value = mock_response
 
 
@@ -97,14 +98,34 @@ class TestBugzilla(MockBugzillaMixin, TestCase):
             {"comment": format_bug_body(experiment)},
         )
 
+    @mock.patch("experimenter.experiments.bugzilla.logging")
+    def test_api_error_logs_message(self, mock_logging):
+        mock_response_data = {
+            "message": "Error creating Bugzilla Bug because of reasons"
+        }
+        mock_response = mock.Mock()
+        mock_response.content = json.dumps(mock_response_data)
+        mock_response.status_code = 400
+        self.mock_bugzilla_requests_post.return_value = mock_response
+
+        bugzilla_id = make_bugzilla_call("/url/", {})
+        self.assertIsNone(bugzilla_id)
+
+        mock_logging.info.assert_called_with(
+            (
+                "Error creating Bugzilla Ticket: "
+                "Error creating Bugzilla Bug because of reasons"
+            )
+        )
+
     def test_request_error_passes_silently(self):
         self.mock_bugzilla_requests_post.side_effect = RequestException()
         bugzilla_id = make_bugzilla_call("/url/", {})
-        self.assertEqual(bugzilla_id, None)
+        self.assertIsNone(bugzilla_id)
 
     def test_json_parse_error_passes_silently(self):
         mock_response = mock.Mock()
         mock_response.content = "{invalid json"
         self.mock_bugzilla_requests_post.return_value = mock_response
         bugzilla_id = make_bugzilla_call("/url/", {})
-        self.assertEqual(bugzilla_id, None)
+        self.assertIsNone(bugzilla_id)
