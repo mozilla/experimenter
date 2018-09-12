@@ -233,7 +233,6 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
     client_matching = forms.CharField(
         label="Population Filtering",
         help_text=Experiment.CLIENT_MATCHING_HELP_TEXT,
-        initial=Experiment.CLIENT_MATCHING_DEFAULT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
     )
 
