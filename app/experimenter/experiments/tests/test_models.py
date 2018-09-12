@@ -538,10 +538,6 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.completed_all_sections)
 
-    def test_is_ready_for_review_true_when_not_all_sections_completed(self):
-        experiment = ExperimentFactory.create()
-        self.assertTrue(experiment.is_ready_for_review)
-
     def test_is_ready_to_launch_true_when_reviews_and_sections_complete(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,

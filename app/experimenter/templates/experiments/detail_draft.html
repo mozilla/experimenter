@@ -1,44 +1,29 @@
 {% extends "experiments/detail_base.html" %}
 
 {% block main_sidebar_extra %}
-  {% if experiment.is_ready_for_review %}
-    <form
-      action="{% url "experiments-status-update" slug=experiment.slug %}"
-      method="POST"
-    >
+  <form
+    action="{% url "experiments-status-update" slug=experiment.slug %}"
+    method="POST"
+  >
 
-      {% csrf_token %}
+    {% csrf_token %}
 
-      <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
+    <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
 
-      <div class="checkbox md-mt-0">
-        <label>
-          <input type="checkbox" name="attention" value="{{ experiment.ATTENTION_MESSAGE }}">
-          {{ experiment.ATTENTION_MESSAGE }}
-        </label>
-      </div>
+    <div class="checkbox md-mt-0">
+      <label>
+        <input type="checkbox" name="attention" value="{{ experiment.ATTENTION_MESSAGE }}">
+        {{ experiment.ATTENTION_MESSAGE }}
+      </label>
+    </div>
 
-      <button
-        type="submit"
-        class="col-md-12 md-mb-10 btn btn-success"
-      >
-        <span class="glyphicon glyphicon-eye-open"></span>
-        Submit for Review
-      </button>
-
-    </form>
-  {% else %}
     <button
       type="submit"
-      class="col-md-12 md-mb-10 btn btn-success disabled"
+      class="col-md-12 md-mb-10 btn btn-success"
     >
       <span class="glyphicon glyphicon-eye-open"></span>
       Submit for Review
     </button>
-    <div class="row form-group">
-      <div class="col-md-12">
-          <p class="help-block">You must complete every section before you can launch this experiment.</p>
-      </div>
-    </div>
-  {% endif %}
+
+  </form>
 {% endblock %}
