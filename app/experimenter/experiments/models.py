@@ -77,7 +77,9 @@ class Experiment(ExperimentConstants, models.Model):
     firefox_channel = models.CharField(
         max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES
     )
-    client_matching = models.TextField(default="", blank=True)
+    client_matching = models.TextField(
+        default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True
+    )
     objectives = models.TextField(
         default=ExperimentConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
