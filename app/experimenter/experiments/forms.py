@@ -89,7 +89,7 @@ class ExperimentOverviewForm(
         required=False,
         label="Owner",
         help_text=Experiment.OWNER_HELP_TEXT,
-        queryset=get_user_model().objects.all(),
+        queryset=get_user_model().objects.all().order_by("email"),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
     name = forms.CharField(
