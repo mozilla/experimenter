@@ -41,8 +41,15 @@ def make_bugzilla_call(url, data):
     try:
         response = requests.post(url, data)
         response_data = json.loads(response.content)
+
+        if response.status_code >= 400:
+            logging.info(
+                "Error creating Bugzilla Ticket: {error}".format(
+                    error=response_data.get("message")
+                )
+            )
     except requests.exceptions.RequestException:
-        logging.exception("Error creating Bugzilla Ticket")
+        logging.exception("Error calling Bugzilla API")
     except json.JSONDecodeError:
         logging.exception("Error parsing JSON Bugzilla response")
 
