@@ -328,10 +328,6 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
-    def is_ready_for_review(self):
-        return self.completed_overview
-
-    @property
     def is_ready_to_launch(self):
         return self.completed_all_sections and self.completed_required_reviews
 
