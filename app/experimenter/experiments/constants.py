@@ -9,7 +9,7 @@ class ExperimentConstants(object):
 
     TYPE_CHOICES = (
         (TYPE_PREF, "Pref-Flip Study"),
-        (TYPE_ADDON, "Addon Study"),
+        (TYPE_ADDON, "Opt-Out Study"),
     )
 
     # Status stuff
@@ -137,7 +137,7 @@ class ExperimentConstants(object):
         for users that enroll into the experiment.
       </p>
       <p>
-        An <strong>Addon Study</strong> sends a Firefox addon which
+        An <strong>Opt-Out Study</strong> sends a Firefox addon which
         contains the code for the experimental feature to the users that
         enroll in the study.  After the experiment is complete, that addon
         is automatically removed.
@@ -636,7 +636,7 @@ Value: {variant.value}
 
     BUGZILLA_ADDON_TEMPLATE = (
         """
-    Experiment Type: Addon Study
+    Experiment Type: Opt-Out Study
 
     What are the branches of the study:
 
