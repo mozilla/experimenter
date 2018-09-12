@@ -26,7 +26,6 @@
     
     <div class="form-group">
       <div class="col-md-12 text-right">
-        {{ form.errors }}
         {% if object %}
           <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">Cancel Editing</a>
         {% endif %}
