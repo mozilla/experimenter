@@ -273,8 +273,12 @@ class Experiment(ExperimentConstants, models.Model):
         return True in self._risk_questions
 
     @property
-    def completed_overview(self):
-        return self.pk is not None
+    def completed_population(self):
+        return (
+            self.population_percent > 0
+            and self.firefox_version != ""
+            and self.firefox_channel != ""
+        )
 
     @property
     def completed_variants(self):
@@ -321,7 +325,7 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def completed_all_sections(self):
         return (
-            self.completed_overview
+            self.completed_population
             and self.completed_variants
             and self.completed_objectives
             and self.completed_risks
