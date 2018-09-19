@@ -49,28 +49,29 @@
 {% block main_content %}
   {% for experiment in experiments %}
     <a class="noanchorstyle clickhighlight" href="{% url "experiments-detail" slug=experiment.slug %}">
-      <div class="row">
+      <div class="row md-mb-20 card">
         <div class="col-md-12">
-          <h4 class="md-mt-0">
+          <h4 class="normal-text md-mt-0">
             {{ experiment }}
             <span class="badge status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
           </h4>
         </div>
-      </div>
+        <strong>
+          <div class="col-md-4">
+            {{ experiment.owner }}
+          </div>
 
-      <div class="md-mb-30 row card">
-        <div class="col-md-8">
-          <p>
-            <strong>
-              Owner: {{ experiment.owner }}
-            </strong>
-          </p>
+          <div class="col-md-4">
+            {{ experiment.population}}
+          </div>
+
+          <div class="col-md-4">
+            {{ experiment.dates }}
+          </div>
+        </strong>
+
+        <div class="col-md-12 md-mt-10">
           {{ experiment.short_description|linebreaks }}
-        </div>
-
-        <div class="col-md-4 text-right">
-          <h4 class="md-mt-0">{{ experiment.population }}</h4>
-          <p><strong>{{ experiment.dates }}</strong></p>
         </div>
       </div>
     </a>
