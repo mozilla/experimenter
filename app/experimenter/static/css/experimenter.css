@@ -37,6 +37,10 @@ body {
   letter-spacing: 0.8px;
 }
 
+.normal-text {
+  font-weight: normal;
+}
+
 .light-text {
   font-weight: lighter;
 }
