@@ -273,6 +273,10 @@ class Experiment(ExperimentConstants, models.Model):
         return True in self._risk_questions
 
     @property
+    def completed_overview(self):
+        return self.pk is not None
+
+    @property
     def completed_population(self):
         return (
             self.population_percent > 0

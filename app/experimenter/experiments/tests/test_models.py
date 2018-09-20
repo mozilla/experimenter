@@ -414,6 +414,14 @@ class TestExperimentModel(TestCase):
             experiment = ExperimentFactory.create_with_status(status)
             self.assertTrue(experiment.is_begun)
 
+    def test_overview_is_not_complete_when_not_saved(self):
+        experiment = ExperimentFactory.build()
+        self.assertFalse(experiment.completed_overview)
+
+    def test_overview_is_complete_when_saved(self):
+        experiment = ExperimentFactory.create()
+        self.assertTrue(experiment.completed_overview)
+
     def test_population_is_not_complete_when_defaults_set(self):
         experiment = ExperimentFactory.create(
             population_percent=0.0, firefox_version="", firefox_channel=""
