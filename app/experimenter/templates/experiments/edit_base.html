@@ -11,20 +11,50 @@
 
 {% block main_content %}
   <div class="row">
-    <div class="col-md-12">
+    <div class="col">
       {% block edit_nav %}
       {% endblock %}
     </div>
 
-    <div class="col-md-12 md-mt-10">
-      {% block edit_form %}
-      {% endblock %}
+  </div>
+  <div class="row">
+    <div class="col">
+      <form
+        method="POST"
+        enctype='multipart/form-data'
+      >
+        {% csrf_token %}
+
+        {% block edit_form %}
+        {% endblock %}
+
+        <div class="form-group row">
+          <div class="col text-right">
+            {% block edit_buttons %}
+              {% if object %}
+                <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">
+                  <span class="fas fa-times"></span>
+                  Cancel Editing
+                </a>
+              {% endif %}
+              <button type="submit" name="action" value="save" class="btn btn-primary">
+                <span class="fas fa-save"></span>
+                Save Draft
+              </button>
+              <button type="submit" name="action" value="continue" class="btn btn-primary">
+                <span class="fas fa-save"></span>
+                Save Draft and Continue
+              </button>
+            {% endblock %}
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 {% endblock %}
 
 {% block main_sidebar %}
-  <div class="alert alert-info">
+  <div class="alert alert-primary">
     {% block edit_info %}
     {% endblock %}
   </div>

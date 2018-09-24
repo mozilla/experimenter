@@ -1,6 +1,6 @@
           <div data-formset-form>
-            <div class="form-group">
-              <h4 class="col-md-4 col-md-offset-3">
+            <div class="form-group row">
+              <h4 class="col-4 offset-3">
                 {% if is_control %}
                   Control Branch
                 {% else %}
@@ -9,9 +9,9 @@
               </h4>
 
               {% if not is_control %}
-                <div class="col-md-5 text-right">
+                <div class="col-5 text-right">
                   <button type="button" class="btn btn-danger" data-formset-delete-button>
-                    <span class="glyphicon glyphicon-remove"></span> Remove Branch
+                    <span class="fas fa-times"></span> Remove Branch
                   </button>
                 </div>
               {% endif %}
@@ -37,5 +37,5 @@
               {% include "experiments/field_inline.html" with field=form.value %}
             {% endif %}
 
-            <hr class="heavy-line md-mt-40 md-mb-40"/>
+            <hr class="heavy-line my-5"/>
           </div>

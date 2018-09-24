@@ -83,25 +83,19 @@ class ExperimentOverviewForm(
         label="Type",
         choices=Experiment.TYPE_CHOICES,
         help_text=Experiment.TYPE_HELP_TEXT,
-        widget=forms.Select(attrs={"class": "form-control"}),
     )
     owner = forms.ModelChoiceField(
         required=False,
         label="Owner",
         help_text=Experiment.OWNER_HELP_TEXT,
         queryset=get_user_model().objects.all().order_by("email"),
-        widget=forms.Select(attrs={"class": "form-control"}),
     )
-    name = forms.CharField(
-        label="Name",
-        help_text=Experiment.NAME_HELP_TEXT,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-    )
+    name = forms.CharField(label="Name", help_text=Experiment.NAME_HELP_TEXT)
     slug = forms.CharField(required=False)
     short_description = forms.CharField(
         label="Short Description",
         help_text=Experiment.SHORT_DESCRIPTION_HELP_TEXT,
-        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        widget=forms.Textarea(attrs={"rows": 3}),
     )
     proposed_start_date = forms.DateField(
         label="Proposed Start Date",

@@ -12,12 +12,9 @@
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="{% static "lib/bootstrap/css/bootstrap.min.css" %}">
 
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="{% static "lib/bootstrap/css/bootstrap-theme.min.css" %}">
+    <link rel="stylesheet" href="{% static "lib/fontawesome/css/all.css" %}">
 
     <link rel="stylesheet" href="{% static "css/experimenter.css" %}">
-
-    <link rel="stylesheet" href="{% static "lib/ezspace/ez-space.css" %}">
 
     {% block title %}
       <title>Mozilla Experimenter</title>
@@ -25,21 +22,27 @@
   </head>
 
   <body>
-    <div id="header">
+
+    <div class="bg-primary text-white">
       <div class="container">
-        <div class="row">
-          <div id="site-logo" class="col-md-6 spaced-text">
-            <a class="noanchorstyle" href="{% url "home" %}">
-              <svg id="header-icon">
-                <?xml version="1.0" ?><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs></defs><title/><rect class="a" height="21" rx="4" ry="4" width="12" x="2" y="40"/><rect class="a" height="40" rx="4" ry="4" width="12" x="18" y="21"/><rect class="a" height="30" rx="4" ry="4" width="12" x="34" y="31"/><rect class="a" height="51" rx="4" ry="4" width="12" x="50" y="10"/></svg>
-              </svg>
-              <strong>Mozilla</strong> Experimenter
-            </a>
+        <div class="row py-3">
+          <div class="col">
+            <h3 class="pt-2">
+              <a class="noanchorstyle" href="{% url "home" %}">
+                <svg id="header-icon">
+                  <?xml version="1.0" ?><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs></defs><title/><rect class="a" height="21" rx="4" ry="4" width="12" x="2" y="40"/><rect class="a" height="40" rx="4" ry="4" width="12" x="18" y="21"/><rect class="a" height="30" rx="4" ry="4" width="12" x="34" y="31"/><rect class="a" height="51" rx="4" ry="4" width="12" x="50" y="10"/></svg>
+                </svg>
+                <strong>Mozilla</strong> Experimenter
+              </a>
+            </h3>
           </div>
-          <div id="header-user-info" class="col-md-6 text-right">
+          <div class="col text-right">
             {{ request.user }}
             <br/>
-            <a target="_blank" href="https://github.com/mozilla/experimenter/issues/new">Feedback</a>
+            <a class="text-white" target="_blank" href="https://github.com/mozilla/experimenter/issues/new">
+              <span class="fas fa-comment-alt"></span>
+              Feedback
+            </a>
           </div>
         </div>
       </div>
@@ -47,13 +50,13 @@
 
     <div id="sub-header">
       <div class="container">
-        <div class="row md-pt-15 md-pb-15">
-          <div class="col-md-9 md-pr-40">
+        <div class="row py-3">
+          <div class="col-9">
             {% block header_content %}
             {% endblock %}
           </div>
 
-          <div class="col-md-3">
+          <div class="col-3">
             {% block header_sidebar %}
             {% endblock %}
           </div>
@@ -62,12 +65,15 @@
     </div>
 
     {% if messages %}
-      <div class="alert-success">
+      <div class="alert-primary">
         <div class="container">
           <div class="row">
-            <div class="col-md-12 md-pt-10">
+            <div class="col pt-3">
               {% for message in messages %}
-                <p><span class="glyphicon glyphicon-info-sign"></span> {{ message }}</p>
+                <p>
+                  <span class="fas fa-info-circle"></span>
+                  {{ message }}
+                </p>
               {% endfor %}
             </div>
           </div>
@@ -85,14 +91,14 @@
     </div>
 
     <div class="container">
-      <div class="row md-mt-20">
+      <div class="row mt-3">
 
-        <div class="col-md-9 md-pr-40">
+        <div class="col-9 pr-5">
           {% block main_content %}
           {% endblock %}
         </div>
 
-        <div class="col-md-3">
+        <div class="col-3">
           {% block main_sidebar %}
           {% endblock %}
         </div>
@@ -102,7 +108,7 @@
     <footer>
       <div class="container">
         <div class="row">
-          <div class="col-md-12 md-mb-20 text-center">
+          <div class="col mb-3 text-center">
             <hr/>
             © Mozilla Corporation 2018
           </div>
@@ -112,6 +118,7 @@
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="{% static "lib/jquery/jquery-3.2.1.min.js" %}"></script>
+
     <!-- Latest compiled and minified JavaScript -->
     <script src="{% static "lib/bootstrap/js/bootstrap.min.js" %}"></script>
 

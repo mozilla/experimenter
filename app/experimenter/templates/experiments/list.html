@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block header_content %}
-  <h3>
+  <h3 class="m-0">
     {{ experiments.count }}
 
     {% if filter.form.type.value %}
@@ -37,9 +37,9 @@
 
 {% block header_sidebar %}
   <div class="row">
-    <div class="col-md-12">
-      <a class="col-md-12 btn btn-info" href="{% url "experiments-create" %}">
-        <span class="glyphicon glyphicon-edit"></span>
+    <div class="col">
+      <a class="col btn btn-primary" href="{% url "experiments-create" %}">
+        <span class="fas fa-edit"></span>
         Create Experiment
       </a>
     </div>
@@ -48,29 +48,32 @@
 
 {% block main_content %}
   {% for experiment in experiments %}
-    <a class="noanchorstyle clickhighlight" href="{% url "experiments-detail" slug=experiment.slug %}">
+    <a class="noanchorstyle hovershadow" href="{% url "experiments-detail" slug=experiment.slug %}">
       <div class="row">
-        <div class="col-md-12">
-          <h4 class="md-mt-0">
+        <div class="col">
+          <h5>
             {{ experiment }}
-            <span class="badge status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
-          </h4>
+            <span class="badge badge-pill badge-small align-middle status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
+          </h5>
         </div>
       </div>
 
-      <div class="md-mb-30 row card">
-        <div class="col-md-8">
-          <p>
-            <strong>
-              Owner: {{ experiment.owner }}
-            </strong>
-          </p>
-          {{ experiment.short_description|linebreaks }}
-        </div>
-
-        <div class="col-md-4 text-right">
-          <h4 class="md-mt-0">{{ experiment.population }}</h4>
-          <p><strong>{{ experiment.dates }}</strong></p>
+      <div class="card row pt-2 mb-5">
+        <div class="container">
+          <div class="row">
+            <div class="col-8">
+              <p>
+                <strong>
+                  {{ experiment.owner }}
+                </strong>
+              </p>
+              {{ experiment.short_description|linebreaks }}
+            </div>
+            <div class="col-4 text-right">
+              <h5>{{ experiment.population }}</h5>
+              <p>{{ experiment.dates }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </a>
@@ -79,43 +82,36 @@
 
 {% block main_sidebar %}
   <form method="GET">
-    <div class="row md-mb-10">
-      <strong class="col-md-12">Sort Experiments</strong>
+    <div class="form-group">
+      <strong>Sort Experiments</strong>
     </div>
 
-    <div class="row md-mb-10">
-      <div class="col-md-12">
-        {{ ordering_form.ordering }}
-      </div>
+    <div class="form-group">
+      {{ ordering_form.ordering }}
     </div>
 
-    <div class="row md-mt-20 md-mb-10">
-      <strong class="col-md-12">Filter Experiments</strong>
+    <div class="form-group">
+      <strong>Filter Experiments</strong>
     </div>
 
     {% for field in filter.form %}
-      <div class="row md-mb-10">
-        <div class="col-md-12">
-          {% ifequal field.name "archived" %}
-            <div class="checkbox md-m-0">
-              <label>
-                {{ field }}
-                {{ field.label }}
-              </label>
-            </div>
-          {% else %}
-            {{ field }}
-          {% endifequal %}
+      {% ifequal field.name "archived" %}
+        <label>
+          {{ field }}
+          {{ field.label }}
+        </label>
+      {% else %}
+        <div class="form-group">
+          {{ field }}
         </div>
-      </div>
+      {% endifequal %}
     {% endfor %}
 
-    <div class="row">
-      <div class="col-md-12 text-right">
-        <button type="submit" class="btn btn-info">
-          <span class="glyphicon glyphicon-ok"></span> Apply
-        </button>
-      </div>
+    <div class="form-group text-right">
+      <button type="submit" class="btn btn-primary">
+        <span class="fas fa-check"></span>
+        Apply
+      </button>
     </div>
   </form>
 {% endblock %}

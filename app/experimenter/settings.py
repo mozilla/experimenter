@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "djangoformsetjs",
     "jquery",
+    "widget_tweaks",
     "experimenter.openidc",
     "experimenter.experiments",
     "experimenter.projects",

@@ -2,6 +2,7 @@
 
 {% load formset_tags %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block edit_title %}
   Edit {{ object.name }} Branches
@@ -12,53 +13,44 @@
 {% endblock %}
 
 {% block edit_form %}
-  <form
-    class="form-horizontal card-content"
-    method="POST"
-    enctype='multipart/form-data'
-  >
-    {% csrf_token %}
-
-    <div class="form-group">
-      <h4 class="col-md-9 col-md-offset-3">Firefox Population</h4>
+    <div class="form-group row">
+      <h4 class="col-9 offset-3">Firefox Population</h4>
     </div>
 
-    <div class="form-group {% if field.errors %}has-error{% endif %} md-mt-20">
+    <div class="form-group row">
 
-      <div class="col-md-3 text-right">
-        <label class="control-label" for="{{ form.population_percent.id_for_label }}">{{ form.population_percent.label }}</label>
+      <div class="col-3 text-right">
+        <label class="control-label" for="{{ form.population_percent.id_for_label }}">
+          <strong>{{ form.population_percent.label }}</strong>
+        </label>
         <br/>
         <a href="#population-percent-help" data-toggle="collapse" aria-expanded="false" aria-controls="population-percent-help">Help</a>
       </div>
 
-      <div class="col-md-9">
+      <div class="col-9">
         <div class="row">
-          <div class="col-md-3">
-            {{ form.population_percent }}
+
+          <div class="col-2">
+            {% include "experiments/field_input_inline.html" with field=form.population_percent %}
           </div>
-          <div class="col-md-2 text-center">
-            <h5>percent of</h5>
+
+          <div class="col-2 text-center pt-2">
+            <strong>percent of</strong>
           </div>
-          <div class="col-md-3">
-            {{ form.firefox_channel }}
+
+          <div class="col-4">
+            {% include "experiments/field_input_inline.html" with field=form.firefox_channel %}
           </div>
-          <div class="col-md-4">
-            {{ form.firefox_version }}
+
+          <div class="col-4">
+            {% include "experiments/field_input_inline.html" with field=form.firefox_version %}
           </div>
+
         </div>
+				
+        {% include "experiments/field_errors_inline.html" with field=form.population_percent %}
 
-        {% if form.errors.population_percent %}
-          <div class="col-md-12 text-right">
-            {% for error in form.errors.population_percent %}
-              <label for="{{ form.population_percent.id_for_label }}" class="control-label">{{ error }}</label>
-                <span class="glyphicon glyphicon-exclamation-sign"></span>
-                {{ error }}
-              </label>
-            {% endfor %}
-          </div>
-        {% endif %}
-
-        <div id="population-percent-help" class="collapse help-block">
+        <div id="population-percent-help" class="collapse text-muted">
           {{ form.population_percent.help_text|safe }}
         </div>
       </div>
@@ -66,11 +58,11 @@
 
     {% include "experiments/field_inline.html" with field=form.client_matching %}
 
-    <hr class="heavy-line md-mt-40 md-mb-20"/>
+    <hr class="heavy-line my-5"/>
 
     {% if experiment.is_pref_study %}
-      <div class="form-group">
-        <h4 class="col-md-9 col-md-offset-3">Firefox Pref</h4>
+      <div class="form-group row">
+        <h4 class="col-9 offset-3">Firefox Pref</h4>
       </div>
 
       {% include "experiments/field_inline.html" with field=form.pref_key %}
@@ -79,7 +71,7 @@
 
       {% include "experiments/field_inline.html" with field=form.pref_branch %}
 
-      <hr class="heavy-line md-mt-40 md-mb-20"/>
+      <hr class="heavy-line my-5"/>
     {% endif %}
 
     <div id="formset" data-formset-prefix="{{ form.variants_formset.prefix }}">
@@ -95,11 +87,11 @@
         {% endfor %}
       </div>
 
-      <div class="form-group">
-        <div class="col-md-9 col-md-offset-3 text-right">
+      <div class="form-group row">
+        <div class="col-9 offset-3 text-right">
           <!-- This button will add a new form when clicked -->
           <button type="button" class="btn btn-success" data-formset-add>
-            <span class="glyphicon glyphicon-plus"></span> Add Branch
+            <span class="fas fa-plus"></span> Add Branch
           </button>
         </div>
       </div>
@@ -113,22 +105,10 @@
         {% endescapescript %}
       </script>
     </div>
-
-    <div class="form-group md-mt-40">
-      <div class="col-md-12 text-right">
-        {% if object %}
-          <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">Cancel Editing</a>
-        {% endif %}
-        <button type="submit" name="action" value="save" class="btn btn-info">Save Draft</button>
-        <button type="submit" name="action" value="continue" class="btn btn-info">Save Draft and Continue</button>
-      </div>
-    </div>
-
-  </form>
 {% endblock %}
 
 {% block edit_info %}
-  <h4><span class="glyphicon glyphicon-info-sign"></span> Population</h4>
+  <h4><span class="fas fa-info-circle"></span> Population</h4>
 
   <p>
     Define the population of your experiment.
