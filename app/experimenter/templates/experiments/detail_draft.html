@@ -4,13 +4,14 @@
   <form
     action="{% url "experiments-status-update" slug=experiment.slug %}"
     method="POST"
+    class="mb-3"
   >
 
     {% csrf_token %}
 
     <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
 
-    <div class="checkbox md-mt-0">
+    <div class="checkbox">
       <label>
         <input type="checkbox" name="attention" value="{{ experiment.ATTENTION_MESSAGE }}">
         {{ experiment.ATTENTION_MESSAGE }}
@@ -19,10 +20,10 @@
 
     <button
       type="submit"
-      class="col-md-12 md-mb-10 btn btn-success"
+      class="col btn btn-success"
     >
-      <span class="glyphicon glyphicon-eye-open"></span>
-      Submit for Review
+      <span class="fas fa-eye"></span>
+      Review My Experiment
     </button>
 
   </form>

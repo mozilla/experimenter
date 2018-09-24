@@ -1,26 +1,18 @@
-<div class="form-group {% if field.errors %}has-error{% endif %} md-mt-20">
-
-  <div class="col-md-3 text-right">
-    <label class="control-label" for="{{ field.id_for_label }}">
-      {{ field.label }}
+<div class="form-group row">
+  <div class="col-3 text-right">
+    <label class="col-form-label" for="{{ field.id_for_label }}">
+      <strong>{{ field.label }}</strong>
     </label>
-    <br/>
+    <br>
     <a href="#{{ field.id_for_label }}-help" data-toggle="collapse" aria-expanded="false" aria-controls="{{ field.id_for_label }}-help">Help</a>
   </div>
 
-  <div class="col-md-9">
-    {{ field }}
+  <div class="col-9">
+    {% include "experiments/field_input_inline.html" with field=field %}
 
-    {% if field.errors %}
-      {% for error in field.errors %}
-        <label for="{{ field.id_for_label }}" class="control-label">
-          <span class="glyphicon glyphicon-exclamation-sign"></span>
-          {{ error }}
-        </label>
-      {% endfor %}
-    {% endif %}
+    {% include "experiments/field_errors_inline.html" with field=field %}
 
-    <div id="{{ field.id_for_label }}-help" class="md-mt-10 help-block collapse {% if field.errors %}in{% endif %}">
+    <div id="{{ field.id_for_label }}-help" class="text-muted collapse {% if field.errors %}in{% endif %} pt-2">
       {{ field.help_text|safe }}
     </div>
 

@@ -15,13 +15,6 @@
 {% endblock %}
 
 {% block edit_form %}
-  <form
-    class="form-horizontal"
-    method="POST"
-    enctype='multipart/form-data'
-  >
-    {% csrf_token %}
-
     {% include "experiments/field_inline.html" with field=form.type %}
 
     {% include "experiments/field_inline.html" with field=form.owner %}
@@ -33,21 +26,10 @@
     {% include "experiments/field_inline.html" with field=form.proposed_start_date %}
 
     {% include "experiments/field_inline.html" with field=form.proposed_end_date %}
-
-    <div class="form-group">
-      <div class="col-md-12 text-right">
-        {% if object %}
-          <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">Cancel Editing</a>
-        {% endif %}
-        <button type="submit" name="action" value="save" class="btn btn-info">Save Draft</button>
-        <button type="submit" name="action" value="continue" class="btn btn-info">Save Draft and Continue</button>
-      </div>
-    </div>
-  </form>
 {% endblock %}
 
 {% block edit_info %}
-  <h4><span class="glyphicon glyphicon-info-sign"></span> Getting Started</h4>
+  <h4><span class="fas fa-info-circle"></span> Getting Started</h4>
   <p>
     Your experiment will start as a draft.
   </p>

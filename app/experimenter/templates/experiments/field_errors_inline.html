@@ -1,0 +1,6 @@
+				{% for error in field.errors %}
+					<div class="invalid-feedback my-2">
+						<span class="fas fa-exclamation"></span>
+						{{ error }}
+					</div>
+				{% endfor %}

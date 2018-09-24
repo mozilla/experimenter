@@ -11,13 +11,6 @@
 {% endblock %}
 
 {% block edit_form %}
-  <form 
-    class="form-horizontal" 
-    method="POST" 
-    enctype='multipart/form-data'
-  >
-    {% csrf_token %}
-
     {% include "experiments/radio_field_inline.html" with field=form.risk_partner_related %}
     
     {% include "experiments/radio_field_inline.html" with field=form.risk_brand %}
@@ -33,21 +26,23 @@
     </div>
     
     {% include "experiments/field_inline.html" with field=form.testing %}
-    
-    <div class="form-group">
-      <div class="col-md-12 text-right">
-        {% if object %}
-          <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">Cancel Editing</a>
-        {% endif %}
-        <button type="submit" name="action" value="continue" class="btn btn-info">Save Draft and Finish</button>
-      </div>
-    </div>
-
-  </form>
+{% endblock %}
+        
+{% block edit_buttons %}
+  {% if object %}
+    <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">
+      <span class="fas fa-times"></span>
+      Cancel Editing
+    </a>
+  {% endif %}
+  <button type="submit" name="action" value="continue" class="btn btn-primary">
+    <span class="fas fa-save"></span>
+    Save Draft and Finish
+  </button>
 {% endblock %}
 
 {% block edit_info %}
-  <h4><span class="glyphicon glyphicon-info-sign"></span> Risks & Testing</h4>
+  <h4><span class="fas fa-info-circle"></span> Risks & Testing</h4>
   <p>
     An experiment may have risks to its user population or the entire Firefox population, help identify them here.
   </p>

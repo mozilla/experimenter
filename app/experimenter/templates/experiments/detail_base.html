@@ -7,25 +7,25 @@
     <a class="noanchorstyle spaced-text" href="{% url "experiments-detail" slug=experiment.slug %}">
       {{ experiment }}
     </a>
-    <span class="badge status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
+    <span class="badge badge-pill badge-small align-middle status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
   </h3>
-  <p class="md-mt-5 md-mb-0">{{ experiment.dates }}</p>
+  {{ experiment.dates }}
 {% endblock %}
 
 {% block header_links %}
   {% if experiment.has_external_urls %}
-    <div class="col-md-12 md-pt-10 md-pb-10">
+    <div class="col py-2">
 
       {% if experiment.bugzilla_url %}
-        <a class="alert-link md-mr-20" target="_blank" href="{{ experiment.bugzilla_url }}">
+        <a class="alert-link mr-4" target="_blank" href="{{ experiment.bugzilla_url }}">
           <img class="link-icon" src="{% static "imgs/bugzilla.png" %}">
           Bugzilla Ticket
         </a>
       {% endif %}
 
       {% if experiment.test_tube_url %}
-        <a class="alert-link md-mr-20" target="_blank" href="{{ experiment.test_tube_url }}">
-          <span class="glyphicon glyphicon-signal"></span>
+        <a class="alert-link" target="_blank" href="{{ experiment.test_tube_url }}">
+          <span class="fas fa-chart-bar"></span>
           Live Monitoring Dashboard
         </a>
       {% endif %}
@@ -48,50 +48,60 @@
 
   {% include "experiments/section_risks.html" with section_name=experiment.SECTION_RISKS section_complete=experiment.completed_risks experiment=experiment edit_url_name="experiments-risks-update" comments=experiment.comments.sections.risks %}
 
-  {% include "experiments/section_base.html" with section_name=experiment.SECTION_TESTING section_title="Testing" section_complete=experiment.completed_risks section_content=experiment.testing experiment=experiment edit_url_name="experiments-objectives-update" comments=experiment.comments.sections.testing %}
+  {% include "experiments/section_base.html" with section_name=experiment.SECTION_TESTING section_title="Testing" section_complete=experiment.completed_risks section_content=experiment.testing experiment=experiment edit_url_name="experiments-risks-update" comments=experiment.comments.sections.testing %}
 
 {% endblock %}
 
 {% block main_sidebar %}
-  <div class="md-mt-40">
-  </div>
+  <h4>&nbsp</h4>
 
   {% block main_sidebar_extra %}
   {% endblock %}
 
   {% if not experiment.is_editable %}
-    <h5 class="col-md-12 md-p-0">Reviews</h5>
-    {% for field in form %}
-      <div class="row help-block">
-        <div class="col-md-12">
-          {% if field.value %}
-            <span class="glyphicon glyphicon-ok"></span>
-          {% else %}
-            <span class="glyphicon glyphicon-remove"></span>
-          {% endif %}
-          {{ field.label }}
-        </div>
-      </div>
-    {% endfor %}
-  {% endif %}
+    <div class="row">
+      <h5 class="col">Reviews</h5>
+    </div>
 
-  <h5 class="col-md-12 md-p-0">History</h5>
-  {% for date, users_changes in experiment.ordered_changes %}
-    <div class="row md-mb-10">
-      <div class="col-md-12">
-        <strong>{{ date }}</strong>
-        <hr class="heavy-line md-mt-0 md-mb-5">
-      </div>
+    <div class="mb-3 text-muted">
+      {% for field in form %}
+        <div class="row">
+          <div class="col mb-1">
+            {% if field.value %}
+              <span class="fas fa-check"></span>
+            {% else %}
+              <span class="fas fa-times"></span>
+            {% endif %}
 
-      {% for user, user_changes in users_changes %}
-        <div class="col-md-12">
-          {{ user }}
-
-          {% for user_change in user_changes %}
-            <p class="help-block md-ml-10">{{ user_change }}</p>
-          {% endfor %}
+            {{ field.label }}
+          </div>
         </div>
       {% endfor %}
     </div>
+  {% endif %}
+
+  <div class="row">
+    <h5 class="col">History</h5>
+  </div>
+
+  {% for date, users_changes in experiment.ordered_changes %}
+    <div class="row">
+      <div class="col">
+        <strong>{{ date }}</strong>
+        <hr class="heavy-line m-0 mb-1">
+      </div>
+    </div>
+    
+    {% for user, user_changes in users_changes %}
+      <div class="row">
+        <div class="col">
+          {{ user }}
+
+          {% for user_change in user_changes %}
+            <p class="ml-4 text-muted">{{ user_change }}</p>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
   {% endfor %}
 {% endblock %}

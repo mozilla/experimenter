@@ -4,16 +4,16 @@
   <form
     action="{% url "experiments-status-update" slug=experiment.slug %}"
     method="POST"
-    class="md-mb-20"
+    class="mb-3"
   >
     {% csrf_token %}
     <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
     <button
       type="submit"
-      class="col-md-12 md-mb-10 btn btn-default"
+      class="col btn btn-warning"
     >
-      <span class="glyphicon glyphicon-remove"></span>
-      Cancel Ready to Ship
+      <span class="fas fa-times"></span>
+      Don't Ship Yet
     </button>
   </form>
 {% endblock %}

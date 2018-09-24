@@ -5,31 +5,30 @@
     <form
       action="{% url "experiments-status-update" slug=experiment.slug %}"
       method="POST"
-      class="md-mb-20"
     >
       {% csrf_token %}
       <input type="hidden" name="status" value="{{ experiment.STATUS_SHIP }}">
       <button
         type="submit"
-        class="col-md-12 md-mb-10 btn btn-success"
+        class="col btn btn-success mb-2"
       >
-        <span class="glyphicon glyphicon-send"></span>
-        Ready to Ship
+        <span class="fas fa-shipping-fast "></span>
+        Ship Experiment
       </button>
     </form>
   {% else %}
     <button
       type="submit"
-      class="col-md-12 md-mb-10 btn btn-default disabled"
+      class="col btn btn-success disabled mb-2"
     >
-      <span class="glyphicon glyphicon-send"></span>
-      Ready to Ship
+      <span class="fas fa-ban"></span>
+      Ship Experiment
     </button>
     <strong>Complete the following reviews before the experiment can ship:</strong>
   {% endif %}
 
-  <div class="row form-group">
-    <div class="col-md-12">
+  <div class="form-group row">
+    <div class="col">
       <form action="{% url "experiments-review-update" slug=experiment.slug %}" method="POST">
         {% csrf_token %}
 
@@ -42,25 +41,26 @@
             </div>
         {% endfor %}
 
-        <button class="col-md-12 btn btn-info">
-          <span class="glyphicon glyphicon-floppy-saved"></span> Save Reviews
+        <button class="col btn btn-info">
+          <span class="fas fa-save"></span> Save Reviews
         </button>
       </form>
     </div>
   </div>
+
   <form
     action="{% url "experiments-status-update" slug=experiment.slug %}"
     method="POST"
-    class="md-mb-20"
+    class="mb-3"
   >
     {% csrf_token %}
     <input type="hidden" name="status" value="{{ experiment.STATUS_DRAFT }}">
     <button
       type="submit"
-      class="col-md-12 md-mb-10 btn btn-default"
+      class="col btn btn-warning"
     >
-      <span class="glyphicon glyphicon-remove"></span>
-      Cancel Review Request
+      <span class="fas fa-times"></span>
+      Don't Review Yet
     </button>
   </form>
 {% endblock %}
