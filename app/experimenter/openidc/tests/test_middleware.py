@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.core.urlresolvers import Resolver404
 from django.test import TestCase
 
@@ -18,28 +18,6 @@ class OpenIDCAuthMiddlewareTests(TestCase):
         )
         self.mock_resolve = mock_resolve_patcher.start()
         self.addCleanup(mock_resolve_patcher.stop)
-
-    def test_get_group_creates_group_with_project_experiment_permissions(self):
-        self.assertFalse(Group.objects.all().exists())
-        group = self.middleware.get_experimenter_group()
-        self.assertTrue(Group.objects.all().exists())
-        self.assertEqual(group.permissions.all().count(), 15)
-        self.assertEqual(
-            set(
-                [
-                    permission.content_type.app_label
-                    for permission in group.permissions.all()
-                ]
-            ),
-            set(["projects", "experiments"]),
-        )
-
-    def test_get_group_only_creates_one_group(self):
-        self.assertEqual(Group.objects.all().count(), 0)
-        self.middleware.get_experimenter_group()
-        self.assertEqual(Group.objects.all().count(), 1)
-        self.middleware.get_experimenter_group()
-        self.assertEqual(Group.objects.all().count(), 1)
 
     def test_whitelisted_url_is_not_authed(self):
         request = mock.Mock()
@@ -87,8 +65,4 @@ class OpenIDCAuthMiddlewareTests(TestCase):
         self.assertEqual(User.objects.all().count(), 1)
 
         self.assertEqual(request.user.email, user_email)
-        self.assertTrue(request.user.is_staff)
-        self.assertTrue(
-            self.middleware.get_experimenter_group()
-            in request.user.groups.all()
-        )
+        self.assertFalse(request.user.is_staff)

@@ -1,7 +1,6 @@
 from django.core.urlresolvers import resolve, Resolver404
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User, Group, Permission
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 from rest_framework.authentication import SessionAuthentication
 
@@ -15,21 +14,6 @@ class OpenIDCAuthMiddleware(object):
     We will automatically create a user object and attach it to the
     experimenters group.
     """
-
-    def get_experimenter_group(self):
-        experimenter_group, created = Group.objects.get_or_create(
-            name="Experimenters"
-        )
-
-        if created:
-            apps = ("projects", "experiments")
-            content_types = ContentType.objects.filter(app_label__in=apps)
-            permissions = Permission.objects.filter(
-                content_type__in=content_types
-            )
-            experimenter_group.permissions.add(*permissions)
-
-        return experimenter_group
 
     def process_request(self, request):
         try:
@@ -54,10 +38,7 @@ class OpenIDCAuthMiddleware(object):
             user = User.objects.get(username=openidc_email)
         except User.DoesNotExist:
             user = User(username=openidc_email, email=openidc_email)
-            user.is_staff = True
             user.save()
-
-            user.groups.add(self.get_experimenter_group())
 
         request.user = user
 
