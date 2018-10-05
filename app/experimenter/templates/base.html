@@ -9,6 +9,8 @@
 
     <link rel="icon" href="{% static "imgs/favicon.ico" %}" type="image/x-icon" />
 
+    <link rel="stylesheet" href="https://code.cdn.mozilla.net/fonts/fira.css">
+
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="{% static "lib/bootstrap/css/bootstrap.min.css" %}">
 
@@ -37,6 +39,7 @@
             </h3>
           </div>
           <div class="col text-right">
+            <span class="fas fa-user"></span>
             {{ request.user }}
             <br/>
             <a class="text-white" target="_blank" href="https://github.com/mozilla/experimenter/issues/new">
@@ -68,7 +71,7 @@
       <div class="alert-primary">
         <div class="container">
           <div class="row">
-            <div class="col pt-3">
+            <div class="col pt-3 pb-1">
               {% for message in messages %}
                 <p>
                   <span class="fas fa-info-circle"></span>
