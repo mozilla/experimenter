@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     "experimenter.projects",
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.security.SecurityMiddleware",

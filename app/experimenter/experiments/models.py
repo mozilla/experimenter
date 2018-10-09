@@ -4,9 +4,9 @@ from urllib.parse import urljoin
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Max
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 
@@ -36,9 +36,15 @@ class Experiment(ExperimentConstants, models.Model):
         default=ExperimentConstants.TYPE_PREF,
         choices=ExperimentConstants.TYPE_CHOICES,
     )
-    owner = models.ForeignKey(get_user_model(), blank=True, null=True)
+    owner = models.ForeignKey(
+        get_user_model(), blank=True, null=True, on_delete=models.CASCADE
+    )
     project = models.ForeignKey(
-        "projects.Project", blank=True, null=True, related_name="experiments"
+        "projects.Project",
+        blank=True,
+        null=True,
+        related_name="experiments",
+        on_delete=models.CASCADE,
     )
     status = models.CharField(
         max_length=255,
@@ -142,9 +148,8 @@ class Experiment(ExperimentConstants, models.Model):
         verbose_name = "Experiment"
         verbose_name_plural = "Experiments"
 
-    @models.permalink
     def get_absolute_url(self):
-        return ("experiments-detail", (), {"slug": self.slug})
+        return reverse("experiments-detail", kwargs={"slug": self.slug})
 
     @property
     def experiment_url(self):
@@ -350,7 +355,11 @@ class Experiment(ExperimentConstants, models.Model):
 
 class ExperimentVariant(models.Model):
     experiment = models.ForeignKey(
-        Experiment, blank=False, null=False, related_name="variants"
+        Experiment,
+        blank=False,
+        null=False,
+        related_name="variants",
+        on_delete=models.CASCADE,
     )
     name = models.CharField(max_length=255, blank=False, null=False)
     slug = models.SlugField(max_length=255, blank=False, null=False)
@@ -421,10 +430,14 @@ class ExperimentChangeLog(models.Model):
         return timezone.now()
 
     experiment = models.ForeignKey(
-        Experiment, blank=False, null=False, related_name="changes"
+        Experiment,
+        blank=False,
+        null=False,
+        related_name="changes",
+        on_delete=models.CASCADE,
     )
     changed_on = models.DateTimeField(default=current_datetime)
-    changed_by = models.ForeignKey(get_user_model())
+    changed_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     old_status = models.CharField(
         max_length=255,
         blank=True,
@@ -472,8 +485,10 @@ class ExperimentCommentManager(models.Manager):
 
 
 class ExperimentComment(ExperimentConstants, models.Model):
-    experiment = models.ForeignKey(Experiment, related_name="comments")
-    created_by = models.ForeignKey(get_user_model())
+    experiment = models.ForeignKey(
+        Experiment, related_name="comments", on_delete=models.CASCADE
+    )
+    created_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     created_on = models.DateTimeField(auto_now_add=True)
     section = models.CharField(
         max_length=255, choices=ExperimentConstants.SECTION_CHOICES
