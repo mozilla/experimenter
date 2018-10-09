@@ -1,5 +1,5 @@
 from django.utils.text import format_lazy
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 
 
 class ExperimentConstants(object):

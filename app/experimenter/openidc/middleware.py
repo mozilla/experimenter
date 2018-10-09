@@ -1,6 +1,6 @@
-from django.core.urlresolvers import resolve, Resolver404
+from django.urls import resolve, Resolver404
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from rest_framework.authentication import SessionAuthentication
 
@@ -15,13 +15,17 @@ class OpenIDCAuthMiddleware(object):
     experimenters group.
     """
 
-    def process_request(self, request):
+    def __init__(self, get_response):
+        self.get_response = get_response
+        self.User = get_user_model()
+
+    def __call__(self, request):
         try:
             resolved = resolve(request.path)
             if resolved.url_name in settings.OPENIDC_AUTH_WHITELIST:
                 # If the requested path is in our auth whitelist,
                 # skip authentication entirely
-                return
+                return self.get_response(request)
         except Resolver404:
             pass
 
@@ -35,12 +39,14 @@ class OpenIDCAuthMiddleware(object):
             )
 
         try:
-            user = User.objects.get(username=openidc_email)
-        except User.DoesNotExist:
-            user = User(username=openidc_email, email=openidc_email)
+            user = self.User.objects.get(username=openidc_email)
+        except self.User.DoesNotExist:
+            user = self.User(username=openidc_email, email=openidc_email)
             user.save()
 
         request.user = user
+
+        return self.get_response(request)
 
 
 class OpenIDCRestFrameworkAuthenticator(SessionAuthentication):

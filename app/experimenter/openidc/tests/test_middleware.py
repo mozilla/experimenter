@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import Resolver404
+from django.urls import Resolver404
 from django.test import TestCase
 
 import mock
@@ -11,7 +11,8 @@ from experimenter.openidc.middleware import OpenIDCAuthMiddleware
 class OpenIDCAuthMiddlewareTests(TestCase):
 
     def setUp(self):
-        self.middleware = OpenIDCAuthMiddleware()
+        self.response = "Response"
+        self.middleware = OpenIDCAuthMiddleware(lambda request: self.response)
 
         mock_resolve_patcher = mock.patch(
             "experimenter.openidc.middleware.resolve"
@@ -29,8 +30,8 @@ class OpenIDCAuthMiddlewareTests(TestCase):
             mock_view.url_name = whitelisted_view_name
             self.mock_resolve.return_value = mock_view
 
-            response = self.middleware.process_request(request)
-            self.assertEqual(response, None)
+            response = self.middleware(request)
+            self.assertEqual(response, self.response)
 
     def test_404_path_forces_authentication(self):
         request = mock.Mock()
@@ -38,7 +39,7 @@ class OpenIDCAuthMiddlewareTests(TestCase):
 
         self.mock_resolve.side_effect = Resolver404
 
-        response = self.middleware.process_request(request)
+        response = self.middleware(request)
         self.assertEqual(response.status_code, 401)
 
     def test_request_missing_headers_raises_401(self):
@@ -46,7 +47,7 @@ class OpenIDCAuthMiddlewareTests(TestCase):
         request.META = {}
 
         with self.settings(OPENIDC_AUTH_WHITELIST=[]):
-            response = self.middleware.process_request(request)
+            response = self.middleware(request)
 
         self.assertEqual(response.status_code, 401)
 
@@ -59,9 +60,9 @@ class OpenIDCAuthMiddlewareTests(TestCase):
         self.assertEqual(User.objects.all().count(), 0)
 
         with self.settings(OPENIDC_AUTH_WHITELIST=[]):
-            response = self.middleware.process_request(request)
+            response = self.middleware(request)
 
-        self.assertEqual(response, None)
+        self.assertEqual(response, self.response)
         self.assertEqual(User.objects.all().count(), 1)
 
         self.assertEqual(request.user.email, user_email)

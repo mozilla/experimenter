@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.views.generic import CreateView, ListView, DetailView, UpdateView
 
 from experimenter.projects.forms import ProjectForm
