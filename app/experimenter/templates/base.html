@@ -41,10 +41,13 @@
           <div class="col text-right">
             <span class="fas fa-user"></span>
             {{ request.user }}
+            <a class="nocolorstyle" href="{% url "home" %}?owner={{ request.user.id }}">
+              ({{ request.user.experiment_set.count }} Experiment{{ request.user.experiment_set.count|pluralize:"s" }})
+            </a>
             <br/>
             <a class="text-white" target="_blank" href="https://github.com/mozilla/experimenter/issues/new">
               <span class="fas fa-comment-alt"></span>
-              Feedback
+              Leave Feedback
             </a>
           </div>
         </div>
