@@ -20,6 +20,10 @@ p {
   margin-bottom: 0.5em;
 }
 
+a.nocolorstyle {
+	color: inherit;
+}
+
 a.noanchorstyle {
   color: inherit;
   text-decoration: none;
