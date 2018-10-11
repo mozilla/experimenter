@@ -226,6 +226,14 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertEqual(change.new_status, experiment.status)
         self.assertEqual(change.changed_by, self.request.user)
 
+    def test_experiment_form_checks_for_name_duplicates(self):
+        existing_experiment = ExperimentFactory.create()
+
+        form = ExperimentOverviewForm({"name": existing_experiment.name})
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("name", form.errors)
+
 
 class TestExperimentVariantsFormSet(TestCase):
 

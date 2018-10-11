@@ -18,7 +18,6 @@ from experimenter.experiments.models import (
     ExperimentChangeLog,
     ExperimentVariant,
 )
-from experimenter.projects.forms import AutoNameSlugFormMixin
 
 
 class JSONField(forms.CharField):
@@ -73,6 +72,30 @@ class ChangeLogMixin(object):
         )
 
         return experiment
+
+
+class AutoNameSlugFormMixin(object):
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        slug = slugify(name)
+
+        if (
+            self.instance.pk is None
+            and slug
+            and self.Meta.model.objects.filter(slug=slug).exists()
+        ):
+            raise forms.ValidationError("This name is already in use.")
+
+        return name
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        name = cleaned_data.get("name")
+        cleaned_data["slug"] = slugify(name)
+
+        return cleaned_data
 
 
 class ExperimentOverviewForm(

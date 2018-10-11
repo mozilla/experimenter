@@ -12,7 +12,6 @@ urlpatterns = [
     ),
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^experiments/", include("experimenter.experiments.web_urls")),
-    re_path(r"^projects/", include("experimenter.projects.urls")),
     re_path(r"^$", ExperimentListView.as_view(), name="home"),
 ]
 
