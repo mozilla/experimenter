@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.urls import Resolver404
 from django.test import TestCase
 
@@ -56,6 +56,8 @@ class OpenIDCAuthMiddlewareTests(TestCase):
 
         request = mock.Mock()
         request.META = {settings.OPENIDC_EMAIL_HEADER: user_email}
+
+        User = get_user_model()
 
         self.assertEqual(User.objects.all().count(), 0)
 
