@@ -18,5 +18,5 @@ pytest-testmon==0.9.13
 pytest-watch==4.2.0
 python-decouple==3.0
 raven==6.9.0
-stmoab==0.0.8
+requests==2.12.1
 whitenoise==3.3.0
