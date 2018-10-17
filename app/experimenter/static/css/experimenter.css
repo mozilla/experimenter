@@ -142,3 +142,7 @@ select {
   height: 15px;
   margin-top: -3px;
 }
+
+.border-left-grey {
+	border-left: 3px solid #ccc;
+}

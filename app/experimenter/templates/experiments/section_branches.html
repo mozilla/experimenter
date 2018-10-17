@@ -6,10 +6,12 @@
 
 {% block section_content %}
   {% for variant in experiment.variants.all %}
-    <h5>{{ variant.ratio }}% {{ variant.name }}</h5>
-    {% if experiment.is_pref_study %}
-      <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
-    {% endif %}
-    <p>{{ variant.description }}</p>
+    <div class="border-left-grey pl-3 mb-4">
+      <h5>{{ variant.ratio }}% {{ variant.name }}</h5>
+      {% if experiment.is_pref_study %}
+        <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
+      {% endif %}
+      <p>{{ variant.description }}</p>
+    </div>
   {% endfor %}
 {% endblock %}
