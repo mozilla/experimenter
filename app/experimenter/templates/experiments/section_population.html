@@ -6,5 +6,5 @@ Population
 
 {% block section_content %}
   <h5>{{ experiment.population }}</h5>
-  {{ experiment.client_matching|linebreaks }}
+  {{ experiment.client_matching|urlize|linebreaks }}
 {% endblock %}
