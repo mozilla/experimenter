@@ -124,6 +124,7 @@ class ExperimentListView(FilterView):
     filterset_class = ExperimentFilterset
     model = Experiment
     template_name = "experiments/list.html"
+    paginate_by = 10
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
