@@ -67,7 +67,7 @@
                   {{ experiment.owner }}
                 </strong>
               </p>
-              {{ experiment.short_description|linebreaks }}
+              {{ experiment.short_description|urlize|linebreaks }}
             </div>
             <div class="col-4 text-right">
               <h5>{{ experiment.population }}</h5>
