@@ -6,5 +6,5 @@ Analysis
 
 {% block section_content %}
   <p><strong>Analysis Owner: {{ experiment.analysis_owner }}</strong></p>
-  {{ experiment.analysis|linebreaks }}
+  {{ experiment.analysis|urlize|linebreaks }}
 {% endblock %}
