@@ -567,6 +567,8 @@ testing each branch of this study:
 {experiment.name}
 
 {experiment.short_description}
+
+More information: {experiment.experiment_url}
         """
     )
 
