@@ -456,7 +456,7 @@ class ExperimentConstants(object):
         code.
     """
     REVIEW_LEGAL_HELP_TEXT = """
-        (Optional) High Risk experiments may require review by a
+        (Optional) High risk experiments may require review by a
         member of the legal team to ensure all legal constraints
         and requirements are being met.
     """
@@ -466,9 +466,18 @@ class ExperimentConstants(object):
         design principles are being maintained.
     """
     REVIEW_SECURITY_HELP_TEXT = """
-        (Optional) High Risk experiments may require review by a
+        (Optional) Some high risk experiments may require review by a
         member of the security team to ensure there are no
-        security risks to the browser or telemetry being collected.
+        security risks to the browser.
+    """
+    REVIEW_VP_HELP_TEXT = """
+        (Optional) Some high risk experiments require sign off from
+        a VP.
+    """
+    REVIEW_DATA_STEWARD_HELP_TEXT = """
+        (Optional) Some high risk experiments may require review by a
+        Data Steward to ensure there are no privacy risks
+        with the data being collected.
     """
 
     # Text defaults

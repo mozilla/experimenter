@@ -97,6 +97,8 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     review_legal = False
     review_ux = False
     review_security = False
+    review_vp = False
+    review_data_steward = False
 
     class Meta:
         model = Experiment

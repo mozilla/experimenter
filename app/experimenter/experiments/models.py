@@ -136,6 +136,10 @@ class Experiment(ExperimentConstants, models.Model):
     review_security = models.NullBooleanField(
         default=None, blank=True, null=True
     )
+    review_vp = models.NullBooleanField(default=None, blank=True, null=True)
+    review_data_steward = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
 
     objects = ExperimentManager()
 
