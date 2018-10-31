@@ -54,6 +54,9 @@
           <h5>
             {{ experiment }}
             <span class="badge badge-pill badge-small align-middle status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
+            {% if experiment.archived %}
+              <span class="badge badge-pill badge-small align-middle bg-secondary text-white">Archived</span>
+            {% endif %}
           </h5>
         </div>
       </div>
