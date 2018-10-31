@@ -85,12 +85,12 @@ class ExperimentFilterset(filters.FilterSet):
     )
     project = filters.ModelChoiceFilter(
         empty_label="All Projects",
-        queryset=Project.objects.all(),
+        queryset=Project.objects.all().order_by("name"),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
     owner = filters.ModelChoiceFilter(
         empty_label="All Owners",
-        queryset=get_user_model().objects.all(),
+        queryset=get_user_model().objects.all().order_by("email"),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
     archived = filters.BooleanFilter(
