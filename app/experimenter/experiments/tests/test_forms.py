@@ -710,6 +710,17 @@ class TestExperimentReviewForm(MockRequestMixin, TestCase):
             Experiment.STATUS_REVIEW
         )
 
+        self.assertFalse(experiment.review_phd)
+        self.assertFalse(experiment.review_science)
+        self.assertFalse(experiment.review_peer)
+        self.assertFalse(experiment.review_relman)
+        self.assertFalse(experiment.review_qa)
+        self.assertFalse(experiment.review_legal)
+        self.assertFalse(experiment.review_ux)
+        self.assertFalse(experiment.review_security)
+        self.assertFalse(experiment.review_vp)
+        self.assertFalse(experiment.review_data_steward)
+
         data = {
             "review_phd": True,
             "review_science": True,
@@ -719,6 +730,8 @@ class TestExperimentReviewForm(MockRequestMixin, TestCase):
             "review_legal": True,
             "review_ux": True,
             "review_security": True,
+            "review_vp": True,
+            "review_data_steward": True,
         }
 
         form = ExperimentReviewForm(
@@ -735,6 +748,8 @@ class TestExperimentReviewForm(MockRequestMixin, TestCase):
         self.assertTrue(experiment.review_legal)
         self.assertTrue(experiment.review_ux)
         self.assertTrue(experiment.review_security)
+        self.assertTrue(experiment.review_vp)
+        self.assertTrue(experiment.review_data_steward)
 
     def test_added_reviews_property(self):
         experiment = ExperimentFactory.create_with_status(

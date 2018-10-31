@@ -438,6 +438,21 @@ class ExperimentReviewForm(
         label="Security Review (Optional)",
         help_text=Experiment.REVIEW_SECURITY_HELP_TEXT,
     )
+    review_vp = forms.BooleanField(
+        required=False,
+        label="VP Review (Optional)",
+        help_text=Experiment.REVIEW_VP_HELP_TEXT,
+    )
+    review_vp = forms.BooleanField(
+        required=False,
+        label="VP Review (Optional)",
+        help_text=Experiment.REVIEW_VP_HELP_TEXT,
+    )
+    review_data_steward = forms.BooleanField(
+        required=False,
+        label="Data Steward Review (Optional)",
+        help_text=Experiment.REVIEW_DATA_STEWARD_HELP_TEXT,
+    )
 
     class Meta:
         model = Experiment
@@ -450,6 +465,8 @@ class ExperimentReviewForm(
             "review_legal",
             "review_ux",
             "review_security",
+            "review_vp",
+            "review_data_steward",
         )
 
     @property
