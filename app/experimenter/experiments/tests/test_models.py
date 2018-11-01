@@ -377,26 +377,13 @@ class TestExperimentModel(TestCase):
             for user, user_changes in date_changes:
                 self.assertEqual(user_changes, expected_changes[date][user])
 
-    def test_experiment_is_editable_when_is_draft(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
-        )
+    def test_experiment_is_editable_before_review_phd(self):
+        experiment = ExperimentFactory.create(review_phd=False)
         self.assertTrue(experiment.is_editable)
 
-    def test_experiment_is_editable_when_is_in_review(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW
-        )
-        self.assertTrue(experiment.is_editable)
-
-    def test_experient_is_not_editable_after_review(self):
-        all_statuses = set([status[0] for status in Experiment.STATUS_CHOICES])
-        editable_statuses = set(
-            [Experiment.STATUS_DRAFT, Experiment.STATUS_REVIEW]
-        )
-        for status in all_statuses - editable_statuses:
-            experiment = ExperimentFactory.create_with_status(status)
-            self.assertFalse(experiment.is_editable)
+    def test_experient_is_not_editable_after_review_phd(self):
+        experiment = ExperimentFactory.create(review_phd=True)
+        self.assertFalse(experiment.is_editable)
 
     def test_experiment_is_not_begun(self):
         statuses = (

@@ -703,7 +703,7 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.testing, data["testing"])
 
 
-class TestExperimentReviewForm(MockRequestMixin, TestCase):
+class TestExperimentReviewForm(MockRequestMixin, MockBugzillaMixin, TestCase):
 
     def test_form_saves_reviews(self):
         experiment = ExperimentFactory.create_with_status(
@@ -791,6 +791,37 @@ class TestExperimentReviewForm(MockRequestMixin, TestCase):
             form.fields["review_science"].label, form.removed_reviews
         )
 
+    def test_adds_bugzilla_comment_when_review_phd_is_set(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW, bugzilla_id="123", review_phd=False
+        )
+        form = ExperimentReviewForm(
+            request=self.request,
+            data={"review_phd": True},
+            instance=experiment,
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+        self.mock_bugzilla_requests_post.assert_called_with(
+            settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
+            {"comment": format_bug_body(experiment)},
+        )
+
+    def test_does_not_add_bugzilla_comment_when_review_phd_is_already_set(
+        self
+    ):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW, bugzilla_id="123", review_phd=True
+        )
+        form = ExperimentReviewForm(
+            request=self.request,
+            data={"review_phd": True, "review_vp": True},
+            instance=experiment,
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+        self.mock_bugzilla_requests_post.assert_not_called()
+
 
 class TestExperimentStatusForm(
     MockMailMixin, MockBugzillaMixin, MockRequestMixin, TestCase
@@ -848,22 +879,6 @@ class TestExperimentStatusForm(
         self.assertTrue(form.is_valid())
         experiment = form.save()
         self.assertEqual(experiment.bugzilla_id, self.bugzilla_id)
-
-    def test_adds_bugzilla_comment_when_review_becomes_ready_to_ship(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW, bugzilla_id="123"
-        )
-        form = ExperimentStatusForm(
-            request=self.request,
-            data={"status": experiment.STATUS_SHIP},
-            instance=experiment,
-        )
-        self.assertTrue(form.is_valid())
-        experiment = form.save()
-        self.mock_bugzilla_requests_post.assert_called_with(
-            settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
-            {"comment": format_bug_body(experiment)},
-        )
 
 
 class TestExperimentCommentForm(MockRequestMixin, TestCase):

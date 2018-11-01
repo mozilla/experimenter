@@ -508,6 +508,25 @@ class ExperimentReviewForm(
                 self.request, messages.INFO, self.get_changelog_message()
             )
 
+        if (
+            "review_phd" in self.changed_data
+            and experiment.review_phd
+            and experiment.bugzilla_id
+        ):
+            comment_id = bugzilla.add_experiment_comment(experiment)
+            if comment_id is not None:
+                messages.add_message(
+                    self.request,
+                    messages.INFO,
+                    mark_safe(
+                        (
+                            'The <a target="_blank" href="{bug_url}">Bugzilla '
+                            "Ticket</a> was updated with the details "
+                            "of this experiment"
+                        ).format(bug_url=experiment.bugzilla_url)
+                    ),
+                )
+
         return experiment
 
 
@@ -575,24 +594,6 @@ class ExperimentStatusForm(
                         (
                             'A <a target="_blank" href="{bug_url}">Bugzilla '
                             "Ticket</a> was created for this experiment"
-                        ).format(bug_url=experiment.bugzilla_url)
-                    ),
-                )
-        elif (
-            self.old_status == Experiment.STATUS_REVIEW
-            and self.new_status == Experiment.STATUS_SHIP
-            and experiment.bugzilla_id
-        ):
-            comment_id = bugzilla.add_experiment_comment(experiment)
-            if comment_id is not None:
-                messages.add_message(
-                    self.request,
-                    messages.INFO,
-                    mark_safe(
-                        (
-                            'The <a target="_blank" href="{bug_url}">Bugzilla '
-                            "Ticket</a> was updated with the details "
-                            "of this experiment"
                         ).format(bug_url=experiment.bugzilla_url)
                     ),
                 )

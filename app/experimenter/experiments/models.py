@@ -271,7 +271,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def is_editable(self):
-        return self.status in (self.STATUS_DRAFT, self.STATUS_REVIEW)
+        return not self.review_phd
 
     @property
     def is_begun(self):
