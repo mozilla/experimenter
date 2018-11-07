@@ -146,3 +146,9 @@ select {
 .border-left-grey {
 	border-left: 3px solid #ccc;
 }
+
+.bubble {
+  border-radius: 4px;
+	background-color: #F3F3F3;
+  padding: 10px;
+}
