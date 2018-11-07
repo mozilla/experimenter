@@ -44,18 +44,14 @@
 
       {% if comments %}
         {% for comment in comments %}
-          <div class="row py-3 mb-2">
-            <div class="col-3">
+          <div class="row mb-3">
+            <div class="col">
               <a id="comment{{ comment.id }}" href="#comment{{ comment.id }}">
                 <span class="fas fa-comment-alt"></span>
                 {{ comment.created_by }}
-                <h6 class="text-muted">{{ comment.created_on }}</h6>
+                <span class="text-muted">{{ comment.created_on }}</span>
               </a>
-            </div>
-            <div class="col-9">
-              <div class="bubble">
-                {{ comment.text|urlize|linebreaks }}
-              </div>
+              {{ comment.text|urlize|linebreaks }}
             </div>
           </div>
         {% endfor %}
