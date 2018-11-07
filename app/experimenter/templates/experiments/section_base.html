@@ -44,7 +44,7 @@
 
       {% if comments %}
         {% for comment in comments %}
-          <div class="row mb-2">
+          <div class="row py-3 mb-2">
             <div class="col-3">
               <a id="comment{{ comment.id }}" href="#comment{{ comment.id }}">
                 <span class="fas fa-comment-alt"></span>
@@ -53,7 +53,9 @@
               </a>
             </div>
             <div class="col-9">
-              {{ comment.text|urlize|linebreaks }}
+              <div class="bubble">
+                {{ comment.text|urlize|linebreaks }}
+              </div>
             </div>
           </div>
         {% endfor %}
