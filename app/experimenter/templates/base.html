@@ -70,15 +70,15 @@
       </div>
     </div>
 
-    {% if messages %}
+    {% if request.user.notifications.has_unread %}
       <div class="alert-primary">
         <div class="container">
           <div class="row">
             <div class="col pt-3 pb-1">
-              {% for message in messages %}
+              {% for message in request.user.notifications.get_unread %}
                 <p>
                   <span class="fas fa-info-circle"></span>
-                  {{ message }}
+                  {{ message|safe }}
                 </p>
               {% endfor %}
             </div>
