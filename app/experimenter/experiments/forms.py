@@ -2,7 +2,6 @@ import json
 
 from django import forms
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.forms import BaseInlineFormSet
 from django.forms import inlineformset_factory
@@ -18,6 +17,7 @@ from experimenter.experiments.models import (
     ExperimentChangeLog,
     ExperimentVariant,
 )
+from experimenter.notifications.models import Notification
 from experimenter.projects.forms import AutoNameSlugFormMixin
 
 
@@ -504,8 +504,8 @@ class ExperimentReviewForm(
         experiment = super().save(*args, **kwargs)
 
         if self.changed_data:
-            messages.add_message(
-                self.request, messages.INFO, self.get_changelog_message()
+            Notification.objects.create(
+                user=self.request.user, message=self.get_changelog_message()
             )
 
         if (
@@ -515,10 +515,9 @@ class ExperimentReviewForm(
         ):
             comment_id = bugzilla.add_experiment_comment(experiment)
             if comment_id is not None:
-                messages.add_message(
-                    self.request,
-                    messages.INFO,
-                    mark_safe(
+                Notification.objects.create(
+                    user=self.request.user,
+                    message=mark_safe(
                         (
                             'The <a target="_blank" href="{bug_url}">Bugzilla '
                             "Ticket</a> was updated with the details "
@@ -575,22 +574,20 @@ class ExperimentStatusForm(
         ):
             needs_attention = len(self.cleaned_data.get("attention", "")) > 0
             send_review_email(experiment, needs_attention)
-            messages.add_message(
-                self.request,
-                messages.INFO,
-                "An email was sent to {email} about this experiment".format(
-                    email=settings.EMAIL_REVIEW
-                ),
+            Notification.objects.create(
+                user=self.request.user,
+                message=(
+                    "An email was sent to {email} about this experiment"
+                ).format(email=settings.EMAIL_REVIEW),
             )
 
             bugzilla_id = bugzilla.create_experiment_bug(experiment)
             if bugzilla_id is not None:
                 experiment.bugzilla_id = bugzilla_id
                 experiment.save()
-                messages.add_message(
-                    self.request,
-                    messages.INFO,
-                    mark_safe(
+                Notification.objects.create(
+                    user=self.request.user,
+                    message=mark_safe(
                         (
                             'A <a target="_blank" href="{bug_url}">Bugzilla '
                             "Ticket</a> was created for this experiment"

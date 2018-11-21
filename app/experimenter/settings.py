@@ -50,8 +50,9 @@ INSTALLED_APPS = [
     "djangoformsetjs",
     "jquery",
     "widget_tweaks",
-    "experimenter.openidc",
     "experimenter.experiments",
+    "experimenter.notifications",
+    "experimenter.openidc",
     "experimenter.projects",
 ]
 
