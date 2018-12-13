@@ -682,9 +682,7 @@ class TestExperimentDetailView(TestCase):
         self.assertTemplateUsed(response, "experiments/detail_base.html")
 
 
-class TestExperimentStatusUpdateView(
-    MockTasksMixin, TestCase
-):
+class TestExperimentStatusUpdateView(MockTasksMixin, TestCase):
 
     def test_view_updates_status_and_redirects(self):
         user_email = "user@example.com"

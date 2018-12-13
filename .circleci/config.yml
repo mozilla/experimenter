@@ -18,12 +18,6 @@ jobs:
           command: docker-compose -v
       - checkout
       - run:
-          name: Setting up .env
-          command: cp .env.circle .env
-      - run:
-          name: Setting up docker-compose.yml
-          command: mv docker-compose.yml.circleci docker-compose.yml
-      - run:
           name: Run tests
           command: make check
       - run:

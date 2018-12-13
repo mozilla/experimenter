@@ -14,6 +14,7 @@ gunicorn==19.7.1
 ipdb==0.10.1
 mock==2.0.0
 psycopg2==2.6.2
+pytest==3.10.1
 pytest-django==3.4.2
 pytest-testmon==0.9.13
 pytest-watch==4.2.0
