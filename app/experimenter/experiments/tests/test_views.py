@@ -14,8 +14,7 @@ from experimenter.experiments.forms import (
 )
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.experiments.tests.test_bugzilla import MockBugzillaMixin
-from experimenter.experiments.tests.test_email import MockMailMixin
+from experimenter.experiments.tests.mixins import MockTasksMixin
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.experiments.views import (
@@ -684,7 +683,7 @@ class TestExperimentDetailView(TestCase):
 
 
 class TestExperimentStatusUpdateView(
-    MockMailMixin, MockBugzillaMixin, TestCase
+    MockTasksMixin, TestCase
 ):
 
     def test_view_updates_status_and_redirects(self):

@@ -4,24 +4,16 @@ services:
   app:
     image: app:build
     env_file: .env
-    stdin_open: true
-    tty: true
     links:
       - db
-    command: ["/app/bin/wait-for-it.sh", "db:5432", "--", "python", "/app/manage.py", "runserver", "0:7001"]
     networks:
       - private_nw
 
   db:
     restart: always
     image: postgres:9.6
-    volumes:
-      - db_volume:/var/lib/postgresql
     networks:
       - private_nw
-
-volumes:
-  db_volume:
 
 networks:
   private_nw:

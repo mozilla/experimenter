@@ -143,17 +143,21 @@ class Experiment(ExperimentConstants, models.Model):
 
     objects = ExperimentManager()
 
-    def __str__(self):  # pragma: no cover
-        return "{type}: {name}".format(
-            type=self.get_type_display(), name=self.name
-        )
-
     class Meta:
         verbose_name = "Experiment"
         verbose_name_plural = "Experiments"
 
     def get_absolute_url(self):
         return reverse("experiments-detail", kwargs={"slug": self.slug})
+
+    def __str__(self):  # pragma: no cover
+        return self.full_name
+
+    @property
+    def full_name(self):
+        return "{type}: {name}".format(
+            type=self.get_type_display(), name=self.name
+        )
 
     @property
     def experiment_url(self):
