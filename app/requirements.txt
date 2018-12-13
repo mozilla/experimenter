@@ -1,5 +1,6 @@
 Django==2.1.2
 black==18.5b0
+celery==4.2.1
 coverage==4.3.4
 django-cors-headers==2.1.0
 django-filter==2.0.0
@@ -18,5 +19,6 @@ pytest-testmon==0.9.13
 pytest-watch==4.2.0
 python-decouple==3.0
 raven==6.9.0
+redis==2.10.6
 requests==2.20.0
 whitenoise==3.3.0

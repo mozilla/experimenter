@@ -1,16 +1,13 @@
 import json
 
 from django import forms
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.forms import BaseInlineFormSet
 from django.forms import inlineformset_factory
-from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
-from experimenter.experiments import bugzilla
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.email import send_review_email
+from experimenter.experiments import tasks
 from experimenter.experiments.models import (
     Experiment,
     ExperimentComment,
@@ -513,18 +510,9 @@ class ExperimentReviewForm(
             and experiment.review_phd
             and experiment.bugzilla_id
         ):
-            comment_id = bugzilla.add_experiment_comment(experiment)
-            if comment_id is not None:
-                Notification.objects.create(
-                    user=self.request.user,
-                    message=mark_safe(
-                        (
-                            'The <a target="_blank" href="{bug_url}">Bugzilla '
-                            "Ticket</a> was updated with the details "
-                            "of this experiment"
-                        ).format(bug_url=experiment.bugzilla_url)
-                    ),
-                )
+            tasks.add_experiment_comment_task.delay(
+                self.request.user.id, experiment.id
+            )
 
         return experiment
 
@@ -573,27 +561,16 @@ class ExperimentStatusForm(
             and not experiment.bugzilla_id
         ):
             needs_attention = len(self.cleaned_data.get("attention", "")) > 0
-            send_review_email(experiment, needs_attention)
-            Notification.objects.create(
-                user=self.request.user,
-                message=(
-                    "An email was sent to {email} about this experiment"
-                ).format(email=settings.EMAIL_REVIEW),
-            )
 
-            bugzilla_id = bugzilla.create_experiment_bug(experiment)
-            if bugzilla_id is not None:
-                experiment.bugzilla_id = bugzilla_id
-                experiment.save()
-                Notification.objects.create(
-                    user=self.request.user,
-                    message=mark_safe(
-                        (
-                            'A <a target="_blank" href="{bug_url}">Bugzilla '
-                            "Ticket</a> was created for this experiment"
-                        ).format(bug_url=experiment.bugzilla_url)
-                    ),
-                )
+            tasks.send_review_email_task.delay(
+                self.request.user.id,
+                experiment.name,
+                experiment.experiment_url,
+                needs_attention,
+            )
+            tasks.create_experiment_bug_task.delay(
+                self.request.user.id, experiment.id
+            )
 
         return experiment
 

@@ -243,3 +243,12 @@ BUGZILLA_COMMENT_URL = "{path}?api_key={api_key}".format(
     path=urljoin(BUGZILLA_HOST, "/rest/bug/{id}/comment"),
     api_key=BUGZILLA_API_KEY,
 )
+
+REDIS_HOST = config("REDIS_HOST")
+REDIS_PORT = config("REDIS_PORT")
+REDIS_DB = config("REDIS_DB")
+
+# Celery
+CELERY_BROKER_URL = "redis://{host}:{port}/{db}".format(
+    host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB
+)

@@ -9,10 +9,24 @@ services:
     links:
       - db
       - smtp
+      - redis
     volumes:
       - ./app:/app
       - static_volume:/app/experimenter/served/
     command: bash -c "/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py collectstatic --noinput; python /app/manage.py runserver 0:7001"
+    networks:
+      - private_nw
+
+  worker:
+    image: app:build
+    env_file: .env
+    links:
+      - db
+      - smtp
+      - redis
+    volumes:
+      - ./app:/app
+    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l debug"
     networks:
       - private_nw
       - public_nw
@@ -36,6 +50,11 @@ services:
     image: postgres:9.6
     volumes:
       - db_volume:/var/lib/postgresql
+    networks:
+      - private_nw
+
+  redis:
+    image: redis
     networks:
       - private_nw
 

@@ -13,27 +13,7 @@ from experimenter.experiments.bugzilla import (
     make_bugzilla_call,
 )
 from experimenter.experiments.tests.factories import ExperimentFactory
-
-
-class MockBugzillaMixin(object):
-
-    def setUp(self):
-        super().setUp()
-
-        mock_bugzilla_requests_post_patcher = mock.patch(
-            "experimenter.experiments.bugzilla.requests.post"
-        )
-        self.mock_bugzilla_requests_post = (
-            mock_bugzilla_requests_post_patcher.start()
-        )
-        self.addCleanup(mock_bugzilla_requests_post_patcher.stop)
-
-        self.bugzilla_id = "12345"
-        mock_response_data = {"id": self.bugzilla_id}
-        mock_response = mock.Mock()
-        mock_response.content = json.dumps(mock_response_data)
-        mock_response.status_code = 200
-        self.mock_bugzilla_requests_post.return_value = mock_response
+from experimenter.experiments.tests.mixins import MockBugzillaMixin
 
 
 class TestBugzilla(MockBugzillaMixin, TestCase):

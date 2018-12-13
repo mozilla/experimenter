@@ -2,14 +2,11 @@ import datetime
 import decimal
 import json
 
-import mock
 from django import forms
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory
 from django.test import TestCase
 
-from experimenter.experiments.bugzilla import format_bug_body
 from experimenter.experiments.forms import (
     ChangeLogMixin,
     ExperimentCommentForm,
@@ -28,9 +25,12 @@ from experimenter.experiments.forms import (
 )
 from experimenter.experiments.models import Experiment, ExperimentVariant
 from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.experiments.tests.test_bugzilla import MockBugzillaMixin
-from experimenter.experiments.tests.test_email import MockMailMixin
-from experimenter.openidc.tests.factories import UserFactory
+from experimenter.experiments.tests.mixins import (
+    MockBugzillaMixin,
+    MockMailMixin,
+    MockTasksMixin,
+    MockRequestMixin,
+)
 
 
 class TestJSONField(TestCase):
@@ -122,16 +122,6 @@ class TestExperimentVariantPrefForm(TestCase):
         self.assertEqual(variant.ratio, data["ratio"])
         self.assertEqual(variant.slug, "the-control-variant")
         self.assertEqual(variant.value, "true")
-
-
-class MockRequestMixin(object):
-
-    def setUp(self):
-        super().setUp()
-
-        self.user = UserFactory()
-        self.request = mock.Mock()
-        self.request.user = self.user
 
 
 class TestChangeLogMixin(MockRequestMixin, TestCase):
@@ -703,7 +693,9 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.testing, data["testing"])
 
 
-class TestExperimentReviewForm(MockRequestMixin, MockBugzillaMixin, TestCase):
+class TestExperimentReviewForm(
+    MockRequestMixin, MockBugzillaMixin, MockTasksMixin, TestCase
+):
 
     def test_form_saves_reviews(self):
         experiment = ExperimentFactory.create_with_status(
@@ -802,9 +794,8 @@ class TestExperimentReviewForm(MockRequestMixin, MockBugzillaMixin, TestCase):
         )
         self.assertTrue(form.is_valid())
         experiment = form.save()
-        self.mock_bugzilla_requests_post.assert_called_with(
-            settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
-            {"comment": format_bug_body(experiment)},
+        self.mock_tasks_add_comment.delay.assert_called_with(
+            self.user.id, experiment.id
         )
 
     def test_does_not_add_bugzilla_comment_when_review_phd_is_already_set(
@@ -820,11 +811,15 @@ class TestExperimentReviewForm(MockRequestMixin, MockBugzillaMixin, TestCase):
         )
         self.assertTrue(form.is_valid())
         experiment = form.save()
-        self.mock_bugzilla_requests_post.assert_not_called()
+        self.mock_tasks_add_comment.delay.assert_not_called()
 
 
 class TestExperimentStatusForm(
-    MockMailMixin, MockBugzillaMixin, MockRequestMixin, TestCase
+    MockMailMixin,
+    MockBugzillaMixin,
+    MockRequestMixin,
+    MockTasksMixin,
+    TestCase,
 ):
 
     def test_form_allows_valid_state_transition_and_creates_changelog(self):
@@ -865,7 +860,9 @@ class TestExperimentStatusForm(
         )
         self.assertTrue(form.is_valid())
         form.save()
-        self.mock_send_mail.assert_called()
+        self.mock_tasks_review_email.delay.assert_called_with(
+            self.user.id, experiment.name, experiment.experiment_url, False
+        )
 
     def test_sets_bugzilla_id_when_draft_becomes_review(self):
         experiment = ExperimentFactory.create_with_status(
@@ -878,7 +875,9 @@ class TestExperimentStatusForm(
         )
         self.assertTrue(form.is_valid())
         experiment = form.save()
-        self.assertEqual(experiment.bugzilla_id, self.bugzilla_id)
+        self.mock_tasks_create_bug.delay.assert_called_with(
+            self.user.id, experiment.id
+        )
 
 
 class TestExperimentCommentForm(MockRequestMixin, TestCase):
