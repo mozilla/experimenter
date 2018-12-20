@@ -1,6 +1,7 @@
 from django.urls import re_path
 
 from experimenter.experiments.views import (
+    ExperimentArchiveUpdateView,
     ExperimentCommentCreateView,
     ExperimentCreateView,
     ExperimentDetailView,
@@ -36,6 +37,11 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/edit-risks/$",
         ExperimentRisksUpdateView.as_view(),
         name="experiments-risks-update",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/archive-update/$",
+        ExperimentArchiveUpdateView.as_view(),
+        name="experiments-archive-update",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/status-update/$",

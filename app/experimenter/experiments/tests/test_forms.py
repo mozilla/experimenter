@@ -9,6 +9,7 @@ from django.test import TestCase
 
 from experimenter.experiments.forms import (
     ChangeLogMixin,
+    ExperimentArchiveForm,
     ExperimentCommentForm,
     ExperimentObjectivesForm,
     ExperimentOverviewForm,
@@ -936,3 +937,25 @@ class TestExperimentCommentForm(MockRequestMixin, TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertIn("text", form.errors)
+
+
+class TestExperimentArchiveForm(MockRequestMixin, TestCase):
+
+    def test_form_flips_archive_bool(self):
+        experiment = ExperimentFactory.create(archived=False)
+
+        form = ExperimentArchiveForm(
+            self.request, instance=experiment, data={}
+        )
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+        self.assertTrue(experiment.archived)
+
+        form = ExperimentArchiveForm(
+            self.request, instance=experiment, data={}
+        )
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+        self.assertFalse(experiment.archived)

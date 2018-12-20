@@ -835,3 +835,26 @@ class TestExperimentCommentCreateView(TestCase):
             reverse("experiments-detail", kwargs={"slug": experiment.slug}),
             fetch_redirect_response=False,
         )
+
+
+class TestExperimentArchiveUpdateView(TestCase):
+
+    def test_view_flips_archive_bool_and_redirects(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create(archived=False)
+
+        response = self.client.post(
+            reverse(
+                "experiments-archive-update", kwargs={"slug": experiment.slug}
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("experiments-detail", kwargs={"slug": experiment.slug}),
+            fetch_redirect_response=False,
+        )
+
+        experiment = Experiment.objects.get(id=experiment.id)
+        self.assertTrue(experiment.archived)
