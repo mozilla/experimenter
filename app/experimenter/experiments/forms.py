@@ -575,6 +575,20 @@ class ExperimentStatusForm(
         return experiment
 
 
+class ExperimentArchiveForm(
+    ExperimentConstants, ChangeLogMixin, forms.ModelForm
+):
+
+    archived = forms.BooleanField(required=False)
+
+    class Meta:
+        model = Experiment
+        fields = ("archived",)
+
+    def clean_archived(self):
+        return not self.instance.archived
+
+
 class ExperimentCommentForm(forms.ModelForm):
     created_by = forms.CharField(required=False)
     text = forms.CharField(required=True)

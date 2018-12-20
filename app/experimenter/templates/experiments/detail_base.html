@@ -83,6 +83,8 @@
     </div>
   {% endif %}
 
+  <hr class="my-4">
+
   <div class="row">
     <h5 class="col">History</h5>
   </div>
@@ -91,10 +93,9 @@
     <div class="row">
       <div class="col">
         <strong>{{ date }}</strong>
-        <hr class="heavy-line m-0 mb-1">
       </div>
     </div>
-    
+
     {% for user, user_changes in users_changes %}
       <div class="row">
         <div class="col">
@@ -107,4 +108,27 @@
       </div>
     {% endfor %}
   {% endfor %}
+
+  <hr class="my-4">
+
+  <form
+    action="{% url "experiments-archive-update" slug=experiment.slug %}"
+    method="POST"
+  >
+    {% csrf_token %}
+    <button
+      type="submit"
+      class="btn btn-link p-0"
+    >
+      <strong>
+        <span class="fas fa-archive"></span>
+        {% if experiment.archived %}
+          Unarchive this experiment
+        {% else %}
+          Archive this experiment
+        {% endif %}
+      </strong>
+    </button>
+  </form>
+
 {% endblock %}

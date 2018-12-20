@@ -9,6 +9,7 @@ from django_filters.views import FilterView
 
 from experimenter.projects.models import Project
 from experimenter.experiments.forms import (
+    ExperimentArchiveForm,
     ExperimentCommentForm,
     ExperimentObjectivesForm,
     ExperimentOverviewForm,
@@ -230,9 +231,6 @@ class ExperimentStatusUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentStatusForm
     model = Experiment
 
-    def get_success_url(self):
-        return reverse("experiments-detail", kwargs={"slug": self.object.slug})
-
     def form_invalid(self, form):
         return redirect(
             reverse("experiments-detail", kwargs={"slug": self.object.slug})
@@ -243,8 +241,10 @@ class ExperimentReviewUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentReviewForm
     model = Experiment
 
-    def get_success_url(self):
-        return reverse("experiments-detail", kwargs={"slug": self.object.slug})
+
+class ExperimentArchiveUpdateView(ExperimentFormMixin, UpdateView):
+    form_class = ExperimentArchiveForm
+    model = Experiment
 
 
 class ExperimentCommentCreateView(ExperimentFormMixin, CreateView):
