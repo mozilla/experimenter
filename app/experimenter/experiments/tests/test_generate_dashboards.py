@@ -89,7 +89,7 @@ class GenerateDashboardsTest(TestCase):
             self.assertEqual(experiment_obj.dashboard_url, expected_public_url)
 
         self.assertEqual(len(
-            mock_instance.add_graph_templates.mock_calls), 3)
+            mock_instance.add_graph_templates.mock_calls), 15)
         self.assertEqual(len(
             mock_instance.get_update_range.mock_calls), 3)
 
