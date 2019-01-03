@@ -10,21 +10,21 @@
       <input type="hidden" name="status" value="{{ experiment.STATUS_SHIP }}">
       <button
         type="submit"
-        class="col btn btn-success mb-2"
+        class="col btn status-color-Ship mb-2"
       >
         <span class="fas fa-shipping-fast "></span>
-        Ready to Ship
+        {{ experiment.STATUS_SHIP_LABEL }}
       </button>
     </form>
   {% else %}
     <button
       type="submit"
-      class="col btn btn-success disabled mb-2"
+      class="col btn btn-secondary disabled mb-2"
     >
       <span class="fas fa-ban"></span>
-      Ship Experiment
+      {{ experiment.STATUS_SHIP_LABEL }}
     </button>
-    <strong>Complete the following reviews before the experiment can ship:</strong>
+    <strong>Complete the following sign-offs before the experiment can ship:</strong>
   {% endif %}
 
   <div class="form-group row">
@@ -41,8 +41,8 @@
             </div>
         {% endfor %}
 
-        <button class="col btn btn-info">
-          <span class="fas fa-save"></span> Save Reviews
+        <button class="col btn btn-success">
+          <span class="fas fa-save"></span> Save Sign-Offs
         </button>
       </form>
     </div>
@@ -57,10 +57,10 @@
     <input type="hidden" name="status" value="{{ experiment.STATUS_DRAFT }}">
     <button
       type="submit"
-      class="col btn btn-warning"
+      class="col btn status-color-Draft"
     >
-      <span class="fas fa-times"></span>
-      Cancel Review Request
+      <span class="fas fa-undo"></span>
+      Return to {{ experiment.STATUS_DRAFT_LABEL }}
     </button>
   </form>
 {% endblock %}

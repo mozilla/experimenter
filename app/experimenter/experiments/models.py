@@ -401,8 +401,8 @@ class ExperimentChangeLogManager(models.Manager):
 class ExperimentChangeLog(models.Model):
     STATUS_NONE_DRAFT = "Created Draft"
     STATUS_DRAFT_DRAFT = "Edited Draft"
-    STATUS_DRAFT_REVIEW = "Submitted Draft for Review"
-    STATUS_REVIEW_DRAFT = "Cancelled Review Request"
+    STATUS_DRAFT_REVIEW = "Ready for Sign-Off"
+    STATUS_REVIEW_DRAFT = "Return to Draft"
     STATUS_REVIEW_SHIP = "Marked as Ready to Ship"
     STATUS_REVIEW_REJECTED = "Review Rejected"
     STATUS_SHIP_ACCEPTED = "Accepted by Shield"
