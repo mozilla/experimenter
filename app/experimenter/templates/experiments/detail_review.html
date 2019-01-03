@@ -13,7 +13,7 @@
         class="col btn status-color-Ship mb-2"
       >
         <span class="fas fa-shipping-fast "></span>
-        Ready to Ship
+        {{ experiment.STATUS_SHIP_LABEL }}
       </button>
     </form>
   {% else %}
@@ -22,7 +22,7 @@
       class="col btn btn-secondary disabled mb-2"
     >
       <span class="fas fa-ban"></span>
-      Ship Experiment
+      {{ experiment.STATUS_SHIP_LABEL }}
     </button>
     <strong>Complete the following sign-offs before the experiment can ship:</strong>
   {% endif %}
@@ -60,7 +60,7 @@
       class="col btn status-color-Draft"
     >
       <span class="fas fa-undo"></span>
-      Return to Draft
+      Return to {{ experiment.STATUS_DRAFT_LABEL }}
     </button>
   </form>
 {% endblock %}

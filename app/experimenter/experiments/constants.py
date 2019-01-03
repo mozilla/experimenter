@@ -21,14 +21,22 @@ class ExperimentConstants(object):
     STATUS_COMPLETE = "Complete"
     STATUS_REJECTED = "Rejected"
 
+    STATUS_DRAFT_LABEL = "Draft"
+    STATUS_REVIEW_LABEL = "Ready for Sign-Off"
+    STATUS_SHIP_LABEL = "Ready to Ship"
+    STATUS_ACCEPTED_LABEL = "Accepted by Shield"
+    STATUS_LIVE_LABEL = "Live"
+    STATUS_COMPLETE_LABEL = "Complete"
+    STATUS_REJECTED_LABEL = "Rejected"
+
     STATUS_CHOICES = (
-        (STATUS_DRAFT, "Draft"),
-        (STATUS_REVIEW, "Ready for Sign-Off"),
-        (STATUS_SHIP, "Ready to Ship"),
-        (STATUS_ACCEPTED, "Accepted by Shield"),
-        (STATUS_LIVE, "Live"),
-        (STATUS_COMPLETE, "Complete"),
-        (STATUS_REJECTED, "Rejected"),
+        (STATUS_DRAFT, STATUS_DRAFT_LABEL),
+        (STATUS_REVIEW, STATUS_REVIEW_LABEL),
+        (STATUS_SHIP, STATUS_SHIP_LABEL),
+        (STATUS_ACCEPTED, STATUS_ACCEPTED_LABEL),
+        (STATUS_LIVE, STATUS_LIVE_LABEL),
+        (STATUS_COMPLETE, STATUS_COMPLETE_LABEL),
+        (STATUS_REJECTED, STATUS_REJECTED_LABEL),
     )
 
     STATUS_TRANSITIONS = {
