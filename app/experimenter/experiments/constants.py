@@ -23,7 +23,7 @@ class ExperimentConstants(object):
 
     STATUS_CHOICES = (
         (STATUS_DRAFT, "Draft"),
-        (STATUS_REVIEW, "Ready for Review"),
+        (STATUS_REVIEW, "Ready for Sign-Off"),
         (STATUS_SHIP, "Ready to Ship"),
         (STATUS_ACCEPTED, "Accepted by Shield"),
         (STATUS_LIVE, "Live"),
