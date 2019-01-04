@@ -847,6 +847,21 @@ class TestExperimentStatusForm(
             self.user.id, experiment.id
         )
 
+    def test_adds_bugzilla_comment_when_review_becomes_ship(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW, bugzilla_id="12345"
+        )
+        form = ExperimentStatusForm(
+            request=self.request,
+            data={"status": experiment.STATUS_SHIP},
+            instance=experiment,
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+        self.mock_tasks_add_comment.delay.assert_called_with(
+            self.user.id, experiment.id
+        )
+
 
 class TestExperimentCommentForm(MockRequestMixin, TestCase):
 
