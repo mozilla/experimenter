@@ -50,6 +50,9 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "proposed_start_date",
                     "proposed_end_date",
                     "bugzilla_id",
+                    "data_science_bugzilla_url",
+                    "feature_bugzilla_url",
+                    "related_work",
                 )
             },
         ),
@@ -72,7 +75,6 @@ class ExperimentAdmin(admin.ModelAdmin):
             "Reviews",
             {
                 "fields": (
-                    "review_phd",
                     "review_science",
                     "review_peer",
                     "review_relman",

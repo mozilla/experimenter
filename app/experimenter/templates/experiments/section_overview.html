@@ -7,4 +7,5 @@ Overview
 {% block section_content %}
   <p><strong>Owner: {{ experiment.owner }}</strong></p>
   {{ experiment.short_description|urlize|linebreaks }}
+  {{ experiment.related_work|urlize|linebreaks }}
 {% endblock %}

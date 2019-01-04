@@ -124,8 +124,24 @@ class TestExperimentModel(TestCase):
         )
 
     def test_has_external_urls_is_false_when_no_external_urls(self):
-        experiment = ExperimentFactory.create()
+        experiment = ExperimentFactory.create(
+            data_science_bugzilla_url="", feature_bugzilla_url=""
+        )
         self.assertFalse(experiment.has_external_urls)
+
+    def test_has_external_urls_is_true_when_data_science_bugzilla_url_is_set(
+        self
+    ):
+        experiment = ExperimentFactory.create(
+            data_science_bugzilla_url="www.bugzilla.com/123/"
+        )
+        self.assertTrue(experiment.has_external_urls)
+
+    def test_has_external_urls_is_true_when_feature_bugzilla_url_is_set(self):
+        experiment = ExperimentFactory.create(
+            feature_bugzilla_url="www.bugzilla.com/123/"
+        )
+        self.assertTrue(experiment.has_external_urls)
 
     def test_has_external_urls_is_true_when_bugzilla_url_is_set(self):
         experiment = ExperimentFactory.create(bugzilla_id="1234")

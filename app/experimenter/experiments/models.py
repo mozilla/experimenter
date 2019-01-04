@@ -59,8 +59,11 @@ class Experiment(ExperimentConstants, models.Model):
         max_length=255, unique=True, blank=False, null=False
     )
     short_description = models.TextField(default="", blank=True, null=True)
+    related_work = models.TextField(default="", blank=True, null=True)
+
     proposed_start_date = models.DateField(blank=True, null=True)
     proposed_end_date = models.DateField(blank=True, null=True)
+
     pref_key = models.CharField(max_length=255, blank=True, null=True)
     pref_type = models.CharField(
         max_length=255,
@@ -101,7 +104,11 @@ class Experiment(ExperimentConstants, models.Model):
     enrollment_dashboard_url = models.URLField(blank=True, null=True)
     dashboard_url = models.URLField(blank=True, null=True)
     dashboard_image_url = models.URLField(blank=True, null=True)
+
     bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
+
+    data_science_bugzilla_url = models.URLField(blank=True, null=True)
+    feature_bugzilla_url = models.URLField(blank=True, null=True)
 
     # Risk fields
     risk_partner_related = models.NullBooleanField(
@@ -193,7 +200,12 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def has_external_urls(self):
-        return self.bugzilla_url or self.test_tube_url
+        return (
+            self.bugzilla_url
+            or self.test_tube_url
+            or self.data_science_bugzilla_url
+            or self.feature_bugzilla_url
+        )
 
     def _transition_date(self, old_status, new_status):
         for change in self.changes.all():
