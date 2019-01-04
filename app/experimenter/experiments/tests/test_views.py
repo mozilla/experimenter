@@ -739,7 +739,6 @@ class TestExperimentReviewUpdateView(TestCase):
         )
 
         data = {
-            "review_phd": True,
             "review_science": True,
             "review_peer": True,
             "review_relman": True,
@@ -764,7 +763,6 @@ class TestExperimentReviewUpdateView(TestCase):
 
         experiment = Experiment.objects.get()
 
-        self.assertTrue(experiment.review_phd)
         self.assertTrue(experiment.review_science)
         self.assertTrue(experiment.review_peer)
         self.assertTrue(experiment.review_relman)
