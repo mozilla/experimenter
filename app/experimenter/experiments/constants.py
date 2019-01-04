@@ -439,9 +439,8 @@ class ExperimentConstants(object):
 
     ANALYSIS_OWNER_HELP_TEXT = """
       <p>
-        The analysis owner is the person responsible for designing and
-        implementating the bulk of the data analysis that will determine
-        the outcome of the experiment.
+        The Data Science Owner is the person responsible for designing and
+        implementing the experiment and its associated data analysis.
       </p>
     """
 

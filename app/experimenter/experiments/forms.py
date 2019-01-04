@@ -354,7 +354,7 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
     analysis_owner = forms.CharField(
-        label="Analysis Owner",
+        label="Data Science Owner",
         help_text=Experiment.ANALYSIS_OWNER_HELP_TEXT,
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )
