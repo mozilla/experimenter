@@ -377,12 +377,22 @@ class TestExperimentModel(TestCase):
             for user, user_changes in date_changes:
                 self.assertEqual(user_changes, expected_changes[date][user])
 
-    def test_experiment_is_editable_before_review_phd(self):
-        experiment = ExperimentFactory.create(review_phd=False)
+    def test_experiment_is_editable_as_draft(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
         self.assertTrue(experiment.is_editable)
 
-    def test_experient_is_not_editable_after_review_phd(self):
-        experiment = ExperimentFactory.create(review_phd=True)
+    def test_experiment_is_editable_as_review(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW
+        )
+        self.assertTrue(experiment.is_editable)
+
+    def test_experient_is_not_editable_after_review(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP
+        )
         self.assertFalse(experiment.is_editable)
 
     def test_experiment_is_not_begun(self):
@@ -517,7 +527,6 @@ class TestExperimentModel(TestCase):
 
     def test_completed_required_reviews_true_when_reviews_complete(self):
         experiment = ExperimentFactory.create(
-            review_phd=True,
             review_science=True,
             review_peer=True,
             review_relman=True,
@@ -538,7 +547,6 @@ class TestExperimentModel(TestCase):
     def test_is_ready_to_launch_true_when_reviews_and_sections_complete(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,
-            review_phd=True,
             review_science=True,
             review_peer=True,
             review_relman=True,

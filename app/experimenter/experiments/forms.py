@@ -395,11 +395,6 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
 class ExperimentReviewForm(
     ExperimentConstants, ChangeLogMixin, forms.ModelForm
 ):
-    review_phd = forms.BooleanField(
-        required=False,
-        label="PHD Review",
-        help_text=Experiment.REVIEW_PHD_HELP_TEXT,
-    )
     review_science = forms.BooleanField(
         required=False,
         label="Science Review",
@@ -454,7 +449,6 @@ class ExperimentReviewForm(
     class Meta:
         model = Experiment
         fields = (
-            "review_phd",
             "review_science",
             "review_peer",
             "review_relman",
@@ -503,15 +497,6 @@ class ExperimentReviewForm(
         if self.changed_data:
             Notification.objects.create(
                 user=self.request.user, message=self.get_changelog_message()
-            )
-
-        if (
-            "review_phd" in self.changed_data
-            and experiment.review_phd
-            and experiment.bugzilla_id
-        ):
-            tasks.add_experiment_comment_task.delay(
-                self.request.user.id, experiment.id
             )
 
         return experiment

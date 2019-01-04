@@ -442,9 +442,6 @@ class ExperimentConstants(object):
       </p>
     """
 
-    REVIEW_PHD_HELP_TEXT = """
-        All experiments must be reviewed in the PHD Review meeting.
-    """
     REVIEW_SCIENCE_HELP_TEXT = """
         All experiments must have their telemetry and analysis
         plan reviewed by a member of the Data Science team.

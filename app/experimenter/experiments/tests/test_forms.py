@@ -703,7 +703,6 @@ class TestExperimentReviewForm(
             Experiment.STATUS_REVIEW
         )
 
-        self.assertFalse(experiment.review_phd)
         self.assertFalse(experiment.review_science)
         self.assertFalse(experiment.review_peer)
         self.assertFalse(experiment.review_relman)
@@ -715,7 +714,6 @@ class TestExperimentReviewForm(
         self.assertFalse(experiment.review_data_steward)
 
         data = {
-            "review_phd": True,
             "review_science": True,
             "review_peer": True,
             "review_relman": True,
@@ -733,7 +731,6 @@ class TestExperimentReviewForm(
 
         self.assertTrue(form.is_valid())
         experiment = form.save()
-        self.assertTrue(experiment.review_phd)
         self.assertTrue(experiment.review_science)
         self.assertTrue(experiment.review_peer)
         self.assertTrue(experiment.review_relman)
@@ -749,7 +746,7 @@ class TestExperimentReviewForm(
             Experiment.STATUS_REVIEW
         )
 
-        data = {"review_phd": True, "review_science": True}
+        data = {"review_peer": True, "review_science": True}
 
         form = ExperimentReviewForm(
             request=self.request, data=data, instance=experiment
@@ -760,15 +757,15 @@ class TestExperimentReviewForm(
 
         self.assertEqual(len(form.added_reviews), 2)
         self.assertEqual(len(form.removed_reviews), 0)
-        self.assertIn(form.fields["review_phd"].label, form.added_reviews)
+        self.assertIn(form.fields["review_peer"].label, form.added_reviews)
         self.assertIn(form.fields["review_science"].label, form.added_reviews)
 
     def test_removed_reviews_property(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW, review_phd=True, review_science=True
+            Experiment.STATUS_REVIEW, review_peer=True, review_science=True
         )
 
-        data = {"review_phd": False, "review_science": False}
+        data = {"review_peer": False, "review_science": False}
 
         form = ExperimentReviewForm(
             request=self.request, data=data, instance=experiment
@@ -779,40 +776,10 @@ class TestExperimentReviewForm(
 
         self.assertEqual(len(form.added_reviews), 0)
         self.assertEqual(len(form.removed_reviews), 2)
-        self.assertIn(form.fields["review_phd"].label, form.removed_reviews)
+        self.assertIn(form.fields["review_peer"].label, form.removed_reviews)
         self.assertIn(
             form.fields["review_science"].label, form.removed_reviews
         )
-
-    def test_adds_bugzilla_comment_when_review_phd_is_set(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW, bugzilla_id="123", review_phd=False
-        )
-        form = ExperimentReviewForm(
-            request=self.request,
-            data={"review_phd": True},
-            instance=experiment,
-        )
-        self.assertTrue(form.is_valid())
-        experiment = form.save()
-        self.mock_tasks_add_comment.delay.assert_called_with(
-            self.user.id, experiment.id
-        )
-
-    def test_does_not_add_bugzilla_comment_when_review_phd_is_already_set(
-        self
-    ):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW, bugzilla_id="123", review_phd=True
-        )
-        form = ExperimentReviewForm(
-            request=self.request,
-            data={"review_phd": True, "review_vp": True},
-            instance=experiment,
-        )
-        self.assertTrue(form.is_valid())
-        experiment = form.save()
-        self.mock_tasks_add_comment.delay.assert_not_called()
 
 
 class TestExperimentStatusForm(

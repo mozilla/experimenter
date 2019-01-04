@@ -89,7 +89,6 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
         "Locales: en-US, en-CA, en-GB\nGeos: US, CA, GB\n"
         'Some "additional" filtering'
     )
-    review_phd = False
     review_science = False
     review_peer = False
     review_relman = False

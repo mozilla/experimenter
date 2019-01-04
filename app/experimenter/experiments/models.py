@@ -122,7 +122,6 @@ class Experiment(ExperimentConstants, models.Model):
     )
 
     # Review Fields
-    review_phd = models.NullBooleanField(default=None, blank=True, null=True)
     review_science = models.NullBooleanField(
         default=None, blank=True, null=True
     )
@@ -275,7 +274,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def is_editable(self):
-        return not self.review_phd
+        return self.status in (self.STATUS_DRAFT, self.STATUS_REVIEW)
 
     @property
     def is_begun(self):
@@ -328,7 +327,6 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def _required_reviews(self):
         return (
-            self.review_phd,
             self.review_science,
             self.review_peer,
             self.review_relman,
