@@ -557,6 +557,15 @@ class ExperimentStatusForm(
                 self.request.user.id, experiment.id
             )
 
+        if (
+            self.old_status == Experiment.STATUS_REVIEW
+            and self.new_status == Experiment.STATUS_SHIP
+            and experiment.bugzilla_id
+        ):
+            tasks.add_experiment_comment_task.delay(
+                self.request.user.id, experiment.id
+            )
+
         return experiment
 
 
