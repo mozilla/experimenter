@@ -8,6 +8,7 @@ from django.forms import inlineformset_factory
 from django.test import TestCase
 
 from experimenter.experiments.forms import (
+    BugzillaURLField,
     ChangeLogMixin,
     ExperimentArchiveForm,
     ExperimentCommentForm,
@@ -48,6 +49,21 @@ class TestJSONField(TestCase):
 
         with self.assertRaises(ValidationError):
             field.clean(invalid_json)
+
+
+class TestBugzillaURLField(TestCase):
+
+    def test_accepts_bugzilla_url(self):
+        field = BugzillaURLField()
+        bugzilla_url = "{base}/123/".format(base=field.BUGZILLA_BASE_URL)
+        cleaned = field.clean(bugzilla_url)
+        self.assertEqual(cleaned, bugzilla_url)
+
+    def test_rejects_non_bugzilla_url(self):
+        field = BugzillaURLField()
+
+        with self.assertRaises(ValidationError):
+            field.clean("www.example.com")
 
 
 class TestNameSlugMixin(TestCase):
@@ -186,6 +202,9 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "owner": self.user.id,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
+            "data_science_bugzilla_url": "https://bugzilla.mozilla.org/123/",
+            "feature_bugzilla_url": "https://bugzilla.mozilla.org/123/",
+            "related_work": "Designs: https://www.example.com/myproject/",
             "proposed_start_date": datetime.date.today(),
             "proposed_end_date": (
                 datetime.date.today() + datetime.timedelta(days=1)

@@ -32,6 +32,21 @@ class JSONField(forms.CharField):
         return cleaned_value
 
 
+class BugzillaURLField(forms.URLField):
+    BUGZILLA_BASE_URL = "https://bugzilla.mozilla.org/"
+
+    def clean(self, value):
+        cleaned_value = super().clean(value)
+
+        if cleaned_value:
+            if self.BUGZILLA_BASE_URL not in cleaned_value:
+                raise forms.ValidationError(
+                    "Please provide a valid Bugzilla URL"
+                )
+
+        return cleaned_value
+
+
 class NameSlugMixin(object):
 
     def clean(self):
@@ -88,7 +103,7 @@ class ExperimentOverviewForm(
         queryset=get_user_model().objects.all().order_by("email"),
     )
     name = forms.CharField(label="Name", help_text=Experiment.NAME_HELP_TEXT)
-    slug = forms.CharField(required=False)
+    slug = forms.CharField(required=False, widget=forms.HiddenInput())
     short_description = forms.CharField(
         label="Short Description",
         help_text=Experiment.SHORT_DESCRIPTION_HELP_TEXT,
@@ -108,6 +123,21 @@ class ExperimentOverviewForm(
             attrs={"type": "date", "class": "form-control"}
         ),
     )
+    data_science_bugzilla_url = BugzillaURLField(
+        label="Data Science Bugzilla URL",
+        help_text=Experiment.DATA_SCIENCE_BUGZILLA_HELP_TEXT,
+    )
+    feature_bugzilla_url = BugzillaURLField(
+        required=False,
+        label="Feature Bugzilla URL",
+        help_text=Experiment.FEATURE_BUGZILLA_HELP_TEXT,
+    )
+    related_work = forms.CharField(
+        required=False,
+        label="Related Work URLs",
+        help_text=Experiment.RELATED_WORK_HELP_TEXT,
+        widget=forms.Textarea(attrs={"rows": 3}),
+    )
 
     class Meta:
         model = Experiment
@@ -117,6 +147,9 @@ class ExperimentOverviewForm(
             "name",
             "slug",
             "short_description",
+            "data_science_bugzilla_url",
+            "feature_bugzilla_url",
+            "related_work",
             "proposed_start_date",
             "proposed_end_date",
         ]

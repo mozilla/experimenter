@@ -10,14 +10,6 @@
   {% include "experiments/edit_nav_inline.html" with step=3 object=object %}
 {% endblock %}
 
-{% block edit_form %}
-    {% for field in form %}
-      
-      {% include "experiments/field_inline.html" with field=field %}
-
-    {% endfor %}
-{% endblock %}
-
 {% block edit_info %}
   <h4><span class="fas fa-info-circle"></span> Objectives & Analysis</h4>
   <p>

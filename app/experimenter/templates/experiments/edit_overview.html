@@ -14,20 +14,6 @@
   {% include "experiments/edit_nav_inline.html" with step=1 object=object %}
 {% endblock %}
 
-{% block edit_form %}
-    {% include "experiments/field_inline.html" with field=form.type %}
-
-    {% include "experiments/field_inline.html" with field=form.owner %}
-
-    {% include "experiments/field_inline.html" with field=form.name %}
-
-    {% include "experiments/field_inline.html" with field=form.short_description %}
-
-    {% include "experiments/field_inline.html" with field=form.proposed_start_date %}
-
-    {% include "experiments/field_inline.html" with field=form.proposed_end_date %}
-{% endblock %}
-
 {% block edit_info %}
   <h4><span class="fas fa-info-circle"></span> Getting Started</h4>
   <p>

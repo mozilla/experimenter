@@ -187,6 +187,73 @@ class ExperimentConstants(object):
       the sign in button will increase its click through rate.</p>
     """
 
+    PROPOSED_START_DATE_HELP_TEXT = """
+      <p>
+        Choose the date you expect the experiment to be launched to users.
+        This date is for planning purposes only, the actual start date
+        is subject to the sign off and review processes.  Please refer to the
+        <a target="_blank"
+        href="https://wiki.mozilla.org/RapidRelease/Calendar">
+        Firefox Release Calendar</a>
+        to coordinate the timing of your experiment with the
+        Firefox Version it will be deployed to.
+      </p>
+    """
+
+    PROPOSED_END_DATE_HELP_TEXT = """
+      <p>
+        Choose the date you expect the experiment to be completed.
+        This date is for planning purposes only, the actual end date
+        is subject to the sign off and review processes.  Please refer to the
+        <a target="_blank"
+        href="https://wiki.mozilla.org/RapidRelease/Calendar">
+        Firefox Release Calendar</a>
+        to coordinate the timing of your experiment with the
+        Firefox Version it will be deployed to.
+      </p>
+    """
+
+    DATA_SCIENCE_BUGZILLA_HELP_TEXT = """
+      <p>
+        Provide a link to the Bugzilla ticket that was filed with the Data
+        Science team that tracks this experiment.  If you have not already
+        filed a ticket with Data Science, you can do that <a target="_blank"
+        href="{url}">here</a>.
+      </p>
+      <p>
+        <strong>Example:</strong>
+        https://bugzilla.mozilla.org/show_bug.cgi?id=12345
+      </p>
+    """.format(
+        url=(
+            "https://mana.mozilla.org/wiki/display/PM/Firefox+Data+Science"
+            "#FirefoxDataScience-initiatingaproject"
+        )
+    )
+
+    FEATURE_BUGZILLA_HELP_TEXT = """
+      <p>
+        (Optional) Provide a link to the Bugzilla ticket that tracks the
+        feature(s) or change(s) being tested in this experiment.
+      </p>
+      <p>
+        <strong>Example:</strong>
+        https://bugzilla.mozilla.org/show_bug.cgi?id=12345
+      </p>
+    """
+
+    RELATED_WORK_HELP_TEXT = """
+      <p>
+        Please add any bugs and/or issues related to this experiment work.
+        Link to any PRDs, Invision, or related documents. Please include a
+        description of for each link. This assists Relman and will help
+        ensure your experiment is not held up.
+      </p>
+      <p><strong>Example:</strong></p>
+      <p>Designs: http://www.invision.com/myprojectdesign/</p>
+      <p>Feature description: https://docs.google.com/myprojectdescription/</p>
+    """
+
     POPULATION_PERCENT_HELP_TEXT = """
       <p>Describe the Firefox population that will receive this experiment.<p>
       <p><strong>Example:</strong> 10 percent of Nightly Firefox 60.0<p>
@@ -226,32 +293,6 @@ class ExperimentConstants(object):
           Exclude clients in pref-flip-other-study</p>
         </li>
       </ul>
-    """
-
-    PROPOSED_START_DATE_HELP_TEXT = """
-      <p>
-        Choose the date you expect the experiment to be launched to users.
-        This date is for planning purposes only, the actual start date
-        is subject to the sign off and review processes.  Please refer to the
-        <a target="_blank"
-        href="https://wiki.mozilla.org/RapidRelease/Calendar">
-        Firefox Release Calendar</a>
-        to coordinate the timing of your experiment with the
-        Firefox Version it will be deployed to.
-      </p>
-    """
-
-    PROPOSED_END_DATE_HELP_TEXT = """
-      <p>
-        Choose the date you expect the experiment to be completed.
-        This date is for planning purposes only, the actual end date
-        is subject to the sign off and review processes.  Please refer to the
-        <a target="_blank"
-        href="https://wiki.mozilla.org/RapidRelease/Calendar">
-        Firefox Release Calendar</a>
-        to coordinate the timing of your experiment with the
-        Firefox Version it will be deployed to.
-      </p>
     """
 
     PREF_KEY_HELP_TEXT = """

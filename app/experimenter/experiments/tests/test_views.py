@@ -387,17 +387,14 @@ class TestExperimentCreateView(TestCase):
 
     def test_view_creates_experiment(self):
         user_email = "user@example.com"
-        project = ProjectFactory.create()
 
         data = {
             "type": Experiment.TYPE_PREF,
-            "project": project.id,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
-            "population_percent": "10",
-            "firefox_version": Experiment.VERSION_CHOICES[-1][0],
-            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-            "client_matching": "en-us only please",
+            "data_science_bugzilla_url": "https://bugzilla.mozilla.org/123/",
+            "feature_bugzilla_url": "https://bugzilla.mozilla.org/123/",
+            "related_work": "Designs: https://www.example.com/myproject/",
             "proposed_start_date": datetime.date.today(),
             "proposed_end_date": (
                 datetime.date.today() + datetime.timedelta(days=1)
@@ -443,6 +440,9 @@ class TestExperimentOverviewUpdateView(TestCase):
             "type": Experiment.TYPE_PREF,
             "name": "A new name!",
             "short_description": "A new description!",
+            "data_science_bugzilla_url": "https://bugzilla.mozilla.org/123/",
+            "feature_bugzilla_url": "https://bugzilla.mozilla.org/123/",
+            "related_work": "Designs: https://www.example.com/myproject/",
             "proposed_start_date": new_start_date,
             "proposed_end_date": new_end_date,
         }

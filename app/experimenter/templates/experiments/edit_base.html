@@ -26,6 +26,9 @@
         {% csrf_token %}
 
         {% block edit_form %}
+          {% for field in form.visible_fields %}
+            {% include "experiments/field_inline.html" with field=field %}
+          {% endfor %}
         {% endblock %}
 
         <div class="form-group row">

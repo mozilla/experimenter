@@ -29,6 +29,11 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     short_description = factory.LazyAttribute(
         lambda o: faker.text(random.randint(100, 500))
     )
+    data_science_bugzilla_url = (
+        "https://bugzilla.mozilla.org/show_bug.cgi?id=12345"
+    )
+    feature_bugzilla_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=12345"
+    related_work = "See also: https://www.example.com/myproject/"
     proposed_start_date = factory.LazyAttribute(
         lambda o: (
             datetime.date.today()
