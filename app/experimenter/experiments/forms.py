@@ -439,19 +439,29 @@ class ExperimentReviewForm(
         label="Engineering Allocated",
         help_text=Experiment.REVIEW_ENGINEERING_HELP_TEXT,
     )
-    review_qa = forms.BooleanField(
+    review_qa_requested = forms.BooleanField(
         required=False,
         label="QA Requested",
-        help_text=Experiment.REVIEW_QA_HELP_TEXT,
+        help_text=Experiment.REVIEW_QA_REQUESTED_HELP_TEXT,
+    )
+    review_intent_to_ship = forms.BooleanField(
+        required=False,
+        label="Intent to Ship Email Sent",
+        help_text=Experiment.REVIEW_INTENT_TO_SHIP_HELP_TEXT,
     )
     review_bugzilla = forms.BooleanField(
         required=False,
         label="Bugzilla Updated",
         help_text=Experiment.REVIEW_BUGZILLA_HELP_TEXT,
     )
+    review_qa = forms.BooleanField(
+        required=False,
+        label="QA Sign-Off",
+        help_text=Experiment.REVIEW_QA_HELP_TEXT,
+    )
     review_relman = forms.BooleanField(
         required=False,
-        label="Release Management Review",
+        label="Release Management Sign-Off",
         help_text=Experiment.REVIEW_RELMAN_HELP_TEXT,
     )
 
@@ -504,6 +514,8 @@ class ExperimentReviewForm(
             "review_advisory",
             "review_science",
             "review_engineering",
+            "review_qa_requested",
+            "review_intent_to_ship",
             "review_bugzilla",
             "review_qa",
             "review_relman",
@@ -523,6 +535,8 @@ class ExperimentReviewForm(
             self["review_advisory"],
             self["review_science"],
             self["review_engineering"],
+            self["review_qa_requested"],
+            self["review_intent_to_ship"],
             self["review_bugzilla"],
             self["review_qa"],
             self["review_relman"],

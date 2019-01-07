@@ -136,6 +136,12 @@ class Experiment(ExperimentConstants, models.Model):
     review_engineering = models.NullBooleanField(
         default=None, blank=True, null=True
     )
+    review_qa_requested = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    review_intent_to_ship = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     review_bugzilla = models.NullBooleanField(
         default=None, blank=True, null=True
     )
@@ -356,6 +362,8 @@ class Experiment(ExperimentConstants, models.Model):
         return (
             self.review_science,
             self.review_engineering,
+            self.review_qa_requested,
+            self.review_intent_to_ship,
             self.review_bugzilla,
             self.review_qa,
             self.review_relman,
