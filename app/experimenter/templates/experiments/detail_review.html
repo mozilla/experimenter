@@ -24,24 +24,37 @@
       <span class="fas fa-ban"></span>
       {{ experiment.STATUS_SHIP_LABEL }}
     </button>
-    <strong>Complete the following sign-offs before the experiment can ship:</strong>
   {% endif %}
 
   <div class="form-group row">
-    <div class="col">
+    <div class="col pt-2">
+      <h5>Sign-Off Checklist</h5>
       <form action="{% url "experiments-review-update" slug=experiment.slug %}" method="POST">
         {% csrf_token %}
 
-        {% for field in form %}
+        {% for field in form.required_reviews %}
             <div class="checkbox">
-              <label data-toggle="tooltip" data-placement="top" title="{{ field.help_text }}">
+              <label>
                 {{ field }}
                 {{ field.label }}
+                {{ field.help_text|safe }}
               </label>
             </div>
         {% endfor %}
 
-        <button class="col btn btn-success">
+        <hr class="m-0 mt-1 mb-3" />
+
+        {% for field in form.optional_reviews %}
+            <div class="checkbox">
+              <label>
+                {{ field }}
+                {{ field.label }}
+                {{ field.help_text|safe }}
+              </label>
+            </div>
+        {% endfor %}
+
+        <button class="col btn btn-success mt-2">
           <span class="fas fa-save"></span> Save Sign-Offs
         </button>
       </form>

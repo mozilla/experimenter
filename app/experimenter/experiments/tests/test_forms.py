@@ -723,25 +723,33 @@ class TestExperimentReviewForm(
         )
 
         self.assertFalse(experiment.review_science)
-        self.assertFalse(experiment.review_peer)
-        self.assertFalse(experiment.review_relman)
+        self.assertFalse(experiment.review_engineering)
+        self.assertFalse(experiment.review_bugzilla)
         self.assertFalse(experiment.review_qa)
+        self.assertFalse(experiment.review_relman)
+        self.assertFalse(experiment.review_advisory)
         self.assertFalse(experiment.review_legal)
         self.assertFalse(experiment.review_ux)
         self.assertFalse(experiment.review_security)
         self.assertFalse(experiment.review_vp)
         self.assertFalse(experiment.review_data_steward)
+        self.assertFalse(experiment.review_comms)
+        self.assertFalse(experiment.review_impacted_teams)
 
         data = {
             "review_science": True,
-            "review_peer": True,
-            "review_relman": True,
+            "review_engineering": True,
+            "review_bugzilla": True,
             "review_qa": True,
+            "review_relman": True,
+            "review_advisory": True,
             "review_legal": True,
             "review_ux": True,
             "review_security": True,
             "review_vp": True,
             "review_data_steward": True,
+            "review_comms": True,
+            "review_impacted_teams": True,
         }
 
         form = ExperimentReviewForm(
@@ -750,22 +758,27 @@ class TestExperimentReviewForm(
 
         self.assertTrue(form.is_valid())
         experiment = form.save()
+
         self.assertTrue(experiment.review_science)
-        self.assertTrue(experiment.review_peer)
-        self.assertTrue(experiment.review_relman)
+        self.assertTrue(experiment.review_engineering)
+        self.assertTrue(experiment.review_bugzilla)
         self.assertTrue(experiment.review_qa)
+        self.assertTrue(experiment.review_relman)
+        self.assertTrue(experiment.review_advisory)
         self.assertTrue(experiment.review_legal)
         self.assertTrue(experiment.review_ux)
         self.assertTrue(experiment.review_security)
         self.assertTrue(experiment.review_vp)
         self.assertTrue(experiment.review_data_steward)
+        self.assertTrue(experiment.review_comms)
+        self.assertTrue(experiment.review_impacted_teams)
 
     def test_added_reviews_property(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW
         )
 
-        data = {"review_peer": True, "review_science": True}
+        data = {"review_relman": True, "review_science": True}
 
         form = ExperimentReviewForm(
             request=self.request, data=data, instance=experiment
@@ -776,15 +789,15 @@ class TestExperimentReviewForm(
 
         self.assertEqual(len(form.added_reviews), 2)
         self.assertEqual(len(form.removed_reviews), 0)
-        self.assertIn(form.fields["review_peer"].label, form.added_reviews)
+        self.assertIn(form.fields["review_relman"].label, form.added_reviews)
         self.assertIn(form.fields["review_science"].label, form.added_reviews)
 
     def test_removed_reviews_property(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW, review_peer=True, review_science=True
+            Experiment.STATUS_REVIEW, review_relman=True, review_science=True
         )
 
-        data = {"review_peer": False, "review_science": False}
+        data = {"review_relman": False, "review_science": False}
 
         form = ExperimentReviewForm(
             request=self.request, data=data, instance=experiment
@@ -795,9 +808,52 @@ class TestExperimentReviewForm(
 
         self.assertEqual(len(form.added_reviews), 0)
         self.assertEqual(len(form.removed_reviews), 2)
-        self.assertIn(form.fields["review_peer"].label, form.removed_reviews)
+        self.assertIn(form.fields["review_relman"].label, form.removed_reviews)
         self.assertIn(
             form.fields["review_science"].label, form.removed_reviews
+        )
+
+    def test_required_reviews(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW, review_relman=True, review_science=True
+        )
+
+        form = ExperimentReviewForm(
+            request=self.request, data={}, instance=experiment
+        )
+
+        self.assertEqual(
+            form.required_reviews,
+            (
+                form["review_advisory"],
+                form["review_science"],
+                form["review_engineering"],
+                form["review_bugzilla"],
+                form["review_qa"],
+                form["review_relman"],
+            ),
+        )
+
+    def test_optional_reviews(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW, review_relman=True, review_science=True
+        )
+
+        form = ExperimentReviewForm(
+            request=self.request, data={}, instance=experiment
+        )
+
+        self.assertEqual(
+            form.optional_reviews,
+            (
+                form["review_legal"],
+                form["review_ux"],
+                form["review_security"],
+                form["review_vp"],
+                form["review_data_steward"],
+                form["review_comms"],
+                form["review_impacted_teams"],
+            ),
         )
 
 

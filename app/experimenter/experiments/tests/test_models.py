@@ -544,9 +544,10 @@ class TestExperimentModel(TestCase):
     def test_completed_required_reviews_true_when_reviews_complete(self):
         experiment = ExperimentFactory.create(
             review_science=True,
-            review_peer=True,
-            review_relman=True,
+            review_engineering=True,
+            review_bugzilla=True,
             review_qa=True,
+            review_relman=True,
         )
         self.assertTrue(experiment.completed_required_reviews)
 
@@ -564,9 +565,10 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,
             review_science=True,
-            review_peer=True,
-            review_relman=True,
+            review_engineering=True,
+            review_bugzilla=True,
             review_qa=True,
+            review_relman=True,
         )
         self.assertTrue(experiment.is_ready_to_launch)
 
