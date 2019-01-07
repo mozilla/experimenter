@@ -545,6 +545,8 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create(
             review_science=True,
             review_engineering=True,
+            review_qa_requested=True,
+            review_intent_to_ship=True,
             review_bugzilla=True,
             review_qa=True,
             review_relman=True,
@@ -566,6 +568,8 @@ class TestExperimentModel(TestCase):
             Experiment.STATUS_REVIEW,
             review_science=True,
             review_engineering=True,
+            review_qa_requested=True,
+            review_intent_to_ship=True,
             review_bugzilla=True,
             review_qa=True,
             review_relman=True,

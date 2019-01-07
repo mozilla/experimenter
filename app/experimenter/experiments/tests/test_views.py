@@ -741,6 +741,8 @@ class TestExperimentReviewUpdateView(TestCase):
         data = {
             "review_science": True,
             "review_engineering": True,
+            "review_qa_requested": True,
+            "review_intent_to_ship": True,
             "review_bugzilla": True,
             "review_qa": True,
             "review_relman": True,

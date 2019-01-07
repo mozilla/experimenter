@@ -724,6 +724,8 @@ class TestExperimentReviewForm(
 
         self.assertFalse(experiment.review_science)
         self.assertFalse(experiment.review_engineering)
+        self.assertFalse(experiment.review_qa_requested)
+        self.assertFalse(experiment.review_intent_to_ship)
         self.assertFalse(experiment.review_bugzilla)
         self.assertFalse(experiment.review_qa)
         self.assertFalse(experiment.review_relman)
@@ -739,6 +741,8 @@ class TestExperimentReviewForm(
         data = {
             "review_science": True,
             "review_engineering": True,
+            "review_qa_requested": True,
+            "review_intent_to_ship": True,
             "review_bugzilla": True,
             "review_qa": True,
             "review_relman": True,
@@ -761,6 +765,8 @@ class TestExperimentReviewForm(
 
         self.assertTrue(experiment.review_science)
         self.assertTrue(experiment.review_engineering)
+        self.assertTrue(experiment.review_qa_requested)
+        self.assertTrue(experiment.review_intent_to_ship)
         self.assertTrue(experiment.review_bugzilla)
         self.assertTrue(experiment.review_qa)
         self.assertTrue(experiment.review_relman)
@@ -828,6 +834,8 @@ class TestExperimentReviewForm(
                 form["review_advisory"],
                 form["review_science"],
                 form["review_engineering"],
+                form["review_qa_requested"],
+                form["review_intent_to_ship"],
                 form["review_bugzilla"],
                 form["review_qa"],
                 form["review_relman"],
