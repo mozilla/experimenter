@@ -534,6 +534,14 @@ class ExperimentConstants(object):
       <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-ImpactedTeam(s)Signed-off(optional)">Help</a>
     """  # noqa
 
+    REVIEW_QA_REQUESTED_HELP_TEXT = """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-QArequested.">Help</a>
+    """  # noqa
+
+    REVIEW_INTENT_TO_SHIP_HELP_TEXT = """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-IntenttoShipemailsent">Help</a>
+    """  # noqa
+
     # Text defaults
     CLIENT_MATCHING_DEFAULT = (
         """Locales:
