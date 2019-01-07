@@ -9,7 +9,7 @@ class ExperimentConstants(object):
 
     TYPE_CHOICES = (
         (TYPE_PREF, "Pref-Flip Study"),
-        (TYPE_ADDON, "Opt-Out Study"),
+        (TYPE_ADDON, "Add-On Study"),
     )
 
     # Status stuff
