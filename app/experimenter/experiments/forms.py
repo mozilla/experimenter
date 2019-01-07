@@ -428,25 +428,38 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
 class ExperimentReviewForm(
     ExperimentConstants, ChangeLogMixin, forms.ModelForm
 ):
+    # Required
     review_science = forms.BooleanField(
         required=False,
-        label="Science Review",
+        label="Data Science Peer Review",
         help_text=Experiment.REVIEW_SCIENCE_HELP_TEXT,
     )
-    review_peer = forms.BooleanField(
+    review_engineering = forms.BooleanField(
         required=False,
-        label="Firefox Peer Review",
-        help_text=Experiment.REVIEW_PEER_HELP_TEXT,
+        label="Engineering Allocated",
+        help_text=Experiment.REVIEW_ENGINEERING_HELP_TEXT,
+    )
+    review_qa = forms.BooleanField(
+        required=False,
+        label="QA Requested",
+        help_text=Experiment.REVIEW_QA_HELP_TEXT,
+    )
+    review_bugzilla = forms.BooleanField(
+        required=False,
+        label="Bugzilla Updated",
+        help_text=Experiment.REVIEW_BUGZILLA_HELP_TEXT,
     )
     review_relman = forms.BooleanField(
         required=False,
         label="Release Management Review",
         help_text=Experiment.REVIEW_RELMAN_HELP_TEXT,
     )
-    review_qa = forms.BooleanField(
+
+    # Optional
+    review_advisory = forms.BooleanField(
         required=False,
-        label="QA Review",
-        help_text=Experiment.REVIEW_QA_HELP_TEXT,
+        label="Lightning Advisory (Optional)",
+        help_text=Experiment.REVIEW_ADVISORY_HELP_TEXT,
     )
     review_legal = forms.BooleanField(
         required=False,
@@ -468,29 +481,63 @@ class ExperimentReviewForm(
         label="VP Review (Optional)",
         help_text=Experiment.REVIEW_VP_HELP_TEXT,
     )
-    review_vp = forms.BooleanField(
-        required=False,
-        label="VP Review (Optional)",
-        help_text=Experiment.REVIEW_VP_HELP_TEXT,
-    )
     review_data_steward = forms.BooleanField(
         required=False,
         label="Data Steward Review (Optional)",
         help_text=Experiment.REVIEW_DATA_STEWARD_HELP_TEXT,
     )
+    review_comms = forms.BooleanField(
+        required=False,
+        label="Mozilla Press/Comms (Optional)",
+        help_text=Experiment.REVIEW_COMMS_HELP_TEXT,
+    )
+    review_impacted_teams = forms.BooleanField(
+        required=False,
+        label="Impacted Team(s) Signed-Off (Optional)",
+        help_text=Experiment.REVIEW_IMPACTED_TEAMS_HELP_TEXT,
+    )
 
     class Meta:
         model = Experiment
         fields = (
+            # Required
+            "review_advisory",
             "review_science",
-            "review_peer",
-            "review_relman",
+            "review_engineering",
+            "review_bugzilla",
             "review_qa",
+            "review_relman",
+            # Optional
             "review_legal",
             "review_ux",
             "review_security",
             "review_vp",
             "review_data_steward",
+            "review_comms",
+            "review_impacted_teams",
+        )
+
+    @property
+    def required_reviews(self):
+        return (
+            self["review_advisory"],
+            self["review_science"],
+            self["review_engineering"],
+            self["review_bugzilla"],
+            self["review_qa"],
+            self["review_relman"],
+        )
+
+    @property
+    def optional_reviews(self):
+        return (
+            self["review_legal"],
+            self["review_ux"],
+            self["review_security"],
+            self["review_vp"],
+            self["review_data_steward"],
+            self["review_comms"],
+            self["review_impacted_teams"],
         )
 
     @property

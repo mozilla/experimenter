@@ -128,15 +128,26 @@ class Experiment(ExperimentConstants, models.Model):
         default=ExperimentConstants.RISKS_DEFAULT, blank=True, null=True
     )
 
-    # Review Fields
+    # Review Fields (sign-offs)
+    # Required
     review_science = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    review_peer = models.NullBooleanField(default=None, blank=True, null=True)
-    review_relman = models.NullBooleanField(
+    review_engineering = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    review_bugzilla = models.NullBooleanField(
         default=None, blank=True, null=True
     )
     review_qa = models.NullBooleanField(default=None, blank=True, null=True)
+    review_relman = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+
+    # Optional
+    review_advisory = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     review_legal = models.NullBooleanField(default=None, blank=True, null=True)
     review_ux = models.NullBooleanField(default=None, blank=True, null=True)
     review_security = models.NullBooleanField(
@@ -144,6 +155,10 @@ class Experiment(ExperimentConstants, models.Model):
     )
     review_vp = models.NullBooleanField(default=None, blank=True, null=True)
     review_data_steward = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    review_comms = models.NullBooleanField(default=None, blank=True, null=True)
+    review_impacted_teams = models.NullBooleanField(
         default=None, blank=True, null=True
     )
 
@@ -340,9 +355,10 @@ class Experiment(ExperimentConstants, models.Model):
     def _required_reviews(self):
         return (
             self.review_science,
-            self.review_peer,
-            self.review_relman,
+            self.review_engineering,
+            self.review_bugzilla,
             self.review_qa,
+            self.review_relman,
         )
 
     @property

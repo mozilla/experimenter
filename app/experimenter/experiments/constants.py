@@ -482,48 +482,57 @@ class ExperimentConstants(object):
       </p>
     """
 
+    REVIEW_COMMS_HELP_TEXT = """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Mozillapress/commsreview(optional)">Help</a>
+    """  # noqa
+
+    REVIEW_BUGZILLA_HELP_TEXT = """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Bugzillaupdated">Help</a>
+    """  # noqa
+
+    REVIEW_ENGINEERING_HELP_TEXT = """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Engineeringallocated">Help</a>
+    """  # noqa
+
+    REVIEW_ADVISORY_HELP_TEXT = """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-LightningAdvising">Help</a>
+    """  # noqa
+
     REVIEW_SCIENCE_HELP_TEXT = """
-        All experiments must have their telemetry and analysis
-        plan reviewed by a member of the Data Science team.
-    """
-    REVIEW_PEER_HELP_TEXT = """
-        All experimental code must be reviewed by a Firefox Peer
-        before it can land in the tree and be deployed with
-        a release.
-    """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-DataSciencePeerReview">Help</a>
+    """  # noqa
+
     REVIEW_RELMAN_HELP_TEXT = """
-        All experiments must be reviewed by the Release Management
-        team to determine the potential impact on a release.
-    """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-ReleaseManagementSign-off">Help</a>
+    """  # noqa
+
     REVIEW_QA_HELP_TEXT = """
-        All experiments must be reviewed by a member of the QA team
-        to validate the expected behaviour of the experimental
-        code.
-    """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-QAsign-off">Help</a>
+    """  # noqa
+
     REVIEW_LEGAL_HELP_TEXT = """
-        (Optional) High risk experiments may require review by a
-        member of the legal team to ensure all legal constraints
-        and requirements are being met.
-    """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-LegalReview(optional)LegalBug">Help</a>
+    """  # noqa
+
     REVIEW_UX_HELP_TEXT = """
-        (Optional) Experiments which feature major UI changes
-        may require a review from the UX team to ensure consistent
-        design principles are being maintained.
-    """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-UXReview(Optional)">Help</a>
+    """  # noqa
+
     REVIEW_SECURITY_HELP_TEXT = """
-        (Optional) Some high risk experiments may require review by a
-        member of the security team to ensure there are no
-        security risks to the browser.
-    """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-SecurityReview(optional)">Help</a>
+    """  # noqa
+
     REVIEW_VP_HELP_TEXT = """
-        (Optional) Some high risk experiments require sign off from
-        a VP.
-    """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-VPReview(optional)">Help</a>
+    """  # noqa
+
     REVIEW_DATA_STEWARD_HELP_TEXT = """
-        (Optional) Some high risk experiments may require review by a
-        Data Steward to ensure there are no privacy risks
-        with the data being collected.
-    """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-DataStewardReview(optional)">Help</a>
+    """  # noqa
+
+    REVIEW_IMPACTED_TEAMS_HELP_TEXT = """
+      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-ImpactedTeam(s)Signed-off(optional)">Help</a>
+    """  # noqa
 
     # Text defaults
     CLIENT_MATCHING_DEFAULT = (

@@ -740,12 +740,18 @@ class TestExperimentReviewUpdateView(TestCase):
 
         data = {
             "review_science": True,
-            "review_peer": True,
-            "review_relman": True,
+            "review_engineering": True,
+            "review_bugzilla": True,
             "review_qa": True,
+            "review_relman": True,
+            "review_advisory": True,
             "review_legal": True,
             "review_ux": True,
             "review_security": True,
+            "review_vp": True,
+            "review_data_steward": True,
+            "review_comms": True,
+            "review_impacted_teams": True,
         }
 
         response = self.client.post(
@@ -764,7 +770,6 @@ class TestExperimentReviewUpdateView(TestCase):
         experiment = Experiment.objects.get()
 
         self.assertTrue(experiment.review_science)
-        self.assertTrue(experiment.review_peer)
         self.assertTrue(experiment.review_relman)
         self.assertTrue(experiment.review_qa)
         self.assertTrue(experiment.review_legal)

@@ -94,15 +94,20 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
         "Locales: en-US, en-CA, en-GB\nGeos: US, CA, GB\n"
         'Some "additional" filtering'
     )
+
+    review_advisory = False
     review_science = False
-    review_peer = False
-    review_relman = False
+    review_engineering = False
+    review_bugzilla = False
     review_qa = False
+    review_relman = False
     review_legal = False
     review_ux = False
     review_security = False
     review_vp = False
     review_data_steward = False
+    review_comms = False
+    review_impacted_teams = False
 
     class Meta:
         model = Experiment
