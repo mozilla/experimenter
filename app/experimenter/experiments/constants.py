@@ -131,6 +131,7 @@ class ExperimentConstants(object):
     RISK_RELEASE_POPULATION_LABEL = (
         "Does this study affect a large number of Release users?"
     )
+    RISK_TECHNICAL_LABEL = "Is this study Complex / Technically Risky?"
 
     # Help texts
     TYPE_HELP_TEXT = """
@@ -465,6 +466,9 @@ class ExperimentConstants(object):
       <p><strong>Example:</strong></p>
     """
 
+    RISK_TECHNICAL_HELP_TEXT = """
+    """
+
     TESTING_HELP_TEXT = """
       <p>
         Your code should be QA’d to ensure that changing the
@@ -480,6 +484,12 @@ class ExperimentConstants(object):
         detailed description of how each branch can be
         tested and the expected behaviours.
       </p>
+    """
+
+    TEST_BUILDS_HELP_TEXT = """
+    """
+
+    QA_STATUS_HELP_TEXT = """
     """
 
     REVIEW_COMMS_HELP_TEXT = """
@@ -609,13 +619,30 @@ Accountable: Shield Team
     """
     )
 
+    RISK_TECHNICAL_DEFAULT = (
+        """
+If you answered “yes”, your study is considered Complex. QA and Release
+Management will need details. Please outline the technical risk factors
+or complexity factors that have been identified and any mitigations.
+This information will automatically be put in emails to QA.
+    """.strip()
+    )
+
     TESTING_DEFAULT = (
-        """QA Status of your code: Green, yellow, red.
+        """
+If additional QA is required, provide a plan (or links to them) for testing
+each branch of this study.
+    """.strip()
+    )
 
+    TEST_BUILDS_DEFAULT = (
+        """
+If applicable, link to any relevant test builds / staging information
+    """.strip()
+    )
 
-If additional QA is required, provide a plan for
-testing each branch of this study:
-    """
+    QA_STATUS_DEFAULT = (
+        "What is the QA status: Not started, Green, Yellow, Red"
     )
 
     ATTENTION_MESSAGE = (

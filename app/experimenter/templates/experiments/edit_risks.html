@@ -1,7 +1,7 @@
 {% extends "experiments/edit_base.html" %}
 
 {% load static %}
-      
+
 {% block edit_title %}
   Edit {{ object.name }} Risks & Testing
 {% endblock %}
@@ -12,22 +12,32 @@
 
 {% block edit_form %}
     {% include "experiments/radio_field_inline.html" with field=form.risk_partner_related %}
-    
+
     {% include "experiments/radio_field_inline.html" with field=form.risk_brand %}
-    
+
     {% include "experiments/radio_field_inline.html" with field=form.risk_fast_shipped %}
-    
+
     {% include "experiments/radio_field_inline.html" with field=form.risk_confidential %}
-    
+
     {% include "experiments/radio_field_inline.html" with field=form.risk_release_population %}
+
+    {% include "experiments/radio_field_inline.html" with field=form.risk_technical %}
+
+    <div id="risks_technical_description_field" class="collapse">
+      {% include "experiments/field_inline.html" with field=form.risk_technical_description %}
+    </div>
 
     <div id="risks_field" class="collapse">
       {% include "experiments/field_inline.html" with field=form.risks %}
     </div>
-    
+
     {% include "experiments/field_inline.html" with field=form.testing %}
+
+    {% include "experiments/field_inline.html" with field=form.test_builds %}
+
+    {% include "experiments/field_inline.html" with field=form.qa_status %}
 {% endblock %}
-        
+
 {% block edit_buttons %}
   {% if object %}
     <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">
@@ -55,13 +65,28 @@
 {% block extrascripts %}
   <script>
     $(function () {
+      function updateTechnicalRisk() {
+        const hasTechnicalRisk = $('[type="radio"][name="risk_technical"][value="True"]:checked').length > 0;
+        $('#id_risk_technical_description').prop("required", hasTechnicalRisk);
+
+        if (hasTechnicalRisk) {
+          $('#risks_technical_description_field').show();
+        } else {
+          $('#risks_technical_description_field').hide();
+        }
+      }
+
       $('[type="radio"]').change(function (e) {
         if ($('[type="radio"][value="True"]:checked').length > 0) {
-          $('#risks_field').show(); 
+          $('#risks_field').show();
         } else {
-          $('#risks_field').hide(); 
+          $('#risks_field').hide();
         }
+
+        updateTechnicalRisk();
       });
+
+      updateTechnicalRisk();
     });
   </script>
 {% endblock %}

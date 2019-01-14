@@ -619,13 +619,17 @@ class TestExperimentRisksUpdateView(TestCase):
         )
 
         data = {
-            "risk_partner_related": False,
+            "risk_partner_related": True,
             "risk_brand": True,
-            "risk_fast_shipped": False,
+            "risk_fast_shipped": True,
             "risk_confidential": True,
-            "risk_release_population": False,
+            "risk_release_population": True,
+            "risk_technical": True,
+            "risk_technical_description": "It's complicated",
             "risks": "There are some risks",
             "testing": "Always be sure to test!",
+            "test_builds": "Latest Build",
+            "qa_status": "Green",
         }
 
         response = self.client.post(
@@ -639,21 +643,20 @@ class TestExperimentRisksUpdateView(TestCase):
 
         experiment = Experiment.objects.get()
 
+        self.assertTrue(experiment.risk_partner_related)
+        self.assertTrue(experiment.risk_brand)
+        self.assertTrue(experiment.risk_fast_shipped)
+        self.assertTrue(experiment.risk_confidential)
+        self.assertTrue(experiment.risk_release_population)
+        self.assertTrue(experiment.risk_technical)
         self.assertEqual(
-            experiment.risk_partner_related, data["risk_partner_related"]
-        )
-        self.assertEqual(experiment.risk_brand, data["risk_brand"])
-        self.assertEqual(
-            experiment.risk_fast_shipped, data["risk_fast_shipped"]
-        )
-        self.assertEqual(
-            experiment.risk_confidential, data["risk_confidential"]
-        )
-        self.assertEqual(
-            experiment.risk_release_population, data["risk_release_population"]
+            experiment.risk_technical_description,
+            data["risk_technical_description"],
         )
         self.assertEqual(experiment.risks, data["risks"])
         self.assertEqual(experiment.testing, data["testing"])
+        self.assertEqual(experiment.test_builds, data["test_builds"])
+        self.assertEqual(experiment.qa_status, data["qa_status"])
 
         self.assertEqual(experiment.changes.count(), 2)
 

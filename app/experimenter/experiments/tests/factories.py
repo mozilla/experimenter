@@ -70,26 +70,40 @@ class ExperimentFactory(factory.django.DjangoModelFactory):
     analysis = factory.LazyAttribute(
         lambda o: faker.text(random.randint(500, 5000))
     )
-    testing = factory.LazyAttribute(
-        lambda o: faker.text(random.randint(500, 5000))
-    )
-    risks = factory.LazyAttribute(
-        lambda o: faker.text(random.randint(500, 5000))
-    )
-    total_users = factory.LazyAttribute(
-        lambda o: random.randint(100000, 1000000)
-    )
+
     risk_partner_related = False
     risk_brand = False
     risk_fast_shipped = False
     risk_confidential = False
     risk_release_population = False
+    risk_technical = False
+
+    risk_technical_description = factory.LazyAttribute(
+        lambda o: faker.text(random.randint(500, 1000))
+    )
+    risks = factory.LazyAttribute(
+        lambda o: faker.text(random.randint(500, 1000))
+    )
+    testing = factory.LazyAttribute(
+        lambda o: faker.text(random.randint(500, 1000))
+    )
+    test_builds = factory.LazyAttribute(
+        lambda o: faker.text(random.randint(500, 1000))
+    )
+    qa_status = factory.LazyAttribute(
+        lambda o: faker.text(random.randint(500, 1000))
+    )
+
     enrollment_dashboard_url = "http://www.example.com/enrollment"
     dashboard_url = "http://www.example.com/dashboard"
     dashboard_image_url = "http://www.example.com/dashboard.png"
     population_percent = factory.LazyAttribute(
         lambda o: decimal.Decimal(random.randint(1, 10) * 10)
     )
+    total_users = factory.LazyAttribute(
+        lambda o: random.randint(100000, 1000000)
+    )
+
     client_matching = (
         "Locales: en-US, en-CA, en-GB\nGeos: US, CA, GB\n"
         'Some "additional" filtering'
