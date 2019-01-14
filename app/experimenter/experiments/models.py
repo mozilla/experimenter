@@ -97,9 +97,6 @@ class Experiment(ExperimentConstants, models.Model):
     )
     analysis_owner = models.CharField(max_length=255, blank=True, null=True)
 
-    testing = models.TextField(
-        default=ExperimentConstants.TESTING_DEFAULT, blank=True, null=True
-    )
     total_users = models.PositiveIntegerField(default=0)
     enrollment_dashboard_url = models.URLField(blank=True, null=True)
     dashboard_url = models.URLField(blank=True, null=True)
@@ -124,9 +121,19 @@ class Experiment(ExperimentConstants, models.Model):
     risk_release_population = models.NullBooleanField(
         default=None, blank=True, null=True
     )
+    risk_technical = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    risk_technical_description = models.TextField(blank=True, null=True)
+
     risks = models.TextField(
         default=ExperimentConstants.RISKS_DEFAULT, blank=True, null=True
     )
+
+    # Testing
+    testing = models.TextField(blank=True, null=True)
+    test_builds = models.TextField(blank=True, null=True)
+    qa_status = models.TextField(blank=True, null=True)
 
     # Review Fields (sign-offs)
     # Required
@@ -315,7 +322,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def is_high_risk(self):
-        return True in self._risk_questions
+        return any(self._risk_questions)
 
     @property
     def completed_overview(self):
@@ -348,14 +355,16 @@ class Experiment(ExperimentConstants, models.Model):
             self.risk_fast_shipped,
             self.risk_confidential,
             self.risk_release_population,
+            self.risk_technical,
         )
 
     @property
     def completed_risks(self):
-        return (
-            None not in self._risk_questions
-            and self.testing != self.TESTING_DEFAULT
-        )
+        return None not in self._risk_questions
+
+    @property
+    def completed_testing(self):
+        return self.qa_status
 
     @property
     def _required_reviews(self):

@@ -376,6 +376,7 @@ class RadioWidget(forms.widgets.RadioSelect):
 class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
     RADIO_OPTIONS = ((False, "No"), (True, "Yes"))
 
+    # Radio Buttons
     risk_partner_related = forms.ChoiceField(
         label=Experiment.RISK_PARTNER_RELATED_LABEL,
         choices=RADIO_OPTIONS,
@@ -401,15 +402,66 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
+    risk_technical = forms.ChoiceField(
+        label=Experiment.RISK_TECHNICAL_LABEL,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+    )
+
+    # Optional Risk Descriptions
+    risk_technical_description = forms.CharField(
+        required=False,
+        label="Technical Risks Description",
+        help_text=Experiment.RISK_TECHNICAL_HELP_TEXT,
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "rows": 10,
+                "placeholder": Experiment.RISK_TECHNICAL_DEFAULT,
+            }
+        ),
+    )
     risks = forms.CharField(
         label="Risks",
         help_text=Experiment.RISKS_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
+
+    # Testing
     testing = forms.CharField(
-        label="Test Plan",
+        required=False,
+        label="Test Instructions",
         help_text=Experiment.TESTING_HELP_TEXT,
-        widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "rows": 10,
+                "placeholder": Experiment.TESTING_DEFAULT,
+            }
+        ),
+    )
+    test_builds = forms.CharField(
+        required=False,
+        label="Test Builds",
+        help_text=Experiment.TEST_BUILDS_HELP_TEXT,
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "rows": 5,
+                "placeholder": Experiment.TEST_BUILDS_DEFAULT,
+            }
+        ),
+    )
+    qa_status = forms.CharField(
+        label="QA Status",
+        help_text=Experiment.QA_STATUS_HELP_TEXT,
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": Experiment.QA_STATUS_DEFAULT,
+            }
+        ),
     )
 
     class Meta:
@@ -420,8 +472,12 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
             "risk_fast_shipped",
             "risk_confidential",
             "risk_release_population",
+            "risk_technical",
+            "risk_technical_description",
             "risks",
             "testing",
+            "test_builds",
+            "qa_status",
         )
 
 

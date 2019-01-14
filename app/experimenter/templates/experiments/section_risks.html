@@ -60,6 +60,22 @@
     </strong>
   </p>
 
+  <p>{{ experiment.RISK_TECHNICAL_LABEL }}</p>
+  <p class="
+    {% if experiment.risk_technical %}
+      text-danger
+    {% endif %}
+  ">
+    <strong>
+      {{ experiment.risk_technical|yesno:"Yes,No" }}
+    </strong>
+  </p>
+
+  {% if experiment.risk_technical %}
+    <h5>Technical Risk/Complexity</h5>
+    {{ experiment.risk_technical_description|urlize|linebreaks }}
+  {% endif %}
+
   {% if experiment.is_high_risk %}
     <h5>RASCI Owners and Deliverables</h5>
     {{ experiment.risks|urlize|linebreaks }}

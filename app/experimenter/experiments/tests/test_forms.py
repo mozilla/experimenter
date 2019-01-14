@@ -694,8 +694,12 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
             "risk_fast_shipped": True,
             "risk_confidential": True,
             "risk_release_population": True,
+            "risk_technical": True,
+            "risk_technical_description": "It's complicated",
             "risks": "There are some risks",
             "testing": "Always be sure to test!",
+            "test_builds": "Latest build",
+            "qa_status": "It ain't easy being green",
         }
 
         form = ExperimentRisksForm(
@@ -709,8 +713,15 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         self.assertTrue(experiment.risk_fast_shipped)
         self.assertTrue(experiment.risk_confidential)
         self.assertTrue(experiment.risk_release_population)
+        self.assertTrue(experiment.risk_technical)
+        self.assertEqual(
+            experiment.risk_technical_description,
+            data["risk_technical_description"],
+        )
         self.assertEqual(experiment.risks, data["risks"])
         self.assertEqual(experiment.testing, data["testing"])
+        self.assertEqual(experiment.test_builds, data["test_builds"])
+        self.assertEqual(experiment.qa_status, data["qa_status"])
 
 
 class TestExperimentReviewForm(

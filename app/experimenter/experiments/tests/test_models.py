@@ -473,9 +473,10 @@ class TestExperimentModel(TestCase):
             risk_fast_shipped=False,
             risk_confidential=True,
             risk_release_population=False,
+            risk_technical=True,
         )
         self.assertEqual(
-            experiment._risk_questions, (False, True, False, True, False)
+            experiment._risk_questions, (False, True, False, True, False, True)
         )
 
     def test_risk_not_completed_when_risk_questions_not_answered(self):
@@ -486,17 +487,6 @@ class TestExperimentModel(TestCase):
             risk_confidential=None,
             risk_release_population=None,
             testing="A test plan!",
-        )
-        self.assertFalse(experiment.completed_risks)
-
-    def test_risk_not_completed_when_risk_questions_answered_not_testing(self):
-        experiment = ExperimentFactory.create(
-            risk_partner_related=False,
-            risk_brand=True,
-            risk_fast_shipped=False,
-            risk_confidential=True,
-            risk_release_population=False,
-            testing=Experiment.TESTING_DEFAULT,
         )
         self.assertFalse(experiment.completed_risks)
 
