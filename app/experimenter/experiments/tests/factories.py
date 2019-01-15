@@ -7,19 +7,22 @@ import factory
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
 
-from experimenter.openidc.tests.factories import UserFactory
+from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import (
     Experiment,
     ExperimentChangeLog,
     ExperimentComment,
     ExperimentVariant,
 )
+from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 
 faker = FakerFactory.create()
 
 
-class ExperimentFactory(factory.django.DjangoModelFactory):
+class ExperimentFactory(
+    ExperimentConstants, factory.django.DjangoModelFactory
+):
     type = Experiment.TYPE_PREF
     owner = factory.SubFactory(UserFactory)
     project = factory.SubFactory(ProjectFactory)
