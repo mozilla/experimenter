@@ -76,16 +76,20 @@
         }
       }
 
-      $('[type="radio"]').change(function (e) {
+      function updateRisks() {
         if ($('[type="radio"][value="True"]:checked').length > 0) {
           $('#risks_field').show();
         } else {
           $('#risks_field').hide();
         }
+      }
 
+      $('[type="radio"]').change(function (e) {
+        updateRisks();
         updateTechnicalRisk();
       });
 
+      updateRisks();
       updateTechnicalRisk();
     });
   </script>
