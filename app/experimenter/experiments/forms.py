@@ -220,7 +220,7 @@ class ExperimentVariantsFormSet(BaseInlineFormSet):
         ]
 
         total_percentage = sum(
-            [form.cleaned_data["ratio"] for form in alive_forms]
+            [form.cleaned_data.get("ratio", 0) for form in alive_forms]
         )
 
         if total_percentage != 100:
