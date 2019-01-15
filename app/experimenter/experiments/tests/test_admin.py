@@ -1,9 +1,11 @@
 import mock
+from django.conf import settings
+from django.urls import reverse
 from django.test import TestCase
 
-
-from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.admin import ExperimentAdmin
+from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.openidc.tests.factories import UserFactory
 
 
 class ExperimentAdminTest(TestCase):
@@ -25,3 +27,21 @@ class ExperimentAdminTest(TestCase):
                 url=experiment.dashboard_url
             ),
         )
+
+    def test_returns_200(self):
+        user = UserFactory()
+        user.is_staff = True
+        user.is_superuser = True
+        user.save()
+
+        experiment = ExperimentFactory.create_with_status(
+            ExperimentFactory.STATUS_DRAFT
+        )
+        response = self.client.get(
+            reverse(
+                "admin:experiments_experiment_change",
+                kwargs={"object_id": experiment.id},
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user.email},
+        )
+        self.assertEqual(response.status_code, 200)
