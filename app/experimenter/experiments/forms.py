@@ -630,12 +630,12 @@ class ExperimentReviewForm(
         message = ""
 
         if self.added_reviews:
-            message += "Added reviews: {reviews} ".format(
+            message += "Added sign-offs: {reviews} ".format(
                 reviews=", ".join(self.added_reviews)
             )
 
         if self.removed_reviews:
-            message += "Removed reviews: {reviews} ".format(
+            message += "Removed sign-offs: {reviews} ".format(
                 reviews=", ".join(self.removed_reviews)
             )
 
