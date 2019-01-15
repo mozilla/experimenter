@@ -297,6 +297,11 @@ class TestExperimentVariantsFormSet(TestCase):
         for form in formset.forms:
             self.assertIn("name", form.errors)
 
+    def test_empty_branch_size_raises_validation_error(self):
+        del self.data["variants-0-ratio"]
+        formset = self.FormSet(data=self.data)
+        self.assertFalse(formset.is_valid())
+
 
 class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
