@@ -492,6 +492,7 @@ class ExperimentConstants(object):
     QA_STATUS_HELP_TEXT = """
     """
 
+    # Sign-Offs
     REVIEW_COMMS_HELP_TEXT = """
       <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Mozillapress/commsreview(optional)">Help</a>
     """  # noqa
@@ -550,6 +551,31 @@ class ExperimentConstants(object):
 
     REVIEW_INTENT_TO_SHIP_HELP_TEXT = """
       <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-IntenttoShipemailsent">Help</a>
+    """  # noqa
+
+    # Risks
+    RISK_PARTNER_RELATED_HELP_TEXT = """
+      https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
+    """  # noqa
+
+    RISK_BRAND_HELP_TEXT = """
+      https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
+    """  # noqa
+
+    RISK_FAST_SHIPPED_HELP_TEXT = """
+      https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
+    """  # noqa
+
+    RISK_CONFIDENTIAL_HELP_TEXT = """
+      https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
+    """  # noqa
+
+    RISK_RELEASE_POPULATION_HELP_TEXT = """
+      https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
+    """  # noqa
+
+    RISK_TECHNICAL_HELP_TEXT = """
+      https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
     """  # noqa
 
     # Text defaults

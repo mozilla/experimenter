@@ -2,7 +2,7 @@
               <div class="col-9 offset-3">
                 <label for="{{ field.id_for_label }}">
                   <strong>{{ field.label }}</strong>
-                  <a href="#{{ field.id_for_label }}-help" data-toggle="collapse" aria-expanded="false" aria-controls="{{ field.id_for_label }}-help">Help</a>
+                  <a target="_blank" href="{{ field.help_text }}">Help</a>
                 </label>
 
                 <div class="row">
@@ -10,9 +10,5 @@
                 </div>
 
                 {% include "experiments/field_errors_inline.html" with field=field %}
-
-                <div id="{{ field.id_for_label }}-help" class="col-9 offset-3 help-block collapse {% if field.errors %}in{% endif %}">
-                  {{ field.help_text|safe }}
-                </div>
               </div>
             </div>
