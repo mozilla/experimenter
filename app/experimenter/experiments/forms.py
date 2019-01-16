@@ -379,31 +379,37 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
     # Radio Buttons
     risk_partner_related = forms.ChoiceField(
         label=Experiment.RISK_PARTNER_RELATED_LABEL,
+        help_text=Experiment.RISK_PARTNER_RELATED_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_brand = forms.ChoiceField(
         label=Experiment.RISK_BRAND_LABEL,
+        help_text=Experiment.RISK_BRAND_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_fast_shipped = forms.ChoiceField(
         label=Experiment.RISK_FAST_SHIPPED_LABEL,
+        help_text=Experiment.RISK_FAST_SHIPPED_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_confidential = forms.ChoiceField(
         label=Experiment.RISK_CONFIDENTIAL_LABEL,
+        help_text=Experiment.RISK_CONFIDENTIAL_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_release_population = forms.ChoiceField(
         label=Experiment.RISK_RELEASE_POPULATION_LABEL,
+        help_text=Experiment.RISK_RELEASE_POPULATION_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_technical = forms.ChoiceField(
         label=Experiment.RISK_TECHNICAL_LABEL,
+        help_text=Experiment.RISK_TECHNICAL_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
