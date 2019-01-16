@@ -580,43 +580,35 @@ Strategy and Insights can help create surveys if needed
     )
 
     RISKS_DEFAULT = (
-        """If you answered yes to any of the above, your study is considered
-"High Risk" and will require an executive sponsor to sign off
-explicitly in the bug and state the known risk.
+        """
+If you answered “yes” to any of the above, your study is considered High Risk
+and needs executive sponsor sign-off.
 
-For a high risk study, each of the following
-must be provided and accounted for:
+Please state the known risk(s) here and any mitigation(s).
 
+For a high risk study, each of the following must be provided
+and accounted for:
 
 Final Experiment Design
-Responsible: Experiment owner
-Accountable: Shield Team
-
-
-Population Size
-Responsible: Experiment owner
-Accountable: SHIELD Team
-
+    Responsible: Experiment owner
+    Accountable: Data Scientist
 
 Data Analysis
-Responsible: Assigned analyst
-Accountable: SHIELD Team
+    Responsible: Assigned analyst
+    Accountable: Experiment owner / PM
 
-
-Legal Sign-Off
-Responsible: Experiment owner
-Accountable: SHIELD
-
+Legal Sign-
+    Off Responsible: Experiment owner
+    Accountable: PM and/or EPM
 
 Shipping
-Responsible: Release Management
-Accountable: Shield Team
-
+    Responsible: Experiment owner
+    Accountable: Release Mgmt
 
 Risk Matrix
-Responsible: Experiment owner
-Accountable: Shield Team
-    """
+    Responsible: Experiment owner
+    Accountable: Product Manager
+    """.strip()
     )
 
     RISK_TECHNICAL_DEFAULT = (
