@@ -361,7 +361,7 @@ class ExperimentConstants(object):
         Choose the size of this branch represented as a whole number.
         The size of all branches together must be less than or equal to 100.
         It does not have to be exact, so these sizes are simply a
-        recommendation of the relative distrubution of the branches.
+        recommendation of the relative distribution of the branches.
       </p>
       <p><strong>Example</strong> 50
     """
