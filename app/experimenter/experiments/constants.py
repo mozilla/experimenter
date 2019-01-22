@@ -363,7 +363,7 @@ class ExperimentConstants(object):
         It does not have to be exact, so these sizes are simply a
         recommendation of the relative distribution of the branches.
       </p>
-      <p><strong>Example</strong> 50
+      <p><strong>Example</strong> 50</p>
     """
 
     CONTROL_VALUE_HELP_TEXT = """
