@@ -35,7 +35,6 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
 class ExperimentSerializer(serializers.ModelSerializer):
     start_date = JSTimestampField()
     end_date = JSTimestampField()
-    proposed_end_date = JSTimestampField()
     proposed_start_date = JSTimestampField()
     variants = ExperimentVariantSerializer(many=True)
 
@@ -60,7 +59,8 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "pref_branch",
             "pref_key",
             "pref_type",
-            "proposed_end_date",
             "proposed_start_date",
+            "proposed_enrollment",
+            "proposed_duration",
             "variants",
         )

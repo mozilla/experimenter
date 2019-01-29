@@ -206,9 +206,8 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "feature_bugzilla_url": "https://bugzilla.mozilla.org/123/",
             "related_work": "Designs: https://www.example.com/myproject/",
             "proposed_start_date": datetime.date.today(),
-            "proposed_end_date": (
-                datetime.date.today() + datetime.timedelta(days=1)
-            ),
+            "proposed_enrollment": 10,
+            "proposed_duration": 20,
         }
 
     def test_form_creates_experiment(self):
@@ -226,15 +225,27 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertEqual(
             experiment.proposed_start_date, self.data["proposed_start_date"]
         )
-        self.assertEqual(
-            experiment.proposed_end_date, self.data["proposed_end_date"]
-        )
+        self.assertEqual(experiment.proposed_enrollment, 10)
+        self.assertEqual(experiment.proposed_duration, 20)
 
         self.assertEqual(experiment.changes.count(), 1)
         change = experiment.changes.get()
         self.assertEqual(change.old_status, None)
         self.assertEqual(change.new_status, experiment.status)
         self.assertEqual(change.changed_by, self.request.user)
+
+    def test_enrollment_must_be_less_or_equal_duration(self):
+        self.data["proposed_enrollment"] = 2
+        self.data["proposed_duration"] = 1
+
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+
+    def test_enrollment_is_optional(self):
+        del self.data["proposed_enrollment"]
+
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertTrue(form.is_valid())
 
 
 class TestExperimentVariantsFormSet(TestCase):

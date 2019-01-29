@@ -161,10 +161,6 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create_with_variants()
         self.assertEqual(experiment.start_date, experiment.proposed_start_date)
 
-    def test_end_date_returns_proposed_end_date_if_change_is_missing(self):
-        experiment = ExperimentFactory.create_with_variants()
-        self.assertEqual(experiment.end_date, experiment.proposed_end_date)
-
     def test_start_date_returns_datetime_if_change_exists(self):
         change = ExperimentChangeLogFactory.create(
             old_status=Experiment.STATUS_ACCEPTED,
@@ -174,12 +170,81 @@ class TestExperimentModel(TestCase):
             change.experiment.start_date, change.changed_on.date()
         )
 
-    def test_end_date_returns_datetime_if_change_exists(self):
-        change = ExperimentChangeLogFactory.create(
-            old_status=Experiment.STATUS_LIVE,
-            new_status=Experiment.STATUS_COMPLETE,
+    def test_end_date_returns_start_date_plus_duration(self):
+        experiment = ExperimentFactory.create_with_variants(
+            proposed_start_date=datetime.date(2019, 1, 1), proposed_duration=10
         )
-        self.assertEqual(change.experiment.end_date, change.changed_on.date())
+        self.assertEqual(experiment.end_date, datetime.date(2019, 1, 11))
+
+    def test_end_date_returns_change_date_plus_duration_if_change_exists(self):
+        experiment = ExperimentFactory.create_with_variants(
+            proposed_start_date=datetime.date(2019, 1, 1), proposed_duration=10
+        )
+        ExperimentChangeLogFactory.create(
+            changed_on=datetime.datetime(2019, 2, 1),
+            experiment=experiment,
+            old_status=Experiment.STATUS_ACCEPTED,
+            new_status=Experiment.STATUS_LIVE,
+        )
+        self.assertEqual(experiment.end_date, datetime.date(2019, 2, 11))
+
+    def test_observation_duration_returns_duration_minus_enrollment(self):
+        experiment = ExperimentFactory.create_with_variants(
+            proposed_duration=20, proposed_enrollment=10
+        )
+        self.assertEqual(experiment.observation_duration, 10)
+
+    def test_observation_duration_returns_0_if_no_enrollment(self):
+        experiment = ExperimentFactory.create_with_variants(
+            proposed_duration=20, proposed_enrollment=None
+        )
+        self.assertEqual(experiment.observation_duration, 0)
+
+    def test_enrollment_end_date_returns_None_if_enrollment_not_set(self):
+        experiment = ExperimentFactory.create_with_variants(
+            proposed_enrollment=None
+        )
+        self.assertEqual(experiment.enrollment_end_date, None)
+
+    def test_enrollment_end_date_returns_start_plus_enrollment(self):
+        experiment = ExperimentFactory.create_with_variants(
+            proposed_start_date=datetime.date(2019, 1, 1),
+            proposed_duration=20,
+            proposed_enrollment=10,
+        )
+        self.assertEqual(
+            experiment.enrollment_end_date, datetime.date(2019, 1, 11)
+        )
+
+    def test_dates_returns_date_string(self):
+        experiment = ExperimentFactory.create_with_variants(
+            proposed_start_date=datetime.date(2019, 1, 1), proposed_duration=20
+        )
+        self.assertEqual(
+            experiment.dates, "Jan 01, 2019 - Jan 21, 2019 (20 days)"
+        )
+
+    def test_enrollment_dates_returns_date_string(self):
+        experiment = ExperimentFactory.create_with_variants(
+            proposed_start_date=datetime.date(2019, 1, 1),
+            proposed_duration=20,
+            proposed_enrollment=10,
+        )
+        self.assertEqual(
+            experiment.enrollment_dates,
+            "Jan 01, 2019 - Jan 11, 2019 (10 days)",
+        )
+
+    def test_observation_dates_returns_date_string(self):
+        experiment = ExperimentFactory.create_with_variants(
+            proposed_start_date=datetime.date(2019, 1, 1),
+            proposed_duration=20,
+            proposed_enrollment=10,
+        )
+        self.assertEqual(
+            experiment.observation_dates,
+            "Jan 11, 2019 - Jan 21, 2019 (10 days)",
+        )
 
     def test_control_property_returns_experiment_control(self):
         experiment = ExperimentFactory.create_with_variants()

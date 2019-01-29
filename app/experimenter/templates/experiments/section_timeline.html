@@ -1,0 +1,47 @@
+{% extends "experiments/section_base.html" %}
+
+{% block section_title %}
+Timeline
+{% endblock %}
+
+{% block section_content %}
+  <div class="row mb-3">
+    <div class="col">
+      <div class="row">
+        <div class="col pr-0">
+          <p class="border-bottom-teal">{{ experiment.start_date }}</p>
+          <strong>Experiment: </strong>{{ experiment.proposed_duration }} Day{{ experiment.proposed_duration|pluralize }}
+        </div>
+        <div class="col pl-0 text-right">
+          <p class="border-bottom-teal">{{ experiment.end_date }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if experiment.observation_duration %}
+    <div class="row mb-3">
+      <div class="col-6">
+        <div class="row">
+          <div class="col-6 pr-0">
+            <p class="border-bottom-blue">{{ experiment.start_date }}</p>
+            <strong>Enrollment: </strong>{{ experiment.proposed_enrollment}} Day{{ experiment.proposed_enrollment|pluralize }}
+          </div>
+          <div class="col-6 pl-0 text-right">
+            <p class="border-bottom-blue">{{ experiment.enrollment_end_date }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="row">
+          <div class="col-6 pr-0">
+            <p class="border-bottom-green">{{ experiment.enrollment_end_date }}</p>
+            <strong>Observation: </strong>{{ experiment.observation_duration }} Day{{ experiment.observation_duration|pluralize }}
+          </div>
+          <div class="col-6 pl-0 text-right">
+            <p class="border-bottom-green">{{ experiment.end_date }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
