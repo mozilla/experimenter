@@ -102,6 +102,7 @@ class ExperimentConstants(object):
         (PREF_BRANCH_USER, PREF_BRANCH_USER),
     )
 
+    SECTION_TIMELINE = "timeline"
     SECTION_OVERVIEW = "overview"
     SECTION_POPULATION = "population"
     SECTION_BRANCHES = "branches"
@@ -112,6 +113,7 @@ class ExperimentConstants(object):
 
     # Detail Sections
     SECTION_CHOICES = (
+        (SECTION_TIMELINE, "Timeline"),
         (SECTION_OVERVIEW, "Overview"),
         (SECTION_POPULATION, "Population"),
         (SECTION_BRANCHES, "Firefox & Branches"),
@@ -201,16 +203,31 @@ class ExperimentConstants(object):
       </p>
     """
 
-    PROPOSED_END_DATE_HELP_TEXT = """
+    PROPOSED_DURATION_HELP_TEXT = """
       <p>
-        Choose the date you expect the experiment to be completed.
-        This date is for planning purposes only, the actual end date
-        is subject to the sign off and review processes.  Please refer to the
-        <a target="_blank"
-        href="https://wiki.mozilla.org/RapidRelease/Calendar">
-        Firefox Release Calendar</a>
-        to coordinate the timing of your experiment with the
-        Firefox Version it will be deployed to.
+        Specify the duration of the experiment in days.  This determines
+        the maximum amount of time a user may be enrolled in the study.
+        Once the study is live, users will begin to enroll.  They will
+        remain enrolled until the entire experiment duration has
+        transpired.  Once the experiment duration has elapsed,
+        users will be unenrolled.
+      </p>
+      <p>
+        <strong>Example:</strong> 30
+      </p>
+    """
+
+    PROPOSED_ENROLLMENT_HELP_TEXT = """
+      <p>
+        Some experiments may only wish to enroll users for a limited amount
+        of time.  This period must be shorter than the entire experiment
+        duration.  If you specify a limited enrollment period, then after
+        that period has expired, no additional users will be enrolled into the
+        study.  Users that have been enrolled will remain enrolled until
+        the experiment ends.
+      </p>
+      <p>
+        <strong>Example:</strong> 10
       </p>
     """
 

@@ -109,20 +109,6 @@ class ExperimentOverviewForm(
         help_text=Experiment.SHORT_DESCRIPTION_HELP_TEXT,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
-    proposed_start_date = forms.DateField(
-        label="Proposed Start Date",
-        help_text=Experiment.PROPOSED_START_DATE_HELP_TEXT,
-        widget=forms.DateInput(
-            attrs={"type": "date", "class": "form-control"}
-        ),
-    )
-    proposed_end_date = forms.DateField(
-        label="Proposed End Date",
-        help_text=Experiment.PROPOSED_END_DATE_HELP_TEXT,
-        widget=forms.DateInput(
-            attrs={"type": "date", "class": "form-control"}
-        ),
-    )
     data_science_bugzilla_url = BugzillaURLField(
         label="Data Science Bugzilla URL",
         help_text=Experiment.DATA_SCIENCE_BUGZILLA_HELP_TEXT,
@@ -138,6 +124,26 @@ class ExperimentOverviewForm(
         help_text=Experiment.RELATED_WORK_HELP_TEXT,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
+    proposed_start_date = forms.DateField(
+        label="Proposed Start Date",
+        help_text=Experiment.PROPOSED_START_DATE_HELP_TEXT,
+        widget=forms.DateInput(
+            attrs={"type": "date", "class": "form-control"}
+        ),
+    )
+    proposed_duration = forms.IntegerField(
+        min_value=1,
+        label="Proposed Experiment Duration (days)",
+        help_text=Experiment.PROPOSED_DURATION_HELP_TEXT,
+        widget=forms.NumberInput(attrs={"class": "form-control"}),
+    )
+    proposed_enrollment = forms.IntegerField(
+        required=False,
+        min_value=1,
+        label="Proposed Enrollment Duration (days)",
+        help_text=Experiment.PROPOSED_ENROLLMENT_HELP_TEXT,
+        widget=forms.NumberInput(attrs={"class": "form-control"}),
+    )
 
     class Meta:
         model = Experiment
@@ -151,8 +157,24 @@ class ExperimentOverviewForm(
             "feature_bugzilla_url",
             "related_work",
             "proposed_start_date",
-            "proposed_end_date",
+            "proposed_duration",
+            "proposed_enrollment",
         ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # enrollment may be None
+        enrollment = cleaned_data.get("proposed_enrollment", 0) or 0
+
+        if enrollment > cleaned_data.get("proposed_duration", 0):
+            msg = (
+                "The enrollment duration must be less than "
+                "or equal to the experiment duration."
+            )
+            self._errors["proposed_enrollment"] = [msg]
+
+        return cleaned_data
 
 
 class ExperimentVariantAddonForm(NameSlugMixin, forms.ModelForm):

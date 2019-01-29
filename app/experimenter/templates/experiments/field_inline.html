@@ -2,6 +2,9 @@
   <div class="col-3 text-right">
     <label class="col-form-label" for="{{ field.id_for_label }}">
       <strong>{{ field.label }}</strong>
+      {% if not field.field.required %}
+        <div class="text-muted">Optional</div>
+      {% endif %}
     </label>
     <br>
     <a href="#{{ field.id_for_label }}-help" data-toggle="collapse" aria-expanded="false" aria-controls="{{ field.id_for_label }}-help">Help</a>

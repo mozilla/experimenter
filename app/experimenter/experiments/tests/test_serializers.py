@@ -72,12 +72,11 @@ class TestExperimentSerializer(TestCase):
             "pref_branch": experiment.pref_branch,
             "pref_key": experiment.pref_key,
             "pref_type": experiment.pref_type,
-            "proposed_end_date": JSTimestampField().to_representation(
-                experiment.proposed_end_date
-            ),
             "proposed_start_date": JSTimestampField().to_representation(
                 experiment.proposed_start_date
             ),
+            "proposed_enrollment": experiment.proposed_enrollment,
+            "proposed_duration": experiment.proposed_duration,
             "short_description": experiment.short_description,
             "slug": experiment.slug,
             "start_date": JSTimestampField().to_representation(

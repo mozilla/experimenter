@@ -147,6 +147,22 @@ select {
 	border-left: 3px solid #ccc;
 }
 
+.border-bottom-grey {
+	border-bottom: 3px solid #ccc;
+}
+
+.border-bottom-blue {
+	border-bottom: 3px solid #45a1ff; 
+}
+
+.border-bottom-green {
+	border-bottom: 3px solid #30e60b; 
+}
+
+.border-bottom-teal {
+  border-bottom: 3px solid #00c8d7;
+}
+
 .bubble {
   border-radius: 4px;
 	background-color: #F3F3F3;

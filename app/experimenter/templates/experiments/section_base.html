@@ -17,7 +17,7 @@
   <div class="card row mb-3 pt-3">
     <div class="container">
       <div class="row">
-        <div class="col-10">
+        <div class="col-11">
           {% if section_complete %}
             {% block section_content %}
               {{ section_content|urlize|linebreaks }}
@@ -28,7 +28,7 @@
         </div>
 
         {% if experiment.is_editable %}
-          <div class="col-2 text-right">
+          <div class="col-1 text-right pl-0">
             <a href="{% url edit_url_name slug=experiment.slug %}">
               <span class="fas fa-edit"></span> Edit
             </a>

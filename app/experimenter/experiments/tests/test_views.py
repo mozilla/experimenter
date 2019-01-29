@@ -396,9 +396,8 @@ class TestExperimentCreateView(TestCase):
             "feature_bugzilla_url": "https://bugzilla.mozilla.org/123/",
             "related_work": "Designs: https://www.example.com/myproject/",
             "proposed_start_date": datetime.date.today(),
-            "proposed_end_date": (
-                datetime.date.today() + datetime.timedelta(days=1)
-            ),
+            "proposed_enrollment": 10,
+            "proposed_duration": 20,
         }
 
         response = self.client.post(
@@ -426,15 +425,14 @@ class TestExperimentOverviewUpdateView(TestCase):
     def test_view_saves_experiment(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
+            Experiment.STATUS_DRAFT, proposed_enrollment=1, proposed_duration=2
         )
 
         new_start_date = datetime.date.today() + datetime.timedelta(
             days=random.randint(1, 100)
         )
-        new_end_date = new_start_date + datetime.timedelta(
-            days=random.randint(1, 100)
-        )
+        new_enrollment = experiment.proposed_enrollment + 1
+        new_duration = experiment.proposed_duration + 1
 
         data = {
             "type": Experiment.TYPE_PREF,
@@ -444,7 +442,8 @@ class TestExperimentOverviewUpdateView(TestCase):
             "feature_bugzilla_url": "https://bugzilla.mozilla.org/123/",
             "related_work": "Designs: https://www.example.com/myproject/",
             "proposed_start_date": new_start_date,
-            "proposed_end_date": new_end_date,
+            "proposed_enrollment": new_enrollment,
+            "proposed_duration": new_duration,
         }
 
         response = self.client.post(
@@ -462,7 +461,8 @@ class TestExperimentOverviewUpdateView(TestCase):
             experiment.short_description, data["short_description"]
         )
         self.assertEqual(experiment.proposed_start_date, new_start_date)
-        self.assertEqual(experiment.proposed_end_date, new_end_date)
+        self.assertEqual(experiment.proposed_enrollment, new_enrollment)
+        self.assertEqual(experiment.proposed_duration, new_duration)
 
         self.assertEqual(experiment.changes.count(), 2)
 

@@ -43,11 +43,9 @@ class ExperimentFactory(
             + datetime.timedelta(days=random.randint(1, 10))
         )
     )
-    proposed_end_date = factory.LazyAttribute(
-        lambda o: (
-            o.proposed_start_date
-            + datetime.timedelta(days=random.randint(1, 10))
-        )
+    proposed_duration = factory.LazyAttribute(lambda o: random.randint(10, 60))
+    proposed_enrollment = factory.LazyAttribute(
+        lambda o: random.choice([None, random.randint(2, o.proposed_duration)])
     )
     pref_key = factory.LazyAttribute(
         lambda o: "browser.{pref}.enabled".format(

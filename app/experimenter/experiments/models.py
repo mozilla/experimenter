@@ -1,3 +1,4 @@
+import datetime
 from collections import defaultdict
 from urllib.parse import urljoin
 
@@ -62,7 +63,8 @@ class Experiment(ExperimentConstants, models.Model):
     related_work = models.TextField(default="", blank=True, null=True)
 
     proposed_start_date = models.DateField(blank=True, null=True)
-    proposed_end_date = models.DateField(blank=True, null=True)
+    proposed_duration = models.PositiveIntegerField(blank=True, null=True)
+    proposed_enrollment = models.PositiveIntegerField(blank=True, null=True)
 
     pref_key = models.CharField(max_length=255, blank=True, null=True)
     pref_type = models.CharField(
@@ -252,26 +254,45 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def end_date(self):
-        return (
-            self._transition_date(self.STATUS_LIVE, self.STATUS_COMPLETE)
-            or self.proposed_end_date
+        if self.proposed_duration:
+            return self.start_date + datetime.timedelta(
+                days=self.proposed_duration
+            )
+
+    @property
+    def enrollment_end_date(self):
+        if self.start_date and self.proposed_enrollment:
+            return self.start_date + datetime.timedelta(
+                days=self.proposed_enrollment
+            )
+
+    @property
+    def observation_duration(self):
+        if self.proposed_enrollment:
+            return self.proposed_duration - self.proposed_enrollment
+        return 0
+
+    def _format_date_string(self, start, end):
+        return "{start} - {end} ({duration} days)".format(
+            start=start.strftime("%b %d, %Y") if start else "Unknown",
+            end=end.strftime("%b %d, %Y") if end else "Unknown",
+            duration=(end - start).days,
         )
 
     @property
-    def duration(self):
-        if self.proposed_end_date and self.proposed_start_date:
-            return (self.proposed_end_date - self.proposed_start_date).days
+    def dates(self):
+        return self._format_date_string(self.start_date, self.end_date)
 
     @property
-    def dates(self):
-        return "{start} - {end} ({duration} days)".format(
-            start=self.start_date.strftime("%b %d, %Y")
-            if self.start_date
-            else "Unknown",
-            end=self.end_date.strftime("%b %d, %Y")
-            if self.end_date
-            else "Unknown",
-            duration=self.duration,
+    def enrollment_dates(self):
+        return self._format_date_string(
+            self.start_date, self.enrollment_end_date
+        )
+
+    @property
+    def observation_dates(self):
+        return self._format_date_string(
+            self.enrollment_end_date, self.end_date
         )
 
     @cached_property
