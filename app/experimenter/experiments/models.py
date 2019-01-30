@@ -272,11 +272,21 @@ class Experiment(ExperimentConstants, models.Model):
             return self.proposed_duration - self.proposed_enrollment
         return 0
 
-    def _format_date_string(self, start, end):
+    def _format_date_string(self, start_date, end_date):
+        start_text = "Unknown"
+        if start_date:
+            start_text = start_date.strftime("%b %d, %Y")
+
+        end_text = "Unknown"
+        if end_date:
+            end_text = end_date.strftime("%b %d, %Y")
+
+        duration_text = "Unknown"
+        if start_date and end_date:
+            duration_text = (end_date - start_date).days
+
         return "{start} - {end} ({duration} days)".format(
-            start=start.strftime("%b %d, %Y") if start else "Unknown",
-            end=end.strftime("%b %d, %Y") if end else "Unknown",
-            duration=(end - start).days,
+            start=start_text, end=end_text, duration=duration_text
         )
 
     @property
