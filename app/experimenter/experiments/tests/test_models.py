@@ -216,6 +216,20 @@ class TestExperimentModel(TestCase):
             experiment.enrollment_end_date, datetime.date(2019, 1, 11)
         )
 
+    def test_format_date_string_accepts_none_for_start(self):
+        experiment = ExperimentFactory.create_with_variants()
+        output = experiment._format_date_string(
+            None, datetime.date(2019, 1, 1)
+        )
+        self.assertEqual(output, "Unknown - Jan 01, 2019 (Unknown days)")
+
+    def test_format_date_string_accepts_none_for_end(self):
+        experiment = ExperimentFactory.create_with_variants()
+        output = experiment._format_date_string(
+            datetime.date(2019, 1, 1), None
+        )
+        self.assertEqual(output, "Jan 01, 2019 - Unknown (Unknown days)")
+
     def test_dates_returns_date_string(self):
         experiment = ExperimentFactory.create_with_variants(
             proposed_start_date=datetime.date(2019, 1, 1), proposed_duration=20
