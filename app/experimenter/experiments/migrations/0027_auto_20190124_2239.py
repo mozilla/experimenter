@@ -8,14 +8,12 @@ def set_durations(apps, schema_editor):  # pragma: no cover
 
     for experiment in Experiment.objects.all():
         if experiment.proposed_start_date and experiment.proposed_end_date:
-            try:
-                experiment.proposed_duration = (
-                    experiment.proposed_end_date
-                    - experiment.proposed_start_date
-                ).days
+            new_duration = (
+                experiment.proposed_end_date - experiment.proposed_start_date
+            ).days
+            if new_duration > 0:
+                experiment.proposed_duration = new_duration
                 experiment.save()
-            except:
-                pass
 
 
 def set_end_dates(apps, schema_editor):  # pragma: no cover
@@ -23,14 +21,11 @@ def set_end_dates(apps, schema_editor):  # pragma: no cover
 
     for experiment in Experiment.objects.all():
         if experiment.proposed_start_date and experiment.proposed_duration:
-            try:
-                experiment.proposed_end_date = (
-                    experiment.proposed_start_date
-                    + datetime.timedelta(days=experiment.proposed_duration)
-                )
-                experiment.save()
-            except:
-                pass
+            experiment.proposed_end_date = (
+                experiment.proposed_start_date
+                + datetime.timedelta(days=experiment.proposed_duration)
+            )
+            experiment.save()
 
 
 class Migration(migrations.Migration):
