@@ -870,8 +870,8 @@ class TestExperimentReviewForm(
         self.assertEqual(
             form.required_reviews,
             (
-                form["review_advisory"],
                 form["review_science"],
+                form["review_advisory"],
                 form["review_engineering"],
                 form["review_qa_requested"],
                 form["review_intent_to_ship"],

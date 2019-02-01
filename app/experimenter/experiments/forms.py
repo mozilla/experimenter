@@ -595,8 +595,8 @@ class ExperimentReviewForm(
         model = Experiment
         fields = (
             # Required
-            "review_advisory",
             "review_science",
+            "review_advisory",
             "review_engineering",
             "review_qa_requested",
             "review_intent_to_ship",
@@ -616,8 +616,8 @@ class ExperimentReviewForm(
     @property
     def required_reviews(self):
         return (
-            self["review_advisory"],
             self["review_science"],
+            self["review_advisory"],
             self["review_engineering"],
             self["review_qa_requested"],
             self["review_intent_to_ship"],
