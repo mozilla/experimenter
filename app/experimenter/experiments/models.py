@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import Max
 from django.urls import reverse
@@ -63,8 +64,16 @@ class Experiment(ExperimentConstants, models.Model):
     related_work = models.TextField(default="", blank=True, null=True)
 
     proposed_start_date = models.DateField(blank=True, null=True)
-    proposed_duration = models.PositiveIntegerField(blank=True, null=True)
-    proposed_enrollment = models.PositiveIntegerField(blank=True, null=True)
+    proposed_duration = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        validators=[MaxValueValidator(ExperimentConstants.MAX_DURATION)],
+    )
+    proposed_enrollment = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        validators=[MaxValueValidator(ExperimentConstants.MAX_DURATION)],
+    )
 
     pref_key = models.CharField(max_length=255, blank=True, null=True)
     pref_type = models.CharField(
@@ -252,19 +261,17 @@ class Experiment(ExperimentConstants, models.Model):
             or self.proposed_start_date
         )
 
+    def _compute_end_date(self, duration):
+        if self.start_date and duration and 0 <= duration <= self.MAX_DURATION:
+            return self.start_date + datetime.timedelta(days=duration)
+
     @property
     def end_date(self):
-        if self.proposed_duration:
-            return self.start_date + datetime.timedelta(
-                days=self.proposed_duration
-            )
+        return self._compute_end_date(self.proposed_duration)
 
     @property
     def enrollment_end_date(self):
-        if self.start_date and self.proposed_enrollment:
-            return self.start_date + datetime.timedelta(
-                days=self.proposed_enrollment
-            )
+        return self._compute_end_date(self.proposed_enrollment)
 
     @property
     def observation_duration(self):
