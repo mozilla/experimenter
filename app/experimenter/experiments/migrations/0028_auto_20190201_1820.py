@@ -9,7 +9,9 @@ def limit_durations(apps, schema_editor):  # pragma: nocover
 
     for experiment in Experiment.objects.all():
         if experiment.proposed_duration:
-            experiment.proposed_duration = min(experiment.proposed_duration, 1000)
+            experiment.proposed_duration = min(
+                experiment.proposed_duration, 1000
+            )
 
         if experiment.proposed_enrollment:
             experiment.proposed_enrollment = min(
