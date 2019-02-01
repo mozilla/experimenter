@@ -170,24 +170,6 @@ class TestExperimentModel(TestCase):
             change.experiment.start_date, change.changed_on.date()
         )
 
-    def test_end_date_returns_start_date_plus_duration(self):
-        experiment = ExperimentFactory.create_with_variants(
-            proposed_start_date=datetime.date(2019, 1, 1), proposed_duration=10
-        )
-        self.assertEqual(experiment.end_date, datetime.date(2019, 1, 11))
-
-    def test_end_date_returns_change_date_plus_duration_if_change_exists(self):
-        experiment = ExperimentFactory.create_with_variants(
-            proposed_start_date=datetime.date(2019, 1, 1), proposed_duration=10
-        )
-        ExperimentChangeLogFactory.create(
-            changed_on=datetime.datetime(2019, 2, 1),
-            experiment=experiment,
-            old_status=Experiment.STATUS_ACCEPTED,
-            new_status=Experiment.STATUS_LIVE,
-        )
-        self.assertEqual(experiment.end_date, datetime.date(2019, 2, 11))
-
     def test_observation_duration_returns_duration_minus_enrollment(self):
         experiment = ExperimentFactory.create_with_variants(
             proposed_duration=20, proposed_enrollment=10
@@ -200,21 +182,49 @@ class TestExperimentModel(TestCase):
         )
         self.assertEqual(experiment.observation_duration, 0)
 
-    def test_enrollment_end_date_returns_None_if_enrollment_not_set(self):
+    def test_compute_end_date_accepts_None_start_date(self):
         experiment = ExperimentFactory.create_with_variants(
-            proposed_enrollment=None
+            proposed_start_date=None
         )
-        self.assertEqual(experiment.enrollment_end_date, None)
+        self.assertEqual(experiment._compute_end_date(1), None)
 
-    def test_enrollment_end_date_returns_start_plus_enrollment(self):
+    def test_compute_end_date_accepts_None_duration(self):
+        experiment = ExperimentFactory.create_with_variants(
+            proposed_start_date=datetime.date(2019, 1, 1)
+        )
+        self.assertEqual(experiment._compute_end_date(None), None)
+
+    def test_compute_end_date_accepts_valid_duration(self):
+        experiment = ExperimentFactory.create_with_variants(
+            proposed_start_date=datetime.date(2019, 1, 1)
+        )
+        self.assertEqual(
+            experiment._compute_end_date(10), datetime.date(2019, 1, 11)
+        )
+
+    def test_compute_end_date_accepts_invalid_duration(self):
+        experiment = ExperimentFactory.create_with_variants(
+            proposed_start_date=datetime.date(2019, 1, 1)
+        )
+        self.assertEqual(
+            experiment._compute_end_date(experiment.MAX_DURATION + 1), None
+        )
+
+    def test_end_date_uses_duration(self):
         experiment = ExperimentFactory.create_with_variants(
             proposed_start_date=datetime.date(2019, 1, 1),
             proposed_duration=20,
             proposed_enrollment=10,
         )
-        self.assertEqual(
-            experiment.enrollment_end_date, datetime.date(2019, 1, 11)
+        self.assertEqual(experiment.end_date, datetime.date(2019, 1, 21))
+
+    def test_enrollment_end_date_uses_enrollment_duration(self):
+        experiment = ExperimentFactory.create_with_variants(
+            proposed_start_date=datetime.date(2019, 1, 1),
+            proposed_duration=20,
+            proposed_enrollment=10,
         )
+        self.assertEqual(experiment.end_date, datetime.date(2019, 1, 21))
 
     def test_format_date_string_accepts_none_for_start(self):
         experiment = ExperimentFactory.create_with_variants()
