@@ -450,6 +450,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         ),
     )
     risks = forms.CharField(
+        required=False,
         label="Risks",
         help_text=Experiment.RISKS_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
