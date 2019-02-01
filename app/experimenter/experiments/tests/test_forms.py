@@ -259,6 +259,14 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
 
+    def test_start_date_must_be_greater_or_equal_to_current_date(self):
+        self.data[
+            "proposed_start_date"
+        ] = datetime.date.today() - datetime.timedelta(days=1)
+
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+
 
 class TestExperimentVariantsFormSet(TestCase):
 
