@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django import forms
@@ -160,6 +161,19 @@ class ExperimentOverviewForm(
             "proposed_duration",
             "proposed_enrollment",
         ]
+
+    def clean_proposed_start_date(self):
+        start_date = self.cleaned_data["proposed_start_date"]
+
+        if start_date < datetime.date.today():
+            raise forms.ValidationError(
+                (
+                    "The experiment start date must "
+                    "be no earlier than the current date."
+                )
+            )
+
+        return start_date
 
     def clean(self):
         cleaned_data = super().clean()
