@@ -3,6 +3,9 @@ from django.urls import reverse_lazy
 
 
 class ExperimentConstants(object):
+    # Model Constants
+    MAX_DURATION = 1000
+
     # Type stuff
     TYPE_PREF = "pref"
     TYPE_ADDON = "addon"

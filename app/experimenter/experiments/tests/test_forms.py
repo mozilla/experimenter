@@ -247,6 +247,18 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertTrue(form.is_valid())
 
+    def test_large_duration_is_invalid(self):
+        self.data["proposed_duration"] = Experiment.MAX_DURATION + 1
+
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+
+    def test_large_enrollment_duration_is_invalid(self):
+        self.data["proposed_enrollment"] = Experiment.MAX_DURATION + 1
+
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+
 
 class TestExperimentVariantsFormSet(TestCase):
 
