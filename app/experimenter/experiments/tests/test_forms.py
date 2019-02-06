@@ -23,7 +23,6 @@ from experimenter.experiments.forms import (
     ExperimentVariantsFormSet,
     ExperimentVariantsPrefForm,
     JSONField,
-    NameSlugMixin,
 )
 from experimenter.experiments.models import Experiment, ExperimentVariant
 from experimenter.experiments.tests.factories import ExperimentFactory
@@ -64,23 +63,6 @@ class TestBugzillaURLField(TestCase):
 
         with self.assertRaises(ValidationError):
             field.clean("www.example.com")
-
-
-class TestNameSlugMixin(TestCase):
-
-    def test_name_slug_mixin_creates_slug_from_name(self):
-
-        class TestForm(NameSlugMixin, forms.Form):
-            name = forms.CharField()
-            slug = forms.CharField(required=False)
-
-        name = "A Name"
-        expected_slug = "a-name"
-
-        form = TestForm({"name": name})
-        self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data["name"], name)
-        self.assertEqual(form.cleaned_data["slug"], expected_slug)
 
 
 class TestExperimentVariantAddonForm(TestCase):
@@ -263,6 +245,12 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.data[
             "proposed_start_date"
         ] = datetime.date.today() - datetime.timedelta(days=1)
+
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+
+    def test_empty_slug_raises_error(self):
+        self.data["name"] = "#"
 
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
