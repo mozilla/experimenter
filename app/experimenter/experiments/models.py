@@ -288,12 +288,20 @@ class Experiment(ExperimentConstants, models.Model):
         if end_date:
             end_text = end_date.strftime("%b %d, %Y")
 
+        day_text = "days"
         duration_text = "Unknown"
         if start_date and end_date:
-            duration_text = (end_date - start_date).days
+            duration = (end_date - start_date).days
+            duration_text = str(duration)
 
-        return "{start} - {end} ({duration} days)".format(
-            start=start_text, end=end_text, duration=duration_text
+            if duration == 1:
+                day_text = "day"
+
+        return "{start} - {end} ({duration} {days})".format(
+            start=start_text,
+            end=end_text,
+            duration=duration_text,
+            days=day_text,
         )
 
     @property

@@ -240,6 +240,20 @@ class TestExperimentModel(TestCase):
         )
         self.assertEqual(output, "Jan 01, 2019 - Unknown (Unknown days)")
 
+    def test_form_date_string_accepts_valid_start_end_dates(self):
+        experiment = ExperimentFactory.create_with_variants()
+        output = experiment._format_date_string(
+            datetime.date(2019, 1, 1), datetime.date(2019, 1, 10)
+        )
+        self.assertEqual(output, "Jan 01, 2019 - Jan 10, 2019 (9 days)")
+
+    def test_form_date_string_says_day_if_duration_is_1(self):
+        experiment = ExperimentFactory.create_with_variants()
+        output = experiment._format_date_string(
+            datetime.date(2019, 1, 1), datetime.date(2019, 1, 2)
+        )
+        self.assertEqual(output, "Jan 01, 2019 - Jan 02, 2019 (1 day)")
+
     def test_dates_returns_date_string(self):
         experiment = ExperimentFactory.create_with_variants(
             proposed_start_date=datetime.date(2019, 1, 1), proposed_duration=20
