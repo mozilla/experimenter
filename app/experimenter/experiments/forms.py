@@ -4,7 +4,6 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.forms import BaseInlineFormSet
 from django.forms import inlineformset_factory
-from django.utils.text import slugify
 
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments import tasks
@@ -45,17 +44,6 @@ class BugzillaURLField(forms.URLField):
                 )
 
         return cleaned_value
-
-
-class NameSlugMixin(object):
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        name = cleaned_data.get("name")
-        cleaned_data["slug"] = slugify(name)
-
-        return cleaned_data
 
 
 class ChangeLogMixin(object):
@@ -177,7 +165,7 @@ class ExperimentOverviewForm(
         return cleaned_data
 
 
-class ExperimentVariantAddonForm(NameSlugMixin, forms.ModelForm):
+class ExperimentVariantAddonForm(AutoNameSlugFormMixin, forms.ModelForm):
 
     experiment = forms.ModelChoiceField(
         queryset=Experiment.objects.all(), required=False

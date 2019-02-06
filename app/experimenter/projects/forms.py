@@ -10,6 +10,11 @@ class AutoNameSlugFormMixin(object):
         name = self.cleaned_data["name"]
         slug = slugify(name)
 
+        if not slug:
+            raise forms.ValidationError(
+                "This name must include non-punctuation characters."
+            )
+
         if (
             self.instance.pk is None
             and slug
