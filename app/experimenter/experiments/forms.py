@@ -455,7 +455,13 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         required=False,
         label="Risks",
         help_text=Experiment.RISKS_HELP_TEXT,
-        widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "rows": 20,
+                "placeholder": Experiment.RISKS_DEFAULT,
+            }
+        ),
     )
 
     # Testing
