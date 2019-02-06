@@ -137,9 +137,7 @@ class Experiment(ExperimentConstants, models.Model):
     )
     risk_technical_description = models.TextField(blank=True, null=True)
 
-    risks = models.TextField(
-        default=ExperimentConstants.RISKS_DEFAULT, blank=True, null=True
-    )
+    risks = models.TextField(blank=True, null=True)
 
     # Testing
     testing = models.TextField(blank=True, null=True)

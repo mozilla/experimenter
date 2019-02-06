@@ -482,9 +482,12 @@ class ExperimentConstants(object):
     """
 
     RISKS_HELP_TEXT = """
-      <p></p>
-      <p><strong>Example:</strong></p>
-    """
+      <p>
+        The "Risk" section helps identify which additional or dependent checklist
+        items need to happen. Dependent items needed vary based on the study.
+        Please review this <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risks&Testing">more complete Risk question list</a> and the needed actions (for "yes" answers). This list be integrated into Experimenter soon.
+      </p>
+    """  # noqa
 
     RISK_TECHNICAL_HELP_TEXT = """
     """
@@ -627,33 +630,15 @@ Strategy and Insights can help create surveys if needed
 
     RISKS_DEFAULT = (
         """
-If you answered “yes” to any of the above, your study is considered High Risk
-and needs executive sponsor sign-off.
+If you answered "Yes" to any of the question above - this box is the area to
+capture the details.
 
-Please state the known risk(s) here and any mitigation(s).
+Please include why you think the risk is worth it or needed for this
+experiment. Please also include any known mitigating factors for each risk.
 
-For a high risk study, each of the following must be provided
-and accounted for:
-
-Final Experiment Design
-    Responsible: Experiment owner
-    Accountable: Data Scientist
-
-Data Analysis
-    Responsible: Assigned analyst
-    Accountable: Experiment owner / PM
-
-Legal Sign-
-    Off Responsible: Experiment owner
-    Accountable: PM and/or EPM
-
-Shipping
-    Responsible: Experiment owner
-    Accountable: Release Mgmt
-
-Risk Matrix
-    Responsible: Experiment owner
-    Accountable: Product Manager
+This information makes it easier to collaborate with supporting teams (ex: for
+sign-offs). Good details avoid assumptions or delays, while people locate the
+information necessary to make an informed decision.
     """.strip()
     )
 
