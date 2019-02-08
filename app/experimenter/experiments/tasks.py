@@ -15,7 +15,12 @@ logger = get_task_logger(__name__)
 NOTIFICATION_MESSAGE_REVIEW_EMAIL = "An email was sent to {email} about {name}"
 NOTIFICATION_MESSAGE_CREATE_BUG = (
     'A <a target="_blank" href="{bug_url}">Bugzilla '
-    "Ticket</a> was created for this experiment"
+    "Ticket</a> was created for your experiment"
+)
+NOTIFICATION_MESSAGE_CREATE_BUG_FAILED = (
+    "Experimenter failed to create a Bugzilla Ticket "
+    "for your experiment.  Please contact an Experimenter "
+    "Administrator on #ask-experimenter on Slack."
 )
 NOTIFICATION_MESSAGE_ADD_COMMENT = (
     'The <a target="_blank" href="{bug_url}">Bugzilla '
@@ -42,8 +47,9 @@ def send_review_email_task(
                 email=settings.EMAIL_REVIEW, name=experiment_name
             ),
         )
-    except SMTPException:
+    except SMTPException as e:
         logger.error("Failed to send email")
+        raise e
 
 
 @app.task
@@ -51,9 +57,8 @@ def create_experiment_bug_task(user_id, experiment_id):
     experiment = Experiment.objects.get(id=experiment_id)
 
     logger.info("Creating Bugzilla ticket")
-    bugzilla_id = bugzilla.create_experiment_bug(experiment)
-
-    if bugzilla_id is not None:
+    try:
+        bugzilla_id = bugzilla.create_experiment_bug(experiment)
         logger.info("Bugzilla ticket created")
         experiment.bugzilla_id = bugzilla_id
         experiment.save()
@@ -65,6 +70,14 @@ def create_experiment_bug_task(user_id, experiment_id):
             ),
         )
         logger.info("Bugzilla ticket notification sent")
+    except bugzilla.BugzillaError as e:
+        logger.info("Bugzilla ticket creation failed")
+
+        Notification.objects.create(
+            user_id=user_id, message=NOTIFICATION_MESSAGE_CREATE_BUG_FAILED
+        )
+        logger.info("Bugzilla ticket notification sent")
+        raise e
 
 
 @app.task
@@ -72,9 +85,9 @@ def add_experiment_comment_task(user_id, experiment_id):
     experiment = Experiment.objects.get(id=experiment_id)
 
     logger.info("Updating Bugzilla comment")
-    comment_id = bugzilla.add_experiment_comment(experiment)
 
-    if comment_id is not None:
+    try:
+        bugzilla.add_experiment_comment(experiment)
         logger.info("Bugzilla comment updated")
         Notification.objects.create(
             user_id=user_id,
@@ -83,3 +96,6 @@ def add_experiment_comment_task(user_id, experiment_id):
             ),
         )
         logger.info("Bugzilla comment notification sent")
+    except bugzilla.BugzillaError as e:
+        logger.info("Failed to create bugzilla comment")
+        raise e

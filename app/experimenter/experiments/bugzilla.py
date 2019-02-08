@@ -5,6 +5,13 @@ import requests
 from django.conf import settings
 
 
+INVALID_USER_ERROR_CODE = 51
+
+
+class BugzillaError(Exception):
+    pass
+
+
 def format_bug_body(experiment):
     bug_body = ""
 
@@ -37,23 +44,15 @@ def format_bug_body(experiment):
 
 
 def make_bugzilla_call(url, data):
-    response_data = {}
     try:
         response = requests.post(url, data)
-        response_data = json.loads(response.content)
-
-        if response.status_code >= 400:
-            logging.info(
-                "Error creating Bugzilla Ticket: {error}".format(
-                    error=response_data.get("message")
-                )
-            )
-    except requests.exceptions.RequestException:
-        logging.exception("Error calling Bugzilla API")
-    except json.JSONDecodeError:
-        logging.exception("Error parsing JSON Bugzilla response")
-
-    return response_data.get("id", None)
+        return json.loads(response.content)
+    except requests.exceptions.RequestException as e:
+        logging.exception("Error calling Bugzilla API: {}".format(e))
+        raise BugzillaError(*e.args)
+    except json.JSONDecodeError as e:
+        logging.exception("Error parsing JSON Bugzilla response: {}".format(e))
+        raise BugzillaError(*e.args)
 
 
 def create_experiment_bug(experiment):
@@ -69,13 +68,26 @@ def create_experiment_bug(experiment):
         "cc": settings.BUGZILLA_CC_LIST,
     }
 
-    return make_bugzilla_call(settings.BUGZILLA_CREATE_URL, bug_data)
+    response_data = make_bugzilla_call(settings.BUGZILLA_CREATE_URL, bug_data)
+
+    # The experiment owner might not exist in bugzilla
+    # in which case we try to create it again with no assignee
+    if response_data.get("code", None) == INVALID_USER_ERROR_CODE:
+        bug_data = bug_data.copy()
+        del bug_data["assigned_to"]
+        response_data = make_bugzilla_call(
+            settings.BUGZILLA_CREATE_URL, bug_data
+        )
+
+    return response_data["id"]
 
 
 def add_experiment_comment(experiment):
     comment_data = {"comment": format_bug_body(experiment)}
 
-    return make_bugzilla_call(
+    response_data = make_bugzilla_call(
         settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
         comment_data,
     )
+
+    return response_data["id"]
