@@ -1,6 +1,7 @@
 import json
 import mock
 
+from experimenter.experiments import bugzilla
 from experimenter.openidc.tests.factories import UserFactory
 
 
@@ -18,11 +19,33 @@ class MockBugzillaMixin(object):
         self.addCleanup(mock_bugzilla_requests_post_patcher.stop)
 
         self.bugzilla_id = "12345"
+        self.mock_bugzilla_requests_post.return_value = (
+            self.buildMockSuccessResponse()
+        )
+
+    def buildMockSuccessResponse(self):
         mock_response_data = {"id": self.bugzilla_id}
         mock_response = mock.Mock()
         mock_response.content = json.dumps(mock_response_data)
         mock_response.status_code = 200
-        self.mock_bugzilla_requests_post.return_value = mock_response
+        return mock_response
+
+    def buildMockFailureResponse(self):
+        mock_response_data = {"code": bugzilla.INVALID_USER_ERROR_CODE}
+        mock_response = mock.Mock()
+        mock_response.content = json.dumps(mock_response_data)
+        mock_response.status_code = 400
+        return mock_response
+
+    def setUpMockBugzillaInvalidUser(self):
+
+        def mock_reject_assignee(url, bug_data):
+            if "assigned_to" in bug_data:
+                return self.buildMockFailureResponse()
+            else:
+                return self.buildMockSuccessResponse()
+
+        self.mock_bugzilla_requests_post.side_effect = mock_reject_assignee
 
 
 class MockMailMixin(object):

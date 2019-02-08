@@ -7,6 +7,7 @@ from django.conf import settings
 
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.bugzilla import (
+    BugzillaError,
     add_experiment_comment,
     create_experiment_bug,
     format_bug_body,
@@ -16,16 +17,16 @@ from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.mixins import MockBugzillaMixin
 
 
-class TestBugzilla(MockBugzillaMixin, TestCase):
+class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
 
     def test_creating_pref_bugzilla_ticket_returns_ticket_id(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, name="An Experiment"
         )
 
-        bugzilla_id = create_experiment_bug(experiment)
+        response_data = create_experiment_bug(experiment)
 
-        self.assertEqual(bugzilla_id, self.bugzilla_id)
+        self.assertEqual(response_data, self.bugzilla_id)
 
         self.mock_bugzilla_requests_post.assert_called_with(
             settings.BUGZILLA_CREATE_URL,
@@ -43,6 +44,43 @@ class TestBugzilla(MockBugzillaMixin, TestCase):
                 "cc": settings.BUGZILLA_CC_LIST,
             },
         )
+
+    def test_create_bugzilla_ticket_retries_with_no_assignee(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, name="An Experiment"
+        )
+
+        self.setUpMockBugzillaInvalidUser()
+
+        response_data = create_experiment_bug(experiment)
+
+        self.assertEqual(response_data, self.bugzilla_id)
+        self.assertEqual(self.mock_bugzilla_requests_post.call_count, 2)
+
+        expected_call_data = {
+            "product": "Shield",
+            "component": "Shield Study",
+            "version": "unspecified",
+            "summary": "[Shield] {experiment}".format(experiment=experiment),
+            "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
+                experiment=experiment
+            ),
+            "assigned_to": experiment.owner.email,
+            "cc": settings.BUGZILLA_CC_LIST,
+        }
+
+        self.mock_bugzilla_requests_post.assert_any_call(
+            settings.BUGZILLA_CREATE_URL, expected_call_data
+        )
+
+        del expected_call_data["assigned_to"]
+
+        self.mock_bugzilla_requests_post.assert_any_call(
+            settings.BUGZILLA_CREATE_URL, expected_call_data
+        )
+
+
+class TestAddExperimentComment(MockBugzillaMixin, TestCase):
 
     def test_add_bugzilla_comment_pref_study(self):
         experiment = ExperimentFactory.create_with_status(
@@ -78,8 +116,10 @@ class TestBugzilla(MockBugzillaMixin, TestCase):
             {"comment": format_bug_body(experiment)},
         )
 
-    @mock.patch("experimenter.experiments.bugzilla.logging")
-    def test_api_error_logs_message(self, mock_logging):
+
+class TestMakeBugzillaCall(MockBugzillaMixin, TestCase):
+
+    def test_api_error_logs_message(self):
         mock_response_data = {
             "message": "Error creating Bugzilla Bug because of reasons"
         }
@@ -88,24 +128,18 @@ class TestBugzilla(MockBugzillaMixin, TestCase):
         mock_response.status_code = 400
         self.mock_bugzilla_requests_post.return_value = mock_response
 
-        bugzilla_id = make_bugzilla_call("/url/", {})
-        self.assertIsNone(bugzilla_id)
-
-        mock_logging.info.assert_called_with(
-            (
-                "Error creating Bugzilla Ticket: "
-                "Error creating Bugzilla Bug because of reasons"
-            )
-        )
+        response_data = make_bugzilla_call("/url/", {})
+        self.assertEqual(response_data, mock_response_data)
 
     def test_request_error_passes_silently(self):
         self.mock_bugzilla_requests_post.side_effect = RequestException()
-        bugzilla_id = make_bugzilla_call("/url/", {})
-        self.assertIsNone(bugzilla_id)
+
+        with self.assertRaises(BugzillaError):
+            make_bugzilla_call("/url/", {})
 
     def test_json_parse_error_passes_silently(self):
         mock_response = mock.Mock()
         mock_response.content = "{invalid json"
         self.mock_bugzilla_requests_post.return_value = mock_response
-        bugzilla_id = make_bugzilla_call("/url/", {})
-        self.assertIsNone(bugzilla_id)
+        with self.assertRaises(BugzillaError):
+            make_bugzilla_call("/url/", {})

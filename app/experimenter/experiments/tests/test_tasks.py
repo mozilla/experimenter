@@ -4,6 +4,7 @@ from django.conf import settings
 from django.test import TestCase
 from requests.exceptions import RequestException
 
+from experimenter.experiments import bugzilla
 from experimenter.experiments.models import Experiment
 from experimenter.experiments import tasks
 from experimenter.experiments.tests.factories import ExperimentFactory
@@ -50,12 +51,13 @@ class TestSendReviewEmailTask(MockRequestMixin, MockMailMixin, TestCase):
 
         self.mock_send_mail.side_effect = SMTPException()
 
-        tasks.send_review_email_task(
-            self.user.id,
-            self.experiment.name,
-            self.experiment.experiment_url,
-            False,
-        )
+        with self.assertRaises(SMTPException):
+            tasks.send_review_email_task(
+                self.user.id,
+                self.experiment.name,
+                self.experiment.experiment_url,
+                False,
+            )
 
         self.mock_send_mail.assert_called()
 
@@ -90,18 +92,25 @@ class TestCreateBugTask(MockRequestMixin, MockBugzillaMixin, TestCase):
             ),
         )
 
-    def test_bugzilla_error_doesnt_create_notification(self):
+    def test_bugzilla_error_creates_error_notification(self):
         self.assertEqual(Notification.objects.count(), 0)
 
         self.mock_bugzilla_requests_post.side_effect = RequestException()
 
-        tasks.create_experiment_bug_task(self.user.id, self.experiment.id)
+        with self.assertRaises(bugzilla.BugzillaError):
+            tasks.create_experiment_bug_task(self.user.id, self.experiment.id)
 
         self.mock_bugzilla_requests_post.assert_called()
-        self.assertEqual(Notification.objects.count(), 0)
+        self.assertEqual(Notification.objects.count(), 1)
 
         experiment = Experiment.objects.get(id=self.experiment.id)
         self.assertEqual(experiment.bugzilla_id, None)
+
+        notification = Notification.objects.get()
+        self.assertEqual(notification.user, self.user)
+        self.assertEqual(
+            notification.message, tasks.NOTIFICATION_MESSAGE_CREATE_BUG_FAILED
+        )
 
 
 class TestAddCommentTask(MockRequestMixin, MockBugzillaMixin, TestCase):
@@ -136,7 +145,8 @@ class TestAddCommentTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 
         self.mock_bugzilla_requests_post.side_effect = RequestException()
 
-        tasks.add_experiment_comment_task(self.user.id, self.experiment.id)
+        with self.assertRaises(bugzilla.BugzillaError):
+            tasks.add_experiment_comment_task(self.user.id, self.experiment.id)
 
         self.mock_bugzilla_requests_post.assert_called()
         self.assertEqual(Notification.objects.count(), 0)
