@@ -89,7 +89,7 @@ An experiment has three parts:
 
 1. Navigate to it and add an SSL exception to your browser
 
-        https://localhost/
+        https://localhost:4433/
 
 Done!
 
