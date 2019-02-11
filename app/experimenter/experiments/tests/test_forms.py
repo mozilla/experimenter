@@ -716,6 +716,16 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
         self.assertIn("value", form.variants_formset.errors[1])
         self.assertNotIn("value", form.variants_formset.errors[2])
 
+    def test_form_is_invalid_if_pref_value_do_not_match_pref_type(self):
+        self.data["variants-0-value"] = "42"  # int
+        self.data["variants-1-value"] = "true"  # bool
+
+        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("value", form.variants_formset.errors[0])
+        self.assertIn("value", form.variants_formset.errors[1])
+        self.assertNotIn("value", form.variants_formset.errors[2])
+
 
 class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
 
