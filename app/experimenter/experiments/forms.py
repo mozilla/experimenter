@@ -272,9 +272,9 @@ class ExperimentVariantsPrefFormSet(BaseInlineFormSet):
             value = form.cleaned_data["value"]
             forms_by_value.setdefault(value, []).append(form)
 
-        for forms in forms_by_value.values():
-            if len(forms) > 1:
-                for form in forms:
+        for dupe_forms in forms_by_value.values():
+            if len(dupe_forms) > 1:
+                for form in dupe_forms:
                     form.add_error(
                         "value", "All branches must have a unique pref value"
                     )
