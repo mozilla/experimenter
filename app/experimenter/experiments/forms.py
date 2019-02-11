@@ -14,7 +14,10 @@ from experimenter.experiments.models import (
     ExperimentVariant,
 )
 from experimenter.notifications.models import Notification
-from experimenter.projects.forms import AutoNameSlugFormMixin
+from experimenter.projects.forms import (
+    NameSlugFormMixin,
+    UniqueNameSlugFormMixin,
+)
 
 
 class JSONField(forms.CharField):
@@ -76,7 +79,7 @@ class ChangeLogMixin(object):
 
 
 class ExperimentOverviewForm(
-    AutoNameSlugFormMixin, ChangeLogMixin, forms.ModelForm
+    UniqueNameSlugFormMixin, ChangeLogMixin, forms.ModelForm
 ):
 
     type = forms.ChoiceField(
@@ -165,7 +168,7 @@ class ExperimentOverviewForm(
         return cleaned_data
 
 
-class ExperimentVariantAddonForm(AutoNameSlugFormMixin, forms.ModelForm):
+class ExperimentVariantAddonForm(NameSlugFormMixin, forms.ModelForm):
 
     experiment = forms.ModelChoiceField(
         queryset=Experiment.objects.all(), required=False
