@@ -145,18 +145,18 @@ class ExperimentConstants(object):
         delivered to Firefox users.
       </p>
       <p>
-        A <strong>Pref-Flip Study</strong> uses prefs to enable code which
+        A <strong>{[1]}</strong> uses prefs to enable code which
         has already been merged into Firefox and deployed with a standard
         Firefox release in a disabled state, and will be selectively enabled
         for users that enroll into the experiment.
       </p>
       <p>
-        An <strong>Opt-Out Study</strong> sends a Firefox addon which
+        An <strong>{[1]}</strong> sends a Firefox addon which
         contains the code for the experimental feature to the users that
         enroll in the study.  After the experiment is complete, that addon
         is automatically removed.
       </p>
-    """
+    """.format(*TYPE_CHOICES)
 
     OWNER_HELP_TEXT = """
       <p>
