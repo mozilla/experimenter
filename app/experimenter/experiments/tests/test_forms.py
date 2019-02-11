@@ -406,6 +406,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
         branch0 = experiment.variants.get(name=self.data["variants-0-name"])
         self.assertTrue(branch0.is_control)
+        self.assertTrue(branch0.slug, "control-name")
         self.assertEqual(branch0.ratio, 34)
         self.assertEqual(
             branch0.description, self.data["variants-0-description"]
@@ -413,6 +414,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
         branch1 = experiment.variants.get(name=self.data["variants-1-name"])
         self.assertFalse(branch1.is_control)
+        self.assertEqual(branch1.slug, "branch-1-name")
         self.assertEqual(branch1.ratio, 33)
         self.assertEqual(
             branch1.description, self.data["variants-1-description"]
@@ -420,6 +422,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
         branch2 = experiment.variants.get(name=self.data["variants-2-name"])
         self.assertFalse(branch2.is_control)
+        self.assertEqual(branch2.slug, "branch-2-name")
         self.assertEqual(branch2.ratio, 33)
         self.assertEqual(
             branch2.description, self.data["variants-2-description"]
@@ -600,6 +603,32 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
                 name=self.data["variants-2-name"]
             ).exists()
         )
+
+    def test_form_checks_uniqueness_for_single_experiment_not_all(self):
+        # We want to make sure that all the branches in a single
+        # experiment have unique names/slugs but not that they're
+        # unique across all experiments.  This behaviour was accidentally
+        # introduced in 30c210183cd1568850d54132633b0f23e3e56c98
+        # so I'm adding a test for it.
+        experiment1 = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, num_variants=0
+        )
+        form1 = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=experiment1
+        )
+        self.assertTrue(form1.is_valid())
+        experiment1 = form1.save()
+        self.assertEqual(experiment1.variants.count(), 3)
+
+        experiment2 = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, num_variants=0
+        )
+        form2 = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=experiment2
+        )
+        self.assertTrue(form2.is_valid())
+        experiment2 = form2.save()
+        self.assertEqual(experiment2.variants.count(), 3)
 
 
 class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
