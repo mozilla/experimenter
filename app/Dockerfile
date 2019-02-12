@@ -11,10 +11,10 @@ COPY bin/wait-for-it.sh /app/bin/wait-for-it.sh
 RUN chmod +x /app/bin/wait-for-it.sh
 
 RUN apt-get update
-RUN apt-get install -y postgresql-client 
+RUN apt-get install -y postgresql-client
 
-COPY ./requirements.txt /app/requirements.txt
+COPY ./requirements /app/requirements
 
-RUN pip install -r requirements.txt --no-cache-dir --disable-pip-version-check
+RUN pip install -r requirements/default.txt --no-cache-dir --disable-pip-version-check
 
 COPY . /app
