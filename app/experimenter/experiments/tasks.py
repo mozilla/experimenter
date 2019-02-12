@@ -14,7 +14,7 @@ logger = get_task_logger(__name__)
 
 NOTIFICATION_MESSAGE_REVIEW_EMAIL = "An email was sent to {email} about {name}"
 NOTIFICATION_MESSAGE_CREATE_BUG = (
-    'A <a target="_blank" href="{bug_url}">Bugzilla '
+    'A <a target="_blank" rel="noreferrer noopener" href="{bug_url}">Bugzilla '
     "Ticket</a> was created for your experiment"
 )
 NOTIFICATION_MESSAGE_CREATE_BUG_FAILED = (
@@ -23,8 +23,8 @@ NOTIFICATION_MESSAGE_CREATE_BUG_FAILED = (
     "Administrator on #ask-experimenter on Slack."
 )
 NOTIFICATION_MESSAGE_ADD_COMMENT = (
-    'The <a target="_blank" href="{bug_url}">Bugzilla '
-    "Ticket</a> was updated with the details "
+    'The <a target="_blank" rel="noreferrer noopener" href="{bug_url}">'
+    "Bugzilla eTicket</a> was updated with the details "
     "of this experiment"
 )
 
