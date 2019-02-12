@@ -198,7 +198,7 @@ class ExperimentConstants(object):
         Choose the date you expect the experiment to be launched to users.
         This date is for planning purposes only, the actual start date
         is subject to the sign off and review processes.  Please refer to the
-        <a target="_blank"
+        <a target="_blank" rel="noreferrer noopener"
         href="https://wiki.mozilla.org/RapidRelease/Calendar">
         Firefox Release Calendar</a>
         to coordinate the timing of your experiment with the
@@ -238,7 +238,8 @@ class ExperimentConstants(object):
       <p>
         Provide a link to the Bugzilla ticket that was filed with the Data
         Science team that tracks this experiment.  If you have not already
-        filed a ticket with Data Science, you can do that <a target="_blank"
+        filed a ticket with Data Science, you can do that <a
+        target="_blank" rel="noreferrer noopener"
         href="{url}">here</a>.
       </p>
       <p>
@@ -293,13 +294,15 @@ class ExperimentConstants(object):
       <ul>
         <li>
           <p><strong>Locales</strong> A list of
-          <a target="_blank" href="https://wiki.mozilla.org/L10n:Locale_Codes">
+          <a target="_blank" rel="noreferrer noopener"
+          href="https://wiki.mozilla.org/L10n:Locale_Codes">
           Firefox Locale Codes</a></p>
           <p><strong>Example:</strong> en-US, fr-FR, de-DE</p>
         </li>
         <li>
           <p><strong>Geographic regions</strong> A list of
-          <a target="_blank" href="http://www.geonames.org/countries/">
+          <a target="_blank" rel="noreferrer noopener"
+          href="http://www.geonames.org/countries/">
           Country Geo Codes</a></p>
           <p><strong>Example:</strong> US, FR, DE</p>
         </li>
@@ -342,7 +345,7 @@ class ExperimentConstants(object):
         If you're not sure what this means, you should stick to the 'default'
         pref branch.
         Pref branches are a little more complicated than can be written here,
-        but you can <a target="_blank" href="{url}">
+        but you can <a target="_blank" rel="noreferrer noopener" href="{url}">
         find more information here.</a>
       </p>
       <p><strong>Example:</strong> default</p>
@@ -485,7 +488,7 @@ class ExperimentConstants(object):
       <p>
         The "Risk" section helps identify which additional or dependent checklist
         items need to happen. Dependent items needed vary based on the study.
-        Please review this <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risks&Testing">more complete Risk question list</a> and the needed actions (for "yes" answers). This list be integrated into Experimenter soon.
+        Please review this <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risks&Testing">more complete Risk question list</a> and the needed actions (for "yes" answers). This list be integrated into Experimenter soon.
       </p>
     """  # noqa
 
@@ -517,63 +520,63 @@ class ExperimentConstants(object):
 
     # Sign-Offs
     REVIEW_COMMS_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Mozillapress/commsreview(optional)">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Mozillapress/commsreview(optional)">Help</a>
     """  # noqa
 
     REVIEW_BUGZILLA_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Bugzillaupdated">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Bugzillaupdated">Help</a>
     """  # noqa
 
     REVIEW_ENGINEERING_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Engineeringallocated">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Engineeringallocated">Help</a>
     """  # noqa
 
     REVIEW_ADVISORY_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-LightningAdvising">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-LightningAdvising">Help</a>
     """  # noqa
 
     REVIEW_SCIENCE_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-DataSciencePeerReview">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-DataSciencePeerReview">Help</a>
     """  # noqa
 
     REVIEW_RELMAN_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-ReleaseManagementSign-off">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-ReleaseManagementSign-off">Help</a>
     """  # noqa
 
     REVIEW_QA_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-QAsign-off">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-QAsign-off">Help</a>
     """  # noqa
 
     REVIEW_LEGAL_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-LegalReview(optional)LegalBug">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-LegalReview(optional)LegalBug">Help</a>
     """  # noqa
 
     REVIEW_UX_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-UXReview(Optional)">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-UXReview(Optional)">Help</a>
     """  # noqa
 
     REVIEW_SECURITY_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-SecurityReview(optional)">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-SecurityReview(optional)">Help</a>
     """  # noqa
 
     REVIEW_VP_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-VPReview(optional)">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-VPReview(optional)">Help</a>
     """  # noqa
 
     REVIEW_DATA_STEWARD_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-DataStewardReview(optional)">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-DataStewardReview(optional)">Help</a>
     """  # noqa
 
     REVIEW_IMPACTED_TEAMS_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-ImpactedTeam(s)Signed-off(optional)">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-ImpactedTeam(s)Signed-off(optional)">Help</a>
     """  # noqa
 
     REVIEW_QA_REQUESTED_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-QArequested.">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-QArequested.">Help</a>
     """  # noqa
 
     REVIEW_INTENT_TO_SHIP_HELP_TEXT = """
-      <a target="_blank" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-IntenttoShipemailsent">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-IntenttoShipemailsent">Help</a>
     """  # noqa
 
     # Risks

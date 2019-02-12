@@ -19,28 +19,28 @@
   {% if experiment.has_external_urls %}
     <div class="col py-2">
       {% if experiment.bugzilla_url %}
-        <a class="alert-link mr-4" target="_blank" href="{{ experiment.bugzilla_url }}">
+        <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.bugzilla_url }}">
           <img class="link-icon" src="{% static "imgs/bugzilla.png" %}">
           Experiment Bugzilla Ticket
         </a>
       {% endif %}
 
       {% if experiment.data_science_bugzilla_url %}
-        <a class="alert-link mr-4" target="_blank" href="{{ experiment.data_science_bugzilla_url }}">
+        <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.data_science_bugzilla_url }}">
           <img class="link-icon" src="{% static "imgs/bugzilla.png" %}">
           Data Science Bugzilla Ticket
         </a>
       {% endif %}
 
       {% if experiment.feature_bugzilla_url %}
-        <a class="alert-link mr-4" target="_blank" href="{{ experiment.feature_bugzilla_url }}">
+        <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.feature_bugzilla_url }}">
           <img class="link-icon" src="{% static "imgs/bugzilla.png" %}">
           Feature Bugzilla Ticket
         </a>
       {% endif %}
 
       {% if experiment.test_tube_url %}
-        <a class="alert-link" target="_blank" href="{{ experiment.test_tube_url }}">
+        <a class="alert-link" target="_blank" rel="noreferrer noopener" href="{{ experiment.test_tube_url }}">
           <span class="fas fa-chart-bar"></span>
           Live Monitoring Dashboard
         </a>
@@ -51,7 +51,7 @@
 
 {% block main_content %}
 
-  
+
   {% include "experiments/section_overview.html" with section_name=experiment.SECTION_OVERVIEW section_complete=True experiment=experiment edit_url_name="experiments-overview-update" comments=experiment.comments.sections.overview %}
 
   {% include "experiments/section_timeline.html" with section_name=experiment.SECTION_TIMELINE section_complete=True experiment=experiment edit_url_name="experiments-overview-update" comments=experiment.comments.sections.timeline %}
