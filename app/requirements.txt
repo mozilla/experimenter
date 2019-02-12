@@ -1,4 +1,4 @@
-Django==2.1.5
+Django==2.1.7
 black==18.5b0
 celery==4.2.1
 coverage==4.3.4
