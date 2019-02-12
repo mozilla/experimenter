@@ -153,6 +153,9 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
+
+LOGGING_CONSOLE_LEVEL = config("LOGGING_CONSOLE_LEVEL", default="DEBUG")
+
 # Logging
 
 LOGGING_USE_JSON = config("LOGGING_USE_JSON", cast=bool, default=True)
@@ -171,7 +174,7 @@ LOGGING = {
     },
     "handlers": {
         "console": {
-            "level": "DEBUG",
+            "level": LOGGING_CONSOLE_LEVEL,
             "class": "logging.StreamHandler",
             "formatter": "mozlog" if LOGGING_USE_JSON else "verbose",
         }
