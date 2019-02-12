@@ -5,6 +5,12 @@
 {% endblock %}
 
 {% block section_content %}
+  {% if experiment.pref_type %}
+  <strong>Pref Type</strong> <p>{{ experiment.pref_type }}</p>
+  {% endif %}
+  {% if experiment.pref_branch %}
+  <strong>Pref Branch</strong> <p>{{ experiment.pref_branch }}</p>
+  {% endif %}
   {% for variant in experiment.variants.all %}
     <div class="border-left-grey pl-3 mb-4">
       <h5>{{ variant.ratio }}% {{ variant.name }}</h5>
