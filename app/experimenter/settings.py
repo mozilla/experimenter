@@ -154,6 +154,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
 # Logging
+
+LOGGING_USE_JSON = config("LOGGING_USE_JSON", cast=bool, default=True)
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": True,
@@ -161,13 +164,14 @@ LOGGING = {
         "mozlog": {
             "()": "dockerflow.logging.JsonLogFormatter",
             "logger_name": "experimenter",
-        }
+        },
+        "verbose": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
     },
     "handlers": {
         "console": {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
-            "formatter": "mozlog",
+            "formatter": "mozlog" if LOGGING_USE_JSON else "verbose",
         }
     },
     "loggers": {
