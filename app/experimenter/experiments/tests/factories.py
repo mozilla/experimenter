@@ -5,6 +5,7 @@ import random
 
 import factory
 from django.utils.text import slugify
+from django.utils import timezone
 from faker import Factory as FakerFactory
 
 from experimenter.experiments.constants import ExperimentConstants
@@ -39,7 +40,7 @@ class ExperimentFactory(
     related_work = "See also: https://www.example.com/myproject/"
     proposed_start_date = factory.LazyAttribute(
         lambda o: (
-            datetime.date.today()
+            timezone.now().date()
             + datetime.timedelta(days=random.randint(1, 10))
         )
     )
@@ -143,7 +144,7 @@ class ExperimentFactory(
     def create_with_status(cls, target_status, *args, **kwargs):
         experiment = cls.create_with_variants(*args, **kwargs)
 
-        now = datetime.datetime.now() - datetime.timedelta(
+        now = timezone.now() - datetime.timedelta(
             days=random.randint(100, 200)
         )
 

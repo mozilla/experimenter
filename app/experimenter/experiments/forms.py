@@ -1,10 +1,10 @@
-import datetime
 import json
 
 from django import forms
 from django.contrib.auth import get_user_model
 from django.forms import BaseInlineFormSet
 from django.forms import inlineformset_factory
+from django.utils import timezone
 
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments import tasks
@@ -156,7 +156,7 @@ class ExperimentOverviewForm(
     def clean_proposed_start_date(self):
         start_date = self.cleaned_data["proposed_start_date"]
 
-        if start_date < datetime.date.today():
+        if start_date < timezone.now().date():
             raise forms.ValidationError(
                 (
                     "The experiment start date must "

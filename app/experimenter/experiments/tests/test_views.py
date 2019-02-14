@@ -7,6 +7,7 @@ import mock
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from experimenter.experiments.forms import (
     ExperimentVariantsAddonForm,
@@ -395,7 +396,7 @@ class TestExperimentCreateView(TestCase):
             "data_science_bugzilla_url": "https://bugzilla.mozilla.org/123/",
             "feature_bugzilla_url": "https://bugzilla.mozilla.org/123/",
             "related_work": "Designs: https://www.example.com/myproject/",
-            "proposed_start_date": datetime.date.today(),
+            "proposed_start_date": timezone.now().date(),
             "proposed_enrollment": 10,
             "proposed_duration": 20,
         }
@@ -428,7 +429,7 @@ class TestExperimentOverviewUpdateView(TestCase):
             Experiment.STATUS_DRAFT, proposed_enrollment=1, proposed_duration=2
         )
 
-        new_start_date = datetime.date.today() + datetime.timedelta(
+        new_start_date = timezone.now().date() + datetime.timedelta(
             days=random.randint(1, 100)
         )
         new_enrollment = experiment.proposed_enrollment + 1
