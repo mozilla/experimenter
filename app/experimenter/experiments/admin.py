@@ -137,7 +137,7 @@ class ExperimentAdmin(admin.ModelAdmin):
         url = obj.dashboard_url
         return format_html(
             f'<a href="{url}" target="_blank" rel="noreferrer noopener"'
-            f'>{url}</a>'
+            f">{url}</a>"
         )
 
     show_dashboard_url.short_description = "Dashboard URL"

@@ -25,7 +25,7 @@ class ExperimentAdminTest(TestCase):
         self.assertEqual(
             experiment_admin.show_dashboard_url(experiment),
             f'<a href="{url}" target="_blank" rel="noreferrer noopener">'
-            f'{url}</a>'
+            f"{url}</a>",
         )
 
     def test_returns_200(self):
