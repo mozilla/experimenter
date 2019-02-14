@@ -165,7 +165,9 @@ LOGGING = {
             "()": "dockerflow.logging.JsonLogFormatter",
             "logger_name": "experimenter",
         },
-        "verbose": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
+        "verbose": {
+            "format": "%(levelname)s %(asctime)s %(name)s %(message)s"
+        },
     },
     "handlers": {
         "console": {
@@ -218,7 +220,9 @@ CORS_ORIGIN_ALLOW_ALL = True
 DASHBOARD_RATE_LIMIT = 2
 
 # Experiments list pagination
-EXPERIMENTS_PAGINATE_BY = config("EXPERIMENTS_PAGINATE_BY", default=10, cast=int)
+EXPERIMENTS_PAGINATE_BY = config(
+    "EXPERIMENTS_PAGINATE_BY", default=10, cast=int
+)
 
 # Automated email destinations
 
