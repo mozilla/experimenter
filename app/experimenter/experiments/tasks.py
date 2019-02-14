@@ -1,5 +1,3 @@
-from smtplib import SMTPException
-
 from django.conf import settings
 from celery.utils.log import get_task_logger
 
@@ -35,21 +33,15 @@ def send_review_email_task(
 ):
     logger.info("Sending email")
 
-    try:
-        email.send_review_email(
-            experiment_name, experiment_url, needs_attention
-        )
-        logger.info("Email sent")
+    email.send_review_email(experiment_name, experiment_url, needs_attention)
+    logger.info("Email sent")
 
-        Notification.objects.create(
-            user_id=user_id,
-            message=NOTIFICATION_MESSAGE_REVIEW_EMAIL.format(
-                email=settings.EMAIL_REVIEW, name=experiment_name
-            ),
-        )
-    except SMTPException as e:
-        logger.error("Failed to send email")
-        raise e
+    Notification.objects.create(
+        user_id=user_id,
+        message=NOTIFICATION_MESSAGE_REVIEW_EMAIL.format(
+            email=settings.EMAIL_REVIEW, name=experiment_name
+        ),
+    )
 
 
 @app.task

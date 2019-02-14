@@ -15,7 +15,6 @@ def send_review_email(experiment_name, experiment_url, needs_attention):
         ),
         attention=attention,
     )
-
     send_mail(
         Experiment.REVIEW_EMAIL_SUBJECT.format(name=experiment_name),
         content,
