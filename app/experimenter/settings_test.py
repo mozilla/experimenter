@@ -9,3 +9,5 @@ LOGGING = {
     "handlers": {},
     "loggers": {},
 }
+
+HOSTNAME = "experimenter.moz"

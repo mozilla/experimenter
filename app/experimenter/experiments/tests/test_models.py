@@ -66,21 +66,23 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create(slug="experiment-slug")
         self.assertEqual(
             experiment.experiment_url,
-            "https://localhost/experiments/experiment-slug/",
+            f"https://{settings.HOSTNAME}/experiments/experiment-slug/",
         )
 
     def test_accept_url(self):
         experiment = ExperimentFactory.create(slug="experiment")
         self.assertEqual(
             experiment.accept_url,
-            "https://localhost/api/v1/experiments/experiment/accept/",
+            f"https://{settings.HOSTNAME}"
+            "/api/v1/experiments/experiment/accept/",
         )
 
     def test_reject_url(self):
         experiment = ExperimentFactory.create(slug="experiment")
         self.assertEqual(
             experiment.reject_url,
-            "https://localhost/api/v1/experiments/experiment/reject/",
+            f"https://{settings.HOSTNAME}"
+            "/api/v1/experiments/experiment/reject/",
         )
 
     def test_bugzilla_url_returns_none_if_bugzilla_id_not_set(self):
