@@ -1,5 +1,6 @@
 import django_filters as filters
 from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.shortcuts import redirect
@@ -125,7 +126,7 @@ class ExperimentListView(FilterView):
     filterset_class = ExperimentFilterset
     model = Experiment
     template_name = "experiments/list.html"
-    paginate_by = 10
+    paginate_by = settings.EXPERIMENTS_PAGINATE_BY
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
