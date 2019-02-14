@@ -2,6 +2,7 @@ import datetime
 
 from django.conf import settings
 from django.test import TestCase
+from django.utils import timezone
 
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.experiments.models import (
@@ -19,7 +20,7 @@ from experimenter.experiments.tests.factories import (
 class TestExperimentManager(TestCase):
 
     def test_queryset_annotated_with_latest_change(self):
-        now = datetime.datetime.now()
+        now = timezone.now()
         experiment1 = ExperimentFactory.create_with_variants()
         experiment2 = ExperimentFactory.create_with_variants()
 
@@ -294,9 +295,9 @@ class TestExperimentModel(TestCase):
     def test_grouped_changes_groups_by_date_then_user(self):
         experiment = ExperimentFactory.create()
 
-        date1 = datetime.datetime.now() - datetime.timedelta(days=2)
-        date2 = datetime.datetime.now() - datetime.timedelta(days=1)
-        date3 = datetime.datetime.now()
+        date1 = timezone.now() - datetime.timedelta(days=2)
+        date2 = timezone.now() - datetime.timedelta(days=1)
+        date3 = timezone.now()
 
         user1 = UserFactory.create()
         user2 = UserFactory.create()
@@ -385,9 +386,9 @@ class TestExperimentModel(TestCase):
     def test_ordered_changes_orders_by_date(self):
         experiment = ExperimentFactory.create()
 
-        date1 = datetime.datetime.now() - datetime.timedelta(days=2)
-        date2 = datetime.datetime.now() - datetime.timedelta(days=1)
-        date3 = datetime.datetime.now()
+        date1 = timezone.now() - datetime.timedelta(days=2)
+        date2 = timezone.now() - datetime.timedelta(days=1)
+        date3 = timezone.now()
 
         user1 = UserFactory.create()
         user2 = UserFactory.create()
@@ -681,7 +682,7 @@ class TestExperimentModel(TestCase):
 class TestExperimentChangeLog(TestCase):
 
     def test_latest_returns_most_recent_changelog(self):
-        now = datetime.datetime.now()
+        now = timezone.now()
         experiment = ExperimentFactory.create_with_variants()
 
         changelog1 = ExperimentChangeLogFactory.create(

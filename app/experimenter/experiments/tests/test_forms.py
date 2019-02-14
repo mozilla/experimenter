@@ -6,6 +6,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory
 from django.test import TestCase
+from django.utils import timezone
 
 from experimenter.experiments.forms import (
     BugzillaURLField,
@@ -187,7 +188,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "data_science_bugzilla_url": "https://bugzilla.mozilla.org/123/",
             "feature_bugzilla_url": "https://bugzilla.mozilla.org/123/",
             "related_work": "Designs: https://www.example.com/myproject/",
-            "proposed_start_date": datetime.date.today(),
+            "proposed_start_date": timezone.now().date(),
             "proposed_enrollment": 10,
             "proposed_duration": 20,
         }
@@ -244,7 +245,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
     def test_start_date_must_be_greater_or_equal_to_current_date(self):
         self.data[
             "proposed_start_date"
-        ] = datetime.date.today() - datetime.timedelta(days=1)
+        ] = timezone.now().date() - datetime.timedelta(days=1)
 
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
