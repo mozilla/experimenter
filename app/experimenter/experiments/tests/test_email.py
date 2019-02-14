@@ -17,7 +17,8 @@ class TestSendReviewEmail(MockMailMixin, TestCase):
             "Experimenter Review Request: Experiment",
             (
                 "Please add the following experiment to the Shield review "
-                "queue:\n\nhttps://localhost/experiments/experiment/\n\n"
+                f"queue:\n\nhttps://{settings.HOSTNAME}"
+                "/experiments/experiment/\n\n"
             ),
             settings.EMAIL_SENDER,
             [settings.EMAIL_REVIEW],
@@ -33,7 +34,8 @@ class TestSendReviewEmail(MockMailMixin, TestCase):
             "Experimenter Review Request: Experiment",
             (
                 "Please add the following experiment to the Shield review "
-                "queue:\n\nhttps://localhost/experiments/experiment/\n\n"
+                f"queue:\n\nhttps://{settings.HOSTNAME}"
+                "/experiments/experiment/\n\n"
                 "This experiment requires special attention and "
                 "should be reviewed ASAP"
             ),
