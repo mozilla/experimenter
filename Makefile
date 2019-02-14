@@ -14,7 +14,7 @@ secretkey:
 build:
 	./scripts/build.sh
 
-test_build: build 
+test_build: build
 	docker-compose -f docker-compose-test.yml build
 
 test: test_build

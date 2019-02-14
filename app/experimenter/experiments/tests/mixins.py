@@ -48,18 +48,6 @@ class MockBugzillaMixin(object):
         self.mock_bugzilla_requests_post.side_effect = mock_reject_assignee
 
 
-class MockMailMixin(object):
-
-    def setUp(self):
-        super().setUp()
-
-        mock_send_mail_patcher = mock.patch(
-            "experimenter.experiments.email.send_mail"
-        )
-        self.mock_send_mail = mock_send_mail_patcher.start()
-        self.addCleanup(mock_send_mail_patcher.stop)
-
-
 class MockRequestMixin(object):
 
     def setUp(self):

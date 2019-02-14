@@ -29,7 +29,6 @@ from experimenter.experiments.models import Experiment, ExperimentVariant
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.mixins import (
     MockBugzillaMixin,
-    MockMailMixin,
     MockTasksMixin,
     MockRequestMixin,
 )
@@ -931,7 +930,6 @@ class TestExperimentReviewForm(
 
 
 class TestExperimentStatusForm(
-    MockMailMixin,
     MockBugzillaMixin,
     MockRequestMixin,
     MockTasksMixin,

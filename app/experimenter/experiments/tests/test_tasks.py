@@ -2,6 +2,8 @@ from smtplib import SMTPException
 
 from django.conf import settings
 from django.test import TestCase
+from django.core import mail
+import mock
 from requests.exceptions import RequestException
 
 from experimenter.experiments import bugzilla
@@ -10,13 +12,12 @@ from experimenter.experiments import tasks
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.mixins import (
     MockBugzillaMixin,
-    MockMailMixin,
     MockRequestMixin,
 )
 from experimenter.notifications.models import Notification
 
 
-class TestSendReviewEmailTask(MockRequestMixin, MockMailMixin, TestCase):
+class TestSendReviewEmailTask(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
@@ -35,7 +36,7 @@ class TestSendReviewEmailTask(MockRequestMixin, MockMailMixin, TestCase):
             False,
         )
 
-        self.mock_send_mail.assert_called()
+        self.assertEqual(len(mail.outbox), 1)
 
         notification = Notification.objects.get()
         self.assertEqual(notification.user, self.user)
@@ -49,17 +50,17 @@ class TestSendReviewEmailTask(MockRequestMixin, MockMailMixin, TestCase):
     def test_failed_email_doesnt_create_notification(self):
         self.assertEqual(Notification.objects.count(), 0)
 
-        self.mock_send_mail.side_effect = SMTPException()
-
-        with self.assertRaises(SMTPException):
-            tasks.send_review_email_task(
-                self.user.id,
-                self.experiment.name,
-                self.experiment.experiment_url,
-                False,
-            )
-
-        self.mock_send_mail.assert_called()
+        with mock.patch(
+            "experimenter.experiments.tasks.send_review_email_task"
+        ) as mocked:
+            mocked.side_effect = SMTPException
+            with self.assertRaises(SMTPException):
+                tasks.send_review_email_task(
+                    self.user.id,
+                    self.experiment.name,
+                    self.experiment.experiment_url,
+                    False,
+                )
 
         self.assertEqual(Notification.objects.count(), 0)
 

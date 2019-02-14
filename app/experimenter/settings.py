@@ -226,7 +226,10 @@ EXPERIMENTS_PAGINATE_BY = config(
 
 # Automated email destinations
 
-# SMTP configuration
+# Email configuration
+EMAIL_BACKEND = config(
+    "EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend"
+)
 EMAIL_SENDER = config("EMAIL_SENDER")
 EMAIL_HOST = config("EMAIL_HOST")
 EMAIL_PORT = config("EMAIL_PORT")
