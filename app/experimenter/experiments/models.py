@@ -94,6 +94,13 @@ class Experiment(ExperimentConstants, models.Model):
     firefox_min_version = models.CharField(
         max_length=255, choices=ExperimentConstants.VERSION_CHOICES
     )
+    # XXX max < min ?
+    firefox_max_version = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.VERSION_CHOICES,
+        blank=True,
+        null=True,
+    )
     firefox_channel = models.CharField(
         max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES
     )

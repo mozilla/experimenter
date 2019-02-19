@@ -32,6 +32,7 @@ class ExperimentFiltersetForm(forms.ModelForm):
             "status",
             "firefox_channel",
             "firefox_min_version",
+            "firefox_max_version",
             "project",
             "owner",
             "archived",
@@ -85,6 +86,11 @@ class ExperimentFilterset(filters.FilterSet):
         choices=Experiment.VERSION_CHOICES[1:],
         widget=forms.Select(attrs={"class": "form-control"}),
     )
+    firefox_max_version = filters.ChoiceFilter(
+        empty_label="All Versions",
+        choices=Experiment.VERSION_CHOICES[1:],
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
     project = filters.ModelChoiceFilter(
         empty_label="All Projects",
         queryset=Project.objects.all().order_by("name"),
@@ -111,6 +117,8 @@ class ExperimentOrderingForm(forms.Form):
         ("latest_change", "Least Recently Updated"),
         ("firefox_min_version", "Firefox Min Version Ascending"),
         ("-firefox_min_version", "Firefox Min Version Descending"),
+        ("firefox_max_version", "Firefox Max Version Ascending"),
+        ("-firefox_max_version", "Firefox Max Version Descending"),
         ("firefox_channel", "Firefox Channel Ascending"),
         ("-firefox_channel", "Firefox Channel Descending"),
     )

@@ -62,6 +62,7 @@ class ExperimentFactory(
     firefox_min_version = factory.LazyAttribute(
         lambda o: random.choice(Experiment.VERSION_CHOICES[1:])[0]
     )
+    firefox_max_version = None
     firefox_channel = factory.LazyAttribute(
         lambda o: random.choice(Experiment.CHANNEL_CHOICES[1:])[0]
     )

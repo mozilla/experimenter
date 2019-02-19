@@ -63,6 +63,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                 "fields": (
                     "firefox_channel",
                     "firefox_min_version",
+                    "firefox_max_version",
                     "population_percent",
                     "pref_key",
                     "pref_type",

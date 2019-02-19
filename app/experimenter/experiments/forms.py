@@ -277,6 +277,10 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
         choices=Experiment.VERSION_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
     )
+    firefox_max_version = forms.ChoiceField(
+        choices=Experiment.VERSION_CHOICES,
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
     firefox_channel = forms.ChoiceField(
         choices=Experiment.CHANNEL_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
@@ -292,6 +296,7 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
         fields = [
             "population_percent",
             "firefox_min_version",
+            "firefox_max_version",
             "firefox_channel",
             "client_matching",
         ]

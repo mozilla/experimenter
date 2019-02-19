@@ -55,6 +55,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "population_percent",
             "firefox_channel",
             "firefox_version",
+            "firefox_max_version",
             "objectives",
             "analysis_owner",
             "analysis",

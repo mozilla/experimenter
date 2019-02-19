@@ -23,6 +23,11 @@
       {{ filter.form.firefox_min_version.value }}
     {% endif %}
 
+    {% if filter.form.firefox_max_version.value %}
+      Firefox
+      {{ filter.form.firefox_max_version.value }}
+    {% endif %}
+
     {% if filter.form.project.value %}
       {{ filter.form.get_project_display_value }}
     {% endif %}

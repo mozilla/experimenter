@@ -63,6 +63,7 @@ class TestExperimentSerializer(TestCase):
             "experiment_url": experiment.experiment_url,
             "firefox_channel": experiment.firefox_channel,
             "firefox_version": experiment.firefox_min_version,
+            "firefox_max_version": experiment.firefox_max_version,
             "name": experiment.name,
             "objectives": experiment.objectives,
             "population": experiment.population,
