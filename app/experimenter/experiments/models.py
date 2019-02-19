@@ -91,7 +91,7 @@ class Experiment(ExperimentConstants, models.Model):
     population_percent = models.DecimalField(
         max_digits=7, decimal_places=4, default="0"
     )
-    firefox_version = models.CharField(
+    firefox_min_version = models.CharField(
         max_length=255, choices=ExperimentConstants.VERSION_CHOICES
     )
     firefox_channel = models.CharField(
@@ -376,7 +376,7 @@ class Experiment(ExperimentConstants, models.Model):
     def completed_population(self):
         return (
             self.population_percent > 0
-            and self.firefox_version != ""
+            and self.firefox_min_version != ""
             and self.firefox_channel != ""
         )
 
@@ -443,7 +443,7 @@ class Experiment(ExperimentConstants, models.Model):
     def population(self):
         return "{percent:g}% of {channel} Firefox {version}".format(
             percent=float(self.population_percent),
-            version=self.firefox_version,
+            version=self.firefox_min_version,
             channel=self.firefox_channel,
         )
 

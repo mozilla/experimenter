@@ -43,11 +43,11 @@
           </div>
 
           <div class="col-4">
-            {% include "experiments/field_input_inline.html" with field=form.firefox_version %}
+            {% include "experiments/field_input_inline.html" with field=form.firefox_min_version %}
           </div>
 
         </div>
-				
+
         {% include "experiments/field_errors_inline.html" with field=form.population_percent %}
 
         <div id="population-percent-help" class="collapse text-muted">

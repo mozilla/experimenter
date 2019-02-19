@@ -334,7 +334,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
         self.data = {
             "population_percent": "10",
-            "firefox_version": Experiment.VERSION_CHOICES[-1][0],
+            "firefox_min_version": Experiment.VERSION_CHOICES[-1][0],
             "firefox_channel": Experiment.CHANNEL_NIGHTLY,
             "client_matching": "en-us only please",
             "variants-TOTAL_FORMS": "3",
@@ -394,7 +394,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
             experiment.population_percent, decimal.Decimal("10.000")
         )
         self.assertEqual(
-            experiment.firefox_version, self.data["firefox_version"]
+            experiment.firefox_min_version, self.data["firefox_min_version"]
         )
         self.assertEqual(
             experiment.firefox_channel, self.data["firefox_channel"]
@@ -643,7 +643,7 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
 
         self.data = {
             "population_percent": "10",
-            "firefox_version": Experiment.VERSION_CHOICES[-1][0],
+            "firefox_min_version": Experiment.VERSION_CHOICES[-1][0],
             "firefox_channel": Experiment.CHANNEL_NIGHTLY,
             "client_matching": "en-us only please",
             "pref_key": "browser.test.example",

@@ -543,7 +543,7 @@ class TestExperimentModel(TestCase):
 
     def test_population_is_not_complete_when_defaults_set(self):
         experiment = ExperimentFactory.create(
-            population_percent=0.0, firefox_version="", firefox_channel=""
+            population_percent=0.0, firefox_min_version="", firefox_channel=""
         )
         self.assertFalse(experiment.completed_population)
 
@@ -675,7 +675,7 @@ class TestExperimentModel(TestCase):
     def test_experiment_population_returns_correct_string(self):
         experiment = ExperimentFactory(
             population_percent="0.5",
-            firefox_version="57.0",
+            firefox_min_version="57.0",
             firefox_channel="Nightly",
         )
         self.assertEqual(experiment.population, "0.5% of Nightly Firefox 57.0")
