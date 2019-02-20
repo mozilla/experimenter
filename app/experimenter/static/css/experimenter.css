@@ -85,10 +85,10 @@ select {
 }
 
 .heavy-line {
-   border: 0; 
-  height: 1px; 
-  background: #333; 
-  background-image: linear-gradient(to right, #ccc, #333, #ccc); 
+   border: 0;
+  height: 1px;
+  background: #333;
+  background-image: linear-gradient(to right, #ccc, #333, #ccc);
 }
 
 .status-pill {
@@ -152,11 +152,11 @@ select {
 }
 
 .border-bottom-blue {
-	border-bottom: 3px solid #45a1ff; 
+	border-bottom: 3px solid #45a1ff;
 }
 
 .border-bottom-green {
-	border-bottom: 3px solid #30e60b; 
+	border-bottom: 3px solid #30e60b;
 }
 
 .border-bottom-teal {
@@ -166,4 +166,8 @@ select {
 .bubble {
   border-radius: 4px;
 	background-color: #F3F3F3;
+}
+
+label .optional-marker {
+  display: block;
 }

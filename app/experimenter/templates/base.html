@@ -32,7 +32,7 @@
             <h3 class="pt-2">
               <a class="noanchorstyle" href="{% url "home" %}">
                 <svg id="header-icon">
-                  <?xml version="1.0" ?><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs></defs><title/><rect class="a" height="21" rx="4" ry="4" width="12" x="2" y="40"/><rect class="a" height="40" rx="4" ry="4" width="12" x="18" y="21"/><rect class="a" height="30" rx="4" ry="4" width="12" x="34" y="31"/><rect class="a" height="51" rx="4" ry="4" width="12" x="50" y="10"/></svg>
+                  <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs></defs><title/><rect class="a" height="21" rx="4" ry="4" width="12" x="2" y="40"/><rect class="a" height="40" rx="4" ry="4" width="12" x="18" y="21"/><rect class="a" height="30" rx="4" ry="4" width="12" x="34" y="31"/><rect class="a" height="51" rx="4" ry="4" width="12" x="50" y="10"/></svg>
                 </svg>
                 <strong>Mozilla</strong> Experimenter
               </a>
@@ -41,7 +41,7 @@
           <div class="col text-right">
             <span class="fas fa-user"></span>
             {{ request.user }}
-            <a class="nocolorstyle" href="{% url "home" %}?owner={{ request.user.id }}&archived=on">
+            <a class="nocolorstyle" href="{% url "home" %}?owner={{ request.user.id }}&amp;archived=on">
               ({{ request.user.experiment_set.count }} Experiment{{ request.user.experiment_set.count|pluralize:"s" }})
             </a>
             <br/>
