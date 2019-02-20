@@ -15,3 +15,5 @@ HOSTNAME = "experimenter.moz"
 EMAIL_REVIEW = "testreview@example.com"
 EMAIL_SHIP = "testship@example.com"
 EMAIL_SENDER = "sender@example.com"
+
+USE_GOOGLE_ANALYTICS = True
