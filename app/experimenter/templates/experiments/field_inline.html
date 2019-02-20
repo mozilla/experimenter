@@ -3,7 +3,7 @@
     <label class="col-form-label" for="{{ field.id_for_label }}">
       <strong>{{ field.label }}</strong>
       {% if not field.field.required %}
-        <div class="text-muted">Optional</div>
+        <span class="text-muted optional-marker">Optional</span>
       {% endif %}
     </label>
     <br>

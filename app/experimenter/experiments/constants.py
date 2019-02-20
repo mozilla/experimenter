@@ -475,13 +475,11 @@ class ExperimentConstants(object):
         analyzed to determine the outcome of the study,
         and who will be responsible for that analysis.
       </p>
-      <p>
-        <strong>Example:</strong>
-        <p>Unique page views</p>
-        <p>Usage hours</p>
-        <p>Attracting heavy users and influencers.</p>
-        <p>Understanding the landscape of the web (research)</p>
-      </p>
+      <p><strong>Example:</strong></p>
+      <p>Unique page views</p>
+      <p>Usage hours</p>
+      <p>Attracting heavy users and influencers.</p>
+      <p>Understanding the landscape of the web (research)</p>
     """
 
     RISKS_HELP_TEXT = """
