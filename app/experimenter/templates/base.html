@@ -128,6 +128,7 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="{% static "lib/bootstrap/js/bootstrap.min.js" %}"></script>
 
+    {% if USE_GOOGLE_ANALYTICS %}
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-123143157-1"></script>
     <script>
@@ -137,6 +138,7 @@
 
       gtag('config', 'UA-123143157-1');
     </script>
+    {% endif %}
 
     {% block extrascripts %}
     {% endblock %}

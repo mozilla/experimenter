@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "djangoformsetjs",
     "jquery",
     "widget_tweaks",
+    "experimenter.base",
     "experimenter.experiments",
     "experimenter.notifications",
     "experimenter.openidc",
@@ -82,6 +83,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.contrib.messages.context_processors.messages",
+                "experimenter.base.context_processors.google_analytics",
             ]
         },
     }
@@ -90,7 +93,6 @@ TEMPLATES = [
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 WSGI_APPLICATION = "experimenter.wsgi.application"
-
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -226,6 +228,8 @@ DASHBOARD_RATE_LIMIT = 2
 EXPERIMENTS_PAGINATE_BY = config(
     "EXPERIMENTS_PAGINATE_BY", default=10, cast=int
 )
+
+USE_GOOGLE_ANALYTICS = config("USE_GOOGLE_ANALYTICS", default=True, cast=bool)
 
 # Automated email destinations
 
