@@ -1,6 +1,7 @@
 import datetime
 import decimal
 import random
+import re
 from urllib.parse import urlencode
 
 import mock
@@ -297,6 +298,37 @@ class TestExperimentListView(TestCase):
         self.assertEqual(
             list(context["experiments"]), list(filtered_ordered_experiments)
         )
+
+    def test_list_view_total_experiments_count(self):
+        user_email = "user@example.com"
+
+        number_of_experiments = settings.EXPERIMENTS_PAGINATE_BY + 1
+        for i in range(number_of_experiments):
+            ExperimentFactory.create_with_status(
+                random.choice(Experiment.STATUS_CHOICES)[0]
+            )
+
+        response = self.client.get(
+            reverse("home"), **{settings.OPENIDC_EMAIL_HEADER: user_email}
+        )
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode("utf-8")
+        total_count_regex = re.compile(
+            rf"{number_of_experiments}\s+Experiments"
+        )
+        self.assertTrue(total_count_regex.search(html))
+
+        # Go to page 2, and the total shouldn't change.
+        response = self.client.get(
+            "{url}?{params}".format(
+                url=reverse("home"), params=urlencode({"page": 2})
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode("utf-8")
+        self.assertTrue(total_count_regex.search(html))
+        self.assertTrue('Page 2' in html)
 
 
 class TestExperimentFormMixin(TestCase):
