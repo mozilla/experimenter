@@ -938,10 +938,7 @@ class TestExperimentReviewForm(
 
 
 class TestExperimentStatusForm(
-    MockBugzillaMixin,
-    MockRequestMixin,
-    MockTasksMixin,
-    TestCase,
+    MockBugzillaMixin, MockRequestMixin, MockTasksMixin, TestCase
 ):
 
     def test_form_allows_valid_state_transition_and_creates_changelog(self):
