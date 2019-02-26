@@ -263,9 +263,30 @@ class ExperimentVariantsFormSet(BaseInlineFormSet):
                 form._errors["name"] = ["All branches must have a unique name"]
 
 
+class ExperimentVariantsPrefFormSet(BaseInlineFormSet):
+
+    def clean(self):
+        alive_forms = [
+            form for form in self.forms if not form.cleaned_data["DELETE"]
+        ]
+
+        forms_by_value = {}
+        for form in alive_forms:
+            value = form.cleaned_data["value"]
+            forms_by_value.setdefault(value, []).append(form)
+
+        for dupe_forms in forms_by_value.values():
+            if len(dupe_forms) > 1:
+                for form in dupe_forms:
+                    form.add_error(
+                        "value", "All branches must have a unique pref value"
+                    )
+
+
 class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
 
     FORMSET_FORM_CLASS = ExperimentVariantAddonForm
+    FORMSET_CLASS = ExperimentVariantsFormSet
 
     population_percent = forms.DecimalField(
         label="Population Size",
@@ -309,7 +330,7 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
             can_delete=True,
             extra=extra,
             form=self.FORMSET_FORM_CLASS,
-            formset=ExperimentVariantsFormSet,
+            formset=self.FORMSET_CLASS,
             model=ExperimentVariant,
             parent_model=Experiment,
         )
@@ -345,6 +366,7 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
 class ExperimentVariantsPrefForm(ExperimentVariantsAddonForm):
 
     FORMSET_FORM_CLASS = ExperimentVariantPrefForm
+    FORMSET_CLASS = ExperimentVariantsPrefFormSet
 
     pref_key = forms.CharField(
         label="Pref Name",

@@ -708,6 +708,14 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
         )
         self.assertEqual(branch2.value, self.data["variants-2-value"])
 
+    def test_form_is_invalid_if_branches_have_duplicate_pref_values(self):
+        self.data["variants-0-value"] = self.data["variants-1-value"]
+        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("value", form.variants_formset.errors[0])
+        self.assertIn("value", form.variants_formset.errors[1])
+        self.assertNotIn("value", form.variants_formset.errors[2])
+
 
 class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
 
