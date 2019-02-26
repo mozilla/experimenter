@@ -26,10 +26,16 @@ test-watch: compose_build
 lint: test_build
 	docker-compose -f docker-compose-test.yml run app flake8 .
 
-black: test_build
+black_check: test_build
+	docker-compose -f docker-compose-test.yml run app black -l 79 --check .
+
+black_fix: test_build
 	docker-compose -f docker-compose-test.yml run app black -l 79 .
 
-check: test_build black lint test
+code_format: black_fix
+	echo "Code Formatted"
+
+check: test_build black_check lint test
 	echo "Success"
 
 compose_build: build ssl
