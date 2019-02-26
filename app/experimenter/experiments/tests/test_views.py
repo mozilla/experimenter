@@ -328,7 +328,7 @@ class TestExperimentListView(TestCase):
         self.assertEqual(response.status_code, 200)
         html = response.content.decode("utf-8")
         self.assertTrue(total_count_regex.search(html))
-        self.assertTrue('Page 2' in html)
+        self.assertTrue("Page 2" in html)
 
 
 class TestExperimentFormMixin(TestCase):

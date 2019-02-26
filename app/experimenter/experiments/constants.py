@@ -156,7 +156,9 @@ class ExperimentConstants(object):
         enroll in the study.  After the experiment is complete, that addon
         is automatically removed.
       </p>
-    """.format(*TYPE_CHOICES)
+    """.format(
+        *TYPE_CHOICES
+    )
 
     OWNER_HELP_TEXT = """
       <p>
