@@ -2,6 +2,8 @@
 
 {% load static %}
 
+{% load experiment_extras %}
+
 {% block header_content %}
   <h3 class="m-0">
     {{ paginator.count }}
@@ -91,7 +93,7 @@
       <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
           <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" tabindex="-1">Previous</a>
+            <a class="page-link" href="{% pagination_url page_obj.previous_page_number %}" tabindex="-1">Previous</a>
           </li>
         {% else %}
           <li class="page-item disabled">
@@ -100,12 +102,12 @@
         {% endif %}
         {% for page_num in page_obj.paginator.page_range %}
           <li class="page-item {% ifequal page_obj.number page_num %}active{% endifequal %}">
-            <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+            <a class="page-link" href="{% pagination_url page_num %}">{{ page_num }}</a>
           </li>
         {% endfor %}
         {% if page_obj.has_next %}
           <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+            <a class="page-link" href="{% pagination_url page_obj.next_page_number %}">Next</a>
           </li>
         {% else %}
           <li class="page-item disabled">
