@@ -37,7 +37,7 @@ do not require tests.
   - Ensure coverage remains at 100% by adding new tests for any uncovered lines.
 
 1. When all tests and checks are passing, commit all your changes into a single commit and name
-the commit with a brief description of the change and 'fixes #123' where #123 is the issue number.
+the commit with a brief description of the change and `fixes #123` where `#123` is the issue number.
 You can add any additional descriptive information to the message body of the commit, but the issue
 number must be present in the first line of the commit.  Example: `Add new dashboard link fixes #123`
 
