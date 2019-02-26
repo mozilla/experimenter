@@ -7,7 +7,7 @@ email, or any other method with the owners of this repository before making a ch
 
 Please note we have a [https://www.mozilla.org/en-US/about/governance/policies/participation/](Code of Conduct), please follow it in all your interactions with the project.
 
-## Filing an issue
+## Filing an Issue
 
 1. Look for a similar issue that may already exist.
 
