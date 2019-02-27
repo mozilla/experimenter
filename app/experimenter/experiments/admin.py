@@ -112,17 +112,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        (
-            "Telemetry",
-            {
-                "fields": (
-                    "dashboard_url",
-                    "dashboard_image_url",
-                    "enrollment_dashboard_url",
-                    "total_users",
-                )
-            },
-        ),
+        ("Telemetry", {"fields": ("dashboard_url", "total_users")}),
     )
 
     prepopulated_fields = {"slug": ("name",)}

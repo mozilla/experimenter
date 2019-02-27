@@ -101,21 +101,7 @@ class TestExperimentModel(TestCase):
             settings.BUGZILLA_DETAIL_URL.format(id=experiment.bugzilla_id),
         )
 
-    def test_test_tube_url_is_none_when_experiment_not_begun(self):
-        experiment = ExperimentFactory.create(
-            slug="experiment", status=Experiment.STATUS_DRAFT
-        )
-        self.assertIsNone(experiment.test_tube_url)
-
-    def test_test_tube_url_is_none_when_experiment_is_addon_and_begun(self):
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ADDON,
-            slug="experiment",
-            status=Experiment.STATUS_LIVE,
-        )
-        self.assertIsNone(experiment.test_tube_url)
-
-    def test_test_tube_url_returns_url_when_experiment_is_pref_and_begun(self):
+    def test_test_tube_url_returns_correct_url(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
             slug="experiment",
@@ -124,6 +110,40 @@ class TestExperimentModel(TestCase):
         self.assertEqual(
             experiment.test_tube_url,
             "https://firefox-test-tube.herokuapp.com/experiments/experiment/",
+        )
+
+    def test_monitoring_dashboard_url_is_none_when_experiment_not_begun(self):
+        experiment = ExperimentFactory.create(
+            slug="experiment", status=Experiment.STATUS_DRAFT
+        )
+        self.assertIsNone(experiment.monitoring_dashboard_url)
+
+    def test_monitoring_dashboard_url_is_none_when_is_addon_and_begun(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ADDON,
+            slug="experiment",
+            status=Experiment.STATUS_LIVE,
+        )
+        self.assertIsNone(experiment.monitoring_dashboard_url)
+
+    def test_monitoring_dashboard_url_uses_dashboard_url_if_set(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_PREF,
+            status=Experiment.STATUS_LIVE,
+            dashboard_url="https://www.example.com/dashboard/",
+        )
+        self.assertEqual(
+            experiment.monitoring_dashboard_url, experiment.dashboard_url
+        )
+
+    def test_monitoring_dashboard_url_uses_test_tube_url(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_PREF,
+            status=Experiment.STATUS_LIVE,
+            dashboard_url="",
+        )
+        self.assertEqual(
+            experiment.monitoring_dashboard_url, experiment.test_tube_url
         )
 
     def test_has_external_urls_is_false_when_no_external_urls(self):
@@ -151,7 +171,18 @@ class TestExperimentModel(TestCase):
         self.assertTrue(experiment.has_external_urls)
 
     def test_has_external_urls_is_true_when_test_tube_url_is_set(self):
-        experiment = ExperimentFactory.create(status=Experiment.STATUS_LIVE)
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_PREF,
+            status=Experiment.STATUS_LIVE,
+            dashboard_url="",
+        )
+        self.assertTrue(experiment.has_external_urls)
+
+    def test_has_external_urls_is_true_when_monitoring_url_is_set(self):
+        experiment = ExperimentFactory.create(
+            status=Experiment.STATUS_LIVE,
+            dashboard_url="https://www.example.com/dashboard/",
+        )
         self.assertTrue(experiment.has_external_urls)
 
     def test_has_external_urls_is_true_when_bugzilla_and_test_tube_urls(self):

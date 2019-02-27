@@ -109,9 +109,7 @@ class Experiment(ExperimentConstants, models.Model):
     analysis_owner = models.CharField(max_length=255, blank=True, null=True)
 
     total_users = models.PositiveIntegerField(default=0)
-    enrollment_dashboard_url = models.URLField(blank=True, null=True)
     dashboard_url = models.URLField(blank=True, null=True)
-    dashboard_image_url = models.URLField(blank=True, null=True)
 
     bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
 
@@ -230,16 +228,22 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def test_tube_url(self):
+        return (
+            "https://firefox-test-tube.herokuapp.com/experiments/{slug}/"
+        ).format(slug=self.slug)
+
+    @property
+    def monitoring_dashboard_url(self):
         if self.is_begun and self.is_pref_study:
-            return (
-                "https://firefox-test-tube.herokuapp.com/experiments/{slug}/"
-            ).format(slug=self.slug)
+            if self.dashboard_url:
+                return self.dashboard_url
+            return self.test_tube_url
 
     @property
     def has_external_urls(self):
         return (
             self.bugzilla_url
-            or self.test_tube_url
+            or self.monitoring_dashboard_url
             or self.data_science_bugzilla_url
             or self.feature_bugzilla_url
         )

@@ -96,9 +96,8 @@ class ExperimentFactory(
         lambda o: faker.text(random.randint(500, 1000))
     )
 
-    enrollment_dashboard_url = "http://www.example.com/enrollment"
     dashboard_url = "http://www.example.com/dashboard"
-    dashboard_image_url = "http://www.example.com/dashboard.png"
+
     population_percent = factory.LazyAttribute(
         lambda o: decimal.Decimal(random.randint(1, 10) * 10)
     )
