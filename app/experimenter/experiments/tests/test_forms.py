@@ -255,33 +255,6 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
 
-    def test_owner_is_mandatory_for_new_experiments(self):
-        form = ExperimentOverviewForm(
-            request=self.request, initial={"owner": 1}
-        )
-        # If the initial owner was set the owner field should become
-        # configured in a way so that it's mandatory.
-        self.assertEqual(form.fields["owner"].empty_label, None)
-        self.assertTrue(form.fields["owner"].required)
-
-    def test_owner_is_mandatory_for_editing_experiments_with_owner(self):
-        form = ExperimentOverviewForm(
-            request=self.request, instance=Experiment(owner=self.user)
-        )
-        # If the passed instance already had an owner the owner field
-        # should become configured in a way so that it's mandatory.
-        self.assertEqual(form.fields["owner"].empty_label, None)
-        self.assertTrue(form.fields["owner"].required)
-
-    def test_owner_is_optional_for_editing_experiments_without_owner(self):
-        form = ExperimentOverviewForm(
-            request=self.request, instance=Experiment(owner=None)
-        )
-        # No initial owner passed and the passed instance does not
-        # have an owner set, so many the owner field configured optional.
-        self.assertTrue(form.fields["owner"].empty_label)
-        self.assertFalse(form.fields["owner"].required)
-
 
 class TestExperimentVariantsFormSet(TestCase):
 
