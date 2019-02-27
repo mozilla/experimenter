@@ -153,6 +153,26 @@ class ExperimentOverviewForm(
             "proposed_enrollment",
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # The Experiment.owner field was added late. So it's still nullable
+        # in the model.
+        # Because of that, we can't set `required=True` on the `owner` field
+        # and we can't remove the "empty label" (e.g
+        # <option value="">-------------</option>) option. What if you're
+        # editing an experiment that was created *before* the `owner` field
+        # was prefilled?
+        # But going forward, we don't want any new experiments to let the
+        # `owner` be optional. And if you set it once you shouldn't be
+        # able to "recind" that.
+        # So we remove the `empty_label` attribute if this is a
+        # not-yet-created experiment, or if you're editing one where it was
+        # already set once.
+        if self.initial.get("owner") or self.instance.owner:
+            self.fields["owner"].empty_label = None
+            self.fields["owner"].required = True
+
     def clean_proposed_start_date(self):
         start_date = self.cleaned_data["proposed_start_date"]
 

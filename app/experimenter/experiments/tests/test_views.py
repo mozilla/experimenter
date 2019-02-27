@@ -419,7 +419,8 @@ class TestExperimentFormMixin(TestCase):
 class TestExperimentCreateView(TestCase):
 
     def test_view_creates_experiment(self):
-        user_email = "user@example.com"
+        user = UserFactory.create()
+        user_email = user.email
 
         data = {
             "type": Experiment.TYPE_PREF,
@@ -431,6 +432,7 @@ class TestExperimentCreateView(TestCase):
             "proposed_start_date": timezone.now().date(),
             "proposed_enrollment": 10,
             "proposed_duration": 20,
+            "owner": user.id,
         }
 
         response = self.client.post(
@@ -448,7 +450,7 @@ class TestExperimentCreateView(TestCase):
 
         change = experiment.changes.get()
 
-        self.assertEqual(change.changed_by.email, user_email)
+        self.assertEqual(change.changed_by, user)
         self.assertEqual(change.old_status, None)
         self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
@@ -456,7 +458,8 @@ class TestExperimentCreateView(TestCase):
 class TestExperimentOverviewUpdateView(TestCase):
 
     def test_view_saves_experiment(self):
-        user_email = "user@example.com"
+        user = UserFactory.create()
+        user_email = user.email
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, proposed_enrollment=1, proposed_duration=2
         )
@@ -477,6 +480,7 @@ class TestExperimentOverviewUpdateView(TestCase):
             "proposed_start_date": new_start_date,
             "proposed_enrollment": new_enrollment,
             "proposed_duration": new_duration,
+            "owner": user.id,
         }
 
         response = self.client.post(
@@ -501,7 +505,7 @@ class TestExperimentOverviewUpdateView(TestCase):
 
         change = experiment.changes.latest()
 
-        self.assertEqual(change.changed_by.email, user_email)
+        self.assertEqual(change.changed_by, user)
         self.assertEqual(change.old_status, experiment.STATUS_DRAFT)
         self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
