@@ -251,13 +251,7 @@ Example: PATCH /api/v1/experiments/my-first-experiment/accept
 
 ## Contributing
 
-1. Fork the repo!
-1. File a new issue describing the change you want to make: Change the things #123
-1. Create your feature branch with the issue number: `git checkout -b 123`
-1. Commit your changes: `git commit -am 'Changed the things fixes #123'`
-1. Push to the branch: `git push origin 123`
-1. Submit a pull request :D
-
+Please see our [Contributing Guidelines](https://github.com/mozilla/experimenter/blob/master/contributing.md)
 
 ## License
 
