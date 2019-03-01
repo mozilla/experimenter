@@ -758,6 +758,36 @@ If applicable, link to any relevant test builds / staging information
 {attention}"""
     )
 
+    INTENT_TO_SHIP_EMAIL_SUBJECT = (
+        "SHIELD Study Intent to ship: {name} {version} {channel}"
+    )
+
+    INTENT_TO_SHIP_EMAIL_TEMPLATE = """
+Hello Release Drivers,
+
+This request is coming from information entered in Experimenter.
+Please reach out to the person(s) on cc: with any questions, details,
+or discussion. They will email an update if any of the key information
+changes. Otherwise they will reach out once the study has fully passed
+QA for Release Management sign-off.
+
+Experimenter Bug: {bug_url}
+Experimenter Project: {project_url}
+Study owner: {experiment_owner}
+Description: {short_description}
+Timeline & Channel: {version} {channel}
+Intended study dates: {proposed_start_date} - {proposed_end_date}
+Percent of Population: {percent_of_population}
+Platforms: {platforms}
+Locales: {locales}
+QA Status: {qa_status}
+Meta Bug: {feature_bugzilla_url}
+Related links: {related_work}
+Risk: {Risk Box - only if it exists}
+Technical Complexity: {Technical Complexity Box - only if it exists}
+
+Thank you!!"""
+
     BUGZILLA_OVERVIEW_TEMPLATE = (
         """
 {experiment.name}
