@@ -7,4 +7,38 @@ Population
 {% block section_content %}
   <h5>{{ experiment.population }}</h5>
   {{ experiment.client_matching|urlize|linebreaks }}
+
+  {% comment %}
+    The reason for making this not show - if nothing is set - is because
+    these fields were added late. Going forward we expect most new
+    experiments to have some locales selector, or the all_locales.
+  {% endcomment %}
+
+  <strong>Locales</strong>
+  <p>
+    {% if experiment.all_locales %}
+    All
+    {% else %}
+      {% for locale in experiment.locales.all %}
+        {{ locale }}{% if not forloop.last %}, {% endif %}
+      {% empty %}
+       none
+      {% endfor %}
+    {% endif %}
+  </p>
+
+  <strong>Geographic Region(s)</strong>
+  <p>
+    {% if experiment.all_countries %}
+    All
+    {% else %}
+      {% for country in experiment.countries.all %}
+        {{ country }}{% if not forloop.last %}, {% endif %}
+      {% empty %}
+       none
+      {% endfor %}
+    {% endif %}
+  </p>
+
+
 {% endblock %}

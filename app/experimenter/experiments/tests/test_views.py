@@ -10,6 +10,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.forms import (
     ExperimentVariantsAddonForm,
     ExperimentVariantsPrefForm,
@@ -549,12 +550,16 @@ class TestExperimentVariantsUpdateView(TestCase):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT
         )
+        locale = LocaleFactory()
+        country = CountryFactory()
 
         data = {
             "population_percent": "11",
             "firefox_version": Experiment.VERSION_CHOICES[-1][0],
             "firefox_channel": Experiment.CHANNEL_NIGHTLY,
             "client_matching": "New matching!",
+            "locales": [locale.code],
+            "countries": [country.code],
             "pref_key": "browser.test.example",
             "pref_type": Experiment.PREF_TYPE_STR,
             "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
@@ -600,6 +605,12 @@ class TestExperimentVariantsUpdateView(TestCase):
         self.assertEqual(experiment.pref_key, data["pref_key"])
         self.assertEqual(experiment.pref_type, data["pref_type"])
         self.assertEqual(experiment.pref_branch, data["pref_branch"])
+
+        self.assertTrue(not experiment.all_locales)
+        self.assertTrue(locale in experiment.locales.all())
+
+        self.assertTrue(not experiment.all_countries)
+        self.assertTrue(country in experiment.countries.all())
 
         self.assertEqual(experiment.changes.count(), 2)
 
@@ -720,6 +731,66 @@ class TestExperimentDetailView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "experiments/detail_draft.html")
         self.assertTemplateUsed(response, "experiments/detail_base.html")
+
+    def test_view_renders_locales_correctly(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        experiment.locales.add(LocaleFactory(code="yy", name="Why"))
+        experiment.locales.add(LocaleFactory(code="xx", name="Xess"))
+        response = self.client.get(
+            reverse("experiments-detail", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode(response.charset)
+        # There's a comma after this one because it's not the last one.
+        # Yes, x comes before y, but "Why" comes before "Xess".
+        self.assertTrue("Why (yy)," in html)
+        self.assertTrue("Xess (xx)" in html)
+
+        experiment.all_locales = True
+        experiment.save()
+        response = self.client.get(
+            reverse("experiments-detail", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode(response.charset)
+        self.assertTrue("All" in html)
+        self.assertTrue("Why (yy)," not in html)
+        self.assertTrue("Xess (xx)" not in html)
+
+    def test_view_renders_countries_correctly(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        experiment.countries.add(CountryFactory(code="YY", name="Wazoo"))
+        experiment.countries.add(CountryFactory(code="XX", name="Xanadu"))
+        response = self.client.get(
+            reverse("experiments-detail", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode(response.charset)
+        # There's a comma after this one because it's not the last one.
+        # Yes, x comes before y, but "Wazoo" comes before "Xanadu".
+        self.assertTrue("Wazoo (YY)," in html)
+        self.assertTrue("Xanadu (XX)" in html)
+
+        experiment.all_countries = True
+        experiment.save()
+        response = self.client.get(
+            reverse("experiments-detail", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode(response.charset)
+        self.assertTrue("All" in html)
+        self.assertTrue("Wazoo (YY)," not in html)
+        self.assertTrue("Xanadu (XX)" not in html)
 
 
 class TestExperimentStatusUpdateView(MockTasksMixin, TestCase):

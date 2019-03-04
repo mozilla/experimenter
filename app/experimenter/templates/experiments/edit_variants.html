@@ -58,6 +58,10 @@
 
     {% include "experiments/field_inline.html" with field=form.client_matching %}
 
+    {% include "experiments/field_inline.html" with field=form.locales %}
+
+    {% include "experiments/field_inline.html" with field=form.countries %}
+
     <hr class="heavy-line my-5"/>
 
     {% if experiment.is_pref_study %}
@@ -138,6 +142,12 @@
   {% endif %}
 {% endblock %}
 
+{% block extrahead %}
+{#<link rel="stylesheet" href="{% static "lib/bootstrap-multiselect/css/bootstrap-multiselect.css" %}">#}
+<link rel="stylesheet" href="{% static "lib/bootstrap-select/css/bootstrap-select.min.css" %}">
+
+{% endblock %}
+
 {% block extrascripts %}
   <script src="{% static "js/jquery.formset.js" %}"></script>
 
@@ -149,4 +159,26 @@
       });
     });
   </script>
+
+  {% comment %}
+  <script src="{% static "lib/bootstrap-multiselect/js/bootstrap-multiselect.js" %}"></script>
+  <script>
+    jQuery(function($) {
+      $('select[multiple]').multiselect();
+    });
+  </script>
+  {% endcomment %}
+  <script src="{% static "lib/bootstrap-select/js/bootstrap-select.min.js" %}"></script>
+  <script>
+    jQuery(function($) {
+      /* The Django form that parses locales is pretty smart. If you
+         send it ['__all__', 'sv'] it knows to set all_locales=True, locales=[],
+         etc.
+         We could attempt to replicate some of this functionality here with
+         events on $.selectpicker() but it's non-trivial and fragile.
+      */
+      $('select[multiple]').selectpicker();
+    });
+  </script>
+
 {% endblock %}

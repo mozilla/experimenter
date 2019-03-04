@@ -144,3 +144,9 @@ parameterized==0.7.0 \
 pytest-cov==2.6.1 \
     --hash=sha256:0ab664b25c6aa9716cbf203b17ddb301932383046082c081b9848a0edf5add33 \
     --hash=sha256:230ef817450ab0699c6cc3c9c8f7a829c34674456f2ed8df1fe1d39780f7c87f
+django-mozilla-product-details==0.13.1 \
+    --hash=sha256:fad2022fb9289aca574a9c1cb6bea90c9977302ad31494608b540d35c201e3a9 \
+    --hash=sha256:fdb87422ebd1b15ece9d338100c75d1dbe936930ca14e4f5644b9918b6b4f6f3
+django-countries==5.3.3 \
+    --hash=sha256:5307a61172eee5740720e44ea08721858b7d8bf8509ec7701ccd7a8d21120b9a \
+    --hash=sha256:e4eaaec9bddb9365365109f833d1fd0ecc0cfee3348bf5441c0ccefb2d6917cd
