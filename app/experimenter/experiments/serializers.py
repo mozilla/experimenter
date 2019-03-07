@@ -2,7 +2,7 @@ import time
 
 from rest_framework import serializers
 
-from experimenter.base.models import Locale
+from experimenter.base.models import Country, Locale
 from experimenter.experiments.models import Experiment, ExperimentVariant
 
 
@@ -40,12 +40,20 @@ class LocalesSerializer(serializers.ModelSerializer):
         fields = ("code", "name")
 
 
+class CountriesSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Country
+        fields = ("code", "name")
+
+
 class ExperimentSerializer(serializers.ModelSerializer):
     start_date = JSTimestampField()
     end_date = JSTimestampField()
     proposed_start_date = JSTimestampField()
     variants = ExperimentVariantSerializer(many=True)
     locales = LocalesSerializer(many=True)
+    countries = CountriesSerializer(many=True)
 
     class Meta:
         model = Experiment
@@ -58,6 +66,8 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "client_matching",
             "locales",
             "all_locales",
+            "countries",
+            "all_countries",
             "start_date",
             "end_date",
             "population",
