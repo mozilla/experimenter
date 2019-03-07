@@ -5,8 +5,6 @@ from product_details import product_details
 
 
 def ensure_all_locales(sender, **kwargs):
-    print(repr(kwargs["apps"]))
-    print(type(kwargs["apps"]))
     Locale = kwargs["apps"].get_model("base", "Locale")
     new = []
     existing = {
