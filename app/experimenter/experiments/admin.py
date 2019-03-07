@@ -69,6 +69,10 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "pref_type",
                     "pref_branch",
                     "client_matching",
+                    "all_locales",
+                    "locales",
+                    "all_countries",
+                    "countries",
                 )
             },
         ),
