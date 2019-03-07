@@ -21,13 +21,7 @@ class ExperimentChangeLogInlineAdmin(admin.TabularInline):
     extra = 1
     model = ExperimentChangeLog
 
-    fields = (
-        "changed_by",
-        "changed_on",
-        "old_status",
-        "new_status",
-        "message",
-    )
+    fields = ("changed_by", "changed_on", "old_status", "new_status", "message")
 
 
 class ExperimentAdmin(admin.ModelAdmin):
@@ -141,8 +135,7 @@ class ExperimentAdmin(admin.ModelAdmin):
     def show_dashboard_url(self, obj):
         url = obj.dashboard_url
         return format_html(
-            f'<a href="{url}" target="_blank" rel="noreferrer noopener"'
-            f">{url}</a>"
+            f'<a href="{url}" target="_blank" rel="noreferrer noopener"' f">{url}</a>"
         )
 
     show_dashboard_url.short_description = "Dashboard URL"

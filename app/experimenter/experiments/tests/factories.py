@@ -21,9 +21,7 @@ from experimenter.projects.tests.factories import ProjectFactory
 faker = FakerFactory.create()
 
 
-class ExperimentFactory(
-    ExperimentConstants, factory.django.DjangoModelFactory
-):
+class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     type = Experiment.TYPE_PREF
     owner = factory.SubFactory(UserFactory)
     engineering_owner = factory.LazyAttribute(lambda o: faker.name())
@@ -34,15 +32,12 @@ class ExperimentFactory(
     short_description = factory.LazyAttribute(
         lambda o: faker.text(random.randint(100, 500))
     )
-    data_science_bugzilla_url = (
-        "https://bugzilla.mozilla.org/show_bug.cgi?id=12345"
-    )
+    data_science_bugzilla_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=12345"
     feature_bugzilla_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=12345"
     related_work = "See also: https://www.example.com/myproject/"
     proposed_start_date = factory.LazyAttribute(
         lambda o: (
-            timezone.now().date()
-            + datetime.timedelta(days=random.randint(1, 10))
+            timezone.now().date() + datetime.timedelta(days=random.randint(1, 10))
         )
     )
     proposed_duration = factory.LazyAttribute(lambda o: random.randint(10, 60))
@@ -66,13 +61,9 @@ class ExperimentFactory(
     firefox_channel = factory.LazyAttribute(
         lambda o: random.choice(Experiment.CHANNEL_CHOICES[1:])[0]
     )
-    objectives = factory.LazyAttribute(
-        lambda o: faker.text(random.randint(500, 5000))
-    )
+    objectives = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 5000)))
     analysis_owner = factory.LazyAttribute(lambda o: faker.name())
-    analysis = factory.LazyAttribute(
-        lambda o: faker.text(random.randint(500, 5000))
-    )
+    analysis = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 5000)))
 
     risk_partner_related = False
     risk_brand = False
@@ -84,18 +75,10 @@ class ExperimentFactory(
     risk_technical_description = factory.LazyAttribute(
         lambda o: faker.text(random.randint(500, 1000))
     )
-    risks = factory.LazyAttribute(
-        lambda o: faker.text(random.randint(500, 1000))
-    )
-    testing = factory.LazyAttribute(
-        lambda o: faker.text(random.randint(500, 1000))
-    )
-    test_builds = factory.LazyAttribute(
-        lambda o: faker.text(random.randint(500, 1000))
-    )
-    qa_status = factory.LazyAttribute(
-        lambda o: faker.text(random.randint(500, 1000))
-    )
+    risks = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 1000)))
+    testing = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 1000)))
+    test_builds = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 1000)))
+    qa_status = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 1000)))
 
     enrollment_dashboard_url = "http://www.example.com/enrollment"
     dashboard_url = "http://www.example.com/dashboard"
@@ -103,9 +86,7 @@ class ExperimentFactory(
     population_percent = factory.LazyAttribute(
         lambda o: decimal.Decimal(random.randint(1, 10) * 10)
     )
-    total_users = factory.LazyAttribute(
-        lambda o: random.randint(100000, 1000000)
-    )
+    total_users = factory.LazyAttribute(lambda o: random.randint(100000, 1000000))
 
     client_matching = "Geos: US, CA, GB\n" 'Some "additional" filtering'
 
@@ -142,9 +123,7 @@ class ExperimentFactory(
     def create_with_status(cls, target_status, *args, **kwargs):
         experiment = cls.create_with_variants(*args, **kwargs)
 
-        now = timezone.now() - datetime.timedelta(
-            days=random.randint(100, 200)
-        )
+        now = timezone.now() - datetime.timedelta(days=random.randint(100, 200))
 
         old_status = None
         for status_value, status_label in Experiment.STATUS_CHOICES:
@@ -152,9 +131,7 @@ class ExperimentFactory(
             experiment.save()
 
             change = ExperimentChangeLogFactory.create(
-                experiment=experiment,
-                old_status=old_status,
-                new_status=status_value,
+                experiment=experiment, old_status=old_status, new_status=status_value
             )
             change.changed_on = now
             change.save()

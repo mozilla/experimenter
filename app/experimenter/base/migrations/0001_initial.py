@@ -7,34 +7,49 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Country',
+            name="Country",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('code', models.CharField(max_length=255, unique=True)),
-                ('name', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("code", models.CharField(max_length=255, unique=True)),
+                ("name", models.CharField(max_length=255)),
             ],
             options={
-                'verbose_name': 'Country',
-                'verbose_name_plural': 'Countries',
-                'ordering': ('name',),
+                "verbose_name": "Country",
+                "verbose_name_plural": "Countries",
+                "ordering": ("name",),
             },
         ),
         migrations.CreateModel(
-            name='Locale',
+            name="Locale",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('code', models.CharField(max_length=255, unique=True)),
-                ('name', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("code", models.CharField(max_length=255, unique=True)),
+                ("name", models.CharField(max_length=255)),
             ],
             options={
-                'verbose_name': 'Locale',
-                'verbose_name_plural': 'Locales',
-                'ordering': ('name',),
+                "verbose_name": "Locale",
+                "verbose_name_plural": "Locales",
+                "ordering": ("name",),
             },
         ),
     ]

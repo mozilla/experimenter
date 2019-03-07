@@ -16,10 +16,7 @@ from experimenter.experiments.models import (
     ExperimentVariant,
 )
 from experimenter.notifications.models import Notification
-from experimenter.projects.forms import (
-    NameSlugFormMixin,
-    UniqueNameSlugFormMixin,
-)
+from experimenter.projects.forms import NameSlugFormMixin, UniqueNameSlugFormMixin
 
 
 class JSONField(forms.CharField):
@@ -44,9 +41,7 @@ class BugzillaURLField(forms.URLField):
 
         if cleaned_value:
             if self.BUGZILLA_BASE_URL not in cleaned_value:
-                raise forms.ValidationError(
-                    "Please provide a valid Bugzilla URL"
-                )
+                raise forms.ValidationError("Please provide a valid Bugzilla URL")
 
         return cleaned_value
 
@@ -80,9 +75,7 @@ class ChangeLogMixin(object):
         return experiment
 
 
-class ExperimentOverviewForm(
-    UniqueNameSlugFormMixin, ChangeLogMixin, forms.ModelForm
-):
+class ExperimentOverviewForm(UniqueNameSlugFormMixin, ChangeLogMixin, forms.ModelForm):
 
     type = forms.ChoiceField(
         label="Type",
@@ -129,9 +122,7 @@ class ExperimentOverviewForm(
     proposed_start_date = forms.DateField(
         label="Proposed Start Date",
         help_text=Experiment.PROPOSED_START_DATE_HELP_TEXT,
-        widget=forms.DateInput(
-            attrs={"type": "date", "class": "form-control"}
-        ),
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
     )
     proposed_duration = forms.IntegerField(
         min_value=1,
@@ -219,14 +210,7 @@ class ExperimentVariantAddonForm(NameSlugFormMixin, forms.ModelForm):
 
     class Meta:
         model = ExperimentVariant
-        fields = [
-            "description",
-            "experiment",
-            "is_control",
-            "name",
-            "ratio",
-            "slug",
-        ]
+        fields = ["description", "experiment", "is_control", "name", "ratio", "slug"]
 
 
 class ExperimentVariantPrefForm(ExperimentVariantAddonForm):
@@ -253,9 +237,7 @@ class ExperimentVariantPrefForm(ExperimentVariantAddonForm):
 class ExperimentVariantsFormSet(BaseInlineFormSet):
 
     def clean(self):
-        alive_forms = [
-            form for form in self.forms if not form.cleaned_data["DELETE"]
-        ]
+        alive_forms = [form for form in self.forms if not form.cleaned_data["DELETE"]]
 
         total_percentage = sum(
             [form.cleaned_data.get("ratio", 0) for form in alive_forms]
@@ -263,9 +245,7 @@ class ExperimentVariantsFormSet(BaseInlineFormSet):
 
         if total_percentage != 100:
             for form in alive_forms:
-                form._errors["ratio"] = [
-                    "The size of all branches must add up to 100"
-                ]
+                form._errors["ratio"] = ["The size of all branches must add up to 100"]
 
         unique_slugs = set([form.cleaned_data["slug"] for form in alive_forms])
 
@@ -442,9 +422,9 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
 
             # Need to convert from 'code' to 'pk'.
             cleaned_data["locales"] = list(
-                Locale.objects.filter(
-                    code__in=cleaned_data["locales"]
-                ).values_list("pk", flat=True)
+                Locale.objects.filter(code__in=cleaned_data["locales"]).values_list(
+                    "pk", flat=True
+                )
             )
         # Same thing as 'locales' but this time for 'countries'.
         if "countries" in cleaned_data:
@@ -456,9 +436,9 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
 
             # Need to convert from 'code' to 'pk'.
             cleaned_data["countries"] = list(
-                Country.objects.filter(
-                    code__in=cleaned_data["countries"]
-                ).values_list("pk", flat=True)
+                Country.objects.filter(code__in=cleaned_data["countries"]).values_list(
+                    "pk", flat=True
+                )
             )
 
         return cleaned_data
@@ -680,9 +660,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         )
 
 
-class ExperimentReviewForm(
-    ExperimentConstants, ChangeLogMixin, forms.ModelForm
-):
+class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm):
     # Required
     review_science = forms.BooleanField(
         required=False,
@@ -710,9 +688,7 @@ class ExperimentReviewForm(
         help_text=Experiment.REVIEW_BUGZILLA_HELP_TEXT,
     )
     review_qa = forms.BooleanField(
-        required=False,
-        label="QA Sign-Off",
-        help_text=Experiment.REVIEW_QA_HELP_TEXT,
+        required=False, label="QA Sign-Off", help_text=Experiment.REVIEW_QA_HELP_TEXT
     )
     review_relman = forms.BooleanField(
         required=False,
@@ -851,9 +827,7 @@ class ExperimentReviewForm(
         return experiment
 
 
-class ExperimentStatusForm(
-    ExperimentConstants, ChangeLogMixin, forms.ModelForm
-):
+class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm):
 
     attention = forms.CharField(required=False)
 
@@ -870,18 +844,14 @@ class ExperimentStatusForm(
         return self.cleaned_data["status"]
 
     def clean_status(self):
-        expected_status = (
-            self.new_status in self.STATUS_TRANSITIONS[self.old_status]
-        )
+        expected_status = self.new_status in self.STATUS_TRANSITIONS[self.old_status]
 
         if self.old_status != self.new_status and not expected_status:
             raise forms.ValidationError(
                 (
                     "You can not change an Experiment's status "
                     "from {old_status} to {new_status}"
-                ).format(
-                    old_status=self.old_status, new_status=self.new_status
-                )
+                ).format(old_status=self.old_status, new_status=self.new_status)
             )
 
         return self.new_status
@@ -902,9 +872,7 @@ class ExperimentStatusForm(
                 experiment.experiment_url,
                 needs_attention,
             )
-            tasks.create_experiment_bug_task.delay(
-                self.request.user.id, experiment.id
-            )
+            tasks.create_experiment_bug_task.delay(self.request.user.id, experiment.id)
 
         if (
             self.old_status == Experiment.STATUS_REVIEW
@@ -921,9 +889,7 @@ class ExperimentStatusForm(
         return experiment
 
 
-class ExperimentArchiveForm(
-    ExperimentConstants, ChangeLogMixin, forms.ModelForm
-):
+class ExperimentArchiveForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm):
 
     archived = forms.BooleanField(required=False)
 
@@ -938,9 +904,7 @@ class ExperimentArchiveForm(
 class ExperimentCommentForm(forms.ModelForm):
     created_by = forms.CharField(required=False)
     text = forms.CharField(required=True)
-    section = forms.ChoiceField(
-        required=True, choices=Experiment.SECTION_CHOICES
-    )
+    section = forms.ChoiceField(required=True, choices=Experiment.SECTION_CHOICES)
 
     class Meta:
         model = ExperimentComment
