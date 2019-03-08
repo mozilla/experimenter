@@ -21,8 +21,9 @@ from experimenter.experiments.forms import (
     ExperimentVariantAddonForm,
     ExperimentVariantPrefForm,
     ExperimentVariantsAddonForm,
-    ExperimentVariantsFormSet,
+    ExperimentVariantsAddonFormSet,
     ExperimentVariantsPrefForm,
+    ExperimentVariantsPrefFormSet,
     JSONField,
 )
 from experimenter.experiments.models import Experiment, ExperimentVariant
@@ -256,11 +257,11 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertFalse(form.is_valid())
 
 
-class TestExperimentVariantsFormSet(TestCase):
+class TestExperimentVariantsAddonFormSet(TestCase):
 
     def setUp(self):
         self.FormSet = inlineformset_factory(
-            formset=ExperimentVariantsFormSet,
+            formset=ExperimentVariantsAddonFormSet,
             model=ExperimentVariant,
             parent_model=Experiment,
             fields=["is_control", "ratio", "name", "slug", "description"],

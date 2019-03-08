@@ -243,23 +243,33 @@ class ExperimentVariantPrefForm(ExperimentVariantAddonForm):
         ]
 
 
-class ExperimentVariantsFormSet(BaseInlineFormSet):
+class BaseExperimentVariantsFormSet(BaseInlineFormSet):
+    """This class exists to *share* formset checks on the list of form
+    instances (self.forms) that is common for all types of experiment
+    variants."""
 
-    def clean(self):
+    def clean_forms(self):
         alive_forms = [
-            form for form in self.forms if not form.cleaned_data["DELETE"]
+            form
+            for form in self.forms
+            if form.is_valid() and not form.cleaned_data["DELETE"]
         ]
 
-        total_percentage = sum(
-            [form.cleaned_data.get("ratio", 0) for form in alive_forms]
-        )
+        total_ratio = sum([form.cleaned_data["ratio"] for form in alive_forms])
 
-        if total_percentage != 100:
+        if total_ratio != 100:
             for form in alive_forms:
                 form._errors["ratio"] = [
                     "The size of all branches must add up to 100"
                 ]
 
+        return alive_forms
+
+
+class ExperimentVariantsAddonFormSet(BaseExperimentVariantsFormSet):
+
+    def clean(self):
+        alive_forms = self.clean_forms()
         unique_slugs = set([form.cleaned_data["slug"] for form in alive_forms])
 
         if not len(unique_slugs) == len(alive_forms):
@@ -267,14 +277,10 @@ class ExperimentVariantsFormSet(BaseInlineFormSet):
                 form._errors["name"] = ["All branches must have a unique name"]
 
 
-class ExperimentVariantsPrefFormSet(BaseInlineFormSet):
+class ExperimentVariantsPrefFormSet(BaseExperimentVariantsFormSet):
 
     def clean(self):
-        alive_forms = [
-            form
-            for form in self.forms
-            if form.is_valid() and not form.cleaned_data["DELETE"]
-        ]
+        alive_forms = self.clean_forms()
 
         forms_by_value = {}
         for form in alive_forms:
@@ -292,7 +298,7 @@ class ExperimentVariantsPrefFormSet(BaseInlineFormSet):
 class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
 
     FORMSET_FORM_CLASS = ExperimentVariantAddonForm
-    FORMSET_CLASS = ExperimentVariantsFormSet
+    FORMSET_CLASS = ExperimentVariantsAddonFormSet
 
     population_percent = forms.DecimalField(
         label="Population Size",
