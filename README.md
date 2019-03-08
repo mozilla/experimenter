@@ -1,4 +1,4 @@
-# Mozilla Experimenter 
+# Mozilla Experimenter
 [![CircleCI](https://circleci.com/gh/mozilla/experimenter.svg?style=svg)](https://circleci.com/gh/mozilla/experimenter)
 
 <p align="center">
@@ -7,7 +7,7 @@
   <br><br>
 </p>
 
-Experimenter is a platform for managing experiments in [Mozilla Firefox](https://www.mozilla.org/en-US/firefox/?utm_medium=referral&utm_source=firefox-com). 
+Experimenter is a platform for managing experiments in [Mozilla Firefox](https://www.mozilla.org/en-US/firefox/?utm_medium=referral&utm_source=firefox-com).
 
 ## Deployments
 
@@ -31,10 +31,10 @@ An experiment is a way to measure how a change to your product affects how peopl
 An experiment has three parts:
 
 1. A new feature that can be selectively enabled
-1. A group of users to test the new feature 
-1. Telemetry to measure how people interact with the new feature 
+1. A group of users to test the new feature
+1. Telemetry to measure how people interact with the new feature
 
-## How do I run an experiment? 
+## How do I run an experiment?
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/mozilla/experimenter/164/app/experimenter/static/imgs/architecture.png"><br/>
@@ -46,14 +46,14 @@ An experiment has three parts:
 1. After Shield reviews and approves it, it is sent to Firefox
 1. Firefox clients check whether they should enroll in the experiment and configure themselves accordingly
 1. Telemetry about the experiment is collected
-1. Dashboards are created to visualize the telemetry 
-1. Analyze and collect the results to understand how the new feature impacted users 
+1. Dashboards are created to visualize the telemetry
+1. Analyze and collect the results to understand how the new feature impacted users
 1. Do it again!
 
 
 ## Installation
 
-1. Install [docker](https://www.docker.com/) on your machine 
+1. Install [docker](https://www.docker.com/) on your machine
 
 1. Clone the repo
 
@@ -95,7 +95,7 @@ Done!
 
 ## Usage
 
-Experimenter uses [docker](https://www.docker.com/) for all development, testing, and deployment.  
+Experimenter uses [docker](https://www.docker.com/) for all development, testing, and deployment.
 
 The following helpful commands have been provided via a Makefile:
 
@@ -135,7 +135,7 @@ connection. This helps test client behaviour with a secure
 connection. This task is run automatically when needed.
 
 ### kill
-Stop and delete all docker containers.  
+Stop and delete all docker containers.
 WARNING: this will remove your database and all data.  Use this to reset your dev environment.
 
 ## API
