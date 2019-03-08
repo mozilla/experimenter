@@ -55,8 +55,12 @@ class Experiment(ExperimentConstants, models.Model):
         choices=ExperimentConstants.STATUS_CHOICES,
     )
     archived = models.BooleanField(default=False)
-    name = models.CharField(max_length=255, unique=True, blank=False, null=False)
-    slug = models.SlugField(max_length=255, unique=True, blank=False, null=False)
+    name = models.CharField(
+        max_length=255, unique=True, blank=False, null=False
+    )
+    slug = models.SlugField(
+        max_length=255, unique=True, blank=False, null=False
+    )
     short_description = models.TextField(default="", blank=True, null=True)
     related_work = models.TextField(default="", blank=True, null=True)
 
@@ -122,14 +126,22 @@ class Experiment(ExperimentConstants, models.Model):
     feature_bugzilla_url = models.URLField(blank=True, null=True)
 
     # Risk fields
-    risk_partner_related = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_partner_related = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     risk_brand = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_fast_shipped = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_confidential = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_fast_shipped = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    risk_confidential = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     risk_release_population = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    risk_technical = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_technical = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     risk_technical_description = models.TextField(blank=True, null=True)
 
     risks = models.TextField(blank=True, null=True)
@@ -141,23 +153,43 @@ class Experiment(ExperimentConstants, models.Model):
 
     # Review Fields (sign-offs)
     # Required
-    review_science = models.NullBooleanField(default=None, blank=True, null=True)
-    review_engineering = models.NullBooleanField(default=None, blank=True, null=True)
-    review_qa_requested = models.NullBooleanField(default=None, blank=True, null=True)
-    review_intent_to_ship = models.NullBooleanField(default=None, blank=True, null=True)
-    review_bugzilla = models.NullBooleanField(default=None, blank=True, null=True)
+    review_science = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    review_engineering = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    review_qa_requested = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    review_intent_to_ship = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    review_bugzilla = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     review_qa = models.NullBooleanField(default=None, blank=True, null=True)
-    review_relman = models.NullBooleanField(default=None, blank=True, null=True)
+    review_relman = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
 
     # Optional
-    review_advisory = models.NullBooleanField(default=None, blank=True, null=True)
+    review_advisory = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     review_legal = models.NullBooleanField(default=None, blank=True, null=True)
     review_ux = models.NullBooleanField(default=None, blank=True, null=True)
-    review_security = models.NullBooleanField(default=None, blank=True, null=True)
+    review_security = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     review_vp = models.NullBooleanField(default=None, blank=True, null=True)
-    review_data_steward = models.NullBooleanField(default=None, blank=True, null=True)
+    review_data_steward = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     review_comms = models.NullBooleanField(default=None, blank=True, null=True)
-    review_impacted_teams = models.NullBooleanField(default=None, blank=True, null=True)
+    review_impacted_teams = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
 
     objects = ExperimentManager()
 
@@ -173,12 +205,15 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def full_name(self):
-        return "{type}: {name}".format(type=self.get_type_display(), name=self.name)
+        return "{type}: {name}".format(
+            type=self.get_type_display(), name=self.name
+        )
 
     @property
     def experiment_url(self):
         return urljoin(
-            "https://{host}".format(host=settings.HOSTNAME), self.get_absolute_url()
+            "https://{host}".format(host=settings.HOSTNAME),
+            self.get_absolute_url(),
         )
 
     @property
@@ -237,7 +272,10 @@ class Experiment(ExperimentConstants, models.Model):
 
     def _transition_date(self, old_status, new_status):
         for change in self.changes.all():
-            if change.old_status == old_status and change.new_status == new_status:
+            if (
+                change.old_status == old_status
+                and change.new_status == new_status
+            ):
                 return change.changed_on.date()
 
     @property
@@ -284,7 +322,10 @@ class Experiment(ExperimentConstants, models.Model):
                 day_text = "day"
 
         return "{start} - {end} ({duration} {days})".format(
-            start=start_text, end=end_text, duration=duration_text, days=day_text
+            start=start_text,
+            end=end_text,
+            duration=duration_text,
+            days=day_text,
         )
 
     @property
@@ -293,11 +334,15 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def enrollment_dates(self):
-        return self._format_date_string(self.start_date, self.enrollment_end_date)
+        return self._format_date_string(
+            self.start_date, self.enrollment_end_date
+        )
 
     @property
     def observation_dates(self):
-        return self._format_date_string(self.enrollment_end_date, self.end_date)
+        return self._format_date_string(
+            self.enrollment_end_date, self.end_date
+        )
 
     @cached_property
     def control(self):
@@ -308,7 +353,9 @@ class Experiment(ExperimentConstants, models.Model):
         grouped_changes = defaultdict(lambda: defaultdict(set))
 
         for change in self.changes.all():
-            grouped_changes[change.changed_on.date()][change.changed_by].add(change)
+            grouped_changes[change.changed_on.date()][change.changed_by].add(
+                change
+            )
 
         return grouped_changes
 
@@ -319,7 +366,9 @@ class Experiment(ExperimentConstants, models.Model):
 
             date_changes = []
             for user, user_changes in users.items():
-                date_changes.append((user, set([str(c) for c in list(user_changes)])))
+                date_changes.append(
+                    (user, set([str(c) for c in list(user_changes)]))
+                )
 
             date_ordered_changes.append((date, date_changes))
 
@@ -490,8 +539,12 @@ class ExperimentChangeLog(models.Model):
             Experiment.STATUS_REVIEW: STATUS_SHIP_REVIEW,
             Experiment.STATUS_ACCEPTED: STATUS_SHIP_ACCEPTED,
         },
-        Experiment.STATUS_ACCEPTED: {Experiment.STATUS_LIVE: STATUS_ACCEPTED_LIVE},
-        Experiment.STATUS_LIVE: {Experiment.STATUS_COMPLETE: STATUS_LIVE_COMPLETE},
+        Experiment.STATUS_ACCEPTED: {
+            Experiment.STATUS_LIVE: STATUS_ACCEPTED_LIVE
+        },
+        Experiment.STATUS_LIVE: {
+            Experiment.STATUS_COMPLETE: STATUS_LIVE_COMPLETE
+        },
     }
 
     def current_datetime():
@@ -507,10 +560,16 @@ class ExperimentChangeLog(models.Model):
     changed_on = models.DateTimeField(default=current_datetime)
     changed_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     old_status = models.CharField(
-        max_length=255, blank=True, null=True, choices=Experiment.STATUS_CHOICES
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=Experiment.STATUS_CHOICES,
     )
     new_status = models.CharField(
-        max_length=255, blank=False, null=False, choices=Experiment.STATUS_CHOICES
+        max_length=255,
+        blank=False,
+        null=False,
+        choices=Experiment.STATUS_CHOICES,
     )
     message = models.TextField(blank=True, null=True)
 

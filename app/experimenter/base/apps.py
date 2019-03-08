@@ -8,7 +8,8 @@ def ensure_all_locales(sender, **kwargs):
     Locale = kwargs["apps"].get_model("base", "Locale")
     new = []
     existing = {
-        code: name for code, name in Locale.objects.all().values_list("code", "name")
+        code: name
+        for code, name in Locale.objects.all().values_list("code", "name")
     }
     # It's important to use .items() here or else it will trigger
     # product_details.ProductDetails.__getattr__ for each key lookup.
@@ -26,7 +27,8 @@ def ensure_all_countries(sender, **kwargs):
     Country = kwargs["apps"].get_model("base", "Country")
     new = []
     existing = {
-        code: name for code, name in Country.objects.all().values_list("code", "name")
+        code: name
+        for code, name in Country.objects.all().values_list("code", "name")
     }
     for code, name in countries:
         if code not in existing:

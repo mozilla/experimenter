@@ -23,7 +23,14 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExperimentVariant
-        fields = ("description", "is_control", "name", "ratio", "slug", "value")
+        fields = (
+            "description",
+            "is_control",
+            "name",
+            "ratio",
+            "slug",
+            "value",
+        )
 
 
 class LocalesSerializer(serializers.ModelSerializer):

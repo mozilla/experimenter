@@ -158,7 +158,9 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 fields = ("status",)
 
         form = TestForm(
-            request=self.request, data={"status": new_status}, instance=experiment
+            request=self.request,
+            data={"status": new_status},
+            instance=experiment,
         )
         self.assertTrue(form.is_valid())
 
@@ -203,7 +205,9 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.status, experiment.STATUS_DRAFT)
         self.assertEqual(experiment.name, self.data["name"])
         self.assertEqual(experiment.slug, "a-new-experiment")
-        self.assertEqual(experiment.short_description, self.data["short_description"])
+        self.assertEqual(
+            experiment.short_description, self.data["short_description"]
+        )
         self.assertEqual(
             experiment.proposed_start_date, self.data["proposed_start_date"]
         )
@@ -242,9 +246,9 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertFalse(form.is_valid())
 
     def test_start_date_must_be_greater_or_equal_to_current_date(self):
-        self.data["proposed_start_date"] = timezone.now().date() - datetime.timedelta(
-            days=1
-        )
+        self.data[
+            "proposed_start_date"
+        ] = timezone.now().date() - datetime.timedelta(days=1)
 
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
@@ -384,19 +388,25 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
     def test_form_is_invalid_if_population_percent_is_0(self):
         self.data["population_percent"] = "0"
-        form = ExperimentVariantsAddonForm(request=self.request, data=self.data)
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data
+        )
         self.assertFalse(form.is_valid())
         self.assertIn("population_percent", form.errors)
 
     def test_form_is_invalid_if_population_percent_below_0(self):
         self.data["population_percent"] = "-1"
-        form = ExperimentVariantsAddonForm(request=self.request, data=self.data)
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data
+        )
         self.assertFalse(form.is_valid())
         self.assertIn("population_percent", form.errors)
 
     def test_form_is_invalid_if_population_percent_above_100(self):
         self.data["population_percent"] = "101"
-        form = ExperimentVariantsAddonForm(request=self.request, data=self.data)
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data
+        )
         self.assertFalse(form.is_valid())
         self.assertIn("population_percent", form.errors)
 
@@ -411,10 +421,18 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
         experiment = form.save()
 
-        self.assertEqual(experiment.population_percent, decimal.Decimal("10.000"))
-        self.assertEqual(experiment.firefox_version, self.data["firefox_version"])
-        self.assertEqual(experiment.firefox_channel, self.data["firefox_channel"])
-        self.assertEqual(experiment.client_matching, self.data["client_matching"])
+        self.assertEqual(
+            experiment.population_percent, decimal.Decimal("10.000")
+        )
+        self.assertEqual(
+            experiment.firefox_version, self.data["firefox_version"]
+        )
+        self.assertEqual(
+            experiment.firefox_channel, self.data["firefox_channel"]
+        )
+        self.assertEqual(
+            experiment.client_matching, self.data["client_matching"]
+        )
 
         self.assertEqual(experiment.variants.count(), 3)
 
@@ -422,19 +440,25 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         self.assertTrue(branch0.is_control)
         self.assertTrue(branch0.slug, "control-name")
         self.assertEqual(branch0.ratio, 34)
-        self.assertEqual(branch0.description, self.data["variants-0-description"])
+        self.assertEqual(
+            branch0.description, self.data["variants-0-description"]
+        )
 
         branch1 = experiment.variants.get(name=self.data["variants-1-name"])
         self.assertFalse(branch1.is_control)
         self.assertEqual(branch1.slug, "branch-1-name")
         self.assertEqual(branch1.ratio, 33)
-        self.assertEqual(branch1.description, self.data["variants-1-description"])
+        self.assertEqual(
+            branch1.description, self.data["variants-1-description"]
+        )
 
         branch2 = experiment.variants.get(name=self.data["variants-2-name"])
         self.assertFalse(branch2.is_control)
         self.assertEqual(branch2.slug, "branch-2-name")
         self.assertEqual(branch2.ratio, 33)
-        self.assertEqual(branch2.description, self.data["variants-2-description"])
+        self.assertEqual(
+            branch2.description, self.data["variants-2-description"]
+        )
 
     def test_form_edits_existing_variants(self):
         form = ExperimentVariantsAddonForm(
@@ -482,17 +506,23 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         branch0 = experiment.variants.get(name=self.data["variants-0-name"])
         self.assertTrue(branch0.is_control)
         self.assertEqual(branch0.ratio, 34)
-        self.assertEqual(branch0.description, self.data["variants-0-description"])
+        self.assertEqual(
+            branch0.description, self.data["variants-0-description"]
+        )
 
         branch1 = experiment.variants.get(name=self.data["variants-1-name"])
         self.assertFalse(branch1.is_control)
         self.assertEqual(branch1.ratio, 33)
-        self.assertEqual(branch1.description, self.data["variants-1-description"])
+        self.assertEqual(
+            branch1.description, self.data["variants-1-description"]
+        )
 
         branch2 = experiment.variants.get(name=self.data["variants-2-name"])
         self.assertFalse(branch2.is_control)
         self.assertEqual(branch2.ratio, 33)
-        self.assertEqual(branch2.description, self.data["variants-2-description"])
+        self.assertEqual(
+            branch2.description, self.data["variants-2-description"]
+        )
 
     def test_form_adds_new_variant(self):
         form = ExperimentVariantsAddonForm(
@@ -548,7 +578,9 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
         branch3 = experiment.variants.get(name=self.data["variants-3-name"])
         self.assertEqual(branch3.ratio, 25)
-        self.assertEqual(branch3.description, self.data["variants-3-description"])
+        self.assertEqual(
+            branch3.description, self.data["variants-3-description"]
+        )
 
     def test_form_removes_variant(self):
         form = ExperimentVariantsAddonForm(
@@ -589,13 +621,19 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.variants.count(), 2)
 
         self.assertTrue(
-            experiment.variants.filter(name=self.data["variants-0-name"]).exists()
+            experiment.variants.filter(
+                name=self.data["variants-0-name"]
+            ).exists()
         )
         self.assertFalse(
-            experiment.variants.filter(name=self.data["variants-1-name"]).exists()
+            experiment.variants.filter(
+                name=self.data["variants-1-name"]
+            ).exists()
         )
         self.assertTrue(
-            experiment.variants.filter(name=self.data["variants-2-name"]).exists()
+            experiment.variants.filter(
+                name=self.data["variants-2-name"]
+            ).exists()
         )
 
     def test_form_checks_uniqueness_for_single_experiment_not_all(self):
@@ -666,7 +704,9 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         form = ExperimentVariantsAddonForm(
             request=self.request, data=self.data, instance=experiment
         )
-        self.assertEqual(form.initial["locales"], [ExperimentVariantsAddonForm.ALL_KEY])
+        self.assertEqual(
+            form.initial["locales"], [ExperimentVariantsAddonForm.ALL_KEY]
+        )
 
     def test_clean_locales(self):
         experiment = ExperimentFactory.create_with_status(
@@ -680,7 +720,10 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         self.assertTrue(not form.cleaned_data["all_locales"])
         self.assertEqual(
             form.cleaned_data["locales"],
-            [Locale.objects.get(code="fr").pk, Locale.objects.get(code="sv-SE").pk],
+            [
+                Locale.objects.get(code="fr").pk,
+                Locale.objects.get(code="sv-SE").pk,
+            ],
         )
 
     def test_clean_locales_all_locales(self):
@@ -690,7 +733,9 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         # Suppose the submitted data contains "ALL" *and* a new
         # differrernt locale(s). They all get unset in favor of
         # setting `experiment.all_locales=True`.
-        data = dict(self.data, locales=[ExperimentVariantsAddonForm.ALL_KEY, "fr"])
+        data = dict(
+            self.data, locales=[ExperimentVariantsAddonForm.ALL_KEY, "fr"]
+        )
         form = ExperimentVariantsAddonForm(
             request=self.request, data=data, instance=experiment
         )
@@ -767,7 +812,10 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         self.assertTrue(not form.cleaned_data["all_countries"])
         self.assertEqual(
             form.cleaned_data["countries"],
-            [Country.objects.get(code="FR").pk, Country.objects.get(code="SE").pk],
+            [
+                Country.objects.get(code="FR").pk,
+                Country.objects.get(code="SE").pk,
+            ],
         )
 
     def test_clean_countries_all_countries(self):
@@ -777,7 +825,9 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         # Suppose the submitted data contains "ALL" *and* a new
         # differrernt locale(s). They all get unset in favor of
         # setting `experiment.all_locales=True`.
-        data = dict(self.data, countries=[ExperimentVariantsAddonForm.ALL_KEY, "FR"])
+        data = dict(
+            self.data, countries=[ExperimentVariantsAddonForm.ALL_KEY, "FR"]
+        )
         form = ExperimentVariantsAddonForm(
             request=self.request, data=data, instance=experiment
         )
@@ -853,19 +903,25 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
         branch0 = experiment.variants.get(name=self.branch0_name)
         self.assertTrue(branch0.is_control)
         self.assertEqual(branch0.ratio, 34)
-        self.assertEqual(branch0.description, self.data["variants-0-description"])
+        self.assertEqual(
+            branch0.description, self.data["variants-0-description"]
+        )
         self.assertEqual(branch0.value, self.data["variants-0-value"])
 
         branch1 = experiment.variants.get(name=self.branch1_name)
         self.assertFalse(branch1.is_control)
         self.assertEqual(branch1.ratio, 33)
-        self.assertEqual(branch1.description, self.data["variants-1-description"])
+        self.assertEqual(
+            branch1.description, self.data["variants-1-description"]
+        )
         self.assertEqual(branch1.value, self.data["variants-1-value"])
 
         branch2 = experiment.variants.get(name=self.branch2_name)
         self.assertFalse(branch2.is_control)
         self.assertEqual(branch2.ratio, 33)
-        self.assertEqual(branch2.description, self.data["variants-2-description"])
+        self.assertEqual(
+            branch2.description, self.data["variants-2-description"]
+        )
         self.assertEqual(branch2.value, self.data["variants-2-value"])
 
     def test_form_is_invalid_if_branches_have_duplicate_pref_values(self):
@@ -955,7 +1011,8 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         self.assertTrue(experiment.risk_release_population)
         self.assertTrue(experiment.risk_technical)
         self.assertEqual(
-            experiment.risk_technical_description, data["risk_technical_description"]
+            experiment.risk_technical_description,
+            data["risk_technical_description"],
         )
         self.assertEqual(experiment.risks, data["risks"])
         self.assertEqual(experiment.testing, data["testing"])
@@ -968,7 +1025,9 @@ class TestExperimentReviewForm(
 ):
 
     def test_form_saves_reviews(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_REVIEW)
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW
+        )
 
         self.assertFalse(experiment.review_science)
         self.assertFalse(experiment.review_engineering)
@@ -1028,7 +1087,9 @@ class TestExperimentReviewForm(
         self.assertTrue(experiment.review_impacted_teams)
 
     def test_added_reviews_property(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_REVIEW)
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW
+        )
 
         data = {"review_relman": True, "review_science": True}
 
@@ -1061,14 +1122,18 @@ class TestExperimentReviewForm(
         self.assertEqual(len(form.added_reviews), 0)
         self.assertEqual(len(form.removed_reviews), 2)
         self.assertIn(form.fields["review_relman"].label, form.removed_reviews)
-        self.assertIn(form.fields["review_science"].label, form.removed_reviews)
+        self.assertIn(
+            form.fields["review_science"].label, form.removed_reviews
+        )
 
     def test_required_reviews(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW, review_relman=True, review_science=True
         )
 
-        form = ExperimentReviewForm(request=self.request, data={}, instance=experiment)
+        form = ExperimentReviewForm(
+            request=self.request, data={}, instance=experiment
+        )
 
         self.assertEqual(
             form.required_reviews,
@@ -1089,7 +1154,9 @@ class TestExperimentReviewForm(
             Experiment.STATUS_REVIEW, review_relman=True, review_science=True
         )
 
-        form = ExperimentReviewForm(request=self.request, data={}, instance=experiment)
+        form = ExperimentReviewForm(
+            request=self.request, data={}, instance=experiment
+        )
 
         self.assertEqual(
             form.optional_reviews,
@@ -1110,7 +1177,9 @@ class TestExperimentStatusForm(
 ):
 
     def test_form_allows_valid_state_transition_and_creates_changelog(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
         form = ExperimentStatusForm(
             request=self.request,
             data={"status": experiment.STATUS_REVIEW},
@@ -1124,7 +1193,9 @@ class TestExperimentStatusForm(
         self.assertEqual(change.new_status, experiment.STATUS_REVIEW)
 
     def test_form_rejects_invalid_state_transitions(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
         form = ExperimentStatusForm(
             request=self.request,
             data={"status": experiment.STATUS_LIVE},
@@ -1133,7 +1204,9 @@ class TestExperimentStatusForm(
         self.assertFalse(form.is_valid())
 
     def test_sends_review_mail_when_draft_becomes_review(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
         form = ExperimentStatusForm(
             request=self.request,
             data={"status": experiment.STATUS_REVIEW},
@@ -1146,7 +1219,9 @@ class TestExperimentStatusForm(
         )
 
     def test_sets_bugzilla_id_when_draft_becomes_review(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
         form = ExperimentStatusForm(
             request=self.request,
             data={"status": experiment.STATUS_REVIEW},
@@ -1154,7 +1229,9 @@ class TestExperimentStatusForm(
         )
         self.assertTrue(form.is_valid())
         experiment = form.save()
-        self.mock_tasks_create_bug.delay.assert_called_with(self.user.id, experiment.id)
+        self.mock_tasks_create_bug.delay.assert_called_with(
+            self.user.id, experiment.id
+        )
 
     def test_adds_bugzilla_comment_and_normandy_slug_when_becomes_ship(self):
         experiment = ExperimentFactory.create_with_status(
@@ -1191,10 +1268,16 @@ class TestExperimentCommentForm(MockRequestMixin, TestCase):
     def test_form_creates_comment(self):
         text = "hello"
         section = Experiment.SECTION_OVERVIEW
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
         form = ExperimentCommentForm(
             request=self.request,
-            data={"experiment": experiment.id, "section": section, "text": text},
+            data={
+                "experiment": experiment.id,
+                "section": section,
+                "text": text,
+            },
         )
         self.assertTrue(form.is_valid())
         comment = form.save()
@@ -1206,10 +1289,16 @@ class TestExperimentCommentForm(MockRequestMixin, TestCase):
     def test_section_must_be_valid(self):
         text = "hello"
         section = "invalid section"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
         form = ExperimentCommentForm(
             request=self.request,
-            data={"experiment": experiment.id, "section": section, "text": text},
+            data={
+                "experiment": experiment.id,
+                "section": section,
+                "text": text,
+            },
         )
         self.assertFalse(form.is_valid())
         self.assertIn("section", form.errors)
@@ -1217,10 +1306,16 @@ class TestExperimentCommentForm(MockRequestMixin, TestCase):
     def test_text_is_required(self):
         text = ""
         section = Experiment.SECTION_OVERVIEW
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
         form = ExperimentCommentForm(
             request=self.request,
-            data={"experiment": experiment.id, "section": section, "text": text},
+            data={
+                "experiment": experiment.id,
+                "section": section,
+                "text": text,
+            },
         )
         self.assertFalse(form.is_valid())
         self.assertIn("text", form.errors)
@@ -1231,13 +1326,17 @@ class TestExperimentArchiveForm(MockRequestMixin, TestCase):
     def test_form_flips_archive_bool(self):
         experiment = ExperimentFactory.create(archived=False)
 
-        form = ExperimentArchiveForm(self.request, instance=experiment, data={})
+        form = ExperimentArchiveForm(
+            self.request, instance=experiment, data={}
+        )
         self.assertTrue(form.is_valid())
 
         experiment = form.save()
         self.assertTrue(experiment.archived)
 
-        form = ExperimentArchiveForm(self.request, instance=experiment, data={})
+        form = ExperimentArchiveForm(
+            self.request, instance=experiment, data={}
+        )
         self.assertTrue(form.is_valid())
 
         experiment = form.save()
