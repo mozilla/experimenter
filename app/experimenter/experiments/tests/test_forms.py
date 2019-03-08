@@ -630,6 +630,26 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         experiment2 = form2.save()
         self.assertEqual(experiment2.variants.count(), 3)
 
+    def test_form_valid_if_sizes_sum_to_100(self):
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data
+        )
+        self.assertTrue(form.is_valid())
+
+    def test_form_invalid_if_sizes_sum_to_less_than_100(self):
+        self.data["variants-0-ratio"] = 30
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data
+        )
+        self.assertFalse(form.is_valid())
+
+    def test_form_invalid_if_sizes_sum_to_more_than_100(self):
+        self.data["variants-0-ratio"] = 40
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data
+        )
+        self.assertFalse(form.is_valid())
+
 
 class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
 
@@ -734,6 +754,20 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
         self.assertIn("value", form.variants_formset.errors[0])
         self.assertNotIn("value", form.variants_formset.errors[1])
         self.assertNotIn("value", form.variants_formset.errors[2])
+
+    def test_form_valid_if_sizes_sum_to_100(self):
+        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        self.assertTrue(form.is_valid())
+
+    def test_form_invalid_if_sizes_sum_to_less_than_100(self):
+        self.data["variants-0-ratio"] = 30
+        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+
+    def test_form_invalid_if_sizes_sum_to_more_than_100(self):
+        self.data["variants-0-ratio"] = 40
+        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
 
 
 class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
