@@ -8,12 +8,6 @@ Population
   <h5>{{ experiment.population }}</h5>
   {{ experiment.client_matching|urlize|linebreaks }}
 
-  {% comment %}
-    The reason for making this not show - if nothing is set - is because
-    these fields were added late. Going forward we expect most new
-    experiments to have some locales selector, or the all_locales.
-  {% endcomment %}
-
   <strong>Locales</strong>
   <p>
     {% if experiment.all_locales %}
