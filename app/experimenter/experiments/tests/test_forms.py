@@ -23,7 +23,6 @@ from experimenter.experiments.forms import (
     ExperimentVariantsAddonForm,
     ExperimentVariantsAddonFormSet,
     ExperimentVariantsPrefForm,
-    ExperimentVariantsPrefFormSet,
     JSONField,
 )
 from experimenter.experiments.models import Experiment, ExperimentVariant
