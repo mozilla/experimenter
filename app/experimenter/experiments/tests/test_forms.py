@@ -4,9 +4,9 @@ import json
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.forms import inlineformset_factory
 from django.test import TestCase
 from django.utils import timezone
+from parameterized import parameterized_class
 
 from experimenter.experiments.forms import (
     BugzillaURLField,
@@ -21,7 +21,6 @@ from experimenter.experiments.forms import (
     ExperimentVariantAddonForm,
     ExperimentVariantPrefForm,
     ExperimentVariantsAddonForm,
-    ExperimentVariantsFormSet,
     ExperimentVariantsPrefForm,
     JSONField,
 )
@@ -256,17 +255,27 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertFalse(form.is_valid())
 
 
-class TestExperimentVariantsFormSet(TestCase):
+@parameterized_class(
+    ["form_class"],
+    [[ExperimentVariantsAddonForm], [ExperimentVariantsPrefForm]],
+)
+class TestExperimentVariantsFormSet(MockRequestMixin, TestCase):
 
     def setUp(self):
-        self.FormSet = inlineformset_factory(
-            formset=ExperimentVariantsFormSet,
-            model=ExperimentVariant,
-            parent_model=Experiment,
-            fields=["is_control", "ratio", "name", "slug", "description"],
+        super().setUp()
+
+        self.experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, num_variants=0
         )
 
         self.data = {
+            "population_percent": "10",
+            "firefox_version": Experiment.VERSION_CHOICES[-1][0],
+            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
+            "client_matching": "en-us only please",
+            "pref_key": "browser.test.example",
+            "pref_type": Experiment.PREF_TYPE_STR,
+            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
             "variants-TOTAL_FORMS": "3",
             "variants-INITIAL_FORMS": "0",
             "variants-MIN_NUM_FORMS": "0",
@@ -274,52 +283,69 @@ class TestExperimentVariantsFormSet(TestCase):
             "variants-0-is_control": True,
             "variants-0-ratio": "34",
             "variants-0-name": "control name",
-            "variants-0-slug": "control-slug",
             "variants-0-description": "control desc",
+            "variants-0-value": '"control value"',
             "variants-1-is_control": False,
             "variants-1-ratio": "33",
             "variants-1-name": "branch 1 name",
-            "variants-1-slug": "branch-1-slug",
             "variants-1-description": "branch 1 desc",
+            "variants-1-value": '"branch 1 value"',
             "variants-2-is_control": False,
             "variants-2-ratio": "33",
             "variants-2-name": "branch 2 name",
-            "variants-2-slug": "branch-2-slug",
             "variants-2-description": "branch 2 desc",
+            "variants-2-value": '"branch 2 value"',
         }
 
-    def test_formset_valid_if_sizes_sum_to_100(self):
-        formset = self.FormSet(data=self.data)
-        self.assertTrue(formset.is_valid())
+    def test_form_valid_if_sizes_sum_to_100(self):
+        self.data["variants-0-ratio"] = "34"
+        self.data["variants-1-ratio"] = "33"
+        self.data["variants-2-ratio"] = "33"
+        form = self.form_class(
+            request=self.request, data=self.data, instance=self.experiment
+        )
+        self.assertTrue(form.is_valid())
 
-    def test_formset_invalid_if_sizes_sum_to_less_than_100(self):
-        self.data["variants-0-ratio"] = 30
-        formset = self.FormSet(data=self.data)
-        self.assertFalse(formset.is_valid())
+    def test_form_invalid_if_sizes_sum_to_less_than_100(self):
+        self.data["variants-0-ratio"] = "33"
+        self.data["variants-1-ratio"] = "33"
+        self.data["variants-2-ratio"] = "33"
+        form = self.form_class(
+            request=self.request, data=self.data, instance=self.experiment
+        )
+        self.assertFalse(form.is_valid())
 
-        for form in formset.forms:
+        for form in form.variants_formset.forms:
             self.assertIn("ratio", form.errors)
 
-    def test_formset_invalid_if_sizes_sum_to_more_than_100(self):
-        self.data["variants-0-ratio"] = 40
-        formset = self.FormSet(data=self.data)
-        self.assertFalse(formset.is_valid())
+    def test_form_invalid_if_sizes_sum_to_more_than_100(self):
+        self.data["variants-0-ratio"] = "35"
+        self.data["variants-1-ratio"] = "33"
+        self.data["variants-2-ratio"] = "33"
+        form = self.form_class(
+            request=self.request, data=self.data, instance=self.experiment
+        )
+        self.assertFalse(form.is_valid())
 
-        for form in formset.forms:
+        for form in form.variants_formset.forms:
             self.assertIn("ratio", form.errors)
 
-    def test_formset_invalid_if_duplicate_slugs_appear(self):
-        self.data["variants-0-slug"] = self.data["variants-1-slug"]
-        formset = self.FormSet(data=self.data)
-        self.assertFalse(formset.is_valid())
+    def test_form_invalid_if_duplicate_names_appear(self):
+        self.data["variants-0-name"] = self.data["variants-1-name"]
+        form = self.form_class(
+            request=self.request, data=self.data, instance=self.experiment
+        )
+        self.assertFalse(form.is_valid())
 
-        for form in formset.forms:
+        for form in form.variants_formset.forms:
             self.assertIn("name", form.errors)
 
     def test_empty_branch_size_raises_validation_error(self):
         del self.data["variants-0-ratio"]
-        formset = self.FormSet(data=self.data)
-        self.assertFalse(formset.is_valid())
+        form = self.form_class(
+            request=self.request, data=self.data, instance=self.experiment
+        )
+        self.assertFalse(form.is_valid())
 
 
 class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
