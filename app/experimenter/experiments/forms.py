@@ -267,9 +267,11 @@ class ExperimentVariantsFormSet(BaseInlineFormSet):
                 form._errors["name"] = ["All branches must have a unique name"]
 
 
-class ExperimentVariantsPrefFormSet(BaseInlineFormSet):
+class ExperimentVariantsPrefFormSet(ExperimentVariantsFormSet):
 
     def clean(self):
+        super().clean()
+
         alive_forms = [
             form
             for form in self.forms
