@@ -81,3 +81,4 @@ app/experimenter/served/
 .pytest_cache
 .testmondata
 .tmontmp
+app/coverage_html_report/
