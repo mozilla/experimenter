@@ -193,7 +193,7 @@ class Experiment(ExperimentConstants, models.Model):
     def get_absolute_url(self):
         return reverse("experiments-detail", kwargs={"slug": self.slug})
 
-    def __str__(self):  # pragma: no cover
+    def __str__(self):
         return self.full_name
 
     @property
@@ -468,7 +468,7 @@ class ExperimentVariant(models.Model):
         verbose_name_plural = "Experiment Variants"
         unique_together = (("slug", "experiment"),)
 
-    def __str__(self):  # pragma: no cover
+    def __str__(self):
         return self.name
 
     @property
@@ -554,7 +554,7 @@ class ExperimentChangeLog(models.Model):
         verbose_name_plural = "Experiment Change Logs"
         ordering = ("changed_on",)
 
-    def __str__(self):  # pragma: no cover
+    def __str__(self):
         if self.message:
             return self.message
         else:

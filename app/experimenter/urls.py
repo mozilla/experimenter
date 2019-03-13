@@ -16,7 +16,7 @@ urlpatterns = [
     re_path(r"^$", ExperimentListView.as_view(), name="home"),
 ]
 
-if settings.DEBUG:  # pragma: no cover
+if settings.DEBUG:
     urlpatterns = (
         static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
         + urlpatterns
