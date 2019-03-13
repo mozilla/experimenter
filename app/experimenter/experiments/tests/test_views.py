@@ -744,23 +744,6 @@ class TestExperimentDetailView(TestCase):
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
-        html = response.content.decode(response.charset)
-        # There's a comma after this one because it's not the last one.
-        # Yes, x comes before y, but "Why" comes before "Xess".
-        self.assertTrue("Why (yy)," in html)
-        self.assertTrue("Xess (xx)" in html)
-
-        experiment.all_locales = True
-        experiment.save()
-        response = self.client.get(
-            reverse("experiments-detail", kwargs={"slug": experiment.slug}),
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200)
-        html = response.content.decode(response.charset)
-        self.assertTrue("All" in html)
-        self.assertTrue("Why (yy)," not in html)
-        self.assertTrue("Xess (xx)" not in html)
 
     def test_view_renders_countries_correctly(self):
         user_email = "user@example.com"
@@ -774,23 +757,6 @@ class TestExperimentDetailView(TestCase):
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
-        html = response.content.decode(response.charset)
-        # There's a comma after this one because it's not the last one.
-        # Yes, x comes before y, but "Wazoo" comes before "Xanadu".
-        self.assertTrue("Wazoo (YY)," in html)
-        self.assertTrue("Xanadu (XX)" in html)
-
-        experiment.all_countries = True
-        experiment.save()
-        response = self.client.get(
-            reverse("experiments-detail", kwargs={"slug": experiment.slug}),
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200)
-        html = response.content.decode(response.charset)
-        self.assertTrue("All" in html)
-        self.assertTrue("Wazoo (YY)," not in html)
-        self.assertTrue("Xanadu (XX)" not in html)
 
 
 class TestExperimentStatusUpdateView(MockTasksMixin, TestCase):
