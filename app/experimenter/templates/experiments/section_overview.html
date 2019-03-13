@@ -5,7 +5,10 @@ Overview
 {% endblock %}
 
 {% block section_content %}
-  <p><strong>Owner: {{ experiment.owner }}</strong></p>
+  <p><strong>Experiment Owner:</strong> {{ experiment.owner }}</p>
+  {% if experiment.engineering_owner %}
+    <p><strong>Engineering Owner:</strong> {{ experiment.engineering_owner }}</p>
+  {% endif %}
   {{ experiment.short_description|urlize|linebreaks }}
   {{ experiment.related_work|urlize|linebreaks }}
 {% endblock %}
