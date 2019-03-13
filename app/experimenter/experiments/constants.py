@@ -463,6 +463,14 @@ class ExperimentConstants(object):
       we will improve [retention/page views/performance/satisfaction]</p>
     """
 
+    ENGINEERING_OWNER_HELP_TEXT = """
+      <p>
+        The Engineering Owner is the person responsible for the engineering
+        that implements the feature or change being tested by the experiment,
+        and is the primary point of contact for any inquiries related to it.
+      </p>
+    """
+
     ANALYSIS_OWNER_HELP_TEXT = """
       <p>
         The Data Science Owner is the person responsible for designing and

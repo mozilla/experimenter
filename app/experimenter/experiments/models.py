@@ -107,6 +107,7 @@ class Experiment(ExperimentConstants, models.Model):
         default=ExperimentConstants.ANALYSIS_DEFAULT, blank=True, null=True
     )
     analysis_owner = models.CharField(max_length=255, blank=True, null=True)
+    engineering_owner = models.CharField(max_length=255, blank=True, null=True)
 
     total_users = models.PositiveIntegerField(default=0)
     enrollment_dashboard_url = models.URLField(blank=True, null=True)

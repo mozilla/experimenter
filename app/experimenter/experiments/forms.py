@@ -90,13 +90,18 @@ class ExperimentOverviewForm(
     )
     owner = forms.ModelChoiceField(
         required=True,
-        label="Owner",
+        label="Experiment Owner",
         help_text=Experiment.OWNER_HELP_TEXT,
         queryset=get_user_model().objects.all().order_by("email"),
         # This one forces the <select> widget to not include a blank
         # option which would otherwise be included because the model field
         # is nullable.
         empty_label=None,
+    )
+    engineering_owner = forms.CharField(
+        required=False,
+        label="Engineering Owner",
+        help_text=Experiment.ENGINEERING_OWNER_HELP_TEXT,
     )
     name = forms.CharField(label="Name", help_text=Experiment.NAME_HELP_TEXT)
     slug = forms.CharField(required=False, widget=forms.HiddenInput())
@@ -146,6 +151,7 @@ class ExperimentOverviewForm(
         fields = [
             "type",
             "owner",
+            "engineering_owner",
             "name",
             "slug",
             "short_description",

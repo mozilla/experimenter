@@ -181,6 +181,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.data = {
             "type": Experiment.TYPE_PREF,
             "owner": self.user.id,
+            "engineering_owner": "Lisa the Engineer",
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
             "data_science_bugzilla_url": "https://bugzilla.mozilla.org/123/",
@@ -197,6 +198,9 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         experiment = form.save()
 
         self.assertEqual(experiment.owner, self.user)
+        self.assertEqual(
+            experiment.engineering_owner, self.data["engineering_owner"]
+        )
         self.assertEqual(experiment.status, experiment.STATUS_DRAFT)
         self.assertEqual(experiment.name, self.data["name"])
         self.assertEqual(experiment.slug, "a-new-experiment")
