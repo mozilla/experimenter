@@ -83,6 +83,10 @@ An experiment has three parts:
 
         make createuser
 
+1. Load the initial data
+
+        make load_initial_data
+
 1. Run a dev instance
 
         make up

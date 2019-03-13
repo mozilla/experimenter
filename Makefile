@@ -59,6 +59,9 @@ migrate: compose_build
 createuser: compose_build
 	docker-compose run app python manage.py createsuperuser
 
+load_initial_data: compose_build
+	docker-compose run app python manage.py load-initial-data
+
 shell: compose_build
 	docker-compose run app python manage.py shell
 

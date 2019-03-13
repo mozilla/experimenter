@@ -4,18 +4,26 @@ from django.core.management import call_command
 from experimenter.base.models import Country, Locale
 
 
-class TestBaseAppConfig(TestCase):
+class TestInitialData(TestCase):
 
-    def test_post_migrations(self):
-        # First mess with the already installed data, so it triggers
-        # all code branches in the post migration functions.
+    def test_load_initial_data(self):
+        self.assertTrue(not Country.objects.exists())
+        self.assertTrue(not Locale.objects.exists())
+
+        call_command("load-initial-data")
+
+        self.assertTrue(Country.objects.exists())
+        self.assertTrue(Locale.objects.exists())
+
+        # First mess with the installed data, so it tests the "corrections"
+        # that the managemeent does.
         Country.objects.filter(code="SV").delete()
         Country.objects.filter(code="FR").update(name="Frankies")
         # Also, mess with Locales
         Locale.objects.filter(code="sv-SE").delete()
         Locale.objects.filter(code="fr").update(name="Franchism")
 
-        call_command("migrate")
+        call_command("load-initial-data")
 
         self.assertTrue(Country.objects.get(code="SV"))
         self.assertEqual(Country.objects.get(code="FR").name, "France")
