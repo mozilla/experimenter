@@ -160,6 +160,56 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.has_external_urls)
 
+    def test_generate_normandy_slug_raises_valueerror_without_version(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_PREF,
+            slug="experiment-slug",
+            firefox_version="",
+            firefox_channel="Nightly",
+            bugzilla_id="12345",
+        )
+
+        with self.assertRaises(ValueError):
+            experiment.generate_normandy_slug()
+
+    def test_generate_normandy_slug_raises_valueerror_without_channel(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_PREF,
+            slug="experiment-slug",
+            firefox_version="57.0",
+            firefox_channel="",
+            bugzilla_id="12345",
+        )
+
+        with self.assertRaises(ValueError):
+            experiment.generate_normandy_slug()
+
+    def test_generate_normandy_slug_raises_valueerror_without_bugzilla(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_PREF,
+            slug="experiment-slug",
+            firefox_version="57.0",
+            firefox_channel="Nightly",
+            bugzilla_id="",
+        )
+
+        with self.assertRaises(ValueError):
+            experiment.generate_normandy_slug()
+
+    def test_generate_normandy_slug_returns_expected_slug(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_PREF,
+            slug="experiment-slug",
+            firefox_version="57.0",
+            firefox_channel="Nightly",
+            bugzilla_id="12345",
+        )
+
+        self.assertEqual(
+            experiment.generate_normandy_slug(),
+            "pref-experiment-slug-nightly-57.0-bug-12345",
+        )
+
     def test_start_date_returns_proposed_start_date_if_change_is_missing(self):
         experiment = ExperimentFactory.create_with_variants()
         self.assertEqual(experiment.start_date, experiment.proposed_start_date)

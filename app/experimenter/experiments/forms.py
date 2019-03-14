@@ -812,6 +812,9 @@ class ExperimentStatusForm(
             and self.new_status == Experiment.STATUS_SHIP
             and experiment.bugzilla_id
         ):
+            experiment.normandy_slug = experiment.generate_normandy_slug()
+            experiment.save()
+
             tasks.add_experiment_comment_task.delay(
                 self.request.user.id, experiment.id
             )
