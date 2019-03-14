@@ -88,9 +88,7 @@ class TestExperimentSerializer(TestCase):
                 ExperimentVariantSerializer(variant).data
                 for variant in experiment.variants.all()
             ],
-            "all_locales": False,
             "locales": [],
-            "all_countries": False,
             "countries": [],
         }
 

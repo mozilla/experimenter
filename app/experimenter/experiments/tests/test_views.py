@@ -606,10 +606,8 @@ class TestExperimentVariantsUpdateView(TestCase):
         self.assertEqual(experiment.pref_type, data["pref_type"])
         self.assertEqual(experiment.pref_branch, data["pref_branch"])
 
-        self.assertTrue(not experiment.all_locales)
         self.assertTrue(locale in experiment.locales.all())
 
-        self.assertTrue(not experiment.all_countries)
         self.assertTrue(country in experiment.countries.all())
 
         self.assertEqual(experiment.changes.count(), 2)

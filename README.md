@@ -165,9 +165,7 @@ Example: GET /api/v1/experiments/?project__slug=project-slug&status=Pending
               "accept_url":"https://localhost/api/v1/experiments/self-enabling-needs-based-hardware/accept",
               "client_matching":"Some \"additional\" filtering",
               "locales": [{"code":"en-US", "name": "English (US)"}],
-              "all_locales": false,
               "countries": [{"code": "US", "name": "United States of America"}],
-              "all_countries": false,
               "control":{
                  "description":"Eos sunt adipisci beatae. Aut sunt totam maiores reprehenderit sed vero. Nam fugit sequi repellendus cumque. Fugit maxime suscipit eius quas iure exercitationem voluptatibus.",
                  "name":"Seamless 5thgeneration task-force",
@@ -210,9 +208,7 @@ Example: GET /api/v1/experiments/self-enabled-needs-based-hardware/
             "accept_url":"https://localhost/api/v1/experiments/self-enabling-needs-based-hardware/accept",
             "client_matching":"Some \"additional\" filtering",
             "locales": [{"code":"en-US", "name": "English (US)"}],
-            "all_locales": false,
             "countries": [{"code": "US", "name": "United States of America"}],
-            "all_countries": false,
             "control":{
                "description":"Eos sunt adipisci beatae. Aut sunt totam maiores reprehenderit sed vero. Nam fugit sequi repellendus cumque. Fugit maxime suscipit eius quas iure exercitationem voluptatibus.",
                "name":"Seamless 5thgeneration task-force",

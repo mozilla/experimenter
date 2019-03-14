@@ -143,42 +143,13 @@
 {% endblock %}
 
 {% block extrahead %}
-{#<link rel="stylesheet" href="{% static "lib/bootstrap-multiselect/css/bootstrap-multiselect.css" %}">#}
-<link rel="stylesheet" href="{% static "lib/bootstrap-select/css/bootstrap-select.min.css" %}">
-
+  <link rel="stylesheet" href="{% static "lib/bootstrap-select/css/bootstrap-select.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/edit-variants.css" %}">
 {% endblock %}
 
 {% block extrascripts %}
   <script src="{% static "js/jquery.formset.js" %}"></script>
 
-  <script>
-    jQuery(function($) {
-      $("#formset").formset({
-        animateForms: true,
-        reorderMode: 'dom',
-      });
-    });
-  </script>
-
-  {% comment %}
-  <script src="{% static "lib/bootstrap-multiselect/js/bootstrap-multiselect.js" %}"></script>
-  <script>
-    jQuery(function($) {
-      $('select[multiple]').multiselect();
-    });
-  </script>
-  {% endcomment %}
   <script src="{% static "lib/bootstrap-select/js/bootstrap-select.min.js" %}"></script>
-  <script>
-    jQuery(function($) {
-      /* The Django form that parses locales is pretty smart. If you
-         send it ['__all__', 'sv'] it knows to set all_locales=True, locales=[],
-         etc.
-         We could attempt to replicate some of this functionality here with
-         events on $.selectpicker() but it's non-trivial and fragile.
-      */
-      $('select[multiple]').selectpicker();
-    });
-  </script>
-
+  <script src="{% static "js/edit-variants.js" %}"></script>
 {% endblock %}

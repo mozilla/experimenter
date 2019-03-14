@@ -10,28 +10,20 @@ Population
 
   <strong>Locales</strong>
   <p>
-    {% if experiment.all_locales %}
-    All
-    {% else %}
-      {% for locale in experiment.locales.all %}
-        {{ locale }}{% if not forloop.last %}, {% endif %}
-      {% empty %}
-       none
-      {% endfor %}
-    {% endif %}
+    {% for locale in experiment.locales.all %}
+      {{ locale }}{% if not forloop.last %}, {% endif %}
+    {% empty %}
+      All
+    {% endfor %}
   </p>
 
-  <strong>Geographic Region(s)</strong>
+  <strong>Countries</strong>
   <p>
-    {% if experiment.all_countries %}
-    All
-    {% else %}
-      {% for country in experiment.countries.all %}
-        {{ country }}{% if not forloop.last %}, {% endif %}
-      {% empty %}
-       none
-      {% endfor %}
-    {% endif %}
+    {% for country in experiment.countries.all %}
+      {{ country }}{% if not forloop.last %}, {% endif %}
+    {% empty %}
+      All
+    {% endfor %}
   </p>
 
 

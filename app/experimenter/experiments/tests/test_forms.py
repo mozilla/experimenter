@@ -8,10 +8,10 @@ from django.test import TestCase
 from django.utils import timezone
 from parameterized import parameterized_class
 
-from experimenter.base.models import Country, Locale
 from experimenter.experiments.forms import (
     BugzillaURLField,
     ChangeLogMixin,
+    CustomModelMultipleChoiceField,
     ExperimentArchiveForm,
     ExperimentCommentForm,
     ExperimentObjectivesForm,
@@ -26,6 +26,7 @@ from experimenter.experiments.forms import (
     JSONField,
 )
 from experimenter.experiments.models import Experiment, ExperimentVariant
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.mixins import (
     MockBugzillaMixin,
@@ -367,7 +368,8 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
             "firefox_version": Experiment.VERSION_CHOICES[-1][0],
             "firefox_channel": Experiment.CHANNEL_NIGHTLY,
             "client_matching": "en-us only please",
-            "locales": [ExperimentVariantsAddonForm.ALL_KEY],
+            "locales": [],
+            "countries": [],
             "variants-TOTAL_FORMS": "3",
             "variants-INITIAL_FORMS": "0",
             "variants-MIN_NUM_FORMS": "0",
@@ -663,185 +665,175 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment2.variants.count(), 3)
 
     def test_locales_choices(self):
+        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
+        locale2 = LocaleFactory(code="fr", name="French")
+
         form = ExperimentVariantsAddonForm(
             request=self.request, data=self.data, instance=self.experiment
         )
-
         self.assertEqual(
-            len(form.fields["locales"].choices), Locale.objects.count() + 1
-        )
-        self.assertEqual(
-            form.fields["locales"].choices[0],
-            (
-                ExperimentVariantsAddonForm.ALL_KEY,
-                ExperimentVariantsAddonForm.ALL_LABEL,
-            ),
-        )
-        first_locale, = Locale.objects.all()[:1]
-        self.assertEqual(
-            form.fields["locales"].choices[1],
-            (first_locale.code, f"{first_locale.name} ({first_locale.code})"),
+            list(form.fields["locales"].choices),
+            [
+                (
+                    CustomModelMultipleChoiceField.ALL_KEY,
+                    CustomModelMultipleChoiceField.ALL_LABEL,
+                ),
+                (locale2.code, str(locale2)),
+                (locale1.code, str(locale1)),
+            ],
         )
 
     def test_locales_initials(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, num_variants=0
         )
-        experiment.locales.add(Locale.objects.get(code="sv-SE"))
-        experiment.locales.add(Locale.objects.get(code="en-US"))
+        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
+        locale2 = LocaleFactory(code="fr", name="French")
+        experiment.locales.add(locale1)
+        experiment.locales.add(locale2)
         form = ExperimentVariantsAddonForm(
             request=self.request, data=self.data, instance=experiment
         )
-        self.assertEqual(form.initial["locales"], ["en-US", "sv-SE"])
+        self.assertEqual(form.initial["locales"], [locale2, locale1])
 
     def test_locales_initials_all_locales(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0, all_locales=True
+            Experiment.STATUS_DRAFT, num_variants=0
         )
-        # Even if these are set, it's going to be ignored
-        experiment.locales.add(Locale.objects.get(code="sv-SE"))
-        experiment.locales.add(Locale.objects.get(code="en-US"))
         form = ExperimentVariantsAddonForm(
             request=self.request, data=self.data, instance=experiment
         )
         self.assertEqual(
-            form.initial["locales"], [ExperimentVariantsAddonForm.ALL_KEY]
+            form.initial["locales"], [CustomModelMultipleChoiceField.ALL_KEY]
         )
 
     def test_clean_locales(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, num_variants=0
         )
-        data = dict(self.data, locales=["sv-SE", "fr"])
+        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
+        locale2 = LocaleFactory(code="fr", name="French")
+        self.data["locales"] = [locale2.code, locale1.code]
         form = ExperimentVariantsAddonForm(
-            request=self.request, data=data, instance=experiment
+            request=self.request, data=self.data, instance=experiment
         )
         self.assertTrue(form.is_valid())
-        self.assertTrue(not form.cleaned_data["all_locales"])
         self.assertEqual(
-            form.cleaned_data["locales"],
-            [
-                Locale.objects.get(code="fr").pk,
-                Locale.objects.get(code="sv-SE").pk,
-            ],
+            list(form.cleaned_data["locales"]), [locale2, locale1]
         )
 
-    def test_clean_locales_all_locales(self):
+    def test_clean_locales_all(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, num_variants=0
         )
-        # Suppose the submitted data contains "ALL" *and* a new
-        # differrernt locale(s). They all get unset in favor of
-        # setting `experiment.all_locales=True`.
-        data = dict(
-            self.data, locales=[ExperimentVariantsAddonForm.ALL_KEY, "fr"]
-        )
+        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
+        locale2 = LocaleFactory(code="fr", name="French")
+        self.data["locales"] = [
+            locale2.code,
+            CustomModelMultipleChoiceField.ALL_KEY,
+            locale1.code,
+        ]
         form = ExperimentVariantsAddonForm(
-            request=self.request, data=data, instance=experiment
+            request=self.request, data=self.data, instance=experiment
         )
         self.assertTrue(form.is_valid())
-        self.assertTrue(form.cleaned_data["all_locales"])
-        self.assertEqual(form.cleaned_data["locales"], [])
+        self.assertEqual(list(form.cleaned_data["locales"]), [])
 
     def test_clean_unrecognized_locales(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, num_variants=0
         )
-        data = dict(self.data, locales=["xxx"])
+        self.data["locales"] = ["xxx"]
         form = ExperimentVariantsAddonForm(
-            request=self.request, data=data, instance=experiment
+            request=self.request, data=self.data, instance=experiment
         )
         self.assertTrue(not form.is_valid())
         self.assertTrue(form.errors["locales"])
 
     def test_countries_choices(self):
+        country1 = CountryFactory(code="SV", name="Sweden")
+        country2 = CountryFactory(code="FR", name="France")
+
         form = ExperimentVariantsAddonForm(
             request=self.request, data=self.data, instance=self.experiment
         )
-
         self.assertEqual(
-            len(form.fields["countries"].choices), Country.objects.count() + 1
-        )
-        self.assertEqual(
-            form.fields["countries"].choices[0],
-            (
-                ExperimentVariantsAddonForm.ALL_KEY,
-                ExperimentVariantsAddonForm.ALL_LABEL,
-            ),
-        )
-        first_locale, = Country.objects.all()[:1]
-        self.assertEqual(
-            form.fields["countries"].choices[1],
-            (first_locale.code, f"{first_locale.name} ({first_locale.code})"),
+            list(form.fields["countries"].choices),
+            [
+                (
+                    CustomModelMultipleChoiceField.ALL_KEY,
+                    CustomModelMultipleChoiceField.ALL_LABEL,
+                ),
+                (country2.code, str(country2)),
+                (country1.code, str(country1)),
+            ],
         )
 
     def test_countries_initials(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, num_variants=0
         )
-        experiment.countries.add(Country.objects.get(code="SE"))
-        experiment.countries.add(Country.objects.get(code="CA"))
+        country1 = CountryFactory(code="SV", name="Sweden")
+        country2 = CountryFactory(code="FR", name="France")
+        experiment.countries.add(country1)
+        experiment.countries.add(country2)
         form = ExperimentVariantsAddonForm(
             request=self.request, data=self.data, instance=experiment
         )
-        self.assertEqual(form.initial["countries"], ["CA", "SE"])
+        self.assertEqual(form.initial["countries"], [country2, country1])
 
-    def test_countries_initials_all_locales(self):
+    def test_countries_initials_all(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0, all_countries=True
+            Experiment.STATUS_DRAFT, num_variants=0
         )
-        # Even if these are set, it's going to be ignored
-        experiment.countries.add(Country.objects.get(code="SE"))
-        experiment.countries.add(Country.objects.get(code="CA"))
         form = ExperimentVariantsAddonForm(
             request=self.request, data=self.data, instance=experiment
         )
         self.assertEqual(
-            form.initial["countries"], [ExperimentVariantsAddonForm.ALL_KEY]
+            form.initial["countries"], [CustomModelMultipleChoiceField.ALL_KEY]
         )
 
     def test_clean_countries(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, num_variants=0
         )
-        data = dict(self.data, countries=["SE", "FR"])
+        country1 = CountryFactory(code="SV", name="Sweden")
+        country2 = CountryFactory(code="FR", name="France")
+        self.data["countries"] = [country1.code, country2.code]
         form = ExperimentVariantsAddonForm(
-            request=self.request, data=data, instance=experiment
+            request=self.request, data=self.data, instance=experiment
         )
         self.assertTrue(form.is_valid())
-        self.assertTrue(not form.cleaned_data["all_countries"])
         self.assertEqual(
-            form.cleaned_data["countries"],
-            [
-                Country.objects.get(code="FR").pk,
-                Country.objects.get(code="SE").pk,
-            ],
+            # form.cleaned_data["countries"] is a QuerySet to exhaust it.
+            list(form.cleaned_data["countries"]),
+            [country2, country1],
         )
 
-    def test_clean_countries_all_countries(self):
+    def test_clean_countries_all(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, num_variants=0
         )
-        # Suppose the submitted data contains "ALL" *and* a new
-        # differrernt locale(s). They all get unset in favor of
-        # setting `experiment.all_locales=True`.
-        data = dict(
-            self.data, countries=[ExperimentVariantsAddonForm.ALL_KEY, "FR"]
-        )
+        country1 = CountryFactory(code="SV", name="Sweden")
+        country2 = CountryFactory(code="FR", name="France")
+        self.data["countries"] = [
+            country1.code,
+            CustomModelMultipleChoiceField.ALL_KEY,
+            country2.code,
+        ]
         form = ExperimentVariantsAddonForm(
-            request=self.request, data=data, instance=experiment
+            request=self.request, data=self.data, instance=experiment
         )
         self.assertTrue(form.is_valid())
-        self.assertTrue(form.cleaned_data["all_countries"])
-        self.assertEqual(form.cleaned_data["countries"], [])
+        self.assertEqual(list(form.cleaned_data["countries"]), [])
 
     def test_clean_unrecognized_countries(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, num_variants=0
         )
-        data = dict(self.data, countries=["xxx"])
+        self.data["countries"] = ["xxx"]
         form = ExperimentVariantsAddonForm(
-            request=self.request, data=data, instance=experiment
+            request=self.request, data=self.data, instance=experiment
         )
         self.assertTrue(not form.is_valid())
         self.assertTrue(form.errors["countries"])
@@ -883,6 +875,8 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
             "variants-2-name": self.branch2_name,
             "variants-2-description": "branch 2 desc",
             "variants-2-value": '"branch 2 value"',
+            "locales": [],
+            "countries": [],
         }
 
     def test_form_saves_variants(self):

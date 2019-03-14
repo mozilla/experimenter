@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.forms import BaseInlineFormSet
 from django.forms import inlineformset_factory
+from django.forms.models import ModelChoiceIterator
 from django.utils import timezone
 
 from experimenter.base.models import Country, Locale
@@ -298,6 +299,35 @@ class ExperimentVariantsPrefFormSet(ExperimentVariantsFormSet):
                     )
 
 
+class CustomModelChoiceIterator(ModelChoiceIterator):
+
+    def __iter__(self):
+        yield (
+            CustomModelMultipleChoiceField.ALL_KEY,
+            CustomModelMultipleChoiceField.ALL_LABEL,
+        )
+        for choice in super().__iter__():
+            yield choice
+
+
+class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    """Return a ModelMultipleChoiceField but with the exception that
+    there's one extra "All" choice inserted as the first choice.
+    And when submitted, if "All" was one of the choices, reset
+    it to chose nothing."""
+
+    ALL_KEY = "__all__"
+    ALL_LABEL = "ALL"
+
+    def clean(self, value):
+        if value is not None:
+            if self.ALL_KEY in value:
+                value = []
+            return super().clean(value)
+
+    iterator = CustomModelChoiceIterator
+
+
 class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
 
     FORMSET_FORM_CLASS = ExperimentVariantAddonForm
@@ -323,31 +353,19 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
     )
 
-    ALL_KEY = "__all__"
-    ALL_LABEL = "ALL"
-
-    # The reason we do locales and countries with a custom non-model
-    # MultipleChoiceField is to allow in a value that can never
-    # be found in the Locale.objects.all QuerySet.
-    # We would not be able to execute "hacks" in the `clean_locales`
-    # and `clean_countries` method hooks since it wouldn't be
-    # called if a 'code' is passed in. Django's model forms would
-    # never allow it.
-
-    # By making it a non-model form field, we "sneak" in the custom
-    # "__all__" choice and use the form's `clean` method hook to
-    # remove it as a choice and potentially transfer this presence
-    # to another field (`all_locales` & `all_countries`).
-
-    locales = forms.MultipleChoiceField(
-        label="Locale(s)",
+    locales = CustomModelMultipleChoiceField(
+        label="Locales",
         required=False,
         help_text="Applicable only if you don't select All",
+        queryset=Locale.objects.all(),
+        to_field_name="code",
     )
-    countries = forms.MultipleChoiceField(
-        label="Geographic Region(s)",
+    countries = CustomModelMultipleChoiceField(
+        label="Countries",
         required=False,
         help_text="Applicable only if you don't select All",
+        queryset=Country.objects.all(),
+        to_field_name="code",
     )
     # See https://developer.snapappointments.com/bootstrap-select/examples/
     # for more options that relate to the initial rendering of the HTML
@@ -363,9 +381,7 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
             "firefox_channel",
             "client_matching",
             "locales",
-            "all_locales",
             "countries",
-            "all_countries",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -373,28 +389,15 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
         instance = kwargs.pop("instance", None)
         if instance:
             kwargs.setdefault("initial", {})
-            if instance.all_locales:
-                kwargs["initial"]["locales"] = [self.ALL_KEY]
-            else:
-                kwargs["initial"]["locales"] = list(
-                    instance.locales.all().values_list("code", flat=True)
-                )
-            if instance.all_countries:
-                kwargs["initial"]["countries"] = [self.ALL_KEY]
-            else:
-                kwargs["initial"]["countries"] = list(
-                    instance.countries.all().values_list("code", flat=True)
-                )
+            if not instance.locales.all().exists():
+                kwargs["initial"]["locales"] = [
+                    CustomModelMultipleChoiceField.ALL_KEY
+                ]
+            if not instance.countries.all().exists():
+                kwargs["initial"]["countries"] = [
+                    CustomModelMultipleChoiceField.ALL_KEY
+                ]
         super().__init__(data=data, instance=instance, *args, **kwargs)
-
-        self.fields["locales"].choices = [(self.ALL_KEY, self.ALL_LABEL)] + [
-            (code, f"{name} ({code})")
-            for code, name in Locale.objects.all().values_list("code", "name")
-        ]
-        self.fields["countries"].choices = [(self.ALL_KEY, self.ALL_LABEL)] + [
-            (code, f"{name} ({code})")
-            for code, name in Country.objects.all().values_list("code", "name")
-        ]
 
         extra = 0
         if instance and instance.variants.count() == 0:
@@ -423,45 +426,6 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
 
     def is_valid(self):
         return super().is_valid() and self.variants_formset.is_valid()
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        # Since we allow '__all__' to be a valid choice for the 'locales'
-        # field, we can't actually use it but instead "transfer" this
-        # to another field which is the 'all_locales'.
-        # Also, the instance.locales field is a many-to-many field
-        # that stores references by primary key so we need to convert
-        # codes to IDs.
-        if "locales" in cleaned_data:
-            if self.ALL_KEY in cleaned_data["locales"]:
-                cleaned_data["locales"] = []
-                cleaned_data["all_locales"] = True
-            else:
-                cleaned_data["all_locales"] = False
-
-            # Need to convert from 'code' to 'pk'.
-            cleaned_data["locales"] = list(
-                Locale.objects.filter(
-                    code__in=cleaned_data["locales"]
-                ).values_list("pk", flat=True)
-            )
-        # Same thing as 'locales' but this time for 'countries'.
-        if "countries" in cleaned_data:
-            if self.ALL_KEY in cleaned_data["countries"]:
-                cleaned_data["countries"] = []
-                cleaned_data["all_countries"] = True
-            else:
-                cleaned_data["all_countries"] = False
-
-            # Need to convert from 'code' to 'pk'.
-            cleaned_data["countries"] = list(
-                Country.objects.filter(
-                    code__in=cleaned_data["countries"]
-                ).values_list("pk", flat=True)
-            )
-
-        return cleaned_data
 
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
