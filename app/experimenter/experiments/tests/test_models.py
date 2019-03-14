@@ -207,7 +207,7 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(
             experiment.generate_normandy_slug(),
-            "pref-experiment-slug-Nightly-57.0-bug-12345",
+            "pref-experiment-slug-nightly-57.0-bug-12345",
         )
 
     def test_start_date_returns_proposed_start_date_if_change_is_missing(self):

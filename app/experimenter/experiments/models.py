@@ -254,7 +254,7 @@ class Experiment(ExperimentConstants, models.Model):
         return (
             f"{self.type}-{self.slug}-{self.firefox_channel}"
             f"-{self.firefox_version}-bug-{self.bugzilla_id}"
-        )
+        ).lower()
 
     @property
     def has_external_urls(self):
