@@ -388,6 +388,10 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
         data = kwargs.pop("data", None)
         instance = kwargs.pop("instance", None)
         if instance:
+            # The reason we must do this is because the form fields
+            # for locales and countries don't know about the instance
+            # not having anything set, and we want the "All" option to
+            # appear in the generated HTML widget.
             kwargs.setdefault("initial", {})
             if not instance.locales.all().exists():
                 kwargs["initial"]["locales"] = [

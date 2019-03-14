@@ -6,11 +6,11 @@ from experimenter.base.models import Country, Locale
 
 class TestInitialData(TestCase):
 
-    def test_load_initial_data(self):
+    def test_load_locales_countries(self):
         self.assertTrue(not Country.objects.exists())
         self.assertTrue(not Locale.objects.exists())
 
-        call_command("load-initial-data")
+        call_command("load-locales-countries")
 
         self.assertTrue(Country.objects.exists())
         self.assertTrue(Locale.objects.exists())
@@ -23,7 +23,7 @@ class TestInitialData(TestCase):
         Locale.objects.filter(code="sv-SE").delete()
         Locale.objects.filter(code="fr").update(name="Franchism")
 
-        call_command("load-initial-data")
+        call_command("load-locales-countries")
 
         self.assertTrue(Country.objects.get(code="SV"))
         self.assertEqual(Country.objects.get(code="FR").name, "France")
