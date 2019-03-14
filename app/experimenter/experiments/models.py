@@ -115,6 +115,7 @@ class Experiment(ExperimentConstants, models.Model):
     dashboard_image_url = models.URLField(blank=True, null=True)
 
     bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
+    normandy_slug = models.CharField(max_length=255, blank=True, null=True)
 
     data_science_bugzilla_url = models.URLField(blank=True, null=True)
     feature_bugzilla_url = models.URLField(blank=True, null=True)
@@ -235,6 +236,25 @@ class Experiment(ExperimentConstants, models.Model):
             return (
                 "https://firefox-test-tube.herokuapp.com/experiments/{slug}/"
             ).format(slug=self.slug)
+
+    def generate_normandy_slug(self):
+        error_msg = (
+            "The {field} must be set before a Normandy slug can be generated"
+        )
+
+        if not self.firefox_version:
+            raise ValueError(error_msg.format(field="Firefox version"))
+
+        if not self.firefox_channel:
+            raise ValueError(error_msg.format(field="Firefox channel"))
+
+        if not self.bugzilla_id:
+            raise ValueError(error_msg.format(field="Bugzilla ID"))
+
+        return (
+            f"{self.type}-{self.slug}-{self.firefox_channel}"
+            f"-{self.firefox_version}-bug-{self.bugzilla_id}"
+        ).lower()
 
     @property
     def has_external_urls(self):
