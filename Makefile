@@ -59,6 +59,9 @@ migrate: compose_build
 createuser: compose_build
 	docker-compose run app python manage.py createsuperuser
 
+load_locales_countries: compose_build
+	docker-compose run app python manage.py load-locales-countries
+
 shell: compose_build
 	docker-compose run app python manage.py shell
 
