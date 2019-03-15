@@ -674,10 +674,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         self.assertEqual(
             list(form.fields["locales"].choices),
             [
-                (
-                    CustomModelMultipleChoiceField.ALL_KEY,
-                    "All locales",
-                ),
+                (CustomModelMultipleChoiceField.ALL_KEY, "All locales"),
                 (locale2.code, str(locale2)),
                 (locale1.code, str(locale1)),
             ],
@@ -760,10 +757,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         self.assertEqual(
             list(form.fields["countries"].choices),
             [
-                (
-                    CustomModelMultipleChoiceField.ALL_KEY,
-                    "All countries",
-                ),
+                (CustomModelMultipleChoiceField.ALL_KEY, "All countries"),
                 (country2.code, str(country2)),
                 (country1.code, str(country1)),
             ],

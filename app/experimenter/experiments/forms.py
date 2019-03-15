@@ -316,7 +316,7 @@ class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     ALL_KEY = "__all__"
 
     def __init__(self, *args, **kwargs):
-        self.all_label = kwargs.pop('all_label')
+        self.all_label = kwargs.pop("all_label")
         super().__init__(*args, **kwargs)
 
     def clean(self, value):
