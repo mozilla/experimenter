@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("base", "0001_initial"),
-        ("experiments", "0030_experiment_engineering_owner"),
+        ("experiments", "0031_experiment_normandy_slug"),
     ]
 
     operations = [
