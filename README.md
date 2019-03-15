@@ -85,7 +85,7 @@ An experiment has three parts:
 
 1. Load the initial data
 
-        make load_initial_data
+        make load_locales_countries
 
 1. Run a dev instance
 

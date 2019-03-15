@@ -302,10 +302,7 @@ class ExperimentVariantsPrefFormSet(ExperimentVariantsFormSet):
 class CustomModelChoiceIterator(ModelChoiceIterator):
 
     def __iter__(self):
-        yield (
-            CustomModelMultipleChoiceField.ALL_KEY,
-            CustomModelMultipleChoiceField.ALL_LABEL,
-        )
+        yield (CustomModelMultipleChoiceField.ALL_KEY, self.field.all_label)
         for choice in super().__iter__():
             yield choice
 
@@ -317,7 +314,10 @@ class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     it to chose nothing."""
 
     ALL_KEY = "__all__"
-    ALL_LABEL = "ALL"
+
+    def __init__(self, *args, **kwargs):
+        self.all_label = kwargs.pop('all_label')
+        super().__init__(*args, **kwargs)
 
     def clean(self, value):
         if value is not None:
@@ -356,6 +356,7 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
     locales = CustomModelMultipleChoiceField(
         label="Locales",
         required=False,
+        all_label="All locales",
         help_text="Applicable only if you don't select All",
         queryset=Locale.objects.all(),
         to_field_name="code",
@@ -363,6 +364,7 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
     countries = CustomModelMultipleChoiceField(
         label="Countries",
         required=False,
+        all_label="All countries",
         help_text="Applicable only if you don't select All",
         queryset=Country.objects.all(),
         to_field_name="code",

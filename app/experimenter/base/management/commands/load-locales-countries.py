@@ -6,7 +6,7 @@ from experimenter.base.models import Country, Locale
 
 
 class Command(BaseCommand):
-    help = "Insert all necessary initial data"
+    help = "Insert all necessary locales and countries"
 
     def handle(self, **options):
         self.ensure_all_locales()

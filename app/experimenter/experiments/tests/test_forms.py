@@ -676,7 +676,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
             [
                 (
                     CustomModelMultipleChoiceField.ALL_KEY,
-                    CustomModelMultipleChoiceField.ALL_LABEL,
+                    "All locales",
                 ),
                 (locale2.code, str(locale2)),
                 (locale1.code, str(locale1)),
@@ -762,7 +762,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
             [
                 (
                     CustomModelMultipleChoiceField.ALL_KEY,
-                    CustomModelMultipleChoiceField.ALL_LABEL,
+                    "All countries",
                 ),
                 (country2.code, str(country2)),
                 (country1.code, str(country1)),
