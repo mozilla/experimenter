@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 
+from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
 
 
@@ -100,6 +101,8 @@ class Experiment(ExperimentConstants, models.Model):
     client_matching = models.TextField(
         default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True
     )
+    locales = models.ManyToManyField(Locale)
+    countries = models.ManyToManyField(Country)
     objectives = models.TextField(
         default=ExperimentConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )

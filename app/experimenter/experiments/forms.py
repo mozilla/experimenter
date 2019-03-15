@@ -4,8 +4,10 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.forms import BaseInlineFormSet
 from django.forms import inlineformset_factory
+from django.forms.models import ModelChoiceIterator
 from django.utils import timezone
 
+from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments import tasks
 from experimenter.experiments.models import (
@@ -297,6 +299,35 @@ class ExperimentVariantsPrefFormSet(ExperimentVariantsFormSet):
                     )
 
 
+class CustomModelChoiceIterator(ModelChoiceIterator):
+
+    def __iter__(self):
+        yield (CustomModelMultipleChoiceField.ALL_KEY, self.field.all_label)
+        for choice in super().__iter__():
+            yield choice
+
+
+class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    """Return a ModelMultipleChoiceField but with the exception that
+    there's one extra "All" choice inserted as the first choice.
+    And when submitted, if "All" was one of the choices, reset
+    it to chose nothing."""
+
+    ALL_KEY = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        self.all_label = kwargs.pop("all_label")
+        super().__init__(*args, **kwargs)
+
+    def clean(self, value):
+        if value is not None:
+            if self.ALL_KEY in value:
+                value = []
+            return super().clean(value)
+
+    iterator = CustomModelChoiceIterator
+
+
 class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
 
     FORMSET_FORM_CLASS = ExperimentVariantAddonForm
@@ -322,6 +353,28 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
     )
 
+    locales = CustomModelMultipleChoiceField(
+        label="Locales",
+        required=False,
+        all_label="All locales",
+        help_text="Applicable only if you don't select All",
+        queryset=Locale.objects.all(),
+        to_field_name="code",
+    )
+    countries = CustomModelMultipleChoiceField(
+        label="Countries",
+        required=False,
+        all_label="All countries",
+        help_text="Applicable only if you don't select All",
+        queryset=Country.objects.all(),
+        to_field_name="code",
+    )
+    # See https://developer.snapappointments.com/bootstrap-select/examples/
+    # for more options that relate to the initial rendering of the HTML
+    # as a way to customize how it works.
+    locales.widget.attrs.update({"data-live-search": "true"})
+    countries.widget.attrs.update({"data-live-search": "true"})
+
     class Meta:
         model = Experiment
         fields = [
@@ -329,11 +382,27 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
             "firefox_version",
             "firefox_channel",
             "client_matching",
+            "locales",
+            "countries",
         ]
 
     def __init__(self, *args, **kwargs):
         data = kwargs.pop("data", None)
         instance = kwargs.pop("instance", None)
+        if instance:
+            # The reason we must do this is because the form fields
+            # for locales and countries don't know about the instance
+            # not having anything set, and we want the "All" option to
+            # appear in the generated HTML widget.
+            kwargs.setdefault("initial", {})
+            if not instance.locales.all().exists():
+                kwargs["initial"]["locales"] = [
+                    CustomModelMultipleChoiceField.ALL_KEY
+                ]
+            if not instance.countries.all().exists():
+                kwargs["initial"]["countries"] = [
+                    CustomModelMultipleChoiceField.ALL_KEY
+                ]
         super().__init__(data=data, instance=instance, *args, **kwargs)
 
         extra = 0

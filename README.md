@@ -83,6 +83,10 @@ An experiment has three parts:
 
         make createuser
 
+1. Load the initial data
+
+        make load_locales_countries
+
 1. Run a dev instance
 
         make up
@@ -159,7 +163,9 @@ Example: GET /api/v1/experiments/?project__slug=project-slug&status=Pending
         [
            {
               "accept_url":"https://localhost/api/v1/experiments/self-enabling-needs-based-hardware/accept",
-              "client_matching":"Locales: en-US, en-CA, en-GB\nGeos: US, CA, GB\nSome \"additional\" filtering",
+              "client_matching":"Some \"additional\" filtering",
+              "locales": [{"code":"en-US", "name": "English (US)"}],
+              "countries": [{"code": "US", "name": "United States of America"}],
               "control":{
                  "description":"Eos sunt adipisci beatae. Aut sunt totam maiores reprehenderit sed vero. Nam fugit sequi repellendus cumque. Fugit maxime suscipit eius quas iure exercitationem voluptatibus.",
                  "name":"Seamless 5thgeneration task-force",
@@ -200,7 +206,9 @@ Example: GET /api/v1/experiments/self-enabled-needs-based-hardware/
 
          {
             "accept_url":"https://localhost/api/v1/experiments/self-enabling-needs-based-hardware/accept",
-            "client_matching":"Locales: en-US, en-CA, en-GB\nGeos: US, CA, GB\nSome \"additional\" filtering",
+            "client_matching":"Some \"additional\" filtering",
+            "locales": [{"code":"en-US", "name": "English (US)"}],
+            "countries": [{"code": "US", "name": "United States of America"}],
             "control":{
                "description":"Eos sunt adipisci beatae. Aut sunt totam maiores reprehenderit sed vero. Nam fugit sequi repellendus cumque. Fugit maxime suscipit eius quas iure exercitationem voluptatibus.",
                "name":"Seamless 5thgeneration task-force",

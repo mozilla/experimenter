@@ -2,6 +2,7 @@ import datetime
 
 from django.test import TestCase
 
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
@@ -87,9 +88,31 @@ class TestExperimentSerializer(TestCase):
                 ExperimentVariantSerializer(variant).data
                 for variant in experiment.variants.all()
             ],
+            "locales": [],
+            "countries": [],
         }
 
         self.assertEqual(
             set(serialized.data.keys()), set(expected_data.keys())
         )
         self.assertEqual(serialized.data, expected_data)
+
+    def test_serializer_locales(self):
+        locale = LocaleFactory()
+        experiment = ExperimentFactory.create()
+        experiment.locales.add(locale)
+        serialized = ExperimentSerializer(experiment)
+        self.assertEqual(
+            serialized.data["locales"],
+            [{"code": locale.code, "name": locale.name}],
+        )
+
+    def test_serializer_countries(self):
+        country = CountryFactory()
+        experiment = ExperimentFactory.create()
+        experiment.countries.add(country)
+        serialized = ExperimentSerializer(experiment)
+        self.assertEqual(
+            serialized.data["countries"],
+            [{"code": country.code, "name": country.name}],
+        )

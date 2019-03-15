@@ -7,4 +7,24 @@ Population
 {% block section_content %}
   <h5>{{ experiment.population }}</h5>
   {{ experiment.client_matching|urlize|linebreaks }}
+
+  <strong>Locales</strong>
+  <p>
+    {% for locale in experiment.locales.all %}
+      {{ locale }}{% if not forloop.last %}, {% endif %}
+    {% empty %}
+      All
+    {% endfor %}
+  </p>
+
+  <strong>Countries</strong>
+  <p>
+    {% for country in experiment.countries.all %}
+      {{ country }}{% if not forloop.last %}, {% endif %}
+    {% empty %}
+      All
+    {% endfor %}
+  </p>
+
+
 {% endblock %}

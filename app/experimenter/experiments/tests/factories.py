@@ -107,10 +107,7 @@ class ExperimentFactory(
         lambda o: random.randint(100000, 1000000)
     )
 
-    client_matching = (
-        "Locales: en-US, en-CA, en-GB\nGeos: US, CA, GB\n"
-        'Some "additional" filtering'
-    )
+    client_matching = "Geos: US, CA, GB\n" 'Some "additional" filtering'
 
     review_advisory = False
     review_science = False
