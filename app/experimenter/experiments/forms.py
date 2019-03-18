@@ -186,8 +186,8 @@ class ExperimentOverviewForm(
 
         if enrollment > cleaned_data.get("proposed_duration", 0):
             msg = (
-                "The enrollment duration must be less than "
-                "or equal to the experiment duration."
+                "The enrollment duration must be shorter than "
+                "the experiment duration."
             )
             self._errors["proposed_enrollment"] = [msg]
 
