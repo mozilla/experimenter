@@ -108,6 +108,7 @@ class ExperimentConstants(object):
     SECTION_TIMELINE = "timeline"
     SECTION_OVERVIEW = "overview"
     SECTION_POPULATION = "population"
+    SECTION_ADDON = "addon"
     SECTION_BRANCHES = "branches"
     SECTION_OBJECTIVES = "objectives"
     SECTION_ANALYSIS = "analysis"
@@ -357,6 +358,18 @@ class ExperimentConstants(object):
             "Add-ons/Code_snippets/Preferences#Default_preferences"
         )
     )
+
+    ADDON_NAME_HELP_TEXT = """
+    """
+
+    ADDON_EXPERIMENT_ID_HELP_TEXT = """
+    """
+
+    ADDON_TESTING_URL_HELP_TEXT = """
+    """
+
+    ADDON_RELEASE_URL_HELP_TEXT = """
+    """
 
     CONTROL_NAME_HELP_TEXT = """
       <p>

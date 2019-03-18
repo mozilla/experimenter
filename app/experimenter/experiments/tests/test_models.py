@@ -601,6 +601,16 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create()
         self.assertTrue(experiment.completed_population)
 
+    def test_addons_is_not_complete_when_release_url_not_set(self):
+        experiment = ExperimentFactory.create(addon_release_url=None)
+        self.assertFalse(experiment.completed_addon)
+
+    def test_adodns_is_complete_when_release_url_set(self):
+        experiment = ExperimentFactory.create(
+            addon_release_url="https://www.example.com/release.xpi"
+        )
+        self.assertTrue(experiment.completed_addon)
+
     def test_variants_is_not_complete_when_no_variants_saved(self):
         experiment = ExperimentFactory.create()
         self.assertFalse(experiment.completed_variants)
@@ -706,6 +716,30 @@ class TestExperimentModel(TestCase):
     def test_completed_all_sections_true_when_complete(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW
+        )
+        self.assertTrue(experiment.completed_all_sections)
+
+    def test_completed_all_sections_true_for_pref_study_without_addon(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW,
+            type=Experiment.TYPE_PREF,
+            addon_release_url=None,
+        )
+        self.assertTrue(experiment.completed_all_sections)
+
+    def test_completed_all_sections_false_for_addon_study_without_addon(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW,
+            type=Experiment.TYPE_ADDON,
+            addon_release_url=None,
+        )
+        self.assertFalse(experiment.completed_all_sections)
+
+    def test_completed_all_sections_true_for_addon_study_with_addon(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW,
+            type=Experiment.TYPE_ADDON,
+            addon_release_url="https://www.example.com/release.xpi",
         )
         self.assertTrue(experiment.completed_all_sections)
 
