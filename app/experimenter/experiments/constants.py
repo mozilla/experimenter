@@ -360,16 +360,60 @@ class ExperimentConstants(object):
     )
 
     ADDON_NAME_HELP_TEXT = """
-    """
+      <p>
+        Enter the name of your addon.
+        <a target="_blank" rel="noreferrer noopener" href="{url}">
+        See here for more info.</a>
+      </p>
+    """.format(
+        url=(
+            "https://mana.mozilla.org/wiki/display/FIREFOX/"
+            "Pref-Flip+and+Add-On+Experiments"
+            "#Pref-FlipandAdd-OnExperiments-Add-ons"
+        )
+    )
 
     ADDON_EXPERIMENT_ID_HELP_TEXT = """
-    """
+      <p>
+        Enter the Experiment ID as it appears in the addon.
+        <a target="_blank" rel="noreferrer noopener" href="{url}">
+        See here for more info.</a>
+      </p>
+    """.format(
+        url=(
+            "https://mana.mozilla.org/wiki/display/FIREFOX/"
+            "Pref-Flip+and+Add-On+Experiments"
+            "#Pref-FlipandAdd-OnExperiments-Add-ons"
+        )
+    )
 
     ADDON_TESTING_URL_HELP_TEXT = """
-    """
+      <p>
+        Enter the URL where the test build of your addon can be found.
+        <a target="_blank" rel="noreferrer noopener" href="{url}">
+        See here for more info.</a>
+      </p>
+    """.format(
+        url=(
+            "https://mana.mozilla.org/wiki/display/FIREFOX/"
+            "Pref-Flip+and+Add-On+Experiments"
+            "#Pref-FlipandAdd-OnExperiments-Add-ons"
+        )
+    )
 
     ADDON_RELEASE_URL_HELP_TEXT = """
-    """
+      <p>
+        Enter the URL where the release build of your addon can be found.
+        <a target="_blank" rel="noreferrer noopener" href="{url}">
+        See here for more info.</a>
+      </p>
+    """.format(
+        url=(
+            "https://mana.mozilla.org/wiki/display/FIREFOX/"
+            "Pref-Flip+and+Add-On+Experiments"
+            "#Pref-FlipandAdd-OnExperiments-Add-ons"
+        )
+    )
 
     CONTROL_NAME_HELP_TEXT = """
       <p>
