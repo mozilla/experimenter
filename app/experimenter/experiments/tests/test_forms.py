@@ -1,4 +1,3 @@
-import copy
 import datetime
 import decimal
 import json
@@ -7,6 +6,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
+from django.utils.text import slugify
+from faker import Factory as FakerFactory
 from parameterized import parameterized_class
 
 from experimenter.experiments.forms import (
@@ -34,6 +35,9 @@ from experimenter.experiments.tests.mixins import (
     MockTasksMixin,
     MockRequestMixin,
 )
+
+
+faker = FakerFactory.create()
 
 
 class TestJSONField(TestCase):
@@ -262,6 +266,43 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertFalse(form.is_valid())
 
 
+def get_variants_form_data():
+    return {
+        "population_percent": "10",
+        "firefox_version": Experiment.VERSION_CHOICES[-1][0],
+        "firefox_channel": Experiment.CHANNEL_NIGHTLY,
+        "client_matching": "en-us only please",
+        "locales": [],
+        "countries": [],
+        "pref_key": "browser.test.example",
+        "pref_type": Experiment.PREF_TYPE_STR,
+        "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
+        "addon_name": "Addon Name",
+        "addon_experiment_id": slugify(faker.catch_phrase()),
+        "addon_testing_url": "https://www.example.com/testing.xpi",
+        "addon_release_url": "https://www.example.com/release.xpi",
+        "variants-TOTAL_FORMS": "3",
+        "variants-INITIAL_FORMS": "0",
+        "variants-MIN_NUM_FORMS": "0",
+        "variants-MAX_NUM_FORMS": "1000",
+        "variants-0-is_control": True,
+        "variants-0-ratio": "34",
+        "variants-0-name": "control name",
+        "variants-0-description": "control desc",
+        "variants-0-value": '"control value"',
+        "variants-1-is_control": False,
+        "variants-1-ratio": "33",
+        "variants-1-name": "branch 1 name",
+        "variants-1-description": "branch 1 desc",
+        "variants-1-value": '"branch 1 value"',
+        "variants-2-is_control": False,
+        "variants-2-ratio": "33",
+        "variants-2-name": "branch 2 name",
+        "variants-2-description": "branch 2 desc",
+        "variants-2-value": '"branch 2 value"',
+    }
+
+
 @parameterized_class(
     ["form_class"],
     [[ExperimentVariantsAddonForm], [ExperimentVariantsPrefForm]],
@@ -275,34 +316,7 @@ class TestExperimentVariantsFormSet(MockRequestMixin, TestCase):
             Experiment.STATUS_DRAFT, num_variants=0
         )
 
-        self.data = {
-            "population_percent": "10",
-            "firefox_version": Experiment.VERSION_CHOICES[-1][0],
-            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-            "client_matching": "en-us only please",
-            "pref_key": "browser.test.example",
-            "pref_type": Experiment.PREF_TYPE_STR,
-            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
-            "variants-TOTAL_FORMS": "3",
-            "variants-INITIAL_FORMS": "0",
-            "variants-MIN_NUM_FORMS": "0",
-            "variants-MAX_NUM_FORMS": "1000",
-            "variants-0-is_control": True,
-            "variants-0-ratio": "34",
-            "variants-0-name": "control name",
-            "variants-0-description": "control desc",
-            "variants-0-value": '"control value"',
-            "variants-1-is_control": False,
-            "variants-1-ratio": "33",
-            "variants-1-name": "branch 1 name",
-            "variants-1-description": "branch 1 desc",
-            "variants-1-value": '"branch 1 value"',
-            "variants-2-is_control": False,
-            "variants-2-ratio": "33",
-            "variants-2-name": "branch 2 name",
-            "variants-2-description": "branch 2 desc",
-            "variants-2-value": '"branch 2 value"',
-        }
+        self.data = get_variants_form_data()
 
     def test_formset_valid_if_sizes_sum_to_100(self):
         self.data["variants-0-ratio"] = "34"
@@ -355,42 +369,6 @@ class TestExperimentVariantsFormSet(MockRequestMixin, TestCase):
         self.assertFalse(form.is_valid())
 
 
-VARIANTS_FORM_FIXTURE_DATA = {
-    "population_percent": "10",
-    "firefox_version": Experiment.VERSION_CHOICES[-1][0],
-    "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-    "client_matching": "en-us only please",
-    "locales": [],
-    "countries": [],
-    "pref_key": "browser.test.example",
-    "pref_type": Experiment.PREF_TYPE_STR,
-    "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
-    "addon_name": "Addon Name",
-    "addon_experiment_id": "addon_experiment_id",
-    "addon_testing_url": "https://www.example.com/testing.xpi",
-    "addon_release_url": "https://www.example.com/release.xpi",
-    "variants-TOTAL_FORMS": "3",
-    "variants-INITIAL_FORMS": "0",
-    "variants-MIN_NUM_FORMS": "0",
-    "variants-MAX_NUM_FORMS": "1000",
-    "variants-0-is_control": True,
-    "variants-0-ratio": "34",
-    "variants-0-name": "control name",
-    "variants-0-description": "control desc",
-    "variants-0-value": '"control value"',
-    "variants-1-is_control": False,
-    "variants-1-ratio": "33",
-    "variants-1-name": "branch 1 name",
-    "variants-1-description": "branch 1 desc",
-    "variants-1-value": '"branch 1 value"',
-    "variants-2-is_control": False,
-    "variants-2-ratio": "33",
-    "variants-2-name": "branch 2 name",
-    "variants-2-description": "branch 2 desc",
-    "variants-2-value": '"branch 2 value"',
-}
-
-
 @parameterized_class(
     ["form_class"],
     [[ExperimentVariantsAddonForm], [ExperimentVariantsPrefForm]],
@@ -404,7 +382,7 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
             Experiment.STATUS_DRAFT, num_variants=0
         )
 
-        self.data = copy.copy(VARIANTS_FORM_FIXTURE_DATA)
+        self.data = get_variants_form_data()
 
     def test_formset_saves_new_variants(self):
         form = self.form_class(
@@ -629,6 +607,7 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
         experiment1 = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, num_variants=0
         )
+        self.data["addon_experiment_id"] = "addon-experiment-1"
         form1 = self.form_class(
             request=self.request, data=self.data, instance=experiment1
         )
@@ -639,6 +618,7 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
         experiment2 = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, num_variants=0
         )
+        self.data["addon_experiment_id"] = "addon-experiment-2"
         form2 = self.form_class(
             request=self.request, data=self.data, instance=experiment2
         )
@@ -861,7 +841,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
-        self.data = copy.copy(VARIANTS_FORM_FIXTURE_DATA)
+        self.data = get_variants_form_data()
 
     def test_form_saves_addon_information(self):
         experiment = ExperimentFactory.create(
@@ -890,12 +870,43 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
             experiment.addon_release_url, self.data["addon_release_url"]
         )
 
+    def test_addon_experiment_id_is_unique(self):
+        experiment1 = ExperimentFactory.create(
+            addon_name=None,
+            addon_experiment_id=None,
+            addon_testing_url=None,
+            addon_release_url=None,
+        )
+
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=experiment1
+        )
+        self.assertTrue(form.is_valid())
+        experiment1 = form.save()
+
+        self.assertEqual(
+            experiment1.addon_experiment_id, self.data["addon_experiment_id"]
+        )
+
+        experiment2 = ExperimentFactory.create(
+            addon_name=None,
+            addon_experiment_id=None,
+            addon_testing_url=None,
+            addon_release_url=None,
+        )
+
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=experiment2
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("addon_experiment_id", form.errors)
+
 
 class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
-        self.data = copy.copy(VARIANTS_FORM_FIXTURE_DATA)
+        self.data = get_variants_form_data()
 
     def test_form_saves_pref_information(self):
         experiment = ExperimentFactory.create(

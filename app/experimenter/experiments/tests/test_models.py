@@ -210,6 +210,24 @@ class TestExperimentModel(TestCase):
             "pref-experiment-slug-nightly-57.0-bug-12345",
         )
 
+    def test_generate_normandy_slug_raises_valueerror_without_addon_info(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ADDON, addon_experiment_id=None
+        )
+
+        with self.assertRaises(ValueError):
+            experiment.generate_normandy_slug()
+
+    def test_generate_normandy_slug_uses_addon_info_for_addon_experiment(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ADDON,
+            addon_experiment_id="addon_experiment_id",
+        )
+
+        self.assertEqual(
+            experiment.generate_normandy_slug(), "addon_experiment_id"
+        )
+
     def test_start_date_returns_proposed_start_date_if_change_is_missing(self):
         experiment = ExperimentFactory.create_with_variants()
         self.assertEqual(experiment.start_date, experiment.proposed_start_date)
