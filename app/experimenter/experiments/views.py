@@ -2,6 +2,8 @@ import django_filters as filters
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.postgres.search import SearchVector
+from django.db.models import Q
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.views.generic import CreateView, DetailView, UpdateView
@@ -25,9 +27,12 @@ from experimenter.experiments.models import Experiment
 
 class ExperimentFiltersetForm(forms.ModelForm):
 
+    search = forms.CharField(required=False)
+
     class Meta:
         model = Experiment
         fields = (
+            "search",
             "type",
             "status",
             "firefox_channel",
@@ -65,6 +70,16 @@ class ExperimentFiltersetForm(forms.ModelForm):
 
 
 class ExperimentFilterset(filters.FilterSet):
+    search = filters.CharFilter(
+        method="filter_search",
+        widget=forms.widgets.TextInput(
+            attrs={
+                "class": "form-control",
+                "type": "search",
+                "placeholder": "Free text search...",
+            }
+        ),
+    )
     type = filters.ChoiceFilter(
         empty_label="All Types",
         choices=Experiment.TYPE_CHOICES,
@@ -103,6 +118,11 @@ class ExperimentFilterset(filters.FilterSet):
         model = Experiment
         form = ExperimentFiltersetForm
         fields = ExperimentFiltersetForm.Meta.fields
+
+    def filter_search(self, queryset, name, value):
+        return queryset.annotate(
+            search=SearchVector("name", "short_description")
+        ).filter(search=value)
 
 
 class ExperimentOrderingForm(forms.Form):
@@ -150,9 +170,22 @@ class ExperimentListView(FilterView):
         return self.ordering_form.ORDERING_CHOICES[0][0]
 
     def get_context_data(self, *args, **kwargs):
-        return super().get_context_data(
+        context_data = super().get_context_data(
             ordering_form=self.ordering_form, *args, **kwargs
         )
+        # XXX Not sure this is the bestest way but it works...
+        if any(
+            key
+            for key in context_data["filter"].filters
+            if key != "ordering"
+            and [
+                value
+                for value in context_data["filter"].data.get(key, [])
+                if value
+            ]
+        ):
+            context_data["filter"].has_any_filtering = True
+        return context_data
 
 
 class ExperimentFormMixin(object):

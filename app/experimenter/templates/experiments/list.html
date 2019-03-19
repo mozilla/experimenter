@@ -147,6 +147,12 @@
     {% endfor %}
 
     <div class="form-group text-right">
+      {% if filter.has_any_filtering %}
+      <a href="." class="btn btn-secondary">
+        <span class="fas fa-times-circle"></span>
+        Clear
+      </a>
+      {% endif %}
       <button type="submit" class="btn btn-primary">
         <span class="fas fa-check"></span>
         Apply
