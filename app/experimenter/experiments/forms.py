@@ -2,6 +2,7 @@ import json
 
 from django import forms
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.forms import BaseInlineFormSet
 from django.forms import inlineformset_factory
 from django.forms.models import ModelChoiceIterator
@@ -430,8 +431,9 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
         return super().is_valid() and self.variants_formset.is_valid()
 
     def save(self, *args, **kwargs):
-        self.variants_formset.save()
-        return super().save(*args, **kwargs)
+        with transaction.atomic():
+            self.variants_formset.save()
+            return super().save(*args, **kwargs)
 
 
 class ExperimentVariantsAddonForm(ExperimentVariantsBaseForm):
