@@ -252,7 +252,7 @@ class Experiment(ExperimentConstants, models.Model):
             if not self.addon_experiment_id:
                 raise ValueError(
                     (
-                        "An Add-On experiment requires a unique Active "
+                        "An Add-on experiment requires an Active "
                         "Experiment Name before it can be sent to Normandy"
                     )
                 )
