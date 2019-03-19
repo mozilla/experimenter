@@ -210,6 +210,24 @@ class TestExperimentModel(TestCase):
             "pref-experiment-slug-nightly-57.0-bug-12345",
         )
 
+    def test_generate_normandy_slug_raises_valueerror_without_addon_info(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ADDON, addon_experiment_id=None
+        )
+
+        with self.assertRaises(ValueError):
+            experiment.generate_normandy_slug()
+
+    def test_generate_normandy_slug_uses_addon_info_for_addon_experiment(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ADDON,
+            addon_experiment_id="addon_experiment_id",
+        )
+
+        self.assertEqual(
+            experiment.generate_normandy_slug(), "addon_experiment_id"
+        )
+
     def test_start_date_returns_proposed_start_date_if_change_is_missing(self):
         experiment = ExperimentFactory.create_with_variants()
         self.assertEqual(experiment.start_date, experiment.proposed_start_date)
@@ -601,6 +619,24 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create()
         self.assertTrue(experiment.completed_population)
 
+    def test_addons_is_not_complete_when_release_url_not_set(self):
+        experiment = ExperimentFactory.create(
+            addon_name=None,
+            addon_experiment_id=None,
+            addon_testing_url=None,
+            addon_release_url=None,
+        )
+        self.assertFalse(experiment.completed_addon)
+
+    def test_addons_is_complete_when_release_url_set(self):
+        experiment = ExperimentFactory.create(
+            addon_name="addon name",
+            addon_experiment_id="addon-experiment-id",
+            addon_testing_url="https://www.example.com/testing.xpi",
+            addon_release_url="https://www.example.com/release.xpi",
+        )
+        self.assertTrue(experiment.completed_addon)
+
     def test_variants_is_not_complete_when_no_variants_saved(self):
         experiment = ExperimentFactory.create()
         self.assertFalse(experiment.completed_variants)
@@ -706,6 +742,30 @@ class TestExperimentModel(TestCase):
     def test_completed_all_sections_true_when_complete(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW
+        )
+        self.assertTrue(experiment.completed_all_sections)
+
+    def test_completed_all_sections_true_for_pref_study_without_addon(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW,
+            type=Experiment.TYPE_PREF,
+            addon_release_url=None,
+        )
+        self.assertTrue(experiment.completed_all_sections)
+
+    def test_completed_all_sections_false_for_addon_study_without_addon(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW,
+            type=Experiment.TYPE_ADDON,
+            addon_release_url=None,
+        )
+        self.assertFalse(experiment.completed_all_sections)
+
+    def test_completed_all_sections_true_for_addon_study_with_addon(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW,
+            type=Experiment.TYPE_ADDON,
+            addon_release_url="https://www.example.com/release.xpi",
         )
         self.assertTrue(experiment.completed_all_sections)
 
