@@ -154,7 +154,7 @@ class ExperimentConstants(object):
       <p>
         An <strong>{[1]}</strong> sends a Firefox Add-On which
         contains the code for the experimental feature to the users that
-        enroll in the study.  After the experiment is complete, that Add-On
+        enroll in the study.  After the experiment is complete, that add-on
         is automatically removed.
       </p>
     """.format(
@@ -361,7 +361,7 @@ class ExperimentConstants(object):
 
     ADDON_NAME_HELP_TEXT = """
       <p>
-        Enter the name of your Add-On.
+        Enter the name of your add-on.
         <a target="_blank" rel="noreferrer noopener" href="{url}">
         See here for more info.</a>
       </p>
@@ -376,7 +376,7 @@ class ExperimentConstants(object):
     ADDON_EXPERIMENT_ID_HELP_TEXT = """
       <p>
         Enter the <code>activeExperimentName</code> as it appears in the
-        Add-On.  It may appear in <code>manifest.json</code> as
+        add-on.  It may appear in <code>manifest.json</code> as
         <code>applications.gecko.id</code>
         <a target="_blank" rel="noreferrer noopener" href="{url}">
         See here for more info.</a>
@@ -391,7 +391,7 @@ class ExperimentConstants(object):
 
     ADDON_TESTING_URL_HELP_TEXT = """
       <p>
-        Enter the URL where the test build of your Add-On can be found.
+        Enter the URL where the test build of your add-on can be found.
         <a target="_blank" rel="noreferrer noopener" href="{url}">
         See here for more info.</a>
       </p>
@@ -405,7 +405,7 @@ class ExperimentConstants(object):
 
     ADDON_RELEASE_URL_HELP_TEXT = """
       <p>
-        Enter the URL where the release build of your Add-On can be found.
+        Enter the URL where the release build of your add-on can be found.
         <a target="_blank" rel="noreferrer noopener" href="{url}">
         See here for more info.</a>
       </p>

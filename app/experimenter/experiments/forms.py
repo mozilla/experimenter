@@ -443,7 +443,7 @@ class ExperimentVariantsAddonForm(ExperimentVariantsBaseForm):
 
     addon_name = forms.CharField(
         required=False,
-        label="Add-On Name",
+        label="Add-on Name",
         help_text=Experiment.ADDON_NAME_HELP_TEXT,
     )
     addon_experiment_id = forms.CharField(
