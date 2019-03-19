@@ -2,6 +2,7 @@ import json
 
 from django import forms
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.forms import BaseInlineFormSet
 from django.forms import inlineformset_factory
 from django.forms.models import ModelChoiceIterator
@@ -328,10 +329,7 @@ class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     iterator = CustomModelChoiceIterator
 
 
-class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
-
-    FORMSET_FORM_CLASS = ExperimentVariantAddonForm
-    FORMSET_CLASS = ExperimentVariantsFormSet
+class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
 
     population_percent = forms.DecimalField(
         label="Population Size",
@@ -352,7 +350,6 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.CLIENT_MATCHING_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
     )
-
     locales = CustomModelMultipleChoiceField(
         label="Locales",
         required=False,
@@ -433,20 +430,49 @@ class ExperimentVariantsAddonForm(ChangeLogMixin, forms.ModelForm):
     def is_valid(self):
         return super().is_valid() and self.variants_formset.is_valid()
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
-        experiment = super().save(*args, **kwargs)
-
-        for form in self.variants_formset.forms:
-            if form.cleaned_data["DELETE"] and form.cleaned_data["id"]:
-                form.instance.delete()
-            elif form.is_valid():
-                form.instance.experiment = experiment
-                form.save(*args, **kwargs)
-
-        return experiment
+        self.variants_formset.save()
+        return super().save(*args, **kwargs)
 
 
-class ExperimentVariantsPrefForm(ExperimentVariantsAddonForm):
+class ExperimentVariantsAddonForm(ExperimentVariantsBaseForm):
+
+    FORMSET_FORM_CLASS = ExperimentVariantAddonForm
+    FORMSET_CLASS = ExperimentVariantsFormSet
+
+    addon_name = forms.CharField(
+        required=False,
+        label="Add-on Name",
+        help_text=Experiment.ADDON_NAME_HELP_TEXT,
+    )
+    addon_experiment_id = forms.CharField(
+        required=False,
+        label="Active Experiment Name",
+        help_text=Experiment.ADDON_EXPERIMENT_ID_HELP_TEXT,
+    )
+    addon_testing_url = forms.URLField(
+        required=False,
+        label="Signed Testing URL",
+        help_text=Experiment.ADDON_TESTING_URL_HELP_TEXT,
+    )
+    addon_release_url = forms.URLField(
+        required=False,
+        label="Signed Release URL",
+        help_text=Experiment.ADDON_RELEASE_URL_HELP_TEXT,
+    )
+
+    class Meta:
+        model = Experiment
+        fields = ExperimentVariantsBaseForm.Meta.fields + [
+            "addon_name",
+            "addon_experiment_id",
+            "addon_testing_url",
+            "addon_release_url",
+        ]
+
+
+class ExperimentVariantsPrefForm(ExperimentVariantsBaseForm):
 
     FORMSET_FORM_CLASS = ExperimentVariantPrefForm
     FORMSET_CLASS = ExperimentVariantsPrefFormSet
@@ -471,7 +497,7 @@ class ExperimentVariantsPrefForm(ExperimentVariantsAddonForm):
 
     class Meta:
         model = Experiment
-        fields = ExperimentVariantsAddonForm.Meta.fields + [
+        fields = ExperimentVariantsBaseForm.Meta.fields + [
             "pref_key",
             "pref_type",
             "pref_branch",

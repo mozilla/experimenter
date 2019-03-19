@@ -76,6 +76,13 @@ class Experiment(ExperimentConstants, models.Model):
         validators=[MaxValueValidator(ExperimentConstants.MAX_DURATION)],
     )
 
+    addon_name = models.CharField(max_length=255, blank=True, null=True)
+    addon_experiment_id = models.CharField(
+        max_length=255, unique=True, blank=True, null=True
+    )
+    addon_testing_url = models.URLField(max_length=400, blank=True, null=True)
+    addon_release_url = models.URLField(max_length=400, blank=True, null=True)
+
     pref_key = models.CharField(max_length=255, blank=True, null=True)
     pref_type = models.CharField(
         max_length=255,
@@ -90,7 +97,7 @@ class Experiment(ExperimentConstants, models.Model):
         null=True,
     )
     population_percent = models.DecimalField(
-        max_digits=7, decimal_places=4, default="0"
+        max_digits=7, decimal_places=4, default=0.0
     )
     firefox_version = models.CharField(
         max_length=255, choices=ExperimentConstants.VERSION_CHOICES
@@ -241,6 +248,16 @@ class Experiment(ExperimentConstants, models.Model):
             ).format(slug=self.slug)
 
     def generate_normandy_slug(self):
+        if self.is_addon_study:
+            if not self.addon_experiment_id:
+                raise ValueError(
+                    (
+                        "An Add-on experiment requires an Active "
+                        "Experiment Name before it can be sent to Normandy"
+                    )
+                )
+            return self.addon_experiment_id
+
         error_msg = (
             "The {field} must be set before a Normandy slug can be generated"
         )
@@ -405,6 +422,15 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
+    def completed_addon(self):
+        return (
+            self.addon_name
+            and self.addon_experiment_id
+            and self.addon_testing_url
+            and self.addon_release_url
+        )
+
+    @property
     def completed_variants(self):
         return self.variants.exists()
 
@@ -452,12 +478,17 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_all_sections(self):
-        return (
+        completed = (
             self.completed_population
             and self.completed_variants
             and self.completed_objectives
             and self.completed_risks
         )
+
+        if self.is_addon_study:
+            completed = completed and self.completed_addon
+
+        return completed
 
     @property
     def is_ready_to_launch(self):

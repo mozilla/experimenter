@@ -58,6 +58,10 @@
 
   {% include "experiments/section_population.html" with section_name=experiment.SECTION_POPULATION section_complete=experiment.completed_population experiment=experiment edit_url_name="experiments-variants-update" comments=experiment.comments.sections.population %}
 
+  {% if experiment.is_addon_study %}
+    {% include "experiments/section_addon.html" with section_name=experiment.SECTION_ADDON section_complete=experiment.completed_addon experiment=experiment edit_url_name="experiments-variants-update" comments=experiment.comments.sections.addon %}
+  {% endif %}
+
   {% include "experiments/section_branches.html" with section_name=experiment.SECTION_BRANCHES section_complete=experiment.completed_variants experiment=experiment edit_url_name="experiments-variants-update" comments=experiment.comments.sections.branches %}
 
   {% include "experiments/section_base.html" with section_name=experiment.SECTION_OBJECTIVES section_title="Objectives" section_complete=experiment.completed_objectives section_content=experiment.objectives experiment=experiment edit_url_name="experiments-objectives-update" comments=experiment.comments.sections.objectives %}

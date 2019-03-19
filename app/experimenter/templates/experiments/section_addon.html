@@ -1,0 +1,17 @@
+{% extends "experiments/section_base.html" %}
+
+{% block section_title %}
+Add-On
+{% endblock %}
+
+{% block section_content %}
+  <h4>{{ experiment.addon_name }}</h4>
+  <p>
+    <strong class="mr-2">Experiment ID:</strong>
+    <code>{{ experiment.addon_experiment_id }}</code>
+  </p>
+  <p><strong>Test Build</strong></p>
+  <p><a href="{{ experiment.addon_testing_url }}" target="_blank" rel="noreferrer noopener">{{ experiment.addon_testing_url }}</a></p>
+  <p><strong>Release Build</strong></p>
+  <p><a href="{{ experiment.addon_release_url }}" target="_blank" rel="noreferrer noopener">{{ experiment.addon_release_url }}</a></p>
+{% endblock %}

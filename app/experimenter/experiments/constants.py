@@ -108,6 +108,7 @@ class ExperimentConstants(object):
     SECTION_TIMELINE = "timeline"
     SECTION_OVERVIEW = "overview"
     SECTION_POPULATION = "population"
+    SECTION_ADDON = "addon"
     SECTION_BRANCHES = "branches"
     SECTION_OBJECTIVES = "objectives"
     SECTION_ANALYSIS = "analysis"
@@ -151,9 +152,9 @@ class ExperimentConstants(object):
         for users that enroll into the experiment.
       </p>
       <p>
-        An <strong>{[1]}</strong> sends a Firefox addon which
+        An <strong>{[1]}</strong> sends a Firefox Add-On which
         contains the code for the experimental feature to the users that
-        enroll in the study.  After the experiment is complete, that addon
+        enroll in the study.  After the experiment is complete, that add-on
         is automatically removed.
       </p>
     """.format(
@@ -355,6 +356,64 @@ class ExperimentConstants(object):
         url=(
             "https://developer.mozilla.org/en-US/docs/Archive/"
             "Add-ons/Code_snippets/Preferences#Default_preferences"
+        )
+    )
+
+    ADDON_NAME_HELP_TEXT = """
+      <p>
+        Enter the name of your add-on.
+        <a target="_blank" rel="noreferrer noopener" href="{url}">
+        See here for more info.</a>
+      </p>
+    """.format(
+        url=(
+            "https://mana.mozilla.org/wiki/display/FIREFOX/"
+            "Pref-Flip+and+Add-On+Experiments"
+            "#Pref-FlipandAdd-OnExperiments-Add-ons"
+        )
+    )
+
+    ADDON_EXPERIMENT_ID_HELP_TEXT = """
+      <p>
+        Enter the <code>activeExperimentName</code> as it appears in the
+        add-on.  It may appear in <code>manifest.json</code> as
+        <code>applications.gecko.id</code>
+        <a target="_blank" rel="noreferrer noopener" href="{url}">
+        See here for more info.</a>
+      </p>
+    """.format(
+        url=(
+            "https://mana.mozilla.org/wiki/display/FIREFOX/"
+            "Pref-Flip+and+Add-On+Experiments"
+            "#Pref-FlipandAdd-OnExperiments-Add-ons"
+        )
+    )
+
+    ADDON_TESTING_URL_HELP_TEXT = """
+      <p>
+        Enter the URL where the test build of your add-on can be found.
+        <a target="_blank" rel="noreferrer noopener" href="{url}">
+        See here for more info.</a>
+      </p>
+    """.format(
+        url=(
+            "https://mana.mozilla.org/wiki/display/FIREFOX/"
+            "Pref-Flip+and+Add-On+Experiments"
+            "#Pref-FlipandAdd-OnExperiments-Add-ons"
+        )
+    )
+
+    ADDON_RELEASE_URL_HELP_TEXT = """
+      <p>
+        Enter the URL where the release build of your add-on can be found.
+        <a target="_blank" rel="noreferrer noopener" href="{url}">
+        See here for more info.</a>
+      </p>
+    """.format(
+        url=(
+            "https://mana.mozilla.org/wiki/display/FIREFOX/"
+            "Pref-Flip+and+Add-On+Experiments"
+            "#Pref-FlipandAdd-OnExperiments-Add-ons"
         )
     )
 
