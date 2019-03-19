@@ -620,12 +620,20 @@ class TestExperimentModel(TestCase):
         self.assertTrue(experiment.completed_population)
 
     def test_addons_is_not_complete_when_release_url_not_set(self):
-        experiment = ExperimentFactory.create(addon_release_url=None)
+        experiment = ExperimentFactory.create(
+            addon_name=None,
+            addon_experiment_id=None,
+            addon_testing_url=None,
+            addon_release_url=None,
+        )
         self.assertFalse(experiment.completed_addon)
 
     def test_addons_is_complete_when_release_url_set(self):
         experiment = ExperimentFactory.create(
-            addon_release_url="https://www.example.com/release.xpi"
+            addon_name="addon name",
+            addon_experiment_id="addon-experiment-id",
+            addon_testing_url="https://www.example.com/testing.xpi",
+            addon_release_url="https://www.example.com/release.xpi",
         )
         self.assertTrue(experiment.completed_addon)
 
