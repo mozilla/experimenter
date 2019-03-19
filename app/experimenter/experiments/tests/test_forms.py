@@ -1,3 +1,4 @@
+import copy
 import datetime
 import decimal
 import json
@@ -354,6 +355,42 @@ class TestExperimentVariantsFormSet(MockRequestMixin, TestCase):
         self.assertFalse(form.is_valid())
 
 
+VARIANTS_FORM_FIXTURE_DATA = {
+    "population_percent": "10",
+    "firefox_version": Experiment.VERSION_CHOICES[-1][0],
+    "firefox_channel": Experiment.CHANNEL_NIGHTLY,
+    "client_matching": "en-us only please",
+    "locales": [],
+    "countries": [],
+    "pref_key": "browser.test.example",
+    "pref_type": Experiment.PREF_TYPE_STR,
+    "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
+    "addon_name": "Addon Name",
+    "addon_experiment_id": "addon_experiment_id",
+    "addon_testing_url": "https://www.example.com/testing.xpi",
+    "addon_release_url": "https://www.example.com/release.xpi",
+    "variants-TOTAL_FORMS": "3",
+    "variants-INITIAL_FORMS": "0",
+    "variants-MIN_NUM_FORMS": "0",
+    "variants-MAX_NUM_FORMS": "1000",
+    "variants-0-is_control": True,
+    "variants-0-ratio": "34",
+    "variants-0-name": "control name",
+    "variants-0-description": "control desc",
+    "variants-0-value": '"control value"',
+    "variants-1-is_control": False,
+    "variants-1-ratio": "33",
+    "variants-1-name": "branch 1 name",
+    "variants-1-description": "branch 1 desc",
+    "variants-1-value": '"branch 1 value"',
+    "variants-2-is_control": False,
+    "variants-2-ratio": "33",
+    "variants-2-name": "branch 2 name",
+    "variants-2-description": "branch 2 desc",
+    "variants-2-value": '"branch 2 value"',
+}
+
+
 @parameterized_class(
     ["form_class"],
     [[ExperimentVariantsAddonForm], [ExperimentVariantsPrefForm]],
@@ -367,36 +404,7 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
             Experiment.STATUS_DRAFT, num_variants=0
         )
 
-        self.data = {
-            "population_percent": "10",
-            "firefox_version": Experiment.VERSION_CHOICES[-1][0],
-            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-            "client_matching": "en-us only please",
-            "locales": [],
-            "countries": [],
-            "pref_key": "browser.test.example",
-            "pref_type": Experiment.PREF_TYPE_STR,
-            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
-            "variants-TOTAL_FORMS": "3",
-            "variants-INITIAL_FORMS": "0",
-            "variants-MIN_NUM_FORMS": "0",
-            "variants-MAX_NUM_FORMS": "1000",
-            "variants-0-is_control": True,
-            "variants-0-ratio": "34",
-            "variants-0-name": "control name",
-            "variants-0-description": "control desc",
-            "variants-0-value": '"control value"',
-            "variants-1-is_control": False,
-            "variants-1-ratio": "33",
-            "variants-1-name": "branch 1 name",
-            "variants-1-description": "branch 1 desc",
-            "variants-1-value": '"branch 1 value"',
-            "variants-2-is_control": False,
-            "variants-2-ratio": "33",
-            "variants-2-name": "branch 2 name",
-            "variants-2-description": "branch 2 desc",
-            "variants-2-value": '"branch 2 value"',
-        }
+        self.data = copy.copy(VARIANTS_FORM_FIXTURE_DATA)
 
     def test_formset_saves_new_variants(self):
         form = self.form_class(
@@ -853,38 +861,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
-
-        self.data = {
-            "population_percent": "10",
-            "firefox_version": Experiment.VERSION_CHOICES[-1][0],
-            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-            "client_matching": "en-us only please",
-            "locales": [],
-            "countries": [],
-            "addon_name": "Addon Name",
-            "addon_experiment_id": "addon_experiment_id",
-            "addon_testing_url": "https://www.example.com/testing.xpi",
-            "addon_release_url": "https://www.example.com/release.xpi",
-            "variants-TOTAL_FORMS": "3",
-            "variants-INITIAL_FORMS": "0",
-            "variants-MIN_NUM_FORMS": "0",
-            "variants-MAX_NUM_FORMS": "1000",
-            "variants-0-is_control": True,
-            "variants-0-ratio": "34",
-            "variants-0-name": "control name",
-            "variants-0-description": "control desc",
-            "variants-0-value": '"control value"',
-            "variants-1-is_control": False,
-            "variants-1-ratio": "33",
-            "variants-1-name": "branch 1 name",
-            "variants-1-description": "branch 1 desc",
-            "variants-1-value": '"branch 1 value"',
-            "variants-2-is_control": False,
-            "variants-2-ratio": "33",
-            "variants-2-name": "branch 2 name",
-            "variants-2-description": "branch 2 desc",
-            "variants-2-value": '"branch 2 value"',
-        }
+        self.data = copy.copy(VARIANTS_FORM_FIXTURE_DATA)
 
     def test_form_saves_addon_information(self):
         experiment = ExperimentFactory.create(
@@ -918,37 +895,7 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
-
-        self.data = {
-            "population_percent": "10",
-            "firefox_version": Experiment.VERSION_CHOICES[-1][0],
-            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-            "client_matching": "en-us only please",
-            "locales": [],
-            "countries": [],
-            "pref_key": "browser.test.example",
-            "pref_type": Experiment.PREF_TYPE_STR,
-            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
-            "variants-TOTAL_FORMS": "3",
-            "variants-INITIAL_FORMS": "0",
-            "variants-MIN_NUM_FORMS": "0",
-            "variants-MAX_NUM_FORMS": "1000",
-            "variants-0-is_control": True,
-            "variants-0-ratio": "34",
-            "variants-0-name": "control name",
-            "variants-0-description": "control desc",
-            "variants-0-value": '"control value"',
-            "variants-1-is_control": False,
-            "variants-1-ratio": "33",
-            "variants-1-name": "branch 1 name",
-            "variants-1-description": "branch 1 desc",
-            "variants-1-value": '"branch 1 value"',
-            "variants-2-is_control": False,
-            "variants-2-ratio": "33",
-            "variants-2-name": "branch 2 name",
-            "variants-2-description": "branch 2 desc",
-            "variants-2-value": '"branch 2 value"',
-        }
+        self.data = copy.copy(VARIANTS_FORM_FIXTURE_DATA)
 
     def test_form_saves_pref_information(self):
         experiment = ExperimentFactory.create(
