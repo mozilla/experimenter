@@ -614,11 +614,7 @@ class ExperimentConstants(object):
 
     # Text defaults
     CLIENT_MATCHING_DEFAULT = (
-        """Locales:
-
-Geographic regions:
-
-Prefs:
+        """Prefs:
 
 Studies:
 
