@@ -32,7 +32,15 @@ class ExperimentChangeLogInlineAdmin(admin.TabularInline):
 
 class ExperimentAdmin(admin.ModelAdmin):
     inlines = (ExperimentVariantInlineAdmin, ExperimentChangeLogInlineAdmin)
-    list_display = ("name", "type", "status")
+    list_display = (
+        "name",
+        "type",
+        "status",
+        "owner",
+        "firefox_version",
+        "firefox_channel",
+    )
+    list_filter = ("status", "firefox_version", "firefox_channel")
 
     fieldsets = (
         (
