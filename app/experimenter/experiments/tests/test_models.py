@@ -605,7 +605,7 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create(addon_release_url=None)
         self.assertFalse(experiment.completed_addon)
 
-    def test_adodns_is_complete_when_release_url_set(self):
+    def test_addons_is_complete_when_release_url_set(self):
         experiment = ExperimentFactory.create(
             addon_release_url="https://www.example.com/release.xpi"
         )
