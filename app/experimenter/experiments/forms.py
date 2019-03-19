@@ -448,17 +448,17 @@ class ExperimentVariantsAddonForm(ExperimentVariantsBaseForm):
     )
     addon_experiment_id = forms.CharField(
         required=False,
-        label="Add-On Active Experiment Name",
+        label="Active Experiment Name",
         help_text=Experiment.ADDON_EXPERIMENT_ID_HELP_TEXT,
     )
     addon_testing_url = forms.URLField(
         required=False,
-        label="Add-On Signed Testing URL",
+        label="Signed Testing URL",
         help_text=Experiment.ADDON_TESTING_URL_HELP_TEXT,
     )
     addon_release_url = forms.URLField(
         required=False,
-        label="Add-On Signed Release URL",
+        label="Signed Release URL",
         help_text=Experiment.ADDON_RELEASE_URL_HELP_TEXT,
     )
 
