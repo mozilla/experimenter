@@ -430,10 +430,10 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
     def is_valid(self):
         return super().is_valid() and self.variants_formset.is_valid()
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
-        with transaction.atomic():
-            self.variants_formset.save()
-            return super().save(*args, **kwargs)
+        self.variants_formset.save()
+        return super().save(*args, **kwargs)
 
 
 class ExperimentVariantsAddonForm(ExperimentVariantsBaseForm):
