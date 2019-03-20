@@ -27,7 +27,7 @@ class ExperimentConstants(object):
     STATUS_DRAFT_LABEL = "Draft"
     STATUS_REVIEW_LABEL = "Ready for Sign-Off"
     STATUS_SHIP_LABEL = "Ready to Ship"
-    STATUS_ACCEPTED_LABEL = "Accepted by Shield"
+    STATUS_ACCEPTED_LABEL = "Accepted by Normandy"
     STATUS_LIVE_LABEL = "Live"
     STATUS_COMPLETE_LABEL = "Complete"
     STATUS_REJECTED_LABEL = "Rejected"
