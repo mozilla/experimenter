@@ -73,30 +73,44 @@ class TestBugzillaURLField(TestCase):
 
 class TestExperimentVariantAddonForm(TestCase):
 
-    def test_form_creates_variant(self):
-        experiment = ExperimentFactory.create()
-
-        data = {
+    def setUp(self):
+        self.experiment = ExperimentFactory.create()
+        self.data = {
             "description": "Its the control! So controlly.",
-            "experiment": experiment.id,
+            "experiment": self.experiment.id,
             "is_control": True,
             "name": "The Control Variant",
             "ratio": 50,
         }
 
-        form = ExperimentVariantAddonForm(data)
+    def test_form_creates_variant(self):
+        form = ExperimentVariantAddonForm(self.data)
 
         self.assertTrue(form.is_valid())
 
         saved_variant = form.save()
         variant = ExperimentVariant.objects.get(id=saved_variant.id)
 
-        self.assertEqual(variant.experiment.id, experiment.id)
+        self.assertEqual(variant.experiment.id, self.experiment.id)
         self.assertTrue(variant.is_control)
-        self.assertEqual(variant.description, data["description"])
-        self.assertEqual(variant.name, data["name"])
-        self.assertEqual(variant.ratio, data["ratio"])
+        self.assertEqual(variant.description, self.data["description"])
+        self.assertEqual(variant.name, self.data["name"])
+        self.assertEqual(variant.ratio, self.data["ratio"])
         self.assertEqual(variant.slug, "the-control-variant")
+
+    def test_ratio_must_be_greater_than_0(self):
+        self.data["ratio"] = 0
+        form = ExperimentVariantAddonForm(self.data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("ratio", form.errors)
+
+    def test_ratio_must_be_less_than_or_equal_to_100(self):
+        self.data["ratio"] = 101
+        form = ExperimentVariantAddonForm(self.data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("ratio", form.errors)
 
 
 class TestExperimentVariantPrefForm(TestCase):
