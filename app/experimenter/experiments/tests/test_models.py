@@ -224,6 +224,23 @@ class TestExperimentModel(TestCase):
             experiment.generate_normandy_slug(), "addon_experiment_id"
         )
 
+    def test_generate_normandy_slug_is_shorter_than_max_normandy_len(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_PREF,
+            slug="-" * (settings.NORMANDY_SLUG_MAX_LEN + 1),
+            firefox_version="57.0",
+            firefox_channel="Nightly",
+            bugzilla_id="12345",
+        )
+
+        self.assertGreater(
+            len(experiment.slug), settings.NORMANDY_SLUG_MAX_LEN
+        )
+
+        normandy_slug = experiment.generate_normandy_slug()
+
+        self.assertEqual(len(normandy_slug), settings.NORMANDY_SLUG_MAX_LEN)
+
     def test_start_date_returns_proposed_start_date_if_change_is_missing(self):
         experiment = ExperimentFactory.create_with_variants()
         self.assertEqual(experiment.start_date, experiment.proposed_start_date)

@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.forms import BaseInlineFormSet
@@ -447,6 +448,7 @@ class ExperimentVariantsAddonForm(ExperimentVariantsBaseForm):
         help_text=Experiment.ADDON_NAME_HELP_TEXT,
     )
     addon_experiment_id = forms.CharField(
+        max_length=settings.NORMANDY_SLUG_MAX_LEN,
         required=False,
         label="Active Experiment Name",
         help_text=Experiment.ADDON_EXPERIMENT_ID_HELP_TEXT,

@@ -272,10 +272,16 @@ class Experiment(ExperimentConstants, models.Model):
         if not self.bugzilla_id:
             raise ValueError(error_msg.format(field="Bugzilla ID"))
 
-        return (
-            f"{self.type}-{self.slug}-{self.firefox_channel}"
-            f"-{self.firefox_version}-bug-{self.bugzilla_id}"
-        ).lower()
+        slug_prefix = f"{self.type}-"
+        slug_postfix = (
+            f"-{self.firefox_channel}-{self.firefox_version}-"
+            f"bug-{self.bugzilla_id}"
+        )
+        remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(
+            slug_prefix + slug_postfix
+        )
+        truncated_slug = self.slug[:remaining_chars]
+        return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
 
     @property
     def has_external_urls(self):
