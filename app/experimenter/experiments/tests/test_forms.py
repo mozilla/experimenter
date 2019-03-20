@@ -3,6 +3,7 @@ import decimal
 import json
 
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.utils import timezone
@@ -898,6 +899,25 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         form = ExperimentVariantsAddonForm(
             request=self.request, data=self.data, instance=experiment2
         )
+        self.assertFalse(form.is_valid())
+        self.assertIn("addon_experiment_id", form.errors)
+
+    def test_addon_experiment_id_is_within_normandy_slug_max_len(self):
+        experiment = ExperimentFactory.create(
+            addon_name=None,
+            addon_experiment_id=None,
+            addon_testing_url=None,
+            addon_release_url=None,
+        )
+
+        self.data["addon_experiment_id"] = "-" * (
+            settings.NORMANDY_SLUG_MAX_LEN + 1
+        )
+
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+
         self.assertFalse(form.is_valid())
         self.assertIn("addon_experiment_id", form.errors)
 
