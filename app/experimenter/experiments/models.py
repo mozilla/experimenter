@@ -516,7 +516,7 @@ class ExperimentVariant(models.Model):
     slug = models.SlugField(max_length=255, blank=False, null=False)
     is_control = models.BooleanField(default=False)
     description = models.TextField(default="")
-    ratio = models.PositiveIntegerField(default=42)
+    ratio = models.PositiveIntegerField(default=1)
     value = JSONField(blank=True, null=True)
 
     class Meta:
