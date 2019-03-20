@@ -205,6 +205,8 @@ class ExperimentVariantAddonForm(NameSlugFormMixin, forms.ModelForm):
     ratio = forms.IntegerField(
         label="Branch Size",
         initial="50",
+        min_value=1,
+        max_value=100,
         help_text=Experiment.CONTROL_RATIO_HELP_TEXT,
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )
