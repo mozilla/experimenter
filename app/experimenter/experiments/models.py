@@ -126,6 +126,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
     normandy_slug = models.CharField(max_length=255, blank=True, null=True)
+    normandy_id = models.PositiveIntegerField(blank=True, null=True)
 
     data_science_bugzilla_url = models.URLField(blank=True, null=True)
     feature_bugzilla_url = models.URLField(blank=True, null=True)

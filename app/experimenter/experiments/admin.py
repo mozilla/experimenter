@@ -60,6 +60,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "proposed_duration",
                     "bugzilla_id",
                     "normandy_slug",
+                    "normandy_id",
                     "data_science_bugzilla_url",
                     "feature_bugzilla_url",
                     "related_work",
