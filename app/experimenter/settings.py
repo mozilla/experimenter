@@ -255,9 +255,8 @@ EMAIL_SHIP = config("EMAIL_SHIP")
 BUGZILLA_HOST = config("BUGZILLA_HOST")
 BUGZILLA_API_KEY = config("BUGZILLA_API_KEY")
 BUGZILLA_CC_LIST = config("BUGZILLA_CC_LIST")
-BUGZILLA_CREATE_PATH = "/rest/bug"
 BUGZILLA_CREATE_URL = "{path}?api_key={api_key}".format(
-    path=urljoin(BUGZILLA_HOST, BUGZILLA_CREATE_PATH), api_key=BUGZILLA_API_KEY
+    path=urljoin(BUGZILLA_HOST, "/rest/bug"), api_key=BUGZILLA_API_KEY
 )
 BUGZILLA_DETAIL_URL = urljoin(BUGZILLA_HOST, "/show_bug.cgi?id={id}")
 BUGZILLA_COMMENT_URL = "{path}?api_key={api_key}".format(
