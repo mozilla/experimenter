@@ -108,8 +108,8 @@ class Experiment(ExperimentConstants, models.Model):
     client_matching = models.TextField(
         default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True
     )
-    locales = models.ManyToManyField(Locale)
-    countries = models.ManyToManyField(Country)
+    locales = models.ManyToManyField(Locale, blank=True)
+    countries = models.ManyToManyField(Country, blank=True)
     objectives = models.TextField(
         default=ExperimentConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
