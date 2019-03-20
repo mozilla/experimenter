@@ -119,11 +119,6 @@ class Experiment(ExperimentConstants, models.Model):
     analysis_owner = models.CharField(max_length=255, blank=True, null=True)
     engineering_owner = models.CharField(max_length=255, blank=True, null=True)
 
-    total_users = models.PositiveIntegerField(default=0)
-    enrollment_dashboard_url = models.URLField(blank=True, null=True)
-    dashboard_url = models.URLField(blank=True, null=True)
-    dashboard_image_url = models.URLField(blank=True, null=True)
-
     bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
     normandy_slug = models.CharField(max_length=255, blank=True, null=True)
     normandy_id = models.PositiveIntegerField(blank=True, null=True)
@@ -242,11 +237,9 @@ class Experiment(ExperimentConstants, models.Model):
             return settings.BUGZILLA_DETAIL_URL.format(id=self.bugzilla_id)
 
     @property
-    def test_tube_url(self):
-        if self.is_begun and self.is_pref_study:
-            return (
-                "https://firefox-test-tube.herokuapp.com/experiments/{slug}/"
-            ).format(slug=self.slug)
+    def monitoring_dashboard_url(self):
+        if self.is_begun and self.normandy_slug:
+            return settings.MONITORING_URL.format(slug=self.normandy_slug)
 
     def generate_normandy_slug(self):
         if self.is_addon_study:
@@ -287,7 +280,7 @@ class Experiment(ExperimentConstants, models.Model):
     def has_external_urls(self):
         return (
             self.bugzilla_url
-            or self.test_tube_url
+            or self.monitoring_dashboard_url
             or self.data_science_bugzilla_url
             or self.feature_bugzilla_url
         )
