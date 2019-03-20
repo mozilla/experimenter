@@ -97,29 +97,40 @@ class TestExperimentModel(TestCase):
             settings.BUGZILLA_DETAIL_URL.format(id=experiment.bugzilla_id),
         )
 
-    def test_test_tube_url_is_none_when_experiment_not_begun(self):
+    def test_monitoring_dashboard_url_is_none_when_experiment_not_begun(self):
         experiment = ExperimentFactory.create(
-            slug="experiment", status=Experiment.STATUS_DRAFT
-        )
-        self.assertIsNone(experiment.test_tube_url)
-
-    def test_test_tube_url_is_none_when_experiment_is_addon_and_begun(self):
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ADDON,
             slug="experiment",
-            status=Experiment.STATUS_LIVE,
+            status=Experiment.STATUS_DRAFT,
+            normandy_slug="normandy-slug",
         )
-        self.assertIsNone(experiment.test_tube_url)
+        self.assertIsNone(experiment.monitoring_dashboard_url)
 
-    def test_test_tube_url_returns_url_when_experiment_is_pref_and_begun(self):
+    def test_monitoring_dashboard_url_returns_url_when_experiment_is_begun(
+        self
+    ):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
             slug="experiment",
             status=Experiment.STATUS_LIVE,
+            normandy_slug="normandy-slug",
         )
         self.assertEqual(
-            experiment.test_tube_url,
-            "https://firefox-test-tube.herokuapp.com/experiments/experiment/",
+            experiment.monitoring_dashboard_url,
+            settings.MONITORING_URL.format(slug=experiment.normandy_slug),
+        )
+
+    def test_monitoring_dashboard_url_returns_url_when_experiment_is_addon(
+        self
+    ):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ADDON,
+            slug="experiment",
+            status=Experiment.STATUS_LIVE,
+            normandy_slug="normandy-slug",
+        )
+        self.assertEqual(
+            experiment.monitoring_dashboard_url,
+            settings.MONITORING_URL.format(slug=experiment.normandy_slug),
         )
 
     def test_has_external_urls_is_false_when_no_external_urls(self):
@@ -146,13 +157,19 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create(bugzilla_id="1234")
         self.assertTrue(experiment.has_external_urls)
 
-    def test_has_external_urls_is_true_when_test_tube_url_is_set(self):
-        experiment = ExperimentFactory.create(status=Experiment.STATUS_LIVE)
+    def test_has_external_urls_is_true_when_monitoring_dashboard_url_is_set(
+        self
+    ):
+        experiment = ExperimentFactory.create(
+            status=Experiment.STATUS_LIVE, normandy_slug="normandy-slug"
+        )
         self.assertTrue(experiment.has_external_urls)
 
-    def test_has_external_urls_is_true_when_bugzilla_and_test_tube_urls(self):
+    def test_has_external_urls_is_true_when_bugzilla_and_monitoring_set(self):
         experiment = ExperimentFactory.create(
-            status=Experiment.STATUS_LIVE, bugzilla_id="1234"
+            status=Experiment.STATUS_LIVE,
+            bugzilla_id="1234",
+            normandy_slug="normandy-slug",
         )
         self.assertTrue(experiment.has_external_urls)
 
