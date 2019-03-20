@@ -759,7 +759,7 @@ class TestExperimentChangeLog(TestCase):
         change = ExperimentChangeLogFactory.create(
             message=None, new_status=Experiment.STATUS_REVIEW
         )
-        self.assertEqual(str(change), "Status: Ready for Sign-Off")
+        self.assertEqual(str(change), "Set Status: Ready for Sign-Off")
 
 
 class TestExperimentComments(TestCase):

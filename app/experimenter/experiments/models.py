@@ -549,7 +549,7 @@ class ExperimentChangeLog(models.Model):
             return self.message
         else:
             status_label = dict(Experiment.STATUS_CHOICES)[self.new_status]
-            return f"Status: {status_label}"
+            return f"Set Status: {status_label}"
 
 
 class ExperimentCommentManager(models.Manager):
