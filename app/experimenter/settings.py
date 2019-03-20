@@ -273,3 +273,6 @@ REDIS_DB = config("REDIS_DB")
 CELERY_BROKER_URL = "redis://{host}:{port}/{db}".format(
     host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB
 )
+
+# Normandy Configuration
+NORMANDY_SLUG_MAX_LEN = 80
