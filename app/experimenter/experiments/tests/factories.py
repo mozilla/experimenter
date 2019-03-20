@@ -49,6 +49,12 @@ class ExperimentFactory(
     proposed_enrollment = factory.LazyAttribute(
         lambda o: random.choice([None, random.randint(2, o.proposed_duration)])
     )
+
+    population_percent = factory.LazyAttribute(
+        lambda o: decimal.Decimal(random.randint(1, 10) * 10)
+    )
+    client_matching = "Geos: US, CA, GB\n" 'Some "additional" filtering'
+
     pref_key = factory.LazyAttribute(
         lambda o: "browser.{pref}.enabled".format(
             pref=faker.catch_phrase().replace(" ", ".").lower()
@@ -110,18 +116,6 @@ class ExperimentFactory(
     qa_status = factory.LazyAttribute(
         lambda o: faker.text(random.randint(500, 1000))
     )
-
-    enrollment_dashboard_url = "http://www.example.com/enrollment"
-    dashboard_url = "http://www.example.com/dashboard"
-    dashboard_image_url = "http://www.example.com/dashboard.png"
-    population_percent = factory.LazyAttribute(
-        lambda o: decimal.Decimal(random.randint(1, 10) * 10)
-    )
-    total_users = factory.LazyAttribute(
-        lambda o: random.randint(100000, 1000000)
-    )
-
-    client_matching = "Geos: US, CA, GB\n" 'Some "additional" filtering'
 
     review_advisory = False
     review_science = False

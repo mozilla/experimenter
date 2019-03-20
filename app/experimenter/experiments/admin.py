@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.utils.html import format_html
 
 from experimenter.experiments.models import (
     Experiment,
@@ -128,17 +127,6 @@ class ExperimentAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        (
-            "Telemetry",
-            {
-                "fields": (
-                    "dashboard_url",
-                    "dashboard_image_url",
-                    "enrollment_dashboard_url",
-                    "total_users",
-                )
-            },
-        ),
     )
 
     prepopulated_fields = {"slug": ("name",)}
@@ -148,15 +136,6 @@ class ExperimentAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
-
-    def show_dashboard_url(self, obj):
-        url = obj.dashboard_url
-        return format_html(
-            f'<a href="{url}" target="_blank" rel="noreferrer noopener"'
-            f">{url}</a>"
-        )
-
-    show_dashboard_url.short_description = "Dashboard URL"
 
 
 admin.site.register(Experiment, ExperimentAdmin)

@@ -276,3 +276,9 @@ CELERY_BROKER_URL = "redis://{host}:{port}/{db}".format(
 
 # Normandy Configuration
 NORMANDY_SLUG_MAX_LEN = 80
+
+# Monitoring
+MONITORING_URL = (
+    "https://grafana.telemetry.mozilla.org/d/3QA87kliz/"
+    "experiment-enrollment?orgId=1&var-experiment_id={slug}"
+)
