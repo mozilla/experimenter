@@ -4,7 +4,9 @@
 
 {% block edit_title %}
   {% if object %}
-    Edit {{ object.name }}
+    Edit <a href="{% url "experiments-detail" slug=object.slug %}">
+      {{ object.name }}
+    </a>
   {% else %}
     New Experiment
   {% endif %}
