@@ -5,7 +5,11 @@ from django.test import TestCase
 from django.utils import timezone
 
 from experimenter.openidc.tests.factories import UserFactory
-from experimenter.experiments.models import Experiment, ExperimentVariant
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentVariant,
+    ExperimentChangeLog,
+)
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentChangeLogFactory,
@@ -845,15 +849,23 @@ class TestExperimentChangeLog(TestCase):
 
         self.assertEqual(experiment.changes.latest(), changelog2)
 
-    def test_str_uses_message_if_set(self):
-        change = ExperimentChangeLogFactory.create(message="Change Message")
-        self.assertEqual(str(change), "Change Message")
+    def test_pretty_status_created_draft(self):
+        experiment = ExperimentFactory.create_with_variants()
 
-    def test_str_uses_status_label_if_no_message(self):
-        change = ExperimentChangeLogFactory.create(
-            message=None, new_status=Experiment.STATUS_REVIEW
-        )
-        self.assertEqual(str(change), "Set Status: Ready for Sign-Off")
+        for old_status in ExperimentChangeLog.PRETTY_STATUS_LABELS.keys():
+            for new_status in ExperimentChangeLog.PRETTY_STATUS_LABELS[
+                old_status
+            ].keys():
+                expected_label = ExperimentChangeLog.PRETTY_STATUS_LABELS[
+                    old_status
+                ][new_status]
+
+                changelog = ExperimentChangeLogFactory.create(
+                    experiment=experiment,
+                    old_status=old_status,
+                    new_status=new_status,
+                )
+                self.assertEqual(changelog.pretty_status, expected_label)
 
 
 class TestExperimentComments(TestCase):

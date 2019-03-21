@@ -541,6 +541,40 @@ class ExperimentChangeLogManager(models.Manager):
 
 
 class ExperimentChangeLog(models.Model):
+    STATUS_NONE_DRAFT = "Created Draft"
+    STATUS_DRAFT_DRAFT = "Edited Draft"
+    STATUS_DRAFT_REVIEW = "Ready for Sign-Off"
+    STATUS_REVIEW_DRAFT = "Return to Draft"
+    STATUS_REVIEW_SHIP = "Marked as Ready to Ship"
+    STATUS_REVIEW_REJECTED = "Review Rejected"
+    STATUS_SHIP_ACCEPTED = "Accepted by Shield"
+    STATUS_SHIP_REVIEW = "Canceled Ready to Ship"
+    STATUS_ACCEPTED_LIVE = "Launched Experiment"
+    STATUS_LIVE_COMPLETE = "Completed Experiment"
+    STATUS_REJECTED = "Rejected Experiment"
+
+    PRETTY_STATUS_LABELS = {
+        None: {Experiment.STATUS_DRAFT: STATUS_NONE_DRAFT},
+        Experiment.STATUS_DRAFT: {
+            Experiment.STATUS_DRAFT: STATUS_DRAFT_DRAFT,
+            Experiment.STATUS_REVIEW: STATUS_DRAFT_REVIEW,
+        },
+        Experiment.STATUS_REVIEW: {
+            Experiment.STATUS_DRAFT: STATUS_REVIEW_DRAFT,
+            Experiment.STATUS_SHIP: STATUS_REVIEW_SHIP,
+            Experiment.STATUS_REJECTED: STATUS_REVIEW_REJECTED,
+        },
+        Experiment.STATUS_SHIP: {
+            Experiment.STATUS_REVIEW: STATUS_SHIP_REVIEW,
+            Experiment.STATUS_ACCEPTED: STATUS_SHIP_ACCEPTED,
+        },
+        Experiment.STATUS_ACCEPTED: {
+            Experiment.STATUS_LIVE: STATUS_ACCEPTED_LIVE
+        },
+        Experiment.STATUS_LIVE: {
+            Experiment.STATUS_COMPLETE: STATUS_LIVE_COMPLETE
+        },
+    }
 
     def current_datetime():
         return timezone.now()
@@ -579,8 +613,13 @@ class ExperimentChangeLog(models.Model):
         if self.message:
             return self.message
         else:
-            status_label = dict(Experiment.STATUS_CHOICES)[self.new_status]
-            return f"Set Status: {status_label}"
+            return self.pretty_status
+
+    @property
+    def pretty_status(self):
+        return self.PRETTY_STATUS_LABELS.get(self.old_status, {}).get(
+            self.new_status, ""
+        )
 
 
 class ExperimentCommentManager(models.Manager):
