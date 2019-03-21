@@ -541,13 +541,14 @@ class ExperimentChangeLogManager(models.Manager):
 
 
 class ExperimentChangeLog(models.Model):
-    STATUS_NONE_DRAFT = "Created Draft"
-    STATUS_DRAFT_DRAFT = "Edited Draft"
+    STATUS_NONE_DRAFT = "Created Experiment"
+    STATUS_DRAFT_DRAFT = "Edited Experiment"
     STATUS_DRAFT_REVIEW = "Ready for Sign-Off"
     STATUS_REVIEW_DRAFT = "Return to Draft"
+    STATUS_REVIEW_REVIEW = "Edited Experiment"
     STATUS_REVIEW_SHIP = "Marked as Ready to Ship"
-    STATUS_REVIEW_REJECTED = "Review Rejected"
-    STATUS_SHIP_ACCEPTED = "Accepted by Shield"
+    STATUS_REVIEW_REJECTED = "Experiment Rejected"
+    STATUS_SHIP_ACCEPTED = "Accepted by Normandy"
     STATUS_SHIP_REVIEW = "Canceled Ready to Ship"
     STATUS_ACCEPTED_LIVE = "Launched Experiment"
     STATUS_LIVE_COMPLETE = "Completed Experiment"
@@ -561,6 +562,7 @@ class ExperimentChangeLog(models.Model):
         },
         Experiment.STATUS_REVIEW: {
             Experiment.STATUS_DRAFT: STATUS_REVIEW_DRAFT,
+            Experiment.STATUS_REVIEW: STATUS_REVIEW_REVIEW,
             Experiment.STATUS_SHIP: STATUS_REVIEW_SHIP,
             Experiment.STATUS_REJECTED: STATUS_REVIEW_REJECTED,
         },
