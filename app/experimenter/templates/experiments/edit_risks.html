@@ -3,7 +3,9 @@
 {% load static %}
 
 {% block edit_title %}
-  Edit {{ object.name }} Risks &amp; Testing
+  Edit <a href="{% url "experiments-detail" slug=object.slug %}">
+    {{ object.name }}
+  </a> Risks &amp; Testing
 {% endblock %}
 
 {% block edit_nav %}

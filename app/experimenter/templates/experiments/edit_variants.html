@@ -5,7 +5,9 @@
 {% load widget_tweaks %}
 
 {% block edit_title %}
-  Edit {{ object.name }} Branches
+  Edit <a href="{% url "experiments-detail" slug=object.slug %}">
+    {{ object.name }}
+  </a> Branches
 {% endblock %}
 
 {% block edit_nav %}
