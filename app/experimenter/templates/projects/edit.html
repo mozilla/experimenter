@@ -4,19 +4,19 @@
 
 {% block content %}
   <div class="row">
-    
+
     <div class="col-md-6 col-md-offset-3">
       {% if object %}
-        <h3>Edit {{ object.name }}</h3>
+        <h3>Edit {{ object.name }}</h3> xxx
       {% else %}
         <h3>New Project</h3>
       {% endif %}
     </div>
-    
+
     <div class="col-md-6 col-md-offset-3 card">
-      <form 
-        class="form-horizontal card-content" 
-        method="POST" 
+      <form
+        class="form-horizontal card-content"
+        method="POST"
         enctype='multipart/form-data'
       >
         {% csrf_token %}
@@ -28,11 +28,11 @@
           <div class="col-md-10">
             {{ form.name }}
           </div>
-          
+
           <div class="col-md-12 text-right">
             {% if form.errors.name %}
               {% for error in form.errors.name %}
-                <label for="project-name" class="control-label">{{ error }}</label> 
+                <label for="project-name" class="control-label">{{ error }}</label>
               {% endfor %}
             {% endif %}
           </div>
@@ -42,7 +42,7 @@
         <div class="form-group {% if form.errors.image %}has-error{% endif %}">
 
           <label class="col-md-2 control-label" for="{{ form.image.id_for_label }}">Image</label>
-          
+
           <div class="col-md-10">
             {{ form.image }}
           </div>
@@ -50,7 +50,7 @@
           <div class="col-md-12 text-right">
             {% if form.errors.image %}
               {% for error in form.errors.image %}
-                <label for="project-image" class="control-label">{{ error }}</label> 
+                <label for="project-image" class="control-label">{{ error }}</label>
               {% endfor %}
             {% endif %}
           </div>
