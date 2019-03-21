@@ -1020,6 +1020,7 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         )
 
         data = {
+            "risk_internal_only": True,
             "risk_partner_related": True,
             "risk_brand": True,
             "risk_fast_shipped": True,
@@ -1039,6 +1040,7 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
 
         self.assertTrue(form.is_valid())
         experiment = form.save()
+        self.assertTrue(experiment.risk_internal_only)
         self.assertTrue(experiment.risk_partner_related)
         self.assertTrue(experiment.risk_brand)
         self.assertTrue(experiment.risk_fast_shipped)

@@ -563,6 +563,12 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
     RADIO_OPTIONS = ((False, "No"), (True, "Yes"))
 
     # Radio Buttons
+    risk_internal_only = forms.ChoiceField(
+        label=Experiment.RISK_INTERNAL_ONLY_LABEL,
+        help_text=Experiment.RISK_INTERNAL_ONLY_HELP_TEXT,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+    )
     risk_partner_related = forms.ChoiceField(
         label=Experiment.RISK_PARTNER_RELATED_LABEL,
         help_text=Experiment.RISK_PARTNER_RELATED_HELP_TEXT,
@@ -666,6 +672,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
     class Meta:
         model = Experiment
         fields = (
+            "risk_internal_only",
             "risk_partner_related",
             "risk_brand",
             "risk_fast_shipped",

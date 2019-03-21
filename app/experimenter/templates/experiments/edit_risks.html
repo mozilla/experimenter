@@ -11,6 +11,8 @@
 {% endblock %}
 
 {% block edit_form %}
+    {% include "experiments/radio_field_inline.html" with field=form.risk_internal_only %}
+
     {% include "experiments/radio_field_inline.html" with field=form.risk_partner_related %}
 
     {% include "experiments/radio_field_inline.html" with field=form.risk_brand %}

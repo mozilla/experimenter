@@ -151,3 +151,14 @@ class TestAddCommentTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 
         self.mock_bugzilla_requests_post.assert_called()
         self.assertEqual(Notification.objects.count(), 0)
+
+    def test_internal_only_does_not_add_comment(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP, risk_internal_only=True
+        )
+
+        tasks.add_experiment_comment_task(self.user.id, experiment.id)
+
+        self.mock_bugzilla_requests_post.assert_not_called()
+
+        self.assertEqual(Notification.objects.count(), 0)
