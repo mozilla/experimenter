@@ -852,14 +852,11 @@ class TestExperimentChangeLog(TestCase):
     def test_pretty_status_created_draft(self):
         experiment = ExperimentFactory.create_with_variants()
 
-        for old_status in ExperimentChangeLog.PRETTY_STATUS_LABELS.keys():
-            for new_status in ExperimentChangeLog.PRETTY_STATUS_LABELS[
-                old_status
-            ].keys():
-                expected_label = ExperimentChangeLog.PRETTY_STATUS_LABELS[
-                    old_status
-                ][new_status]
-
+        for (
+            old_status,
+            new_statuses,
+        ) in ExperimentChangeLog.PRETTY_STATUS_LABELS.items():
+            for new_status, expected_label in new_statuses.items():
                 changelog = ExperimentChangeLogFactory.create(
                     experiment=experiment,
                     old_status=old_status,
