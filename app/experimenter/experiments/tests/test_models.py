@@ -639,6 +639,18 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create()
         self.assertTrue(experiment.completed_overview)
 
+    def test_timeline_is_not_complete_when_missing_dates(self):
+        experiment = ExperimentFactory.create(
+            proposed_start_date=None, proposed_duration=None
+        )
+        self.assertFalse(experiment.completed_timeline)
+
+    def test_timeline_is_complete_when_dates_set(self):
+        experiment = ExperimentFactory.create(
+            proposed_start_date=datetime.date.today(), proposed_duration=10
+        )
+        self.assertTrue(experiment.completed_timeline)
+
     def test_population_is_not_complete_when_defaults_set(self):
         experiment = ExperimentFactory.create(
             population_percent=0.0, firefox_version="", firefox_channel=""

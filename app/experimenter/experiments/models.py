@@ -414,6 +414,10 @@ class Experiment(ExperimentConstants, models.Model):
         return self.pk is not None
 
     @property
+    def completed_timeline(self):
+        return self.proposed_start_date and self.proposed_duration
+
+    @property
     def completed_population(self):
         return (
             self.population_percent > 0
@@ -479,7 +483,8 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def completed_all_sections(self):
         completed = (
-            self.completed_population
+            self.completed_timeline
+            and self.completed_population
             and self.completed_variants
             and self.completed_objectives
             and self.completed_risks

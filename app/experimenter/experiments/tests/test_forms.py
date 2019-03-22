@@ -214,6 +214,31 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "proposed_duration": 20,
         }
 
+    def test_minimum_required_fields(self):
+        data = {
+            "type": Experiment.TYPE_PREF,
+            "owner": self.user.id,
+            "engineering_owner": "Lisa the Engineer",
+            "name": "A new experiment!",
+            "short_description": "Let us learn new things",
+            "data_science_bugzilla_url": "https://bugzilla.mozilla.org/123/",
+        }
+        form = ExperimentOverviewForm(request=self.request, data=data)
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.owner, self.user)
+        self.assertEqual(
+            experiment.engineering_owner, self.data["engineering_owner"]
+        )
+        self.assertEqual(experiment.status, experiment.STATUS_DRAFT)
+        self.assertEqual(experiment.name, self.data["name"])
+        self.assertEqual(experiment.slug, "a-new-experiment")
+        self.assertEqual(
+            experiment.short_description, self.data["short_description"]
+        )
+
     def test_form_creates_experiment(self):
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertTrue(form.is_valid())
