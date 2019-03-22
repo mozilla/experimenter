@@ -128,6 +128,7 @@ class ExperimentConstants(object):
     )
 
     # Labels
+    RISK_INTERNAL_ONLY_LABEL = "Is this study sensitive and/or internal only?"
     RISK_PARTNER_RELATED_LABEL = "Is this study partner related?"
     RISK_BRAND_LABEL = "Does this have a high risk to the brand?"
     RISK_FAST_SHIPPED_LABEL = (
@@ -647,6 +648,10 @@ class ExperimentConstants(object):
     """  # noqa
 
     # Risks
+    RISK_INTERNAL_ONLY_HELP_TEXT = """
+      https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
+    """  # noqa
+
     RISK_PARTNER_RELATED_HELP_TEXT = """
       https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
     """  # noqa

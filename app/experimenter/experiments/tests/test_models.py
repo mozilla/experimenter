@@ -702,6 +702,7 @@ class TestExperimentModel(TestCase):
 
     def test_risk_questions_returns_a_tuple(self):
         experiment = ExperimentFactory.create(
+            risk_internal_only=True,
             risk_partner_related=False,
             risk_brand=True,
             risk_fast_shipped=False,
@@ -710,7 +711,8 @@ class TestExperimentModel(TestCase):
             risk_technical=True,
         )
         self.assertEqual(
-            experiment._risk_questions, (False, True, False, True, False, True)
+            experiment._risk_questions,
+            (True, False, True, False, True, False, True),
         )
 
     def test_risk_not_completed_when_risk_questions_not_answered(self):

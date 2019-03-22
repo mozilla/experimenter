@@ -127,6 +127,9 @@ class Experiment(ExperimentConstants, models.Model):
     feature_bugzilla_url = models.URLField(blank=True, null=True)
 
     # Risk fields
+    risk_internal_only = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     risk_partner_related = models.NullBooleanField(
         default=None, blank=True, null=True
     )
@@ -448,6 +451,7 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def _risk_questions(self):
         return (
+            self.risk_internal_only,
             self.risk_partner_related,
             self.risk_brand,
             self.risk_fast_shipped,
