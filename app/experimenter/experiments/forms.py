@@ -130,6 +130,7 @@ class ExperimentOverviewForm(
         widget=forms.Textarea(attrs={"rows": 3}),
     )
     proposed_start_date = forms.DateField(
+        required=False,
         label="Proposed Start Date",
         help_text=Experiment.PROPOSED_START_DATE_HELP_TEXT,
         widget=forms.DateInput(
@@ -137,6 +138,7 @@ class ExperimentOverviewForm(
         ),
     )
     proposed_duration = forms.IntegerField(
+        required=False,
         min_value=1,
         label="Proposed Experiment Duration (days)",
         help_text=Experiment.PROPOSED_DURATION_HELP_TEXT,
@@ -170,7 +172,7 @@ class ExperimentOverviewForm(
     def clean_proposed_start_date(self):
         start_date = self.cleaned_data["proposed_start_date"]
 
-        if start_date < timezone.now().date():
+        if start_date and start_date < timezone.now().date():
             raise forms.ValidationError(
                 (
                     "The experiment start date must "
@@ -184,9 +186,10 @@ class ExperimentOverviewForm(
         cleaned_data = super().clean()
 
         # enrollment may be None
-        enrollment = cleaned_data.get("proposed_enrollment", 0) or 0
+        enrollment = cleaned_data.get("proposed_enrollment", None)
+        duration = cleaned_data.get("proposed_duration", None)
 
-        if enrollment > cleaned_data.get("proposed_duration", 0):
+        if (enrollment and duration) and enrollment > duration:
             msg = (
                 "The enrollment duration must be less than "
                 "or equal to the experiment duration."

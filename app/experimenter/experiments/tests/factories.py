@@ -48,6 +48,8 @@ class ExperimentFactory(
     proposed_duration = factory.LazyAttribute(lambda o: random.randint(10, 60))
     proposed_enrollment = factory.LazyAttribute(
         lambda o: random.choice([None, random.randint(2, o.proposed_duration)])
+        if o.proposed_duration
+        else None
     )
 
     population_percent = factory.LazyAttribute(
