@@ -96,6 +96,7 @@ class ExperimentFactory(
         lambda o: faker.text(random.randint(500, 5000))
     )
 
+    risk_internal_only = False
     risk_partner_related = False
     risk_brand = False
     risk_fast_shipped = False
