@@ -1081,6 +1081,46 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.test_builds, data["test_builds"])
         self.assertEqual(experiment.qa_status, data["qa_status"])
 
+    def test_form_risk_technical_invariance(self):
+        created_experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+
+        data = {
+            "risk_internal_only": True,
+            "risk_partner_related": True,
+            "risk_brand": True,
+            "risk_fast_shipped": True,
+            "risk_confidential": True,
+            "risk_release_population": True,
+            "risk_technical": True,
+            "risk_technical_description": "",  # Note!
+            "risks": "There are some risks",
+            "testing": "Always be sure to test!",
+            "test_builds": "Latest build",
+            "qa_status": "It ain't easy being green",
+        }
+
+        form = ExperimentRisksForm(
+            request=self.request, data=data, instance=created_experiment
+        )
+        self.assertFalse(form.is_valid())
+
+        # It would be okey if 'risk_technical' was falsy.
+        data["risk_technical"] = False
+        form = ExperimentRisksForm(
+            request=self.request, data=data, instance=created_experiment
+        )
+        self.assertTrue(form.is_valid())
+
+        # And definitely OK if both at truthy.
+        data["risk_technical"] = True
+        data["risk_technical_description"] = "Some text"
+        form = ExperimentRisksForm(
+            request=self.request, data=data, instance=created_experiment
+        )
+        self.assertTrue(form.is_valid())
+
 
 class TestExperimentReviewForm(
     MockRequestMixin, MockBugzillaMixin, MockTasksMixin, TestCase

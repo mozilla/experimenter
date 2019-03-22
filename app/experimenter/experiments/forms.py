@@ -689,6 +689,27 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
             "qa_status",
         )
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if (
+            "risk_technical" in cleaned_data
+            and "risk_technical_description" in cleaned_data
+        ):
+            # Both checked, now we need to do an invariance check on these
+            # two. This is to match what's done with jQuery in the form:
+            # the 'risk_technical_description' needs to be required
+            # if 'risk_technical' is truthy.
+            if cleaned_data.get("risk_technical") == "True":
+                if not cleaned_data["risk_technical_description"]:
+                    msg = (
+                        f"This is required if "
+                        f"'{Experiment.RISK_TECHNICAL_LABEL}' is true."
+                    )
+                    raise forms.ValidationError(
+                        {"risk_technical_description": msg}
+                    )
+        return cleaned_data
+
 
 class ExperimentReviewForm(
     ExperimentConstants, ChangeLogMixin, forms.ModelForm
