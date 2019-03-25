@@ -2,6 +2,7 @@ import django_filters as filters
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.models import F
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.views.generic import CreateView, DetailView, UpdateView
@@ -20,7 +21,7 @@ from experimenter.experiments.forms import (
     ExperimentVariantsAddonForm,
     ExperimentVariantsPrefForm,
 )
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import Experiment, FirefoxChannelSort
 
 
 class ExperimentFiltersetForm(forms.ModelForm):
@@ -111,8 +112,8 @@ class ExperimentOrderingForm(forms.Form):
         ("latest_change", "Least Recently Updated"),
         ("firefox_version", "Firefox Version Ascending"),
         ("-firefox_version", "Firefox Version Descending"),
-        ("firefox_channel", "Firefox Channel Ascending"),
-        ("-firefox_channel", "Firefox Channel Descending"),
+        ("firefox_channel_sort", "Firefox Channel Ascending"),
+        ("-firefox_channel_sort", "Firefox Channel Descending"),
     )
 
     ordering = forms.ChoiceField(
@@ -140,6 +141,13 @@ class ExperimentListView(FilterView):
         # validation won't kick in
         kwargs["data"] = self.request.GET
         return kwargs
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.annotate(
+            firefox_channel_sort=FirefoxChannelSort(F("firefox_channel"))
+        )
+        return qs
 
     def get_ordering(self):
         self.ordering_form = ExperimentOrderingForm(self.request.GET)

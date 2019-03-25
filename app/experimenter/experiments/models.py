@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Max
+from django.db.models import Func, Max
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -510,6 +510,17 @@ class Experiment(ExperimentConstants, models.Model):
             version=self.firefox_version,
             channel=self.firefox_channel,
         )
+
+
+class FirefoxChannelSort(Func):
+    arity = 1
+    # Ordering given in https://github.com/mozilla/experimenter/issues/1042
+    template = f"""(CASE %(expressions)s
+    WHEN '' THEN 0
+    WHEN '{ExperimentConstants.CHANNEL_RELEASE}' THEN 1
+    WHEN '{ExperimentConstants.CHANNEL_BETA}' THEN 2
+    WHEN '{ExperimentConstants.CHANNEL_NIGHTLY}' THEN 3
+    END)"""
 
 
 class ExperimentVariant(models.Model):
