@@ -813,7 +813,7 @@ Value: {variant.value}
 
     QA Status of your code:
 
-{experiment.testing}
+{experiment.qa_status}
 
     Link to more information about this study:
 
