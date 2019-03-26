@@ -245,7 +245,7 @@ class Experiment(ExperimentConstants, models.Model):
             return settings.MONITORING_URL.format(slug=self.normandy_slug)
 
     def generate_normandy_slug(self):
-        if self.is_addon_study:
+        if self.is_addon_experiment:
             if not self.addon_experiment_id:
                 raise ValueError(
                     (
@@ -393,11 +393,11 @@ class Experiment(ExperimentConstants, models.Model):
         return date_ordered_changes
 
     @property
-    def is_addon_study(self):
+    def is_addon_experiment(self):
         return self.type == self.TYPE_ADDON
 
     @property
-    def is_pref_study(self):
+    def is_pref_experiment(self):
         return self.type == self.TYPE_PREF
 
     @property
@@ -494,7 +494,7 @@ class Experiment(ExperimentConstants, models.Model):
             and self.completed_risks
         )
 
-        if self.is_addon_study:
+        if self.is_addon_experiment:
             completed = completed and self.completed_addon
 
         return completed
