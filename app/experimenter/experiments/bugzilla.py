@@ -58,7 +58,7 @@ def make_bugzilla_call(url, data):
 def create_experiment_bug(experiment):
     bug_data = {
         "product": "Shield",
-        "component": "Shield Study",
+        "component": "Shield Experiment",
         "version": "unspecified",
         "summary": "[Shield] {experiment}".format(experiment=experiment),
         "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
