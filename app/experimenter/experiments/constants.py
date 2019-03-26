@@ -154,7 +154,7 @@ class ExperimentConstants(object):
       <p>
         An <strong>{[1]}</strong> sends a Firefox Add-On which
         contains the code for the experimental feature to the users that
-        enroll in the experiment.  After the experiment is complete, that 
+        enroll in the experiment.  After the experiment is complete, that
         add-on is automatically removed.
       </p>
     """.format(
@@ -287,8 +287,8 @@ class ExperimentConstants(object):
     CLIENT_MATCHING_HELP_TEXT = """
       <p>
         Describe the criteria a client must meet to participate in the
-        experiment in addition to the version and channel filtering specified 
-        above. Explain in natural language how you would like clients to be 
+        experiment in addition to the version and channel filtering specified
+        above. Explain in natural language how you would like clients to be
         filtered and the Shield team will implement the filtering for you,
         you do not need to express the filter in code.
         Each filter may be inclusive or exclusive, ie "Please include
