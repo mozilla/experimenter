@@ -679,7 +679,7 @@ class ExperimentConstants(object):
     CLIENT_MATCHING_DEFAULT = (
         """Prefs:
 
-Studies:
+Experiments:
 
 Any additional filters:
     """
