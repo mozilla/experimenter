@@ -178,7 +178,7 @@ class TestExperimentFilterset(TestCase):
         )
 
 
-class TestExperimengOrderingForm(TestCase):
+class TestExperimentOrderingForm(TestCase):
 
     def test_accepts_valid_ordering(self):
         ordering = ExperimentOrderingForm.ORDERING_CHOICES[1][0]
