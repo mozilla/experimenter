@@ -85,6 +85,12 @@ class ExperimentConstants(object):
         (CHANNEL_RELEASE, CHANNEL_RELEASE),
     )
 
+    # Ordering given in https://github.com/mozilla/experimenter/issues/1042
+    CHANNEL_NIGHTLY_ORDER = 1
+    CHANNEL_BETA_ORDER = 2
+    CHANNEL_RELEASE_ORDER = 3
+    CHANNEL_UNSET_ORDER = 0
+
     # Pref stuff
     PREF_TYPE_BOOL = "boolean"
     PREF_TYPE_INT = "integer"

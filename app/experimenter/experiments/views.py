@@ -2,7 +2,6 @@ import django_filters as filters
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db.models import F
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.views.generic import CreateView, DetailView, UpdateView
@@ -21,7 +20,7 @@ from experimenter.experiments.forms import (
     ExperimentVariantsAddonForm,
     ExperimentVariantsPrefForm,
 )
-from experimenter.experiments.models import Experiment, FirefoxChannelSort
+from experimenter.experiments.models import Experiment
 
 
 class ExperimentFiltersetForm(forms.ModelForm):
@@ -145,7 +144,7 @@ class ExperimentListView(FilterView):
     def get_queryset(self):
         qs = super().get_queryset()
         qs = qs.annotate(
-            firefox_channel_sort=FirefoxChannelSort(F("firefox_channel"))
+            firefox_channel_sort=Experiment.firefox_channel_sort()
         )
         return qs
 
