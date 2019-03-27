@@ -111,8 +111,8 @@ class ExperimentOrderingForm(forms.Form):
         ("latest_change", "Least Recently Updated"),
         ("firefox_version", "Firefox Version Ascending"),
         ("-firefox_version", "Firefox Version Descending"),
-        ("firefox_channel", "Firefox Channel Ascending"),
-        ("-firefox_channel", "Firefox Channel Descending"),
+        ("firefox_channel_sort", "Firefox Channel Ascending"),
+        ("-firefox_channel_sort", "Firefox Channel Descending"),
     )
 
     ordering = forms.ChoiceField(
@@ -140,6 +140,13 @@ class ExperimentListView(FilterView):
         # validation won't kick in
         kwargs["data"] = self.request.GET
         return kwargs
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.annotate(
+            firefox_channel_sort=Experiment.firefox_channel_sort()
+        )
+        return qs
 
     def get_ordering(self):
         self.ordering_form = ExperimentOrderingForm(self.request.GET)
