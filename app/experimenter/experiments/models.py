@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Max
+from django.db.models import Case, Max, Value, When
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -509,6 +509,26 @@ class Experiment(ExperimentConstants, models.Model):
             percent=float(self.population_percent),
             version=self.firefox_version,
             channel=self.firefox_channel,
+        )
+
+    @staticmethod
+    def firefox_channel_sort():
+        """A Case that can be added to an Experiment QuerySet to sort."""
+        return Case(
+            When(
+                firefox_channel=ExperimentConstants.CHANNEL_RELEASE,
+                then=Value(ExperimentConstants.CHANNEL_RELEASE_ORDER),
+            ),
+            When(
+                firefox_channel=ExperimentConstants.CHANNEL_BETA,
+                then=Value(ExperimentConstants.CHANNEL_BETA_ORDER),
+            ),
+            When(
+                firefox_channel=ExperimentConstants.CHANNEL_NIGHTLY,
+                then=Value(ExperimentConstants.CHANNEL_NIGHTLY_ORDER),
+            ),
+            default=Value(ExperimentConstants.CHANNEL_UNSET_ORDER),
+            output_field=models.IntegerField(),
         )
 
 
