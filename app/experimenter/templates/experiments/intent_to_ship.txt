@@ -1,3 +1,4 @@
+{% autoescape off %}
 Hello Release Drivers,
 
 This request is coming from information entered in Experimenter.
@@ -6,19 +7,20 @@ or discussion. They will email an update if any of the key information
 changes. Otherwise they will reach out once the study has fully passed
 QA for Release Management sign-off.
 
-Experimenter Bug: {{bug_url }}
-Experimenter Project: {{ project_url }}
-Study owner: {{ experiment_owner }}
-Description: {{ short_description }}
-Timeline & Channel: {{ version }} {{ channel }}
-Intended study dates: {{ proposed_start_date }} - {{ proposed_end_date }}
+Experimenter Bug: {{ bug_url }}
+Experimenter URL: {{ experiment_url }}
+Study owner: {{ experiment.owner.email }}
+Description: {{ experiment.short_description }}
+Timeline & Channel: {{ experiment.firefox_version }} {{ experiment.firefox_channel }}
+Intended study dates: {{ experiment.dates }}
 Percent of Population: {{ percent_of_population }}
-Platforms: {{ platforms }}
-Locales: {{ locales }}
-QA Status: {{ qa_status }}
-Meta Bug: {{ feature_bugzilla_url }}
-Related links: {{ related_work }}
-Risk: {{ Risk Box - only if it exists }}
-Technical Complexity: {{ Technical Complexity Box - only if it exists }}
+Platforms: {{ experiment.platform }}
+Locales: {{ locales|join:", "|default:"All locales" }}; {{ countries|join:", "|default:"All countries" }}
+QA Status: {{ experiment.qa_status }}
+Meta Bug: {{ experiment.feature_bugzilla_url }}
+Related links: {{ experiment.related_work }}{% if experiment.risks %}
+Risk: {{ experiment.risks }}{% endif %}{% if experiment.risk_technical_description %}
+Technical Complexity: {{ experiment.risk_technical_description }}{% endif %}
 
 Thank you!!
+{% endautoescape %}
