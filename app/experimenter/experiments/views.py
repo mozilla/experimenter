@@ -204,9 +204,9 @@ class ExperimentVariantsUpdateView(ExperimentFormMixin, UpdateView):
     template_name = "experiments/edit_variants.html"
 
     def get_form_class(self):
-        if self.object.is_addon_study:
+        if self.object.is_addon_experiment:
             return ExperimentVariantsAddonForm
-        elif self.object.is_pref_study:
+        elif self.object.is_pref_experiment:
             return ExperimentVariantsPrefForm
 
 
