@@ -386,6 +386,7 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
             "firefox_channel",
             "locales",
             "countries",
+            "platform",
             "client_matching",
         ]
 

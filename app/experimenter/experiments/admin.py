@@ -82,6 +82,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "pref_branch",
                     "locales",
                     "countries",
+                    "platform",
                     "client_matching",
                 )
             },

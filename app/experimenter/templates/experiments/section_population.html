@@ -25,6 +25,11 @@ Population
     {% endfor %}
   </p>
 
+  <strong>Platform</strong>
+  <p>
+    {{ experiment.get_platform_display }}
+  </p>
+
   {{ experiment.client_matching|urlize|linebreaks }}
 
 {% endblock %}

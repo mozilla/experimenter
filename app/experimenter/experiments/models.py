@@ -110,6 +110,11 @@ class Experiment(ExperimentConstants, models.Model):
     )
     locales = models.ManyToManyField(Locale, blank=True)
     countries = models.ManyToManyField(Country, blank=True)
+    platform = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.PLATFORM_CHOICES,
+        default=ExperimentConstants.PLATFORM_ALL,
+    )
     objectives = models.TextField(
         default=ExperimentConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
