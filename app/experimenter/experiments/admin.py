@@ -80,9 +80,9 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "pref_key",
                     "pref_type",
                     "pref_branch",
-                    "client_matching",
                     "locales",
                     "countries",
+                    "client_matching",
                 )
             },
         ),

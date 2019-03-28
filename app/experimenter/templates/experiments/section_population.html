@@ -6,7 +6,6 @@ Population
 
 {% block section_content %}
   <h5>{{ experiment.population }}</h5>
-  {{ experiment.client_matching|urlize|linebreaks }}
 
   <strong>Locales</strong>
   <p>
@@ -26,5 +25,6 @@ Population
     {% endfor %}
   </p>
 
+  {{ experiment.client_matching|urlize|linebreaks }}
 
 {% endblock %}

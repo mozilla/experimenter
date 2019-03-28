@@ -384,9 +384,9 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
             "population_percent",
             "firefox_version",
             "firefox_channel",
-            "client_matching",
             "locales",
             "countries",
+            "client_matching",
         ]
 
     def __init__(self, *args, **kwargs):
