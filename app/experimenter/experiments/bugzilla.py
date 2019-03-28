@@ -15,7 +15,7 @@ class BugzillaError(Exception):
 def format_bug_body(experiment):
     bug_body = ""
 
-    if experiment.is_addon_study:
+    if experiment.is_addon_experiment:
         variants_body = "\n".join(
             [
                 experiment.BUGZILLA_VARIANT_ADDON_TEMPLATE.format(
@@ -27,7 +27,7 @@ def format_bug_body(experiment):
         bug_body = experiment.BUGZILLA_ADDON_TEMPLATE.format(
             experiment=experiment, variants=variants_body
         )
-    elif experiment.is_pref_study:
+    elif experiment.is_pref_experiment:
         variants_body = "\n".join(
             [
                 experiment.BUGZILLA_VARIANT_PREF_TEMPLATE.format(
@@ -58,7 +58,7 @@ def make_bugzilla_call(url, data):
 def create_experiment_bug(experiment):
     bug_data = {
         "product": "Shield",
-        "component": "Shield Study",
+        "component": "Shield Experiment",
         "version": "unspecified",
         "summary": "[Shield] {experiment}".format(experiment=experiment),
         "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(

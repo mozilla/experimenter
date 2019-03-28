@@ -32,7 +32,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             settings.BUGZILLA_CREATE_URL,
             {
                 "product": "Shield",
-                "component": "Shield Study",
+                "component": "Shield Experiment",
                 "version": "unspecified",
                 "summary": "[Shield] {experiment}".format(
                     experiment=experiment
@@ -59,7 +59,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
 
         expected_call_data = {
             "product": "Shield",
-            "component": "Shield Study",
+            "component": "Shield Experiment",
             "version": "unspecified",
             "summary": "[Shield] {experiment}".format(experiment=experiment),
             "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
@@ -82,7 +82,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
 
 class TestAddExperimentComment(MockBugzillaMixin, TestCase):
 
-    def test_add_bugzilla_comment_pref_study(self):
+    def test_add_bugzilla_comment_pref_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             name="An Experiment",
@@ -99,7 +99,7 @@ class TestAddExperimentComment(MockBugzillaMixin, TestCase):
             {"comment": format_bug_body(experiment)},
         )
 
-    def test_add_bugzilla_comment_addon_study(self):
+    def test_add_bugzilla_comment_addon_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             name="An Experiment",

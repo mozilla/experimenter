@@ -793,7 +793,9 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.completed_all_sections)
 
-    def test_completed_all_sections_true_for_pref_study_without_addon(self):
+    def test_completed_all_sections_true_for_pref_experiment_without_addon(
+        self
+    ):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,
             type=Experiment.TYPE_PREF,
@@ -801,7 +803,9 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.completed_all_sections)
 
-    def test_completed_all_sections_false_for_addon_study_without_addon(self):
+    def test_completed_all_sections_false_for_addon_experiment_without_addon(
+        self
+    ):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,
             type=Experiment.TYPE_ADDON,
@@ -809,7 +813,7 @@ class TestExperimentModel(TestCase):
         )
         self.assertFalse(experiment.completed_all_sections)
 
-    def test_completed_all_sections_true_for_addon_study_with_addon(self):
+    def test_completed_all_sections_true_for_addon_experiment_with_addon(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,
             type=Experiment.TYPE_ADDON,

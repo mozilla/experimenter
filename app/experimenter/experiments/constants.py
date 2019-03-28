@@ -10,10 +10,7 @@ class ExperimentConstants(object):
     TYPE_PREF = "pref"
     TYPE_ADDON = "addon"
 
-    TYPE_CHOICES = (
-        (TYPE_PREF, "Pref-Flip Study"),
-        (TYPE_ADDON, "Add-On Study"),
-    )
+    TYPE_CHOICES = ((TYPE_PREF, "Pref-Flip"), (TYPE_ADDON, "Add-On"))
 
     # Status stuff
     STATUS_DRAFT = "Draft"
@@ -134,22 +131,24 @@ class ExperimentConstants(object):
     )
 
     # Labels
-    RISK_INTERNAL_ONLY_LABEL = "Is this study sensitive and/or internal only?"
-    RISK_PARTNER_RELATED_LABEL = "Is this study partner related?"
+    RISK_INTERNAL_ONLY_LABEL = (
+        "Is this experiment sensitive and/or internal only?"
+    )
+    RISK_PARTNER_RELATED_LABEL = "Is this experiment partner related?"
     RISK_BRAND_LABEL = "Does this have a high risk to the brand?"
     RISK_FAST_SHIPPED_LABEL = (
         "Does this need to be shipped outside the normal release process?"
     )
-    RISK_CONFIDENTIAL_LABEL = "Is this study confidential to Mozilla?"
+    RISK_CONFIDENTIAL_LABEL = "Is this experiment confidential to Mozilla?"
     RISK_RELEASE_POPULATION_LABEL = (
-        "Does this study affect a large number of Release users?"
+        "Does this experiment affect a large number of Release users?"
     )
-    RISK_TECHNICAL_LABEL = "Is this study Complex / Technically Risky?"
+    RISK_TECHNICAL_LABEL = "Is this experiment Complex / Technically Risky?"
 
     # Help texts
     TYPE_HELP_TEXT = """
       <p>
-        The study type will determine how the experimental feature is
+        The experiment type will determine how the experimental feature is
         delivered to Firefox users.
       </p>
       <p>
@@ -161,8 +160,8 @@ class ExperimentConstants(object):
       <p>
         An <strong>{[1]}</strong> sends a Firefox Add-On which
         contains the code for the experimental feature to the users that
-        enroll in the study.  After the experiment is complete, that add-on
-        is automatically removed.
+        enroll in the experiment.  After the experiment is complete, that
+        add-on is automatically removed.
       </p>
     """.format(
         *TYPE_CHOICES
@@ -191,7 +190,7 @@ class ExperimentConstants(object):
     NAME_HELP_TEXT = """
       <p>
         Choose a name for your experiment that describes
-        what it is trying to study, such as the effect of
+        what it is trying to experiment, such as the effect of
         a new feature, a performance improvement, a UI change, a bug fix, etc.
       <p>
       <p><strong>Example:</strong> Larger Sign In Button
@@ -219,8 +218,8 @@ class ExperimentConstants(object):
     PROPOSED_DURATION_HELP_TEXT = """
       <p>
         Specify the duration of the experiment in days.  This determines
-        the maximum amount of time a user may be enrolled in the study.
-        Once the study is live, users will begin to enroll.  They will
+        the maximum amount of time a user may be enrolled in the experiment.
+        Once the experiment is live, users will begin to enroll.  They will
         remain enrolled until the entire experiment duration has
         transpired.  Once the experiment duration has elapsed,
         users will be unenrolled.
@@ -236,7 +235,7 @@ class ExperimentConstants(object):
         of time.  This period must be shorter than the entire experiment
         duration.  If you specify a limited enrollment period, then after
         that period has expired, no additional users will be enrolled into the
-        study.  Users that have been enrolled will remain enrolled until
+        experiment.  Users that have been enrolled will remain enrolled until
         the experiment ends.
       </p>
       <p>
@@ -294,9 +293,9 @@ class ExperimentConstants(object):
     CLIENT_MATCHING_HELP_TEXT = """
       <p>
         Describe the criteria a client must meet to participate in the
-        study in addition to the version and channel filtering specified above.
-        Explain in natural language how you would like clients to be filtered
-        and the Shield team will implement the filtering for you,
+        experiment in addition to the version and channel filtering specified
+        above. Explain in natural language how you would like clients to be
+        filtered and the Shield team will implement the filtering for you,
         you do not need to express the filter in code.
         Each filter may be inclusive or exclusive, ie "Please include
         users from locales A, B, C and exclude those from X, Y, Z".
@@ -321,10 +320,10 @@ class ExperimentConstants(object):
           <p><strong>Example:</strong> browser.search.region=CA</p>
         </li>
         <li>
-          <p><strong>Studies</strong>
-          Other Shield Studies to match against.</p>
+          <p><strong>Experiments</strong>
+          Other Shield Experiments to match against.</p>
           <p><strong>Example:</strong>
-          Exclude clients in pref-flip-other-study</p>
+          Exclude clients in pref-flip-other-experiment</p>
         </li>
       </ul>
     """
@@ -509,7 +508,7 @@ class ExperimentConstants(object):
 
     OBJECTIVES_HELP_TEXT = """
       <p>
-        Describe the objective of the study in detail.  What changes
+        Describe the objective of the experiment in detail.  What changes
         will be made in each branch, what effects will those changes have,
         and how will those effects be measured and compared.
       </p>
@@ -546,9 +545,9 @@ class ExperimentConstants(object):
 
     ANALYSIS_HELP_TEXT = """
       <p>
-        Describe how this study will be analyzed, including
+        Describe how this experiment will be analyzed, including
         which telemetry metrics will be considered, how those metrics will be
-        analyzed to determine the outcome of the study,
+        analyzed to determine the outcome of the experiment,
         and who will be responsible for that analysis.
       </p>
       <p><strong>Example:</strong></p>
@@ -561,7 +560,7 @@ class ExperimentConstants(object):
     RISKS_HELP_TEXT = """
       <p>
         The "Risk" section helps identify which additional or dependent checklist
-        items need to happen. Dependent items needed vary based on the study.
+        items need to happen. Dependent items needed vary based on the experiment.
         Please review this <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risks&Testing">more complete Risk question list</a> and the needed actions (for "yes" answers). This list be integrated into Experimenter soon.
       </p>
     """  # noqa
@@ -580,7 +579,7 @@ class ExperimentConstants(object):
         channel/population size a dev QA may be accepted.
       </p>
       <p>
-        If this study requires additional QA, please provide a
+        If this experiment requires additional QA, please provide a
         detailed description of how each branch can be
         tested and the expected behaviours.
       </p>
@@ -686,21 +685,21 @@ class ExperimentConstants(object):
     CLIENT_MATCHING_DEFAULT = (
         """Prefs:
 
-Studies:
+Experiments:
 
 Any additional filters:
     """
     )
 
     OBJECTIVES_DEFAULT = (
-        "What is the objective of this study?  Explain in detail."
+        "What is the objective of this experiment?  Explain in detail."
     )
 
     ANALYSIS_DEFAULT = (
         """What is the main effect you are looking for and what data will
 you use to make these decisions? What metrics are you using to measure success
 
-Do you plan on surveying users at the end of the study? Yes/No.
+Do you plan on surveying users at the end of the experiment? Yes/No.
 Strategy and Insights can help create surveys if needed
     """
     )
@@ -721,7 +720,7 @@ information necessary to make an informed decision.
 
     RISK_TECHNICAL_DEFAULT = (
         """
-If you answered “yes”, your study is considered Complex. QA and Release
+If you answered “yes”, your experiment is considered Complex. QA and Release
 Management will need details. Please outline the technical risk factors
 or complexity factors that have been identified and any mitigations.
 This information will automatically be put in emails to QA.
@@ -731,7 +730,7 @@ This information will automatically be put in emails to QA.
     TESTING_DEFAULT = (
         """
 If additional QA is required, provide a plan (or links to them) for testing
-each branch of this study.
+each branch of this experiment.
     """.strip()
     )
 
@@ -781,13 +780,13 @@ Value: {variant.value}
 
     BUGZILLA_PREF_TEMPLATE = (
         """
-    Experiment Type: Pref Flip Study
+    Experiment Type: Pref Flip Experiment
 
     What is the preference we will be changing
 
 {experiment.pref_key}
 
-    What are the branches of the study and what values should
+    What are the branches of the experiment and what values should
     each branch be set to?
 
 {variants}
@@ -800,7 +799,7 @@ Value: {variant.value}
 
 {experiment.client_matching}
 
-    What is your intended go live date and how long will the study run?
+    What is your intended go live date and how long will the experiment run?
 
 {experiment.dates}
 
@@ -809,7 +808,7 @@ Value: {variant.value}
 
 {experiment.analysis}
 
-    Who is the owner of the data analysis for this study?
+    Who is the owner of the data analysis for this experiment?
 
 {experiment.analysis_owner}
 
@@ -821,7 +820,7 @@ Value: {variant.value}
 
 {experiment.qa_status}
 
-    Link to more information about this study:
+    Link to more information about this experiment:
 
 {experiment.experiment_url}
         """
@@ -836,9 +835,9 @@ Value: {variant.value}
 
     BUGZILLA_ADDON_TEMPLATE = (
         """
-    Experiment Type: Opt-Out Study
+    Experiment Type: Opt-Out experiment
 
-    What are the branches of the study:
+    What are the branches of the experiment:
 
 {variants}
 
@@ -850,7 +849,7 @@ Value: {variant.value}
 
 {experiment.client_matching}
 
-    What is your intended go live date and how long will the study run?
+    What is your intended go live date and how long will the experiment run?
 
 {experiment.dates}
 
@@ -859,7 +858,7 @@ Value: {variant.value}
 
 {experiment.analysis}
 
-    Who is the owner of the data analysis for this study?
+    Who is the owner of the data analysis for this experiment?
 
 {experiment.analysis_owner}
 
@@ -871,7 +870,7 @@ Value: {variant.value}
 
 {experiment.testing}
 
-    Link to more information about this study:
+    Link to more information about this experiment:
 
 {experiment.experiment_url}
         """
