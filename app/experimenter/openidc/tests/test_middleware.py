@@ -73,8 +73,6 @@ class OpenIDCAuthMiddlewareTests(TestCase):
     def test_dev_user_is_super_staff_user_when_debug_true(self):
         dev_email = "dev@example.com"
 
-        self.assertEqual(dev_email, settings.DEV_USER_EMAIL)
-
         request = mock.Mock()
         request.META = {settings.OPENIDC_EMAIL_HEADER: dev_email}
 
@@ -82,7 +80,11 @@ class OpenIDCAuthMiddlewareTests(TestCase):
 
         self.assertEqual(User.objects.all().count(), 0)
 
-        with self.settings(OPENIDC_AUTH_WHITELIST=[], DEBUG=True):
+        with self.settings(
+            OPENIDC_AUTH_WHITELIST=[],
+            DEBUG=True,
+            DEV_USER_EMAIL="dev@example.com",
+        ):
             response = self.middleware(request)
 
         self.assertEqual(response, self.response)
@@ -93,7 +95,7 @@ class OpenIDCAuthMiddlewareTests(TestCase):
         self.assertTrue(request.user.is_superuser)
 
     def test_dev_user_is_not_super_staff_user_when_debug_false(self):
-        dev_email = settings.DEV_USER_EMAIL
+        dev_email = "dev@example.com"
 
         request = mock.Mock()
         request.META = {settings.OPENIDC_EMAIL_HEADER: dev_email}
@@ -102,7 +104,11 @@ class OpenIDCAuthMiddlewareTests(TestCase):
 
         self.assertEqual(User.objects.all().count(), 0)
 
-        with self.settings(OPENIDC_AUTH_WHITELIST=[]):
+        with self.settings(
+            OPENIDC_AUTH_WHITELIST=[],
+            DEBUG=False,
+            DEV_USER_EMAIL="dev@example.com",
+        ):
             response = self.middleware(request)
 
         self.assertEqual(response, self.response)
