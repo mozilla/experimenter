@@ -42,6 +42,9 @@ class OpenIDCAuthMiddleware(object):
             user = self.User.objects.get(username=openidc_email)
         except self.User.DoesNotExist:
             user = self.User(username=openidc_email, email=openidc_email)
+            if user.email == settings.DEV_USER_EMAIL and settings.DEBUG:
+                user.is_superuser = True
+                user.is_staff = True
             user.save()
 
         request.user = user
