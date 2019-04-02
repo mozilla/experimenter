@@ -51,7 +51,7 @@ class TestExperimentSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_COMPLETE
+            Experiment.STATUS_COMPLETE, countries=[], locales=[]
         )
         serialized = ExperimentSerializer(experiment)
         expected_data = {
@@ -103,8 +103,7 @@ class TestExperimentSerializer(TestCase):
 
     def test_serializer_locales(self):
         locale = LocaleFactory()
-        experiment = ExperimentFactory.create()
-        experiment.locales.add(locale)
+        experiment = ExperimentFactory.create(locales=[locale])
         serialized = ExperimentSerializer(experiment)
         self.assertEqual(
             serialized.data["locales"],
@@ -113,8 +112,7 @@ class TestExperimentSerializer(TestCase):
 
     def test_serializer_countries(self):
         country = CountryFactory()
-        experiment = ExperimentFactory.create()
-        experiment.countries.add(country)
+        experiment = ExperimentFactory.create(countries=[country])
         serialized = ExperimentSerializer(experiment)
         self.assertEqual(
             serialized.data["countries"],
