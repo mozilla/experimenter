@@ -553,7 +553,7 @@ class ExperimentVariant(models.Model):
     is_control = models.BooleanField(default=False)
     description = models.TextField(default="")
     ratio = models.PositiveIntegerField(default=1)
-    value = models.CharField(max_length=10240, blank=False, null=True)
+    value = models.TextField(max_length=10240, blank=False, null=True)
 
     class Meta:
         verbose_name = "Experiment Variant"
