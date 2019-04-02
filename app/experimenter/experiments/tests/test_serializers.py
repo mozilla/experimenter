@@ -58,6 +58,7 @@ class TestExperimentSerializer(TestCase):
             "analysis": experiment.analysis,
             "analysis_owner": experiment.analysis_owner,
             "client_matching": experiment.client_matching,
+            "platform": experiment.platform,
             "end_date": JSTimestampField().to_representation(
                 experiment.end_date
             ),

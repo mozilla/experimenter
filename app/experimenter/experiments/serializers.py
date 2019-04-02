@@ -66,6 +66,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "client_matching",
             "locales",
             "countries",
+            "platform",
             "start_date",
             "end_date",
             "population",
