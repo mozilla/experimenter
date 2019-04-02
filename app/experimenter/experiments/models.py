@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import JSONField
+
 from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import Case, Max, Value, When
@@ -554,7 +554,7 @@ class ExperimentVariant(models.Model):
     is_control = models.BooleanField(default=False)
     description = models.TextField(default="")
     ratio = models.PositiveIntegerField(default=1)
-    value = JSONField(blank=True, null=True)
+    value = models.CharField(max_length=10240, blank=False, null=True)
 
     class Meta:
         verbose_name = "Experiment Variant"

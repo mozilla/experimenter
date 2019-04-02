@@ -997,21 +997,21 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
         self.assertNotIn("value", form.variants_formset.errors[2])
 
     def test_form_is_invalid_if_pref_value_do_not_match_pref_type(self):
-        self.data["variants-0-value"] = "42"  # int
+        self.data["pref_type"] = Experiment.PREF_TYPE_INT
+        self.data["variants-0-value"] = "hello"  # str
         self.data["variants-1-value"] = "true"  # bool
-
+        self.data["variants-2-value"] = "5"  # int
         form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
         self.assertIn("value", form.variants_formset.errors[0])
         self.assertIn("value", form.variants_formset.errors[1])
         self.assertNotIn("value", form.variants_formset.errors[2])
 
-    def test_form_is_invalid_if_pref_value_has_invalid_json(self):
-        self.data["variants-0-value"] = "abc"  # missing quotes
-
+    def test_form_is_valid_if_pref_type_is_string(self):
+        self.data["variants-0-value"] = "abc"
         form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("value", form.variants_formset.errors[0])
+        self.assertTrue(form.is_valid())
+        self.assertNotIn("value", form.variants_formset.errors[0])
         self.assertNotIn("value", form.variants_formset.errors[1])
         self.assertNotIn("value", form.variants_formset.errors[2])
 
