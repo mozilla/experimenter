@@ -8,6 +8,7 @@ from django.utils.text import slugify
 from django.utils import timezone
 from faker import Factory as FakerFactory
 
+from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import (
     Experiment,
@@ -178,6 +179,43 @@ class ExperimentFactory(
 
         return experiment
 
+    @factory.post_generation
+    def locales(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted is None:
+            extracted = _generate_many_to_many_list(LocaleFactory)
+
+        for locale in extracted:
+            self.locales.add(locale)
+
+    @factory.post_generation
+    def countries(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted is None:
+            extracted = _generate_many_to_many_list(CountryFactory)
+
+        for country in extracted:
+            self.countries.add(country)
+
+
+def _generate_many_to_many_list(factory):
+    """Helper function to help generate a list of related objects."""
+    # Generate a list of elements with an emphasis on 0- and
+    # 1-length lists
+    length = random.randint(0, 2)
+    if length == 2:
+        length = random.randint(2, 30)
+
+    lst = [factory.create() for i in range(length)]
+
+    return lst
+
 
 class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda o: faker.text())
@@ -233,3 +271,33 @@ class ExperimentCommentFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = ExperimentComment
+
+
+def letter_code_sequence(n):
+    # faker.Sequence starts at 0, which would produce an empty string
+    n += 1
+    s = ""
+    while n > 0:
+        letter = n % 26
+        s += chr(letter + ord("a"))
+        n = n // 26
+
+    return s
+
+
+class CountryFactory(factory.django.DjangoModelFactory):
+    code = factory.Sequence(letter_code_sequence)
+    name = factory.LazyAttribute(lambda o: faker.country())
+
+    class Meta:
+        model = Country
+
+
+class LocaleFactory(factory.django.DjangoModelFactory):
+    code = factory.Sequence(letter_code_sequence)
+    name = factory.LazyAttribute(
+        lambda o: faker.word()  # not technically correct, but sure
+    )
+
+    class Meta:
+        model = Locale

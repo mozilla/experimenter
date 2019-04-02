@@ -419,7 +419,7 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
         super().setUp()
 
         self.experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
+            Experiment.STATUS_DRAFT, num_variants=0, countries=[], locales=[]
         )
 
         self.data = get_variants_form_data()
@@ -684,7 +684,7 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
 
     def test_locales_initials(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
+            Experiment.STATUS_DRAFT, num_variants=0, locales=[]
         )
         locale1 = LocaleFactory(code="sv-SE", name="Swedish")
         locale2 = LocaleFactory(code="fr", name="French")
@@ -697,7 +697,7 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
 
     def test_locales_initials_all_locales(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
+            Experiment.STATUS_DRAFT, num_variants=0, locales=[]
         )
         form = ExperimentVariantsAddonForm(
             request=self.request, data=self.data, instance=experiment
@@ -767,7 +767,7 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
 
     def test_countries_initials(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
+            Experiment.STATUS_DRAFT, num_variants=0, countries=[]
         )
         country1 = CountryFactory(code="SV", name="Sweden")
         country2 = CountryFactory(code="FR", name="France")
@@ -780,7 +780,7 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
 
     def test_countries_initials_all(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
+            Experiment.STATUS_DRAFT, num_variants=0, countries=[]
         )
         form = ExperimentVariantsAddonForm(
             request=self.request, data=self.data, instance=experiment

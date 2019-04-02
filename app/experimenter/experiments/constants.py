@@ -302,20 +302,6 @@ class ExperimentConstants(object):
       </p>
       <ul>
         <li>
-          <p><strong>Locales</strong> A list of
-          <a target="_blank" rel="noreferrer noopener"
-          href="https://wiki.mozilla.org/L10n:Locale_Codes">
-          Firefox Locale Codes</a></p>
-          <p><strong>Example:</strong> en-US, fr-FR, de-DE</p>
-        </li>
-        <li>
-          <p><strong>Geographic regions</strong> A list of
-          <a target="_blank" rel="noreferrer noopener"
-          href="http://www.geonames.org/countries/">
-          Country Geo Codes</a></p>
-          <p><strong>Example:</strong> US, FR, DE</p>
-        </li>
-        <li>
           <p><strong>Prefs</strong> Pref and value pairs to match against.</p>
           <p><strong>Example:</strong> browser.search.region=CA</p>
         </li>
