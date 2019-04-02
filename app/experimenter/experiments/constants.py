@@ -88,6 +88,19 @@ class ExperimentConstants(object):
     CHANNEL_RELEASE_ORDER = 3
     CHANNEL_UNSET_ORDER = 0
 
+    # Platform stuff
+    PLATFORM_ALL = "All Platforms"
+    PLATFORM_WINDOWS = "All Windows"
+    PLATFORM_MAC = "All Mac"
+    PLATFORM_LINUX = "All Linux"
+
+    PLATFORM_CHOICES = (
+        (PLATFORM_ALL, PLATFORM_ALL),
+        (PLATFORM_WINDOWS, PLATFORM_WINDOWS),
+        (PLATFORM_MAC, PLATFORM_MAC),
+        (PLATFORM_LINUX, PLATFORM_LINUX),
+    )
+
     # Pref stuff
     PREF_TYPE_BOOL = "boolean"
     PREF_TYPE_INT = "integer"

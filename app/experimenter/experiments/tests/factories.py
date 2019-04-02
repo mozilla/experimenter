@@ -57,6 +57,9 @@ class ExperimentFactory(
         lambda o: decimal.Decimal(random.randint(1, 10) * 10)
     )
     client_matching = "Geos: US, CA, GB\n" 'Some "additional" filtering'
+    platform = factory.LazyAttribute(
+        lambda o: random.choice(Experiment.PLATFORM_CHOICES)[0]
+    )
 
     pref_key = factory.LazyAttribute(
         lambda o: "browser.{pref}.enabled".format(

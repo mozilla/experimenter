@@ -312,6 +312,7 @@ def get_variants_form_data():
         "firefox_version": Experiment.VERSION_CHOICES[-1][0],
         "firefox_channel": Experiment.CHANNEL_NIGHTLY,
         "client_matching": "en-us only please",
+        "platform": Experiment.PLATFORM_ALL,
         "locales": [],
         "countries": [],
         "pref_key": "browser.test.example",
@@ -875,6 +876,7 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
         self.assertEqual(
             experiment.client_matching, self.data["client_matching"]
         )
+        self.assertEqual(experiment.platform, self.data["platform"])
 
 
 class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):

@@ -588,6 +588,7 @@ class TestExperimentVariantsUpdateView(TestCase):
             "firefox_version": Experiment.VERSION_CHOICES[-1][0],
             "firefox_channel": Experiment.CHANNEL_NIGHTLY,
             "client_matching": "New matching!",
+            "platform": Experiment.PLATFORM_WINDOWS,
             "locales": [locale.code],
             "countries": [country.code],
             "pref_key": "browser.test.example",
@@ -631,6 +632,7 @@ class TestExperimentVariantsUpdateView(TestCase):
         )
         self.assertEqual(experiment.firefox_version, data["firefox_version"])
         self.assertEqual(experiment.firefox_channel, data["firefox_channel"])
+        self.assertEqual(experiment.platform, data["platform"])
 
         self.assertEqual(experiment.pref_key, data["pref_key"])
         self.assertEqual(experiment.pref_type, data["pref_type"])
