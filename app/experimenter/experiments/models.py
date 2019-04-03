@@ -99,9 +99,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     public_name = models.CharField(max_length=255, blank=True, null=True)
 
-    public_description = models.CharField(
-        max_length=1024, blank=True, null=True
-    )
+    public_description = models.TextField(blank=True, null=True)
     population_percent = models.DecimalField(
         max_digits=7, decimal_places=4, default=0.0
     )
