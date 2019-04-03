@@ -392,7 +392,6 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
             "population_percent",
             "firefox_version",
             "firefox_channel",
-            "client_matching",
             "public_name",
             "public_description",
             "locales",
