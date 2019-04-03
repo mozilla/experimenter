@@ -9,6 +9,8 @@ Overview
   {% if experiment.engineering_owner %}
     <p><strong>Engineering Owner:</strong> {{ experiment.engineering_owner }}</p>
   {% endif %}
+  <p><strong>Public Name:</strong> {{ experiment.public_name }}</p>
+  <p><strong>Public Description:</strong> {{ experiment.public_description }}</p>
   {{ experiment.short_description|urlize|linebreaks }}
   {{ experiment.related_work|urlize|linebreaks }}
 {% endblock %}

@@ -591,6 +591,8 @@ class TestExperimentVariantsUpdateView(TestCase):
             "platform": Experiment.PLATFORM_WINDOWS,
             "locales": [locale.code],
             "countries": [country.code],
+            "public_name": "hello",
+            "public_description": "description",
             "pref_key": "browser.test.example",
             "pref_type": Experiment.PREF_TYPE_STR,
             "pref_branch": Experiment.PREF_BRANCH_DEFAULT,

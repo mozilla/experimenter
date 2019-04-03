@@ -315,6 +315,8 @@ def get_variants_form_data():
         "platform": Experiment.PLATFORM_ALL,
         "locales": [],
         "countries": [],
+        "public_name": "External Facing Name",
+        "public_description": "An external facing description",
         "pref_key": "browser.test.example",
         "pref_type": Experiment.PREF_TYPE_STR,
         "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
