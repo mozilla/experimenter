@@ -357,10 +357,13 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
     )
     public_name = forms.CharField(
-        label="Public Name", help_text=Experiment.PUBLIC_NAME_HELP_TEXT
+        label="Public Name",
+        required=False,
+        help_text=Experiment.PUBLIC_NAME_HELP_TEXT,
     )
     public_description = forms.CharField(
         label="Public Description",
+        required=False,
         help_text=Experiment.PUBLIC_DESCRIPTION_HELP_TEXT,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
