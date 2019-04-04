@@ -997,21 +997,56 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
         self.assertNotIn("value", form.variants_formset.errors[2])
 
     def test_form_is_invalid_if_pref_value_do_not_match_pref_type(self):
-        self.data["variants-0-value"] = "42"  # int
+        self.data["pref_type"] = Experiment.PREF_TYPE_INT
+        self.data["variants-0-value"] = "hello"  # str
         self.data["variants-1-value"] = "true"  # bool
-
+        self.data["variants-2-value"] = "5"  # int
         form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
         self.assertIn("value", form.variants_formset.errors[0])
         self.assertIn("value", form.variants_formset.errors[1])
         self.assertNotIn("value", form.variants_formset.errors[2])
 
-    def test_form_is_invalid_if_pref_value_has_invalid_json(self):
-        self.data["variants-0-value"] = "abc"  # missing quotes
+    def test_form_is_valid_if_pref_type_is_string(self):
+        self.data["variants-0-value"] = "abc"
+        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        self.assertTrue(form.is_valid())
+        self.assertNotIn("value", form.variants_formset.errors[0])
+        self.assertNotIn("value", form.variants_formset.errors[1])
+        self.assertNotIn("value", form.variants_formset.errors[2])
+
+    def test_form_is_valid_if_pref_type_is_bool(self):
+
+        self.data["pref_type"] = Experiment.PREF_TYPE_BOOL
+
+        # remove the extra variant for uniqueness bool constraint
+        self.data.pop("variants-2-value")
+        self.data.pop("variants-2-is_control")
+        self.data.pop("variants-2-ratio")
+        self.data.pop("variants-2-name")
+        self.data.pop("variants-2-description")
+
+        # modify remaining values to accomodate for only two variants
+        self.data["variants-TOTAL_FORMS"] = 2
+        self.data["variants-0-ratio"] = 40
+        self.data["variants-1-ratio"] = 60
+        self.data["variants-0-value"] = "true"
+        self.data["variants-1-value"] = "false"
 
         form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("value", form.variants_formset.errors[0])
+
+        self.assertTrue(form.is_valid())
+        self.assertNotIn("value", form.variants_formset.errors[0])
+        self.assertNotIn("value", form.variants_formset.errors[1])
+
+    def test_form_is_valid_if_pref_type_is_int(self):
+        self.data["pref_type"] = Experiment.PREF_TYPE_INT
+        self.data["variants-0-value"] = "20"
+        self.data["variants-1-value"] = "55"
+        self.data["variants-2-value"] = "75"
+        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        self.assertTrue(form.is_valid())
+        self.assertNotIn("value", form.variants_formset.errors[0])
         self.assertNotIn("value", form.variants_formset.errors[1])
         self.assertNotIn("value", form.variants_formset.errors[2])
 
