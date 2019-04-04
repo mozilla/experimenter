@@ -65,6 +65,9 @@ createuser: compose_build
 load_locales_countries: compose_build
 	docker-compose run app python manage.py load-locales-countries
 
+load_dummy_experiments: compose_build
+	docker-compose run app python manage.py load-dummy-experiments
+	
 shell: compose_build
 	docker-compose run app python manage.py shell
 
