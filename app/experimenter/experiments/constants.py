@@ -327,6 +327,18 @@ class ExperimentConstants(object):
       </ul>
     """
 
+    PUBLIC_NAME_HELP_TEXT = """
+      <p>
+        Name that will be shown to end users enrolled in an experiment
+      </p>
+    """
+
+    PUBLIC_DESCRIPTION_HELP_TEXT = """
+      <p>
+        Description that will be shown to end users enrolled in an experiment
+      </p>
+    """
+
     PREF_KEY_HELP_TEXT = """
       <p>
         Enter the full name of the Firefox pref key that this experiment

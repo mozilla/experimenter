@@ -66,6 +66,10 @@
 
     {% include "experiments/field_inline.html" with field=form.client_matching %}
 
+    {% include "experiments/field_inline.html" with field=form.public_name %}
+
+    {% include "experiments/field_inline.html" with field=form.public_description %}
+
     <hr class="heavy-line my-5"/>
 
     {% if experiment.is_pref_experiment %}

@@ -356,6 +356,14 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.CLIENT_MATCHING_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
     )
+    public_name = forms.CharField(
+        label="Public Name", help_text=Experiment.PUBLIC_NAME_HELP_TEXT
+    )
+    public_description = forms.CharField(
+        label="Public Description",
+        help_text=Experiment.PUBLIC_DESCRIPTION_HELP_TEXT,
+        widget=forms.Textarea(attrs={"rows": 3}),
+    )
     locales = CustomModelMultipleChoiceField(
         label="Locales",
         required=False,
@@ -384,6 +392,8 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
             "population_percent",
             "firefox_version",
             "firefox_channel",
+            "public_name",
+            "public_description",
             "locales",
             "countries",
             "platform",
