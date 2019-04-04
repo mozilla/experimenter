@@ -1,6 +1,7 @@
 import json
 
 from django.conf import settings
+from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
 
@@ -191,3 +192,43 @@ class TestExperimentRejectView(TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
+
+
+class TestExperimentSendIntentToShipEmailView(TestCase):
+
+    def test_put_to_view_sends_email(self):
+        user_email = "user@example.com"
+
+        experiment = ExperimentFactory.create_with_variants(
+            review_intent_to_ship=False, status=Experiment.STATUS_REVIEW
+        )
+        old_outbox_len = len(mail.outbox)
+
+        response = self.client.put(
+            reverse(
+                "experiments-api-send-intent-to-ship-email",
+                kwargs={"slug": experiment.slug},
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        experiment = Experiment.objects.get(pk=experiment.pk)
+        self.assertEqual(experiment.review_intent_to_ship, True)
+        self.assertEqual(len(mail.outbox), old_outbox_len + 1)
+
+    def test_put_raises_409_if_email_already_sent(self):
+        experiment = ExperimentFactory.create_with_variants(
+            review_intent_to_ship=True, status=Experiment.STATUS_REVIEW
+        )
+
+        response = self.client.put(
+            reverse(
+                "experiments-api-send-intent-to-ship-email",
+                kwargs={"slug": experiment.slug},
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: "user@example.com"},
+        )
+
+        self.assertEqual(response.status_code, 409)
