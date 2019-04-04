@@ -1041,26 +1041,27 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
 
 class TestExperimentRisksForm(MockRequestMixin, TestCase):
 
+    valid_data = {
+        "risk_internal_only": True,
+        "risk_partner_related": True,
+        "risk_brand": True,
+        "risk_fast_shipped": True,
+        "risk_confidential": True,
+        "risk_release_population": True,
+        "risk_technical": True,
+        "risk_technical_description": "It's complicated",
+        "risks": "There are some risks",
+        "testing": "Always be sure to test!",
+        "test_builds": "Latest build",
+        "qa_status": "It ain't easy being green",
+    }
+
     def test_form_saves_risks(self):
         created_experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT
         )
 
-        data = {
-            "risk_internal_only": True,
-            "risk_partner_related": True,
-            "risk_brand": True,
-            "risk_fast_shipped": True,
-            "risk_confidential": True,
-            "risk_release_population": True,
-            "risk_technical": True,
-            "risk_technical_description": "It's complicated",
-            "risks": "There are some risks",
-            "testing": "Always be sure to test!",
-            "test_builds": "Latest build",
-            "qa_status": "It ain't easy being green",
-        }
-
+        data = self.valid_data.copy()
         form = ExperimentRisksForm(
             request=self.request, data=data, instance=created_experiment
         )
@@ -1082,6 +1083,34 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.testing, data["testing"])
         self.assertEqual(experiment.test_builds, data["test_builds"])
         self.assertEqual(experiment.qa_status, data["qa_status"])
+
+    def test_risk_technical_description_empty(self):
+        created_experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+
+        data = self.valid_data.copy()
+        data["risk_technical_description"] = ""
+
+        form = ExperimentRisksForm(
+            request=self.request, data=data, instance=created_experiment
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("risk_technical_description", form.errors)
+
+    def test_risk_technical_description_empty_not_risk_technical(self):
+        created_experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+
+        data = self.valid_data.copy()
+        data["risk_technical"] = False
+        data["risk_technical_description"] = ""
+
+        form = ExperimentRisksForm(
+            request=self.request, data=data, instance=created_experiment
+        )
+        self.assertTrue(form.is_valid())
 
 
 class TestExperimentReviewForm(
