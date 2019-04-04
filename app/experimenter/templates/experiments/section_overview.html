@@ -10,5 +10,9 @@ Overview
     <p><strong>Engineering Owner:</strong> {{ experiment.engineering_owner }}</p>
   {% endif %}
   {{ experiment.short_description|urlize|linebreaks }}
+  <p><strong>Public Name:</strong></p> 
+  {{ experiment.public_name| linebreaks }}
+  <p><strong>Public Description:</strong> </p>
+  {{ experiment.public_description| linebreaks }}
   {{ experiment.related_work|urlize|linebreaks }}
 {% endblock %}
