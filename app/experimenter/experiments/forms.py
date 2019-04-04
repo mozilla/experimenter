@@ -239,7 +239,7 @@ class ExperimentVariantAddonForm(NameSlugFormMixin, forms.ModelForm):
 
 class ExperimentVariantPrefForm(ExperimentVariantAddonForm):
 
-    value = JSONField(
+    value = forms.CharField(
         label="Pref Value",
         help_text=Experiment.CONTROL_VALUE_HELP_TEXT,
         widget=forms.TextInput(attrs={"class": "form-control"}),
@@ -526,22 +526,28 @@ class ExperimentVariantsPrefForm(ExperimentVariantsBaseForm):
 
         # Check that each pref value matches the global pref type of the form.
         pref_type = cleaned_data["pref_type"]
-        expected_type = {
-            Experiment.PREF_TYPE_BOOL: bool,
-            Experiment.PREF_TYPE_INT: int,
-            Experiment.PREF_TYPE_STR: str,
-        }[pref_type]
+        if pref_type in (Experiment.PREF_TYPE_BOOL, Experiment.PREF_TYPE_INT):
 
-        for form in self.variants_formset.forms:
-            if not form.is_valid():
-                # This probably means that JSONField got invalid JSON.
-                continue
-            # Form field is string, but we check value type of parsed JSON.
-            found_type = type(json.loads(form.cleaned_data["value"]))
-            if found_type != expected_type:
-                form.add_error(
-                    "value", f"Unexpected value type (should be {pref_type})"
-                )
+            expected_type = {
+                Experiment.PREF_TYPE_BOOL: bool,
+                Experiment.PREF_TYPE_INT: int,
+                Experiment.PREF_TYPE_STR: str,
+            }[pref_type]
+
+            for form in self.variants_formset.forms:
+                try:
+                    if form.is_valid():
+                        found_type = type(
+                            json.loads(form.cleaned_data["value"])
+                        )
+                        if found_type != expected_type:
+                            raise ValueError
+
+                except (json.JSONDecodeError, ValueError):
+                    form.add_error(
+                        "value",
+                        f"Unexpected value type (should be {pref_type})",
+                    )
 
         return cleaned_data
 
