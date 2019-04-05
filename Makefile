@@ -67,7 +67,7 @@ load_locales_countries: compose_build
 
 load_dummy_experiments: compose_build
 	docker-compose run app python manage.py load-dummy-experiments
-	
+
 shell: compose_build
 	docker-compose run app python manage.py shell
 
@@ -79,3 +79,5 @@ bash: compose_build
 
 kill:
 	docker ps -a -q | xargs docker kill;docker ps -a -q | xargs docker rm
+
+refresh: kill migrate load_locales_countries load_dummy_experiments
