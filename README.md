@@ -129,6 +129,12 @@ Apply all django migrations
 ### createuser
 Create an admin user in the local dev instance
 
+### load_locales_countries
+Populates locales and countries
+
+### load_dummy_experiments
+Populates db with dummy experiments
+
 ### shell
 Start an ipython shell inside the container (this lets you import and test code, interact with the db, etc)
 
@@ -143,6 +149,9 @@ connection. This task is run automatically when needed.
 ### kill
 Stop and delete all docker containers.
 WARNING: this will remove your database and all data.  Use this to reset your dev environment.
+
+### refresh
+Will run kill, migrate, load_locales_countries load_dummy_experiments
 
 ## API
 
