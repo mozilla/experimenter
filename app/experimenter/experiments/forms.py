@@ -585,48 +585,68 @@ class RadioWidget(forms.widgets.RadioSelect):
 class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
     RADIO_OPTIONS = ((False, "No"), (True, "Yes"))
 
+    def coerce_truthy(value):
+        if value.lower() == "true":
+            return True
+        elif value.lower() == "false":
+            return False
+
     # Radio Buttons
-    risk_internal_only = forms.ChoiceField(
+    risk_internal_only = forms.TypedChoiceField(
         label=Experiment.RISK_INTERNAL_ONLY_LABEL,
         help_text=Experiment.RISK_INTERNAL_ONLY_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
     )
-    risk_partner_related = forms.ChoiceField(
+    risk_partner_related = forms.TypedChoiceField(
         label=Experiment.RISK_PARTNER_RELATED_LABEL,
         help_text=Experiment.RISK_PARTNER_RELATED_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
     )
-    risk_brand = forms.ChoiceField(
+    risk_brand = forms.TypedChoiceField(
         label=Experiment.RISK_BRAND_LABEL,
         help_text=Experiment.RISK_BRAND_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
     )
-    risk_fast_shipped = forms.ChoiceField(
+    risk_fast_shipped = forms.TypedChoiceField(
         label=Experiment.RISK_FAST_SHIPPED_LABEL,
         help_text=Experiment.RISK_FAST_SHIPPED_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
     )
-    risk_confidential = forms.ChoiceField(
+    risk_confidential = forms.TypedChoiceField(
         label=Experiment.RISK_CONFIDENTIAL_LABEL,
         help_text=Experiment.RISK_CONFIDENTIAL_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
     )
-    risk_release_population = forms.ChoiceField(
+    risk_release_population = forms.TypedChoiceField(
         label=Experiment.RISK_RELEASE_POPULATION_LABEL,
         help_text=Experiment.RISK_RELEASE_POPULATION_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
     )
-    risk_technical = forms.ChoiceField(
+    risk_technical = forms.TypedChoiceField(
         label=Experiment.RISK_TECHNICAL_LABEL,
         help_text=Experiment.RISK_TECHNICAL_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
     )
 
     # Optional Risk Descriptions
@@ -708,6 +728,27 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
             "test_builds",
             "qa_status",
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if (
+            "risk_technical" in cleaned_data
+            and "risk_technical_description" in cleaned_data
+        ):
+            # Both checked, now we need to do an invariance check on these
+            # two. This is to match what's done with jQuery in the form:
+            # the 'risk_technical_description' needs to be required
+            # if 'risk_technical' is ``True``.
+            if cleaned_data.get("risk_technical"):
+                if not cleaned_data["risk_technical_description"]:
+                    msg = (
+                        f"This is required if "
+                        f"'{Experiment.RISK_TECHNICAL_LABEL}' is true."
+                    )
+                    raise forms.ValidationError(
+                        {"risk_technical_description": msg}
+                    )
+        return cleaned_data
 
 
 class ExperimentReviewForm(
