@@ -136,6 +136,7 @@ class ExperimentConstants(object):
         (SECTION_TIMELINE, "Timeline"),
         (SECTION_OVERVIEW, "Overview"),
         (SECTION_POPULATION, "Population"),
+        (SECTION_ADDON, "Add-On"),
         (SECTION_BRANCHES, "Firefox & Branches"),
         (SECTION_OBJECTIVES, "Objectives"),
         (SECTION_ANALYSIS, "Analysis"),
