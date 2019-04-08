@@ -1,5 +1,3 @@
-from urllib.parse import urljoin
-
 from django.test import TestCase
 from django.conf import settings
 from django.core import mail
@@ -72,9 +70,6 @@ class TestIntentToShipEmail(TestCase):
         sent_email = mail.outbox[-1]
         self.verify_subject(experiment, sent_email)
 
-        experiment_url = urljoin(
-            "https://{}".format(settings.HOSTNAME), experiment.experiment_url
-        )
         bug_url = settings.BUGZILLA_DETAIL_URL.format(
             id=experiment.bugzilla_id
         )
@@ -91,7 +86,7 @@ changes. Otherwise they will reach out once the study has fully passed
 QA for Release Management sign-off.
 
 Experimenter Bug: {bug_url}
-Experimenter URL: {experiment_url}
+Experimenter URL: {experiment.experiment_url}
 Study owner: {experiment.owner.email}
 Description: {experiment.short_description}
 Timeline & Channel: {experiment.firefox_version} {experiment.firefox_channel}
@@ -126,9 +121,6 @@ Thank you!!
         sent_email = mail.outbox[-1]
         self.verify_subject(experiment, sent_email)
 
-        experiment_url = urljoin(
-            "https://{}".format(settings.HOSTNAME), experiment.experiment_url
-        )
         bug_url = settings.BUGZILLA_DETAIL_URL.format(
             id=experiment.bugzilla_id
         )
@@ -145,7 +137,7 @@ changes. Otherwise they will reach out once the study has fully passed
 QA for Release Management sign-off.
 
 Experimenter Bug: {bug_url}
-Experimenter URL: {experiment_url}
+Experimenter URL: {experiment.experiment_url}
 Study owner: {experiment.owner.email}
 Description: {experiment.short_description}
 Timeline & Channel: {experiment.firefox_version} {experiment.firefox_channel}

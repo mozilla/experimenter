@@ -26,15 +26,9 @@ def send_review_email(experiment_name, experiment_url, needs_attention):
 
 
 def send_intent_to_ship_email(experiment_id):
-
-    def make_url(uri):
-        return urljoin("https://{}".format(settings.HOSTNAME), uri)
-
     experiment = Experiment.objects.prefetch_related(
         "locales", "countries"
     ).get(id=experiment_id)
-
-    experiment_url = make_url(experiment.experiment_url)
 
     bug_url = settings.BUGZILLA_DETAIL_URL.format(id=experiment.bugzilla_id)
 
@@ -45,7 +39,6 @@ def send_intent_to_ship_email(experiment_id):
         "experiments/intent_to_ship.txt",
         {
             "experiment": experiment,
-            "experiment_url": experiment_url,
             "bug_url": bug_url,
             "percent_of_population": percent_of_population,
             "locales": [str(l) for l in experiment.locales.all()],
