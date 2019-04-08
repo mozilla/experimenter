@@ -78,9 +78,8 @@ class ExperimentFactory(
     firefox_channel = factory.LazyAttribute(
         lambda o: random.choice(Experiment.CHANNEL_CHOICES[1:])[0]
     )
-    addon_name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     addon_experiment_id = factory.LazyAttribute(
-        lambda o: slugify(o.addon_name)
+        lambda o: slugify(faker.catch_phrase())
     )
     addon_testing_url = factory.LazyAttribute(
         lambda o: "https://www.example.com/{}-test.xpi".format(

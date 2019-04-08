@@ -74,7 +74,6 @@ class TestExperimentSerializer(TestCase):
             "pref_branch": experiment.pref_branch,
             "pref_key": experiment.pref_key,
             "pref_type": experiment.pref_type,
-            "addon_name": experiment.addon_name,
             "addon_experiment_id": experiment.addon_experiment_id,
             "addon_testing_url": experiment.addon_testing_url,
             "addon_release_url": experiment.addon_release_url,
