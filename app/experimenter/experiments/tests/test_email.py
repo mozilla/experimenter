@@ -159,7 +159,7 @@ Thank you!!
 
     def format_locales(self, experiment):
         locales = "All locales"
-        if experiment.locales.exists():
+        if experiment.locales.exists():  # pragma: no branch
             locales = ", ".join(
                 str(locale) for locale in experiment.locales.all()
             )
@@ -167,7 +167,7 @@ Thank you!!
 
     def format_countries(self, experiment):
         countries = "All countries"
-        if experiment.countries.exists():
+        if experiment.countries.exists():  # pragma: no branch
             countries = ", ".join(
                 str(country) for country in experiment.countries.all()
             )
