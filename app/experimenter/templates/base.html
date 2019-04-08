@@ -19,7 +19,11 @@
     <link rel="stylesheet" href="{% static "css/experimenter.css" %}">
 
     {% block title %}
-      <title>Mozilla Experimenter</title>
+      {% if experiment.name %}
+        <title>{{experiment.name}}</title>
+      {% else %}
+        <title>Mozilla Experimenter</title>
+      {% endif %}
     {% endblock %}
 
     {% block extrahead %}
