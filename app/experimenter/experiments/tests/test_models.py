@@ -1,7 +1,8 @@
 import datetime
+import json
 
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from experimenter.openidc.tests.factories import UserFactory
@@ -10,6 +11,7 @@ from experimenter.experiments.models import (
     ExperimentVariant,
     ExperimentChangeLog,
 )
+from experimenter.experiments.serializers import ExperimentRecipeSerializer
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentChangeLogFactory,
@@ -88,7 +90,7 @@ class TestExperimentModel(TestCase):
 
     def test_bugzilla_url_returns_none_if_bugzilla_id_not_set(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
+            Experiment.STATUS_DRAFT, bugzilla_id=None
         )
         self.assertIsNone(experiment.bugzilla_url)
 
@@ -139,7 +141,9 @@ class TestExperimentModel(TestCase):
 
     def test_has_external_urls_is_false_when_no_external_urls(self):
         experiment = ExperimentFactory.create(
-            data_science_bugzilla_url="", feature_bugzilla_url=""
+            bugzilla_id="",
+            data_science_bugzilla_url="",
+            feature_bugzilla_url="",
         )
         self.assertFalse(experiment.has_external_urls)
 
@@ -261,6 +265,63 @@ class TestExperimentModel(TestCase):
         normandy_slug = experiment.generate_normandy_slug()
 
         self.assertEqual(len(normandy_slug), settings.NORMANDY_SLUG_MAX_LEN)
+
+    def test_normandy_recipe_json_serializes_pref_study(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP
+        )
+        recipe_json = json.loads(experiment.normandy_recipe_json)
+        self.assertEqual(
+            recipe_json, ExperimentRecipeSerializer(experiment).data
+        )
+
+    def test_has_normandy_info_not_true_if_missing_normandy_info(self):
+        experiment = ExperimentFactory.create(
+            normandy_id=None, normandy_slug=None
+        )
+        self.assertFalse(experiment.has_normandy_info)
+
+    def test_has_normandy_info_true_with_normandy_slug(self):
+        experiment = ExperimentFactory.create(
+            normandy_id=None, normandy_slug="abc"
+        )
+        self.assertTrue(experiment.has_normandy_info)
+
+    def test_has_normandy_info_true_with_normandy_id(self):
+        experiment = ExperimentFactory.create(
+            normandy_id="123", normandy_slug=None
+        )
+        self.assertTrue(experiment.has_normandy_info)
+
+    def test_normandy_api_recipe_url_returns_none_without_normandy_id(self):
+        experiment = ExperimentFactory.create(normandy_id=None)
+        self.assertEqual(experiment.normandy_api_recipe_url, None)
+
+    def test_normandy_api_recipe_url_returns_url_with_normandy_id(self):
+        experiment = ExperimentFactory.create(normandy_id="123")
+        with override_settings(
+            NORMANDY_API_RECIPE_URL="http://normandy.example.com/recipe/{id}/"
+        ):
+            self.assertEqual(
+                experiment.normandy_api_recipe_url,
+                "http://normandy.example.com/recipe/123/",
+            )
+
+    def test_delivery_console_recipe_url_returns_none_if_no_normandy_id(self):
+        experiment = ExperimentFactory.create(normandy_id=None)
+        self.assertEqual(experiment.delivery_console_recipe_url, None)
+
+    def test_delivery_console_recipe_url_returns_url_with_normandy_id(self):
+        experiment = ExperimentFactory.create(normandy_id="123")
+        with override_settings(
+            DELIVERY_CONSOLE_RECIPE_URL=(
+                "http://delivery-console.example.com/recipe/{id}/"
+            )
+        ):
+            self.assertEqual(
+                experiment.delivery_console_recipe_url,
+                "http://delivery-console.example.com/recipe/123/",
+            )
 
     def test_start_date_returns_proposed_start_date_if_change_is_missing(self):
         experiment = ExperimentFactory.create_with_variants()

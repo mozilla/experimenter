@@ -1017,3 +1017,16 @@ class ExperimentCommentForm(forms.ModelForm):
 
     def clean_created_by(self):
         return self.request.user
+
+
+class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
+    normandy_id = forms.IntegerField(
+        label="Recipe ID",
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "Recipe ID"}
+        ),
+    )
+
+    class Meta:
+        model = Experiment
+        fields = ("normandy_id",)

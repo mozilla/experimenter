@@ -56,6 +56,10 @@
 
   {% include "experiments/section_timeline.html" with section_name=experiment.SECTION_TIMELINE section_complete=experiment.completed_timeline experiment=experiment edit_url_name="experiments-overview-update" comments=experiment.comments.sections.timeline %}
 
+  {% if experiment.has_normandy_info %}
+    {% include "experiments/section_normandy.html" with section_name=experiment.SECTION_NORMANDY section_complete=True experiment=experiment comments=experiment.comments.sections.normandy %}
+  {% endif %}
+
   {% include "experiments/section_population.html" with section_name=experiment.SECTION_POPULATION section_complete=experiment.completed_population experiment=experiment edit_url_name="experiments-variants-update" comments=experiment.comments.sections.population %}
 
   {% if experiment.is_addon_experiment %}

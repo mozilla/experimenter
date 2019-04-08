@@ -27,7 +27,7 @@
           {% endif %}
         </div>
 
-        {% if experiment.is_editable %}
+        {% if experiment.is_editable  and edit_url_name %}
           <div class="col-1 text-right pl-0">
             <a href="{% url edit_url_name slug=experiment.slug %}">
               <span class="fas fa-edit"></span> Edit
@@ -56,7 +56,7 @@
           </div>
         {% endfor %}
       {% endif %}
-      
+
       <div class="row">
         <div class="col text-muted">
           <a href="#new{{ section_name }}Comment" data-toggle="collapse">
