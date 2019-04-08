@@ -461,11 +461,6 @@ class ExperimentVariantsAddonForm(ExperimentVariantsBaseForm):
     FORMSET_FORM_CLASS = ExperimentVariantAddonForm
     FORMSET_CLASS = ExperimentVariantsFormSet
 
-    addon_name = forms.CharField(
-        required=False,
-        label="Add-on Name",
-        help_text=Experiment.ADDON_NAME_HELP_TEXT,
-    )
     addon_experiment_id = forms.CharField(
         max_length=settings.NORMANDY_SLUG_MAX_LEN,
         required=False,
@@ -486,7 +481,6 @@ class ExperimentVariantsAddonForm(ExperimentVariantsBaseForm):
     class Meta:
         model = Experiment
         fields = ExperimentVariantsBaseForm.Meta.fields + [
-            "addon_name",
             "addon_experiment_id",
             "addon_testing_url",
             "addon_release_url",

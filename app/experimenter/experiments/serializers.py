@@ -76,7 +76,6 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "objectives",
             "analysis_owner",
             "analysis",
-            "addon_name",
             "addon_experiment_id",
             "addon_testing_url",
             "addon_release_url",

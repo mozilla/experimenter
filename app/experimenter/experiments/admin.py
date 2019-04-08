@@ -73,7 +73,6 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "firefox_channel",
                     "firefox_version",
                     "population_percent",
-                    "addon_name",
                     "addon_experiment_id",
                     "addon_testing_url",
                     "addon_release_url",

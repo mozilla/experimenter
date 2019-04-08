@@ -75,7 +75,6 @@ class Experiment(ExperimentConstants, models.Model):
         validators=[MaxValueValidator(ExperimentConstants.MAX_DURATION)],
     )
 
-    addon_name = models.CharField(max_length=255, blank=True, null=True)
     addon_experiment_id = models.CharField(
         max_length=255, unique=True, blank=True, null=True
     )
@@ -439,8 +438,7 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def completed_addon(self):
         return (
-            self.addon_name
-            and self.addon_experiment_id
+            self.addon_experiment_id
             and self.addon_testing_url
             and self.addon_release_url
         )
