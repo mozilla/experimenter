@@ -28,6 +28,8 @@ class ExperimentManager(models.Manager):
                 "owner",
                 "comments",
                 "comments__created_by",
+                "locales",
+                "countries",
             )
             .annotate(latest_change=Max("changes__changed_on"))
         )

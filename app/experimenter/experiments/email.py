@@ -26,9 +26,7 @@ def send_review_email(experiment_name, experiment_url, needs_attention):
 
 
 def send_intent_to_ship_email(experiment_id):
-    experiment = Experiment.objects.prefetch_related(
-        "locales", "countries"
-    ).get(id=experiment_id)
+    experiment = Experiment.objects.get(id=experiment_id)
 
     bug_url = settings.BUGZILLA_DETAIL_URL.format(id=experiment.bugzilla_id)
 
