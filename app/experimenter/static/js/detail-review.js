@@ -15,10 +15,9 @@ jQuery(function($) {
       method: "PUT",
     });
     if (resp.status == 200) {
-      modal.modal("hide");
-      // Update the checkbox to match our out-of-band knowledge of
-      // what happened.
-      $("#id_review_intent_to_ship").prop("checked", true);
+      // Rather than trying to update the DOM to match the new state,
+      // just refresh the page.
+      location.reload();
     } else {
       modal.find(".sending-failed").toggleClass("d-none");
     }
