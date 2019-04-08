@@ -36,17 +36,18 @@
 
         {% for field in form.required_reviews %}
             <div class="checkbox">
-              <label>
-                {{ field }}
-                {{ field.label }}
-              </label>
-              {% if field.name == 'review_intent_to_ship' %}
+              {% if field.name == 'review_intent_to_ship' and not experiment.review_intent_to_ship %}
                 <button type="button" class="btn btn-info send-intent-to-ship"
-                      data-toggle="modal" data-target="#send-intent-to-ship-modal"
-                      data-url="{% url 'experiments-api-send-intent-to-ship-email' experiment.slug %}"
-                      >
-                  <span class="fas fa-envelope"></span> Send
+                  data-toggle="modal" data-target="#send-intent-to-ship-modal"
+                  data-url="{% url 'experiments-api-send-intent-to-ship-email' experiment.slug %}"
+                >
+                  <span class="fas fa-envelope"></span> Send intent-to-ship email
                 </button>
+              {% else %}
+                <label>
+                  {{ field }}
+                  {{ field.label }}
+                </label>
               {% endif %}
               {{ field.help_text|safe }}
             </div>
