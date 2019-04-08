@@ -320,7 +320,6 @@ def get_variants_form_data():
         "pref_key": "browser.test.example",
         "pref_type": Experiment.PREF_TYPE_STR,
         "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
-        "addon_name": "Addon Name",
         "addon_experiment_id": slugify(faker.catch_phrase()),
         "addon_testing_url": "https://www.example.com/testing.xpi",
         "addon_release_url": "https://www.example.com/release.xpi",
@@ -889,7 +888,6 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
     def test_form_saves_addon_information(self):
         experiment = ExperimentFactory.create(
-            addon_name=None,
             addon_experiment_id=None,
             addon_testing_url=None,
             addon_release_url=None,
@@ -903,7 +901,6 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
         experiment = form.save()
 
-        self.assertEqual(experiment.addon_name, self.data["addon_name"])
         self.assertEqual(
             experiment.addon_experiment_id, self.data["addon_experiment_id"]
         )
@@ -916,7 +913,6 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
     def test_addon_experiment_id_is_unique(self):
         experiment1 = ExperimentFactory.create(
-            addon_name=None,
             addon_experiment_id=None,
             addon_testing_url=None,
             addon_release_url=None,
@@ -933,7 +929,6 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         )
 
         experiment2 = ExperimentFactory.create(
-            addon_name=None,
             addon_experiment_id=None,
             addon_testing_url=None,
             addon_release_url=None,
@@ -947,7 +942,6 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
     def test_addon_experiment_id_is_within_normandy_slug_max_len(self):
         experiment = ExperimentFactory.create(
-            addon_name=None,
             addon_experiment_id=None,
             addon_testing_url=None,
             addon_release_url=None,
