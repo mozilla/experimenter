@@ -725,6 +725,21 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        self._validate_risk(cleaned_data)
+        self._validate_risk_technical(cleaned_data)
+        return cleaned_data
+
+    def _validate_risk(self, cleaned_data):
+        if True in cleaned_data.values():
+            if not cleaned_data["risks"]:
+                msg = (
+                    f"This is required if "
+                    f"any of the questions above is answered Yes."
+                )
+                raise forms.ValidationError({"risks": msg})
+        return cleaned_data
+
+    def _validate_risk_technical(self, cleaned_data):
         if (
             "risk_technical" in cleaned_data
             and "risk_technical_description" in cleaned_data

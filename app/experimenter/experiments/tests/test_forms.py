@@ -1143,6 +1143,39 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         )
         self.assertTrue(form.is_valid())
 
+    def test_risk_description_is_empty_when_no_risk_option_is_true(self):
+        created_experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        data = self.valid_data.copy()
+        data["risks"] = ""
+
+        # switch all risk values to be False
+        data["risk_internal_only"] = False
+        data["risk_partner_related"] = False
+        data["risk_brand"] = False
+        data["risk_fast_shipped"] = False
+        data["risk_confidential"] = False
+        data["risk_release_population"] = False
+        data["risk_technical"] = False
+
+        form = ExperimentRisksForm(
+            request=self.request, data=data, instance=created_experiment
+        )
+        self.assertTrue(form.is_valid())
+
+    def test_risk_description_is_empty_when_a_risk_option_is_true(self):
+        created_experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        data = self.valid_data.copy()
+        data["risks"] = ""
+
+        form = ExperimentRisksForm(
+            request=self.request, data=data, instance=created_experiment
+        )
+        self.assertFalse(form.is_valid())
+
 
 class TestExperimentReviewForm(
     MockRequestMixin, MockBugzillaMixin, MockTasksMixin, TestCase
