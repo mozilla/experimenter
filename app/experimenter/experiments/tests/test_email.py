@@ -106,7 +106,10 @@ Thank you!!
 
         self.assertEqual(expected_body, sent_email.body)
         self.assertEqual(sent_email.from_email, settings.EMAIL_SENDER)
-        self.assertEqual(sent_email.recipients(), [settings.EMAIL_REVIEW])
+        self.assertEqual(
+            sent_email.recipients(),
+            [settings.EMAIL_RELEASE_DRIVERS, experiment.owner.email],
+        )
 
     def test_send_intent_to_ship_email_without_risk_fields(self):
         experiment = ExperimentFactory.create(
@@ -155,7 +158,10 @@ Thank you!!
 
         self.assertEqual(expected_body, sent_email.body)
         self.assertEqual(sent_email.from_email, settings.EMAIL_SENDER)
-        self.assertEqual(sent_email.recipients(), [settings.EMAIL_REVIEW])
+        self.assertEqual(
+            sent_email.recipients(),
+            [settings.EMAIL_RELEASE_DRIVERS, experiment.owner.email],
+        )
 
     def format_locales(self, experiment):
         locales = "All locales"

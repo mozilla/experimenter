@@ -2,6 +2,7 @@ from urllib.parse import urljoin
 
 from django.conf import settings
 from django.core.mail import send_mail
+from django.core.mail.message import EmailMessage
 from django.template.loader import render_to_string
 
 from experimenter.experiments.models import Experiment
@@ -48,12 +49,13 @@ def send_intent_to_ship_email(experiment_id):
 
     version = experiment.firefox_version
     channel = experiment.firefox_channel
-    send_mail(
+    email = EmailMessage(
         Experiment.INTENT_TO_SHIP_EMAIL_SUBJECT.format(
             name=experiment.name, version=version, channel=channel
         ),
         content,
         settings.EMAIL_SENDER,
-        [settings.EMAIL_REVIEW],
-        fail_silently=False,
+        [settings.EMAIL_RELEASE_DRIVERS],
+        cc=[experiment.owner.email],
     )
+    email.send(fail_silently=False)
