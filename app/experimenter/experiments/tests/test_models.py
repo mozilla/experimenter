@@ -832,6 +832,21 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.is_ready_to_launch)
 
+    def test_is_ready_to_launch_true_when_reviews_include_vp_review(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW,
+            review_science=True,
+            review_engineering=True,
+            review_qa_requested=True,
+            review_intent_to_ship=True,
+            review_bugzilla=True,
+            review_qa=True,
+            review_relman=True,
+            review_vp=True,
+            risk_partner_related=True,
+        )
+        self.assertTrue(experiment.is_ready_to_launch)
+
     def test_experiment_population_returns_correct_string(self):
         experiment = ExperimentFactory(
             population_percent="0.5",

@@ -478,7 +478,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def _required_reviews(self):
-        return (
+        default_reviews = [
             self.review_science,
             self.review_engineering,
             self.review_qa_requested,
@@ -486,7 +486,12 @@ class Experiment(ExperimentConstants, models.Model):
             self.review_bugzilla,
             self.review_qa,
             self.review_relman,
-        )
+        ]
+
+        if self.risk_partner_related:
+            default_reviews.append(self.review_vp)
+
+        return default_reviews
 
     @property
     def completed_required_reviews(self):

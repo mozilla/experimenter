@@ -693,6 +693,10 @@ class ExperimentConstants(object):
       https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
     """  # noqa
 
+    RISK_GENERAL_HELP_TEXT = """
+      https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
+    """
+
     # Text defaults
     CLIENT_MATCHING_DEFAULT = (
         """Prefs:

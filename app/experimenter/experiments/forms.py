@@ -850,8 +850,12 @@ class ExperimentReviewForm(
         )
 
     @property
+    def _required_reviews_mapping(self):
+        return {"review_vp": self.instance.risk_partner_related}
+
+    @property
     def required_reviews(self):
-        return (
+        default_required = [
             self["review_science"],
             self["review_advisory"],
             self["review_engineering"],
@@ -860,11 +864,26 @@ class ExperimentReviewForm(
             self["review_bugzilla"],
             self["review_qa"],
             self["review_relman"],
-        )
+        ]
+        return self.add_conditional_reviews(default_required)
+
+    def add_conditional_reviews(self, required_reviews):
+        for review, risk in self._required_reviews_mapping.items():
+            if risk:
+                self._remove_optional_label(review)
+                self._change_help_text_to_risk_help(review)
+                required_reviews.append(self[review])
+        return required_reviews
+
+    def _remove_optional_label(self, review):
+        self[review].label = self[review].label.strip("(Optional)")
+
+    def _change_help_text_to_risk_help(self, review):
+        self[review].help_text = Experiment.RISK_GENERAL_HELP_TEXT
 
     @property
     def optional_reviews(self):
-        return (
+        default_optional = [
             self["review_legal"],
             self["review_ux"],
             self["review_security"],
@@ -872,7 +891,14 @@ class ExperimentReviewForm(
             self["review_data_steward"],
             self["review_comms"],
             self["review_impacted_teams"],
-        )
+        ]
+        return self._remove_optional_reviews(default_optional)
+
+    def _remove_optional_reviews(self, optional_reviews):
+        for review, bool_value in self._required_reviews_mapping.items():
+            if bool_value:
+                optional_reviews.remove(self[review])
+        return optional_reviews
 
     @property
     def added_reviews(self):
