@@ -17,7 +17,7 @@
       {% if experiment.is_pref_experiment %}
         <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
       {% endif %}
-      <p>{{ variant.description|urlize }}</p>
+      <p>{{ variant.description|urlize|linebreaks }}</p>
     </div>
   {% endfor %}
 {% endblock %}
