@@ -86,8 +86,12 @@
         }
       }
 
-      function updateRisks() {
-        if ($('[type="radio"][value="True"]:checked').length > 0) {
+      function updateRisks(){
+        const hasRisk = $('[type="radio"][value="True"]:checked').length > 0;
+        $('#risks_field').prop("required", hasRisk);
+        $('#risks_field .text-muted').hide();
+
+        if (hasRisk) {
           $('#risks_field').show();
         } else {
           $('#risks_field').hide();
