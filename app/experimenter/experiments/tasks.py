@@ -22,7 +22,7 @@ NOTIFICATION_MESSAGE_CREATE_BUG_FAILED = (
 )
 NOTIFICATION_MESSAGE_ADD_COMMENT = (
     'The <a target="_blank" rel="noreferrer noopener" href="{bug_url}">'
-    "Bugzilla eTicket</a> was updated with the details "
+    "Ticket</a> was updated with the details "
     "of this experiment"
 )
 
