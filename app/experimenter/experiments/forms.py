@@ -730,7 +730,17 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         return cleaned_data
 
     def _validate_risk(self, cleaned_data):
-        if True in cleaned_data.values():
+        if any(
+            [
+                cleaned_data["risk_internal_only"],
+                cleaned_data["risk_partner_related"],
+                cleaned_data["risk_brand"],
+                cleaned_data["risk_fast_shipped"],
+                cleaned_data["risk_confidential"],
+                cleaned_data["risk_release_population"],
+                cleaned_data["risk_technical"],
+            ]
+        ):
             if not cleaned_data["risks"]:
                 msg = (
                     f"This is required if "
