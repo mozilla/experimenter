@@ -1,0 +1,8 @@
+{# this is based off of https://github.com/carltongibson/django-filter/blob/master/django_filters/templates/django_filters/widgets/multiwidget.html #}
+
+<label class="mb-1">From</label>
+{% for widget in widget.subwidgets %}{% include widget.template_name %}
+  {% if forloop.first %}
+    <label class="mt-2">To</label>
+  {% endif %}
+{% endfor %}
