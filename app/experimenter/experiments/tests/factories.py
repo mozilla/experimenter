@@ -293,6 +293,7 @@ class CountryFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Country
+        django_get_or_create = ("code",)
 
 
 class LocaleFactory(factory.django.DjangoModelFactory):
@@ -303,3 +304,4 @@ class LocaleFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Locale
+        django_get_or_create = ("code",)
