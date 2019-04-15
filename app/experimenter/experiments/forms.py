@@ -809,7 +809,7 @@ class ExperimentReviewForm(
     review_vp = forms.BooleanField(
         required=False,
         label="VP Sign Off",
-        help_text=Experiment.REVIEW_VP_HELP_TEXT,
+        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
     )
     review_data_steward = forms.BooleanField(
         required=False,
@@ -832,7 +832,6 @@ class ExperimentReviewForm(
         fields = (
             # Required
             "review_science",
-            "review_advisory",
             "review_engineering",
             "review_qa_requested",
             "review_intent_to_ship",
@@ -840,6 +839,7 @@ class ExperimentReviewForm(
             "review_qa",
             "review_relman",
             # Optional
+            "review_advisory",
             "review_legal",
             "review_ux",
             "review_security",
