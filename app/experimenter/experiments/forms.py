@@ -788,42 +788,42 @@ class ExperimentReviewForm(
     # Optional
     review_advisory = forms.BooleanField(
         required=False,
-        label="Lightning Advisory (Optional)",
+        label="Lightning Advisory",
         help_text=Experiment.REVIEW_ADVISORY_HELP_TEXT,
     )
     review_legal = forms.BooleanField(
         required=False,
-        label="Legal Review (Optional)",
+        label="Legal Review",
         help_text=Experiment.REVIEW_LEGAL_HELP_TEXT,
     )
     review_ux = forms.BooleanField(
         required=False,
-        label="UX Review (Optional)",
+        label="UX Review",
         help_text=Experiment.REVIEW_UX_HELP_TEXT,
     )
     review_security = forms.BooleanField(
         required=False,
-        label="Security Review (Optional)",
+        label="Security Review",
         help_text=Experiment.REVIEW_SECURITY_HELP_TEXT,
     )
     review_vp = forms.BooleanField(
         required=False,
-        label="VP Review (Optional)",
+        label="VP Sign Off",
         help_text=Experiment.REVIEW_VP_HELP_TEXT,
     )
     review_data_steward = forms.BooleanField(
         required=False,
-        label="Data Steward Review (Optional)",
+        label="Data Steward Review",
         help_text=Experiment.REVIEW_DATA_STEWARD_HELP_TEXT,
     )
     review_comms = forms.BooleanField(
         required=False,
-        label="Mozilla Press/Comms (Optional)",
+        label="Mozilla Press/Comms",
         help_text=Experiment.REVIEW_COMMS_HELP_TEXT,
     )
     review_impacted_teams = forms.BooleanField(
         required=False,
-        label="Impacted Team(s) Signed-Off (Optional)",
+        label="Impacted Team(s) Signed-Off",
         help_text=Experiment.REVIEW_IMPACTED_TEAMS_HELP_TEXT,
     )
 
@@ -850,54 +850,22 @@ class ExperimentReviewForm(
         )
 
     @property
-    def _required_reviews_mapping(self):
-        return {"review_vp": self.instance.risk_partner_related}
-
-    @property
     def required_reviews(self):
-        default_required = [
-            self["review_science"],
-            self["review_advisory"],
-            self["review_engineering"],
-            self["review_qa_requested"],
-            self["review_intent_to_ship"],
-            self["review_bugzilla"],
-            self["review_qa"],
-            self["review_relman"],
-        ]
-        return self.add_conditional_reviews(default_required)
+        required_review_names = self.instance.get_all_required_reviews()
+        required_reviews = []
+        for review_name in required_review_names:
+            required_reviews.append(self[review_name])
 
-    def add_conditional_reviews(self, required_reviews):
-        for review, risk in self._required_reviews_mapping.items():
-            if risk:
-                self._remove_optional_label(review)
-                self._change_help_text_to_risk_help(review)
-                required_reviews.append(self[review])
         return required_reviews
-
-    def _remove_optional_label(self, review):
-        self[review].label = self[review].label.strip("(Optional)")
-
-    def _change_help_text_to_risk_help(self, review):
-        self[review].help_text = Experiment.RISK_GENERAL_HELP_TEXT
 
     @property
     def optional_reviews(self):
-        default_optional = [
-            self["review_legal"],
-            self["review_ux"],
-            self["review_security"],
-            self["review_vp"],
-            self["review_data_steward"],
-            self["review_comms"],
-            self["review_impacted_teams"],
-        ]
-        return self._remove_optional_reviews(default_optional)
+        required_review_names = self.instance.get_all_required_reviews()
+        optional_reviews = []
+        for review_name in self.Meta.fields:
+            if review_name not in required_review_names:
+                optional_reviews.append(self[review_name])
 
-    def _remove_optional_reviews(self, optional_reviews):
-        for review, bool_value in self._required_reviews_mapping.items():
-            if bool_value:
-                optional_reviews.remove(self[review])
         return optional_reviews
 
     @property

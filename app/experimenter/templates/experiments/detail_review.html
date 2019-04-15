@@ -30,7 +30,7 @@
 
   <div class="form-group row">
     <div class="col pt-2">
-      <h5>Sign-Off Checklist</h5>
+      <h5>Required Sign-Off Checklist</h5>
       <form action="{% url "experiments-review-update" slug=experiment.slug %}" method="POST">
         {% csrf_token %}
 
@@ -54,6 +54,7 @@
         {% endfor %}
 
         <hr class="m-0 mt-1 mb-3" />
+        <h5>Optional Sign-Off Checklist</h5>
 
         {% for field in form.optional_reviews %}
             <div class="checkbox">
