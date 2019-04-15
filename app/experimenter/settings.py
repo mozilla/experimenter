@@ -253,6 +253,9 @@ EMAIL_REVIEW = config("EMAIL_REVIEW")
 # Email to send to when an experiment is ready to ship
 EMAIL_SHIP = config("EMAIL_SHIP")
 
+# Email to send to when an experiment is being signed-off
+EMAIL_RELEASE_DRIVERS = config("EMAIL_RELEASE_DRIVERS")
+
 # Bugzilla API Integration
 BUGZILLA_HOST = config("BUGZILLA_HOST")
 BUGZILLA_API_KEY = config("BUGZILLA_API_KEY")

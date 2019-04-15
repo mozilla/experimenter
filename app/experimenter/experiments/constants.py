@@ -771,6 +771,10 @@ If applicable, link to any relevant test builds / staging information
 {attention}"""
     )
 
+    INTENT_TO_SHIP_EMAIL_SUBJECT = (
+        "SHIELD Study Intent to ship: {name} {version} {channel}"
+    )
+
     BUGZILLA_OVERVIEW_TEMPLATE = (
         """
 {experiment.name}
