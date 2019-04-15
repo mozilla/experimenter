@@ -177,6 +177,84 @@ class TestExperimentFilterset(TestCase):
             set(Experiment.objects.filter(firefox_channel=include_channel)),
         )
 
+    def test_list_filters_by_search_text(self):
+        user_email = "user@example.com"
+
+        exp_1 = ExperimentFactory.create_with_status(
+            random.choice(Experiment.STATUS_CHOICES)[0],
+            name="Experiment One Cat",
+            short_description="",
+            slug="exp-1",
+            related_work="",
+            addon_experiment_id="1",
+            pref_key="",
+            public_name="",
+            public_description="",
+            objectives="",
+            analysis="",
+            analysis_owner="",
+            engineering_owner="",
+            bugzilla_id="4",
+            normandy_slug="",
+        )
+
+        exp_2 = ExperimentFactory.create_with_status(
+            random.choice(Experiment.STATUS_CHOICES)[0],
+            name="Experiment Two Cat",
+            short_description="",
+            slug="exp-2",
+            related_work="",
+            addon_experiment_id="2",
+            pref_key="",
+            public_name="",
+            public_description="",
+            objectives="",
+            analysis="",
+            analysis_owner="",
+            engineering_owner="",
+            bugzilla_id="5",
+            normandy_slug="",
+        )
+
+        exp_3 = ExperimentFactory.create_with_status(
+            random.choice(Experiment.STATUS_CHOICES)[0],
+            name="Experiment Three Dog",
+            short_description="",
+            slug="exp-3",
+            related_work="",
+            addon_experiment_id="3",
+            pref_key="",
+            public_name="",
+            public_description="",
+            objectives="",
+            analysis="",
+            analysis_owner="",
+            engineering_owner="",
+            bugzilla_id="6",
+            normandy_slug="",
+        )
+
+        first_response_context = self.client.get(
+            "{url}?{params}".format(
+                url=reverse("home"), params=urlencode({"search": "Cat"})
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        ).context[0]
+
+        second_response_context = self.client.get(
+            "{url}?{params}".format(
+                url=reverse("home"), params=urlencode({"search": "Dog"})
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        ).context[0]
+
+        self.assertEqual(
+            set(first_response_context["experiments"]), set([exp_1, exp_2])
+        )
+        self.assertEqual(
+            set(second_response_context["experiments"]), set([exp_3])
+        )
+
 
 class TestExperimentOrderingForm(TestCase):
 
