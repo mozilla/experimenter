@@ -778,7 +778,6 @@ class TestExperimentModel(TestCase):
             review_bugzilla=True,
             review_qa=True,
             review_relman=True,
-
         )
         self.assertTrue(experiment.completed_required_reviews)
 
@@ -848,7 +847,9 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.is_ready_to_launch)
 
-    def test_not_ready_to_launch_when_no_review_vp_and_partner_related_is_true(self):
+    def test_not_ready_to_launch_when_no_review_vp_and_partner_related_is_true(
+        self
+    ):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,
             review_science=True,
