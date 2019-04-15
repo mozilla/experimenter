@@ -1263,7 +1263,6 @@ class TestExperimentReviewForm(
             form.required_reviews,
             [
                 form["review_science"],
-                form["review_advisory"],
                 form["review_engineering"],
                 form["review_qa_requested"],
                 form["review_intent_to_ship"],
@@ -1273,7 +1272,7 @@ class TestExperimentReviewForm(
             ],
         )
 
-    def test_required_reviews_when_a_risk_option_is_true(self):
+    def test_required_reviews_when_a_risk_partner_related_is_true(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,
             review_relman=True,
@@ -1289,7 +1288,6 @@ class TestExperimentReviewForm(
             form.required_reviews,
             [
                 form["review_science"],
-                form["review_advisory"],
                 form["review_engineering"],
                 form["review_qa_requested"],
                 form["review_intent_to_ship"],
@@ -1312,6 +1310,7 @@ class TestExperimentReviewForm(
         self.assertEqual(
             form.optional_reviews,
             [
+                form["review_advisory"],
                 form["review_legal"],
                 form["review_ux"],
                 form["review_security"],
@@ -1337,6 +1336,7 @@ class TestExperimentReviewForm(
         self.assertEqual(
             form.optional_reviews,
             [
+                form["review_advisory"],
                 form["review_legal"],
                 form["review_ux"],
                 form["review_security"],
