@@ -461,7 +461,7 @@ class ExperimentConstants(object):
     CONTROL_RATIO_HELP_TEXT = """
       <p>
         Choose the size of this branch represented as a whole number.
-        The size of all branches together must be less than or equal to 100.
+        The size of all branches together must be equal to 100.
         It does not have to be exact, so these sizes are simply a
         recommendation of the relative distribution of the branches.
       </p>
