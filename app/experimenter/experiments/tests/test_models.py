@@ -832,7 +832,7 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.is_ready_to_launch)
 
-    def test_is_ready_to_launch_true_when_reviews_include_vp_review(self):
+    def test_is_ready_to_launch_true_with_conditional_review(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,
             review_science=True,
@@ -847,9 +847,7 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.is_ready_to_launch)
 
-    def test_not_ready_to_launch_when_no_review_vp_and_partner_related_is_true(
-        self
-    ):
+    def test_is_ready_to_launch_is_false_without_conditional_review(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,
             review_science=True,
