@@ -851,22 +851,17 @@ class ExperimentReviewForm(
 
     @property
     def required_reviews(self):
-        required_review_names = self.instance.get_all_required_reviews()
-        required_reviews = []
-        for review_name in required_review_names:
-            required_reviews.append(self[review_name])
-
-        return required_reviews
+        return [self[r] for r in self.instance.get_all_required_reviews()]
 
     @property
     def optional_reviews(self):
-        required_review_names = self.instance.get_all_required_reviews()
-        optional_reviews = []
-        for review_name in self.Meta.fields:
-            if review_name not in required_review_names:
-                optional_reviews.append(self[review_name])
-
-        return optional_reviews
+        return [
+            self[r]
+            for r in list(
+                set(self.Meta.fields)
+                - set(self.instance.get_all_required_reviews())
+            )
+        ]
 
     @property
     def added_reviews(self):

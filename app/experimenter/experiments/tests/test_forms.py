@@ -1307,7 +1307,7 @@ class TestExperimentReviewForm(
             request=self.request, data={}, instance=experiment
         )
 
-        self.assertEqual(
+        self.assertCountEqual(
             form.optional_reviews,
             [
                 form["review_advisory"],
@@ -1333,18 +1333,8 @@ class TestExperimentReviewForm(
             request=self.request, data={}, instance=experiment
         )
 
-        self.assertEqual(
-            form.optional_reviews,
-            [
-                form["review_advisory"],
-                form["review_legal"],
-                form["review_ux"],
-                form["review_security"],
-                form["review_data_steward"],
-                form["review_comms"],
-                form["review_impacted_teams"],
-            ],
-        )
+        self.assertNotIn(form["review_vp"], form.optional_reviews)
+        self.assertIn(form["review_vp"], form.required_reviews)
 
 
 class TestExperimentStatusForm(

@@ -480,7 +480,6 @@ class Experiment(ExperimentConstants, models.Model):
     def _conditional_required_reviews_mapping(self):
         return {"review_vp": self.risk_partner_related}
 
-    @property
     def _default_required_reviews(self):
         return [
             "review_science",
@@ -493,7 +492,7 @@ class Experiment(ExperimentConstants, models.Model):
         ]
 
     def get_all_required_reviews(self):
-        required_reviews = self._default_required_reviews
+        required_reviews = self._default_required_reviews()
         for review, risk in self._conditional_required_reviews_mapping.items():
             if risk:
                 required_reviews.append(review)
@@ -501,10 +500,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_required_reviews(self):
-        required_review = self.get_all_required_reviews()
-        return all(
-            list(map(lambda review: getattr(self, review), required_review))
-        )
+        return all([getattr(self, r) for r in self.get_all_required_reviews()])
 
     @property
     def completed_all_sections(self):
