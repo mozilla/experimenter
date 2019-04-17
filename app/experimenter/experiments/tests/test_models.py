@@ -904,6 +904,7 @@ class TestExperimentModel(TestCase):
             review_qa=True,
             review_relman=True,
             review_vp=True,
+            review_legal=True,
             risk_partner_related=True,
         )
         self.assertTrue(experiment.is_ready_to_launch)
