@@ -54,7 +54,6 @@ class TestProjectUpdateView(TestCase):
         updated_project = Project.objects.get(id=project.id)
 
         self.assertEqual(updated_project.name, project_data["name"])
-        self.assertEqual(updated_project.slug, "new-name")
         self.assertRedirects(
             response,
             reverse("projects-detail", kwargs={"slug": updated_project.slug}),
