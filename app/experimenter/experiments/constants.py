@@ -153,11 +153,12 @@ class ExperimentConstants(object):
     RISK_PARTNER_RELATED_LABEL = "Is this experiment partner related?"
     RISK_BRAND_LABEL = "Does this have a high risk to the brand?"
     RISK_FAST_SHIPPED_LABEL = (
-        "Does this need to be shipped outside the normal release process?"
+        """Does this experiment require uplifting code
+         or a rushed experiment schedule?"""
     )
     RISK_CONFIDENTIAL_LABEL = "Is this experiment confidential to Mozilla?"
     RISK_RELEASE_POPULATION_LABEL = (
-        "Does this experiment affect a large number of Release users?"
+        "Does this experiment affect 1% or more of Release users?"
     )
     RISK_TECHNICAL_LABEL = "Is this experiment Complex / Technically Risky?"
 
