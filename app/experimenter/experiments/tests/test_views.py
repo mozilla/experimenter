@@ -706,6 +706,7 @@ class TestExperimentRisksUpdateView(TestCase):
             "risk_fast_shipped": True,
             "risk_confidential": True,
             "risk_release_population": True,
+            "risk_data_category": True,
             "risk_technical": True,
             "risk_technical_description": "It's complicated",
             "risks": "There are some risks",

@@ -153,6 +153,9 @@ class Experiment(ExperimentConstants, models.Model):
     risk_release_population = models.NullBooleanField(
         default=None, blank=True, null=True
     )
+    risk_data_category = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     risk_technical = models.NullBooleanField(
         default=None, blank=True, null=True
     )
