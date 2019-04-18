@@ -666,6 +666,10 @@ class ExperimentConstants(object):
       <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-IntenttoShipemailsent">Help</a>
     """  # noqa
 
+    REVIEW_GENERAL_HELP_TEXT = """
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-DependentSign-offs">Help</a>
+    """  # noqa
+
     # Risks
     RISK_INTERNAL_ONLY_HELP_TEXT = """
       https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
