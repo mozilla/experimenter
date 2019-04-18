@@ -636,6 +636,14 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         coerce=coerce_truthy,
         empty_value=None,
     )
+    risk_external_team_impact = forms.TypedChoiceField(
+        label=Experiment.RISK_EXTERNAL_TEAM_IMPACT_LABEL,
+        help_text=Experiment.RISK_EXTERNAL_TEAM_IMPACT_HELP_TEXT,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
+    )
     risk_technical = forms.TypedChoiceField(
         label=Experiment.RISK_TECHNICAL_LABEL,
         help_text=Experiment.RISK_TECHNICAL_HELP_TEXT,
@@ -718,6 +726,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
             "risk_confidential",
             "risk_release_population",
             "risk_data_category",
+            "risk_external_team_impact",
             "risk_technical",
             "risk_technical_description",
             "risks",
@@ -827,7 +836,7 @@ class ExperimentReviewForm(
     review_impacted_teams = forms.BooleanField(
         required=False,
         label="Impacted Team(s) Signed-Off",
-        help_text=Experiment.REVIEW_IMPACTED_TEAMS_HELP_TEXT,
+        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
     )
 
     class Meta:
