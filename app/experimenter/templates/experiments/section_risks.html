@@ -49,7 +49,7 @@
 
   <p>
     {{ experiment.RISK_DATA_CATEGORY_LABEL }}
-    <strong class="{% if experiment.risk_release_population %}text-danger{% endif %}">
+    <strong class="{% if experiment.risk_data_category %}text-danger{% endif %}">
       {{ experiment.risk_data_category|yesno:"Yes,No"}}
 
     </strong>
