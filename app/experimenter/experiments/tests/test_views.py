@@ -15,6 +15,7 @@ from experimenter.experiments.forms import (
     ExperimentVariantsAddonForm,
     ExperimentVariantsPrefForm,
 )
+from experimenter.experiments.forms import NormandyIdForm
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.mixins import MockTasksMixin
@@ -792,6 +793,37 @@ class TestExperimentDetailView(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    def test_includes_normandy_id_form_in_context(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP
+        )
+        response = self.client.get(
+            reverse("experiments-detail", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertTrue(
+            isinstance(response.context[0]["normandy_id_form"], NormandyIdForm)
+        )
+
+    def test_includes_bound_normandy_id_form_if_GET_param_set(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP
+        )
+        bad_normandy_id = "abc"
+        detail_url = reverse(
+            "experiments-detail", kwargs={"slug": experiment.slug}
+        )
+        response = self.client.get(
+            f"{detail_url}?normandy_id={bad_normandy_id}",
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        normandy_form = response.context[0]["normandy_id_form"]
+        self.assertTrue(isinstance(normandy_form, NormandyIdForm))
+        self.assertEqual(normandy_form.data["normandy_id"], bad_normandy_id)
+        self.assertFalse(normandy_form.is_valid())
+
 
 class TestExperimentStatusUpdateView(MockTasksMixin, TestCase):
 
@@ -974,3 +1006,54 @@ class TestExperimentArchiveUpdateView(TestCase):
 
         experiment = Experiment.objects.get(id=experiment.id)
         self.assertTrue(experiment.archived)
+
+
+class TestExperimentNormandyUpdateView(TestCase):
+
+    def test_valid_recipe_id_updates_experiment_status(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP
+        )
+        normandy_id = 123
+
+        response = self.client.post(
+            reverse(
+                "experiments-normandy-update", kwargs={"slug": experiment.slug}
+            ),
+            {"normandy_id": normandy_id},
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertRedirects(
+            response,
+            reverse("experiments-detail", kwargs={"slug": experiment.slug}),
+            fetch_redirect_response=False,
+        )
+
+        experiment = Experiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.normandy_id, normandy_id)
+        self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
+
+    def test_invalid_recipe_id_redirects_to_detail(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP
+        )
+        normandy_id = "abc"
+
+        response = self.client.post(
+            reverse(
+                "experiments-normandy-update", kwargs={"slug": experiment.slug}
+            ),
+            {"normandy_id": normandy_id},
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        detail_url = reverse(
+            "experiments-detail", kwargs={"slug": experiment.slug}
+        )
+        self.assertRedirects(
+            response,
+            f"{detail_url}?normandy_id={normandy_id}",
+            fetch_redirect_response=False,
+        )

@@ -1,17 +1,29 @@
 import datetime
+from decimal import Decimal
 
 from django.test import TestCase
 
-from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
+    LocaleFactory,
+    CountryFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
 )
 from experimenter.experiments.serializers import (
-    JSTimestampField,
+    CountrySerializer,
+    ExperimentRecipeAddonArgumentsSerializer,
+    ExperimentRecipePrefArgumentsSerializer,
+    ExperimentRecipeSerializer,
+    ExperimentRecipeVariantSerializer,
     ExperimentSerializer,
     ExperimentVariantSerializer,
+    FilterObjectBucketSampleSerializer,
+    FilterObjectChannelSerializer,
+    FilterObjectCountrySerializer,
+    FilterObjectLocaleSerializer,
+    JSTimestampField,
+    LocaleSerializer,
 )
 
 
@@ -33,17 +45,34 @@ class TestExperimentVariantSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
         variant = ExperimentVariantFactory.create()
-        serialized = ExperimentVariantSerializer(variant)
+        serializer = ExperimentRecipeVariantSerializer(variant)
         self.assertEqual(
-            serialized.data,
+            serializer.data,
             {
-                "description": variant.description,
-                "is_control": variant.is_control,
-                "name": variant.name,
                 "ratio": variant.ratio,
                 "slug": variant.slug,
                 "value": variant.value,
             },
+        )
+
+
+class TestLocaleSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        locale = LocaleFactory.create()
+        serializer = LocaleSerializer(locale)
+        self.assertEqual(
+            serializer.data, {"code": locale.code, "name": locale.name}
+        )
+
+
+class TestCountrySerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        country = CountryFactory.create()
+        serializer = CountrySerializer(country)
+        self.assertEqual(
+            serializer.data, {"code": country.code, "name": country.name}
         )
 
 
@@ -53,7 +82,7 @@ class TestExperimentSerializer(TestCase):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_COMPLETE, countries=[], locales=[]
         )
-        serialized = ExperimentSerializer(experiment)
+        serializer = ExperimentSerializer(experiment)
         expected_data = {
             "analysis": experiment.analysis,
             "analysis_owner": experiment.analysis_owner,
@@ -97,24 +126,184 @@ class TestExperimentSerializer(TestCase):
         }
 
         self.assertEqual(
-            set(serialized.data.keys()), set(expected_data.keys())
+            set(serializer.data.keys()), set(expected_data.keys())
         )
-        self.assertEqual(serialized.data, expected_data)
+        self.assertEqual(serializer.data, expected_data)
 
     def test_serializer_locales(self):
         locale = LocaleFactory()
         experiment = ExperimentFactory.create(locales=[locale])
-        serialized = ExperimentSerializer(experiment)
+        serializer = ExperimentSerializer(experiment)
         self.assertEqual(
-            serialized.data["locales"],
+            serializer.data["locales"],
             [{"code": locale.code, "name": locale.name}],
         )
 
     def test_serializer_countries(self):
         country = CountryFactory()
         experiment = ExperimentFactory.create(countries=[country])
-        serialized = ExperimentSerializer(experiment)
+        serializer = ExperimentSerializer(experiment)
         self.assertEqual(
-            serialized.data["countries"],
+            serializer.data["countries"],
             [{"code": country.code, "name": country.name}],
+        )
+
+
+class TestFilterObjectBucketSampleSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentFactory.create(
+            population_percent=Decimal("12.34")
+        )
+        serializer = FilterObjectBucketSampleSerializer(experiment)
+        self.assertEqual(
+            serializer.data,
+            {
+                "type": "bucketSample",
+                "input": ["normandy.recipe.id", "normandy.userId"],
+                "start": 0,
+                "count": 1234,
+                "total": 10000,
+            },
+        )
+
+
+class TestFilterObjectChannelSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentFactory.create(
+            firefox_channel=Experiment.CHANNEL_NIGHTLY
+        )
+        serializer = FilterObjectChannelSerializer(experiment)
+        self.assertEqual(
+            serializer.data, {"type": "channel", "channels": ["nightly"]}
+        )
+
+
+class TestFilterObjectLocaleSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        locale1 = LocaleFactory.create(code="ab")
+        locale2 = LocaleFactory.create(code="cd")
+        experiment = ExperimentFactory.create(locales=[locale1, locale2])
+        serializer = FilterObjectLocaleSerializer(experiment)
+        self.assertEqual(serializer.data["type"], "locale")
+        self.assertEqual(set(serializer.data["locales"]), set(["ab", "cd"]))
+
+
+class TestFilterObjectCountrySerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        country1 = CountryFactory.create(code="ab")
+        country2 = CountryFactory.create(code="cd")
+        experiment = ExperimentFactory.create(countries=[country1, country2])
+        serializer = FilterObjectCountrySerializer(experiment)
+        self.assertEqual(serializer.data["type"], "country")
+        self.assertEqual(set(serializer.data["countries"]), set(["ab", "cd"]))
+
+
+class TestExperimentRecipeVariantSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        variant = ExperimentVariantFactory.create()
+        serializer = ExperimentRecipeVariantSerializer(variant)
+        self.assertEqual(
+            serializer.data,
+            {
+                "ratio": variant.ratio,
+                "slug": variant.slug,
+                "value": variant.value,
+            },
+        )
+
+
+class TestExperimentRecipePrefArgumentsSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP
+        )
+        serializer = ExperimentRecipePrefArgumentsSerializer(experiment)
+        self.assertEqual(
+            serializer.data,
+            {
+                "preferenceBranchType": experiment.pref_branch,
+                "slug": experiment.normandy_slug,
+                "experimentDocumentUrl": experiment.experiment_url,
+                "preferenceName": experiment.pref_key,
+                "preferenceType": experiment.pref_type,
+                "branches": [
+                    ExperimentRecipeVariantSerializer(variant).data
+                    for variant in experiment.variants.all()
+                ],
+            },
+        )
+
+
+class TestExperimentRecipeAddonArgumentsSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP
+        )
+        serializer = ExperimentRecipeAddonArgumentsSerializer(experiment)
+        self.assertEqual(
+            serializer.data,
+            {
+                "name": experiment.addon_experiment_id,
+                "description": experiment.public_description,
+            },
+        )
+
+
+class TestExperimentRecipeSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema_for_pref_experiment(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP, type=Experiment.TYPE_PREF
+        )
+        serializer = ExperimentRecipeSerializer(experiment)
+        self.assertEqual(
+            serializer.data["action_name"], "preference-experiment"
+        )
+        self.assertEqual(serializer.data["name"], experiment.name)
+        self.assertEqual(
+            serializer.data["comment"], experiment.client_matching
+        )
+        self.assertEqual(
+            serializer.data["filter_object"],
+            [
+                FilterObjectBucketSampleSerializer(experiment).data,
+                FilterObjectChannelSerializer(experiment).data,
+                FilterObjectLocaleSerializer(experiment).data,
+                FilterObjectCountrySerializer(experiment).data,
+            ],
+        )
+        self.assertEqual(
+            serializer.data["arguments"],
+            ExperimentRecipePrefArgumentsSerializer(experiment).data,
+        )
+
+    def test_serializer_outputs_expected_schema_for_addon_experiment(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP, type=Experiment.TYPE_ADDON
+        )
+        serializer = ExperimentRecipeSerializer(experiment)
+        self.assertEqual(serializer.data["action_name"], "opt-out-study")
+        self.assertEqual(serializer.data["name"], experiment.name)
+        self.assertEqual(
+            serializer.data["comment"], experiment.client_matching
+        )
+        self.assertEqual(
+            serializer.data["filter_object"],
+            [
+                FilterObjectBucketSampleSerializer(experiment).data,
+                FilterObjectChannelSerializer(experiment).data,
+                FilterObjectLocaleSerializer(experiment).data,
+                FilterObjectCountrySerializer(experiment).data,
+            ],
+        )
+        self.assertEqual(
+            serializer.data["arguments"],
+            ExperimentRecipeAddonArgumentsSerializer(experiment).data,
         )

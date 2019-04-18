@@ -1329,7 +1329,7 @@ class TestExperimentStatusForm(
 
     def test_sends_review_mail_when_draft_becomes_review(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
+            Experiment.STATUS_DRAFT, bugzilla_id=None
         )
         form = ExperimentStatusForm(
             request=self.request,
@@ -1344,7 +1344,7 @@ class TestExperimentStatusForm(
 
     def test_sets_bugzilla_id_when_draft_becomes_review(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
+            Experiment.STATUS_DRAFT, bugzilla_id=None
         )
         form = ExperimentStatusForm(
             request=self.request,

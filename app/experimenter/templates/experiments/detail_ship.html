@@ -1,6 +1,16 @@
 {% extends "experiments/detail_base.html" %}
 
 {% block main_sidebar_extra %}
+  <button
+    type="submit"
+    class="col btn btn-danger mb-3"
+    data-toggle="modal"
+    data-target="#normandyModal"
+  >
+    <span class="fas fa-file-import"></span>
+    Send to Normandy
+  </button>
+
   <form
     action="{% url "experiments-status-update" slug=experiment.slug %}"
     method="POST"
@@ -13,7 +23,67 @@
       class="col btn status-color-Review"
     >
       <span class="fas fa-undo"></span>
-        Return to Sign-Off
+      Return to Sign-Off
     </button>
   </form>
+
+  <!-- Modal -->
+  <div class="modal fade" id="normandyModal" tabindex="-1" role="dialog" aria-labelledby="normandyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="normandyModalLabel">Normandy Recipe</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <p>Enter the following information into Delivery Console exactly as shown:</p>
+          <pre class="bg-light json prettyprint">{{ experiment.normandy_recipe_json }}</pre>
+          <p>When the recipe is saved in Delivery Console, copy the Recipe ID below and hit save.</p>
+        </div>
+
+        <div class="modal-footer">
+
+          <form class="form-inline" method="post" action="{% url "experiments-normandy-update" slug=experiment.slug %}">
+
+            {% csrf_token %}
+
+            <div class="form-group mx-1">
+              {% include "experiments/field_errors_inline.html" with form=normandy_id_form field=normandy_id_form.normandy_id %}
+            </div>
+
+            <div class="form-group mx-1">
+              {% include "experiments/field_input_inline.html" with form=normandy_id_form field=normandy_id_form.normandy_id %}
+            </div>
+
+            <div class="form-group mx-1">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+            <div class="form-group mx-1">
+              <button type="submit" class="btn btn-danger">Send to Normandy</button>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extrascripts %}
+  {{ block.super }}
+
+  {% if normandy_id_form.errors %}
+    <script>
+      $(function() {
+        $('#normandyModal').modal();
+      });
+    </script>
+  {% endif %}
 {% endblock %}
