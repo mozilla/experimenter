@@ -123,6 +123,7 @@ class ExperimentConstants(object):
 
     SECTION_TIMELINE = "timeline"
     SECTION_OVERVIEW = "overview"
+    SECTION_NORMANDY = "normandy"
     SECTION_POPULATION = "population"
     SECTION_ADDON = "addon"
     SECTION_BRANCHES = "branches"
@@ -135,6 +136,7 @@ class ExperimentConstants(object):
     SECTION_CHOICES = (
         (SECTION_TIMELINE, "Timeline"),
         (SECTION_OVERVIEW, "Overview"),
+        (SECTION_NORMANDY, "Normandy"),
         (SECTION_POPULATION, "Population"),
         (SECTION_ADDON, "Add-On"),
         (SECTION_BRANCHES, "Firefox & Branches"),

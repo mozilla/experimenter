@@ -131,7 +131,7 @@ class TestCreateBugTask(MockRequestMixin, MockBugzillaMixin, TestCase):
         super().setUp()
 
         self.experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
+            Experiment.STATUS_DRAFT, bugzilla_id=None
         )
 
     def test_experiment_bug_successfully_created(self):

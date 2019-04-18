@@ -3,8 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from experimenter.experiments.models import Experiment, ExperimentChangeLog
-from experimenter.experiments.serializers import ExperimentSerializer
 from experimenter.experiments import email
+from experimenter.experiments.serializers import (
+    ExperimentSerializer,
+    ExperimentRecipeSerializer,
+)
 
 
 class ExperimentListView(ListAPIView):
@@ -17,6 +20,12 @@ class ExperimentDetailView(RetrieveAPIView):
     lookup_field = "slug"
     queryset = Experiment.objects.all()
     serializer_class = ExperimentSerializer
+
+
+class ExperimentRecipeView(RetrieveAPIView):
+    lookup_field = "slug"
+    queryset = Experiment.objects.all()
+    serializer_class = ExperimentRecipeSerializer
 
 
 class ExperimentAcceptView(UpdateAPIView):

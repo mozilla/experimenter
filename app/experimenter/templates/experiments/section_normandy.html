@@ -1,0 +1,32 @@
+{% extends "experiments/section_base.html" %}
+
+{% block section_title %}
+Normandy Info
+{% endblock %}
+
+{% block section_content %}
+  {% if experiment.normandy_slug %}
+    <p>
+      <strong class="mr-2">Normandy Recipe Slug: </strong>
+      <code>{{ experiment.normandy_slug }}</code>
+    </p>
+  {% endif %}
+
+  {% if experiment.normandy_id %}
+    <p>
+      <strong class="mr-2">Normandy Recipe ID: </strong>
+      <code>{{ experiment.normandy_id }}</code>
+    <p/>
+    <p>
+      <a href="{{ experiment.delivery_console_recipe_url }}" target="blank" rel="noreferrer noopener">
+        Delivery Console Recipe
+      </a>
+    </p>
+
+    <p>
+      <a href="{{ experiment.normandy_api_recipe_url }}" target="blank" rel="noreferrer noopener">
+        Normandy API Recipe
+      </a>
+    </p>
+  {% endif %}
+{% endblock %}

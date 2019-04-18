@@ -6,7 +6,10 @@ from django.test import TestCase
 from django.urls import reverse
 
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.serializers import ExperimentSerializer
+from experimenter.experiments.serializers import (
+    ExperimentSerializer,
+    ExperimentRecipeSerializer,
+)
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.projects.tests.factories import ProjectFactory
 
@@ -93,7 +96,6 @@ class TestExperimentDetailView(TestCase):
 
     def test_get_experiment_returns_experiment_info(self):
         user_email = "user@example.com"
-
         experiment = ExperimentFactory.create_with_variants()
 
         response = self.client.get(
@@ -104,11 +106,27 @@ class TestExperimentDetailView(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-
         json_data = json.loads(response.content)
-
         serialized_experiment = ExperimentSerializer(experiment).data
+        self.assertEqual(serialized_experiment, json_data)
 
+
+class TestExperimentRecipeView(TestCase):
+
+    def test_get_experiment_recipe_returns_recipe_info(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_variants()
+
+        response = self.client.get(
+            reverse(
+                "experiments-api-recipe", kwargs={"slug": experiment.slug}
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        json_data = json.loads(response.content)
+        serialized_experiment = ExperimentRecipeSerializer(experiment).data
         self.assertEqual(serialized_experiment, json_data)
 
 

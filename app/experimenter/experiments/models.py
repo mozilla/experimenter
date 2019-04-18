@@ -1,3 +1,4 @@
+import json
 import datetime
 from collections import defaultdict
 from urllib.parse import urljoin
@@ -287,6 +288,30 @@ class Experiment(ExperimentConstants, models.Model):
         )
         truncated_slug = self.slug[:remaining_chars]
         return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
+
+    @property
+    def normandy_recipe_json(self):
+        from experimenter.experiments.serializers import (
+            ExperimentRecipeSerializer
+        )
+
+        return json.dumps(ExperimentRecipeSerializer(self).data, indent=2)
+
+    @property
+    def has_normandy_info(self):
+        return self.normandy_slug or self.normandy_id
+
+    @property
+    def normandy_api_recipe_url(self):
+        if self.normandy_id:
+            return settings.NORMANDY_API_RECIPE_URL.format(id=self.normandy_id)
+
+    @property
+    def delivery_console_recipe_url(self):
+        if self.normandy_id:
+            return settings.DELIVERY_CONSOLE_RECIPE_URL.format(
+                id=self.normandy_id
+            )
 
     @property
     def has_external_urls(self):

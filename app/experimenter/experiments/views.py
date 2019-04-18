@@ -19,6 +19,7 @@ from experimenter.experiments.forms import (
     ExperimentStatusForm,
     ExperimentVariantsAddonForm,
     ExperimentVariantsPrefForm,
+    NormandyIdForm,
 )
 from experimenter.experiments.models import Experiment
 
@@ -234,6 +235,22 @@ class ExperimentDetailView(ExperimentFormMixin, ModelFormMixin, DetailView):
             "experiments/detail_base.html",
         ]
 
+    def get_context_data(self, *args, **kwargs):
+        if "normandy_id" in self.request.GET:
+            normandy_id_form = NormandyIdForm(
+                request=self.request,
+                data=self.request.GET,
+                instance=self.object,
+            )
+        else:
+            normandy_id_form = NormandyIdForm(
+                request=self.request, instance=self.object
+            )
+
+        return super().get_context_data(
+            normandy_id_form=normandy_id_form, *args, **kwargs
+        )
+
 
 class ExperimentStatusUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentStatusForm
@@ -253,6 +270,31 @@ class ExperimentReviewUpdateView(ExperimentFormMixin, UpdateView):
 class ExperimentArchiveUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentArchiveForm
     model = Experiment
+
+
+class ExperimentNormandyUpdateView(ExperimentFormMixin, UpdateView):
+    form_class = NormandyIdForm
+    model = Experiment
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        status_form = ExperimentStatusForm(
+            request=self.request,
+            data={"status": Experiment.STATUS_ACCEPTED},
+            instance=self.object,
+        )
+        status_form.save()
+        return response
+
+    def form_invalid(self, form):
+        return redirect(
+            "{url}?normandy_id={value}".format(
+                url=reverse(
+                    "experiments-detail", kwargs={"slug": self.kwargs["slug"]}
+                ),
+                value=form.data["normandy_id"],
+            )
+        )
 
 
 class ExperimentCommentCreateView(ExperimentFormMixin, CreateView):

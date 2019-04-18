@@ -4,6 +4,7 @@ from experimenter.experiments.api_views import (
     ExperimentAcceptView,
     ExperimentDetailView,
     ExperimentListView,
+    ExperimentRecipeView,
     ExperimentRejectView,
     ExperimentSendIntentToShipEmailView,
 )
@@ -24,6 +25,11 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/intent-to-ship-email$",
         ExperimentSendIntentToShipEmailView.as_view(),
         name="experiments-api-send-intent-to-ship-email",
+    ),
+    url(
+        r"^(?P<slug>[\w-]+)/recipe/$",
+        ExperimentRecipeView.as_view(),
+        name="experiments-api-recipe",
     ),
     url(
         r"^(?P<slug>[\w-]+)/$",

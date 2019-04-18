@@ -137,6 +137,8 @@ class ExperimentFactory(
     review_comms = False
     review_impacted_teams = False
 
+    bugzilla_id = "12345"
+
     class Meta:
         model = Experiment
 
@@ -172,6 +174,10 @@ class ExperimentFactory(
             )
             change.changed_on = now
             change.save()
+
+            if status_value == Experiment.STATUS_SHIP:
+                experiment.normandy_slug = experiment.generate_normandy_slug()
+                experiment.save()
 
             if status_value == target_status:
                 break
