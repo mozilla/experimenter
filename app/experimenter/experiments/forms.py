@@ -788,42 +788,42 @@ class ExperimentReviewForm(
     # Optional
     review_advisory = forms.BooleanField(
         required=False,
-        label="Lightning Advisory (Optional)",
+        label="Lightning Advisory",
         help_text=Experiment.REVIEW_ADVISORY_HELP_TEXT,
     )
     review_legal = forms.BooleanField(
         required=False,
-        label="Legal Review (Optional)",
+        label="Legal Review",
         help_text=Experiment.REVIEW_LEGAL_HELP_TEXT,
     )
     review_ux = forms.BooleanField(
         required=False,
-        label="UX Review (Optional)",
+        label="UX Review",
         help_text=Experiment.REVIEW_UX_HELP_TEXT,
     )
     review_security = forms.BooleanField(
         required=False,
-        label="Security Review (Optional)",
+        label="Security Review",
         help_text=Experiment.REVIEW_SECURITY_HELP_TEXT,
     )
     review_vp = forms.BooleanField(
         required=False,
-        label="VP Review (Optional)",
-        help_text=Experiment.REVIEW_VP_HELP_TEXT,
+        label="VP Sign Off",
+        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
     )
     review_data_steward = forms.BooleanField(
         required=False,
-        label="Data Steward Review (Optional)",
+        label="Data Steward Review",
         help_text=Experiment.REVIEW_DATA_STEWARD_HELP_TEXT,
     )
     review_comms = forms.BooleanField(
         required=False,
-        label="Mozilla Press/Comms (Optional)",
+        label="Mozilla Press/Comms",
         help_text=Experiment.REVIEW_COMMS_HELP_TEXT,
     )
     review_impacted_teams = forms.BooleanField(
         required=False,
-        label="Impacted Team(s) Signed-Off (Optional)",
+        label="Impacted Team(s) Signed-Off",
         help_text=Experiment.REVIEW_IMPACTED_TEAMS_HELP_TEXT,
     )
 
@@ -832,7 +832,6 @@ class ExperimentReviewForm(
         fields = (
             # Required
             "review_science",
-            "review_advisory",
             "review_engineering",
             "review_qa_requested",
             "review_intent_to_ship",
@@ -840,6 +839,7 @@ class ExperimentReviewForm(
             "review_qa",
             "review_relman",
             # Optional
+            "review_advisory",
             "review_legal",
             "review_ux",
             "review_security",
@@ -851,28 +851,17 @@ class ExperimentReviewForm(
 
     @property
     def required_reviews(self):
-        return (
-            self["review_science"],
-            self["review_advisory"],
-            self["review_engineering"],
-            self["review_qa_requested"],
-            self["review_intent_to_ship"],
-            self["review_bugzilla"],
-            self["review_qa"],
-            self["review_relman"],
-        )
+        return [self[r] for r in self.instance.get_all_required_reviews()]
 
     @property
     def optional_reviews(self):
-        return (
-            self["review_legal"],
-            self["review_ux"],
-            self["review_security"],
-            self["review_vp"],
-            self["review_data_steward"],
-            self["review_comms"],
-            self["review_impacted_teams"],
-        )
+        return [
+            self[r]
+            for r in list(
+                set(self.Meta.fields)
+                - set(self.instance.get_all_required_reviews())
+            )
+        ]
 
     @property
     def added_reviews(self):

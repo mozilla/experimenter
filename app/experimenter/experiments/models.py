@@ -502,20 +502,30 @@ class Experiment(ExperimentConstants, models.Model):
         return self.qa_status
 
     @property
-    def _required_reviews(self):
-        return (
-            self.review_science,
-            self.review_engineering,
-            self.review_qa_requested,
-            self.review_intent_to_ship,
-            self.review_bugzilla,
-            self.review_qa,
-            self.review_relman,
-        )
+    def _conditional_required_reviews_mapping(self):
+        return {"review_vp": self.risk_partner_related}
+
+    def _default_required_reviews(self):
+        return [
+            "review_science",
+            "review_engineering",
+            "review_qa_requested",
+            "review_intent_to_ship",
+            "review_bugzilla",
+            "review_qa",
+            "review_relman",
+        ]
+
+    def get_all_required_reviews(self):
+        required_reviews = self._default_required_reviews()
+        for review, risk in self._conditional_required_reviews_mapping.items():
+            if risk:
+                required_reviews.append(review)
+        return required_reviews
 
     @property
     def completed_required_reviews(self):
-        return all(self._required_reviews)
+        return all([getattr(self, r) for r in self.get_all_required_reviews()])
 
     @property
     def completed_all_sections(self):

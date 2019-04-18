@@ -1261,16 +1261,41 @@ class TestExperimentReviewForm(
 
         self.assertEqual(
             form.required_reviews,
-            (
+            [
                 form["review_science"],
-                form["review_advisory"],
                 form["review_engineering"],
                 form["review_qa_requested"],
                 form["review_intent_to_ship"],
                 form["review_bugzilla"],
                 form["review_qa"],
                 form["review_relman"],
-            ),
+            ],
+        )
+
+    def test_required_reviews_when_a_risk_partner_related_is_true(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW,
+            review_relman=True,
+            review_science=True,
+            risk_partner_related=True,
+        )
+
+        form = ExperimentReviewForm(
+            request=self.request, data={}, instance=experiment
+        )
+
+        self.assertEqual(
+            form.required_reviews,
+            [
+                form["review_science"],
+                form["review_engineering"],
+                form["review_qa_requested"],
+                form["review_intent_to_ship"],
+                form["review_bugzilla"],
+                form["review_qa"],
+                form["review_relman"],
+                form["review_vp"],
+            ],
         )
 
     def test_optional_reviews(self):
@@ -1282,9 +1307,10 @@ class TestExperimentReviewForm(
             request=self.request, data={}, instance=experiment
         )
 
-        self.assertEqual(
+        self.assertCountEqual(
             form.optional_reviews,
-            (
+            [
+                form["review_advisory"],
                 form["review_legal"],
                 form["review_ux"],
                 form["review_security"],
@@ -1292,8 +1318,23 @@ class TestExperimentReviewForm(
                 form["review_data_steward"],
                 form["review_comms"],
                 form["review_impacted_teams"],
-            ),
+            ],
         )
+
+    def test_optional_reviews_when_a_risk_option_is_true(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW,
+            review_relman=True,
+            review_science=True,
+            risk_partner_related=True,
+        )
+
+        form = ExperimentReviewForm(
+            request=self.request, data={}, instance=experiment
+        )
+
+        self.assertNotIn(form["review_vp"], form.optional_reviews)
+        self.assertIn(form["review_vp"], form.required_reviews)
 
 
 class TestExperimentStatusForm(
