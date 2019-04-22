@@ -7,6 +7,11 @@ from django.shortcuts import redirect
 from django.views.generic import CreateView, DetailView, UpdateView
 from django.views.generic.edit import ModelFormMixin
 from django_filters.views import FilterView
+from django.contrib.postgres.search import (
+    SearchQuery,
+    SearchRank,
+    SearchVector,
+)
 
 from experimenter.projects.models import Project
 from experimenter.experiments.forms import (
@@ -26,9 +31,12 @@ from experimenter.experiments.models import Experiment
 
 class ExperimentFiltersetForm(forms.ModelForm):
 
+    search = forms.CharField(required=False)
+
     class Meta:
         model = Experiment
         fields = (
+            "search",
             "type",
             "status",
             "firefox_channel",
@@ -66,6 +74,17 @@ class ExperimentFiltersetForm(forms.ModelForm):
 
 
 class ExperimentFilterset(filters.FilterSet):
+    search = filters.CharFilter(
+        method="filter_search",
+        widget=forms.widgets.TextInput(
+            attrs={
+                "class": "form-control",
+                "type": "search",
+                "placeholder": "Search Experiments",
+            }
+        ),
+    )
+
     type = filters.ChoiceFilter(
         empty_label="All Types",
         choices=Experiment.TYPE_CHOICES,
@@ -104,6 +123,33 @@ class ExperimentFilterset(filters.FilterSet):
         model = Experiment
         form = ExperimentFiltersetForm
         fields = ExperimentFiltersetForm.Meta.fields
+
+    def filter_search(self, queryset, name, value):
+        vector = SearchVector(
+            "name",
+            "short_description",
+            "owner__email",
+            "slug",
+            "related_work",
+            "addon_experiment_id",
+            "pref_key",
+            "public_name",
+            "public_description",
+            "objectives",
+            "analysis",
+            "analysis_owner",
+            "engineering_owner",
+            "bugzilla_id",
+            "normandy_slug",
+        )
+
+        query = SearchQuery(value)
+
+        return (
+            queryset.annotate(rank=SearchRank(vector, query), search=vector)
+            .filter(search=value)
+            .order_by("-rank")
+        )
 
 
 class ExperimentOrderingForm(forms.Form):
