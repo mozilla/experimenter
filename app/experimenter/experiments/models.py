@@ -503,7 +503,17 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def _conditional_required_reviews_mapping(self):
-        return {"review_vp": self.risk_partner_related}
+        return {
+            "review_vp": any(
+                [
+                    self.risk_partner_related,
+                    self.risk_brand,
+                    self.risk_fast_shipped,
+                    self.risk_confidential,
+                    self.risk_release_population,
+                ]
+            )
+        }
 
     def _default_required_reviews(self):
         return [
