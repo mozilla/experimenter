@@ -25,6 +25,10 @@
       {{ filter.form.firefox_version.value }}
     {% endif %}
 
+    {% if filter.form.in_qa.value == "in_qa" %}
+       in QA
+    {% endif %}
+
     {% if filter.form.project.value %}
       {{ filter.form.get_project_display_value }}
     {% endif %}
@@ -142,6 +146,11 @@
 
     {% for field in filter.form %}
       {% if field.name == "archived" %}
+        <label>
+          {{ field }}
+          {{ field.label }}
+        </label>
+      {% elif field.name == "in_qa" %}
         <label>
           {{ field }}
           {{ field.label }}
