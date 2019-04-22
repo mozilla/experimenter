@@ -35,6 +35,10 @@
       by {{ filter.form.get_owner_display_value }}
     {% endif %}
 
+    {% if filter.form.search.value %}
+      with text "{{ filter.form.search.value }}"
+    {% endif %}
+
     {% if is_paginated and page_obj.number > 1 %}
       <small class="text-muted">Page {{ page_obj.number }}</small>
     {% endif %}
