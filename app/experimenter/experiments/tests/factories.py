@@ -105,6 +105,7 @@ class ExperimentFactory(
     risk_fast_shipped = False
     risk_confidential = False
     risk_release_population = False
+    risk_data_category = False
     risk_technical = False
 
     risk_technical_description = factory.LazyAttribute(

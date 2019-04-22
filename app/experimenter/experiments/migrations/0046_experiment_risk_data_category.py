@@ -6,16 +6,17 @@ from experimenter.experiments.constants import ExperimentConstants
 
 def populate_new_risk_fields(apps, schema_editor):
     Experiment = apps.get_model("experiments", "Experiment")
-    for experiment in Experiment.objects.all():
-        if experiment.status not in (
-            ExperimentConstants.STATUS_DRAFT,
-            ExperimentConstants.STATUS_REVIEW,
-        ):
-            for risk in all_risks():
-                setattr(
-                    experiment, risk, any([getattr(experiment, risk), False])
-                )
-            experiment.save()
+    filtered_experiments = Experiment.objects.filter(
+        status__in=[
+            ExperimentConstants.STATUS_SHIP,
+            ExperimentConstants.STATUS_ACCEPTED,
+            ExperimentConstants.STATUS_LIVE,
+            ExperimentConstants.STATUS_COMPLETE,
+            ExperimentConstants.STATUS_REJECTED,
+        ]
+    )
+    for risk in all_risks():
+        filtered_experiments.filter(**{risk: None}).update(**{risk: False})
 
 
 def all_risks():

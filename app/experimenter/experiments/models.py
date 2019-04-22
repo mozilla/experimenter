@@ -493,6 +493,7 @@ class Experiment(ExperimentConstants, models.Model):
             self.risk_fast_shipped,
             self.risk_confidential,
             self.risk_release_population,
+            self.risk_data_category,
             self.risk_technical,
         )
 
@@ -516,7 +517,9 @@ class Experiment(ExperimentConstants, models.Model):
                     self.risk_release_population,
                 ]
             ),
-            "review_legal": self.risk_partner_related,
+            "review_legal": any(
+                [self.risk_partner_related, self.risk_data_category]
+            ),
         }
 
     def _default_required_reviews(self):
