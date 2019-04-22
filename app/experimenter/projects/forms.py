@@ -23,8 +23,11 @@ class NameSlugFormMixin(object):
     def clean(self):
         cleaned_data = super().clean()
 
-        name = cleaned_data.get("name")
-        cleaned_data["slug"] = slugify(name)
+        if self.instance.slug:
+            del cleaned_data["slug"]
+        else:
+            name = cleaned_data.get("name")
+            cleaned_data["slug"] = slugify(name)
 
         return cleaned_data
 
