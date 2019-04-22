@@ -275,7 +275,7 @@ class ExperimentVariantsFormSet(BaseInlineFormSet):
                     "The size of all branches must add up to 100"
                 ]
 
-        unique_slugs = set([form.cleaned_data["slug"] for form in alive_forms])
+        unique_slugs = set([form.cleaned_data["name"] for form in alive_forms])
 
         if not len(unique_slugs) == len(alive_forms):
             for form in alive_forms:
