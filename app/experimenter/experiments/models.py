@@ -514,7 +514,6 @@ class Experiment(ExperimentConstants, models.Model):
                     self.risk_fast_shipped,
                     self.risk_confidential,
                     self.risk_release_population,
-                    self.risk_partner_related,
                 ]
             ),
             "review_legal": self.risk_partner_related,
