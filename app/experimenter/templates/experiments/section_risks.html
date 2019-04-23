@@ -48,6 +48,14 @@
   </p>
 
   <p>
+    {{ experiment.RISK_DATA_CATEGORY_LABEL }}
+    <strong class="{% if experiment.risk_data_category %}text-danger{% endif %}">
+      {{ experiment.risk_data_category|yesno:"Yes,No"}}
+
+    </strong>
+  </p>
+
+  <p>
     {{ experiment.RISK_TECHNICAL_LABEL }}
     <strong class="{% if experiment.risk_technical %}text-danger{% endif %}">
       {{ experiment.risk_technical|yesno:"Yes,No" }}
