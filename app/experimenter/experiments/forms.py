@@ -114,6 +114,17 @@ class ExperimentOverviewForm(
         help_text=Experiment.SHORT_DESCRIPTION_HELP_TEXT,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
+    public_name = forms.CharField(
+        label="Public Name",
+        required=False,
+        help_text=Experiment.PUBLIC_NAME_HELP_TEXT,
+    )
+    public_description = forms.CharField(
+        label="Public Description",
+        required=False,
+        help_text=Experiment.PUBLIC_DESCRIPTION_HELP_TEXT,
+        widget=forms.Textarea(attrs={"rows": 3}),
+    )
     data_science_bugzilla_url = BugzillaURLField(
         label="Data Science Bugzilla URL",
         help_text=Experiment.DATA_SCIENCE_BUGZILLA_HELP_TEXT,
@@ -161,6 +172,8 @@ class ExperimentOverviewForm(
             "name",
             "slug",
             "short_description",
+            "public_name",
+            "public_description",
             "data_science_bugzilla_url",
             "feature_bugzilla_url",
             "related_work",
@@ -356,17 +369,6 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.CLIENT_MATCHING_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
     )
-    public_name = forms.CharField(
-        label="Public Name",
-        required=False,
-        help_text=Experiment.PUBLIC_NAME_HELP_TEXT,
-    )
-    public_description = forms.CharField(
-        label="Public Description",
-        required=False,
-        help_text=Experiment.PUBLIC_DESCRIPTION_HELP_TEXT,
-        widget=forms.Textarea(attrs={"rows": 3}),
-    )
     locales = CustomModelMultipleChoiceField(
         label="Locales",
         required=False,
@@ -395,8 +397,6 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
             "population_percent",
             "firefox_version",
             "firefox_channel",
-            "public_name",
-            "public_description",
             "locales",
             "countries",
             "platform",
