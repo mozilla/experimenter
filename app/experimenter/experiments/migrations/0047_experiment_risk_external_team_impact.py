@@ -15,32 +15,20 @@ def populate_risk_external_team_impact(apps, schema_editor):
             ExperimentConstants.STATUS_REJECTED,
         ]
     )
-    filtered_experiments.filter(risk_revenue=None).update(risk_revenue=False)
-
-
-
-def all_risks():
-    return (
-        "risk_internal_only",
-        "risk_partner_related",
-        "risk_brand",
-        "risk_fast_shipped",
-        "risk_confidential",
-        "risk_release_population",
-        "risk_data_category",
-        "risk_technical",
+    filtered_experiments.filter(risk_external_team_impact=None).update(
+        risk_external_team_impact=False
     )
-
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [("experiments", "0045_auto_20190408_2059")]
+    dependencies = [("experiments", "0046_experiment_risk_data_category")]
 
     operations = [
         migrations.AddField(
             model_name="experiment",
             name="risk_external_team_impact",
             field=models.NullBooleanField(default=None),
-        )
+        ),
+        migrations.RunPython(populate_risk_external_team_impact),
     ]
