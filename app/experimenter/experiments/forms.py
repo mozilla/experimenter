@@ -467,11 +467,6 @@ class ExperimentVariantsAddonForm(ExperimentVariantsBaseForm):
         label="Active Experiment Name",
         help_text=Experiment.ADDON_EXPERIMENT_ID_HELP_TEXT,
     )
-    addon_testing_url = forms.URLField(
-        required=False,
-        label="Signed Testing URL",
-        help_text=Experiment.ADDON_TESTING_URL_HELP_TEXT,
-    )
     addon_release_url = forms.URLField(
         required=False,
         label="Signed Release URL",
@@ -482,7 +477,6 @@ class ExperimentVariantsAddonForm(ExperimentVariantsBaseForm):
         model = Experiment
         fields = ExperimentVariantsBaseForm.Meta.fields + [
             "addon_experiment_id",
-            "addon_testing_url",
             "addon_release_url",
         ]
 
