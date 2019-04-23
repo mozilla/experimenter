@@ -5,14 +5,18 @@ Overview
 {% endblock %}
 
 {% block section_content %}
-  <p><strong>Experiment Owner:</strong> {{ experiment.owner }}</p>
+  <p><strong>Description</strong></p>
+  <p>{{ experiment.short_description|urlize|linebreaks }}</p>
+  <p><strong>Experiment Owner</strong></p>
+  <p>{{ experiment.owner }}</p>
   {% if experiment.engineering_owner %}
-    <p><strong>Engineering Owner:</strong> {{ experiment.engineering_owner }}</p>
+    <p><strong>Engineering Owner</strong></p>
+    <p>{{ experiment.engineering_owner }}</p>
   {% endif %}
-  {{ experiment.short_description|urlize|linebreaks }}
-  <p><strong>Public Name:</strong></p> 
-  {{ experiment.public_name| linebreaks }}
+  <p><strong>Public Name:</strong></p>
+  {{ experiment.public_name|linebreaks }}
   <p><strong>Public Description:</strong> </p>
-  {{ experiment.public_description| linebreaks }}
+  {{ experiment.public_description|linebreaks }}
+  <p><strong>Related Work</strong></p>
   {{ experiment.related_work|urlize|linebreaks }}
 {% endblock %}
