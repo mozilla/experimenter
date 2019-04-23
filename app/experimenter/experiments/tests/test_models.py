@@ -771,11 +771,12 @@ class TestExperimentModel(TestCase):
             risk_fast_shipped=False,
             risk_confidential=True,
             risk_release_population=False,
-            risk_technical=True,
+            risk_data_category=True,
+            risk_technical=False,
         )
         self.assertEqual(
             experiment._risk_questions,
-            (True, False, True, False, True, False, True),
+            (True, False, True, False, True, False, True, False),
         )
 
     def test_risk_not_completed_when_risk_questions_not_answered(self):
@@ -904,6 +905,7 @@ class TestExperimentModel(TestCase):
             review_qa=True,
             review_relman=True,
             review_vp=True,
+            review_legal=True,
             risk_partner_related=True,
         )
         self.assertTrue(experiment.is_ready_to_launch)

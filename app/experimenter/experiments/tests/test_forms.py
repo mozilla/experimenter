@@ -1079,6 +1079,7 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         "risk_fast_shipped": True,
         "risk_confidential": True,
         "risk_release_population": True,
+        "risk_data_category": True,
         "risk_technical": True,
         "risk_technical_description": "It's complicated",
         "risks": "There are some risks",
@@ -1284,19 +1285,10 @@ class TestExperimentReviewForm(
             request=self.request, data={}, instance=experiment
         )
 
-        self.assertEqual(
-            form.required_reviews,
-            [
-                form["review_science"],
-                form["review_engineering"],
-                form["review_qa_requested"],
-                form["review_intent_to_ship"],
-                form["review_bugzilla"],
-                form["review_qa"],
-                form["review_relman"],
-                form["review_vp"],
-            ],
-        )
+        self.assertIn(form["review_vp"], form.required_reviews)
+        self.assertIn(form["review_legal"], form.required_reviews)
+        self.assertNotIn(form["review_vp"], form.optional_reviews)
+        self.assertNotIn(form["review_legal"], form.optional_reviews)
 
     def test_optional_reviews(self):
         experiment = ExperimentFactory.create_with_status(
