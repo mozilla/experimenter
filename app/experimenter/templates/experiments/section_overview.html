@@ -6,17 +6,22 @@ Overview
 
 {% block section_content %}
   <p><strong>Description</strong></p>
-  <p>{{ experiment.short_description|urlize|linebreaks }}</p>
+  {{ experiment.short_description|urlize|linebreaks }}
+
   <p><strong>Experiment Owner</strong></p>
   <p>{{ experiment.owner }}</p>
+
   {% if experiment.engineering_owner %}
     <p><strong>Engineering Owner</strong></p>
     <p>{{ experiment.engineering_owner }}</p>
   {% endif %}
+
   <p><strong>Public Name:</strong></p>
-  {{ experiment.public_name|linebreaks }}
+  <p>{{ experiment.public_name }}</p>
+
   <p><strong>Public Description:</strong> </p>
-  {{ experiment.public_description|linebreaks }}
+  {{ experiment.public_description|urlize|linebreaks }}
+
   <p><strong>Related Work</strong></p>
   {{ experiment.related_work|urlize|linebreaks }}
 {% endblock %}
