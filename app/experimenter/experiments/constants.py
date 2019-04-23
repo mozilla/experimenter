@@ -334,13 +334,14 @@ class ExperimentConstants(object):
 
     PUBLIC_NAME_HELP_TEXT = """
       <p>
-        Name that will be shown to end users enrolled in an experiment
+        Name that will be shown to Firefox users enrolled in the experiment.
       </p>
     """
 
     PUBLIC_DESCRIPTION_HELP_TEXT = """
       <p>
-        Description that will be shown to end users enrolled in an experiment
+        Description that will be shown to Firefox users enrolled in the
+        experiment.
       </p>
     """
 
