@@ -74,7 +74,6 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "firefox_version",
                     "population_percent",
                     "addon_experiment_id",
-                    "addon_testing_url",
                     "addon_release_url",
                     "pref_key",
                     "pref_type",

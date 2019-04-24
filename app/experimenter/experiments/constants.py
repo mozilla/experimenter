@@ -412,20 +412,6 @@ class ExperimentConstants(object):
         )
     )
 
-    ADDON_TESTING_URL_HELP_TEXT = """
-      <p>
-        Enter the URL where the test build of your add-on can be found.
-        <a target="_blank" rel="noreferrer noopener" href="{url}">
-        See here for more info.</a>
-      </p>
-    """.format(
-        url=(
-            "https://mana.mozilla.org/wiki/display/FIREFOX/"
-            "Pref-Flip+and+Add-On+Experiments"
-            "#Pref-FlipandAdd-OnExperiments-Add-ons"
-        )
-    )
-
     ADDON_RELEASE_URL_HELP_TEXT = """
       <p>
         Enter the URL where the release build of your add-on can be found.

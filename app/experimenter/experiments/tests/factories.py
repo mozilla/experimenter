@@ -81,11 +81,6 @@ class ExperimentFactory(
     addon_experiment_id = factory.LazyAttribute(
         lambda o: slugify(faker.catch_phrase())
     )
-    addon_testing_url = factory.LazyAttribute(
-        lambda o: "https://www.example.com/{}-test.xpi".format(
-            o.addon_experiment_id
-        )
-    )
     addon_release_url = factory.LazyAttribute(
         lambda o: "https://www.example.com/{}-release.xpi".format(
             o.addon_experiment_id
