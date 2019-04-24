@@ -22,7 +22,9 @@ def populate_risk_external_team_impact(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    dependencies = [("experiments", "0046_experiment_risk_data_category")]
+    dependencies = [
+        ("experiments", "0047_remove_experiment_addon_testing_url")
+    ]
 
     operations = [
         migrations.AddField(
