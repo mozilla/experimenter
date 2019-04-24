@@ -769,11 +769,12 @@ class TestExperimentModel(TestCase):
             risk_confidential=True,
             risk_release_population=False,
             risk_data_category=True,
-            risk_technical=False,
+            risk_external_team_impact=False,
+            risk_technical=True,
         )
         self.assertEqual(
             experiment._risk_questions,
-            (True, False, True, False, True, False, True, False),
+            (True, False, True, False, True, False, True, False, True),
         )
 
     def test_risk_not_completed_when_risk_questions_not_answered(self):
