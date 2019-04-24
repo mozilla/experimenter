@@ -12,6 +12,7 @@ from django.contrib.postgres.search import (
     SearchRank,
     SearchVector,
 )
+import django_filters.widgets as widgets
 
 from experimenter.projects.models import Project
 from experimenter.experiments.forms import (
@@ -72,8 +73,32 @@ class ExperimentFiltersetForm(forms.ModelForm):
         if user_id is not None:
             return str(get_user_model().objects.get(id=user_id))
 
+    def get_display_start_date_info(self):
+        experiment_date_field = self.data.get("experiment_date_field")
+        date_after = self.data.get("date_range_after")
+        date_before = self.data.get("date_range_before")
+
+        if date_after and date_before:
+            return (
+                f"{experiment_date_field} between "
+                f"{date_after} and {date_before}"
+            )
+        elif date_after and date_before == "":
+            return f"{experiment_date_field} after {date_after}"
+        elif date_after == "" and date_before:
+            return f"{experiment_date_field} before {date_before}"
+        else:
+            return ""
+
+
+# the default widget has a dash character between the two date fields,
+# and what we want is the word "To", so we are making our own widget here
+class DateRangeWidget(widgets.DateRangeWidget):
+    template_name = "widgets/date_range.html"
+
 
 class ExperimentFilterset(filters.FilterSet):
+
     search = filters.CharFilter(
         method="filter_search",
         widget=forms.widgets.TextInput(
@@ -84,7 +109,6 @@ class ExperimentFilterset(filters.FilterSet):
             }
         ),
     )
-
     type = filters.ChoiceFilter(
         empty_label="All Types",
         choices=Experiment.TYPE_CHOICES,
@@ -118,6 +142,22 @@ class ExperimentFilterset(filters.FilterSet):
     archived = filters.BooleanFilter(
         label="Show archived experiments", widget=forms.CheckboxInput()
     )
+    experiment_date_field = filters.ChoiceFilter(
+        empty_label="No Date Restriction",
+        choices=[
+            (Experiment.EXPERIMENT_STARTS, "Experiment Starts"),
+            (Experiment.EXPERIMENT_PAUSES, "Experiment Pauses"),
+            (Experiment.EXPERIMENT_ENDS, "Experiment Ends"),
+        ],
+        widget=forms.Select(attrs={"class": "form-control"}),
+        method="experiment_date_field_filter",
+    )
+    date_range = filters.DateFromToRangeFilter(
+        method="date_range_filter",
+        widget=DateRangeWidget(
+            attrs={"type": "date", "class": "form-control"}
+        ),
+    )
 
     class Meta:
         model = Experiment
@@ -150,6 +190,38 @@ class ExperimentFilterset(filters.FilterSet):
             .filter(search=value)
             .order_by("-rank")
         )
+
+    def experiment_date_field_filter(self, queryset, name, value):
+        # this custom method isn't doing anything. There has to
+        # be a custom method to be able to display the select
+        # filter that controls which date range we show
+        return queryset
+
+    def date_range_filter(self, queryset, name, value):
+
+        date_type = self.form.cleaned_data["experiment_date_field"]
+
+        experiment_date_field = {
+            Experiment.EXPERIMENT_STARTS: "start_date",
+            Experiment.EXPERIMENT_PAUSES: "enrollment_end_date",
+            Experiment.EXPERIMENT_ENDS: "end_date",
+        }[date_type]
+
+        results = []
+
+        for experiment in queryset.all():
+            date = getattr(experiment, experiment_date_field)
+
+            # enrollment end dates are optional, so there won't always
+            # be a pause date for an experiment
+            if date:
+                if value.start and date < value.start.date():
+                    continue
+                if value.stop and date > value.stop.date():
+                    continue
+                results.append(experiment.id)
+
+        return queryset.filter(pk__in=results)
 
 
 class ExperimentOrderingForm(forms.Form):
