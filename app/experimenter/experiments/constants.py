@@ -179,6 +179,9 @@ class ExperimentConstants(object):
     RISK_SECURITY_LABEL = (
         "Does this need security review, consulting, or security testing?"
     )
+    RISK_REVISION_LABEL = (
+        "Is this experiment a revision of a previous experiment?"
+    )
     RISK_TECHNICAL_LABEL = "Is this experiment Complex / Technically Risky?"
 
     # Help texts
@@ -724,6 +727,10 @@ class ExperimentConstants(object):
 
     RISK_SECURITY_HELP_TEXT = """
       https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
+    """  # noqa
+
+    RISK_REVISION_HELP_TEXT = """
+       https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
     """  # noqa
 
     RISK_TECHNICAL_HELP_TEXT = """

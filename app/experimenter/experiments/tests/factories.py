@@ -106,6 +106,7 @@ class ExperimentFactory(
     risk_telemetry_data = False
     risk_ux = False
     risk_security = False
+    risk_revision = False
     risk_technical = False
 
     risk_technical_description = factory.LazyAttribute(
