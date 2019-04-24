@@ -175,6 +175,7 @@ class ExperimentConstants(object):
     RISK_TELEMETRY_DATA_LABEL = (
         "Do you need data that doesn’t exist in telemetry already?"
     )
+    RISK_UX_LABEL = "Is UX a significant part of this experiment?"
     RISK_TECHNICAL_LABEL = "Is this experiment Complex / Technically Risky?"
 
     # Help texts
@@ -711,6 +712,10 @@ class ExperimentConstants(object):
     """  # noqa
 
     RISK_TELEMETRY_DATA_HELP_TEXT = """
+      https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
+    """  # noqa
+
+    RISK_UX_HELP_TEXT = """
       https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
     """  # noqa
 
