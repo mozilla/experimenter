@@ -77,7 +77,6 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "analysis_owner",
             "analysis",
             "addon_experiment_id",
-            "addon_testing_url",
             "addon_release_url",
             "pref_branch",
             "pref_key",

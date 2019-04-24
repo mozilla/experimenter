@@ -104,7 +104,6 @@ class TestExperimentSerializer(TestCase):
             "pref_key": experiment.pref_key,
             "pref_type": experiment.pref_type,
             "addon_experiment_id": experiment.addon_experiment_id,
-            "addon_testing_url": experiment.addon_testing_url,
             "addon_release_url": experiment.addon_release_url,
             "proposed_start_date": JSTimestampField().to_representation(
                 experiment.proposed_start_date

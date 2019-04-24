@@ -81,7 +81,6 @@ class Experiment(ExperimentConstants, models.Model):
     addon_experiment_id = models.CharField(
         max_length=255, unique=True, blank=True, null=True
     )
-    addon_testing_url = models.URLField(max_length=400, blank=True, null=True)
     addon_release_url = models.URLField(max_length=400, blank=True, null=True)
 
     pref_key = models.CharField(max_length=255, blank=True, null=True)
@@ -467,11 +466,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_addon(self):
-        return (
-            self.addon_experiment_id
-            and self.addon_testing_url
-            and self.addon_release_url
-        )
+        return self.addon_experiment_id and self.addon_release_url
 
     @property
     def completed_variants(self):

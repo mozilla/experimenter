@@ -240,7 +240,6 @@ Example: GET /api/v1/experiments/self-enabled-needs-based-hardware/
             "pref_type":"string",
             "addon_name": "Self-Enabling Addon",
             "addon_experiment_id": "self-enabling-addon",
-            "addon_testing_url": "https://example.com/testing.xpi",
             "addon_release_url": "https://example.com/release.xpi",
             "project_name":"Re-contextualized systemic synergy",
             "project_slug":"re-contextualized-systemic-synergy",
