@@ -152,6 +152,7 @@ class Experiment(ExperimentConstants, models.Model):
     risk_release_population = models.NullBooleanField(
         default=None, blank=True, null=True
     )
+    risk_revenue = models.NullBooleanField(default=None, blank=True, null=True)
     risk_data_category = models.NullBooleanField(
         default=None, blank=True, null=True
     )
@@ -491,6 +492,7 @@ class Experiment(ExperimentConstants, models.Model):
             self.risk_fast_shipped,
             self.risk_confidential,
             self.risk_release_population,
+            self.risk_revenue,
             self.risk_data_category,
             self.risk_external_team_impact,
             self.risk_technical,
@@ -514,6 +516,7 @@ class Experiment(ExperimentConstants, models.Model):
                     self.risk_fast_shipped,
                     self.risk_confidential,
                     self.risk_release_population,
+                    self.risk_revenue,
                 ]
             ),
             "review_legal": any(

@@ -942,6 +942,7 @@ class TestExperimentRisksUpdateView(TestCase):
             "risk_fast_shipped": True,
             "risk_confidential": True,
             "risk_release_population": True,
+            "risk_revenue": True,
             "risk_data_category": True,
             "risk_external_team_impact": True,
             "risk_technical": True,

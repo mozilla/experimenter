@@ -100,6 +100,7 @@ class ExperimentFactory(
     risk_fast_shipped = False
     risk_confidential = False
     risk_release_population = False
+    risk_revenue = False
     risk_data_category = False
     risk_external_team_impact = False
     risk_technical = False
