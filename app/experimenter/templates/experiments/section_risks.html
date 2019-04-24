@@ -88,6 +88,13 @@
       {{ experiment.risk_security|yesno:"Yes,No"}}
     </strong>
   </p>
+  
+  <p>
+    {{ experiment.RISK_REVISION_LABEL }}
+    <strong class="{% if experiment.risk_revision %}text-success{% endif %}">
+      {{ experiment.risk_revision|yesno:"Yes,No"}}
+    </strong>
+  </p>
 
   <p>
     {{ experiment.RISK_TECHNICAL_LABEL }}

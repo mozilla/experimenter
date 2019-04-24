@@ -166,6 +166,9 @@ class Experiment(ExperimentConstants, models.Model):
     risk_security = models.NullBooleanField(
         default=None, blank=True, null=True
     )
+    risk_revision = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     risk_technical = models.NullBooleanField(
         default=None, blank=True, null=True
     )
@@ -505,6 +508,7 @@ class Experiment(ExperimentConstants, models.Model):
             self.risk_telemetry_data,
             self.risk_ux,
             self.risk_security,
+            self.risk_revision,
             self.risk_technical,
         )
 
