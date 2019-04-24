@@ -12,6 +12,11 @@ class ExperimentConstants(object):
 
     TYPE_CHOICES = ((TYPE_PREF, "Pref-Flip"), (TYPE_ADDON, "Add-On"))
 
+    # date range stuff
+    EXPERIMENT_STARTS = "starting"
+    EXPERIMENT_PAUSES = "pausing"
+    EXPERIMENT_ENDS = "ending"
+
     # Status stuff
     STATUS_DRAFT = "Draft"
     STATUS_REVIEW = "Review"

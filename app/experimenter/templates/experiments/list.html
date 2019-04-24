@@ -39,6 +39,9 @@
       with text "{{ filter.form.search.value }}"
     {% endif %}
 
+    {{ filter.form.get_display_start_date_info }}
+
+
     {% if is_paginated and page_obj.number > 1 %}
       <small class="text-muted">Page {{ page_obj.number }}</small>
     {% endif %}
@@ -138,16 +141,22 @@
     </div>
 
     {% for field in filter.form %}
-      {% ifequal field.name "archived" %}
+      {% if field.name == "archived" %}
         <label>
           {{ field }}
           {{ field.label }}
         </label>
+      {% elif field.name == "experiment_date_field" %}
+        <hr class="my-4">
+        <div class="form-group">
+          {{ field }}
+        </div>
+
       {% else %}
         <div class="form-group">
           {{ field }}
         </div>
-      {% endifequal %}
+      {% endif %}
     {% endfor %}
 
     <div class="form-group text-right">
@@ -157,4 +166,8 @@
       </button>
     </div>
   </form>
+{% endblock %}
+
+{% block extrascripts %}
+  <script src="{% static "js/experiment-date-filter.js" %}"></script>
 {% endblock %}
