@@ -256,6 +256,23 @@ class TestExperimentFilterset(TestCase):
             set(second_response_context["experiments"]), set([exp_3])
         )
 
+    def test_filters_by_review_in_qa(self):
+        exp_1 = ExperimentFactory.create_with_variants(
+            review_qa_requested=True, review_qa=False
+        )
+        ExperimentFactory.create_with_variants(
+            review_qa_requested=False, review_qa=False
+        )
+        ExperimentFactory.create_with_variants(
+            review_qa_requested=True, review_qa=True
+        )
+
+        filter = ExperimentFilterset(
+            {"in_qa": "on"}, queryset=Experiment.objects.all()
+        )
+
+        self.assertEqual(set(filter.qs), set([exp_1]))
+
 
 class TestExperimentOrderingForm(TestCase):
 

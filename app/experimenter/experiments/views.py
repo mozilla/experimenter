@@ -31,6 +31,7 @@ from experimenter.experiments.models import Experiment
 
 
 class ExperimentFiltersetForm(forms.ModelForm):
+    in_qa = forms.BooleanField(required=False)
 
     search = forms.CharField(required=False)
 
@@ -44,6 +45,7 @@ class ExperimentFiltersetForm(forms.ModelForm):
             "firefox_version",
             "project",
             "owner",
+            "in_qa",
             "archived",
         )
 
@@ -139,6 +141,7 @@ class ExperimentFilterset(filters.FilterSet):
         queryset=get_user_model().objects.all().order_by("email"),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
+
     archived = filters.BooleanFilter(
         label="Show archived experiments", widget=forms.CheckboxInput()
     )
@@ -157,6 +160,12 @@ class ExperimentFilterset(filters.FilterSet):
         widget=DateRangeWidget(
             attrs={"type": "date", "class": "form-control"}
         ),
+    )
+
+    in_qa = filters.BooleanFilter(
+        label="Show only experiments in QA",
+        widget=forms.CheckboxInput(),
+        method="in_qa_filter",
     )
 
     class Meta:
@@ -222,6 +231,12 @@ class ExperimentFilterset(filters.FilterSet):
                 results.append(experiment.id)
 
         return queryset.filter(pk__in=results)
+
+    def in_qa_filter(self, queryset, name, value):
+        if value:
+            return queryset.filter(review_qa_requested=True, review_qa=False)
+        else:
+            return queryset
 
 
 class ExperimentOrderingForm(forms.Form):
