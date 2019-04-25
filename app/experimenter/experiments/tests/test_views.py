@@ -945,6 +945,7 @@ class TestExperimentRisksUpdateView(TestCase):
             "risk_revenue": True,
             "risk_data_category": True,
             "risk_external_team_impact": True,
+            "risk_telemetry_data": True,
             "risk_technical": True,
             "risk_technical_description": "It's complicated",
             "risks": "There are some risks",

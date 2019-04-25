@@ -159,6 +159,9 @@ class Experiment(ExperimentConstants, models.Model):
     risk_external_team_impact = models.NullBooleanField(
         default=None, blank=True, null=True
     )
+    risk_telemetry_data = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     risk_technical = models.NullBooleanField(
         default=None, blank=True, null=True
     )
@@ -495,6 +498,7 @@ class Experiment(ExperimentConstants, models.Model):
             self.risk_revenue,
             self.risk_data_category,
             self.risk_external_team_impact,
+            self.risk_telemetry_data,
             self.risk_technical,
         )
 
@@ -523,6 +527,7 @@ class Experiment(ExperimentConstants, models.Model):
                 [self.risk_partner_related, self.risk_data_category]
             ),
             "review_impacted_teams": self.risk_external_team_impact,
+            "review_data_steward": self.risk_telemetry_data,
         }
 
     def _default_required_reviews(self):

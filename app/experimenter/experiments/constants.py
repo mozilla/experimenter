@@ -172,6 +172,9 @@ class ExperimentConstants(object):
     RISK_EXTERNAL_TEAM_IMPACT_LABEL = (
         "Does this experiment impact teams outside of your own?"
     )
+    RISK_TELEMETRY_DATA_LABEL = (
+        "Do you need data that doesn’t exist in telemetry already?"
+    )
     RISK_TECHNICAL_LABEL = "Is this experiment Complex / Technically Risky?"
 
     # Help texts
@@ -705,6 +708,10 @@ class ExperimentConstants(object):
 
     RISK_EXTERNAL_TEAM_IMPACT_HELP_TEXT = """
        https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
+    """  # noqa
+
+    RISK_TELEMETRY_DATA_HELP_TEXT = """
+      https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
     """  # noqa
 
     RISK_TECHNICAL_HELP_TEXT = """

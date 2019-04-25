@@ -69,6 +69,13 @@
   </p>
 
   <p>
+    {{ experiment.RISK_TELEMETRY_DATA_LABEL }}
+    <strong class="{% if experiment.risk_telemetry_data %}text-danger{% endif %}">
+      {{ experiment.risk_telemetry_data|yesno:"Yes,No"}}
+    </strong>
+  </p>
+
+  <p>
     {{ experiment.RISK_TECHNICAL_LABEL }}
     <strong class="{% if experiment.risk_technical %}text-danger{% endif %}">
       {{ experiment.risk_technical|yesno:"Yes,No" }}
