@@ -162,6 +162,7 @@ class Experiment(ExperimentConstants, models.Model):
     risk_telemetry_data = models.NullBooleanField(
         default=None, blank=True, null=True
     )
+    risk_ux = models.NullBooleanField(default=None, blank=True, null=True)
     risk_technical = models.NullBooleanField(
         default=None, blank=True, null=True
     )
@@ -499,6 +500,7 @@ class Experiment(ExperimentConstants, models.Model):
             self.risk_data_category,
             self.risk_external_team_impact,
             self.risk_telemetry_data,
+            self.risk_ux,
             self.risk_technical,
         )
 
@@ -528,6 +530,7 @@ class Experiment(ExperimentConstants, models.Model):
             ),
             "review_impacted_teams": self.risk_external_team_impact,
             "review_data_steward": self.risk_telemetry_data,
+            "review_ux": self.risk_ux,
         }
 
     def _default_required_reviews(self):
