@@ -32,7 +32,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             settings.BUGZILLA_CREATE_URL,
             {
                 "product": "Shield",
-                "component": "Shield Experiment",
+                "component": "Shield Study",
                 "version": "unspecified",
                 "summary": "[Shield] {experiment}".format(
                     experiment=experiment
@@ -59,7 +59,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
 
         expected_call_data = {
             "product": "Shield",
-            "component": "Shield Experiment",
+            "component": "Shield Study",
             "version": "unspecified",
             "summary": "[Shield] {experiment}".format(experiment=experiment),
             "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
