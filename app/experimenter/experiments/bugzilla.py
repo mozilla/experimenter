@@ -66,6 +66,8 @@ def create_experiment_bug(experiment):
         ),
         "assigned_to": experiment.owner.email,
         "cc": settings.BUGZILLA_CC_LIST,
+        "type": "task",
+        "priority": "P3",
     }
 
     response_data = make_bugzilla_call(settings.BUGZILLA_CREATE_URL, bug_data)
