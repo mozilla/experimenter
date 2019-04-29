@@ -42,6 +42,8 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
                 ),
                 "assigned_to": experiment.owner.email,
                 "cc": settings.BUGZILLA_CC_LIST,
+                "type": "task",
+                "priority": "P3",
             },
         )
 
@@ -67,6 +69,8 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             ),
             "assigned_to": experiment.owner.email,
             "cc": settings.BUGZILLA_CC_LIST,
+            "type": "task",
+            "priority": "P3",
         }
 
         self.mock_bugzilla_requests_post.assert_any_call(
