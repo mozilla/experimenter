@@ -51,9 +51,9 @@ coverage==4.5.3 \
     --hash=sha256:ca58eba39c68010d7e87a823f22a081b5290e3e3c64714aac3c91481d8b34d22 \
     --hash=sha256:6899797ac384b239ce1926f3cb86ffc19996f6fa3a1efbb23cb49e0c12d8c18c \
     --hash=sha256:8e679d1bde5e2de4a909efb071f14b472a678b788904440779d2c449c0355b27
-django-cors-headers==2.5.2 \
-    --hash=sha256:1ccedec2973087be9d73f96d58c4f6660c823efc0385581e13efb77f060d0e02 \
-    --hash=sha256:fb44f6b9f10de847919305c3f0d38fcfbadfe0dd5cf1c866f37df66ad0dda1bb
+django-cors-headers==2.5.3 \
+    --hash=sha256:ceacbd60dd5a65c95e65e74b5559bd4161aa3fe5713c44e1f3417a12bd41e7ba \
+    --hash=sha256:c7987faa9aaef7f6a802b0f354a719e80a9158c284f530265ac792f1ee725e52
 django-filter==2.1.0 \
     --hash=sha256:a3014de317bef0cd43075a0f08dfa1d319a7ccc5733c3901fb860da70b0dda68 \
     --hash=sha256:3dafb7d2810790498895c22a1f31b2375795910680ac9c1432821cbedb1e176d
