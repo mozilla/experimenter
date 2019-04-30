@@ -83,6 +83,13 @@
   </p>
 
   <p>
+    {{ experiment.RISK_SECURITY_LABEL }}
+    <strong class="{% if experiment.risk_security %}text-danger{% endif %}">
+      {{ experiment.risk_security|yesno:"Yes,No"}}
+    </strong>
+  </p>
+
+  <p>
     {{ experiment.RISK_TECHNICAL_LABEL }}
     <strong class="{% if experiment.risk_technical %}text-danger{% endif %}">
       {{ experiment.risk_technical|yesno:"Yes,No" }}

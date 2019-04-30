@@ -668,6 +668,14 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         coerce=coerce_truthy,
         empty_value=None,
     )
+    risk_security = forms.TypedChoiceField(
+        label=Experiment.RISK_SECURITY_LABEL,
+        help_text=Experiment.RISK_SECURITY_HELP_TEXT,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
+    )
     risk_technical = forms.TypedChoiceField(
         label=Experiment.RISK_TECHNICAL_LABEL,
         help_text=Experiment.RISK_TECHNICAL_HELP_TEXT,
@@ -754,6 +762,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
             "risk_external_team_impact",
             "risk_telemetry_data",
             "risk_ux",
+            "risk_security",
             "risk_technical",
             "risk_technical_description",
             "risks",
@@ -843,7 +852,7 @@ class ExperimentReviewForm(
     review_security = forms.BooleanField(
         required=False,
         label="Security Review",
-        help_text=Experiment.REVIEW_SECURITY_HELP_TEXT,
+        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
     )
     review_vp = forms.BooleanField(
         required=False,
