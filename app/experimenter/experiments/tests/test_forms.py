@@ -10,6 +10,9 @@ from django.utils import timezone
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
 from parameterized import parameterized_class
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+
 
 from experimenter.experiments.forms import (
     BugzillaURLField,
@@ -30,7 +33,10 @@ from experimenter.experiments.forms import (
 )
 from experimenter.experiments.models import Experiment, ExperimentVariant
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.factories import (
+    ExperimentFactory,
+    UserFactory,
+)
 from experimenter.experiments.tests.mixins import (
     MockBugzillaMixin,
     MockTasksMixin,
@@ -1139,6 +1145,16 @@ class TestExperimentReviewForm(
 ):
 
     def test_form_saves_reviews(self):
+        user = UserFactory.create()
+        content_type = ContentType.objects.get_for_model(Experiment)
+        experiment_model_permissions = Permission.objects.filter(
+            content_type=content_type, codename__startswith="can_check"
+        )
+        for permission in experiment_model_permissions:
+            user.user_permissions.add(permission)
+
+        self.request.user = user
+
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW
         )
@@ -1205,7 +1221,7 @@ class TestExperimentReviewForm(
             Experiment.STATUS_REVIEW
         )
 
-        data = {"review_relman": True, "review_science": True}
+        data = {"review_bugzilla": True, "review_science": True}
 
         form = ExperimentReviewForm(
             request=self.request, data=data, instance=experiment
@@ -1216,15 +1232,15 @@ class TestExperimentReviewForm(
 
         self.assertEqual(len(form.added_reviews), 2)
         self.assertEqual(len(form.removed_reviews), 0)
-        self.assertIn(form.fields["review_relman"].label, form.added_reviews)
+        self.assertIn(form.fields["review_bugzilla"].label, form.added_reviews)
         self.assertIn(form.fields["review_science"].label, form.added_reviews)
 
     def test_removed_reviews_property(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW, review_relman=True, review_science=True
+            Experiment.STATUS_REVIEW, review_bugzilla=True, review_science=True
         )
 
-        data = {"review_relman": False, "review_science": False}
+        data = {"review_bugzilla": False, "review_science": False}
 
         form = ExperimentReviewForm(
             request=self.request, data=data, instance=experiment
@@ -1235,7 +1251,9 @@ class TestExperimentReviewForm(
 
         self.assertEqual(len(form.added_reviews), 0)
         self.assertEqual(len(form.removed_reviews), 2)
-        self.assertIn(form.fields["review_relman"].label, form.removed_reviews)
+        self.assertIn(
+            form.fields["review_bugzilla"].label, form.removed_reviews
+        )
         self.assertIn(
             form.fields["review_science"].label, form.removed_reviews
         )
@@ -1316,6 +1334,80 @@ class TestExperimentReviewForm(
 
         self.assertNotIn(form["review_vp"], form.optional_reviews)
         self.assertIn(form["review_vp"], form.required_reviews)
+
+    def test_cannot_check_review_relman_without_permissions(self):
+        user_1 = UserFactory.create()
+        user_2 = UserFactory.create()
+
+        content_type = ContentType.objects.get_for_model(Experiment)
+        permission = Permission.objects.get(
+            content_type=content_type, codename="can_check_relman_signoff"
+        )
+        user_1.user_permissions.add(permission)
+
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW
+        )
+
+        self.request.user = user_2
+        form = ExperimentReviewForm(
+            request=self.request,
+            data={"review_relman": True},
+            instance=experiment,
+        )
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+        self.assertFalse(experiment.review_relman)
+
+        self.request.user = user_1
+
+        form = ExperimentReviewForm(
+            request=self.request,
+            data={"review_relman": True},
+            instance=experiment,
+        )
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertTrue(experiment.review_relman)
+
+    def test_cannot_check_review_qa_without_permissions(self):
+        user_1 = UserFactory.create()
+        user_2 = UserFactory.create()
+
+        content_type = ContentType.objects.get_for_model(Experiment)
+        permission = Permission.objects.get(
+            content_type=content_type, codename="can_check_QA_signoff"
+        )
+        user_1.user_permissions.add(permission)
+        self.assertTrue(user_1.has_perm("experiments.can_check_QA_signoff"))
+        self.assertFalse(user_2.has_perm("experiments.can_check_QA_signoff"))
+
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW
+        )
+
+        self.request.user = user_2
+        form = ExperimentReviewForm(
+            request=self.request, data={"review_qa": True}, instance=experiment
+        )
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+        self.assertFalse(experiment.review_qa)
+
+        self.request.user = user_1
+
+        form = ExperimentReviewForm(
+            request=self.request, data={"review_qa": True}, instance=experiment
+        )
+
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertTrue(experiment.review_qa)
 
 
 class TestExperimentStatusForm(
