@@ -12,6 +12,8 @@ from experimenter.experiments.bugzilla import (
     create_experiment_bug,
     format_bug_body,
     make_bugzilla_call,
+    get_bugzilla_id,
+    get_firefox_major_version,
 )
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.mixins import MockBugzillaMixin
@@ -24,6 +26,10 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             Experiment.STATUS_DRAFT, name="An Experiment"
         )
 
+        cf_tracking = "cf_status_firefox{}".format(
+            get_firefox_major_version(experiment.firefox_version)
+        )
+
         response_data = create_experiment_bug(experiment)
 
         self.assertEqual(response_data, self.bugzilla_id)
@@ -34,7 +40,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
                 "product": "Shield",
                 "component": "Shield Study",
                 "version": "unspecified",
-                "summary": "[Shield] {experiment}".format(
+                "summary": "[Experiment]: {experiment}".format(
                     experiment=experiment
                 ),
                 "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
@@ -44,12 +50,22 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
                 "cc": settings.BUGZILLA_CC_LIST,
                 "type": "task",
                 "priority": "P3",
+                "see_also": [
+                    get_bugzilla_id(experiment.data_science_bugzilla_url)
+                ],
+                "blocks": [get_bugzilla_id(experiment.feature_bugzilla_url)],
+                "url": experiment.experiment_url,
+                "whiteboard": experiment.STATUS_REVIEW_LABEL,
+                cf_tracking: "?",
             },
         )
 
     def test_create_bugzilla_ticket_retries_with_no_assignee(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, name="An Experiment"
+        )
+        cf_tracking = "cf_status_firefox{}".format(
+            get_firefox_major_version(experiment.firefox_version)
         )
 
         self.setUpMockBugzillaInvalidUser()
@@ -63,7 +79,9 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "product": "Shield",
             "component": "Shield Study",
             "version": "unspecified",
-            "summary": "[Shield] {experiment}".format(experiment=experiment),
+            "summary": "[Experiment]: {experiment}".format(
+                experiment=experiment
+            ),
             "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
                 experiment=experiment
             ),
@@ -71,6 +89,13 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "cc": settings.BUGZILLA_CC_LIST,
             "type": "task",
             "priority": "P3",
+            "see_also": [
+                get_bugzilla_id(experiment.data_science_bugzilla_url)
+            ],
+            "blocks": [get_bugzilla_id(experiment.feature_bugzilla_url)],
+            "url": experiment.experiment_url,
+            "whiteboard": experiment.STATUS_REVIEW_LABEL,
+            cf_tracking: "?",
         }
 
         self.mock_bugzilla_requests_post.assert_any_call(
