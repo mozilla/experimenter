@@ -8,6 +8,7 @@ from django.forms import BaseInlineFormSet
 from django.forms import inlineformset_factory
 from django.forms.models import ModelChoiceIterator
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
@@ -809,7 +810,10 @@ class ExperimentReviewForm(
     )
     review_qa_requested = forms.BooleanField(
         required=False,
-        label="QA Requested",
+        label=mark_safe(
+            f"QA <a href={settings.JIRA_URL} target='_blank'>"
+            "Jira</a> Request Sent"
+        ),
         help_text=Experiment.REVIEW_QA_REQUESTED_HELP_TEXT,
     )
     review_intent_to_ship = forms.BooleanField(
