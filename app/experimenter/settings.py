@@ -313,3 +313,6 @@ DELIVERY_CONSOLE_NEW_RECIPE_URL = urljoin(DELIVERY_CONSOLE_HOST, "/recipe/new")
 DELIVERY_CONSOLE_RECIPE_URL = urljoin(DELIVERY_CONSOLE_HOST, "/recipe/{id}/")
 NORMANDY_API_HOST = config("NORMANDY_API_HOST")
 NORMANDY_API_RECIPE_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/{id}/")
+
+# Jira URL
+JIRA_URL = "https://moz-pi-test.atlassian.net/servicedesk/customer/portal/9"
