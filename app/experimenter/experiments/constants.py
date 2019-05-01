@@ -476,7 +476,7 @@ class ExperimentConstants(object):
         or default state to compare to.
       </p>
       <p><strong>Boolean Example:</strong> false</p>
-      <p><strong>String Example:</strong> "some text"</p>
+      <p><strong>String Example:</strong> some text</p>
       <p><strong>Integer Example:</strong> 13</p>
     """
 
