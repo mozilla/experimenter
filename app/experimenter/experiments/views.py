@@ -22,6 +22,7 @@ from experimenter.experiments.forms import (
     ExperimentReviewForm,
     ExperimentRisksForm,
     ExperimentStatusForm,
+    ExperimentSubscribedForm,
     ExperimentVariantsAddonForm,
     ExperimentVariantsPrefForm,
     NormandyIdForm,
@@ -315,6 +316,11 @@ class ExperimentReviewUpdateView(ExperimentFormMixin, UpdateView):
 
 class ExperimentArchiveUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentArchiveForm
+    model = Experiment
+
+
+class ExperimentSubscribedUpdateView(ExperimentFormMixin, UpdateView):
+    form_class = ExperimentSubscribedForm
     model = Experiment
 
 

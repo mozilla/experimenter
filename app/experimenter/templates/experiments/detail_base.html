@@ -81,6 +81,28 @@
 {% block main_sidebar %}
   <h4>&nbsp;</h4>
 
+    <form
+      action="{% url "experiments-subscribed-update" slug=experiment.slug %}"
+      method="POST"
+    >
+      {% csrf_token %}
+      <button
+        type="submit"
+        class="btn btn-link p-0"
+      >
+        <strong>
+          <span class="fas fa-user-plus"></span>
+          {% if request.user in experiment.subscribers.all %}
+            Unsubscribe from this experiment
+          {% else %}
+            Subscribe to this experiment
+          {% endif %}
+        </strong>
+      </button>
+    </form>
+
+  <hr class="my-4">
+
   {% block main_sidebar_extra %}
   {% endblock %}
 

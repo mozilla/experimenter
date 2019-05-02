@@ -1086,6 +1086,31 @@ class TestExperimentArchiveUpdateView(TestCase):
         self.assertTrue(experiment.archived)
 
 
+class TestExperimentSubscribedUpdateView(TestCase):
+
+    def test_view_flips_subscribed_bool_and_redirects(self):
+        user = UserFactory()
+        experiment = ExperimentFactory.create()
+        self.assertFalse(user in experiment.subscribers.all())
+
+        response = self.client.post(
+            reverse(
+                "experiments-subscribed-update",
+                kwargs={"slug": experiment.slug},
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user.email},
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("experiments-detail", kwargs={"slug": experiment.slug}),
+            fetch_redirect_response=False,
+        )
+
+        experiment = Experiment.objects.get(id=experiment.id)
+        self.assertTrue(user in experiment.subscribers.all())
+
+
 class TestExperimentNormandyUpdateView(TestCase):
 
     def test_valid_recipe_id_updates_experiment_status(self):

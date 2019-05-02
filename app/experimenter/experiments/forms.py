@@ -989,6 +989,37 @@ class ExperimentArchiveForm(
         return not self.instance.archived
 
 
+class ExperimentSubscribedForm(ExperimentConstants, forms.ModelForm):
+
+    subscribed = forms.BooleanField(required=False)
+
+    class Meta:
+        model = Experiment
+        fields = ()
+
+    def __init__(self, request, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+        self.initial["subscribed"] = self.instance.subscribers.filter(
+            id=self.request.user.id
+        ).exists()
+
+    def clean_subscribed(self):
+        return self.instance.subscribers.filter(
+            id=self.request.user.id
+        ).exists()
+
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+
+        if self.cleaned_data["subscribed"]:
+            experiment.subscribers.remove(self.request.user)
+        else:
+            experiment.subscribers.add(self.request.user)
+
+        return experiment
+
+
 class ExperimentCommentForm(forms.ModelForm):
     created_by = forms.CharField(required=False)
     text = forms.CharField(required=True)
