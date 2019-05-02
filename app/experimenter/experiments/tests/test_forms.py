@@ -720,7 +720,7 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
         )
         self.assertTrue(form.is_valid())
         self.assertEqual(
-            list(form.cleaned_data["locales"]), [locale2, locale1]
+            set(form.cleaned_data["locales"]), set([locale2, locale1])
         )
 
     def test_clean_locales_all(self):
