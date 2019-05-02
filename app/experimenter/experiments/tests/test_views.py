@@ -1146,8 +1146,6 @@ class TestExperimentReviewUpdateView(TestCase):
             "review_qa_requested": True,
             "review_intent_to_ship": True,
             "review_bugzilla": True,
-            "review_qa": True,
-            "review_relman": True,
             "review_advisory": True,
             "review_legal": True,
             "review_ux": True,
@@ -1174,8 +1172,6 @@ class TestExperimentReviewUpdateView(TestCase):
         experiment = Experiment.objects.get()
 
         self.assertTrue(experiment.review_science)
-        self.assertTrue(experiment.review_relman)
-        self.assertTrue(experiment.review_qa)
         self.assertTrue(experiment.review_legal)
         self.assertTrue(experiment.review_ux)
         self.assertTrue(experiment.review_security)
