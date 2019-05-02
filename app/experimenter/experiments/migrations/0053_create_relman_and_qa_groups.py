@@ -70,7 +70,7 @@ def remove_groups(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("experiments", "0048_experiment_risk_external_team_impact"),
+        ("experiments", "0052_experiment_risk_security"),
         ("auth", "0009_alter_user_last_name_max_length"),
         ("contenttypes", "0002_remove_content_type_name"),
     ]
