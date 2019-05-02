@@ -3,6 +3,7 @@ import json
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib import messages
 from django.db import transaction
 from django.forms import BaseInlineFormSet
 from django.forms import inlineformset_factory
@@ -955,6 +956,37 @@ class ExperimentReviewForm(
             )
 
         return experiment
+
+    def clean(self):
+
+        super(ExperimentReviewForm, self).clean()
+
+        permissions = [
+            (
+                "review_qa",
+                "experiments.can_check_QA_signoff",
+                "You don't have permission to edit QA signoff fields",
+            ),
+            (
+                "review_relman",
+                "experiments.can_check_relman_signoff",
+                "You don't have permission to edit Release "
+                "Management signoff fields",
+            ),
+        ]
+
+        # user cannot check or uncheck QA and relman
+        # sign off boxes without permission
+        for field_name, permission_name, error_message in permissions:
+            if (
+                field_name in self.changed_data
+                and not self.request.user.has_perm(permission_name)
+            ):
+                self.changed_data.remove(field_name)
+                self.cleaned_data.pop(field_name)
+                messages.warning(self.request, error_message)
+
+        return self.cleaned_data
 
 
 class ExperimentStatusForm(
