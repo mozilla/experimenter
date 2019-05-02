@@ -25,6 +25,7 @@ from experimenter.experiments.forms import (
     ExperimentReviewForm,
     ExperimentRisksForm,
     ExperimentStatusForm,
+    ExperimentSubscribedForm,
     ExperimentVariantAddonForm,
     ExperimentVariantPrefForm,
     ExperimentVariantsAddonForm,
@@ -1584,3 +1585,32 @@ class TestExperimentArchiveForm(MockRequestMixin, TestCase):
 
         experiment = form.save()
         self.assertFalse(experiment.archived)
+
+
+class TestExperimentSubscribedForm(MockRequestMixin, TestCase):
+
+    def test_form_adds_subscribers(self):
+        experiment = ExperimentFactory.create()
+
+        self.assertFalse(self.user in experiment.subscribers.all())
+
+        form = ExperimentSubscribedForm(
+            self.request, instance=experiment, data={}
+        )
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+        self.assertTrue(self.user in experiment.subscribers.all())
+
+    def test_form_removes_subscribers(self):
+        experiment = ExperimentFactory.create(subscribers=[self.user])
+
+        self.assertTrue(self.user in experiment.subscribers.all())
+
+        form = ExperimentSubscribedForm(
+            self.request, instance=experiment, data={}
+        )
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+        self.assertFalse(self.user in experiment.subscribers.all())

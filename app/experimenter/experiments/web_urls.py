@@ -11,6 +11,7 @@ from experimenter.experiments.views import (
     ExperimentReviewUpdateView,
     ExperimentRisksUpdateView,
     ExperimentStatusUpdateView,
+    ExperimentSubscribedUpdateView,
     ExperimentVariantsUpdateView,
 )
 
@@ -43,6 +44,11 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/archive-update/$",
         ExperimentArchiveUpdateView.as_view(),
         name="experiments-archive-update",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/subscribed-update/$",
+        ExperimentSubscribedUpdateView.as_view(),
+        name="experiments-subscribed-update",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/status-update/$",
