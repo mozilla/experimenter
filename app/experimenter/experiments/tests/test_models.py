@@ -376,13 +376,19 @@ class TestExperimentModel(TestCase):
             experiment._compute_end_date(experiment.MAX_DURATION + 1), None
         )
 
-    def test_end_date_uses_duration(self):
+    def test_end_date_uses_duration_if_change_is_missing(self):
         experiment = ExperimentFactory.create_with_variants(
-            proposed_start_date=datetime.date(2019, 1, 1),
-            proposed_duration=20,
-            proposed_enrollment=10,
+            proposed_start_date=datetime.date(2019, 1, 1), proposed_duration=20
         )
+
         self.assertEqual(experiment.end_date, datetime.date(2019, 1, 21))
+
+    def test_end_date_returns_datetime_if_change_exists(self):
+        change = ExperimentChangeLogFactory.create(
+            old_status=Experiment.STATUS_LIVE,
+            new_status=Experiment.STATUS_COMPLETE,
+        )
+        self.assertEqual(change.experiment.end_date, change.changed_on.date())
 
     def test_enrollment_end_date_uses_enrollment_duration(self):
         experiment = ExperimentFactory.create_with_variants(
