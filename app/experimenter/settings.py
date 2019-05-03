@@ -286,6 +286,7 @@ NORMANDY_SLUG_MAX_LEN = 80
 MONITORING_URL = (
     "https://grafana.telemetry.mozilla.org/d/3QA87kliz/"
     "experiment-enrollment?orgId=1&var-experiment_id={slug}"
+    "&from={from_date}&to={to_date}"
 )
 
 # Statsd via Markus
