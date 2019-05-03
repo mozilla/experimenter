@@ -63,6 +63,12 @@ class TestUniqueNameSlugFormMixin(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("name", form.errors)
 
+    def test_invalid_for_no_name_entered(self):
+        ProjectFactory(name="Unique Existing Name", slug="existing-slug")
+        form = self.Form({"name": ""})
+        self.assertFalse(form.is_valid())
+        self.assertIn("name", form.errors)
+
 
 class TestProjectForm(TestCase):
 
