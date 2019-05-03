@@ -37,6 +37,13 @@ class MockBugzillaMixin(object):
         mock_response.status_code = 400
         return mock_response
 
+    def setupMockBugzillaCreationFailure(self):
+        mock_response_data = {"error": "something went wrong"}
+        mock_response = mock.Mock()
+        mock_response.content = json.dumps(mock_response_data)
+        mock_response.status_code = 400
+        self.mock_bugzilla_requests_post.return_value = mock_response
+
     def setUpMockBugzillaInvalidUser(self):
 
         def mock_reject_assignee(url, bug_data):

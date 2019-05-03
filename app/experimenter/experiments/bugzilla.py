@@ -80,8 +80,10 @@ def create_experiment_bug(experiment):
         response_data = make_bugzilla_call(
             settings.BUGZILLA_CREATE_URL, bug_data
         )
-
-    return response_data["id"]
+    try:
+        return response_data["id"]
+    except KeyError:
+        raise BugzillaError
 
 
 def add_experiment_comment(experiment):
