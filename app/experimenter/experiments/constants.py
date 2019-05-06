@@ -191,13 +191,13 @@ class ExperimentConstants(object):
         delivered to Firefox users.
       </p>
       <p>
-        A <strong>{[1]}</strong> uses prefs to enable code which
+        A <strong>{[1]}</strong> experiment uses prefs to enable code which
         has already been merged into Firefox and deployed with a standard
         Firefox release in a disabled state, and will be selectively enabled
         for users that enroll into the experiment.
       </p>
       <p>
-        An <strong>{[1]}</strong> sends a Firefox Add-On which
+        An <strong>{[1]}</strong> experiment sends a Firefox Add-On which
         contains the code for the experimental feature to the users that
         enroll in the experiment.  After the experiment is complete, that
         add-on is automatically removed.
