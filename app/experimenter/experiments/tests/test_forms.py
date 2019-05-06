@@ -1276,6 +1276,7 @@ class TestExperimentReviewForm(
             form.required_reviews,
             [
                 form["review_science"],
+                form["review_advisory"],
                 form["review_engineering"],
                 form["review_qa_requested"],
                 form["review_intent_to_ship"],
@@ -1314,7 +1315,6 @@ class TestExperimentReviewForm(
         self.assertEqual(
             form.optional_reviews,
             [
-                form["review_advisory"],
                 form["review_comms"],
                 form["review_data_steward"],
                 form["review_impacted_teams"],

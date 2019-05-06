@@ -547,6 +547,7 @@ class Experiment(ExperimentConstants, models.Model):
     def _default_required_reviews(self):
         return [
             "review_science",
+            "review_advisory",
             "review_engineering",
             "review_qa_requested",
             "review_intent_to_ship",
@@ -564,7 +565,11 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_required_reviews(self):
-        return all([getattr(self, r) for r in self.get_all_required_reviews()])
+        required_reviews = self.get_all_required_reviews()
+
+        # review advisory is an exception that is not required
+        required_reviews.remove("review_advisory")
+        return all([getattr(self, r) for r in required_reviews])
 
     @property
     def completed_all_sections(self):

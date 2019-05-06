@@ -854,8 +854,8 @@ class ExperimentReviewForm(
     # Optional
     review_advisory = forms.BooleanField(
         required=False,
-        label="Lightning Advisory",
-        help_text=Experiment.REVIEW_ADVISORY_HELP_TEXT,
+        label="Lightning Advisory (Optional)",
+        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
     )
     review_legal = forms.BooleanField(
         required=False,
