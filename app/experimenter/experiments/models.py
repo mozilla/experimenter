@@ -359,7 +359,9 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def end_date(self):
-        return self._compute_end_date(self.proposed_duration)
+        return self._transition_date(
+            self.STATUS_LIVE, self.STATUS_COMPLETE
+        ) or self._compute_end_date(self.proposed_duration)
 
     @property
     def enrollment_end_date(self):
