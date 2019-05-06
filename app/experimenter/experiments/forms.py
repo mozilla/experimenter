@@ -862,8 +862,10 @@ class ExperimentReviewForm(
         return [
             self[r]
             for r in list(
-                set(self.Meta.fields)
-                - set(self.instance.get_all_required_reviews())
+                sorted(
+                    set(self.Meta.fields)
+                    - set(self.instance.get_all_required_reviews())
+                )
             )
         ]
 
