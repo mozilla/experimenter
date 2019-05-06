@@ -1,6 +1,7 @@
 import json
 import logging
 import requests
+from urllib.parse import urlparse, parse_qs
 
 from django.conf import settings
 
@@ -56,7 +57,7 @@ def make_bugzilla_call(url, data):
 
 
 def create_experiment_bug(experiment):
-    cf_tracking = "cf_status_firefox{}".format(
+    cf_tracking = "cf_tracking_firefox{}".format(
         get_firefox_major_version(experiment.firefox_version)
     )
     bug_data = {
@@ -96,9 +97,10 @@ def get_firefox_major_version(version):
     return version.split(".")[0]
 
 
-def get_bugzilla_id(experiment_url):
-    if experiment_url:
-        return int(experiment_url.split("id=")[1])
+def get_bugzilla_id(bug_url):
+    if bug_url:
+        query = urlparse(bug_url).query
+        return int(parse_qs(query)["id"][0])
 
 
 def add_experiment_comment(experiment):
