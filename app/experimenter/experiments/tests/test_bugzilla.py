@@ -12,7 +12,6 @@ from experimenter.experiments.bugzilla import (
     create_experiment_bug,
     format_bug_body,
     make_bugzilla_call,
-    get_bugzilla_id,
     get_firefox_major_version,
 )
 from experimenter.experiments.tests.factories import ExperimentFactory
@@ -26,7 +25,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             Experiment.STATUS_DRAFT, name="An Experiment"
         )
 
-        cf_tracking = "cf_status_firefox{}".format(
+        cf_tracking = "cf_tracking_firefox{}".format(
             get_firefox_major_version(experiment.firefox_version)
         )
 
@@ -50,10 +49,8 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
                 "cc": settings.BUGZILLA_CC_LIST,
                 "type": "task",
                 "priority": "P3",
-                "see_also": [
-                    get_bugzilla_id(experiment.data_science_bugzilla_url)
-                ],
-                "blocks": [get_bugzilla_id(experiment.feature_bugzilla_url)],
+                "see_also": [12345],
+                "blocks": [12345],
                 "url": experiment.experiment_url,
                 "whiteboard": experiment.STATUS_REVIEW_LABEL,
                 cf_tracking: "?",
@@ -64,7 +61,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, name="An Experiment"
         )
-        cf_tracking = "cf_status_firefox{}".format(
+        cf_tracking = "cf_tracking_firefox{}".format(
             get_firefox_major_version(experiment.firefox_version)
         )
 
@@ -89,10 +86,8 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "cc": settings.BUGZILLA_CC_LIST,
             "type": "task",
             "priority": "P3",
-            "see_also": [
-                get_bugzilla_id(experiment.data_science_bugzilla_url)
-            ],
-            "blocks": [get_bugzilla_id(experiment.feature_bugzilla_url)],
+            "see_also": [12345],
+            "blocks": [12345],
             "url": experiment.experiment_url,
             "whiteboard": experiment.STATUS_REVIEW_LABEL,
             cf_tracking: "?",
