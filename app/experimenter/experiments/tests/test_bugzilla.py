@@ -83,6 +83,13 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             settings.BUGZILLA_CREATE_URL, expected_call_data
         )
 
+    def test_create_bugzilla_ticket_creation_failure(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, name="An Experiment"
+        )
+        self.setupMockBugzillaCreationFailure()
+        self.assertRaises(BugzillaError, create_experiment_bug, experiment)
+
 
 class TestAddExperimentComment(MockBugzillaMixin, TestCase):
 
