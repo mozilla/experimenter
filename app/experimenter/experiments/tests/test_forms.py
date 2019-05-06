@@ -1307,17 +1307,17 @@ class TestExperimentReviewForm(
             request=self.request, data={}, instance=experiment
         )
 
-        self.assertCountEqual(
+        self.assertEqual(
             form.optional_reviews,
             [
                 form["review_advisory"],
-                form["review_legal"],
-                form["review_ux"],
-                form["review_security"],
-                form["review_vp"],
-                form["review_data_steward"],
                 form["review_comms"],
+                form["review_data_steward"],
                 form["review_impacted_teams"],
+                form["review_legal"],
+                form["review_security"],
+                form["review_ux"],
+                form["review_vp"],
             ],
         )
 
