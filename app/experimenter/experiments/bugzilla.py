@@ -80,7 +80,8 @@ def create_experiment_bug(experiment):
         response_data = make_bugzilla_call(
             settings.BUGZILLA_CREATE_URL, bug_data
         )
-
+    if "id" not in response_data:
+        raise BugzillaError(response_data["message"])
     return response_data["id"]
 
 
