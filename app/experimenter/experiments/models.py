@@ -43,7 +43,11 @@ class Experiment(ExperimentConstants, models.Model):
         choices=ExperimentConstants.TYPE_CHOICES,
     )
     owner = models.ForeignKey(
-        get_user_model(), blank=True, null=True, on_delete=models.CASCADE, related_name="owned_experiments"
+        get_user_model(),
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="owned_experiments",
     )
     subscribers = models.ManyToManyField(
         get_user_model(), blank=True, related_name="subscribed_experiments"
