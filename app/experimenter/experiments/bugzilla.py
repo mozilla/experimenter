@@ -1,6 +1,7 @@
 import json
 import logging
 import requests
+from urllib.parse import urlparse, parse_qs
 
 from django.conf import settings
 
@@ -56,11 +57,14 @@ def make_bugzilla_call(url, data):
 
 
 def create_experiment_bug(experiment):
+    cf_tracking = "cf_tracking_firefox{}".format(
+        get_firefox_major_version(experiment.firefox_version)
+    )
     bug_data = {
         "product": "Shield",
         "component": "Shield Study",
         "version": "unspecified",
-        "summary": "[Shield] {experiment}".format(experiment=experiment),
+        "summary": "[Experiment]: {experiment}".format(experiment=experiment),
         "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
             experiment=experiment
         ),
@@ -68,6 +72,11 @@ def create_experiment_bug(experiment):
         "cc": settings.BUGZILLA_CC_LIST,
         "type": "task",
         "priority": "P3",
+        "see_also": [get_bugzilla_id(experiment.data_science_bugzilla_url)],
+        "blocks": [get_bugzilla_id(experiment.feature_bugzilla_url)],
+        "url": experiment.experiment_url,
+        "whiteboard": experiment.STATUS_REVIEW_LABEL,
+        cf_tracking: "?",
     }
 
     response_data = make_bugzilla_call(settings.BUGZILLA_CREATE_URL, bug_data)
@@ -83,6 +92,16 @@ def create_experiment_bug(experiment):
     if "id" not in response_data:
         raise BugzillaError(response_data["message"])
     return response_data["id"]
+
+
+def get_firefox_major_version(version):
+    return version.split(".")[0]
+
+
+def get_bugzilla_id(bug_url):
+    if bug_url:
+        query = urlparse(bug_url).query
+        return int(parse_qs(query)["id"][0])
 
 
 def add_experiment_comment(experiment):
