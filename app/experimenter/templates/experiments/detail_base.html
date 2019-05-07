@@ -12,6 +12,7 @@
       <span class="badge badge-pill badge-small align-middle bg-secondary text-white">Archived</span>
     {% endif %}
   </h3>
+
   {{ experiment.dates }}
 {% endblock %}
 
@@ -51,7 +52,6 @@
 
 {% block main_content %}
 
-
   {% include "experiments/section_overview.html" with section_name=experiment.SECTION_OVERVIEW section_complete=True experiment=experiment edit_url_name="experiments-overview-update" comments=experiment.comments.sections.overview %}
 
   {% include "experiments/section_timeline.html" with section_name=experiment.SECTION_TIMELINE section_complete=experiment.completed_timeline experiment=experiment edit_url_name="experiments-overview-update" comments=experiment.comments.sections.timeline %}
@@ -81,80 +81,33 @@
 {% block main_sidebar %}
   <h4>&nbsp;</h4>
 
-    <form
-      action="{% url "experiments-subscribed-update" slug=experiment.slug %}"
-      method="POST"
-    >
-      {% csrf_token %}
-      <button
-        type="submit"
-        class="btn btn-link p-0"
-      >
-        <strong>
-          <span class="fas fa-user-plus"></span>
-          {% if request.user in experiment.subscribers.all %}
-            Unsubscribe from this experiment
-          {% else %}
-            Subscribe to this experiment
-          {% endif %}
-        </strong>
-      </button>
-    </form>
-
-  <hr class="my-4">
-
-  {% block main_sidebar_extra %}
+  {% block main_sidebar_buttons %}
   {% endblock %}
 
-  {% if not experiment.is_editable %}
-    <div class="row">
-      <h5 class="col">Sign-Offs</h5>
-    </div>
-
-    <div class="mb-3 text-muted">
-      {% for field in form %}
-        <div class="row">
-          <div class="col mb-1">
-            {% if field.value %}
-              <span class="fas fa-check"></span>
-            {% else %}
-              <span class="fas fa-times"></span>
-            {% endif %}
-
-            {{ field.label }}
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-
-  <hr class="my-4">
-
-  <div class="row">
-    <h5 class="col">History</h5>
+  <div class="row mt-2">
+    <h5 class="col mt-2">Actions</h5>
   </div>
 
-  {% for date, users_changes in experiment.ordered_changes %}
-    <div class="row">
-      <div class="col">
-        <strong>{{ date }}</strong>
-      </div>
-    </div>
-
-    {% for user, user_changes in users_changes %}
-      <div class="row">
-        <div class="col">
-          {{ user }}
-
-          {% for user_change in user_changes %}
-            <p class="ml-4 text-muted">{{ user_change }}</p>
-          {% endfor %}
-        </div>
-      </div>
-    {% endfor %}
-  {% endfor %}
-
-  <hr class="my-4">
+  <form
+    action="{% url "experiments-subscribed-update" slug=experiment.slug %}"
+    method="POST"
+  >
+    {% csrf_token %}
+    <button
+      type="submit"
+      class="btn btn-link p-0 mb-2"
+    >
+      <strong>
+        {% if request.user in experiment.subscribers.all %}
+          <span class="fas fa-user-minus"></span>
+          Unsubscribe from this experiment
+        {% else %}
+          <span class="fas fa-user-plus"></span>
+          Subscribe to this experiment
+        {% endif %}
+      </strong>
+    </button>
+  </form>
 
   <form
     action="{% url "experiments-archive-update" slug=experiment.slug %}"
@@ -176,4 +129,52 @@
     </button>
   </form>
 
+  {% block main_sidebar_extra %}
+  {% endblock %}
+
+  {% if not experiment.is_editable %}
+    <div class="row">
+      <h5 class="col mt-2">Sign-Offs</h5>
+    </div>
+
+    <div class="mb-3 text-muted">
+      {% for field in form %}
+        <div class="row">
+          <div class="col mb-1">
+            {% if field.value %}
+              <span class="fas fa-check"></span>
+            {% else %}
+              <span class="fas fa-times"></span>
+            {% endif %}
+
+            {{ field.label }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="row">
+    <h5 class="col mt-2">History</h5>
+  </div>
+
+  {% for date, users_changes in experiment.ordered_changes %}
+    <div class="row">
+      <div class="col">
+        <strong>{{ date }}</strong>
+      </div>
+    </div>
+
+    {% for user, user_changes in users_changes %}
+      <div class="row">
+        <div class="col">
+          {{ user }}
+
+          {% for user_change in user_changes %}
+            <p class="ml-4 text-muted">{{ user_change }}</p>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  {% endfor %}
 {% endblock %}
