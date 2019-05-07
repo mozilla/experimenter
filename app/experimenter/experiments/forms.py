@@ -275,15 +275,18 @@ class ExperimentVariantsFormSet(BaseInlineFormSet):
                     "The size of all branches must add up to 100"
                 ]
 
-        unique_names = set(
-            form.cleaned_data["name"]
-            for form in alive_forms
-            if form.cleaned_data.get("name")
-        )
+        if all([f.is_valid() for f in alive_forms]):
+            unique_names = set(
+                form.cleaned_data["name"]
+                for form in alive_forms
+                if form.cleaned_data.get("name")
+            )
 
-        if not len(unique_names) == len(alive_forms):
-            for form in alive_forms:
-                form._errors["name"] = ["All branches must have a unique name"]
+            if not len(unique_names) == len(alive_forms):
+                for form in alive_forms:
+                    form._errors["name"] = [
+                        "All branches must have a unique name"
+                    ]
 
 
 class ExperimentVariantsPrefFormSet(ExperimentVariantsFormSet):
