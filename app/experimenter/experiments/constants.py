@@ -788,8 +788,10 @@ If applicable, link to any relevant test builds / staging information
 
 {experiment.short_description}
 
+Experimenter is the source of truth for details and delivery. Changes to Bugzilla are not reflected in Experimenter and will not change delivery configuration.
+
 More information: {experiment.experiment_url}
-        """
+        """  # noqa
     )
 
     BUGZILLA_VARIANT_PREF_TEMPLATE = (
