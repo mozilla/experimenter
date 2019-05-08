@@ -52,9 +52,9 @@
         {% csrf_token %}
 
         {% for field in form.required_reviews %}
-            <div class="checkbox">
-              {% if field.name == 'review_intent_to_ship' and not experiment.review_intent_to_ship %}
-                <button type="button" class="btn btn-link p-0 mb-1 send-intent-to-ship"
+            {% if field.name == 'review_intent_to_ship' and not experiment.review_intent_to_ship %}
+              <div class="checkbox mb-1">
+                <button type="button" class="btn btn-link p-0 send-intent-to-ship"
                   data-toggle="modal" data-target="#send-intent-to-ship-modal"
                   data-url="{% url 'experiments-api-send-intent-to-ship-email' experiment.slug %}"
                 >
@@ -62,12 +62,13 @@
                     <span class="fas fa-envelope"></span> Send intent-to-ship email
                   </strong>
                 </button>
-              {% else %}
+            {% else %}
+              <div class="checkbox">
                 <label>
                   {{ field }}
                   {{ field.label }}
                 </label>
-              {% endif %}
+            {% endif %}
               {{ field.help_text|safe }}
             </div>
         {% endfor %}
