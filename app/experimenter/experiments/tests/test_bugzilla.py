@@ -103,6 +103,41 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             settings.BUGZILLA_CREATE_URL, expected_call_data
         )
 
+    def test_create_bugzilla_ticket_retries_with_no_cf_tracking(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, name="An Experiment"
+        )
+        self.setUpMockBugzillaInvalidFirefoxVersion()
+
+        response_data = create_experiment_bug(experiment)
+
+        self.assertEqual(response_data, self.bugzilla_id)
+        self.assertEqual(self.mock_bugzilla_requests_post.call_count, 2)
+
+        expected_call_data = {
+            "product": "Shield",
+            "component": "Shield Study",
+            "version": "unspecified",
+            "summary": "[Experiment]: {experiment}".format(
+                experiment=experiment
+            ),
+            "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
+                experiment=experiment
+            ),
+            "assigned_to": experiment.owner.email,
+            "cc": settings.BUGZILLA_CC_LIST,
+            "type": "task",
+            "priority": "P3",
+            "see_also": [12345],
+            "blocks": [12345],
+            "url": experiment.experiment_url,
+            "whiteboard": experiment.STATUS_REVIEW_LABEL,
+        }
+
+        self.mock_bugzilla_requests_post.assert_any_call(
+            settings.BUGZILLA_CREATE_URL, expected_call_data
+        )
+
     def test_create_bugzilla_ticket_creation_failure(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, name="An Experiment"

@@ -5,8 +5,8 @@ from urllib.parse import urlparse, parse_qs
 
 from django.conf import settings
 
-
 INVALID_USER_ERROR_CODE = 51
+INVALID_PARAMETER_ERROR_CODE = 53
 
 
 class BugzillaError(Exception):
@@ -56,10 +56,7 @@ def make_bugzilla_call(url, data):
         raise BugzillaError(*e.args)
 
 
-def create_experiment_bug(experiment):
-    cf_tracking = "cf_tracking_firefox{}".format(
-        get_firefox_major_version(experiment.firefox_version)
-    )
+def format_creation_bug_body(experiment):
     bug_data = {
         "product": "Shield",
         "component": "Shield Study",
@@ -73,12 +70,24 @@ def create_experiment_bug(experiment):
         "type": "task",
         "priority": "P3",
         "see_also": [get_bugzilla_id(experiment.data_science_bugzilla_url)],
-        "blocks": [get_bugzilla_id(experiment.feature_bugzilla_url)],
         "url": experiment.experiment_url,
         "whiteboard": experiment.STATUS_REVIEW_LABEL,
-        cf_tracking: "?",
     }
+    if experiment.firefox_version:
+        cf_tracking = "cf_tracking_firefox{}".format(
+            get_firefox_major_version(experiment.firefox_version)
+        )
+        bug_data[cf_tracking] = "?"
 
+    if experiment.feature_bugzilla_url:
+        bug_id = get_bugzilla_id(experiment.feature_bugzilla_url)
+        bug_data["blocks"] = [bug_id]
+    return bug_data
+
+
+def create_experiment_bug(experiment):
+
+    bug_data = format_creation_bug_body(experiment)
     response_data = make_bugzilla_call(settings.BUGZILLA_CREATE_URL, bug_data)
 
     # The experiment owner might not exist in bugzilla
@@ -89,6 +98,24 @@ def create_experiment_bug(experiment):
         response_data = make_bugzilla_call(
             settings.BUGZILLA_CREATE_URL, bug_data
         )
+
+    # Firefox Version given might not be an available
+    # bugzilla tracking parameter, so remove and retry
+    err_code = response_data.get("code", None) == INVALID_PARAMETER_ERROR_CODE
+    if err_code:
+        tracking_msg = "cf_tracking_firefox" in response_data.get(
+            "message", None
+        )
+    if err_code and tracking_msg:
+        bug_data = bug_data.copy()
+        cf_tracking = "cf_tracking_firefox{}".format(
+            get_firefox_major_version(experiment.firefox_version)
+        )
+        del bug_data[cf_tracking]
+        response_data = make_bugzilla_call(
+            settings.BUGZILLA_CREATE_URL, bug_data
+        )
+
     if "id" not in response_data:
         raise BugzillaError(response_data["message"])
     return response_data["id"]
@@ -99,9 +126,8 @@ def get_firefox_major_version(version):
 
 
 def get_bugzilla_id(bug_url):
-    if bug_url:
-        query = urlparse(bug_url).query
-        return int(parse_qs(query)["id"][0])
+    query = urlparse(bug_url).query
+    return int(parse_qs(query)["id"][0])
 
 
 def add_experiment_comment(experiment):
