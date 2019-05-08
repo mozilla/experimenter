@@ -183,6 +183,8 @@ class ExperimentConstants(object):
         "Is this experiment a revision of a previous experiment?"
     )
     RISK_TECHNICAL_LABEL = "Is this experiment Complex / Technically Risky?"
+    SURVEY_REQUIRED_LABEL = "Is a Survey Required?"
+    SURVEY_INSTRUCTIONS_LABEL = "Survey Launch Instructions"
 
     # Help texts
     TYPE_HELP_TEXT = """
@@ -579,6 +581,34 @@ class ExperimentConstants(object):
       <p>Usage hours</p>
       <p>Attracting heavy users and influencers.</p>
       <p>Understanding the landscape of the web (research)</p>
+    """
+
+    SURVEY_HELP_TEXT = """
+          https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-ReleaseManagementSign-off
+    """
+
+    SURVEY_LAUNCH_INSTRUCTIONS_HELP_TEXT = """
+        <p>
+            <strong>If this is a Pref-flip Experiment: </strong>
+            The survey needs to launch before the study ends, to allow survey
+            delivery targeting based on the experiment tag.  Since the launch
+            date may change (impacting study end and survey launch), please
+            share the logic for how many days before the experiment ends to
+            launch the survey.   We keep surveys open 7 days to allow response
+            time.
+        </p>
+        <p>
+            <strong>If this is an Add-on Experiment: </strong>
+            The most common survey trigger is upon add-on expiration
+            (built into the add-on).  Add-on experiments don't leave
+            breadcrumbs behind on the user systems, so there is no way
+            to target those users for surveying after the Normandy recipe
+            is ended.  The Normandy end date needs to be scheduled AFTER
+            the add-on has expired (for the last enrolled users), plus a 7
+            day survey response window.
+        </p>
+
+
     """
 
     RISKS_HELP_TEXT = """

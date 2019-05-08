@@ -1050,6 +1050,9 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
             "objectives": "The objective is to experiment!",
             "analysis_owner": "Jim Bob The Data Scientist",
             "analysis": "Lets analyze the results!",
+            "survey_required": True,
+            "survey_urls": "example.com",
+            "survey_instructions": "Here are the launch instructions.",
         }
 
         form = ExperimentObjectivesForm(
@@ -1062,6 +1065,11 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
 
         self.assertEqual(experiment.objectives, data["objectives"])
         self.assertEqual(experiment.analysis, data["analysis"])
+        self.assertTrue(experiment.survey_required)
+        self.assertEqual(experiment.survey_urls, data["survey_urls"])
+        self.assertEqual(
+            experiment.survey_instructions, data["survey_instructions"]
+        )
 
 
 class TestExperimentRisksForm(MockRequestMixin, TestCase):
