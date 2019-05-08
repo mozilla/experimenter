@@ -84,8 +84,8 @@
   {% block main_sidebar_buttons %}
   {% endblock %}
 
-  <div class="row mt-2">
-    <h5 class="col mt-2">Actions</h5>
+  <div class="row">
+    <h5 class="col">Actions</h5>
   </div>
 
   <form
@@ -99,10 +99,10 @@
     >
       <strong>
         {% if request.user in experiment.subscribers.all %}
-          <span class="fas fa-user-minus"></span>
+          <span class="fas fa-bell-slash"></span>
           Unsubscribe from this experiment
         {% else %}
-          <span class="fas fa-user-plus"></span>
+          <span class="fas fa-bell"></span>
           Subscribe to this experiment
         {% endif %}
       </strong>
@@ -134,10 +134,10 @@
 
   {% if not experiment.is_editable %}
     <div class="row">
-      <h5 class="col mt-2">Sign-Offs</h5>
+      <h5 class="col mt-3">Sign-Offs</h5>
     </div>
 
-    <div class="mb-3 text-muted">
+    <div class="text-muted">
       {% for field in form %}
         <div class="row">
           <div class="col mb-1">
@@ -155,7 +155,7 @@
   {% endif %}
 
   <div class="row">
-    <h5 class="col mt-2">History</h5>
+    <h5 class="col mt-3">History</h5>
   </div>
 
   {% for date, users_changes in experiment.ordered_changes %}
