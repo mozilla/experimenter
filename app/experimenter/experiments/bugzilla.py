@@ -14,10 +14,19 @@ class BugzillaError(Exception):
 
 
 def format_bug_body(experiment):
-
     bug_body = ""
-    countries = "".join(["{name} ({code}) ".format(name=country.name, code=country.code) for country in list(experiment.countries.all())])
-    locales = "".join(["{name} ({code}) ".format(name=locale.name, code=locale.code) for locale in list(experiment.locales.all())])
+    countries = "".join(
+        [
+            "{name} ({code}) ".format(name=country.name, code=country.code)
+            for country in list(experiment.countries.all())
+        ]
+    )
+    locales = "".join(
+        [
+            "{name} ({code}) ".format(name=locale.name, code=locale.code)
+            for locale in list(experiment.locales.all())
+        ]
+    )
 
     if experiment.is_addon_experiment:
         variants_body = "\n".join(
@@ -29,7 +38,10 @@ def format_bug_body(experiment):
             ]
         )
         bug_body = experiment.BUGZILLA_ADDON_TEMPLATE.format(
-            experiment=experiment, variants=variants_body, countries=countries, locales=locales
+            experiment=experiment,
+            variants=variants_body,
+            countries=countries,
+            locales=locales,
         )
     elif experiment.is_pref_experiment:
         variants_body = "\n".join(
@@ -41,29 +53,40 @@ def format_bug_body(experiment):
             ]
         )
         bug_body = experiment.BUGZILLA_PREF_TEMPLATE.format(
-            experiment=experiment, variants=variants_body, countries=countries, locales=locales
+            experiment=experiment,
+            variants=variants_body,
+            countries=countries,
+            locales=locales,
         )
 
     return bug_body
 
+
 def format_update_body(experiment):
     cf_tracking = "cf_tracking_firefox{}".format(
-    get_firefox_major_version(experiment.firefox_version)
+        get_firefox_major_version(experiment.firefox_version)
     )
-    summary = "[Experiment] {experiment_name} Fx {version} {channel}".format(experiment_name=experiment, version=experiment.firefox_version, channel= experiment.firefox_channel)
-    return {"summary": summary,
-    "cf_user_story": format_bug_body(experiment),
-    "whiteboard": experiment.STATUS_SHIP_LABEL,
-    cf_tracking: "?"
+    summary = "[Experiment] {experiment_name} Fx {version} {channel}".format(
+        experiment_name=experiment,
+        version=experiment.firefox_version,
+        channel=experiment.firefox_channel,
+    )
+    return {
+        "summary": summary,
+        "cf_user_story": format_bug_body(experiment),
+        "whiteboard": experiment.STATUS_SHIP_LABEL,
+        cf_tracking: "?",
     }
 
-def update_experiment_bug(experiment):
-    body=format_update_body(experiment)
-    logging.info(body)
-    logging.info(settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id))
-    make_update_experiment_bug_call(settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id), body)
 
-def make_update_experiment_bug_call(url, data):
+def update_experiment_bug(experiment):
+    body = format_update_body(experiment)
+    make_bugzilla_put_call(
+        settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id), body
+    )
+
+
+def make_bugzilla_put_call(url, data):
     try:
         response = requests.put(url, data)
         return json.loads(response.content)
@@ -75,7 +98,7 @@ def make_update_experiment_bug_call(url, data):
         raise BugzillaError(*e.args)
 
 
-def make_bugzilla_call(url, data):
+def make_bugzilla_post_call(url, data):
     try:
         response = requests.post(url, data)
         return json.loads(response.content)
@@ -116,14 +139,16 @@ def format_creation_bug_body(experiment):
 def create_experiment_bug(experiment):
 
     bug_data = format_creation_bug_body(experiment)
-    response_data = make_bugzilla_call(settings.BUGZILLA_CREATE_URL, bug_data)
+    response_data = make_bugzilla_post_call(
+        settings.BUGZILLA_CREATE_URL, bug_data
+    )
 
     # The experiment owner might not exist in bugzilla
     # in which case we try to create it again with no assignee
     if response_data.get("code", None) == INVALID_USER_ERROR_CODE:
         bug_data = bug_data.copy()
         del bug_data["assigned_to"]
-        response_data = make_bugzilla_call(
+        response_data = make_bugzilla_post_call(
             settings.BUGZILLA_CREATE_URL, bug_data
         )
 

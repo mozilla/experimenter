@@ -290,16 +290,16 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
                 bug_url=self.experiment.bugzilla_url
             ),
         )
-    
+
     def test_bugzilla_error_doesnt_create_notifications(self):
-        self.assertEqual(Notification.objects.count(),0)
+        self.assertEqual(Notification.objects.count(), 0)
 
         self.mock_bugzilla_requests_put.side_effect = RequestException()
 
         with self.assertRaises(bugzilla.BugzillaError):
             with MetricsMock() as mm:
                 tasks.update_experiment_bug_task(
-                    self.user.id,self.experiment.id
+                    self.user.id, self.experiment.id
                 )
 
                 self.assertTrue(
@@ -309,21 +309,22 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
                         value=1,
                     )
                 )
-                self.assertTrue(
+                # Failures should abort timing metrics.
+                self.assertFalse(
                     mm.has_record(
                         markus.INCR,
                         "experiments.tasks.update_experiment_bug.timing",
                     )
                 )
-
+                # Completed metric should not be sent.
                 self.assertFalse(
                     mm.has_record(
                         markus.INCR,
-                        "experiments.tasks.update_experiment_bug.completed"
+                        "experiments.tasks.update_experiment_bug.completed",
                     )
                 )
         self.mock_bugzilla_requests_put.assert_called()
-        self.assertEqual(Notification.objects.count(),0)
+        self.assertEqual(Notification.objects.count(), 0)
 
     def test_internal_only_does_not_update_bugzilla(self):
         experiment = ExperimentFactory.create_with_status(
@@ -337,30 +338,29 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
                 mm.has_record(
                     markus.INCR,
                     "experiments.tasks.update_experiment_bug.started",
-                    value=1
+                    value=1,
                 )
             )
             self.assertFalse(
                 mm.has_record(
                     markus.INCR,
-                    "experiements.tasks.update_experiment_bug.completed"
+                    "experiements.tasks.update_experiment_bug.completed",
                 )
             )
             self.assertTrue(
                 mm.has_record(
                     markus.TIMING,
-                    "experiments.tasks.update_experiment_bug.timing"
+                    "experiments.tasks.update_experiment_bug.timing",
                 )
             )
 
             self.assertFalse(
                 mm.has_record(
                     markus.INCR,
-                    "expeiments.tasks.update_experiement_bug.failed"
+                    "expeiments.tasks.update_experiement_bug.failed",
                 )
             )
 
-            self.mock_bugzilla_requests_put.assert_not_called()
-            
-            self.assertEqual(Notification.objects.count(),0)
+        self.mock_bugzilla_requests_put.assert_not_called()
 
+        self.assertEqual(Notification.objects.count(), 0)

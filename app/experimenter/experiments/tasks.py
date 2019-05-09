@@ -81,6 +81,7 @@ def create_experiment_bug_task(user_id, experiment_id):
         logger.info("Bugzilla ticket notification sent")
         raise e
 
+
 @app.task
 @metrics.timer_decorator("update_experiment_bug.timing")
 def update_experiment_bug_task(user_id, experiment_id):
@@ -108,4 +109,4 @@ def update_experiment_bug_task(user_id, experiment_id):
     except bugzilla.BugzillaError as e:
         metrics.incr("update_experiment_bug.failed")
         logger.info("Failed bugzilla update")
-        raise e 
+        raise e

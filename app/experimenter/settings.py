@@ -266,8 +266,7 @@ BUGZILLA_CREATE_URL = "{path}?api_key={api_key}".format(
 )
 BUGZILLA_DETAIL_URL = urljoin(BUGZILLA_HOST, "/show_bug.cgi?id={id}")
 BUGZILLA_UPDATE_URL = "{path}?api_key={api_key}".format(
-    path=urljoin(BUGZILLA_HOST, "/rest/bug/{id}"),
-    api_key=BUGZILLA_API_KEY,
+    path=urljoin(BUGZILLA_HOST, "/rest/bug/{id}"), api_key=BUGZILLA_API_KEY
 )
 
 REDIS_HOST = config("REDIS_HOST")
