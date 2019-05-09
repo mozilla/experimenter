@@ -1074,6 +1074,10 @@ class ExperimentStatusForm(
                 self.request.user.id, experiment.id
             )
 
+            tasks.update_experiment_bug_task.delay(
+                self.request.user.id, experiment.id
+            )
+
         return experiment
 
 

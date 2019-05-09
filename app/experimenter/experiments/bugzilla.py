@@ -14,7 +14,11 @@ class BugzillaError(Exception):
 
 
 def format_bug_body(experiment):
+
     bug_body = ""
+    logging.info(list(experiment.countries.all()))
+    countries = "".join(["{name} ({code}) ".format(name=country.name, code=country.code) for country in list(experiment.countries.all())])
+    locales = "".join(["{name} ({code}) ".format(name=locale.name, code=locale.code) for locale in list(experiment.locales.all())])
 
     if experiment.is_addon_experiment:
         variants_body = "\n".join(
@@ -26,7 +30,7 @@ def format_bug_body(experiment):
             ]
         )
         bug_body = experiment.BUGZILLA_ADDON_TEMPLATE.format(
-            experiment=experiment, variants=variants_body
+            experiment=experiment, variants=variants_body, countries=countries, locales=locales
         )
     elif experiment.is_pref_experiment:
         variants_body = "\n".join(
@@ -38,10 +42,42 @@ def format_bug_body(experiment):
             ]
         )
         bug_body = experiment.BUGZILLA_PREF_TEMPLATE.format(
-            experiment=experiment, variants=variants_body
+            experiment=experiment, variants=variants_body, countries=countries, locales=locales
         )
 
     return bug_body
+
+def format_update_body(experiment):
+    cf_tracking = "cf_tracking_firefox{}".format(
+    get_firefox_major_version(experiment.firefox_version)
+    )
+    summary = "[Experiment] {experiment_name} Fx {version} {channel}".format(experiment_name=experiment, version=experiment.firefox_version, channel= experiment.firefox_channel)
+    return {"summary": summary,
+    "cf_user_story": format_bug_body(experiment),
+    "whiteboard": experiment.STATUS_SHIP_LABEL,
+    cf_tracking: "?"
+    }
+
+def update_experiment_bug(experiment):
+    body=format_update_body(experiment)
+    logging.info(body)
+    logging.info(settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id))
+    make_update_experiment_bug_call(settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id), body)
+
+def make_update_experiment_bug_call(url, data):
+    try:
+        response = requests.put(url, data)
+        logging.info("this is the response")
+        logging.info(response.json())
+        return json.loads(response.content)
+    except requests.exceptions.RequestException as e:
+        logging.exception("Error calling Bugzilla API: {}".format(e))
+        raise BugzillaError(*e.args)
+    except json.JSONDecodeError as e:
+        logging.exception("Error parsing JSON Bugzilla response: {}".format(e))
+        raise BugzillaError(*e.args)
+
+
 
 
 def make_bugzilla_call(url, data):

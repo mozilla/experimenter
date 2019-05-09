@@ -828,6 +828,9 @@ Value: {variant.value}
     Are there specific criteria for participants?
 
 {experiment.client_matching}
+Countries: {countries}
+
+Locales: {locales}
 
     What is your intended go live date and how long will the experiment run?
 
@@ -877,7 +880,12 @@ Value: {variant.value}
 
     Are there specific criteria for participants?
 
+
 {experiment.client_matching}
+
+Countries: {countries}
+
+Locales: {locales}
 
     What is your intended go live date and how long will the experiment run?
 
