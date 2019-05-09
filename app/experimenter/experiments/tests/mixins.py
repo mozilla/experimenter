@@ -22,6 +22,17 @@ class MockBugzillaMixin(object):
         self.mock_bugzilla_requests_post.return_value = (
             self.buildMockSuccessResponse()
         )
+        mock_bugzilla_requests_put_patcher = mock.patch(
+            "experimenter.experiments.bugzilla.requests.put"
+        )
+
+        self.mock_bugzilla_requests_put = (
+            mock_bugzilla_requests_put_patcher.start()
+        )
+        self.addCleanup(mock_bugzilla_requests_put_patcher.stop)
+        self.mock_bugzilla_requests_put.return_value = (
+            self.buildMockSuccessResponse()
+        )
 
     def buildMockSuccessResponse(self):
         mock_response_data = {"id": self.bugzilla_id}
@@ -109,3 +120,9 @@ class MockTasksMixin(object):
         )
         self.mock_tasks_add_comment = mock_tasks_add_comment_patcher.start()
         self.addCleanup(mock_tasks_add_comment_patcher.stop)
+
+        mock_tasks_update_experiment_bug_patcher = mock.patch(
+            "experimenter.experiments.tasks.update_experiment_bug_task"
+        )
+        self.mock_tasks_update_experiment_bug = mock_tasks_update_experiment_bug_patcher.start()
+        self.addCleanup(mock_tasks_update_experiment_bug_patcher.stop)

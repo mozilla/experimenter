@@ -12,6 +12,9 @@ from experimenter.experiments.bugzilla import (
     create_experiment_bug,
     format_bug_body,
     make_bugzilla_call,
+    get_firefox_major_version,
+    update_experiment_bug,
+    make_update_experiment_bug_call
 )
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.mixins import MockBugzillaMixin
@@ -176,6 +179,28 @@ class TestAddExperimentComment(MockBugzillaMixin, TestCase):
             {"comment": format_bug_body(experiment)},
         )
 
+class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
+
+    def test_update_bugzilla_experiment(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            name="An Experiment",
+            bugzilla_id="123",
+            type=Experiment.TYPE_PREF,
+        )
+        cf_tracking = "cf_tracking_firefox{}".format(get_firefox_major_version(experiment.firefox_version))
+
+        update_experiment_bug(experiment)
+        summary = "[Experiment] {experiment_name} Fx {version} {channel}".format(experiment_name=experiment, version=experiment.firefox_version, channel= experiment.firefox_channel)
+
+        self.mock_bugzilla_requests_put.assert_called_with(
+            settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
+            {"summary": summary,
+            "cf_user_story": format_bug_body(experiment),
+            "whiteboard": experiment.STATUS_SHIP_LABEL,
+            cf_tracking: "?"
+            },
+        )
 
 class TestMakeBugzillaCall(MockBugzillaMixin, TestCase):
 
@@ -203,3 +228,24 @@ class TestMakeBugzillaCall(MockBugzillaMixin, TestCase):
         self.mock_bugzilla_requests_post.return_value = mock_response
         with self.assertRaises(BugzillaError):
             make_bugzilla_call("/url/", {})
+
+class TestMakePutBugzillaCall(MockBugzillaMixin, TestCase):
+    
+    def test_api_error_logs_message(self):
+        mock_response_data = {
+            "message": "Error: Something went wrong"
+        }
+        mock_response = mock.Mock()
+        mock_response.content = json.dumps(mock_response_data)
+        mock_response.status_code = 400
+        self.mock_bugzilla_requests_put.return_value = mock_response
+
+        response_data = make_update_experiment_bug_call("/url/", {})
+        self.assertEqual(response_data, mock_response_data)
+
+    def test_request_error_passes_silently(self):
+        mock_response = mock.Mock()
+        mock_response.content = "{invalid json"
+        self.mock_bugzilla_requests_put.return_value = mock_response
+        with self.assertRaises(BugzillaError):
+            make_update_experiment_bug_call("/url/",{})
