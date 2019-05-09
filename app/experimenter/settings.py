@@ -265,10 +265,6 @@ BUGZILLA_CREATE_URL = "{path}?api_key={api_key}".format(
     path=urljoin(BUGZILLA_HOST, BUGZILLA_CREATE_PATH), api_key=BUGZILLA_API_KEY
 )
 BUGZILLA_DETAIL_URL = urljoin(BUGZILLA_HOST, "/show_bug.cgi?id={id}")
-BUGZILLA_COMMENT_URL = "{path}?api_key={api_key}".format(
-    path=urljoin(BUGZILLA_HOST, "/rest/bug/{id}/comment"),
-    api_key=BUGZILLA_API_KEY,
-)
 BUGZILLA_UPDATE_URL = "{path}?api_key={api_key}".format(
     path=urljoin(BUGZILLA_HOST, "/rest/bug/{id}"),
     api_key=BUGZILLA_API_KEY,

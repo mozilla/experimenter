@@ -1070,10 +1070,6 @@ class ExperimentStatusForm(
             experiment.normandy_slug = experiment.generate_normandy_slug()
             experiment.save()
 
-            tasks.add_experiment_comment_task.delay(
-                self.request.user.id, experiment.id
-            )
-
             tasks.update_experiment_bug_task.delay(
                 self.request.user.id, experiment.id
             )

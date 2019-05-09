@@ -8,7 +8,6 @@ from django.conf import settings
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.bugzilla import (
     BugzillaError,
-    add_experiment_comment,
     create_experiment_bug,
     format_bug_body,
     make_bugzilla_call,
@@ -142,51 +141,35 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
         self.setupMockBugzillaCreationFailure()
         self.assertRaises(BugzillaError, create_experiment_bug, experiment)
 
+class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
 
-class TestAddExperimentComment(MockBugzillaMixin, TestCase):
-
-    def test_add_bugzilla_comment_pref_experiment(self):
+    def test_update_bugzilla_pref_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             name="An Experiment",
             bugzilla_id="123",
             type=Experiment.TYPE_PREF,
         )
+        cf_tracking = "cf_tracking_firefox{}".format(get_firefox_major_version(experiment.firefox_version))
 
-        comment_id = add_experiment_comment(experiment)
+        update_experiment_bug(experiment)
+        summary = "[Experiment] {experiment_name} Fx {version} {channel}".format(experiment_name=experiment, version=experiment.firefox_version, channel= experiment.firefox_channel)
 
-        self.assertEqual(comment_id, self.bugzilla_id)
-
-        self.mock_bugzilla_requests_post.assert_called_with(
-            settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
-            {"comment": format_bug_body(experiment)},
+        self.mock_bugzilla_requests_put.assert_called_with(
+            settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
+            {"summary": summary,
+            "cf_user_story": format_bug_body(experiment),
+            "whiteboard": experiment.STATUS_SHIP_LABEL,
+            cf_tracking: "?"
+            },
         )
 
-    def test_add_bugzilla_comment_addon_experiment(self):
+    def test_update_bugzilla_addon_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             name="An Experiment",
             bugzilla_id="123",
             type=Experiment.TYPE_ADDON,
-        )
-
-        comment_id = add_experiment_comment(experiment)
-
-        self.assertEqual(comment_id, self.bugzilla_id)
-
-        self.mock_bugzilla_requests_post.assert_called_with(
-            settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
-            {"comment": format_bug_body(experiment)},
-        )
-
-class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
-
-    def test_update_bugzilla_experiment(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
-            name="An Experiment",
-            bugzilla_id="123",
-            type=Experiment.TYPE_PREF,
         )
         cf_tracking = "cf_tracking_firefox{}".format(get_firefox_major_version(experiment.firefox_version))
 

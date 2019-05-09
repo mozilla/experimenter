@@ -81,36 +81,6 @@ def create_experiment_bug_task(user_id, experiment_id):
         logger.info("Bugzilla ticket notification sent")
         raise e
 
-
-@app.task
-@metrics.timer_decorator("add_experiment_comment.timing")
-def add_experiment_comment_task(user_id, experiment_id):
-    metrics.incr("add_experiment_comment.started")
-
-    experiment = Experiment.objects.get(id=experiment_id)
-
-    if experiment.risk_internal_only:
-        logger.info("Skipping Bugzilla comment for internal only experiment")
-        return
-
-    logger.info("Updating Bugzilla comment")
-
-    try:
-        bugzilla.add_experiment_comment(experiment)
-        logger.info("Bugzilla comment updated")
-        Notification.objects.create(
-            user_id=user_id,
-            message=NOTIFICATION_MESSAGE_ADD_COMMENT.format(
-                bug_url=experiment.bugzilla_url
-            ),
-        )
-        metrics.incr("add_experiment_comment.completed")
-        logger.info("Bugzilla comment notification sent")
-    except bugzilla.BugzillaError as e:
-        metrics.incr("add_experiment_comment.failed")
-        logger.info("Failed to create bugzilla comment")
-        raise e
-
 @app.task
 @metrics.timer_decorator("update_experiment_bug.timing")
 def update_experiment_bug_task(user_id, experiment_id):
