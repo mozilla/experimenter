@@ -628,10 +628,6 @@ class ExperimentConstants(object):
       <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Engineeringallocated">Help</a>
     """  # noqa
 
-    REVIEW_ADVISORY_HELP_TEXT = """
-      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-LightningAdvising">Help</a>
-    """  # noqa
-
     REVIEW_SCIENCE_HELP_TEXT = """
       <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-DataSciencePeerReview">Help</a>
     """  # noqa
@@ -642,26 +638,6 @@ class ExperimentConstants(object):
 
     REVIEW_QA_HELP_TEXT = """
       <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-QAsign-off">Help</a>
-    """  # noqa
-
-    REVIEW_LEGAL_HELP_TEXT = """
-      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-LegalReview(optional)LegalBug">Help</a>
-    """  # noqa
-
-    REVIEW_UX_HELP_TEXT = """
-      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-UXReview(Optional)">Help</a>
-    """  # noqa
-
-    REVIEW_SECURITY_HELP_TEXT = """
-      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-SecurityReview(optional)">Help</a>
-    """  # noqa
-
-    REVIEW_VP_HELP_TEXT = """
-      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-VPReview(optional)">Help</a>
-    """  # noqa
-
-    REVIEW_DATA_STEWARD_HELP_TEXT = """
-      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-DataStewardReview(optional)">Help</a>
     """  # noqa
 
     REVIEW_IMPACTED_TEAMS_HELP_TEXT = """
