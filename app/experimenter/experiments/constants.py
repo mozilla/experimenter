@@ -616,10 +616,6 @@ class ExperimentConstants(object):
     """
 
     # Sign-Offs
-    REVIEW_COMMS_HELP_TEXT = """
-      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Mozillapress/commsreview(optional)">Help</a>
-    """  # noqa
-
     REVIEW_BUGZILLA_HELP_TEXT = """
       <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Bugzillaupdated">Help</a>
     """  # noqa
@@ -638,10 +634,6 @@ class ExperimentConstants(object):
 
     REVIEW_QA_HELP_TEXT = """
       <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-QAsign-off">Help</a>
-    """  # noqa
-
-    REVIEW_IMPACTED_TEAMS_HELP_TEXT = """
-      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-ImpactedTeam(s)Signed-off(optional)">Help</a>
     """  # noqa
 
     REVIEW_QA_REQUESTED_HELP_TEXT = """
