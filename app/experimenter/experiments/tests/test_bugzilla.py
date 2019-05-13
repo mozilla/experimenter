@@ -103,9 +103,9 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
         )
         self.setUpMockBugzillaInvalidFirefoxVersion()
 
-        response_data = create_experiment_bug(experiment)
+        bugzilla_id = create_experiment_bug(experiment)
 
-        self.assertEqual(response_data, self.bugzilla_id)
+        self.assertEqual(bugzilla_id, self.bugzilla_id)
         self.assertEqual(self.mock_bugzilla_requests_post.call_count, 2)
 
         expected_call_data = {
