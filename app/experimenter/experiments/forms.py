@@ -888,7 +888,7 @@ class ExperimentReviewForm(
     review_comms = forms.BooleanField(
         required=False,
         label="Mozilla Press/Comms",
-        help_text=Experiment.REVIEW_COMMS_HELP_TEXT,
+        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
     )
     review_impacted_teams = forms.BooleanField(
         required=False,
