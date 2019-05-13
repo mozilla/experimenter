@@ -12,7 +12,6 @@ from experimenter.experiments.bugzilla import (
     create_experiment_bug,
     format_bug_body,
     make_bugzilla_call,
-    get_firefox_major_version,
 )
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.mixins import MockBugzillaMixin
@@ -22,11 +21,9 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
 
     def test_creating_pref_bugzilla_ticket_returns_ticket_id(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, name="An Experiment"
-        )
-
-        cf_tracking = "cf_tracking_firefox{}".format(
-            get_firefox_major_version(experiment.firefox_version)
+            Experiment.STATUS_DRAFT,
+            name="An Experiment",
+            firefox_version="56.0",
         )
 
         response_data = create_experiment_bug(experiment)
@@ -53,16 +50,13 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
                 "blocks": [12345],
                 "url": experiment.experiment_url,
                 "whiteboard": experiment.STATUS_REVIEW_LABEL,
-                cf_tracking: "?",
+                experiment.bugzilla_tracking_key: "?",
             },
         )
 
     def test_create_bugzilla_ticket_retries_with_no_assignee(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, name="An Experiment"
-        )
-        cf_tracking = "cf_tracking_firefox{}".format(
-            get_firefox_major_version(experiment.firefox_version)
         )
 
         self.setUpMockBugzillaInvalidUser()
@@ -90,7 +84,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "blocks": [12345],
             "url": experiment.experiment_url,
             "whiteboard": experiment.STATUS_REVIEW_LABEL,
-            cf_tracking: "?",
+            experiment.bugzilla_tracking_key: "?",
         }
 
         self.mock_bugzilla_requests_post.assert_any_call(

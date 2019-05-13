@@ -73,11 +73,8 @@ def format_creation_bug_body(experiment):
         "url": experiment.experiment_url,
         "whiteboard": experiment.STATUS_REVIEW_LABEL,
     }
-    if experiment.firefox_version:
-        cf_tracking = "cf_tracking_firefox{}".format(
-            get_firefox_major_version(experiment.firefox_version)
-        )
-        bug_data[cf_tracking] = "?"
+    if experiment.bugzilla_tracking_key:
+        bug_data[experiment.bugzilla_tracking_key] = "?"
 
     if experiment.feature_bugzilla_url:
         bug_id = get_bugzilla_id(experiment.feature_bugzilla_url)
@@ -101,28 +98,23 @@ def create_experiment_bug(experiment):
 
     # Firefox Version given might not be an available
     # bugzilla tracking parameter, so remove and retry
-    err_code = response_data.get("code", None) == INVALID_PARAMETER_ERROR_CODE
-    if err_code:
+    invalid_param_err_code = (
+        response_data.get("code", None) == INVALID_PARAMETER_ERROR_CODE
+    )
+    if invalid_param_err_code:
         tracking_msg = "cf_tracking_firefox" in response_data.get(
             "message", None
         )
-    if err_code and tracking_msg:
-        bug_data = bug_data.copy()
-        cf_tracking = "cf_tracking_firefox{}".format(
-            get_firefox_major_version(experiment.firefox_version)
-        )
-        del bug_data[cf_tracking]
-        response_data = make_bugzilla_call(
-            settings.BUGZILLA_CREATE_URL, bug_data
-        )
+        if tracking_msg:
+            bug_data = bug_data.copy()
+            del bug_data[experiment.bugzilla_tracking_key]
+            response_data = make_bugzilla_call(
+                settings.BUGZILLA_CREATE_URL, bug_data
+            )
 
     if "id" not in response_data:
         raise BugzillaError(response_data["message"])
     return response_data["id"]
-
-
-def get_firefox_major_version(version):
-    return version.split(".")[0]
 
 
 def get_bugzilla_id(bug_url):
