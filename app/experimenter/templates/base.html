@@ -104,21 +104,20 @@
     {% endif %}
 
     {% if messages %}
-    <div class="alert-danger">
-      <div class="container">
-        <div class="row">
-          <div class="col pt-3 pb-1">
-            {% for message in messages %}
-              <p>
-                <span class="fas fa-info-circle"></span>
-                {{ message }}
-              </p>
-            {% endfor %}
+      <div class="alert-danger">
+        <div class="container">
+          <div class="row">
+            <div class="col pt-3 pb-1">
+              {% for message in messages %}
+                <p>
+                  <span class="fas fa-info-circle"></span>
+                  {{ message }}
+                </p>
+              {% endfor %}
+            </div>
           </div>
         </div>
       </div>
-
-    </div>
     {% endif %}
 
     <div class="alert-info">

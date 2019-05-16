@@ -1043,6 +1043,65 @@ class TestExperimentModel(TestCase):
             ],
         )
 
+    def test_clone(self):
+        user_1 = UserFactory.create()
+        user_2 = UserFactory.create()
+        include_version = Experiment.VERSION_CHOICES[1][0]
+
+        experiment = ExperimentFactory.create_with_variants(
+            name="great experiment",
+            status=Experiment.STATUS_COMPLETE,
+            short_description="This is going to be a great experiment.",
+            proposed_start_date=datetime.date(2019, 4, 1),
+            related_work="See also this other experiment.",
+            proposed_enrollment=2,
+            proposed_duration=30,
+            owner=user_1,
+            pref_type=Experiment.TYPE_ADDON,
+            data_science_bugzilla_url="https://bugzilla.mozilla.org/123/",
+            feature_bugzilla_url="https://bugzilla.mozilla.org/123/",
+            addon_experiment_id="addon-id",
+            addon_release_url="addon-url",
+            archived=True,
+            review_science=True,
+            review_ux=True,
+            firefox_version=include_version,
+        )
+
+        experiment.clone("best experiment", user_2)
+
+        cloned_experiment = Experiment.objects.filter(
+            name="best experiment"
+        ).get()
+
+        self.assertTrue(cloned_experiment.parent, experiment.id)
+        self.assertEqual(cloned_experiment.status, Experiment.STATUS_DRAFT)
+        self.assertEqual(
+            cloned_experiment.short_description,
+            "This is going to be a great experiment.",
+        )
+        self.assertEqual(
+            cloned_experiment.related_work, "See also this other experiment."
+        )
+        self.assertEqual(cloned_experiment.proposed_enrollment, 2)
+        self.assertEqual(cloned_experiment.proposed_duration, 30)
+        self.assertEqual(cloned_experiment.pref_type, Experiment.TYPE_ADDON)
+        self.assertEqual(cloned_experiment.proposed_start_date, None)
+        self.assertEqual(cloned_experiment.owner, user_2)
+        self.assertEqual(cloned_experiment.firefox_version, include_version)
+        self.assertFalse(cloned_experiment.archived)
+        self.assertFalse(cloned_experiment.review_science)
+        self.assertFalse(cloned_experiment.review_ux)
+        self.assertFalse(cloned_experiment.addon_experiment_id)
+        self.assertFalse(cloned_experiment.addon_release_url)
+
+        self.assertEqual(cloned_experiment.changes.count(), 1)
+
+        change = cloned_experiment.changes.latest()
+
+        self.assertEqual(change.old_status, None)
+        self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
+
 
 class TestExperimentChangeLog(TestCase):
 

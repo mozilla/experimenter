@@ -7,6 +7,7 @@ from experimenter.experiments import email
 from experimenter.experiments.serializers import (
     ExperimentSerializer,
     ExperimentRecipeSerializer,
+    ExperimentCloneSerializer,
 )
 
 
@@ -92,3 +93,9 @@ class ExperimentSendIntentToShipEmailView(UpdateAPIView):
         experiment.save()
 
         return Response()
+
+
+class ExperimentCloneView(UpdateAPIView):
+    lookup_field = "slug"
+    queryset = Experiment.objects.all()
+    serializer_class = ExperimentCloneSerializer

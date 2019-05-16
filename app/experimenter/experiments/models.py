@@ -3,8 +3,10 @@ import datetime
 import time
 from collections import defaultdict
 from urllib.parse import urljoin
+import copy
 
 from django.conf import settings
+from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -58,6 +60,9 @@ class Experiment(ExperimentConstants, models.Model):
         null=True,
         related_name="experiments",
         on_delete=models.CASCADE,
+    )
+    parent = models.ForeignKey(
+        "experiments.Experiment", models.SET_NULL, blank=True, null=True
     )
     status = models.CharField(
         max_length=255,
@@ -659,6 +664,64 @@ class Experiment(ExperimentConstants, models.Model):
             default=Value(ExperimentConstants.CHANNEL_UNSET_ORDER),
             output_field=models.IntegerField(),
         )
+
+    def clone(self, name, user):
+
+        cloned = copy.copy(self)
+        variants = ExperimentVariant.objects.filter(experiment=self)
+
+        set_to_none_fields = [
+            "addon_experiment_id",
+            "addon_release_url",
+            "normandy_slug",
+            "normandy_id",
+            "review_science",
+            "review_engineering",
+            "review_qa_requested",
+            "review_intent_to_ship",
+            "review_bugzilla",
+            "review_qa",
+            "review_relman",
+            "review_advisory",
+            "review_legal",
+            "review_ux",
+            "review_security",
+            "review_vp",
+            "review_data_steward",
+            "review_comms",
+            "review_impacted_teams",
+            "proposed_start_date",
+        ]
+
+        cloned.id = None
+        cloned.name = name
+        cloned.slug = slugify(cloned.name)
+        cloned.status = ExperimentConstants.STATUS_DRAFT
+        cloned.owner = user
+        cloned.parent = self
+        cloned.archived = False
+
+        for field in set_to_none_fields:
+            setattr(cloned, field, None)
+
+        cloned.save()
+
+        # for the variants on the old experiment, duplicate each
+        # with id=none, set the experiment foreignkey to the new clone
+        for variant in variants:
+            variant.id = None
+            variant.experiment = cloned
+            variant.save()
+
+        ExperimentChangeLog.objects.create(
+            experiment=cloned,
+            changed_on=datetime.date.today(),
+            changed_by=get_user_model().objects.get(id=user.id),
+            old_status=None,
+            new_status=ExperimentConstants.STATUS_DRAFT,
+        )
+
+        return cloned
 
 
 class ExperimentVariant(models.Model):
