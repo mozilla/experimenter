@@ -120,9 +120,59 @@ class TestExperimentModel(TestCase):
             status=Experiment.STATUS_LIVE,
             normandy_slug="normandy-slug",
         )
+
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            old_status=Experiment.STATUS_ACCEPTED,
+            new_status=Experiment.STATUS_LIVE,
+            changed_on=datetime.date(2019, 5, 1),
+        )
+
+        changed_on_in_milliseconds = 1556582400000
+
         self.assertEqual(
             experiment.monitoring_dashboard_url,
-            settings.MONITORING_URL.format(slug=experiment.normandy_slug),
+            settings.MONITORING_URL.format(
+                slug=experiment.normandy_slug,
+                from_date=changed_on_in_milliseconds,
+                to_date="",
+            ),
+        )
+
+    def test_monitoring_dashboard_url_returns_url_when_experiment_is_complete(
+        self
+    ):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_PREF,
+            slug="experiment",
+            status=Experiment.STATUS_COMPLETE,
+            normandy_slug="normandy-slug",
+        )
+
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            old_status=Experiment.STATUS_ACCEPTED,
+            new_status=Experiment.STATUS_LIVE,
+            changed_on=datetime.date(2019, 5, 1),
+        )
+
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            old_status=Experiment.STATUS_LIVE,
+            new_status=Experiment.STATUS_COMPLETE,
+            changed_on=datetime.date(2019, 5, 10),
+        )
+
+        started_on_in_milliseconds = 1556582400000
+        completed_on_in_milliseconds = 1557619200000
+
+        self.assertEqual(
+            experiment.monitoring_dashboard_url,
+            settings.MONITORING_URL.format(
+                slug=experiment.normandy_slug,
+                from_date=started_on_in_milliseconds,
+                to_date=completed_on_in_milliseconds,
+            ),
         )
 
     def test_monitoring_dashboard_url_returns_url_when_experiment_is_addon(
@@ -134,9 +184,23 @@ class TestExperimentModel(TestCase):
             status=Experiment.STATUS_LIVE,
             normandy_slug="normandy-slug",
         )
+
+        ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            old_status=Experiment.STATUS_ACCEPTED,
+            new_status=Experiment.STATUS_LIVE,
+            changed_on=datetime.date(2019, 5, 1),
+        )
+
+        changed_on_in_milliseconds = 1556582400000
+
         self.assertEqual(
             experiment.monitoring_dashboard_url,
-            settings.MONITORING_URL.format(slug=experiment.normandy_slug),
+            settings.MONITORING_URL.format(
+                slug=experiment.normandy_slug,
+                from_date=changed_on_in_milliseconds,
+                to_date="",
+            ),
         )
 
     def test_has_external_urls_is_false_when_no_external_urls(self):
