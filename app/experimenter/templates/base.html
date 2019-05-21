@@ -62,7 +62,7 @@
 
             <div>
               <a class="nocolorstyle" href="{% url "home" %}?owner={{ request.user.id }}&amp;archived=on">
-                {{ request.user.owned_experiments.count }} Owned Experiment{{ request.user.experiment_set.count|pluralize:"s" }}
+                {{ request.user.owned_experiments.count }} Owned Experiment{{ request.user.owned_experiments.count|pluralize }}
               </a>
             </div>
           </div>
