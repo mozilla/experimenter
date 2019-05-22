@@ -2,8 +2,8 @@ import django_filters as filters
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic import CreateView, DetailView, UpdateView
 from django.views.generic.edit import ModelFormMixin
 from django_filters.views import FilterView
@@ -23,6 +23,7 @@ from experimenter.experiments.forms import (
     ExperimentReviewForm,
     ExperimentRisksForm,
     ExperimentStatusForm,
+    ExperimentSubscribedForm,
     ExperimentVariantsAddonForm,
     ExperimentVariantsPrefForm,
     NormandyIdForm,
@@ -402,6 +403,11 @@ class ExperimentReviewUpdateView(ExperimentFormMixin, UpdateView):
 
 class ExperimentArchiveUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentArchiveForm
+    model = Experiment
+
+
+class ExperimentSubscribedUpdateView(ExperimentFormMixin, UpdateView):
+    form_class = ExperimentSubscribedForm
     model = Experiment
 
 

@@ -190,6 +190,15 @@ class ExperimentFactory(
         return experiment
 
     @factory.post_generation
+    def subscribers(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            for user in extracted:
+                self.subscribers.add(user)
+
+    @factory.post_generation
     def locales(self, create, extracted, **kwargs):
         if not create:
             # Simple build, do nothing.

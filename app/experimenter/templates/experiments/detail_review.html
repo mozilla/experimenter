@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block main_sidebar_extra %}
+{% block main_sidebar_buttons %}
   {% if experiment.is_ready_to_launch %}
     <form
       action="{% url "experiments-status-update" slug=experiment.slug %}"
@@ -12,7 +12,7 @@
       <input type="hidden" name="status" value="{{ experiment.STATUS_SHIP }}">
       <button
         type="submit"
-        class="col btn status-color-Ship mb-2"
+        class="col btn status-color-Ship mb-3"
       >
         <span class="fas fa-shipping-fast "></span>
         {{ experiment.STATUS_SHIP_LABEL }}
@@ -21,40 +21,59 @@
   {% else %}
     <button
       type="submit"
-      class="col btn btn-secondary disabled mb-2"
+      class="col btn btn-secondary disabled mb-3"
     >
       <span class="fas fa-ban"></span>
       {{ experiment.STATUS_SHIP_LABEL }}
     </button>
   {% endif %}
 
+  <form
+    action="{% url "experiments-status-update" slug=experiment.slug %}"
+    method="POST"
+  >
+    {% csrf_token %}
+    <input type="hidden" name="status" value="{{ experiment.STATUS_DRAFT }}">
+    <button
+      type="submit"
+      class="col btn status-color-Draft mb-4"
+    >
+      <span class="fas fa-undo"></span>
+      Return to {{ experiment.STATUS_DRAFT_LABEL }}
+    </button>
+  </form>
+{% endblock %}
+
+{% block main_sidebar_extra %}
   <div class="form-group row">
     <div class="col pt-2">
-      <h5>Required Sign-Off Checklist</h5>
+      <h5 class="mt-3">Required Sign-Off Checklist</h5>
       <form action="{% url "experiments-review-update" slug=experiment.slug %}" method="POST">
         {% csrf_token %}
 
         {% for field in form.required_reviews %}
-            <div class="checkbox">
-              {% if field.name == 'review_intent_to_ship' and not experiment.review_intent_to_ship %}
-                <button type="button" class="btn btn-info send-intent-to-ship mb-2"
+            {% if field.name == 'review_intent_to_ship' and not experiment.review_intent_to_ship %}
+              <div class="checkbox mb-1">
+                <button type="button" class="btn btn-link p-0 send-intent-to-ship"
                   data-toggle="modal" data-target="#send-intent-to-ship-modal"
                   data-url="{% url 'experiments-api-send-intent-to-ship-email' experiment.slug %}"
                 >
-                  <span class="fas fa-envelope"></span> Send intent-to-ship email
+                  <strong>
+                    <span class="fas fa-envelope"></span> Send intent-to-ship email
+                  </strong>
                 </button>
-              {% else %}
+            {% else %}
+              <div class="checkbox">
                 <label>
                   {{ field }}
                   {{ field.label }}
                 </label>
-              {% endif %}
+            {% endif %}
               {{ field.help_text|safe }}
             </div>
         {% endfor %}
 
-        <hr class="m-0 mt-1 mb-3" />
-        <h5>Optional Sign-Off Checklist</h5>
+        <h5 class="mt-3">Optional Sign-Off Checklist</h5>
 
         {% for field in form.optional_reviews %}
             <div class="checkbox">
@@ -66,28 +85,12 @@
             </div>
         {% endfor %}
 
-        <button class="col btn btn-success mt-2">
+        <button class="col btn btn-success mt-3">
           <span class="fas fa-save"></span> Save Sign-Offs
         </button>
       </form>
     </div>
   </div>
-
-  <form
-    action="{% url "experiments-status-update" slug=experiment.slug %}"
-    method="POST"
-    class="mb-3"
-  >
-    {% csrf_token %}
-    <input type="hidden" name="status" value="{{ experiment.STATUS_DRAFT }}">
-    <button
-      type="submit"
-      class="col btn status-color-Draft"
-    >
-      <span class="fas fa-undo"></span>
-      Return to {{ experiment.STATUS_DRAFT_LABEL }}
-    </button>
-  </form>
 {% endblock %}
 
 {% block main_content %}

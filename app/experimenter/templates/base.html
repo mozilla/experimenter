@@ -44,14 +44,6 @@
                 <strong>Mozilla</strong> Experimenter
               </a>
             </h3>
-          </div>
-          <div class="col text-right">
-            <span class="fas fa-user"></span>
-            {{ request.user }}
-            <a class="nocolorstyle" href="{% url "home" %}?owner={{ request.user.id }}&amp;archived=on">
-              ({{ request.user.experiment_set.count }} Experiment{{ request.user.experiment_set.count|pluralize:"s" }})
-            </a>
-            <br/>
             <a class="text-white" href="slack://channel?team=T027LFU12&id=CF94YGE03">
               <span class="fab fa-slack"></span>
               #ask-experimenter on Slack
@@ -61,6 +53,18 @@
               <span class="fas fa-comment-alt"></span>
               Leave Feedback
             </a>
+          </div>
+          <div class="col text-right">
+            <div>
+              <span class="fas fa-user"></span>
+              {{ request.user }}
+            </div>
+
+            <div>
+              <a class="nocolorstyle" href="{% url "home" %}?owner={{ request.user.id }}&amp;archived=on">
+                {{ request.user.owned_experiments.count }} Owned Experiment{{ request.user.owned_experiments.count|pluralize }}
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -74,7 +78,7 @@
             {% endblock %}
           </div>
 
-          <div class="col-3">
+          <div class="col-3 text-right">
             {% block header_sidebar %}
             {% endblock %}
           </div>

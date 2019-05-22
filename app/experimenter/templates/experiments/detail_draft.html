@@ -1,10 +1,9 @@
 {% extends "experiments/detail_base.html" %}
 
-{% block main_sidebar_extra %}
+{% block main_sidebar_buttons %}
   <form
     action="{% url "experiments-status-update" slug=experiment.slug %}"
     method="POST"
-    class="mb-3"
   >
 
     {% csrf_token %}
@@ -13,7 +12,7 @@
 
     <button
       type="submit"
-      class="col btn status-color-Review"
+      class="col btn status-color-Review mb-4"
     >
       <span class="fas fa-check-square"></span>
       {{ experiment.STATUS_REVIEW_LABEL }}
