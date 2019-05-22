@@ -164,7 +164,7 @@ class ExperimentRecipeVariantSerializer(serializers.ModelSerializer):
         pref_type = obj.experiment.pref_type
         if pref_type in (Experiment.PREF_TYPE_BOOL, Experiment.PREF_TYPE_INT):
             return json.loads(obj.value)
-        
+
         return obj.value
 
 

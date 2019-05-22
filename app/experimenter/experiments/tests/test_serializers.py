@@ -1,5 +1,4 @@
 import datetime
-import json
 from decimal import Decimal
 
 from django.test import TestCase
@@ -46,32 +45,28 @@ class TestExperimentVariantSerializer(TestCase):
 
     def test_serializer_outputs_expected_bool(self):
         experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_BOOL)
-        variant = ExperimentVariantFactory.create(experiment=experiment, value="true")
+        variant = ExperimentVariantFactory.create(
+            experiment=experiment, value="true"
+        )
         serializer = ExperimentRecipeVariantSerializer(variant)
 
         self.assertEqual(type(serializer.data["value"]), bool)
         self.assertEqual(
             serializer.data,
-            {
-                "ratio": variant.ratio,
-                "slug": variant.slug,
-                "value": True,
-            },
+            {"ratio": variant.ratio, "slug": variant.slug, "value": True},
         )
 
     def test_serializer_outputs_expected_int_val(self):
         experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_INT)
-        variant = ExperimentVariantFactory.create(experiment=experiment, value="28")
+        variant = ExperimentVariantFactory.create(
+            experiment=experiment, value="28"
+        )
         serializer = ExperimentRecipeVariantSerializer(variant)
 
         self.assertEqual(type(serializer.data["value"]), int)
         self.assertEqual(
             serializer.data,
-            {
-                "ratio": variant.ratio,
-                "slug": variant.slug,
-                "value": 28,
-            },
+            {"ratio": variant.ratio, "slug": variant.slug, "value": 28},
         )
 
     def test_serializer_outputs_expected_str_val(self):
