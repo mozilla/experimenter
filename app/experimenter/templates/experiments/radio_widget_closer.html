@@ -1,0 +1,10 @@
+<!-- the buttons are moved closer together as compared to RadioWidget -->
+<!-- by using ml-4 instead of putting in bootstrap columns -->
+
+{% for group, options, index in widget.optgroups %}
+  {% for option in options %}
+    <div class="radio ml-4">
+      {% include option.template_name with widget=option %}
+    </div>
+  {% endfor %}
+{% endfor %}

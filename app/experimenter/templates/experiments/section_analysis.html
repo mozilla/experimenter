@@ -7,4 +7,28 @@ Analysis
 {% block section_content %}
   <p><strong>Data Science Owner: {{ experiment.analysis_owner }}</strong></p>
   {{ experiment.analysis|urlize|linebreaks }}
+
+  <p>
+    <strong>
+      {{ experiment.SURVEY_REQUIRED_LABEL }}
+      <span class="{% if experiment.survey_required %}text-danger{% endif %}">
+        {{ experiment.survey_required|yesno:"Yes,No" }}
+      </span>
+    </strong>
+  </p>
+
+  {% if experiment.survey_required %}
+    <p><strong>Survey URLs</strong></p>
+    <p>
+      {{ experiment.survey_urls }}
+    </p>
+
+    <p><strong>Survey Launch Instructions</strong></p>
+    <p>
+      {{ experiment.survey_instructions }}
+    </p>
+  {% endif %}
+
+
+
 {% endblock %}
