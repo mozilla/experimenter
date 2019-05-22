@@ -46,7 +46,7 @@ class TestExperimentVariantSerializer(TestCase):
 
     def test_serializer_outputs_expected_bool(self):
         experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_BOOL)
-        variant = ExperimentVariantFactory.create(experiment=experiment)
+        variant = ExperimentVariantFactory.create(experiment=experiment, value="true")
         serializer = ExperimentRecipeVariantSerializer(variant)
 
         self.assertEqual(type(serializer.data["value"]), bool)
@@ -55,13 +55,13 @@ class TestExperimentVariantSerializer(TestCase):
             {
                 "ratio": variant.ratio,
                 "slug": variant.slug,
-                "value": json.loads(variant.value),
+                "value": True,
             },
         )
 
     def test_serializer_outputs_expected_int_val(self):
         experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_INT)
-        variant = ExperimentVariantFactory.create(experiment=experiment)
+        variant = ExperimentVariantFactory.create(experiment=experiment, value="28")
         serializer = ExperimentRecipeVariantSerializer(variant)
 
         self.assertEqual(type(serializer.data["value"]), int)
@@ -70,7 +70,7 @@ class TestExperimentVariantSerializer(TestCase):
             {
                 "ratio": variant.ratio,
                 "slug": variant.slug,
-                "value": json.loads(variant.value),
+                "value": 28,
             },
         )
 
