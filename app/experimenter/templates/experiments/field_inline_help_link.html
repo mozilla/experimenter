@@ -1,0 +1,22 @@
+<!-- this template exists to provide form-inline html with a
+url link for help instead of popping up a helper message
+underneath the text box. -->
+
+
+<div class="form-group row">
+  <div class="col-3 text-right">
+    <label class="col-form-label" for="{{ field.id_for_label }}">
+      <strong>{{ field.label }}</strong>
+      {% if not field.field.required %}
+        <span class="text-muted optional-marker">Optional</span>
+      {% endif %}
+    </label>
+    <br>
+    <a target="_blank" rel="noreferrer noopener" href="{{ field.help_text }}">Help</a>
+  </div>
+
+  <div class="col-9">
+    {% include "experiments/field_input_inline.html" with field=field %}
+    {% include "experiments/field_errors_inline.html" with field=field %}
+  </div>
+</div>

@@ -134,6 +134,11 @@ class Experiment(ExperimentConstants, models.Model):
         default=ExperimentConstants.ANALYSIS_DEFAULT, blank=True, null=True
     )
     analysis_owner = models.CharField(max_length=255, blank=True, null=True)
+
+    survey_required = models.BooleanField(default=False)
+    survey_urls = models.TextField(blank=True, null=True)
+    survey_instructions = models.TextField(blank=True, null=True)
+
     engineering_owner = models.CharField(max_length=255, blank=True, null=True)
 
     bugzilla_id = models.CharField(max_length=255, blank=True, null=True)

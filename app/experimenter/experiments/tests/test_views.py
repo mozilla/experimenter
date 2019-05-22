@@ -919,6 +919,7 @@ class TestExperimentObjectivesUpdateView(TestCase):
             "objectives": "Some new objectives!",
             "analysis_owner": "Suzy Data Science",
             "analysis": "Some new analysis!",
+            "survey_required": False,
         }
 
         response = self.client.post(
@@ -934,6 +935,7 @@ class TestExperimentObjectivesUpdateView(TestCase):
         experiment = Experiment.objects.get()
         self.assertEqual(experiment.objectives, data["objectives"])
         self.assertEqual(experiment.analysis, data["analysis"])
+        self.assertFalse(experiment.survey_required, data["survey_required"])
 
         self.assertEqual(experiment.changes.count(), 2)
 

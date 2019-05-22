@@ -552,7 +552,25 @@ class ExperimentVariantsPrefForm(ExperimentVariantsBaseForm):
         return cleaned_data
 
 
+class RadioWidget(forms.widgets.RadioSelect):
+    template_name = "experiments/radio_widget.html"
+
+
+class RadioWidgetCloser(forms.widgets.RadioSelect):
+    """
+        This radio widget is similar to the RadioWidget
+        except for the No and Yes buttons are closer together.
+    """
+    template_name = "experiments/radio_widget_closer.html"
+
+
 class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
+    RADIO_OPTIONS = ((False, "No"), (True, "Yes"))
+
+    def coerce_truthy(value):
+        if value.lower() == "true":
+            return True
+        return False
 
     objectives = forms.CharField(
         label="Objectives",
@@ -570,13 +588,37 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
 
+    survey_required = forms.TypedChoiceField(
+        label=Experiment.SURVEY_REQUIRED_LABEL,
+        help_text=Experiment.SURVEY_HELP_TEXT,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidgetCloser,
+        coerce=coerce_truthy,
+        empty_value=None,
+    )
+    survey_urls = forms.CharField(
+        required=False,
+        help_text=Experiment.SURVEY_HELP_TEXT,
+        label="Survey URLs",
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 1}),
+    )
+    survey_instructions = forms.CharField(
+        required=False,
+        label=Experiment.SURVEY_INSTRUCTIONS_LABEL,
+        help_text=Experiment.SURVEY_LAUNCH_INSTRUCTIONS_HELP_TEXT,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
+    )
+
     class Meta:
         model = Experiment
-        fields = ("objectives", "analysis_owner", "analysis")
-
-
-class RadioWidget(forms.widgets.RadioSelect):
-    template_name = "experiments/radio_widget.html"
+        fields = (
+            "objectives",
+            "analysis_owner",
+            "analysis",
+            "survey_required",
+            "survey_urls",
+            "survey_instructions",
+        )
 
 
 class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
