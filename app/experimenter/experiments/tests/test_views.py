@@ -273,6 +273,19 @@ class TestExperimentFilterset(TestCase):
 
         self.assertEqual(set(filter.qs), set([exp_1]))
 
+    def test_filters_experiments_with_surveys(self):
+        exp_1 = ExperimentFactory.create_with_variants(survey_required=True)
+        exp_2 = ExperimentFactory.create_with_variants(
+            survey_required=True, review_qa=False
+        )
+        ExperimentFactory.create_with_variants(survey_required=False)
+
+        filter = ExperimentFilterset(
+            {"surveys": "on"}, queryset=Experiment.objects.all()
+        )
+
+        self.assertEqual(set(filter.qs), set([exp_1, exp_2]))
+
 
 class TestExperimentOrderingForm(TestCase):
 

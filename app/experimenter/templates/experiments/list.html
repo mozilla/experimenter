@@ -25,15 +25,19 @@
       {{ filter.form.firefox_version.value }}
     {% endif %}
 
-    {% if filter.form.in_qa.value == "in_qa" %}
-       in QA
-    {% endif %}
-
     {% if filter.form.project.value %}
       {{ filter.form.get_project_display_value }}
     {% endif %}
 
     Experiment{{ paginator.count|pluralize:"s" }}
+
+    {% if filter.form.in_qa.value %}
+       in QA
+    {% endif %}
+
+    {% if filter.form.surveys.value %}
+       with surveys
+    {% endif %}
 
     {% if filter.form.owner.value %}
       by {{ filter.form.get_owner_display_value }}
@@ -145,12 +149,7 @@
     </div>
 
     {% for field in filter.form %}
-      {% if field.name == "archived" %}
-        <label>
-          {{ field }}
-          {{ field.label }}
-        </label>
-      {% elif field.name == "in_qa" %}
+      {% if field.name == "in_qa" or field.name == "surveys" or field.name == "archived" %}
         <label>
           {{ field }}
           {{ field.label }}
@@ -160,7 +159,6 @@
         <div class="form-group">
           {{ field }}
         </div>
-
       {% else %}
         <div class="form-group">
           {{ field }}

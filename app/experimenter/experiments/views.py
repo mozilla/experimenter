@@ -33,7 +33,7 @@ from experimenter.experiments.models import Experiment
 
 class ExperimentFiltersetForm(forms.ModelForm):
     in_qa = forms.BooleanField(required=False)
-
+    surveys = forms.BooleanField(required=False)
     search = forms.CharField(required=False)
 
     class Meta:
@@ -47,6 +47,7 @@ class ExperimentFiltersetForm(forms.ModelForm):
             "project",
             "owner",
             "in_qa",
+            "surveys",
             "archived",
         )
 
@@ -169,6 +170,12 @@ class ExperimentFilterset(filters.FilterSet):
         method="in_qa_filter",
     )
 
+    surveys = filters.BooleanFilter(
+        label="Show experiments with surveys",
+        widget=forms.CheckboxInput(),
+        method="surveys_filter",
+    )
+
     class Meta:
         model = Experiment
         form = ExperimentFiltersetForm
@@ -236,6 +243,12 @@ class ExperimentFilterset(filters.FilterSet):
     def in_qa_filter(self, queryset, name, value):
         if value:
             return queryset.filter(review_qa_requested=True, review_qa=False)
+        else:
+            return queryset
+
+    def surveys_filter(self, queryset, name, value):
+        if value:
+            return queryset.filter(survey_required=True)
         else:
             return queryset
 
