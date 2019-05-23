@@ -1,5 +1,5 @@
 import time
-
+import json
 from rest_framework import serializers
 
 from experimenter.base.models import Country, Locale
@@ -154,10 +154,18 @@ class FilterObjectCountrySerializer(serializers.ModelSerializer):
 
 
 class ExperimentRecipeVariantSerializer(serializers.ModelSerializer):
+    value = serializers.SerializerMethodField()
 
     class Meta:
         model = ExperimentVariant
         fields = ("ratio", "slug", "value")
+
+    def get_value(self, obj):
+        pref_type = obj.experiment.pref_type
+        if pref_type in (Experiment.PREF_TYPE_BOOL, Experiment.PREF_TYPE_INT):
+            return json.loads(obj.value)
+
+        return obj.value
 
 
 class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
