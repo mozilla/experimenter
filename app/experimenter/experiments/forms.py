@@ -42,13 +42,12 @@ class JSONField(forms.CharField):
 
 
 class BugzillaURLField(forms.URLField):
-    BUGZILLA_BASE_URL = "https://bugzilla.mozilla.org/"
 
     def clean(self, value):
         cleaned_value = super().clean(value)
 
         if cleaned_value:
-            if self.BUGZILLA_BASE_URL not in cleaned_value:
+            if settings.BUGZILLA_HOST not in cleaned_value:
                 raise forms.ValidationError(
                     "Please provide a valid Bugzilla URL"
                 )

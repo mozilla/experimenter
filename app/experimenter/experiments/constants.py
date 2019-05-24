@@ -1,5 +1,6 @@
 from django.utils.text import format_lazy
 from django.urls import reverse_lazy
+from django.conf import settings
 
 
 class ExperimentConstants(object):
@@ -294,13 +295,14 @@ class ExperimentConstants(object):
       </p>
       <p>
         <strong>Example:</strong>
-        https://bugzilla.mozilla.org/show_bug.cgi?id=12345
+        {bugzilla_host}/show_bug.cgi?id=12345
       </p>
     """.format(
         url=(
             "https://mana.mozilla.org/wiki/display/PM/Firefox+Data+Science"
             "#FirefoxDataScience-initiatingaproject"
-        )
+        ),
+        bugzilla_host=settings.BUGZILLA_HOST,
     )
 
     FEATURE_BUGZILLA_HELP_TEXT = """
@@ -310,9 +312,11 @@ class ExperimentConstants(object):
       </p>
       <p>
         <strong>Example:</strong>
-        https://bugzilla.mozilla.org/show_bug.cgi?id=12345
+        {}/show_bug.cgi?id=12345
       </p>
-    """
+    """.format(
+        settings.BUGZILLA_HOST
+    )
 
     RELATED_WORK_HELP_TEXT = """
       <p>
