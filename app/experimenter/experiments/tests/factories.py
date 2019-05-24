@@ -143,6 +143,7 @@ class ExperimentFactory(
     review_impacted_teams = False
 
     bugzilla_id = "12345"
+    normandy_id = None
 
     class Meta:
         model = Experiment

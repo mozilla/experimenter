@@ -4,6 +4,38 @@ from experimenter.experiments import bugzilla
 from experimenter.openidc.tests.factories import UserFactory
 
 
+class MockNormandyMixin(object):
+
+    def setUp(self):
+        super().setUp()
+
+        mock_normandy_requests_get_patcher = mock.patch(
+            "experimenter.experiments.normandy.requests.get"
+        )
+        self.mock_normandy_requests_get = (
+            mock_normandy_requests_get_patcher.start()
+        )
+        self.addCleanup(mock_normandy_requests_get_patcher.stop)
+        self.mock_normandy_requests_get.return_value = (
+            self.buildMockSuccessResponse()
+        )
+
+    def buildMockSuccessResponse(self):
+        mock_response_data = {
+            "approved_revision": {
+                "enabled": True,
+                "approval_request": {"approver": {"email": "dev@example.com"}},
+            }
+        }
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status = mock.Mock()
+        mock_response.raise_for_status.side_effect = None
+        mock_response.status_code = 200
+        return mock_response
+
+
 class MockBugzillaMixin(object):
 
     def setUp(self):
@@ -125,3 +157,11 @@ class MockTasksMixin(object):
             mock_tasks_update_experiment_bug_patcher.start()
         )
         self.addCleanup(mock_tasks_update_experiment_bug_patcher.stop)
+
+        mock_tasks_update_experiment_status_patcher = mock.patch(
+            "experimenter.experiments.tasks.update_experiment_status"
+        )
+        self.mock_tasks_update_experiement_status = (
+            mock_tasks_update_experiment_status_patcher.start()
+        )
+        self.addCleanup(mock_tasks_update_experiment_status_patcher.stop)

@@ -1,9 +1,11 @@
 import markus
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.db.models import Q
 from celery.utils.log import get_task_logger
 
 from experimenter.celery import app
-from experimenter.experiments import email, bugzilla
+from experimenter.experiments import email, bugzilla, normandy
 from experimenter.experiments.models import Experiment
 from experimenter.notifications.models import Notification
 
@@ -110,3 +112,56 @@ def update_experiment_bug_task(user_id, experiment_id):
         metrics.incr("update_experiment_bug.failed")
         logger.info("Failed bugzilla update")
         raise e
+
+
+@app.task
+@metrics.timer_decorator("update_experiment_status.timing")
+def update_experiment_status():
+    metrics.incr("update_experiment_status.started")
+    accepted_experiments = Experiment.objects.filter(
+        Q(status=Experiment.STATUS_ACCEPTED) | Q(status=Experiment.STATUS_LIVE)
+    )
+    status_mapping = update_mapping()
+    for experiment in accepted_experiments:
+        try:
+            recipe_data = normandy.get_recipe(experiment.normandy_id)
+            if needs_to_be_updated(recipe_data["enabled"], experiment.status):
+
+                approver_email = recipe_data["approval_request"]["approver"][
+                    "email"
+                ]
+                approver, _ = get_user_model().objects.get_or_create(
+                    email=approver_email
+                )
+
+                experiment.status = status_mapping[experiment.status]
+                experiment.save()
+
+                experiment.changes.create(
+                    changed_by=approver,
+                    old_status=experiment.status,
+                    new_status=status_mapping[experiment.status],
+                )
+                metrics.incr("update_experiment_status.updated")
+
+        except (KeyError, normandy.NormandyError):
+            logger.info(
+                "Failed to get Normandy Recipe. Recipe ID: {}".format(
+                    experiment.normandy_id
+                )
+            )
+            metrics.incr("update_experiment_status.failed")
+    metrics.incr("update_experiment_status.completed")
+
+
+def needs_to_be_updated(enabled, status):
+    accepted_update = enabled and status == Experiment.STATUS_ACCEPTED
+    live_update = not enabled and status == Experiment.STATUS_COMPLETE
+    return accepted_update or live_update
+
+
+def update_mapping():
+    return {
+        Experiment.STATUS_ACCEPTED: Experiment.STATUS_LIVE,
+        Experiment.STATUS_LIVE: Experiment.STATUS_COMPLETE,
+    }

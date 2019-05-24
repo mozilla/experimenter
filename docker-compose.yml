@@ -28,6 +28,17 @@ services:
     networks:
       - private_nw
       - public_nw
+  beat:
+    image: app:build
+    env_file: .env
+    links:
+      - db
+      - redis
+    volumes:
+      - ./app:/app
+    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat -l debug"
+    networks:
+      - private_nw
 
   nginx:
     build: ./nginx
