@@ -1,7 +1,7 @@
 import markus
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db import IntegrityError,transaction
+from django.db import IntegrityError, transaction
 from django.db.models import Q
 from celery.utils.log import get_task_logger
 
