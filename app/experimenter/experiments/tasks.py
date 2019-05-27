@@ -126,19 +126,18 @@ def update_experiment_status():
         try:
             recipe_data = normandy.get_recipe(experiment.normandy_id)
             if needs_to_be_updated(recipe_data["enabled"], experiment.status):
-
-                approver_email = recipe_data["approval_request"]["approver"][
+                creator_email = recipe_data["enabled_states"][0]["creator"][
                     "email"
                 ]
-                approver, _ = get_user_model().objects.get_or_create(
-                    email=approver_email
+                creator, _ = get_user_model().objects.get_or_create(
+                    email=creator_email
                 )
 
                 experiment.status = status_mapping[experiment.status]
                 experiment.save()
 
                 experiment.changes.create(
-                    changed_by=approver,
+                    changed_by=creator,
                     old_status=experiment.status,
                     new_status=status_mapping[experiment.status],
                 )

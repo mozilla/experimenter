@@ -24,7 +24,7 @@ class MockNormandyMixin(object):
         mock_response_data = {
             "approved_revision": {
                 "enabled": True,
-                "approval_request": {"approver": {"email": "dev@example.com"}},
+                "enabled_states": [{"creator": {"email": "dev@example.com"}}],
             }
         }
         mock_response = mock.Mock()
