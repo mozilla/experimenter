@@ -1,6 +1,7 @@
 import markus
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError,transaction
 from django.db.models import Q
 from celery.utils.log import get_task_logger
 
@@ -139,21 +140,23 @@ def update_experiment_status():
                 creator, _ = get_user_model().objects.get_or_create(
                     email=creator_email
                 )
+                old_status = experiment.status
+                new_status = STATUS_UPDATE_MAPPING[old_status]
+                experiment.status = new_status
+                with transaction.atomic():
+                    experiment.save()
 
-                experiment.status = STATUS_UPDATE_MAPPING[experiment.status]
-                experiment.save()
-
-                experiment.changes.create(
-                    changed_by=creator,
-                    old_status=experiment.status,
-                    new_status=STATUS_UPDATE_MAPPING[experiment.status],
-                )
+                    experiment.changes.create(
+                        changed_by=creator,
+                        old_status=old_status,
+                        new_status=new_status,
+                    )
                 metrics.incr("update_experiment_status.updated")
                 logger.info(
                     "Finished updating Experiment: {}".format(experiment)
                 )
 
-        except (KeyError, normandy.NormandyError):
+        except (IntegrityError, KeyError, normandy.NormandyError):
             logger.info(
                 "Failed to get Normandy Recipe. Recipe ID: {}".format(
                     experiment.normandy_id
