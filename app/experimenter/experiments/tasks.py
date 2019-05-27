@@ -30,6 +30,11 @@ NOTIFICATION_MESSAGE_ADD_COMMENT = (
     "of this experiment"
 )
 
+STATUS_UPDATE_MAPPING = {
+    Experiment.STATUS_ACCEPTED: Experiment.STATUS_LIVE,
+    Experiment.STATUS_LIVE: Experiment.STATUS_COMPLETE,
+}
+
 
 @app.task
 @metrics.timer_decorator("send_review_email.timing")
@@ -122,7 +127,7 @@ def update_experiment_status():
     accepted_experiments = Experiment.objects.filter(
         Q(status=Experiment.STATUS_ACCEPTED) | Q(status=Experiment.STATUS_LIVE)
     )
-    status_mapping = update_mapping()
+
     for experiment in accepted_experiments:
         try:
             logger.info("Updating Experiment: {}".format(experiment))
@@ -135,13 +140,13 @@ def update_experiment_status():
                     email=creator_email
                 )
 
-                experiment.status = status_mapping[experiment.status]
+                experiment.status = STATUS_UPDATE_MAPPING[experiment.status]
                 experiment.save()
 
                 experiment.changes.create(
                     changed_by=creator,
                     old_status=experiment.status,
-                    new_status=status_mapping[experiment.status],
+                    new_status=STATUS_UPDATE_MAPPING[experiment.status],
                 )
                 metrics.incr("update_experiment_status.updated")
                 logger.info(
@@ -162,10 +167,3 @@ def needs_to_be_updated(enabled, status):
     accepted_update = enabled and status == Experiment.STATUS_ACCEPTED
     live_update = not enabled and status == Experiment.STATUS_COMPLETE
     return accepted_update or live_update
-
-
-def update_mapping():
-    return {
-        Experiment.STATUS_ACCEPTED: Experiment.STATUS_LIVE,
-        Experiment.STATUS_LIVE: Experiment.STATUS_COMPLETE,
-    }
