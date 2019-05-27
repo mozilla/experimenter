@@ -118,12 +118,14 @@ def update_experiment_bug_task(user_id, experiment_id):
 @metrics.timer_decorator("update_experiment_status.timing")
 def update_experiment_status():
     metrics.incr("update_experiment_status.started")
+    logger.info("Updating experiment statuses")
     accepted_experiments = Experiment.objects.filter(
         Q(status=Experiment.STATUS_ACCEPTED) | Q(status=Experiment.STATUS_LIVE)
     )
     status_mapping = update_mapping()
     for experiment in accepted_experiments:
         try:
+            logger.info("Updating Experiment: {}".format(experiment))
             recipe_data = normandy.get_recipe(experiment.normandy_id)
             if needs_to_be_updated(recipe_data["enabled"], experiment.status):
                 creator_email = recipe_data["enabled_states"][0]["creator"][
@@ -142,6 +144,9 @@ def update_experiment_status():
                     new_status=status_mapping[experiment.status],
                 )
                 metrics.incr("update_experiment_status.updated")
+                logger.info(
+                    "Finished updating Experiment: {}".format(experiment)
+                )
 
         except (KeyError, normandy.NormandyError):
             logger.info(
