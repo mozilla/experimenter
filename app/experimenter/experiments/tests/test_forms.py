@@ -161,8 +161,11 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 model = Experiment
                 fields = ("name",)
 
-        data = ExperimentFactory.attributes()
-        form = TestForm(request=self.request, data=data)
+        old_name = "Old Name"
+        new_name = "New Name"
+        experiment = ExperimentFactory.create(name=old_name)
+        data = {"name": new_name}
+        form = TestForm(request=self.request, data=data, instance=experiment)
 
         self.assertTrue(form.is_valid())
         experiment = form.save()
@@ -171,6 +174,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
 
         change = experiment.changes.get()
         self.assertEqual(change.changed_by, self.user)
+        self.assertEqual(change.old_data, {"name": old_name})
+        self.assertEqual(change.new_data, {"name": new_name})
 
     def test_mixin_sets_old_and_new_status(self):
         old_status = Experiment.STATUS_DRAFT

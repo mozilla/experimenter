@@ -1,3 +1,4 @@
+from decimal import Decimal
 import json
 
 from django import forms
@@ -62,6 +63,13 @@ class ChangeLogMixin(object):
         self.request = request
         super().__init__(*args, **kwargs)
 
+        self.old_data = {}
+        for field_name in self.data.keys():
+            try:
+                self.old_data[field_name] = getattr(self.instance, field_name)
+            except AttributeError:
+                pass
+
     def get_changelog_message(self):
         return ""
 
@@ -74,11 +82,27 @@ class ChangeLogMixin(object):
         if latest_change:
             old_status = latest_change.new_status
 
+
+        def clean_value(value):
+            if type(value) is Decimal:
+                return float(value)
+
+            try:
+                json.dumps(value)
+                return value
+            except:
+                pass
+
+        old_data = {field: clean_value(self.old_data[field]) for field in self.changed_data}
+        new_data = {field: clean_value(self.data[field]) for field in self.changed_data}
+
         ExperimentChangeLog.objects.create(
             experiment=experiment,
             changed_by=self.request.user,
             old_status=old_status,
             new_status=experiment.status,
+            old_data=old_data,
+            new_data=new_data,
             message=self.get_changelog_message(),
         )
 
