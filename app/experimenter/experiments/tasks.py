@@ -85,6 +85,7 @@ def create_experiment_bug_task(user_id, experiment_id):
 @app.task
 @metrics.timer_decorator("add_experiment_comment.timing")
 def add_experiment_comment_task(user_id, experiment_id):
+    logger.info("Updating Bugzilla comment")
     metrics.incr("add_experiment_comment.started")
 
     experiment = Experiment.objects.get(id=experiment_id)
@@ -92,8 +93,6 @@ def add_experiment_comment_task(user_id, experiment_id):
     if experiment.risk_internal_only:
         logger.info("Skipping Bugzilla comment for internal only experiment")
         return
-
-    logger.info("Updating Bugzilla comment")
 
     try:
         bugzilla.add_experiment_comment(experiment)
