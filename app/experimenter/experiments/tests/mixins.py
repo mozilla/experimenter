@@ -17,10 +17,10 @@ class MockNormandyMixin(object):
         )
         self.addCleanup(mock_normandy_requests_get_patcher.stop)
         self.mock_normandy_requests_get.return_value = (
-            self.buildMockSuccessResponse()
+            self.buildMockSuccessEnabledResponse()
         )
 
-    def buildMockSuccessResponse(self):
+    def buildMockSuccessEnabledResponse(self):
         mock_response_data = {
             "approved_revision": {
                 "enabled": True,
@@ -34,6 +34,41 @@ class MockNormandyMixin(object):
         mock_response.raise_for_status.side_effect = None
         mock_response.status_code = 200
         return mock_response
+
+    def buildMockFailedResponse(self):
+        mock_response_data = {"message": "id not found"}
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status = mock.Mock()
+        mock_response.raise_for_status.side_effect = None
+        mock_response.status_code = 404
+        return mock_response
+
+    def buildMockSuccessDisabledResponse(self):
+        mock_response_data = {
+            "approved_revision": {
+                "enabled": False,
+                "enabled_states": [{"creator": {"email": "dev@example.com"}}],
+            }
+        }
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status = mock.Mock()
+        mock_response.raise_for_status.side_effect = None
+        mock_response.status_code = 200
+        return mock_response
+
+    def setUpMockNormandyFailWhenIdIs1234(self):
+
+        def determine_response(url):
+            if "1234" in url:
+                return self.buildMockFailedResponse()
+            else:
+                return self.buildMockSuccessEnabledResponse()
+
+        self.mock_normandy_requests_get.side_effect = determine_response
 
 
 class MockBugzillaMixin(object):

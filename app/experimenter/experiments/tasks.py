@@ -125,11 +125,10 @@ def update_experiment_bug_task(user_id, experiment_id):
 def update_experiment_status():
     metrics.incr("update_experiment_status.started")
     logger.info("Updating experiment statuses")
-    accepted_experiments = Experiment.objects.filter(
+    launch_experiments = Experiment.objects.filter(
         Q(status=Experiment.STATUS_ACCEPTED) | Q(status=Experiment.STATUS_LIVE)
     )
-
-    for experiment in accepted_experiments:
+    for experiment in launch_experiments:
         try:
             logger.info("Updating Experiment: {}".format(experiment))
             recipe_data = normandy.get_recipe(experiment.normandy_id)
@@ -155,7 +154,6 @@ def update_experiment_status():
                 logger.info(
                     "Finished updating Experiment: {}".format(experiment)
                 )
-
         except (IntegrityError, KeyError, normandy.NormandyError):
             logger.info(
                 "Failed to get Normandy Recipe. Recipe ID: {}".format(
@@ -168,5 +166,5 @@ def update_experiment_status():
 
 def needs_to_be_updated(enabled, status):
     accepted_update = enabled and status == Experiment.STATUS_ACCEPTED
-    live_update = not enabled and status == Experiment.STATUS_COMPLETE
+    live_update = not enabled and status == Experiment.STATUS_LIVE
     return accepted_update or live_update
