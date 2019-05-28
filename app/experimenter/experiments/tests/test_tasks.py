@@ -378,66 +378,6 @@ class TestUpdateExperimentStatus(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
         )
 
-    def test_successful_experiment_status_update(self):
-        with MetricsMock() as mm:
-            tasks.update_experiment_status()
-            self.assertEqual(len(mm.get_records()), 4)
-            self.assertTrue(
-                mm.has_record(
-                    markus.INCR,
-                    "experiments.tasks.update_experiment_status.started",
-                    value=1,
-                )
-            )
-            self.assertTrue(
-                mm.has_record(
-                    markus.INCR,
-                    "experiments.tasks.update_experiment_status.updated",
-                    value=1,
-                )
-            )
-            self.assertTrue(
-                mm.has_record(
-                    markus.INCR,
-                    "experiments.tasks.update_experiment_status.completed",
-                    value=1,
-                )
-            )
-
-    def test_experiement_status_update_with_failure(self):
-        self.mock_normandy_requests_get.side_effect = RequestException()
-        with MetricsMock() as mm:
-            tasks.update_experiment_status()
-            self.assertEqual(len(mm.get_records()), 4)
-            self.assertTrue(
-                mm.has_record(
-                    markus.INCR,
-                    "experiments.tasks.update_experiment_status.started",
-                    value=1,
-                )
-            )
-            self.assertFalse(
-                mm.has_record(
-                    markus.INCR,
-                    "experiments.tasks.update_experiement_status.updated",
-                    value=1,
-                )
-            )
-            self.assertTrue(
-                mm.has_record(
-                    markus.INCR,
-                    "experiments.tasks.update_experiment_status.failed",
-                    value=1,
-                )
-            )
-            self.assertTrue(
-                mm.has_record(
-                    markus.INCR,
-                    "experiments.tasks.update_experiment_status.completed",
-                    value=1,
-                )
-            )
-
     def test_accepted_experiment_becomes_live_if_normandy_enabled(self):
         tasks.update_experiment_status()
         experiment = Experiment.objects.get(normandy_id=1234)

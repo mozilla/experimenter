@@ -128,6 +128,7 @@ def update_experiment_status():
     launch_experiments = Experiment.objects.filter(
         Q(status=Experiment.STATUS_ACCEPTED) | Q(status=Experiment.STATUS_LIVE)
     )
+
     for experiment in launch_experiments:
         try:
             logger.info("Updating Experiment: {}".format(experiment))
