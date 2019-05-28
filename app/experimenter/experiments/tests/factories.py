@@ -4,6 +4,7 @@ import json
 import random
 
 import factory
+from django.conf import settings
 from django.utils.text import slugify
 from django.utils import timezone
 from faker import Factory as FakerFactory
@@ -36,9 +37,9 @@ class ExperimentFactory(
         lambda o: faker.text(random.randint(100, 500))
     )
     data_science_bugzilla_url = (
-        "https://bugzilla.mozilla.org/show_bug.cgi?id=12345"
+        "{}show_bug.cgi?id=12345".format(settings.BUGZILLA_HOST)
     )
-    feature_bugzilla_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=12345"
+    feature_bugzilla_url = "{}show_bug.cgi?id=12345".format(settings.BUGZILLA_HOST)
     related_work = "See also: https://www.example.com/myproject/"
     proposed_start_date = factory.LazyAttribute(
         lambda o: (
