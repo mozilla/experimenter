@@ -295,7 +295,7 @@ class ExperimentConstants(object):
       </p>
       <p>
         <strong>Example:</strong>
-        {bugzilla_host}/show_bug.cgi?id=12345
+        {bugzilla_host}show_bug.cgi?id=12345
       </p>
     """.format(
         url=(
@@ -312,7 +312,7 @@ class ExperimentConstants(object):
       </p>
       <p>
         <strong>Example:</strong>
-        {}/show_bug.cgi?id=12345
+        {}show_bug.cgi?id=12345
       </p>
     """.format(
         settings.BUGZILLA_HOST
