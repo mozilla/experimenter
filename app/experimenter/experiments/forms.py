@@ -48,8 +48,11 @@ class BugzillaURLField(forms.URLField):
 
         if cleaned_value:
             if settings.BUGZILLA_HOST not in cleaned_value:
+                err_str = (
+                    "Please Provide a Valid URL ex: {}show_bug.cgi?id=1234"
+                )
                 raise forms.ValidationError(
-                    "Please Provide a Valid URL ex: {}show_bug.cgi?id=12345".format(settings.BUGZILLA_HOST)
+                    err_str.format(settings.BUGZILLA_HOST)
                 )
 
         return cleaned_value
