@@ -1,3 +1,5 @@
+import redis
+import uuid
 import json
 import logging
 
@@ -985,6 +987,19 @@ class ExperimentStatusForm(
         ):
             experiment.normandy_slug = experiment.generate_normandy_slug()
             experiment.save()
+
+            r = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
+            keys = [uuid.uuid4().hex for i in range(10)]
+            for key in keys:
+                r.set(key, key)
+
+            found = set()
+            for key in keys:
+                found_key = r.get(key)
+                if found_key:
+                    found.add(found_key)
+
+            logging.error("REDISDEBUG: REDIS KEY TEST {}/10".format(len(found)))
 
             name = faker.name()
             logging.error(
