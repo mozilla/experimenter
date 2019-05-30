@@ -2,7 +2,9 @@ import mock
 from requests.exceptions import RequestException, HTTPError
 from django.test import TestCase
 from experimenter.experiments.normandy import (
-    NormandyError,
+    APINormandyError,
+    NonsuccessfulNormandyCall,
+    NormandyDecodeError,
     make_normandy_call,
     get_recipe,
 )
@@ -27,38 +29,23 @@ class TestMakeNormandyCall(MockNormandyMixin, TestCase):
     def test_make_normandy_call_with_request_exception(self):
         self.mock_normandy_requests_get.side_effect = RequestException()
 
-        with self.assertRaises(NormandyError):
+        with self.assertRaises(APINormandyError) as e:
             make_normandy_call("/url/")
-        with self.assertLogs(level="INFO") as log:
-            try:
-                make_normandy_call("/url/")
-            except NormandyError:
-                self.assertIn("Error calling Normandy API", log.output[0])
+            self.assertEqual(
+                e.message, "Normandy API returned Nonsuccessful Response Code"
+            )
 
     def test_make_normandy_call_with_HTTP_error(self):
         self.mock_normandy_requests_get.side_effect = HTTPError()
-        with self.assertRaises(NormandyError):
+        with self.assertRaises(NonsuccessfulNormandyCall) as e:
             make_normandy_call("/url/")
-        with self.assertLogs(level="INFO") as log:
-            try:
-                make_normandy_call("/url/")
-            except NormandyError:
-                self.assertIn(
-                    "Normandy API returned Nonsuccessful Response Code",
-                    log.output[0],
-                )
+            self.assertEqual(e.message, "Error calling Normandy API")
 
     def test_make_normandy_call_with_value_error(self):
         self.mock_normandy_requests_get.side_effect = ValueError()
-        with self.assertRaises(NormandyError):
+        with self.assertRaises(NormandyDecodeError) as e:
             make_normandy_call("/url/")
-        with self.assertLogs(level="INFO") as log:
-            try:
-                make_normandy_call("/url/")
-            except NormandyError:
-                self.assertIn(
-                    "Error parsing JSON Normandy response", log.output[0]
-                )
+            self.assertEqual(e.message, "Error parsing JSON Normandy Response")
 
     def test_get_recipe(self):
         response_data = get_recipe(1234)

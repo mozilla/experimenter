@@ -134,11 +134,11 @@ def update_experiment_status():
             logger.info("Updating Experiment: {}".format(experiment))
             recipe_data = normandy.get_recipe(experiment.normandy_id)
             if needs_to_be_updated(recipe_data["enabled"], experiment.status):
-                creator_email = recipe_data["enabled_states"][0]["creator"][
+                enabler_email = recipe_data["enabled_states"][0]["creator"][
                     "email"
                 ]
-                creator, _ = get_user_model().objects.get_or_create(
-                    email=creator_email
+                enabler, _ = get_user_model().objects.get_or_create(
+                    email=enabler_email
                 )
                 old_status = experiment.status
                 new_status = STATUS_UPDATE_MAPPING[old_status]
@@ -147,7 +147,7 @@ def update_experiment_status():
                     experiment.save()
 
                     experiment.changes.create(
-                        changed_by=creator,
+                        changed_by=enabler,
                         old_status=old_status,
                         new_status=new_status,
                     )

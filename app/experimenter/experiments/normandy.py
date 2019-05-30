@@ -7,6 +7,18 @@ class NormandyError(Exception):
     pass
 
 
+class NonsuccessfulNormandyCall(NormandyError):
+    message = "Normandy API returned Nonsuccessful Response Code"
+
+
+class APINormandyError(NormandyError):
+    message = "Error calling Normandy API"
+
+
+class NormandyDecodeError(NormandyError):
+    message = "Error parsing JSON Normandy Response"
+
+
 def make_normandy_call(url):
     try:
         response = requests.get(url)
@@ -16,13 +28,13 @@ def make_normandy_call(url):
         logging.exception(
             "Normandy API returned Nonsuccessful Response Code: {}".format(e)
         )
-        raise NormandyError(*e.args)
+        raise NonsuccessfulNormandyCall(*e.args)
     except requests.exceptions.RequestException as e:
         logging.exception("Error calling Normandy API: {}".format(e))
-        raise NormandyError(*e.args)
+        raise APINormandyError(*e.args)
     except ValueError as e:
         logging.exception("Error parsing JSON Normandy response: {}".format(e))
-        raise NormandyError(*e.args)
+        raise NormandyDecodeError(*e.args)
 
 
 def get_recipe(recipe_id):
