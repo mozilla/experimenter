@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django import forms
 from django.conf import settings
@@ -977,9 +978,11 @@ class ExperimentStatusForm(
             experiment.normandy_slug = experiment.generate_normandy_slug()
             experiment.save()
 
+            logging.error("STARTING SENDING COMMENT TASK TO REDIS")
             tasks.add_experiment_comment_task.delay(
                 self.request.user.id, experiment.id
             )
+            logging.error("COMPLETED SENDING COMMENT TASK TO REDIS")
 
         return experiment
 
