@@ -114,4 +114,4 @@ def add_experiment_comment_task(user_id, experiment_id):
 
 @app.task
 def stage_debug_task(message):
-    logger.info("Revceived task: {}".format(message))
+    logger.info("REDISDEBUG: RECEIVED TASK: {}".format(message))

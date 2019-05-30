@@ -25,6 +25,10 @@ from experimenter.projects.forms import (
     UniqueNameSlugFormMixin,
 )
 
+from celery.task.control import inspect
+
+inspector = inspect()
+
 from faker import Factory as FakerFactory
 
 faker = FakerFactory.create()
@@ -984,11 +988,18 @@ class ExperimentStatusForm(
 
             name = faker.name()
             logging.error(
-                "STARTING SENDING COMMENT TASK TO REDIS: {}".format(name)
+                "REDISDEBUG: STARTING SENDING COMMENT TASK TO REDIS: {}".format(
+                    name
+                )
             )
-            tasks.stage_debug_task.delay(name)
+            tasks.stage_debug_task.apply_async(args=[name], countdown=10)
             logging.error(
-                "COMPLETED SENDING COMMENT TASK TO REDIS: {}".format(name)
+                "REDISDEBUG: QUEUE: {}".format(inspector.scheduled())
+            )
+            logging.error(
+                "REDISDEBUG: COMPLETED SENDING COMMENT TASK TO REDIS: {}".format(
+                    name
+                )
             )
 
         return experiment
