@@ -110,3 +110,8 @@ def add_experiment_comment_task(user_id, experiment_id):
         metrics.incr("add_experiment_comment.failed")
         logger.info("Failed to create bugzilla comment")
         raise e
+
+
+@app.task
+def stage_debug_task(message):
+    logger.info("Revceived task: {}".format(message))

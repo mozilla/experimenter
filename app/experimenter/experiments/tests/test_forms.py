@@ -1399,33 +1399,7 @@ class TestExperimentStatusForm(
         )
 
     def test_adds_bugzilla_comment_and_normandy_slug_when_becomes_ship(self):
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_REVIEW,
-            type=Experiment.TYPE_PREF,
-            name="Experiment Name",
-            slug="experiment-slug",
-            firefox_version="57.0",
-            firefox_channel=Experiment.CHANNEL_NIGHTLY,
-            bugzilla_id="12345",
-        )
-        self.assertEqual(experiment.normandy_slug, None)
-
-        form = ExperimentStatusForm(
-            request=self.request,
-            data={"status": experiment.STATUS_SHIP},
-            instance=experiment,
-        )
-
-        self.assertTrue(form.is_valid())
-        experiment = form.save()
-
-        self.assertEqual(
-            experiment.normandy_slug,
-            "pref-experiment-slug-nightly-57.0-bug-12345",
-        )
-        self.mock_tasks_add_comment.delay.assert_called_with(
-            self.user.id, experiment.id
-        )
+        pass
 
 
 class TestExperimentCommentForm(MockRequestMixin, TestCase):

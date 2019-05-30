@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django import forms
 from django.conf import settings
@@ -23,6 +24,10 @@ from experimenter.projects.forms import (
     NameSlugFormMixin,
     UniqueNameSlugFormMixin,
 )
+
+from faker import Factory as FakerFactory
+
+faker = FakerFactory.create()
 
 
 class JSONField(forms.CharField):
@@ -977,8 +982,13 @@ class ExperimentStatusForm(
             experiment.normandy_slug = experiment.generate_normandy_slug()
             experiment.save()
 
-            tasks.add_experiment_comment_task.delay(
-                self.request.user.id, experiment.id
+            name = faker.name()
+            logging.error(
+                "STARTING SENDING COMMENT TASK TO REDIS: {}".format(name)
+            )
+            tasks.stage_debug_task.delay(name)
+            logging.error(
+                "COMPLETED SENDING COMMENT TASK TO REDIS: {}".format(name)
             )
 
         return experiment
