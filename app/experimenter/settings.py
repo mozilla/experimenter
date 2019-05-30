@@ -288,25 +288,6 @@ MONITORING_URL = (
     "experiment-enrollment?orgId=1&var-experiment_id={slug}"
 )
 
-# Statsd via Markus
-STATSD_BACKEND = config(
-    "STATSD_BACKEND", default="markus.backends.datadog.DatadogMetrics"
-)
-STATSD_HOST = config("STATSD_HOST")
-STATSD_PORT = config("STATSD_PORT")
-STATSD_PREFIX = config("STATSD_PREFIX")
-
-MARKUS_BACKEND = [
-    {
-        "class": STATSD_BACKEND,
-        "options": {
-            "statsd_host": STATSD_HOST,
-            "statsd_port": STATSD_PORT,
-            "statsd_namespace": STATSD_PREFIX,
-        },
-    }
-]
-
 # Normandy URLs
 DELIVERY_CONSOLE_HOST = config("DELIVERY_CONSOLE_HOST")
 DELIVERY_CONSOLE_NEW_RECIPE_URL = urljoin(DELIVERY_CONSOLE_HOST, "/recipe/new")

@@ -1,4 +1,3 @@
-import markus
 from django.conf import settings
 from celery.utils.log import get_task_logger
 
@@ -9,7 +8,6 @@ from experimenter.notifications.models import Notification
 
 
 logger = get_task_logger(__name__)
-metrics = markus.get_metrics("experiments.tasks")
 
 
 NOTIFICATION_MESSAGE_REVIEW_EMAIL = "An email was sent to {email} about {name}"
@@ -30,11 +28,9 @@ NOTIFICATION_MESSAGE_ADD_COMMENT = (
 
 
 @app.task
-@metrics.timer_decorator("send_review_email.timing")
 def send_review_email_task(
     user_id, experiment_name, experiment_url, needs_attention
 ):
-    metrics.incr("send_review_email.started")
     logger.info("Sending email")
 
     email.send_review_email(experiment_name, experiment_url, needs_attention)
@@ -46,14 +42,10 @@ def send_review_email_task(
             email=settings.EMAIL_REVIEW, name=experiment_name
         ),
     )
-    metrics.incr("send_review_email.completed")
 
 
 @app.task
-@metrics.timer_decorator("create_experiment_bug.timing")
 def create_experiment_bug_task(user_id, experiment_id):
-    metrics.incr("create_experiment_bug.started")
-
     experiment = Experiment.objects.get(id=experiment_id)
 
     logger.info("Creating Bugzilla ticket")
@@ -69,10 +61,8 @@ def create_experiment_bug_task(user_id, experiment_id):
                 bug_url=experiment.bugzilla_url
             ),
         )
-        metrics.incr("create_experiment_bug.completed")
         logger.info("Bugzilla ticket notification sent")
     except bugzilla.BugzillaError as e:
-        metrics.incr("create_experiment_bug.failed")
         logger.info("Bugzilla ticket creation failed")
 
         Notification.objects.create(
@@ -83,10 +73,7 @@ def create_experiment_bug_task(user_id, experiment_id):
 
 
 @app.task
-@metrics.timer_decorator("add_experiment_comment.timing")
 def add_experiment_comment_task(user_id, experiment_id):
-    metrics.incr("add_experiment_comment.started")
-
     experiment = Experiment.objects.get(id=experiment_id)
 
     if experiment.risk_internal_only:
@@ -104,9 +91,7 @@ def add_experiment_comment_task(user_id, experiment_id):
                 bug_url=experiment.bugzilla_url
             ),
         )
-        metrics.incr("add_experiment_comment.completed")
         logger.info("Bugzilla comment notification sent")
     except bugzilla.BugzillaError as e:
-        metrics.incr("add_experiment_comment.failed")
         logger.info("Failed to create bugzilla comment")
         raise e
