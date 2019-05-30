@@ -993,9 +993,8 @@ class ExperimentStatusForm(
                 )
             )
             tasks.stage_debug_task.apply_async(args=[name], countdown=10)
-            logging.error(
-                "REDISDEBUG: QUEUE: {}".format(inspector.scheduled())
-            )
+            queue = json.dumps(inspector.scheduled()).replace('{', '').replace('}', '').replace('[', '').replace(']', '').replace('"', '')
+            logging.error("REDISDEBUG: QUEUE: {}".format(queue))
             logging.error(
                 "REDISDEBUG: COMPLETED SENDING COMMENT TASK TO REDIS: {}".format(
                     name
