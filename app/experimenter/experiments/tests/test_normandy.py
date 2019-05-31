@@ -47,6 +47,6 @@ class TestMakeNormandyCall(MockNormandyMixin, TestCase):
             make_normandy_call("/url/")
             self.assertEqual(e.message, "Error parsing JSON Normandy Response")
 
-    def test_get_recipe(self):
+    def test_successful_get_recipe_returns_recipe_data(self):
         response_data = get_recipe(1234)
         self.assertTrue(response_data["enabled"])
