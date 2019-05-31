@@ -831,6 +831,8 @@ If applicable, link to any relevant test builds / staging information
         "SHIELD Study Intent to ship: {name} {version} {channel}"
     )
 
+    LAUNCH_EMAIL_SUBJECT = "Experiment launched: {name} {version} {channel}"
+
     BUGZILLA_OVERVIEW_TEMPLATE = (
         """
 {experiment.name}

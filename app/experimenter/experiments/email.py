@@ -39,3 +39,25 @@ def send_intent_to_ship_email(experiment_id):
         cc=[experiment.owner.email],
     )
     email.send(fail_silently=False)
+
+
+def send_experiment_launch_email(experiment):
+
+    content = render_to_string(
+        "experiments/launch_experiment_email.txt", {"experiment": experiment}
+    )
+
+    version = experiment.format_firefox_versions
+    channel = experiment.firefox_channel
+
+    email = EmailMessage(
+        Experiment.LAUNCH_EMAIL_SUBJECT.format(
+            name=experiment.name, version=version, channel=channel
+        ),
+        content,
+        settings.EMAIL_SENDER,
+        [settings.EMAIL_RELEASE_DRIVERS],
+        cc=[experiment.owner.email],
+    )
+
+    email.send(fail_silently=False)

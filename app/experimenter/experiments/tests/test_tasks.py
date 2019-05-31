@@ -304,6 +304,15 @@ class TestUpdateExperimentStatus(
             {"comment": comment},
         )
 
+    def test_launch_email_sent_when_experiment_becomes_live(self):
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
+        )
+
+        tasks.update_experiment_status()
+
+        self.assertEqual(len(mail.outbox), 1)
+
     def test_accepted_experiment_stays_accepted_if_normandy_disabled(self):
         ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234

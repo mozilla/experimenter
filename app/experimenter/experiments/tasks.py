@@ -161,6 +161,8 @@ def update_status(experiment):
         )
         old_status = experiment.status
         new_status = STATUS_UPDATE_MAPPING[old_status]
+        if new_status == Experiment.STATUS_LIVE:
+            email.send_experiment_launch_email(experiment)
         experiment.status = new_status
         with transaction.atomic():
             experiment.save()
