@@ -132,29 +132,13 @@ def update_experiment_status():
     for experiment in launch_experiments:
         try:
             logger.info("Updating Experiment: {}".format(experiment))
-            recipe_data = normandy.get_recipe(experiment.normandy_id)
-            if needs_to_be_updated(recipe_data["enabled"], experiment.status):
-                enabler_email = recipe_data["enabled_states"][0]["creator"][
-                    "email"
-                ]
-                enabler, _ = get_user_model().objects.get_or_create(
-                    email=enabler_email
-                )
-                old_status = experiment.status
-                new_status = STATUS_UPDATE_MAPPING[old_status]
-                experiment.status = new_status
-                with transaction.atomic():
-                    experiment.save()
-
-                    experiment.changes.create(
-                        changed_by=enabler,
-                        old_status=old_status,
-                        new_status=new_status,
-                    )
-                metrics.incr("update_experiment_status.updated")
+            if experiment.normandy_id:
+                update_status(experiment)
+            else:
                 logger.info(
-                    "Finished updating Experiment: {}".format(experiment)
+                    "No Normandy ID found skipping: {}".format(experiment)
                 )
+
         except (IntegrityError, KeyError, normandy.NormandyError):
             logger.info(
                 "Failed to get Normandy Recipe. Recipe ID: {}".format(
@@ -163,6 +147,28 @@ def update_experiment_status():
             )
             metrics.incr("update_experiment_status.failed")
     metrics.incr("update_experiment_status.completed")
+
+
+def update_status(experiment):
+    recipe_data = normandy.get_recipe(experiment.normandy_id)
+    if needs_to_be_updated(recipe_data["enabled"], experiment.status):
+        enabler_email = recipe_data["enabled_states"][0]["creator"]["email"]
+        enabler, _ = get_user_model().objects.get_or_create(
+            email=enabler_email
+        )
+        old_status = experiment.status
+        new_status = STATUS_UPDATE_MAPPING[old_status]
+        experiment.status = new_status
+        with transaction.atomic():
+            experiment.save()
+
+            experiment.changes.create(
+                changed_by=enabler,
+                old_status=old_status,
+                new_status=new_status,
+            )
+            metrics.incr("update_experiment_status.updated")
+            logger.info("Finished updating Experiment: {}".format(experiment))
 
 
 def needs_to_be_updated(enabled, status):
