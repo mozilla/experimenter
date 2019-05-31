@@ -371,14 +371,20 @@ class TestUpdateExperimentStatus(
     MockRequestMixin, MockNormandyMixin, TestCase
 ):
 
-    def setUp(self):
-        super().setUp()
+    # def setUp(self):
+    #    super().setUp()
 
-        self.experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
+    def test_experiment_without_normandy_id(self):
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED
         )
+        tasks.update_experiment_status()
+        self.mock_normandy_requests_get.assert_not_called()
 
     def test_accepted_experiment_becomes_live_if_normandy_enabled(self):
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
+        )
         tasks.update_experiment_status()
         experiment = Experiment.objects.get(normandy_id=1234)
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
@@ -390,62 +396,75 @@ class TestUpdateExperimentStatus(
         )
 
     def test_accepted_experiment_stays_accepted_if_normandy_disabled(self):
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
+        )
 
         self.mock_normandy_requests_get.return_value = (
             self.buildMockSuccessDisabledResponse()
         )
-        experiment = Experiment.objects.get(normandy_id=1234)
         tasks.update_experiment_status()
+        updated_experiment = Experiment.objects.get(normandy_id=1234)
+        self.assertEqual(updated_experiment.status, Experiment.STATUS_ACCEPTED)
         self.assertFalse(
-            experiment.changes.filter(
+            updated_experiment.changes.filter(
                 old_status=Experiment.STATUS_ACCEPTED,
                 new_status=Experiment.STATUS_LIVE,
             ).exists()
         )
 
     def test_live_experiment_stays_live_if_normandy_enabled(self):
-        experiment = Experiment.objects.get(normandy_id=1234)
-        experiment.status = Experiment.STATUS_LIVE
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE, normandy_id=1234
+        )
         tasks.update_experiment_status()
-        self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
+        updated_experiment = Experiment.objects.get(normandy_id=1234)
+        self.assertEqual(updated_experiment.status, Experiment.STATUS_LIVE)
         self.assertFalse(
-            experiment.changes.filter(
+            updated_experiment.changes.filter(
                 old_status=Experiment.STATUS_LIVE,
                 new_status=Experiment.STATUS_COMPLETE,
             ).exists()
         )
 
     def test_live_experiment_becomes_complete_if_normandy_disabled(self):
-
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE, normandy_id=1234
+        )
         self.mock_normandy_requests_get.return_value = (
             self.buildMockSuccessDisabledResponse()
         )
-        experiment = Experiment.objects.get(normandy_id=1234)
-        experiment.status = Experiment.STATUS_LIVE
-        experiment.save()
+
         tasks.update_experiment_status()
+        updated_experiment = Experiment.objects.get(normandy_id=1234)
         self.assertTrue(
-            experiment.changes.filter(
+            updated_experiment.changes.filter(
                 old_status=Experiment.STATUS_LIVE,
                 new_status=Experiment.STATUS_COMPLETE,
             ).exists()
         )
 
     def test_one_failure_does_not_affect_other_experiment_status_updates(self):
-        self.setUpMockNormandyFailWhenIdIs1234()
-        self.experiment2 = ExperimentFactory.create_with_status(
+        self.setUpMockNormandyFailWithSpecifiedID("1234")
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
+        )
+
+        ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=1235
         )
 
         tasks.update_experiment_status()
+        updated_experiment = Experiment.objects.get(normandy_id=1234)
+        updated_experiment2 = Experiment.objects.get(normandy_id=1235)
         self.assertFalse(
-            self.experiment.changes.filter(
+            updated_experiment.changes.filter(
                 old_status=Experiment.STATUS_ACCEPTED,
                 new_status=Experiment.STATUS_LIVE,
             ).exists()
         )
         self.assertTrue(
-            self.experiment2.changes.filter(
+            updated_experiment2.changes.filter(
                 old_status=Experiment.STATUS_ACCEPTED,
                 new_status=Experiment.STATUS_LIVE,
             ).exists()
