@@ -35,6 +35,7 @@ class ExperimentFiltersetForm(forms.ModelForm):
     in_qa = forms.BooleanField(required=False)
     surveys = forms.BooleanField(required=False)
     search = forms.CharField(required=False)
+    subscribed = forms.BooleanField(required=False)
 
     class Meta:
         model = Experiment
@@ -49,6 +50,7 @@ class ExperimentFiltersetForm(forms.ModelForm):
             "in_qa",
             "surveys",
             "archived",
+            "subscribed",
         )
 
     def clean_archived(self):
@@ -176,6 +178,12 @@ class ExperimentFilterset(filters.FilterSet):
         method="surveys_filter",
     )
 
+    subscribed = filters.BooleanFilter(
+        label="Show subscribed experiments",
+        widget=forms.CheckboxInput(),
+        method="subscribed_filter",
+    )
+
     class Meta:
         model = Experiment
         form = ExperimentFiltersetForm
@@ -243,14 +251,20 @@ class ExperimentFilterset(filters.FilterSet):
     def in_qa_filter(self, queryset, name, value):
         if value:
             return queryset.filter(review_qa_requested=True, review_qa=False)
-        else:
-            return queryset
+
+        return queryset
 
     def surveys_filter(self, queryset, name, value):
         if value:
             return queryset.filter(survey_required=True)
-        else:
-            return queryset
+
+        return queryset
+
+    def subscribed_filter(self, queryset, name, value):
+        if value:
+            return queryset.filter(subscribers__in=[self.request.user.id])
+
+        return queryset
 
 
 class ExperimentOrderingForm(forms.Form):
