@@ -18,7 +18,10 @@ from experimenter.experiments.forms import (
 from experimenter.experiments.forms import NormandyIdForm
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.experiments.tests.mixins import MockTasksMixin
+from experimenter.experiments.tests.mixins import (
+    MockTasksMixin,
+    MockRequestMixin,
+)
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.experiments.views import (
@@ -49,7 +52,7 @@ class TestExperimentFiltersetForm(TestCase):
         )
 
 
-class TestExperimentFilterset(TestCase):
+class TestExperimentFilterset(MockRequestMixin, TestCase):
 
     def test_filters_out_archived_by_default(self):
         for i in range(3):
@@ -285,6 +288,21 @@ class TestExperimentFilterset(TestCase):
         )
 
         self.assertEqual(set(filter.qs), set([exp_1, exp_2]))
+
+    def test_filters_for_subscribed_experiments(self):
+        exp_1 = ExperimentFactory.create(name="Experiment", slug="experiment")
+        ExperimentFactory.create()
+        ExperimentFactory.create()
+
+        exp_1.subscribers.add(self.user)
+
+        subscribed_filter = ExperimentFilterset(
+            {"subscribed": "on"},
+            request=self.request,
+            queryset=Experiment.objects.all(),
+        )
+
+        self.assertEqual(list(subscribed_filter.qs), [exp_1])
 
 
 class TestExperimentOrderingForm(TestCase):
