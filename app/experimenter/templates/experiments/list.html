@@ -29,6 +29,10 @@
       {{ filter.form.get_project_display_value }}
     {% endif %}
 
+    {% if filter.form.subscribed.value %}
+       subscribed
+    {% endif %}
+
     Experiment{{ paginator.count|pluralize:"s" }}
 
     {% if filter.form.in_qa.value %}
@@ -75,6 +79,9 @@
           <h5>
             {{ experiment }}
             <span class="badge badge-pill badge-small align-middle status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
+            {% if request.user in experiment.subscribers.all %}
+              <span class="fas fa-bell subscribe-bell"></span>
+            {% endif %}
             {% if experiment.archived %}
               <span class="badge badge-pill badge-small align-middle bg-secondary text-white">Archived</span>
             {% endif %}
@@ -149,7 +156,7 @@
     </div>
 
     {% for field in filter.form %}
-      {% if field.name == "in_qa" or field.name == "surveys" or field.name == "archived" %}
+      {% if field.name == "in_qa" or field.name == "surveys" or field.name == "archived" or field.name == "subscribed"%}
         <label>
           {{ field }}
           {{ field.label }}

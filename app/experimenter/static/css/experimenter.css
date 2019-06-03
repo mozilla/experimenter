@@ -132,6 +132,10 @@ select {
   background-color: #e9433e;
 }
 
+.subscribe-bell {
+  color: #e432af;
+}
+
 .header-link {
   margin-top: 10px;
   margin-bottom: 10px;
