@@ -68,7 +68,7 @@ class TestBugzillaURLField(TestCase):
 
     def test_accepts_bugzilla_url(self):
         field = BugzillaURLField()
-        bugzilla_url = "{base}/123/".format(base=field.BUGZILLA_BASE_URL)
+        bugzilla_url = "{base}/123/".format(base=settings.BUGZILLA_HOST)
         cleaned = field.clean(bugzilla_url)
         self.assertEqual(cleaned, bugzilla_url)
 
