@@ -868,7 +868,7 @@ Locales: {locales}
 
     BUGZILLA_ADDON_TEMPLATE = (
         """
-    Experiment Type: AddOn experiment
+    Experiment Type: Add-on experiment
 
     What are the branches of the experiment:
 
