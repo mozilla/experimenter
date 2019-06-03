@@ -86,8 +86,8 @@ def update_experiment_bug(experiment):
 def make_bugzilla_call(url, data, method):
 
     try:
-        #request_method = getattr(requests, method)
-        #response = request_method(url, data)
+        # request_method = getattr(requests, method)
+        # response = request_method(url, data)
         response = method(url, data)
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -127,7 +127,9 @@ def format_creation_bug_body(experiment):
 def create_experiment_bug(experiment):
 
     bug_data = format_creation_bug_body(experiment)
-    response_data = make_bugzilla_call(settings.BUGZILLA_CREATE_URL, bug_data, method=requests.post)
+    response_data = make_bugzilla_call(
+        settings.BUGZILLA_CREATE_URL, bug_data, method=requests.post
+    )
 
     # The experiment owner might not exist in bugzilla
     # in which case we try to create it again with no assignee
