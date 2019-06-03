@@ -146,10 +146,12 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
             name="An Experiment",
             bugzilla_id="123",
             type=Experiment.TYPE_PREF,
+            firefox_version="55.0",
+            firefox_channel="Beta",
         )
 
         update_experiment_bug(experiment)
-        summary = "[Experiment] {exp_name} Fx {version} {channel}".format(
+        summary = "[Experiment] Pref-Flip: An Experiment Fx 55.0 Beta".format(
             exp_name=experiment,
             version=experiment.firefox_version,
             channel=experiment.firefox_channel,
@@ -170,9 +172,11 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
             name="An Experiment",
             bugzilla_id="123",
             type=Experiment.TYPE_ADDON,
+            firefox_version="56.0",
+            firefox_channel="Nightly",
         )
         update_experiment_bug(experiment)
-        summary = "[Experiment] {exp_name} Fx {version} {channel}".format(
+        summary = "[Experiment] Add-On: An Experiment Fx 56.0 Nightly".format(
             exp_name=experiment,
             version=experiment.firefox_version,
             channel=experiment.firefox_channel,
