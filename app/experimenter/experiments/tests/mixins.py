@@ -1,4 +1,3 @@
-import json
 import mock
 
 from experimenter.experiments import bugzilla
@@ -17,7 +16,6 @@ class MockBugzillaMixin(object):
             mock_bugzilla_requests_post_patcher.start()
         )
         self.addCleanup(mock_bugzilla_requests_post_patcher.stop)
-
         self.bugzilla_id = "12345"
         self.mock_bugzilla_requests_post.return_value = (
             self.buildMockSuccessResponse()
@@ -37,21 +35,24 @@ class MockBugzillaMixin(object):
     def buildMockSuccessResponse(self):
         mock_response_data = {"id": self.bugzilla_id}
         mock_response = mock.Mock()
-        mock_response.content = json.dumps(mock_response_data)
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
         mock_response.status_code = 200
         return mock_response
 
     def buildMockFailureResponse(self):
         mock_response_data = {"code": bugzilla.INVALID_USER_ERROR_CODE}
         mock_response = mock.Mock()
-        mock_response.content = json.dumps(mock_response_data)
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
         mock_response.status_code = 400
         return mock_response
 
     def setupMockBugzillaCreationFailure(self):
         mock_response_data = {"message": "something went wrong"}
         mock_response = mock.Mock()
-        mock_response.content = json.dumps(mock_response_data)
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
         mock_response.status_code = 400
         self.mock_bugzilla_requests_post.return_value = mock_response
 
@@ -71,7 +72,9 @@ class MockBugzillaMixin(object):
             "message": "cf_tracking_firefoxXX is not a valid parameter",
         }
         mock_response = mock.Mock()
-        mock_response.content = json.dumps(mock_response_data)
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
         mock_response.status_code = 400
         return mock_response
 
