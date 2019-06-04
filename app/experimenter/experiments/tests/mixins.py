@@ -60,10 +60,10 @@ class MockNormandyMixin(object):
         mock_response.status_code = 200
         return mock_response
 
-    def setUpMockNormandyFailWithSpecifiedID(self, id):
+    def setUpMockNormandyFailWithSpecifiedID(self, normandy_id):
 
         def determine_response(url):
-            if id in url:
+            if normandy_id in url:
                 return self.buildMockFailedResponse()
             else:
                 return self.buildMockSuccessEnabledResponse()
