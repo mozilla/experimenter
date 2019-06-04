@@ -208,7 +208,7 @@ class TestMakeBugzillaCall(MockBugzillaMixin, TestCase):
         response_data = make_bugzilla_call("/url/", {}, method=requests.post)
         self.assertEqual(response_data, mock_response_data)
 
-    def test_request_error_passes_silently(self):
+    def test_json_parse_error_raises_bugzilla_error(self):
         self.mock_bugzilla_requests_post.side_effect = ValueError()
 
         with self.assertRaises(BugzillaError):
@@ -228,7 +228,7 @@ class TestMakePutBugzillaCall(MockBugzillaMixin, TestCase):
         response_data = make_bugzilla_call("/url/", {}, method=requests.put)
         self.assertEqual(response_data, mock_response_data)
 
-    def test_json_parse_error_passes_silently(self):
+    def test_json_parse_error_raises_bugzilla_error(self):
         self.mock_bugzilla_requests_put.side_effect = ValueError()
         with self.assertRaises(BugzillaError):
             make_bugzilla_call("/url/", {}, method=requests.put)
