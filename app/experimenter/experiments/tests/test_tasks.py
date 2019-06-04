@@ -371,9 +371,6 @@ class TestUpdateExperimentStatus(
     MockRequestMixin, MockNormandyMixin, TestCase
 ):
 
-    # def setUp(self):
-    #    super().setUp()
-
     def test_experiment_without_normandy_id(self):
         ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED
