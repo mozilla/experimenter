@@ -1,17 +1,15 @@
-import json
-
 import mock
-from requests.exceptions import RequestException
+import requests
 from django.test import TestCase
 from django.conf import settings
 
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.bugzilla import (
     BugzillaError,
-    add_experiment_comment,
     create_experiment_bug,
     format_bug_body,
     make_bugzilla_call,
+    update_experiment_bug,
 )
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.mixins import MockBugzillaMixin
@@ -140,40 +138,57 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
         self.assertRaises(BugzillaError, create_experiment_bug, experiment)
 
 
-class TestAddExperimentComment(MockBugzillaMixin, TestCase):
+class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
 
-    def test_add_bugzilla_comment_pref_experiment(self):
+    def test_update_bugzilla_pref_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             name="An Experiment",
             bugzilla_id="123",
             type=Experiment.TYPE_PREF,
+            firefox_version="55.0",
+            firefox_channel="Beta",
         )
 
-        comment_id = add_experiment_comment(experiment)
-
-        self.assertEqual(comment_id, self.bugzilla_id)
-
-        self.mock_bugzilla_requests_post.assert_called_with(
-            settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
-            {"comment": format_bug_body(experiment)},
+        update_experiment_bug(experiment)
+        summary = "[Experiment] Pref-Flip: An Experiment Fx 55.0 Beta".format(
+            exp_name=experiment,
+            version=experiment.firefox_version,
+            channel=experiment.firefox_channel,
         )
 
-    def test_add_bugzilla_comment_addon_experiment(self):
+        self.mock_bugzilla_requests_put.assert_called_with(
+            settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
+            {
+                "summary": summary,
+                "cf_user_story": format_bug_body(experiment),
+                "whiteboard": experiment.STATUS_SHIP_LABEL,
+            },
+        )
+
+    def test_update_bugzilla_addon_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             name="An Experiment",
             bugzilla_id="123",
             type=Experiment.TYPE_ADDON,
+            firefox_version="56.0",
+            firefox_channel="Nightly",
+        )
+        update_experiment_bug(experiment)
+        summary = "[Experiment] Add-On: An Experiment Fx 56.0 Nightly".format(
+            exp_name=experiment,
+            version=experiment.firefox_version,
+            channel=experiment.firefox_channel,
         )
 
-        comment_id = add_experiment_comment(experiment)
-
-        self.assertEqual(comment_id, self.bugzilla_id)
-
-        self.mock_bugzilla_requests_post.assert_called_with(
-            settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
-            {"comment": format_bug_body(experiment)},
+        self.mock_bugzilla_requests_put.assert_called_with(
+            settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
+            {
+                "summary": summary,
+                "cf_user_story": format_bug_body(experiment),
+                "whiteboard": experiment.STATUS_SHIP_LABEL,
+            },
         )
 
 
@@ -184,22 +199,36 @@ class TestMakeBugzillaCall(MockBugzillaMixin, TestCase):
             "message": "Error creating Bugzilla Bug because of reasons"
         }
         mock_response = mock.Mock()
-        mock_response.content = json.dumps(mock_response_data)
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
         mock_response.status_code = 400
         self.mock_bugzilla_requests_post.return_value = mock_response
 
-        response_data = make_bugzilla_call("/url/", {})
+        response_data = make_bugzilla_call("/url/", {}, method=requests.post)
         self.assertEqual(response_data, mock_response_data)
 
-    def test_request_error_passes_silently(self):
-        self.mock_bugzilla_requests_post.side_effect = RequestException()
+    def test_json_parse_error_raises_bugzilla_error(self):
+        self.mock_bugzilla_requests_post.side_effect = ValueError()
 
         with self.assertRaises(BugzillaError):
-            make_bugzilla_call("/url/", {})
+            make_bugzilla_call("/url/", {}, method=requests.post)
 
-    def test_json_parse_error_passes_silently(self):
+
+class TestMakePutBugzillaCall(MockBugzillaMixin, TestCase):
+
+    def test_api_error_logs_message(self):
+        mock_response_data = {"message": "Error: Something went wrong"}
         mock_response = mock.Mock()
-        mock_response.content = "{invalid json"
-        self.mock_bugzilla_requests_post.return_value = mock_response
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.status_code = 400
+        self.mock_bugzilla_requests_put.return_value = mock_response
+
+        response_data = make_bugzilla_call("/url/", {}, method=requests.put)
+        self.assertEqual(response_data, mock_response_data)
+
+    def test_json_parse_error_raises_bugzilla_error(self):
+        self.mock_bugzilla_requests_put.side_effect = ValueError()
         with self.assertRaises(BugzillaError):
-            make_bugzilla_call("/url/", {})
+            make_bugzilla_call("/url/", {}, method=requests.put)
