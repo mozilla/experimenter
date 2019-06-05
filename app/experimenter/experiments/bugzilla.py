@@ -86,8 +86,6 @@ def update_experiment_bug(experiment):
 def make_bugzilla_call(url, data, method):
 
     try:
-        # request_method = getattr(requests, method)
-        # response = request_method(url, data)
         response = method(url, data)
         return response.json()
     except requests.exceptions.RequestException as e:
