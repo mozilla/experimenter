@@ -862,6 +862,9 @@ Value: {variant.value}
     Are there specific criteria for participants?
 
 {experiment.client_matching}
+Countries: {countries}
+
+Locales: {locales}
 
     What is your intended go live date and how long will the experiment run?
 
@@ -899,7 +902,7 @@ Value: {variant.value}
 
     BUGZILLA_ADDON_TEMPLATE = (
         """
-    Experiment Type: Opt-Out experiment
+    Experiment Type: Add-on experiment
 
     What are the branches of the experiment:
 
@@ -911,7 +914,12 @@ Value: {variant.value}
 
     Are there specific criteria for participants?
 
+
 {experiment.client_matching}
+
+Countries: {countries}
+
+Locales: {locales}
 
     What is your intended go live date and how long will the experiment run?
 

@@ -1,4 +1,3 @@
-import json
 import logging
 import requests
 from urllib.parse import urlparse, parse_qs
@@ -15,6 +14,18 @@ class BugzillaError(Exception):
 
 def format_bug_body(experiment):
     bug_body = ""
+    countries = "".join(
+        [
+            "{name} ({code}) ".format(name=country.name, code=country.code)
+            for country in list(experiment.countries.all())
+        ]
+    )
+    locales = "".join(
+        [
+            "{name} ({code}) ".format(name=locale.name, code=locale.code)
+            for locale in list(experiment.locales.all())
+        ]
+    )
 
     if experiment.is_addon_experiment:
         variants_body = "\n".join(
@@ -26,7 +37,10 @@ def format_bug_body(experiment):
             ]
         )
         bug_body = experiment.BUGZILLA_ADDON_TEMPLATE.format(
-            experiment=experiment, variants=variants_body
+            experiment=experiment,
+            variants=variants_body,
+            countries=countries,
+            locales=locales,
         )
     elif experiment.is_pref_experiment:
         variants_body = "\n".join(
@@ -38,20 +52,46 @@ def format_bug_body(experiment):
             ]
         )
         bug_body = experiment.BUGZILLA_PREF_TEMPLATE.format(
-            experiment=experiment, variants=variants_body
+            experiment=experiment,
+            variants=variants_body,
+            countries=countries,
+            locales=locales,
         )
 
     return bug_body
 
 
-def make_bugzilla_call(url, data):
+def format_update_body(experiment):
+    summary = "[Experiment] {experiment_name} Fx {version} {channel}".format(
+        experiment_name=experiment,
+        version=experiment.firefox_version,
+        channel=experiment.firefox_channel,
+    )
+    return {
+        "summary": summary,
+        "cf_user_story": format_bug_body(experiment),
+        "whiteboard": experiment.STATUS_SHIP_LABEL,
+    }
+
+
+def update_experiment_bug(experiment):
+    body = format_update_body(experiment)
+    make_bugzilla_call(
+        settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
+        body,
+        method=requests.put,
+    )
+
+
+def make_bugzilla_call(url, data, method):
+
     try:
-        response = requests.post(url, data)
-        return json.loads(response.content)
+        response = method(url, data)
+        return response.json()
     except requests.exceptions.RequestException as e:
         logging.exception("Error calling Bugzilla API: {}".format(e))
         raise BugzillaError(*e.args)
-    except json.JSONDecodeError as e:
+    except ValueError as e:
         logging.exception("Error parsing JSON Bugzilla response: {}".format(e))
         raise BugzillaError(*e.args)
 
@@ -85,7 +125,9 @@ def format_creation_bug_body(experiment):
 def create_experiment_bug(experiment):
 
     bug_data = format_creation_bug_body(experiment)
-    response_data = make_bugzilla_call(settings.BUGZILLA_CREATE_URL, bug_data)
+    response_data = make_bugzilla_call(
+        settings.BUGZILLA_CREATE_URL, bug_data, method=requests.post
+    )
 
     # The experiment owner might not exist in bugzilla
     # in which case we try to create it again with no assignee
@@ -93,7 +135,7 @@ def create_experiment_bug(experiment):
         bug_data = bug_data.copy()
         del bug_data["assigned_to"]
         response_data = make_bugzilla_call(
-            settings.BUGZILLA_CREATE_URL, bug_data
+            settings.BUGZILLA_CREATE_URL, bug_data, method=requests.post
         )
 
     # Firefox Version given might not be an available
@@ -109,7 +151,7 @@ def create_experiment_bug(experiment):
             bug_data = bug_data.copy()
             del bug_data[experiment.bugzilla_tracking_key]
             response_data = make_bugzilla_call(
-                settings.BUGZILLA_CREATE_URL, bug_data
+                settings.BUGZILLA_CREATE_URL, bug_data, method=requests.post
             )
 
     if "id" not in response_data:
@@ -120,14 +162,3 @@ def create_experiment_bug(experiment):
 def get_bugzilla_id(bug_url):
     query = urlparse(bug_url).query
     return int(parse_qs(query)["id"][0])
-
-
-def add_experiment_comment(experiment):
-    comment_data = {"comment": format_bug_body(experiment)}
-
-    response_data = make_bugzilla_call(
-        settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
-        comment_data,
-    )
-
-    return response_data["id"]
