@@ -442,6 +442,7 @@ class TestUpdateExperimentStatus(
 
         tasks.update_experiment_status()
         updated_experiment = Experiment.objects.get(normandy_id=1234)
+        self.assertEqual(updated_experiment.status, Experiment.STATUS_COMPLETE)
         self.assertTrue(
             updated_experiment.changes.filter(
                 changed_by__email="dev@example.com",
@@ -463,6 +464,8 @@ class TestUpdateExperimentStatus(
         tasks.update_experiment_status()
         updated_experiment = Experiment.objects.get(normandy_id=1234)
         updated_experiment2 = Experiment.objects.get(normandy_id=1235)
+        self.assertEqual(updated_experiment.status, Experiment.STATUS_ACCEPTED)
+        self.assertEqual(updated_experiment2.status, Experiment.STATUS_LIVE)
         self.assertFalse(
             updated_experiment.changes.filter(
                 changed_by__email="dev@example.com",
