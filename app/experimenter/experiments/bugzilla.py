@@ -80,24 +80,24 @@ def update_experiment_bug(experiment):
 
 
 def user_exists(user):
-    response = make_bugzilla_call(
-        settings.BUGZILLA_USER_URL.format(email=user), requests.get
-    )
     try:
+        response = make_bugzilla_call(
+            settings.BUGZILLA_USER_URL.format(email=user), requests.get
+        )
         users = response["users"]
         return len(users) == 1
-    except KeyError:
+    except (BugzillaError, KeyError):
         return False
 
 
 def bug_exists(bug_id):
-    response = make_bugzilla_call(
-        settings.BUGZILLA_BUG_URL.format(bug_id=bug_id), requests.get
-    )
     try:
+        response = make_bugzilla_call(
+            settings.BUGZILLA_BUG_URL.format(bug_id=bug_id), requests.get
+        )
         bugs = response["bugs"]
         return len(bugs) == 1
-    except KeyError:
+    except (BugzillaError, KeyError):
         return False
 
 
