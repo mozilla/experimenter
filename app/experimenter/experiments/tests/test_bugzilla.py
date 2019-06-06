@@ -47,7 +47,6 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
                 "see_also": [12345],
                 "blocks": [12345],
                 "url": experiment.experiment_url,
-                experiment.bugzilla_tracking_key: "?",
             },
         )
 
@@ -78,7 +77,6 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "see_also": [12345],
             "blocks": [12345],
             "url": experiment.experiment_url,
-            experiment.bugzilla_tracking_key: "?",
         }
 
         self.mock_bugzilla_requests_post.assert_called_with(
@@ -111,7 +109,6 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "type": "task",
             "priority": "P3",
             "url": experiment.experiment_url,
-            experiment.bugzilla_tracking_key: "?",
             "blocks": [12345],
         }
 
@@ -145,7 +142,6 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "type": "task",
             "priority": "P3",
             "url": experiment.experiment_url,
-            experiment.bugzilla_tracking_key: "?",
             "see_also": [12345],
         }
 

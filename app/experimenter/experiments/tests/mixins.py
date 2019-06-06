@@ -111,30 +111,6 @@ class MockBugzillaMixin(object):
             self.buildMockFailureResponse(),
         ]
 
-    def buildMockFailureFirefoxVersionResponse(self):
-        mock_response_data = {
-            "code": bugzilla.INVALID_PARAMETER_ERROR_CODE,
-            "message": "cf_tracking_firefoxXX is not a valid parameter",
-        }
-        mock_response = mock.Mock()
-        mock_response = mock.Mock()
-        mock_response.json = mock.Mock()
-        mock_response.json.return_value = mock_response_data
-        mock_response.status_code = 400
-        return mock_response
-
-    def setUpMockBugzillaInvalidFirefoxVersion(self):
-
-        def mock_reject_firefox_version(url, bug_data):
-            if any("cf_tracking" in data_keys for data_keys in bug_data):
-                return self.buildMockFailureFirefoxVersionResponse()
-            else:
-                return self.buildMockSuccessResponse()
-
-        self.mock_bugzilla_requests_post.side_effect = (
-            mock_reject_firefox_version
-        )
-
 
 class MockRequestMixin(object):
 

@@ -135,9 +135,6 @@ def format_creation_bug_body(experiment):
     if bug_exists(data_science_bug_id):
         bug_data["see_also"] = [data_science_bug_id]
 
-    if experiment.bugzilla_tracking_key:
-        bug_data[experiment.bugzilla_tracking_key] = "?"
-
     if experiment.feature_bugzilla_url:
         feature_bug_id = get_bugzilla_id(experiment.feature_bugzilla_url)
         if bug_exists(feature_bug_id):
@@ -151,22 +148,6 @@ def create_experiment_bug(experiment):
     response_data = make_bugzilla_call(
         settings.BUGZILLA_CREATE_URL, requests.post, data=bug_data
     )
-
-    # Firefox Version given might not be an available
-    # bugzilla tracking parameter, so remove and retry
-    invalid_param_err_code = (
-        response_data.get("code", None) == INVALID_PARAMETER_ERROR_CODE
-    )
-    if invalid_param_err_code:
-        tracking_msg = "cf_tracking_firefox" in response_data.get(
-            "message", None
-        )
-        if tracking_msg:
-            bug_data = bug_data.copy()
-            del bug_data[experiment.bugzilla_tracking_key]
-            response_data = make_bugzilla_call(
-                settings.BUGZILLA_CREATE_URL, requests.post, data=bug_data
-            )
 
     if "id" not in response_data:
         raise BugzillaError(response_data["message"])
