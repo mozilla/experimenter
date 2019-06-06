@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import os
 from decouple import config
 from urllib.parse import urljoin
+from celery.schedules import crontab
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -277,6 +278,12 @@ REDIS_DB = config("REDIS_DB")
 CELERY_BROKER_URL = "redis://{host}:{port}/{db}".format(
     host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB
 )
+CELERY_BEAT_SCHEDULE = {
+    "debug_task": {
+        "task": "experimenter.experiments.tasks.update_experiment_status",
+        "schedule": 300,
+    }
+}
 
 # Normandy Configuration
 NORMANDY_SLUG_MAX_LEN = 80
