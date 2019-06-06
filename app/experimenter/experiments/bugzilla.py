@@ -67,11 +67,7 @@ def format_update_body(experiment):
         version=experiment.firefox_version,
         channel=experiment.firefox_channel,
     )
-    return {
-        "summary": summary,
-        "cf_user_story": format_bug_body(experiment),
-        "whiteboard": experiment.STATUS_SHIP_LABEL,
-    }
+    return {"summary": summary, "cf_user_story": format_bug_body(experiment)}
 
 
 def update_experiment_bug(experiment):
@@ -130,7 +126,6 @@ def format_creation_bug_body(experiment):
         "type": "task",
         "priority": "P3",
         "url": experiment.experiment_url,
-        "whiteboard": experiment.STATUS_REVIEW_LABEL,
     }
 
     if user_exists(experiment.owner.email):

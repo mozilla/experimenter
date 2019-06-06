@@ -47,7 +47,6 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
                 "see_also": [12345],
                 "blocks": [12345],
                 "url": experiment.experiment_url,
-                "whiteboard": experiment.STATUS_REVIEW_LABEL,
                 experiment.bugzilla_tracking_key: "?",
             },
         )
@@ -79,7 +78,6 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "see_also": [12345],
             "blocks": [12345],
             "url": experiment.experiment_url,
-            "whiteboard": experiment.STATUS_REVIEW_LABEL,
             experiment.bugzilla_tracking_key: "?",
         }
 
@@ -113,7 +111,6 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "type": "task",
             "priority": "P3",
             "url": experiment.experiment_url,
-            "whiteboard": experiment.STATUS_REVIEW_LABEL,
             experiment.bugzilla_tracking_key: "?",
             "blocks": [12345],
         }
@@ -148,7 +145,6 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "type": "task",
             "priority": "P3",
             "url": experiment.experiment_url,
-            "whiteboard": experiment.STATUS_REVIEW_LABEL,
             experiment.bugzilla_tracking_key: "?",
             "see_also": [12345],
         }
@@ -186,11 +182,7 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
 
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
-            {
-                "summary": summary,
-                "cf_user_story": format_bug_body(experiment),
-                "whiteboard": experiment.STATUS_SHIP_LABEL,
-            },
+            {"summary": summary, "cf_user_story": format_bug_body(experiment)},
         )
 
     def test_update_bugzilla_addon_experiment(self):
@@ -211,11 +203,7 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
 
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
-            {
-                "summary": summary,
-                "cf_user_story": format_bug_body(experiment),
-                "whiteboard": experiment.STATUS_SHIP_LABEL,
-            },
+            {"summary": summary, "cf_user_story": format_bug_body(experiment)},
         )
 
 
