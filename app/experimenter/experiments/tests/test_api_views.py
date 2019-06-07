@@ -250,3 +250,27 @@ class TestExperimentSendIntentToShipEmailView(TestCase):
         )
 
         self.assertEqual(response.status_code, 409)
+
+
+class TestExperimentCloneView(TestCase):
+
+    def test_patch_to_view_returns_clone_name_and_url(self):
+        experiment = ExperimentFactory.create(
+            name="great experiment", slug="great-experiment"
+        )
+        user_email = "user@example.com"
+
+        data = json.dumps({"name": "best experiment"})
+
+        response = self.client.patch(
+            reverse("experiments-api-clone", kwargs={"slug": experiment.slug}),
+            data,
+            content_type="application/json",
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["name"], "best experiment")
+        self.assertEqual(
+            response.json()["clone_url"], "/experiments/best-experiment/"
+        )

@@ -7,6 +7,7 @@ from experimenter.experiments.api_views import (
     ExperimentRecipeView,
     ExperimentRejectView,
     ExperimentSendIntentToShipEmailView,
+    ExperimentCloneView,
 )
 
 
@@ -37,4 +38,9 @@ urlpatterns = [
         name="experiments-api-detail",
     ),
     url(r"^$", ExperimentListView.as_view(), name="experiments-api-list"),
+    url(
+        r"^(?P<slug>[\w-]+)/clone",
+        ExperimentCloneView.as_view(),
+        name="experiments-api-clone",
+    ),
 ]
