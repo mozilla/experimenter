@@ -1609,7 +1609,6 @@ class TestExperimentArchiveForm(MockRequestMixin, TestCase):
             self.request, instance=experiment, data={}
         )
         self.assertTrue(form.is_valid())
-
         experiment = form.save()
         self.assertTrue(experiment.archived)
 

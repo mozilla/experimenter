@@ -1137,6 +1137,13 @@ class ExperimentArchiveForm(
     def clean_archived(self):
         return not self.instance.archived
 
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+        tasks.update_bug_resolution_task.delay(
+            self.request.user.id, experiment.id
+        )
+        return experiment
+
 
 class ExperimentSubscribedForm(ExperimentConstants, forms.ModelForm):
 

@@ -12,6 +12,7 @@ from experimenter.experiments.bugzilla import (
     update_experiment_bug,
     get_bugzilla_id,
     set_bugzilla_id_value,
+    update_bug_resolution,
 )
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.mixins import MockBugzillaMixin
@@ -226,6 +227,33 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
             {"summary": summary, "cf_user_story": format_bug_body(experiment)},
+        )
+
+
+class TestUpdateBugzillaResolution(MockBugzillaMixin, TestCase):
+
+    def test_bugzilla_resolution(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            name="An Experiment",
+            bugzilla_id="123",
+            type=Experiment.TYPE_PREF,
+            archived=True,
+        )
+
+        update_bug_resolution(experiment)
+        self.mock_bugzilla_requests_put.assert_called_with(
+            settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
+            {"status": "RESOLVED", "resolution": "WONTFIX"},
+        )
+
+        experiment.archived = False
+
+        update_bug_resolution(experiment)
+
+        self.mock_bugzilla_requests_put.assert_called_with(
+            settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
+            {"status": "REOPENED"},
         )
 
 
