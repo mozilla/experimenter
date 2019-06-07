@@ -40,10 +40,10 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
                 "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
                     experiment=experiment
                 ),
-                "assigned_to": experiment.owner.email,
                 "cc": settings.BUGZILLA_CC_LIST,
                 "type": "task",
                 "priority": "P3",
+                "assigned_to": experiment.owner.email,
                 "see_also": [12345],
                 "blocks": [12345],
                 "url": experiment.experiment_url,
@@ -74,6 +74,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "cc": settings.BUGZILLA_CC_LIST,
             "type": "task",
             "priority": "P3",
+            "assigned_to": None,
             "see_also": [12345],
             "blocks": [12345],
             "url": experiment.experiment_url,
@@ -109,6 +110,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "type": "task",
             "priority": "P3",
             "url": experiment.experiment_url,
+            "see_also": None,
             "blocks": [12345],
         }
 
@@ -143,6 +145,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "priority": "P3",
             "url": experiment.experiment_url,
             "see_also": [12345],
+            "blocks": None,
         }
 
         self.mock_bugzilla_requests_post.assert_called_with(

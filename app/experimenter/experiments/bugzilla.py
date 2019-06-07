@@ -113,7 +113,7 @@ def make_bugzilla_call(url, method, data=None):
         raise BugzillaError(*e.args)
 
 
-def format_creation_bug_body(experiment):
+def format_creation_bug_body(experiment, extra_fields):
     bug_data = {
         "product": "Shield",
         "component": "Shield Study",
@@ -127,24 +127,32 @@ def format_creation_bug_body(experiment):
         "priority": "P3",
         "url": experiment.experiment_url,
     }
-
-    if user_exists(experiment.owner.email):
-        bug_data["assigned_to"] = experiment.owner.email
-
-    data_science_bug_id = get_bugzilla_id(experiment.data_science_bugzilla_url)
-    if bug_exists(data_science_bug_id):
-        bug_data["see_also"] = [data_science_bug_id]
-
-    if experiment.feature_bugzilla_url:
-        feature_bug_id = get_bugzilla_id(experiment.feature_bugzilla_url)
-        if bug_exists(feature_bug_id):
-            bug_data["blocks"] = [feature_bug_id]
+    bug_data.update(extra_fields)
     return bug_data
 
 
 def create_experiment_bug(experiment):
+    assigned_to, see_also, blocks = None, None, None
 
-    bug_data = format_creation_bug_body(experiment)
+    if user_exists(experiment.owner.email):
+        assigned_to = experiment.owner.email
+
+    data_science_bug_id = get_bugzilla_id(experiment.data_science_bugzilla_url)
+    if bug_exists(data_science_bug_id):
+        see_also = [data_science_bug_id]
+
+    if experiment.feature_bugzilla_url:
+        feature_bug_id = get_bugzilla_id(experiment.feature_bugzilla_url)
+        if bug_exists(feature_bug_id):
+            blocks = [feature_bug_id]
+
+    extra_fields = {
+        "assigned_to": assigned_to,
+        "see_also": see_also,
+        "blocks": blocks,
+    }
+
+    bug_data = format_creation_bug_body(experiment, extra_fields)
     response_data = make_bugzilla_call(
         settings.BUGZILLA_CREATE_URL, requests.post, data=bug_data
     )
