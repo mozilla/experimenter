@@ -64,6 +64,8 @@ class TestIntentToShipEmail(TestCase):
             risks="Hardcoded fictitious risk",
             risk_technical_description=risk_description,
             population_percent=10.0,
+            firefox_min_version="56.0",
+            firefox_max_version="",
         )
         send_intent_to_ship_email(experiment.id)
 
@@ -75,6 +77,8 @@ class TestIntentToShipEmail(TestCase):
         )
         expected_locales = self.format_locales(experiment)
         expected_countries = self.format_countries(experiment)
+        expected_version_channel = self.format_version_and_channel(experiment)
+
         expected_body = (
             f"""
 Hello Release Drivers,
@@ -89,7 +93,7 @@ Experimenter Bug: {bug_url}
 Experimenter URL: {experiment.experiment_url}
 Study owner: {experiment.owner.email}
 Description: {experiment.short_description}
-Timeline & Channel: {experiment.firefox_version} {experiment.firefox_channel}
+Timeline & Channel: {expected_version_channel}
 Intended study dates: {experiment.dates}
 Percent of Population: 10%
 Platforms: {experiment.platform}
@@ -118,6 +122,8 @@ Thank you!!
             risks="",
             risk_technical_description="",
             population_percent=10.0,
+            firefox_min_version="56.0",
+            firefox_max_version="",
         )
         send_intent_to_ship_email(experiment.id)
 
@@ -129,6 +135,8 @@ Thank you!!
         )
         expected_locales = self.format_locales(experiment)
         expected_countries = self.format_countries(experiment)
+        expected_version_channel = self.format_version_and_channel(experiment)
+
         expected_body = (
             f"""
 Hello Release Drivers,
@@ -143,7 +151,7 @@ Experimenter Bug: {bug_url}
 Experimenter URL: {experiment.experiment_url}
 Study owner: {experiment.owner.email}
 Description: {experiment.short_description}
-Timeline & Channel: {experiment.firefox_version} {experiment.firefox_channel}
+Timeline & Channel: {expected_version_channel}
 Intended study dates: {experiment.dates}
 Percent of Population: 10%
 Platforms: {experiment.platform}
@@ -179,11 +187,17 @@ Thank you!!
             )
         return countries
 
-    def verify_subject(self, experiment, email):
-        expected_subject = "".join(
-            [
-                "SHIELD Study Intent to ship: Experiment ",
-                f"{experiment.firefox_version} {experiment.firefox_channel}",
-            ]
+    def format_version_and_channel(self, experiment):
+        return (
+            f"{experiment.format_firefox_versions}"
+            f" {experiment.firefox_channel}"
         )
+
+    def verify_subject(self, experiment, email):
+        expected_subject = (
+            f"SHIELD Study Intent to ship: Experiment "
+            f"{experiment.format_firefox_versions} "
+            f"{experiment.firefox_channel}"
+        )
+
         self.assertEqual(email.subject, expected_subject)

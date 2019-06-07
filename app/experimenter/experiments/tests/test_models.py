@@ -249,7 +249,7 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
             slug="experiment-slug",
-            firefox_version="",
+            firefox_min_version="",
             firefox_channel="Nightly",
             bugzilla_id="12345",
         )
@@ -261,7 +261,7 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
             slug="experiment-slug",
-            firefox_version="57.0",
+            firefox_min_version="57.0",
             firefox_channel="",
             bugzilla_id="12345",
         )
@@ -273,7 +273,7 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
             slug="experiment-slug",
-            firefox_version="57.0",
+            firefox_min_version="57.0",
             firefox_channel="Nightly",
             bugzilla_id="",
         )
@@ -285,14 +285,15 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
             slug="experiment-slug",
-            firefox_version="57.0",
+            firefox_min_version="57.0",
+            firefox_max_version="59.0",
             firefox_channel="Nightly",
             bugzilla_id="12345",
         )
 
         self.assertEqual(
             experiment.generate_normandy_slug(),
-            "pref-experiment-slug-nightly-57.0-bug-12345",
+            "pref-experiment-slug-nightly-57.0-59.0-bug-12345",
         )
 
     def test_generate_normandy_slug_raises_valueerror_without_addon_info(self):
@@ -317,7 +318,8 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
             slug="-" * (settings.NORMANDY_SLUG_MAX_LEN + 1),
-            firefox_version="57.0",
+            firefox_min_version="57.0",
+            firefox_max_version="59.0",
             firefox_channel="Nightly",
             bugzilla_id="12345",
         )
@@ -788,7 +790,7 @@ class TestExperimentModel(TestCase):
 
     def test_population_is_not_complete_when_defaults_set(self):
         experiment = ExperimentFactory.create(
-            population_percent=0.0, firefox_version="", firefox_channel=""
+            population_percent=0.0, firefox_min_version="", firefox_channel=""
         )
         self.assertFalse(experiment.completed_population)
 
@@ -1013,10 +1015,22 @@ class TestExperimentModel(TestCase):
 
         self.assertFalse(experiment.is_ready_to_launch)
 
+    def test_format_firefox_versions_returns_correct_string(self):
+        experiment_1 = ExperimentFactory(
+            firefox_min_version="57.0", firefox_max_version=""
+        )
+        experiment_2 = ExperimentFactory(
+            firefox_min_version="57.0", firefox_max_version="59.0"
+        )
+
+        self.assertEqual(experiment_1.format_firefox_versions, "57.0")
+        self.assertEqual(experiment_2.format_firefox_versions, "57.0 to 59.0")
+
     def test_experiment_population_returns_correct_string(self):
         experiment = ExperimentFactory(
             population_percent="0.5",
-            firefox_version="57.0",
+            firefox_min_version="57.0",
+            firefox_max_version="",
             firefox_channel="Nightly",
         )
         self.assertEqual(experiment.population, "0.5% of Nightly Firefox 57.0")
@@ -1046,7 +1060,6 @@ class TestExperimentModel(TestCase):
     def test_clone(self):
         user_1 = UserFactory.create()
         user_2 = UserFactory.create()
-        include_version = Experiment.VERSION_CHOICES[1][0]
 
         experiment = ExperimentFactory.create_with_variants(
             name="great experiment",
@@ -1065,7 +1078,8 @@ class TestExperimentModel(TestCase):
             archived=True,
             review_science=True,
             review_ux=True,
-            firefox_version=include_version,
+            firefox_min_version=Experiment.VERSION_CHOICES[1][0],
+            firefox_max_version="",
         )
 
         experiment.clone("best experiment", user_2)
@@ -1088,7 +1102,10 @@ class TestExperimentModel(TestCase):
         self.assertEqual(cloned_experiment.pref_type, Experiment.TYPE_ADDON)
         self.assertEqual(cloned_experiment.proposed_start_date, None)
         self.assertEqual(cloned_experiment.owner, user_2)
-        self.assertEqual(cloned_experiment.firefox_version, include_version)
+        self.assertEqual(
+            cloned_experiment.firefox_min_version,
+            Experiment.VERSION_CHOICES[1][0],
+        )
         self.assertFalse(cloned_experiment.archived)
         self.assertFalse(cloned_experiment.review_science)
         self.assertFalse(cloned_experiment.review_ux)

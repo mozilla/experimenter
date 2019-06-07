@@ -364,18 +364,24 @@ class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
 
     population_percent = forms.DecimalField(
-        label="Population Size",
+        label="Population Percentage",
         help_text=Experiment.POPULATION_PERCENT_HELP_TEXT,
         initial="0.00",
         widget=forms.NumberInput(attrs={"class": "form-control"}),
     )
-    firefox_version = forms.ChoiceField(
-        choices=Experiment.VERSION_CHOICES,
+    firefox_min_version = forms.ChoiceField(
+        choices=Experiment.MIN_VERSION_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
+    )
+    firefox_max_version = forms.ChoiceField(
+        choices=Experiment.MAX_VERSION_CHOICES,
+        widget=forms.Select(attrs={"class": "form-control"}),
+        required=False,
     )
     firefox_channel = forms.ChoiceField(
         choices=Experiment.CHANNEL_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
+        label="Firefox Channel",
     )
     client_matching = forms.CharField(
         label="Population Filtering",
@@ -408,7 +414,8 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
         model = Experiment
         fields = [
             "population_percent",
-            "firefox_version",
+            "firefox_min_version",
+            "firefox_max_version",
             "firefox_channel",
             "locales",
             "countries",

@@ -57,7 +57,6 @@ class ExperimentConstants(object):
 
     # Version stuff
     VERSION_CHOICES = (
-        (None, "Firefox Version"),
         ("55.0", "Firefox 55.0"),
         ("56.0", "Firefox 56.0"),
         ("57.0", "Firefox 57.0"),
@@ -74,6 +73,14 @@ class ExperimentConstants(object):
         ("68.0", "Firefox 68.0"),
         ("69.0", "Firefox 69.0"),
         ("70.0", "Firefox 70.0"),
+    )
+
+    MIN_VERSION_CHOICES = ((None, "Firefox Min Version"),) + (
+        (VERSION_CHOICES)
+    )
+
+    MAX_VERSION_CHOICES = ((None, "No Max Version (Optional)"),) + (
+        (VERSION_CHOICES)
     )
 
     # Channel stuff

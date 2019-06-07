@@ -20,11 +20,6 @@
       {{ filter.form.firefox_channel.value }}
     {% endif %}
 
-    {% if filter.form.firefox_version.value %}
-      Firefox
-      {{ filter.form.firefox_version.value }}
-    {% endif %}
-
     {% if filter.form.project.value %}
       {{ filter.form.get_project_display_value }}
     {% endif %}
@@ -34,6 +29,11 @@
     {% endif %}
 
     Experiment{{ paginator.count|pluralize:"s" }}
+
+    {% if filter.form.firefox_version.value %}
+      including Firefox Version
+      {{ filter.form.firefox_version.value }}
+    {% endif %}
 
     {% if filter.form.in_qa.value %}
        in QA

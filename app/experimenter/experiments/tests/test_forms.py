@@ -333,7 +333,8 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
 def get_variants_form_data():
     return {
         "population_percent": "10",
-        "firefox_version": Experiment.VERSION_CHOICES[-1][0],
+        "firefox_min_version": Experiment.VERSION_CHOICES[-2][0],
+        "firefox_max_version": Experiment.VERSION_CHOICES[-1][0],
         "firefox_channel": Experiment.CHANNEL_NIGHTLY,
         "client_matching": "en-us only please",
         "platform": Experiment.PLATFORM_ALL,
@@ -890,7 +891,7 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
             experiment.population_percent, decimal.Decimal("10.000")
         )
         self.assertEqual(
-            experiment.firefox_version, self.data["firefox_version"]
+            experiment.firefox_min_version, self.data["firefox_min_version"]
         )
         self.assertEqual(
             experiment.firefox_channel, self.data["firefox_channel"]
@@ -1518,7 +1519,8 @@ class TestExperimentStatusForm(
             type=Experiment.TYPE_PREF,
             name="Experiment Name",
             slug="experiment-slug",
-            firefox_version="57.0",
+            firefox_min_version="57.0",
+            firefox_max_version="",
             firefox_channel=Experiment.CHANNEL_NIGHTLY,
             bugzilla_id="12345",
         )
