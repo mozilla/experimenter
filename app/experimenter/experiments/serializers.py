@@ -1,6 +1,8 @@
 import time
 import json
 from rest_framework import serializers
+from django.utils.text import slugify
+from django.urls import reverse
 
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.models import Experiment, ExperimentVariant
@@ -238,3 +240,27 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return ExperimentRecipePrefArgumentsSerializer(obj).data
         elif obj.is_addon_experiment:
             return ExperimentRecipeAddonArgumentsSerializer(obj).data
+
+
+class ExperimentCloneSerializer(serializers.ModelSerializer):
+    clone_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Experiment
+        fields = ("name", "clone_url")
+
+    def validate_name(self, value):
+        existing_slug = Experiment.objects.filter(slug=slugify(value))
+        if existing_slug:
+            raise serializers.ValidationError("Duplicate Name Error")
+
+        return value
+
+    def get_clone_url(self, obj):
+        return reverse("experiments-detail", kwargs={"slug": obj.slug})
+
+    def update(self, instance, validated_data):
+        user = self.context["request"].user
+        name = validated_data.get("name")
+
+        return instance.clone(name, user)

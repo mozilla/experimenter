@@ -24,7 +24,10 @@ from experimenter.experiments.serializers import (
     FilterObjectLocaleSerializer,
     JSTimestampField,
     LocaleSerializer,
+    ExperimentCloneSerializer,
 )
+
+from experimenter.experiments.tests.mixins import MockRequestMixin
 
 
 class TestJSTimestampField(TestCase):
@@ -335,4 +338,37 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertEqual(
             serializer.data["arguments"],
             ExperimentRecipeAddonArgumentsSerializer(experiment).data,
+        )
+
+
+class TestCloneSerializer(MockRequestMixin, TestCase):
+
+    def test_clone_serializer_rejects_duplicate_name(self):
+        experiment = ExperimentFactory.create(
+            name="great experiment", slug="great-experiment"
+        )
+        clone_data = {"name": "great experiment"}
+        serializer = ExperimentCloneSerializer(
+            instance=experiment, data=clone_data
+        )
+
+        self.assertFalse(serializer.is_valid())
+
+    def test_clone_serializer_accepts_unique_name(self):
+        experiment = ExperimentFactory.create(
+            name="great experiment", slug="great-experiment"
+        )
+        clone_data = {"name": "best experiment"}
+        serializer = ExperimentCloneSerializer(
+            instance=experiment,
+            data=clone_data,
+            context={"request": self.request},
+        )
+        self.assertTrue(serializer.is_valid())
+
+        serializer.save()
+
+        self.assertEqual(serializer.data["name"], "best experiment")
+        self.assertEqual(
+            serializer.data["clone_url"], "/experiments/best-experiment/"
         )
