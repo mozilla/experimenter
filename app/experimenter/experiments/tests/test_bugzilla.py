@@ -55,7 +55,11 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             Experiment.STATUS_DRAFT, name="An Experiment"
         )
 
-        self.setUpMockBugzillaInvalidUser()
+        self.mock_bugzilla_requests_get.side_effect = [
+            self.buildMockFailureResponse(),
+            self.buildMockSuccessBugResponse(),
+            self.buildMockSuccessBugResponse(),
+        ]
 
         response_data = create_experiment_bug(experiment)
 
@@ -89,7 +93,11 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             Experiment.STATUS_DRAFT, name="An Experiment"
         )
 
-        self.setUpMockBugzillaFirstBadTicket()
+        self.mock_bugzilla_requests_get.side_effect = [
+            self.buildMockSuccessUserResponse(),
+            self.buildMockFailureResponse(),
+            self.buildMockSuccessBugResponse(),
+        ]
 
         response_data = create_experiment_bug(experiment)
 
@@ -123,7 +131,11 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             Experiment.STATUS_DRAFT, name="An Experiment"
         )
 
-        self.setUpMockBugzillaSecondBadTicket()
+        self.mock_bugzilla_requests_get.side_effect = [
+            self.buildMockSuccessUserResponse(),
+            self.buildMockSuccessBugResponse(),
+            self.buildMockFailureResponse(),
+        ]
 
         response_data = create_experiment_bug(experiment)
 

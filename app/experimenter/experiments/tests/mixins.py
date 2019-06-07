@@ -87,30 +87,6 @@ class MockBugzillaMixin(object):
         mock_response.status_code = 400
         self.mock_bugzilla_requests_post.return_value = mock_response
 
-    def setUpMockBugzillaInvalidUser(self):
-
-        self.mock_bugzilla_requests_get.side_effect = [
-            self.buildMockFailureResponse(),
-            self.buildMockSuccessBugResponse(),
-            self.buildMockSuccessBugResponse(),
-        ]
-
-    def setUpMockBugzillaFirstBadTicket(self):
-
-        self.mock_bugzilla_requests_get.side_effect = [
-            self.buildMockSuccessUserResponse(),
-            self.buildMockFailureResponse(),
-            self.buildMockSuccessBugResponse(),
-        ]
-
-    def setUpMockBugzillaSecondBadTicket(self):
-
-        self.mock_bugzilla_requests_get.side_effect = [
-            self.buildMockSuccessUserResponse(),
-            self.buildMockSuccessBugResponse(),
-            self.buildMockFailureResponse(),
-        ]
-
 
 class MockRequestMixin(object):
 
