@@ -299,8 +299,8 @@ class ExperimentConstants(object):
       </p>
     """.format(
         url=(
-            "https://mana.mozilla.org/wiki/display/PM/Firefox+Data+Science"
-            "#FirefoxDataScience-initiatingaproject"
+            "https://mana.mozilla.org/wiki/display/PM/Mozilla+Data+Science"
+            "#MozillaDataScience-dsflagshipprograms2019"
         ),
         bugzilla_host=settings.BUGZILLA_HOST,
     )
