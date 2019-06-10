@@ -13,9 +13,9 @@ appdirs==1.4.3 \
     --hash=sha256:d8b24664561d0d34ddfaec54636d502d7cea6e29c3eaf68f3df6180863e2166e
 billiard==3.5.0.5 \
     --hash=sha256:42d9a227401ac4fba892918bba0a0c409def5435c4b483267ebfe821afaaba0e
-kombu==4.6.0 \
-    --hash=sha256:14997e6d76d36f2b296f57e37fd1d388e4e0159edea8368a8c6f4620a355a722 \
-    --hash=sha256:27345bb569eb6bb583bca27dfc0ef181ca6c59c40c6e203cecaa0aeca84360be
+kombu==4.6.1 \
+    --hash=sha256:056a31cc95b10ca4eb0d4ebcba714007b1db1c6c45c8e2d139fe91933481b00b \
+    --hash=sha256:af5b0f892b081f49d95c772a241fb7687f4cc3e42c94328f118dffb1f4e161e5
 django-jquery-js==3.1.1 \
     --hash=sha256:308e6472801f89be7c02fa3d06bea6470cfbcab8287db80c64b1093717b8eea9
 Faker==1.0.7 \
