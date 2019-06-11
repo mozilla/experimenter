@@ -36,7 +36,7 @@ services:
       - redis
     volumes:
       - ./app:/app
-    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat -l debug"
+    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat --pidfile /celerybeat.pid -s /celerybeat-schedule -l debug"
     networks:
       - private_nw
 
