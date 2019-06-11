@@ -86,9 +86,9 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "django.contrib.messages.context_processors.messages",
                 "experimenter.base.context_processors.google_analytics",
-            ]
+            ],
+            "debug": DEBUG,
         },
     }
 ]
