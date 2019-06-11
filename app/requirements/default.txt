@@ -133,6 +133,6 @@ django-countries==5.3.3 \
 markus==1.2.0 \
     --hash=sha256:86bbeb16de1b1920d291c81a39b7a7c61c94b665cd8d10c6b69c994ce4fd5bcc \
     --hash=sha256:9bce7bd152578703a8e4aa5a765c7c0d94bcdd69f7bc5e42d29b893e3abf2e5a
-datadog==0.29.1 \
-    --hash=sha256:9a6edbe76e3b7e70914d4c18bbafc051afb7950856d93b8a9befa00fa88dc2d8 \
-    --hash=sha256:266c1646a8345cff4a25259809a9fe78ed451a899ca885271d2433cf4b09e86e
+datadog==0.28.0 \
+    --hash=sha256:eb6f2707151be8851f7da3768e605ac92ec45464fc48d5a878d0b6e08610dd8b \
+    --hash=sha256:f0c3260654cf1c9a4a610aee6282ee62688e734f7d59ebc830560ca0cc0ef81d
