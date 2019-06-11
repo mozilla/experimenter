@@ -82,3 +82,7 @@ app/experimenter/served/
 .testmondata
 .tmontmp
 app/coverage_html_report/
+
+# Celery beat
+celerybeat-schedule
+celerybeat.pid
