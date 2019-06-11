@@ -111,10 +111,12 @@ class ExperimentFilterset(filters.FilterSet):
 
     search = filters.CharFilter(
         method="filter_search",
-        widget=SearchWidget(attrs={
-            "class": "form-control",
-            "placeholder": "Search Experiments",
-        }),
+        widget=SearchWidget(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Search Experiments",
+            }
+        ),
     )
     type = filters.ChoiceFilter(
         empty_label="All Types",
