@@ -103,14 +103,17 @@ class DateRangeWidget(widgets.DateRangeWidget):
     template_name = "widgets/date_range.html"
 
 
+class SearchWidget(forms.widgets.TextInput):
+    template_name = "widgets/search.html"
+
+
 class ExperimentFilterset(filters.FilterSet):
 
     search = filters.CharFilter(
         method="filter_search",
-        widget=forms.widgets.TextInput(
+        widget=SearchWidget(
             attrs={
                 "class": "form-control",
-                "type": "search",
                 "placeholder": "Search Experiments",
             }
         ),
