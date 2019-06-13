@@ -18,6 +18,9 @@ from django.utils.functional import cached_property
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
 
+from django.contrib.postgres.fields import JSONField
+from django.core.serializers.json import DjangoJSONEncoder
+
 
 class ExperimentManager(models.Manager):
 
@@ -856,6 +859,8 @@ class ExperimentChangeLog(models.Model):
     )
     message = models.TextField(blank=True, null=True)
 
+    old_values = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
+    new_values = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
     objects = ExperimentChangeLogManager()
 
     class Meta:

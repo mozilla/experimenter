@@ -12,6 +12,7 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.experiments.serializers import (
     CountrySerializer,
+    ChangeLogSerializer,
     ExperimentRecipeAddonArgumentsSerializer,
     ExperimentRecipePrefArgumentsSerializer,
     ExperimentRecipeSerializer,
@@ -95,6 +96,28 @@ class TestLocaleSerializer(TestCase):
         serializer = LocaleSerializer(locale)
         self.assertEqual(
             serializer.data, {"code": locale.code, "name": locale.name}
+        )
+
+
+class TestChangeLogSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentFactory.create()
+        serializer = ChangeLogSerializer(experiment)
+
+        self.assertEqual(serializer.data.get("type"), experiment.type)
+        self.assertEqual(serializer.data.get("name"), experiment.name)
+        self.assertEqual(
+            serializer.data.get("analysis_owner"), experiment.analysis_owner
+        )
+        self.assertEqual(
+            serializer.data.get("survey_required"), experiment.survey_required
+        )
+        self.assertEqual(
+            serializer.data.get("client_matching"), experiment.client_matching
+        )
+        self.assertEqual(
+            serializer.data.get("review_qa"), experiment.review_qa
         )
 
 

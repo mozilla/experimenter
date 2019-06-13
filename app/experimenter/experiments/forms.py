@@ -22,6 +22,7 @@ from experimenter.experiments.models import (
     ExperimentChangeLog,
     ExperimentVariant,
 )
+from experimenter.experiments.serializers import ChangeLogSerializer
 from experimenter.notifications.models import Notification
 from experimenter.projects.forms import (
     NameSlugFormMixin,
@@ -66,28 +67,74 @@ class ChangeLogMixin(object):
     def __init__(self, request, *args, **kwargs):
         self.request = request
         super().__init__(*args, **kwargs)
+        self.old_status = self.instance.status
+        if self.instance.id:
+            self.old_values = ChangeLogSerializer(self.instance).data
 
     def get_changelog_message(self):
         return ""
 
     def save(self, *args, **kwargs):
+
         experiment = super().save(*args, **kwargs)
 
+        old_values = {}
+        new_values = {}
         old_status = None
 
+        self.new_data = ChangeLogSerializer(self.instance).data
         latest_change = experiment.changes.latest()
-        if latest_change:
-            old_status = latest_change.new_status
+
+        self.set_variant_change_log_values(
+            old_values, new_values, latest_change
+        )
+
+        if self.changed_data:
+            if latest_change:
+                old_status = latest_change.new_status
+
+                for field in self.changed_data:
+                    if field in self.old_values:
+                        old_values[field] = self.old_values[field]
+
+            else:
+                prev_values = {field: None for field in self.changed_data}
+                old_values.update(prev_values)
+
+            for field in self.changed_data:
+                if field in self.new_data:
+                    new_values[field] = self.new_data[field]
 
         ExperimentChangeLog.objects.create(
             experiment=experiment,
             changed_by=self.request.user,
             old_status=old_status,
             new_status=experiment.status,
+            old_values=old_values,
+            new_values=new_values,
             message=self.get_changelog_message(),
         )
 
         return experiment
+
+    def variants_has_changed(self, old_data, new_data):
+        if old_data and "variants" in old_data:
+            return old_data["variants"] != new_data["variants"]
+        return False
+
+    def set_variant_change_log_values(
+        self, old_values, new_values, latest_change
+    ):
+        if latest_change:
+            if self.variants_has_changed(
+                latest_change.new_values, self.new_data
+            ):
+                old_values["variants"] = latest_change.new_values["variants"]
+                new_values["variants"] = self.new_data["variants"]
+
+        elif self.new_data["variants"]:
+            old_values["variants"] = None
+            new_values["variants"] = self.new_data["variants"]
 
 
 class ExperimentOverviewForm(
@@ -595,6 +642,8 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
     RADIO_OPTIONS = ((False, "No"), (True, "Yes"))
 
     def coerce_truthy(value):
+        if type(value) == bool:
+            return value
         if value.lower() == "true":
             return True
         return False
@@ -652,6 +701,8 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
     RADIO_OPTIONS = ((False, "No"), (True, "Yes"))
 
     def coerce_truthy(value):
+        if type(value) == bool:
+            return value
         if value.lower() == "true":
             return True
         elif value.lower() == "false":
