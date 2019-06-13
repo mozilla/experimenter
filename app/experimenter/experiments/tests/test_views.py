@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 
 import mock
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -771,6 +771,7 @@ class TestExperimentCreateView(TestCase):
         self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
 
+@override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")
 class TestExperimentOverviewUpdateView(TestCase):
 
     def test_view_saves_experiment(self):

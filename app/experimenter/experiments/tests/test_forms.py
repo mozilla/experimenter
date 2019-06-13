@@ -5,7 +5,7 @@ import json
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
@@ -64,6 +64,7 @@ class TestJSONField(TestCase):
             field.clean(invalid_json)
 
 
+@override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")
 class TestBugzillaURLField(TestCase):
 
     def test_accepts_bugzilla_url(self):
@@ -202,6 +203,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         self.assertEqual(change.new_status, new_status)
 
 
+@override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")
 class TestExperimentOverviewForm(MockRequestMixin, TestCase):
 
     def setUp(self):
