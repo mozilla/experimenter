@@ -137,14 +137,8 @@ def create_experiment_bug(experiment):
     if user_exists(experiment.owner.email):
         assigned_to = experiment.owner.email
 
-    data_science_bug_id = get_bugzilla_id(experiment.data_science_bugzilla_url)
-    if bug_exists(data_science_bug_id):
-        see_also = [data_science_bug_id]
-
-    if experiment.feature_bugzilla_url:
-        feature_bug_id = get_bugzilla_id(experiment.feature_bugzilla_url)
-        if bug_exists(feature_bug_id):
-            blocks = [feature_bug_id]
+    see_also = set_bugzilla_id_value(experiment.data_science_bugzilla_url)
+    blocks = set_bugzilla_id_value(experiment.feature_bugzilla_url)
 
     extra_fields = {
         "assigned_to": assigned_to,
@@ -165,3 +159,14 @@ def create_experiment_bug(experiment):
 def get_bugzilla_id(bug_url):
     query = urlparse(bug_url).query
     return int(parse_qs(query)["id"][0])
+
+
+def set_bugzilla_id_value(bug_url):
+    if "show_bug.cgi?id=" in bug_url:
+        try:
+            data_science_bug_id = get_bugzilla_id(bug_url)
+            if bug_exists(data_science_bug_id):
+                return [data_science_bug_id]
+        except ValueError:
+            return None
+    return None

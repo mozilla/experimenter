@@ -68,9 +68,18 @@ class TestBugzillaURLField(TestCase):
 
     def test_accepts_bugzilla_url(self):
         field = BugzillaURLField()
-        bugzilla_url = "{base}/123/".format(base=settings.BUGZILLA_HOST)
+        bugzilla_url = "{base}/show_bug.cgi?id=123".format(
+            base=settings.BUGZILLA_HOST
+        )
         cleaned = field.clean(bugzilla_url)
         self.assertEqual(cleaned, bugzilla_url)
+
+    def test_rejects_non_show_bug_bugzilla_url(self):
+        field = BugzillaURLField()
+        bugzilla_url = "{base}/123".format(base=settings.BUGZILLA_HOST)
+
+        with self.assertRaises(ValidationError):
+            field.clean(bugzilla_url)
 
     def test_rejects_non_bugzilla_url(self):
         field = BugzillaURLField()
@@ -207,6 +216,8 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
     def setUp(self):
         super().setUp()
 
+        bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
+
         self.data = {
             "type": Experiment.TYPE_PREF,
             "owner": self.user.id,
@@ -215,8 +226,8 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "short_description": "Let us learn new things",
             "public_name": "A new public experiment!",
             "public_description": "Let us learn new public things",
-            "data_science_bugzilla_url": "https://bugzilla.mozilla.org/123/",
-            "feature_bugzilla_url": "https://bugzilla.mozilla.org/123/",
+            "data_science_bugzilla_url": bug_url,
+            "feature_bugzilla_url": bug_url,
             "related_work": "Designs: https://www.example.com/myproject/",
             "proposed_start_date": timezone.now().date(),
             "proposed_enrollment": 10,
@@ -224,13 +235,15 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         }
 
     def test_minimum_required_fields(self):
+        bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
+
         data = {
             "type": Experiment.TYPE_PREF,
             "owner": self.user.id,
             "engineering_owner": "Lisa the Engineer",
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
-            "data_science_bugzilla_url": "https://bugzilla.mozilla.org/123/",
+            "data_science_bugzilla_url": bug_url,
         }
         form = ExperimentOverviewForm(request=self.request, data=data)
         self.assertTrue(form.is_valid())
