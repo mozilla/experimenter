@@ -64,6 +64,7 @@ class TestJSONField(TestCase):
             field.clean(invalid_json)
 
 
+@override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")
 class TestBugzillaURLField(TestCase):
 
     def test_accepts_bugzilla_url(self):

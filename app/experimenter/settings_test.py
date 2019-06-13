@@ -17,5 +17,4 @@ EMAIL_SHIP = "testship@example.com"
 EMAIL_SENDER = "sender@example.com"
 EMAIL_RELEASE_DRIVERS = "release.drivers@example.com"
 
-BUGZILLA_HOST = "https://bugzilla.mozilla.org"
 USE_GOOGLE_ANALYTICS = True
