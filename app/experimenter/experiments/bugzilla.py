@@ -158,15 +158,12 @@ def create_experiment_bug(experiment):
 
 def get_bugzilla_id(bug_url):
     query = urlparse(bug_url).query
-    return int(parse_qs(query)["id"][0])
+    bugzilla_id = parse_qs(query).get("id", [""])[0]
+    if bugzilla_id.isnumeric():
+        return int(bugzilla_id)
 
 
 def set_bugzilla_id_value(bug_url):
-    if "show_bug.cgi?id=" in bug_url:
-        try:
-            data_science_bug_id = get_bugzilla_id(bug_url)
-            if bug_exists(data_science_bug_id):
-                return [data_science_bug_id]
-        except ValueError:
-            return None
-    return None
+    data_science_bug_id = get_bugzilla_id(bug_url)
+    if bug_exists(data_science_bug_id):
+        return [data_science_bug_id]

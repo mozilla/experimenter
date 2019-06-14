@@ -26,9 +26,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
 
     def test_get_bugzilla_id_with_bad_bug_id(self):
         bug_url = "https://bugzilla.allizom.org/show_bug.cgi?id=1234ssss"
-        with self.assertRaises(ValueError):
-            self.assertIsNone(set_bugzilla_id_value(bug_url))
-            get_bugzilla_id(bug_url)
+        self.assertIsNone(set_bugzilla_id_value(bug_url))
 
     def test_creating_pref_bugzilla_ticket_returns_ticket_id(self):
         experiment = ExperimentFactory.create_with_status(

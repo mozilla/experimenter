@@ -1,5 +1,4 @@
 import json
-from urllib.parse import urlparse, parse_qs
 
 from django import forms
 from django.conf import settings
@@ -15,6 +14,7 @@ from django.utils.safestring import mark_safe
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments import tasks
+from experimenter.experiments.bugzilla import get_bugzilla_id
 from experimenter.experiments.models import (
     Experiment,
     ExperimentComment,
@@ -49,14 +49,10 @@ class BugzillaURLField(forms.URLField):
 
         if cleaned_value:
             err_str = "Please Provide a Valid URL ex: {}show_bug.cgi?id=1234"
-            if settings.BUGZILLA_HOST not in cleaned_value:
-                raise forms.ValidationError(
-                    err_str.format(settings.BUGZILLA_HOST)
-                )
-            query = urlparse(cleaned_value).query
-            try:
-                int(parse_qs(query)["id"][0])
-            except (KeyError, ValueError):
+            if (
+                settings.BUGZILLA_HOST not in cleaned_value
+                or get_bugzilla_id(cleaned_value) is None
+            ):
                 raise forms.ValidationError(
                     err_str.format(settings.BUGZILLA_HOST)
                 )
