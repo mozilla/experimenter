@@ -30,11 +30,11 @@
     {% include "experiments/radio_field_inline.html" with field=form.risk_data_category %}
 
     {% include "experiments/radio_field_inline.html" with field=form.risk_external_team_impact %}
-    
+
     {% include "experiments/radio_field_inline.html" with field=form.risk_telemetry_data %}
-    
+
     {% include "experiments/radio_field_inline.html" with field=form.risk_ux %}
-    
+
     {% include "experiments/radio_field_inline.html" with field=form.risk_security %}
 
     {% include "experiments/radio_field_inline.html" with field=form.risk_revision %}
@@ -42,7 +42,7 @@
     {% include "experiments/radio_field_inline.html" with field=form.risk_technical %}
 
     <div id="risks_technical_description_field" class="collapse">
-      {% include "experiments/field_inline.html" with field=form.risk_technical_description %}
+      {% include "experiments/field_inline_help_link.html" with field=form.risk_technical_description %}
     </div>
 
     <div id="risks_field" class="collapse">
