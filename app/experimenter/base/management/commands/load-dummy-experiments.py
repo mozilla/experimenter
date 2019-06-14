@@ -1,7 +1,13 @@
+import logging
+import random
+
 from django.core.management.base import BaseCommand
+
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.models import Experiment
-import random
+
+
+logger = logging.getLogger()
 
 
 class Command(BaseCommand):
@@ -27,7 +33,10 @@ class Command(BaseCommand):
                     options["status"], type=random_type
                 )
             else:
-                random_status = random.choice(Experiment.STATUS_CHOICES)[0]
-                ExperimentFactory.create_with_status(
-                    random_status, type=random_type
+                status = Experiment.STATUS_CHOICES[
+                    i % len(Experiment.STATUS_CHOICES)
+                ][0]
+                experiment = ExperimentFactory.create_with_status(
+                    status, type=random_type
                 )
+                logger.info("Created {}: {}".format(experiment, status))
