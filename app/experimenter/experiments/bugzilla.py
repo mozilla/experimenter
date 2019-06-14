@@ -165,5 +165,5 @@ def get_bugzilla_id(bug_url):
 
 def set_bugzilla_id_value(bug_url):
     data_science_bug_id = get_bugzilla_id(bug_url)
-    if bug_exists(data_science_bug_id):
+    if data_science_bug_id and bug_exists(data_science_bug_id):
         return [data_science_bug_id]
