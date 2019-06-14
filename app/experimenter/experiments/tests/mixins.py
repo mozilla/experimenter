@@ -197,6 +197,7 @@ class MockTasksMixin(object):
             mock_tasks_update_experiment_status_patcher.start()
         )
         self.addCleanup(mock_tasks_update_experiment_status_patcher.stop)
+
         mock_tasks_update_bug_resolution_patcher = mock.patch(
             "experimenter.experiments.tasks.update_bug_resolution_task"
         )
