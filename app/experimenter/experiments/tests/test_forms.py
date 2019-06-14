@@ -955,6 +955,18 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("addon_experiment_id", form.errors)
 
+    def test_addon_experiment_id_allows_duplicate_empty_values(self):
+        ExperimentFactory.create(addon_experiment_id="")
+        experiment = ExperimentFactory.create(addon_experiment_id=None)
+
+        self.data["addon_experiment_id"] = ""
+
+        form = ExperimentVariantsAddonForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+
+        self.assertTrue(form.is_valid())
+
 
 class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
 
