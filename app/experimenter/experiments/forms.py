@@ -473,6 +473,7 @@ class ExperimentVariantsAddonForm(ExperimentVariantsBaseForm):
     FORMSET_CLASS = ExperimentVariantsFormSet
 
     addon_experiment_id = forms.CharField(
+        empty_value=None,
         max_length=settings.NORMANDY_SLUG_MAX_LEN,
         required=False,
         label="Active Experiment Name",
