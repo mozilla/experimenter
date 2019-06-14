@@ -232,7 +232,7 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
 
 class TestUpdateBugzillaResolution(MockBugzillaMixin, TestCase):
 
-    def test_bugzilla_resolution(self):
+    def test_bugzilla_resolution_with_archive_true(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             name="An Experiment",
@@ -247,7 +247,14 @@ class TestUpdateBugzillaResolution(MockBugzillaMixin, TestCase):
             {"status": "RESOLVED", "resolution": "WONTFIX"},
         )
 
-        experiment.archived = False
+    def test_bugzilla_resolutation_with_archive_false(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            name="An Experiment",
+            bugzilla_id="123",
+            type=Experiment.TYPE_PREF,
+            archived=False,
+        )
 
         update_bug_resolution(experiment)
 
