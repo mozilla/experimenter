@@ -738,12 +738,13 @@ class TestExperimentCreateView(TestCase):
         user = UserFactory.create()
         user_email = user.email
 
+        bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
         data = {
             "type": Experiment.TYPE_PREF,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
-            "data_science_bugzilla_url": "https://bugzilla.mozilla.org/123/",
-            "feature_bugzilla_url": "https://bugzilla.mozilla.org/123/",
+            "data_science_bugzilla_url": bug_url,
+            "feature_bugzilla_url": bug_url,
             "related_work": "Designs: https://www.example.com/myproject/",
             "proposed_start_date": timezone.now().date(),
             "proposed_enrollment": 10,
@@ -787,12 +788,13 @@ class TestExperimentOverviewUpdateView(TestCase):
         new_enrollment = experiment.proposed_enrollment + 1
         new_duration = experiment.proposed_duration + 1
 
+        bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
         data = {
             "type": Experiment.TYPE_PREF,
             "name": "A new name!",
             "short_description": "A new description!",
-            "data_science_bugzilla_url": "https://bugzilla.mozilla.org/123/",
-            "feature_bugzilla_url": "https://bugzilla.mozilla.org/123/",
+            "data_science_bugzilla_url": bug_url,
+            "feature_bugzilla_url": bug_url,
             "related_work": "Designs: https://www.example.com/myproject/",
             "proposed_start_date": new_start_date,
             "proposed_enrollment": new_enrollment,
