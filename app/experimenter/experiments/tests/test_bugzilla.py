@@ -10,12 +10,23 @@ from experimenter.experiments.bugzilla import (
     format_bug_body,
     make_bugzilla_call,
     update_experiment_bug,
+    get_bugzilla_id,
+    set_bugzilla_id_value,
 )
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.mixins import MockBugzillaMixin
 
 
 class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
+
+    def test_get_bugzilla_id_with_valid_bug_id(self):
+        bug_url = "https://bugzilla.allizom.org/show_bug.cgi?id=1234"
+        bug_id = get_bugzilla_id(bug_url)
+        self.assertEqual(bug_id, 1234)
+
+    def test_get_bugzilla_id_with_bad_bug_id(self):
+        bug_url = "https://bugzilla.allizom.org/show_bug.cgi?id=1234ssss"
+        self.assertIsNone(set_bugzilla_id_value(bug_url))
 
     def test_creating_pref_bugzilla_ticket_returns_ticket_id(self):
         experiment = ExperimentFactory.create_with_status(
@@ -40,29 +51,30 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
                 "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
                     experiment=experiment
                 ),
-                "assigned_to": experiment.owner.email,
                 "cc": settings.BUGZILLA_CC_LIST,
                 "type": "task",
                 "priority": "P3",
+                "assigned_to": experiment.owner.email,
                 "see_also": [12345],
                 "blocks": [12345],
                 "url": experiment.experiment_url,
-                "whiteboard": experiment.STATUS_REVIEW_LABEL,
-                experiment.bugzilla_tracking_key: "?",
             },
         )
 
-    def test_create_bugzilla_ticket_retries_with_no_assignee(self):
+    def test_create_bugzilla_ticket_creation_with_bad_assigned_to_val(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, name="An Experiment"
         )
 
-        self.setUpMockBugzillaInvalidUser()
+        self.mock_bugzilla_requests_get.side_effect = [
+            self.buildMockFailureResponse(),
+            self.buildMockSuccessBugResponse(),
+            self.buildMockSuccessBugResponse(),
+        ]
 
         response_data = create_experiment_bug(experiment)
 
         self.assertEqual(response_data, self.bugzilla_id)
-        self.assertEqual(self.mock_bugzilla_requests_post.call_count, 2)
 
         expected_call_data = {
             "product": "Shield",
@@ -74,37 +86,33 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
                 experiment=experiment
             ),
-            "assigned_to": experiment.owner.email,
             "cc": settings.BUGZILLA_CC_LIST,
             "type": "task",
             "priority": "P3",
+            "assigned_to": None,
             "see_also": [12345],
             "blocks": [12345],
             "url": experiment.experiment_url,
-            "whiteboard": experiment.STATUS_REVIEW_LABEL,
-            experiment.bugzilla_tracking_key: "?",
         }
 
-        self.mock_bugzilla_requests_post.assert_any_call(
+        self.mock_bugzilla_requests_post.assert_called_with(
             settings.BUGZILLA_CREATE_URL, expected_call_data
         )
 
-        del expected_call_data["assigned_to"]
-
-        self.mock_bugzilla_requests_post.assert_any_call(
-            settings.BUGZILLA_CREATE_URL, expected_call_data
-        )
-
-    def test_create_bugzilla_ticket_retries_with_no_cf_tracking(self):
+    def test_create_bugzilla_ticket_creation_with_see_also_bad_val(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, name="An Experiment"
         )
-        self.setUpMockBugzillaInvalidFirefoxVersion()
 
-        bugzilla_id = create_experiment_bug(experiment)
+        self.mock_bugzilla_requests_get.side_effect = [
+            self.buildMockSuccessUserResponse(),
+            self.buildMockFailureResponse(),
+            self.buildMockSuccessBugResponse(),
+        ]
 
-        self.assertEqual(bugzilla_id, self.bugzilla_id)
-        self.assertEqual(self.mock_bugzilla_requests_post.call_count, 2)
+        response_data = create_experiment_bug(experiment)
+
+        self.assertEqual(response_data, self.bugzilla_id)
 
         expected_call_data = {
             "product": "Shield",
@@ -120,13 +128,50 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "cc": settings.BUGZILLA_CC_LIST,
             "type": "task",
             "priority": "P3",
-            "see_also": [12345],
-            "blocks": [12345],
             "url": experiment.experiment_url,
-            "whiteboard": experiment.STATUS_REVIEW_LABEL,
+            "see_also": None,
+            "blocks": [12345],
         }
 
-        self.mock_bugzilla_requests_post.assert_any_call(
+        self.mock_bugzilla_requests_post.assert_called_with(
+            settings.BUGZILLA_CREATE_URL, expected_call_data
+        )
+
+    def test_create_bugzilla_ticket_creation_with_blocks_bad_val(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, name="An Experiment"
+        )
+
+        self.mock_bugzilla_requests_get.side_effect = [
+            self.buildMockSuccessUserResponse(),
+            self.buildMockSuccessBugResponse(),
+            self.buildMockFailureResponse(),
+        ]
+
+        response_data = create_experiment_bug(experiment)
+
+        self.assertEqual(response_data, self.bugzilla_id)
+
+        expected_call_data = {
+            "product": "Shield",
+            "component": "Shield Study",
+            "version": "unspecified",
+            "summary": "[Experiment]: {experiment}".format(
+                experiment=experiment
+            ),
+            "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
+                experiment=experiment
+            ),
+            "assigned_to": experiment.owner.email,
+            "cc": settings.BUGZILLA_CC_LIST,
+            "type": "task",
+            "priority": "P3",
+            "url": experiment.experiment_url,
+            "see_also": [12345],
+            "blocks": None,
+        }
+
+        self.mock_bugzilla_requests_post.assert_called_with(
             settings.BUGZILLA_CREATE_URL, expected_call_data
         )
 
@@ -159,11 +204,7 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
 
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
-            {
-                "summary": summary,
-                "cf_user_story": format_bug_body(experiment),
-                "whiteboard": experiment.STATUS_SHIP_LABEL,
-            },
+            {"summary": summary, "cf_user_story": format_bug_body(experiment)},
         )
 
     def test_update_bugzilla_addon_experiment(self):
@@ -184,11 +225,7 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
 
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
-            {
-                "summary": summary,
-                "cf_user_story": format_bug_body(experiment),
-                "whiteboard": experiment.STATUS_SHIP_LABEL,
-            },
+            {"summary": summary, "cf_user_story": format_bug_body(experiment)},
         )
 
 
@@ -205,14 +242,14 @@ class TestMakeBugzillaCall(MockBugzillaMixin, TestCase):
         mock_response.status_code = 400
         self.mock_bugzilla_requests_post.return_value = mock_response
 
-        response_data = make_bugzilla_call("/url/", {}, method=requests.post)
+        response_data = make_bugzilla_call("/url/", requests.post, data={})
         self.assertEqual(response_data, mock_response_data)
 
     def test_json_parse_error_raises_bugzilla_error(self):
         self.mock_bugzilla_requests_post.side_effect = ValueError()
 
         with self.assertRaises(BugzillaError):
-            make_bugzilla_call("/url/", {}, method=requests.post)
+            make_bugzilla_call("/url/", requests.post, data={})
 
 
 class TestMakePutBugzillaCall(MockBugzillaMixin, TestCase):
@@ -225,10 +262,10 @@ class TestMakePutBugzillaCall(MockBugzillaMixin, TestCase):
         mock_response.status_code = 400
         self.mock_bugzilla_requests_put.return_value = mock_response
 
-        response_data = make_bugzilla_call("/url/", {}, method=requests.put)
+        response_data = make_bugzilla_call("/url/", requests.put, data={})
         self.assertEqual(response_data, mock_response_data)
 
     def test_json_parse_error_raises_bugzilla_error(self):
         self.mock_bugzilla_requests_put.side_effect = ValueError()
         with self.assertRaises(BugzillaError):
-            make_bugzilla_call("/url/", {}, method=requests.put)
+            make_bugzilla_call("/url/", requests.put, data={})

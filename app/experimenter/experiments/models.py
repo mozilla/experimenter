@@ -284,17 +284,6 @@ class Experiment(ExperimentConstants, models.Model):
             return settings.BUGZILLA_DETAIL_URL.format(id=self.bugzilla_id)
 
     @property
-    def bugzilla_tracking_key(self):
-        if self.get_firefox_major_version:
-            return "cf_tracking_firefox{}".format(
-                self.get_firefox_major_version()
-            )
-
-    def get_firefox_major_version(self):
-        if self.firefox_version:
-            return self.firefox_version.split(".")[0]
-
-    @property
     def monitoring_dashboard_url(self):
 
         def to_timestamp(date):

@@ -67,24 +67,41 @@ def format_update_body(experiment):
         version=experiment.firefox_version,
         channel=experiment.firefox_channel,
     )
-    return {
-        "summary": summary,
-        "cf_user_story": format_bug_body(experiment),
-        "whiteboard": experiment.STATUS_SHIP_LABEL,
-    }
+    return {"summary": summary, "cf_user_story": format_bug_body(experiment)}
 
 
 def update_experiment_bug(experiment):
     body = format_update_body(experiment)
     make_bugzilla_call(
         settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
-        body,
-        method=requests.put,
+        requests.put,
+        data=body,
     )
 
 
-def make_bugzilla_call(url, data, method):
+def user_exists(user):
+    try:
+        response = make_bugzilla_call(
+            settings.BUGZILLA_USER_URL.format(email=user), requests.get
+        )
+        users = response["users"]
+        return len(users) == 1
+    except (BugzillaError, KeyError):
+        return False
 
+
+def bug_exists(bug_id):
+    try:
+        response = make_bugzilla_call(
+            settings.BUGZILLA_BUG_URL.format(bug_id=bug_id), requests.get
+        )
+        bugs = response["bugs"]
+        return len(bugs) == 1
+    except (BugzillaError, KeyError):
+        return False
+
+
+def make_bugzilla_call(url, method, data=None):
     try:
         response = method(url, data)
         return response.json()
@@ -96,7 +113,7 @@ def make_bugzilla_call(url, data, method):
         raise BugzillaError(*e.args)
 
 
-def format_creation_bug_body(experiment):
+def format_creation_bug_body(experiment, extra_fields):
     bug_data = {
         "product": "Shield",
         "component": "Shield Study",
@@ -105,54 +122,34 @@ def format_creation_bug_body(experiment):
         "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
             experiment=experiment
         ),
-        "assigned_to": experiment.owner.email,
         "cc": settings.BUGZILLA_CC_LIST,
         "type": "task",
         "priority": "P3",
-        "see_also": [get_bugzilla_id(experiment.data_science_bugzilla_url)],
         "url": experiment.experiment_url,
-        "whiteboard": experiment.STATUS_REVIEW_LABEL,
     }
-    if experiment.bugzilla_tracking_key:
-        bug_data[experiment.bugzilla_tracking_key] = "?"
-
-    if experiment.feature_bugzilla_url:
-        bug_id = get_bugzilla_id(experiment.feature_bugzilla_url)
-        bug_data["blocks"] = [bug_id]
+    bug_data.update(extra_fields)
     return bug_data
 
 
 def create_experiment_bug(experiment):
+    assigned_to, see_also, blocks = None, None, None
 
-    bug_data = format_creation_bug_body(experiment)
+    if user_exists(experiment.owner.email):
+        assigned_to = experiment.owner.email
+
+    see_also = set_bugzilla_id_value(experiment.data_science_bugzilla_url)
+    blocks = set_bugzilla_id_value(experiment.feature_bugzilla_url)
+
+    extra_fields = {
+        "assigned_to": assigned_to,
+        "see_also": see_also,
+        "blocks": blocks,
+    }
+
+    bug_data = format_creation_bug_body(experiment, extra_fields)
     response_data = make_bugzilla_call(
-        settings.BUGZILLA_CREATE_URL, bug_data, method=requests.post
+        settings.BUGZILLA_CREATE_URL, requests.post, data=bug_data
     )
-
-    # The experiment owner might not exist in bugzilla
-    # in which case we try to create it again with no assignee
-    if response_data.get("code", None) == INVALID_USER_ERROR_CODE:
-        bug_data = bug_data.copy()
-        del bug_data["assigned_to"]
-        response_data = make_bugzilla_call(
-            settings.BUGZILLA_CREATE_URL, bug_data, method=requests.post
-        )
-
-    # Firefox Version given might not be an available
-    # bugzilla tracking parameter, so remove and retry
-    invalid_param_err_code = (
-        response_data.get("code", None) == INVALID_PARAMETER_ERROR_CODE
-    )
-    if invalid_param_err_code:
-        tracking_msg = "cf_tracking_firefox" in response_data.get(
-            "message", None
-        )
-        if tracking_msg:
-            bug_data = bug_data.copy()
-            del bug_data[experiment.bugzilla_tracking_key]
-            response_data = make_bugzilla_call(
-                settings.BUGZILLA_CREATE_URL, bug_data, method=requests.post
-            )
 
     if "id" not in response_data:
         raise BugzillaError(response_data["message"])
@@ -161,4 +158,12 @@ def create_experiment_bug(experiment):
 
 def get_bugzilla_id(bug_url):
     query = urlparse(bug_url).query
-    return int(parse_qs(query)["id"][0])
+    bugzilla_id = parse_qs(query).get("id", [""])[0]
+    if bugzilla_id.isnumeric():
+        return int(bugzilla_id)
+
+
+def set_bugzilla_id_value(bug_url):
+    data_science_bug_id = get_bugzilla_id(bug_url)
+    if data_science_bug_id and bug_exists(data_science_bug_id):
+        return [data_science_bug_id]

@@ -215,13 +215,13 @@ class TestExperimentModel(TestCase):
         self
     ):
         experiment = ExperimentFactory.create(
-            data_science_bugzilla_url="www.bugzilla.com/123/"
+            data_science_bugzilla_url="www.bugzilla.com/show_bug.cgi?id=123/"
         )
         self.assertTrue(experiment.has_external_urls)
 
     def test_has_external_urls_is_true_when_feature_bugzilla_url_is_set(self):
         experiment = ExperimentFactory.create(
-            feature_bugzilla_url="www.bugzilla.com/123/"
+            feature_bugzilla_url="www.bugzilla.com/show_bug.cgi?id=123/"
         )
         self.assertTrue(experiment.has_external_urls)
 

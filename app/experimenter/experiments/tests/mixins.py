@@ -99,6 +99,37 @@ class MockBugzillaMixin(object):
             self.buildMockSuccessResponse()
         )
 
+        mock_bugzilla_requests_get_patcher = mock.patch(
+            "experimenter.experiments.bugzilla.requests.get"
+        )
+
+        self.mock_bugzilla_requests_get = (
+            mock_bugzilla_requests_get_patcher.start()
+        )
+        self.addCleanup(mock_bugzilla_requests_get_patcher.stop)
+        responses = [
+            self.buildMockSuccessUserResponse(),
+            self.buildMockSuccessBugResponse(),
+            self.buildMockSuccessBugResponse(),
+        ]
+        self.mock_bugzilla_requests_get.side_effect = responses
+
+    def buildMockSuccessUserResponse(self, *args):
+        mock_response_data = {"users": [{"email": "dev@example.com"}]}
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.status_code = 200
+        return mock_response
+
+    def buildMockSuccessBugResponse(self):
+        mock_response_data = {"bugs": [{"id": 1234}]}
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.status_code = 200
+        return mock_response
+
     def buildMockSuccessResponse(self):
         mock_response_data = {"id": self.bugzilla_id}
         mock_response = mock.Mock()
@@ -122,40 +153,6 @@ class MockBugzillaMixin(object):
         mock_response.json.return_value = mock_response_data
         mock_response.status_code = 400
         self.mock_bugzilla_requests_post.return_value = mock_response
-
-    def setUpMockBugzillaInvalidUser(self):
-
-        def mock_reject_assignee(url, bug_data):
-            if "assigned_to" in bug_data:
-                return self.buildMockFailureResponse()
-            else:
-                return self.buildMockSuccessResponse()
-
-        self.mock_bugzilla_requests_post.side_effect = mock_reject_assignee
-
-    def buildMockFailureFirefoxVersionResponse(self):
-        mock_response_data = {
-            "code": bugzilla.INVALID_PARAMETER_ERROR_CODE,
-            "message": "cf_tracking_firefoxXX is not a valid parameter",
-        }
-        mock_response = mock.Mock()
-        mock_response = mock.Mock()
-        mock_response.json = mock.Mock()
-        mock_response.json.return_value = mock_response_data
-        mock_response.status_code = 400
-        return mock_response
-
-    def setUpMockBugzillaInvalidFirefoxVersion(self):
-
-        def mock_reject_firefox_version(url, bug_data):
-            if any("cf_tracking" in data_keys for data_keys in bug_data):
-                return self.buildMockFailureFirefoxVersionResponse()
-            else:
-                return self.buildMockSuccessResponse()
-
-        self.mock_bugzilla_requests_post.side_effect = (
-            mock_reject_firefox_version
-        )
 
 
 class MockRequestMixin(object):
