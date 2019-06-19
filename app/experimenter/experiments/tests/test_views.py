@@ -1277,7 +1277,7 @@ class TestExperimentCommentCreateView(TestCase):
         )
 
 
-class TestExperimentArchiveUpdateView(TestCase):
+class TestExperimentArchiveUpdateView(MockTasksMixin, TestCase):
 
     def test_view_flips_archive_bool_and_redirects(self):
         user_email = "user@example.com"
@@ -1297,6 +1297,10 @@ class TestExperimentArchiveUpdateView(TestCase):
         )
 
         experiment = Experiment.objects.get(id=experiment.id)
+
+        self.assertTrue(
+            self.mock_tasks_update_bug_resolution.delay.assert_called_once
+        )
         self.assertTrue(experiment.archived)
 
 

@@ -35,6 +35,15 @@ STATUS_UPDATE_MAPPING = {
     Experiment.STATUS_ACCEPTED: Experiment.STATUS_LIVE,
     Experiment.STATUS_LIVE: Experiment.STATUS_COMPLETE,
 }
+NOTIFICATION_MESSAGE_ARCHIVE_COMMENT = (
+    'The <a target="_blank" rel="noreferrer noopener" href="{bug_url}">'
+    "Ticket</a> has updated its resolution and status"
+)
+
+NOTIFICATION_MESSAGE_ARCHIVE_ERROR_MESSAGE = (
+    'The <a target="_blank" rel="noreferrer noopener" href="{bug_url}">'
+    "Ticket</a> was UNABLE to update its resolution and status"
+)
 
 
 @app.task
@@ -175,3 +184,43 @@ def needs_to_be_updated(enabled, status):
     accepted_update = enabled and status == Experiment.STATUS_ACCEPTED
     live_update = not enabled and status == Experiment.STATUS_LIVE
     return accepted_update or live_update
+
+
+@app.task
+@metrics.timer_decorator("update_bug_resolution.timing")
+def update_bug_resolution_task(user_id, experiment_id):
+    metrics.incr("update_bug_resolution.started")
+    experiment = Experiment.objects.get(id=experiment_id)
+
+    if (
+        experiment.status == experiment.STATUS_COMPLETE
+        or experiment.bugzilla_id is None
+    ):
+        logger.info(
+            "Skipping update either experiment complete or no bugzilla ticket"
+        )
+        return
+
+    logger.info("Updating Bugzilla Resolution")
+
+    try:
+        bugzilla.update_bug_resolution(experiment)
+        logger.info("Bugzilla resolution updated")
+        Notification.objects.create(
+            user_id=user_id,
+            message=NOTIFICATION_MESSAGE_ARCHIVE_COMMENT.format(
+                bug_url=experiment.bugzilla_url
+            ),
+        )
+        metrics.incr("update_bug_resolution.completed")
+        logger.info("Bugzilla resolution update sent")
+    except bugzilla.BugzillaError as e:
+        metrics.incr("update_bug_resolution.failed")
+        logger.info("Failed to update resolution of bugzilla ticket")
+        Notification.objects.create(
+            user_id=user_id,
+            message=NOTIFICATION_MESSAGE_ARCHIVE_ERROR_MESSAGE.format(
+                bug_url=experiment.bugzilla_url
+            ),
+        )
+        raise e
