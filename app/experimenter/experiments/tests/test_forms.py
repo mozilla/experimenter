@@ -1600,17 +1600,21 @@ class TestExperimentCommentForm(MockRequestMixin, TestCase):
         self.assertIn("text", form.errors)
 
 
-class TestExperimentArchiveForm(MockRequestMixin, TestCase):
+class TestExperimentArchiveForm(MockRequestMixin, MockTasksMixin, TestCase):
 
     def test_form_flips_archive_bool(self):
+
         experiment = ExperimentFactory.create(archived=False)
 
         form = ExperimentArchiveForm(
             self.request, instance=experiment, data={}
         )
         self.assertTrue(form.is_valid())
-
         experiment = form.save()
+
+        self.assertEqual(
+            self.mock_tasks_update_bug_resolution.delay.call_count, 1
+        )
         self.assertTrue(experiment.archived)
 
         form = ExperimentArchiveForm(
@@ -1619,6 +1623,9 @@ class TestExperimentArchiveForm(MockRequestMixin, TestCase):
         self.assertTrue(form.is_valid())
 
         experiment = form.save()
+        self.assertEqual(
+            self.mock_tasks_update_bug_resolution.delay.call_count, 2
+        )
         self.assertFalse(experiment.archived)
 
 

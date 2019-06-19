@@ -90,6 +90,13 @@ def user_exists(user):
         return False
 
 
+def format_resolution_body(experiment):
+    if experiment.archived:
+        return {"status": "RESOLVED", "resolution": "WONTFIX"}
+    else:
+        return {"status": "REOPENED"}
+
+
 def bug_exists(bug_id):
     try:
         response = make_bugzilla_call(
@@ -99,6 +106,16 @@ def bug_exists(bug_id):
         return len(bugs) == 1
     except (BugzillaError, KeyError):
         return False
+
+
+def update_bug_resolution(experiment):
+    if experiment.bugzilla_id:
+        status_body = format_resolution_body(experiment)
+        make_bugzilla_call(
+            settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
+            requests.put,
+            status_body,
+        )
 
 
 def make_bugzilla_call(url, method, data=None):

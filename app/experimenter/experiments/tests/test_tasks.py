@@ -517,3 +517,63 @@ class TestUpdateExperimentStatus(
                 new_status=Experiment.STATUS_LIVE,
             ).exists()
         )
+
+
+class TestUpdateResolutionTask(MockRequestMixin, MockBugzillaMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        self.experiment.bugzilla_id = self.bugzilla_id
+        self.experiment.save()
+
+    def test_experiment_bug_resolution_successfully_updated(self):
+        self.assertEqual(Notification.objects.count(), 0)
+
+        tasks.update_bug_resolution_task(self.user.id, self.experiment.id)
+
+        self.mock_bugzilla_requests_put.assert_called()
+
+        notification = Notification.objects.get()
+        self.assertEqual(notification.user, self.user)
+        self.assertEqual(
+            notification.message,
+            tasks.NOTIFICATION_MESSAGE_ARCHIVE_COMMENT.format(
+                bug_url=self.experiment.bugzilla_url
+            ),
+        )
+
+    def test_no_request_call_when_no_bug_id(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP, risk_internal_only=True
+        )
+        experiment.bugzilla_id = None
+        experiment.save()
+
+        tasks.update_bug_resolution_task(self.user.id, experiment.id)
+
+        self.mock_bugzilla_requests_put.assert_not_called()
+
+        self.assertEqual(Notification.objects.count(), 0)
+
+    def test_bugzilla_error_create_notifications(self):
+        self.assertEqual(Notification.objects.count(), 0)
+
+        self.mock_bugzilla_requests_put.side_effect = RequestException()
+
+        with self.assertRaises(bugzilla.BugzillaError):
+
+            tasks.update_bug_resolution_task(self.user.id, self.experiment.id)
+
+            self.mock_bugzilla_requests_put.side_effect = RequestException()
+            self.mock_bugzilla_requests_put.assert_called()
+            self.assertEqual(Notification.objects.count(), 1)
+            message = tasks.NOTIFICATION_MESSAGE_ARCHIVE_ERROR_MESSAGE.format(
+                bug_url=self.experiment.bugzilla_url
+            )
+            self.assertEqual(
+                Notification.objects.filters(message=message).exists()
+            )
