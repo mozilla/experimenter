@@ -227,10 +227,10 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             FilterObjectChannelSerializer(obj).data,
         ]
 
-        if obj.locales:
+        if obj.locales.count():
             filter_objects.append(FilterObjectLocaleSerializer(obj).data)
 
-        if obj.countries:
+        if obj.countries.count():
             filter_objects.append(FilterObjectCountrySerializer(obj).data)
 
         return filter_objects
