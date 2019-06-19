@@ -88,11 +88,14 @@ def user_exists(user):
         return len(users) == 1
     except (BugzillaError, KeyError):
         return False
+
+
 def format_resolution_body(experiment):
     if experiment.archived:
         return {"status": "RESOLVED", "resolution": "WONTFIX"}
     else:
         return {"status": "REOPENED"}
+
 
 def bug_exists(bug_id):
     try:
