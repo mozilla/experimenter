@@ -292,7 +292,10 @@ class TestExperimentRecipeSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema_for_pref_experiment(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP, type=Experiment.TYPE_PREF
+            Experiment.STATUS_SHIP,
+            type=Experiment.TYPE_PREF,
+            locales=[LocaleFactory.create()],
+            countries=[CountryFactory.create()],
         )
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(
@@ -318,7 +321,10 @@ class TestExperimentRecipeSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema_for_addon_experiment(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP, type=Experiment.TYPE_ADDON
+            Experiment.STATUS_SHIP,
+            type=Experiment.TYPE_ADDON,
+            locales=[LocaleFactory.create()],
+            countries=[CountryFactory.create()],
         )
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "opt-out-study")
@@ -339,6 +345,28 @@ class TestExperimentRecipeSerializer(TestCase):
             serializer.data["arguments"],
             ExperimentRecipeAddonArgumentsSerializer(experiment).data,
         )
+
+    def test_serializer_excludes_locales_if_none_set(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP, type=Experiment.TYPE_ADDON
+        )
+        experiment.locales.all().delete()
+        serializer = ExperimentRecipeSerializer(experiment)
+        filter_object_types = [
+            f["type"] for f in serializer.data["filter_object"]
+        ]
+        self.assertNotIn("locale", filter_object_types)
+
+    def test_serializer_excludes_countries_if_none_set(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP, type=Experiment.TYPE_ADDON
+        )
+        experiment.countries.all().delete()
+        serializer = ExperimentRecipeSerializer(experiment)
+        filter_object_types = [
+            f["type"] for f in serializer.data["filter_object"]
+        ]
+        self.assertNotIn("country", filter_object_types)
 
 
 class TestCloneSerializer(MockRequestMixin, TestCase):
