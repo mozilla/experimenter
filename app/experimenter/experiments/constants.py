@@ -442,6 +442,9 @@ class ExperimentConstants(object):
     ADDON_RELEASE_URL_HELP_TEXT = """
       <p>
         Enter the URL where the release build of your add-on can be found.
+        This is often attached to a bugzilla ticket.
+        This MUST BE the release signed add-on (not the test add-on)
+        that you want deployed.
         <a target="_blank" rel="noreferrer noopener" href="{url}">
         See here for more info.</a>
       </p>
