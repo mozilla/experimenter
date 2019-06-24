@@ -296,6 +296,20 @@ class TestExperimentModel(TestCase):
             "pref-experiment-slug-nightly-57.0-59.0-bug-12345",
         )
 
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_PREF,
+            slug="experiment-slug-other",
+            firefox_min_version="57.0",
+            firefox_max_version="",
+            firefox_channel="Nightly",
+            bugzilla_id="12345",
+        )
+
+        self.assertEqual(
+            experiment.generate_normandy_slug(),
+            "pref-experiment-slug-other-nightly-57.0-bug-12345",
+        )
+
     def test_generate_normandy_slug_raises_valueerror_without_addon_info(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_ADDON, addon_experiment_id=None

@@ -336,12 +336,11 @@ class Experiment(ExperimentConstants, models.Model):
         if not self.bugzilla_id:
             raise ValueError(error_msg.format(field="Bugzilla ID"))
 
+        version_string = self.firefox_min_version
         if self.firefox_max_version:
             version_string = (
                 f"{self.firefox_min_version}-{self.firefox_max_version}"
             )
-        else:
-            version_string = self.firefox_min_version
 
         slug_prefix = f"{self.type}-"
         slug_postfix = (
