@@ -292,12 +292,12 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
         self.assertEqual(notification.user, self.user)
         self.assertEqual(
             notification.message,
-            tasks.NOTIFICATION_MESSAGE_ADD_COMMENT.format(
+            tasks.NOTIFICATION_MESSAGE_UPDATE_BUG.format(
                 bug_url=self.experiment.bugzilla_url
             ),
         )
 
-    def test_bugzilla_error_doesnt_create_notifications(self):
+    def test_bugzilla_error_creates_notifications(self):
         self.assertEqual(Notification.objects.count(), 0)
 
         self.mock_bugzilla_requests_put.side_effect = RequestException()
@@ -329,8 +329,15 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
                         "experiments.tasks.update_experiment_bug.completed",
                     )
                 )
+
         self.mock_bugzilla_requests_put.assert_called()
-        self.assertEqual(Notification.objects.count(), 0)
+        self.assertEqual(Notification.objects.count(), 1)
+
+        notification = Notification.objects.get()
+        self.assertEqual(notification.user, self.user)
+        self.assertEqual(
+            notification.message, tasks.NOTIFICATION_MESSAGE_UPDATE_BUG_FAILED
+        )
 
     def test_internal_only_does_not_update_bugzilla(self):
         experiment = ExperimentFactory.create_with_status(

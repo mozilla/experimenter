@@ -25,10 +25,15 @@ NOTIFICATION_MESSAGE_CREATE_BUG_FAILED = (
     "for your experiment.  Please contact an Experimenter "
     "Administrator on #ask-experimenter on Slack."
 )
-NOTIFICATION_MESSAGE_ADD_COMMENT = (
+NOTIFICATION_MESSAGE_UPDATE_BUG = (
     'The <a target="_blank" rel="noreferrer noopener" href="{bug_url}">'
     "Ticket</a> was updated with the details "
     "of this experiment"
+)
+NOTIFICATION_MESSAGE_UPDATE_BUG_FAILED = (
+    "Experimenter failed to update the Bugzilla Ticket "
+    "for your experiment.  Please contact an Experimenter "
+    "Administrator on #ask-experimenter on Slack."
 )
 
 STATUS_UPDATE_MAPPING = {
@@ -117,13 +122,16 @@ def update_experiment_bug_task(user_id, experiment_id):
         logger.info("Bugzilla Ticket updated")
         Notification.objects.create(
             user_id=user_id,
-            message=NOTIFICATION_MESSAGE_ADD_COMMENT.format(
+            message=NOTIFICATION_MESSAGE_UPDATE_BUG.format(
                 bug_url=experiment.bugzilla_url
             ),
         )
         metrics.incr("update_experiment_bug.completed")
         logger.info("Bugzilla Update notification sent")
     except bugzilla.BugzillaError as e:
+        Notification.objects.create(
+            user_id=user_id, message=NOTIFICATION_MESSAGE_UPDATE_BUG_FAILED
+        )
         metrics.incr("update_experiment_bug.failed")
         logger.info("Failed bugzilla update")
         raise e
