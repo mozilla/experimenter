@@ -47,11 +47,12 @@ def send_intent_to_ship_email(experiment_id):
     # Strip extra newlines from autoescape tag
     content = content.strip() + "\n"
 
-    version = experiment.firefox_version
     channel = experiment.firefox_channel
     email = EmailMessage(
         Experiment.INTENT_TO_SHIP_EMAIL_SUBJECT.format(
-            name=experiment.name, version=version, channel=channel
+            name=experiment.name,
+            version=experiment.format_firefox_versions,
+            channel=channel,
         ),
         content,
         settings.EMAIL_SENDER,

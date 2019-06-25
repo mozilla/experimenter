@@ -2,6 +2,7 @@ import django_filters as filters
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, UpdateView
@@ -36,6 +37,7 @@ class ExperimentFiltersetForm(forms.ModelForm):
     surveys = forms.BooleanField(required=False)
     search = forms.CharField(required=False)
     subscribed = forms.BooleanField(required=False)
+    firefox_version = forms.CharField(required=False)
 
     class Meta:
         model = Experiment
@@ -137,6 +139,7 @@ class ExperimentFilterset(filters.FilterSet):
         empty_label="All Versions",
         choices=Experiment.VERSION_CHOICES[1:],
         widget=forms.Select(attrs={"class": "form-control"}),
+        method="version_filter",
     )
     project = filters.ModelChoiceFilter(
         empty_label="All Projects",
@@ -225,6 +228,13 @@ class ExperimentFilterset(filters.FilterSet):
         # filter that controls which date range we show
         return queryset
 
+    def version_filter(self, queryset, name, value):
+
+        return queryset.filter(
+            Q(firefox_min_version__lte=value, firefox_max_version__gte=value)
+            | Q(firefox_min_version=value)
+        )
+
     def date_range_filter(self, queryset, name, value):
 
         date_type = self.form.cleaned_data["experiment_date_field"]
@@ -274,8 +284,8 @@ class ExperimentOrderingForm(forms.Form):
     ORDERING_CHOICES = (
         ("-latest_change", "Most Recently Updated"),
         ("latest_change", "Least Recently Updated"),
-        ("firefox_version", "Firefox Version Ascending"),
-        ("-firefox_version", "Firefox Version Descending"),
+        ("firefox_min_version", "Firefox Min Version Ascending"),
+        ("-firefox_min_version", "Firefox Min Version Descending"),
         ("firefox_channel_sort", "Firefox Channel Ascending"),
         ("-firefox_channel_sort", "Firefox Channel Descending"),
     )

@@ -64,7 +64,7 @@ def format_bug_body(experiment):
 def format_update_body(experiment):
     summary = "[Experiment] {experiment_name} Fx {version} {channel}".format(
         experiment_name=experiment,
-        version=experiment.firefox_version,
+        version=experiment.format_firefox_versions,
         channel=experiment.firefox_channel,
     )
     return {"summary": summary, "cf_user_story": format_bug_body(experiment)}

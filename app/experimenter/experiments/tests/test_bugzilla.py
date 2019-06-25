@@ -33,7 +33,8 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             name="An Experiment",
-            firefox_version="56.0",
+            firefox_min_version="56.0",
+            firefox_max_version="57.0",
         )
 
         response_data = create_experiment_bug(experiment)
@@ -192,16 +193,13 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
             name="An Experiment",
             bugzilla_id="123",
             type=Experiment.TYPE_PREF,
-            firefox_version="55.0",
+            firefox_min_version="55.0",
+            firefox_max_version="56.0",
             firefox_channel="Beta",
         )
 
         update_experiment_bug(experiment)
-        summary = "[Experiment] Pref-Flip: An Experiment Fx 55.0 Beta".format(
-            exp_name=experiment,
-            version=experiment.firefox_version,
-            channel=experiment.firefox_channel,
-        )
+        summary = "[Experiment] Pref-Flip: An Experiment Fx 55.0 to 56.0 Beta"
 
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
@@ -214,15 +212,12 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
             name="An Experiment",
             bugzilla_id="123",
             type=Experiment.TYPE_ADDON,
-            firefox_version="56.0",
+            firefox_min_version="56.0",
+            firefox_max_version="",
             firefox_channel="Nightly",
         )
         update_experiment_bug(experiment)
-        summary = "[Experiment] Add-On: An Experiment Fx 56.0 Nightly".format(
-            exp_name=experiment,
-            version=experiment.firefox_version,
-            channel=experiment.firefox_channel,
-        )
+        summary = "[Experiment] Add-On: An Experiment Fx 56.0 Nightly"
 
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),

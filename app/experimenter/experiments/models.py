@@ -116,8 +116,14 @@ class Experiment(ExperimentConstants, models.Model):
     population_percent = models.DecimalField(
         max_digits=7, decimal_places=4, default=0.0
     )
-    firefox_version = models.CharField(
+    firefox_min_version = models.CharField(
         max_length=255, choices=ExperimentConstants.VERSION_CHOICES
+    )
+    firefox_max_version = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.VERSION_CHOICES,
+        blank=True,
+        null=True,
     )
     firefox_channel = models.CharField(
         max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES
@@ -321,7 +327,7 @@ class Experiment(ExperimentConstants, models.Model):
             "The {field} must be set before a Normandy slug can be generated"
         )
 
-        if not self.firefox_version:
+        if not self.firefox_min_version:
             raise ValueError(error_msg.format(field="Firefox version"))
 
         if not self.firefox_channel:
@@ -330,9 +336,15 @@ class Experiment(ExperimentConstants, models.Model):
         if not self.bugzilla_id:
             raise ValueError(error_msg.format(field="Bugzilla ID"))
 
+        version_string = self.firefox_min_version
+        if self.firefox_max_version:
+            version_string = (
+                f"{self.firefox_min_version}-{self.firefox_max_version}"
+            )
+
         slug_prefix = f"{self.type}-"
         slug_postfix = (
-            f"-{self.firefox_channel}-{self.firefox_version}-"
+            f"-{self.firefox_channel}-{version_string}-"
             f"bug-{self.bugzilla_id}"
         )
         remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(
@@ -512,7 +524,7 @@ class Experiment(ExperimentConstants, models.Model):
     def completed_population(self):
         return (
             self.population_percent > 0
-            and self.firefox_version != ""
+            and self.firefox_min_version != ""
             and self.firefox_channel != ""
         )
 
@@ -627,10 +639,17 @@ class Experiment(ExperimentConstants, models.Model):
         return self.completed_all_sections and self.completed_required_reviews
 
     @property
+    def format_firefox_versions(self):
+        if self.firefox_max_version:
+            return f"{self.firefox_min_version} to {self.firefox_max_version}"
+        else:
+            return self.firefox_min_version
+
+    @property
     def population(self):
-        return "{percent:g}% of {channel} Firefox {version}".format(
+        return "{percent:g}% of {channel} Firefox {firefox_version}".format(
             percent=float(self.population_percent),
-            version=self.firefox_version,
+            firefox_version=self.format_firefox_versions,
             channel=self.firefox_channel,
         )
 
