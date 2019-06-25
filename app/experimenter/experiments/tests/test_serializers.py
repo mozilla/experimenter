@@ -382,6 +382,18 @@ class TestCloneSerializer(MockRequestMixin, TestCase):
 
         self.assertFalse(serializer.is_valid())
 
+    def test_clone_serializer_rejects_invalid_name(self):
+        experiment = ExperimentFactory.create(
+            name="great experiment", slug="great-experiment"
+        )
+
+        clone_data = {"name": "@@@@@@@@"}
+        serializer = ExperimentCloneSerializer(
+            instance=experiment, data=clone_data
+        )
+
+        self.assertFalse(serializer.is_valid())
+
     def test_clone_serializer_accepts_unique_name(self):
         experiment = ExperimentFactory.create(
             name="great experiment", slug="great-experiment"

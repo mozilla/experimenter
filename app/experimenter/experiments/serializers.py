@@ -252,9 +252,14 @@ class ExperimentCloneSerializer(serializers.ModelSerializer):
     def validate_name(self, value):
         existing_slug = Experiment.objects.filter(slug=slugify(value))
         if existing_slug:
-            raise serializers.ValidationError("Duplicate Name Error")
+            raise serializers.ValidationError(
+                "This experiment name already exists."
+            )
 
-        return value
+        if slugify(value):
+            return value
+        else:
+            raise serializers.ValidationError("That's an invalid name.")
 
     def get_clone_url(self, obj):
         return reverse("experiments-detail", kwargs={"slug": obj.slug})
