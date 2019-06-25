@@ -140,25 +140,37 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         )
 
     def test_filters_by_firefox_version(self):
-        include_version = Experiment.VERSION_CHOICES[1][0]
-        exclude_version = Experiment.VERSION_CHOICES[2][0]
 
-        for i in range(3):
-            ExperimentFactory.create_with_variants(
-                firefox_version=include_version
-            )
-            ExperimentFactory.create_with_variants(
-                firefox_version=exclude_version
-            )
+        exp_1 = ExperimentFactory.create_with_variants(
+            name="Experiment 1",
+            firefox_min_version="58.0",
+            firefox_max_version="62.0",
+        )
+        exp_2 = ExperimentFactory.create_with_variants(
+            name="Experiment 2",
+            firefox_min_version="59.0",
+            firefox_max_version="60.0",
+        )
+        ExperimentFactory.create_with_variants(
+            name="Experiment 4",
+            firefox_min_version="62.0",
+            firefox_max_version="68.0",
+        )
+        exp_3 = ExperimentFactory.create_with_variants(
+            name="Experiment 3",
+            firefox_min_version="59.0",
+            firefox_max_version="",
+        )
+        ExperimentFactory.create_with_variants(
+            name="Experiment 5",
+            firefox_min_version="54.0",
+            firefox_max_version="56.0",
+        )
 
         filter = ExperimentFilterset(
-            {"firefox_version": include_version},
-            queryset=Experiment.objects.all(),
+            {"firefox_version": "59.0"}, queryset=Experiment.objects.all()
         )
-        self.assertEqual(
-            set(filter.qs),
-            set(Experiment.objects.filter(firefox_version=include_version)),
-        )
+        self.assertEqual(set(filter.qs), set([exp_1, exp_2, exp_3]))
 
     def test_filters_by_firefox_channel(self):
         include_channel = Experiment.CHANNEL_CHOICES[1][0]
@@ -543,7 +555,7 @@ class TestExperimentListView(TestCase):
         for i in range(10):
             ExperimentFactory.create_with_status(
                 firefox_channel=filtered_channel,
-                firefox_version=filtered_version,
+                firefox_min_version=filtered_version,
                 owner=filtered_owner,
                 project=filtered_project,
                 target_status=filtered_status,
@@ -556,7 +568,7 @@ class TestExperimentListView(TestCase):
 
         filtered_ordered_experiments = Experiment.objects.filter(
             firefox_channel=filtered_channel,
-            firefox_version=filtered_version,
+            firefox_min_version=filtered_version,
             owner=filtered_owner,
             project=filtered_project,
             status=filtered_status,
@@ -873,7 +885,8 @@ class TestExperimentVariantsUpdateView(TestCase):
 
         data = {
             "population_percent": "11",
-            "firefox_version": Experiment.VERSION_CHOICES[-1][0],
+            "firefox_min_version": Experiment.VERSION_CHOICES[-2][0],
+            "firefox_max_version": Experiment.VERSION_CHOICES[-1][0],
             "firefox_channel": Experiment.CHANNEL_NIGHTLY,
             "client_matching": "New matching!",
             "platform": Experiment.PLATFORM_WINDOWS,
@@ -920,7 +933,13 @@ class TestExperimentVariantsUpdateView(TestCase):
             experiment.population_percent,
             decimal.Decimal(data["population_percent"]),
         )
-        self.assertEqual(experiment.firefox_version, data["firefox_version"])
+        self.assertEqual(
+            experiment.firefox_min_version, data["firefox_min_version"]
+        )
+        self.assertEqual(
+            experiment.firefox_max_version, data["firefox_max_version"]
+        )
+
         self.assertEqual(experiment.firefox_channel, data["firefox_channel"])
         self.assertEqual(experiment.platform, data["platform"])
 

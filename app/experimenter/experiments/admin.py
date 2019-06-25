@@ -36,10 +36,11 @@ class ExperimentAdmin(admin.ModelAdmin):
         "type",
         "status",
         "owner",
-        "firefox_version",
+        "firefox_min_version",
+        "firefox_max_version",
         "firefox_channel",
     )
-    list_filter = ("status", "firefox_version", "firefox_channel")
+    list_filter = ("status", "firefox_channel")
 
     fieldsets = (
         (
@@ -71,7 +72,8 @@ class ExperimentAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "firefox_channel",
-                    "firefox_version",
+                    "firefox_min_version",
+                    "firefox_max_version",
                     "population_percent",
                     "addon_experiment_id",
                     "addon_release_url",

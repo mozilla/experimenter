@@ -19,41 +19,32 @@
       <h4 class="col-9 offset-3">Firefox Population</h4>
     </div>
 
-    <div class="form-group row">
 
+    {% include "experiments/field_inline.html" with field=form.population_percent %}
+
+    {% include "experiments/field_inline.html" with field=form.firefox_channel %}
+
+    <div class="form-group row">
       <div class="col-3 text-right">
-        <label class="control-label" for="{{ form.population_percent.id_for_label }}">
-          <strong>{{ form.population_percent.label }}</strong>
+        <label class="control-label">
+          <strong>Firefox Versions</strong>
         </label>
         <br/>
         <a href="#population-percent-help" data-toggle="collapse" aria-expanded="false" aria-controls="population-percent-help">Help</a>
       </div>
-
       <div class="col-9">
         <div class="row">
-
-          <div class="col-2">
-            {% include "experiments/field_input_inline.html" with field=form.population_percent %}
+          <div class="col-5 pr-0">
+            {% include "experiments/field_input_inline.html" with field=form.firefox_min_version %}
           </div>
 
           <div class="col-2 text-center pt-2">
-            <strong>percent of</strong>
+            <strong>to</strong>
           </div>
 
-          <div class="col-4">
-            {% include "experiments/field_input_inline.html" with field=form.firefox_channel %}
+          <div class="col-5 pl-0">
+            {% include "experiments/field_input_inline.html" with field=form.firefox_max_version %}
           </div>
-
-          <div class="col-4">
-            {% include "experiments/field_input_inline.html" with field=form.firefox_version %}
-          </div>
-
-        </div>
-
-        {% include "experiments/field_errors_inline.html" with field=form.population_percent %}
-
-        <div id="population-percent-help" class="collapse text-muted">
-          {{ form.population_percent.help_text|safe }}
         </div>
       </div>
     </div>

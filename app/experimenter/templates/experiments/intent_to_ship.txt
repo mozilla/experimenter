@@ -11,7 +11,7 @@ Experimenter Bug: {{ bug_url }}
 Experimenter URL: {{ experiment.experiment_url }}
 Study owner: {{ experiment.owner.email }}
 Description: {{ experiment.short_description }}
-Timeline & Channel: {{ experiment.firefox_version }} {{ experiment.firefox_channel }}
+Timeline & Channel: {{ experiment.format_firefox_versions }} {{ experiment.firefox_channel }}
 Intended study dates: {{ experiment.dates }}
 Percent of Population: {{ percent_of_population }}
 Platforms: {{ experiment.platform }}
