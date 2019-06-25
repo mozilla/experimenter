@@ -116,10 +116,10 @@ def update_experiment_bug_task(user_id, experiment_id):
 
 
 @app.task
-@metrics.timer_decorator("update_experiment_status.timing")
-def update_experiment_status():
-    metrics.incr("update_experiment_status.started")
-    logger.info("Updating experiment statuses")
+@metrics.timer_decorator("update_experiment_info.timing")
+def update_experiment_info():
+    metrics.incr("update_experiment_info.started")
+    logger.info("Updating experiment info")
     launch_experiments = Experiment.objects.filter(
         Q(status=Experiment.STATUS_ACCEPTED) | Q(status=Experiment.STATUS_LIVE)
     )
@@ -140,13 +140,21 @@ def update_experiment_status():
                     experiment.normandy_id
                 )
             )
-            metrics.incr("update_experiment_status.failed")
-    metrics.incr("update_experiment_status.completed")
+            metrics.incr("update_experiment_info.failed")
+    metrics.incr("update_experiment_info.completed")
+
+
+def add_start_date_comment(experiment):
+    comment = "Start Date: {} End Date: {}".format(
+        experiment.start_date, experiment.end_date
+    )
+    bugzilla.add_experiment_comment(experiment, comment)
 
 
 def update_status(experiment):
     recipe_data = normandy.get_recipe(experiment.normandy_id)
     if needs_to_be_updated(recipe_data["enabled"], experiment.status):
+        logger.info("Updating experiment Status")
         enabler_email = recipe_data["enabled_states"][0]["creator"]["email"]
         enabler, _ = get_user_model().objects.get_or_create(
             email=enabler_email
@@ -162,8 +170,11 @@ def update_status(experiment):
                 old_status=old_status,
                 new_status=new_status,
             )
-            metrics.incr("update_experiment_status.updated")
+            metrics.incr("update_experiment_info.updated")
             logger.info("Finished updating Experiment: {}".format(experiment))
+
+        if experiment.status == Experiment.STATUS_LIVE:
+            add_start_date_comment(experiment)
 
 
 def needs_to_be_updated(enabled, status):
