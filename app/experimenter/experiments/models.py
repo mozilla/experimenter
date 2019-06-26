@@ -683,6 +683,7 @@ class Experiment(ExperimentConstants, models.Model):
             "addon_release_url",
             "normandy_slug",
             "normandy_id",
+            "bugzilla_id",
             "review_science",
             "review_engineering",
             "review_qa_requested",
