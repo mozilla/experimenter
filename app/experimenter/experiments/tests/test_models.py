@@ -1057,6 +1057,7 @@ class TestExperimentModel(TestCase):
             proposed_enrollment=2,
             proposed_duration=30,
             owner=user_1,
+            bugzilla_id="4455667",
             pref_type=Experiment.TYPE_ADDON,
             data_science_bugzilla_url="https://bugzilla.mozilla.org/123/",
             feature_bugzilla_url="https://bugzilla.mozilla.org/123/",
@@ -1089,6 +1090,7 @@ class TestExperimentModel(TestCase):
         self.assertEqual(cloned_experiment.proposed_start_date, None)
         self.assertEqual(cloned_experiment.owner, user_2)
         self.assertEqual(cloned_experiment.firefox_version, include_version)
+        self.assertFalse(cloned_experiment.bugzilla_id)
         self.assertFalse(cloned_experiment.archived)
         self.assertFalse(cloned_experiment.review_science)
         self.assertFalse(cloned_experiment.review_ux)
