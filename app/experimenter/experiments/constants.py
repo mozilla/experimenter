@@ -608,7 +608,7 @@ class ExperimentConstants(object):
     """
 
     SURVEY_HELP_TEXT = """
-          https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-ReleaseManagementSign-off
+          https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-SurveyChecklist
     """
 
     SURVEY_LAUNCH_INSTRUCTIONS_HELP_TEXT = """
