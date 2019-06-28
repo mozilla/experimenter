@@ -56,32 +56,6 @@ class TestExperimentManager(TestCase):
             [experiment1, experiment2],
         )
 
-    def test_get_prefetched_changes(self):
-        now = timezone.now()
-
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED
-        )
-        user = UserFactory.create()
-
-        prefetch_experiment = Experiment.objects.get_prefetched()[0]
-        num_of_changeLogs = len(prefetch_experiment.changes.all())
-
-        prefetch_experiment.changes.create(
-            experiment=experiment,
-            old_status=Experiment.STATUS_ACCEPTED,
-            new_status=Experiment.STATUS_LIVE,
-            changed_on=now,
-            changed_by=user,
-        )
-
-        prefetch_experiment.save()
-
-        # changes should be the same and not updated
-        self.assertEqual(
-            len(prefetch_experiment.changes.all()), num_of_changeLogs
-        )
-
 
 class TestExperimentModel(TestCase):
 
