@@ -5,7 +5,7 @@ from django.db.models import Q
 from celery.utils.log import get_task_logger
 
 from experimenter.celery import app
-from experimenter.experiments import bugzilla, normandy
+from experimenter.experiments import bugzilla, normandy, email
 from experimenter.experiments.models import Experiment
 from experimenter.notifications.models import Notification
 

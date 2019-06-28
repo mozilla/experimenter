@@ -51,6 +51,10 @@ def send_experiment_launch_email(experiment):
     version = experiment.format_firefox_versions
     channel = experiment.firefox_channel
 
+    recipients = [experiment.owner.email] + list(
+        experiment.subscribers.values_list("email", flat=True)
+    )
+
     email = EmailMessage(
         Experiment.LAUNCH_EMAIL_SUBJECT.format(
             name=experiment.name, version=version, channel=channel
@@ -58,7 +62,7 @@ def send_experiment_launch_email(experiment):
         content,
         settings.EMAIL_SENDER,
         [settings.EMAIL_RELEASE_DRIVERS],
-        cc=[experiment.owner.email],
+        cc=recipients,
     )
 
     email.send(fail_silently=False)
