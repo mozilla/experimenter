@@ -1483,21 +1483,6 @@ class TestExperimentStatusForm(
         )
         self.assertFalse(form.is_valid())
 
-    def test_sends_review_mail_when_draft_becomes_review(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, bugzilla_id=None
-        )
-        form = ExperimentStatusForm(
-            request=self.request,
-            data={"status": experiment.STATUS_REVIEW},
-            instance=experiment,
-        )
-        self.assertTrue(form.is_valid())
-        form.save()
-        self.mock_tasks_review_email.delay.assert_called_with(
-            self.user.id, experiment.name, experiment.experiment_url, False
-        )
-
     def test_sets_bugzilla_id_when_draft_becomes_review(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, bugzilla_id=None
