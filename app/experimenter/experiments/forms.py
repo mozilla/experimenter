@@ -1104,14 +1104,7 @@ class ExperimentStatusForm(
             and self.new_status == Experiment.STATUS_REVIEW
             and not experiment.bugzilla_id
         ):
-            needs_attention = len(self.cleaned_data.get("attention", "")) > 0
 
-            tasks.send_review_email_task.delay(
-                self.request.user.id,
-                experiment.name,
-                experiment.experiment_url,
-                needs_attention,
-            )
             tasks.create_experiment_bug_task.delay(
                 self.request.user.id, experiment.id
             )

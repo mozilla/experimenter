@@ -1,12 +1,11 @@
 import markus
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
 from django.db.models import Q
 from celery.utils.log import get_task_logger
 
 from experimenter.celery import app
-from experimenter.experiments import email, bugzilla, normandy
+from experimenter.experiments import bugzilla, normandy
 from experimenter.experiments.models import Experiment
 from experimenter.notifications.models import Notification
 
@@ -15,7 +14,6 @@ logger = get_task_logger(__name__)
 metrics = markus.get_metrics("experiments.tasks")
 
 
-NOTIFICATION_MESSAGE_REVIEW_EMAIL = "An email was sent to {email} about {name}"
 NOTIFICATION_MESSAGE_CREATE_BUG = (
     'A <a target="_blank" rel="noreferrer noopener" href="{bug_url}">Bugzilla '
     "Ticket</a> was created for your experiment"
@@ -49,26 +47,6 @@ NOTIFICATION_MESSAGE_ARCHIVE_ERROR_MESSAGE = (
     'The <a target="_blank" rel="noreferrer noopener" href="{bug_url}">'
     "Ticket</a> was UNABLE to update its resolution and status"
 )
-
-
-@app.task
-@metrics.timer_decorator("send_review_email.timing")
-def send_review_email_task(
-    user_id, experiment_name, experiment_url, needs_attention
-):
-    metrics.incr("send_review_email.started")
-    logger.info("Sending email")
-
-    email.send_review_email(experiment_name, experiment_url, needs_attention)
-    logger.info("Email sent")
-
-    Notification.objects.create(
-        user_id=user_id,
-        message=NOTIFICATION_MESSAGE_REVIEW_EMAIL.format(
-            email=settings.EMAIL_REVIEW, name=experiment_name
-        ),
-    )
-    metrics.incr("send_review_email.completed")
 
 
 @app.task

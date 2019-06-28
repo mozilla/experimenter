@@ -827,16 +827,6 @@ If applicable, link to any relevant test builds / staging information
         "and should be reviewed ASAP"
     )
 
-    REVIEW_EMAIL_SUBJECT = "Experimenter Review Request: {name}"
-
-    REVIEW_EMAIL_TEMPLATE = (
-        """Please add the following experiment to the Shield review queue:
-
-{experiment_url}
-
-{attention}"""
-    )
-
     INTENT_TO_SHIP_EMAIL_SUBJECT = (
         "SHIELD Study Intent to ship: {name} {version} {channel}"
     )

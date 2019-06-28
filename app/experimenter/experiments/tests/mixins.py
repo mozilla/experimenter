@@ -170,12 +170,6 @@ class MockTasksMixin(object):
     def setUp(self):
         super().setUp()
 
-        mock_tasks_review_email_patcher = mock.patch(
-            "experimenter.experiments.tasks.send_review_email_task"
-        )
-        self.mock_tasks_review_email = mock_tasks_review_email_patcher.start()
-        self.addCleanup(mock_tasks_review_email_patcher.stop)
-
         mock_tasks_create_bug_patcher = mock.patch(
             "experimenter.experiments.tasks.create_experiment_bug_task"
         )
