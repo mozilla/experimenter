@@ -13,6 +13,7 @@ from experimenter.experiments.bugzilla import (
     get_bugzilla_id,
     set_bugzilla_id_value,
     update_bug_resolution,
+    add_experiment_comment,
 )
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.mixins import MockBugzillaMixin
@@ -256,6 +257,50 @@ class TestUpdateBugzillaResolution(MockBugzillaMixin, TestCase):
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
             {"status": "REOPENED"},
+        )
+
+
+class TestAddExperimentComment(MockBugzillaMixin, TestCase):
+
+    def test_add_bugzilla_comment_pref_experiment(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            name="An Experiment",
+            bugzilla_id="123",
+            type=Experiment.TYPE_PREF,
+        )
+        comment = "Start Date: {} End Date: {}".format(
+            experiment.start_date, experiment.end_date
+        )
+
+        comment_id = add_experiment_comment(experiment, comment)
+
+        self.assertEqual(comment_id, self.bugzilla_id)
+
+        self.mock_bugzilla_requests_post.assert_called_with(
+            settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
+            {"comment": comment},
+        )
+
+    def test_add_bugzilla_comment_addon_experiment(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            name="An Experiment",
+            bugzilla_id="123",
+            type=Experiment.TYPE_ADDON,
+        )
+
+        comment = "Start Date: {} End Date: {}".format(
+            experiment.start_date, experiment.end_date
+        )
+
+        comment_id = add_experiment_comment(experiment, comment)
+
+        self.assertEqual(comment_id, self.bugzilla_id)
+
+        self.mock_bugzilla_requests_post.assert_called_with(
+            settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
+            {"comment": comment},
         )
 
 
