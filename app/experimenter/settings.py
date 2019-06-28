@@ -278,6 +278,10 @@ BUGZILLA_BUG_URL = "{path}?api_key={api_key}".format(
     path=urljoin(BUGZILLA_HOST, "/rest/bug?id={bug_id}"),
     api_key=BUGZILLA_API_KEY,
 )
+BUGZILLA_COMMENT_URL = "{path}?api_key={api_key}".format(
+    path=urljoin(BUGZILLA_HOST, "/rest/bug/{id}/comment"),
+    api_key=BUGZILLA_API_KEY,
+)
 
 REDIS_HOST = config("REDIS_HOST")
 REDIS_PORT = config("REDIS_PORT")
@@ -289,7 +293,7 @@ CELERY_BROKER_URL = "redis://{host}:{port}/{db}".format(
 )
 CELERY_BEAT_SCHEDULE = {
     "debug_task": {
-        "task": "experimenter.experiments.tasks.update_experiment_status",
+        "task": "experimenter.experiments.tasks.update_experiment_info",
         "schedule": 300,
     }
 }

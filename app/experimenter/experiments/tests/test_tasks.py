@@ -1,4 +1,6 @@
 import markus
+
+from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
@@ -268,21 +270,21 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 
 
 class TestUpdateExperimentStatus(
-    MockRequestMixin, MockNormandyMixin, TestCase
+    MockRequestMixin, MockNormandyMixin, MockBugzillaMixin, TestCase
 ):
 
     def test_experiment_without_normandy_id(self):
         ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=None
         )
-        tasks.update_experiment_status()
+        tasks.update_experiment_info()
         self.mock_normandy_requests_get.assert_not_called()
 
     def test_accepted_experiment_becomes_live_if_normandy_enabled(self):
         ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
         )
-        tasks.update_experiment_status()
+        tasks.update_experiment_info()
         experiment = Experiment.objects.get(normandy_id=1234)
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
         self.assertTrue(
@@ -291,6 +293,15 @@ class TestUpdateExperimentStatus(
                 old_status=Experiment.STATUS_ACCEPTED,
                 new_status=Experiment.STATUS_LIVE,
             ).exists()
+        )
+        # status is live so bugzilla should be called
+        experiment2 = Experiment.objects.get(id=experiment.id)
+        comment = "Start Date: {} End Date: {}".format(
+            experiment2.start_date, experiment2.end_date
+        )
+        self.mock_bugzilla_requests_post.assert_called_with(
+            settings.BUGZILLA_COMMENT_URL.format(id=experiment2.bugzilla_id),
+            {"comment": comment},
         )
 
     def test_accepted_experiment_stays_accepted_if_normandy_disabled(self):
@@ -301,7 +312,7 @@ class TestUpdateExperimentStatus(
         self.mock_normandy_requests_get.return_value = (
             self.buildMockSuccessDisabledResponse()
         )
-        tasks.update_experiment_status()
+        tasks.update_experiment_info()
         updated_experiment = Experiment.objects.get(normandy_id=1234)
         self.assertEqual(updated_experiment.status, Experiment.STATUS_ACCEPTED)
         self.assertFalse(
@@ -312,11 +323,14 @@ class TestUpdateExperimentStatus(
             ).exists()
         )
 
+        # status is still accepted so no bugzilla update
+        self.mock_bugzilla_requests_post.assert_not_called()
+
     def test_live_experiment_stays_live_if_normandy_enabled(self):
         ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_LIVE, normandy_id=1234
         )
-        tasks.update_experiment_status()
+        tasks.update_experiment_info()
         updated_experiment = Experiment.objects.get(normandy_id=1234)
         self.assertEqual(updated_experiment.status, Experiment.STATUS_LIVE)
         self.assertFalse(
@@ -335,7 +349,7 @@ class TestUpdateExperimentStatus(
             self.buildMockSuccessDisabledResponse()
         )
 
-        tasks.update_experiment_status()
+        tasks.update_experiment_info()
         updated_experiment = Experiment.objects.get(normandy_id=1234)
         self.assertEqual(updated_experiment.status, Experiment.STATUS_COMPLETE)
         self.assertTrue(
@@ -356,7 +370,7 @@ class TestUpdateExperimentStatus(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=1235
         )
 
-        tasks.update_experiment_status()
+        tasks.update_experiment_info()
         updated_experiment = Experiment.objects.get(normandy_id=1234)
         updated_experiment2 = Experiment.objects.get(normandy_id=1235)
         self.assertEqual(updated_experiment.status, Experiment.STATUS_ACCEPTED)
@@ -383,7 +397,7 @@ class TestUpdateExperimentStatus(
         ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
         )
-        tasks.update_experiment_status()
+        tasks.update_experiment_info()
         experiment = Experiment.objects.get(normandy_id=1234)
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
         self.assertTrue(
@@ -401,7 +415,7 @@ class TestUpdateExperimentStatus(
         ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
         )
-        tasks.update_experiment_status()
+        tasks.update_experiment_info()
         experiment = Experiment.objects.get(normandy_id=1234)
         user = User.objects.get(email="dev@example.com")
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
