@@ -367,6 +367,13 @@ class TestUpdateExperimentStatus(
             ).exists()
         )
 
+        self.mock_bugzilla_requests_put.assert_called_with(
+            settings.BUGZILLA_UPDATE_URL.format(
+                id=updated_experiment.bugzilla_id
+            ),
+            {"status": "RESOLVED", "resolution": "FIXED"},
+        )
+
     def test_one_failure_does_not_affect_other_experiment_status_updates(self):
         self.setUpMockNormandyFailWithSpecifiedID("1234")
         ExperimentFactory.create_with_status(

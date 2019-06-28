@@ -243,7 +243,7 @@ class TestUpdateBugzillaResolution(MockBugzillaMixin, TestCase):
             {"status": "RESOLVED", "resolution": "WONTFIX"},
         )
 
-    def test_bugzilla_resolutation_with_archive_false(self):
+    def test_bugzilla_resolution_with_archive_false(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             name="An Experiment",
@@ -257,6 +257,18 @@ class TestUpdateBugzillaResolution(MockBugzillaMixin, TestCase):
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
             {"status": "REOPENED"},
+        )
+
+    def test_bugzilla_resolution_with_completed_status(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_COMPLETE
+        )
+
+        update_bug_resolution(experiment)
+
+        self.mock_bugzilla_requests_put.assert_called_with(
+            settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
+            {"status": "RESOLVED", "resolution": "FIXED"},
         )
 
 

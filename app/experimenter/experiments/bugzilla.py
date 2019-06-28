@@ -91,7 +91,9 @@ def user_exists(user):
 
 
 def format_resolution_body(experiment):
-    if experiment.archived:
+    if experiment.status == experiment.STATUS_COMPLETE:
+        return {"status": "RESOLVED", "resolution": "FIXED"}
+    elif experiment.archived:
         return {"status": "RESOLVED", "resolution": "WONTFIX"}
     else:
         return {"status": "REOPENED"}
@@ -110,6 +112,7 @@ def bug_exists(bug_id):
 
 def update_bug_resolution(experiment):
     if experiment.bugzilla_id:
+        logging.info("Bugzilla Resolution/Status")
         status_body = format_resolution_body(experiment)
         make_bugzilla_call(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),

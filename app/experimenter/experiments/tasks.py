@@ -180,6 +180,9 @@ def update_status(experiment):
                 "Sent launch email for Experiment: {}".format(experiment)
             )
 
+        if experiment.status == Experiment.STATUS_COMPLETE:
+            bugzilla.update_bug_resolution(experiment)
+
 
 def needs_to_be_updated(enabled, status):
     accepted_update = enabled and status == Experiment.STATUS_ACCEPTED
