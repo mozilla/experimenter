@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 
 from markus.testing import MetricsMock
 from requests.exceptions import RequestException
-
+from django.core import mail
 from experimenter.experiments import bugzilla, tasks
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
@@ -281,9 +281,12 @@ class TestUpdateExperimentStatus(
         self.mock_normandy_requests_get.assert_not_called()
 
     def test_accepted_experiment_becomes_live_if_normandy_enabled(self):
-        ExperimentFactory.create_with_status(
+        exp_1 = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
         )
+
+        subscribing_user = UserFactory.create()
+        exp_1.subscribers.add(subscribing_user)
         tasks.update_experiment_info()
         experiment = Experiment.objects.get(normandy_id=1234)
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
@@ -302,6 +305,10 @@ class TestUpdateExperimentStatus(
         self.mock_bugzilla_requests_post.assert_called_with(
             settings.BUGZILLA_COMMENT_URL.format(id=experiment2.bugzilla_id),
             {"comment": comment},
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(
+            mail.outbox[0].cc, [experiment.owner.email, subscribing_user.email]
         )
 
     def test_accepted_experiment_stays_accepted_if_normandy_disabled(self):

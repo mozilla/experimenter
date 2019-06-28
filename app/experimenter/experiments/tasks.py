@@ -5,7 +5,7 @@ from django.db.models import Q
 from celery.utils.log import get_task_logger
 
 from experimenter.celery import app
-from experimenter.experiments import bugzilla, normandy
+from experimenter.experiments import bugzilla, normandy, email
 from experimenter.experiments.models import Experiment
 from experimenter.notifications.models import Notification
 
@@ -175,6 +175,10 @@ def update_status(experiment):
 
         if experiment.status == Experiment.STATUS_LIVE:
             add_start_date_comment(experiment)
+            email.send_experiment_launch_email(experiment)
+            logger.info(
+                "Sent launch email for Experiment: {}".format(experiment)
+            )
 
 
 def needs_to_be_updated(enabled, status):
