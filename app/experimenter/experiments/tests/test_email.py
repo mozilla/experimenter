@@ -2,7 +2,10 @@ from django.test import TestCase
 from django.conf import settings
 from django.core import mail
 
-from experimenter.experiments.email import send_intent_to_ship_email
+from experimenter.experiments.email import (
+    send_intent_to_ship_email,
+    send_experiment_launch_email,
+)
 from experimenter.experiments.tests.factories import ExperimentFactory
 
 
@@ -154,3 +157,22 @@ Thank you!!
         )
 
         self.assertEqual(email.subject, expected_subject)
+
+
+class TestLaunchEmail(TestCase):
+
+    def test_send_experiment_launch_email(self):
+        experiment = ExperimentFactory.create_with_variants(
+            name="Greatest Experiment",
+            slug="greatest-experiment",
+            firefox_min_version="68.0",
+            firefox_max_version="69.0",
+            firefox_channel="Nightly",
+        )
+        send_experiment_launch_email(experiment)
+
+        sent_email = mail.outbox[-1]
+        self.assertEqual(
+            sent_email.subject,
+            "Experiment launched: Greatest Experiment 68.0 to 69.0 Nightly",
+        )

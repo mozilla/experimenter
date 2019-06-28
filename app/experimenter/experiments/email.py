@@ -14,7 +14,7 @@ def send_intent_to_ship_email(experiment_id):
     percent_of_population = f"{float(experiment.population_percent):g}%"
 
     content = render_to_string(
-        "experiments/intent_to_ship.txt",
+        "experiments/emails/intent_to_ship.txt",
         {
             "experiment": experiment,
             "bug_url": bug_url,
@@ -38,4 +38,31 @@ def send_intent_to_ship_email(experiment_id):
         [settings.EMAIL_RELEASE_DRIVERS],
         cc=[experiment.owner.email],
     )
+    email.send(fail_silently=False)
+
+
+def send_experiment_launch_email(experiment):
+
+    content = render_to_string(
+        "experiments/emails/launch_experiment_email.txt",
+        {"experiment": experiment},
+    )
+
+    version = experiment.format_firefox_versions
+    channel = experiment.firefox_channel
+
+    recipients = [experiment.owner.email] + list(
+        experiment.subscribers.values_list("email", flat=True)
+    )
+
+    email = EmailMessage(
+        Experiment.LAUNCH_EMAIL_SUBJECT.format(
+            name=experiment.name, version=version, channel=channel
+        ),
+        content,
+        settings.EMAIL_SENDER,
+        [settings.EMAIL_RELEASE_DRIVERS],
+        cc=recipients,
+    )
+
     email.send(fail_silently=False)
