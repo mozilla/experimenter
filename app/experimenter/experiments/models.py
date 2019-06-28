@@ -25,6 +25,13 @@ class ExperimentManager(models.Manager):
         return (
             super()
             .get_queryset()
+            .annotate(latest_change=Max("changes__changed_on"))
+        )
+
+    def get_prefetched(self):
+        return (
+            super()
+            .get_queryset()
             .prefetch_related(
                 "changes",
                 "changes__changed_by",

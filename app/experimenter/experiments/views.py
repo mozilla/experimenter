@@ -302,6 +302,7 @@ class ExperimentListView(FilterView):
     model = Experiment
     template_name = "experiments/list.html"
     paginate_by = settings.EXPERIMENTS_PAGINATE_BY
+    queryset = Experiment.objects.get_prefetched()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -400,6 +401,7 @@ class ExperimentRisksUpdateView(ExperimentFormMixin, UpdateView):
 class ExperimentDetailView(ExperimentFormMixin, ModelFormMixin, DetailView):
     model = Experiment
     form_class = ExperimentReviewForm
+    queryset = Experiment.objects.get_prefetched()
 
     def get_template_names(self):
         return [
