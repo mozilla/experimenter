@@ -29,19 +29,14 @@ class ExperimentManager(models.Manager):
         )
 
     def get_prefetched(self):
-        return (
-            super()
-            .get_queryset()
-            .prefetch_related(
-                "changes",
-                "changes__changed_by",
-                "owner",
-                "comments",
-                "comments__created_by",
-                "locales",
-                "countries",
-            )
-            .annotate(latest_change=Max("changes__changed_on"))
+        return self.get_queryset().prefetch_related(
+            "changes",
+            "changes__changed_by",
+            "owner",
+            "comments",
+            "comments__created_by",
+            "locales",
+            "countries",
         )
 
 
