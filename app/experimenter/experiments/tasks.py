@@ -161,8 +161,6 @@ def update_status(experiment):
         )
         old_status = experiment.status
         new_status = STATUS_UPDATE_MAPPING[old_status]
-        if new_status == Experiment.STATUS_LIVE:
-            email.send_experiment_launch_email(experiment)
         experiment.status = new_status
         with transaction.atomic():
             experiment.save()
@@ -177,6 +175,10 @@ def update_status(experiment):
 
         if experiment.status == Experiment.STATUS_LIVE:
             add_start_date_comment(experiment)
+            email.send_experiment_launch_email(experiment)
+            logger.info(
+                "Sent launch email for Experiment: {}".format(experiment)
+            )
 
 
 def needs_to_be_updated(enabled, status):

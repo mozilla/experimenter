@@ -14,7 +14,7 @@ def send_intent_to_ship_email(experiment_id):
     percent_of_population = f"{float(experiment.population_percent):g}%"
 
     content = render_to_string(
-        "experiments/intent_to_ship.txt",
+        "experiments/emails/intent_to_ship.txt",
         {
             "experiment": experiment,
             "bug_url": bug_url,
@@ -44,7 +44,8 @@ def send_intent_to_ship_email(experiment_id):
 def send_experiment_launch_email(experiment):
 
     content = render_to_string(
-        "experiments/launch_experiment_email.txt", {"experiment": experiment}
+        "experiments/emails/launch_experiment_email.txt",
+        {"experiment": experiment},
     )
 
     version = experiment.format_firefox_versions
