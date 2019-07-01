@@ -843,6 +843,12 @@ If applicable, link to any relevant test builds / staging information
 
     LAUNCH_EMAIL_SUBJECT = "Experiment launched: {name} {version} {channel}"
 
+    ENDING_EMAIL_SUBJECT = "Experiment ending soon: {name} {version} {channel}"
+
+    NORMANDY_CHANGE_WINDOW = """
+        https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-NormandyChangeWindow
+    """
+
     BUGZILLA_OVERVIEW_TEMPLATE = (
         """
 {experiment.name}

@@ -4,6 +4,7 @@ import mock
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from datetime import date
 
 from markus.testing import MetricsMock
 from requests.exceptions import RequestException
@@ -467,6 +468,20 @@ class TestUpdateExperimentStatus(
                 new_status=Experiment.STATUS_LIVE,
             ).exists()
         )
+
+    def test_send_experiment_ending_emails(self):
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            proposed_start_date=date.today(),
+            proposed_duration=5,
+        )
+
+        tasks.update_experiment_info()
+
+        sent_email = mail.outbox[-1]
+
+        self.assertTrue(sent_email)
 
 
 class TestUpdateResolutionTask(MockRequestMixin, MockBugzillaMixin, TestCase):
