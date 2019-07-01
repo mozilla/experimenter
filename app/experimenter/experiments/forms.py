@@ -10,6 +10,7 @@ from django.forms import inlineformset_factory
 from django.forms.models import ModelChoiceIterator
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.utils.html import strip_tags
 
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
@@ -991,7 +992,7 @@ class ExperimentReviewForm(
     @property
     def added_reviews(self):
         return [
-            self.fields[field_name].label
+            strip_tags(self.fields[field_name].label)
             for field_name in self.changed_data
             if self.cleaned_data[field_name]
         ]
@@ -999,7 +1000,7 @@ class ExperimentReviewForm(
     @property
     def removed_reviews(self):
         return [
-            self.fields[field_name].label
+            strip_tags(self.fields[field_name].label)
             for field_name in self.changed_data
             if not self.cleaned_data[field_name]
         ]
