@@ -160,7 +160,8 @@ def update_experiment_status():
 
 def update_status(experiment):
     recipe_data = normandy.get_recipe(experiment.normandy_id)
-    if needs_to_be_updated(recipe_data["enabled"], experiment.status):
+    if needs_to_be_updated(recipe_data, experiment.status):
+        logger.info("Updating experiment Status")
         enabler_email = recipe_data["enabled_states"][0]["creator"]["email"]
         enabler, _ = get_user_model().objects.get_or_create(
             email=enabler_email
@@ -180,7 +181,10 @@ def update_status(experiment):
             logger.info("Finished updating Experiment: {}".format(experiment))
 
 
-def needs_to_be_updated(enabled, status):
+def needs_to_be_updated(recipe_data, status):
+    if recipe_data is None:
+        return False
+    enabled = recipe_data["enabled"]
     accepted_update = enabled and status == Experiment.STATUS_ACCEPTED
     live_update = not enabled and status == Experiment.STATUS_LIVE
     return accepted_update or live_update

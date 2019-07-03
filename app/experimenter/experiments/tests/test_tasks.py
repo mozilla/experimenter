@@ -376,6 +376,32 @@ class TestUpdateExperimentStatus(
     MockRequestMixin, MockNormandyMixin, TestCase
 ):
 
+    def test_experiment_with_no_recipe_data(self):
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
+        )
+
+        mock_response_data = {"approved_revision": None}
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status = mock.Mock()
+        mock_response.raise_for_status.side_effect = None
+        mock_response.status_code = 200
+
+        self.mock_normandy_requests_get.return_value = mock_response
+        tasks.update_experiment_info()
+        experiment = Experiment.objects.get(normandy_id=1234)
+
+        self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
+        self.assertFalse(
+            experiment.changes.filter(
+                changed_by__email="dev@example.com",
+                old_status=Experiment.STATUS_ACCEPTED,
+                new_status=Experiment.STATUS_LIVE,
+            ).exists()
+        )
+
     def test_experiment_without_normandy_id(self):
         ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=None
