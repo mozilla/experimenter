@@ -18,6 +18,9 @@ class ExperimentConstants(object):
     EXPERIMENT_PAUSES = "pausing"
     EXPERIMENT_ENDS = "ending"
 
+    # extra email-type stuff
+    INTENT_TO_SHIP_EMAIL_LABEL = "intent to ship"
+
     # Status stuff
     STATUS_DRAFT = "Draft"
     STATUS_REVIEW = "Review"
@@ -54,6 +57,13 @@ class ExperimentConstants(object):
         STATUS_COMPLETE: [],
         STATUS_REJECTED: [],
     }
+
+    EMAIL_CHOICES = (
+        (EXPERIMENT_STARTS, EXPERIMENT_STARTS),
+        (EXPERIMENT_PAUSES, EXPERIMENT_PAUSES),
+        (EXPERIMENT_ENDS, EXPERIMENT_ENDS),
+        (INTENT_TO_SHIP_EMAIL_LABEL, INTENT_TO_SHIP_EMAIL_LABEL),
+    )
 
     # Version stuff
     VERSION_CHOICES = (
