@@ -868,6 +868,19 @@ class ExperimentCommentManager(models.Manager):
         return sections
 
 
+class ExperimentEmail(ExperimentConstants, models.Model):
+    experiment = models.ForeignKey(
+        Experiment, related_name="emails", on_delete=models.CASCADE
+    )
+    type = models.CharField(
+        max_length=255,
+        blank=False,
+        null=False,
+        choices=Experiment.EMAIL_CHOICES,
+    )
+    sent_on = models.DateTimeField(auto_now_add=True)
+
+
 class ExperimentComment(ExperimentConstants, models.Model):
     experiment = models.ForeignKey(
         Experiment, related_name="comments", on_delete=models.CASCADE
