@@ -44,6 +44,8 @@ from experimenter.experiments.tests.mixins import (
     MockRequestMixin,
 )
 
+from experimenter.notifications.models import Notification
+
 
 faker = FakerFactory.create()
 
@@ -1614,6 +1616,22 @@ class TestExperimentArchiveForm(MockRequestMixin, MockTasksMixin, TestCase):
             self.mock_tasks_update_bug_resolution.delay.call_count, 2
         )
         self.assertFalse(experiment.archived)
+
+    def test_form_stays_unarchived_when_live(self):
+        self.assertEqual(Notification.objects.count(), 0)
+        experiment = ExperimentFactory.create(
+            archived=False, status=Experiment.STATUS_LIVE
+        )
+
+        form = ExperimentArchiveForm(
+            self.request, instance=experiment, data={}
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.mock_tasks_update_bug_resolution.delay.assert_not_called()
+        self.assertFalse(experiment.archived)
+        self.assertEqual(Notification.objects.count(), 1)
 
 
 class TestExperimentSubscribedForm(MockRequestMixin, TestCase):

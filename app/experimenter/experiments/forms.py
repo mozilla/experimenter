@@ -1138,6 +1138,17 @@ class ExperimentArchiveForm(
         return not self.instance.archived
 
     def save(self, *args, **kwargs):
+        experiment = Experiment.objects.get(id=self.instance.id)
+
+        if not experiment.is_archivable:
+            notification_msg = (
+                "This experiment cannot be archived in its current state!"
+            )
+            Notification.objects.create(
+                user=self.request.user, message=notification_msg
+            )
+            return experiment
+
         experiment = super().save(*args, **kwargs)
         tasks.update_bug_resolution_task.delay(
             self.request.user.id, experiment.id

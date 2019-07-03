@@ -120,7 +120,7 @@
     <button
       type="submit"
       class="btn btn-link p-0"
-      {% if experiment.status == experiment.STATUS_LIVE %}
+      {% if not experiment.is_archivable %}
       disabled
       {% endif %}
     > 
