@@ -390,7 +390,7 @@ class TestUpdateExperimentStatus(
         mock_response.status_code = 200
 
         self.mock_normandy_requests_get.return_value = mock_response
-        tasks.update_experiment_info()
+        tasks.update_experiment_status()
         experiment = Experiment.objects.get(normandy_id=1234)
 
         self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)

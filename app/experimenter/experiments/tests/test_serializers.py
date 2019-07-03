@@ -371,11 +371,22 @@ class TestExperimentRecipeSerializer(TestCase):
 
 class TestCloneSerializer(MockRequestMixin, TestCase):
 
-    def test_clone_serializer_rejects_duplicate_name(self):
-        experiment = ExperimentFactory.create(
-            name="great experiment", slug="great-experiment"
+    def test_clone_serializer_rejects_duplicate_slug(self):
+        experiment_1 = ExperimentFactory.create(
+            name="good experiment", slug="great-experiment"
         )
         clone_data = {"name": "great experiment"}
+        serializer = ExperimentCloneSerializer(
+            instance=experiment_1, data=clone_data
+        )
+
+        self.assertFalse(serializer.is_valid())
+
+    def test_clone_serializer_rejects_duplicate_name(self):
+        experiment = ExperimentFactory.create(
+            name="wonderful experiment", slug="amazing-experiment"
+        )
+        clone_data = {"name": "wonderful experiment"}
         serializer = ExperimentCloneSerializer(
             instance=experiment, data=clone_data
         )
