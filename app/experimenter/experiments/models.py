@@ -675,6 +675,10 @@ class Experiment(ExperimentConstants, models.Model):
             output_field=models.IntegerField(),
         )
 
+    @property
+    def is_archivable(self):
+        return self.status != self.STATUS_LIVE
+
     def clone(self, name, user):
 
         cloned = copy.copy(self)
