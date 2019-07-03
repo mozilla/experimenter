@@ -3,6 +3,7 @@ import json
 from rest_framework import serializers
 from django.utils.text import slugify
 from django.urls import reverse
+from django.db.models import Q
 
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.models import Experiment, ExperimentVariant
@@ -251,8 +252,11 @@ class ExperimentCloneSerializer(serializers.ModelSerializer):
         fields = ("name", "clone_url")
 
     def validate_name(self, value):
-        existing_slug = Experiment.objects.filter(slug=slugify(value))
-        if existing_slug:
+        existing_slug_or_name = Experiment.objects.filter(
+            Q(slug=slugify(value)) | Q(name=value)
+        )
+
+        if existing_slug_or_name:
             raise serializers.ValidationError(
                 "This experiment name already exists."
             )
