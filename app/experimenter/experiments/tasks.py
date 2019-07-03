@@ -153,7 +153,7 @@ def add_start_date_comment(experiment):
 
 def update_status(experiment):
     recipe_data = normandy.get_recipe(experiment.normandy_id)
-    if needs_to_be_updated(recipe_data["enabled"], experiment.status):
+    if needs_to_be_updated(recipe_data, experiment.status):
         logger.info("Updating experiment Status")
         enabler_email = recipe_data["enabled_states"][0]["creator"]["email"]
         enabler, _ = get_user_model().objects.get_or_create(
@@ -184,7 +184,10 @@ def update_status(experiment):
             bugzilla.update_bug_resolution(experiment)
 
 
-def needs_to_be_updated(enabled, status):
+def needs_to_be_updated(recipe_data, status):
+    if recipe_data is None:
+        return False
+    enabled = recipe_data["enabled"]
     accepted_update = enabled and status == Experiment.STATUS_ACCEPTED
     live_update = not enabled and status == Experiment.STATUS_LIVE
     return accepted_update or live_update
