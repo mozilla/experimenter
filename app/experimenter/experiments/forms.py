@@ -211,8 +211,10 @@ class ExperimentOverviewForm(
 
         if (enrollment and duration) and enrollment > duration:
             msg = (
-                "The enrollment duration must be less than "
-                "or equal to the experiment duration."
+                "Enrollment duration is optional, but if set, "
+                "must be lower than the experiment duration. "
+                "If enrollment duration is not specified - users "
+                "are enrolled for the entire experiment."
             )
             self._errors["proposed_enrollment"] = [msg]
 
