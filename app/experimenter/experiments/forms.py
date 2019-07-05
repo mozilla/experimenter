@@ -67,7 +67,6 @@ class ChangeLogMixin(object):
     def __init__(self, request, *args, **kwargs):
         self.request = request
         super().__init__(*args, **kwargs)
-        self.old_status = self.instance.status
         if self.instance.id:
             self.old_values = ChangeLogSerializer(self.instance).data
 
