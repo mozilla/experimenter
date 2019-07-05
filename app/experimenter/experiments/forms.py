@@ -68,7 +68,7 @@ class ChangeLogMixin(object):
         self.request = request
         super().__init__(*args, **kwargs)
         if self.instance.id:
-            self.old_values = ChangeLogSerializer(self.instance).data
+            self.old_serialized_vals = ChangeLogSerializer(self.instance).data
 
     def get_changelog_message(self):
         return ""
@@ -93,8 +93,8 @@ class ChangeLogMixin(object):
                 old_status = latest_change.new_status
 
                 for field in self.changed_data:
-                    if field in self.old_values:
-                        old_values[field] = self.old_values[field]
+                    if field in self.old_serialized_vals:
+                        old_values[field] = self.old_serialized_vals[field]
 
             else:
                 prev_values = {field: None for field in self.changed_data}
