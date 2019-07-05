@@ -124,10 +124,11 @@ class ChangeLogMixin(object):
 
         return experiment
 
-    def variants_has_changed(self, old_data, new_data):
-        if old_data and "variants" in old_data:
-            return old_data["variants"] != new_data["variants"]
+    def variants_has_changed(self, prev_values, new_values):
+        if prev_values and "variants" in prev_values:
+            return prev_values["variants"] != new_values["variants"]
         return False
+
 
 class ExperimentOverviewForm(
     UniqueNameSlugFormMixin, ChangeLogMixin, forms.ModelForm
