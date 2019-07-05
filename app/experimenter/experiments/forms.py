@@ -81,12 +81,20 @@ class ChangeLogMixin(object):
         new_values = {}
         old_status = None
 
-        self.new_data = ChangeLogSerializer(self.instance).data
+        self.new_serialized_vals = ChangeLogSerializer(self.instance).data
         latest_change = experiment.changes.latest()
 
-        self.set_variant_change_log_values(
-            old_values, new_values, latest_change
-        )
+        # account for changes in variant values
+        if latest_change:
+            if self.variants_has_changed(
+                latest_change.new_values, self.new_serialized_vals
+            ):
+                old_values["variants"] = latest_change.new_values["variants"]
+                new_values["variants"] = self.new_serialized_vals["variants"]
+
+        elif self.new_serialized_vals["variants"]:
+            old_values["variants"] = None
+            new_values["variants"] = self.new_serialized_vals["variants"]
 
         if self.changed_data:
             if latest_change:
@@ -101,8 +109,8 @@ class ChangeLogMixin(object):
                 old_values.update(prev_values)
 
             for field in self.changed_data:
-                if field in self.new_data:
-                    new_values[field] = self.new_data[field]
+                if field in self.new_serialized_vals:
+                    new_values[field] = self.new_serialized_vals[field]
 
         ExperimentChangeLog.objects.create(
             experiment=experiment,
@@ -120,21 +128,6 @@ class ChangeLogMixin(object):
         if old_data and "variants" in old_data:
             return old_data["variants"] != new_data["variants"]
         return False
-
-    def set_variant_change_log_values(
-        self, old_values, new_values, latest_change
-    ):
-        if latest_change:
-            if self.variants_has_changed(
-                latest_change.new_values, self.new_data
-            ):
-                old_values["variants"] = latest_change.new_values["variants"]
-                new_values["variants"] = self.new_data["variants"]
-
-        elif self.new_data["variants"]:
-            old_values["variants"] = None
-            new_values["variants"] = self.new_data["variants"]
-
 
 class ExperimentOverviewForm(
     UniqueNameSlugFormMixin, ChangeLogMixin, forms.ModelForm
