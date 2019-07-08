@@ -160,8 +160,8 @@ def update_status(experiment):
         # set email default if no email/creator is found in normandy
         enabler_email = settings.NORMANDY_DEFAULT_CHANGELOG_USER
 
-        enabled_states = recipe_data.get("enabled_states")
-        if enabled_states and len(enabled_states) > 0:
+        enabled_states = recipe_data.get("enabled_states", [])
+        if len(enabled_states) > 0:
             creator = enabled_states[0].get("creator")
             if creator:
                 enabler_email = creator.get("email")
