@@ -335,4 +335,7 @@ NORMANDY_API_HOST = config("NORMANDY_API_HOST")
 NORMANDY_API_RECIPE_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/{id}/")
 
 # Jira URL
-JIRA_URL = "https://moz-pi-test.atlassian.net/servicedesk/customer/portal/9"
+JIRA_URL = config(
+    "JIRA_URL",
+    default="https://moz-pi-test.atlassian.net/servicedesk/customer/portal/9",
+)
