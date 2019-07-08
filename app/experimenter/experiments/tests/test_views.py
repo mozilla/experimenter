@@ -319,8 +319,8 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
     def test_filters_for_longrunning_experiments(self):
         exp_1 = ExperimentFactory.create(
             name="Experiment 1",
-            firefox_min_version="67.0",
-            firefox_max_version="70.0",
+            firefox_min_version="67.0b",
+            firefox_max_version="70.0b",
         )
         exp_2 = ExperimentFactory.create(
             name="Experiment 2",

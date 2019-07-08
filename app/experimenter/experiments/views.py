@@ -2,8 +2,9 @@ import django_filters as filters
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db.models import Q, F, FloatField
+from django.db.models import Q, F, IntegerField
 from django.db.models.functions import Cast
+from django.db.models.expressions import Func, Value
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, UpdateView
@@ -293,16 +294,25 @@ class ExperimentFilterset(filters.FilterSet):
             return (
                 queryset.exclude(firefox_max_version__exact="")
                 .annotate(
-                    firefox_min_float=Cast(
-                        "firefox_min_version", FloatField()
+                    firefox_min_int=Cast(
+                        Func(
+                            F("firefox_min_version"),
+                            Value(r"[\d]+"),
+                            function="substring",
+                        ),
+                        IntegerField(),
                     ),
-                    firefox_max_float=Cast(
-                        "firefox_max_version", FloatField()
+                    firefox_max_int=Cast(
+                        Func(
+                            F("firefox_max_version"),
+                            Value(r"[\d]+"),
+                            function="substring",
+                        ),
+                        IntegerField(),
                     ),
-                    version_count=F("firefox_max_float")
-                    - F("firefox_min_float"),
+                    version_count=F("firefox_max_int") - F("firefox_min_int"),
                 )
-                .filter(version_count__gte=3.0)
+                .filter(version_count__gte=3)
             )
 
         return queryset
