@@ -325,7 +325,7 @@ class TestUpdateExperimentStatus(
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
         self.assertTrue(
             experiment.changes.filter(
-                changed_by__email="normandy@admin.com",
+                changed_by__email="unknown-user@normandy.mozilla.com",
                 old_status=Experiment.STATUS_ACCEPTED,
                 new_status=Experiment.STATUS_LIVE,
             ).exists()

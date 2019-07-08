@@ -28,7 +28,7 @@ SECRET_KEY = config("SECRET_KEY")
 
 DEV_USER_EMAIL = "dev@example.com"
 
-NORMANDY_DEFAULT_CHANGELOG_USER = "normandy@admin.com"
+NORMANDY_DEFAULT_CHANGELOG_USER = "unknown-user@normandy.mozilla.com"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
