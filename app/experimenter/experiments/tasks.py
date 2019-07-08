@@ -2,6 +2,7 @@ import markus
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
 from django.db.models import Q
+from django.conf import settings
 from celery.utils.log import get_task_logger
 
 from experimenter.celery import app
@@ -155,10 +156,20 @@ def update_status(experiment):
     recipe_data = normandy.get_recipe(experiment.normandy_id)
     if needs_to_be_updated(recipe_data, experiment.status):
         logger.info("Updating experiment Status")
-        enabler_email = recipe_data["enabled_states"][0]["creator"]["email"]
+
+        # set email default if no email/creator is found in normandy
+        enabler_email = settings.NORMANDY_DEFAULT_CHANGELOG_USER
+
+        enabled_states = recipe_data.get("enabled_states")
+        if enabled_states and len(enabled_states) > 0:
+            creator = enabled_states[0].get("creator")
+            if creator:
+                enabler_email = creator.get("email")
+
         enabler, _ = get_user_model().objects.get_or_create(
             email=enabler_email
         )
+
         old_status = experiment.status
         new_status = STATUS_UPDATE_MAPPING[old_status]
         experiment.status = new_status
