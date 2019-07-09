@@ -325,7 +325,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
 
     def test_mixin_sets_with_full_experiment(self):
         experiment = Experiment(
-            status=Experiment.STATUS_DRAFT, name="This is an experiment",
+            status=Experiment.STATUS_DRAFT,
+            name="This is an experiment",
             short_description="my short description",
             related_work="some other experiment",
             proposed_duration=15,
@@ -384,7 +385,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             review_data_steward=True,
             review_comms=True,
             review_impacted_teams=True,
-
         )
 
         data = {
@@ -530,7 +530,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         self.assertTrue(old_data, experiment.changes.latest().old_values)
         self.assertTrue(data, experiment.changes.latest().new_values)
 
-
     def test_mixin_sets_new_values_with_m2m(self):
         experiment = Experiment()
         experiment.save()
@@ -622,14 +621,31 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         )
 
     def test_mixin_sets_with_m2m_with_existing_changelog(self):
-        experiment = ExperimentFactory.create_with_variants(num_variants=0)
+        country1 = CountryFactory(code="CA", name="Canada")
+        country2 = CountryFactory(code="US", name="United States")
+        locale1 = LocaleFactory(code="da", name="Danish")
+        locale2 = LocaleFactory(code="de", name="German")
+
+        countries = [
+            {"code": "CA", "name": "Canada"},
+            {"code": "US", "name": "United States"},
+        ]
+        locales = [
+            {"code": "da", "name": "Danish"},
+            {"code": "de", "name": "German"},
+        ]
+        experiment = ExperimentFactory.create_with_variants(
+            num_variants=0,
+            countries=[country1, country2],
+            locales=[locale1, locale2],
+        )
 
         ExperimentChangeLog.objects.create(
             experiment=experiment,
             changed_by=self.request.user,
             old_status=Experiment.STATUS_ACCEPTED,
             new_status=Experiment.STATUS_DRAFT,
-            old_values={"variants": None},
+            old_values={"variants": None, "countries": None, "locales": None},
             new_values={
                 "variants": [
                     {
@@ -640,12 +656,17 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                         "is_control": True,
                         "description": " old branch 1 desc",
                     }
-                ]
+                ],
+                "countries": countries,
+                "locales": locales,
             },
             message="",
         )
 
         experiment.save()
+
+        country3 = CountryFactory(code="FR", name="France")
+        locale3 = LocaleFactory(code="bg", name="Bulgarian")
 
         data = {
             "population_percent": "10",
@@ -653,8 +674,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             "firefox_channel": Experiment.CHANNEL_BETA,
             "client_matching": "en-us",
             "platform": Experiment.PLATFORM_WINDOWS,
-            "locales": [],
-            "countries": [],
+            "locales": [locale3],
+            "countries": [country3],
             "pref_key": "some pref key",
             "pref_type": Experiment.PREF_TYPE_INT,
             "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
@@ -696,8 +717,14 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             latest_changes.old_values["variants"],
         )
 
-        self.assertEquals(len(latest_changes.new_values["countries"]), 0)
-        self.assertEquals(len(latest_changes.new_values["locales"]), 0)
+        self.assertCountEqual(
+            latest_changes.new_values["countries"],
+            [{"code": "FR", "name": "France"}],
+        )
+        self.assertCountEqual(
+            latest_changes.new_values["locales"],
+            [{"code": "bg", "name": "Bulgarian"}],
+        )
         self.assertCountEqual(
             [
                 {
