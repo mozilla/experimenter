@@ -2,7 +2,9 @@ import django_filters as filters
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db.models import Q
+from django.db.models import Q, F, IntegerField
+from django.db.models.functions import Cast
+from django.db.models.expressions import Func, Value
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, UpdateView
@@ -38,6 +40,7 @@ class ExperimentFiltersetForm(forms.ModelForm):
     search = forms.CharField(required=False)
     subscribed = forms.BooleanField(required=False)
     firefox_version = forms.CharField(required=False)
+    longrunning = forms.BooleanField(required=False)
 
     class Meta:
         model = Experiment
@@ -53,6 +56,7 @@ class ExperimentFiltersetForm(forms.ModelForm):
             "surveys",
             "archived",
             "subscribed",
+            "longrunning",
         )
 
     def clean_archived(self):
@@ -190,6 +194,12 @@ class ExperimentFilterset(filters.FilterSet):
         method="subscribed_filter",
     )
 
+    longrunning = filters.BooleanFilter(
+        label="Show long-running experiments",
+        widget=forms.CheckboxInput(),
+        method="longrunning_filter",
+    )
+
     class Meta:
         model = Experiment
         form = ExperimentFiltersetForm
@@ -276,6 +286,34 @@ class ExperimentFilterset(filters.FilterSet):
     def subscribed_filter(self, queryset, name, value):
         if value:
             return queryset.filter(subscribers__in=[self.request.user.id])
+
+        return queryset
+
+    def longrunning_filter(self, queryset, name, value):
+        if value:
+            return (
+                queryset.exclude(firefox_max_version__exact="")
+                .annotate(
+                    firefox_min_int=Cast(
+                        Func(
+                            F("firefox_min_version"),
+                            Value(r"[\d]+"),
+                            function="substring",
+                        ),
+                        IntegerField(),
+                    ),
+                    firefox_max_int=Cast(
+                        Func(
+                            F("firefox_max_version"),
+                            Value(r"[\d]+"),
+                            function="substring",
+                        ),
+                        IntegerField(),
+                    ),
+                    version_count=F("firefox_max_int") - F("firefox_min_int"),
+                )
+                .filter(version_count__gte=3)
+            )
 
         return queryset
 

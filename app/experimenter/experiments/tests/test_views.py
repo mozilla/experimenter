@@ -316,6 +316,36 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
 
         self.assertEqual(list(subscribed_filter.qs), [exp_1])
 
+    def test_filters_for_longrunning_experiments(self):
+        exp_1 = ExperimentFactory.create(
+            name="Experiment 1",
+            firefox_min_version="67.0b",
+            firefox_max_version="70.0b",
+        )
+        exp_2 = ExperimentFactory.create(
+            name="Experiment 2",
+            firefox_min_version="64.0",
+            firefox_max_version="69.0",
+        )
+        ExperimentFactory.create(
+            name="Experiment 3",
+            firefox_min_version="64.0",
+            firefox_max_version="",
+        )
+        ExperimentFactory.create(
+            name="Experiment 4",
+            firefox_min_version="64.0",
+            firefox_max_version="65.0",
+        )
+
+        filter = ExperimentFilterset(
+            {"longrunning": "on"},
+            request=self.request,
+            queryset=Experiment.objects.all(),
+        )
+
+        self.assertEqual(set(filter.qs), set([exp_1, exp_2]))
+
 
 class TestExperimentOrderingForm(TestCase):
 
