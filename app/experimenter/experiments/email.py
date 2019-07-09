@@ -79,16 +79,15 @@ def send_experiment_ending_email(experiment):
         },
     )
 
-    version = experiment.format_firefox_versions
-    channel = experiment.firefox_channel
-
     recipients = [experiment.owner.email] + list(
         experiment.subscribers.values_list("email", flat=True)
     )
 
     email = EmailMessage(
         Experiment.ENDING_EMAIL_SUBJECT.format(
-            name=experiment.name, version=version, channel=channel
+            name=experiment.name,
+            version=experiment.format_firefox_versions,
+            channel=experiment.firefox_channel,
         ),
         html_content,
         settings.EMAIL_SENDER,

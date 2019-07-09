@@ -483,6 +483,17 @@ class TestUpdateExperimentStatus(
 
         self.assertTrue(sent_email)
 
+    def test_doesnt_send_experiment_ending_email_if_only_accepted(self):
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED,
+            proposed_start_date=date.today(),
+            proposed_duration=5,
+        )
+
+        tasks.update_experiment_info()
+
+        self.assertEqual(len(mail.outbox), 0)
+
 
 class TestUpdateResolutionTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 

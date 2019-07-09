@@ -131,7 +131,8 @@ def update_experiment_info():
             logger.info("Updating Experiment: {}".format(experiment))
             if experiment.normandy_id:
                 update_status(experiment)
-                send_experiment_ending_emails(experiment)
+                if experiment.status == Experiment.STATUS_LIVE:
+                    send_experiment_ending_emails(experiment)
             else:
                 logger.info(
                     "No Normandy ID found skipping: {}".format(experiment)
@@ -189,7 +190,7 @@ def update_status(experiment):
 
 def send_experiment_ending_emails(experiment):
     # send experiment ending soon emails if end date is 5 days out
-    if experiment.end_date - date.today() <= timedelta(days=5):
+    if (experiment.end_date - date.today()) <= timedelta(days=5):
         if not ExperimentEmail.objects.filter(
             experiment=experiment, type=ExperimentConstants.EXPERIMENT_ENDS
         ):
