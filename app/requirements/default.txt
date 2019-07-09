@@ -65,9 +65,9 @@ django-widget-tweaks==1.4.5 \
 djangorestframework==3.9.4 \
     --hash=sha256:376f4b50340a46c15ae15ddd0c853085f4e66058f97e4dbe7d43ed62f5e60651 \
     --hash=sha256:c12869cfd83c33d579b17b3cb28a2ae7322a53c3ce85580c2a2ebe4e3f56c4fb
-dockerflow==2019.5.0 \
-    --hash=sha256:8c4ffdad72732b16409b6a5599ef338c845e28aac902d09008bb8fae17a157a3 \
-    --hash=sha256:1beb894ccdb28e022f61086b1117ae0e38790f18abfe90c782f249af1aa2442a
+dockerflow==2019.6.0 \
+    --hash=sha256:885e4e32ebedc87a86c0d9c16fe4797f9ffe70622eb3a056615e37611eb983fd \
+    --hash=sha256:3342654c419492fa16dc5872546c893433fefce8fd9ba90da9bc9cfcafaecac1
 factory_boy==2.8.1 \
     --hash=sha256:246f7da9caf9bf855aaa73b4963353ccb147fdd3adcbc419fa29422c5b69dd4c \
     --hash=sha256:a6644e391a371be603aca8624f3dedbc5a2aa4622878c20494ba17abb4b171bb
