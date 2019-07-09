@@ -102,23 +102,94 @@ class TestLocaleSerializer(TestCase):
 class TestChangeLogSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create()
+        country1 = CountryFactory(code="CA", name="Canada")
+        locale1 = LocaleFactory(code="da", name="Danish")
+        experiment = ExperimentFactory.create(locales=[locale1],countries=[country1])
+        
         serializer = ChangeLogSerializer(experiment)
 
-        self.assertEqual(serializer.data.get("type"), experiment.type)
-        self.assertEqual(serializer.data.get("name"), experiment.name)
+        expected_data = {
+            "type": experiment.type,
+            "status": experiment.status,
+            "archived": experiment.archived,
+            "owner": experiment.owner.id,
+            "name": experiment.name,
+            "short_description": experiment.short_description,
+            "related_work":experiment.related_work,
+            "proposed_start_date": str(experiment.proposed_start_date),
+            "proposed_duration": experiment.proposed_duration,
+            "proposed_enrollment": experiment.proposed_enrollment,
+            "addon_experiment_id": experiment.addon_experiment_id ,
+            "addon_release_url": experiment.addon_release_url,
+            "pref_key": experiment.pref_key,
+            "pref_type": experiment.pref_type,
+            "pref_branch": experiment.pref_branch,
+            "public_name": experiment.public_name,
+            "public_description": experiment.public_description,
+            "population_percent": "{0:.4f}".format(
+                experiment.population_percent
+            ),
+            "firefox_version": experiment.firefox_version,
+            "firefox_channel": experiment.firefox_channel,
+            "client_matching": experiment.client_matching,
+            "locales": [{"code": "da", "name": "Danish"}],
+            "countries": [{"code": "CA", "name": "Canada"}],
+            "platform": experiment.platform,
+            "objectives": experiment.objectives,
+            "analysis": experiment.analysis,
+            "analysis_owner": experiment.analysis_owner,
+            "survey_required": experiment.survey_required,
+            "survey_urls": experiment.survey_urls,
+            "survey_instructions": experiment.survey_instructions,
+            "engineering_owner": experiment.engineering_owner,
+            "bugzilla_id": experiment.bugzilla_id,
+            "slug": experiment.slug,
+            "normandy_slug": experiment.normandy_slug,
+            "normandy_id": experiment.normandy_id,
+            "data_science_bugzilla_url": experiment.data_science_bugzilla_url,
+            "feature_bugzilla_url": experiment.feature_bugzilla_url,
+            "risk_internal_only": experiment.risk_internal_only,
+            "risk_partner_related": experiment.risk_partner_related,
+            "risk_brand": experiment.risk_brand,
+            "risk_fast_shipped": experiment.risk_fast_shipped,
+            "risk_confidential": experiment.risk_confidential,
+            "risk_release_population": experiment.risk_release_population,
+            "risk_revenue": experiment.risk_revenue,
+            "risk_data_category": experiment.risk_data_category,
+            "risk_external_team_impact": experiment.risk_external_team_impact,
+            "risk_telemetry_data": experiment.risk_telemetry_data,
+            "risk_ux": experiment.risk_ux,
+            "risk_security": experiment.risk_security,
+            "risk_revision": experiment.risk_revision,
+            "risk_technical": experiment.risk_technical,
+            "risk_technical_description": experiment.risk_technical_description,
+            "risks": experiment.risks,
+            "testing": experiment.testing,
+            "test_builds": experiment.test_builds,
+            "qa_status": experiment.qa_status,
+            "review_science": experiment.review_science,
+            "review_engineering": experiment.review_engineering,
+            "review_qa_requested": experiment.review_qa_requested,
+            "review_intent_to_ship": experiment.review_intent_to_ship,
+            "review_bugzilla": experiment.review_bugzilla,
+            "review_qa": experiment.review_qa,
+            "review_relman": experiment.review_relman,
+            "review_advisory": experiment.review_advisory,
+            "review_legal": experiment.review_legal,
+            "review_ux": experiment.review_ux,
+            "review_security": experiment.review_security,
+            "review_vp": experiment.review_vp,
+            "review_data_steward": experiment.review_data_steward,
+            "review_comms": experiment.review_comms,
+            "review_impacted_teams": experiment.review_impacted_teams,
+            "variants":[],
+        }
+
         self.assertEqual(
-            serializer.data.get("analysis_owner"), experiment.analysis_owner
+            set(serializer.data.keys()), set(expected_data.keys())
         )
-        self.assertEqual(
-            serializer.data.get("survey_required"), experiment.survey_required
-        )
-        self.assertEqual(
-            serializer.data.get("client_matching"), experiment.client_matching
-        )
-        self.assertEqual(
-            serializer.data.get("review_qa"), experiment.review_qa
-        )
+
+        self.assertEqual(serializer.data, expected_data)
 
 
 class TestCountrySerializer(TestCase):

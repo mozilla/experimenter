@@ -627,13 +627,13 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         locale2 = LocaleFactory(code="de", name="German")
 
         countries = [
-            {"code": "CA", "name": "Canada"},
-            {"code": "US", "name": "United States"},
-        ]
-        locales = [
-            {"code": "da", "name": "Danish"},
-            {"code": "de", "name": "German"},
-        ]
+                    {"code": "CA", "name": "Canada"},
+                    {"code": "US", "name": "United States"},
+                ]
+        locales =  [
+                    {"code": "da", "name": "Danish"},
+                    {"code": "de", "name": "German"},
+                ]
         experiment = ExperimentFactory.create_with_variants(
             num_variants=0,
             countries=[country1, country2],
@@ -663,6 +663,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             message="",
         )
 
+
         experiment.save()
 
         country3 = CountryFactory(code="FR", name="France")
@@ -674,8 +675,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             "firefox_channel": Experiment.CHANNEL_BETA,
             "client_matching": "en-us",
             "platform": Experiment.PLATFORM_WINDOWS,
-            "locales": [locale3],
-            "countries": [country3],
+            "locales": [locale2, locale3],
+            "countries": [country1, country3],
             "pref_key": "some pref key",
             "pref_type": Experiment.PREF_TYPE_INT,
             "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
@@ -717,14 +718,10 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             latest_changes.old_values["variants"],
         )
 
-        self.assertCountEqual(
-            latest_changes.new_values["countries"],
-            [{"code": "FR", "name": "France"}],
-        )
-        self.assertCountEqual(
-            latest_changes.new_values["locales"],
-            [{"code": "bg", "name": "Bulgarian"}],
-        )
+        self.assertCountEqual(latest_changes.new_values["countries"], [{"code": "CA", "name": "Canada"},
+                    {"code": "FR", "name": "France"},
+                ])
+        self.assertCountEqual(latest_changes.new_values["locales"], [{"code": "bg", "name": "Bulgarian"},{"code": "de", "name": "German"}])
         self.assertCountEqual(
             [
                 {
