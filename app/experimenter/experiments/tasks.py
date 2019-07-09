@@ -6,8 +6,10 @@ from celery.utils.log import get_task_logger
 
 from experimenter.celery import app
 from experimenter.experiments import bugzilla, normandy, email
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.constants import ExperimentConstants
+from experimenter.experiments.models import Experiment, ExperimentEmail
 from experimenter.notifications.models import Notification
+from datetime import date, timedelta
 
 
 logger = get_task_logger(__name__)
@@ -129,6 +131,8 @@ def update_experiment_info():
             logger.info("Updating Experiment: {}".format(experiment))
             if experiment.normandy_id:
                 update_status(experiment)
+                if experiment.status == Experiment.STATUS_LIVE:
+                    send_experiment_ending_emails(experiment)
             else:
                 logger.info(
                     "No Normandy ID found skipping: {}".format(experiment)
@@ -182,6 +186,18 @@ def update_status(experiment):
 
         if experiment.status == Experiment.STATUS_COMPLETE:
             bugzilla.update_bug_resolution(experiment)
+
+
+def send_experiment_ending_emails(experiment):
+    # send experiment ending soon emails if end date is 5 days out
+    if (experiment.end_date - date.today()) <= timedelta(days=5):
+        if not ExperimentEmail.objects.filter(
+            experiment=experiment, type=ExperimentConstants.EXPERIMENT_ENDS
+        ):
+            email.send_experiment_ending_email(experiment)
+            logger.info(
+                "Sent ending email for Experiment: {}".format(experiment)
+            )
 
 
 def needs_to_be_updated(recipe_data, status):
