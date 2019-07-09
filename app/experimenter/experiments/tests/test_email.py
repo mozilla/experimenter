@@ -5,8 +5,10 @@ from django.core import mail
 from experimenter.experiments.email import (
     send_intent_to_ship_email,
     send_experiment_launch_email,
+    send_experiment_ending_email,
 )
 from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.constants import ExperimentConstants
 
 
 class TestIntentToShipEmail(TestCase):
@@ -159,20 +161,39 @@ Thank you!!
         self.assertEqual(email.subject, expected_subject)
 
 
-class TestLaunchEmail(TestCase):
+class TestStatusUpdateEmail(TestCase):
 
-    def test_send_experiment_launch_email(self):
-        experiment = ExperimentFactory.create_with_variants(
+    def setUp(self):
+        self.experiment = ExperimentFactory.create_with_variants(
             name="Greatest Experiment",
             slug="greatest-experiment",
             firefox_min_version="68.0",
             firefox_max_version="69.0",
             firefox_channel="Nightly",
         )
-        send_experiment_launch_email(experiment)
+
+    def test_send_experiment_launch_email(self):
+        send_experiment_launch_email(self.experiment)
 
         sent_email = mail.outbox[-1]
         self.assertEqual(
             sent_email.subject,
             "Experiment launched: Greatest Experiment 68.0 to 69.0 Nightly",
         )
+
+    def test_send_experiment_ending_email(self):
+        send_experiment_ending_email(self.experiment)
+
+        sent_email = mail.outbox[-1]
+        self.assertEqual(
+            sent_email.subject,
+            "Experiment ending soon: Greatest Experiment 68.0 to 69.0 Nightly",
+        )
+
+        self.assertTrue(
+            self.experiment.emails.filter(
+                type=ExperimentConstants.EXPERIMENT_ENDS
+            ).exists()
+        )
+
+        self.assertEqual(sent_email.content_subtype, "html")
