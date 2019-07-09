@@ -709,7 +709,7 @@ class ExperimentConstants(object):
     """  # noqa
 
     REVIEW_GENERAL_HELP_TEXT = """
-      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-DependentSign-offs">Help</a>
+      <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-LightningAdvising">Help</a>
     """  # noqa
 
     # Risks
