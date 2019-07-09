@@ -872,7 +872,12 @@ class ExperimentChangeLog(models.Model):
         if self.message:
             return self.message
         else:
-            return self.pretty_status
+            # return self.pretty_status
+            return "{pretty_status}{old_values}{new_values}".format(
+                pretty_status=self.pretty_status,
+                old_values=self.old_values,
+                new_values=self.new_values,
+            )
 
     @property
     def pretty_status(self):

@@ -523,7 +523,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
 
         form = TestForm(request=self.request, data=data, instance=experiment)
         self.assertTrue(form.is_valid())
-        updated_experiment = form.save()
+        form.save()
 
         self.assertEqual(experiment.changes.count(), 1)
 
@@ -627,13 +627,13 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         locale2 = LocaleFactory(code="de", name="German")
 
         countries = [
-                    {"code": "CA", "name": "Canada"},
-                    {"code": "US", "name": "United States"},
-                ]
-        locales =  [
-                    {"code": "da", "name": "Danish"},
-                    {"code": "de", "name": "German"},
-                ]
+            {"code": "CA", "name": "Canada"},
+            {"code": "US", "name": "United States"},
+        ]
+        locales = [
+            {"code": "da", "name": "Danish"},
+            {"code": "de", "name": "German"},
+        ]
         experiment = ExperimentFactory.create_with_variants(
             num_variants=0,
             countries=[country1, country2],
@@ -662,7 +662,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             },
             message="",
         )
-
 
         experiment.save()
 
@@ -718,10 +717,20 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             latest_changes.old_values["variants"],
         )
 
-        self.assertCountEqual(latest_changes.new_values["countries"], [{"code": "CA", "name": "Canada"},
-                    {"code": "FR", "name": "France"},
-                ])
-        self.assertCountEqual(latest_changes.new_values["locales"], [{"code": "bg", "name": "Bulgarian"},{"code": "de", "name": "German"}])
+        self.assertCountEqual(
+            latest_changes.new_values["countries"],
+            [
+                {"code": "CA", "name": "Canada"},
+                {"code": "FR", "name": "France"},
+            ],
+        )
+        self.assertCountEqual(
+            latest_changes.new_values["locales"],
+            [
+                {"code": "bg", "name": "Bulgarian"},
+                {"code": "de", "name": "German"},
+            ],
+        )
         self.assertCountEqual(
             [
                 {

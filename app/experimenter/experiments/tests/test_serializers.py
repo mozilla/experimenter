@@ -104,9 +104,13 @@ class TestChangeLogSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         country1 = CountryFactory(code="CA", name="Canada")
         locale1 = LocaleFactory(code="da", name="Danish")
-        experiment = ExperimentFactory.create(locales=[locale1],countries=[country1])
-        
+        experiment = ExperimentFactory.create(
+            locales=[locale1], countries=[country1]
+        )
+
         serializer = ChangeLogSerializer(experiment)
+
+        risk_tech_description = experiment.risk_technical_description
 
         expected_data = {
             "type": experiment.type,
@@ -115,11 +119,11 @@ class TestChangeLogSerializer(TestCase):
             "owner": experiment.owner.id,
             "name": experiment.name,
             "short_description": experiment.short_description,
-            "related_work":experiment.related_work,
+            "related_work": experiment.related_work,
             "proposed_start_date": str(experiment.proposed_start_date),
             "proposed_duration": experiment.proposed_duration,
             "proposed_enrollment": experiment.proposed_enrollment,
-            "addon_experiment_id": experiment.addon_experiment_id ,
+            "addon_experiment_id": experiment.addon_experiment_id,
             "addon_release_url": experiment.addon_release_url,
             "pref_key": experiment.pref_key,
             "pref_type": experiment.pref_type,
@@ -162,7 +166,7 @@ class TestChangeLogSerializer(TestCase):
             "risk_security": experiment.risk_security,
             "risk_revision": experiment.risk_revision,
             "risk_technical": experiment.risk_technical,
-            "risk_technical_description": experiment.risk_technical_description,
+            "risk_technical_description": risk_tech_description,
             "risks": experiment.risks,
             "testing": experiment.testing,
             "test_builds": experiment.test_builds,
@@ -182,7 +186,7 @@ class TestChangeLogSerializer(TestCase):
             "review_data_steward": experiment.review_data_steward,
             "review_comms": experiment.review_comms,
             "review_impacted_teams": experiment.review_impacted_teams,
-            "variants":[],
+            "variants": [],
         }
 
         self.assertEqual(
