@@ -73,6 +73,12 @@ Thank you!!
             [settings.EMAIL_RELEASE_DRIVERS, experiment.owner.email],
         )
 
+        self.assertTrue(
+            experiment.emails.filter(
+                type=ExperimentConstants.INTENT_TO_SHIP_EMAIL_LABEL
+            ).exists()
+        )
+
     def test_send_intent_to_ship_email_without_risk_fields(self):
         experiment = ExperimentFactory.create(
             name="Experiment",
@@ -179,6 +185,12 @@ class TestStatusUpdateEmail(TestCase):
         self.assertEqual(
             sent_email.subject,
             "Experiment launched: Greatest Experiment 68.0 to 69.0 Nightly",
+        )
+
+        self.assertTrue(
+            self.experiment.emails.filter(
+                type=ExperimentConstants.EXPERIMENT_STARTS
+            ).exists()
         )
 
     def test_send_experiment_ending_email(self):

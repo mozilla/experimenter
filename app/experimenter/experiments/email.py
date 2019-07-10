@@ -41,6 +41,10 @@ def send_intent_to_ship_email(experiment_id):
     )
     email.send(fail_silently=False)
 
+    ExperimentEmail.objects.create(
+        experiment=experiment, type=Experiment.INTENT_TO_SHIP_EMAIL_LABEL
+    )
+
 
 def send_experiment_launch_email(experiment):
 
@@ -67,6 +71,10 @@ def send_experiment_launch_email(experiment):
     )
 
     email.send(fail_silently=False)
+
+    ExperimentEmail.objects.create(
+        experiment=experiment, type=Experiment.EXPERIMENT_STARTS
+    )
 
 
 def send_experiment_ending_email(experiment):
