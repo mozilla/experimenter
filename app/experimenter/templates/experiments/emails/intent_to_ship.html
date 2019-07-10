@@ -1,0 +1,30 @@
+{% autoescape off %}
+<p>
+Hello Release Drivers,
+</p>
+<p>
+This request is coming from information entered in Experimenter.
+Please reach out to the person(s) on cc: with any questions, details,
+or discussion. They will email an update if any of the key information
+changes. Otherwise they will reach out once the study has fully passed
+QA for Release Management sign-off.
+</p>
+<p>Experimenter Bug: {{ bug_url }}</p>
+<p>Experimenter URL: {{ experiment.experiment_url }}</p>
+<p>Study owner: {{ experiment.owner.email }}</p>
+<p>Description: {{ experiment.short_description }}</p>
+<p>Timeline & Channel: {{ experiment.format_firefox_versions }} {{ experiment.firefox_channel }}</p>
+<p>Intended study dates: {{ experiment.dates }}</p>
+<p>Percent of Population: {{ percent_of_population }}</p>
+<p>Platforms: {{ experiment.platform }}</p>
+<p>Locales: {{ locales|join:", "|default:"All locales" }}; {{ countries|join:", "|default:"All countries" }}</p>
+<p>QA Status: {{ experiment.qa_status }}</p>
+<p>Meta Bug: {{ experiment.feature_bugzilla_url }}</p>
+<p>Related links: {{ experiment.related_work }}</p>
+{% if experiment.risks %}<p>Risk: {{ experiment.risks }}</p>{% endif %}
+{% if experiment.risk_technical_description %}<p>Technical Complexity: {{ experiment.risk_technical_description }}</p>{% endif %}
+
+<p>
+Thank you!!
+</p>
+{% endautoescape %}

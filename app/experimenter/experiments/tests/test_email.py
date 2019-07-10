@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.conf import settings
 from django.core import mail
+from datetime import date
 
 from experimenter.experiments.email import (
     send_intent_to_ship_email,
@@ -15,23 +16,24 @@ from experimenter.experiments.constants import ExperimentConstants
 
 
 class TestIntentToShipEmail(TestCase):
-    maxDiff = None
 
     def test_send_intent_to_ship_email_with_risk_fields(self):
-        risk_description = "Hardcoded fictitious technical challenge"
         experiment = ExperimentFactory.create(
             name="Experiment",
             slug="experiment",
-            risks="Hardcoded fictitious risk",
-            risk_technical_description=risk_description,
+            risks="Fictitious risk",
+            risk_technical_description="Fictitious technical challenge",
             population_percent=10.0,
             firefox_min_version="56.0",
             firefox_max_version="",
+            firefox_channel="Nightly",
         )
-        send_intent_to_ship_email(experiment.id)
 
-        sent_email = mail.outbox[-1]
-        self.verify_subject(experiment, sent_email)
+        user = UserFactory.create(email="smith@example.com")
+
+        experiment.subscribers.add(user)
+
+        send_intent_to_ship_email(experiment.id)
 
         bug_url = settings.BUGZILLA_DETAIL_URL.format(
             id=experiment.bugzilla_id
@@ -40,47 +42,37 @@ class TestIntentToShipEmail(TestCase):
         expected_countries = self.format_countries(experiment)
         expected_version_channel = self.format_version_and_channel(experiment)
 
-        expected_body = (
-            f"""
-Hello Release Drivers,
-
-This request is coming from information entered in Experimenter.
-Please reach out to the person(s) on cc: with any questions, details,
-or discussion. They will email an update if any of the key information
-changes. Otherwise they will reach out once the study has fully passed
-QA for Release Management sign-off.
-
-Experimenter Bug: {bug_url}
-Experimenter URL: {experiment.experiment_url}
-Study owner: {experiment.owner.email}
-Description: {experiment.short_description}
-Timeline & Channel: {expected_version_channel}
-Intended study dates: {experiment.dates}
-Percent of Population: 10%
-Platforms: {experiment.platform}
-Locales: {expected_locales}; {expected_countries}
-QA Status: {experiment.qa_status}
-Meta Bug: {experiment.feature_bugzilla_url}
-Related links: {experiment.related_work}
-Risk: Hardcoded fictitious risk
-Technical Complexity: Hardcoded fictitious technical challenge
-
-Thank you!!
-""".lstrip()
+        sent_email = mail.outbox[-1]
+        self.assertEqual(
+            sent_email.subject,
+            "SHIELD Study Intent to ship: Experiment 56.0 Nightly",
         )
-
-        self.assertEqual(expected_body, sent_email.body)
         self.assertEqual(sent_email.from_email, settings.EMAIL_SENDER)
         self.assertEqual(
-            sent_email.recipients(),
-            [settings.EMAIL_RELEASE_DRIVERS, experiment.owner.email],
+            set(sent_email.recipients()),
+            set(
+                [
+                    settings.EMAIL_RELEASE_DRIVERS,
+                    experiment.owner.email,
+                    "smith@example.com",
+                ]
+            ),
         )
-
         self.assertTrue(
             experiment.emails.filter(
                 type=ExperimentConstants.INTENT_TO_SHIP_EMAIL_LABEL
             ).exists()
         )
+        self.assertIn(f"Experimenter Bug: {bug_url}", sent_email.body)
+        self.assertIn(
+            f"Locales: {expected_locales}; {expected_countries}",
+            sent_email.body,
+        )
+        self.assertIn(
+            f"Timeline & Channel: {expected_version_channel}", sent_email.body
+        )
+        self.assertIn("Fictitious risk", sent_email.body)
+        self.assertIn("Fictitious technical challenge", sent_email.body)
 
     def test_send_intent_to_ship_email_without_risk_fields(self):
         experiment = ExperimentFactory.create(
@@ -91,11 +83,14 @@ Thank you!!
             population_percent=10.0,
             firefox_min_version="56.0",
             firefox_max_version="",
+            firefox_channel="Nightly",
         )
-        send_intent_to_ship_email(experiment.id)
 
-        sent_email = mail.outbox[-1]
-        self.verify_subject(experiment, sent_email)
+        user = UserFactory.create(email="smith@example.com")
+
+        experiment.subscribers.add(user)
+
+        send_intent_to_ship_email(experiment.id)
 
         bug_url = settings.BUGZILLA_DETAIL_URL.format(
             id=experiment.bugzilla_id
@@ -104,38 +99,30 @@ Thank you!!
         expected_countries = self.format_countries(experiment)
         expected_version_channel = self.format_version_and_channel(experiment)
 
-        expected_body = (
-            f"""
-Hello Release Drivers,
-
-This request is coming from information entered in Experimenter.
-Please reach out to the person(s) on cc: with any questions, details,
-or discussion. They will email an update if any of the key information
-changes. Otherwise they will reach out once the study has fully passed
-QA for Release Management sign-off.
-
-Experimenter Bug: {bug_url}
-Experimenter URL: {experiment.experiment_url}
-Study owner: {experiment.owner.email}
-Description: {experiment.short_description}
-Timeline & Channel: {expected_version_channel}
-Intended study dates: {experiment.dates}
-Percent of Population: 10%
-Platforms: {experiment.platform}
-Locales: {expected_locales}; {expected_countries}
-QA Status: {experiment.qa_status}
-Meta Bug: {experiment.feature_bugzilla_url}
-Related links: {experiment.related_work}
-
-Thank you!!
-""".lstrip()
+        sent_email = mail.outbox[-1]
+        self.assertEqual(
+            sent_email.subject,
+            "SHIELD Study Intent to ship: Experiment 56.0 Nightly",
         )
-
-        self.assertEqual(expected_body, sent_email.body)
+        self.assertIn(f"Experimenter Bug: {bug_url}", sent_email.body)
+        self.assertIn(
+            f"Locales: {expected_locales}; {expected_countries}",
+            sent_email.body,
+        )
+        self.assertIn(
+            f"Timeline & Channel: {expected_version_channel}", sent_email.body
+        )
+        self.assertEqual(sent_email.content_subtype, "html")
         self.assertEqual(sent_email.from_email, settings.EMAIL_SENDER)
         self.assertEqual(
-            sent_email.recipients(),
-            [settings.EMAIL_RELEASE_DRIVERS, experiment.owner.email],
+            set(sent_email.recipients()),
+            set(
+                [
+                    settings.EMAIL_RELEASE_DRIVERS,
+                    experiment.owner.email,
+                    "smith@example.com",
+                ]
+            ),
         )
 
     def format_locales(self, experiment):
@@ -160,15 +147,6 @@ Thank you!!
             f" {experiment.firefox_channel}"
         )
 
-    def verify_subject(self, experiment, email):
-        expected_subject = (
-            f"SHIELD Study Intent to ship: Experiment "
-            f"{experiment.format_firefox_versions} "
-            f"{experiment.firefox_channel}"
-        )
-
-        self.assertEqual(email.subject, expected_subject)
-
 
 class TestStatusUpdateEmail(TestCase):
 
@@ -179,6 +157,9 @@ class TestStatusUpdateEmail(TestCase):
             firefox_min_version="68.0",
             firefox_max_version="69.0",
             firefox_channel="Nightly",
+            proposed_start_date=date(2019, 5, 1),
+            proposed_enrollment=5,
+            proposed_duration=10,
         )
 
         self.subscribing_user = UserFactory.create()
@@ -188,17 +169,18 @@ class TestStatusUpdateEmail(TestCase):
         send_experiment_launch_email(self.experiment)
 
         sent_email = mail.outbox[-1]
+
         self.assertEqual(
             sent_email.subject,
             "Experiment launched: Greatest Experiment 68.0 to 69.0 Nightly",
         )
-
         self.assertTrue(
             self.experiment.emails.filter(
                 type=ExperimentConstants.EXPERIMENT_STARTS
             ).exists()
         )
-
+        self.assertEqual(sent_email.content_subtype, "html")
+        self.assertIn("May 1, 2019", sent_email.body)
         self.assertEqual(
             sent_email.recipients(),
             [self.experiment.owner.email, self.subscribing_user.email],
@@ -208,19 +190,19 @@ class TestStatusUpdateEmail(TestCase):
         send_experiment_ending_email(self.experiment)
 
         sent_email = mail.outbox[-1]
+
         self.assertEqual(
             sent_email.subject,
             "Experiment ending soon: Greatest Experiment 68.0 to 69.0 Nightly",
         )
-
+        self.assertEqual(sent_email.content_subtype, "html")
         self.assertTrue(
             self.experiment.emails.filter(
                 type=ExperimentConstants.EXPERIMENT_ENDS
             ).exists()
         )
-
         self.assertEqual(
             sent_email.recipients(),
             [self.experiment.owner.email, self.subscribing_user.email],
         )
-        self.assertEqual(sent_email.content_subtype, "html")
+        self.assertIn("May 11, 2019", sent_email.body)
