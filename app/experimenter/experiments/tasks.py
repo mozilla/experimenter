@@ -210,6 +210,23 @@ def send_period_ending_emails(experiment):
                 "Sent ending email for Experiment: {}".format(experiment)
             )
 
+    # send enrollment ending emails if enrollment end
+    # date is 5 days out
+    if experiment.enrollment_end_date:
+        if (experiment.enrollment_end_date - date.today()) <= timedelta(
+            days=5
+        ):
+            if not Experiment.objects.filter(
+                experiment=experiment,
+                type=ExperimentConstants.EXPERIMENT_PAUSES,
+            ):
+                email.send_enrollment_pause_email(experiment)
+                logger.info(
+                    "Sent enrollment pause email for Experiment: {}".format(
+                        experiment
+                    )
+                )
+
 
 def needs_to_be_updated(recipe_data, status):
     if recipe_data is None:

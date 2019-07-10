@@ -521,6 +521,20 @@ class TestUpdateExperimentStatus(
 
         self.assertEqual(len(mail.outbox), 0)
 
+    def test_send_enrollment_pausing_email(self):
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            proposed_start_date=date.today(),
+            proposed_enrollment=5,
+        )
+
+        tasks.update_experiment_info()
+
+        sent_email = mail.outbox[-1]
+
+        self.assertTrue(sent_email)
+
 
 class TestUpdateResolutionTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 
