@@ -333,6 +333,58 @@ class TestUpdateExperimentStatus(
             ).exists()
         )
 
+    def test_experiment_with_pause_true(self):
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE, normandy_id=1234
+        )
+        tasks.update_experiment_info()
+        experiment = Experiment.objects.get(normandy_id=1234)
+
+        self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
+        self.assertTrue(experiment.paused)
+
+    def test_experiment_with_paused_true_stays_true(self):
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE, normandy_id=1234, paused=True
+        )
+        tasks.update_experiment_info()
+        experiment = Experiment.objects.get(normandy_id=1234)
+
+        self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
+        self.assertTrue(experiment.paused)
+
+    def test_experiment_with_paused_false_stays_false(self):
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            paused=False,
+        )
+
+        self.mock_normandy_requests_get.return_value = (
+            self.buildMockSucessWithNoPauseEnrollment()
+        )
+        tasks.update_experiment_info()
+
+        experiment = Experiment.objects.get(normandy_id=1234)
+
+        self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
+        self.assertFalse(experiment.paused)
+
+    def test_experiment_with_paused_true_turns_false(self):
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE, normandy_id=1234, paused=True
+        )
+
+        self.mock_normandy_requests_get.return_value = (
+            self.buildMockSucessWithNoPauseEnrollment()
+        )
+        tasks.update_experiment_info()
+
+        experiment = Experiment.objects.get(normandy_id=1234)
+
+        self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
+        self.assertFalse(experiment.paused)
+
     def test_experiment_without_normandy_id(self):
         ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=None

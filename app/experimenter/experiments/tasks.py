@@ -157,9 +157,9 @@ def add_start_date_comment(experiment):
 
 def update_status(experiment):
     recipe_data = normandy.get_recipe(experiment.normandy_id)
+
     if needs_to_be_updated(recipe_data, experiment.status):
         logger.info("Updating experiment Status")
-
         # set email default if no email/creator is found in normandy
         enabler_email = settings.NORMANDY_DEFAULT_CHANGELOG_USER
 
@@ -197,6 +197,10 @@ def update_status(experiment):
         if experiment.status == Experiment.STATUS_COMPLETE:
             bugzilla.update_bug_resolution(experiment)
 
+    if recipe_data and (is_paused(recipe_data) != experiment.paused):
+        experiment.paused = not experiment.paused
+        experiment.save()
+
 
 def send_period_ending_emails(experiment):
     # send experiment ending soon emails if end date is 5 days out
@@ -232,6 +236,11 @@ def needs_to_be_updated(recipe_data, status):
     accepted_update = enabled and status == Experiment.STATUS_ACCEPTED
     live_update = not enabled and status == Experiment.STATUS_LIVE
     return accepted_update or live_update
+
+
+def is_paused(recipe_data):
+    arguments = recipe_data.get("arguments", {})
+    return arguments.get("isEnrollmentPaused")
 
 
 @app.task

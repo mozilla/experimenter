@@ -250,6 +250,8 @@ class Experiment(ExperimentConstants, models.Model):
         default=None, blank=True, null=True
     )
 
+    paused = models.BooleanField(default=False)
+
     objects = ExperimentManager()
 
     class Meta:
