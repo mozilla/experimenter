@@ -200,6 +200,7 @@ Example: GET /api/v1/experiments/?project__slug=project-slug&status=Pending
               "reject_url":"https://localhost/api/v1/experiments/self-enabling-needs-based-hardware/reject",
               "slug":"self-enabling-needs-based-hardware",
               "start_date":1505767052000.0,
+              "status":"Complete",
               "variant":{
                  "description":"Modi perferendis repudiandae ducimus dolorem eum rem. Esse porro iure consectetur facere. Quidem nam enim dolore eius ab facilis.",
                  "name":"Business-focused upward-trending Graphic Interface",
