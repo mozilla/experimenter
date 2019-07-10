@@ -65,6 +65,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "type",
             "name",
             "slug",
+            "status",
             "short_description",
             "client_matching",
             "locales",
