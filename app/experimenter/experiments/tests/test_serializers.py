@@ -148,6 +148,7 @@ class TestExperimentSerializer(TestCase):
             "start_date": JSTimestampField().to_representation(
                 experiment.start_date
             ),
+            "status": Experiment.STATUS_COMPLETE,
             "type": experiment.type,
             "variants": [
                 ExperimentVariantSerializer(variant).data
