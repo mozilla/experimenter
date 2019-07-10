@@ -197,9 +197,10 @@ def update_status(experiment):
         if experiment.status == Experiment.STATUS_COMPLETE:
             bugzilla.update_bug_resolution(experiment)
 
-    if recipe_data and (is_paused(recipe_data) != experiment.paused):
-        experiment.paused = not experiment.paused
-        experiment.save()
+    if recipe_data and (is_paused(recipe_data) != experiment.is_paused):
+        with transaction.atomic():
+            experiment.is_paused = is_paused(recipe_data)
+            experiment.save()
 
 
 def send_period_ending_emails(experiment):

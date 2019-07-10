@@ -341,23 +341,25 @@ class TestUpdateExperimentStatus(
         experiment = Experiment.objects.get(normandy_id=1234)
 
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
-        self.assertTrue(experiment.paused)
+        self.assertTrue(experiment.is_paused)
 
     def test_experiment_with_paused_true_stays_true(self):
         ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_LIVE, normandy_id=1234, paused=True
+            target_status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            is_paused=True,
         )
         tasks.update_experiment_info()
         experiment = Experiment.objects.get(normandy_id=1234)
 
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
-        self.assertTrue(experiment.paused)
+        self.assertTrue(experiment.is_paused)
 
     def test_experiment_with_paused_false_stays_false(self):
         ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_LIVE,
             normandy_id=1234,
-            paused=False,
+            is_paused=False,
         )
 
         self.mock_normandy_requests_get.return_value = (
@@ -368,11 +370,13 @@ class TestUpdateExperimentStatus(
         experiment = Experiment.objects.get(normandy_id=1234)
 
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
-        self.assertFalse(experiment.paused)
+        self.assertFalse(experiment.is_paused)
 
     def test_experiment_with_paused_true_turns_false(self):
         ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_LIVE, normandy_id=1234, paused=True
+            target_status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            is_paused=True,
         )
 
         self.mock_normandy_requests_get.return_value = (
@@ -383,7 +387,7 @@ class TestUpdateExperimentStatus(
         experiment = Experiment.objects.get(normandy_id=1234)
 
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
-        self.assertFalse(experiment.paused)
+        self.assertFalse(experiment.is_paused)
 
     def test_experiment_without_normandy_id(self):
         ExperimentFactory.create_with_status(
