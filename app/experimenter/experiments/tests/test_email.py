@@ -7,7 +7,10 @@ from experimenter.experiments.email import (
     send_experiment_launch_email,
     send_experiment_ending_email,
 )
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.factories import (
+    ExperimentFactory,
+    UserFactory,
+)
 from experimenter.experiments.constants import ExperimentConstants
 
 
@@ -178,6 +181,9 @@ class TestStatusUpdateEmail(TestCase):
             firefox_channel="Nightly",
         )
 
+        self.subscribing_user = UserFactory.create()
+        self.experiment.subscribers.add(self.subscribing_user)
+
     def test_send_experiment_launch_email(self):
         send_experiment_launch_email(self.experiment)
 
@@ -191,6 +197,11 @@ class TestStatusUpdateEmail(TestCase):
             self.experiment.emails.filter(
                 type=ExperimentConstants.EXPERIMENT_STARTS
             ).exists()
+        )
+
+        self.assertEqual(
+            sent_email.recipients(),
+            [self.experiment.owner.email, self.subscribing_user.email],
         )
 
     def test_send_experiment_ending_email(self):
@@ -208,4 +219,8 @@ class TestStatusUpdateEmail(TestCase):
             ).exists()
         )
 
+        self.assertEqual(
+            sent_email.recipients(),
+            [self.experiment.owner.email, self.subscribing_user.email],
+        )
         self.assertEqual(sent_email.content_subtype, "html")
