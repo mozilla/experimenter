@@ -66,8 +66,7 @@ def send_experiment_launch_email(experiment):
         ),
         content,
         settings.EMAIL_SENDER,
-        [settings.EMAIL_RELEASE_DRIVERS],
-        cc=recipients,
+        recipients,
     )
 
     email.send(fail_silently=False)
@@ -99,8 +98,7 @@ def send_experiment_ending_email(experiment):
         ),
         html_content,
         settings.EMAIL_SENDER,
-        [settings.EMAIL_RELEASE_DRIVERS],
-        cc=recipients,
+        recipients,
     )
     email.content_subtype = "html"
 
