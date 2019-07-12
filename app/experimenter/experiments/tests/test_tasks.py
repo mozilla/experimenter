@@ -340,12 +340,10 @@ class TestUpdateExperimentStatus(
         self.mock_normandy_requests_get.assert_not_called()
 
     def test_accepted_experiment_becomes_live_if_normandy_enabled(self):
-        exp_1 = ExperimentFactory.create_with_status(
+        ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
         )
 
-        subscribing_user = UserFactory.create()
-        exp_1.subscribers.add(subscribing_user)
         tasks.update_experiment_info()
         experiment = Experiment.objects.get(normandy_id=1234)
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
@@ -366,9 +364,6 @@ class TestUpdateExperimentStatus(
             {"comment": comment},
         )
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(
-            mail.outbox[0].cc, [experiment.owner.email, subscribing_user.email]
-        )
 
     def test_accepted_experiment_stays_accepted_if_normandy_disabled(self):
         ExperimentFactory.create_with_status(
