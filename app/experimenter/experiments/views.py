@@ -17,6 +17,7 @@ from django.contrib.postgres.search import (
 )
 import django_filters.widgets as widgets
 
+from experimenter.experiments.constants import ExperimentConstants
 from experimenter.projects.models import Project
 from experimenter.experiments.forms import (
     ExperimentArchiveForm,
@@ -297,7 +298,7 @@ class ExperimentFilterset(filters.FilterSet):
                     firefox_min_int=Cast(
                         Func(
                             F("firefox_min_version"),
-                            Value(r"[\d]+"),
+                            Value(ExperimentConstants.VERSION_REGEX.pattern),
                             function="substring",
                         ),
                         IntegerField(),
@@ -305,7 +306,7 @@ class ExperimentFilterset(filters.FilterSet):
                     firefox_max_int=Cast(
                         Func(
                             F("firefox_max_version"),
-                            Value(r"[\d]+"),
+                            Value(ExperimentConstants.VERSION_REGEX.pattern),
                             function="substring",
                         ),
                         IntegerField(),
