@@ -216,7 +216,7 @@ def send_period_ending_emails(experiment):
         if (experiment.enrollment_end_date - date.today()) <= timedelta(
             days=5
         ):
-            if not Experiment.objects.filter(
+            if not ExperimentEmail.objects.filter(
                 experiment=experiment,
                 type=ExperimentConstants.EXPERIMENT_PAUSES,
             ):
