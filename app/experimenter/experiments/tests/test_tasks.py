@@ -364,6 +364,7 @@ class TestUpdateExperimentStatus(
             {"comment": comment},
         )
         self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].recipients(), [experiment.owner.email])
 
     def test_accepted_experiment_stays_accepted_if_normandy_disabled(self):
         ExperimentFactory.create_with_status(
@@ -495,7 +496,7 @@ class TestUpdateExperimentStatus(
             ).exists()
         )
 
-    def test_send_experiment_ending_emails(self):
+    def test_send_experiment_ending_email(self):
         ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_LIVE,
             normandy_id=1234,

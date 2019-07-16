@@ -1,0 +1,29 @@
+{% autoescape off %}
+
+<p>
+  Hello,
+</p>
+
+<p>
+  This is an automatic email from Experimenter about
+  <a target="_blank" rel="noreferrer noopener" href="{{ experiment.experiment_url }}">{{ experiment.name }}</a>,
+  which went live on {{ experiment.start_date }}.
+  Experimenter updates the proposed start date to the actual start date when
+  the state changes to "Live". The subsequent scheduled change dates
+  (ex: enrollment pause and experiment end) are recalculated based on
+  the actual start date.
+</p>
+
+<p>
+  Please watch your scheduled change dates as the data starts being gathered.
+  If you need scheduling changes (ex: delay enrollment pause, delay end),
+  please SLACK: #ask-experimenter. If everything looks good, no action is needed.
+</p>
+
+<p>
+  Thank you!
+</p>
+<p>
+Experimenter and Normandy Teams
+</p>
+{% endautoescape %}
