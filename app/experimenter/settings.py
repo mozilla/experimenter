@@ -131,7 +131,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 OPENIDC_EMAIL_HEADER = config("OPENIDC_HEADER")
-OPENIDC_AUTH_WHITELIST = ("experiments-api-list",)
+OPENIDC_AUTH_WHITELIST = ("experiments-api-list", "experiments-api-recipe")
 
 
 # Internationalization
