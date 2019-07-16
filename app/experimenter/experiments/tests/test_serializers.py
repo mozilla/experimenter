@@ -186,13 +186,17 @@ class TestChangeLogSerializer(TestCase):
             "review_data_steward": experiment.review_data_steward,
             "review_comms": experiment.review_comms,
             "review_impacted_teams": experiment.review_impacted_teams,
-            "variants": [],
+            "variants": [
+                ExperimentVariantSerializer(variant).data
+                for variant in experiment.variants.all()
+            ],
         }
+
+        self.maxDiff = None
 
         self.assertEqual(
             set(serializer.data.keys()), set(expected_data.keys())
         )
-
         self.assertEqual(serializer.data, expected_data)
 
 

@@ -216,7 +216,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         self.assertEqual(change.old_status, old_status)
         self.assertEqual(change.new_status, new_status)
 
-    def test_mixin_sets_old_values_and_new_values(self):
+    def test_mixin_changelog_values(self):
         experiment = Experiment()
 
         data = {
@@ -225,318 +225,94 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             "name": "This is an experiment!",
             "short_description": "my short description",
             "related_work": "some other experiment",
-            "proposed_duration": 15,
-            "proposed_enrollment": 5,
-            "addon_experiment_id": "add_on_experiment_id",
-            "addon_release_url": "https://example.com",
-            "pref_key": "a pref key",
-            "pref_type": "boolean",
-            "pref_branch": "default",
-            "public_name": "the public name",
-            "public_description": "the public description",
-            "population_percent": "50.0000",
-            "firefox_version": "55.0",
-            "firefox_channel": "Nightly",
-            "client_matching": "some random text about client matching",
-            "platform": "All Windows",
-            "objectives": "some blurb about an objective",
-            "analysis": "some blurb about analyis",
-            "survey_required": True,
-            "survey_urls": "https://example.com",
-            "survey_instructions": "some blurb about instructions",
-            "slug": "the-experiment-slug",
-            "normandy_id": 4321,
-            "data_science_bugzilla_url": "https://bugzilla.mozilla.org/123/",
-            "feature_bugzilla_url": "https://bugzilla.mozilla.org/124/",
-            "risk_internal_only": True,
-            "risk_partner_related": True,
-            "risk_brand": True,
-            "risk_fast_shipped": True,
-            "risk_confidential": True,
             "risk_release_population": True,
-            "risk_revenue": True,
-            "risk_data_category": True,
-            "risk_external_team_impact": True,
-            "risk_telemetry_data": True,
-            "risk_ux": True,
-            "risk_security": True,
-            "risk_revision": True,
-            "risk_technical": True,
-            "risk_technical_description": "tech description",
-            "testing": "some blurb about testing",
-            "test_builds": "some blurb about test builds",
-            "qa_status": "some blurb qa status",
-            "review_science": True,
-            "review_engineering": True,
-            "review_qa_requested": True,
-            "review_intent_to_ship": True,
-            "review_bugzilla": True,
-            "review_qa": True,
-            "review_relman": True,
-            "review_advisory": True,
-            "review_legal": True,
-            "review_ux": True,
-            "review_security": True,
-            "review_vp": True,
-            "review_data_steward": True,
-            "review_comms": True,
             "review_impacted_teams": True,
         }
-
-        class TestForm(ChangeLogMixin, forms.ModelForm):
-
-            class Meta:
-                model = Experiment
-                fields = "__all__"
 
         class TinyTestForm(ChangeLogMixin, forms.ModelForm):
 
             class Meta:
                 model = Experiment
-                fields = ("review_impacted_teams",)
+                fields = (
+                    "type",
+                    "status",
+                    "name",
+                    "short_description",
+                    "related_work",
+                    "risk_release_population",
+                    "review_impacted_teams",
+                )
 
-        form = TestForm(request=self.request, data=data, instance=experiment)
+        form = TinyTestForm(
+            request=self.request, data=data, instance=experiment
+        )
+
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertEqual(experiment.changes.count(), 1)
+        self.assertEqual(experiment.changes.latest().new_values, data)
+
+    def test_mixin_changelog_values_with_prev_log(self):
+        experiment = ExperimentFactory.create_with_status(
+            type=Experiment.TYPE_PREF,
+            target_status=Experiment.STATUS_DRAFT,
+            name="This is an experiment!",
+            short_description="a short description",
+            related_work="some other type of work",
+            risk_release_population=False,
+            review_impacted_teams=False,
+        )
+
+        data = {
+            "type": Experiment.TYPE_PREF,
+            "status": Experiment.STATUS_DRAFT,
+            "name": "This is an edited experiment!",
+            "short_description": "my edited short description",
+            "related_work": "some other related experiment",
+            "risk_release_population": True,
+            "review_impacted_teams": True,
+        }
+
+        class TinyTestForm(ChangeLogMixin, forms.ModelForm):
+
+            class Meta:
+                model = Experiment
+                fields = (
+                    "type",
+                    "status",
+                    "name",
+                    "short_description",
+                    "related_work",
+                    "risk_release_population",
+                    "review_impacted_teams",
+                )
+
+        form = TinyTestForm(
+            request=self.request, data=data, instance=experiment
+        )
 
         self.assertTrue(form.is_valid())
         experiment = form.save()
 
-        self.assertEqual(experiment.changes.count(), 1)
-
-        self.assertEqual(experiment.changes.latest().new_values, data)
-
-        self.assertTrue(experiment.review_impacted_teams)
-        form = TinyTestForm(
-            request=self.request,
-            data={"review_impacted_teams": False},
-            instance=experiment,
-        )
-
-        self.assertTrue(form.is_valid())
-        form.save()
         self.assertEqual(experiment.changes.count(), 2)
-        self.assertEqual(
-            experiment.changes.latest().old_values,
-            {"review_impacted_teams": True},
-        )
-        self.assertEqual(
-            experiment.changes.latest().new_values,
-            {"review_impacted_teams": False},
-        )
-
-    def test_mixin_sets_with_full_experiment(self):
-        experiment = Experiment(
-            status=Experiment.STATUS_DRAFT,
-            name="This is an experiment",
-            short_description="my short description",
-            related_work="some other experiment",
-            proposed_duration=15,
-            proposed_enrollment=5,
-            addon_experiment_id="add_on_experiment_id",
-            addon_release_url="https://example.com",
-            pref_key="a pref key",
-            pref_type="boolean",
-            pref_branch="default",
-            public_name="the public name",
-            public_description="the public description",
-            population_percent="50.0000",
-            firefox_version="55.0",
-            firefox_channel="Nightly",
-            client_matching="some random text about client matching",
-            platform="All Windows",
-            objectives="some blurb about an objective",
-            analysis="some blurb about analyis",
-            survey_required=True,
-            survey_urls="https://example.com",
-            survey_instructions="some blurb about instructions",
-            slug="the-experiment-slug",
-            normandy_id=4321,
-            data_science_bugzilla_url="https://bugzilla.mozilla.org/123/",
-            feature_bugzilla_url="https://bugzilla.mozilla.org/124/",
-            risk_internal_only=True,
-            risk_partner_related=True,
-            risk_brand=True,
-            risk_fast_shipped=True,
-            risk_confidential=True,
-            risk_release_population=True,
-            risk_revenue=True,
-            risk_data_category=True,
-            risk_external_team_impact=True,
-            risk_telemetry_data=True,
-            risk_ux=True,
-            risk_security=True,
-            risk_revision=True,
-            risk_technical=True,
-            risk_technical_description="tech description",
-            testing="some blurb about testing",
-            test_builds="some blurb about test builds",
-            qa_status="some blurb qa status",
-            review_science=True,
-            review_engineering=True,
-            review_qa_requested=True,
-            review_intent_to_ship=True,
-            review_bugzilla=True,
-            review_qa=True,
-            review_vp=True,
-            review_relman=True,
-            review_advisory=True,
-            review_legal=True,
-            review_ux=True,
-            review_security=True,
-            review_data_steward=True,
-            review_comms=True,
-            review_impacted_teams=True,
-        )
-
-        data = {
-            "type": Experiment.TYPE_ADDON,
-            "status": Experiment.STATUS_LIVE,
-            "name": "This is a diff experiment!",
-            "short_description": "a diff description",
-            "related_work": "some other different experiment",
-            "proposed_duration": 10,
-            "proposed_enrollment": 2,
-            "addon_experiment_id": "add_on_experiment_id1",
-            "addon_release_url": "https://example1.com",
-            "pref_key": "a diff pref key",
-            "pref_type": "integer",
-            "pref_branch": "user",
-            "public_name": "a diff public name",
-            "public_description": "a diff public description",
-            "population_percent": "40.0000",
-            "firefox_version": "56.0",
-            "firefox_channel": "Beta",
-            "client_matching": "some diff random text about client matching",
-            "platform": "All Mac",
-            "objectives": "some diff blurb about an objective",
-            "analysis": "some diff blurb about analyis",
-            "survey_required": False,
-            "survey_urls": "https://example1.com",
-            "survey_instructions": "some diff blurb about instructions",
-            "slug": "the-diff-slug",
-            "normandy_id": 8888,
-            "data_science_bugzilla_url": "https://bugzilla.mozilla.org/888/",
-            "feature_bugzilla_url": "https://bugzilla.mozilla.org/999/",
-            "risk_internal_only": False,
-            "risk_partner_related": False,
-            "risk_brand": False,
-            "risk_fast_shipped": False,
-            "risk_confidential": False,
+        old_values = {
+            "name": "This is an experiment!",
+            "short_description": "a short description",
+            "related_work": "some other type of work",
             "risk_release_population": False,
-            "risk_revenue": False,
-            "risk_data_category": False,
-            "risk_external_team_impact": False,
-            "risk_telemetry_data": False,
-            "risk_ux": False,
-            "risk_security": False,
-            "risk_revision": False,
-            "risk_technical": False,
-            "risk_technical_description": "diff tech description",
-            "testing": "diff blurb about testing",
-            "test_builds": "diff blurb about test builds",
-            "qa_status": "diff blurb qa status",
-            "review_science": False,
-            "review_engineering": False,
-            "review_qa_requested": False,
-            "review_intent_to_ship": False,
-            "review_bugzilla": False,
-            "review_qa": False,
-            "review_relman": False,
-            "review_advisory": False,
-            "review_legal": False,
-            "review_ux": False,
-            "review_security": False,
-            "review_vp": False,
-            "review_data_steward": False,
-            "review_comms": False,
             "review_impacted_teams": False,
         }
 
-        old_data = {
-            "type": Experiment.TYPE_PREF,
-            "status": Experiment.STATUS_DRAFT,
-            "name": "This is an experiment",
-            "short_description": "my short description",
-            "related_work": "some other experiment",
-            "proposed_duration": 15,
-            "proposed_enrollment": 5,
-            "addon_experiment_id": "add_on_experiment_id",
-            "addon_release_url": "https://example.com",
-            "pref_key": "a pref key",
-            "pref_type": "boolean",
-            "pref_branch": "default",
-            "public_name": "the public name",
-            "public_description": "the public description",
-            "population_percent": "50.0000",
-            "firefox_version": "55.0",
-            "firefox_channel": "Nightly",
-            "client_matching": "some random text about client matching",
-            "platform": "All Windows",
-            "objectives": "some blurb about an objective",
-            "analysis": "some blurb about analyis",
-            "survey_required": True,
-            "survey_urls": "https://example.com",
-            "survey_instructions": "some blurb about instructions",
-            "slug": "the-experiment-slug",
-            "normandy_id": 4321,
-            "data_science_bugzilla_url": "https://bugzilla.mozilla.org/123/",
-            "feature_bugzilla_url": "https://bugzilla.mozilla.org/124/",
-            "risk_internal_only": True,
-            "risk_partner_related": True,
-            "risk_brand": True,
-            "risk_fast_shipped": True,
-            "risk_confidential": True,
-            "risk_release_population": True,
-            "risk_revenue": True,
-            "risk_data_category": True,
-            "risk_external_team_impact": True,
-            "risk_telemetry_data": True,
-            "risk_ux": True,
-            "risk_security": True,
-            "risk_revision": True,
-            "risk_technical": True,
-            "risk_technical_description": "tech description",
-            "testing": "some blurb about testing",
-            "test_builds": "some blurb about test builds",
-            "qa_status": "some blurb qa status",
-            "review_science": True,
-            "review_engineering": True,
-            "review_qa_requested": True,
-            "review_intent_to_ship": True,
-            "review_bugzilla": True,
-            "review_qa": True,
-            "review_relman": True,
-            "review_advisory": True,
-            "review_legal": True,
-            "review_ux": True,
-            "review_security": True,
-            "review_vp": True,
-            "review_data_steward": True,
-            "review_comms": True,
-            "review_impacted_teams": True,
-        }
+        self.assertEqual(experiment.changes.latest().old_values, old_values)
 
-        class TestForm(ChangeLogMixin, forms.ModelForm):
+        # type and status should stay the same
+        del data["type"]
+        del data["status"]
+        self.assertEqual(experiment.changes.latest().new_values, data)
 
-            class Meta:
-                model = Experiment
-                fields = "__all__"
-
-        form = TestForm(request=self.request, data=data, instance=experiment)
-        self.assertTrue(form.is_valid())
-        form.save()
-
-        self.assertEqual(experiment.changes.count(), 1)
-
-        self.assertTrue(old_data, experiment.changes.latest().old_values)
-        self.assertTrue(data, experiment.changes.latest().new_values)
-
-    def test_mixin_sets_new_values_with_m2m(self):
+    def test_changelog_m2m_values(self):
         experiment = Experiment()
         experiment.save()
-
-        self.assertEqual(experiment.countries.count(), 0)
-        self.assertEqual(experiment.locales.count(), 0)
-
         country1 = CountryFactory(code="CA", name="Canada")
         country2 = CountryFactory(code="US", name="United States")
         locale1 = LocaleFactory(code="da", name="Danish")
@@ -620,7 +396,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             latest_changes.new_values["variants"],
         )
 
-    def test_mixin_sets_with_m2m_with_existing_changelog(self):
+    def test_changelog_m2m_values_with_prev_log(self):
+
         country1 = CountryFactory(code="CA", name="Canada")
         country2 = CountryFactory(code="US", name="United States")
         locale1 = LocaleFactory(code="da", name="Danish")
