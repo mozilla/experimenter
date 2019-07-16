@@ -47,7 +47,7 @@
 {% block main_sidebar_extra %}
   <div class="form-group row">
     <div class="col pt-2">
-      <h5 class="mt-3">Required Sign-Off Checklist</h5>
+      <h5 class="mt-3">Required Checklist</h5>
       <form action="{% url "experiments-review-update" slug=experiment.slug %}" method="POST">
         {% csrf_token %}
 
@@ -73,7 +73,7 @@
           {% endif %}
         {% endfor %}
 
-        <h5 class="mt-3">Optional Sign-Off Checklist</h5>
+        <h5 class="mt-3">Optional Checklist</h5>
 
         {% for field in form.optional_reviews %}
             <div class="checkbox">
