@@ -197,7 +197,6 @@ def update_status(experiment):
         if experiment.status == Experiment.STATUS_COMPLETE:
             bugzilla.update_bug_resolution(experiment)
 
-    
     if recipe_data:
         paused_val = is_paused(recipe_data)
         if paused_val != experiment.is_paused:
