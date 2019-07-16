@@ -1,6 +1,7 @@
 from django.utils.text import format_lazy
 from django.urls import reverse_lazy
 from django.conf import settings
+import re
 
 
 class ExperimentConstants(object):
@@ -102,6 +103,8 @@ class ExperimentConstants(object):
     MAX_VERSION_CHOICES = ((None, "No Max Version (Optional)"),) + (
         (VERSION_CHOICES)
     )
+
+    VERSION_REGEX = re.compile(r"[\d]+")
 
     # Channel stuff
     CHANNEL_NIGHTLY = "Nightly"
