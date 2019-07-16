@@ -293,7 +293,7 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(
             experiment.generate_normandy_slug(),
-            "pref-experiment-slug-nightly-57.0-59.0-bug-12345",
+            "pref-experiment-slug-nightly-57-59-bug-12345",
         )
 
         experiment = ExperimentFactory.create(
@@ -307,7 +307,7 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(
             experiment.generate_normandy_slug(),
-            "pref-experiment-slug-other-nightly-57.0-bug-12345",
+            "pref-experiment-slug-other-nightly-57-bug-12345",
         )
 
     def test_generate_normandy_slug_raises_valueerror_without_addon_info(self):
