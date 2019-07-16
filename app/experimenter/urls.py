@@ -3,7 +3,7 @@ from django.conf.urls import re_path, include
 from django.conf.urls.static import static
 from django.contrib import admin
 
-from experimenter.experiments.views import ExperimentListView
+from experimenter.experiments.views import ExperimentListView, ExperimentActivityView
 
 
 urlpatterns = [
@@ -13,6 +13,7 @@ urlpatterns = [
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^experiments/", include("experimenter.experiments.web_urls")),
     re_path(r"^projects/", include("experimenter.projects.urls")),
+    re_path(r"^activity/$", ExperimentActivityView.as_view(), name="activity"),
     re_path(r"^$", ExperimentListView.as_view(), name="home"),
 ]
 

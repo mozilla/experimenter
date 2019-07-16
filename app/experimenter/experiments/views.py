@@ -7,7 +7,7 @@ from django.db.models.functions import Cast
 from django.db.models.expressions import Func, Value
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import CreateView, DetailView, UpdateView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from django.views.generic.edit import ModelFormMixin
 from django_filters.views import FilterView
 from django.contrib.postgres.search import (
@@ -31,7 +31,7 @@ from experimenter.experiments.forms import (
     ExperimentVariantsPrefForm,
     NormandyIdForm,
 )
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import Experiment, ExperimentChangeLog
 
 
 class ExperimentFiltersetForm(forms.ModelForm):
@@ -374,6 +374,44 @@ class ExperimentListView(FilterView):
         return super().get_context_data(
             ordering_form=self.ordering_form, *args, **kwargs
         )
+
+
+class ExperimentActivityFilterset(filters.FilterSet):
+
+    is_owned = filters.BooleanFilter(
+        label="Experiments Owned By Me",
+        widget=forms.CheckboxInput(),
+        method="is_owned_filter",
+    )
+    is_subscribed = filters.BooleanFilter(
+        label="Experiments Subscribed By Me",
+        widget=forms.CheckboxInput(),
+        method="is_subscribed_filter",
+    )
+
+    class Meta:
+        model = ExperimentChangeLog
+        fields = (
+            "is_owned",
+            "is_subscribed",
+        )
+
+    def is_owned_filter(self, queryset, name, value):
+        if value:
+            return queryset.filter(experiment__owner=self.request.user)
+        return queryset
+
+    def is_subscribed_filter(self, queryset, name, value):
+        if value:
+            return queryset.filter(experiment__subscribers=self.request.user)
+        return queryset
+
+
+class ExperimentActivityView(FilterView):
+    queryset = ExperimentChangeLog.objects.all().order_by('-changed_on')
+    filterset_class = ExperimentActivityFilterset
+    context_object_name = "changes"
+    template_name="experiments/activity_list.html"
 
 
 class ExperimentFormMixin(object):

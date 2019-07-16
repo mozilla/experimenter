@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+
+{% block header_content %}
+  <h3 class="m-0">Experiment Activity</h3>
+{% endblock %}
+
+{% block main_content %}
+  {% for change in changes %}
+    <a href="{{ change.experiment.get_absolute_url }}">
+      <strong>{{ change.experiment.name }}</strong>
+    </a>
+
+    {{ change }}
+
+    <div class="text-muted">{{ change.changed_on }}</div>
+    {{ change.changed_by }}
+  {% endfor %}
+{% endblock %}
+
+{% block main_sidebar %}
+  <form method="GET">
+    <div class="form-group">
+      <strong>Filter Activity</strong>
+    </div>
+
+    {% for field in filter.form %}
+        <label>
+          {{ field }}
+          {{ field.label }}
+        </label>
+    {% endfor %}
+
+    <div class="form-group text-right">
+      <button type="submit" class="btn btn-primary">
+        <span class="fas fa-check"></span>
+        Apply
+      </button>
+    </div>
+  </form>
+{% endblock %}
