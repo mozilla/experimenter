@@ -110,6 +110,9 @@
               {% if experiment.enrollment_end_date %}
                 <p>Enrolling until {{ experiment.enrollment_end_date }}</p>
               {% endif %}
+              {% if experiment.survey_required %}
+                <span class="badge badge-secondary mb-2">Includes Survey</span>
+              {% endif %}
             </div>
           </div>
         </div>

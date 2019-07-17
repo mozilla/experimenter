@@ -17,6 +17,9 @@
   </h3>
 
   {{ experiment.dates }}
+  {% if experiment.survey_required %}
+    <span class="badge badge-secondary">Includes Survey</span>
+  {% endif %}
 {% endblock %}
 
 {% block header_links %}
