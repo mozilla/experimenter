@@ -338,11 +338,15 @@ class Experiment(ExperimentConstants, models.Model):
         if not self.bugzilla_id:
             raise ValueError(error_msg.format(field="Bugzilla ID"))
 
-        version_string = self.firefox_min_version
+        slug_min_version = ExperimentConstants.VERSION_REGEX.match(
+            self.firefox_min_version
+        ).group(0)
+        version_string = slug_min_version
         if self.firefox_max_version:
-            version_string = (
-                f"{self.firefox_min_version}-{self.firefox_max_version}"
-            )
+            slug_max_version = ExperimentConstants.VERSION_REGEX.match(
+                self.firefox_max_version
+            ).group(0)
+            version_string = f"{slug_min_version}-{slug_max_version}"
 
         slug_prefix = f"{self.type}-"
         slug_postfix = (
@@ -352,7 +356,7 @@ class Experiment(ExperimentConstants, models.Model):
         remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(
             slug_prefix + slug_postfix
         )
-        truncated_slug = self.slug[:remaining_chars]
+        truncated_slug = slugify(self.name[:remaining_chars])
         return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
 
     @property
@@ -412,6 +416,18 @@ class Experiment(ExperimentConstants, models.Model):
         return self._transition_date(
             self.STATUS_LIVE, self.STATUS_COMPLETE
         ) or self._compute_end_date(self.proposed_duration)
+
+    @property
+    def enrollment_ending_soon(self):
+        return (
+            self.enrollment_end_date - datetime.date.today()
+        ) <= datetime.timedelta(days=5)
+
+    @property
+    def ending_soon(self):
+        return (self.end_date - datetime.date.today()) <= datetime.timedelta(
+            days=5
+        )
 
     @property
     def enrollment_end_date(self):
