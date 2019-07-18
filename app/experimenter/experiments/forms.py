@@ -375,6 +375,7 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
     firefox_min_version = forms.ChoiceField(
         choices=Experiment.MIN_VERSION_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
+        help_text=Experiment.VERSION_HELP_TEXT,
     )
     firefox_max_version = forms.ChoiceField(
         choices=Experiment.MAX_VERSION_CHOICES,
@@ -385,6 +386,7 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
         choices=Experiment.CHANNEL_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
         label="Firefox Channel",
+        help_text=Experiment.CHANNEL_HELP_TEXT,
     )
     client_matching = forms.CharField(
         label="Population Filtering",
