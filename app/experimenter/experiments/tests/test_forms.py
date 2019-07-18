@@ -903,6 +903,19 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
         )
         self.assertEqual(experiment.platform, self.data["platform"])
 
+    def test_form_is_invalid_if_firefox_max_is_lower_than_min(self):
+        self.data["firefox_min_version"] = "66.0"
+        self.data["firefox_max_version"] = "64.0"
+        form = self.form_class(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("firefox_max_version", form.errors)
+
+    def test_form_is_valid_if_firefox_max_left_blank(self):
+        self.data["firefox_min_version"] = "66.0"
+        self.data["firefox_max_version"] = ""
+        form = self.form_class(request=self.request, data=self.data)
+        self.assertTrue(form.is_valid())
+
 
 class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 

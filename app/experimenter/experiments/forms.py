@@ -470,6 +470,18 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
 
         return population_percent
 
+    def clean_firefox_max_version(self):
+        firefox_min_version = self.cleaned_data["firefox_min_version"]
+        firefox_max_version = self.cleaned_data["firefox_max_version"]
+
+        if firefox_max_version:
+            if firefox_max_version <= firefox_min_version:
+                raise forms.ValidationError(
+                    "The max version must " "be larger than the min version."
+                )
+
+            return firefox_max_version
+
     def is_valid(self):
         return super().is_valid() and self.variants_formset.is_valid()
 
