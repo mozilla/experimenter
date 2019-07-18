@@ -57,6 +57,20 @@ def send_experiment_ending_email(experiment):
     )
 
 
+def send_enrollment_pause_email(experiment):
+
+    format_and_send_html_email(
+        experiment,
+        "experiments/emails/enrollment_pause_email.html",
+        {
+            "experiment": experiment,
+            "change_window_url": ExperimentConstants.NORMANDY_CHANGE_WINDOW,
+        },
+        Experiment.PAUSE_EMAIL_SUBJECT,
+        Experiment.EXPERIMENT_PAUSES,
+    )
+
+
 def format_and_send_html_email(
     experiment,
     file_string,

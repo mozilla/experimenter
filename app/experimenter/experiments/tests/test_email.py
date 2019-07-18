@@ -7,6 +7,7 @@ from experimenter.experiments.email import (
     send_intent_to_ship_email,
     send_experiment_launch_email,
     send_experiment_ending_email,
+    send_enrollment_pause_email,
 )
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
@@ -206,3 +207,27 @@ class TestStatusUpdateEmail(TestCase):
             [self.experiment.owner.email, self.subscribing_user.email],
         )
         self.assertIn("May 11, 2019", sent_email.body)
+
+    def test_send_experiment_pausing_email(self):
+        send_enrollment_pause_email(self.experiment)
+
+        sent_email = mail.outbox[-1]
+
+        self.assertEqual(
+            sent_email.subject,
+            (
+                "Experimenter enrollment ending verification for: "
+                "Greatest Experiment 68.0 to 69.0 Nightly"
+            ),
+        )
+        self.assertEqual(sent_email.content_subtype, "html")
+        self.assertTrue(
+            self.experiment.emails.filter(
+                type=ExperimentConstants.EXPERIMENT_PAUSES
+            ).exists()
+        )
+        self.assertEqual(
+            sent_email.recipients(),
+            [self.experiment.owner.email, self.subscribing_user.email],
+        )
+        self.assertIn("May 6, 2019", sent_email.body)

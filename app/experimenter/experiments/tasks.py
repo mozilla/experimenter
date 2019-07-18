@@ -10,7 +10,6 @@ from experimenter.experiments import bugzilla, normandy, email
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment, ExperimentEmail
 from experimenter.notifications.models import Notification
-from datetime import date, timedelta
 
 
 logger = get_task_logger(__name__)
@@ -201,14 +200,29 @@ def update_status(experiment):
 
 def send_period_ending_emails(experiment):
     # send experiment ending soon emails if end date is 5 days out
-    if (experiment.end_date - date.today()) <= timedelta(days=5):
+    if experiment.ending_soon:
         if not ExperimentEmail.objects.filter(
             experiment=experiment, type=ExperimentConstants.EXPERIMENT_ENDS
-        ):
+        ).exists():
             email.send_experiment_ending_email(experiment)
             logger.info(
                 "Sent ending email for Experiment: {}".format(experiment)
             )
+
+    # send enrollment ending emails if enrollment end
+    # date is 5 days out
+    if experiment.enrollment_end_date:
+        if experiment.enrollment_ending_soon:
+            if not ExperimentEmail.objects.filter(
+                experiment=experiment,
+                type=ExperimentConstants.EXPERIMENT_PAUSES,
+            ).exists():
+                email.send_enrollment_pause_email(experiment)
+                logger.info(
+                    "Sent enrollment pause email for Experiment: {}".format(
+                        experiment
+                    )
+                )
 
 
 def needs_to_be_updated(recipe_data, status):

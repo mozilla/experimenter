@@ -1,0 +1,24 @@
+{% autoescape off %}
+
+<p>Hello,</p>
+
+<p>
+  This is an automatic email from Experimenter about
+  <a target="_blank" rel="noreferrer noopener" href="{{ experiment.experiment_url }}">{{ experiment.name }}</a>.
+  Enrollment is scheduled to end on or within 6 days after {{ experiment.enrollment_end_date }}
+  during the next Normandy
+  <a target="_blank" rel="noreferrer noopener" href="{{ change_window_url }}">change window</a>.
+  Please check how enrollment is progressing. If you need a specific date sooner or if you
+  need the enrollment extended, please SLACK: #ask-experimenter for changes.
+</p>
+
+<p>
+  <a target="_blank" rel="noreferrer noopener" href="{{ experiment.experiment_url }}">{{ experiment.name }}</a>
+  is scheduled to end on {{ experiment.end_date }}. If everything looks good, no action is needed.
+</p>
+
+
+<p>Thank you!</p>
+<p>Experimenter and Normandy Teams</p>
+
+{% endautoescape %}
