@@ -356,7 +356,7 @@ class Experiment(ExperimentConstants, models.Model):
         remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(
             slug_prefix + slug_postfix
         )
-        truncated_slug = self.slug[:remaining_chars]
+        truncated_slug = slugify(self.name[:remaining_chars])
         return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
 
     @property
