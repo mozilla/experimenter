@@ -414,6 +414,18 @@ class Experiment(ExperimentConstants, models.Model):
         ) or self._compute_end_date(self.proposed_duration)
 
     @property
+    def enrollment_ending_soon(self):
+        return (
+            self.enrollment_end_date - datetime.date.today()
+        ) <= datetime.timedelta(days=5)
+
+    @property
+    def ending_soon(self):
+        return (self.end_date - datetime.date.today()) <= datetime.timedelta(
+            days=5
+        )
+
+    @property
     def enrollment_end_date(self):
         return self._compute_end_date(self.proposed_enrollment)
 
