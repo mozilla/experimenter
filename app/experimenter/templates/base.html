@@ -64,7 +64,7 @@
               <a class="nocolorstyle d-block" href="{% url "home" %}?owner={{ request.user.id }}&amp;archived=on">
                 {{ request.user.owned_experiments.count }} Owned Experiment{{ request.user.owned_experiments.count|pluralize }}
               </a>
-              <a class="nocolorstyle d-block" href="{% url "home" %}?subscribed=on">
+              <a class="nocolorstyle d-block" href="{% url "home" %}?subscribed=on&archived=on">
                 {{ request.user.subscribed_experiments.count }} Subscribed Experiment{{ request.user.subscribed_experiments.count|pluralize }}
               </a>
             </div>
