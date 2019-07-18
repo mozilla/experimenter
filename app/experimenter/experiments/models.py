@@ -880,7 +880,6 @@ class ExperimentChangeLog(models.Model):
 
             return self.pretty_status
 
-
     @property
     def pretty_status(self):
         return self.PRETTY_STATUS_LABELS.get(self.old_status, {}).get(

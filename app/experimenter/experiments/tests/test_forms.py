@@ -216,101 +216,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         self.assertEqual(change.old_status, old_status)
         self.assertEqual(change.new_status, new_status)
 
-    def test_mixin_changelog_values(self):
-        experiment = Experiment()
-
-        data = {
-            "type": Experiment.TYPE_ADDON,
-            "status": Experiment.STATUS_ACCEPTED,
-            "name": "This is an experiment!",
-            "short_description": "my short description",
-            "related_work": "some other experiment",
-            "risk_release_population": True,
-            "review_impacted_teams": True,
-        }
-
-        class TinyTestForm(ChangeLogMixin, forms.ModelForm):
-
-            class Meta:
-                model = Experiment
-                fields = (
-                    "type",
-                    "status",
-                    "name",
-                    "short_description",
-                    "related_work",
-                    "risk_release_population",
-                    "review_impacted_teams",
-                )
-
-        form = TinyTestForm(
-            request=self.request, data=data, instance=experiment
-        )
-
-        self.assertTrue(form.is_valid())
-        form.save()
-        self.assertEqual(experiment.changes.count(), 1)
-        self.assertEqual(experiment.changes.latest().new_values, data)
-
-    def test_mixin_changelog_values_with_prev_log(self):
-        experiment = ExperimentFactory.create_with_status(
-            type=Experiment.TYPE_PREF,
-            target_status=Experiment.STATUS_DRAFT,
-            name="This is an experiment!",
-            short_description="a short description",
-            related_work="some other type of work",
-            risk_release_population=False,
-            review_impacted_teams=False,
-        )
-
-        data = {
-            "type": Experiment.TYPE_PREF,
-            "status": Experiment.STATUS_DRAFT,
-            "name": "This is an edited experiment!",
-            "short_description": "my edited short description",
-            "related_work": "some other related experiment",
-            "risk_release_population": True,
-            "review_impacted_teams": True,
-        }
-
-        class TinyTestForm(ChangeLogMixin, forms.ModelForm):
-
-            class Meta:
-                model = Experiment
-                fields = (
-                    "type",
-                    "status",
-                    "name",
-                    "short_description",
-                    "related_work",
-                    "risk_release_population",
-                    "review_impacted_teams",
-                )
-
-        form = TinyTestForm(
-            request=self.request, data=data, instance=experiment
-        )
-
-        self.assertTrue(form.is_valid())
-        experiment = form.save()
-
-        self.assertEqual(experiment.changes.count(), 2)
-        old_values = {
-            "name": "This is an experiment!",
-            "short_description": "a short description",
-            "related_work": "some other type of work",
-            "risk_release_population": False,
-            "review_impacted_teams": False,
-        }
-
-        self.assertEqual(experiment.changes.latest().old_values, old_values)
-
-        # type and status should stay the same
-        del data["type"]
-        del data["status"]
-        self.assertEqual(experiment.changes.latest().new_values, data)
-
-    def test_changelog_m2m_values(self):
+    def test_changelog_values(self):
         experiment = Experiment()
         experiment.save()
         country1 = CountryFactory(code="CA", name="Canada")
@@ -396,7 +302,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             latest_changes.new_values["variants"],
         )
 
-    def test_changelog_m2m_values_with_prev_log(self):
+    def test_changelog_values_with_prev_log(self):
 
         country1 = CountryFactory(code="CA", name="Canada")
         country2 = CountryFactory(code="US", name="United States")
