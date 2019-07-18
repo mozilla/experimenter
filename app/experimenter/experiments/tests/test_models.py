@@ -1207,6 +1207,17 @@ class TestExperimentChangeLog(TestCase):
                     new_status=new_status,
                 )
                 self.assertEqual(changelog.pretty_status, expected_label)
+    
+    def test_pretty_status_created_draft(self):
+        experiment = ExperimentFactory.create()
+        changelog = ExperimentChangeLogFactory.create(
+                    experiment=experiment,
+                    old_status=Experiment.STATUS_DRAFT,
+                    new_status=Experiment.STATUS_DRAFT,
+                    new_values={"name": "a new experiment!", "description": "my description!"}
+        )
+        expected_string = "Edited Experiment: \nname\ndescription"
+        self.assertEqual(str(changelog), expected_string)
 
 
 class TestExperimentComments(TestCase):

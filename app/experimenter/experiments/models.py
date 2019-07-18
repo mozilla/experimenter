@@ -797,7 +797,7 @@ class ExperimentChangeLogManager(models.Manager):
 
 class ExperimentChangeLog(models.Model):
     STATUS_NONE_DRAFT = "Created Experiment"
-    STATUS_DRAFT_DRAFT = "Edited Experiment"
+    STATUS_DRAFT_DRAFT = "Edited Experiment: "
     STATUS_DRAFT_REVIEW = "Ready for Sign-Off"
     STATUS_REVIEW_DRAFT = "Return to Draft"
     STATUS_REVIEW_REVIEW = "Edited Experiment"
@@ -872,12 +872,14 @@ class ExperimentChangeLog(models.Model):
         if self.message:
             return self.message
         else:
-            # return self.pretty_status
-            return "{pretty_status} Old:{old_values} New:{new_values}".format(
-                pretty_status=self.pretty_status,
-                old_values=self.old_values,
-                new_values=self.new_values,
-            )
+            if self.new_values:
+                changed_fields = "\n".join(
+                    [value for value in self.new_values]
+                )
+                return "{}\n{}".format(self.pretty_status, changed_fields)
+
+            return self.pretty_status
+
 
     @property
     def pretty_status(self):
