@@ -763,7 +763,7 @@ class ExperimentVariant(models.Model):
         related_name="variants",
         on_delete=models.CASCADE,
     )
-    name = models.CharField(max_length=255, blank=False, null=False)
+    name = models.CharField(max_length=150, blank=False, null=False)
     slug = models.SlugField(max_length=255, blank=False, null=False)
     is_control = models.BooleanField(default=False)
     description = models.TextField(default="")
