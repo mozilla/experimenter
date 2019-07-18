@@ -478,6 +478,36 @@ class TestExperimentModel(TestCase):
         )
         self.assertEqual(experiment.end_date, datetime.date(2019, 1, 21))
 
+    def test_enrollment_ending_soon(self):
+        experiment_1 = ExperimentFactory.create_with_variants(
+            proposed_start_date=datetime.date.today(),
+            proposed_duration=20,
+            proposed_enrollment=5,
+        )
+        self.assertTrue(experiment_1.enrollment_ending_soon)
+
+        experiment_2 = ExperimentFactory.create_with_variants(
+            proposed_start_date=datetime.date.today(),
+            proposed_duration=20,
+            proposed_enrollment=8,
+        )
+        self.assertFalse(experiment_2.enrollment_ending_soon)
+
+    def test_experiment_ending_soon(self):
+        experiment_1 = ExperimentFactory.create_with_variants(
+            proposed_start_date=datetime.date.today(),
+            proposed_duration=5,
+            proposed_enrollment=0,
+        )
+        self.assertTrue(experiment_1.ending_soon)
+
+        experiment_2 = ExperimentFactory.create_with_variants(
+            proposed_start_date=datetime.date.today(),
+            proposed_duration=20,
+            proposed_enrollment=0,
+        )
+        self.assertFalse(experiment_2.ending_soon)
+
     def test_format_date_string_accepts_none_for_start(self):
         experiment = ExperimentFactory.create_with_variants()
         output = experiment._format_date_string(
