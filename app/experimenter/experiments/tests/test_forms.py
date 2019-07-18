@@ -302,6 +302,24 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             latest_changes.new_values["variants"],
         )
 
+        expected_data = {
+            "population_percent": "10",
+            "firefox_version": "56.0",
+            "firefox_channel": Experiment.CHANNEL_BETA,
+            "client_matching": "en-us",
+            "platform": Experiment.PLATFORM_WINDOWS,
+            "pref_key": "some pref key",
+            "pref_type": Experiment.PREF_TYPE_INT,
+            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
+        }
+
+        # check non m2m values
+        del latest_changes.new_values["countries"]
+        del latest_changes.new_values["locales"]
+        del latest_changes.new_values["variants"]
+
+        self.assertCountEqual(expected_data, latest_changes.new_values)
+
     def test_changelog_values_with_prev_log(self):
 
         country1 = CountryFactory(code="CA", name="Canada")
@@ -321,6 +339,12 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             num_variants=0,
             countries=[country1, country2],
             locales=[locale1, locale2],
+            firefox_channel=Experiment.CHANNEL_BETA,
+            client_matching="initial value",
+            firefox_version=55.0,
+            platform=Experiment.PLATFORM_MAC,
+            pref_type=Experiment.PREF_TYPE_INT,
+            pref_branch=Experiment.PREF_BRANCH_DEFAULT,
         )
 
         ExperimentChangeLog.objects.create(
@@ -342,6 +366,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 ],
                 "countries": countries,
                 "locales": locales,
+                "population_percent": "10",
+                "client_matching": "en-us",
             },
             message="",
         )
@@ -435,6 +461,34 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             ],
             latest_changes.new_values["variants"],
         )
+
+        expected_data = {
+            "population_percent": "10",
+            "firefox_version": "56.0",
+            "client_matching": "en-us",
+            "platform": Experiment.PLATFORM_WINDOWS,
+            "pref_key": "some pref key",
+        }
+        # check non m2m values
+
+        # values that stayed the same
+        self.assertTrue("firefox_channel" not in latest_changes.new_values)
+        self.assertTrue("pref_type" not in latest_changes.new_values)
+        self.assertTrue("pref_branch" not in latest_changes.new_values)
+
+        # values specifically changed so shoudl have old_value
+        self.assertEqual(
+            latest_changes.old_values["client_matching"], "initial value"
+        )
+        self.assertEqual(
+            latest_changes.old_values["platform"], Experiment.PLATFORM_MAC
+        )
+
+        del latest_changes.new_values["countries"]
+        del latest_changes.new_values["locales"]
+        del latest_changes.new_values["variants"]
+
+        self.assertCountEqual(expected_data, latest_changes.new_values)
 
 
 @override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")
