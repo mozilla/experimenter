@@ -20,12 +20,12 @@ Analysis
   {% if experiment.survey_required %}
     <p><strong>Survey URLs</strong></p>
     <p>
-      {{ experiment.survey_urls }}
+      {{ experiment.survey_urls|urlize }}
     </p>
 
     <p><strong>Survey Launch Instructions</strong></p>
     <p>
-      {{ experiment.survey_instructions }}
+      {{ experiment.survey_instructions|urlize }}
     </p>
   {% endif %}
 
