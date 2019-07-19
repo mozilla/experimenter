@@ -64,6 +64,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "data_science_bugzilla_url",
                     "feature_bugzilla_url",
                     "related_work",
+                    "is_paused",
                 )
             },
         ),
