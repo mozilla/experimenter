@@ -25,6 +25,7 @@ class MockNormandyMixin(object):
             "approved_revision": {
                 "enabled": True,
                 "enabled_states": [{"creator": {"email": "dev@example.com"}}],
+                "arguments": {"isEnrollmentPaused": True},
             }
         }
         mock_response = mock.Mock()
@@ -50,6 +51,22 @@ class MockNormandyMixin(object):
             "approved_revision": {
                 "enabled": False,
                 "enabled_states": [{"creator": {"email": "dev@example.com"}}],
+            }
+        }
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status = mock.Mock()
+        mock_response.raise_for_status.side_effect = None
+        mock_response.status_code = 200
+        return mock_response
+
+    def buildMockSucessWithNoPauseEnrollment(self):
+        mock_response_data = {
+            "approved_revision": {
+                "enabled": True,
+                "enabled_states": [{"creator": None}],
+                "arguments": {"isEnrollmentPaused": False},
             }
         }
         mock_response = mock.Mock()
