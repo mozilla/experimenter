@@ -83,11 +83,11 @@
           <h5>
             {{ experiment }}
             <span class="badge badge-pill badge-small align-middle status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
-            {% if request.user in experiment.subscribers.all %}
-              <span class="fas fa-bell subscribe-bell"></span>
-            {% endif %}
             {% if experiment.archived %}
               <span class="badge badge-pill badge-small align-middle bg-secondary text-white">Archived</span>
+            {% endif %}
+            {% if request.user in experiment.subscribers.all %}
+              <span class="fas fa-bell subscribe-bell"></span>
             {% endif %}
           </h5>
         </div>
