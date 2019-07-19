@@ -340,6 +340,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             countries=[country1, country2],
             locales=[locale1, locale2],
             firefox_channel=Experiment.CHANNEL_BETA,
+            population_percent=22,
             client_matching="initial value",
             firefox_min_version=55.0,
             firefox_max_version=56.0,
