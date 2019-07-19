@@ -192,7 +192,7 @@
           {{ user }}
 
           {% for user_change in user_changes %}
-            <p class="ml-4 text-muted">{{ user_change }}</p>
+            <p class="ml-4 text-muted">{{ user_change|linebreaks }}</p>
           {% endfor %}
         </div>
       </div>
