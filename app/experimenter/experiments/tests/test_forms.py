@@ -226,7 +226,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
 
         data = {
             "population_percent": "10",
-            "firefox_version": "56.0",
+            "firefox_min_version": "56.0",
             "firefox_channel": Experiment.CHANNEL_BETA,
             "client_matching": "en-us",
             "platform": Experiment.PLATFORM_WINDOWS,
@@ -304,7 +304,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
 
         expected_data = {
             "population_percent": "10",
-            "firefox_version": "56.0",
+            "firefox_min_version": "56.0",
             "firefox_channel": Experiment.CHANNEL_BETA,
             "client_matching": "en-us",
             "platform": Experiment.PLATFORM_WINDOWS,
@@ -341,7 +341,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             locales=[locale1, locale2],
             firefox_channel=Experiment.CHANNEL_BETA,
             client_matching="initial value",
-            firefox_version=55.0,
+            firefox_min_version=55.0,
+            firefox_max_version=56.0,
             platform=Experiment.PLATFORM_MAC,
             pref_type=Experiment.PREF_TYPE_INT,
             pref_branch=Experiment.PREF_BRANCH_DEFAULT,
@@ -379,7 +380,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
 
         data = {
             "population_percent": "10",
-            "firefox_version": "56.0",
+            "firefox_min_version": "56.0",
+            "firefox_max_version": "57.0",
             "firefox_channel": Experiment.CHANNEL_BETA,
             "client_matching": "en-us",
             "platform": Experiment.PLATFORM_WINDOWS,
@@ -464,7 +466,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
 
         expected_data = {
             "population_percent": "10",
-            "firefox_version": "56.0",
+            "firefox_min_version": "56.0",
+            "firefox_max_version": "57.0",
             "client_matching": "en-us",
             "platform": Experiment.PLATFORM_WINDOWS,
             "pref_key": "some pref key",
