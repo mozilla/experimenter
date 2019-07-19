@@ -17,6 +17,9 @@
   </h3>
 
   {{ experiment.dates }}
+  {% if experiment.survey_required %}
+    <span class="badge badge-secondary">Includes Survey</span>
+  {% endif %}
 {% endblock %}
 
 {% block header_links %}
@@ -189,7 +192,7 @@
           {{ user }}
 
           {% for user_change in user_changes %}
-            <p class="ml-4 text-muted">{{ user_change }}</p>
+            <p class="ml-4 text-muted">{{ user_change|linebreaks }}</p>
           {% endfor %}
         </div>
       </div>

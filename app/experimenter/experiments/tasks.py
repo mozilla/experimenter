@@ -10,7 +10,6 @@ from experimenter.experiments import bugzilla, normandy, email
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment, ExperimentEmail
 from experimenter.notifications.models import Notification
-from datetime import date, timedelta
 
 
 logger = get_task_logger(__name__)
@@ -158,9 +157,9 @@ def add_start_date_comment(experiment):
 
 def update_status(experiment):
     recipe_data = normandy.get_recipe(experiment.normandy_id)
+
     if needs_to_be_updated(recipe_data, experiment.status):
         logger.info("Updating experiment Status")
-
         # set email default if no email/creator is found in normandy
         enabler_email = settings.NORMANDY_DEFAULT_CHANGELOG_USER
 
@@ -198,17 +197,39 @@ def update_status(experiment):
         if experiment.status == Experiment.STATUS_COMPLETE:
             bugzilla.update_bug_resolution(experiment)
 
+    if recipe_data:
+        paused_val = is_paused(recipe_data)
+        if paused_val != experiment.is_paused:
+            with transaction.atomic():
+                experiment.is_paused = paused_val
+                experiment.save()
+
 
 def send_period_ending_emails(experiment):
     # send experiment ending soon emails if end date is 5 days out
-    if (experiment.end_date - date.today()) <= timedelta(days=5):
+    if experiment.ending_soon:
         if not ExperimentEmail.objects.filter(
             experiment=experiment, type=ExperimentConstants.EXPERIMENT_ENDS
-        ):
+        ).exists():
             email.send_experiment_ending_email(experiment)
             logger.info(
                 "Sent ending email for Experiment: {}".format(experiment)
             )
+
+    # send enrollment ending emails if enrollment end
+    # date is 5 days out
+    if experiment.enrollment_end_date:
+        if experiment.enrollment_ending_soon:
+            if not ExperimentEmail.objects.filter(
+                experiment=experiment,
+                type=ExperimentConstants.EXPERIMENT_PAUSES,
+            ).exists():
+                email.send_enrollment_pause_email(experiment)
+                logger.info(
+                    "Sent enrollment pause email for Experiment: {}".format(
+                        experiment
+                    )
+                )
 
 
 def needs_to_be_updated(recipe_data, status):
@@ -218,6 +239,11 @@ def needs_to_be_updated(recipe_data, status):
     accepted_update = enabled and status == Experiment.STATUS_ACCEPTED
     live_update = not enabled and status == Experiment.STATUS_LIVE
     return accepted_update or live_update
+
+
+def is_paused(recipe_data):
+    arguments = recipe_data.get("arguments", {})
+    return arguments.get("isEnrollmentPaused")
 
 
 @app.task

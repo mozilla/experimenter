@@ -18,6 +18,9 @@ from django.utils.functional import cached_property
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
 
+from django.contrib.postgres.fields import JSONField
+from django.core.serializers.json import DjangoJSONEncoder
+
 
 class ExperimentManager(models.Manager):
 
@@ -247,6 +250,8 @@ class Experiment(ExperimentConstants, models.Model):
         default=None, blank=True, null=True
     )
 
+    is_paused = models.BooleanField(default=False)
+
     objects = ExperimentManager()
 
     class Meta:
@@ -356,7 +361,7 @@ class Experiment(ExperimentConstants, models.Model):
         remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(
             slug_prefix + slug_postfix
         )
-        truncated_slug = self.slug[:remaining_chars]
+        truncated_slug = slugify(self.name[:remaining_chars])
         return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
 
     @property
@@ -416,6 +421,18 @@ class Experiment(ExperimentConstants, models.Model):
         return self._transition_date(
             self.STATUS_LIVE, self.STATUS_COMPLETE
         ) or self._compute_end_date(self.proposed_duration)
+
+    @property
+    def enrollment_ending_soon(self):
+        return (
+            self.enrollment_end_date - datetime.date.today()
+        ) <= datetime.timedelta(days=5)
+
+    @property
+    def ending_soon(self):
+        return (self.end_date - datetime.date.today()) <= datetime.timedelta(
+            days=5
+        )
 
     @property
     def enrollment_end_date(self):
@@ -751,7 +768,7 @@ class ExperimentVariant(models.Model):
         related_name="variants",
         on_delete=models.CASCADE,
     )
-    name = models.CharField(max_length=255, blank=False, null=False)
+    name = models.CharField(max_length=150, blank=False, null=False)
     slug = models.SlugField(max_length=255, blank=False, null=False)
     is_control = models.BooleanField(default=False)
     description = models.TextField(default="")
@@ -782,7 +799,7 @@ class ExperimentChangeLogManager(models.Manager):
 
 class ExperimentChangeLog(models.Model):
     STATUS_NONE_DRAFT = "Created Experiment"
-    STATUS_DRAFT_DRAFT = "Edited Experiment"
+    STATUS_DRAFT_DRAFT = "Edited Experiment: "
     STATUS_DRAFT_REVIEW = "Ready for Sign-Off"
     STATUS_REVIEW_DRAFT = "Return to Draft"
     STATUS_REVIEW_REVIEW = "Edited Experiment"
@@ -844,6 +861,8 @@ class ExperimentChangeLog(models.Model):
     )
     message = models.TextField(blank=True, null=True)
 
+    old_values = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
+    new_values = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
     objects = ExperimentChangeLogManager()
 
     class Meta:
@@ -855,6 +874,12 @@ class ExperimentChangeLog(models.Model):
         if self.message:
             return self.message
         else:
+            if self.new_values:
+                changed_fields = "\n".join(
+                    [value for value in self.new_values]
+                )
+                return "{}\n{}".format(self.pretty_status, changed_fields)
+
             return self.pretty_status
 
     @property

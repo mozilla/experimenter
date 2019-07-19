@@ -10,7 +10,8 @@ from markus.testing import MetricsMock
 from requests.exceptions import RequestException
 from django.core import mail
 from experimenter.experiments import bugzilla, tasks
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import Experiment, ExperimentEmail
+from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     UserFactory,
@@ -332,6 +333,34 @@ class TestUpdateExperimentStatus(
             ).exists()
         )
 
+    def test_experiment_with_pause_val_change(self):
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE, normandy_id=1234
+        )
+        self.assertFalse(experiment.is_paused)
+        tasks.update_experiment_info()
+        experiment = Experiment.objects.get(normandy_id=1234)
+
+        self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
+        self.assertTrue(experiment.is_paused)
+
+    def test_experiment_with_paused_staying_the_same(self):
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            is_paused=False,
+        )
+
+        self.mock_normandy_requests_get.return_value = (
+            self.buildMockSucessWithNoPauseEnrollment()
+        )
+        tasks.update_experiment_info()
+
+        experiment = Experiment.objects.get(normandy_id=1234)
+
+        self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
+        self.assertFalse(experiment.is_paused)
+
     def test_experiment_without_normandy_id(self):
         ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=None
@@ -497,29 +526,84 @@ class TestUpdateExperimentStatus(
         )
 
     def test_send_experiment_ending_email(self):
-        ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_LIVE,
+        ExperimentFactory.create(
+            status=Experiment.STATUS_LIVE,
             normandy_id=1234,
             proposed_start_date=date.today(),
+            proposed_enrollment=0,
             proposed_duration=5,
+        )
+        ExperimentFactory.create(
+            status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            proposed_start_date=date.today(),
+            proposed_duration=30,
+            proposed_enrollment=0,
+        )
+        exp_3 = ExperimentFactory.create(
+            status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            proposed_start_date=date.today(),
+            proposed_duration=4,
+            proposed_enrollment=0,
+        )
+
+        ExperimentEmail.objects.create(
+            experiment=exp_3, type=ExperimentConstants.EXPERIMENT_ENDS
         )
 
         tasks.update_experiment_info()
 
-        sent_email = mail.outbox[-1]
+        self.assertEqual(len(mail.outbox), 1)
 
-        self.assertTrue(sent_email)
-
-    def test_doesnt_send_experiment_ending_email_if_only_accepted(self):
-        ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED,
+    def test_doesnt_send_experiment_status_emails_if_only_accepted(self):
+        ExperimentFactory.create(
+            status=Experiment.STATUS_ACCEPTED,
             proposed_start_date=date.today(),
             proposed_duration=5,
+            proposed_enrollment=0,
+        )
+        ExperimentFactory.create(
+            status=Experiment.STATUS_ACCEPTED,
+            proposed_start_date=date.today(),
+            proposed_duration=30,
+            proposed_enrollment=5,
         )
 
         tasks.update_experiment_info()
 
         self.assertEqual(len(mail.outbox), 0)
+
+    def test_send_enrollment_pausing_email(self):
+        exp_1 = ExperimentFactory.create(
+            status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            proposed_start_date=date.today(),
+            proposed_enrollment=4,
+            proposed_duration=30,
+        )
+        ExperimentFactory.create(
+            status=Experiment.STATUS_LIVE,
+            normandy_id=1111,
+            proposed_start_date=date.today(),
+            proposed_enrollment=5,
+            proposed_duration=30,
+        )
+        ExperimentFactory.create(
+            status=Experiment.STATUS_LIVE,
+            normandy_id=1111,
+            proposed_start_date=date.today(),
+            proposed_enrollment=8,
+            proposed_duration=30,
+        )
+
+        ExperimentEmail.objects.create(
+            experiment=exp_1, type=ExperimentConstants.EXPERIMENT_PAUSES
+        )
+
+        tasks.update_experiment_info()
+
+        self.assertEqual(len(mail.outbox), 1)
 
 
 class TestUpdateResolutionTask(MockRequestMixin, MockBugzillaMixin, TestCase):

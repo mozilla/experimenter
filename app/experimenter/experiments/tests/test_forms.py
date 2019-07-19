@@ -13,7 +13,6 @@ from parameterized import parameterized_class
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 
-
 from experimenter.experiments.forms import (
     BugzillaURLField,
     ChangeLogMixin,
@@ -32,7 +31,11 @@ from experimenter.experiments.forms import (
     ExperimentVariantsPrefForm,
     JSONField,
 )
-from experimenter.experiments.models import Experiment, ExperimentVariant
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentVariant,
+    ExperimentChangeLog,
+)
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
@@ -212,6 +215,284 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
 
         self.assertEqual(change.old_status, old_status)
         self.assertEqual(change.new_status, new_status)
+
+    def test_changelog_values(self):
+        experiment = Experiment()
+        experiment.save()
+        country1 = CountryFactory(code="CA", name="Canada")
+        country2 = CountryFactory(code="US", name="United States")
+        locale1 = LocaleFactory(code="da", name="Danish")
+        locale2 = LocaleFactory(code="de", name="German")
+
+        data = {
+            "population_percent": "10",
+            "firefox_min_version": "56.0",
+            "firefox_channel": Experiment.CHANNEL_BETA,
+            "client_matching": "en-us",
+            "platform": Experiment.PLATFORM_WINDOWS,
+            "locales": [locale1, locale2],
+            "countries": [country1, country2],
+            "pref_key": "some pref key",
+            "pref_type": Experiment.PREF_TYPE_INT,
+            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
+            "addon_experiment_id": "add_on_experiment_id",
+            "addon_release_url": "https://www.example.com",
+            "variants-TOTAL_FORMS": "2",
+            "variants-INITIAL_FORMS": "0",
+            "variants-MIN_NUM_FORMS": "0",
+            "variants-MAX_NUM_FORMS": "1000",
+            "variants-0-is_control": True,
+            "variants-0-ratio": "50",
+            "variants-0-name": "variant 0 name",
+            "variants-0-description": "variant 0 desc",
+            "variants-0-value": 5,
+            "variants-1-is_control": False,
+            "variants-1-ratio": "50",
+            "variants-1-name": "branch 1 name",
+            "variants-1-description": "branch 1 desc",
+            "variants-1-value": 8,
+        }
+
+        form = ExperimentVariantsPrefForm(
+            request=self.request, data=data, instance=experiment
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+        latest_changes = experiment.changes.latest()
+
+        self.assertIsNone(latest_changes.old_values["locales"])
+        self.assertIsNone(latest_changes.old_values["countries"])
+        self.assertIsNone(latest_changes.old_values["variants"])
+
+        self.assertEquals(len(latest_changes.new_values["countries"]), 2)
+        self.assertEquals(len(latest_changes.new_values["locales"]), 2)
+        self.assertCountEqual(
+            [
+                {"code": "CA", "name": "Canada"},
+                {"code": "US", "name": "United States"},
+            ],
+            latest_changes.new_values["countries"],
+        )
+        self.assertCountEqual(
+            [
+                {"code": "da", "name": "Danish"},
+                {"code": "de", "name": "German"},
+            ],
+            latest_changes.new_values["locales"],
+        )
+        self.assertCountEqual(
+            [
+                {
+                    "name": "branch 1 name",
+                    "slug": "branch-1-name",
+                    "ratio": 50,
+                    "value": "8",
+                    "is_control": False,
+                    "description": "branch 1 desc",
+                },
+                {
+                    "name": "variant 0 name",
+                    "slug": "variant-0-name",
+                    "ratio": 50,
+                    "value": "5",
+                    "is_control": True,
+                    "description": "variant 0 desc",
+                },
+            ],
+            latest_changes.new_values["variants"],
+        )
+
+        expected_data = {
+            "population_percent": "10",
+            "firefox_min_version": "56.0",
+            "firefox_channel": Experiment.CHANNEL_BETA,
+            "client_matching": "en-us",
+            "platform": Experiment.PLATFORM_WINDOWS,
+            "pref_key": "some pref key",
+            "pref_type": Experiment.PREF_TYPE_INT,
+            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
+        }
+
+        # check non m2m values
+        del latest_changes.new_values["countries"]
+        del latest_changes.new_values["locales"]
+        del latest_changes.new_values["variants"]
+
+        self.assertCountEqual(expected_data, latest_changes.new_values)
+
+    def test_changelog_values_with_prev_log(self):
+
+        country1 = CountryFactory(code="CA", name="Canada")
+        country2 = CountryFactory(code="US", name="United States")
+        locale1 = LocaleFactory(code="da", name="Danish")
+        locale2 = LocaleFactory(code="de", name="German")
+
+        countries = [
+            {"code": "CA", "name": "Canada"},
+            {"code": "US", "name": "United States"},
+        ]
+        locales = [
+            {"code": "da", "name": "Danish"},
+            {"code": "de", "name": "German"},
+        ]
+        experiment = ExperimentFactory.create_with_variants(
+            num_variants=0,
+            countries=[country1, country2],
+            locales=[locale1, locale2],
+            firefox_channel=Experiment.CHANNEL_BETA,
+            population_percent=22,
+            client_matching="initial value",
+            firefox_min_version=55.0,
+            firefox_max_version=56.0,
+            platform=Experiment.PLATFORM_MAC,
+            pref_type=Experiment.PREF_TYPE_INT,
+            pref_branch=Experiment.PREF_BRANCH_DEFAULT,
+        )
+
+        ExperimentChangeLog.objects.create(
+            experiment=experiment,
+            changed_by=self.request.user,
+            old_status=Experiment.STATUS_ACCEPTED,
+            new_status=Experiment.STATUS_DRAFT,
+            old_values={"variants": None, "countries": None, "locales": None},
+            new_values={
+                "variants": [
+                    {
+                        "name": " old branch 1 name",
+                        "slug": " old branch-1-name",
+                        "ratio": 50,
+                        "value": "8",
+                        "is_control": True,
+                        "description": " old branch 1 desc",
+                    }
+                ],
+                "countries": countries,
+                "locales": locales,
+                "population_percent": "10",
+                "client_matching": "en-us",
+            },
+            message="",
+        )
+
+        experiment.save()
+
+        country3 = CountryFactory(code="FR", name="France")
+        locale3 = LocaleFactory(code="bg", name="Bulgarian")
+
+        data = {
+            "population_percent": "10",
+            "firefox_min_version": "56.0",
+            "firefox_max_version": "57.0",
+            "firefox_channel": Experiment.CHANNEL_BETA,
+            "client_matching": "en-us",
+            "platform": Experiment.PLATFORM_WINDOWS,
+            "locales": [locale2, locale3],
+            "countries": [country1, country3],
+            "pref_key": "some pref key",
+            "pref_type": Experiment.PREF_TYPE_INT,
+            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
+            "addon_experiment_id": "add_on_experiment_id",
+            "addon_release_url": "https://www.example.com",
+            "variants-TOTAL_FORMS": "2",
+            "variants-INITIAL_FORMS": "0",
+            "variants-MIN_NUM_FORMS": "0",
+            "variants-MAX_NUM_FORMS": "1000",
+            "variants-0-is_control": True,
+            "variants-0-ratio": "50",
+            "variants-0-name": "variant 0 name",
+            "variants-0-description": "variant 0 desc",
+            "variants-0-value": 5,
+            "variants-1-is_control": False,
+            "variants-1-ratio": "50",
+            "variants-1-name": "branch 1 name",
+            "variants-1-description": "branch 1 desc",
+            "variants-1-value": 8,
+        }
+
+        form = ExperimentVariantsPrefForm(
+            request=self.request, data=data, instance=experiment
+        )
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+        latest_changes = experiment.changes.latest()
+        self.assertCountEqual(
+            [
+                {
+                    "name": " old branch 1 name",
+                    "slug": " old branch-1-name",
+                    "ratio": 50,
+                    "value": "8",
+                    "is_control": True,
+                    "description": " old branch 1 desc",
+                }
+            ],
+            latest_changes.old_values["variants"],
+        )
+
+        self.assertCountEqual(
+            latest_changes.new_values["countries"],
+            [
+                {"code": "CA", "name": "Canada"},
+                {"code": "FR", "name": "France"},
+            ],
+        )
+        self.assertCountEqual(
+            latest_changes.new_values["locales"],
+            [
+                {"code": "bg", "name": "Bulgarian"},
+                {"code": "de", "name": "German"},
+            ],
+        )
+        self.assertCountEqual(
+            [
+                {
+                    "name": "branch 1 name",
+                    "slug": "branch-1-name",
+                    "ratio": 50,
+                    "value": "8",
+                    "is_control": False,
+                    "description": "branch 1 desc",
+                },
+                {
+                    "name": "variant 0 name",
+                    "slug": "variant-0-name",
+                    "ratio": 50,
+                    "value": "5",
+                    "is_control": True,
+                    "description": "variant 0 desc",
+                },
+            ],
+            latest_changes.new_values["variants"],
+        )
+
+        expected_data = {
+            "population_percent": "10",
+            "firefox_min_version": "56.0",
+            "firefox_max_version": "57.0",
+            "client_matching": "en-us",
+            "platform": Experiment.PLATFORM_WINDOWS,
+            "pref_key": "some pref key",
+        }
+        # check non m2m values
+
+        # values that stayed the same
+        self.assertTrue("firefox_channel" not in latest_changes.new_values)
+        self.assertTrue("pref_type" not in latest_changes.new_values)
+        self.assertTrue("pref_branch" not in latest_changes.new_values)
+
+        # values specifically changed so shoudl have old_value
+        self.assertEqual(
+            latest_changes.old_values["client_matching"], "initial value"
+        )
+        self.assertEqual(
+            latest_changes.old_values["platform"], Experiment.PLATFORM_MAC
+        )
+
+        del latest_changes.new_values["countries"]
+        del latest_changes.new_values["locales"]
+        del latest_changes.new_values["variants"]
+
+        self.assertCountEqual(expected_data, latest_changes.new_values)
 
 
 @override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")
@@ -458,7 +739,6 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
         self.assertTrue(form.is_valid())
 
         self.assertEqual(self.experiment.variants.count(), 0)
-
         experiment = form.save()
 
         self.assertEqual(experiment.variants.count(), 3)
@@ -903,6 +1183,19 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
         )
         self.assertEqual(experiment.platform, self.data["platform"])
 
+    def test_form_is_invalid_if_firefox_max_is_lower_than_min(self):
+        self.data["firefox_min_version"] = "66.0"
+        self.data["firefox_max_version"] = "64.0"
+        form = self.form_class(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("firefox_max_version", form.errors)
+
+    def test_form_is_valid_if_firefox_max_left_blank(self):
+        self.data["firefox_min_version"] = "66.0"
+        self.data["firefox_max_version"] = ""
+        form = self.form_class(request=self.request, data=self.data)
+        self.assertTrue(form.is_valid())
+
 
 class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
@@ -1091,7 +1384,6 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
         )
 
         self.assertTrue(form.is_valid())
-
         experiment = form.save()
 
         self.assertEqual(experiment.objectives, data["objectives"])
@@ -1138,6 +1430,7 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         )
 
         self.assertTrue(form.is_valid())
+
         experiment = form.save()
         self.assertTrue(experiment.risk_internal_only)
         self.assertTrue(experiment.risk_partner_related)
@@ -1524,7 +1817,7 @@ class TestExperimentStatusForm(
 
         self.assertEqual(
             experiment.normandy_slug,
-            "pref-experiment-slug-nightly-57-bug-12345",
+            "pref-experiment-name-nightly-57-bug-12345",
         )
         self.mock_tasks_update_experiment_bug.delay.assert_called_with(
             self.user.id, experiment.id
