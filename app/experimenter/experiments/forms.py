@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+import re
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib import messages
@@ -1279,10 +1280,42 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
     normandy_id = forms.IntegerField(
         label="Recipe ID",
         widget=forms.TextInput(
-            attrs={"class": "form-control", "placeholder": "Recipe ID"}
+            attrs={"class": "form-control", "placeholder": "Main Recipe ID"}
         ),
     )
 
+    other_normandy_ids = forms.CharField(
+        label="Other Recipe IDs",
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Other Recipe IDs (Optional)",
+            }
+        ),
+        required=False,
+    )
+
+    def clean_other_normandy_ids(self):
+        other_ids_list = []
+
+        if self.cleaned_data["other_normandy_ids"]:
+            ids = re.split(",", self.cleaned_data["other_normandy_ids"])
+            for id in ids:
+                if re.match(r"^[0-9]+$", id.strip()):
+                    if "normandy_id" in self.cleaned_data:
+                        if int(id) == self.cleaned_data["normandy_id"]:
+                            raise forms.ValidationError(
+                                "Duplicate IDs are not accepted."
+                            )
+                        else:
+                            other_ids_list.append(int(id))
+                else:
+                    raise forms.ValidationError(
+                        "IDs must be numbers separated by commas."
+                    )
+
+        return other_ids_list
+
     class Meta:
         model = Experiment
-        fields = ("normandy_id",)
+        fields = ("normandy_id", "other_normandy_ids")

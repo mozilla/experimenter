@@ -525,14 +525,11 @@ class ExperimentNormandyUpdateView(ExperimentFormMixin, UpdateView):
         return response
 
     def form_invalid(self, form):
-        return redirect(
-            "{url}?normandy_id={value}".format(
-                url=reverse(
-                    "experiments-detail", kwargs={"slug": self.kwargs["slug"]}
-                ),
-                value=form.data["normandy_id"],
-            )
+        url = reverse(
+            "experiments-detail", kwargs={"slug": self.kwargs["slug"]}
         )
+        query_parameters = form.data.urlencode()
+        return redirect(f"{url}?{query_parameters}")
 
 
 class ExperimentCommentCreateView(ExperimentFormMixin, CreateView):

@@ -376,34 +376,66 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.has_normandy_info)
 
-    def test_normandy_api_recipe_url_returns_none_without_normandy_id(self):
+    def test_format_dc_normandy_urls_returns_none_without_normandy_id(self):
         experiment = ExperimentFactory.create(normandy_id=None)
-        self.assertEqual(experiment.normandy_api_recipe_url, None)
+        self.assertEqual(experiment.format_dc_normandy_urls, None)
 
-    def test_normandy_api_recipe_url_returns_url_with_normandy_id(self):
-        experiment = ExperimentFactory.create(normandy_id="123")
-        with override_settings(
-            NORMANDY_API_RECIPE_URL="http://normandy.example.com/recipe/{id}/"
-        ):
-            self.assertEqual(
-                experiment.normandy_api_recipe_url,
-                "http://normandy.example.com/recipe/123/",
-            )
-
-    def test_delivery_console_recipe_url_returns_none_if_no_normandy_id(self):
-        experiment = ExperimentFactory.create(normandy_id=None)
-        self.assertEqual(experiment.delivery_console_recipe_url, None)
-
-    def test_delivery_console_recipe_url_returns_url_with_normandy_id(self):
-        experiment = ExperimentFactory.create(normandy_id="123")
+    def test_format_dc_normandy_urls_with_only_main(self):
+        experiment = ExperimentFactory.create(normandy_id="445")
         with override_settings(
             DELIVERY_CONSOLE_RECIPE_URL=(
                 "http://delivery-console.example.com/recipe/{id}/"
             )
         ):
             self.assertEqual(
-                experiment.delivery_console_recipe_url,
-                "http://delivery-console.example.com/recipe/123/",
+                experiment.format_dc_normandy_urls[0]["DC_url"],
+                "http://delivery-console.example.com/recipe/445/",
+            )
+
+        with override_settings(
+            NORMANDY_API_RECIPE_URL="http://normandy.example.com/recipe/{id}/"
+        ):
+            self.assertEqual(
+                experiment.format_dc_normandy_urls[0]["normandy_url"],
+                "http://normandy.example.com/recipe/445/",
+            )
+
+    def test_format_dc_normandy_urls_with_main_and_other_ids(self):
+        experiment = ExperimentFactory.create(
+            normandy_id="32", other_normandy_ids=[43, 56]
+        )
+        with override_settings(
+            DELIVERY_CONSOLE_RECIPE_URL=(
+                "http://delivery-console.example.com/recipe/{id}/"
+            )
+        ):
+            self.assertEqual(
+                experiment.format_dc_normandy_urls[0]["DC_url"],
+                "http://delivery-console.example.com/recipe/32/",
+            )
+            self.assertEqual(
+                experiment.format_dc_normandy_urls[1]["DC_url"],
+                "http://delivery-console.example.com/recipe/43/",
+            )
+            self.assertEqual(
+                experiment.format_dc_normandy_urls[2]["DC_url"],
+                "http://delivery-console.example.com/recipe/56/",
+            )
+
+        with override_settings(
+            NORMANDY_API_RECIPE_URL="http://normandy.example.com/recipe/{id}/"
+        ):
+            self.assertEqual(
+                experiment.format_dc_normandy_urls[0]["normandy_url"],
+                "http://normandy.example.com/recipe/32/",
+            )
+            self.assertEqual(
+                experiment.format_dc_normandy_urls[1]["normandy_url"],
+                "http://normandy.example.com/recipe/43/",
+            )
+            self.assertEqual(
+                experiment.format_dc_normandy_urls[2]["normandy_url"],
+                "http://normandy.example.com/recipe/56/",
             )
 
     def test_start_date_returns_proposed_start_date_if_change_is_missing(self):
