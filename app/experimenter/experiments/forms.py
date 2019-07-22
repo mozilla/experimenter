@@ -80,6 +80,7 @@ class ChangeLogMixin(object):
         old_values = {}
         new_values = {}
         old_status = None
+        message = ""
 
         self.new_serialized_vals = ChangeLogSerializer(self.instance).data
         latest_change = experiment.changes.latest()
@@ -96,7 +97,16 @@ class ChangeLogMixin(object):
             old_values["variants"] = None
             new_values["variants"] = self.new_serialized_vals["variants"]
 
-        if self.changed_data:
+        if experiment.archived or "archived" in self.changed_data:
+            old_status = experiment.status
+            old_values = []
+            new_values = []
+            message = "Archived Experiment"
+            if not experiment.archived:
+                message = "Unarchived Experiment"
+
+        elif self.changed_data:
+            message = self.get_changelog_message()
             if latest_change:
                 old_status = latest_change.new_status
 
@@ -119,7 +129,7 @@ class ChangeLogMixin(object):
             new_status=experiment.status,
             old_values=old_values,
             new_values=new_values,
-            message=self.get_changelog_message(),
+            message=message,
         )
 
         return experiment
