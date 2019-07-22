@@ -281,9 +281,10 @@ class TestExperimentModel(TestCase):
         with self.assertRaises(ValueError):
             experiment.generate_normandy_slug()
 
-    def test_generate_normandy_slug_returns_expected_slug(self):
+    def test_generate_normandy_slug_returns_slug_with_min_max_version(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
+            name="Experiment Name",
             slug="experiment-slug",
             firefox_min_version="57.0",
             firefox_max_version="59.0",
@@ -293,12 +294,14 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(
             experiment.generate_normandy_slug(),
-            "pref-experiment-slug-nightly-57-59-bug-12345",
+            "pref-experiment-name-nightly-57-59-bug-12345",
         )
 
+    def test_generate_normandy_slug_returns_slug_with_min_version(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
-            slug="experiment-slug-other",
+            name="Experiment Name",
+            slug="experiment-slug",
             firefox_min_version="57.0",
             firefox_max_version="",
             firefox_channel="Nightly",
@@ -307,7 +310,7 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(
             experiment.generate_normandy_slug(),
-            "pref-experiment-slug-other-nightly-57-bug-12345",
+            "pref-experiment-name-nightly-57-bug-12345",
         )
 
     def test_generate_normandy_slug_raises_valueerror_without_addon_info(self):
@@ -331,7 +334,7 @@ class TestExperimentModel(TestCase):
     def test_generate_normandy_slug_is_shorter_than_max_normandy_len(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
-            slug="-" * (settings.NORMANDY_SLUG_MAX_LEN + 1),
+            name="a" * (settings.NORMANDY_SLUG_MAX_LEN + 1),
             firefox_min_version="57.0",
             firefox_max_version="59.0",
             firefox_channel="Nightly",
@@ -339,7 +342,7 @@ class TestExperimentModel(TestCase):
         )
 
         self.assertGreater(
-            len(experiment.slug), settings.NORMANDY_SLUG_MAX_LEN
+            len(experiment.name), settings.NORMANDY_SLUG_MAX_LEN
         )
 
         normandy_slug = experiment.generate_normandy_slug()
@@ -1204,6 +1207,20 @@ class TestExperimentChangeLog(TestCase):
                     new_status=new_status,
                 )
                 self.assertEqual(changelog.pretty_status, expected_label)
+
+    def test_str_change_log_include_new_values(self):
+        experiment = ExperimentFactory.create()
+        changelog = ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            old_status=Experiment.STATUS_DRAFT,
+            new_status=Experiment.STATUS_DRAFT,
+            new_values={
+                "name": "a new experiment!",
+                "description": "my description!",
+            },
+        )
+        expected_string = "Edited Experiment: \nname\ndescription"
+        self.assertEqual(str(changelog), expected_string)
 
 
 class TestExperimentComments(TestCase):

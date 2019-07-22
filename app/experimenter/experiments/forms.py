@@ -22,6 +22,7 @@ from experimenter.experiments.models import (
     ExperimentChangeLog,
     ExperimentVariant,
 )
+from experimenter.experiments.serializers import ChangeLogSerializer
 from experimenter.notifications.models import Notification
 from experimenter.projects.forms import (
     NameSlugFormMixin,
@@ -66,28 +67,67 @@ class ChangeLogMixin(object):
     def __init__(self, request, *args, **kwargs):
         self.request = request
         super().__init__(*args, **kwargs)
+        if self.instance.id:
+            self.old_serialized_vals = ChangeLogSerializer(self.instance).data
 
     def get_changelog_message(self):
         return ""
 
     def save(self, *args, **kwargs):
+
         experiment = super().save(*args, **kwargs)
 
+        old_values = {}
+        new_values = {}
         old_status = None
 
+        self.new_serialized_vals = ChangeLogSerializer(self.instance).data
         latest_change = experiment.changes.latest()
+
+        # account for changes in variant values
         if latest_change:
-            old_status = latest_change.new_status
+            if self.variants_has_changed(
+                latest_change.new_values, self.new_serialized_vals
+            ):
+                old_values["variants"] = latest_change.new_values["variants"]
+                new_values["variants"] = self.new_serialized_vals["variants"]
+
+        elif self.new_serialized_vals["variants"]:
+            old_values["variants"] = None
+            new_values["variants"] = self.new_serialized_vals["variants"]
+
+        if self.changed_data:
+            if latest_change:
+                old_status = latest_change.new_status
+
+                for field in self.changed_data:
+                    if field in self.old_serialized_vals:
+                        old_values[field] = self.old_serialized_vals[field]
+
+            else:
+                prev_values = {field: None for field in self.changed_data}
+                old_values.update(prev_values)
+
+            for field in self.changed_data:
+                if field in self.new_serialized_vals:
+                    new_values[field] = self.new_serialized_vals[field]
 
         ExperimentChangeLog.objects.create(
             experiment=experiment,
             changed_by=self.request.user,
             old_status=old_status,
             new_status=experiment.status,
+            old_values=old_values,
+            new_values=new_values,
             message=self.get_changelog_message(),
         )
 
         return experiment
+
+    def variants_has_changed(self, prev_values, new_values):
+        if prev_values and "variants" in prev_values:
+            return prev_values["variants"] != new_values["variants"]
+        return False
 
 
 class ExperimentOverviewForm(
@@ -597,6 +637,8 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
     RADIO_OPTIONS = ((False, "No"), (True, "Yes"))
 
     def coerce_truthy(value):
+        if type(value) == bool:
+            return value
         if value.lower() == "true":
             return True
         return False
@@ -654,6 +696,8 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
     RADIO_OPTIONS = ((False, "No"), (True, "Yes"))
 
     def coerce_truthy(value):
+        if type(value) == bool:
+            return value
         if value.lower() == "true":
             return True
         elif value.lower() == "false":
