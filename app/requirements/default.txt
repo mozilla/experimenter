@@ -100,8 +100,8 @@ pytest==4.5.0 \
 pytest-django==3.5.1 \
     --hash=sha256:4adfe5fb3ed47f0ba55506dd3daf688b1f74d5e69148c10ad2dd2f79f40c0d62 \
     --hash=sha256:264fb4c506db5d48a6364c311a0b00b7b48a52715bad8839b2d8bee9b99ed6bb
-pytest-testmon==0.9.16 \
-    --hash=sha256:df00594e55f8f8f826e0e345dc23863ebac066eb749f8229c515a0373669c5bb
+pytest-testmon==0.9.18 \
+    --hash=sha256:05648f9b22aeeda9d32e61b46fa78c9ff28f217d69005b3b19ffb75d5992187e
 pytest-watch==4.2.0 \
     --hash=sha256:06136f03d5b361718b8d0d234042f7b2f203910d8568f63df2f866b547b3d4b9
 python-decouple==3.1 \
