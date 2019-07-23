@@ -365,6 +365,14 @@ class ExperimentConstants(object):
       <p><strong>Example:</strong> 10 percent of Nightly Firefox 60.0<p>
     """
 
+    CHANNEL_HELP_TEXT = """
+        https://wiki.mozilla.org/Release_Management/Release_Process#Channels.2FRepositories
+    """
+
+    VERSION_HELP_TEXT = """
+        https://wiki.mozilla.org/Release_Management/Calendar
+    """
+
     CLIENT_MATCHING_HELP_TEXT = """
       <p>
         Describe the criteria a client must meet to participate in the

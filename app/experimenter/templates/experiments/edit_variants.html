@@ -19,18 +19,17 @@
       <h4 class="col-9 offset-3">Firefox Population</h4>
     </div>
 
-
     {% include "experiments/field_inline.html" with field=form.population_percent %}
 
-    {% include "experiments/field_inline.html" with field=form.firefox_channel %}
+    {% include "experiments/field_inline_help_link.html" with field=form.firefox_channel %}
 
     <div class="form-group row">
       <div class="col-3 text-right">
         <label class="control-label">
           <strong>Firefox Versions</strong>
         </label>
-        <br/>
-        <a href="#population-percent-help" data-toggle="collapse" aria-expanded="false" aria-controls="population-percent-help">Help</a>
+        <br>
+        <a target="_blank" rel="noreferrer noopener" href="{{ form.firefox_min_version.help_text }}">Help</a>
       </div>
       <div class="col-9">
         <div class="row">
