@@ -569,6 +569,23 @@ class TestExperimentModel(TestCase):
             "Jan 11, 2019 - Jan 21, 2019 (10 days)",
         )
 
+    def test_enrollment_is_complete(self):
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE, is_paused=True
+        )
+        self.assertTrue(experiment.is_enrollment_complete)
+
+    def test_enrollment_is_not_complete(self):
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE, is_paused=False
+        )
+        self.assertFalse(experiment.is_enrollment_complete)
+
+        # wrong status
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED, is_paused=False
+        )
+
     def test_control_property_returns_experiment_control(self):
         experiment = ExperimentFactory.create_with_variants()
         control = ExperimentVariant.objects.get(
