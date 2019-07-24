@@ -16,7 +16,7 @@ def format_bug_body(experiment):
     bug_body = ""
     countries = "all"
     locales = "all"
-    if len(experiment.countries.all()) > 0:
+    if experiment.countries.count() > 0:
         countries = "".join(
             [
                 "{name} ({code}) ".format(name=country.name, code=country.code)
