@@ -316,6 +316,21 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
 
         self.assertEqual(list(subscribed_filter.qs), [exp_1])
 
+    def test_filters_for_paused_experiments(self):
+        exp_1 = ExperimentFactory.create(
+            name="Experiment", is_paused=True, status=Experiment.STATUS_LIVE
+        )
+        ExperimentFactory.create()
+        ExperimentFactory.create()
+
+        pause_filter = ExperimentFilterset(
+            {"is_paused": "on"},
+            request=self.request,
+            queryset=Experiment.objects.all(),
+        )
+
+        self.assertEqual(list(pause_filter.qs), [exp_1])
+
     def test_filters_for_longrunning_experiments(self):
         exp_1 = ExperimentFactory.create(
             name="Experiment 1",

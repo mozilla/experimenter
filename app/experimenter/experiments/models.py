@@ -700,6 +700,10 @@ class Experiment(ExperimentConstants, models.Model):
     def is_archivable(self):
         return self.status != self.STATUS_LIVE
 
+    @property
+    def is_enrollment_complete(self):
+        return self.is_paused and self.status == self.STATUS_LIVE
+
     def clone(self, name, user):
 
         cloned = copy.copy(self)

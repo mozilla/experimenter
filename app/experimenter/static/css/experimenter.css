@@ -132,6 +132,11 @@ select {
   background-color: #e9433e;
 }
 
+.enrollment-complete-color{
+  color: white;
+  background-color: #457b27;
+}
+
 .subscribe-bell {
   color: #e432af;
 }
