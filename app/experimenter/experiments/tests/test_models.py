@@ -581,11 +581,6 @@ class TestExperimentModel(TestCase):
         )
         self.assertFalse(experiment.is_enrollment_complete)
 
-        # wrong status
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED, is_paused=False
-        )
-
     def test_control_property_returns_experiment_control(self):
         experiment = ExperimentFactory.create_with_variants()
         control = ExperimentVariant.objects.get(
