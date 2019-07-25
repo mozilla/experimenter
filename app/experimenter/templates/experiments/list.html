@@ -84,7 +84,7 @@
             {{ experiment }}
             <span class="badge badge-pill badge-small align-middle status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
             {% if experiment.is_enrollment_complete %}
-              <span class="badge badge-pill badge-small align-middle bg-warning text-white">Enrollment Complete</span>
+              <span class="badge badge-pill badge-small align-middle enrollment-complete-color">Enrollment Complete</span>
             {% endif %}
             {% if experiment.archived %}
               <span class="badge badge-pill badge-small align-middle bg-secondary text-white">Archived</span>
