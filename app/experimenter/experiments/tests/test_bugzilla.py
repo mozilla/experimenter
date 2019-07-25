@@ -15,7 +15,11 @@ from experimenter.experiments.bugzilla import (
     update_bug_resolution,
     add_experiment_comment,
 )
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.factories import (
+    ExperimentFactory,
+    CountryFactory,
+    LocaleFactory,
+)
 from experimenter.experiments.tests.mixins import MockBugzillaMixin
 
 
@@ -184,6 +188,25 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
         )
         self.setupMockBugzillaCreationFailure()
         self.assertRaises(BugzillaError, create_experiment_bug, experiment)
+
+
+class TestFormatBugBody(TestCase):
+
+    def test_countries_locales_list_all_when_none_specified(self):
+        experiment = ExperimentFactory.create(countries=[], locales=[])
+        body = format_bug_body(experiment)
+        self.assertIn("Countries: all", body)
+        self.assertIn("Locales: all", body)
+
+    def test_format_bug_body_lists_countries_locales(self):
+        country = CountryFactory(code="CA", name="Canada")
+        locale = LocaleFactory(code="da", name="Danish")
+        experiment = ExperimentFactory.create(
+            countries=[country], locales=[locale]
+        )
+        body = format_bug_body(experiment)
+        self.assertIn("Countries: Canada (CA)", body)
+        self.assertIn("Locales: Danish (da)", body)
 
 
 class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
