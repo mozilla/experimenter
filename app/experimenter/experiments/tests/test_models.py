@@ -1062,6 +1062,23 @@ class TestExperimentModel(TestCase):
 
         self.assertFalse(experiment.is_ready_to_launch)
 
+    def test_experiment_is_not_archivable(self):
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED
+        )
+        self.assertFalse(experiment.is_archivable)
+        experiment2 = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE
+        )
+        self.assertFalse(experiment.is_archivable)
+        self.assertFalse(experiment2.is_archivable)
+
+    def test_experiment_is_archivable(self):
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_DRAFT
+        )
+        self.assertTrue(experiment.is_archivable)
+
     def test_format_firefox_versions_returns_correct_string(self):
         experiment_1 = ExperimentFactory(
             firefox_min_version="57.0", firefox_max_version=""
