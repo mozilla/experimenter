@@ -231,6 +231,8 @@ class ExperimentFilterset(filters.FilterSet):
             "engineering_owner",
             "bugzilla_id",
             "normandy_slug",
+            "data_science_bugzilla_url",
+            "feature_bugzilla_url",
         )
 
         query = SearchQuery(value)
