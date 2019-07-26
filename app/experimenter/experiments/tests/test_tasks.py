@@ -344,6 +344,30 @@ class TestUpdateExperimentStatus(
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
         self.assertTrue(experiment.is_paused)
 
+        self.assertEquals(
+            experiment.changes.latest().message, "Enrollment Completed"
+        )
+
+    def test_experiment_with_re_enabled_enrollment(self):
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            is_paused=True,
+        )
+        self.mock_normandy_requests_get.return_value = (
+            self.buildMockSucessWithNoPauseEnrollment()
+        )
+        tasks.update_experiment_info()
+
+        experiment = Experiment.objects.get(normandy_id=1234)
+
+        self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
+        self.assertFalse(experiment.is_paused)
+
+        self.assertEquals(
+            experiment.changes.latest().message, "Enrollment Re-enabled"
+        )
+
     def test_experiment_with_paused_staying_the_same(self):
         ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_LIVE,
