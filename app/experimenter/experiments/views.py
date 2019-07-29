@@ -528,8 +528,10 @@ class ExperimentNormandyUpdateView(ExperimentFormMixin, UpdateView):
         url = reverse(
             "experiments-detail", kwargs={"slug": self.kwargs["slug"]}
         )
-        query_parameters = form.data.urlencode()
-        return redirect(f"{url}?{query_parameters}")
+        query_parameters = form.data.copy()
+        query_parameters.pop("csrfmiddlewaretoken", None)
+
+        return redirect(f"{url}?{query_parameters.urlencode()}")
 
 
 class ExperimentCommentCreateView(ExperimentFormMixin, CreateView):

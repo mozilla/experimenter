@@ -1,7 +1,6 @@
 import json
 
 from django import forms
-import re
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib import messages
@@ -1295,26 +1294,31 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
         required=False,
     )
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if cleaned_data.get("normandy_id") in cleaned_data.get(
+            "other_normandy_ids", []
+        ):
+            raise forms.ValidationError(
+                {"other_normandy_ids": "Duplicate IDs are not accepted."}
+            )
+
+        return cleaned_data
+
     def clean_other_normandy_ids(self):
-        other_ids_list = []
+        if not self.cleaned_data["other_normandy_ids"].strip():
+            return []
 
-        if self.cleaned_data["other_normandy_ids"]:
-            ids = re.split(",", self.cleaned_data["other_normandy_ids"])
-            for id in ids:
-                if re.match(r"^[0-9]+$", id.strip()):
-                    if "normandy_id" in self.cleaned_data:
-                        if int(id) == self.cleaned_data["normandy_id"]:
-                            raise forms.ValidationError(
-                                "Duplicate IDs are not accepted."
-                            )
-                        else:
-                            other_ids_list.append(int(id))
-                else:
-                    raise forms.ValidationError(
-                        "IDs must be numbers separated by commas."
-                    )
-
-        return other_ids_list
+        try:
+            return [
+                int(i.strip())
+                for i in self.cleaned_data["other_normandy_ids"].split(",")
+            ]
+        except ValueError:
+            raise forms.ValidationError(
+                f"IDs must be numbers separated by commas."
+            )
 
     class Meta:
         model = Experiment

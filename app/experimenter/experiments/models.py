@@ -384,8 +384,9 @@ class Experiment(ExperimentConstants, models.Model):
         normandy_recipe_url = settings.NORMANDY_API_RECIPE_URL
         delivery_console_url = settings.DELIVERY_CONSOLE_RECIPE_URL
 
+        urls = []
+
         if self.normandy_id:
-            urls = []
             urls.append(
                 {
                     "id": self.normandy_id,
@@ -406,9 +407,7 @@ class Experiment(ExperimentConstants, models.Model):
                         }
                     )
 
-            return urls
-
-        return None
+        return urls
 
     @property
     def has_external_urls(self):

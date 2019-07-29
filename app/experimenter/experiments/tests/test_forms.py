@@ -1987,6 +1987,17 @@ class TestExperimentSubscribedForm(MockRequestMixin, TestCase):
 
 class TestNormandyIdForm(MockRequestMixin, TestCase):
 
+    def test_form_not_valid_with_bad_main_id(self):
+        experiment = ExperimentFactory.create()
+
+        form = NormandyIdForm(
+            self.request,
+            instance=experiment,
+            data={"normandy_id": "aaaa", "other_normandy_ids": "434"},
+        )
+
+        self.assertFalse(form.is_valid())
+
     def test_form_not_valid_with_bad_other_ids(self):
         experiment = ExperimentFactory.create()
 
