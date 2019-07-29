@@ -60,7 +60,6 @@ class ChangeLogSerializer(serializers.ModelSerializer):
         fields = (
             "type",
             "status",
-            "archived",
             "owner",
             "name",
             "short_description",
