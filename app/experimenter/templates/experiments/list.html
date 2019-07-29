@@ -83,6 +83,9 @@
           <h5>
             {{ experiment }}
             <span class="badge badge-pill badge-small align-middle status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
+            {% if experiment.is_enrollment_complete %}
+              <span class="badge badge-pill badge-small align-middle enrollment-complete-color">Enrollment Complete</span>
+            {% endif %}
             {% if experiment.archived %}
               <span class="badge badge-pill badge-small align-middle bg-secondary text-white">Archived</span>
             {% endif %}
@@ -166,7 +169,7 @@
     </div>
 
     {% for field in filter.form %}
-      {% if field.name == "in_qa" or field.name == "surveys" or field.name == "archived" or field.name == "subscribed" or field.name == "longrunning" %}
+      {% if field.name == "in_qa" or field.name == "surveys" or field.name == "archived" or field.name == "subscribed" or field.name == "longrunning" or field.name == "is_paused" %}
         <label>
           {{ field }}
           {{ field.label }}
