@@ -1362,6 +1362,17 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
         self.assertNotIn("value", form.variants_formset.errors[1])
         self.assertNotIn("value", form.variants_formset.errors[2])
 
+    def test_form_is_valid_if_pref_type_is_json_string(self):
+        self.data["pref_type"] = Experiment.PREF_TYPE_JSON_STR
+        self.data["variants-0-value"] = "{}"
+        self.data["variants-1-value"] = "[1,2,3,4]"
+        self.data["variants-2-value"] = '{"variant":[1,2,3,4]}'
+        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        self.assertTrue(form.is_valid())
+        self.assertNotIn("value", form.variants_formset.errors[0])
+        self.assertNotIn("value", form.variants_formset.errors[1])
+        self.assertNotIn("value", form.variants_formset.errors[2])
+
 
 class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
 

@@ -24,6 +24,7 @@ from experimenter.experiments.serializers import (
     FilterObjectCountrySerializer,
     FilterObjectLocaleSerializer,
     JSTimestampField,
+    PrefTypeField,
     LocaleSerializer,
     ExperimentCloneSerializer,
 )
@@ -43,6 +44,23 @@ class TestJSTimestampField(TestCase):
     def test_field_returns_none_if_no_datetime_passed_in(self):
         field = JSTimestampField()
         self.assertEqual(field.to_representation(None), None)
+
+
+class TestPrefTypeField(TestCase):
+
+    def test_non_json_field(self):
+        field = PrefTypeField()
+        self.assertEqual(
+            field.to_representation(Experiment.PREF_TYPE_INT),
+            Experiment.PREF_TYPE_INT,
+        )
+
+    def test_json_field(self):
+        field = PrefTypeField()
+        self.assertEqual(
+            field.to_representation(Experiment.PREF_TYPE_JSON_STR),
+            Experiment.PREF_TYPE_STR,
+        )
 
 
 class TestExperimentVariantSerializer(TestCase):
@@ -193,11 +211,10 @@ class TestChangeLogSerializer(TestCase):
             ],
         }
 
-        self.maxDiff = None
-
         self.assertEqual(
             set(serializer.data.keys()), set(expected_data.keys())
         )
+
         self.assertEqual(serializer.data, expected_data)
 
 
