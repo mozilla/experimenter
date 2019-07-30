@@ -669,6 +669,28 @@ class Experiment(ExperimentConstants, models.Model):
             return self.firefox_min_version
 
     @property
+    def versions_integer_list(self):
+        min_integer = int(
+            ExperimentConstants.VERSION_REGEX.match(
+                self.firefox_min_version
+            ).group(0)
+        )
+
+        integers_list = [min_integer]
+
+        if self.firefox_max_version:
+            max_integer = int(
+                ExperimentConstants.VERSION_REGEX.match(
+                    self.firefox_max_version
+                ).group(0)
+            )
+
+            for x in range(min_integer + 1, max_integer + 1):
+                integers_list.append(x)
+
+        return integers_list
+
+    @property
     def population(self):
         return "{percent:g}% of {channel} Firefox {firefox_version}".format(
             percent=float(self.population_percent),

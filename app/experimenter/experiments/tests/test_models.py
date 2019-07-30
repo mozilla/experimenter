@@ -1085,6 +1085,17 @@ class TestExperimentModel(TestCase):
         self.assertEqual(experiment_1.format_firefox_versions, "57.0")
         self.assertEqual(experiment_2.format_firefox_versions, "57.0 to 59.0")
 
+    def test_versions_integer_list_returns_correct_list(self):
+        experiment_1 = ExperimentFactory(
+            firefox_min_version="57.0", firefox_max_version=""
+        )
+        experiment_2 = ExperimentFactory(
+            firefox_min_version="57.0", firefox_max_version="59.0"
+        )
+
+        self.assertEqual(experiment_1.versions_integer_list, [57])
+        self.assertEqual(experiment_2.versions_integer_list, [57, 58, 59])
+
     def test_experiment_population_returns_correct_string(self):
         experiment = ExperimentFactory(
             population_percent="0.5",
