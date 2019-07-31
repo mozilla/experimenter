@@ -129,7 +129,8 @@ class TestChangeLogSerializer(TestCase):
         serializer = ChangeLogSerializer(experiment)
 
         risk_tech_description = experiment.risk_technical_description
-
+        # ensure expected_data has "string" if pref_type is json string
+        pref_type = PrefTypeField().to_representation(experiment.pref_type)
         expected_data = {
             "type": experiment.type,
             "status": experiment.status,
@@ -143,7 +144,7 @@ class TestChangeLogSerializer(TestCase):
             "addon_experiment_id": experiment.addon_experiment_id,
             "addon_release_url": experiment.addon_release_url,
             "pref_key": experiment.pref_key,
-            "pref_type": experiment.pref_type,
+            "pref_type": pref_type,
             "pref_branch": experiment.pref_branch,
             "public_name": experiment.public_name,
             "public_description": experiment.public_description,
@@ -233,6 +234,9 @@ class TestExperimentSerializer(TestCase):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_COMPLETE, countries=[], locales=[]
         )
+
+        # ensure expected_data has "string" if pref_type is json string
+        pref_type = PrefTypeField().to_representation(experiment.pref_type)
         serializer = ExperimentSerializer(experiment)
         expected_data = {
             "analysis": experiment.analysis,
@@ -254,7 +258,7 @@ class TestExperimentSerializer(TestCase):
             ),
             "pref_branch": experiment.pref_branch,
             "pref_key": experiment.pref_key,
-            "pref_type": experiment.pref_type,
+            "pref_type": pref_type,
             "addon_experiment_id": experiment.addon_experiment_id,
             "addon_release_url": experiment.addon_release_url,
             "proposed_start_date": JSTimestampField().to_representation(
