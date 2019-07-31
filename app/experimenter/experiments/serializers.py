@@ -22,6 +22,15 @@ class JSTimestampField(serializers.Field):
             return None
 
 
+class PrefTypeField(serializers.Field):
+
+    def to_representation(self, obj):
+        if obj == Experiment.PREF_TYPE_JSON_STR:
+            return Experiment.PREF_TYPE_STR
+        else:
+            return obj
+
+
 class ExperimentVariantSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -54,6 +63,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
     variants = ExperimentVariantSerializer(many=True, required=False)
     locales = LocaleSerializer(many=True, required=False)
     countries = CountrySerializer(many=True, required=False)
+    pref_type = PrefTypeField()
 
     class Meta:
         model = Experiment
@@ -140,6 +150,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
     variants = ExperimentVariantSerializer(many=True)
     locales = LocaleSerializer(many=True)
     countries = CountrySerializer(many=True)
+    pref_type = PrefTypeField()
 
     class Meta:
         model = Experiment

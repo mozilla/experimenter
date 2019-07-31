@@ -141,12 +141,14 @@ class ExperimentConstants(object):
     PREF_TYPE_BOOL = "boolean"
     PREF_TYPE_INT = "integer"
     PREF_TYPE_STR = "string"
+    PREF_TYPE_JSON_STR = "json string"
 
     PREF_TYPE_CHOICES = (
         (None, "Firefox Pref Type"),
         (PREF_TYPE_BOOL, PREF_TYPE_BOOL),
         (PREF_TYPE_INT, PREF_TYPE_INT),
         (PREF_TYPE_STR, PREF_TYPE_STR),
+        (PREF_TYPE_JSON_STR, PREF_TYPE_JSON_STR),
     )
 
     PREF_BRANCH_USER = "user"
