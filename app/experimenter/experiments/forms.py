@@ -1200,6 +1200,12 @@ class ExperimentArchiveForm(
     def clean_archived(self):
         return not self.instance.archived
 
+    def get_changelog_message(self):
+        message = "Archived Experiment"
+        if not self.instance.archived:
+            message = "Unarchived Experiment"
+        return message
+
     def save(self, *args, **kwargs):
         experiment = Experiment.objects.get(id=self.instance.id)
 

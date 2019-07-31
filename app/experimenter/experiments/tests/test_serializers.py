@@ -133,7 +133,6 @@ class TestChangeLogSerializer(TestCase):
         expected_data = {
             "type": experiment.type,
             "status": experiment.status,
-            "archived": experiment.archived,
             "owner": experiment.owner.id,
             "name": experiment.name,
             "short_description": experiment.short_description,
