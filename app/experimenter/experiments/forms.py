@@ -592,16 +592,16 @@ class ExperimentVariantsPrefForm(ExperimentVariantsBaseForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        expected_type_mapping = expected_type = {
+            Experiment.PREF_TYPE_BOOL: bool,
+            Experiment.PREF_TYPE_INT: int,
+            Experiment.PREF_TYPE_STR: str,
+        }
 
         # Check that each pref value matches the global pref type of the form.
         pref_type = cleaned_data["pref_type"]
-        if pref_type in (Experiment.PREF_TYPE_BOOL, Experiment.PREF_TYPE_INT):
-
-            expected_type = {
-                Experiment.PREF_TYPE_BOOL: bool,
-                Experiment.PREF_TYPE_INT: int,
-                Experiment.PREF_TYPE_STR: str,
-            }[pref_type]
+        expected_type = expected_type_mapping.get(pref_type, None)
+        if pref_type != Experiment.PREF_TYPE_STR:
 
             for form in self.variants_formset.forms:
                 try:
@@ -609,7 +609,9 @@ class ExperimentVariantsPrefForm(ExperimentVariantsBaseForm):
                         found_type = type(
                             json.loads(form.cleaned_data["value"])
                         )
-                        if found_type != expected_type:
+
+                        # type validation only for non json type
+                        if expected_type and found_type != expected_type:
                             raise ValueError
 
                 except (json.JSONDecodeError, ValueError):
