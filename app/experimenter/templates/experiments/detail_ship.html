@@ -39,37 +39,62 @@
         </div>
 
         <div class="modal-body">
-          <p>Enter the following information into Delivery Console exactly as shown:</p>
-          <pre class="bg-light json prettyprint">{{ experiment.normandy_recipe_json }}</pre>
+          <div>
+            <p>Start by exporting the recipe to Normandy:</p>
+            <p>
+              <a
+                href="{{ experiment.delivery_console_experiment_import_url }}"
+                target="_blank"
+                class="btn btn-primary"
+                role="button"
+              >
+                Export to Normandy
+              </a>
 
+              <button
+                class="btn btn-secondary mx-1"
+                data-toggle="collapse"
+                data-target="#stn-step2"
+              >
+                Already exported
+              </button>
+            </p>
+          </div>
 
-          <p>When the recipe is saved in Delivery Console, copy the Recipe ID below and hit save.</p>
-          <hr class="mt-1">
-
-          <form method="post" action="{% url "experiments-normandy-update" slug=experiment.slug %}">
+          <form
+            method="post"
+            action="{% url "experiments-normandy-update" slug=experiment.slug %}"
+            class="collapse {% if normandy_id_form.normandy_id.value or normandy_id_form.other_normandy_ids.value %}show{% endif %}"
+            id="stn-step2"
+          >
             {% csrf_token %}
+            <hr />
 
-            <div class="form-row">
-              <div class="col-6">
-                {% include "experiments/field_input_inline.html" with form=normandy_id_form field=normandy_id_form.normandy_id %}
-                {% include "experiments/field_errors_inline.html" with form=normandy_id_form field=normandy_id_form.normandy_id %}
+            <p>After exporting enter the new recipe ID below:</p>
 
-              </div>
-              <div class="col-6">
-                {% include "experiments/field_input_inline.html" with form=normandy_id_form field=normandy_id_form.other_normandy_ids %}
-                {% include "experiments/field_errors_inline.html" with form=normandy_id_form field=normandy_id_form.other_normandy_ids %}
-
-              </div>
+            <div class="form-group">
+              {% include "experiments/field_input_inline.html" with form=normandy_id_form field=normandy_id_form.normandy_id %}
+              {% include "experiments/field_errors_inline.html" with form=normandy_id_form field=normandy_id_form.normandy_id %}
             </div>
-            <div class="form-row mt-3">
-              <div class="col-2 offset-6 text-right">
-                <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
-              </div>
-              <div class="col-4 text-right">
-                <button type="submit" class="btn btn-danger btn-block">Send to Normandy</button>
-              </div>
+
+            <div class="form-group">
+              {% include "experiments/field_input_inline.html" with form=normandy_id_form field=normandy_id_form.other_normandy_ids %}
+              {% include "experiments/field_errors_inline.html" with form=normandy_id_form field=normandy_id_form.other_normandy_ids %}
+            </div>
+
+            <div class="form-group">
+              <button type="submit" class="btn btn-success">Save Recipe ID</button>
             </div>
           </form>
+        </div>
+
+        <div class="modal-footer">
+          <div class="flex-fill">
+            <a href="{{ experiment.api_recipe_url }}" target="_blank">Preview Recipe JSON</a>
+          </div>
+          <div>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
         </div>
 
       </div>
