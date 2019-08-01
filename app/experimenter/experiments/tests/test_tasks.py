@@ -370,7 +370,11 @@ class TestUpdateExperimentStatus(
 
     def test_accepted_experiment_becomes_live_if_normandy_enabled(self):
         ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
+            target_status=Experiment.STATUS_ACCEPTED,
+            normandy_id=1234,
+            proposed_start_date=date.today(),
+            proposed_duration=30,
+            proposed_enrollment=0,
         )
 
         tasks.update_experiment_info()
