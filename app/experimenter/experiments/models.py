@@ -343,15 +343,12 @@ class Experiment(ExperimentConstants, models.Model):
         if not self.bugzilla_id:
             raise ValueError(error_msg.format(field="Bugzilla ID"))
 
-        slug_min_version = ExperimentConstants.VERSION_REGEX.match(
-            self.firefox_min_version
-        ).group(0)
-        version_string = slug_min_version
+        version_string = self.firefox_min_version_integer
         if self.firefox_max_version:
-            slug_max_version = ExperimentConstants.VERSION_REGEX.match(
-                self.firefox_max_version
-            ).group(0)
-            version_string = f"{slug_min_version}-{slug_max_version}"
+            version_string = (
+                f"{self.firefox_min_version_integer}-"
+                f"{self.firefox_max_version_integer}"
+            )
 
         slug_prefix = f"{self.type}-"
         slug_postfix = (
@@ -669,26 +666,29 @@ class Experiment(ExperimentConstants, models.Model):
             return self.firefox_min_version
 
     @property
-    def versions_integer_list(self):
-        min_integer = int(
-            ExperimentConstants.VERSION_REGEX.match(
-                self.firefox_min_version
-            ).group(0)
-        )
-
-        integers_list = [min_integer]
-
+    def firefox_max_version_integer(self):
         if self.firefox_max_version:
-            max_integer = int(
+            return int(
                 ExperimentConstants.VERSION_REGEX.match(
                     self.firefox_max_version
                 ).group(0)
             )
 
-            for x in range(min_integer + 1, max_integer + 1):
-                integers_list.append(x)
+    @property
+    def firefox_min_version_integer(self):
+        return int(
+            ExperimentConstants.VERSION_REGEX.match(
+                self.firefox_min_version
+            ).group(0)
+        )
 
-        return integers_list
+    @property
+    def versions_integer_list(self):
+        max = (
+            self.firefox_max_version_integer
+            or self.firefox_min_version_integer
+        )
+        return list(range(self.firefox_min_version_integer, max + 1))
 
     @property
     def population(self):
