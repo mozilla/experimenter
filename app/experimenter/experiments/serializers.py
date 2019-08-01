@@ -222,6 +222,21 @@ class FilterObjectChannelSerializer(serializers.ModelSerializer):
         return [obj.firefox_channel.lower()]
 
 
+class FilterObjectVersionsSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    versions = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Experiment
+        fields = ("type", "versions")
+
+    def get_type(self, obj):
+        return "version"
+
+    def get_versions(self, obj):
+        return obj.versions_integer_list
+
+
 class FilterObjectLocaleSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     locales = serializers.SerializerMethodField()
@@ -322,6 +337,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
         filter_objects = [
             FilterObjectBucketSampleSerializer(obj).data,
             FilterObjectChannelSerializer(obj).data,
+            FilterObjectVersionsSerializer(obj).data,
         ]
 
         if obj.locales.count():
