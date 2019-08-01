@@ -23,6 +23,7 @@ from experimenter.experiments.serializers import (
     FilterObjectChannelSerializer,
     FilterObjectCountrySerializer,
     FilterObjectLocaleSerializer,
+    FilterObjectVersionsSerializer,
     JSTimestampField,
     PrefTypeField,
     LocaleSerializer,
@@ -336,6 +337,27 @@ class TestFilterObjectChannelSerializer(TestCase):
         )
 
 
+class TestFilterObjectVersionsSerializer(TestCase):
+
+    def test_serializer_outputs_version_string_with_only_min(self):
+        experiment = ExperimentFactory.create(
+            firefox_min_version="68.0", firefox_max_version=""
+        )
+        serializer = FilterObjectVersionsSerializer(experiment)
+        self.assertEqual(
+            serializer.data, {"type": "version", "versions": [68]}
+        )
+
+    def test_serializer_outputs_version_string_with_range(self):
+        experiment = ExperimentFactory.create(
+            firefox_min_version="68.0", firefox_max_version="70.0"
+        )
+        serializer = FilterObjectVersionsSerializer(experiment)
+        self.assertEqual(
+            serializer.data, {"type": "version", "versions": [68, 69, 70]}
+        )
+
+
 class TestFilterObjectLocaleSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
@@ -435,6 +457,7 @@ class TestExperimentRecipeSerializer(TestCase):
             [
                 FilterObjectBucketSampleSerializer(experiment).data,
                 FilterObjectChannelSerializer(experiment).data,
+                FilterObjectVersionsSerializer(experiment).data,
                 FilterObjectLocaleSerializer(experiment).data,
                 FilterObjectCountrySerializer(experiment).data,
             ],
@@ -462,6 +485,7 @@ class TestExperimentRecipeSerializer(TestCase):
             [
                 FilterObjectBucketSampleSerializer(experiment).data,
                 FilterObjectChannelSerializer(experiment).data,
+                FilterObjectVersionsSerializer(experiment).data,
                 FilterObjectLocaleSerializer(experiment).data,
                 FilterObjectCountrySerializer(experiment).data,
             ],
