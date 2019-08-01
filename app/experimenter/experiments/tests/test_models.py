@@ -569,6 +569,18 @@ class TestExperimentModel(TestCase):
             "Jan 11, 2019 - Jan 21, 2019 (10 days)",
         )
 
+    def test_enrollment_is_complete(self):
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE, is_paused=True
+        )
+        self.assertTrue(experiment.is_enrollment_complete)
+
+    def test_enrollment_is_not_complete(self):
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE, is_paused=False
+        )
+        self.assertFalse(experiment.is_enrollment_complete)
+
     def test_control_property_returns_experiment_control(self):
         experiment = ExperimentFactory.create_with_variants()
         control = ExperimentVariant.objects.get(
@@ -1089,6 +1101,34 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(experiment_1.format_firefox_versions, "57.0")
         self.assertEqual(experiment_2.format_firefox_versions, "57.0 to 59.0")
+
+    def test_versions_integer_list_with_only_min_returns_correct_list(self):
+        experiment = ExperimentFactory(
+            firefox_min_version="57.0", firefox_max_version=""
+        )
+
+        self.assertEqual(experiment.versions_integer_list, [57])
+
+    def test_versions_integer_list_with_min_max_returns_correct_list(self):
+        experiment = ExperimentFactory(
+            firefox_min_version="57.0", firefox_max_version="59.0"
+        )
+
+        self.assertEqual(experiment.versions_integer_list, [57, 58, 59])
+
+    def test_firefox_max_version_integer_returns_correct_integer(self):
+        experiment = ExperimentFactory(
+            firefox_min_version="57.0", firefox_max_version="59.0"
+        )
+
+        self.assertEqual(experiment.firefox_max_version_integer, 59)
+
+    def test_firefox_min_version_integer_returns_correct_integer(self):
+        experiment = ExperimentFactory(
+            firefox_min_version="57.0", firefox_max_version="59.0"
+        )
+
+        self.assertEqual(experiment.firefox_min_version_integer, 57)
 
     def test_experiment_population_returns_correct_string(self):
         experiment = ExperimentFactory(

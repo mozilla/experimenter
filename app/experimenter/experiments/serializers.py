@@ -22,6 +22,15 @@ class JSTimestampField(serializers.Field):
             return None
 
 
+class PrefTypeField(serializers.Field):
+
+    def to_representation(self, obj):
+        if obj == Experiment.PREF_TYPE_JSON_STR:
+            return Experiment.PREF_TYPE_STR
+        else:
+            return obj
+
+
 class ExperimentVariantSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -54,13 +63,13 @@ class ChangeLogSerializer(serializers.ModelSerializer):
     variants = ExperimentVariantSerializer(many=True, required=False)
     locales = LocaleSerializer(many=True, required=False)
     countries = CountrySerializer(many=True, required=False)
+    pref_type = PrefTypeField()
 
     class Meta:
         model = Experiment
         fields = (
             "type",
             "status",
-            "archived",
             "owner",
             "name",
             "short_description",
@@ -141,6 +150,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
     variants = ExperimentVariantSerializer(many=True)
     locales = LocaleSerializer(many=True)
     countries = CountrySerializer(many=True)
+    pref_type = PrefTypeField()
 
     class Meta:
         model = Experiment
@@ -210,6 +220,21 @@ class FilterObjectChannelSerializer(serializers.ModelSerializer):
 
     def get_channels(self, obj):
         return [obj.firefox_channel.lower()]
+
+
+class FilterObjectVersionsSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    versions = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Experiment
+        fields = ("type", "versions")
+
+    def get_type(self, obj):
+        return "version"
+
+    def get_versions(self, obj):
+        return obj.versions_integer_list
 
 
 class FilterObjectLocaleSerializer(serializers.ModelSerializer):
@@ -312,6 +337,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
         filter_objects = [
             FilterObjectBucketSampleSerializer(obj).data,
             FilterObjectChannelSerializer(obj).data,
+            FilterObjectVersionsSerializer(obj).data,
         ]
 
         if obj.locales.count():

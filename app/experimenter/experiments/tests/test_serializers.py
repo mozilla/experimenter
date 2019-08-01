@@ -23,7 +23,9 @@ from experimenter.experiments.serializers import (
     FilterObjectChannelSerializer,
     FilterObjectCountrySerializer,
     FilterObjectLocaleSerializer,
+    FilterObjectVersionsSerializer,
     JSTimestampField,
+    PrefTypeField,
     LocaleSerializer,
     ExperimentCloneSerializer,
 )
@@ -43,6 +45,23 @@ class TestJSTimestampField(TestCase):
     def test_field_returns_none_if_no_datetime_passed_in(self):
         field = JSTimestampField()
         self.assertEqual(field.to_representation(None), None)
+
+
+class TestPrefTypeField(TestCase):
+
+    def test_non_json_field(self):
+        field = PrefTypeField()
+        self.assertEqual(
+            field.to_representation(Experiment.PREF_TYPE_INT),
+            Experiment.PREF_TYPE_INT,
+        )
+
+    def test_json_field(self):
+        field = PrefTypeField()
+        self.assertEqual(
+            field.to_representation(Experiment.PREF_TYPE_JSON_STR),
+            Experiment.PREF_TYPE_STR,
+        )
 
 
 class TestExperimentVariantSerializer(TestCase):
@@ -111,11 +130,11 @@ class TestChangeLogSerializer(TestCase):
         serializer = ChangeLogSerializer(experiment)
 
         risk_tech_description = experiment.risk_technical_description
-
+        # ensure expected_data has "string" if pref_type is json string
+        pref_type = PrefTypeField().to_representation(experiment.pref_type)
         expected_data = {
             "type": experiment.type,
             "status": experiment.status,
-            "archived": experiment.archived,
             "owner": experiment.owner.id,
             "name": experiment.name,
             "short_description": experiment.short_description,
@@ -126,7 +145,7 @@ class TestChangeLogSerializer(TestCase):
             "addon_experiment_id": experiment.addon_experiment_id,
             "addon_release_url": experiment.addon_release_url,
             "pref_key": experiment.pref_key,
-            "pref_type": experiment.pref_type,
+            "pref_type": pref_type,
             "pref_branch": experiment.pref_branch,
             "public_name": experiment.public_name,
             "public_description": experiment.public_description,
@@ -193,11 +212,10 @@ class TestChangeLogSerializer(TestCase):
             ],
         }
 
-        self.maxDiff = None
-
         self.assertEqual(
             set(serializer.data.keys()), set(expected_data.keys())
         )
+
         self.assertEqual(serializer.data, expected_data)
 
 
@@ -217,6 +235,9 @@ class TestExperimentSerializer(TestCase):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_COMPLETE, countries=[], locales=[]
         )
+
+        # ensure expected_data has "string" if pref_type is json string
+        pref_type = PrefTypeField().to_representation(experiment.pref_type)
         serializer = ExperimentSerializer(experiment)
         expected_data = {
             "analysis": experiment.analysis,
@@ -238,7 +259,7 @@ class TestExperimentSerializer(TestCase):
             ),
             "pref_branch": experiment.pref_branch,
             "pref_key": experiment.pref_key,
-            "pref_type": experiment.pref_type,
+            "pref_type": pref_type,
             "addon_experiment_id": experiment.addon_experiment_id,
             "addon_release_url": experiment.addon_release_url,
             "proposed_start_date": JSTimestampField().to_representation(
@@ -313,6 +334,27 @@ class TestFilterObjectChannelSerializer(TestCase):
         serializer = FilterObjectChannelSerializer(experiment)
         self.assertEqual(
             serializer.data, {"type": "channel", "channels": ["nightly"]}
+        )
+
+
+class TestFilterObjectVersionsSerializer(TestCase):
+
+    def test_serializer_outputs_version_string_with_only_min(self):
+        experiment = ExperimentFactory.create(
+            firefox_min_version="68.0", firefox_max_version=""
+        )
+        serializer = FilterObjectVersionsSerializer(experiment)
+        self.assertEqual(
+            serializer.data, {"type": "version", "versions": [68]}
+        )
+
+    def test_serializer_outputs_version_string_with_range(self):
+        experiment = ExperimentFactory.create(
+            firefox_min_version="68.0", firefox_max_version="70.0"
+        )
+        serializer = FilterObjectVersionsSerializer(experiment)
+        self.assertEqual(
+            serializer.data, {"type": "version", "versions": [68, 69, 70]}
         )
 
 
@@ -415,6 +457,7 @@ class TestExperimentRecipeSerializer(TestCase):
             [
                 FilterObjectBucketSampleSerializer(experiment).data,
                 FilterObjectChannelSerializer(experiment).data,
+                FilterObjectVersionsSerializer(experiment).data,
                 FilterObjectLocaleSerializer(experiment).data,
                 FilterObjectCountrySerializer(experiment).data,
             ],
@@ -442,6 +485,7 @@ class TestExperimentRecipeSerializer(TestCase):
             [
                 FilterObjectBucketSampleSerializer(experiment).data,
                 FilterObjectChannelSerializer(experiment).data,
+                FilterObjectVersionsSerializer(experiment).data,
                 FilterObjectLocaleSerializer(experiment).data,
                 FilterObjectCountrySerializer(experiment).data,
             ],

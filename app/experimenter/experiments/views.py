@@ -42,6 +42,7 @@ class ExperimentFiltersetForm(forms.ModelForm):
     subscribed = forms.BooleanField(required=False)
     firefox_version = forms.CharField(required=False)
     longrunning = forms.BooleanField(required=False)
+    is_paused = forms.BooleanField(required=False)
 
     class Meta:
         model = Experiment
@@ -58,6 +59,7 @@ class ExperimentFiltersetForm(forms.ModelForm):
             "archived",
             "subscribed",
             "longrunning",
+            "is_paused",
         )
 
     def clean_archived(self):
@@ -201,6 +203,12 @@ class ExperimentFilterset(filters.FilterSet):
         method="longrunning_filter",
     )
 
+    is_paused = filters.BooleanFilter(
+        label="Show enrollment complete experiments",
+        widget=forms.CheckboxInput(),
+        method="is_paused_filter",
+    )
+
     class Meta:
         model = Experiment
         form = ExperimentFiltersetForm
@@ -316,6 +324,14 @@ class ExperimentFilterset(filters.FilterSet):
                     version_count=F("firefox_max_int") - F("firefox_min_int"),
                 )
                 .filter(version_count__gte=3)
+            )
+
+        return queryset
+
+    def is_paused_filter(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                is_paused=True, status=Experiment.STATUS_LIVE
             )
 
         return queryset
