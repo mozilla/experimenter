@@ -720,7 +720,8 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def is_archivable(self):
-        return self.status != self.STATUS_LIVE
+        not_archivable = (self.STATUS_LIVE, self.STATUS_ACCEPTED)
+        return self.status not in not_archivable
 
     @property
     def is_enrollment_complete(self):
