@@ -41,33 +41,35 @@
         <div class="modal-body">
           <p>Enter the following information into Delivery Console exactly as shown:</p>
           <pre class="bg-light json prettyprint">{{ experiment.normandy_recipe_json }}</pre>
+
+
           <p>When the recipe is saved in Delivery Console, copy the Recipe ID below and hit save.</p>
-        </div>
+          <hr class="mt-1">
 
-        <div class="modal-footer">
-
-          <form class="form-inline" method="post" action="{% url "experiments-normandy-update" slug=experiment.slug %}">
-
+          <form method="post" action="{% url "experiments-normandy-update" slug=experiment.slug %}">
             {% csrf_token %}
 
-            <div class="form-group mx-1">
-              {% include "experiments/field_errors_inline.html" with form=normandy_id_form field=normandy_id_form.normandy_id %}
-            </div>
+            <div class="form-row">
+              <div class="col-6">
+                {% include "experiments/field_input_inline.html" with form=normandy_id_form field=normandy_id_form.normandy_id %}
+                {% include "experiments/field_errors_inline.html" with form=normandy_id_form field=normandy_id_form.normandy_id %}
 
-            <div class="form-group mx-1">
-              {% include "experiments/field_input_inline.html" with form=normandy_id_form field=normandy_id_form.normandy_id %}
-            </div>
+              </div>
+              <div class="col-6">
+                {% include "experiments/field_input_inline.html" with form=normandy_id_form field=normandy_id_form.other_normandy_ids %}
+                {% include "experiments/field_errors_inline.html" with form=normandy_id_form field=normandy_id_form.other_normandy_ids %}
 
-            <div class="form-group mx-1">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
             </div>
-
-            <div class="form-group mx-1">
-              <button type="submit" class="btn btn-danger">Send to Normandy</button>
+            <div class="form-row mt-3">
+              <div class="col-2 offset-6 text-right">
+                <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
+              </div>
+              <div class="col-4 text-right">
+                <button type="submit" class="btn btn-danger btn-block">Send to Normandy</button>
+              </div>
             </div>
-
           </form>
-
         </div>
 
       </div>
