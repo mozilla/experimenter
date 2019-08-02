@@ -299,6 +299,7 @@ class TestExperimentSerializer(TestCase):
         self.assertEqual(
             set(serializer.data.keys()), set(expected_data.keys())
         )
+        self.assertEqual(serializer.data, expected_data)
 
 
     def test_serializer_locales(self):
