@@ -1279,10 +1279,47 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
     normandy_id = forms.IntegerField(
         label="Recipe ID",
         widget=forms.TextInput(
-            attrs={"class": "form-control", "placeholder": "Recipe ID"}
+            attrs={"class": "form-control", "placeholder": "Main Recipe ID"}
         ),
     )
 
+    other_normandy_ids = forms.CharField(
+        label="Other Recipe IDs",
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Other Recipe IDs (Optional)",
+            }
+        ),
+        required=False,
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if cleaned_data.get("normandy_id") in cleaned_data.get(
+            "other_normandy_ids", []
+        ):
+            raise forms.ValidationError(
+                {"other_normandy_ids": "Duplicate IDs are not accepted."}
+            )
+
+        return cleaned_data
+
+    def clean_other_normandy_ids(self):
+        if not self.cleaned_data["other_normandy_ids"].strip():
+            return []
+
+        try:
+            return [
+                int(i.strip())
+                for i in self.cleaned_data["other_normandy_ids"].split(",")
+            ]
+        except ValueError:
+            raise forms.ValidationError(
+                f"IDs must be numbers separated by commas."
+            )
+
     class Meta:
         model = Experiment
-        fields = ("normandy_id",)
+        fields = ("normandy_id", "other_normandy_ids")

@@ -12,21 +12,23 @@ Normandy Info
     </p>
   {% endif %}
 
-  {% if experiment.normandy_id %}
-    <p>
-      <strong class="mr-2">Normandy Recipe ID: </strong>
-      <code>{{ experiment.normandy_id }}</code>
-    <p/>
-    <p>
-      <a href="{{ experiment.delivery_console_recipe_url }}" target="blank" rel="noreferrer noopener">
-        Delivery Console Recipe
-      </a>
-    </p>
+  {% if experiment.normandy_id  %}
+    <p><strong>Normandy Recipe IDs:</strong></p>
 
-    <p>
-      <a href="{{ experiment.normandy_api_recipe_url }}" target="blank" rel="noreferrer noopener">
-        Normandy API Recipe
-      </a>
-    </p>
+      {% for entry in experiment.format_dc_normandy_urls %}
+        <p class="mb-3">
+          <code>{{ entry.id }}</code> :
+          <a href="{{ entry.delivery_console_url }}" target="blank" rel="noreferrer noopener">
+            Delivery Console Recipe
+          </a> |
+          <a href="{{ entry.normandy_recipe_url }}" target="blank" rel="noreferrer noopener">
+            Normandy API Recipe
+          </a>
+          {% if experiment.normandy_id == entry.id %}
+            <span class="badge badge-secondary">Primary</span>
+          {% endif %}
+        </p>
+      {% endfor %}
   {% endif %}
+
 {% endblock %}

@@ -9,6 +9,7 @@ from django.conf import settings
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import Case, Max, Value, When
 from django.urls import reverse
@@ -160,6 +161,9 @@ class Experiment(ExperimentConstants, models.Model):
     bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
     normandy_slug = models.CharField(max_length=255, blank=True, null=True)
     normandy_id = models.PositiveIntegerField(blank=True, null=True)
+    other_normandy_ids = ArrayField(
+        models.IntegerField(), blank=True, null=True
+    )
 
     data_science_bugzilla_url = models.URLField(blank=True, null=True)
     feature_bugzilla_url = models.URLField(blank=True, null=True)
@@ -374,16 +378,36 @@ class Experiment(ExperimentConstants, models.Model):
         return self.normandy_slug or self.normandy_id
 
     @property
-    def normandy_api_recipe_url(self):
-        if self.normandy_id:
-            return settings.NORMANDY_API_RECIPE_URL.format(id=self.normandy_id)
+    def format_dc_normandy_urls(self):
+        # returns a list of dictionaries containing D.C. and Normandy
+        # urls for the main normandy id and other normandy ids if they exist
+        normandy_recipe_url = settings.NORMANDY_API_RECIPE_URL
+        delivery_console_url = settings.DELIVERY_CONSOLE_RECIPE_URL
 
-    @property
-    def delivery_console_recipe_url(self):
+        urls = []
+
         if self.normandy_id:
-            return settings.DELIVERY_CONSOLE_RECIPE_URL.format(
-                id=self.normandy_id
+            urls.append(
+                {
+                    "id": self.normandy_id,
+                    "normandy_url": normandy_recipe_url.format(
+                        id=self.normandy_id
+                    ),
+                    "DC_url": delivery_console_url.format(id=self.normandy_id),
+                }
             )
+
+            if self.other_normandy_ids:
+                for id in self.other_normandy_ids:
+                    urls.append(
+                        {
+                            "id": id,
+                            "normandy_url": normandy_recipe_url.format(id=id),
+                            "DC_url": delivery_console_url.format(id=id),
+                        }
+                    )
+
+        return urls
 
     @property
     def has_external_urls(self):
@@ -737,6 +761,7 @@ class Experiment(ExperimentConstants, models.Model):
             "addon_release_url",
             "normandy_slug",
             "normandy_id",
+            "other_normandy_ids",
             "bugzilla_id",
             "review_science",
             "review_engineering",
