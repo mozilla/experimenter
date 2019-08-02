@@ -85,6 +85,10 @@
 
   {% include "experiments/section_testing.html" with section_name=experiment.SECTION_TESTING section_title="Test Plan" section_complete=experiment.completed_testing experiment=experiment edit_url_name="experiments-risks-update" comments=experiment.comments.sections.testing %}
 
+  {% if experiment.is_begun %}
+    {% include "experiments/section_results.html" with section_name=experiment.SECTION_RESULTS section_title="Results" section_complete=experiment.completed_results experiment=experiment edit_url_name="experiments-results-update" comments=experiment.comments.sections.results %}
+  {% endif %}
+
 {% endblock %}
 
 {% block main_sidebar %}
@@ -129,7 +133,7 @@
       {% if not experiment.is_archivable %}
       disabled
       {% endif %}
-    > 
+    >
       <strong>
         <span class="fas fa-archive"></span>
         {% if experiment.archived %}

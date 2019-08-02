@@ -22,12 +22,15 @@
             {% block section_content %}
               {{ section_content|urlize|linebreaks }}
             {% endblock %}
+          {% elif section_name == "results" and not section_complete %}
+            <p>Please <a href="{% url edit_url_name slug=experiment.slug %}">add results </a> to this experiment.</p>
+
           {% else %}
             <p>You must <a href="{% url edit_url_name slug=experiment.slug %}">complete the {{ section_name }} form</a> before you can launch your experiment.</p>
           {% endif %}
         </div>
 
-        {% if experiment.is_editable  and edit_url_name %}
+        {% if experiment.is_editable  and edit_url_name or experiment.is_begun and section_name == "results" %}
           <div class="col-1 text-right pl-0">
             <a href="{% url edit_url_name slug=experiment.slug %}">
               <span class="fas fa-edit"></span> Edit
