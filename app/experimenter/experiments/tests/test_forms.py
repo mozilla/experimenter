@@ -30,6 +30,7 @@ from experimenter.experiments.forms import (
     ExperimentVariantsAddonForm,
     ExperimentVariantsPrefForm,
     JSONField,
+    NormandyIdForm,
 )
 from experimenter.experiments.models import (
     Experiment,
@@ -1982,3 +1983,50 @@ class TestExperimentSubscribedForm(MockRequestMixin, TestCase):
 
         experiment = form.save()
         self.assertFalse(self.user in experiment.subscribers.all())
+
+
+class TestNormandyIdForm(MockRequestMixin, TestCase):
+
+    def test_form_not_valid_with_bad_main_id(self):
+        experiment = ExperimentFactory.create()
+
+        form = NormandyIdForm(
+            self.request,
+            instance=experiment,
+            data={"normandy_id": "aaaa", "other_normandy_ids": "434"},
+        )
+
+        self.assertFalse(form.is_valid())
+
+    def test_form_not_valid_with_bad_other_ids(self):
+        experiment = ExperimentFactory.create()
+
+        form = NormandyIdForm(
+            self.request,
+            instance=experiment,
+            data={"normandy_id": "4343", "other_normandy_ids": "434, aaa"},
+        )
+
+        self.assertFalse(form.is_valid())
+
+    def test_form_not_valid_when_other_ids_duplicate_main_id(self):
+        experiment = ExperimentFactory.create()
+
+        form = NormandyIdForm(
+            self.request,
+            instance=experiment,
+            data={"normandy_id": "4343", "other_normandy_ids": "4343"},
+        )
+
+        self.assertFalse(form.is_valid())
+
+    def test_form_valid_when_other_ids_formatted_correctly(self):
+        experiment = ExperimentFactory.create()
+
+        form = NormandyIdForm(
+            self.request,
+            instance=experiment,
+            data={"normandy_id": "4343", "other_normandy_ids": "4323, 5671"},
+        )
+
+        self.assertTrue(form.is_valid())
