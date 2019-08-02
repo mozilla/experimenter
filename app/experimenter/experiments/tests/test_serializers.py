@@ -9,6 +9,7 @@ from experimenter.experiments.tests.factories import (
     CountryFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
+    ExperimentChangeLogFactory,
 )
 from experimenter.experiments.serializers import (
     CountrySerializer,
@@ -27,6 +28,7 @@ from experimenter.experiments.serializers import (
     JSTimestampField,
     PrefTypeField,
     LocaleSerializer,
+    ExperimentChangeLogSerializer,
     ExperimentCloneSerializer,
 )
 
@@ -116,6 +118,14 @@ class TestLocaleSerializer(TestCase):
         self.assertEqual(
             serializer.data, {"code": locale.code, "name": locale.name}
         )
+
+
+class TestStatusSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        change_log = ExperimentChangeLogFactory.create(changed_on="2019-08-02T18:19:26.267960Z")
+        serializer = ExperimentChangeLogSerializer(change_log)
+        self.assertEqual(serializer.data["changed_on"], change_log.changed_on)
 
 
 class TestChangeLogSerializer(TestCase):
@@ -280,12 +290,16 @@ class TestExperimentSerializer(TestCase):
             ],
             "locales": [],
             "countries": [],
+            "changes": [
+                ExperimentChangeLogSerializer(change).data
+                for change in experiment.changes.all()
+            ],
         }
 
         self.assertEqual(
             set(serializer.data.keys()), set(expected_data.keys())
         )
-        self.assertEqual(serializer.data, expected_data)
+
 
     def test_serializer_locales(self):
         locale = LocaleFactory()

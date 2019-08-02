@@ -59,13 +59,14 @@ class CountrySerializer(serializers.ModelSerializer):
         fields = ("code", "name")
 
 
-class StatusSerializer(serializers.ModelSerializer):
+class ExperimentChangeLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExperimentChangeLog
         fields = (
             "changed_on",
             "pretty_status",
             "new_status",
+            "old_status",
         )
 
 
@@ -161,7 +162,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
     locales = LocaleSerializer(many=True)
     countries = CountrySerializer(many=True)
     pref_type = PrefTypeField()
-    changes = StatusSerializer(many=True)
+    changes = ExperimentChangeLogSerializer(many=True)
 
     class Meta:
         model = Experiment
