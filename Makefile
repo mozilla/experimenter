@@ -23,13 +23,8 @@ test: test_build
 test-watch: compose_build
 	docker-compose -f docker-compose-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- ptw -- --testmon --show-capture=no --disable-warnings"
 
-integration_test:
-	cp .env.test .env
-	./scripts/build.sh
-	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml build
+integration_test: migrate load_locales_countries ssl
 	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml up -d
-	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- python manage.py migrate"
-	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml run app python manage.py load-locales-countries
 	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox tox -c tests/integration
 
 lint: test_build
