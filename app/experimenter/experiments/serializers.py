@@ -6,7 +6,11 @@ from django.urls import reverse
 from django.db.models import Q
 
 from experimenter.base.models import Country, Locale
-from experimenter.experiments.models import Experiment, ExperimentVariant, ExperimentChangeLog
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentVariant,
+    ExperimentChangeLog,
+)
 
 
 class JSTimestampField(serializers.Field):
@@ -60,14 +64,10 @@ class CountrySerializer(serializers.ModelSerializer):
 
 
 class ExperimentChangeLogSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = ExperimentChangeLog
-        fields = (
-            "changed_on",
-            "pretty_status",
-            "new_status",
-            "old_status",
-        )
+        fields = ("changed_on", "pretty_status", "new_status", "old_status")
 
 
 class ChangeLogSerializer(serializers.ModelSerializer):

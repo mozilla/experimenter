@@ -120,10 +120,12 @@ class TestLocaleSerializer(TestCase):
         )
 
 
-class TestStatusSerializer(TestCase):
+class TestExperimentChangeLogSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
-        change_log = ExperimentChangeLogFactory.create(changed_on="2019-08-02T18:19:26.267960Z")
+        change_log = ExperimentChangeLogFactory.create(
+            changed_on="2019-08-02T18:19:26.267960Z"
+        )
         serializer = ExperimentChangeLogSerializer(change_log)
         self.assertEqual(serializer.data["changed_on"], change_log.changed_on)
 
@@ -300,7 +302,6 @@ class TestExperimentSerializer(TestCase):
             set(serializer.data.keys()), set(expected_data.keys())
         )
         self.assertEqual(serializer.data, expected_data)
-
 
     def test_serializer_locales(self):
         locale = LocaleFactory()
