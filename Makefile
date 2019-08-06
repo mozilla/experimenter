@@ -23,6 +23,10 @@ test: test_build
 test-watch: compose_build
 	docker-compose -f docker-compose-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- ptw -- --testmon --show-capture=no --disable-warnings"
 
+integration_test: migrate load_locales_countries
+	docker-compose -f docker-compose.integration-test.yml -f docker-compose.yml up -d
+	docker-compose -f docker-compose.integration-test.yml -f docker-compose-test.yml -f docker-compose.yml exec firefox tox -c tests/integration
+
 lint: test_build
 	docker-compose -f docker-compose-test.yml run app flake8 .
 

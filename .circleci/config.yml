@@ -38,6 +38,30 @@ jobs:
                 paths:
                   - app.tar
 
+  integration_test:
+    machine:
+      image: ubuntu-1604:201903-01
+    working_directory: ~/experimenter
+    steps:
+      - run:
+          name: Install Docker Compose
+          command: |
+            set -x
+            sudo bash -c "curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose"
+            sudo chmod +x /usr/local/bin/docker-compose
+      - run:
+          name: Docker info
+          command: docker -v
+      - run:
+          name: Docker compose info
+          command: docker-compose -v
+      - checkout
+      - run:
+          name: Run integration tests
+          command: make integration_test
+      - store_artifacts:
+          path: tests/integration/integration-test.html
+
   deploy_latest:
     working_directory: ~/experimenter
     docker:
@@ -108,3 +132,4 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
+      - integration_test
