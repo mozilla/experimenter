@@ -58,7 +58,9 @@ jobs:
       - checkout
       - run:
           name: Run integration tests
-          command: make integration_test
+          command: |
+            cp .env.test .env
+            make integration_test
       - store_artifacts:
           path: tests/integration/integration-test.html
 
