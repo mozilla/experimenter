@@ -1442,3 +1442,33 @@ class TestExperimentNormandyUpdateView(TestCase):
             f"{detail_url}?normandy_id={normandy_id}",
             fetch_redirect_response=False,
         )
+
+    def test_invalid_other_recipe_ids_redirects_to_detail(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP
+        )
+        normandy_id = "432"
+        other_normandy_ids = "abc"
+
+        response = self.client.post(
+            reverse(
+                "experiments-normandy-update", kwargs={"slug": experiment.slug}
+            ),
+            {
+                "normandy_id": normandy_id,
+                "other_normandy_ids": other_normandy_ids,
+            },
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        detail_url = reverse(
+            "experiments-detail", kwargs={"slug": experiment.slug}
+        )
+
+        self.assertRedirects(
+            response,
+            f"{detail_url}?normandy_id={normandy_id}"
+            f"&other_normandy_ids={other_normandy_ids}",
+            fetch_redirect_response=False,
+        )
