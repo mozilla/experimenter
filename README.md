@@ -253,6 +253,22 @@ Example: GET /api/v1/experiments/self-enabled-needs-based-hardware/
                "ratio":2,
                "slug":"business-focused-upward-trending-graphic-interface",
                "value":"\"synchronized-upward-trending-knowledgebase\""
+            },
+            "changes":{
+                {
+                    "changed_on":"2019-04-01T17:53:30.747620Z",
+                    "changed_by":42,
+                    "pretty_status":"Created Experiment",
+                    "new_status":"Draft",
+                    "old_status":null
+                }, 
+                {
+                    "changed_on":"2019-04-16T17:53:30.747620Z",
+                    "changed_by":43,
+                    "pretty_status":"Ready for Sign-Off",
+                    "new_status":"Review",
+                    "old_status":"Draft"
+                }
             }
          }
 
