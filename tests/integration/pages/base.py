@@ -22,6 +22,10 @@ class Header(Region):
         By.CSS_SELECTOR,
         ".container .nocolorstyle:nth-child(1)",
     )
+    _subscribed_experiments_link_locator = (
+        By.CSS_SELECTOR,
+        ".container .nocolorstyle:nth-child(2)",
+    )
 
     def click_owned_experiments(self):
         """Clicks owned experiments link."""
@@ -34,7 +38,7 @@ class Header(Region):
 
     def click_subscribed_experiments(self):
         """Clicks subscribed experiments link."""
-        self.find_element(*self._owned_experiments_link_locator).click()
+        self.find_element(*self._subscribed_experiments_link_locator).click()
         from pages.subscribed_experiments import SubscribedExperiments
 
         return SubscribedExperiments(

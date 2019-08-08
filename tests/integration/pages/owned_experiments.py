@@ -7,7 +7,7 @@ from pages.base import Base
 
 class OwnedExperiments(Base):
 
-    _owned_text_locator = (By.CSS_SELECTOR, "a.nocolorstyle:nth-child(1)")
+    _owned_text_locator = (By.CSS_SELECTOR, ".m-0")
 
     def wait_for_page_to_load(self):
         self.wait.until(
