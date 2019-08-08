@@ -1,7 +1,8 @@
 version: 2
 jobs:
   build:
-    machine: true
+    machine:
+      docker_layer_caching: true    # default - false
     working_directory: ~/experimenter
     steps:
       - run:
