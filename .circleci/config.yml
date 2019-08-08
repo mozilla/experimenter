@@ -25,15 +25,18 @@ jobs:
       - run:
           name: Run tests
           command: make check
-      - run:
-          name: Save Docker image
-          command: |
-            mkdir ~/experimenter/caches
-            docker save -o ~/experimenter/caches/app.tar app
-      - persist_to_workspace:
-          root: ~/experimenter/caches
-          paths:
-            - app.tar
+      - when:
+          condition: << parameters.saveToWorkspace >>
+          steps:
+            - run:
+                name: Save Docker image
+                command: |
+                  mkdir ~/experimenter/caches
+                  docker save -o ~/experimenter/caches/app.tar app
+            - persist_to_workspace:
+                root: ~/experimenter/caches
+                paths:
+                  - app.tar
 
   deploy_latest:
     working_directory: ~/experimenter
