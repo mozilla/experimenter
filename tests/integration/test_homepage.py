@@ -9,7 +9,7 @@ def test_owned_experiments_page_loads(base_url, selenium):
     selenium.get(base_url)
     page = Base(selenium, base_url)
     experiments = page.header.click_owned_experiments()
-    assert experiments.count == 0
+    assert "Experiments" in experiments.title
 
 
 @pytest.mark.nondestructive
@@ -18,4 +18,4 @@ def test_subscribed_experiments_page_loads(base_url, selenium):
     selenium.get(base_url)
     page = Base(selenium, base_url)
     experiments = page.header.click_subscribed_experiments()
-    assert experiments.count == 0
+    assert "Subscribed Experiments" in experiments.title

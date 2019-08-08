@@ -7,7 +7,7 @@ from pages.base import Base
 
 class OwnedExperiments(Base):
 
-    _owned_text_locator = (By.CSS_SELECTOR, ".m-0")
+    _owned_text_locator = (By.CSS_SELECTOR, "a.nocolorstyle:nth-child(1)")
 
     def wait_for_page_to_load(self):
         self.wait.until(
@@ -22,3 +22,7 @@ class OwnedExperiments(Base):
         """Return the number of owned experiments."""
         num = self.find_element(*self._owned_text_locator).text
         return int(num.split()[0])
+
+    @property
+    def title(self):
+        return self.find_element(*self._owned_text_locator).text
