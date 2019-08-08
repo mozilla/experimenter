@@ -9,6 +9,7 @@ from experimenter.experiments.tests.factories import (
     CountryFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
+    ExperimentChangeLogFactory,
 )
 from experimenter.experiments.serializers import (
     CountrySerializer,
@@ -27,6 +28,7 @@ from experimenter.experiments.serializers import (
     JSTimestampField,
     PrefTypeField,
     LocaleSerializer,
+    ExperimentChangeLogSerializer,
     ExperimentCloneSerializer,
 )
 
@@ -118,6 +120,16 @@ class TestLocaleSerializer(TestCase):
         )
 
 
+class TestExperimentChangeLogSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        change_log = ExperimentChangeLogFactory.create(
+            changed_on="2019-08-02T18:19:26.267960Z"
+        )
+        serializer = ExperimentChangeLogSerializer(change_log)
+        self.assertEqual(serializer.data["changed_on"], change_log.changed_on)
+
+
 class TestChangeLogSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
@@ -167,7 +179,6 @@ class TestChangeLogSerializer(TestCase):
             "survey_instructions": experiment.survey_instructions,
             "engineering_owner": experiment.engineering_owner,
             "bugzilla_id": experiment.bugzilla_id,
-            "slug": experiment.slug,
             "normandy_slug": experiment.normandy_slug,
             "normandy_id": experiment.normandy_id,
             "data_science_bugzilla_url": experiment.data_science_bugzilla_url,
@@ -280,6 +291,10 @@ class TestExperimentSerializer(TestCase):
             ],
             "locales": [],
             "countries": [],
+            "changes": [
+                ExperimentChangeLogSerializer(change).data
+                for change in experiment.changes.all()
+            ],
         }
 
         self.assertEqual(
