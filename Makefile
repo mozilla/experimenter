@@ -25,7 +25,7 @@ test-watch: compose_build
 
 integration_test_ci: migrate load_locales_countries ssl
 	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml up -d
-	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml sudo usermod -u 1001 seluser
+	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox sudo usermod -u 1001 seluser
 	docker-compose -f docker-compose.yml -f tests/ui/docker-compose.selenium.yml exec firefox sudo chown -R seluser:seluser .
 	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox tox -c tests/integration
 
