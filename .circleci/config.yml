@@ -61,7 +61,7 @@ jobs:
           command: |
             cp .env.test .env
             sudo chown -R $USER:$USER .
-            make integration_test
+            make integration_test_ci
       - store_artifacts:
           path: tests/integration/integration-test.html
 
