@@ -1,6 +1,10 @@
 version: 2
 jobs:
   build:
+    parameters:
+      saveToWorkspace:
+        type: boolean
+        default: true
     machine:
       docker_layer_caching: true    # default - false
     working_directory: ~/experimenter
