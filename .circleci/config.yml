@@ -23,7 +23,7 @@ jobs:
           command: docker-compose -v
       - checkout
       - run:
-          name: Run tests
+          name: Run tests and linting
           command: make check
       - when:
           condition: << parameters.saveToWorkspace >>
