@@ -111,7 +111,6 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "survey_instructions",
             "engineering_owner",
             "bugzilla_id",
-            "slug",
             "normandy_slug",
             "normandy_id",
             "data_science_bugzilla_url",
