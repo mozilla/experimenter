@@ -23,7 +23,12 @@ test: test_build
 test-watch: compose_build
 	docker-compose -f docker-compose-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- ptw -- --testmon --show-capture=no --disable-warnings"
 
+integration_test: migrate load_locales_countries ssl
+	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml up -d
+	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox tox -c tests/integration
+
 integration_test_ci: migrate load_locales_countries ssl
+	# Only for CI use
 	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml up -d
 	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox sudo usermod -u 1001 seluser
 	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox sudo chown -R seluser:seluser .
