@@ -83,8 +83,15 @@ workflows:
       - build:
           saveToWorkspace: false
           filters:
+            branches:
+              ignore: master
+      - build:
+          saveToWorkspace: true
+          filters:
             tags:
               only: /.*/
+            branches:
+              only: master
       - deploy_latest:
           requires:
             - build
