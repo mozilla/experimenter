@@ -81,6 +81,7 @@ workflows:
   build:
     jobs:
       - build:
+          saveToWorkpace: false
           filters:
             tags:
               only: /.*/
