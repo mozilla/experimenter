@@ -81,11 +81,13 @@ workflows:
   build:
     jobs:
       - build:
+					name: build-pr
           saveToWorkspace: false
           filters:
             branches:
               ignore: master
       - build:
+			    name: build-save
           saveToWorkspace: true
           filters:
             tags:
@@ -94,13 +96,13 @@ workflows:
               only: master
       - deploy_latest:
           requires:
-            - build
+            - build-save
           filters:
             branches:
               only: master
       - deploy_tagged:
           requires:
-            - build
+            - build-save
           filters:
             branches:
               ignore: /.*/
