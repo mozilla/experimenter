@@ -81,13 +81,13 @@ workflows:
   build:
     jobs:
       - build:
-					name: build-pr
+          name: build-pr
           saveToWorkspace: false
           filters:
             branches:
               ignore: master
       - build:
-			    name: build-save
+          name: build-save
           saveToWorkspace: true
           filters:
             tags:
