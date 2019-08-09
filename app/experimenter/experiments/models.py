@@ -398,12 +398,14 @@ class Experiment(ExperimentConstants, models.Model):
             )
 
             if self.other_normandy_ids:
-                for id in self.other_normandy_ids:
+                for norm_id in self.other_normandy_ids:
                     urls.append(
                         {
-                            "id": id,
-                            "normandy_url": normandy_recipe_url.format(id=id),
-                            "DC_url": delivery_console_url.format(id=id),
+                            "id": norm_id,
+                            "normandy_url": normandy_recipe_url.format(
+                                id=norm_id
+                            ),
+                            "DC_url": delivery_console_url.format(id=norm_id),
                         }
                     )
 

@@ -18,10 +18,10 @@ Normandy Info
       {% for entry in experiment.format_dc_normandy_urls %}
         <p class="mb-3">
           <code>{{ entry.id }}</code> :
-          <a href="{{ entry.delivery_console_url }}" target="blank" rel="noreferrer noopener">
+          <a href="{{ entry.DC_url }}" target="blank" rel="noreferrer noopener">
             Delivery Console Recipe
           </a> |
-          <a href="{{ entry.normandy_recipe_url }}" target="blank" rel="noreferrer noopener">
+          <a href="{{ entry.normandy_url }}" target="blank" rel="noreferrer noopener">
             Normandy API Recipe
           </a>
           {% if experiment.normandy_id == entry.id %}
