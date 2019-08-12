@@ -62,9 +62,9 @@ django-formset-js-improved==0.5.0.2 \
 django-widget-tweaks==1.4.5 \
     --hash=sha256:65c960f3d75008a285e4b10f4d21f9eae4160fd77a0f6097ad545185f8648bd6 \
     --hash=sha256:f2e2c9c9be1ccc59061e248dcc2144f4906d594abe1a563902f4bdf6aa14e432
-djangorestframework==3.10.1 \
-    --hash=sha256:c3c5edfdbc5dd33f9121bb84305bfd603d2c791f20cff9782772f44a7684a4e4 \
-    --hash=sha256:1ca4a5599a5ec31f3d6238a687fcc1dd4c41b1d90edab9ad398fcbf87872b7ba
+djangorestframework==3.10.2 \
+    --hash=sha256:42979bd5441bb4d8fd69d0f385024a114c3cae7df0f110600b718751250f6929 \
+    --hash=sha256:aedb48010ebfab9651aaab1df5fd3b4848eb4182afc909852a2110c24f89a359
 dockerflow==2019.6.0 \
     --hash=sha256:885e4e32ebedc87a86c0d9c16fe4797f9ffe70622eb3a056615e37611eb983fd \
     --hash=sha256:3342654c419492fa16dc5872546c893433fefce8fd9ba90da9bc9cfcafaecac1
