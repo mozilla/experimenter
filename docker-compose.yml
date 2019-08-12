@@ -12,9 +12,20 @@ services:
     volumes:
       - ./app:/app
       - static_volume:/app/experimenter/served/
-    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py collectstatic --noinput; python /app/manage.py runserver 0:7001"
+      - node_modules_volume:/app/node_modules/
+    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py collectstatic --noinput;python /app/manage.py runserver 0:7001"
     networks:
       - private_nw
+  yarn:
+    image: app:build
+    env_file: .env
+    volumes:
+      - ./app:/app
+      - static_volume:/app/experimenter/served/
+      - node_modules_volume:/app/node_modules/
+    command: bash -c "yarn run watch"
+    networks:
+      - public_nw
 
   worker:
     image: app:build
@@ -69,6 +80,7 @@ services:
 volumes:
   db_volume:
   static_volume:
+  node_modules_volume:
 
 networks:
   private_nw:

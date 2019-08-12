@@ -1,0 +1,30 @@
+{
+  "name": "experimenter",
+  "version": "1.0.0",
+  "description": "a tool for managing experiments in Firefox",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "parcel build experimenter/static/css/index.css experimenter/static/js/index.js --out-dir experimenter/static/assets",
+    "watch": "parcel watch experimenter/static/css/index.css experimenter/static/js/index.js --out-dir experimenter/static/assets"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla/experimenter.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mozilla/experimenter/issues"
+  },
+  "homepage": "https://github.com/mozilla/experimenter#readme",
+  "dependencies": {
+    "bootstrap": "4.1.3",
+    "bootstrap-select": "1.13.10",
+    "jquery": "3.4.1",
+    "popper.js": "1.15.0",
+    "parcel-bundler": "1.12.3"
+  }
+}
