@@ -1,7 +1,12 @@
-version: 2
+version: 2.1
 jobs:
   build:
-    machine: true
+    parameters:
+      saveToWorkspace:
+        type: boolean
+        default: true
+    machine:
+      docker_layer_caching: true
     working_directory: ~/experimenter
     steps:
       - run:
@@ -18,17 +23,20 @@ jobs:
           command: docker-compose -v
       - checkout
       - run:
-          name: Run tests
+          name: Run tests and linting
           command: make check
-      - run:
-          name: Save Docker image
-          command: |
-            mkdir ~/experimenter/caches
-            docker save -o ~/experimenter/caches/app.tar app
-      - persist_to_workspace:
-          root: ~/experimenter/caches
-          paths:
-            - app.tar
+      - when:
+          condition: << parameters.saveToWorkspace >>
+          steps:
+            - run:
+                name: Save Docker image
+                command: |
+                  mkdir ~/experimenter/caches
+                  docker save -o ~/experimenter/caches/app.tar app
+            - persist_to_workspace:
+                root: ~/experimenter/caches
+                paths:
+                  - app.tar
 
   deploy_latest:
     working_directory: ~/experimenter
@@ -73,18 +81,28 @@ workflows:
   build:
     jobs:
       - build:
+          name: build-pr
+          saveToWorkspace: false
+          filters:
+            branches:
+              ignore: master
+      - build:
+          name: build-save
+          saveToWorkspace: true
           filters:
             tags:
               only: /.*/
+            branches:
+              only: master
       - deploy_latest:
           requires:
-            - build
+            - build-save
           filters:
             branches:
               only: master
       - deploy_tagged:
           requires:
-            - build
+            - build-save
           filters:
             branches:
               ignore: /.*/
