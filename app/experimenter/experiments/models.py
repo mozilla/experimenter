@@ -412,6 +412,16 @@ class Experiment(ExperimentConstants, models.Model):
         return urls
 
     @property
+    def delivery_console_experiment_import_url(self):
+        return settings.DELIVERY_CONSOLE_EXPERIMENT_IMPORT_URL.format(
+            slug=self.slug
+        )
+
+    @property
+    def api_recipe_url(self):
+        return reverse("experiments-api-recipe", kwargs={"slug": self.slug})
+
+    @property
     def has_external_urls(self):
         return (
             self.bugzilla_url
