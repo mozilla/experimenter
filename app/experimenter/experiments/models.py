@@ -920,15 +920,17 @@ class ExperimentChangeLog(models.Model):
     @property
     def changed_values(self):
         changed_values = {}
-        for key in self.new_values:
-            if key in ("countries", "locales"):
-                old_val = self._get_code(self.old_values[key])
-                new_val = self._get_code(self.new_values[key])
-            else:
-                old_val = self.old_values[key]
-                new_val = self.new_values[key]
-            changed_values[key] = {"old_value": old_val, "new_value": new_val}
-        return changed_values
+        # ensure change log has new_values
+        if self.new_values:
+            for key in self.new_values:
+                if key in ("countries", "locales"):
+                    old_val = self._get_code(self.old_values[key])
+                    new_val = self._get_code(self.new_values[key])
+                else:
+                    old_val = self.old_values[key]
+                    new_val = self.new_values[key]
+                changed_values[key] = {"old_value": old_val, "new_value": new_val}
+            return changed_values
 
     def _get_code(self, list_of_obj):
         return ", ".join([obj["code"] for obj in list_of_obj])

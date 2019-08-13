@@ -194,22 +194,25 @@
         <div class="col">
           {{ user }}
           {% for user_change in user_changes %}
-            {% if "Edited Experiment" in user_change.pretty_status %}
-            <p id="editExperiment{{user_change.id}}" data-toggle="modal" data-target="#changelog-modal{{user_change.id}}">
-              <span class="fas fa-caret-right"></span>
-              Edited Experiment
+            {% if user_change.changed_values %}
+            <p>
+              <a href="" id="editExperiment{{user_change.id}}" data-toggle="modal" data-target="#changelog-modal{{user_change.id}}">
+                <span class="fas fa-info-circle"></span>
+                Edited Experiment
+              </a>
             </p>
 
             <div id="changelog-modal{{user_change.id}}" class="modal" tabindex="-1" role="dialog">
                 <div class="modal-dialog modal-lg" role="document">
                   <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title"> {{user}} edited on {{user_change.changed_on}}</h5>
-                        <br/>
-                        
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
+                    <div class="modal-header d-block">
+                      <div class="d-flex"> 
+                        <h5 class="modal-title">Edited by {{user}} </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                      </div>
+                      <p class="text-muted">{{user_change.changed_on}}</p>
                     </div>
             
                     <div class="modal-body">
