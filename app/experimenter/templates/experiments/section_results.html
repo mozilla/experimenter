@@ -7,7 +7,7 @@ Results
 {% block section_content %}
   <p><strong>Primary Result URL: </strong></p>
   {% if experiment.results_url %}
-    <p>{{ experiment.results_url|linebreaks }}</p>
+    <p>{{ experiment.results_url|urlize|linebreaks }}</p>
   {% else %}
     <p><em class="text-secondary">Not Complete.</em></p>
   {% endif %}

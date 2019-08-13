@@ -1107,7 +1107,11 @@ class TestExperimentModel(TestCase):
         self.assertTrue(experiment.completed_results)
 
     def test_completed_results_returns_false_if_none(self):
-        experiment = ExperimentFactory.create()
+        experiment = ExperimentFactory.create(
+            results_initial=None,
+            results_url=None,
+            results_lessons_learned=None,
+        )
         self.assertFalse(experiment.completed_results)
 
     def test_experiment_is_not_archivable(self):

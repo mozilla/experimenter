@@ -696,14 +696,14 @@ class ExperimentConstants(object):
 
     # Results
     RESULTS_URL_HELP_TEXT = """
-        This is the link to final results.
+        This is the link to analysis report.
     """
     RESULTS_INITIAL_HELP_TEXT = """
         This is the place for links to any early findings or preliminary
         results, while the final results are being developed.  If there
         are not results for this specific experiment, because they are
         associated with a related experiment - this is the place to leave
-        a trail to find those closely experiment and/or results.
+        a trail to find those closely related experiments and/or results.
     """
 
     RESULTS_LESSONS_HELP_TEXT = """

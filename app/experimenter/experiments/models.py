@@ -887,7 +887,7 @@ class ExperimentChangeLog(models.Model):
     STATUS_ACCEPTED_LIVE = "Launched Experiment"
     STATUS_LIVE_COMPLETE = "Completed Experiment"
     STATUS_REJECTED = "Rejected Experiment"
-    STATUS_ADDED_RESULTS = "Added Results: "
+    STATUS_ADDED_RESULTS = "Added Results"
 
     PRETTY_STATUS_LABELS = {
         None: {Experiment.STATUS_DRAFT: STATUS_NONE_DRAFT},
