@@ -15,20 +15,25 @@ Normandy Info
   {% if experiment.normandy_id  %}
     <p><strong>Normandy Recipe IDs:</strong></p>
 
-      {% for entry in experiment.format_dc_normandy_urls %}
-        <p class="mb-3">
-          <code>{{ entry.id }}</code> :
-          <a href="{{ entry.DC_url }}" target="blank" rel="noreferrer noopener">
-            Delivery Console Recipe
-          </a> |
-          <a href="{{ entry.normandy_url }}" target="blank" rel="noreferrer noopener">
-            Normandy API Recipe
-          </a>
-          {% if experiment.normandy_id == entry.id %}
-            <span class="badge badge-secondary">Primary</span>
-          {% endif %}
-        </p>
-      {% endfor %}
+    {% for entry in experiment.format_dc_normandy_urls %}
+      <p class="mb-3">
+        <code>{{ entry.id }}</code> :
+        <a href="{{ entry.DC_url }}" target="blank" rel="noreferrer noopener">
+          Delivery Console Recipe
+        </a> |
+        <a href="{{ entry.normandy_url }}" target="blank" rel="noreferrer noopener">
+          Normandy API Recipe
+        </a>
+        {% if experiment.normandy_id == entry.id %}
+          <span class="badge badge-secondary">Primary</span>
+        {% endif %}
+      </p>
+    {% endfor %}
+  {% elif experiment.is_ready_to_launch %}
+    <p>
+      <strong class="mr-2">Normandy Recipe Data: </strong>
+      <a href="{{ experiment.api_recipe_url }}" target="_blank">Preview</a>
+    </p>
   {% endif %}
 
 {% endblock %}

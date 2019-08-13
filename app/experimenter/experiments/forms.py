@@ -1277,9 +1277,9 @@ class ExperimentCommentForm(forms.ModelForm):
 
 class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
     normandy_id = forms.IntegerField(
-        label="Recipe ID",
+        label="Primary Recipe ID",
         widget=forms.TextInput(
-            attrs={"class": "form-control", "placeholder": "Main Recipe ID"}
+            attrs={"class": "form-control", "placeholder": "Primary Recipe ID"}
         ),
     )
 
