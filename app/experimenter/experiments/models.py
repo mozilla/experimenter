@@ -541,7 +541,7 @@ class Experiment(ExperimentConstants, models.Model):
             date_changes = []
             for user, user_changes in users.items():
                 date_changes.append(
-                    (user, set([str(c) for c in list(user_changes)]))
+                    (user, set([c for c in list(user_changes)]))
                 )
 
             date_ordered_changes.append((date, date_changes))
@@ -929,6 +929,27 @@ class ExperimentChangeLog(models.Model):
     new_values = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
     objects = ExperimentChangeLogManager()
 
+    @property
+    def changed_values(self):
+        changed_values = {}
+        # ensure change log has new_values
+        if self.new_values:
+            for key in self.new_values:
+                if key in ("countries", "locales"):
+                    old_val = self._get_code(self.old_values[key])
+                    new_val = self._get_code(self.new_values[key])
+                else:
+                    old_val = self.old_values[key]
+                    new_val = self.new_values[key]
+                changed_values[key] = {
+                    "old_value": old_val,
+                    "new_value": new_val,
+                }
+            return changed_values
+
+    def _get_code(self, list_of_obj):
+        return ", ".join([obj["code"] for obj in list_of_obj])
+
     class Meta:
         verbose_name = "Experiment Change Log"
         verbose_name_plural = "Experiment Change Logs"
@@ -938,12 +959,6 @@ class ExperimentChangeLog(models.Model):
         if self.message:
             return self.message
         else:
-            if self.new_values:
-                changed_fields = "\n".join(
-                    [value for value in self.new_values]
-                )
-                return "{}\n{}".format(self.pretty_status, changed_fields)
-
             return self.pretty_status
 
     @property

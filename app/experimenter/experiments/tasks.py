@@ -170,7 +170,7 @@ def update_status(experiment):
                 enabler_email = creator.get("email")
 
         enabler, _ = get_user_model().objects.get_or_create(
-            email=enabler_email
+            email=enabler_email, username=enabler_email
         )
 
         old_status = experiment.status
@@ -200,9 +200,22 @@ def update_status(experiment):
     if recipe_data:
         paused_val = is_paused(recipe_data)
         if paused_val != experiment.is_paused:
-            with transaction.atomic():
-                experiment.is_paused = paused_val
-                experiment.save()
+            set_is_paused_value(experiment, paused_val)
+
+
+def set_is_paused_value(experiment, paused_val):
+    with transaction.atomic():
+        experiment.is_paused = paused_val
+        experiment.save()
+
+    message = "Enrollment Completed"
+    if not experiment.is_paused:
+        message = "Enrollment Re-enabled"
+    normandy_user = settings.NORMANDY_DEFAULT_CHANGELOG_USER
+    default_user, _ = get_user_model().objects.get_or_create(
+        email=normandy_user, username=normandy_user
+    )
+    experiment.changes.create(message=message, changed_by=default_user)
 
 
 def send_period_ending_emails(experiment):
