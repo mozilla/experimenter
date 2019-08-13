@@ -931,7 +931,10 @@ class ExperimentChangeLog(models.Model):
                 else:
                     old_val = self.old_values[key]
                     new_val = self.new_values[key]
-                changed_values[key] = {"old_value": old_val, "new_value": new_val}
+                changed_values[key] = {
+                    "old_value": old_val,
+                    "new_value": new_val,
+                }
             return changed_values
 
     def _get_code(self, list_of_obj):
