@@ -721,69 +721,64 @@ class TestExperimentModel(TestCase):
         user2 = UserFactory.create()
         user3 = UserFactory.create()
 
-        ExperimentChangeLogFactory.create(
+        a = ExperimentChangeLogFactory.create(
             experiment=experiment,
             changed_by=user1,
             changed_on=date1,
             message="a",
         )
-        ExperimentChangeLogFactory.create(
+        b = ExperimentChangeLogFactory.create(
             experiment=experiment,
             changed_by=user1,
             changed_on=date1,
             message="b",
         )
-        ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            changed_by=user1,
-            changed_on=date1,
-            message="b",
-        )
-        ExperimentChangeLogFactory.create(
+
+        c = ExperimentChangeLogFactory.create(
             experiment=experiment,
             changed_by=user2,
             changed_on=date1,
             message="c",
         )
 
-        ExperimentChangeLogFactory.create(
+        d = ExperimentChangeLogFactory.create(
             experiment=experiment,
             changed_by=user2,
             changed_on=date2,
             message="d",
         )
-        ExperimentChangeLogFactory.create(
+        e = ExperimentChangeLogFactory.create(
             experiment=experiment,
             changed_by=user3,
             changed_on=date2,
             message="e",
         )
-        ExperimentChangeLogFactory.create(
+        f = ExperimentChangeLogFactory.create(
             experiment=experiment,
             changed_by=user3,
             changed_on=date2,
             message="f",
         )
 
-        ExperimentChangeLogFactory.create(
+        g = ExperimentChangeLogFactory.create(
             experiment=experiment,
             changed_by=user1,
             changed_on=date3,
             message="g",
         )
-        ExperimentChangeLogFactory.create(
+        h = ExperimentChangeLogFactory.create(
             experiment=experiment,
             changed_by=user1,
             changed_on=date3,
             message="h",
         )
-        ExperimentChangeLogFactory.create(
+        i = ExperimentChangeLogFactory.create(
             experiment=experiment,
             changed_by=user2,
             changed_on=date3,
             message="i",
         )
-        ExperimentChangeLogFactory.create(
+        j = ExperimentChangeLogFactory.create(
             experiment=experiment,
             changed_by=user3,
             changed_on=date3,
@@ -791,12 +786,12 @@ class TestExperimentModel(TestCase):
         )
 
         expected_changes = {
-            date1.date(): {user1: set(["a", "b"]), user2: set(["c"])},
-            date2.date(): {user2: set(["d"]), user3: set(["e", "f"])},
+            date1.date(): {user1: set([a, b]), user2: set([c])},
+            date2.date(): {user2: set([d]), user3: set([e, f])},
             date3.date(): {
-                user1: set(["g", "h"]),
-                user2: set(["i"]),
-                user3: set(["j"]),
+                user1: set([g, h]),
+                user2: set([i]),
+                user3: set([j]),
             },
         }
 
@@ -1281,6 +1276,50 @@ class TestExperimentChangeLog(TestCase):
 
         self.assertEqual(experiment.changes.latest(), changelog2)
 
+    def test_change_message(self):
+        experiment = ExperimentFactory.create_with_variants()
+        changelog = ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            old_status=Experiment.STATUS_DRAFT,
+            new_status=Experiment.STATUS_REVIEW,
+            message="its a message!",
+        )
+
+        self.assertEqual(str(changelog), "its a message!")
+
+    def test_change_values(self):
+        experiment = ExperimentFactory.create()
+        old_values = {
+            "slug": "a slug",
+            "name": "a name",
+            "short_description": "a short description",
+            "countries": [{"code": "a"}, {"code": "b"}],
+        }
+        new_values = {
+            "slug": "a  new slug",
+            "name": "a new name",
+            "short_description": "a new short description",
+            "countries": [{"code": "c"}, {"code": "d"}],
+        }
+        changelog = ExperimentChangeLogFactory.create(
+            experiment=experiment,
+            old_status=Experiment.STATUS_DRAFT,
+            new_status=Experiment.STATUS_REVIEW,
+            old_values=old_values,
+            new_values=new_values,
+        )
+
+        expected_data = {
+            "slug": {"old_value": "a slug", "new_value": "a  new slug"},
+            "name": {"old_value": "a name", "new_value": "a new name"},
+            "short_description": {
+                "old_value": "a short description",
+                "new_value": "a new short description",
+            },
+            "countries": {"old_value": "a, b", "new_value": "c, d"},
+        }
+        self.assertEqual(expected_data, changelog.changed_values)
+
     def test_pretty_status_created_draft(self):
         experiment = ExperimentFactory.create_with_variants()
 
@@ -1295,20 +1334,6 @@ class TestExperimentChangeLog(TestCase):
                     new_status=new_status,
                 )
                 self.assertEqual(changelog.pretty_status, expected_label)
-
-    def test_str_change_log_include_new_values(self):
-        experiment = ExperimentFactory.create()
-        changelog = ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            old_status=Experiment.STATUS_DRAFT,
-            new_status=Experiment.STATUS_DRAFT,
-            new_values={
-                "name": "a new experiment!",
-                "description": "my description!",
-            },
-        )
-        expected_string = "Edited Experiment: \nname\ndescription"
-        self.assertEqual(str(changelog), expected_string)
 
 
 class TestExperimentComments(TestCase):
