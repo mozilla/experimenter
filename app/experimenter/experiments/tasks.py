@@ -122,100 +122,113 @@ def update_experiment_bug_task(user_id, experiment_id):
 def update_experiment_info():
     metrics.incr("update_experiment_info.started")
     logger.info("Updating experiment info")
-    launch_experiments = Experiment.objects.filter(
-        Q(status=Experiment.STATUS_ACCEPTED) | Q(status=Experiment.STATUS_LIVE)
-    )
+    update_accepted_experiments()
+    update_live_experiments()
+    metrics.incr("update_experiment_info.completed")
 
-    for experiment in launch_experiments:
+def update_accepted_experiments():
+    accepted_experiments = Experiment.objects.filter(status=Experiment.STATUS_ACCEPTED)
+    for experiment in accepted_experiments:
         try:
             logger.info("Updating Experiment: {}".format(experiment))
             if experiment.normandy_id:
-                update_status(experiment)
-                if experiment.status == Experiment.STATUS_LIVE:
-                    send_period_ending_emails(experiment)
+                recipe_data = normandy.get_recipe(experiment.normandy_id)
+                if needs_to_be_updated(recipe_data, experiment.status):
+                    update_status(experiment, recipe_data)
+                    add_start_date_comment(experiment)
+                    email.send_experiment_launch_email(experiment)
+                    metrics.incr("update_experiment_info.updated")
             else:
-                logger.info(
-                    "No Normandy ID found skipping: {}".format(experiment)
-                )
-
+                logger.info("Skipping Experiment: {}. No Normandy id found".format(experiment))
         except (IntegrityError, KeyError, normandy.NormandyError):
             logger.info(
                 "Failed to get Normandy Recipe. Recipe ID: {}".format(
                     experiment.normandy_id
+                    )
                 )
-            )
-            metrics.incr("update_experiment_info.failed")
-    metrics.incr("update_experiment_info.completed")
 
+def update_live_experiments():
+    live_experiments = Experiment.objects.filter(status=Experiment.STATUS_LIVE)
+    for experiment in live_experiments:
+        try:
+            logger.info("Updating Experiment: {}".format(experiment))
+            if experiment.normandy_id:
+                recipe_data = normandy.get_recipe(experiment.normandy_id)
+                if needs_to_be_updated(recipe_data, experiment.status):
+                    update_status(experiment,recipe_data)
+                    bugzilla.update_bug_resolution(experiment)
+                    metrics.incr("update_experiment_info.updated")
+
+                set_is_paused_value(experiment, recipe_data)
+                send_period_ending_emails(experiment)
+            else:
+                logger.info("Skipping Experiment: {}. No Normandy id found".format(experiment))
+        except (IntegrityError, KeyError, normandy.NormandyError):
+            logger.info(
+                "Failed to get Normandy Recipe. Recipe ID: {}".format(
+                    experiment.normandy_id
+                    )
+                )
+            
 
 def add_start_date_comment(experiment):
+    logger.info("Adding Bugzilla Start Date Comment")
     comment = "Start Date: {} End Date: {}".format(
         experiment.start_date, experiment.end_date
     )
     bugzilla.add_experiment_comment(experiment, comment)
+    logger.info("Bugzilla Comment Added")
 
 
-def update_status(experiment):
-    recipe_data = normandy.get_recipe(experiment.normandy_id)
-
-    if needs_to_be_updated(recipe_data, experiment.status):
-        logger.info("Updating experiment Status")
-        # set email default if no email/creator is found in normandy
-        enabler_email = settings.NORMANDY_DEFAULT_CHANGELOG_USER
-
-        enabled_states = recipe_data.get("enabled_states", [])
-        if len(enabled_states) > 0:
-            creator = enabled_states[0].get("creator")
-            if creator:
-                enabler_email = creator.get("email")
-
-        enabler, _ = get_user_model().objects.get_or_create(
-            email=enabler_email, username=enabler_email
-        )
-
-        old_status = experiment.status
-        new_status = STATUS_UPDATE_MAPPING[old_status]
-        experiment.status = new_status
-        with transaction.atomic():
-            experiment.save()
-
-            experiment.changes.create(
-                changed_by=enabler,
-                old_status=old_status,
-                new_status=new_status,
-            )
-            metrics.incr("update_experiment_info.updated")
-            logger.info("Finished updating Experiment: {}".format(experiment))
-
-        if experiment.status == Experiment.STATUS_LIVE:
-            add_start_date_comment(experiment)
-            email.send_experiment_launch_email(experiment)
-            logger.info(
-                "Sent launch email for Experiment: {}".format(experiment)
-            )
-
-        if experiment.status == Experiment.STATUS_COMPLETE:
-            bugzilla.update_bug_resolution(experiment)
-
-    if recipe_data:
-        paused_val = is_paused(recipe_data)
-        if paused_val != experiment.is_paused:
-            set_is_paused_value(experiment, paused_val)
-
-
-def set_is_paused_value(experiment, paused_val):
+def update_status(experiment, recipe_data):
+    logger.info("Updating Experiment Status")
+    enabler = get_recipe_state_enabler(recipe_data)
+    old_status = experiment.status
+    new_status = STATUS_UPDATE_MAPPING[old_status]
+    experiment.status = new_status
     with transaction.atomic():
-        experiment.is_paused = paused_val
         experiment.save()
 
-    message = "Enrollment Completed"
-    if not experiment.is_paused:
-        message = "Enrollment Re-enabled"
-    normandy_user = settings.NORMANDY_DEFAULT_CHANGELOG_USER
-    default_user, _ = get_user_model().objects.get_or_create(
-        email=normandy_user, username=normandy_user
+        experiment.changes.create(
+            changed_by=enabler,
+            old_status=old_status,
+            new_status=new_status,
+        )
+        metrics.incr("update_experiment_info.updated")
+        logger.info("Experiment Status Updated")
+
+def get_recipe_state_enabler(recipe_data):
+    # set email default if no email/creator is found in normandy
+    enabler_email = settings.NORMANDY_DEFAULT_CHANGELOG_USER
+
+    enabled_states = recipe_data.get("enabled_states", [])
+    if len(enabled_states) > 0:
+        creator = enabled_states[0].get("creator")
+        if creator:
+            enabler_email = creator.get("email")
+
+    enabler, _ = get_user_model().objects.get_or_create(
+        email=enabler_email, username=enabler_email
     )
-    experiment.changes.create(message=message, changed_by=default_user)
+    return enabler
+
+
+def set_is_paused_value(experiment, recipe_data):
+    if recipe_data:   
+        paused_val = is_paused(recipe_data)
+        if paused_val != experiment.is_paused:
+            with transaction.atomic():
+                experiment.is_paused = paused_val
+                experiment.save()
+
+            message = "Enrollment Completed"
+            if not experiment.is_paused:
+                message = "Enrollment Re-enabled"
+            normandy_user = settings.NORMANDY_DEFAULT_CHANGELOG_USER
+            default_user, _ = get_user_model().objects.get_or_create(
+                email=normandy_user, username=normandy_user
+            )
+            experiment.changes.create(message=message, changed_by=default_user)
 
 
 def send_period_ending_emails(experiment):
