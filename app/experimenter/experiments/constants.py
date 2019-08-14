@@ -169,6 +169,7 @@ class ExperimentConstants(object):
     SECTION_ANALYSIS = "analysis"
     SECTION_RISKS = "risks"
     SECTION_TESTING = "testing"
+    SECTION_RESULTS = "results"
 
     # Detail Sections
     SECTION_CHOICES = (
@@ -182,6 +183,7 @@ class ExperimentConstants(object):
         (SECTION_ANALYSIS, "Analysis"),
         (SECTION_RISKS, "Risks"),
         (SECTION_TESTING, "Testing"),
+        (SECTION_RESULTS, "Results"),
     )
 
     # Labels
@@ -690,6 +692,27 @@ class ExperimentConstants(object):
     """
 
     QA_STATUS_HELP_TEXT = """
+    """
+
+    # Results
+    RESULTS_URL_HELP_TEXT = """
+        This is the link to analysis report.
+    """
+    RESULTS_INITIAL_HELP_TEXT = """
+        This is the place for links to any early findings or preliminary
+        results, while the final results are being developed.  If there
+        are not results for this specific experiment, because they are
+        associated with a related experiment - this is the place to leave
+        a trail to find those closely related experiments and/or results.
+    """
+
+    RESULTS_LESSONS_HELP_TEXT = """
+        What went well or did not go well with any part of the
+        experimentation process. This is completely optional.
+        If you have feedback on any issues you experienced and
+        some details - that is beneficial for us to know.
+        We are always trying to identify the most common issues
+        in order to continuously improve.
     """
 
     # Sign-Offs

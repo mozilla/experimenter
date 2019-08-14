@@ -1110,6 +1110,36 @@ class TestExperimentRisksUpdateView(TestCase):
         self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
 
+class TestResultsUpdateView(TestCase):
+
+    def test_view_saves_experiment(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_COMPLETE
+        )
+
+        data = {
+            "results_url": "https://example.com",
+            "results_lessons_learned": "Many lessons were learned.",
+        }
+
+        response = self.client.post(
+            reverse(
+                "experiments-results-update", kwargs={"slug": experiment.slug}
+            ),
+            data,
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 302)
+
+        experiment = Experiment.objects.get()
+
+        self.assertEqual(experiment.results_url, "https://example.com")
+        self.assertEqual(
+            experiment.results_lessons_learned, "Many lessons were learned."
+        )
+
+
 class TestExperimentDetailView(TestCase):
 
     def test_view_renders_correctly(self):

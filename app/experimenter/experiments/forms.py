@@ -694,6 +694,30 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
         )
 
 
+class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
+    results_url = forms.URLField(
+        label="Primary Results URL",
+        help_text=Experiment.RESULTS_URL_HELP_TEXT,
+        required=False,
+    )
+    results_initial = forms.CharField(
+        label="Initial Results",
+        help_text=Experiment.RESULTS_INITIAL_HELP_TEXT,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
+        required=False,
+    )
+    results_lessons_learned = forms.CharField(
+        label="Lessons Learned",
+        help_text=Experiment.RESULTS_LESSONS_HELP_TEXT,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
+        required=False,
+    )
+
+    class Meta:
+        model = Experiment
+        fields = ("results_url", "results_initial", "results_lessons_learned")
+
+
 class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
     RADIO_OPTIONS = ((False, "No"), (True, "Yes"))
 

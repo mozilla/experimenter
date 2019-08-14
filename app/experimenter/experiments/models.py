@@ -256,6 +256,11 @@ class Experiment(ExperimentConstants, models.Model):
 
     is_paused = models.BooleanField(default=False)
 
+    # results fields
+    results_url = models.URLField(blank=True, null=True)
+    results_initial = models.TextField(blank=True, null=True)
+    results_lessons_learned = models.TextField(blank=True, null=True)
+
     objects = ExperimentManager()
 
     class Meta:
@@ -600,6 +605,14 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
+    def completed_results(self):
+        return (
+            self.results_url
+            or self.results_initial
+            or self.results_lessons_learned
+        )
+
+    @property
     def _risk_questions(self):
         return (
             self.risk_internal_only,
@@ -874,6 +887,7 @@ class ExperimentChangeLog(models.Model):
     STATUS_ACCEPTED_LIVE = "Launched Experiment"
     STATUS_LIVE_COMPLETE = "Completed Experiment"
     STATUS_REJECTED = "Rejected Experiment"
+    STATUS_ADDED_RESULTS = "Added Results"
 
     PRETTY_STATUS_LABELS = {
         None: {Experiment.STATUS_DRAFT: STATUS_NONE_DRAFT},
@@ -895,7 +909,11 @@ class ExperimentChangeLog(models.Model):
             Experiment.STATUS_LIVE: STATUS_ACCEPTED_LIVE
         },
         Experiment.STATUS_LIVE: {
-            Experiment.STATUS_COMPLETE: STATUS_LIVE_COMPLETE
+            Experiment.STATUS_COMPLETE: STATUS_LIVE_COMPLETE,
+            Experiment.STATUS_LIVE: STATUS_ADDED_RESULTS,
+        },
+        Experiment.STATUS_COMPLETE: {
+            Experiment.STATUS_COMPLETE: STATUS_ADDED_RESULTS
         },
     }
 
