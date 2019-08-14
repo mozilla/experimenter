@@ -11,12 +11,9 @@
 
     <link rel="stylesheet" href="https://code.cdn.mozilla.net/fonts/fira.css">
 
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="{% static "lib/bootstrap/css/bootstrap.min.css" %}">
-
     <link rel="stylesheet" href="{% static "lib/fontawesome/css/all.css" %}">
 
-    <link rel="stylesheet" href="{% static "css/experimenter.css" %}">
+    <link rel="stylesheet" href="{% static "assets/css/index.css" %}">
 
     {% block title %}
       {% if experiment.name %}
@@ -158,12 +155,7 @@
       </div>
     </footer>
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="{% static "lib/jquery/jquery-3.3.1.min.js" %}"></script>
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="{% static "lib/popper/js/popper.min.js" %}"></script>
-    <script src="{% static "lib/bootstrap/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "assets/js/index.js" %}"></script>
 
     {% if USE_GOOGLE_ANALYTICS %}
     <!-- Global site tag (gtag.js) - Google Analytics -->

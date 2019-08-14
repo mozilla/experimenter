@@ -73,6 +73,7 @@ version.json
 # Hosted assets
 app/experimenter/media/
 app/experimenter/served/
+app/experimenter/static/assets/
 
 # Key files
 *.pem
