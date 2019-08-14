@@ -1,7 +1,6 @@
 import markus
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
-from django.db.models import Q
 from django.conf import settings
 from celery.utils.log import get_task_logger
 
@@ -126,8 +125,11 @@ def update_experiment_info():
     update_live_experiments()
     metrics.incr("update_experiment_info.completed")
 
+
 def update_accepted_experiments():
-    accepted_experiments = Experiment.objects.filter(status=Experiment.STATUS_ACCEPTED)
+    accepted_experiments = Experiment.objects.filter(
+        status=Experiment.STATUS_ACCEPTED
+    )
     for experiment in accepted_experiments:
         try:
             logger.info("Updating Experiment: {}".format(experiment))
@@ -139,13 +141,18 @@ def update_accepted_experiments():
                     email.send_experiment_launch_email(experiment)
                     metrics.incr("update_experiment_info.updated")
             else:
-                logger.info("Skipping Experiment: {}. No Normandy id found".format(experiment))
+                logger.info(
+                    "Skipping Experiment: {}. No Normandy id found".format(
+                        experiment
+                    )
+                )
         except (IntegrityError, KeyError, normandy.NormandyError):
             logger.info(
                 "Failed to get Normandy Recipe. Recipe ID: {}".format(
                     experiment.normandy_id
-                    )
                 )
+            )
+
 
 def update_live_experiments():
     live_experiments = Experiment.objects.filter(status=Experiment.STATUS_LIVE)
@@ -155,21 +162,25 @@ def update_live_experiments():
             if experiment.normandy_id:
                 recipe_data = normandy.get_recipe(experiment.normandy_id)
                 if needs_to_be_updated(recipe_data, experiment.status):
-                    update_status(experiment,recipe_data)
+                    update_status(experiment, recipe_data)
                     bugzilla.update_bug_resolution(experiment)
                     metrics.incr("update_experiment_info.updated")
 
                 set_is_paused_value(experiment, recipe_data)
                 send_period_ending_emails(experiment)
             else:
-                logger.info("Skipping Experiment: {}. No Normandy id found".format(experiment))
+                logger.info(
+                    "Skipping Experiment: {}. No Normandy id found".format(
+                        experiment
+                    )
+                )
         except (IntegrityError, KeyError, normandy.NormandyError):
             logger.info(
                 "Failed to get Normandy Recipe. Recipe ID: {}".format(
                     experiment.normandy_id
-                    )
                 )
-            
+            )
+
 
 def add_start_date_comment(experiment):
     logger.info("Adding Bugzilla Start Date Comment")
@@ -190,12 +201,11 @@ def update_status(experiment, recipe_data):
         experiment.save()
 
         experiment.changes.create(
-            changed_by=enabler,
-            old_status=old_status,
-            new_status=new_status,
+            changed_by=enabler, old_status=old_status, new_status=new_status
         )
         metrics.incr("update_experiment_info.updated")
         logger.info("Experiment Status Updated")
+
 
 def get_recipe_state_enabler(recipe_data):
     # set email default if no email/creator is found in normandy
@@ -214,7 +224,7 @@ def get_recipe_state_enabler(recipe_data):
 
 
 def set_is_paused_value(experiment, recipe_data):
-    if recipe_data:   
+    if recipe_data:
         paused_val = is_paused(recipe_data)
         if paused_val != experiment.is_paused:
             with transaction.atomic():
