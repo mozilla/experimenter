@@ -59,7 +59,7 @@ jobs:
       - run:
           name: Run integration tests
           command: |
-            cp .env.test .env
+            cp .env.sample .env
             sudo chown -R $USER:$USER .
             make integration_test_ci
       - store_artifacts:
