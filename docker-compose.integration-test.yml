@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  firefox:
+    image: b4handjr/selenium-firefox:python3-latest
+    volumes:
+      - .:/code
+    expose:
+      - "4444"
+    ports:
+      - "5900"
+    shm_size: 2g
+    network_mode: "host"
