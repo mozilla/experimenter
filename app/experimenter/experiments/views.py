@@ -31,6 +31,7 @@ from experimenter.experiments.forms import (
     ExperimentVariantsAddonForm,
     ExperimentVariantsPrefForm,
     NormandyIdForm,
+    ExperimentResultsForm,
 )
 from experimenter.experiments.models import Experiment
 
@@ -453,6 +454,12 @@ class ExperimentRisksUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentRisksForm
     next_view_name = "experiments-detail"
     template_name = "experiments/edit_risks.html"
+
+
+class ExperimentResultsUpdateView(ExperimentFormMixin, UpdateView):
+    form_class = ExperimentResultsForm
+    next_view_name = "experiments-detail"
+    template_name = "experiments/edit_results.html"
 
 
 class ExperimentDetailView(ExperimentFormMixin, ModelFormMixin, DetailView):

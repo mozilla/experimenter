@@ -29,6 +29,7 @@ from experimenter.experiments.forms import (
     ExperimentVariantPrefForm,
     ExperimentVariantsAddonForm,
     ExperimentVariantsPrefForm,
+    ExperimentResultsForm,
     JSONField,
     NormandyIdForm,
 )
@@ -1498,6 +1499,30 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
             request=self.request, data=data, instance=created_experiment
         )
         self.assertTrue(form.is_valid())
+
+
+class TestExperimentResultsForm(MockRequestMixin, TestCase):
+
+    def test_form_saves_results(self):
+        experiment = ExperimentFactory.create()
+        data = {
+            "results_url": "https://example.com",
+            "results_initial": "Initially, all went well.",
+            "results_lessons_learned": "Lessons were learned.",
+        }
+
+        form = ExperimentResultsForm(
+            request=self.request, data=data, instance=experiment
+        )
+
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.results_url, "https://example.com")
+        self.assertEqual(
+            experiment.results_initial, "Initially, all went well."
+        )
 
 
 class TestExperimentReviewForm(

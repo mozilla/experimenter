@@ -1100,6 +1100,20 @@ class TestExperimentModel(TestCase):
 
         self.assertFalse(experiment.is_ready_to_launch)
 
+    def test_completed_results_returns_true_if_any_results(self):
+        experiment = ExperimentFactory.create(
+            results_initial="The results here were great."
+        )
+        self.assertTrue(experiment.completed_results)
+
+    def test_completed_results_returns_false_if_none(self):
+        experiment = ExperimentFactory.create(
+            results_initial=None,
+            results_url=None,
+            results_lessons_learned=None,
+        )
+        self.assertFalse(experiment.completed_results)
+
     def test_experiment_is_not_archivable(self):
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED

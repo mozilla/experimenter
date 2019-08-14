@@ -1,0 +1,26 @@
+{% extends "experiments/section_base.html" %}
+
+{% block section_title %}
+Results
+{% endblock %}
+
+{% block section_content %}
+  <p><strong>Primary Result URL: </strong></p>
+  {% if experiment.results_url %}
+    <p>{{ experiment.results_url|urlize|linebreaks }}</p>
+  {% else %}
+    <p><em class="text-secondary">Not Complete.</em></p>
+  {% endif %}
+  <p><strong>Initial Results: </strong></p>
+  {% if experiment.results_initial %}
+    <p>{{ experiment.results_initial|linebreaks }}</p>
+  {% else %}
+    <p><em class="text-secondary">Not Complete.</em></p>
+  {% endif %}
+  <p><strong>Lessons Learned: </strong></p>
+  {% if experiment.results_lessons_learned %}
+    <p>{{ experiment.results_lessons_learned|linebreaks }}</p>
+  {% else %}
+    <p><em class="text-secondary">Not Complete.</em></p>
+  {% endif %}
+{% endblock %}

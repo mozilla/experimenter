@@ -150,6 +150,9 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "review_comms",
             "review_impacted_teams",
             "variants",
+            "results_url",
+            "results_initial",
+            "results_lessons_learned",
         )
 
 

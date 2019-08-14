@@ -1,0 +1,33 @@
+{% extends "experiments/edit_base.html" %}
+
+{% load static %}
+
+{% block edit_title %}
+Edit <a href="{% url "experiments-detail" slug=object.slug %}">
+  {{ object.name }}
+</a>
+ Results
+{% endblock %}
+
+{% block edit_form %}
+
+  {% include "experiments/field_inline.html" with field=form.results_url %}
+  {% include "experiments/field_inline.html" with field=form.results_initial %}
+  {% include "experiments/field_inline.html" with field=form.results_lessons_learned %}
+
+{% endblock %}
+
+
+{% block edit_info %}
+  <h4><span class="fas fa-info-circle"></span> Results</h4>
+
+  <p>
+    All experiments have results.
+    Even an experiment not working is a result.
+    Result details help people find the artifacts created from
+    experiment analysis.  They also help us identify trends, so
+    we can focus our resources on impactful experiments and
+    addressing the most common issues.
+  </p>
+
+{% endblock %}

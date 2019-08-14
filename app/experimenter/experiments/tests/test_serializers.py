@@ -221,6 +221,9 @@ class TestChangeLogSerializer(TestCase):
                 ExperimentVariantSerializer(variant).data
                 for variant in experiment.variants.all()
             ],
+            "results_url": experiment.results_url,
+            "results_initial": experiment.results_initial,
+            "results_lessons_learned": experiment.results_lessons_learned,
         }
 
         self.assertEqual(
