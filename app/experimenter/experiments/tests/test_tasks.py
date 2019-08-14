@@ -291,6 +291,7 @@ class TestUpdateExperimentStatus(
 
         self.mock_normandy_requests_get.return_value = mock_response
         tasks.update_experiment_info()
+
         experiment = Experiment.objects.get(normandy_id=1234)
 
         self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
@@ -313,7 +314,7 @@ class TestUpdateExperimentStatus(
                 "enabled_states": [{"creator": None}],
             }
         }
-        
+
         tasks.update_status(experiment, recipe_data)
         experiment = Experiment.objects.get(normandy_id=1234)
 
@@ -331,7 +332,8 @@ class TestUpdateExperimentStatus(
             target_status=Experiment.STATUS_LIVE, normandy_id=1234
         )
         self.assertFalse(experiment.is_paused)
-        tasks.update_experiment_info()
+        recipe_data = {"arguments": {"isEnrollmentPaused": True}}
+        tasks.set_is_paused_value(experiment, recipe_data)
         experiment = Experiment.objects.get(normandy_id=1234)
 
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
@@ -347,11 +349,8 @@ class TestUpdateExperimentStatus(
             normandy_id=1234,
             is_paused=True,
         )
-        self.mock_normandy_requests_get.return_value = (
-            self.buildMockSucessWithNoPauseEnrollment()
-        )
-        tasks.update_experiment_info()
-
+        recipe_data = {"arguments": {"isEnrollmentPaused": False}}
+        tasks.set_is_paused_value(experiment, recipe_data)
         experiment = Experiment.objects.get(normandy_id=1234)
 
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
@@ -362,28 +361,19 @@ class TestUpdateExperimentStatus(
         )
 
     def test_experiment_with_paused_staying_the_same(self):
-        ExperimentFactory.create_with_status(
+        experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_LIVE,
             normandy_id=1234,
             is_paused=False,
         )
 
-        self.mock_normandy_requests_get.return_value = (
-            self.buildMockSucessWithNoPauseEnrollment()
-        )
-        tasks.update_experiment_info()
+        recipe_data = {"arguments": {"isEnrollmentPaused": False}}
+        tasks.set_is_paused_value(experiment, recipe_data)
 
         experiment = Experiment.objects.get(normandy_id=1234)
 
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
         self.assertFalse(experiment.is_paused)
-
-    def test_experiment_without_normandy_id(self):
-        ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED, normandy_id=None
-        )
-        tasks.update_experiment_info()
-        self.mock_normandy_requests_get.assert_not_called()
 
     def test_accepted_experiment_becomes_live_if_normandy_enabled(self):
         ExperimentFactory.create_with_status(
@@ -405,16 +395,26 @@ class TestUpdateExperimentStatus(
             ).exists()
         )
         # status is live so bugzilla should be called
-        experiment2 = Experiment.objects.get(id=experiment.id)
+        experiment = Experiment.objects.get(id=experiment.id)
         comment = "Start Date: {} End Date: {}".format(
-            experiment2.start_date, experiment2.end_date
+            experiment.start_date, experiment.end_date
         )
         self.mock_bugzilla_requests_post.assert_called_with(
-            settings.BUGZILLA_COMMENT_URL.format(id=experiment2.bugzilla_id),
+            settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
             {"comment": comment},
         )
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].recipients(), [experiment.owner.email])
+
+    def test_experiment_without_normandy_ids(self):
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED, normandy_id=None
+        )
+        ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_LIVE, normandy_id=None
+        )
+        tasks.update_experiment_info()
+        self.mock_normandy_requests_get.assert_not_called()
 
     def test_accepted_experiment_stays_accepted_if_normandy_disabled(self):
         ExperimentFactory.create_with_status(
