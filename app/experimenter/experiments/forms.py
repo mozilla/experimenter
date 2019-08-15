@@ -92,6 +92,10 @@ class ChangeLogMixin(object):
                 old_values["variants"] = latest_change.new_values["variants"]
                 new_values["variants"] = self.new_serialized_vals["variants"]
 
+            else:
+                old_values["variants"] = None
+                new_values["variants"] = self.new_serialized_vals["variants"]
+
         elif self.new_serialized_vals["variants"]:
             old_values["variants"] = None
             new_values["variants"] = self.new_serialized_vals["variants"]
