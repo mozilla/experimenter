@@ -231,9 +231,33 @@
                             <tbody>
                                 {% for key, value in user_change.changed_values.items %}
                               <tr>
-                                <th scope="row">{{key}}</th>
-                                  <td>{{value.old_value}}</td>
-                                  <td>{{value.new_value}}</td>
+                                {% if key == "variants" %}
+                                <th scope="row">Branches</th>
+                                <td>
+                                  {% for variant in value.old_value %}
+                                    <strong>Branch: </strong>
+                                    <br/>
+                                      {% for var_key, var_value in variant.items %}
+                                        <strong class="ml-3">{{var_key}}</strong>
+                                        <p class="ml-3">{{var_value}}</p>
+                                      {% endfor %}
+                                  {% endfor %}
+                                </td>
+                                <td>
+                                    {% for variant in value.new_value %}
+                                      <strong>Branch: </strong>
+                                      <br/>
+                                        {% for var_key, var_value in variant.items %}
+                                          <strong class="ml-3">{{var_key}}</strong>
+                                          <p class="ml-3">{{var_value}}</p>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </td>
+                                {% else %}
+                                  <th scope="row">{{key}}</th>
+                                  <td>{{value.old_value|linebreaks}}</td>
+                                  <td>{{value.new_value|linebreaks}}</td>
+                                {% endif %}
                               </tr>
                               {% endfor %}
                             </tbody>
