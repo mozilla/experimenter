@@ -232,20 +232,24 @@
                                 {% for key, value in user_change.changed_values.items %}
                               <tr>
                                 {% if key == "variants" %}
-                                <th scope="row">{{key}}</th>
+                                <th scope="row">Branches</th>
                                 <td>
                                   {% for variant in value.old_value %}
-                                    <strong>Variant: </strong>
+                                    <strong>Branch: </strong>
+                                    <br/>
                                       {% for var_key, var_value in variant.items %}
-                                        <p class="ml-3"> {{var_key}}: {{var_value}} </p>
+                                        <strong class="ml-3">{{var_key}}</strong>
+                                        <p class="ml-3">{{var_value}}</p>
                                       {% endfor %}
                                   {% endfor %}
                                 </td>
                                 <td>
                                     {% for variant in value.new_value %}
-                                      <strong>Variant: </strong>
+                                      <strong>Branch: </strong>
+                                      <br/>
                                         {% for var_key, var_value in variant.items %}
-                                          <p class="ml-3"> {{var_key}}: {{var_value}} </p>
+                                          <strong class="ml-3">{{var_key}}</strong>
+                                          <p class="ml-3">{{var_value}}</p>
                                         {% endfor %}
                                     {% endfor %}
                                 </td>
