@@ -45,6 +45,7 @@ nosetests.xml
 coverage.xml
 *,cover
 .hypothesis/
+tests/integration/integration-test.html
 
 # Translations
 *.mo
