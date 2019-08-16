@@ -146,7 +146,6 @@ class TestChangeLogSerializer(TestCase):
         pref_type = PrefTypeField().to_representation(experiment.pref_type)
         expected_data = {
             "type": experiment.type,
-            "status": experiment.status,
             "owner": experiment.owner.id,
             "name": experiment.name,
             "short_description": experiment.short_description,
