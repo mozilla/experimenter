@@ -38,8 +38,8 @@ select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background: url(/static/imgs/select.png) right / 20px no-repeat #fff !important;
-  background-image: url(/static/imgs/select.png) right / 20px no-repeat #fff !important;
+  background: url(../imgs/select.png) right / 20px no-repeat #fff !important;
+  background-image: url(../imgs/select.png) right / 20px no-repeat #fff !important;
   padding-right: 20px;
 }
 
@@ -195,7 +195,7 @@ pre.json {
 .list-summary:before {
   content:'';
   width:100%;
-  height:100%;    
+  height:100%;
   position:absolute;
   left:0;
   top:0;
@@ -204,5 +204,10 @@ pre.json {
 
 .list-summary{
   overflow: hidden;
-  max-height: 15em; 
+  max-height: 15em;
+}
+
+.bootstrap-select .btn-light {
+  background-color: white;
+  border-color: #ced4da;
 }
