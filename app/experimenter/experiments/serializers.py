@@ -80,7 +80,6 @@ class ChangeLogSerializer(serializers.ModelSerializer):
         model = Experiment
         fields = (
             "type",
-            "status",
             "owner",
             "name",
             "short_description",

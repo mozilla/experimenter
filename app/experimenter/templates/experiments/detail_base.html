@@ -199,10 +199,10 @@
           {{ user }}
           {% for user_change in user_changes %}
             {% if user_change.changed_values %}
-            <p>
+            <p class="ml-4">
               <a href="" id="editExperiment{{user_change.id}}" data-toggle="modal" data-target="#changelog-modal{{user_change.id}}">
                 <span class="fas fa-info-circle"></span>
-                Edited Experiment
+                {{user_change.pretty_status}}
               </a>
             </p>
 
