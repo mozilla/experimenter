@@ -86,17 +86,15 @@ class ChangeLogMixin(object):
 
         # account for changes in variant values
         if latest_change:
-            if self.variants_has_changed(
-                latest_change.new_values, self.new_serialized_vals
+            old_status = latest_change.new_status
+            if (
+                self.old_serialized_vals["variants"]
+                != self.new_serialized_vals["variants"]
             ):
-                old_values["variants"] = latest_change.new_values["variants"]
+                old_values["variants"] = self.old_serialized_vals["variants"]
                 new_values["variants"] = self.new_serialized_vals["variants"]
 
-            else:
-                old_values["variants"] = None
-                new_values["variants"] = self.new_serialized_vals["variants"]
-
-        elif self.new_serialized_vals["variants"]:
+        elif self.new_serialized_vals.get("variants"):
             old_values["variants"] = None
             new_values["variants"] = self.new_serialized_vals["variants"]
 
@@ -127,11 +125,6 @@ class ChangeLogMixin(object):
         )
 
         return experiment
-
-    def variants_has_changed(self, prev_values, new_values):
-        if prev_values and "variants" in prev_values:
-            return prev_values["variants"] != new_values["variants"]
-        return False
 
 
 class ExperimentOverviewForm(
