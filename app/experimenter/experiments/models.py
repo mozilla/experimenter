@@ -876,7 +876,7 @@ class ExperimentChangeLogManager(models.Manager):
 
 class ExperimentChangeLog(models.Model):
     STATUS_NONE_DRAFT = "Created Experiment"
-    STATUS_DRAFT_DRAFT = "Edited Experiment: "
+    STATUS_DRAFT_DRAFT = "Edited Experiment"
     STATUS_DRAFT_REVIEW = "Ready for Sign-Off"
     STATUS_REVIEW_DRAFT = "Return to Draft"
     STATUS_REVIEW_REVIEW = "Edited Experiment"
