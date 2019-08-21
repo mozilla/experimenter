@@ -201,21 +201,6 @@ class TestChangeLogSerializer(TestCase):
             "testing": experiment.testing,
             "test_builds": experiment.test_builds,
             "qa_status": experiment.qa_status,
-            "review_science": experiment.review_science,
-            "review_engineering": experiment.review_engineering,
-            "review_qa_requested": experiment.review_qa_requested,
-            "review_intent_to_ship": experiment.review_intent_to_ship,
-            "review_bugzilla": experiment.review_bugzilla,
-            "review_qa": experiment.review_qa,
-            "review_relman": experiment.review_relman,
-            "review_advisory": experiment.review_advisory,
-            "review_legal": experiment.review_legal,
-            "review_ux": experiment.review_ux,
-            "review_security": experiment.review_security,
-            "review_vp": experiment.review_vp,
-            "review_data_steward": experiment.review_data_steward,
-            "review_comms": experiment.review_comms,
-            "review_impacted_teams": experiment.review_impacted_teams,
             "variants": [
                 ExperimentVariantSerializer(variant).data
                 for variant in experiment.variants.all()
