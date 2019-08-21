@@ -42,6 +42,7 @@ from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     UserFactory,
+    ExperimentVariantFactory,
 )
 from experimenter.experiments.tests.mixins import (
     MockBugzillaMixin,
@@ -337,6 +338,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             {"code": "da", "name": "Danish"},
             {"code": "de", "name": "German"},
         ]
+
         experiment = ExperimentFactory.create_with_variants(
             num_variants=0,
             countries=[country1, country2],
@@ -350,6 +352,15 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             pref_type=Experiment.PREF_TYPE_INT,
             pref_branch=Experiment.PREF_BRANCH_DEFAULT,
         )
+        ExperimentVariantFactory(
+            name="old branch 1 name",
+            slug="old-branch-1-name",
+            ratio=50,
+            value=8,
+            is_control=True,
+            description="old branch 1 desc",
+            experiment=experiment,
+        )
 
         ExperimentChangeLog.objects.create(
             experiment=experiment,
@@ -360,12 +371,12 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             new_values={
                 "variants": [
                     {
-                        "name": " old branch 1 name",
-                        "slug": " old branch-1-name",
+                        "name": "old branch 1 name",
+                        "slug": "old-branch-1-name",
                         "ratio": 50,
                         "value": "8",
                         "is_control": True,
-                        "description": " old branch 1 desc",
+                        "description": "old branch 1 desc",
                     }
                 ],
                 "countries": countries,
@@ -375,8 +386,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             },
             message="",
         )
-
-        experiment.save()
 
         country3 = CountryFactory(code="FR", name="France")
         locale3 = LocaleFactory(code="bg", name="Bulgarian")
@@ -420,12 +429,12 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         self.assertCountEqual(
             [
                 {
-                    "name": " old branch 1 name",
-                    "slug": " old branch-1-name",
+                    "name": "old branch 1 name",
+                    "slug": "old-branch-1-name",
                     "ratio": 50,
                     "value": "8",
                     "is_control": True,
-                    "description": " old branch 1 desc",
+                    "description": "old branch 1 desc",
                 }
             ],
             latest_changes.old_values["variants"],
@@ -462,6 +471,14 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                     "value": "5",
                     "is_control": True,
                     "description": "variant 0 desc",
+                },
+                {
+                    "name": "old branch 1 name",
+                    "slug": "old-branch-1-name",
+                    "ratio": 50,
+                    "value": "8",
+                    "is_control": True,
+                    "description": "old branch 1 desc",
                 },
             ],
             latest_changes.new_values["variants"],
