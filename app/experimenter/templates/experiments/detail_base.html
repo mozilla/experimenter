@@ -202,7 +202,7 @@
             <p class="ml-4">
               <a href="" id="editExperiment{{user_change.id}}" data-toggle="modal" data-target="#changelog-modal{{user_change.id}}">
                 <span class="fas fa-info-circle"></span>
-                {{user_change.pretty_status}}
+                {{user_change}}
               </a>
             </p>
 
@@ -238,8 +238,7 @@
                                     <strong>Branch: </strong>
                                     <br/>
                                       {% for var_key, var_value in variant.items %}
-                                        <strong class="ml-3">{{var_key}}</strong>
-                                        <p class="ml-3">{{var_value}}</p>
+                                        <p class="ml-3"><strong>{{var_key}}: </strong>{{var_value}}</p>
                                       {% endfor %}
                                   {% endfor %}
                                 </td>
@@ -248,8 +247,7 @@
                                       <strong>Branch: </strong>
                                       <br/>
                                         {% for var_key, var_value in variant.items %}
-                                          <strong class="ml-3">{{var_key}}</strong>
-                                          <p class="ml-3">{{var_value}}</p>
+                                        <p class="ml-3"><strong>{{var_key}}: </strong>{{var_value}}</p>
                                         {% endfor %}
                                     {% endfor %}
                                 </td>
