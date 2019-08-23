@@ -29,12 +29,17 @@ class TestIntentToShipEmail(TestCase):
             firefox_max_version="",
             firefox_channel="Nightly",
         )
+        sender = "sender@example.com"
+        release_drivers = "drivers@example.com"
 
         user = UserFactory.create(email="smith@example.com")
 
         experiment.subscribers.add(user)
 
-        send_intent_to_ship_email(experiment.id)
+        with self.settings(
+            EMAIL_SENDER=sender, EMAIL_RELEASE_DRIVERS=release_drivers
+        ):
+            send_intent_to_ship_email(experiment.id)
 
         bug_url = settings.BUGZILLA_DETAIL_URL.format(
             id=experiment.bugzilla_id
@@ -48,15 +53,11 @@ class TestIntentToShipEmail(TestCase):
             sent_email.subject,
             "SHIELD Study Intent to ship: Experiment 56.0 Nightly",
         )
-        self.assertEqual(sent_email.from_email, settings.EMAIL_SENDER)
+        self.assertEqual(sent_email.from_email, sender)
         self.assertEqual(
             set(sent_email.recipients()),
             set(
-                [
-                    settings.EMAIL_RELEASE_DRIVERS,
-                    experiment.owner.email,
-                    "smith@example.com",
-                ]
+                [release_drivers, experiment.owner.email, "smith@example.com"]
             ),
         )
         self.assertTrue(
@@ -90,8 +91,13 @@ class TestIntentToShipEmail(TestCase):
         user = UserFactory.create(email="smith@example.com")
 
         experiment.subscribers.add(user)
+        sender = "sender@example.com"
+        release_drivers = "drivers@example.com"
 
-        send_intent_to_ship_email(experiment.id)
+        with self.settings(
+            EMAIL_SENDER=sender, EMAIL_RELEASE_DRIVERS=release_drivers
+        ):
+            send_intent_to_ship_email(experiment.id)
 
         bug_url = settings.BUGZILLA_DETAIL_URL.format(
             id=experiment.bugzilla_id
@@ -114,15 +120,11 @@ class TestIntentToShipEmail(TestCase):
             f"Timeline & Channel: {expected_version_channel}", sent_email.body
         )
         self.assertEqual(sent_email.content_subtype, "html")
-        self.assertEqual(sent_email.from_email, settings.EMAIL_SENDER)
+        self.assertEqual(sent_email.from_email, sender)
         self.assertEqual(
             set(sent_email.recipients()),
             set(
-                [
-                    settings.EMAIL_RELEASE_DRIVERS,
-                    experiment.owner.email,
-                    "smith@example.com",
-                ]
+                [release_drivers, experiment.owner.email, "smith@example.com"]
             ),
         )
 
