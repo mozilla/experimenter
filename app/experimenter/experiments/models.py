@@ -287,20 +287,6 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
-    def accept_url(self):
-        return urljoin(
-            "https://{host}".format(host=settings.HOSTNAME),
-            reverse("experiments-api-accept", kwargs={"slug": self.slug}),
-        )
-
-    @property
-    def reject_url(self):
-        return urljoin(
-            "https://{host}".format(host=settings.HOSTNAME),
-            reverse("experiments-api-reject", kwargs={"slug": self.slug}),
-        )
-
-    @property
     def bugzilla_url(self):
         if self.bugzilla_id:
             return settings.BUGZILLA_DETAIL_URL.format(id=self.bugzilla_id)
