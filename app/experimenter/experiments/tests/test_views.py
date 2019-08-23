@@ -809,11 +809,13 @@ class TestExperimentCreateView(TestCase):
             "owner": user.id,
         }
 
-        response = self.client.post(
-            reverse("experiments-create"),
-            data,
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
+        with self.settings(BUGZILLA_HOST="https://bugzilla.mozilla.org"):
+            response = self.client.post(
+                reverse("experiments-create"),
+                data,
+                **{settings.OPENIDC_EMAIL_HEADER: user_email},
+            )
+
         self.assertEqual(response.status_code, 302)
 
         experiment = Experiment.objects.get()
