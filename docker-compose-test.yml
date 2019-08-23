@@ -4,6 +4,8 @@ services:
   app:
     image: app:build
     env_file: .env.sample
+    environment:
+      - DEBUG=False
     volumes:
       - ./app:/app
     links:
