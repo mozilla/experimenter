@@ -173,7 +173,6 @@ Example: GET /api/v1/experiments/?project__slug=project-slug&status=Pending
 
         [
            {
-              "accept_url":"https://localhost/api/v1/experiments/self-enabling-needs-based-hardware/accept",
               "client_matching":"Some \"additional\" filtering",
               "locales": [{"code":"en-US", "name": "English (US)"}],
               "countries": [{"code": "US", "name": "United States of America"}],
@@ -197,7 +196,6 @@ Example: GET /api/v1/experiments/?project__slug=project-slug&status=Pending
               "pref_type":"string",
               "project_name":"Re-contextualized systemic synergy",
               "project_slug":"re-contextualized-systemic-synergy",
-              "reject_url":"https://localhost/api/v1/experiments/self-enabling-needs-based-hardware/reject",
               "slug":"self-enabling-needs-based-hardware",
               "start_date":1505767052000.0,
               "status":"Complete",
@@ -217,7 +215,6 @@ Return a serialization of the requested experiment.
 Example: GET /api/v1/experiments/self-enabled-needs-based-hardware/
 
          {
-            "accept_url":"https://localhost/api/v1/experiments/self-enabling-needs-based-hardware/accept",
             "client_matching":"Some \"additional\" filtering",
             "locales": [{"code":"en-US", "name": "English (US)"}],
             "countries": [{"code": "US", "name": "United States of America"}],
@@ -244,7 +241,6 @@ Example: GET /api/v1/experiments/self-enabled-needs-based-hardware/
             "addon_release_url": "https://example.com/release.xpi",
             "project_name":"Re-contextualized systemic synergy",
             "project_slug":"re-contextualized-systemic-synergy",
-            "reject_url":"https://localhost/api/v1/experiments/self-enabling-needs-based-hardware/reject",
             "slug":"self-enabling-needs-based-hardware",
             "start_date":1505767052000.0,
             "variant":{
@@ -261,7 +257,7 @@ Example: GET /api/v1/experiments/self-enabled-needs-based-hardware/
                     "pretty_status":"Created Experiment",
                     "new_status":"Draft",
                     "old_status":null
-                }, 
+                },
                 {
                     "changed_on":"2019-04-16T17:53:30.747620Z",
                     "changed_by":43,
@@ -272,21 +268,6 @@ Example: GET /api/v1/experiments/self-enabled-needs-based-hardware/
             }
          }
 
-
-### PATCH /api/v1/experiments/<experiment_slug>/accept
-        Body: None
-
-Set the status of a Pending experiment to Accepted.
-
-Example: PATCH /api/v1/experiments/my-first-experiment/accept
-
-### PATCH /api/v1/experiments/<experiment_slug>/reject
-        content-type: application/json
-        Body: {message: "This experiment was rejected for reasons."}
-
-Set the status of a Pending experiment to Rejected.
-
-Example: PATCH /api/v1/experiments/my-first-experiment/accept
 
 ## Contributing
 
