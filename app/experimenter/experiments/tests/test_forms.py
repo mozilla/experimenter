@@ -631,6 +631,13 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
 
+    def test_unique_name_with_same_slug_raises_error(self):
+        ExperimentFactory.create(slug="slug")
+        self.data["name"] = "slug#"
+
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+
 
 def get_variants_form_data():
     return {

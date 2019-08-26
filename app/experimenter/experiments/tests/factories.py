@@ -18,7 +18,6 @@ from experimenter.experiments.models import (
     ExperimentVariant,
 )
 from experimenter.openidc.tests.factories import UserFactory
-from experimenter.projects.tests.factories import ProjectFactory
 
 faker = FakerFactory.create()
 
@@ -29,7 +28,6 @@ class ExperimentFactory(
     type = Experiment.TYPE_PREF
     owner = factory.SubFactory(UserFactory)
     engineering_owner = factory.LazyAttribute(lambda o: faker.name())
-    project = factory.SubFactory(ProjectFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: "{}_".format(slugify(o.name)))
     archived = False
