@@ -1,8 +1,8 @@
 <ul class="nav nav-pills nav-justified mb-3">
 
   <li class="nav-item">
-    <a 
-			class="nav-link {% if step == 1 %}active{% endif %}" 
+    <a
+			class="nav-link {% if step == 1 %}active{% endif %}"
       href="{% if object %}{% url "experiments-overview-update" slug=object.slug %}{% endif %}"
     >
       <h4>
@@ -18,29 +18,46 @@
   </li>
 
   <li class="nav-item">
-    <a 
-      class="nav-link {% if step == 2 %}active{% endif %} {% if not object.completed_overview %}disabled{% endif %}" 
-      href="{% if object %}{% url "experiments-variants-update" slug=object.slug %}{% else %}#{% endif %}"
+    <a
+      class="nav-link {% if step == 2 %}active{% endif %} {% if not object.completed_overview %}disabled{% endif %}"
+      href="{% if object %}{% url "experiments-timeline-pop-update" slug=object.slug %}{% else %}#{% endif %}"
     >
       <h4>
-        2. Population
+        2. Timeline &amp; Population
       </h4>
       <p>
-        {% if object.completed_variants %}
+        {% if object.completed_timeline and object.completed_population %}
           <span class="fas fa-check-circle"></span>
         {% endif %}
-        Define the population and branches of the experiment
+        Define the timeline and population of the experiment
       </p>
     </a>
   </li>
 
   <li class="nav-item">
-    <a 
-      class="nav-link {% if step == 3 %}active{% endif %} {% if not object.completed_overview %}disabled{% endif %}" 
+    <a
+      class="nav-link {% if step == 3 %}active{% endif %} {% if not object.completed_overview %}disabled{% endif %}"
+      href="{% if object %}{% url "experiments-variants-update" slug=object.slug %}{% else %}#{% endif %}"
+    >
+      <h4>
+        3. Branches
+      </h4>
+      <p>
+        {% if object.completed_variants %}
+          <span class="fas fa-check-circle"></span>
+        {% endif %}
+        Define the branches of the experiment
+      </p>
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a
+      class="nav-link {% if step == 4 %}active{% endif %} {% if not object.completed_overview %}disabled{% endif %}"
       href="{% if object %}{% url "experiments-objectives-update" slug=object.slug %}{% else %}#{% endif %}"
     >
       <h4>
-        3. Objectives &amp; Analysis
+        4. Objectives &amp; Analysis
       </h4>
       <p>
         {% if object.completed_objectives %}
@@ -52,12 +69,12 @@
   </li>
 
   <li class="nav-item">
-    <a 
-      class="nav-link {% if step == 4 %}active{% endif %} {% if not object.completed_overview %}disabled{% endif %}" 
+    <a
+      class="nav-link {% if step == 5 %}active{% endif %} {% if not object.completed_overview %}disabled{% endif %}"
       href="{% if object %}{% url "experiments-risks-update" slug=object.slug %}{% else %}#{% endif %}"
     >
       <h4>
-        4. Risks &amp; Testing
+        5. Risks &amp; Testing
       </h4>
       <p>
         {% if object.completed_risks %}

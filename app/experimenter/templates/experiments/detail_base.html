@@ -63,13 +63,13 @@
 
   {% include "experiments/section_overview.html" with section_name=experiment.SECTION_OVERVIEW section_complete=True experiment=experiment edit_url_name="experiments-overview-update" comments=experiment.comments.sections.overview %}
 
-  {% include "experiments/section_timeline.html" with section_name=experiment.SECTION_TIMELINE section_complete=experiment.completed_timeline experiment=experiment edit_url_name="experiments-overview-update" comments=experiment.comments.sections.timeline %}
+  {% include "experiments/section_timeline.html" with section_name=experiment.SECTION_TIMELINE section_complete=experiment.completed_timeline experiment=experiment edit_url_name="experiments-timeline-pop-update" comments=experiment.comments.sections.timeline %}
 
   {% if experiment.has_normandy_info %}
     {% include "experiments/section_normandy.html" with section_name=experiment.SECTION_NORMANDY section_complete=True experiment=experiment comments=experiment.comments.sections.normandy %}
   {% endif %}
 
-  {% include "experiments/section_population.html" with section_name=experiment.SECTION_POPULATION section_complete=experiment.completed_population experiment=experiment edit_url_name="experiments-variants-update" comments=experiment.comments.sections.population %}
+  {% include "experiments/section_population.html" with section_name=experiment.SECTION_POPULATION section_complete=experiment.completed_population experiment=experiment edit_url_name="experiments-timeline-pop-update" comments=experiment.comments.sections.population %}
 
   {% if experiment.is_addon_experiment %}
     {% include "experiments/section_addon.html" with section_name=experiment.SECTION_ADDON section_complete=experiment.completed_addon experiment=experiment edit_url_name="experiments-variants-update" comments=experiment.comments.sections.addon %}
@@ -210,7 +210,7 @@
                 <div class="modal-dialog modal-lg" role="document">
                   <div class="modal-content">
                     <div class="modal-header d-block">
-                      <div class="d-flex"> 
+                      <div class="d-flex">
                         <h5 class="modal-title">Edited by {{user}} </h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -218,7 +218,7 @@
                       </div>
                       <p class="text-muted">{{user_change.changed_on}}</p>
                     </div>
-            
+
                     <div class="modal-body">
                         <table class="table">
                             <thead class="thead-light">

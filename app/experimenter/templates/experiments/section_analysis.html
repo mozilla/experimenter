@@ -5,10 +5,6 @@ Analysis
 {% endblock %}
 
 {% block section_content %}
-  <p><strong>Data Science Owner: {{ experiment.analysis_owner }}</strong></p>
-  {{ experiment.analysis|urlize|linebreaks }}
-
-  <p>
     <strong>
       {{ experiment.SURVEY_REQUIRED_LABEL }}
       <span class="{% if experiment.survey_required %}text-danger{% endif %}">
