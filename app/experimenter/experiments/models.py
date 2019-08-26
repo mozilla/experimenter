@@ -60,13 +60,6 @@ class Experiment(ExperimentConstants, models.Model):
     subscribers = models.ManyToManyField(
         get_user_model(), blank=True, related_name="subscribed_experiments"
     )
-    project = models.ForeignKey(
-        "projects.Project",
-        blank=True,
-        null=True,
-        related_name="experiments",
-        on_delete=models.CASCADE,
-    )
     parent = models.ForeignKey(
         "experiments.Experiment", models.SET_NULL, blank=True, null=True
     )
@@ -867,12 +860,10 @@ class ExperimentChangeLog(models.Model):
     STATUS_REVIEW_DRAFT = "Return to Draft"
     STATUS_REVIEW_REVIEW = "Edited Experiment"
     STATUS_REVIEW_SHIP = "Marked as Ready to Ship"
-    STATUS_REVIEW_REJECTED = "Experiment Rejected"
     STATUS_SHIP_ACCEPTED = "Accepted by Normandy"
     STATUS_SHIP_REVIEW = "Canceled Ready to Ship"
     STATUS_ACCEPTED_LIVE = "Launched Experiment"
     STATUS_LIVE_COMPLETE = "Completed Experiment"
-    STATUS_REJECTED = "Rejected Experiment"
     STATUS_ADDED_RESULTS = "Added Results"
 
     PRETTY_STATUS_LABELS = {
@@ -885,7 +876,6 @@ class ExperimentChangeLog(models.Model):
             Experiment.STATUS_DRAFT: STATUS_REVIEW_DRAFT,
             Experiment.STATUS_REVIEW: STATUS_REVIEW_REVIEW,
             Experiment.STATUS_SHIP: STATUS_REVIEW_SHIP,
-            Experiment.STATUS_REJECTED: STATUS_REVIEW_REJECTED,
         },
         Experiment.STATUS_SHIP: {
             Experiment.STATUS_REVIEW: STATUS_SHIP_REVIEW,

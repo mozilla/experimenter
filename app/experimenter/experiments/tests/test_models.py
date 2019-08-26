@@ -822,11 +822,7 @@ class TestExperimentModel(TestCase):
         self.assertFalse(experiment.is_editable)
 
     def test_experiment_is_not_begun(self):
-        statuses = (
-            Experiment.STATUS_DRAFT,
-            Experiment.STATUS_REVIEW,
-            Experiment.STATUS_REJECTED,
-        )
+        statuses = (Experiment.STATUS_DRAFT, Experiment.STATUS_REVIEW)
 
         for status in statuses:
             experiment = ExperimentFactory.create_with_status(status)

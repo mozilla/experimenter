@@ -1,5 +1,3 @@
-from django.utils.text import format_lazy
-from django.urls import reverse_lazy
 from django.conf import settings
 import re
 
@@ -29,7 +27,6 @@ class ExperimentConstants(object):
     STATUS_ACCEPTED = "Accepted"
     STATUS_LIVE = "Live"
     STATUS_COMPLETE = "Complete"
-    STATUS_REJECTED = "Rejected"
 
     STATUS_DRAFT_LABEL = "Draft"
     STATUS_REVIEW_LABEL = "Ready for Sign-Off"
@@ -37,7 +34,6 @@ class ExperimentConstants(object):
     STATUS_ACCEPTED_LABEL = "Accepted by Normandy"
     STATUS_LIVE_LABEL = "Live"
     STATUS_COMPLETE_LABEL = "Complete"
-    STATUS_REJECTED_LABEL = "Rejected"
 
     STATUS_CHOICES = (
         (STATUS_DRAFT, STATUS_DRAFT_LABEL),
@@ -46,17 +42,15 @@ class ExperimentConstants(object):
         (STATUS_ACCEPTED, STATUS_ACCEPTED_LABEL),
         (STATUS_LIVE, STATUS_LIVE_LABEL),
         (STATUS_COMPLETE, STATUS_COMPLETE_LABEL),
-        (STATUS_REJECTED, STATUS_REJECTED_LABEL),
     )
 
     STATUS_TRANSITIONS = {
-        STATUS_DRAFT: [STATUS_REVIEW, STATUS_REJECTED],
-        STATUS_REVIEW: [STATUS_DRAFT, STATUS_SHIP, STATUS_REJECTED],
-        STATUS_SHIP: [STATUS_REVIEW, STATUS_ACCEPTED, STATUS_REJECTED],
-        STATUS_ACCEPTED: [STATUS_LIVE, STATUS_REJECTED],
+        STATUS_DRAFT: [STATUS_REVIEW],
+        STATUS_REVIEW: [STATUS_DRAFT, STATUS_SHIP],
+        STATUS_SHIP: [STATUS_REVIEW, STATUS_ACCEPTED],
+        STATUS_ACCEPTED: [STATUS_LIVE],
         STATUS_LIVE: [STATUS_COMPLETE],
         STATUS_COMPLETE: [],
-        STATUS_REJECTED: [],
     }
 
     EMAIL_CHOICES = (
@@ -250,18 +244,6 @@ class ExperimentConstants(object):
         its analysis.
       </p>
     """
-
-    PROJECT_HELP_TEXT = format_lazy(
-        """
-      <p>
-        Choose which project this experiment belongs to.
-        A project should correspond to a Firefox product or effort.
-        If you do not see your project in this list, you can
-        <a href="{project_create_url}">create one here</a>.
-      </p>
-    """,
-        project_create_url=reverse_lazy("projects-create"),
-    )
 
     NAME_HELP_TEXT = """
       <p>
