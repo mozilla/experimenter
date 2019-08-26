@@ -12,7 +12,7 @@ def populate_risk_telemetry_data(apps, schema_editor):
             ExperimentConstants.STATUS_ACCEPTED,
             ExperimentConstants.STATUS_LIVE,
             ExperimentConstants.STATUS_COMPLETE,
-            ExperimentConstants.STATUS_REJECTED,
+            "Rejected",
         ]
     )
     filtered_experiments.filter(risk_telemetry_data=None).update(

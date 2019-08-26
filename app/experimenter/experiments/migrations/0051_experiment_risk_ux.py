@@ -12,7 +12,7 @@ def populate_risk_ux(apps, schema_editor):
             ExperimentConstants.STATUS_ACCEPTED,
             ExperimentConstants.STATUS_LIVE,
             ExperimentConstants.STATUS_COMPLETE,
-            ExperimentConstants.STATUS_REJECTED,
+            "Rejected",
         ]
     )
     filtered_experiments.filter(risk_ux=None).update(risk_ux=False)

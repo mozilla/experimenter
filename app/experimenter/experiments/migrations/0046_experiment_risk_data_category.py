@@ -12,7 +12,7 @@ def populate_new_risk_fields(apps, schema_editor):
             ExperimentConstants.STATUS_ACCEPTED,
             ExperimentConstants.STATUS_LIVE,
             ExperimentConstants.STATUS_COMPLETE,
-            ExperimentConstants.STATUS_REJECTED,
+            "Rejected",
         ]
     )
     for risk in all_risks():

@@ -12,7 +12,7 @@ def populate_risk_security(apps, schema_editor):
             ExperimentConstants.STATUS_ACCEPTED,
             ExperimentConstants.STATUS_LIVE,
             ExperimentConstants.STATUS_COMPLETE,
-            ExperimentConstants.STATUS_REJECTED,
+            "Rejected",
         ]
     )
     filtered_experiments.filter(risk_security=None).update(risk_security=False)
