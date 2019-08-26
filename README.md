@@ -159,7 +159,6 @@ Will run kill, migrate, load_locales_countries load_dummy_experiments
 List all of the started experiments.
 
 #### Optional Query Parameters
-project__slug - Return only the experiments for a given project, an invalid slug will raise 404
 status - Return only the experiments with the given status, options are:
 - 'Draft'
 - 'Review'
@@ -169,7 +168,7 @@ status - Return only the experiments with the given status, options are:
 - 'Complete'
 - 'Rejected'
 
-Example: GET /api/v1/experiments/?project__slug=project-slug&status=Pending
+Example: GET /api/v1/experiments/?status=Pending
 
         [
            {
@@ -194,8 +193,6 @@ Example: GET /api/v1/experiments/?project__slug=project-slug&status=Pending
               "pref_branch":"default",
               "pref_key":"browser.phased.hybrid.implementation.enabled",
               "pref_type":"string",
-              "project_name":"Re-contextualized systemic synergy",
-              "project_slug":"re-contextualized-systemic-synergy",
               "slug":"self-enabling-needs-based-hardware",
               "start_date":1505767052000.0,
               "status":"Complete",
@@ -239,8 +236,6 @@ Example: GET /api/v1/experiments/self-enabled-needs-based-hardware/
             "addon_name": "Self-Enabling Addon",
             "addon_experiment_id": "self-enabling-addon",
             "addon_release_url": "https://example.com/release.xpi",
-            "project_name":"Re-contextualized systemic synergy",
-            "project_slug":"re-contextualized-systemic-synergy",
             "slug":"self-enabling-needs-based-hardware",
             "start_date":1505767052000.0,
             "variant":{

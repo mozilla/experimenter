@@ -60,13 +60,6 @@ class Experiment(ExperimentConstants, models.Model):
     subscribers = models.ManyToManyField(
         get_user_model(), blank=True, related_name="subscribed_experiments"
     )
-    project = models.ForeignKey(
-        "projects.Project",
-        blank=True,
-        null=True,
-        related_name="experiments",
-        on_delete=models.CASCADE,
-    )
     parent = models.ForeignKey(
         "experiments.Experiment", models.SET_NULL, blank=True, null=True
     )

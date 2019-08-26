@@ -50,7 +50,6 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "archived",
                     "type",
                     "owner",
-                    "project",
                     "status",
                     "name",
                     "slug",

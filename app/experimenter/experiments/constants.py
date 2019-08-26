@@ -1,5 +1,3 @@
-from django.utils.text import format_lazy
-from django.urls import reverse_lazy
 from django.conf import settings
 import re
 
@@ -250,18 +248,6 @@ class ExperimentConstants(object):
         its analysis.
       </p>
     """
-
-    PROJECT_HELP_TEXT = format_lazy(
-        """
-      <p>
-        Choose which project this experiment belongs to.
-        A project should correspond to a Firefox product or effort.
-        If you do not see your project in this list, you can
-        <a href="{project_create_url}">create one here</a>.
-      </p>
-    """,
-        project_create_url=reverse_lazy("projects-create"),
-    )
 
     NAME_HELP_TEXT = """
       <p>
