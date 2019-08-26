@@ -102,8 +102,6 @@ class ChangeLogMixin(object):
 
         experiment = super().save(*args, **kwargs)
 
-        old_values = {}
-        new_values = {}
         changed_values = {}
         old_status = None
 
@@ -117,38 +115,24 @@ class ChangeLogMixin(object):
                 self.old_serialized_vals["variants"]
                 != self.new_serialized_vals["variants"]
             ):
-                old_values["variants"] = self.old_serialized_vals["variants"]
-                new_values["variants"] = self.new_serialized_vals["variants"]
-
                 old_value = self.old_serialized_vals["variants"]
                 new_value = self.new_serialized_vals["variants"]
                 display_name = "Branches"
-                changed_values["variants"] = {"old_value": old_value, "new_value": new_value, "display_name": display_name}
+                changed_values["variants"] = {
+                    "old_value": old_value,
+                    "new_value": new_value,
+                    "display_name": display_name,
+                }
 
         elif self.new_serialized_vals.get("variants"):
-            old_values["variants"] = None
-            new_values["variants"] = self.new_serialized_vals["variants"]
-
             old_value = None
             new_value = self.new_serialized_vals["variants"]
             display_name = "Branches"
-            changed_values["variants"] = {"old_value": old_value, "new_value": new_value, "display_name": display_name}
-
-        if self.changed_data:
-            if latest_change:
-                old_status = latest_change.new_status
-
-                for field in self.changed_data:
-                    if field in self.old_serialized_vals:
-                        old_values[field] = self.old_serialized_vals[field]
-
-            else:
-                prev_values = {field: None for field in self.changed_data}
-                old_values.update(prev_values)
-
-            for field in self.changed_data:
-                if field in self.new_serialized_vals:
-                    new_values[field] = self.new_serialized_vals[field]
+            changed_values["variants"] = {
+                "old_value": old_value,
+                "new_value": new_value,
+                "display_name": display_name,
+            }
 
         if self.changed_data:
             if latest_change:
@@ -163,8 +147,11 @@ class ChangeLogMixin(object):
                         new_val = self.new_serialized_vals[field]
                         display_name = self.fields[field].label
                     if new_val or old_val:
-                        changed_values[field] = {"old_value": old_val, "new_value": new_val, "display_name": display_name}
-
+                        changed_values[field] = {
+                            "old_value": old_val,
+                            "new_value": new_val,
+                            "display_name": display_name,
+                        }
 
             else:
                 for field in self.changed_data:
@@ -172,17 +159,18 @@ class ChangeLogMixin(object):
                     new_val = None
                     if field in self.new_serialized_vals:
                         new_val = self.new_serialized_vals
-                        display_name = self.fields[field]
-                        changed_values[field] = {"old_value": old_val, "new_value": new_val, "display_name": display_name}
-
+                        display_name = self.fields[field].label
+                        changed_values[field] = {
+                            "old_value": old_val,
+                            "new_value": new_val,
+                            "display_name": display_name,
+                        }
 
         ExperimentChangeLog.objects.create(
             experiment=experiment,
             changed_by=self.request.user,
             old_status=old_status,
             new_status=experiment.status,
-            old_values=old_values,
-            new_values=new_values,
             changed_vals=changed_values,
             message=self.get_changelog_message(),
         )
