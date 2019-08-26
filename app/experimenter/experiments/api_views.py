@@ -12,7 +12,7 @@ from experimenter.experiments.serializers import (
 
 
 class ExperimentListView(ListAPIView):
-    filter_fields = ("project__slug", "status")
+    filter_fields = ("status",)
     queryset = Experiment.objects.all()
     serializer_class = ExperimentSerializer
 

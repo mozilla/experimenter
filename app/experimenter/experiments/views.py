@@ -18,7 +18,6 @@ from django.contrib.postgres.search import (
 import django_filters.widgets as widgets
 
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.projects.models import Project
 from experimenter.experiments.forms import (
     ExperimentArchiveForm,
     ExperimentCommentForm,
@@ -53,7 +52,6 @@ class ExperimentFiltersetForm(forms.ModelForm):
             "status",
             "firefox_channel",
             "firefox_version",
-            "project",
             "owner",
             "in_qa",
             "surveys",
@@ -76,12 +74,6 @@ class ExperimentFiltersetForm(forms.ModelForm):
 
     def get_type_display_value(self):
         return dict(Experiment.TYPE_CHOICES).get(self.data.get("type"))
-
-    def get_project_display_value(self):
-        project_id = self.data.get("project", None)
-
-        if project_id is not None:
-            return str(Project.objects.get(id=project_id))
 
     def get_owner_display_value(self):
         user_id = self.data.get("owner", None)
@@ -148,11 +140,6 @@ class ExperimentFilterset(filters.FilterSet):
         choices=Experiment.VERSION_CHOICES[1:],
         widget=forms.Select(attrs={"class": "form-control"}),
         method="version_filter",
-    )
-    project = filters.ModelChoiceFilter(
-        empty_label="All Projects",
-        queryset=Project.objects.all().order_by("name"),
-        widget=forms.Select(attrs={"class": "form-control"}),
     )
     owner = filters.ModelChoiceFilter(
         empty_label="All Owners",

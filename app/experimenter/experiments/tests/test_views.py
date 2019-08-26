@@ -23,7 +23,6 @@ from experimenter.experiments.tests.mixins import (
     MockRequestMixin,
 )
 from experimenter.openidc.tests.factories import UserFactory
-from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.experiments.views import (
     ExperimentFilterset,
     ExperimentFiltersetForm,
@@ -33,11 +32,6 @@ from experimenter.experiments.views import (
 
 
 class TestExperimentFiltersetForm(TestCase):
-
-    def test_get_project_display_value_returns_project_str(self):
-        project = ProjectFactory.create()
-        form = ExperimentFiltersetForm({"project": project.id})
-        self.assertEqual(form.get_project_display_value(), str(project))
 
     def test_get_owner_display_value_returns_user_str(self):
         user = UserFactory.create()
@@ -89,23 +83,6 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         )
 
         self.assertEqual(set(filter.qs), set(Experiment.objects.all()))
-
-    def test_filters_by_project(self):
-        project = ProjectFactory.create()
-
-        for i in range(3):
-            ExperimentFactory.create_with_status(
-                Experiment.STATUS_DRAFT, project=project
-            )
-            ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
-
-        filter = ExperimentFilterset(
-            {"project": project.id}, queryset=Experiment.objects.all()
-        )
-
-        self.assertEqual(
-            set(filter.qs), set(Experiment.objects.filter(project=project))
-        )
 
     def test_filters_by_owner(self):
         owner = UserFactory.create()
@@ -593,7 +570,6 @@ class TestExperimentListView(TestCase):
         ordering = "latest_change"
         filtered_channel = Experiment.CHANNEL_CHOICES[1][0]
         filtered_owner = UserFactory.create()
-        filtered_project = ProjectFactory.create()
         filtered_status = Experiment.STATUS_DRAFT
         filtered_version = Experiment.VERSION_CHOICES[1][0]
 
@@ -602,7 +578,6 @@ class TestExperimentListView(TestCase):
                 firefox_channel=filtered_channel,
                 firefox_min_version=filtered_version,
                 owner=filtered_owner,
-                project=filtered_project,
                 target_status=filtered_status,
             )
 
@@ -615,7 +590,6 @@ class TestExperimentListView(TestCase):
             firefox_channel=filtered_channel,
             firefox_min_version=filtered_version,
             owner=filtered_owner,
-            project=filtered_project,
             status=filtered_status,
         ).order_by(ordering)
 
@@ -628,7 +602,6 @@ class TestExperimentListView(TestCase):
                         "firefox_version": filtered_version,
                         "ordering": ordering,
                         "owner": filtered_owner.id,
-                        "project": filtered_project.id,
                         "status": filtered_status,
                     }
                 ),
