@@ -229,7 +229,7 @@
                               </tr>
                             </thead>
                             <tbody>
-                                {% for key, value in user_change.changed_values.items %}
+                                {% for key, value in user_change.changed_vals.items %}
                               <tr>
                                 {% if key == "variants" %}
                                 <th scope="row">Branches</th>
@@ -252,7 +252,7 @@
                                     {% endfor %}
                                 </td>
                                 {% else %}
-                                  <th scope="row">{{key}}</th>
+                                  <th scope="row">{{value.display_name}}</th>
                                   <td>{{value.old_value|linebreaks}}</td>
                                   <td>{{value.new_value|linebreaks}}</td>
                                 {% endif %}

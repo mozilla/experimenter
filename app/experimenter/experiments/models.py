@@ -923,6 +923,7 @@ class ExperimentChangeLog(models.Model):
 
     old_values = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
     new_values = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
+    changed_vals = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
     objects = ExperimentChangeLogManager()
 
     @property
@@ -942,6 +943,7 @@ class ExperimentChangeLog(models.Model):
                     "new_value": new_val,
                 }
             return changed_values
+
 
     def _get_code(self, list_of_obj):
         return ", ".join([obj["code"] for obj in list_of_obj])
