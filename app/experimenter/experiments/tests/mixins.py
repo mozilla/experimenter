@@ -234,3 +234,21 @@ class MockTasksMixin(object):
             mock_tasks_set_is_paused_value_patcher.start()
         )
         self.addCleanup(mock_tasks_set_is_paused_value_patcher.stop)
+
+        mock_tasks_update_ds_bug_patcher = mock.patch(
+            "experimenter.experiments.tasks.update_ds_bug_task"
+        )
+
+        self.mock_tasks_update_bug_ds = (
+            mock_tasks_update_ds_bug_patcher.start()
+        )
+        self.addCleanup(mock_tasks_update_ds_bug_patcher.stop)
+
+        mock_tasks_update_exp_id_to_ds_bug_patcher = mock.patch(
+            "experimenter.experiments.tasks.update_exp_id_to_ds_bug_task"
+        )
+
+        self.mock_tasks_update_exp_id_to_ds_bug = (
+            mock_tasks_update_exp_id_to_ds_bug_patcher.start()
+        )
+        self.addCleanup(mock_tasks_update_exp_id_to_ds_bug_patcher.stop)

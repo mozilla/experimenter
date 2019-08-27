@@ -1239,6 +1239,9 @@ class ExperimentStatusForm(
             tasks.create_experiment_bug_task.delay(
                 self.request.user.id, experiment.id
             )
+            tasks.update_exp_id_to_ds_bug_task.delay(
+                self.request.user.id, experiment.id
+            )
 
         if (
             self.old_status == Experiment.STATUS_REVIEW
@@ -1251,6 +1254,8 @@ class ExperimentStatusForm(
             tasks.update_experiment_bug_task.delay(
                 self.request.user.id, experiment.id
             )
+
+            tasks.update_ds_bug_task.delay(experiment.id)
 
         return experiment
 
