@@ -258,6 +258,8 @@ class ExperimentOverviewForm(
             "proposed_enrollment",
         ]
 
+    related_to.widget.attrs.update({"data-live-search": "true"})
+
     def clean_name(self):
         name = super().clean_name()
         slug = slugify(name)
