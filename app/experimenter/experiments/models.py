@@ -807,7 +807,6 @@ class Experiment(ExperimentConstants, models.Model):
 
         ExperimentChangeLog.objects.create(
             experiment=cloned,
-            changed_on=datetime.date.today(),
             changed_by=get_user_model().objects.get(id=user.id),
             old_status=None,
             new_status=ExperimentConstants.STATUS_DRAFT,
