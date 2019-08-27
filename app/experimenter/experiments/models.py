@@ -60,6 +60,9 @@ class Experiment(ExperimentConstants, models.Model):
     subscribers = models.ManyToManyField(
         get_user_model(), blank=True, related_name="subscribed_experiments"
     )
+    related_to = models.ManyToManyField(
+        "experiments.Experiment", blank=True, related_name="related_by"
+    )
     parent = models.ForeignKey(
         "experiments.Experiment", models.SET_NULL, blank=True, null=True
     )
