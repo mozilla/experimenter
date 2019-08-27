@@ -499,6 +499,13 @@ class TestUpdateExperimentSubTask(
             settings.BUGZILLA_COMMENT_URL.format(id=12345), expected_call_data
         )
 
+    def test_add_start_date_comment_task_failure(self):
+        experiment = ExperimentFactory.create(normandy_id=12345)
+
+        self.mock_bugzilla_requests_post.side_effect = RequestException
+        with self.assertRaises(bugzilla.BugzillaError):
+            tasks.add_start_date_comment_task(experiment)
+
     def test_comp_experiment_update_res_task(self):
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_COMPLETE, normandy_id=12345
