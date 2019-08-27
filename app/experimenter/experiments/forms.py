@@ -145,7 +145,9 @@ class ChangeLogMixin(object):
                         old_val = self.old_serialized_vals[field]
                     if field in self.new_serialized_vals:
                         new_val = self.new_serialized_vals[field]
-                        display_name = self.fields[field].label
+
+                    display_name = self._get_display_name(field)
+
                     if new_val or old_val:
                         changed_values[field] = {
                             "old_value": old_val,
@@ -158,8 +160,8 @@ class ChangeLogMixin(object):
                     old_val = None
                     new_val = None
                     if field in self.new_serialized_vals:
-                        new_val = self.new_serialized_vals
-                        display_name = self.fields[field].label
+                        new_val = self.new_serialized_vals[field]
+                        display_name = self._get_display_name(field)
                         changed_values[field] = {
                             "old_value": old_val,
                             "new_value": new_val,
@@ -176,6 +178,11 @@ class ChangeLogMixin(object):
         )
 
         return experiment
+
+    def _get_display_name(self, field):
+        if self.fields[field].label:
+            return self.fields[field].label
+        return field.replace("_", " ").title()
 
 
 class ExperimentOverviewForm(

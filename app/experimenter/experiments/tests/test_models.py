@@ -1283,34 +1283,67 @@ class TestExperimentChangeLog(TestCase):
 
     def test_change_values(self):
         experiment = ExperimentFactory.create()
-        old_values = {
-            "slug": "a slug",
-            "name": "a name",
-            "short_description": "a short description",
-            "countries": [{"code": "a"}, {"code": "b"}],
+        changed_vals = {
+            "slug": {
+                "old_value": "a slug",
+                "new_value": "a  new slug",
+                "display_name": "Slug",
+            },
+            "name": {
+                "old_value": "a name",
+                "new_value": "a new name",
+                "display_name": "Name",
+            },
+            "short_description": {
+                "old_value": "a short description",
+                "new_value": "a new short description",
+                "display_name": "Description",
+            },
+            "countries": {
+                "old_value": [{"code": "a"}, {"code": "b"}],
+                "new_value": [{"code": "c"}, {"code": "d"}],
+                "display_name": "Countries",
+            },
+            "locales": {
+                "old_value": [{"code": "aa"}, {"code": "bb"}],
+                "new_value": [{"code": "cc"}, {"code": "dd"}],
+                "display_name": "Locales",
+            },
         }
-        new_values = {
-            "slug": "a  new slug",
-            "name": "a new name",
-            "short_description": "a new short description",
-            "countries": [{"code": "c"}, {"code": "d"}],
-        }
+
         changelog = ExperimentChangeLogFactory.create(
             experiment=experiment,
             old_status=Experiment.STATUS_DRAFT,
             new_status=Experiment.STATUS_REVIEW,
-            old_values=old_values,
-            new_values=new_values,
+            changed_vals=changed_vals,
         )
 
         expected_data = {
-            "slug": {"old_value": "a slug", "new_value": "a  new slug"},
-            "name": {"old_value": "a name", "new_value": "a new name"},
+            "slug": {
+                "old_value": "a slug",
+                "new_value": "a  new slug",
+                "display_name": "Slug",
+            },
+            "name": {
+                "old_value": "a name",
+                "new_value": "a new name",
+                "display_name": "Name",
+            },
             "short_description": {
                 "old_value": "a short description",
                 "new_value": "a new short description",
+                "display_name": "Description",
             },
-            "countries": {"old_value": "a, b", "new_value": "c, d"},
+            "countries": {
+                "old_value": "a, b",
+                "new_value": "c, d",
+                "display_name": "Countries",
+            },
+            "locales": {
+                "old_value": "aa, bb",
+                "new_value": "cc, dd",
+                "display_name": "Locales",
+            },
         }
         self.assertEqual(expected_data, changelog.changed_values)
 

@@ -263,65 +263,88 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         experiment = form.save()
         latest_changes = experiment.changes.latest()
 
-        self.assertIsNone(latest_changes.old_values["locales"])
-        self.assertIsNone(latest_changes.old_values["countries"])
-        self.assertIsNone(latest_changes.old_values["variants"])
-
-        self.assertEquals(len(latest_changes.new_values["countries"]), 2)
-        self.assertEquals(len(latest_changes.new_values["locales"]), 2)
-        self.assertCountEqual(
-            [
-                {"code": "CA", "name": "Canada"},
-                {"code": "US", "name": "United States"},
-            ],
-            latest_changes.new_values["countries"],
-        )
-        self.assertCountEqual(
-            [
-                {"code": "da", "name": "Danish"},
-                {"code": "de", "name": "German"},
-            ],
-            latest_changes.new_values["locales"],
-        )
-        self.assertCountEqual(
-            [
-                {
-                    "name": "branch 1 name",
-                    "slug": "branch-1-name",
-                    "ratio": 50,
-                    "value": "8",
-                    "is_control": False,
-                    "description": "branch 1 desc",
-                },
-                {
-                    "name": "variant 0 name",
-                    "slug": "variant-0-name",
-                    "ratio": 50,
-                    "value": "5",
-                    "is_control": True,
-                    "description": "variant 0 desc",
-                },
-            ],
-            latest_changes.new_values["variants"],
-        )
-
         expected_data = {
-            "population_percent": "10",
-            "firefox_min_version": "56.0",
-            "firefox_channel": Experiment.CHANNEL_BETA,
-            "client_matching": "en-us",
-            "platform": Experiment.PLATFORM_WINDOWS,
-            "pref_key": "some pref key",
-            "pref_type": Experiment.PREF_TYPE_INT,
-            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
+            "client_matching": {
+                "display_name": "Population Filtering",
+                "new_value": "en-us",
+                "old_value": None,
+            },
+            "countries": {
+                "display_name": "Countries",
+                "new_value": [
+                    {"code": "CA", "name": "Canada"},
+                    {"code": "US", "name": "United States"},
+                ],
+                "old_value": None,
+            },
+            "firefox_channel": {
+                "display_name": "Firefox Channel",
+                "new_value": "Beta",
+                "old_value": None,
+            },
+            "firefox_min_version": {
+                "display_name": "Firefox Min Version",
+                "new_value": "56.0",
+                "old_value": None,
+            },
+            "locales": {
+                "display_name": "Locales",
+                "new_value": [
+                    {"code": "da", "name": "Danish"},
+                    {"code": "de", "name": "German"},
+                ],
+                "old_value": None,
+            },
+            "platform": {
+                "display_name": "Platform",
+                "new_value": "All Windows",
+                "old_value": None,
+            },
+            "population_percent": {
+                "display_name": "Population Percentage",
+                "new_value": "10.0000",
+                "old_value": None,
+            },
+            "pref_branch": {
+                "display_name": "Pref Branch",
+                "new_value": "default",
+                "old_value": None,
+            },
+            "pref_key": {
+                "display_name": "Pref Name",
+                "new_value": "some pref key",
+                "old_value": None,
+            },
+            "pref_type": {
+                "display_name": "Pref Type",
+                "new_value": "integer",
+                "old_value": None,
+            },
+            "variants": {
+                "display_name": "Branches",
+                "new_value": [
+                    {
+                        "description": "branch 1 desc",
+                        "is_control": False,
+                        "name": "branch 1 name",
+                        "ratio": 50,
+                        "slug": "branch-1-name",
+                        "value": "8",
+                    },
+                    {
+                        "description": "variant 0 desc",
+                        "is_control": True,
+                        "name": "variant 0 name",
+                        "ratio": 50,
+                        "slug": "variant-0-name",
+                        "value": "5",
+                    },
+                ],
+                "old_value": None,
+            },
         }
 
-        # check non m2m values
-        del latest_changes.new_values["countries"]
-        del latest_changes.new_values["locales"]
-        del latest_changes.new_values["variants"]
-
-        self.assertCountEqual(expected_data, latest_changes.new_values)
+        self.assertEqual(expected_data, latest_changes.changed_vals)
 
     def test_changelog_values_with_prev_log(self):
 
@@ -343,12 +366,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             num_variants=0,
             countries=[country1, country2],
             locales=[locale1, locale2],
-            firefox_channel=Experiment.CHANNEL_BETA,
-            population_percent=22,
-            client_matching="initial value",
             firefox_min_version=55.0,
             firefox_max_version=56.0,
-            platform=Experiment.PLATFORM_MAC,
             pref_type=Experiment.PREF_TYPE_INT,
             pref_branch=Experiment.PREF_BRANCH_DEFAULT,
         )
@@ -362,14 +381,10 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             experiment=experiment,
         )
 
-        ExperimentChangeLog.objects.create(
-            experiment=experiment,
-            changed_by=self.request.user,
-            old_status=Experiment.STATUS_ACCEPTED,
-            new_status=Experiment.STATUS_DRAFT,
-            old_values={"variants": None, "countries": None, "locales": None},
-            new_values={
-                "variants": [
+        changed_vals = {
+            "variants": {
+                "old_value": None,
+                "new_value": [
                     {
                         "name": "old branch 1 name",
                         "slug": "old-branch-1-name",
@@ -379,11 +394,26 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                         "description": "old branch 1 desc",
                     }
                 ],
-                "countries": countries,
-                "locales": locales,
-                "population_percent": "10",
-                "client_matching": "en-us",
+                "display_name": "Branches",
             },
+            "countries": {
+                "old_value": None,
+                "new_value": countries,
+                "display_name": "Countries",
+            },
+            "locales": {
+                "old_value": None,
+                "new_value": locales,
+                "display_name": "Locales",
+            },
+        }
+
+        ExperimentChangeLog.objects.create(
+            experiment=experiment,
+            changed_by=self.request.user,
+            old_status=Experiment.STATUS_ACCEPTED,
+            new_status=Experiment.STATUS_DRAFT,
+            changed_vals=changed_vals,
             message="",
         )
 
@@ -391,19 +421,19 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         locale3 = LocaleFactory(code="bg", name="Bulgarian")
 
         data = {
-            "population_percent": "10",
+            "population_percent": experiment.population_percent,
             "firefox_min_version": "56.0",
             "firefox_max_version": "57.0",
-            "firefox_channel": Experiment.CHANNEL_BETA,
-            "client_matching": "en-us",
-            "platform": Experiment.PLATFORM_WINDOWS,
+            "firefox_channel": experiment.firefox_channel,
+            "client_matching": experiment.client_matching,
+            "platform": experiment.platform,
             "locales": [locale2, locale3],
             "countries": [country1, country3],
-            "pref_key": "some pref key",
+            "pref_key": experiment.pref_key,
             "pref_type": Experiment.PREF_TYPE_INT,
             "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
-            "addon_experiment_id": "add_on_experiment_id",
-            "addon_release_url": "https://www.example.com",
+            "addon_experiment_id": experiment.addon_experiment_id,
+            "addon_release_url": experiment.addon_release_url,
             "variants-TOTAL_FORMS": "2",
             "variants-INITIAL_FORMS": "0",
             "variants-MIN_NUM_FORMS": "0",
@@ -426,92 +456,82 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         self.assertTrue(form.is_valid())
         experiment = form.save()
         latest_changes = experiment.changes.latest()
-        self.assertCountEqual(
-            [
-                {
-                    "name": "old branch 1 name",
-                    "slug": "old-branch-1-name",
-                    "ratio": 50,
-                    "value": "8",
-                    "is_control": True,
-                    "description": "old branch 1 desc",
-                }
-            ],
-            latest_changes.old_values["variants"],
-        )
-
-        self.assertCountEqual(
-            latest_changes.new_values["countries"],
-            [
-                {"code": "CA", "name": "Canada"},
-                {"code": "FR", "name": "France"},
-            ],
-        )
-        self.assertCountEqual(
-            latest_changes.new_values["locales"],
-            [
-                {"code": "bg", "name": "Bulgarian"},
-                {"code": "de", "name": "German"},
-            ],
-        )
-        self.assertCountEqual(
-            [
-                {
-                    "name": "branch 1 name",
-                    "slug": "branch-1-name",
-                    "ratio": 50,
-                    "value": "8",
-                    "is_control": False,
-                    "description": "branch 1 desc",
-                },
-                {
-                    "name": "variant 0 name",
-                    "slug": "variant-0-name",
-                    "ratio": 50,
-                    "value": "5",
-                    "is_control": True,
-                    "description": "variant 0 desc",
-                },
-                {
-                    "name": "old branch 1 name",
-                    "slug": "old-branch-1-name",
-                    "ratio": 50,
-                    "value": "8",
-                    "is_control": True,
-                    "description": "old branch 1 desc",
-                },
-            ],
-            latest_changes.new_values["variants"],
-        )
 
         expected_data = {
-            "population_percent": "10",
-            "firefox_min_version": "56.0",
-            "firefox_max_version": "57.0",
-            "client_matching": "en-us",
-            "platform": Experiment.PLATFORM_WINDOWS,
-            "pref_key": "some pref key",
+            "countries": {
+                "display_name": "Countries",
+                "new_value": [
+                    {"code": "CA", "name": "Canada"},
+                    {"code": "FR", "name": "France"},
+                ],
+                "old_value": [
+                    {"code": "CA", "name": "Canada"},
+                    {"code": "US", "name": "United States"},
+                ],
+            },
+            "firefox_max_version": {
+                "display_name": "Firefox Max Version",
+                "new_value": "57.0",
+                "old_value": "56.0",
+            },
+            "firefox_min_version": {
+                "display_name": "Firefox Min Version",
+                "new_value": "56.0",
+                "old_value": "55.0",
+            },
+            "locales": {
+                "display_name": "Locales",
+                "new_value": [
+                    {"code": "bg", "name": "Bulgarian"},
+                    {"code": "de", "name": "German"},
+                ],
+                "old_value": [
+                    {"code": "da", "name": "Danish"},
+                    {"code": "de", "name": "German"},
+                ],
+            },
+            "variants": {
+                "display_name": "Branches",
+                "new_value": [
+                    {
+                        "description": "branch 1 desc",
+                        "is_control": False,
+                        "name": "branch 1 name",
+                        "ratio": 50,
+                        "slug": "branch-1-name",
+                        "value": "8",
+                    },
+                    {
+                        "description": "variant 0 desc",
+                        "is_control": True,
+                        "name": "variant 0 name",
+                        "ratio": 50,
+                        "slug": "variant-0-name",
+                        "value": "5",
+                    },
+                    {
+                        "description": "old branch 1 desc",
+                        "is_control": True,
+                        "name": "old branch 1 name",
+                        "ratio": 50,
+                        "slug": "old-branch-1-name",
+                        "value": "8",
+                    },
+                ],
+                "old_value": [
+                    {
+                        "description": "old branch 1 desc",
+                        "is_control": True,
+                        "name": "old branch 1 name",
+                        "ratio": 50,
+                        "slug": "old-branch-1-name",
+                        "value": "8",
+                    }
+                ],
+            },
         }
-        # check non m2m values
 
-        # values that stayed the same
-        self.assertTrue("firefox_channel" not in latest_changes.new_values)
-        self.assertTrue("pref_type" not in latest_changes.new_values)
-        self.assertTrue("pref_branch" not in latest_changes.new_values)
-
-        # values specifically changed so shoudl have old_value
-        self.assertEqual(
-            latest_changes.old_values["client_matching"], "initial value"
-        )
-        self.assertEqual(
-            latest_changes.old_values["platform"], Experiment.PLATFORM_MAC
-        )
-
-        del latest_changes.new_values["countries"]
-        del latest_changes.new_values["locales"]
-        del latest_changes.new_values["variants"]
-
-        self.assertCountEqual(expected_data, latest_changes.new_values)
+        self.assertEqual(expected_data, latest_changes.changed_vals)
 
 
 @override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")

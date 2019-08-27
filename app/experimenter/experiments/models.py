@@ -931,13 +931,19 @@ class ExperimentChangeLog(models.Model):
         if self.changed_vals:
             formatted_changed_vals = self.changed_vals.copy()
             if "countries" in self.changed_vals:
-                formatted_changed_vals["countries"] = self._get_code(
-                    formatted_changed_vals["countries"]
-                )
+                country_changes = formatted_changed_vals["countries"]
+
+                old_codes = self._get_code(country_changes["old_value"])
+                new_codes = self._get_code(country_changes["new_value"])
+                country_changes["old_value"] = old_codes
+                country_changes["new_value"] = new_codes
             if "locales" in self.changed_vals:
-                formatted_changed_vals["locales"] = self._get_code(
-                    formatted_changed_vals["locales"]
-                )
+                locale_changes = formatted_changed_vals["locales"]
+
+                old_codes = self._get_code(locale_changes["old_value"])
+                new_codes = self._get_code(locale_changes["new_value"])
+                locale_changes["old_value"] = old_codes
+                locale_changes["new_value"] = new_codes
 
             return formatted_changed_vals
 
