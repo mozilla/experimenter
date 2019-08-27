@@ -921,8 +921,6 @@ class ExperimentChangeLog(models.Model):
     )
     message = models.TextField(blank=True, null=True)
 
-    old_values = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
-    new_values = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
     changed_vals = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
     objects = ExperimentChangeLogManager()
 
