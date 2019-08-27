@@ -5,17 +5,13 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('experiments', '0067_experimentchangelog_changed_vals'),
-    ]
+    dependencies = [("experiments", "0067_experimentchangelog_changed_vals")]
 
     operations = [
         migrations.RemoveField(
-            model_name='experimentchangelog',
-            name='new_values',
+            model_name="experimentchangelog", name="new_values"
         ),
         migrations.RemoveField(
-            model_name='experimentchangelog',
-            name='old_values',
+            model_name="experimentchangelog", name="old_values"
         ),
     ]
