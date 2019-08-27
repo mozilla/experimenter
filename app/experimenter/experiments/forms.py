@@ -209,6 +209,12 @@ class ExperimentOverviewForm(
         help_text=Experiment.RELATED_WORK_HELP_TEXT,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
+    related_to = forms.ModelMultipleChoiceField(
+        label="Related Experiments",
+        required=False,
+        help_text="Is this related to a previously run experiment?",
+        queryset=Experiment.objects.all(),
+    )
     proposed_start_date = forms.DateField(
         required=False,
         label="Proposed Start Date",
@@ -246,6 +252,7 @@ class ExperimentOverviewForm(
             "data_science_bugzilla_url",
             "feature_bugzilla_url",
             "related_work",
+            "related_to",
             "proposed_start_date",
             "proposed_duration",
             "proposed_enrollment",
