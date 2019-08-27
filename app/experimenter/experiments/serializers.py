@@ -84,6 +84,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "name",
             "short_description",
             "related_work",
+            "related_to",
             "proposed_start_date",
             "proposed_duration",
             "proposed_enrollment",

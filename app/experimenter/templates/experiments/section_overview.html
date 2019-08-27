@@ -24,4 +24,14 @@ Overview
 
   <p><strong>Related Work</strong></p>
   {{ experiment.related_work|urlize|linebreaks }}
+
+  {% if experiment.related_to.all %}
+    <p><strong>Related Experiments</strong></p>
+
+      {% for experiment in experiment.related_to.all %}
+        <p><a href="{{ experiment.get_absolute_url }}">{{ experiment }}</a></p>
+      {% endfor %}
+
+  {% endif %}
+
 {% endblock %}
