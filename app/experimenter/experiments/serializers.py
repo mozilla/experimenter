@@ -73,7 +73,7 @@ class ExperimentChangeLogSerializer(serializers.ModelSerializer):
             "new_status",
             "old_status",
             "old_values",
-            "new_values"
+            "new_values",
         )
 
 
