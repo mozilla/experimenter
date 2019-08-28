@@ -67,7 +67,14 @@ class ExperimentChangeLogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExperimentChangeLog
-        fields = ("changed_on", "pretty_status", "new_status", "old_status")
+        fields = (
+            "changed_on",
+            "pretty_status",
+            "new_status",
+            "old_status",
+            "old_values",
+            "new_values"
+        )
 
 
 class ChangeLogSerializer(serializers.ModelSerializer):
