@@ -61,9 +61,7 @@ class TestExperimentModel(TestCase):
 
     def test_get_absolute_url(self):
         experiment = ExperimentFactory.create(slug="experiment-slug")
-        self.assertEqual(
-            experiment.get_absolute_url(), "/experiments/experiment-slug/"
-        )
+        self.assertEqual(experiment.get_absolute_url(), "/experiments/experiment-slug/")
 
     def test_experiment_url(self):
         experiment = ExperimentFactory.create(slug="experiment-slug")
@@ -95,9 +93,7 @@ class TestExperimentModel(TestCase):
         )
         self.assertIsNone(experiment.monitoring_dashboard_url)
 
-    def test_monitoring_dashboard_url_returns_url_when_experiment_is_begun(
-        self
-    ):
+    def test_monitoring_dashboard_url_returns_url_when_experiment_is_begun(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
             slug="experiment",
@@ -123,9 +119,7 @@ class TestExperimentModel(TestCase):
             ),
         )
 
-    def test_monitoring_dashboard_url_returns_url_when_experiment_is_complete(
-        self
-    ):
+    def test_monitoring_dashboard_url_returns_url_when_experiment_is_complete(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
             slug="experiment",
@@ -159,9 +153,7 @@ class TestExperimentModel(TestCase):
             ),
         )
 
-    def test_monitoring_dashboard_url_returns_url_when_experiment_is_addon(
-        self
-    ):
+    def test_monitoring_dashboard_url_returns_url_when_experiment_is_addon(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_ADDON,
             slug="experiment",
@@ -189,15 +181,11 @@ class TestExperimentModel(TestCase):
 
     def test_has_external_urls_is_false_when_no_external_urls(self):
         experiment = ExperimentFactory.create(
-            bugzilla_id="",
-            data_science_bugzilla_url="",
-            feature_bugzilla_url="",
+            bugzilla_id="", data_science_bugzilla_url="", feature_bugzilla_url=""
         )
         self.assertFalse(experiment.has_external_urls)
 
-    def test_has_external_urls_is_true_when_data_science_bugzilla_url_is_set(
-        self
-    ):
+    def test_has_external_urls_is_true_when_data_science_bugzilla_url_is_set(self):
         experiment = ExperimentFactory.create(
             data_science_bugzilla_url="www.bugzilla.com/show_bug.cgi?id=123/"
         )
@@ -213,9 +201,7 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create(bugzilla_id="1234")
         self.assertTrue(experiment.has_external_urls)
 
-    def test_has_external_urls_is_true_when_monitoring_dashboard_url_is_set(
-        self
-    ):
+    def test_has_external_urls_is_true_when_monitoring_dashboard_url_is_set(self):
         experiment = ExperimentFactory.create(
             status=Experiment.STATUS_LIVE, normandy_slug="normandy-slug"
         )
@@ -307,13 +293,10 @@ class TestExperimentModel(TestCase):
 
     def test_generate_normandy_slug_uses_addon_info_for_addon_experiment(self):
         experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ADDON,
-            addon_experiment_id="addon_experiment_id",
+            type=Experiment.TYPE_ADDON, addon_experiment_id="addon_experiment_id"
         )
 
-        self.assertEqual(
-            experiment.generate_normandy_slug(), "addon_experiment_id"
-        )
+        self.assertEqual(experiment.generate_normandy_slug(), "addon_experiment_id")
 
     def test_generate_normandy_slug_is_shorter_than_max_normandy_len(self):
         experiment = ExperimentFactory.create(
@@ -325,44 +308,30 @@ class TestExperimentModel(TestCase):
             bugzilla_id="12345",
         )
 
-        self.assertGreater(
-            len(experiment.name), settings.NORMANDY_SLUG_MAX_LEN
-        )
+        self.assertGreater(len(experiment.name), settings.NORMANDY_SLUG_MAX_LEN)
 
         normandy_slug = experiment.generate_normandy_slug()
 
         self.assertEqual(len(normandy_slug), settings.NORMANDY_SLUG_MAX_LEN)
 
     def test_normandy_recipe_json_serializes_pref_study(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         recipe_json = json.loads(experiment.normandy_recipe_json)
-        self.assertEqual(
-            recipe_json, ExperimentRecipeSerializer(experiment).data
-        )
+        self.assertEqual(recipe_json, ExperimentRecipeSerializer(experiment).data)
 
     def test_has_normandy_info_not_true_if_missing_normandy_info(self):
-        experiment = ExperimentFactory.create(
-            normandy_id=None, normandy_slug=None
-        )
+        experiment = ExperimentFactory.create(normandy_id=None, normandy_slug=None)
         self.assertFalse(experiment.has_normandy_info)
 
     def test_has_normandy_info_true_with_normandy_slug(self):
-        experiment = ExperimentFactory.create(
-            normandy_id=None, normandy_slug="abc"
-        )
+        experiment = ExperimentFactory.create(normandy_id=None, normandy_slug="abc")
         self.assertTrue(experiment.has_normandy_info)
 
     def test_has_normandy_info_true_with_normandy_id(self):
-        experiment = ExperimentFactory.create(
-            normandy_id="123", normandy_slug=None
-        )
+        experiment = ExperimentFactory.create(normandy_id="123", normandy_slug=None)
         self.assertTrue(experiment.has_normandy_info)
 
-    def test_format_dc_normandy_urls_returns_empty_list_without_normandy_id(
-        self
-    ):
+    def test_format_dc_normandy_urls_returns_empty_list_without_normandy_id(self):
         experiment = ExperimentFactory.create(normandy_id=None)
         self.assertEqual(len(experiment.format_dc_normandy_urls), 0)
 
@@ -427,12 +396,9 @@ class TestExperimentModel(TestCase):
 
     def test_start_date_returns_datetime_if_change_exists(self):
         change = ExperimentChangeLogFactory.create(
-            old_status=Experiment.STATUS_ACCEPTED,
-            new_status=Experiment.STATUS_LIVE,
+            old_status=Experiment.STATUS_ACCEPTED, new_status=Experiment.STATUS_LIVE
         )
-        self.assertEqual(
-            change.experiment.start_date, change.changed_on.date()
-        )
+        self.assertEqual(change.experiment.start_date, change.changed_on.date())
 
     def test_observation_duration_returns_duration_minus_enrollment(self):
         experiment = ExperimentFactory.create_with_variants(
@@ -447,9 +413,7 @@ class TestExperimentModel(TestCase):
         self.assertEqual(experiment.observation_duration, 0)
 
     def test_compute_end_date_accepts_None_start_date(self):
-        experiment = ExperimentFactory.create_with_variants(
-            proposed_start_date=None
-        )
+        experiment = ExperimentFactory.create_with_variants(proposed_start_date=None)
         self.assertEqual(experiment._compute_end_date(1), None)
 
     def test_compute_end_date_accepts_None_duration(self):
@@ -462,17 +426,13 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create_with_variants(
             proposed_start_date=datetime.date(2019, 1, 1)
         )
-        self.assertEqual(
-            experiment._compute_end_date(10), datetime.date(2019, 1, 11)
-        )
+        self.assertEqual(experiment._compute_end_date(10), datetime.date(2019, 1, 11))
 
     def test_compute_end_date_accepts_invalid_duration(self):
         experiment = ExperimentFactory.create_with_variants(
             proposed_start_date=datetime.date(2019, 1, 1)
         )
-        self.assertEqual(
-            experiment._compute_end_date(experiment.MAX_DURATION + 1), None
-        )
+        self.assertEqual(experiment._compute_end_date(experiment.MAX_DURATION + 1), None)
 
     def test_end_date_uses_duration_if_change_is_missing(self):
         experiment = ExperimentFactory.create_with_variants(
@@ -483,8 +443,7 @@ class TestExperimentModel(TestCase):
 
     def test_end_date_returns_datetime_if_change_exists(self):
         change = ExperimentChangeLogFactory.create(
-            old_status=Experiment.STATUS_LIVE,
-            new_status=Experiment.STATUS_COMPLETE,
+            old_status=Experiment.STATUS_LIVE, new_status=Experiment.STATUS_COMPLETE
         )
         self.assertEqual(change.experiment.end_date, change.changed_on.date())
 
@@ -528,16 +487,12 @@ class TestExperimentModel(TestCase):
 
     def test_format_date_string_accepts_none_for_start(self):
         experiment = ExperimentFactory.create_with_variants()
-        output = experiment._format_date_string(
-            None, datetime.date(2019, 1, 1)
-        )
+        output = experiment._format_date_string(None, datetime.date(2019, 1, 1))
         self.assertEqual(output, "Unknown - Jan 01, 2019 (Unknown days)")
 
     def test_format_date_string_accepts_none_for_end(self):
         experiment = ExperimentFactory.create_with_variants()
-        output = experiment._format_date_string(
-            datetime.date(2019, 1, 1), None
-        )
+        output = experiment._format_date_string(datetime.date(2019, 1, 1), None)
         self.assertEqual(output, "Jan 01, 2019 - Unknown (Unknown days)")
 
     def test_form_date_string_accepts_valid_start_end_dates(self):
@@ -558,9 +513,7 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create_with_variants(
             proposed_start_date=datetime.date(2019, 1, 1), proposed_duration=20
         )
-        self.assertEqual(
-            experiment.dates, "Jan 01, 2019 - Jan 21, 2019 (20 days)"
-        )
+        self.assertEqual(experiment.dates, "Jan 01, 2019 - Jan 21, 2019 (20 days)")
 
     def test_enrollment_dates_returns_date_string(self):
         experiment = ExperimentFactory.create_with_variants(
@@ -569,8 +522,7 @@ class TestExperimentModel(TestCase):
             proposed_enrollment=10,
         )
         self.assertEqual(
-            experiment.enrollment_dates,
-            "Jan 01, 2019 - Jan 11, 2019 (10 days)",
+            experiment.enrollment_dates, "Jan 01, 2019 - Jan 11, 2019 (10 days)"
         )
 
     def test_observation_dates_returns_date_string(self):
@@ -580,8 +532,7 @@ class TestExperimentModel(TestCase):
             proposed_enrollment=10,
         )
         self.assertEqual(
-            experiment.observation_dates,
-            "Jan 11, 2019 - Jan 21, 2019 (10 days)",
+            experiment.observation_dates, "Jan 11, 2019 - Jan 21, 2019 (10 days)"
         )
 
     def test_enrollment_is_complete(self):
@@ -598,9 +549,7 @@ class TestExperimentModel(TestCase):
 
     def test_control_property_returns_experiment_control(self):
         experiment = ExperimentFactory.create_with_variants()
-        control = ExperimentVariant.objects.get(
-            experiment=experiment, is_control=True
-        )
+        control = ExperimentVariant.objects.get(experiment=experiment, is_control=True)
         self.assertEqual(experiment.control, control)
 
     def test_grouped_changes_groups_by_date_then_user(self):
@@ -655,12 +604,10 @@ class TestExperimentModel(TestCase):
             set([date1.date(), date2.date(), date3.date()]),
         )
         self.assertEqual(
-            set(experiment.grouped_changes[date1.date()].keys()),
-            set([user1, user2]),
+            set(experiment.grouped_changes[date1.date()].keys()), set([user1, user2])
         )
         self.assertEqual(
-            set(experiment.grouped_changes[date2.date()].keys()),
-            set([user2, user3]),
+            set(experiment.grouped_changes[date2.date()].keys()), set([user2, user3])
         )
         self.assertEqual(
             set(experiment.grouped_changes[date3.date()].keys()),
@@ -671,28 +618,18 @@ class TestExperimentModel(TestCase):
             experiment.grouped_changes[date1.date()][user1],
             set([change1, change2, change3]),
         )
+        self.assertEqual(experiment.grouped_changes[date1.date()][user2], set([change4]))
+
+        self.assertEqual(experiment.grouped_changes[date2.date()][user2], set([change5]))
         self.assertEqual(
-            experiment.grouped_changes[date1.date()][user2], set([change4])
+            experiment.grouped_changes[date2.date()][user3], set([change6, change7])
         )
 
         self.assertEqual(
-            experiment.grouped_changes[date2.date()][user2], set([change5])
+            experiment.grouped_changes[date3.date()][user1], set([change8, change9])
         )
-        self.assertEqual(
-            experiment.grouped_changes[date2.date()][user3],
-            set([change6, change7]),
-        )
-
-        self.assertEqual(
-            experiment.grouped_changes[date3.date()][user1],
-            set([change8, change9]),
-        )
-        self.assertEqual(
-            experiment.grouped_changes[date3.date()][user2], set([change10])
-        )
-        self.assertEqual(
-            experiment.grouped_changes[date3.date()][user3], set([change11])
-        )
+        self.assertEqual(experiment.grouped_changes[date3.date()][user2], set([change10]))
+        self.assertEqual(experiment.grouped_changes[date3.date()][user3], set([change11]))
 
     def test_ordered_changes_orders_by_date(self):
         experiment = ExperimentFactory.create()
@@ -706,97 +643,55 @@ class TestExperimentModel(TestCase):
         user3 = UserFactory.create()
 
         a = ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            changed_by=user1,
-            changed_on=date1,
-            message="a",
+            experiment=experiment, changed_by=user1, changed_on=date1, message="a"
         )
         b = ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            changed_by=user1,
-            changed_on=date1,
-            message="b",
+            experiment=experiment, changed_by=user1, changed_on=date1, message="b"
         )
 
         c = ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            changed_by=user2,
-            changed_on=date1,
-            message="c",
+            experiment=experiment, changed_by=user2, changed_on=date1, message="c"
         )
 
         d = ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            changed_by=user2,
-            changed_on=date2,
-            message="d",
+            experiment=experiment, changed_by=user2, changed_on=date2, message="d"
         )
         e = ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            changed_by=user3,
-            changed_on=date2,
-            message="e",
+            experiment=experiment, changed_by=user3, changed_on=date2, message="e"
         )
         f = ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            changed_by=user3,
-            changed_on=date2,
-            message="f",
+            experiment=experiment, changed_by=user3, changed_on=date2, message="f"
         )
 
         g = ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            changed_by=user1,
-            changed_on=date3,
-            message="g",
+            experiment=experiment, changed_by=user1, changed_on=date3, message="g"
         )
         h = ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            changed_by=user1,
-            changed_on=date3,
-            message="h",
+            experiment=experiment, changed_by=user1, changed_on=date3, message="h"
         )
         i = ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            changed_by=user2,
-            changed_on=date3,
-            message="i",
+            experiment=experiment, changed_by=user2, changed_on=date3, message="i"
         )
         j = ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            changed_by=user3,
-            changed_on=date3,
-            message="j",
+            experiment=experiment, changed_by=user3, changed_on=date3, message="j"
         )
 
         expected_changes = {
             date1.date(): {user1: set([a, b]), user2: set([c])},
             date2.date(): {user2: set([d]), user3: set([e, f])},
-            date3.date(): {
-                user1: set([g, h]),
-                user2: set([i]),
-                user3: set([j]),
-            },
+            date3.date(): {user1: set([g, h]), user2: set([i]), user3: set([j])},
         }
 
         ordered_dates = [date for date, changes in experiment.ordered_changes]
-        self.assertEqual(
-            ordered_dates, [date3.date(), date2.date(), date1.date()]
-        )
+        self.assertEqual(ordered_dates, [date3.date(), date2.date(), date1.date()])
 
-        day3_users = [
-            user for user, user_changes in experiment.ordered_changes[0][1]
-        ]
+        day3_users = [user for user, user_changes in experiment.ordered_changes[0][1]]
         self.assertEqual(set(day3_users), set([user1, user2, user3]))
 
-        day2_users = [
-            user for user, user_changes in experiment.ordered_changes[1][1]
-        ]
+        day2_users = [user for user, user_changes in experiment.ordered_changes[1][1]]
         self.assertEqual(set(day2_users), set([user2, user3]))
 
-        day1_users = [
-            user for user, user_changes in experiment.ordered_changes[2][1]
-        ]
+        day1_users = [user for user, user_changes in experiment.ordered_changes[2][1]]
         self.assertEqual(set(day1_users), set([user1, user2]))
 
         for date, date_changes in experiment.ordered_changes:
@@ -804,21 +699,15 @@ class TestExperimentModel(TestCase):
                 self.assertEqual(user_changes, expected_changes[date][user])
 
     def test_experiment_is_editable_as_draft(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
         self.assertTrue(experiment.is_editable)
 
     def test_experiment_is_editable_as_review(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_REVIEW)
         self.assertTrue(experiment.is_editable)
 
     def test_experient_is_not_editable_after_review(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         self.assertFalse(experiment.is_editable)
 
     def test_experiment_is_not_begun(self):
@@ -886,8 +775,7 @@ class TestExperimentModel(TestCase):
 
     def test_objectives_is_not_complete_with_still_default(self):
         experiment = ExperimentFactory.create(
-            objectives=Experiment.OBJECTIVES_DEFAULT,
-            analysis=Experiment.ANALYSIS_DEFAULT,
+            objectives=Experiment.OBJECTIVES_DEFAULT, analysis=Experiment.ANALYSIS_DEFAULT
         )
         self.assertFalse(experiment.completed_objectives)
 
@@ -1003,28 +891,18 @@ class TestExperimentModel(TestCase):
         self.assertFalse(experiment.completed_all_sections)
 
     def test_completed_all_sections_true_when_complete(self):
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_REVIEW)
+        self.assertTrue(experiment.completed_all_sections)
+
+    def test_completed_all_sections_true_for_pref_experiment_without_addon(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW
+            Experiment.STATUS_REVIEW, type=Experiment.TYPE_PREF, addon_release_url=None
         )
         self.assertTrue(experiment.completed_all_sections)
 
-    def test_completed_all_sections_true_for_pref_experiment_without_addon(
-        self
-    ):
+    def test_completed_all_sections_false_for_addon_experiment_without_addon(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW,
-            type=Experiment.TYPE_PREF,
-            addon_release_url=None,
-        )
-        self.assertTrue(experiment.completed_all_sections)
-
-    def test_completed_all_sections_false_for_addon_experiment_without_addon(
-        self
-    ):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW,
-            type=Experiment.TYPE_ADDON,
-            addon_release_url=None,
+            Experiment.STATUS_REVIEW, type=Experiment.TYPE_ADDON, addon_release_url=None
         )
         self.assertFalse(experiment.completed_all_sections)
 
@@ -1088,9 +966,7 @@ class TestExperimentModel(TestCase):
 
     def test_completed_results_returns_false_if_none(self):
         experiment = ExperimentFactory.create(
-            results_initial=None,
-            results_url=None,
-            results_lessons_learned=None,
+            results_initial=None, results_url=None, results_lessons_learned=None
         )
         self.assertFalse(experiment.completed_results)
 
@@ -1123,9 +999,7 @@ class TestExperimentModel(TestCase):
         self.assertEqual(experiment_2.format_firefox_versions, "57.0 to 59.0")
 
     def test_versions_integer_list_with_only_min_returns_correct_list(self):
-        experiment = ExperimentFactory(
-            firefox_min_version="57.0", firefox_max_version=""
-        )
+        experiment = ExperimentFactory(firefox_min_version="57.0", firefox_max_version="")
 
         self.assertEqual(experiment.versions_integer_list, [57])
 
@@ -1209,15 +1083,12 @@ class TestExperimentModel(TestCase):
 
         experiment.clone("best experiment", user_2)
 
-        cloned_experiment = Experiment.objects.filter(
-            name="best experiment"
-        ).get()
+        cloned_experiment = Experiment.objects.filter(name="best experiment").get()
 
         self.assertTrue(cloned_experiment.parent, experiment.id)
         self.assertEqual(cloned_experiment.status, Experiment.STATUS_DRAFT)
         self.assertEqual(
-            cloned_experiment.short_description,
-            "This is going to be a great experiment.",
+            cloned_experiment.short_description, "This is going to be a great experiment."
         )
         self.assertEqual(
             cloned_experiment.related_work, "See also this other experiment."
@@ -1228,8 +1099,7 @@ class TestExperimentModel(TestCase):
         self.assertEqual(cloned_experiment.proposed_start_date, None)
         self.assertEqual(cloned_experiment.owner, user_2)
         self.assertEqual(
-            cloned_experiment.firefox_min_version,
-            Experiment.VERSION_CHOICES[1][0],
+            cloned_experiment.firefox_min_version, Experiment.VERSION_CHOICES[1][0]
         )
         self.assertFalse(cloned_experiment.bugzilla_id)
         self.assertFalse(cloned_experiment.archived)
@@ -1323,9 +1193,7 @@ class TestExperimentChangeLog(TestCase):
         ) in ExperimentChangeLog.PRETTY_STATUS_LABELS.items():
             for new_status, expected_label in new_statuses.items():
                 changelog = ExperimentChangeLogFactory.create(
-                    experiment=experiment,
-                    old_status=old_status,
-                    new_status=new_status,
+                    experiment=experiment, old_status=old_status, new_status=new_status
                 )
                 self.assertEqual(changelog.pretty_status, expected_label)
 
@@ -1333,9 +1201,7 @@ class TestExperimentChangeLog(TestCase):
 class TestExperimentComments(TestCase):
 
     def test_manager_returns_sections(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
         risk_comment = ExperimentCommentFactory.create(
             experiment=experiment, section=Experiment.SECTION_RISKS
         )
@@ -1343,18 +1209,14 @@ class TestExperimentComments(TestCase):
             experiment=experiment, section=Experiment.SECTION_TESTING
         )
         self.assertIn(
-            risk_comment,
-            experiment.comments.sections[experiment.SECTION_RISKS],
+            risk_comment, experiment.comments.sections[experiment.SECTION_RISKS]
         )
         self.assertIn(
-            testing_comment,
-            experiment.comments.sections[experiment.SECTION_TESTING],
+            testing_comment, experiment.comments.sections[experiment.SECTION_TESTING]
         )
         self.assertNotIn(
-            risk_comment,
-            experiment.comments.sections[experiment.SECTION_TESTING],
+            risk_comment, experiment.comments.sections[experiment.SECTION_TESTING]
         )
         self.assertNotIn(
-            testing_comment,
-            experiment.comments.sections[experiment.SECTION_RISKS],
+            testing_comment, experiment.comments.sections[experiment.SECTION_RISKS]
         )

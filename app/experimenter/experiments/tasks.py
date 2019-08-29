@@ -134,9 +134,7 @@ def update_experiment_info():
                 if experiment.status == Experiment.STATUS_LIVE:
                     send_period_ending_emails(experiment)
             else:
-                logger.info(
-                    "No Normandy ID found skipping: {}".format(experiment)
-                )
+                logger.info("No Normandy ID found skipping: {}".format(experiment))
 
         except (IntegrityError, KeyError, normandy.NormandyError):
             logger.info(
@@ -180,9 +178,7 @@ def update_status(experiment):
             experiment.save()
 
             experiment.changes.create(
-                changed_by=enabler,
-                old_status=old_status,
-                new_status=new_status,
+                changed_by=enabler, old_status=old_status, new_status=new_status
             )
             metrics.incr("update_experiment_info.updated")
             logger.info("Finished updating Experiment: {}".format(experiment))
@@ -190,9 +186,7 @@ def update_status(experiment):
         if experiment.status == Experiment.STATUS_LIVE:
             add_start_date_comment(experiment)
             email.send_experiment_launch_email(experiment)
-            logger.info(
-                "Sent launch email for Experiment: {}".format(experiment)
-            )
+            logger.info("Sent launch email for Experiment: {}".format(experiment))
 
         if experiment.status == Experiment.STATUS_COMPLETE:
             bugzilla.update_bug_resolution(experiment)
@@ -225,23 +219,18 @@ def send_period_ending_emails(experiment):
             experiment=experiment, type=ExperimentConstants.EXPERIMENT_ENDS
         ).exists():
             email.send_experiment_ending_email(experiment)
-            logger.info(
-                "Sent ending email for Experiment: {}".format(experiment)
-            )
+            logger.info("Sent ending email for Experiment: {}".format(experiment))
 
     # send enrollment ending emails if enrollment end
     # date is 5 days out
     if experiment.enrollment_end_date:
         if experiment.enrollment_ending_soon:
             if not ExperimentEmail.objects.filter(
-                experiment=experiment,
-                type=ExperimentConstants.EXPERIMENT_PAUSES,
+                experiment=experiment, type=ExperimentConstants.EXPERIMENT_PAUSES
             ).exists():
                 email.send_enrollment_pause_email(experiment)
                 logger.info(
-                    "Sent enrollment pause email for Experiment: {}".format(
-                        experiment
-                    )
+                    "Sent enrollment pause email for Experiment: {}".format(experiment)
                 )
 
 
@@ -265,13 +254,8 @@ def update_bug_resolution_task(user_id, experiment_id):
     metrics.incr("update_bug_resolution.started")
     experiment = Experiment.objects.get(id=experiment_id)
 
-    if (
-        experiment.status == experiment.STATUS_COMPLETE
-        or experiment.bugzilla_id is None
-    ):
-        logger.info(
-            "Skipping update either experiment complete or no bugzilla ticket"
-        )
+    if experiment.status == experiment.STATUS_COMPLETE or experiment.bugzilla_id is None:
+        logger.info("Skipping update either experiment complete or no bugzilla ticket")
         return
 
     logger.info("Updating Bugzilla Resolution")

@@ -40,9 +40,7 @@ class TestJSTimestampField(TestCase):
     def test_field_serializes_to_js_time_format(self):
         field = JSTimestampField()
         example_datetime = datetime.datetime(2000, 1, 1, 1, 1, 1, 1)
-        self.assertEqual(
-            field.to_representation(example_datetime), 946688461000.0
-        )
+        self.assertEqual(field.to_representation(example_datetime), 946688461000.0)
 
     def test_field_returns_none_if_no_datetime_passed_in(self):
         field = JSTimestampField()
@@ -54,8 +52,7 @@ class TestPrefTypeField(TestCase):
     def test_non_json_field(self):
         field = PrefTypeField()
         self.assertEqual(
-            field.to_representation(Experiment.PREF_TYPE_INT),
-            Experiment.PREF_TYPE_INT,
+            field.to_representation(Experiment.PREF_TYPE_INT), Experiment.PREF_TYPE_INT
         )
 
     def test_json_field(self):
@@ -70,28 +67,22 @@ class TestExperimentVariantSerializer(TestCase):
 
     def test_serializer_outputs_expected_bool(self):
         experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_BOOL)
-        variant = ExperimentVariantFactory.create(
-            experiment=experiment, value="true"
-        )
+        variant = ExperimentVariantFactory.create(experiment=experiment, value="true")
         serializer = ExperimentRecipeVariantSerializer(variant)
 
         self.assertEqual(type(serializer.data["value"]), bool)
         self.assertEqual(
-            serializer.data,
-            {"ratio": variant.ratio, "slug": variant.slug, "value": True},
+            serializer.data, {"ratio": variant.ratio, "slug": variant.slug, "value": True}
         )
 
     def test_serializer_outputs_expected_int_val(self):
         experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_INT)
-        variant = ExperimentVariantFactory.create(
-            experiment=experiment, value="28"
-        )
+        variant = ExperimentVariantFactory.create(experiment=experiment, value="28")
         serializer = ExperimentRecipeVariantSerializer(variant)
 
         self.assertEqual(type(serializer.data["value"]), int)
         self.assertEqual(
-            serializer.data,
-            {"ratio": variant.ratio, "slug": variant.slug, "value": 28},
+            serializer.data, {"ratio": variant.ratio, "slug": variant.slug, "value": 28}
         )
 
     def test_serializer_outputs_expected_str_val(self):
@@ -102,11 +93,7 @@ class TestExperimentVariantSerializer(TestCase):
         self.assertEqual(type(serializer.data["value"]), str)
         self.assertEqual(
             serializer.data,
-            {
-                "ratio": variant.ratio,
-                "slug": variant.slug,
-                "value": variant.value,
-            },
+            {"ratio": variant.ratio, "slug": variant.slug, "value": variant.value},
         )
 
 
@@ -115,9 +102,7 @@ class TestLocaleSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         locale = LocaleFactory.create()
         serializer = LocaleSerializer(locale)
-        self.assertEqual(
-            serializer.data, {"code": locale.code, "name": locale.name}
-        )
+        self.assertEqual(serializer.data, {"code": locale.code, "name": locale.name})
 
 
 class TestExperimentChangeLogSerializer(TestCase):
@@ -135,9 +120,7 @@ class TestChangeLogSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         country1 = CountryFactory(code="CA", name="Canada")
         locale1 = LocaleFactory(code="da", name="Danish")
-        experiment = ExperimentFactory.create(
-            locales=[locale1], countries=[country1]
-        )
+        experiment = ExperimentFactory.create(locales=[locale1], countries=[country1])
 
         related_exp = ExperimentFactory.create()
         experiment.related_to.add(related_exp)
@@ -164,9 +147,7 @@ class TestChangeLogSerializer(TestCase):
             "pref_branch": experiment.pref_branch,
             "public_name": experiment.public_name,
             "public_description": experiment.public_description,
-            "population_percent": "{0:.4f}".format(
-                experiment.population_percent
-            ),
+            "population_percent": "{0:.4f}".format(experiment.population_percent),
             "firefox_min_version": experiment.firefox_min_version,
             "firefox_max_version": experiment.firefox_max_version,
             "firefox_channel": experiment.firefox_channel,
@@ -229,9 +210,7 @@ class TestChangeLogSerializer(TestCase):
             "results_lessons_learned": experiment.results_lessons_learned,
         }
 
-        self.assertEqual(
-            set(serializer.data.keys()), set(expected_data.keys())
-        )
+        self.assertEqual(set(serializer.data.keys()), set(expected_data.keys()))
 
         self.assertEqual(serializer.data, expected_data)
 
@@ -241,9 +220,7 @@ class TestCountrySerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         country = CountryFactory.create()
         serializer = CountrySerializer(country)
-        self.assertEqual(
-            serializer.data, {"code": country.code, "name": country.name}
-        )
+        self.assertEqual(serializer.data, {"code": country.code, "name": country.name})
 
 
 class TestExperimentSerializer(TestCase):
@@ -261,9 +238,7 @@ class TestExperimentSerializer(TestCase):
             "analysis_owner": experiment.analysis_owner,
             "client_matching": experiment.client_matching,
             "platform": experiment.platform,
-            "end_date": JSTimestampField().to_representation(
-                experiment.end_date
-            ),
+            "end_date": JSTimestampField().to_representation(experiment.end_date),
             "experiment_url": experiment.experiment_url,
             "firefox_channel": experiment.firefox_channel,
             "firefox_min_version": experiment.firefox_min_version,
@@ -271,9 +246,7 @@ class TestExperimentSerializer(TestCase):
             "name": experiment.name,
             "objectives": experiment.objectives,
             "population": experiment.population,
-            "population_percent": "{0:.4f}".format(
-                experiment.population_percent
-            ),
+            "population_percent": "{0:.4f}".format(experiment.population_percent),
             "pref_branch": experiment.pref_branch,
             "pref_key": experiment.pref_key,
             "pref_type": pref_type,
@@ -286,9 +259,7 @@ class TestExperimentSerializer(TestCase):
             "proposed_duration": experiment.proposed_duration,
             "short_description": experiment.short_description,
             "slug": experiment.slug,
-            "start_date": JSTimestampField().to_representation(
-                experiment.start_date
-            ),
+            "start_date": JSTimestampField().to_representation(experiment.start_date),
             "status": Experiment.STATUS_COMPLETE,
             "type": experiment.type,
             "variants": [
@@ -303,9 +274,7 @@ class TestExperimentSerializer(TestCase):
             ],
         }
 
-        self.assertEqual(
-            set(serializer.data.keys()), set(expected_data.keys())
-        )
+        self.assertEqual(set(serializer.data.keys()), set(expected_data.keys()))
         self.assertEqual(serializer.data, expected_data)
 
     def test_serializer_locales(self):
@@ -313,8 +282,7 @@ class TestExperimentSerializer(TestCase):
         experiment = ExperimentFactory.create(locales=[locale])
         serializer = ExperimentSerializer(experiment)
         self.assertEqual(
-            serializer.data["locales"],
-            [{"code": locale.code, "name": locale.name}],
+            serializer.data["locales"], [{"code": locale.code, "name": locale.name}]
         )
 
     def test_serializer_countries(self):
@@ -322,17 +290,14 @@ class TestExperimentSerializer(TestCase):
         experiment = ExperimentFactory.create(countries=[country])
         serializer = ExperimentSerializer(experiment)
         self.assertEqual(
-            serializer.data["countries"],
-            [{"code": country.code, "name": country.name}],
+            serializer.data["countries"], [{"code": country.code, "name": country.name}]
         )
 
 
 class TestFilterObjectBucketSampleSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create(
-            population_percent=Decimal("12.34")
-        )
+        experiment = ExperimentFactory.create(population_percent=Decimal("12.34"))
         serializer = FilterObjectBucketSampleSerializer(experiment)
         self.assertEqual(
             serializer.data,
@@ -349,13 +314,9 @@ class TestFilterObjectBucketSampleSerializer(TestCase):
 class TestFilterObjectChannelSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create(
-            firefox_channel=Experiment.CHANNEL_NIGHTLY
-        )
+        experiment = ExperimentFactory.create(firefox_channel=Experiment.CHANNEL_NIGHTLY)
         serializer = FilterObjectChannelSerializer(experiment)
-        self.assertEqual(
-            serializer.data, {"type": "channel", "channels": ["nightly"]}
-        )
+        self.assertEqual(serializer.data, {"type": "channel", "channels": ["nightly"]})
 
 
 class TestFilterObjectVersionsSerializer(TestCase):
@@ -365,18 +326,14 @@ class TestFilterObjectVersionsSerializer(TestCase):
             firefox_min_version="68.0", firefox_max_version=""
         )
         serializer = FilterObjectVersionsSerializer(experiment)
-        self.assertEqual(
-            serializer.data, {"type": "version", "versions": [68]}
-        )
+        self.assertEqual(serializer.data, {"type": "version", "versions": [68]})
 
     def test_serializer_outputs_version_string_with_range(self):
         experiment = ExperimentFactory.create(
             firefox_min_version="68.0", firefox_max_version="70.0"
         )
         serializer = FilterObjectVersionsSerializer(experiment)
-        self.assertEqual(
-            serializer.data, {"type": "version", "versions": [68, 69, 70]}
-        )
+        self.assertEqual(serializer.data, {"type": "version", "versions": [68, 69, 70]})
 
 
 class TestFilterObjectLocaleSerializer(TestCase):
@@ -409,20 +366,14 @@ class TestExperimentRecipeVariantSerializer(TestCase):
         serializer = ExperimentRecipeVariantSerializer(variant)
         self.assertEqual(
             serializer.data,
-            {
-                "ratio": variant.ratio,
-                "slug": variant.slug,
-                "value": variant.value,
-            },
+            {"ratio": variant.ratio, "slug": variant.slug, "value": variant.value},
         )
 
 
 class TestExperimentRecipePrefArgumentsSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         serializer = ExperimentRecipePrefArgumentsSerializer(experiment)
         self.assertEqual(
             serializer.data,
@@ -443,9 +394,7 @@ class TestExperimentRecipePrefArgumentsSerializer(TestCase):
 class TestExperimentRecipeAddonArgumentsSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         serializer = ExperimentRecipeAddonArgumentsSerializer(experiment)
         self.assertEqual(
             serializer.data,
@@ -466,13 +415,9 @@ class TestExperimentRecipeSerializer(TestCase):
             countries=[CountryFactory.create()],
         )
         serializer = ExperimentRecipeSerializer(experiment)
-        self.assertEqual(
-            serializer.data["action_name"], "preference-experiment"
-        )
+        self.assertEqual(serializer.data["action_name"], "preference-experiment")
         self.assertEqual(serializer.data["name"], experiment.name)
-        self.assertEqual(
-            serializer.data["comment"], experiment.client_matching
-        )
+        self.assertEqual(serializer.data["comment"], experiment.client_matching)
         self.assertEqual(
             serializer.data["filter_object"],
             [
@@ -498,9 +443,7 @@ class TestExperimentRecipeSerializer(TestCase):
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "opt-out-study")
         self.assertEqual(serializer.data["name"], experiment.name)
-        self.assertEqual(
-            serializer.data["comment"], experiment.client_matching
-        )
+        self.assertEqual(serializer.data["comment"], experiment.client_matching)
         self.assertEqual(
             serializer.data["filter_object"],
             [
@@ -522,9 +465,7 @@ class TestExperimentRecipeSerializer(TestCase):
         )
         experiment.locales.all().delete()
         serializer = ExperimentRecipeSerializer(experiment)
-        filter_object_types = [
-            f["type"] for f in serializer.data["filter_object"]
-        ]
+        filter_object_types = [f["type"] for f in serializer.data["filter_object"]]
         self.assertNotIn("locale", filter_object_types)
 
     def test_serializer_excludes_countries_if_none_set(self):
@@ -533,9 +474,7 @@ class TestExperimentRecipeSerializer(TestCase):
         )
         experiment.countries.all().delete()
         serializer = ExperimentRecipeSerializer(experiment)
-        filter_object_types = [
-            f["type"] for f in serializer.data["filter_object"]
-        ]
+        filter_object_types = [f["type"] for f in serializer.data["filter_object"]]
         self.assertNotIn("country", filter_object_types)
 
 
@@ -546,9 +485,7 @@ class TestCloneSerializer(MockRequestMixin, TestCase):
             name="good experiment", slug="great-experiment"
         )
         clone_data = {"name": "great experiment"}
-        serializer = ExperimentCloneSerializer(
-            instance=experiment_1, data=clone_data
-        )
+        serializer = ExperimentCloneSerializer(instance=experiment_1, data=clone_data)
 
         self.assertFalse(serializer.is_valid())
 
@@ -557,9 +494,7 @@ class TestCloneSerializer(MockRequestMixin, TestCase):
             name="wonderful experiment", slug="amazing-experiment"
         )
         clone_data = {"name": "wonderful experiment"}
-        serializer = ExperimentCloneSerializer(
-            instance=experiment, data=clone_data
-        )
+        serializer = ExperimentCloneSerializer(instance=experiment, data=clone_data)
 
         self.assertFalse(serializer.is_valid())
 
@@ -569,9 +504,7 @@ class TestCloneSerializer(MockRequestMixin, TestCase):
         )
 
         clone_data = {"name": "@@@@@@@@"}
-        serializer = ExperimentCloneSerializer(
-            instance=experiment, data=clone_data
-        )
+        serializer = ExperimentCloneSerializer(instance=experiment, data=clone_data)
 
         self.assertFalse(serializer.is_valid())
 
@@ -581,15 +514,11 @@ class TestCloneSerializer(MockRequestMixin, TestCase):
         )
         clone_data = {"name": "best experiment"}
         serializer = ExperimentCloneSerializer(
-            instance=experiment,
-            data=clone_data,
-            context={"request": self.request},
+            instance=experiment, data=clone_data, context={"request": self.request}
         )
         self.assertTrue(serializer.is_valid())
 
         serializer.save()
 
         self.assertEqual(serializer.data["name"], "best experiment")
-        self.assertEqual(
-            serializer.data["clone_url"], "/experiments/best-experiment/"
-        )
+        self.assertEqual(serializer.data["clone_url"], "/experiments/best-experiment/")

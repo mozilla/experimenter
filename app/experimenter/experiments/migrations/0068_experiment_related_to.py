@@ -12,9 +12,7 @@ class Migration(migrations.Migration):
             model_name="experiment",
             name="related_to",
             field=models.ManyToManyField(
-                blank=True,
-                related_name="related_by",
-                to="experiments.Experiment",
+                blank=True, related_name="related_by", to="experiments.Experiment"
             ),
         )
     ]

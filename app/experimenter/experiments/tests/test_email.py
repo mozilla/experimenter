@@ -9,10 +9,7 @@ from experimenter.experiments.email import (
     send_experiment_ending_email,
     send_enrollment_pause_email,
 )
-from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
-    UserFactory,
-)
+from experimenter.experiments.tests.factories import ExperimentFactory, UserFactory
 from experimenter.experiments.constants import ExperimentConstants
 
 
@@ -36,29 +33,22 @@ class TestIntentToShipEmail(TestCase):
 
         experiment.subscribers.add(user)
 
-        with self.settings(
-            EMAIL_SENDER=sender, EMAIL_RELEASE_DRIVERS=release_drivers
-        ):
+        with self.settings(EMAIL_SENDER=sender, EMAIL_RELEASE_DRIVERS=release_drivers):
             send_intent_to_ship_email(experiment.id)
 
-        bug_url = settings.BUGZILLA_DETAIL_URL.format(
-            id=experiment.bugzilla_id
-        )
+        bug_url = settings.BUGZILLA_DETAIL_URL.format(id=experiment.bugzilla_id)
         expected_locales = self.format_locales(experiment)
         expected_countries = self.format_countries(experiment)
         expected_version_channel = self.format_version_and_channel(experiment)
 
         sent_email = mail.outbox[-1]
         self.assertEqual(
-            sent_email.subject,
-            "SHIELD Study Intent to ship: Experiment 56.0 Nightly",
+            sent_email.subject, "SHIELD Study Intent to ship: Experiment 56.0 Nightly"
         )
         self.assertEqual(sent_email.from_email, sender)
         self.assertEqual(
             set(sent_email.recipients()),
-            set(
-                [release_drivers, experiment.owner.email, "smith@example.com"]
-            ),
+            set([release_drivers, experiment.owner.email, "smith@example.com"]),
         )
         self.assertTrue(
             experiment.emails.filter(
@@ -67,12 +57,9 @@ class TestIntentToShipEmail(TestCase):
         )
         self.assertIn(f"Experimenter Bug: {bug_url}", sent_email.body)
         self.assertIn(
-            f"Locales: {expected_locales}; {expected_countries}",
-            sent_email.body,
+            f"Locales: {expected_locales}; {expected_countries}", sent_email.body
         )
-        self.assertIn(
-            f"Timeline & Channel: {expected_version_channel}", sent_email.body
-        )
+        self.assertIn(f"Timeline & Channel: {expected_version_channel}", sent_email.body)
         self.assertIn("Fictitious risk", sent_email.body)
         self.assertIn("Fictitious technical challenge", sent_email.body)
 
@@ -94,54 +81,40 @@ class TestIntentToShipEmail(TestCase):
         sender = "sender@example.com"
         release_drivers = "drivers@example.com"
 
-        with self.settings(
-            EMAIL_SENDER=sender, EMAIL_RELEASE_DRIVERS=release_drivers
-        ):
+        with self.settings(EMAIL_SENDER=sender, EMAIL_RELEASE_DRIVERS=release_drivers):
             send_intent_to_ship_email(experiment.id)
 
-        bug_url = settings.BUGZILLA_DETAIL_URL.format(
-            id=experiment.bugzilla_id
-        )
+        bug_url = settings.BUGZILLA_DETAIL_URL.format(id=experiment.bugzilla_id)
         expected_locales = self.format_locales(experiment)
         expected_countries = self.format_countries(experiment)
         expected_version_channel = self.format_version_and_channel(experiment)
 
         sent_email = mail.outbox[-1]
         self.assertEqual(
-            sent_email.subject,
-            "SHIELD Study Intent to ship: Experiment 56.0 Nightly",
+            sent_email.subject, "SHIELD Study Intent to ship: Experiment 56.0 Nightly"
         )
         self.assertIn(f"Experimenter Bug: {bug_url}", sent_email.body)
         self.assertIn(
-            f"Locales: {expected_locales}; {expected_countries}",
-            sent_email.body,
+            f"Locales: {expected_locales}; {expected_countries}", sent_email.body
         )
-        self.assertIn(
-            f"Timeline & Channel: {expected_version_channel}", sent_email.body
-        )
+        self.assertIn(f"Timeline & Channel: {expected_version_channel}", sent_email.body)
         self.assertEqual(sent_email.content_subtype, "html")
         self.assertEqual(sent_email.from_email, sender)
         self.assertEqual(
             set(sent_email.recipients()),
-            set(
-                [release_drivers, experiment.owner.email, "smith@example.com"]
-            ),
+            set([release_drivers, experiment.owner.email, "smith@example.com"]),
         )
 
     def format_locales(self, experiment):
         locales = "All locales"
         if experiment.locales.exists():  # pragma: no branch
-            locales = ", ".join(
-                str(locale) for locale in experiment.locales.all()
-            )
+            locales = ", ".join(str(locale) for locale in experiment.locales.all())
         return locales
 
     def format_countries(self, experiment):
         countries = "All countries"
         if experiment.countries.exists():  # pragma: no branch
-            countries = ", ".join(
-                str(country) for country in experiment.countries.all()
-            )
+            countries = ", ".join(str(country) for country in experiment.countries.all())
         return countries
 
     def format_version_and_channel(self, experiment):

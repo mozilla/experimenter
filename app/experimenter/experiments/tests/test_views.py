@@ -18,10 +18,7 @@ from experimenter.experiments.forms import (
 from experimenter.experiments.forms import NormandyIdForm
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.experiments.tests.mixins import (
-    MockTasksMixin,
-    MockRequestMixin,
-)
+from experimenter.experiments.tests.mixins import MockTasksMixin, MockRequestMixin
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.experiments.views import (
     ExperimentFilterset,
@@ -50,33 +47,21 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
 
     def test_filters_out_archived_by_default(self):
         for i in range(3):
-            ExperimentFactory.create_with_status(
-                Experiment.STATUS_DRAFT, archived=False
-            )
+            ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, archived=False)
 
         for i in range(3):
-            ExperimentFactory.create_with_status(
-                Experiment.STATUS_DRAFT, archived=True
-            )
+            ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, archived=True)
 
-        filter = ExperimentFilterset(
-            data={}, queryset=Experiment.objects.all()
-        )
+        filter = ExperimentFilterset(data={}, queryset=Experiment.objects.all())
 
-        self.assertEqual(
-            set(filter.qs), set(Experiment.objects.filter(archived=False))
-        )
+        self.assertEqual(set(filter.qs), set(Experiment.objects.filter(archived=False)))
 
     def test_allows_archived_if_True(self):
         for i in range(3):
-            ExperimentFactory.create_with_status(
-                Experiment.STATUS_DRAFT, archived=False
-            )
+            ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, archived=False)
 
         for i in range(3):
-            ExperimentFactory.create_with_status(
-                Experiment.STATUS_DRAFT, archived=True
-            )
+            ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, archived=True)
 
         filter = ExperimentFilterset(
             data={"archived": True}, queryset=Experiment.objects.all()
@@ -88,18 +73,14 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         owner = UserFactory.create()
 
         for i in range(3):
-            ExperimentFactory.create_with_status(
-                Experiment.STATUS_DRAFT, owner=owner
-            )
+            ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, owner=owner)
             ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
 
         filter = ExperimentFilterset(
             {"owner": owner.id}, queryset=Experiment.objects.all()
         )
 
-        self.assertEqual(
-            set(filter.qs), set(Experiment.objects.filter(owner=owner))
-        )
+        self.assertEqual(set(filter.qs), set(Experiment.objects.filter(owner=owner)))
 
     def test_filters_by_status(self):
         for i in range(3):
@@ -107,41 +88,29 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             ExperimentFactory.create_with_status(Experiment.STATUS_REVIEW)
 
         filter = ExperimentFilterset(
-            {"status": Experiment.STATUS_DRAFT},
-            queryset=Experiment.objects.all(),
+            {"status": Experiment.STATUS_DRAFT}, queryset=Experiment.objects.all()
         )
 
         self.assertEqual(
-            set(filter.qs),
-            set(Experiment.objects.filter(status=Experiment.STATUS_DRAFT)),
+            set(filter.qs), set(Experiment.objects.filter(status=Experiment.STATUS_DRAFT))
         )
 
     def test_filters_by_firefox_version(self):
 
         exp_1 = ExperimentFactory.create_with_variants(
-            name="Experiment 1",
-            firefox_min_version="58.0",
-            firefox_max_version="62.0",
+            name="Experiment 1", firefox_min_version="58.0", firefox_max_version="62.0"
         )
         exp_2 = ExperimentFactory.create_with_variants(
-            name="Experiment 2",
-            firefox_min_version="59.0",
-            firefox_max_version="60.0",
+            name="Experiment 2", firefox_min_version="59.0", firefox_max_version="60.0"
         )
         ExperimentFactory.create_with_variants(
-            name="Experiment 4",
-            firefox_min_version="62.0",
-            firefox_max_version="68.0",
+            name="Experiment 4", firefox_min_version="62.0", firefox_max_version="68.0"
         )
         exp_3 = ExperimentFactory.create_with_variants(
-            name="Experiment 3",
-            firefox_min_version="59.0",
-            firefox_max_version="",
+            name="Experiment 3", firefox_min_version="59.0", firefox_max_version=""
         )
         ExperimentFactory.create_with_variants(
-            name="Experiment 5",
-            firefox_min_version="54.0",
-            firefox_max_version="56.0",
+            name="Experiment 5", firefox_min_version="54.0", firefox_max_version="56.0"
         )
 
         filter = ExperimentFilterset(
@@ -154,16 +123,11 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         exclude_channel = Experiment.CHANNEL_CHOICES[2][0]
 
         for i in range(3):
-            ExperimentFactory.create_with_variants(
-                firefox_channel=include_channel
-            )
-            ExperimentFactory.create_with_variants(
-                firefox_channel=exclude_channel
-            )
+            ExperimentFactory.create_with_variants(firefox_channel=include_channel)
+            ExperimentFactory.create_with_variants(firefox_channel=exclude_channel)
 
         filter = ExperimentFilterset(
-            {"firefox_channel": include_channel},
-            queryset=Experiment.objects.all(),
+            {"firefox_channel": include_channel}, queryset=Experiment.objects.all()
         )
         self.assertEqual(
             set(filter.qs),
@@ -241,27 +205,17 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         ).context[0]
 
-        self.assertEqual(
-            set(first_response_context["experiments"]), set([exp_1, exp_2])
-        )
-        self.assertEqual(
-            set(second_response_context["experiments"]), set([exp_3])
-        )
+        self.assertEqual(set(first_response_context["experiments"]), set([exp_1, exp_2]))
+        self.assertEqual(set(second_response_context["experiments"]), set([exp_3]))
 
     def test_filters_by_review_in_qa(self):
         exp_1 = ExperimentFactory.create_with_variants(
             review_qa_requested=True, review_qa=False
         )
-        ExperimentFactory.create_with_variants(
-            review_qa_requested=False, review_qa=False
-        )
-        ExperimentFactory.create_with_variants(
-            review_qa_requested=True, review_qa=True
-        )
+        ExperimentFactory.create_with_variants(review_qa_requested=False, review_qa=False)
+        ExperimentFactory.create_with_variants(review_qa_requested=True, review_qa=True)
 
-        filter = ExperimentFilterset(
-            {"in_qa": "on"}, queryset=Experiment.objects.all()
-        )
+        filter = ExperimentFilterset({"in_qa": "on"}, queryset=Experiment.objects.all())
 
         self.assertEqual(set(filter.qs), set([exp_1]))
 
@@ -272,9 +226,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         )
         ExperimentFactory.create_with_variants(survey_required=False)
 
-        filter = ExperimentFilterset(
-            {"surveys": "on"}, queryset=Experiment.objects.all()
-        )
+        filter = ExperimentFilterset({"surveys": "on"}, queryset=Experiment.objects.all())
 
         self.assertEqual(set(filter.qs), set([exp_1, exp_2]))
 
@@ -286,9 +238,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         exp_1.subscribers.add(self.user)
 
         subscribed_filter = ExperimentFilterset(
-            {"subscribed": "on"},
-            request=self.request,
-            queryset=Experiment.objects.all(),
+            {"subscribed": "on"}, request=self.request, queryset=Experiment.objects.all()
         )
 
         self.assertEqual(list(subscribed_filter.qs), [exp_1])
@@ -301,39 +251,27 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         ExperimentFactory.create()
 
         pause_filter = ExperimentFilterset(
-            {"is_paused": "on"},
-            request=self.request,
-            queryset=Experiment.objects.all(),
+            {"is_paused": "on"}, request=self.request, queryset=Experiment.objects.all()
         )
 
         self.assertEqual(list(pause_filter.qs), [exp_1])
 
     def test_filters_for_longrunning_experiments(self):
         exp_1 = ExperimentFactory.create(
-            name="Experiment 1",
-            firefox_min_version="67.0b",
-            firefox_max_version="70.0b",
+            name="Experiment 1", firefox_min_version="67.0b", firefox_max_version="70.0b"
         )
         exp_2 = ExperimentFactory.create(
-            name="Experiment 2",
-            firefox_min_version="64.0",
-            firefox_max_version="69.0",
+            name="Experiment 2", firefox_min_version="64.0", firefox_max_version="69.0"
         )
         ExperimentFactory.create(
-            name="Experiment 3",
-            firefox_min_version="64.0",
-            firefox_max_version="",
+            name="Experiment 3", firefox_min_version="64.0", firefox_max_version=""
         )
         ExperimentFactory.create(
-            name="Experiment 4",
-            firefox_min_version="64.0",
-            firefox_max_version="65.0",
+            name="Experiment 4", firefox_min_version="64.0", firefox_max_version="65.0"
         )
 
         filter = ExperimentFilterset(
-            {"longrunning": "on"},
-            request=self.request,
-            queryset=Experiment.objects.all(),
+            {"longrunning": "on"}, request=self.request, queryset=Experiment.objects.all()
         )
 
         self.assertEqual(set(filter.qs), set([exp_1, exp_2]))
@@ -357,9 +295,7 @@ class TestExperimentListView(TestCase):
         user_email = "user@example.com"
 
         # Archived experiment is ommitted
-        ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, archived=True
-        )
+        ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, archived=True)
 
         for i in range(3):
             ExperimentFactory.create_with_status(
@@ -459,9 +395,7 @@ class TestExperimentListView(TestCase):
 
         context = response.context[0]
 
-        self.assertEqual(
-            set(context["experiments"]), set([self.exp_1, self.exp_2])
-        )
+        self.assertEqual(set(context["experiments"]), set([self.exp_1, self.exp_2]))
 
     def test_list_shows_all_experiments_with_end_in_range(self):
         self.set_up_date_tests()
@@ -482,13 +416,9 @@ class TestExperimentListView(TestCase):
 
         context = response.context[0]
 
-        self.assertEqual(
-            set(context["experiments"]), set([self.exp_2, self.exp_4])
-        )
+        self.assertEqual(set(context["experiments"]), set([self.exp_2, self.exp_4]))
 
-    def test_list_shows_all_experiments_with_start_in_range_start_date_only(
-        self
-    ):
+    def test_list_shows_all_experiments_with_start_in_range_start_date_only(self):
 
         self.set_up_date_tests()
 
@@ -508,13 +438,9 @@ class TestExperimentListView(TestCase):
 
         context = response.context[0]
 
-        self.assertEqual(
-            set(context["experiments"]), set([self.exp_1, self.exp_3])
-        )
+        self.assertEqual(set(context["experiments"]), set([self.exp_1, self.exp_3]))
 
-    def test_list_shows_all_experiments_with_start_in_range_end_date_only(
-        self
-    ):
+    def test_list_shows_all_experiments_with_start_in_range_end_date_only(self):
         self.set_up_date_tests()
 
         response = self.client.get(
@@ -534,17 +460,14 @@ class TestExperimentListView(TestCase):
         context = response.context[0]
 
         self.assertEqual(
-            set(context["experiments"]),
-            set([self.exp_1, self.exp_2, self.exp_4]),
+            set(context["experiments"]), set([self.exp_1, self.exp_2, self.exp_4])
         )
 
     def test_list_view_shows_all_including_archived(self):
         user_email = "user@example.com"
 
         # Archived experiment is included
-        ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, archived=True
-        )
+        ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, archived=True)
 
         for i in range(3):
             ExperimentFactory.create_with_status(
@@ -611,9 +534,7 @@ class TestExperimentListView(TestCase):
 
         context = response.context[0]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            list(context["experiments"]), list(filtered_ordered_experiments)
-        )
+        self.assertEqual(list(context["experiments"]), list(filtered_ordered_experiments))
 
     def test_list_view_orders_experiments_firefox_channel_sort(self):
         user_email = "user@example.com"
@@ -659,16 +580,12 @@ class TestExperimentListView(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         html = response.content.decode("utf-8")
-        total_count_regex = re.compile(
-            rf"{number_of_experiments}\s+Experiments"
-        )
+        total_count_regex = re.compile(rf"{number_of_experiments}\s+Experiments")
         self.assertTrue(total_count_regex.search(html))
 
         # Go to page 2, and the total shouldn't change.
         response = self.client.get(
-            "{url}?{params}".format(
-                url=reverse("home"), params=urlencode({"page": 2})
-            ),
+            "{url}?{params}".format(url=reverse("home"), params=urlencode({"page": 2})),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
@@ -698,9 +615,7 @@ class TestExperimentFormMixin(TestCase):
         self.assertEqual(form_kwargs["request"], request)
 
     @mock.patch("experimenter.experiments.views.reverse")
-    def test_get_success_url_returns_next_url_if_action_is_continue(
-        self, mock_reverse
-    ):
+    def test_get_success_url_returns_next_url_if_action_is_continue(self, mock_reverse):
 
         class BaseTestView(object):
 
@@ -730,9 +645,7 @@ class TestExperimentFormMixin(TestCase):
         )
 
     @mock.patch("experimenter.experiments.views.reverse")
-    def test_get_success_url_returns_detail_url_if_action_is_empty(
-        self, mock_reverse
-    ):
+    def test_get_success_url_returns_detail_url_if_action_is_empty(self, mock_reverse):
 
         class BaseTestView(object):
 
@@ -835,9 +748,7 @@ class TestExperimentOverviewUpdateView(TestCase):
         }
 
         response = self.client.post(
-            reverse(
-                "experiments-overview-update", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-overview-update", kwargs={"slug": experiment.slug}),
             data,
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
@@ -845,9 +756,7 @@ class TestExperimentOverviewUpdateView(TestCase):
 
         experiment = Experiment.objects.get()
         self.assertEqual(experiment.name, data["name"])
-        self.assertEqual(
-            experiment.short_description, data["short_description"]
-        )
+        self.assertEqual(experiment.short_description, data["short_description"])
         self.assertEqual(experiment.proposed_start_date, new_start_date)
         self.assertEqual(experiment.proposed_enrollment, new_enrollment)
         self.assertEqual(experiment.proposed_duration, new_duration)
@@ -869,15 +778,11 @@ class TestExperimentVariantsUpdateView(TestCase):
             Experiment.STATUS_DRAFT, type=Experiment.TYPE_ADDON
         )
         response = self.client.get(
-            reverse(
-                "experiments-variants-update", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-variants-update", kwargs={"slug": experiment.slug}),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(
-            response.context["form"], ExperimentVariantsAddonForm
-        )
+        self.assertIsInstance(response.context["form"], ExperimentVariantsAddonForm)
 
     def test_uses_pref_form_for_pref_experiment(self):
         user_email = "user@example.com"
@@ -885,21 +790,15 @@ class TestExperimentVariantsUpdateView(TestCase):
             Experiment.STATUS_DRAFT, type=Experiment.TYPE_PREF
         )
         response = self.client.get(
-            reverse(
-                "experiments-variants-update", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-variants-update", kwargs={"slug": experiment.slug}),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(
-            response.context["form"], ExperimentVariantsPrefForm
-        )
+        self.assertIsInstance(response.context["form"], ExperimentVariantsPrefForm)
 
     def test_view_saves_experiment(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
         locale = LocaleFactory()
         country = CountryFactory()
 
@@ -939,9 +838,7 @@ class TestExperimentVariantsUpdateView(TestCase):
         }
 
         response = self.client.post(
-            reverse(
-                "experiments-variants-update", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-variants-update", kwargs={"slug": experiment.slug}),
             data,
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
@@ -950,15 +847,10 @@ class TestExperimentVariantsUpdateView(TestCase):
         experiment = Experiment.objects.get()
 
         self.assertEqual(
-            experiment.population_percent,
-            decimal.Decimal(data["population_percent"]),
+            experiment.population_percent, decimal.Decimal(data["population_percent"])
         )
-        self.assertEqual(
-            experiment.firefox_min_version, data["firefox_min_version"]
-        )
-        self.assertEqual(
-            experiment.firefox_max_version, data["firefox_max_version"]
-        )
+        self.assertEqual(experiment.firefox_min_version, data["firefox_min_version"])
+        self.assertEqual(experiment.firefox_max_version, data["firefox_max_version"])
 
         self.assertEqual(experiment.firefox_channel, data["firefox_channel"])
         self.assertEqual(experiment.platform, data["platform"])
@@ -984,9 +876,7 @@ class TestExperimentObjectivesUpdateView(TestCase):
 
     def test_view_saves_experiment(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
 
         data = {
             "objectives": "Some new objectives!",
@@ -996,10 +886,7 @@ class TestExperimentObjectivesUpdateView(TestCase):
         }
 
         response = self.client.post(
-            reverse(
-                "experiments-objectives-update",
-                kwargs={"slug": experiment.slug},
-            ),
+            reverse("experiments-objectives-update", kwargs={"slug": experiment.slug}),
             data,
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
@@ -1023,9 +910,7 @@ class TestExperimentRisksUpdateView(TestCase):
 
     def test_view_saves_experiment(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
 
         data = {
             "risk_internal_only": True,
@@ -1050,9 +935,7 @@ class TestExperimentRisksUpdateView(TestCase):
         }
 
         response = self.client.post(
-            reverse(
-                "experiments-risks-update", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-risks-update", kwargs={"slug": experiment.slug}),
             data,
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
@@ -1068,8 +951,7 @@ class TestExperimentRisksUpdateView(TestCase):
         self.assertTrue(experiment.risk_release_population)
         self.assertTrue(experiment.risk_technical)
         self.assertEqual(
-            experiment.risk_technical_description,
-            data["risk_technical_description"],
+            experiment.risk_technical_description, data["risk_technical_description"]
         )
         self.assertEqual(experiment.risks, data["risks"])
         self.assertEqual(experiment.testing, data["testing"])
@@ -1089,9 +971,7 @@ class TestResultsUpdateView(TestCase):
 
     def test_view_saves_experiment(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_COMPLETE
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_COMPLETE)
 
         data = {
             "results_url": "https://example.com",
@@ -1099,9 +979,7 @@ class TestResultsUpdateView(TestCase):
         }
 
         response = self.client.post(
-            reverse(
-                "experiments-results-update", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-results-update", kwargs={"slug": experiment.slug}),
             data,
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
@@ -1110,18 +988,14 @@ class TestResultsUpdateView(TestCase):
         experiment = Experiment.objects.get()
 
         self.assertEqual(experiment.results_url, "https://example.com")
-        self.assertEqual(
-            experiment.results_lessons_learned, "Many lessons were learned."
-        )
+        self.assertEqual(experiment.results_lessons_learned, "Many lessons were learned.")
 
 
 class TestExperimentDetailView(TestCase):
 
     def test_view_renders_correctly(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
 
         response = self.client.get(
             reverse("experiments-detail", kwargs={"slug": experiment.slug}),
@@ -1134,9 +1008,7 @@ class TestExperimentDetailView(TestCase):
 
     def test_view_renders_locales_correctly(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
         experiment.locales.add(LocaleFactory(code="yy", name="Why"))
         experiment.locales.add(LocaleFactory(code="xx", name="Xess"))
         response = self.client.get(
@@ -1147,9 +1019,7 @@ class TestExperimentDetailView(TestCase):
 
     def test_view_renders_countries_correctly(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
         experiment.countries.add(CountryFactory(code="YY", name="Wazoo"))
         experiment.countries.add(CountryFactory(code="XX", name="Xanadu"))
         response = self.client.get(
@@ -1160,9 +1030,7 @@ class TestExperimentDetailView(TestCase):
 
     def test_includes_normandy_id_form_in_context(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         response = self.client.get(
             reverse("experiments-detail", kwargs={"slug": experiment.slug}),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -1173,13 +1041,9 @@ class TestExperimentDetailView(TestCase):
 
     def test_includes_bound_normandy_id_form_if_GET_param_set(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         bad_normandy_id = "abc"
-        detail_url = reverse(
-            "experiments-detail", kwargs={"slug": experiment.slug}
-        )
+        detail_url = reverse("experiments-detail", kwargs={"slug": experiment.slug})
         response = self.client.get(
             f"{detail_url}?normandy_id={bad_normandy_id}",
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -1194,16 +1058,12 @@ class TestExperimentStatusUpdateView(MockTasksMixin, TestCase):
 
     def test_view_updates_status_and_redirects(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
 
         new_status = experiment.STATUS_REVIEW
 
         response = self.client.post(
-            reverse(
-                "experiments-status-update", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-status-update", kwargs={"slug": experiment.slug}),
             {"status": new_status},
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
@@ -1222,9 +1082,7 @@ class TestExperimentStatusUpdateView(MockTasksMixin, TestCase):
         experiment = ExperimentFactory.create_with_status(original_status)
 
         response = self.client.post(
-            reverse(
-                "experiments-status-update", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-status-update", kwargs={"slug": experiment.slug}),
             {"status": Experiment.STATUS_COMPLETE},
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
@@ -1242,9 +1100,7 @@ class TestExperimentReviewUpdateView(TestCase):
 
     def test_view_updates_reviews_and_redirects(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_REVIEW)
 
         data = {
             "review_science": True,
@@ -1263,9 +1119,7 @@ class TestExperimentReviewUpdateView(TestCase):
         }
 
         response = self.client.post(
-            reverse(
-                "experiments-review-update", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-review-update", kwargs={"slug": experiment.slug}),
             data,
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
@@ -1293,17 +1147,13 @@ class TestExperimentCommentCreateView(TestCase):
 
     def test_view_creates_comment_redirects_to_detail_page(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
 
         section = experiment.SECTION_OBJECTIVES
         text = "Hello!"
 
         response = self.client.post(
-            reverse(
-                "experiments-comment-create", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-comment-create", kwargs={"slug": experiment.slug}),
             {"experiment": experiment.id, "section": section, "text": text},
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
@@ -1311,9 +1161,7 @@ class TestExperimentCommentCreateView(TestCase):
         self.assertRedirects(
             response,
             "{url}#{section}-comments".format(
-                url=reverse(
-                    "experiments-detail", kwargs={"slug": experiment.slug}
-                ),
+                url=reverse("experiments-detail", kwargs={"slug": experiment.slug}),
                 section=section,
             ),
             fetch_redirect_response=False,
@@ -1324,17 +1172,13 @@ class TestExperimentCommentCreateView(TestCase):
 
     def test_view_redirects_to_detail_page_when_form_is_invalid(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
 
         section = "invalid section"
         text = ""
 
         response = self.client.post(
-            reverse(
-                "experiments-comment-create", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-comment-create", kwargs={"slug": experiment.slug}),
             {"experiment": experiment.id, "section": section, "text": text},
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
@@ -1353,9 +1197,7 @@ class TestExperimentArchiveUpdateView(MockTasksMixin, TestCase):
         experiment = ExperimentFactory.create(archived=False)
 
         response = self.client.post(
-            reverse(
-                "experiments-archive-update", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-archive-update", kwargs={"slug": experiment.slug}),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
@@ -1367,9 +1209,7 @@ class TestExperimentArchiveUpdateView(MockTasksMixin, TestCase):
 
         experiment = Experiment.objects.get(id=experiment.id)
 
-        self.assertTrue(
-            self.mock_tasks_update_bug_resolution.delay.assert_called_once
-        )
+        self.assertTrue(self.mock_tasks_update_bug_resolution.delay.assert_called_once)
         self.assertTrue(experiment.archived)
 
 
@@ -1381,10 +1221,7 @@ class TestExperimentSubscribedUpdateView(TestCase):
         self.assertFalse(user in experiment.subscribers.all())
 
         response = self.client.post(
-            reverse(
-                "experiments-subscribed-update",
-                kwargs={"slug": experiment.slug},
-            ),
+            reverse("experiments-subscribed-update", kwargs={"slug": experiment.slug}),
             **{settings.OPENIDC_EMAIL_HEADER: user.email},
         )
 
@@ -1402,15 +1239,11 @@ class TestExperimentNormandyUpdateView(TestCase):
 
     def test_valid_recipe_id_updates_experiment_status(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         normandy_id = 123
 
         response = self.client.post(
-            reverse(
-                "experiments-normandy-update", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-normandy-update", kwargs={"slug": experiment.slug}),
             {"normandy_id": normandy_id},
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
@@ -1426,22 +1259,16 @@ class TestExperimentNormandyUpdateView(TestCase):
 
     def test_invalid_recipe_id_redirects_to_detail(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         normandy_id = "abc"
 
         response = self.client.post(
-            reverse(
-                "experiments-normandy-update", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-normandy-update", kwargs={"slug": experiment.slug}),
             {"normandy_id": normandy_id},
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
-        detail_url = reverse(
-            "experiments-detail", kwargs={"slug": experiment.slug}
-        )
+        detail_url = reverse("experiments-detail", kwargs={"slug": experiment.slug})
         self.assertRedirects(
             response,
             f"{detail_url}?normandy_id={normandy_id}",
@@ -1450,26 +1277,17 @@ class TestExperimentNormandyUpdateView(TestCase):
 
     def test_invalid_other_recipe_ids_redirects_to_detail(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         normandy_id = "432"
         other_normandy_ids = "abc"
 
         response = self.client.post(
-            reverse(
-                "experiments-normandy-update", kwargs={"slug": experiment.slug}
-            ),
-            {
-                "normandy_id": normandy_id,
-                "other_normandy_ids": other_normandy_ids,
-            },
+            reverse("experiments-normandy-update", kwargs={"slug": experiment.slug}),
+            {"normandy_id": normandy_id, "other_normandy_ids": other_normandy_ids},
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
-        detail_url = reverse(
-            "experiments-detail", kwargs={"slug": experiment.slug}
-        )
+        detail_url = reverse("experiments-detail", kwargs={"slug": experiment.slug})
 
         self.assertRedirects(
             response,

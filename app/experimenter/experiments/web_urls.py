@@ -18,9 +18,7 @@ from experimenter.experiments.views import (
 
 
 urlpatterns = [
-    re_path(
-        r"^new/$", ExperimentCreateView.as_view(), name="experiments-create"
-    ),
+    re_path(r"^new/$", ExperimentCreateView.as_view(), name="experiments-create"),
     re_path(
         r"^(?P<slug>[\w-]+)/edit/$",
         ExperimentOverviewUpdateView.as_view(),
@@ -77,8 +75,6 @@ urlpatterns = [
         name="experiments-comment-create",
     ),
     re_path(
-        r"^(?P<slug>[\w-]+)/$",
-        ExperimentDetailView.as_view(),
-        name="experiments-detail",
+        r"^(?P<slug>[\w-]+)/$", ExperimentDetailView.as_view(), name="experiments-detail"
     ),
 ]

@@ -20,13 +20,7 @@ class ExperimentChangeLogInlineAdmin(admin.TabularInline):
     extra = 1
     model = ExperimentChangeLog
 
-    fields = (
-        "changed_by",
-        "changed_on",
-        "old_status",
-        "new_status",
-        "message",
-    )
+    fields = ("changed_by", "changed_on", "old_status", "new_status", "message")
 
 
 class ExperimentAdmin(admin.ModelAdmin):

@@ -34,9 +34,7 @@ def format_bug_body(experiment):
     if experiment.is_addon_experiment:
         variants_body = "\n".join(
             [
-                experiment.BUGZILLA_VARIANT_ADDON_TEMPLATE.format(
-                    variant=variant
-                )
+                experiment.BUGZILLA_VARIANT_ADDON_TEMPLATE.format(variant=variant)
                 for variant in experiment.variants.all()
             ]
         )
@@ -49,9 +47,7 @@ def format_bug_body(experiment):
     elif experiment.is_pref_experiment:
         variants_body = "\n".join(
             [
-                experiment.BUGZILLA_VARIANT_PREF_TEMPLATE.format(
-                    variant=variant
-                )
+                experiment.BUGZILLA_VARIANT_PREF_TEMPLATE.format(variant=variant)
                 for variant in experiment.variants.all()
             ]
         )
@@ -164,11 +160,7 @@ def create_experiment_bug(experiment):
     see_also = set_bugzilla_id_value(experiment.data_science_bugzilla_url)
     blocks = set_bugzilla_id_value(experiment.feature_bugzilla_url)
 
-    extra_fields = {
-        "assigned_to": assigned_to,
-        "see_also": see_also,
-        "blocks": blocks,
-    }
+    extra_fields = {"assigned_to": assigned_to, "see_also": see_also, "blocks": blocks}
 
     bug_data = format_creation_bug_body(experiment, extra_fields)
     response_data = make_bugzilla_call(

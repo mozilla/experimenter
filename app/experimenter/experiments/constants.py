@@ -181,9 +181,7 @@ class ExperimentConstants(object):
     )
 
     # Labels
-    RISK_INTERNAL_ONLY_LABEL = (
-        "Is this experiment sensitive and/or internal only?"
-    )
+    RISK_INTERNAL_ONLY_LABEL = "Is this experiment sensitive and/or internal only?"
     RISK_PARTNER_RELATED_LABEL = "Is this experiment partner related?"
     RISK_BRAND_LABEL = "Does this have a high risk to the brand?"
     RISK_FAST_SHIPPED_LABEL = (
@@ -194,9 +192,7 @@ class ExperimentConstants(object):
     RISK_RELEASE_POPULATION_LABEL = (
         "Does this experiment affect 1% or more of Release users?"
     )
-    RISK_REVENUE_LABEL = (
-        "Does this experiment have possible negative impact on revenue?"
-    )
+    RISK_REVENUE_LABEL = "Does this experiment have possible negative impact on revenue?"
     RISK_DATA_CATEGORY_LABEL = "Are you using Category 3 or 4 data?"
     RISK_EXTERNAL_TEAM_IMPACT_LABEL = (
         "Does this experiment impact teams outside of your own?"
@@ -208,9 +204,7 @@ class ExperimentConstants(object):
     RISK_SECURITY_LABEL = (
         "Does this need security review, consulting, or security testing?"
     )
-    RISK_REVISION_LABEL = (
-        "Is this experiment a revision of a previous experiment?"
-    )
+    RISK_REVISION_LABEL = "Is this experiment a revision of a previous experiment?"
     RISK_TECHNICAL_LABEL = "Is this experiment Complex / Technically Risky?"
     SURVEY_REQUIRED_LABEL = "Is a Survey Required?"
     SURVEY_INSTRUCTIONS_LABEL = "Survey Launch Instructions"
@@ -801,9 +795,7 @@ Any additional filters:
     """
     )
 
-    OBJECTIVES_DEFAULT = (
-        "What is the objective of this experiment?  Explain in detail."
-    )
+    OBJECTIVES_DEFAULT = "What is the objective of this experiment?  Explain in detail."
 
     ANALYSIS_DEFAULT = (
         """What is the main effect you are looking for and what data will
@@ -850,13 +842,10 @@ If applicable, link to any relevant test builds / staging information
     """.strip()
     )
 
-    QA_STATUS_DEFAULT = (
-        "What is the QA status: Not started, Green, Yellow, Red"
-    )
+    QA_STATUS_DEFAULT = "What is the QA status: Not started, Green, Yellow, Red"
 
     ATTENTION_MESSAGE = (
-        "This experiment requires special attention "
-        "and should be reviewed ASAP"
+        "This experiment requires special attention " "and should be reviewed ASAP"
     )
 
     INTENT_TO_SHIP_EMAIL_SUBJECT = (
@@ -868,8 +857,7 @@ If applicable, link to any relevant test builds / staging information
     ENDING_EMAIL_SUBJECT = "Experiment ending soon: {name} {version} {channel}"
 
     PAUSE_EMAIL_SUBJECT = (
-        "Experimenter enrollment ending verification "
-        "for: {name} {version} {channel}"
+        "Experimenter enrollment ending verification " "for: {name} {version} {channel}"
     )
 
     NORMANDY_CHANGE_WINDOW = """

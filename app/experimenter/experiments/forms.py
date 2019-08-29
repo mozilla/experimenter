@@ -80,9 +80,7 @@ class BugzillaURLField(forms.URLField):
                 settings.BUGZILLA_HOST not in cleaned_value
                 or get_bugzilla_id(cleaned_value) is None
             ):
-                raise forms.ValidationError(
-                    err_str.format(settings.BUGZILLA_HOST)
-                )
+                raise forms.ValidationError(err_str.format(settings.BUGZILLA_HOST))
 
         return cleaned_value
 
@@ -152,14 +150,10 @@ class ChangeLogMixin(object):
         return experiment
 
 
-class ExperimentOverviewForm(
-    NameSlugFormMixin, ChangeLogMixin, forms.ModelForm
-):
+class ExperimentOverviewForm(NameSlugFormMixin, ChangeLogMixin, forms.ModelForm):
 
     type = forms.ChoiceField(
-        label="Type",
-        choices=Experiment.TYPE_CHOICES,
-        help_text=Experiment.TYPE_HELP_TEXT,
+        label="Type", choices=Experiment.TYPE_CHOICES, help_text=Experiment.TYPE_HELP_TEXT
     )
     owner = forms.ModelChoiceField(
         required=True,
@@ -184,9 +178,7 @@ class ExperimentOverviewForm(
         widget=forms.Textarea(attrs={"rows": 3}),
     )
     public_name = forms.CharField(
-        label="Public Name",
-        required=False,
-        help_text=Experiment.PUBLIC_NAME_HELP_TEXT,
+        label="Public Name", required=False, help_text=Experiment.PUBLIC_NAME_HELP_TEXT
     )
     public_description = forms.CharField(
         label="Public Description",
@@ -219,9 +211,7 @@ class ExperimentOverviewForm(
         required=False,
         label="Proposed Start Date",
         help_text=Experiment.PROPOSED_START_DATE_HELP_TEXT,
-        widget=forms.DateInput(
-            attrs={"type": "date", "class": "form-control"}
-        ),
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
     )
     proposed_duration = forms.IntegerField(
         required=False,
@@ -278,10 +268,7 @@ class ExperimentOverviewForm(
 
         if start_date and start_date < timezone.now().date():
             raise forms.ValidationError(
-                (
-                    "The experiment start date must "
-                    "be no earlier than the current date."
-                )
+                ("The experiment start date must " "be no earlier than the current date.")
             )
 
         return start_date
@@ -307,9 +294,7 @@ class ExperimentOverviewForm(
 
 class ExperimentVariantAddonForm(NameSlugFormMixin, forms.ModelForm):
 
-    experiment = forms.ModelChoiceField(
-        queryset=Experiment.objects.all(), required=False
-    )
+    experiment = forms.ModelChoiceField(queryset=Experiment.objects.all(), required=False)
     is_control = forms.BooleanField(required=False)
     ratio = forms.IntegerField(
         label="Branch Size",
@@ -333,14 +318,7 @@ class ExperimentVariantAddonForm(NameSlugFormMixin, forms.ModelForm):
 
     class Meta:
         model = ExperimentVariant
-        fields = [
-            "description",
-            "experiment",
-            "is_control",
-            "name",
-            "ratio",
-            "slug",
-        ]
+        fields = ["description", "experiment", "is_control", "name", "ratio", "slug"]
 
 
 class ExperimentVariantPrefForm(ExperimentVariantAddonForm):
@@ -367,9 +345,7 @@ class ExperimentVariantPrefForm(ExperimentVariantAddonForm):
 class ExperimentVariantsFormSet(BaseInlineFormSet):
 
     def clean(self):
-        alive_forms = [
-            form for form in self.forms if not form.cleaned_data["DELETE"]
-        ]
+        alive_forms = [form for form in self.forms if not form.cleaned_data["DELETE"]]
 
         total_percentage = sum(
             [form.cleaned_data.get("ratio", 0) for form in alive_forms]
@@ -377,9 +353,7 @@ class ExperimentVariantsFormSet(BaseInlineFormSet):
 
         if total_percentage != 100:
             for form in alive_forms:
-                form._errors["ratio"] = [
-                    "The size of all branches must add up to 100"
-                ]
+                form._errors["ratio"] = ["The size of all branches must add up to 100"]
 
         if all([f.is_valid() for f in alive_forms]):
             unique_names = set(
@@ -390,9 +364,7 @@ class ExperimentVariantsFormSet(BaseInlineFormSet):
 
             if not len(unique_names) == len(alive_forms):
                 for form in alive_forms:
-                    form._errors["name"] = [
-                        "All branches must have a unique name"
-                    ]
+                    form._errors["name"] = ["All branches must have a unique name"]
 
 
 class ExperimentVariantsPrefFormSet(ExperimentVariantsFormSet):
@@ -414,9 +386,7 @@ class ExperimentVariantsPrefFormSet(ExperimentVariantsFormSet):
         for dupe_forms in forms_by_value.values():
             if len(dupe_forms) > 1:
                 for form in dupe_forms:
-                    form.add_error(
-                        "value", "All branches must have a unique pref value"
-                    )
+                    form.add_error("value", "All branches must have a unique pref value")
 
 
 class CustomModelChoiceIterator(ModelChoiceIterator):
@@ -522,13 +492,9 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
             # appear in the generated HTML widget.
             kwargs.setdefault("initial", {})
             if not instance.locales.all().exists():
-                kwargs["initial"]["locales"] = [
-                    CustomModelMultipleChoiceField.ALL_KEY
-                ]
+                kwargs["initial"]["locales"] = [CustomModelMultipleChoiceField.ALL_KEY]
             if not instance.countries.all().exists():
-                kwargs["initial"]["countries"] = [
-                    CustomModelMultipleChoiceField.ALL_KEY
-                ]
+                kwargs["initial"]["countries"] = [CustomModelMultipleChoiceField.ALL_KEY]
         super().__init__(data=data, instance=instance, *args, **kwargs)
 
         extra = 0
@@ -650,9 +616,7 @@ class ExperimentVariantsPrefForm(ExperimentVariantsBaseForm):
             for form in self.variants_formset.forms:
                 try:
                     if form.is_valid():
-                        found_type = type(
-                            json.loads(form.cleaned_data["value"])
-                        )
+                        found_type = type(json.loads(form.cleaned_data["value"]))
 
                         # type validation only for non json type
                         if expected_type and found_type != expected_type:
@@ -660,8 +624,7 @@ class ExperimentVariantsPrefForm(ExperimentVariantsBaseForm):
 
                 except (json.JSONDecodeError, ValueError):
                     form.add_error(
-                        "value",
-                        f"Unexpected value type (should be {pref_type})",
+                        "value", f"Unexpected value type (should be {pref_type})"
                     )
 
         return cleaned_data
@@ -990,15 +953,11 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
                         f"This is required if "
                         f"'{Experiment.RISK_TECHNICAL_LABEL}' is true."
                     )
-                    raise forms.ValidationError(
-                        {"risk_technical_description": msg}
-                    )
+                    raise forms.ValidationError({"risk_technical_description": msg})
         return cleaned_data
 
 
-class ExperimentReviewForm(
-    ExperimentConstants, ChangeLogMixin, forms.ModelForm
-):
+class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm):
     # Required
     review_science = forms.BooleanField(
         required=False,
@@ -1013,8 +972,7 @@ class ExperimentReviewForm(
     review_qa_requested = forms.BooleanField(
         required=False,
         label=mark_safe(
-            f"QA <a href={settings.JIRA_URL} target='_blank'>"
-            "Jira</a> Request Sent"
+            f"QA <a href={settings.JIRA_URL} target='_blank'>" "Jira</a> Request Sent"
         ),
         help_text=Experiment.REVIEW_QA_REQUESTED_HELP_TEXT,
     )
@@ -1029,9 +987,7 @@ class ExperimentReviewForm(
         help_text=Experiment.REVIEW_BUGZILLA_HELP_TEXT,
     )
     review_qa = forms.BooleanField(
-        required=False,
-        label="QA Sign-Off",
-        help_text=Experiment.REVIEW_QA_HELP_TEXT,
+        required=False, label="QA Sign-Off", help_text=Experiment.REVIEW_QA_HELP_TEXT
     )
     review_relman = forms.BooleanField(
         required=False,
@@ -1051,9 +1007,7 @@ class ExperimentReviewForm(
         help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
     )
     review_ux = forms.BooleanField(
-        required=False,
-        label="UX Review",
-        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
+        required=False, label="UX Review", help_text=Experiment.REVIEW_GENERAL_HELP_TEXT
     )
     review_security = forms.BooleanField(
         required=False,
@@ -1061,9 +1015,7 @@ class ExperimentReviewForm(
         help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
     )
     review_vp = forms.BooleanField(
-        required=False,
-        label="VP Sign Off",
-        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
+        required=False, label="VP Sign Off", help_text=Experiment.REVIEW_GENERAL_HELP_TEXT
     )
     review_data_steward = forms.BooleanField(
         required=False,
@@ -1113,8 +1065,7 @@ class ExperimentReviewForm(
             self[r]
             for r in list(
                 sorted(
-                    set(self.Meta.fields)
-                    - set(self.instance.get_all_required_reviews())
+                    set(self.Meta.fields) - set(self.instance.get_all_required_reviews())
                 )
             )
         ]
@@ -1173,17 +1124,15 @@ class ExperimentReviewForm(
             (
                 "review_relman",
                 "experiments.can_check_relman_signoff",
-                "You don't have permission to edit Release "
-                "Management signoff fields",
+                "You don't have permission to edit Release " "Management signoff fields",
             ),
         ]
 
         # user cannot check or uncheck QA and relman
         # sign off boxes without permission
         for field_name, permission_name, error_message in permissions:
-            if (
-                field_name in self.changed_data
-                and not self.request.user.has_perm(permission_name)
+            if field_name in self.changed_data and not self.request.user.has_perm(
+                permission_name
             ):
                 self.changed_data.remove(field_name)
                 self.cleaned_data.pop(field_name)
@@ -1192,9 +1141,7 @@ class ExperimentReviewForm(
         return self.cleaned_data
 
 
-class ExperimentStatusForm(
-    ExperimentConstants, ChangeLogMixin, forms.ModelForm
-):
+class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm):
 
     attention = forms.CharField(required=False)
 
@@ -1211,18 +1158,14 @@ class ExperimentStatusForm(
         return self.cleaned_data["status"]
 
     def clean_status(self):
-        expected_status = (
-            self.new_status in self.STATUS_TRANSITIONS[self.old_status]
-        )
+        expected_status = self.new_status in self.STATUS_TRANSITIONS[self.old_status]
 
         if self.old_status != self.new_status and not expected_status:
             raise forms.ValidationError(
                 (
                     "You can not change an Experiment's status "
                     "from {old_status} to {new_status}"
-                ).format(
-                    old_status=self.old_status, new_status=self.new_status
-                )
+                ).format(old_status=self.old_status, new_status=self.new_status)
             )
 
         return self.new_status
@@ -1236,9 +1179,7 @@ class ExperimentStatusForm(
             and not experiment.bugzilla_id
         ):
 
-            tasks.create_experiment_bug_task.delay(
-                self.request.user.id, experiment.id
-            )
+            tasks.create_experiment_bug_task.delay(self.request.user.id, experiment.id)
 
         if (
             self.old_status == Experiment.STATUS_REVIEW
@@ -1248,16 +1189,12 @@ class ExperimentStatusForm(
             experiment.normandy_slug = experiment.generate_normandy_slug()
             experiment.save()
 
-            tasks.update_experiment_bug_task.delay(
-                self.request.user.id, experiment.id
-            )
+            tasks.update_experiment_bug_task.delay(self.request.user.id, experiment.id)
 
         return experiment
 
 
-class ExperimentArchiveForm(
-    ExperimentConstants, ChangeLogMixin, forms.ModelForm
-):
+class ExperimentArchiveForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm):
 
     archived = forms.BooleanField(required=False)
 
@@ -1278,18 +1215,12 @@ class ExperimentArchiveForm(
         experiment = Experiment.objects.get(id=self.instance.id)
 
         if not experiment.is_archivable:
-            notification_msg = (
-                "This experiment cannot be archived in its current state!"
-            )
-            Notification.objects.create(
-                user=self.request.user, message=notification_msg
-            )
+            notification_msg = "This experiment cannot be archived in its current state!"
+            Notification.objects.create(user=self.request.user, message=notification_msg)
             return experiment
 
         experiment = super().save(*args, **kwargs)
-        tasks.update_bug_resolution_task.delay(
-            self.request.user.id, experiment.id
-        )
+        tasks.update_bug_resolution_task.delay(self.request.user.id, experiment.id)
         return experiment
 
 
@@ -1309,9 +1240,7 @@ class ExperimentSubscribedForm(ExperimentConstants, forms.ModelForm):
         ).exists()
 
     def clean_subscribed(self):
-        return self.instance.subscribers.filter(
-            id=self.request.user.id
-        ).exists()
+        return self.instance.subscribers.filter(id=self.request.user.id).exists()
 
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
@@ -1327,9 +1256,7 @@ class ExperimentSubscribedForm(ExperimentConstants, forms.ModelForm):
 class ExperimentCommentForm(forms.ModelForm):
     created_by = forms.CharField(required=False)
     text = forms.CharField(required=True)
-    section = forms.ChoiceField(
-        required=True, choices=Experiment.SECTION_CHOICES
-    )
+    section = forms.ChoiceField(required=True, choices=Experiment.SECTION_CHOICES)
 
     class Meta:
         model = ExperimentComment
@@ -1354,10 +1281,7 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
     other_normandy_ids = forms.CharField(
         label="Other Recipe IDs",
         widget=forms.TextInput(
-            attrs={
-                "class": "form-control",
-                "placeholder": "Other Recipe IDs (Optional)",
-            }
+            attrs={"class": "form-control", "placeholder": "Other Recipe IDs (Optional)"}
         ),
         required=False,
     )
@@ -1365,9 +1289,7 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if cleaned_data.get("normandy_id") in cleaned_data.get(
-            "other_normandy_ids", []
-        ):
+        if cleaned_data.get("normandy_id") in cleaned_data.get("other_normandy_ids", []):
             raise forms.ValidationError(
                 {"other_normandy_ids": "Duplicate IDs are not accepted."}
             )
@@ -1380,13 +1302,10 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
 
         try:
             return [
-                int(i.strip())
-                for i in self.cleaned_data["other_normandy_ids"].split(",")
+                int(i.strip()) for i in self.cleaned_data["other_normandy_ids"].split(",")
             ]
         except ValueError:
-            raise forms.ValidationError(
-                f"IDs must be numbers separated by commas."
-            )
+            raise forms.ValidationError(f"IDs must be numbers separated by commas.")
 
     class Meta:
         model = Experiment

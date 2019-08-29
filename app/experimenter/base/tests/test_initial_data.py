@@ -47,8 +47,5 @@ class TestInitialData(TestCase):
         self.assertTrue(Experiment.objects.exists())
         self.assertEqual(Experiment.objects.count(), 20)
         self.assertEqual(
-            Experiment.objects.filter(
-                status=ExperimentConstants.STATUS_DRAFT
-            ).count(),
-            20,
+            Experiment.objects.filter(status=ExperimentConstants.STATUS_DRAFT).count(), 20
         )

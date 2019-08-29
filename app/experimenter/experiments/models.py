@@ -26,11 +26,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 class ExperimentManager(models.Manager):
 
     def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .annotate(latest_change=Max("changes__changed_on"))
-        )
+        return super().get_queryset().annotate(latest_change=Max("changes__changed_on"))
 
     def get_prefetched(self):
         return self.get_queryset().prefetch_related(
@@ -81,13 +77,9 @@ class Experiment(ExperimentConstants, models.Model):
     short_description: models.TextField = models.TextField(
         default="", blank=True, null=True
     )
-    related_work: models.TextField = models.TextField(
-        default="", blank=True, null=True
-    )
+    related_work: models.TextField = models.TextField(default="", blank=True, null=True)
 
-    proposed_start_date: models.DateField = models.DateField(
-        blank=True, null=True
-    )
+    proposed_start_date: models.DateField = models.DateField(blank=True, null=True)
     proposed_duration: models.PositiveIntegerField = models.PositiveIntegerField(
         blank=True,
         null=True,
@@ -106,9 +98,7 @@ class Experiment(ExperimentConstants, models.Model):
         max_length=400, blank=True, null=True
     )
 
-    pref_key: models.CharField = models.CharField(
-        max_length=255, blank=True, null=True
-    )
+    pref_key: models.CharField = models.CharField(max_length=255, blank=True, null=True)
     pref_type: models.CharField = models.CharField(
         max_length=255,
         choices=ExperimentConstants.PREF_TYPE_CHOICES,
@@ -126,9 +116,7 @@ class Experiment(ExperimentConstants, models.Model):
         max_length=255, blank=True, null=True
     )
 
-    public_description: models.TextField = models.TextField(
-        blank=True, null=True
-    )
+    public_description: models.TextField = models.TextField(blank=True, null=True)
     population_percent: models.DecimalField = models.DecimalField(
         max_digits=7, decimal_places=4, default=0.0
     )
@@ -136,10 +124,7 @@ class Experiment(ExperimentConstants, models.Model):
         max_length=255, choices=ExperimentConstants.VERSION_CHOICES
     )
     firefox_max_version: models.CharField = models.CharField(
-        max_length=255,
-        choices=ExperimentConstants.VERSION_CHOICES,
-        blank=True,
-        null=True,
+        max_length=255, choices=ExperimentConstants.VERSION_CHOICES, blank=True, null=True
     )
     firefox_channel: models.CharField = models.CharField(
         max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES
@@ -147,12 +132,8 @@ class Experiment(ExperimentConstants, models.Model):
     client_matching: models.TextField = models.TextField(
         default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True
     )
-    locales: models.ManyToManyField = models.ManyToManyField(
-        Locale, blank=True
-    )
-    countries: models.ManyToManyField = models.ManyToManyField(
-        Country, blank=True
-    )
+    locales: models.ManyToManyField = models.ManyToManyField(Locale, blank=True)
+    countries: models.ManyToManyField = models.ManyToManyField(Country, blank=True)
     platform: models.CharField = models.CharField(
         max_length=255,
         choices=ExperimentConstants.PLATFORM_CHOICES,
@@ -170,9 +151,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     survey_required: models.BooleanField = models.BooleanField(default=False)
     survey_urls: models.TextField = models.TextField(blank=True, null=True)
-    survey_instructions: models.TextField = models.TextField(
-        blank=True, null=True
-    )
+    survey_instructions: models.TextField = models.TextField(blank=True, null=True)
 
     engineering_owner: models.CharField = models.CharField(
         max_length=255, blank=True, null=True
@@ -191,12 +170,8 @@ class Experiment(ExperimentConstants, models.Model):
         models.IntegerField(), blank=True, null=True
     )
 
-    data_science_bugzilla_url: models.URLField = models.URLField(
-        blank=True, null=True
-    )
-    feature_bugzilla_url: models.URLField = models.URLField(
-        blank=True, null=True
-    )
+    data_science_bugzilla_url: models.URLField = models.URLField(blank=True, null=True)
+    feature_bugzilla_url: models.URLField = models.URLField(blank=True, null=True)
 
     # Risk fields
     risk_internal_only: models.NullBooleanField = models.NullBooleanField(
@@ -241,9 +216,7 @@ class Experiment(ExperimentConstants, models.Model):
     risk_technical: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    risk_technical_description: models.TextField = models.TextField(
-        blank=True, null=True
-    )
+    risk_technical_description: models.TextField = models.TextField(blank=True, null=True)
 
     risks: models.TextField = models.TextField(blank=True, null=True)
 
@@ -307,9 +280,7 @@ class Experiment(ExperimentConstants, models.Model):
     # results fields
     results_url: models.URLField = models.URLField(blank=True, null=True)
     results_initial: models.TextField = models.TextField(blank=True, null=True)
-    results_lessons_learned: models.TextField = models.TextField(
-        blank=True, null=True
-    )
+    results_lessons_learned: models.TextField = models.TextField(blank=True, null=True)
 
     objects = ExperimentManager()
 
@@ -325,15 +296,12 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def full_name(self):
-        return "{type}: {name}".format(
-            type=self.get_type_display(), name=self.name
-        )
+        return "{type}: {name}".format(type=self.get_type_display(), name=self.name)
 
     @property
     def experiment_url(self):
         return urljoin(
-            "https://{host}".format(host=settings.HOSTNAME),
-            self.get_absolute_url(),
+            "https://{host}".format(host=settings.HOSTNAME), self.get_absolute_url()
         )
 
     @property
@@ -351,14 +319,10 @@ class Experiment(ExperimentConstants, models.Model):
         end_date = ""
 
         if self.is_begun and self.normandy_slug:
-            start_date = to_timestamp(
-                self.start_date - datetime.timedelta(days=1)
-            )
+            start_date = to_timestamp(self.start_date - datetime.timedelta(days=1))
 
             if self.status == self.STATUS_COMPLETE:
-                end_date = to_timestamp(
-                    self.end_date + datetime.timedelta(days=2)
-                )
+                end_date = to_timestamp(self.end_date + datetime.timedelta(days=2))
 
             return settings.MONITORING_URL.format(
                 slug=self.normandy_slug, from_date=start_date, to_date=end_date
@@ -375,9 +339,7 @@ class Experiment(ExperimentConstants, models.Model):
                 )
             return self.addon_experiment_id
 
-        error_msg = (
-            "The {field} must be set before a Normandy slug can be generated"
-        )
+        error_msg = "The {field} must be set before a Normandy slug can be generated"
 
         if not self.firefox_min_version:
             raise ValueError(error_msg.format(field="Firefox version"))
@@ -397,20 +359,15 @@ class Experiment(ExperimentConstants, models.Model):
 
         slug_prefix = f"{self.type}-"
         slug_postfix = (
-            f"-{self.firefox_channel}-{version_string}-"
-            f"bug-{self.bugzilla_id}"
+            f"-{self.firefox_channel}-{version_string}-" f"bug-{self.bugzilla_id}"
         )
-        remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(
-            slug_prefix + slug_postfix
-        )
+        remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(slug_prefix + slug_postfix)
         truncated_slug = slugify(self.name[:remaining_chars])
         return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
 
     @property
     def normandy_recipe_json(self):
-        from experimenter.experiments.serializers import (
-            ExperimentRecipeSerializer
-        )
+        from experimenter.experiments.serializers import ExperimentRecipeSerializer
 
         return json.dumps(ExperimentRecipeSerializer(self).data, indent=2)
 
@@ -431,9 +388,7 @@ class Experiment(ExperimentConstants, models.Model):
             urls.append(
                 {
                     "id": self.normandy_id,
-                    "normandy_url": normandy_recipe_url.format(
-                        id=self.normandy_id
-                    ),
+                    "normandy_url": normandy_recipe_url.format(id=self.normandy_id),
                     "DC_url": delivery_console_url.format(id=self.normandy_id),
                 }
             )
@@ -443,9 +398,7 @@ class Experiment(ExperimentConstants, models.Model):
                     urls.append(
                         {
                             "id": norm_id,
-                            "normandy_url": normandy_recipe_url.format(
-                                id=norm_id
-                            ),
+                            "normandy_url": normandy_recipe_url.format(id=norm_id),
                             "DC_url": delivery_console_url.format(id=norm_id),
                         }
                     )
@@ -454,9 +407,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def delivery_console_experiment_import_url(self):
-        return settings.DELIVERY_CONSOLE_EXPERIMENT_IMPORT_URL.format(
-            slug=self.slug
-        )
+        return settings.DELIVERY_CONSOLE_EXPERIMENT_IMPORT_URL.format(slug=self.slug)
 
     @property
     def api_recipe_url(self):
@@ -473,10 +424,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     def _transition_date(self, old_status, new_status):
         for change in self.changes.all():
-            if (
-                change.old_status == old_status
-                and change.new_status == new_status
-            ):
+            if change.old_status == old_status and change.new_status == new_status:
                 return change.changed_on.date()
 
     @property
@@ -498,15 +446,13 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def enrollment_ending_soon(self):
-        return (
-            self.enrollment_end_date - datetime.date.today()
-        ) <= datetime.timedelta(days=5)
+        return (self.enrollment_end_date - datetime.date.today()) <= datetime.timedelta(
+            days=5
+        )
 
     @property
     def ending_soon(self):
-        return (self.end_date - datetime.date.today()) <= datetime.timedelta(
-            days=5
-        )
+        return (self.end_date - datetime.date.today()) <= datetime.timedelta(days=5)
 
     @property
     def enrollment_end_date(self):
@@ -537,10 +483,7 @@ class Experiment(ExperimentConstants, models.Model):
                 day_text = "day"
 
         return "{start} - {end} ({duration} {days})".format(
-            start=start_text,
-            end=end_text,
-            duration=duration_text,
-            days=day_text,
+            start=start_text, end=end_text, duration=duration_text, days=day_text
         )
 
     @property
@@ -549,15 +492,11 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def enrollment_dates(self):
-        return self._format_date_string(
-            self.start_date, self.enrollment_end_date
-        )
+        return self._format_date_string(self.start_date, self.enrollment_end_date)
 
     @property
     def observation_dates(self):
-        return self._format_date_string(
-            self.enrollment_end_date, self.end_date
-        )
+        return self._format_date_string(self.enrollment_end_date, self.end_date)
 
     @cached_property
     def control(self):
@@ -568,9 +507,7 @@ class Experiment(ExperimentConstants, models.Model):
         grouped_changes = defaultdict(lambda: defaultdict(set))
 
         for change in self.changes.all():
-            grouped_changes[change.changed_on.date()][change.changed_by].add(
-                change
-            )
+            grouped_changes[change.changed_on.date()][change.changed_by].add(change)
 
         return grouped_changes
 
@@ -581,9 +518,7 @@ class Experiment(ExperimentConstants, models.Model):
 
             date_changes = []
             for user, user_changes in users.items():
-                date_changes.append(
-                    (user, set([c for c in list(user_changes)]))
-                )
+                date_changes.append((user, set([c for c in list(user_changes)])))
 
             date_ordered_changes.append((date, date_changes))
 
@@ -642,11 +577,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_results(self):
-        return (
-            self.results_url
-            or self.results_initial
-            or self.results_lessons_learned
-        )
+        return self.results_url or self.results_initial or self.results_lessons_learned
 
     @property
     def _risk_questions(self):
@@ -688,9 +619,7 @@ class Experiment(ExperimentConstants, models.Model):
                     self.risk_revenue,
                 ]
             ),
-            "review_legal": any(
-                [self.risk_partner_related, self.risk_data_category]
-            ),
+            "review_legal": any([self.risk_partner_related, self.risk_data_category]),
             "review_impacted_teams": self.risk_external_team_impact,
             "review_data_steward": self.risk_telemetry_data,
             "review_ux": self.risk_ux,
@@ -754,25 +683,18 @@ class Experiment(ExperimentConstants, models.Model):
     def firefox_max_version_integer(self):
         if self.firefox_max_version:
             return int(
-                ExperimentConstants.VERSION_REGEX.match(
-                    self.firefox_max_version
-                ).group(0)
+                ExperimentConstants.VERSION_REGEX.match(self.firefox_max_version).group(0)
             )
 
     @property
     def firefox_min_version_integer(self):
         return int(
-            ExperimentConstants.VERSION_REGEX.match(
-                self.firefox_min_version
-            ).group(0)
+            ExperimentConstants.VERSION_REGEX.match(self.firefox_min_version).group(0)
         )
 
     @property
     def versions_integer_list(self):
-        max = (
-            self.firefox_max_version_integer
-            or self.firefox_min_version_integer
-        )
+        max = self.firefox_max_version_integer or self.firefox_min_version_integer
         return list(range(self.firefox_min_version_integer, max + 1))
 
     @property
@@ -880,12 +802,8 @@ class ExperimentVariant(models.Model):
         related_name="variants",
         on_delete=models.CASCADE,
     )
-    name: models.CharField = models.CharField(
-        max_length=150, blank=False, null=False
-    )
-    slug: models.SlugField = models.SlugField(
-        max_length=255, blank=False, null=False
-    )
+    name: models.CharField = models.CharField(max_length=150, blank=False, null=False)
+    slug: models.SlugField = models.SlugField(max_length=255, blank=False, null=False)
     is_control: models.BooleanField = models.BooleanField(default=False)
     description: models.TextField = models.TextField(default="")
     ratio: models.PositiveIntegerField = models.PositiveIntegerField(default=1)
@@ -941,16 +859,12 @@ class ExperimentChangeLog(models.Model):
             Experiment.STATUS_REVIEW: STATUS_SHIP_REVIEW,
             Experiment.STATUS_ACCEPTED: STATUS_SHIP_ACCEPTED,
         },
-        Experiment.STATUS_ACCEPTED: {
-            Experiment.STATUS_LIVE: STATUS_ACCEPTED_LIVE
-        },
+        Experiment.STATUS_ACCEPTED: {Experiment.STATUS_LIVE: STATUS_ACCEPTED_LIVE},
         Experiment.STATUS_LIVE: {
             Experiment.STATUS_COMPLETE: STATUS_LIVE_COMPLETE,
             Experiment.STATUS_LIVE: STATUS_ADDED_RESULTS,
         },
-        Experiment.STATUS_COMPLETE: {
-            Experiment.STATUS_COMPLETE: STATUS_ADDED_RESULTS
-        },
+        Experiment.STATUS_COMPLETE: {Experiment.STATUS_COMPLETE: STATUS_ADDED_RESULTS},
     }
 
     def current_datetime():  # type: ignore
@@ -963,23 +877,15 @@ class ExperimentChangeLog(models.Model):
         related_name="changes",
         on_delete=models.CASCADE,
     )
-    changed_on: models.DateTimeField = models.DateTimeField(
-        default=current_datetime
-    )
+    changed_on: models.DateTimeField = models.DateTimeField(default=current_datetime)
     changed_by: models.ForeignKey = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE
     )
     old_status: models.CharField = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=Experiment.STATUS_CHOICES,
+        max_length=255, blank=True, null=True, choices=Experiment.STATUS_CHOICES
     )
     new_status: models.CharField = models.CharField(
-        max_length=255,
-        blank=False,
-        null=False,
-        choices=Experiment.STATUS_CHOICES,
+        max_length=255, blank=False, null=False, choices=Experiment.STATUS_CHOICES
     )
     message: models.TextField = models.TextField(blank=True, null=True)
 
@@ -999,10 +905,7 @@ class ExperimentChangeLog(models.Model):
                 else:
                     old_val = self.old_values[key]
                     new_val = self.new_values[key]
-                changed_values[key] = {
-                    "old_value": old_val,
-                    "new_value": new_val,
-                }
+                changed_values[key] = {"old_value": old_val, "new_value": new_val}
             return changed_values
 
     def _get_code(self, list_of_obj):
@@ -1021,9 +924,7 @@ class ExperimentChangeLog(models.Model):
 
     @property
     def pretty_status(self):
-        return self.PRETTY_STATUS_LABELS.get(self.old_status, {}).get(
-            self.new_status, ""
-        )
+        return self.PRETTY_STATUS_LABELS.get(self.old_status, {}).get(self.new_status, "")
 
 
 class ExperimentCommentManager(models.Manager):
@@ -1043,10 +944,7 @@ class ExperimentEmail(ExperimentConstants, models.Model):
         Experiment, related_name="emails", on_delete=models.CASCADE
     )
     type: models.CharField = models.CharField(
-        max_length=255,
-        blank=False,
-        null=False,
-        choices=Experiment.EMAIL_CHOICES,
+        max_length=255, blank=False, null=False, choices=Experiment.EMAIL_CHOICES
     )
     sent_on: models.DateTimeField = models.DateTimeField(auto_now_add=True)
 

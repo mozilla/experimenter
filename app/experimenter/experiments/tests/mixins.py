@@ -12,9 +12,7 @@ class MockNormandyMixin(object):
         mock_normandy_requests_get_patcher = mock.patch(
             "experimenter.experiments.normandy.requests.get"
         )
-        self.mock_normandy_requests_get = (
-            mock_normandy_requests_get_patcher.start()
-        )
+        self.mock_normandy_requests_get = mock_normandy_requests_get_patcher.start()
         self.addCleanup(mock_normandy_requests_get_patcher.stop)
         self.mock_normandy_requests_get.return_value = (
             self.buildMockSuccessEnabledResponse()
@@ -96,33 +94,23 @@ class MockBugzillaMixin(object):
         mock_bugzilla_requests_post_patcher = mock.patch(
             "experimenter.experiments.bugzilla.requests.post"
         )
-        self.mock_bugzilla_requests_post = (
-            mock_bugzilla_requests_post_patcher.start()
-        )
+        self.mock_bugzilla_requests_post = mock_bugzilla_requests_post_patcher.start()
         self.addCleanup(mock_bugzilla_requests_post_patcher.stop)
         self.bugzilla_id = "12345"
-        self.mock_bugzilla_requests_post.return_value = (
-            self.buildMockSuccessResponse()
-        )
+        self.mock_bugzilla_requests_post.return_value = self.buildMockSuccessResponse()
         mock_bugzilla_requests_put_patcher = mock.patch(
             "experimenter.experiments.bugzilla.requests.put"
         )
 
-        self.mock_bugzilla_requests_put = (
-            mock_bugzilla_requests_put_patcher.start()
-        )
+        self.mock_bugzilla_requests_put = mock_bugzilla_requests_put_patcher.start()
         self.addCleanup(mock_bugzilla_requests_put_patcher.stop)
-        self.mock_bugzilla_requests_put.return_value = (
-            self.buildMockSuccessResponse()
-        )
+        self.mock_bugzilla_requests_put.return_value = self.buildMockSuccessResponse()
 
         mock_bugzilla_requests_get_patcher = mock.patch(
             "experimenter.experiments.bugzilla.requests.get"
         )
 
-        self.mock_bugzilla_requests_get = (
-            mock_bugzilla_requests_get_patcher.start()
-        )
+        self.mock_bugzilla_requests_get = mock_bugzilla_requests_get_patcher.start()
         self.addCleanup(mock_bugzilla_requests_get_patcher.stop)
         responses = [
             self.buildMockSuccessUserResponse(),
