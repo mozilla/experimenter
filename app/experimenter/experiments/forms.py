@@ -447,7 +447,7 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.CLIENT_MATCHING_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
     )
-    locales = CustomModelMultipleChoiceField(
+    locales = CustomModelMultipleChoiceField(  # type: ignore
         label="Locales",
         required=False,
         all_label="All locales",
@@ -455,7 +455,7 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
         queryset=Locale.objects.all(),
         to_field_name="code",
     )
-    countries = CustomModelMultipleChoiceField(
+    countries = CustomModelMultipleChoiceField(  # type: ignore
         label="Countries",
         required=False,
         all_label="All countries",

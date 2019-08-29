@@ -5,7 +5,7 @@ from collections import defaultdict
 from urllib.parse import urljoin
 import copy
 
-from typing import Callable, Optional, List, Dict, Any, Tuple, Set
+from typing import cast, Callable, Optional, List, Dict, Any, Tuple, Set
 
 from django.conf import settings
 from django.utils.text import slugify
@@ -311,26 +311,29 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def bugzilla_url(self) -> Optional[str]:
         if self.bugzilla_id:
-            return settings.BUGZILLA_DETAIL_URL.format(id=self.bugzilla_id)
+            return str(settings.BUGZILLA_DETAIL_URL.format(id=self.bugzilla_id))
         return None
 
     @property
     def monitoring_dashboard_url(self) -> Optional[str]:
 
-        def to_timestamp(date):
+        def to_timestamp(date: datetime.date) -> int:
             return int(time.mktime(date.timetuple())) * 1000
 
         start_date = ""
         end_date = ""
 
         if self.is_begun and self.normandy_slug and self.start_date:
-            start_date = to_timestamp(self.start_date - datetime.timedelta(days=1))
+            start_date = str(to_timestamp(self.start_date - datetime.timedelta(days=1)))
 
             if self.status == self.STATUS_COMPLETE and self.end_date:
-                end_date = to_timestamp(self.end_date + datetime.timedelta(days=2))
+                end_date = str(to_timestamp(self.end_date + datetime.timedelta(days=2)))
 
-            return settings.MONITORING_URL.format(
-                slug=self.normandy_slug, from_date=start_date, to_date=end_date
+            return cast(
+                str,
+                settings.MONITORING_URL.format(
+                    slug=self.normandy_slug, from_date=start_date, to_date=end_date
+                ),
             )
         return None
 
@@ -343,7 +346,7 @@ class Experiment(ExperimentConstants, models.Model):
                         "Experiment Name before it can be sent to Normandy"
                     )
                 )
-            return self.addon_experiment_id
+            return str(self.addon_experiment_id)
 
         error_msg = "The {field} must be set before a Normandy slug can be generated"
 
@@ -379,7 +382,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def has_normandy_info(self) -> bool:
-        return self.normandy_slug or self.normandy_id
+        return bool(self.normandy_slug or self.normandy_id)
 
     @property
     def format_dc_normandy_urls(self) -> List[Dict[str, Any]]:
@@ -413,7 +416,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def delivery_console_experiment_import_url(self) -> str:
-        return settings.DELIVERY_CONSOLE_EXPERIMENT_IMPORT_URL.format(slug=self.slug)
+        return str(settings.DELIVERY_CONSOLE_EXPERIMENT_IMPORT_URL.format(slug=self.slug))
 
     @property
     def api_recipe_url(self) -> str:
@@ -433,7 +436,7 @@ class Experiment(ExperimentConstants, models.Model):
     def _transition_date(self, old_status, new_status) -> Optional[datetime.date]:
         for change in self.changes.all():
             if change.old_status == old_status and change.new_status == new_status:
-                return change.changed_on.date()
+                return cast(datetime.date, change.changed_on.date())
         return None
 
     @property
@@ -475,7 +478,7 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def observation_duration(self) -> int:
         if self.proposed_enrollment:
-            return self.proposed_duration - self.proposed_enrollment
+            return int(self.proposed_duration - self.proposed_enrollment)
         return 0
 
     def _format_date_string(self, start_date, end_date) -> str:
@@ -516,7 +519,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @cached_property
     def control(self) -> "ExperimentVariant":
-        return self.variants.get(is_control=True)
+        return cast(ExperimentVariant, self.variants.get(is_control=True))
 
     @property
     def grouped_changes(self) -> defaultdict:
@@ -542,11 +545,11 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def is_addon_experiment(self) -> bool:
-        return self.type == self.TYPE_ADDON
+        return bool(self.type == self.TYPE_ADDON)
 
     @property
     def is_pref_experiment(self) -> bool:
-        return self.type == self.TYPE_PREF
+        return bool(self.type == self.TYPE_PREF)
 
     @property
     def is_editable(self) -> bool:
@@ -566,11 +569,11 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_timeline(self) -> bool:
-        return self.proposed_start_date and self.proposed_duration
+        return bool(self.proposed_start_date and self.proposed_duration)
 
     @property
     def completed_population(self) -> bool:
-        return (
+        return bool(
             self.population_percent > 0
             and self.firefox_min_version != ""
             and self.firefox_channel != ""
@@ -578,7 +581,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_addon(self) -> bool:
-        return self.addon_experiment_id and self.addon_release_url
+        return bool(self.addon_experiment_id and self.addon_release_url)
 
     @property
     def completed_variants(self) -> bool:
@@ -586,14 +589,16 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_objectives(self) -> bool:
-        return (
+        return bool(
             self.objectives != self.OBJECTIVES_DEFAULT
             and self.analysis != self.ANALYSIS_DEFAULT
         )
 
     @property
     def completed_results(self) -> bool:
-        return self.results_url or self.results_initial or self.results_lessons_learned
+        return bool(
+            self.results_url or self.results_initial or self.results_lessons_learned
+        )
 
     @property
     def _risk_questions(self) -> Tuple:
@@ -620,7 +625,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_testing(self) -> bool:
-        return self.qa_status
+        return bool(self.qa_status)
 
     @property
     def _conditional_required_reviews_mapping(self) -> Dict[str, bool]:
@@ -693,7 +698,7 @@ class Experiment(ExperimentConstants, models.Model):
         if self.firefox_max_version:
             return f"{self.firefox_min_version} to {self.firefox_max_version}"
         else:
-            return self.firefox_min_version
+            return str(self.firefox_min_version)
 
     @property
     def firefox_max_version_integer(self) -> Optional[int]:
@@ -752,7 +757,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def is_enrollment_complete(self) -> bool:
-        return self.is_paused and self.status == self.STATUS_LIVE
+        return bool(self.is_paused and self.status == self.STATUS_LIVE)
 
     id: Optional[int]
 
@@ -837,7 +842,7 @@ class ExperimentVariant(models.Model):
         unique_together = (("slug", "experiment"),)
 
     def __str__(self) -> str:
-        return self.name
+        return str(self.name)
 
     @property
     def type(self) -> str:
@@ -922,7 +927,7 @@ class ExperimentChangeLog(models.Model):
 
     def __str__(self) -> str:
         if self.message:
-            return self.message
+            return str(self.message)
         else:
             return self.pretty_status
 
