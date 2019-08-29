@@ -2,8 +2,8 @@ from django.db import models
 
 
 class Locale(models.Model):
-    code = models.CharField(max_length=255, unique=True)
-    name = models.CharField(max_length=255)
+    code: models.CharField = models.CharField(max_length=255, unique=True)
+    name: models.CharField = models.CharField(max_length=255)
 
     class Meta:
         ordering = ("name",)
@@ -18,8 +18,8 @@ class Locale(models.Model):
 
 
 class Country(models.Model):
-    code = models.CharField(max_length=255, unique=True)
-    name = models.CharField(max_length=255)
+    code: models.CharField = models.CharField(max_length=255, unique=True)
+    name: models.CharField = models.CharField(max_length=255)
 
     class Meta:
         ordering = ("name",)

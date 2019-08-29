@@ -37,6 +37,9 @@ integration_test_ci: migrate load_locales_countries ssl
 lint: test_build
 	docker-compose -f docker-compose-test.yml run app flake8 .
 
+mypy: test_build
+	docker-compose -f docker-compose-test.yml run app mypy experimenter
+
 black_check: test_build
 	docker-compose -f docker-compose-test.yml run app black -l 79 --check .
 
@@ -49,7 +52,7 @@ code_format: black_fix
 check_migrations: test_build
 	docker-compose -f docker-compose-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- python manage.py makemigrations --check --dry-run --noinput"
 
-check: test_build check_migrations black_check lint test
+check: test_build check_migrations black_check lint mypy test
 	echo "Success"
 
 compose_build: build ssl

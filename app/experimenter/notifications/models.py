@@ -18,14 +18,14 @@ class NotificationManager(models.Manager):
 
 class Notification(models.Model):
 
-    user = models.ForeignKey(
+    user: models.ForeignKey = models.ForeignKey(
         get_user_model(),
         on_delete=models.CASCADE,
         related_name="notifications",
     )
-    created_on = models.DateTimeField(auto_now_add=True)
-    message = models.TextField()
-    read = models.BooleanField(default=False)
+    created_on: models.DateTimeField = models.DateTimeField(auto_now_add=True)
+    message: models.TextField = models.TextField()
+    read: models.BooleanField = models.BooleanField(default=False)
 
     objects = NotificationManager()
 

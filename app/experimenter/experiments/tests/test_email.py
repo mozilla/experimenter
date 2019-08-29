@@ -145,10 +145,7 @@ class TestIntentToShipEmail(TestCase):
         return countries
 
     def format_version_and_channel(self, experiment):
-        return (
-            f"{experiment.format_firefox_versions}"
-            f" {experiment.firefox_channel}"
-        )
+        return f"{experiment.format_firefox_versions}" f" {experiment.firefox_channel}"
 
 
 class TestStatusUpdateEmail(TestCase):

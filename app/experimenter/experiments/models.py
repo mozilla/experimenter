@@ -45,217 +45,271 @@ class ExperimentManager(models.Manager):
 
 
 class Experiment(ExperimentConstants, models.Model):
-    type = models.CharField(
+    type: models.CharField = models.CharField(
         max_length=255,
         default=ExperimentConstants.TYPE_PREF,
         choices=ExperimentConstants.TYPE_CHOICES,
     )
-    owner = models.ForeignKey(
+    owner: models.ForeignKey = models.ForeignKey(
         get_user_model(),
         blank=True,
         null=True,
         on_delete=models.CASCADE,
         related_name="owned_experiments",
     )
-    subscribers = models.ManyToManyField(
+    subscribers: models.ManyToManyField = models.ManyToManyField(
         get_user_model(), blank=True, related_name="subscribed_experiments"
     )
-    related_to = models.ManyToManyField(
+    related_to: models.ManyToManyField = models.ManyToManyField(
         "experiments.Experiment", blank=True, related_name="related_by"
     )
-    parent = models.ForeignKey(
+    parent: models.ForeignKey = models.ForeignKey(
         "experiments.Experiment", models.SET_NULL, blank=True, null=True
     )
-    status = models.CharField(
+    status: models.CharField = models.CharField(
         max_length=255,
         default=ExperimentConstants.STATUS_DRAFT,
         choices=ExperimentConstants.STATUS_CHOICES,
     )
-    archived = models.BooleanField(default=False)
-    name = models.CharField(
+    archived: models.BooleanField = models.BooleanField(default=False)
+    name: models.CharField = models.CharField(
         max_length=255, unique=True, blank=False, null=False
     )
-    slug = models.SlugField(
+    slug: models.SlugField = models.SlugField(
         max_length=255, unique=True, blank=False, null=False
     )
-    short_description = models.TextField(default="", blank=True, null=True)
-    related_work = models.TextField(default="", blank=True, null=True)
+    short_description: models.TextField = models.TextField(
+        default="", blank=True, null=True
+    )
+    related_work: models.TextField = models.TextField(
+        default="", blank=True, null=True
+    )
 
-    proposed_start_date = models.DateField(blank=True, null=True)
-    proposed_duration = models.PositiveIntegerField(
+    proposed_start_date: models.DateField = models.DateField(
+        blank=True, null=True
+    )
+    proposed_duration: models.PositiveIntegerField = models.PositiveIntegerField(
         blank=True,
         null=True,
         validators=[MaxValueValidator(ExperimentConstants.MAX_DURATION)],
     )
-    proposed_enrollment = models.PositiveIntegerField(
+    proposed_enrollment: models.PositiveIntegerField = models.PositiveIntegerField(
         blank=True,
         null=True,
         validators=[MaxValueValidator(ExperimentConstants.MAX_DURATION)],
     )
 
-    addon_experiment_id = models.CharField(
+    addon_experiment_id: models.CharField = models.CharField(
         max_length=255, unique=True, blank=True, null=True
     )
-    addon_release_url = models.URLField(max_length=400, blank=True, null=True)
+    addon_release_url: models.URLField = models.URLField(
+        max_length=400, blank=True, null=True
+    )
 
-    pref_key = models.CharField(max_length=255, blank=True, null=True)
-    pref_type = models.CharField(
+    pref_key: models.CharField = models.CharField(
+        max_length=255, blank=True, null=True
+    )
+    pref_type: models.CharField = models.CharField(
         max_length=255,
         choices=ExperimentConstants.PREF_TYPE_CHOICES,
         blank=True,
         null=True,
     )
-    pref_branch = models.CharField(
+    pref_branch: models.CharField = models.CharField(
         max_length=255,
         choices=ExperimentConstants.PREF_BRANCH_CHOICES,
         blank=True,
         null=True,
     )
 
-    public_name = models.CharField(max_length=255, blank=True, null=True)
+    public_name: models.CharField = models.CharField(
+        max_length=255, blank=True, null=True
+    )
 
-    public_description = models.TextField(blank=True, null=True)
-    population_percent = models.DecimalField(
+    public_description: models.TextField = models.TextField(
+        blank=True, null=True
+    )
+    population_percent: models.DecimalField = models.DecimalField(
         max_digits=7, decimal_places=4, default=0.0
     )
-    firefox_min_version = models.CharField(
+    firefox_min_version: models.CharField = models.CharField(
         max_length=255, choices=ExperimentConstants.VERSION_CHOICES
     )
-    firefox_max_version = models.CharField(
+    firefox_max_version: models.CharField = models.CharField(
         max_length=255,
         choices=ExperimentConstants.VERSION_CHOICES,
         blank=True,
         null=True,
     )
-    firefox_channel = models.CharField(
+    firefox_channel: models.CharField = models.CharField(
         max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES
     )
-    client_matching = models.TextField(
+    client_matching: models.TextField = models.TextField(
         default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True
     )
-    locales = models.ManyToManyField(Locale, blank=True)
-    countries = models.ManyToManyField(Country, blank=True)
-    platform = models.CharField(
+    locales: models.ManyToManyField = models.ManyToManyField(
+        Locale, blank=True
+    )
+    countries: models.ManyToManyField = models.ManyToManyField(
+        Country, blank=True
+    )
+    platform: models.CharField = models.CharField(
         max_length=255,
         choices=ExperimentConstants.PLATFORM_CHOICES,
         default=ExperimentConstants.PLATFORM_ALL,
     )
-    objectives = models.TextField(
+    objectives: models.TextField = models.TextField(
         default=ExperimentConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
-    analysis = models.TextField(
+    analysis: models.TextField = models.TextField(
         default=ExperimentConstants.ANALYSIS_DEFAULT, blank=True, null=True
     )
-    analysis_owner = models.CharField(max_length=255, blank=True, null=True)
+    analysis_owner: models.CharField = models.CharField(
+        max_length=255, blank=True, null=True
+    )
 
-    survey_required = models.BooleanField(default=False)
-    survey_urls = models.TextField(blank=True, null=True)
-    survey_instructions = models.TextField(blank=True, null=True)
+    survey_required: models.BooleanField = models.BooleanField(default=False)
+    survey_urls: models.TextField = models.TextField(blank=True, null=True)
+    survey_instructions: models.TextField = models.TextField(
+        blank=True, null=True
+    )
 
-    engineering_owner = models.CharField(max_length=255, blank=True, null=True)
+    engineering_owner: models.CharField = models.CharField(
+        max_length=255, blank=True, null=True
+    )
 
-    bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
-    normandy_slug = models.CharField(max_length=255, blank=True, null=True)
-    normandy_id = models.PositiveIntegerField(blank=True, null=True)
-    other_normandy_ids = ArrayField(
+    bugzilla_id: models.CharField = models.CharField(
+        max_length=255, blank=True, null=True
+    )
+    normandy_slug: models.CharField = models.CharField(
+        max_length=255, blank=True, null=True
+    )
+    normandy_id: models.PositiveIntegerField = models.PositiveIntegerField(
+        blank=True, null=True
+    )
+    other_normandy_ids: ArrayField = ArrayField(
         models.IntegerField(), blank=True, null=True
     )
 
-    data_science_bugzilla_url = models.URLField(blank=True, null=True)
-    feature_bugzilla_url = models.URLField(blank=True, null=True)
+    data_science_bugzilla_url: models.URLField = models.URLField(
+        blank=True, null=True
+    )
+    feature_bugzilla_url: models.URLField = models.URLField(
+        blank=True, null=True
+    )
 
     # Risk fields
-    risk_internal_only = models.NullBooleanField(
+    risk_internal_only: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    risk_partner_related = models.NullBooleanField(
+    risk_partner_related: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    risk_brand = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_fast_shipped = models.NullBooleanField(
+    risk_brand: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    risk_confidential = models.NullBooleanField(
+    risk_fast_shipped: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    risk_release_population = models.NullBooleanField(
+    risk_confidential: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    risk_revenue = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_data_category = models.NullBooleanField(
+    risk_release_population: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    risk_external_team_impact = models.NullBooleanField(
+    risk_revenue: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    risk_telemetry_data = models.NullBooleanField(
+    risk_data_category: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    risk_ux = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_security = models.NullBooleanField(
+    risk_external_team_impact: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    risk_revision = models.NullBooleanField(
+    risk_telemetry_data: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    risk_technical = models.NullBooleanField(
+    risk_ux: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    risk_technical_description = models.TextField(blank=True, null=True)
+    risk_security: models.NullBooleanField = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    risk_revision: models.NullBooleanField = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    risk_technical: models.NullBooleanField = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    risk_technical_description: models.TextField = models.TextField(
+        blank=True, null=True
+    )
 
-    risks = models.TextField(blank=True, null=True)
+    risks: models.TextField = models.TextField(blank=True, null=True)
 
     # Testing
-    testing = models.TextField(blank=True, null=True)
-    test_builds = models.TextField(blank=True, null=True)
-    qa_status = models.TextField(blank=True, null=True)
+    testing: models.TextField = models.TextField(blank=True, null=True)
+    test_builds: models.TextField = models.TextField(blank=True, null=True)
+    qa_status: models.TextField = models.TextField(blank=True, null=True)
 
     # Review Fields (sign-offs)
     # Required
-    review_science = models.NullBooleanField(
+    review_science: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    review_engineering = models.NullBooleanField(
+    review_engineering: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    review_qa_requested = models.NullBooleanField(
+    review_qa_requested: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    review_intent_to_ship = models.NullBooleanField(
+    review_intent_to_ship: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    review_bugzilla = models.NullBooleanField(
+    review_bugzilla: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    review_qa = models.NullBooleanField(default=None, blank=True, null=True)
-    review_relman = models.NullBooleanField(
+    review_qa: models.NullBooleanField = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    review_relman: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
 
     # Optional
-    review_advisory = models.NullBooleanField(
+    review_advisory: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    review_legal = models.NullBooleanField(default=None, blank=True, null=True)
-    review_ux = models.NullBooleanField(default=None, blank=True, null=True)
-    review_security = models.NullBooleanField(
+    review_legal: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    review_vp = models.NullBooleanField(default=None, blank=True, null=True)
-    review_data_steward = models.NullBooleanField(
+    review_ux: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
-    review_comms = models.NullBooleanField(default=None, blank=True, null=True)
-    review_impacted_teams = models.NullBooleanField(
+    review_security: models.NullBooleanField = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    review_vp: models.NullBooleanField = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    review_data_steward: models.NullBooleanField = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    review_comms: models.NullBooleanField = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    review_impacted_teams: models.NullBooleanField = models.NullBooleanField(
         default=None, blank=True, null=True
     )
 
-    is_paused = models.BooleanField(default=False)
+    is_paused: models.BooleanField = models.BooleanField(default=False)
 
     # results fields
-    results_url = models.URLField(blank=True, null=True)
-    results_initial = models.TextField(blank=True, null=True)
-    results_lessons_learned = models.TextField(blank=True, null=True)
+    results_url: models.URLField = models.URLField(blank=True, null=True)
+    results_initial: models.TextField = models.TextField(blank=True, null=True)
+    results_lessons_learned: models.TextField = models.TextField(
+        blank=True, null=True
+    )
 
     objects = ExperimentManager()
 
@@ -819,19 +873,23 @@ class Experiment(ExperimentConstants, models.Model):
 
 
 class ExperimentVariant(models.Model):
-    experiment = models.ForeignKey(
+    experiment: models.ForeignKey = models.ForeignKey(
         Experiment,
         blank=False,
         null=False,
         related_name="variants",
         on_delete=models.CASCADE,
     )
-    name = models.CharField(max_length=150, blank=False, null=False)
-    slug = models.SlugField(max_length=255, blank=False, null=False)
-    is_control = models.BooleanField(default=False)
-    description = models.TextField(default="")
-    ratio = models.PositiveIntegerField(default=1)
-    value = models.TextField(blank=False, null=True)
+    name: models.CharField = models.CharField(
+        max_length=150, blank=False, null=False
+    )
+    slug: models.SlugField = models.SlugField(
+        max_length=255, blank=False, null=False
+    )
+    is_control: models.BooleanField = models.BooleanField(default=False)
+    description: models.TextField = models.TextField(default="")
+    ratio: models.PositiveIntegerField = models.PositiveIntegerField(default=1)
+    value: models.TextField = models.TextField(blank=False, null=True)
 
     class Meta:
         verbose_name = "Experiment Variant"
@@ -895,31 +953,35 @@ class ExperimentChangeLog(models.Model):
         },
     }
 
-    def current_datetime():
+    def current_datetime():  # type: ignore
         return timezone.now()
 
-    experiment = models.ForeignKey(
+    experiment: models.ForeignKey = models.ForeignKey(
         Experiment,
         blank=False,
         null=False,
         related_name="changes",
         on_delete=models.CASCADE,
     )
-    changed_on = models.DateTimeField(default=current_datetime)
-    changed_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    old_status = models.CharField(
+    changed_on: models.DateTimeField = models.DateTimeField(
+        default=current_datetime
+    )
+    changed_by: models.ForeignKey = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE
+    )
+    old_status: models.CharField = models.CharField(
         max_length=255,
         blank=True,
         null=True,
         choices=Experiment.STATUS_CHOICES,
     )
-    new_status = models.CharField(
+    new_status: models.CharField = models.CharField(
         max_length=255,
         blank=False,
         null=False,
         choices=Experiment.STATUS_CHOICES,
     )
-    message = models.TextField(blank=True, null=True)
+    message: models.TextField = models.TextField(blank=True, null=True)
 
     old_values = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
     new_values = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
@@ -977,28 +1039,30 @@ class ExperimentCommentManager(models.Manager):
 
 
 class ExperimentEmail(ExperimentConstants, models.Model):
-    experiment = models.ForeignKey(
+    experiment: models.ForeignKey = models.ForeignKey(
         Experiment, related_name="emails", on_delete=models.CASCADE
     )
-    type = models.CharField(
+    type: models.CharField = models.CharField(
         max_length=255,
         blank=False,
         null=False,
         choices=Experiment.EMAIL_CHOICES,
     )
-    sent_on = models.DateTimeField(auto_now_add=True)
+    sent_on: models.DateTimeField = models.DateTimeField(auto_now_add=True)
 
 
 class ExperimentComment(ExperimentConstants, models.Model):
-    experiment = models.ForeignKey(
+    experiment: models.ForeignKey = models.ForeignKey(
         Experiment, related_name="comments", on_delete=models.CASCADE
     )
-    created_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    created_on = models.DateTimeField(auto_now_add=True)
-    section = models.CharField(
+    created_by: models.ForeignKey = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE
+    )
+    created_on: models.DateTimeField = models.DateTimeField(auto_now_add=True)
+    section: models.CharField = models.CharField(
         max_length=255, choices=ExperimentConstants.SECTION_CHOICES
     )
-    text = models.TextField()
+    text: models.TextField = models.TextField()
 
     objects = ExperimentCommentManager()
 

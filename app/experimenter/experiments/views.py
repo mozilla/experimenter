@@ -87,10 +87,7 @@ class ExperimentFiltersetForm(forms.ModelForm):
         date_before = self.data.get("date_range_before")
 
         if date_after and date_before:
-            return (
-                f"{experiment_date_field} between "
-                f"{date_after} and {date_before}"
-            )
+            return f"{experiment_date_field} between " f"{date_after} and {date_before}"
         elif date_after and date_before == "":
             return f"{experiment_date_field} after {date_after}"
         elif date_after == "" and date_before:
@@ -405,6 +402,7 @@ class ExperimentFormMixin(object):
 
 class ExperimentCreateView(ExperimentFormMixin, CreateView):
     form_class = ExperimentOverviewForm
+    model = Experiment
     next_view_name = "experiments-variants-update"
     template_name = "experiments/edit_overview.html"
 
@@ -416,11 +414,13 @@ class ExperimentCreateView(ExperimentFormMixin, CreateView):
 
 class ExperimentOverviewUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentOverviewForm
+    model = Experiment
     next_view_name = "experiments-variants-update"
     template_name = "experiments/edit_overview.html"
 
 
 class ExperimentVariantsUpdateView(ExperimentFormMixin, UpdateView):
+    model = Experiment
     next_view_name = "experiments-objectives-update"
     template_name = "experiments/edit_variants.html"
 
@@ -433,18 +433,21 @@ class ExperimentVariantsUpdateView(ExperimentFormMixin, UpdateView):
 
 class ExperimentObjectivesUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentObjectivesForm
+    model = Experiment
     next_view_name = "experiments-risks-update"
     template_name = "experiments/edit_objectives.html"
 
 
 class ExperimentRisksUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentRisksForm
+    model = Experiment
     next_view_name = "experiments-detail"
     template_name = "experiments/edit_risks.html"
 
 
 class ExperimentResultsUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentResultsForm
+    model = Experiment
     next_view_name = "experiments-detail"
     template_name = "experiments/edit_results.html"
 
@@ -530,6 +533,7 @@ class ExperimentNormandyUpdateView(ExperimentFormMixin, UpdateView):
 
 class ExperimentCommentCreateView(ExperimentFormMixin, CreateView):
     form_class = ExperimentCommentForm
+    model = Experiment
 
     def form_valid(self, form):
         comment = form.save()

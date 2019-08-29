@@ -84,3 +84,4 @@ app/experimenter/static/assets/
 .testmondata
 .tmontmp
 app/coverage_html_report/
+.mypy_cache

@@ -4,6 +4,7 @@ import json
 import random
 
 import factory
+from typing import cast, Sequence
 from django.conf import settings
 from django.utils.text import slugify
 from django.utils import timezone
@@ -277,7 +278,10 @@ class ExperimentChangeLogFactory(factory.django.DjangoModelFactory):
     )
     new_status = factory.LazyAttribute(
         lambda o: random.choice(
-            Experiment.STATUS_TRANSITIONS[o.old_status] or [o.old_status]
+            cast(
+                Sequence,
+                Experiment.STATUS_TRANSITIONS[o.old_status] or [o.old_status],
+            )
         )
     )
 
