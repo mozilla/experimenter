@@ -13,7 +13,7 @@ def capabilities(capabilities):
 @pytest.fixture
 def firefox_options(firefox_options):
     """Set Firefox Options."""
-    # firefox_options.headless = True
+    firefox_options.headless = True
     return firefox_options
 
 
