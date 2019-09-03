@@ -1,6 +1,7 @@
 import requests
 import logging
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 
 class NormandyError(Exception):
@@ -41,3 +42,19 @@ def get_recipe(recipe_id):
     recipe_url = settings.NORMANDY_API_RECIPE_URL.format(id=recipe_id)
     recipe_data = make_normandy_call(recipe_url)
     return recipe_data["approved_revision"]
+
+
+def get_recipe_state_enabler(recipe_data):
+    # set email default if no email/creator is found in normandy
+    enabler_email = settings.NORMANDY_DEFAULT_CHANGELOG_USER
+
+    enabled_states = recipe_data.get("enabled_states", [])
+    if len(enabled_states) > 0:
+        creator = enabled_states[0].get("creator")
+        if creator:
+            enabler_email = creator.get("email")
+
+    enabler, _ = get_user_model().objects.get_or_create(
+        email=enabler_email, username=enabler_email
+    )
+    return enabler
