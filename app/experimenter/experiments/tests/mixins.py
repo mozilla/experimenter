@@ -201,14 +201,6 @@ class MockTasksMixin(object):
         )
         self.addCleanup(mock_tasks_update_experiment_bug_patcher.stop)
 
-        mock_tasks_update_experiment_info_patcher = mock.patch(
-            "experimenter.experiments.tasks.update_experiment_info"
-        )
-        self.mock_tasks_update_experiement_status = (
-            mock_tasks_update_experiment_info_patcher.start()
-        )
-        self.addCleanup(mock_tasks_update_experiment_info_patcher.stop)
-
         mock_tasks_update_bug_resolution_patcher = mock.patch(
             "experimenter.experiments.tasks.update_bug_resolution_task"
         )
@@ -216,3 +208,29 @@ class MockTasksMixin(object):
             mock_tasks_update_bug_resolution_patcher.start()
         )
         self.addCleanup(mock_tasks_update_bug_resolution_patcher.stop)
+
+        mock_tasks_add_start_date_comment_patcher = mock.patch(
+            "experimenter.experiments.tasks.add_start_date_comment_task"
+        )
+        self.mock_tasks_add_start_date_comment = (
+            mock_tasks_add_start_date_comment_patcher.start()
+        )
+
+        self.addCleanup(mock_tasks_add_start_date_comment_patcher.stop)
+
+        mock_tasks_comp_experiment_update_res_patcher = mock.patch(
+            "experimenter.experiments.tasks.comp_experiment_update_res_task"
+        )
+        self.mock_tasks_comp_experiment_update_res = (
+            mock_tasks_comp_experiment_update_res_patcher.start()
+        )
+
+        self.addCleanup(mock_tasks_comp_experiment_update_res_patcher.stop)
+
+        mock_tasks_set_is_paused_value_patcher = mock.patch(
+            "experimenter.experiments.tasks.set_is_paused_value_task"
+        )
+        self.mock_tasks_set_is_paused_value = (
+            mock_tasks_set_is_paused_value_patcher.start()
+        )
+        self.addCleanup(mock_tasks_set_is_paused_value_patcher.stop)
