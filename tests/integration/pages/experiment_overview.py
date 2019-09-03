@@ -17,7 +17,7 @@ class ExperimentOverview(Base):
         By.CSS_SELECTOR,
         "#id_data_science_bugzilla_url",
     )
-    _save_and_continue_btn_locator = (By.CSS_SELECTOR, ".btn:nth-child(2)")
+    _save_and_continue_btn_locator = (By.CSS_SELECTOR, ".btn-primary:nth-child(2)")
 
     def wait_for_page_to_load(self):
         self.wait.until(
@@ -48,7 +48,7 @@ class ExperimentOverview(Base):
         element.send_keys(f"{text}{random_chars}")
         return
 
-    def save_and_continue__btn(self):
+    def save_and_continue_btn(self):
         self.find_element(*self._save_and_continue_btn_locator).click()
         from pages.experiment_population import PopulationPage
 
