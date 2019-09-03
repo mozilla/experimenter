@@ -257,8 +257,6 @@ class TestExperimentSerializer(TestCase):
         pref_type = PrefTypeField().to_representation(experiment.pref_type)
         serializer = ExperimentSerializer(experiment)
         expected_data = {
-            "analysis": experiment.analysis,
-            "analysis_owner": experiment.analysis_owner,
             "client_matching": experiment.client_matching,
             "platform": experiment.platform,
             "end_date": JSTimestampField().to_representation(
@@ -269,7 +267,6 @@ class TestExperimentSerializer(TestCase):
             "firefox_min_version": experiment.firefox_min_version,
             "firefox_max_version": experiment.firefox_max_version,
             "name": experiment.name,
-            "objectives": experiment.objectives,
             "population": experiment.population,
             "population_percent": "{0:.4f}".format(
                 experiment.population_percent
@@ -284,7 +281,8 @@ class TestExperimentSerializer(TestCase):
             ),
             "proposed_enrollment": experiment.proposed_enrollment,
             "proposed_duration": experiment.proposed_duration,
-            "short_description": experiment.short_description,
+            "public_name": experiment.public_name,
+            "public_description": experiment.public_description,
             "slug": experiment.slug,
             "start_date": JSTimestampField().to_representation(
                 experiment.start_date
