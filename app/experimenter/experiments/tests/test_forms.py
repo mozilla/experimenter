@@ -521,6 +521,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         super().setUp()
 
         bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
+        self.related_exp = ExperimentFactory.create()
 
         self.data = {
             "type": Experiment.TYPE_PREF,
@@ -529,6 +530,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
             "public_name": "A new public experiment!",
+            "related_to": [self.related_exp],
             "public_description": "Let us learn new public things",
             "data_science_bugzilla_url": bug_url,
             "feature_bugzilla_url": bug_url,
@@ -580,6 +582,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertEqual(
             experiment.short_description, self.data["short_description"]
         )
+        self.assertTrue(self.related_exp in experiment.related_to.all())
         self.assertEqual(
             experiment.proposed_start_date, self.data["proposed_start_date"]
         )
@@ -627,6 +630,13 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
 
     def test_empty_slug_raises_error(self):
         self.data["name"] = "#"
+
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+
+    def test_unique_name_with_same_slug_raises_error(self):
+        ExperimentFactory.create(slug="slug")
+        self.data["name"] = "slug#"
 
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())

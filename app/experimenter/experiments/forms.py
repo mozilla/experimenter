@@ -2,15 +2,16 @@ import json
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.forms import BaseInlineFormSet
 from django.forms import inlineformset_factory
 from django.forms.models import ModelChoiceIterator
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.utils.html import strip_tags
+from django.utils.safestring import mark_safe
+from django.utils.text import slugify
 
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
@@ -24,10 +25,34 @@ from experimenter.experiments.models import (
 )
 from experimenter.experiments.serializers import ChangeLogSerializer
 from experimenter.notifications.models import Notification
-from experimenter.projects.forms import (
-    NameSlugFormMixin,
-    UniqueNameSlugFormMixin,
-)
+
+
+class NameSlugFormMixin(object):
+    """
+    Automatically generate a slug from the name field
+    """
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        slug = slugify(name)
+
+        if not slug:
+            raise forms.ValidationError(
+                "This name must include non-punctuation characters."
+            )
+
+        return name
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if self.instance.slug:
+            del cleaned_data["slug"]
+        else:
+            name = cleaned_data.get("name")
+            cleaned_data["slug"] = slugify(name)
+
+        return cleaned_data
 
 
 class JSONField(forms.CharField):
@@ -128,7 +153,7 @@ class ChangeLogMixin(object):
 
 
 class ExperimentOverviewForm(
-    UniqueNameSlugFormMixin, ChangeLogMixin, forms.ModelForm
+    NameSlugFormMixin, ChangeLogMixin, forms.ModelForm
 ):
 
     type = forms.ChoiceField(
@@ -184,6 +209,12 @@ class ExperimentOverviewForm(
         help_text=Experiment.RELATED_WORK_HELP_TEXT,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
+    related_to = forms.ModelMultipleChoiceField(
+        label="Related Experiments",
+        required=False,
+        help_text="Is this related to a previously run experiment?",
+        queryset=Experiment.objects.all(),
+    )
     proposed_start_date = forms.DateField(
         required=False,
         label="Proposed Start Date",
@@ -221,10 +252,26 @@ class ExperimentOverviewForm(
             "data_science_bugzilla_url",
             "feature_bugzilla_url",
             "related_work",
+            "related_to",
             "proposed_start_date",
             "proposed_duration",
             "proposed_enrollment",
         ]
+
+    related_to.widget.attrs.update({"data-live-search": "true"})
+
+    def clean_name(self):
+        name = super().clean_name()
+        slug = slugify(name)
+
+        if (
+            self.instance.pk is None
+            and slug
+            and self.Meta.model.objects.filter(slug=slug).exists()
+        ):
+            raise forms.ValidationError("This name is already in use.")
+
+        return name
 
     def clean_proposed_start_date(self):
         start_date = self.cleaned_data["proposed_start_date"]
