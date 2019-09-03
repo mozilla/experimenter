@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "experimenter.notifications",
     "experimenter.openidc",
     "experimenter.projects",
+    "experimenter.normandy",
 ]
 
 MIDDLEWARE = [

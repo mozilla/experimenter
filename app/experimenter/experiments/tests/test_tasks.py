@@ -1,23 +1,24 @@
+from datetime import date
+
+from django.conf import settings
+from django.core import mail
+from django.test import TestCase
+from markus.testing import MetricsMock
+from requests.exceptions import RequestException
 import markus
 import mock
 
-from django.conf import settings
-from django.test import TestCase
-from datetime import date
-
-from markus.testing import MetricsMock
-from requests.exceptions import RequestException
-from django.core import mail
-from experimenter.experiments import bugzilla, tasks, normandy
+from experimenter import normandy
+from experimenter.experiments import bugzilla, tasks
 from experimenter.experiments.models import Experiment, ExperimentEmail
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.mixins import (
     MockBugzillaMixin,
-    MockNormandyMixin,
     MockRequestMixin,
     MockTasksMixin,
 )
+from experimenter.normandy.tests.mixins import MockNormandyMixin
 from experimenter.notifications.models import Notification
 
 

@@ -4,8 +4,9 @@ from django.db import IntegrityError, transaction
 from django.conf import settings
 from celery.utils.log import get_task_logger
 
+from experimenter import normandy
 from experimenter.celery import app
-from experimenter.experiments import bugzilla, normandy, email
+from experimenter.experiments import bugzilla, email
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment, ExperimentEmail
 from experimenter.notifications.models import Notification
