@@ -921,32 +921,10 @@ class ExperimentChangeLog(models.Model):
     )
     message = models.TextField(blank=True, null=True)
 
-    changed_vals = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
+    changed_values = JSONField(
+        encoder=DjangoJSONEncoder, blank=True, null=True
+    )
     objects = ExperimentChangeLogManager()
-
-    @property
-    def changed_values(self):
-        if self.changed_vals:
-            formatted_changed_vals = self.changed_vals.copy()
-            if "countries" in self.changed_vals:
-                country_changes = formatted_changed_vals["countries"]
-
-                old_codes = self._get_code(country_changes["old_value"])
-                new_codes = self._get_code(country_changes["new_value"])
-                country_changes["old_value"] = old_codes
-                country_changes["new_value"] = new_codes
-            if "locales" in self.changed_vals:
-                locale_changes = formatted_changed_vals["locales"]
-
-                old_codes = self._get_code(locale_changes["old_value"])
-                new_codes = self._get_code(locale_changes["new_value"])
-                locale_changes["old_value"] = old_codes
-                locale_changes["new_value"] = new_codes
-
-            return formatted_changed_vals
-
-    def _get_code(self, list_of_obj):
-        return ", ".join([obj["code"] for obj in list_of_obj])
 
     class Meta:
         verbose_name = "Experiment Change Log"

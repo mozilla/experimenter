@@ -271,10 +271,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             },
             "countries": {
                 "display_name": "Countries",
-                "new_value": [
-                    {"code": "CA", "name": "Canada"},
-                    {"code": "US", "name": "United States"},
-                ],
+                "new_value": ["CA", "US"],
                 "old_value": None,
             },
             "firefox_channel": {
@@ -289,10 +286,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             },
             "locales": {
                 "display_name": "Locales",
-                "new_value": [
-                    {"code": "da", "name": "Danish"},
-                    {"code": "de", "name": "German"},
-                ],
+                "new_value": ["da", "de"],
                 "old_value": None,
             },
             "platform": {
@@ -344,7 +338,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             },
         }
 
-        self.assertEqual(expected_data, latest_changes.changed_vals)
+        self.assertEqual(expected_data, latest_changes.changed_values)
 
     def test_changelog_values_with_prev_log(self):
 
@@ -352,15 +346,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         country2 = CountryFactory(code="US", name="United States")
         locale1 = LocaleFactory(code="da", name="Danish")
         locale2 = LocaleFactory(code="de", name="German")
-
-        countries = [
-            {"code": "CA", "name": "Canada"},
-            {"code": "US", "name": "United States"},
-        ]
-        locales = [
-            {"code": "da", "name": "Danish"},
-            {"code": "de", "name": "German"},
-        ]
 
         experiment = ExperimentFactory.create_with_variants(
             num_variants=0,
@@ -381,7 +366,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             experiment=experiment,
         )
 
-        changed_vals = {
+        changed_values = {
             "variants": {
                 "old_value": None,
                 "new_value": [
@@ -398,12 +383,12 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             },
             "countries": {
                 "old_value": None,
-                "new_value": countries,
+                "new_value": ["CA", "US"],
                 "display_name": "Countries",
             },
             "locales": {
                 "old_value": None,
-                "new_value": locales,
+                "new_value": ["da", "de"],
                 "display_name": "Locales",
             },
         }
@@ -413,7 +398,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             changed_by=self.request.user,
             old_status=Experiment.STATUS_ACCEPTED,
             new_status=Experiment.STATUS_DRAFT,
-            changed_vals=changed_vals,
+            changed_values=changed_values,
             message="",
         )
 
@@ -460,14 +445,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         expected_data = {
             "countries": {
                 "display_name": "Countries",
-                "new_value": [
-                    {"code": "CA", "name": "Canada"},
-                    {"code": "FR", "name": "France"},
-                ],
-                "old_value": [
-                    {"code": "CA", "name": "Canada"},
-                    {"code": "US", "name": "United States"},
-                ],
+                "new_value": ["CA", "FR"],
+                "old_value": ["CA", "US"],
             },
             "firefox_max_version": {
                 "display_name": "Firefox Max Version",
@@ -481,14 +460,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             },
             "locales": {
                 "display_name": "Locales",
-                "new_value": [
-                    {"code": "bg", "name": "Bulgarian"},
-                    {"code": "de", "name": "German"},
-                ],
-                "old_value": [
-                    {"code": "da", "name": "Danish"},
-                    {"code": "de", "name": "German"},
-                ],
+                "new_value": ["bg", "de"],
+                "old_value": ["da", "de"],
             },
             "variants": {
                 "display_name": "Branches",
@@ -531,7 +504,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             },
         }
 
-        self.assertEqual(expected_data, latest_changes.changed_vals)
+        self.assertEqual(expected_data, latest_changes.changed_values)
 
 
 @override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")

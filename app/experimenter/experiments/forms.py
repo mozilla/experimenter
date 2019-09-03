@@ -141,10 +141,21 @@ class ChangeLogMixin(object):
                 for field in self.changed_data:
                     old_val = None
                     new_val = None
+
                     if field in self.old_serialized_vals:
-                        old_val = self.old_serialized_vals[field]
+                        if field in ("countries", "locales"):
+                            old_field_values = self.old_serialized_vals[field]
+                            codes = [obj["code"] for obj in old_field_values]
+                            old_val = codes
+                        else:
+                            old_val = self.old_serialized_vals[field]
                     if field in self.new_serialized_vals:
-                        new_val = self.new_serialized_vals[field]
+                        if field in ("countries", "locales"):
+                            new_field_values = self.new_serialized_vals[field]
+                            codes = [obj["code"] for obj in new_field_values]
+                            new_val = codes
+                        else:
+                            new_val = self.new_serialized_vals[field]
 
                     display_name = self._get_display_name(field)
 
@@ -160,7 +171,12 @@ class ChangeLogMixin(object):
                     old_val = None
                     new_val = None
                     if field in self.new_serialized_vals:
-                        new_val = self.new_serialized_vals[field]
+                        if field in ("countries", "locales"):
+                            new_field_values = self.new_serialized_vals[field]
+                            codes = [obj["code"] for obj in new_field_values]
+                            new_val = codes
+                        else:
+                            new_val = self.new_serialized_vals[field]
                         display_name = self._get_display_name(field)
                         changed_values[field] = {
                             "old_value": old_val,
@@ -173,7 +189,7 @@ class ChangeLogMixin(object):
             changed_by=self.request.user,
             old_status=old_status,
             new_status=experiment.status,
-            changed_vals=changed_values,
+            changed_values=changed_values,
             message=self.get_changelog_message(),
         )
 
