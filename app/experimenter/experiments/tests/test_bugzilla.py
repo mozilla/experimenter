@@ -308,7 +308,7 @@ class TestAddExperimentComment(MockBugzillaMixin, TestCase):
             experiment.start_date, experiment.end_date
         )
 
-        comment_id = add_experiment_comment(experiment, comment)
+        comment_id = add_experiment_comment(experiment.bugzilla_id, comment)
 
         self.assertEqual(comment_id, self.bugzilla_id)
 
@@ -329,7 +329,7 @@ class TestAddExperimentComment(MockBugzillaMixin, TestCase):
             experiment.start_date, experiment.end_date
         )
 
-        comment_id = add_experiment_comment(experiment, comment)
+        comment_id = add_experiment_comment(experiment.bugzilla_id, comment)
 
         self.assertEqual(comment_id, self.bugzilla_id)
 
