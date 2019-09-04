@@ -26,6 +26,7 @@ class ExperimentChangeLogInlineAdmin(admin.TabularInline):
         "old_status",
         "new_status",
         "message",
+        "changed_values",
     )
 
 
