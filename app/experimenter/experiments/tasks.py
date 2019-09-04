@@ -215,7 +215,7 @@ def set_is_paused_value_task(experiment_id, recipe_data):
     experiment = Experiment.objects.get(id=experiment_id)
     if recipe_data:
         paused_val = is_paused(recipe_data)
-        if paused_val != experiment.is_paused:
+        if paused_val is not None and paused_val != experiment.is_paused:
             with transaction.atomic():
                 experiment.is_paused = paused_val
                 experiment.save()
