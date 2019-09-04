@@ -193,10 +193,10 @@ def set_bugzilla_id_value(bug_url):
         return [data_science_bug_id]
 
 
-def add_experiment_comment(experiment, comment):
+def add_experiment_comment(bugzilla_id, comment):
     comment_data = {"comment": comment}
     response_data = make_bugzilla_call(
-        settings.BUGZILLA_COMMENT_URL.format(id=experiment.bugzilla_id),
+        settings.BUGZILLA_COMMENT_URL.format(id=bugzilla_id),
         requests.post,
         comment_data,
     )

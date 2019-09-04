@@ -132,6 +132,79 @@ class TestCreateBugTask(MockRequestMixin, MockBugzillaMixin, TestCase):
         )
 
 
+class TestCommentDSBugTask(MockRequestMixin, MockBugzillaMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP
+        )
+        self.experiment.save()
+
+    def test_ds_bugs_successfully_updates_with_comment(self):
+        self.assertEqual(Notification.objects.count(), 0)
+
+        tasks.update_ds_bug_task(self.experiment.id)
+
+        self.mock_bugzilla_requests_post.assert_called()
+
+    def test_ds_bug_fails_updating_with_comment(self):
+        self.assertEqual(Notification.objects.count(), 0)
+        self.mock_bugzilla_requests_post.side_effect = RequestException()
+
+        with self.assertRaises(bugzilla.BugzillaError):
+            tasks.update_ds_bug_task(self.experiment.id)
+
+            self.mock_bugzilla_requests_post.assert_called()
+
+
+class TestAddExpBugDSBugTask(MockRequestMixin, MockBugzillaMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP
+        )
+        self.experiment.save()
+
+    def test_ds_bugs_successfully_updates_with_exp_bug_id(self):
+        self.assertEqual(Notification.objects.count(), 0)
+
+        tasks.update_exp_id_to_ds_bug_task(self.user.id, self.experiment.id)
+
+        self.mock_bugzilla_requests_put.assert_called()
+
+        self.assertEqual(Notification.objects.count(), 1)
+        notification = Notification.objects.get()
+        self.assertEqual(notification.user, self.user)
+        self.assertEqual(
+            notification.message,
+            tasks.NOTIFICATION_MESSAGE_DS_UPDATE.format(
+                bug_url=self.experiment.data_science_bugzilla_url
+            ),
+        )
+
+    def test_ds_bug_fails_updating_with_exp_bug_id(self):
+        self.assertEqual(Notification.objects.count(), 0)
+        self.mock_bugzilla_requests_put.side_effect = RequestException()
+
+        tasks.update_exp_id_to_ds_bug_task(self.user.id, self.experiment.id)
+
+        self.mock_bugzilla_requests_put.assert_called()
+
+        self.assertEqual(Notification.objects.count(), 1)
+        notification = Notification.objects.get()
+        self.assertEqual(notification.user, self.user)
+        self.assertEqual(
+            notification.message,
+            tasks.NOTIFICATION_MESSAGE_DS_UPDATE_ERROR.format(
+                bug_url=self.experiment.data_science_bugzilla_url
+            ),
+        )
+
+
 class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 
     def setUp(self):
@@ -281,6 +354,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
 
         self.mock_tasks_add_start_date_comment.delay.assert_called()
         self.mock_tasks_set_is_paused_value.delay.assert_called()
+        self.mock_tasks_update_bug_ds.delay.assert_called()
 
         self.mock_tasks_comp_experiment_update_res.delay.assert_not_called()
 
@@ -299,6 +373,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
         tasks.update_experiment_info()
 
         self.mock_tasks_comp_experiment_update_res.delay.assert_called()
+        self.mock_tasks_update_bug_ds.delay.assert_called()
 
         self.mock_tasks_set_is_paused_value.delay.assert_not_called()
         self.mock_tasks_add_start_date_comment.delay.assert_not_called()
@@ -315,6 +390,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
 
         self.mock_tasks_add_start_date_comment.delay.assert_not_called()
         self.mock_tasks_comp_experiment_update_res.delay.assert_not_called()
+        self.mock_tasks_update_bug_ds.delay.assert_not_called()
         self.mock_tasks_set_is_paused_value.delay.assert_called()
 
     def test_experiment_with_no_recipe_data(self):
