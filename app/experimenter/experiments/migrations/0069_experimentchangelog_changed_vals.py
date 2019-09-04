@@ -7,7 +7,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [("experiments", "0066_remove_experiment_project")]
+    dependencies = [("experiments", "0068_experiment_related_to")]
 
     def format_to_new_changelog(apps, schema_editor):
         ExperimentChangeLog = apps.get_model(
@@ -25,13 +25,13 @@ class Migration(migrations.Migration):
                         "old_value": old_val,
                         "new_value": new_val,
                     }
-            changeLog.changed_vals = changed_values
+            changeLog.changed_values = changed_values
             changeLog.save()
 
     operations = [
         migrations.AddField(
             model_name="experimentchangelog",
-            name="changed_vals",
+            name="changed_values",
             field=django.contrib.postgres.fields.jsonb.JSONField(
                 blank=True,
                 encoder=django.core.serializers.json.DjangoJSONEncoder,
@@ -39,4 +39,10 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RunPython(format_to_new_changelog),
+        migrations.RemoveField(
+            model_name="experimentchangelog", name="new_values"
+        ),
+        migrations.RemoveField(
+            model_name="experimentchangelog", name="old_values"
+        ),
     ]
