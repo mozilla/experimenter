@@ -40,13 +40,13 @@
       href="{% if object %}{% url "experiments-variants-update" slug=object.slug %}{% else %}#{% endif %}"
     >
       <h4>
-        3. Branches
+        3. Design
       </h4>
       <p>
         {% if object.completed_variants %}
           <span class="fas fa-check-circle"></span>
         {% endif %}
-        Define the branches of the experiment
+        Specify the design of the experiment
       </p>
     </a>
   </li>
