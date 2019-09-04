@@ -273,8 +273,8 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
 
     def test_update_accepted_experiment_task(self):
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
+        experiment = ExperimentFactory.create(
+            status=Experiment.STATUS_ACCEPTED, normandy_id=1234
         )
 
         tasks.update_experiment_info()
@@ -494,7 +494,7 @@ class TestUpdateExperimentSubTask(
         )
         expected_call_data = {"comment": comment}
 
-        tasks.add_start_date_comment_task(experiment)
+        tasks.add_start_date_comment_task(experiment.id)
 
         self.mock_bugzilla_requests_post.assert_called_with(
             settings.BUGZILLA_COMMENT_URL.format(id=12345), expected_call_data
@@ -505,7 +505,7 @@ class TestUpdateExperimentSubTask(
 
         self.mock_bugzilla_requests_post.side_effect = RequestException
         with self.assertRaises(bugzilla.BugzillaError):
-            tasks.add_start_date_comment_task(experiment)
+            tasks.add_start_date_comment_task(experiment.id)
 
     def test_comp_experiment_update_res_task(self):
         experiment = ExperimentFactory.create_with_status(
@@ -514,7 +514,7 @@ class TestUpdateExperimentSubTask(
 
         expected_call_data = {"status": "RESOLVED", "resolution": "FIXED"}
 
-        tasks.comp_experiment_update_res_task(experiment)
+        tasks.comp_experiment_update_res_task(experiment.id)
 
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
@@ -528,7 +528,7 @@ class TestUpdateExperimentSubTask(
         )
 
         with self.assertRaises(bugzilla.BugzillaError):
-            tasks.comp_experiment_update_res_task(experiment)
+            tasks.comp_experiment_update_res_task(experiment.id)
 
     def test_set_is_paused_value_task(self):
 
@@ -537,7 +537,7 @@ class TestUpdateExperimentSubTask(
         )
         recipe_data = normandy.get_recipe(experiment.normandy_id)
 
-        tasks.set_is_paused_value_task(experiment, recipe_data)
+        tasks.set_is_paused_value_task(experiment.id, recipe_data)
 
         experiment = Experiment.objects.get(id=experiment.id)
 
@@ -559,7 +559,7 @@ class TestUpdateExperimentSubTask(
             self.buildMockSucessWithNoPauseEnrollment()
         )
         recipe_data = normandy.get_recipe(experiment.normandy_id)
-        tasks.set_is_paused_value_task(experiment, recipe_data)
+        tasks.set_is_paused_value_task(experiment.id, recipe_data)
         experiment = Experiment.objects.get(normandy_id=1234)
 
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
