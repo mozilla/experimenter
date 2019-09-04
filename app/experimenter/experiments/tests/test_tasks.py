@@ -569,6 +569,25 @@ class TestUpdateExperimentSubTask(
             experiment.changes.latest().message, "Enrollment Re-enabled"
         )
 
+    def test_set_is_paused_value_with_bad_recipe(self):
+
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED, normandy_id=12345
+        )
+        recipe_data = {}
+
+        tasks.set_is_paused_value_task(experiment.id, recipe_data)
+
+        experiment = Experiment.objects.get(id=experiment.id)
+
+        self.assertFalse(experiment.is_paused)
+        self.assertFalse(
+            experiment.changes.filter(
+                changed_by__email=settings.NORMANDY_DEFAULT_CHANGELOG_USER,
+                message="Enrollment Completed",
+            ).exists()
+        )
+
 
 class TestUpdateResolutionTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 
