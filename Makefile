@@ -38,10 +38,10 @@ lint: test_build
 	docker-compose -f docker-compose-test.yml run app flake8 .
 
 black_check: test_build
-	docker-compose -f docker-compose-test.yml run app black -l 79 --check .
+	docker-compose -f docker-compose-test.yml run app black -l 90 --check .
 
 black_fix: test_build
-	docker-compose -f docker-compose-test.yml run app black -l 79 .
+	docker-compose -f docker-compose-test.yml run app black -l 90 .
 
 code_format: black_fix
 	echo "Code Formatted"
