@@ -102,8 +102,7 @@ class ChangeLogMixin(object):
 
         experiment = super().save(*args, **kwargs)
 
-        old_values = {}
-        new_values = {}
+        changed_values = {}
         old_status = None
 
         self.new_serialized_vals = ChangeLogSerializer(self.instance).data
@@ -116,40 +115,90 @@ class ChangeLogMixin(object):
                 self.old_serialized_vals["variants"]
                 != self.new_serialized_vals["variants"]
             ):
-                old_values["variants"] = self.old_serialized_vals["variants"]
-                new_values["variants"] = self.new_serialized_vals["variants"]
+                old_value = self.old_serialized_vals["variants"]
+                new_value = self.new_serialized_vals["variants"]
+                display_name = "Branches"
+                changed_values["variants"] = {
+                    "old_value": old_value,
+                    "new_value": new_value,
+                    "display_name": display_name,
+                }
 
         elif self.new_serialized_vals.get("variants"):
-            old_values["variants"] = None
-            new_values["variants"] = self.new_serialized_vals["variants"]
+            old_value = None
+            new_value = self.new_serialized_vals["variants"]
+            display_name = "Branches"
+            changed_values["variants"] = {
+                "old_value": old_value,
+                "new_value": new_value,
+                "display_name": display_name,
+            }
 
         if self.changed_data:
             if latest_change:
                 old_status = latest_change.new_status
 
                 for field in self.changed_data:
+                    old_val = None
+                    new_val = None
+
                     if field in self.old_serialized_vals:
-                        old_values[field] = self.old_serialized_vals[field]
+                        if field in ("countries", "locales"):
+                            old_field_values = self.old_serialized_vals[field]
+                            codes = [obj["code"] for obj in old_field_values]
+                            old_val = codes
+                        else:
+                            old_val = self.old_serialized_vals[field]
+                    if field in self.new_serialized_vals:
+                        if field in ("countries", "locales"):
+                            new_field_values = self.new_serialized_vals[field]
+                            codes = [obj["code"] for obj in new_field_values]
+                            new_val = codes
+                        else:
+                            new_val = self.new_serialized_vals[field]
+
+                    display_name = self._get_display_name(field)
+
+                    if new_val or old_val:
+                        changed_values[field] = {
+                            "old_value": old_val,
+                            "new_value": new_val,
+                            "display_name": display_name,
+                        }
 
             else:
-                prev_values = {field: None for field in self.changed_data}
-                old_values.update(prev_values)
-
-            for field in self.changed_data:
-                if field in self.new_serialized_vals:
-                    new_values[field] = self.new_serialized_vals[field]
+                for field in self.changed_data:
+                    old_val = None
+                    new_val = None
+                    if field in self.new_serialized_vals:
+                        if field in ("countries", "locales"):
+                            new_field_values = self.new_serialized_vals[field]
+                            codes = [obj["code"] for obj in new_field_values]
+                            new_val = codes
+                        else:
+                            new_val = self.new_serialized_vals[field]
+                        display_name = self._get_display_name(field)
+                        changed_values[field] = {
+                            "old_value": old_val,
+                            "new_value": new_val,
+                            "display_name": display_name,
+                        }
 
         ExperimentChangeLog.objects.create(
             experiment=experiment,
             changed_by=self.request.user,
             old_status=old_status,
             new_status=experiment.status,
-            old_values=old_values,
-            new_values=new_values,
+            changed_values=changed_values,
             message=self.get_changelog_message(),
         )
 
         return experiment
+
+    def _get_display_name(self, field):
+        if self.fields[field].label:
+            return self.fields[field].label
+        return field.replace("_", " ").title()
 
 
 class ExperimentOverviewForm(
