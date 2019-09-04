@@ -1281,39 +1281,6 @@ class TestExperimentChangeLog(TestCase):
 
         self.assertEqual(str(changelog), "its a message!")
 
-    def test_change_values(self):
-        experiment = ExperimentFactory.create()
-        old_values = {
-            "slug": "a slug",
-            "name": "a name",
-            "short_description": "a short description",
-            "countries": [{"code": "a"}, {"code": "b"}],
-        }
-        new_values = {
-            "slug": "a  new slug",
-            "name": "a new name",
-            "short_description": "a new short description",
-            "countries": [{"code": "c"}, {"code": "d"}],
-        }
-        changelog = ExperimentChangeLogFactory.create(
-            experiment=experiment,
-            old_status=Experiment.STATUS_DRAFT,
-            new_status=Experiment.STATUS_REVIEW,
-            old_values=old_values,
-            new_values=new_values,
-        )
-
-        expected_data = {
-            "slug": {"old_value": "a slug", "new_value": "a  new slug"},
-            "name": {"old_value": "a name", "new_value": "a new name"},
-            "short_description": {
-                "old_value": "a short description",
-                "new_value": "a new short description",
-            },
-            "countries": {"old_value": "a, b", "new_value": "c, d"},
-        }
-        self.assertEqual(expected_data, changelog.changed_values)
-
     def test_pretty_status_created_draft(self):
         experiment = ExperimentFactory.create_with_variants()
 
