@@ -73,7 +73,7 @@ class Experiment(ExperimentConstants, models.Model):
     )
     archived = models.BooleanField(default=False)
     name = models.CharField(
-        max_length=255, unique=True, blank=False, null=False
+        max_length=150, unique=True, blank=False, null=False
     )
     slug = models.SlugField(
         max_length=255, unique=True, blank=False, null=False
@@ -826,7 +826,7 @@ class ExperimentVariant(models.Model):
         related_name="variants",
         on_delete=models.CASCADE,
     )
-    name = models.CharField(max_length=150, blank=False, null=False)
+    name = models.CharField(max_length=255, blank=False, null=False)
     slug = models.SlugField(max_length=255, blank=False, null=False)
     is_control = models.BooleanField(default=False)
     description = models.TextField(default="")
@@ -921,30 +921,10 @@ class ExperimentChangeLog(models.Model):
     )
     message = models.TextField(blank=True, null=True)
 
-    old_values = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
-    new_values = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
+    changed_values = JSONField(
+        encoder=DjangoJSONEncoder, blank=True, null=True
+    )
     objects = ExperimentChangeLogManager()
-
-    @property
-    def changed_values(self):
-        changed_values = {}
-        # ensure change log has new_values
-        if self.new_values:
-            for key in self.new_values:
-                if key in ("countries", "locales"):
-                    old_val = self._get_code(self.old_values[key])
-                    new_val = self._get_code(self.new_values[key])
-                else:
-                    old_val = self.old_values[key]
-                    new_val = self.new_values[key]
-                changed_values[key] = {
-                    "old_value": old_val,
-                    "new_value": new_val,
-                }
-            return changed_values
-
-    def _get_code(self, list_of_obj):
-        return ", ".join([obj["code"] for obj in list_of_obj])
 
     class Meta:
         verbose_name = "Experiment Change Log"

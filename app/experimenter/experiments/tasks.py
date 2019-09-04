@@ -5,8 +5,9 @@ from django.db import IntegrityError, transaction
 from django.conf import settings
 from celery.utils.log import get_task_logger
 
+from experimenter import normandy
 from experimenter.celery import app
-from experimenter.experiments import bugzilla, normandy, email
+from experimenter.experiments import bugzilla, email
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment, ExperimentEmail
 from experimenter.notifications.models import Notification
@@ -144,13 +145,13 @@ def update_experiment_info():
                     experiment = update_status_task(experiment, recipe_data)
                     update_ds_bug_task.delay(experiment.id)
                     if experiment.status == Experiment.STATUS_LIVE:
-                        add_start_date_comment_task.delay(experiment)
+                        add_start_date_comment_task.delay(experiment.id)
                         email.send_experiment_launch_email(experiment)
 
                     elif experiment.status == Experiment.STATUS_COMPLETE:
-                        comp_experiment_update_res_task.delay(experiment)
+                        comp_experiment_update_res_task.delay(experiment.id)
                 if experiment.status == Experiment.STATUS_LIVE:
-                    set_is_paused_value_task.delay(experiment, recipe_data)
+                    set_is_paused_value_task.delay(experiment.id, recipe_data)
                     send_period_ending_emails_task(experiment)
             else:
                 logger.info(
@@ -169,13 +170,14 @@ def update_experiment_info():
 
 @app.task
 @metrics.timer_decorator("comp_experiment_update_res_task.timing")
-def comp_experiment_update_res_task(experiment):
+def comp_experiment_update_res_task(experiment_id):
+    experiment = Experiment.objects.get(id=experiment_id)
     metrics.incr("comp_experiment_update_res_task.started")
     logger.info("Updating Bugzilla Resolution")
     try:
         bugzilla.update_bug_resolution(experiment)
         logger.info("Bugzilla Resolution Updated")
-        metrics.incr("comp_experiment_update_res_task.completeed")
+        metrics.incr("comp_experiment_update_res_task.completed")
     except bugzilla.BugzillaError as e:
         metrics.incr("comp_experiment_update_res_task.failed")
         logger.info("update bug resolution failed")
@@ -184,7 +186,8 @@ def comp_experiment_update_res_task(experiment):
 
 @app.task
 @metrics.timer_decorator("add_start_date_comment.timing")
-def add_start_date_comment_task(experiment):
+def add_start_date_comment_task(experiment_id):
+    experiment = Experiment.objects.get(id=experiment_id)
     metrics.incr("add_start_data_comment.started")
     logger.info("Adding Bugzilla Start Date Comment")
     comment = "Start Date: {} End Date: {}".format(
@@ -220,10 +223,11 @@ def update_status_task(experiment, recipe_data):
 
 @app.task
 @metrics.timer_decorator("set_is_paused_value")
-def set_is_paused_value_task(experiment, recipe_data):
+def set_is_paused_value_task(experiment_id, recipe_data):
+    experiment = Experiment.objects.get(id=experiment_id)
     if recipe_data:
         paused_val = is_paused(recipe_data)
-        if paused_val != experiment.is_paused:
+        if paused_val is not None and paused_val != experiment.is_paused:
             with transaction.atomic():
                 experiment.is_paused = paused_val
                 experiment.save()

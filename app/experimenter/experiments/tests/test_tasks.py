@@ -1,23 +1,24 @@
+from datetime import date
+
+from django.conf import settings
+from django.core import mail
+from django.test import TestCase
+from markus.testing import MetricsMock
+from requests.exceptions import RequestException
 import markus
 import mock
 
-from django.conf import settings
-from django.test import TestCase
-from datetime import date
-
-from markus.testing import MetricsMock
-from requests.exceptions import RequestException
-from django.core import mail
-from experimenter.experiments import bugzilla, tasks, normandy
+from experimenter import normandy
+from experimenter.experiments import bugzilla, tasks
 from experimenter.experiments.models import Experiment, ExperimentEmail
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.tests.mixins import (
     MockBugzillaMixin,
-    MockNormandyMixin,
     MockRequestMixin,
     MockTasksMixin,
 )
+from experimenter.normandy.tests.mixins import MockNormandyMixin
 from experimenter.notifications.models import Notification
 
 
@@ -345,8 +346,8 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
 
     def test_update_accepted_experiment_task(self):
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
+        experiment = ExperimentFactory.create(
+            status=Experiment.STATUS_ACCEPTED, normandy_id=1234
         )
 
         tasks.update_experiment_info()
@@ -569,7 +570,7 @@ class TestUpdateExperimentSubTask(
         )
         expected_call_data = {"comment": comment}
 
-        tasks.add_start_date_comment_task(experiment)
+        tasks.add_start_date_comment_task(experiment.id)
 
         self.mock_bugzilla_requests_post.assert_called_with(
             settings.BUGZILLA_COMMENT_URL.format(id=12345), expected_call_data
@@ -580,7 +581,7 @@ class TestUpdateExperimentSubTask(
 
         self.mock_bugzilla_requests_post.side_effect = RequestException
         with self.assertRaises(bugzilla.BugzillaError):
-            tasks.add_start_date_comment_task(experiment)
+            tasks.add_start_date_comment_task(experiment.id)
 
     def test_comp_experiment_update_res_task(self):
         experiment = ExperimentFactory.create_with_status(
@@ -589,7 +590,7 @@ class TestUpdateExperimentSubTask(
 
         expected_call_data = {"status": "RESOLVED", "resolution": "FIXED"}
 
-        tasks.comp_experiment_update_res_task(experiment)
+        tasks.comp_experiment_update_res_task(experiment.id)
 
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
@@ -603,7 +604,7 @@ class TestUpdateExperimentSubTask(
         )
 
         with self.assertRaises(bugzilla.BugzillaError):
-            tasks.comp_experiment_update_res_task(experiment)
+            tasks.comp_experiment_update_res_task(experiment.id)
 
     def test_set_is_paused_value_task(self):
 
@@ -612,7 +613,7 @@ class TestUpdateExperimentSubTask(
         )
         recipe_data = normandy.get_recipe(experiment.normandy_id)
 
-        tasks.set_is_paused_value_task(experiment, recipe_data)
+        tasks.set_is_paused_value_task(experiment.id, recipe_data)
 
         experiment = Experiment.objects.get(id=experiment.id)
 
@@ -634,7 +635,7 @@ class TestUpdateExperimentSubTask(
             self.buildMockSucessWithNoPauseEnrollment()
         )
         recipe_data = normandy.get_recipe(experiment.normandy_id)
-        tasks.set_is_paused_value_task(experiment, recipe_data)
+        tasks.set_is_paused_value_task(experiment.id, recipe_data)
         experiment = Experiment.objects.get(normandy_id=1234)
 
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
@@ -642,6 +643,25 @@ class TestUpdateExperimentSubTask(
 
         self.assertEquals(
             experiment.changes.latest().message, "Enrollment Re-enabled"
+        )
+
+    def test_set_is_paused_value_with_bad_recipe(self):
+
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED, normandy_id=12345
+        )
+        recipe_data = {}
+
+        tasks.set_is_paused_value_task(experiment.id, recipe_data)
+
+        experiment = Experiment.objects.get(id=experiment.id)
+
+        self.assertFalse(experiment.is_paused)
+        self.assertFalse(
+            experiment.changes.filter(
+                changed_by__email=settings.NORMANDY_DEFAULT_CHANGELOG_USER,
+                message="Enrollment Completed",
+            ).exists()
         )
 
 
