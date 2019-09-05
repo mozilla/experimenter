@@ -297,17 +297,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
 
     def test_changelog_values_with_prev_log(self):
 
-        country1 = CountryFactory(code="CA", name="Canada")
-        country2 = CountryFactory(code="US", name="United States")
-        locale1 = LocaleFactory(code="da", name="Danish")
-        locale2 = LocaleFactory(code="de", name="German")
-
         experiment = ExperimentFactory.create_with_variants(
             num_variants=0,
-            countries=[country1, country2],
-            locales=[locale1, locale2],
-            firefox_min_version=55.0,
-            firefox_max_version=56.0,
             pref_type=Experiment.PREF_TYPE_INT,
             pref_branch=Experiment.PREF_BRANCH_DEFAULT,
         )
@@ -335,7 +326,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                     }
                 ],
                 "display_name": "Branches",
-            },
+            }
         }
 
         ExperimentChangeLog.objects.create(
@@ -348,7 +339,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         )
 
         data = {
-            "pref_key": "some pref key",
+            "pref_key": experiment.pref_key,
             "pref_type": Experiment.PREF_TYPE_INT,
             "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
             "addon_experiment_id": experiment.addon_experiment_id,
@@ -415,7 +406,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                         "value": "8",
                     }
                 ],
-            },
+            }
         }
 
         self.assertEqual(expected_data, latest_changes.changed_values)

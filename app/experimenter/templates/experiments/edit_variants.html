@@ -17,7 +17,7 @@
 {% block edit_form %}
   {% if experiment.is_pref_experiment %}
     <div class="form-group row">
-      <h4 class="col-9 offset-3">Firefox Pref</h4>
+      <h4 id="firefox-pref-label" class="col-9 offset-3">Firefox Pref</h4>
     </div>
 
     {% include "experiments/field_inline.html" with field=form.pref_key %}
