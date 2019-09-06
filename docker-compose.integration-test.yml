@@ -20,7 +20,7 @@ services:
 
   yarn:
     image: app:build
-    env_file: .env
+    env_file: .env.integration
     volumes:
       - static_volume:/app/experimenter/served/
       - node_modules_volume:/app/node_modules/
@@ -32,7 +32,7 @@ services:
 
   worker:
     image: app:build
-    env_file: .env
+    env_file: .env.integration
     links:
       - db
       - redis
@@ -42,7 +42,7 @@ services:
 
   beat:
     image: app:build
-    env_file: .env
+    env_file: .env.integration
     links:
       - db
       - redis
@@ -52,7 +52,7 @@ services:
 
   nginx:
     build: ./nginx
-    env_file: .env
+    env_file: .env.integration
     links:
       - app
     ports:
