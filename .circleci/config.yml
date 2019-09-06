@@ -40,7 +40,6 @@ jobs:
 
   integration_test:
     machine:
-      image: ubuntu-1604:201903-01
       docker_layer_caching: true
     working_directory: ~/experimenter
     steps:
@@ -60,7 +59,6 @@ jobs:
       - run:
           name: Run integration tests
           command: |
-            sudo chown -R $USER:$USER .
             make integration_test
       - store_artifacts:
           path: tests/integration/integration-test.html
