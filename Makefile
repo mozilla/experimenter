@@ -18,7 +18,7 @@ test_build: build
 	docker-compose -f docker-compose-test.yml build
 
 test: test_build
-	docker-compose -f docker-compose-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- pytest -vvvv --cov --cov-report term-missing"
+	docker-compose -f docker-compose-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- pytest -vvvv --cov --cov-report term-missing --show-capture=no"
 
 test-watch: compose_build
 	docker-compose -f docker-compose-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- ptw -- --testmon --show-capture=no --disable-warnings"
@@ -46,6 +46,12 @@ compose_build: build ssl
 
 compose_kill:
 	docker-compose kill
+
+compose_rm:
+	docker-compose rm -f
+
+kill: compose_kill compose_rm
+	echo "All containers removed!"
 
 up: compose_kill compose_build
 	docker-compose up
@@ -77,8 +83,6 @@ dbshell: compose_build
 bash: compose_build
 	docker-compose run app bash
 
-kill:
-	docker ps -a -q | xargs docker kill;docker ps -a -q | xargs docker rm
 
 refresh: kill migrate load_locales_countries load_dummy_experiments
 
@@ -99,10 +103,3 @@ integration_up: integration_build
 
 integration_test: integration_build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox tox -c tests/integration
-
-integration_test_ci: migrate load_locales_countries ssl
-	# Only for CI use
-	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml up -d
-	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox sudo usermod -u 1001 seluser
-	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox sudo chown -R seluser:seluser .
-	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox tox -c tests/integration

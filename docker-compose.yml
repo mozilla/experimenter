@@ -42,6 +42,7 @@ services:
     networks:
       - private_nw
       - public_nw
+
   beat:
     image: app:build
     env_file: .env
