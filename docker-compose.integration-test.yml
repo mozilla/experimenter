@@ -1,13 +1,103 @@
 version: "3"
 
 services:
+
+services:
+  app:
+    image: app:build
+    env_file: .env.integration
+    stdin_open: true
+    tty: true
+    links:
+      - db
+      - redis
+    volumes:
+      - static_volume:/app/experimenter/served/
+      - node_modules_volume:/app/node_modules/
+    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py collectstatic --noinput;python /app/manage.py runserver 0:7001"
+    networks:
+      - private_nw
+
+  yarn:
+    image: app:build
+    env_file: .env
+    volumes:
+      - static_volume:/app/experimenter/served/
+      - node_modules_volume:/app/node_modules/
+    command: bash -c "yarn run watch"
+    networks:
+      - private_nw
+    ports:
+      - "33123:33123"
+
+  worker:
+    image: app:build
+    env_file: .env
+    links:
+      - db
+      - redis
+    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l debug"
+    networks:
+      - private_nw
+  beat:
+    image: app:build
+    env_file: .env
+    links:
+      - db
+      - redis
+    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat --pidfile /celerybeat.pid -s /celerybeat-schedule -l debug"
+    networks:
+      - private_nw
+
+  nginx:
+    build: ./nginx
+    env_file: .env
+    links:
+      - app
+    ports:
+      - "443:443"
+    networks:
+      - private_nw
+    depends_on:
+      - app
+    volumes:
+      - static_volume:/app/experimenter/served/
+
+  db:
+    restart: always
+    image: postgres:9.6
+    volumes:
+      - db_volume:/var/lib/postgresql
+    networks:
+      - private_nw
+
+  redis:
+    image: redis
+    networks:
+      - private_nw
+
   firefox:
+    #build: ./tests
     image: b4handjr/selenium-firefox:python3-latest
     volumes:
       - .:/code
+    links:
+      - nginx
     expose:
       - "4444"
     ports:
       - "5900"
     shm_size: 2g
-    network_mode: "host"
+    networks:
+      - private_nw
+      - public_nw
+
+volumes:
+  db_volume:
+  static_volume:
+  node_modules_volume:
+
+networks:
+  private_nw:
+    internal: true
+  public_nw:

@@ -23,17 +23,6 @@ test: test_build
 test-watch: compose_build
 	docker-compose -f docker-compose-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- ptw -- --testmon --show-capture=no --disable-warnings"
 
-integration_test: migrate load_locales_countries ssl
-	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml up -d
-	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox tox -c tests/integration
-
-integration_test_ci: migrate load_locales_countries ssl
-	# Only for CI use
-	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml up -d
-	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox sudo usermod -u 1001 seluser
-	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox sudo chown -R seluser:seluser .
-	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox tox -c tests/integration
-
 lint: test_build
 	docker-compose -f docker-compose-test.yml run app flake8 .
 
@@ -92,3 +81,28 @@ kill:
 	docker ps -a -q | xargs docker kill;docker ps -a -q | xargs docker rm
 
 refresh: kill migrate load_locales_countries load_dummy_experiments
+
+# integration tests
+integration_kill:
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml kill
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml rm -f
+
+integration_build: integration_kill build
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml build 
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- python manage.py migrate;python manage.py load-locales-countries"
+
+integration_shell: integration_build
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox bash 
+
+integration_up: integration_build
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml up
+
+integration_test: integration_build
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox tox -c tests/integration
+
+integration_test_ci: migrate load_locales_countries ssl
+	# Only for CI use
+	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml up -d
+	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox sudo usermod -u 1001 seluser
+	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox sudo chown -R seluser:seluser .
+	docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml exec firefox tox -c tests/integration
