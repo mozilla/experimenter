@@ -59,6 +59,7 @@ jobs:
       - run:
           name: Run integration tests
           command: |
+            sudo chown -R 1001:1002 .
             make integration_test
       - store_artifacts:
           path: tests/integration/integration-test.html
