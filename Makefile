@@ -91,7 +91,7 @@ integration_kill:
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml kill
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml rm -f
 
-integration_build: integration_kill build
+integration_build: build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml build 
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- python manage.py migrate;python manage.py load-locales-countries"
 
@@ -101,5 +101,5 @@ integration_shell: integration_build
 integration_up: integration_build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml up
 
-integration_test: integration_build
+integration_test: integration_kill ssl integration_build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox tox -c tests/integration
