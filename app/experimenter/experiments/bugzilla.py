@@ -7,6 +7,8 @@ from django.conf import settings
 INVALID_USER_ERROR_CODE = 51
 INVALID_PARAMETER_ERROR_CODE = 53
 
+EXPERIMENT_NAME_MAX_LEN = 150
+
 
 class BugzillaError(Exception):
     pass
@@ -138,11 +140,12 @@ def make_bugzilla_call(url, method, data=None):
 
 
 def format_creation_bug_body(experiment, extra_fields):
+    summary = format_summary(experiment)
     bug_data = {
         "product": "Shield",
         "component": "Shield Study",
         "version": "unspecified",
-        "summary": "[Experiment]: {experiment}".format(experiment=experiment),
+        "summary": summary,
         "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
             experiment=experiment
         ),
@@ -153,6 +156,18 @@ def format_creation_bug_body(experiment, extra_fields):
     }
     bug_data.update(extra_fields)
     return bug_data
+
+
+def format_summary(experiment):
+    experiment_string = str(experiment)
+
+    if len(experiment_string) > EXPERIMENT_NAME_MAX_LEN:
+        truncated_name = experiment_string[0:EXPERIMENT_NAME_MAX_LEN]
+
+        return "[Experiment]: {experiment}...".format(
+            experiment=truncated_name
+        )
+    return "[Experiment]: {experiment}".format(experiment=experiment)
 
 
 def create_experiment_bug(experiment):

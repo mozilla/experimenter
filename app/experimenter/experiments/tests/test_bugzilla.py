@@ -14,6 +14,7 @@ from experimenter.experiments.bugzilla import (
     set_bugzilla_id_value,
     update_bug_resolution,
     add_experiment_comment,
+    format_summary,
 )
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
@@ -188,6 +189,18 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
         )
         self.setupMockBugzillaCreationFailure()
         self.assertRaises(BugzillaError, create_experiment_bug, experiment)
+
+    def test_format_long_summary_name(self):
+        long_name = "a" * 155
+        experiment = ExperimentFactory.create(name=long_name)
+        summary = format_summary(experiment)
+
+        # Pref-flip: + 139 char = 150
+        expected_name = "a" * 139
+        expected_summary = "[Experiment]: Pref-Flip: {name}...".format(
+            name=expected_name
+        )
+        self.assertEqual(summary, expected_summary)
 
 
 class TestFormatBugBody(TestCase):
