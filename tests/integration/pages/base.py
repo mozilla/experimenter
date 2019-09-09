@@ -2,6 +2,7 @@
 
 from pypom import Page, Region
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class Base(Page):
@@ -9,6 +10,11 @@ class Base(Page):
         super(Base, self).__init__(
             selenium, base_url, locale=locale, timeout=30, **kwargs
         )
+
+    def wait_for_page_to_load(self):
+        self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
+
+        return self
 
     @property
     def header(self):

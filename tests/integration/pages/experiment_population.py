@@ -38,23 +38,17 @@ class PopulationPage(Base):
     )
     _page_wait_locator = (
         By.CSS_SELECTOR,
-        "div.form-group:nth-child(2) > h4:nth-child(1)",
+        "body.page-edit-variants",
     )
 
-    def wait_for_page_to_load(self):
-        self.wait.until(
-            lambda _: "Population"
-            in self.find_element(*self._page_wait_locator).text
-        )
-        return self
-    
+
     def create_new_branch(self):
         """Creates a new branch."""
         num_of_branches = len(self.current_branches) + 1
         self.find_element(*self._add_branch_btn_locator).click()
         els = self.find_elements(*self._branch_form_root_locator)
         return self.BranchRegion(self, els[-1], count=num_of_branches)
-    
+
     @property
     def current_branches(self):
         """Returns list of current branches."""
@@ -100,7 +94,7 @@ class PopulationPage(Base):
 
     class BranchRegion(Region):
 
-        def __init__(self, page, root=None, count=None, **kwargs):  
+        def __init__(self, page, root=None, count=None, **kwargs):
             super().__init__(
                 page=page, root=root, **kwargs
             )
@@ -132,13 +126,13 @@ class PopulationPage(Base):
             element = self.find_element(*locator)
             element.send_keys(text)
             return
-        
+
         def set_branch_description(self, text=None):
             locator = (By.ID, f"id_variants-{self.number}-description")
             element = self.find_element(*locator)
             element.send_keys(text)
             return
-        
+
         def set_branch_value(self, text=None):
             locator = (By.ID, f"id_variants-{self.number}-value")
             element = self.find_element(*locator)

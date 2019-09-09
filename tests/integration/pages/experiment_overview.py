@@ -10,7 +10,7 @@ class ExperimentOverview(Base):
 
     _root_locator = (By.CSS_SELECTOR, ".form-group")
 
-    _overview_title_locator = (By.CSS_SELECTOR, "a.nav-link.active h4")
+    _page_wait_locator = (By.CSS_SELECTOR, "body.page-edit-overview")
     _overview_name_locator = (By.CSS_SELECTOR, "#id_name")
     _overview_description_locator = (By.CSS_SELECTOR, "#id_short_description")
     _overview_bugzilla_url_locator = (
@@ -19,12 +19,6 @@ class ExperimentOverview(Base):
     )
     _save_and_continue_btn_locator = (By.CSS_SELECTOR, ".btn-primary:nth-child(2)")
 
-    def wait_for_page_to_load(self):
-        self.wait.until(
-            lambda _: "Overview"
-            in self.find_element(*self._overview_title_locator).text
-        )
-        return self
 
     def fill_name(self, text=None):
         element = self.find_element(*self._overview_name_locator)
