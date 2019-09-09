@@ -224,29 +224,24 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         experiment = Experiment()
         experiment.save()
 
+        country1 = CountryFactory(code="CA", name="Canada")
+        country2 = CountryFactory(code="US", name="United States")
+        locale1 = LocaleFactory(code="da", name="Danish")
+        locale2 = LocaleFactory(code="de", name="German")
+
         data = {
-            "pref_key": "some pref key",
-            "pref_type": Experiment.PREF_TYPE_INT,
-            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
-            "addon_experiment_id": "add_on_experiment_id",
-            "addon_release_url": "https://www.example.com",
-            "variants-TOTAL_FORMS": "2",
-            "variants-INITIAL_FORMS": "0",
-            "variants-MIN_NUM_FORMS": "0",
-            "variants-MAX_NUM_FORMS": "1000",
-            "variants-0-is_control": True,
-            "variants-0-ratio": "50",
-            "variants-0-name": "variant 0 name",
-            "variants-0-description": "variant 0 desc",
-            "variants-0-value": 5,
-            "variants-1-is_control": False,
-            "variants-1-ratio": "50",
-            "variants-1-name": "branch 1 name",
-            "variants-1-description": "branch 1 desc",
-            "variants-1-value": 8,
+            "proposed_start_date": timezone.now().date(),
+            "proposed_duration": 20,
+            "population_percent": "10",
+            "firefox_min_version": "56.0",
+            "firefox_channel": Experiment.CHANNEL_BETA,
+            "client_matching": "en-us",
+            "platform": Experiment.PLATFORM_WINDOWS,
+            "locales": [locale1, locale2],
+            "countries": [country1, country2],
         }
 
-        form = ExperimentVariantsPrefForm(
+        form = ExperimentTimelinePopulationForm(
             request=self.request, data=data, instance=experiment
         )
         self.assertTrue(form.is_valid())
@@ -254,42 +249,50 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         latest_changes = experiment.changes.latest()
 
         expected_data = {
-            "pref_branch": {
-                "display_name": "Pref Branch",
-                "new_value": "default",
+            "locales": {
+                "new_value": ["da", "de"],
                 "old_value": None,
+                "display_name": "Locales",
             },
-            "pref_key": {
-                "display_name": "Pref Name",
-                "new_value": "some pref key",
+            "platform": {
+                "new_value": "All Windows",
                 "old_value": None,
+                "display_name": "Platform",
             },
-            "pref_type": {
-                "display_name": "Pref Type",
-                "new_value": "integer",
+            "countries": {
+                "new_value": ["CA", "US"],
                 "old_value": None,
+                "display_name": "Countries",
             },
-            "variants": {
-                "display_name": "Branches",
-                "new_value": [
-                    {
-                        "description": "branch 1 desc",
-                        "is_control": False,
-                        "name": "branch 1 name",
-                        "ratio": 50,
-                        "slug": "branch-1-name",
-                        "value": "8",
-                    },
-                    {
-                        "description": "variant 0 desc",
-                        "is_control": True,
-                        "name": "variant 0 name",
-                        "ratio": 50,
-                        "slug": "variant-0-name",
-                        "value": "5",
-                    },
-                ],
+            "client_matching": {
+                "new_value": "en-us",
                 "old_value": None,
+                "display_name": "Population Filtering",
+            },
+            "firefox_channel": {
+                "new_value": "Beta",
+                "old_value": None,
+                "display_name": "Firefox Channel",
+            },
+            "proposed_duration": {
+                "new_value": 20,
+                "old_value": None,
+                "display_name": "Proposed Experiment Duration (days)",
+            },
+            "population_percent": {
+                "new_value": "10.0000",
+                "old_value": None,
+                "display_name": "Population Percentage",
+            },
+            "firefox_min_version": {
+                "new_value": "56.0",
+                "old_value": None,
+                "display_name": "Firefox Min Version",
+            },
+            "proposed_start_date": {
+                "new_value": timezone.now().date().strftime("%Y-%m-%d"),
+                "old_value": None,
+                "display_name": "Proposed Start Date",
             },
         }
 
@@ -503,14 +506,6 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
 
 def get_variants_form_data():
     return {
-        "population_percent": "10",
-        "firefox_min_version": Experiment.VERSION_CHOICES[-2][0],
-        "firefox_max_version": Experiment.VERSION_CHOICES[-1][0],
-        "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-        "client_matching": "en-us only please",
-        "platform": Experiment.PLATFORM_ALL,
-        "locales": [],
-        "countries": [],
         "pref_key": "browser.test.example",
         "pref_type": Experiment.PREF_TYPE_STR,
         "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
