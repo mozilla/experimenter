@@ -191,12 +191,11 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
         self.assertRaises(BugzillaError, create_experiment_bug, experiment)
 
     def test_format_long_summary_name(self):
-        long_name = "a" * 155
+        long_name = "a" * 225
         experiment = ExperimentFactory.create(name=long_name)
         summary = format_summary(experiment)
 
-        # Pref-flip: + 139 char = 150
-        expected_name = "a" * 139
+        expected_name = "a" * 200
         expected_summary = "[Experiment]: Pref-Flip: {name}...".format(
             name=expected_name
         )
