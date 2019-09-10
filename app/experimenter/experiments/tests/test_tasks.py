@@ -347,7 +347,10 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
 
     def test_update_accepted_experiment_task(self):
         experiment = ExperimentFactory.create(
-            status=Experiment.STATUS_ACCEPTED, normandy_id=1234
+            status=Experiment.STATUS_ACCEPTED,
+            normandy_id=1234,
+            proposed_enrollment=60,
+            proposed_duration=60,
         )
 
         tasks.update_experiment_info()
