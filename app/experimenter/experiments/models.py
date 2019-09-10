@@ -73,7 +73,7 @@ class Experiment(ExperimentConstants, models.Model):
     )
     archived = models.BooleanField(default=False)
     name = models.CharField(
-        max_length=150, unique=True, blank=False, null=False
+        max_length=255, unique=True, blank=False, null=False
     )
     slug = models.SlugField(
         max_length=255, unique=True, blank=False, null=False
