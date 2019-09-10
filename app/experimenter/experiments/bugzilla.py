@@ -7,7 +7,7 @@ from django.conf import settings
 INVALID_USER_ERROR_CODE = 51
 INVALID_PARAMETER_ERROR_CODE = 53
 
-EXPERIMENT_NAME_MAX_LEN = 200
+EXPERIMENT_NAME_MAX_LEN = 150
 
 
 class BugzillaError(Exception):

@@ -195,7 +195,8 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
         experiment = ExperimentFactory.create(name=long_name)
         summary = format_summary(experiment)
 
-        expected_name = "a" * 200
+        expected_name = "a" * 150
+
         expected_summary = "[Experiment]: Pref-Flip: {name}...".format(
             name=expected_name
         )
