@@ -11,7 +11,6 @@
 {% block edit_form %}
   {% include "experiments/field_inline.html" with field=form.objectives%}
   {% include "experiments/field_inline.html" with field=form.analysis %}
-  {% include "experiments/field_inline.html" with field=form.analysis_owner %}
   {% include "experiments/radio_field_label_inline.html" with field=form.survey_required %}
 
   <div id="survey-url-and-instructions"  class="collapse">
@@ -21,7 +20,7 @@
 {% endblock %}
 
 {% block edit_nav %}
-  {% include "experiments/edit_nav_inline.html" with step=3 object=object %}
+  {% include "experiments/edit_nav_inline.html" with step=4 object=object %}
 {% endblock %}
 
 {% block edit_info %}

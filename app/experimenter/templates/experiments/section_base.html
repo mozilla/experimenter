@@ -32,7 +32,7 @@
 
         {% if experiment.is_editable  and edit_url_name or experiment.is_begun and section_name == "results" %}
           <div class="col-1 text-right pl-0">
-            <a href="{% url edit_url_name slug=experiment.slug %}">
+            <a id="{{ section_name }}-edit-btn" href="{% url edit_url_name slug=experiment.slug %}">
               <span class="fas fa-edit"></span> Edit
             </a>
           </div>

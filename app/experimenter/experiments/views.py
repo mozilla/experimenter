@@ -31,6 +31,7 @@ from experimenter.experiments.forms import (
     ExperimentVariantsPrefForm,
     NormandyIdForm,
     ExperimentResultsForm,
+    ExperimentTimelinePopulationForm,
 )
 from experimenter.experiments.models import Experiment
 
@@ -416,8 +417,14 @@ class ExperimentCreateView(ExperimentFormMixin, CreateView):
 
 class ExperimentOverviewUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentOverviewForm
-    next_view_name = "experiments-variants-update"
+    next_view_name = "experiments-timeline-pop-update"
     template_name = "experiments/edit_overview.html"
+
+
+class ExperimentTimelinePopulationUpdateView(ExperimentFormMixin, UpdateView):
+    form_class = ExperimentTimelinePopulationForm
+    next_view_name = "experiments-variants-update"
+    template_name = "experiments/edit_timeline_population.html"
 
 
 class ExperimentVariantsUpdateView(ExperimentFormMixin, UpdateView):

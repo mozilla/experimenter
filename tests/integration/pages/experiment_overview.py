@@ -17,7 +17,11 @@ class ExperimentOverview(Base):
         By.CSS_SELECTOR,
         "#id_data_science_bugzilla_url",
     )
-    _save_and_continue_btn_locator = (By.CSS_SELECTOR, ".btn-primary:nth-child(2)")
+    _overview_data_science_owner_locator = (
+        By.CSS_SELECTOR,
+        "#id_analysis_owner"
+    )
+    _save_btn_locator = (By.CSS_SELECTOR, "#save-btn")
 
 
     def fill_name(self, text=None):
@@ -42,10 +46,18 @@ class ExperimentOverview(Base):
         element.send_keys(f"{text}{random_chars}")
         return
 
-    def save_and_continue_btn(self):
-        self.find_element(*self._save_and_continue_btn_locator).click()
-        from pages.experiment_population import PopulationPage
+    def fill_data_science_owner(self, text=None):
+        element = self.find_element(*self._overview_data_science_owner_locator)
+        random_chars = "".join(
+            random.choices(string.ascii_uppercase + string.digits, k=6)
+        )
+        element.send_keys(f"{text}-{random_chars}")
+        return
 
-        return PopulationPage(
+    def save_btn(self):
+        self.find_element(*self._save_btn_locator).click()
+        from pages.experiment_detail import DetailPage
+
+        return DetailPage(
             self.driver, self.base_url
         ).wait_for_page_to_load()

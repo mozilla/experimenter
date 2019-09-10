@@ -1,0 +1,108 @@
+{% extends "experiments/edit_base.html" %}
+
+{% load static %}
+
+{% block edit_title %}
+  Edit <a href="{% url "experiments-detail" slug=object.slug %}">
+    {{ object.name }}
+  </a> Branches
+{% endblock %}
+
+
+{% block edit_nav %}
+  {% include "experiments/edit_nav_inline.html" with step=2 object=object %}
+{% endblock %}
+
+{% block edit_form %}
+
+  <div class="form-group row">
+    <h4 class="col-9 offset-3">Experiment Timeline</h4>
+  </div>
+
+  {% include "experiments/field_inline.html" with field=form.proposed_start_date %}
+
+  {% include "experiments/field_inline.html" with field=form.proposed_duration %}
+
+  {% include "experiments/field_inline.html" with field=form.proposed_enrollment %}
+
+
+  <hr class="heavy-line my-5">
+
+  <div class="form-group row">
+    <h4 class="col-9 offset-3">Experiment Population</h4>
+  </div>
+
+  {% include "experiments/field_inline.html" with field=form.population_percent %}
+
+  {% include "experiments/field_inline_help_link.html" with field=form.firefox_channel %}
+
+  <div class="form-group row">
+    <div class="col-3 text-right">
+      <label class="control-label">
+        <strong>Firefox Versions</strong>
+      </label>
+      <br>
+      <a target="_blank" rel="noreferrer noopener" href="{{ form.firefox_min_version.help_text }}">Help</a>
+    </div>
+    <div class="col-9">
+      <div class="row">
+        <div class="col-5 pr-0">
+          {% include "experiments/field_input_inline.html" with field=form.firefox_min_version %}
+        </div>
+
+        <div class="col-2 text-center pt-2">
+          <strong>to</strong>
+        </div>
+
+        <div class="col-5 pl-0">
+          {% include "experiments/field_input_inline.html" with field=form.firefox_max_version %}
+          {% include "experiments/field_errors_inline.html" with field=form.firefox_max_version %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% include "experiments/field_inline.html" with field=form.locales %}
+
+  {% include "experiments/field_inline.html" with field=form.countries %}
+
+  {% include "experiments/field_inline.html" with field=form.platform %}
+
+  {% include "experiments/field_inline.html" with field=form.client_matching %}
+
+{% endblock %}
+
+{% block edit_info %}
+  <h4><span class="fas fa-info-circle"></span> Population</h4>
+
+  <p>
+    Define the population of your experiment.
+    All experiments must specify a channel, a version, and a percentage of
+    those users to target.
+  </p>
+
+  <p>
+    All users that are enrolled in your experiment will be assigned to
+    exactly one branch.  There must be at least 1 branch called Control,
+    and any number of additional branches.
+    The size of all branches must add to 100.
+  </p>
+
+  {% if experiment.is_pref_experiment %}
+    <p>
+      The experimental pref will be set to the value of the branch
+      they are assigned to.  When the experiment completes,
+      the pref will be reset to its original value before the
+      experiment started.
+    </p>
+  {% else %}
+    <p>
+      The functionality each user receives in each branch will be
+      determined by your addon.
+    </p>
+  {% endif %}
+{% endblock %}
+
+{% block extrascripts %}
+  <script src="{% static "js/edit-variants.js" %}"></script>
+{% endblock %}

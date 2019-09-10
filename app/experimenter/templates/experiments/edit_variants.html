@@ -11,77 +11,34 @@
 {% endblock %}
 
 {% block edit_nav %}
-  {% include "experiments/edit_nav_inline.html" with step=2 object=object %}
+  {% include "experiments/edit_nav_inline.html" with step=3 object=object %}
 {% endblock %}
 
 {% block edit_form %}
+  {% if experiment.is_pref_experiment %}
     <div class="form-group row">
-      <h4 class="col-9 offset-3">Firefox Population</h4>
+      <h4 id="firefox-pref-label" class="col-9 offset-3">Firefox Pref</h4>
     </div>
 
-    {% include "experiments/field_inline.html" with field=form.population_percent %}
+    {% include "experiments/field_inline.html" with field=form.pref_key %}
 
-    {% include "experiments/field_inline_help_link.html" with field=form.firefox_channel %}
+    {% include "experiments/field_inline.html" with field=form.pref_type %}
 
-    <div class="form-group row">
-      <div class="col-3 text-right">
-        <label class="control-label">
-          <strong>Firefox Versions</strong>
-        </label>
-        <br>
-        <a target="_blank" rel="noreferrer noopener" href="{{ form.firefox_min_version.help_text }}">Help</a>
-      </div>
-      <div class="col-9">
-        <div class="row">
-          <div class="col-5 pr-0">
-            {% include "experiments/field_input_inline.html" with field=form.firefox_min_version %}
-          </div>
-
-          <div class="col-2 text-center pt-2">
-            <strong>to</strong>
-          </div>
-
-          <div class="col-5 pl-0">
-            {% include "experiments/field_input_inline.html" with field=form.firefox_max_version %}
-            {% include "experiments/field_errors_inline.html" with field=form.firefox_max_version %}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {% include "experiments/field_inline.html" with field=form.locales %}
-
-    {% include "experiments/field_inline.html" with field=form.countries %}
-
-    {% include "experiments/field_inline.html" with field=form.platform %}
-
-    {% include "experiments/field_inline.html" with field=form.client_matching %}
+    {% include "experiments/field_inline.html" with field=form.pref_branch %}
 
     <hr class="heavy-line my-5"/>
+  {% else %}
+    <div class="form-group row">
+      <h4 class="col-9 offset-3">Firefox Add-On</h4>
+    </div>
 
-    {% if experiment.is_pref_experiment %}
-      <div class="form-group row">
-        <h4 class="col-9 offset-3">Firefox Pref</h4>
-      </div>
+    {% include "experiments/field_inline.html" with field=form.addon_experiment_id %}
 
-      {% include "experiments/field_inline.html" with field=form.pref_key %}
+    {% include "experiments/field_inline.html" with field=form.addon_release_url %}
 
-      {% include "experiments/field_inline.html" with field=form.pref_type %}
-
-      {% include "experiments/field_inline.html" with field=form.pref_branch %}
-
-      <hr class="heavy-line my-5"/>
-    {% else %}
-      <div class="form-group row">
-        <h4 class="col-9 offset-3">Firefox Add-On</h4>
-      </div>
-
-      {% include "experiments/field_inline.html" with field=form.addon_experiment_id %}
-
-      {% include "experiments/field_inline.html" with field=form.addon_release_url %}
-
-      <hr class="heavy-line my-5"/>
+    <hr class="heavy-line my-5"/>
     {% endif %}
+
 
     <div id="formset" data-formset-prefix="{{ form.variants_formset.prefix }}">
       {{ form.variants_formset.management_form }}
@@ -117,13 +74,7 @@
 {% endblock %}
 
 {% block edit_info %}
-  <h4><span class="fas fa-info-circle"></span> Population</h4>
-
-  <p>
-    Define the population of your experiment.
-    All experiments must specify a channel, a version, and a percentage of
-    those users to target.
-  </p>
+  <h4><span class="fas fa-info-circle"></span> Branches</h4>
 
   <p>
     All users that are enrolled in your experiment will be assigned to
@@ -131,7 +82,6 @@
     and any number of additional branches.
     The size of all branches must add to 100.
   </p>
-
   {% if experiment.is_pref_experiment %}
     <p>
       The experimental pref will be set to the value of the branch

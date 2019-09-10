@@ -776,10 +776,8 @@ class TestExperimentCreateView(TestCase):
             "data_science_bugzilla_url": bug_url,
             "feature_bugzilla_url": bug_url,
             "related_work": "Designs: https://www.example.com/myproject/",
-            "proposed_start_date": timezone.now().date(),
-            "proposed_enrollment": 10,
-            "proposed_duration": 20,
             "owner": user.id,
+            "analysis_owner": "Sam Telemetry",
         }
 
         with self.settings(BUGZILLA_HOST="https://bugzilla.mozilla.org"):
@@ -814,12 +812,6 @@ class TestExperimentOverviewUpdateView(TestCase):
             Experiment.STATUS_DRAFT, proposed_enrollment=1, proposed_duration=2
         )
 
-        new_start_date = timezone.now().date() + datetime.timedelta(
-            days=random.randint(1, 100)
-        )
-        new_enrollment = experiment.proposed_enrollment + 1
-        new_duration = experiment.proposed_duration + 1
-
         bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
         data = {
             "type": Experiment.TYPE_PREF,
@@ -828,10 +820,8 @@ class TestExperimentOverviewUpdateView(TestCase):
             "data_science_bugzilla_url": bug_url,
             "feature_bugzilla_url": bug_url,
             "related_work": "Designs: https://www.example.com/myproject/",
-            "proposed_start_date": new_start_date,
-            "proposed_enrollment": new_enrollment,
-            "proposed_duration": new_duration,
             "owner": user.id,
+            "analysis_owner": "Sandy Data Engineer",
         }
 
         response = self.client.post(
@@ -848,9 +838,7 @@ class TestExperimentOverviewUpdateView(TestCase):
         self.assertEqual(
             experiment.short_description, data["short_description"]
         )
-        self.assertEqual(experiment.proposed_start_date, new_start_date)
-        self.assertEqual(experiment.proposed_enrollment, new_enrollment)
-        self.assertEqual(experiment.proposed_duration, new_duration)
+        self.assertEqual(experiment.analysis_owner, data["analysis_owner"])
 
         self.assertEqual(experiment.changes.count(), 2)
 
@@ -859,6 +847,70 @@ class TestExperimentOverviewUpdateView(TestCase):
         self.assertEqual(change.changed_by, user)
         self.assertEqual(change.old_status, experiment.STATUS_DRAFT)
         self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
+
+
+class TestExperimentTimelinePopulationUpdateView(TestCase):
+
+    def test_view_saves_experiment(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, proposed_enrollment=1, proposed_duration=2
+        )
+        locale = LocaleFactory()
+        country = CountryFactory()
+
+        new_start_date = timezone.now().date() + datetime.timedelta(
+            days=random.randint(1, 100)
+        )
+        new_enrollment = experiment.proposed_enrollment + 1
+        new_duration = experiment.proposed_duration + 1
+
+        data = {
+            "proposed_start_date": new_start_date,
+            "proposed_enrollment": new_enrollment,
+            "proposed_duration": new_duration,
+            "population_percent": "11",
+            "firefox_min_version": Experiment.VERSION_CHOICES[-2][0],
+            "firefox_max_version": Experiment.VERSION_CHOICES[-1][0],
+            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
+            "client_matching": "New matching!",
+            "platform": Experiment.PLATFORM_WINDOWS,
+            "locales": [locale.code],
+            "countries": [country.code],
+        }
+
+        response = self.client.post(
+            reverse(
+                "experiments-timeline-pop-update",
+                kwargs={"slug": experiment.slug},
+            ),
+            data,
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 302)
+
+        experiment = Experiment.objects.get()
+
+        self.assertEqual(experiment.proposed_start_date, new_start_date)
+        self.assertEqual(experiment.proposed_enrollment, new_enrollment)
+        self.assertEqual(experiment.proposed_duration, new_duration)
+        self.assertEqual(
+            experiment.population_percent,
+            decimal.Decimal(data["population_percent"]),
+        )
+        self.assertEqual(
+            experiment.firefox_min_version, data["firefox_min_version"]
+        )
+        self.assertEqual(
+            experiment.firefox_max_version, data["firefox_max_version"]
+        )
+
+        self.assertEqual(experiment.firefox_channel, data["firefox_channel"])
+        self.assertEqual(experiment.platform, data["platform"])
+
+        self.assertTrue(locale in experiment.locales.all())
+
+        self.assertTrue(country in experiment.countries.all())
 
 
 class TestExperimentVariantsUpdateView(TestCase):
@@ -900,20 +952,8 @@ class TestExperimentVariantsUpdateView(TestCase):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT
         )
-        locale = LocaleFactory()
-        country = CountryFactory()
 
         data = {
-            "population_percent": "11",
-            "firefox_min_version": Experiment.VERSION_CHOICES[-2][0],
-            "firefox_max_version": Experiment.VERSION_CHOICES[-1][0],
-            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-            "client_matching": "New matching!",
-            "platform": Experiment.PLATFORM_WINDOWS,
-            "locales": [locale.code],
-            "countries": [country.code],
-            "public_name": "hello",
-            "public_description": "description",
             "pref_key": "browser.test.example",
             "pref_type": Experiment.PREF_TYPE_STR,
             "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
@@ -949,27 +989,9 @@ class TestExperimentVariantsUpdateView(TestCase):
 
         experiment = Experiment.objects.get()
 
-        self.assertEqual(
-            experiment.population_percent,
-            decimal.Decimal(data["population_percent"]),
-        )
-        self.assertEqual(
-            experiment.firefox_min_version, data["firefox_min_version"]
-        )
-        self.assertEqual(
-            experiment.firefox_max_version, data["firefox_max_version"]
-        )
-
-        self.assertEqual(experiment.firefox_channel, data["firefox_channel"])
-        self.assertEqual(experiment.platform, data["platform"])
-
         self.assertEqual(experiment.pref_key, data["pref_key"])
         self.assertEqual(experiment.pref_type, data["pref_type"])
         self.assertEqual(experiment.pref_branch, data["pref_branch"])
-
-        self.assertTrue(locale in experiment.locales.all())
-
-        self.assertTrue(country in experiment.countries.all())
 
         self.assertEqual(experiment.changes.count(), 2)
 

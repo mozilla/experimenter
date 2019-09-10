@@ -32,6 +32,7 @@ from experimenter.experiments.forms import (
     ExperimentResultsForm,
     JSONField,
     NormandyIdForm,
+    ExperimentTimelinePopulationForm,
 )
 from experimenter.experiments.models import (
     Experiment,
@@ -222,12 +223,15 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
     def test_changelog_values(self):
         experiment = Experiment()
         experiment.save()
+
         country1 = CountryFactory(code="CA", name="Canada")
         country2 = CountryFactory(code="US", name="United States")
         locale1 = LocaleFactory(code="da", name="Danish")
         locale2 = LocaleFactory(code="de", name="German")
 
         data = {
+            "proposed_start_date": timezone.now().date(),
+            "proposed_duration": 20,
             "population_percent": "10",
             "firefox_min_version": "56.0",
             "firefox_channel": Experiment.CHANNEL_BETA,
@@ -235,28 +239,9 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             "platform": Experiment.PLATFORM_WINDOWS,
             "locales": [locale1, locale2],
             "countries": [country1, country2],
-            "pref_key": "some pref key",
-            "pref_type": Experiment.PREF_TYPE_INT,
-            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
-            "addon_experiment_id": "add_on_experiment_id",
-            "addon_release_url": "https://www.example.com",
-            "variants-TOTAL_FORMS": "2",
-            "variants-INITIAL_FORMS": "0",
-            "variants-MIN_NUM_FORMS": "0",
-            "variants-MAX_NUM_FORMS": "1000",
-            "variants-0-is_control": True,
-            "variants-0-ratio": "50",
-            "variants-0-name": "variant 0 name",
-            "variants-0-description": "variant 0 desc",
-            "variants-0-value": 5,
-            "variants-1-is_control": False,
-            "variants-1-ratio": "50",
-            "variants-1-name": "branch 1 name",
-            "variants-1-description": "branch 1 desc",
-            "variants-1-value": 8,
         }
 
-        form = ExperimentVariantsPrefForm(
+        form = ExperimentTimelinePopulationForm(
             request=self.request, data=data, instance=experiment
         )
         self.assertTrue(form.is_valid())
@@ -264,77 +249,50 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         latest_changes = experiment.changes.latest()
 
         expected_data = {
-            "client_matching": {
-                "display_name": "Population Filtering",
-                "new_value": "en-us",
-                "old_value": None,
-            },
-            "countries": {
-                "display_name": "Countries",
-                "new_value": ["CA", "US"],
-                "old_value": None,
-            },
-            "firefox_channel": {
-                "display_name": "Firefox Channel",
-                "new_value": "Beta",
-                "old_value": None,
-            },
-            "firefox_min_version": {
-                "display_name": "Firefox Min Version",
-                "new_value": "56.0",
-                "old_value": None,
-            },
             "locales": {
-                "display_name": "Locales",
                 "new_value": ["da", "de"],
                 "old_value": None,
+                "display_name": "Locales",
             },
             "platform": {
-                "display_name": "Platform",
                 "new_value": "All Windows",
                 "old_value": None,
+                "display_name": "Platform",
+            },
+            "countries": {
+                "new_value": ["CA", "US"],
+                "old_value": None,
+                "display_name": "Countries",
+            },
+            "client_matching": {
+                "new_value": "en-us",
+                "old_value": None,
+                "display_name": "Population Filtering",
+            },
+            "firefox_channel": {
+                "new_value": "Beta",
+                "old_value": None,
+                "display_name": "Firefox Channel",
+            },
+            "proposed_duration": {
+                "new_value": 20,
+                "old_value": None,
+                "display_name": "Proposed Experiment Duration (days)",
             },
             "population_percent": {
-                "display_name": "Population Percentage",
                 "new_value": "10.0000",
                 "old_value": None,
+                "display_name": "Population Percentage",
             },
-            "pref_branch": {
-                "display_name": "Pref Branch",
-                "new_value": "default",
+            "firefox_min_version": {
+                "new_value": "56.0",
                 "old_value": None,
+                "display_name": "Firefox Min Version",
             },
-            "pref_key": {
-                "display_name": "Pref Name",
-                "new_value": "some pref key",
+            "proposed_start_date": {
+                "new_value": timezone.now().date().strftime("%Y-%m-%d"),
                 "old_value": None,
-            },
-            "pref_type": {
-                "display_name": "Pref Type",
-                "new_value": "integer",
-                "old_value": None,
-            },
-            "variants": {
-                "display_name": "Branches",
-                "new_value": [
-                    {
-                        "description": "branch 1 desc",
-                        "is_control": False,
-                        "name": "branch 1 name",
-                        "ratio": 50,
-                        "slug": "branch-1-name",
-                        "value": "8",
-                    },
-                    {
-                        "description": "variant 0 desc",
-                        "is_control": True,
-                        "name": "variant 0 name",
-                        "ratio": 50,
-                        "slug": "variant-0-name",
-                        "value": "5",
-                    },
-                ],
-                "old_value": None,
+                "display_name": "Proposed Start Date",
             },
         }
 
@@ -342,17 +300,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
 
     def test_changelog_values_with_prev_log(self):
 
-        country1 = CountryFactory(code="CA", name="Canada")
-        country2 = CountryFactory(code="US", name="United States")
-        locale1 = LocaleFactory(code="da", name="Danish")
-        locale2 = LocaleFactory(code="de", name="German")
-
         experiment = ExperimentFactory.create_with_variants(
             num_variants=0,
-            countries=[country1, country2],
-            locales=[locale1, locale2],
-            firefox_min_version=55.0,
-            firefox_max_version=56.0,
             pref_type=Experiment.PREF_TYPE_INT,
             pref_branch=Experiment.PREF_BRANCH_DEFAULT,
         )
@@ -380,17 +329,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                     }
                 ],
                 "display_name": "Branches",
-            },
-            "countries": {
-                "old_value": None,
-                "new_value": ["CA", "US"],
-                "display_name": "Countries",
-            },
-            "locales": {
-                "old_value": None,
-                "new_value": ["da", "de"],
-                "display_name": "Locales",
-            },
+            }
         }
 
         ExperimentChangeLog.objects.create(
@@ -402,18 +341,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             message="",
         )
 
-        country3 = CountryFactory(code="FR", name="France")
-        locale3 = LocaleFactory(code="bg", name="Bulgarian")
-
         data = {
-            "population_percent": experiment.population_percent,
-            "firefox_min_version": "56.0",
-            "firefox_max_version": "57.0",
-            "firefox_channel": experiment.firefox_channel,
-            "client_matching": experiment.client_matching,
-            "platform": experiment.platform,
-            "locales": [locale2, locale3],
-            "countries": [country1, country3],
             "pref_key": experiment.pref_key,
             "pref_type": Experiment.PREF_TYPE_INT,
             "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
@@ -443,26 +371,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         latest_changes = experiment.changes.latest()
 
         expected_data = {
-            "countries": {
-                "display_name": "Countries",
-                "new_value": ["CA", "FR"],
-                "old_value": ["CA", "US"],
-            },
-            "firefox_max_version": {
-                "display_name": "Firefox Max Version",
-                "new_value": "57.0",
-                "old_value": "56.0",
-            },
-            "firefox_min_version": {
-                "display_name": "Firefox Min Version",
-                "new_value": "56.0",
-                "old_value": "55.0",
-            },
-            "locales": {
-                "display_name": "Locales",
-                "new_value": ["bg", "de"],
-                "old_value": ["da", "de"],
-            },
             "variants": {
                 "display_name": "Branches",
                 "new_value": [
@@ -501,7 +409,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                         "value": "8",
                     }
                 ],
-            },
+            }
         }
 
         self.assertEqual(expected_data, latest_changes.changed_values)
@@ -520,6 +428,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "type": Experiment.TYPE_PREF,
             "owner": self.user.id,
             "engineering_owner": "Lisa the Engineer",
+            "analysis_owner": "Jim Data Guy",
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
             "public_name": "A new public experiment!",
@@ -528,9 +437,6 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "data_science_bugzilla_url": bug_url,
             "feature_bugzilla_url": bug_url,
             "related_work": "Designs: https://www.example.com/myproject/",
-            "proposed_start_date": timezone.now().date(),
-            "proposed_enrollment": 10,
-            "proposed_duration": 20,
         }
 
     def test_minimum_required_fields(self):
@@ -543,6 +449,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
             "data_science_bugzilla_url": bug_url,
+            "analysis_owner": "Jim Data Guy",
         }
         form = ExperimentOverviewForm(request=self.request, data=data)
         self.assertTrue(form.is_valid())
@@ -576,50 +483,12 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             experiment.short_description, self.data["short_description"]
         )
         self.assertTrue(self.related_exp in experiment.related_to.all())
-        self.assertEqual(
-            experiment.proposed_start_date, self.data["proposed_start_date"]
-        )
-        self.assertEqual(experiment.proposed_enrollment, 10)
-        self.assertEqual(experiment.proposed_duration, 20)
 
         self.assertEqual(experiment.changes.count(), 1)
         change = experiment.changes.get()
         self.assertEqual(change.old_status, None)
         self.assertEqual(change.new_status, experiment.status)
         self.assertEqual(change.changed_by, self.request.user)
-
-    def test_enrollment_must_be_less_or_equal_duration(self):
-        self.data["proposed_enrollment"] = 2
-        self.data["proposed_duration"] = 1
-
-        form = ExperimentOverviewForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-
-    def test_enrollment_is_optional(self):
-        del self.data["proposed_enrollment"]
-
-        form = ExperimentOverviewForm(request=self.request, data=self.data)
-        self.assertTrue(form.is_valid())
-
-    def test_large_duration_is_invalid(self):
-        self.data["proposed_duration"] = Experiment.MAX_DURATION + 1
-
-        form = ExperimentOverviewForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-
-    def test_large_enrollment_duration_is_invalid(self):
-        self.data["proposed_enrollment"] = Experiment.MAX_DURATION + 1
-
-        form = ExperimentOverviewForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-
-    def test_start_date_must_be_greater_or_equal_to_current_date(self):
-        self.data[
-            "proposed_start_date"
-        ] = timezone.now().date() - datetime.timedelta(days=1)
-
-        form = ExperimentOverviewForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
 
     def test_empty_slug_raises_error(self):
         self.data["name"] = "#"
@@ -637,14 +506,6 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
 
 def get_variants_form_data():
     return {
-        "population_percent": "10",
-        "firefox_min_version": Experiment.VERSION_CHOICES[-2][0],
-        "firefox_max_version": Experiment.VERSION_CHOICES[-1][0],
-        "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-        "client_matching": "en-us only please",
-        "platform": Experiment.PLATFORM_ALL,
-        "locales": [],
-        "countries": [],
         "pref_key": "browser.test.example",
         "pref_type": Experiment.PREF_TYPE_STR,
         "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
@@ -670,6 +531,349 @@ def get_variants_form_data():
         "variants-2-description": "branch 2 desc",
         "variants-2-value": '"branch 2 value"',
     }
+
+
+class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = {
+            "population_percent": "10.0",
+            "proposed_start_date": timezone.now().date(),
+            "firefox_min_version": "67.0",
+            "firefox_max_version": "69.0",
+            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
+            "client_matching": "en-us",
+            "platform": Experiment.PLATFORM_WINDOWS,
+            "proposed_enrollment": 10,
+            "proposed_duration": 20,
+            "locales": [],
+            "countries": [],
+        }
+
+    def test_form_saves_timeline_population_data(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, countries=[], locales=[]
+        )
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+
+        experiment = form.save()
+
+        self.assertEqual(
+            experiment.proposed_start_date, self.data["proposed_start_date"]
+        )
+        self.assertEqual(
+            experiment.firefox_max_version, self.data["firefox_max_version"]
+        )
+        self.assertEqual(
+            experiment.firefox_channel, self.data["firefox_channel"]
+        )
+
+    def test_form_start_date_not_optional(self):
+        del self.data["proposed_start_date"]
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data
+        )
+
+        self.assertFalse(form.is_valid())
+
+    def test_form_duration_not_optional(self):
+        del self.data["proposed_duration"]
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data
+        )
+
+        self.assertFalse(form.is_valid())
+
+    def test_enrollment_must_be_less_or_equal_duration(self):
+        self.data["proposed_enrollment"] = 2
+        self.data["proposed_duration"] = 1
+
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data
+        )
+        self.assertFalse(form.is_valid())
+
+    def test_enrollment_is_optional(self):
+        del self.data["proposed_enrollment"]
+
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data
+        )
+        self.assertTrue(form.is_valid())
+
+    def test_large_duration_is_invalid(self):
+        self.data["proposed_duration"] = Experiment.MAX_DURATION + 1
+
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data
+        )
+        self.assertFalse(form.is_valid())
+
+    def test_large_enrollment_duration_is_invalid(self):
+        self.data["proposed_enrollment"] = Experiment.MAX_DURATION + 1
+
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data
+        )
+        self.assertFalse(form.is_valid())
+
+    def test_start_date_must_be_greater_or_equal_to_current_date(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        self.data[
+            "proposed_start_date"
+        ] = timezone.now().date() - datetime.timedelta(days=1)
+
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+        self.assertFalse(form.is_valid())
+
+    def test_locales_choices(self):
+        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
+        locale2 = LocaleFactory(code="fr", name="French")
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, countries=[], locales=[]
+        )
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+        self.assertEqual(
+            list(form.fields["locales"].choices),
+            [
+                (CustomModelMultipleChoiceField.ALL_KEY, "All locales"),
+                (locale2.code, str(locale2)),
+                (locale1.code, str(locale1)),
+            ],
+        )
+
+    def test_locales_initials(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, locales=[]
+        )
+        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
+        locale2 = LocaleFactory(code="fr", name="French")
+        experiment.locales.add(locale1)
+        experiment.locales.add(locale2)
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+        self.assertEqual(form.initial["locales"], [locale2, locale1])
+
+    def test_locales_initials_all_locales(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, locales=[]
+        )
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+        self.assertEqual(
+            form.initial["locales"], [CustomModelMultipleChoiceField.ALL_KEY]
+        )
+
+    def test_clean_locales(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, num_variants=0
+        )
+        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
+        locale2 = LocaleFactory(code="fr", name="French")
+        self.data["locales"] = [locale2.code, locale1.code]
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+        self.assertTrue(form.is_valid())
+        self.assertEqual(
+            set(form.cleaned_data["locales"]), set([locale2, locale1])
+        )
+
+    def test_clean_locales_all(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, num_variants=0
+        )
+        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
+        locale2 = LocaleFactory(code="fr", name="French")
+        self.data["locales"] = [
+            locale2.code,
+            CustomModelMultipleChoiceField.ALL_KEY,
+            locale1.code,
+        ]
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+        self.assertTrue(form.is_valid())
+        self.assertEqual(list(form.cleaned_data["locales"]), [])
+
+    def test_clean_unrecognized_locales(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        self.data["locales"] = ["xxx"]
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+        self.assertTrue(not form.is_valid())
+        self.assertTrue(form.errors["locales"])
+
+    def test_countries_choices(self):
+        country1 = CountryFactory(code="SV", name="Sweden")
+        country2 = CountryFactory(code="FR", name="France")
+
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, countries=[], locales=[]
+        )
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+        self.assertEqual(
+            list(form.fields["countries"].choices),
+            [
+                (CustomModelMultipleChoiceField.ALL_KEY, "All countries"),
+                (country2.code, str(country2)),
+                (country1.code, str(country1)),
+            ],
+        )
+
+    def test_countries_initials(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, countries=[]
+        )
+        country1 = CountryFactory(code="SV", name="Sweden")
+        country2 = CountryFactory(code="FR", name="France")
+        experiment.countries.add(country1)
+        experiment.countries.add(country2)
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+        self.assertEqual(form.initial["countries"], [country2, country1])
+
+    def test_countries_initials_all(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, num_variants=0, countries=[]
+        )
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+        self.assertEqual(
+            form.initial["countries"], [CustomModelMultipleChoiceField.ALL_KEY]
+        )
+
+    def test_clean_countries(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, num_variants=0
+        )
+        country1 = CountryFactory(code="SV", name="Sweden")
+        country2 = CountryFactory(code="FR", name="France")
+        self.data["countries"] = [country1.code, country2.code]
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+        self.assertTrue(form.is_valid())
+        self.assertEqual(
+            # form.cleaned_data["countries"] is a QuerySet to exhaust it.
+            list(form.cleaned_data["countries"]),
+            [country2, country1],
+        )
+
+    def test_clean_countries_all(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, num_variants=0
+        )
+        country1 = CountryFactory(code="SV", name="Sweden")
+        country2 = CountryFactory(code="FR", name="France")
+        self.data["countries"] = [
+            country1.code,
+            CustomModelMultipleChoiceField.ALL_KEY,
+            country2.code,
+        ]
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+        self.assertTrue(form.is_valid())
+        self.assertEqual(list(form.cleaned_data["countries"]), [])
+
+    def test_clean_unrecognized_countries(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+        self.data["countries"] = ["xxx"]
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+        self.assertTrue(not form.is_valid())
+        self.assertTrue(form.errors["countries"])
+
+    def test_form_is_invalid_if_population_percent_is_0(self):
+        self.data["population_percent"] = "0"
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("population_percent", form.errors)
+
+    def test_form_is_invalid_if_population_percent_below_0(self):
+        self.data["population_percent"] = "-1"
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("population_percent", form.errors)
+
+    def test_form_is_invalid_if_population_percent_above_100(self):
+        self.data["population_percent"] = "101"
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("population_percent", form.errors)
+
+    def test_form_saves_population(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT
+        )
+
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+
+        self.assertEqual(
+            experiment.population_percent, decimal.Decimal("10.000")
+        )
+        self.assertEqual(
+            experiment.firefox_min_version, self.data["firefox_min_version"]
+        )
+        self.assertEqual(
+            experiment.firefox_channel, self.data["firefox_channel"]
+        )
+        self.assertEqual(
+            experiment.client_matching, self.data["client_matching"]
+        )
+        self.assertEqual(experiment.platform, self.data["platform"])
+
+    def test_form_is_invalid_if_firefox_max_is_lower_than_min(self):
+        self.data["firefox_min_version"] = "66.0"
+        self.data["firefox_max_version"] = "64.0"
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("firefox_max_version", form.errors)
+
+    def test_form_is_valid_if_firefox_max_left_blank(self):
+        self.data["firefox_min_version"] = "66.0"
+        self.data["firefox_max_version"] = ""
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=self.data
+        )
+        self.assertTrue(form.is_valid())
 
 
 @parameterized_class(
@@ -993,230 +1197,6 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
         self.assertTrue(form2.is_valid())
         experiment2 = form2.save()
         self.assertEqual(experiment2.variants.count(), 3)
-
-    def test_locales_choices(self):
-        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
-        locale2 = LocaleFactory(code="fr", name="French")
-
-        form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=self.experiment
-        )
-        self.assertEqual(
-            list(form.fields["locales"].choices),
-            [
-                (CustomModelMultipleChoiceField.ALL_KEY, "All locales"),
-                (locale2.code, str(locale2)),
-                (locale1.code, str(locale1)),
-            ],
-        )
-
-    def test_locales_initials(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0, locales=[]
-        )
-        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
-        locale2 = LocaleFactory(code="fr", name="French")
-        experiment.locales.add(locale1)
-        experiment.locales.add(locale2)
-        form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertEqual(form.initial["locales"], [locale2, locale1])
-
-    def test_locales_initials_all_locales(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0, locales=[]
-        )
-        form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertEqual(
-            form.initial["locales"], [CustomModelMultipleChoiceField.ALL_KEY]
-        )
-
-    def test_clean_locales(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
-        )
-        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
-        locale2 = LocaleFactory(code="fr", name="French")
-        self.data["locales"] = [locale2.code, locale1.code]
-        form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertTrue(form.is_valid())
-        self.assertEqual(
-            set(form.cleaned_data["locales"]), set([locale2, locale1])
-        )
-
-    def test_clean_locales_all(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
-        )
-        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
-        locale2 = LocaleFactory(code="fr", name="French")
-        self.data["locales"] = [
-            locale2.code,
-            CustomModelMultipleChoiceField.ALL_KEY,
-            locale1.code,
-        ]
-        form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertTrue(form.is_valid())
-        self.assertEqual(list(form.cleaned_data["locales"]), [])
-
-    def test_clean_unrecognized_locales(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
-        )
-        self.data["locales"] = ["xxx"]
-        form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertTrue(not form.is_valid())
-        self.assertTrue(form.errors["locales"])
-
-    def test_countries_choices(self):
-        country1 = CountryFactory(code="SV", name="Sweden")
-        country2 = CountryFactory(code="FR", name="France")
-
-        form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=self.experiment
-        )
-        self.assertEqual(
-            list(form.fields["countries"].choices),
-            [
-                (CustomModelMultipleChoiceField.ALL_KEY, "All countries"),
-                (country2.code, str(country2)),
-                (country1.code, str(country1)),
-            ],
-        )
-
-    def test_countries_initials(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0, countries=[]
-        )
-        country1 = CountryFactory(code="SV", name="Sweden")
-        country2 = CountryFactory(code="FR", name="France")
-        experiment.countries.add(country1)
-        experiment.countries.add(country2)
-        form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertEqual(form.initial["countries"], [country2, country1])
-
-    def test_countries_initials_all(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0, countries=[]
-        )
-        form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertEqual(
-            form.initial["countries"], [CustomModelMultipleChoiceField.ALL_KEY]
-        )
-
-    def test_clean_countries(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
-        )
-        country1 = CountryFactory(code="SV", name="Sweden")
-        country2 = CountryFactory(code="FR", name="France")
-        self.data["countries"] = [country1.code, country2.code]
-        form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertTrue(form.is_valid())
-        self.assertEqual(
-            # form.cleaned_data["countries"] is a QuerySet to exhaust it.
-            list(form.cleaned_data["countries"]),
-            [country2, country1],
-        )
-
-    def test_clean_countries_all(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
-        )
-        country1 = CountryFactory(code="SV", name="Sweden")
-        country2 = CountryFactory(code="FR", name="France")
-        self.data["countries"] = [
-            country1.code,
-            CustomModelMultipleChoiceField.ALL_KEY,
-            country2.code,
-        ]
-        form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertTrue(form.is_valid())
-        self.assertEqual(list(form.cleaned_data["countries"]), [])
-
-    def test_clean_unrecognized_countries(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
-        )
-        self.data["countries"] = ["xxx"]
-        form = ExperimentVariantsAddonForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertTrue(not form.is_valid())
-        self.assertTrue(form.errors["countries"])
-
-    def test_form_is_invalid_if_population_percent_is_0(self):
-        self.data["population_percent"] = "0"
-        form = self.form_class(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("population_percent", form.errors)
-
-    def test_form_is_invalid_if_population_percent_below_0(self):
-        self.data["population_percent"] = "-1"
-        form = self.form_class(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("population_percent", form.errors)
-
-    def test_form_is_invalid_if_population_percent_above_100(self):
-        self.data["population_percent"] = "101"
-        form = self.form_class(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("population_percent", form.errors)
-
-    def test_form_saves_population(self):
-        form = self.form_class(
-            request=self.request, data=self.data, instance=self.experiment
-        )
-
-        self.assertTrue(form.is_valid())
-
-        self.assertEqual(self.experiment.variants.count(), 0)
-
-        experiment = form.save()
-
-        self.assertEqual(
-            experiment.population_percent, decimal.Decimal("10.000")
-        )
-        self.assertEqual(
-            experiment.firefox_min_version, self.data["firefox_min_version"]
-        )
-        self.assertEqual(
-            experiment.firefox_channel, self.data["firefox_channel"]
-        )
-        self.assertEqual(
-            experiment.client_matching, self.data["client_matching"]
-        )
-        self.assertEqual(experiment.platform, self.data["platform"])
-
-    def test_form_is_invalid_if_firefox_max_is_lower_than_min(self):
-        self.data["firefox_min_version"] = "66.0"
-        self.data["firefox_max_version"] = "64.0"
-        form = self.form_class(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("firefox_max_version", form.errors)
-
-    def test_form_is_valid_if_firefox_max_left_blank(self):
-        self.data["firefox_min_version"] = "66.0"
-        self.data["firefox_max_version"] = ""
-        form = self.form_class(request=self.request, data=self.data)
-        self.assertTrue(form.is_valid())
 
 
 class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):

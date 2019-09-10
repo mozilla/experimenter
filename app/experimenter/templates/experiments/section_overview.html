@@ -11,15 +11,18 @@ Overview
   <p><strong>Experiment Owner</strong></p>
   <p>{{ experiment.owner }}</p>
 
+  <p><strong>Data Science Owner</strong></p>
+  <p>{{ experiment.analysis_owner }}</p>
+
   {% if experiment.engineering_owner %}
     <p><strong>Engineering Owner</strong></p>
     <p>{{ experiment.engineering_owner }}</p>
   {% endif %}
 
-  <p><strong>Public Name:</strong></p>
+  <p><strong>Public Name</strong></p>
   <p>{{ experiment.public_name }}</p>
 
-  <p><strong>Public Description:</strong> </p>
+  <p><strong>Public Description</strong> </p>
   {{ experiment.public_description|urlize|linebreaks }}
 
   <p><strong>Related Work</strong></p>

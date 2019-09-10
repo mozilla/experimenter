@@ -210,6 +210,17 @@ class ExperimentOverviewForm(
         choices=Experiment.TYPE_CHOICES,
         help_text=Experiment.TYPE_HELP_TEXT,
     )
+    name = forms.CharField(label="Name", help_text=Experiment.NAME_HELP_TEXT)
+    slug = forms.CharField(required=False, widget=forms.HiddenInput())
+    short_description = forms.CharField(
+        label="Short Description",
+        help_text=Experiment.SHORT_DESCRIPTION_HELP_TEXT,
+        widget=forms.Textarea(attrs={"rows": 3}),
+    )
+    data_science_bugzilla_url = BugzillaURLField(
+        label="Data Science Bugzilla URL",
+        help_text=Experiment.DATA_SCIENCE_BUGZILLA_HELP_TEXT,
+    )
     owner = forms.ModelChoiceField(
         required=True,
         label="Experiment Owner",
@@ -225,12 +236,11 @@ class ExperimentOverviewForm(
         label="Engineering Owner",
         help_text=Experiment.ENGINEERING_OWNER_HELP_TEXT,
     )
-    name = forms.CharField(label="Name", help_text=Experiment.NAME_HELP_TEXT)
-    slug = forms.CharField(required=False, widget=forms.HiddenInput())
-    short_description = forms.CharField(
-        label="Short Description",
-        help_text=Experiment.SHORT_DESCRIPTION_HELP_TEXT,
-        widget=forms.Textarea(attrs={"rows": 3}),
+    analysis_owner = forms.CharField(
+        required=True,
+        label="Data Science Owner",
+        help_text=Experiment.ANALYSIS_OWNER_HELP_TEXT,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     public_name = forms.CharField(
         label="Public Name",
@@ -243,10 +253,7 @@ class ExperimentOverviewForm(
         help_text=Experiment.PUBLIC_DESCRIPTION_HELP_TEXT,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
-    data_science_bugzilla_url = BugzillaURLField(
-        label="Data Science Bugzilla URL",
-        help_text=Experiment.DATA_SCIENCE_BUGZILLA_HELP_TEXT,
-    )
+
     feature_bugzilla_url = BugzillaURLField(
         required=False,
         label="Feature Bugzilla URL",
@@ -264,47 +271,23 @@ class ExperimentOverviewForm(
         help_text="Is this related to a previously run experiment?",
         queryset=Experiment.objects.all(),
     )
-    proposed_start_date = forms.DateField(
-        required=False,
-        label="Proposed Start Date",
-        help_text=Experiment.PROPOSED_START_DATE_HELP_TEXT,
-        widget=forms.DateInput(
-            attrs={"type": "date", "class": "form-control"}
-        ),
-    )
-    proposed_duration = forms.IntegerField(
-        required=False,
-        min_value=1,
-        label="Proposed Experiment Duration (days)",
-        help_text=Experiment.PROPOSED_DURATION_HELP_TEXT,
-        widget=forms.NumberInput(attrs={"class": "form-control"}),
-    )
-    proposed_enrollment = forms.IntegerField(
-        required=False,
-        min_value=1,
-        label="Proposed Enrollment Duration (days)",
-        help_text=Experiment.PROPOSED_ENROLLMENT_HELP_TEXT,
-        widget=forms.NumberInput(attrs={"class": "form-control"}),
-    )
 
     class Meta:
         model = Experiment
         fields = [
             "type",
-            "owner",
-            "engineering_owner",
             "name",
             "slug",
             "short_description",
+            "data_science_bugzilla_url",
+            "owner",
+            "analysis_owner",
+            "engineering_owner",
             "public_name",
             "public_description",
-            "data_science_bugzilla_url",
             "feature_bugzilla_url",
             "related_work",
             "related_to",
-            "proposed_start_date",
-            "proposed_duration",
-            "proposed_enrollment",
         ]
 
     related_to.widget.attrs.update({"data-live-search": "true"})
@@ -321,37 +304,6 @@ class ExperimentOverviewForm(
             raise forms.ValidationError("This name is already in use.")
 
         return name
-
-    def clean_proposed_start_date(self):
-        start_date = self.cleaned_data["proposed_start_date"]
-
-        if start_date and start_date < timezone.now().date():
-            raise forms.ValidationError(
-                (
-                    "The experiment start date must "
-                    "be no earlier than the current date."
-                )
-            )
-
-        return start_date
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        # enrollment may be None
-        enrollment = cleaned_data.get("proposed_enrollment", None)
-        duration = cleaned_data.get("proposed_duration", None)
-
-        if (enrollment and duration) and enrollment > duration:
-            msg = (
-                "Enrollment duration is optional, but if set, "
-                "must be lower than the experiment duration. "
-                "If enrollment duration is not specified - users "
-                "are enrolled for the entire experiment."
-            )
-            self._errors["proposed_enrollment"] = [msg]
-
-        return cleaned_data
 
 
 class ExperimentVariantAddonForm(NameSlugFormMixin, forms.ModelForm):
@@ -497,8 +449,29 @@ class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     iterator = CustomModelChoiceIterator
 
 
-class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
-
+class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
+    proposed_start_date = forms.DateField(
+        required=True,
+        label="Proposed Start Date",
+        help_text=Experiment.PROPOSED_START_DATE_HELP_TEXT,
+        widget=forms.DateInput(
+            attrs={"type": "date", "class": "form-control"}
+        ),
+    )
+    proposed_duration = forms.IntegerField(
+        required=True,
+        min_value=1,
+        label="Proposed Experiment Duration (days)",
+        help_text=Experiment.PROPOSED_DURATION_HELP_TEXT,
+        widget=forms.NumberInput(attrs={"class": "form-control"}),
+    )
+    proposed_enrollment = forms.IntegerField(
+        required=False,
+        min_value=1,
+        label="Proposed Enrollment Duration (days)",
+        help_text=Experiment.PROPOSED_ENROLLMENT_HELP_TEXT,
+        widget=forms.NumberInput(attrs={"class": "form-control"}),
+    )
     population_percent = forms.DecimalField(
         label="Population Percentage",
         help_text=Experiment.POPULATION_PERCENT_HELP_TEXT,
@@ -551,6 +524,9 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
     class Meta:
         model = Experiment
         fields = [
+            "proposed_start_date",
+            "proposed_duration",
+            "proposed_enrollment",
             "population_percent",
             "firefox_min_version",
             "firefox_max_version",
@@ -580,21 +556,6 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
                 ]
         super().__init__(data=data, instance=instance, *args, **kwargs)
 
-        extra = 0
-        if instance and instance.variants.count() == 0:
-            extra = 2
-
-        FormSet = inlineformset_factory(
-            can_delete=True,
-            extra=extra,
-            form=self.FORMSET_FORM_CLASS,
-            formset=self.FORMSET_CLASS,
-            model=ExperimentVariant,
-            parent_model=Experiment,
-        )
-
-        self.variants_formset = FormSet(data=data, instance=instance)
-
     def clean_population_percent(self):
         population_percent = self.cleaned_data["population_percent"]
 
@@ -616,6 +577,64 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
                 )
 
             return firefox_max_version
+
+    def clean_proposed_start_date(self):
+        start_date = self.cleaned_data["proposed_start_date"]
+
+        if start_date and start_date < timezone.now().date():
+            raise forms.ValidationError(
+                (
+                    "The experiment start date must "
+                    "be no earlier than the current date."
+                )
+            )
+
+        return start_date
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # enrollment may be None
+        enrollment = cleaned_data.get("proposed_enrollment", None)
+        duration = cleaned_data.get("proposed_duration", None)
+
+        if (enrollment and duration) and enrollment > duration:
+            msg = (
+                "Enrollment duration is optional, but if set, "
+                "must be lower than the experiment duration. "
+                "If enrollment duration is not specified - users "
+                "are enrolled for the entire experiment."
+            )
+            self._errors["proposed_enrollment"] = [msg]
+
+        return cleaned_data
+
+
+class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
+
+    class Meta:
+        model = Experiment
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        data = kwargs.pop("data", None)
+        instance = kwargs.pop("instance", None)
+
+        extra = 0
+        if instance and instance.variants.count() == 0:
+            extra = 2
+
+        FormSet = inlineformset_factory(
+            can_delete=True,
+            extra=extra,
+            form=self.FORMSET_FORM_CLASS,
+            formset=self.FORMSET_CLASS,
+            model=ExperimentVariant,
+            parent_model=Experiment,
+        )
+
+        self.variants_formset = FormSet(data=data, instance=instance)
+        super().__init__(data=data, instance=instance, *args, **kwargs)
 
     def is_valid(self):
         return super().is_valid() and self.variants_formset.is_valid()
@@ -743,11 +762,7 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.OBJECTIVES_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
-    analysis_owner = forms.CharField(
-        label="Data Science Owner",
-        help_text=Experiment.ANALYSIS_OWNER_HELP_TEXT,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-    )
+
     analysis = forms.CharField(
         label="Analysis Plan",
         help_text=Experiment.ANALYSIS_HELP_TEXT,
@@ -779,7 +794,6 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
         model = Experiment
         fields = (
             "objectives",
-            "analysis_owner",
             "analysis",
             "survey_required",
             "survey_urls",
