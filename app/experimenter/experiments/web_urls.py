@@ -14,6 +14,7 @@ from experimenter.experiments.views import (
     ExperimentSubscribedUpdateView,
     ExperimentVariantsUpdateView,
     ExperimentResultsUpdateView,
+    ExperimentTimelinePopulationUpdateView,
 )
 
 
@@ -25,6 +26,11 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/edit/$",
         ExperimentOverviewUpdateView.as_view(),
         name="experiments-overview-update",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/edit-timeline-population/$",
+        ExperimentTimelinePopulationUpdateView.as_view(),
+        name="experiments-timeline-pop-update",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/edit-variants/$",
