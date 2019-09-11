@@ -1,4 +1,4 @@
-"""Representaion of the Edit Population Page."""
+"""Representaion of the Experiment Design Page."""
 
 import random
 import string
@@ -9,7 +9,7 @@ from pypom import Region
 from pages.base import Base
 
 
-class PopulationPage(Base):
+class DesignPage(Base):
 
     _add_branch_btn_locator = (By.CSS_SELECTOR, ".btn-success")
     _branch_form_root_locator = (
@@ -17,12 +17,6 @@ class PopulationPage(Base):
         "#formset > div:nth-child(5) > div",
     )
     _continue_btn_locator = (By.CSS_SELECTOR, "button.btn:nth-child(3)")
-    _firefox_channel_locator = (
-        By.CSS_SELECTOR,
-        "#id_firefox_channel > option:nth-child(2)",
-    )
-    _firefox_min_version_locator = (By.CSS_SELECTOR, "#id_firefox_min_version > option:nth-child(2)")
-    _firefox_population_percentage_locator = (By.CSS_SELECTOR, "#id_population_percent")
     _firefox_pref_name_locator = (By.CSS_SELECTOR, "#id_pref_key")
     _firefox_pref_type_locator = (
         By.CSS_SELECTOR,
@@ -58,19 +52,6 @@ class PopulationPage(Base):
             if not item.is_displayed:
                 del branches[count]
         return branches
-
-    def fill_firefox_population_percentage(self, text=50):
-        element = self.find_element(*self._firefox_population_percentage_locator)
-        element.send_keys(text)
-        return
-
-    def select_firefox_channel(self):
-        self.find_element(*self._firefox_channel_locator).click()
-        return
-
-    def select_firefox_min_version(self):
-        self.find_element(*self._firefox_min_version_locator).click()
-        return
 
     def input_firefox_pref_name(self, text=None):
         element = self.find_element(*self._firefox_pref_name_locator)
