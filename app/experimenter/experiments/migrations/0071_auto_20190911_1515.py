@@ -5,24 +5,50 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('experiments', '0070_auto_20190906_1800'),
-    ]
+    dependencies = [("experiments", "0070_auto_20190906_1800")]
 
     operations = [
         migrations.AddField(
-            model_name='experiment',
-            name='design',
-            field=models.TextField(blank=True, default='What is the design of this experiment? Explain in detail.', null=True),
+            model_name="experiment",
+            name="design",
+            field=models.TextField(
+                blank=True,
+                default="What is the design of this experiment? Explain in detail.",
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='experiment',
-            name='type',
-            field=models.CharField(choices=[('pref', 'Pref-Flip Experiment'), ('addon', 'Add-On Experiment'), ('generic', 'Generic Experiment')], default='pref', max_length=255),
+            model_name="experiment",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("pref", "Pref-Flip Experiment"),
+                    ("addon", "Add-On Experiment"),
+                    ("generic", "Generic Experiment"),
+                ],
+                default="pref",
+                max_length=255,
+            ),
         ),
         migrations.AlterField(
-            model_name='experimentcomment',
-            name='section',
-            field=models.CharField(choices=[('timeline', 'Timeline'), ('overview', 'Overview'), ('normandy', 'Normandy'), ('population', 'Population'), ('design', 'Design'), ('addon', 'Add-On'), ('branches', 'Branches'), ('objectives', 'Objectives'), ('analysis', 'Analysis'), ('risks', 'Risks'), ('testing', 'Testing'), ('results', 'Results')], max_length=255),
+            model_name="experimentcomment",
+            name="section",
+            field=models.CharField(
+                choices=[
+                    ("timeline", "Timeline"),
+                    ("overview", "Overview"),
+                    ("normandy", "Normandy"),
+                    ("population", "Population"),
+                    ("design", "Design"),
+                    ("addon", "Add-On"),
+                    ("branches", "Branches"),
+                    ("objectives", "Objectives"),
+                    ("analysis", "Analysis"),
+                    ("risks", "Risks"),
+                    ("testing", "Testing"),
+                    ("results", "Results"),
+                ],
+                max_length=255,
+            ),
         ),
     ]

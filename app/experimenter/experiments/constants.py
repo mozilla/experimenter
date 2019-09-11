@@ -11,7 +11,11 @@ class ExperimentConstants(object):
     TYPE_ADDON = "addon"
     TYPE_GENERIC = "generic"
 
-    TYPE_CHOICES = ((TYPE_PREF, "Pref-Flip Experiment"), (TYPE_ADDON, "Add-On Experiment"), (TYPE_GENERIC, "Generic Experiment"))
+    TYPE_CHOICES = (
+        (TYPE_PREF, "Pref-Flip Experiment"),
+        (TYPE_ADDON, "Add-On Experiment"),
+        (TYPE_GENERIC, "Generic Experiment"),
+    )
 
     # date range stuff
     EXPERIMENT_STARTS = "starting"

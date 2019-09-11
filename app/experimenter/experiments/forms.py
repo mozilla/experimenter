@@ -651,6 +651,7 @@ class ExperimentDesignGenericForm(ExperimentDesignBaseForm):
     FORMSET_CLASS = ExperimentVariantsFormSet
 
     design = forms.CharField(
+        required=False,
         label="Design",
         help_text=Experiment.DESIGN_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),

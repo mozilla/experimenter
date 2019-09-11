@@ -140,7 +140,9 @@ class Experiment(ExperimentConstants, models.Model):
         choices=ExperimentConstants.PLATFORM_CHOICES,
         default=ExperimentConstants.PLATFORM_ALL,
     )
-    design = models.TextField(default=ExperimentConstants.DESIGN_DEFAULT, blank=True, null=True)
+    design = models.TextField(
+        default=ExperimentConstants.DESIGN_DEFAULT, blank=True, null=True
+    )
     objectives = models.TextField(
         default=ExperimentConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
