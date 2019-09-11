@@ -306,7 +306,7 @@ class ExperimentOverviewForm(
         return name
 
 
-class ExperimentVariantAddonForm(NameSlugFormMixin, forms.ModelForm):
+class ExperimentVariantGenericForm(NameSlugFormMixin, forms.ModelForm):
 
     experiment = forms.ModelChoiceField(
         queryset=Experiment.objects.all(), required=False
@@ -344,7 +344,7 @@ class ExperimentVariantAddonForm(NameSlugFormMixin, forms.ModelForm):
         ]
 
 
-class ExperimentVariantPrefForm(ExperimentVariantAddonForm):
+class ExperimentVariantPrefForm(ExperimentVariantGenericForm):
 
     value = forms.CharField(
         label="Pref Value",
@@ -610,7 +610,7 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
         return cleaned_data
 
 
-class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
+class ExperimentDesignBaseForm(ChangeLogMixin, forms.ModelForm):
 
     class Meta:
         model = Experiment
@@ -645,9 +645,25 @@ class ExperimentVariantsBaseForm(ChangeLogMixin, forms.ModelForm):
         return super().save(*args, **kwargs)
 
 
-class ExperimentVariantsAddonForm(ExperimentVariantsBaseForm):
+class ExperimentDesignGenericForm(ExperimentDesignBaseForm):
 
-    FORMSET_FORM_CLASS = ExperimentVariantAddonForm
+    FORMSET_FORM_CLASS = ExperimentVariantGenericForm
+    FORMSET_CLASS = ExperimentVariantsFormSet
+
+    design = forms.CharField(
+        label="Design",
+        help_text=Experiment.DESIGN_HELP_TEXT,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
+    )
+
+    class Meta:
+        model = Experiment
+        fields = ["design"]
+
+
+class ExperimentDesignAddonForm(ExperimentDesignBaseForm):
+
+    FORMSET_FORM_CLASS = ExperimentVariantGenericForm
     FORMSET_CLASS = ExperimentVariantsFormSet
 
     addon_experiment_id = forms.CharField(
@@ -665,13 +681,13 @@ class ExperimentVariantsAddonForm(ExperimentVariantsBaseForm):
 
     class Meta:
         model = Experiment
-        fields = ExperimentVariantsBaseForm.Meta.fields + [
+        fields = ExperimentDesignBaseForm.Meta.fields + [
             "addon_experiment_id",
             "addon_release_url",
         ]
 
 
-class ExperimentVariantsPrefForm(ExperimentVariantsBaseForm):
+class ExperimentDesignPrefForm(ExperimentDesignBaseForm):
 
     FORMSET_FORM_CLASS = ExperimentVariantPrefForm
     FORMSET_CLASS = ExperimentVariantsPrefFormSet
@@ -696,7 +712,7 @@ class ExperimentVariantsPrefForm(ExperimentVariantsBaseForm):
 
     class Meta:
         model = Experiment
-        fields = ExperimentVariantsBaseForm.Meta.fields + [
+        fields = ExperimentDesignBaseForm.Meta.fields + [
             "pref_key",
             "pref_type",
             "pref_branch",
@@ -1310,6 +1326,7 @@ class ExperimentStatusForm(
             self.old_status == Experiment.STATUS_REVIEW
             and self.new_status == Experiment.STATUS_SHIP
             and experiment.bugzilla_id
+            and experiment.should_use_normandy
         ):
             experiment.normandy_slug = experiment.generate_normandy_slug()
             experiment.save()
