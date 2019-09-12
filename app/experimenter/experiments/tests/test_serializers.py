@@ -157,6 +157,7 @@ class TestChangeLogSerializer(TestCase):
             "proposed_start_date": str(experiment.proposed_start_date),
             "proposed_duration": experiment.proposed_duration,
             "proposed_enrollment": experiment.proposed_enrollment,
+            "design": experiment.design,
             "addon_experiment_id": experiment.addon_experiment_id,
             "addon_release_url": experiment.addon_release_url,
             "pref_key": experiment.pref_key,
