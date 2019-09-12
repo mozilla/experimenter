@@ -12,7 +12,7 @@ from experimenter.experiments.views import (
     ExperimentRisksUpdateView,
     ExperimentStatusUpdateView,
     ExperimentSubscribedUpdateView,
-    ExperimentVariantsUpdateView,
+    ExperimentDesignUpdateView,
     ExperimentResultsUpdateView,
     ExperimentTimelinePopulationUpdateView,
 )
@@ -33,9 +33,9 @@ urlpatterns = [
         name="experiments-timeline-pop-update",
     ),
     re_path(
-        r"^(?P<slug>[\w-]+)/edit-variants/$",
-        ExperimentVariantsUpdateView.as_view(),
-        name="experiments-variants-update",
+        r"^(?P<slug>[\w-]+)/edit-design/$",
+        ExperimentDesignUpdateView.as_view(),
+        name="experiments-design-update",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/edit-objectives/$",

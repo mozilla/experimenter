@@ -197,9 +197,9 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
 
         expected_name = "a" * 150
 
-        expected_summary = "[Experiment]: Pref-Flip: {name}...".format(
-            name=expected_name
-        )
+        expected_summary = (
+            "[Experiment]: Pref-Flip Experiment: {name}..."
+        ).format(name=expected_name)
         self.assertEqual(summary, expected_summary)
 
 
@@ -236,7 +236,10 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
         )
 
         update_experiment_bug(experiment)
-        summary = "[Experiment] Pref-Flip: An Experiment Fx 55.0 to 56.0 Beta"
+        summary = (
+            "[Experiment] Pref-Flip Experiment: "
+            "An Experiment Fx 55.0 to 56.0 Beta"
+        )
 
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
@@ -254,7 +257,9 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
             firefox_channel="Nightly",
         )
         update_experiment_bug(experiment)
-        summary = "[Experiment] Add-On: An Experiment Fx 56.0 Nightly"
+        summary = (
+            "[Experiment] Add-On Experiment: An Experiment Fx 56.0 Nightly"
+        )
 
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
