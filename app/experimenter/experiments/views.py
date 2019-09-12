@@ -21,17 +21,18 @@ from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.forms import (
     ExperimentArchiveForm,
     ExperimentCommentForm,
+    ExperimentDesignAddonForm,
+    ExperimentDesignGenericForm,
+    ExperimentDesignPrefForm,
     ExperimentObjectivesForm,
     ExperimentOverviewForm,
+    ExperimentResultsForm,
     ExperimentReviewForm,
     ExperimentRisksForm,
     ExperimentStatusForm,
     ExperimentSubscribedForm,
-    ExperimentVariantsAddonForm,
-    ExperimentVariantsPrefForm,
-    NormandyIdForm,
-    ExperimentResultsForm,
     ExperimentTimelinePopulationForm,
+    NormandyIdForm,
 )
 from experimenter.experiments.models import Experiment
 
@@ -427,15 +428,17 @@ class ExperimentTimelinePopulationUpdateView(ExperimentFormMixin, UpdateView):
     template_name = "experiments/edit_timeline_population.html"
 
 
-class ExperimentVariantsUpdateView(ExperimentFormMixin, UpdateView):
+class ExperimentDesignUpdateView(ExperimentFormMixin, UpdateView):
     next_view_name = "experiments-objectives-update"
-    template_name = "experiments/edit_variants.html"
+    template_name = "experiments/edit_design.html"
 
     def get_form_class(self):
         if self.object.is_addon_experiment:
-            return ExperimentVariantsAddonForm
+            return ExperimentDesignAddonForm
         elif self.object.is_pref_experiment:
-            return ExperimentVariantsPrefForm
+            return ExperimentDesignPrefForm
+        elif self.object.is_generic_experiment:
+            return ExperimentDesignGenericForm
 
 
 class ExperimentObjectivesUpdateView(ExperimentFormMixin, UpdateView):

@@ -37,7 +37,7 @@
   <li class="nav-item">
     <a
       class="nav-link {% if step == 3 %}active{% endif %} {% if not object.completed_overview %}disabled{% endif %}"
-      href="{% if object %}{% url "experiments-variants-update" slug=object.slug %}{% else %}#{% endif %}"
+      href="{% if object %}{% url "experiments-design-update" slug=object.slug %}{% else %}#{% endif %}"
     >
       <h4>
         3. Design

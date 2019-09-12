@@ -25,10 +25,11 @@ from experimenter.experiments.forms import (
     ExperimentRisksForm,
     ExperimentStatusForm,
     ExperimentSubscribedForm,
-    ExperimentVariantAddonForm,
+    ExperimentVariantGenericForm,
     ExperimentVariantPrefForm,
-    ExperimentVariantsAddonForm,
-    ExperimentVariantsPrefForm,
+    ExperimentDesignGenericForm,
+    ExperimentDesignAddonForm,
+    ExperimentDesignPrefForm,
     ExperimentResultsForm,
     JSONField,
     NormandyIdForm,
@@ -98,7 +99,7 @@ class TestBugzillaURLField(TestCase):
             field.clean("www.example.com")
 
 
-class TestExperimentVariantAddonForm(TestCase):
+class TestExperimentVariantGenericForm(TestCase):
 
     def setUp(self):
         self.experiment = ExperimentFactory.create()
@@ -111,7 +112,7 @@ class TestExperimentVariantAddonForm(TestCase):
         }
 
     def test_form_creates_variant(self):
-        form = ExperimentVariantAddonForm(self.data)
+        form = ExperimentVariantGenericForm(self.data)
 
         self.assertTrue(form.is_valid())
 
@@ -127,14 +128,14 @@ class TestExperimentVariantAddonForm(TestCase):
 
     def test_ratio_must_be_greater_than_0(self):
         self.data["ratio"] = 0
-        form = ExperimentVariantAddonForm(self.data)
+        form = ExperimentVariantGenericForm(self.data)
 
         self.assertFalse(form.is_valid())
         self.assertIn("ratio", form.errors)
 
     def test_ratio_must_be_less_than_or_equal_to_100(self):
         self.data["ratio"] = 101
-        form = ExperimentVariantAddonForm(self.data)
+        form = ExperimentVariantGenericForm(self.data)
 
         self.assertFalse(form.is_valid())
         self.assertIn("ratio", form.errors)
@@ -301,6 +302,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
     def test_changelog_values_with_prev_log(self):
 
         experiment = ExperimentFactory.create_with_variants(
+            type=Experiment.TYPE_PREF,
             num_variants=0,
             pref_type=Experiment.PREF_TYPE_INT,
             pref_branch=Experiment.PREF_BRANCH_DEFAULT,
@@ -363,7 +365,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             "variants-1-value": 8,
         }
 
-        form = ExperimentVariantsPrefForm(
+        form = ExperimentDesignPrefForm(
             request=self.request, data=data, instance=experiment
         )
         self.assertTrue(form.is_valid())
@@ -511,6 +513,7 @@ def get_variants_form_data():
         "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
         "addon_experiment_id": slugify(faker.catch_phrase()),
         "addon_release_url": "https://www.example.com/release.xpi",
+        "design": "Design",
         "variants-TOTAL_FORMS": "3",
         "variants-INITIAL_FORMS": "0",
         "variants-MIN_NUM_FORMS": "0",
@@ -878,9 +881,13 @@ class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
 
 @parameterized_class(
     ["form_class"],
-    [[ExperimentVariantsAddonForm], [ExperimentVariantsPrefForm]],
+    [
+        [ExperimentDesignGenericForm],
+        [ExperimentDesignAddonForm],
+        [ExperimentDesignPrefForm],
+    ],
 )
-class TestExperimentVariantsFormSet(MockRequestMixin, TestCase):
+class TestExperimentVariantFormSet(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
@@ -944,9 +951,13 @@ class TestExperimentVariantsFormSet(MockRequestMixin, TestCase):
 
 @parameterized_class(
     ["form_class"],
-    [[ExperimentVariantsAddonForm], [ExperimentVariantsPrefForm]],
+    [
+        [ExperimentDesignGenericForm],
+        [ExperimentDesignAddonForm],
+        [ExperimentDesignPrefForm],
+    ],
 )
-class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
+class TestExperimentDesignBaseForm(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
@@ -1199,7 +1210,29 @@ class TestExperimentVariantsBaseForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment2.variants.count(), 3)
 
 
-class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
+class TestExperimentDesignGenericForm(MockRequestMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.data = get_variants_form_data()
+
+    def test_form_saves_addon_information(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_GENERIC, design=Experiment.DESIGN_DEFAULT
+        )
+
+        form = ExperimentDesignGenericForm(
+            request=self.request, data=self.data, instance=experiment
+        )
+
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.design, self.data["design"])
+
+
+class TestExperimentDesignAddonForm(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
@@ -1210,7 +1243,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
             addon_experiment_id=None, addon_release_url=None
         )
 
-        form = ExperimentVariantsAddonForm(
+        form = ExperimentDesignAddonForm(
             request=self.request, data=self.data, instance=experiment
         )
 
@@ -1230,7 +1263,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
             addon_experiment_id=None, addon_release_url=None
         )
 
-        form = ExperimentVariantsAddonForm(
+        form = ExperimentDesignAddonForm(
             request=self.request, data=self.data, instance=experiment1
         )
         self.assertTrue(form.is_valid())
@@ -1244,7 +1277,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
             addon_experiment_id=None, addon_release_url=None
         )
 
-        form = ExperimentVariantsAddonForm(
+        form = ExperimentDesignAddonForm(
             request=self.request, data=self.data, instance=experiment2
         )
         self.assertFalse(form.is_valid())
@@ -1259,7 +1292,7 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
             settings.NORMANDY_SLUG_MAX_LEN + 1
         )
 
-        form = ExperimentVariantsAddonForm(
+        form = ExperimentDesignAddonForm(
             request=self.request, data=self.data, instance=experiment
         )
 
@@ -1272,14 +1305,14 @@ class TestExperimentVariantsAddonForm(MockRequestMixin, TestCase):
 
         self.data["addon_experiment_id"] = ""
 
-        form = ExperimentVariantsAddonForm(
+        form = ExperimentDesignAddonForm(
             request=self.request, data=self.data, instance=experiment
         )
 
         self.assertTrue(form.is_valid())
 
 
-class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
+class TestExperimentDesignPrefForm(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
@@ -1290,7 +1323,7 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
             pref_key=None, pref_type=None, pref_branch=None
         )
 
-        form = ExperimentVariantsPrefForm(
+        form = ExperimentDesignPrefForm(
             request=self.request, data=self.data, instance=experiment
         )
 
@@ -1304,7 +1337,7 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
 
     def test_form_is_invalid_if_branches_have_duplicate_pref_values(self):
         self.data["variants-0-value"] = self.data["variants-1-value"]
-        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        form = ExperimentDesignPrefForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
         self.assertIn("value", form.variants_formset.errors[0])
         self.assertIn("value", form.variants_formset.errors[1])
@@ -1315,7 +1348,7 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
         self.data["variants-0-value"] = "hello"  # str
         self.data["variants-1-value"] = "true"  # bool
         self.data["variants-2-value"] = "5"  # int
-        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        form = ExperimentDesignPrefForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
         self.assertIn("value", form.variants_formset.errors[0])
         self.assertIn("value", form.variants_formset.errors[1])
@@ -1323,7 +1356,7 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
 
     def test_form_is_valid_if_pref_type_is_string(self):
         self.data["variants-0-value"] = "abc"
-        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        form = ExperimentDesignPrefForm(request=self.request, data=self.data)
         self.assertTrue(form.is_valid())
         self.assertNotIn("value", form.variants_formset.errors[0])
         self.assertNotIn("value", form.variants_formset.errors[1])
@@ -1347,7 +1380,7 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
         self.data["variants-0-value"] = "true"
         self.data["variants-1-value"] = "false"
 
-        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        form = ExperimentDesignPrefForm(request=self.request, data=self.data)
 
         self.assertTrue(form.is_valid())
         self.assertNotIn("value", form.variants_formset.errors[0])
@@ -1358,7 +1391,7 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
         self.data["variants-0-value"] = "20"
         self.data["variants-1-value"] = "55"
         self.data["variants-2-value"] = "75"
-        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        form = ExperimentDesignPrefForm(request=self.request, data=self.data)
         self.assertTrue(form.is_valid())
         self.assertNotIn("value", form.variants_formset.errors[0])
         self.assertNotIn("value", form.variants_formset.errors[1])
@@ -1369,7 +1402,7 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
         self.data["variants-0-value"] = "{}"
         self.data["variants-1-value"] = "[1,2,3,4]"
         self.data["variants-2-value"] = '{"variant":[1,2,3,4]}'
-        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        form = ExperimentDesignPrefForm(request=self.request, data=self.data)
         self.assertTrue(form.is_valid())
         self.assertNotIn("value", form.variants_formset.errors[0])
         self.assertNotIn("value", form.variants_formset.errors[1])
@@ -1380,7 +1413,7 @@ class TestExperimentVariantsPrefForm(MockRequestMixin, TestCase):
         self.data["variants-0-value"] = "{]"
         self.data["variants-1-value"] = '{5: "something"}'
         self.data["variants-2-value"] = "hi"
-        form = ExperimentVariantsPrefForm(request=self.request, data=self.data)
+        form = ExperimentDesignPrefForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
         self.assertIn("value", form.variants_formset.errors[0])
         self.assertIn("value", form.variants_formset.errors[1])

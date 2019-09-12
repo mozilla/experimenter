@@ -9,8 +9,13 @@ class ExperimentConstants(object):
     # Type stuff
     TYPE_PREF = "pref"
     TYPE_ADDON = "addon"
+    TYPE_GENERIC = "generic"
 
-    TYPE_CHOICES = ((TYPE_PREF, "Pref-Flip"), (TYPE_ADDON, "Add-On"))
+    TYPE_CHOICES = (
+        (TYPE_PREF, "Pref-Flip Experiment"),
+        (TYPE_ADDON, "Add-On Experiment"),
+        (TYPE_GENERIC, "Generic Experiment"),
+    )
 
     # date range stuff
     EXPERIMENT_STARTS = "starting"
@@ -157,6 +162,7 @@ class ExperimentConstants(object):
     SECTION_OVERVIEW = "overview"
     SECTION_NORMANDY = "normandy"
     SECTION_POPULATION = "population"
+    SECTION_DESIGN = "design"
     SECTION_ADDON = "addon"
     SECTION_BRANCHES = "branches"
     SECTION_OBJECTIVES = "objectives"
@@ -171,8 +177,9 @@ class ExperimentConstants(object):
         (SECTION_OVERVIEW, "Overview"),
         (SECTION_NORMANDY, "Normandy"),
         (SECTION_POPULATION, "Population"),
+        (SECTION_DESIGN, "Design"),
         (SECTION_ADDON, "Add-On"),
-        (SECTION_BRANCHES, "Firefox & Branches"),
+        (SECTION_BRANCHES, "Branches"),
         (SECTION_OBJECTIVES, "Objectives"),
         (SECTION_ANALYSIS, "Analysis"),
         (SECTION_RISKS, "Risks"),
@@ -393,6 +400,12 @@ class ExperimentConstants(object):
       <p>
         Description that will be shown to Firefox users enrolled in the
         experiment.
+      </p>
+    """
+
+    DESIGN_HELP_TEXT = """
+      <p>
+        Specify the design of the experiment.
       </p>
     """
 
@@ -799,6 +812,10 @@ Experiments:
 
 Any additional filters:
     """
+    )
+
+    DESIGN_DEFAULT = (
+        "What is the design of this experiment? Explain in detail."
     )
 
     OBJECTIVES_DEFAULT = (

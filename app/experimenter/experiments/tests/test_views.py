@@ -12,8 +12,9 @@ from django.utils import timezone
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.forms import (
-    ExperimentVariantsAddonForm,
-    ExperimentVariantsPrefForm,
+    ExperimentDesignAddonForm,
+    ExperimentDesignGenericForm,
+    ExperimentDesignPrefForm,
 )
 from experimenter.experiments.forms import NormandyIdForm
 from experimenter.experiments.models import Experiment
@@ -913,7 +914,7 @@ class TestExperimentTimelinePopulationUpdateView(TestCase):
         self.assertTrue(country in experiment.countries.all())
 
 
-class TestExperimentVariantsUpdateView(TestCase):
+class TestExperimentDesignUpdateView(TestCase):
 
     def test_uses_addon_form_for_addon_experiment(self):
         user_email = "user@example.com"
@@ -922,13 +923,13 @@ class TestExperimentVariantsUpdateView(TestCase):
         )
         response = self.client.get(
             reverse(
-                "experiments-variants-update", kwargs={"slug": experiment.slug}
+                "experiments-design-update", kwargs={"slug": experiment.slug}
             ),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(
-            response.context["form"], ExperimentVariantsAddonForm
+            response.context["form"], ExperimentDesignAddonForm
         )
 
     def test_uses_pref_form_for_pref_experiment(self):
@@ -938,13 +939,29 @@ class TestExperimentVariantsUpdateView(TestCase):
         )
         response = self.client.get(
             reverse(
-                "experiments-variants-update", kwargs={"slug": experiment.slug}
+                "experiments-design-update", kwargs={"slug": experiment.slug}
             ),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(
-            response.context["form"], ExperimentVariantsPrefForm
+            response.context["form"], ExperimentDesignPrefForm
+        )
+
+    def test_uses_generic_form_for_generic_experiment(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, type=Experiment.TYPE_GENERIC
+        )
+        response = self.client.get(
+            reverse(
+                "experiments-design-update", kwargs={"slug": experiment.slug}
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(
+            response.context["form"], ExperimentDesignGenericForm
         )
 
     def test_view_saves_experiment(self):
@@ -980,7 +997,7 @@ class TestExperimentVariantsUpdateView(TestCase):
 
         response = self.client.post(
             reverse(
-                "experiments-variants-update", kwargs={"slug": experiment.slug}
+                "experiments-design-update", kwargs={"slug": experiment.slug}
             ),
             data,
             **{settings.OPENIDC_EMAIL_HEADER: user_email},

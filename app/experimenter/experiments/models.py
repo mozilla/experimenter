@@ -140,6 +140,9 @@ class Experiment(ExperimentConstants, models.Model):
         choices=ExperimentConstants.PLATFORM_CHOICES,
         default=ExperimentConstants.PLATFORM_ALL,
     )
+    design = models.TextField(
+        default=ExperimentConstants.DESIGN_DEFAULT, blank=True, null=True
+    )
     objectives = models.TextField(
         default=ExperimentConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
@@ -309,6 +312,10 @@ class Experiment(ExperimentConstants, models.Model):
             return settings.MONITORING_URL.format(
                 slug=self.normandy_slug, from_date=start_date, to_date=end_date
             )
+
+    @property
+    def should_use_normandy(self):
+        return self.type in (self.TYPE_PREF, self.TYPE_ADDON)
 
     def generate_normandy_slug(self):
         if self.is_addon_experiment:
@@ -536,6 +543,10 @@ class Experiment(ExperimentConstants, models.Model):
         return date_ordered_changes
 
     @property
+    def is_generic_experiment(self):
+        return self.type == self.TYPE_GENERIC
+
+    @property
     def is_addon_experiment(self):
         return self.type == self.TYPE_ADDON
 
@@ -570,6 +581,10 @@ class Experiment(ExperimentConstants, models.Model):
             and self.firefox_min_version != ""
             and self.firefox_channel != ""
         )
+
+    @property
+    def completed_design(self):
+        return self.design != self.DESIGN_DEFAULT
 
     @property
     def completed_addon(self):
@@ -682,6 +697,9 @@ class Experiment(ExperimentConstants, models.Model):
 
         if self.is_addon_experiment:
             completed = completed and self.completed_addon
+
+        if self.is_generic_experiment:
+            completed = completed and self.completed_design
 
         return completed
 

@@ -88,6 +88,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "proposed_start_date",
             "proposed_duration",
             "proposed_enrollment",
+            "design",
             "addon_experiment_id",
             "addon_release_url",
             "pref_key",

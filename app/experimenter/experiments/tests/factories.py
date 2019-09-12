@@ -61,7 +61,7 @@ class ExperimentFactory(
     platform = factory.LazyAttribute(
         lambda o: random.choice(Experiment.PLATFORM_CHOICES)[0]
     )
-
+    design = factory.LazyAttribute(lambda o: faker.text(50))
     pref_key = factory.LazyAttribute(
         lambda o: "browser.{pref}.enabled".format(
             pref=faker.catch_phrase().replace(" ", ".").lower()
