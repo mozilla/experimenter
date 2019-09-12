@@ -256,7 +256,7 @@
                                     {% endfor %}
                                 </td>
                                 {% else %}
-                                  <th scope="row">{{value.display_name}}</th>
+                                  <th scope="row">{{value.display_name|safe}}</th>
                                   <td>{{value.old_value|linebreaks}}</td>
                                   <td>{{value.new_value|linebreaks}}</td>
                                 {% endif %}
