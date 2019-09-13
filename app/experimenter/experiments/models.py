@@ -826,6 +826,8 @@ class Experiment(ExperimentConstants, models.Model):
             variant.experiment = cloned
             variant.save()
 
+        cloned.related_to.add(self)
+
         ExperimentChangeLog.objects.create(
             experiment=cloned,
             changed_by=get_user_model().objects.get(id=user.id),
