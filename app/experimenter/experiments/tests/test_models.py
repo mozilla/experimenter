@@ -1250,6 +1250,7 @@ class TestExperimentModel(TestCase):
         ).get()
 
         self.assertTrue(cloned_experiment.parent, experiment.id)
+        self.assertIn(experiment, cloned_experiment.related_to.all())
         self.assertEqual(cloned_experiment.status, Experiment.STATUS_DRAFT)
         self.assertEqual(
             cloned_experiment.short_description,
