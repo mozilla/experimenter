@@ -56,6 +56,9 @@ kill: compose_kill compose_rm
 up: compose_kill compose_build
 	docker-compose up
 
+up_all: compose_build
+	docker-compose -f docker-compose-full.yml up
+	
 gunicorn: compose_build
 	docker-compose -f docker-compose.yml -f docker-compose-gunicorn.yml up
 
