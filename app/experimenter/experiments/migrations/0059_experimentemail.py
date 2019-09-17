@@ -44,9 +44,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            bases=(
-                experimenter.experiments.constants.ExperimentConstants,
-                models.Model,
-            ),
+            bases=(experimenter.experiments.constants.ExperimentConstants, models.Model),
         )
     ]

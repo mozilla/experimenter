@@ -72,12 +72,7 @@ def send_enrollment_pause_email(experiment):
 
 
 def format_and_send_html_email(
-    experiment,
-    file_string,
-    template_vars,
-    subject,
-    email_type,
-    cc_recipients=None,
+    experiment, file_string, template_vars, subject, email_type, cc_recipients=None
 ):
     content = render_to_string(file_string, template_vars)
 

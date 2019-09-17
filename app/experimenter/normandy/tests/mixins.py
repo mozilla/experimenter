@@ -9,9 +9,7 @@ class MockNormandyMixin(object):
         mock_normandy_requests_get_patcher = mock.patch(
             "experimenter.normandy.client.requests.get"
         )
-        self.mock_normandy_requests_get = (
-            mock_normandy_requests_get_patcher.start()
-        )
+        self.mock_normandy_requests_get = mock_normandy_requests_get_patcher.start()
         self.addCleanup(mock_normandy_requests_get_patcher.stop)
         self.mock_normandy_requests_get.return_value = (
             self.buildMockSuccessEnabledResponse()
