@@ -9,7 +9,7 @@
     {{ paginator.count }}
 
     {% if filter.form.type.value %}
-      {{ filter.form.get_type_display_value }}
+      {{ filter.get_type_display_value }}
     {% endif %}
 
     {% if filter.form.status.value %}
@@ -21,7 +21,7 @@
     {% endif %}
 
     {% if filter.form.project.value %}
-      {{ filter.form.get_project_display_value }}
+      {{ filter.get_project_display_value }}
     {% endif %}
 
     {% if filter.form.subscribed.value %}
@@ -48,14 +48,14 @@
     {% endif %}
 
     {% if filter.form.owner.value %}
-      by {{ filter.form.get_owner_display_value }}
+      by {{ filter.get_owner_display_value }}
     {% endif %}
 
     {% if filter.form.search.value %}
       with text "{{ filter.form.search.value }}"
     {% endif %}
 
-    {{ filter.form.get_display_start_date_info }}
+    {{ filter.get_display_start_date_info }}
 
 
     {% if is_paginated and page_obj.number > 1 %}
