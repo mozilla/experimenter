@@ -5,6 +5,7 @@ import re
 from urllib.parse import urlencode
 
 import mock
+from django.http.request import QueryDict
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -32,6 +33,18 @@ from experimenter.experiments.views import (
 
 
 class TestExperimentFilterset(MockRequestMixin, TestCase):
+
+    def test_filters_by_multiple_types(self):
+        pref = ExperimentFactory.create(type=Experiment.TYPE_PREF)
+        addon = ExperimentFactory.create(type=Experiment.TYPE_ADDON)
+        ExperimentFactory.create(type=Experiment.TYPE_GENERIC)
+
+        filter = ExperimentFilterset(
+            data={"type": [Experiment.TYPE_PREF, Experiment.TYPE_ADDON]},
+            queryset=Experiment.objects.all(),
+        )
+        self.assertTrue(filter.is_valid())
+        self.assertEqual(set(filter.qs), set([pref, addon]))
 
     def test_filters_out_archived_by_default(self):
         for i in range(3):
@@ -456,11 +469,15 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         self.assertEqual(filter.get_owner_display_value(), str(user))
 
     def test_get_type_display_value_returns_type_str(self):
-        filter = ExperimentFilterset(data={"type": Experiment.TYPE_ADDON})
-        self.assertEqual(
-            filter.get_type_display_value(),
-            dict(Experiment.TYPE_CHOICES)[Experiment.TYPE_ADDON],
+        filter = ExperimentFilterset(
+            data=QueryDict(
+                urlencode(
+                    {"type": [Experiment.TYPE_PREF, Experiment.TYPE_ADDON]},
+                    True,
+                )
+            )
         )
+        self.assertEqual(filter.get_type_display_value(), "Pref-Flip, Add-On")
 
 
 class TestExperimentOrderingForm(TestCase):
@@ -537,17 +554,20 @@ class TestExperimentListView(TestCase):
         filtered_channel = Experiment.CHANNEL_CHOICES[1][0]
         filtered_owner = UserFactory.create()
         filtered_status = Experiment.STATUS_DRAFT
+        filtered_types = (Experiment.TYPE_PREF, Experiment.TYPE_GENERIC)
         filtered_version = Experiment.VERSION_CHOICES[1][0]
 
-        for i in range(10):
-            ExperimentFactory.create_with_status(
-                firefox_channel=filtered_channel,
-                firefox_min_version=filtered_version,
-                owner=filtered_owner,
-                target_status=filtered_status,
-            )
+        for i in range(3):
+            for filtered_type in filtered_types:
+                ExperimentFactory.create_with_status(
+                    firefox_channel=filtered_channel,
+                    firefox_min_version=filtered_version,
+                    owner=filtered_owner,
+                    target_status=filtered_status,
+                    type=filtered_type,
+                )
 
-        for i in range(10):
+        for i in range(3):
             ExperimentFactory.create_with_status(
                 random.choice(Experiment.STATUS_CHOICES)[0]
             )
@@ -557,6 +577,7 @@ class TestExperimentListView(TestCase):
             firefox_min_version=filtered_version,
             owner=filtered_owner,
             status=filtered_status,
+            type__in=filtered_types,
         ).order_by(ordering)
 
         response = self.client.get(
@@ -569,7 +590,9 @@ class TestExperimentListView(TestCase):
                         "ordering": ordering,
                         "owner": filtered_owner.id,
                         "status": filtered_status,
-                    }
+                        "type": filtered_types,
+                    },
+                    True,
                 ),
             ),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},

@@ -58,10 +58,10 @@ class ExperimentFilterset(filters.FilterSet):
             }
         ),
     )
-    type = filters.ChoiceFilter(
-        empty_label="All Types",
+    type = filters.MultipleChoiceFilter(
         choices=Experiment.TYPE_CHOICES,
-        widget=forms.Select(attrs={"class": "form-control"}),
+        conjoined=False,
+        widget=forms.SelectMultiple(attrs={"class": "form-control"}),
     )
     status = filters.ChoiceFilter(
         empty_label="All Statuses",
@@ -195,14 +195,12 @@ class ExperimentFilterset(filters.FilterSet):
         return queryset
 
     def version_filter(self, queryset, name, value):
-
         return queryset.filter(
             Q(firefox_min_version__lte=value, firefox_max_version__gte=value)
             | Q(firefox_min_version=value)
         )
 
     def date_range_filter(self, queryset, name, value):
-
         date_type = self.form.cleaned_data["experiment_date_field"]
 
         experiment_date_field = {
@@ -282,10 +280,15 @@ class ExperimentFilterset(filters.FilterSet):
         return queryset
 
     def get_type_display_value(self):
-        return dict(Experiment.TYPE_CHOICES).get(self.data.get("type"))
+        return ", ".join(
+            [
+                dict(Experiment.TYPE_CHOICES)[type].replace(" Experiment", "")
+                for type in self.data.getlist("type")
+            ]
+        )
 
     def get_owner_display_value(self):
-        user_id = self.data.get("owner", None)
+        user_id = self.data.get("owner")
 
         if user_id is not None:
             return str(get_user_model().objects.get(id=user_id))

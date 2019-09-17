@@ -20,10 +20,6 @@
       {{ filter.form.firefox_channel.value }}
     {% endif %}
 
-    {% if filter.form.project.value %}
-      {{ filter.get_project_display_value }}
-    {% endif %}
-
     {% if filter.form.subscribed.value %}
        subscribed
     {% endif %}
@@ -197,6 +193,11 @@
 
 {% block extrascripts %}
   <script src="{% static "js/experiment-date-filter.js" %}"></script>
+  <script>
+    $("select[multiple]").selectpicker({
+      noneSelectedText: "All Types"
+    });
+  </script>
 {% endblock %}
 
 {% block page_id %}page-list-view{% endblock %}
