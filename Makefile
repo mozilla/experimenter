@@ -98,8 +98,11 @@ integration_build: build
 integration_shell: integration_build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox bash 
 
-integration_up: integration_build
+integration_up_detached: integration_build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml up -d
+
+integration_up: integration_build
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml up
 
 integration_test: integration_kill ssl integration_build create_integration_test_user
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox tox -c tests/integration
