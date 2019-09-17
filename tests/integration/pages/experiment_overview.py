@@ -10,7 +10,7 @@ class ExperimentOverview(Base):
 
     _root_locator = (By.CSS_SELECTOR, ".form-group")
 
-    _experiment_featire_bugzilla_url_locator = (
+    _experiment_feature_bugzilla_url_locator = (
         By.CSS_SELECTOR,
         "#id_feature_bugzilla_url",
     )
@@ -52,10 +52,7 @@ class ExperimentOverview(Base):
         options = self.find_elements(*self._experiment_type_locator)
         for item in options:
             if item.get_property("selected"):
-                text = item.text
-        if "addon" in text.replace("-", "").lower():
-            return "addon"
-        return "pref"
+                return item.get_attribute("value")
 
     @experiment_type.setter
     def experiment_type(self, exp_type=None):
@@ -117,14 +114,14 @@ class ExperimentOverview(Base):
     @property
     def feature_bugzilla_url(self):
         element = self.find_element(
-            *self._experiment_featire_bugzilla_url_locator
+            *self._experiment_feature_bugzilla_url_locator
         )
         return element.get_attribute("value")
 
     @feature_bugzilla_url.setter
     def feature_bugzilla_url(self, text=None):
         element = self.find_element(
-            *self._experiment_featire_bugzilla_url_locator
+            *self._experiment_feature_bugzilla_url_locator
         )
         element.send_keys(text)
 

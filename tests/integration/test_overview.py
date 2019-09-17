@@ -7,7 +7,7 @@ from pages.experiment_design import DesignPage
 
 @pytest.mark.nondestructive
 def test_overview_type_changes_correctly(base_url, selenium):
-    """"""
+    """Test changing experiment type."""
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
@@ -19,7 +19,7 @@ def test_overview_type_changes_correctly(base_url, selenium):
 
 @pytest.mark.nondestructive
 def test_overview_owner_changes_correctly(base_url, selenium):
-    """"""
+    """Test changing experiment owner."""
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
@@ -31,7 +31,7 @@ def test_overview_owner_changes_correctly(base_url, selenium):
 
 @pytest.mark.nondestructive
 def test_overview_engineering_owner_changes_correctly(base_url, selenium):
-    """"""
+    """Test changing engineering owner."""
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
@@ -43,7 +43,7 @@ def test_overview_engineering_owner_changes_correctly(base_url, selenium):
 
 @pytest.mark.nondestructive
 def test_public_name_changes_correctly(base_url, selenium):
-    """"""
+    """Test adding a public name."""
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
@@ -55,7 +55,7 @@ def test_public_name_changes_correctly(base_url, selenium):
 
 @pytest.mark.nondestructive
 def test_public_description_changes_correctly(base_url, selenium):
-    """"""
+    """Test adding a public description."""
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
@@ -67,7 +67,7 @@ def test_public_description_changes_correctly(base_url, selenium):
 
 @pytest.mark.nondestructive
 def test_feature_bugzilla_url_changes_correctly(base_url, selenium):
-    """"""
+    """Test adding a bugzilla url."""
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
@@ -79,7 +79,7 @@ def test_feature_bugzilla_url_changes_correctly(base_url, selenium):
 
 @pytest.mark.nondestructive
 def test_related_work_url_changes_correctly(base_url, selenium):
-    """"""
+    """Test adding related work urls."""
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
@@ -91,10 +91,11 @@ def test_related_work_url_changes_correctly(base_url, selenium):
 
 @pytest.mark.nondestructive
 def test_related_experiments_updates_correctly(base_url, selenium):
-    """"""
+    """Test updating related experiments."""
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
     assert experiment.related_experiments == "Nothing selected"
+    # Choose some random experiment from the list
     experiment.related_experiments = 1
     assert "Nothing selected" not in experiment.related_work_urls
