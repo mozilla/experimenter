@@ -229,6 +229,18 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.has_external_urls)
 
+    def test_should_use_normandy_false_for_generic(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_GENERIC)
+        self.assertFalse(experiment.should_use_normandy)
+
+    def test_should_use_normandy_true_for_pref(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_PREF)
+        self.assertTrue(experiment.should_use_normandy)
+
+    def test_should_use_normandy_true_for_addon(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ADDON)
+        self.assertTrue(experiment.should_use_normandy)
+
     def test_generate_normandy_slug_raises_valueerror_without_version(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
@@ -863,6 +875,14 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create()
         self.assertTrue(experiment.completed_population)
 
+    def test_design_is_not_complete_when_defaults_set(self):
+        experiment = ExperimentFactory.create(design=Experiment.DESIGN_DEFAULT)
+        self.assertFalse(experiment.completed_design)
+
+    def test_design_is_complete_when_design_set(self):
+        experiment = ExperimentFactory.create(design="Design")
+        self.assertTrue(experiment.completed_design)
+
     def test_addons_is_not_complete_when_release_url_not_set(self):
         experiment = ExperimentFactory.create(
             addon_experiment_id=None, addon_release_url=None
@@ -1033,6 +1053,22 @@ class TestExperimentModel(TestCase):
             Experiment.STATUS_REVIEW,
             type=Experiment.TYPE_ADDON,
             addon_release_url="https://www.example.com/release.xpi",
+        )
+        self.assertTrue(experiment.completed_all_sections)
+
+    def test_completed_all_sections_false_for_generic_without_design(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW,
+            type=Experiment.TYPE_GENERIC,
+            design=Experiment.DESIGN_DEFAULT,
+        )
+        self.assertFalse(experiment.completed_all_sections)
+
+    def test_completed_all_sections_true_for_generic_with_design(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW,
+            type=Experiment.TYPE_GENERIC,
+            design="Design",
         )
         self.assertTrue(experiment.completed_all_sections)
 
@@ -1214,6 +1250,7 @@ class TestExperimentModel(TestCase):
         ).get()
 
         self.assertTrue(cloned_experiment.parent, experiment.id)
+        self.assertIn(experiment, cloned_experiment.related_to.all())
         self.assertEqual(cloned_experiment.status, Experiment.STATUS_DRAFT)
         self.assertEqual(
             cloned_experiment.short_description,

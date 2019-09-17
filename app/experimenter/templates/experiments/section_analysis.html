@@ -5,6 +5,7 @@ Analysis
 {% endblock %}
 
 {% block section_content %}
+  {{ experiment.analysis|urlize|linebreaks }}
     <strong>
       {{ experiment.SURVEY_REQUIRED_LABEL }}
       <span class="{% if experiment.survey_required %}text-danger{% endif %}">
