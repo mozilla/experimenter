@@ -107,5 +107,5 @@ integration_up: integration_build
 integration_test: integration_kill ssl integration_build create_integration_test_user
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox tox -c tests/integration
 
-create_integration_test_user: integration_up
+create_integration_test_user: integration_up_detached
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run app python manage.py shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'adminpass')"
