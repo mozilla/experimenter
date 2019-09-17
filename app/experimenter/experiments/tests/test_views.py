@@ -40,11 +40,17 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         ExperimentFactory.create(type=Experiment.TYPE_GENERIC)
 
         filter = ExperimentFilterset(
-            data={"type": [Experiment.TYPE_PREF, Experiment.TYPE_ADDON]},
+            data=QueryDict(
+                urlencode(
+                    {"type": [Experiment.TYPE_PREF, Experiment.TYPE_ADDON]},
+                    True,
+                )
+            ),
             queryset=Experiment.objects.all(),
         )
         self.assertTrue(filter.is_valid())
         self.assertEqual(set(filter.qs), set([pref, addon]))
+        self.assertEqual(filter.get_type_display_value(), "Pref-Flip, Add-On")
 
     def test_filters_out_archived_by_default(self):
         for i in range(3):
@@ -98,6 +104,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         self.assertEqual(
             set(filter.qs), set(Experiment.objects.filter(owner=owner))
         )
+        self.assertEqual(filter.get_owner_display_value(), str(owner))
 
     def test_filters_by_status(self):
         for i in range(3):
@@ -462,22 +469,6 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         self.assertEqual(
             filter.get_display_start_date_info(), "starting before 2019-05-01"
         )
-
-    def test_get_owner_display_value_returns_user_str(self):
-        user = UserFactory.create()
-        filter = ExperimentFilterset(data={"owner": user.id})
-        self.assertEqual(filter.get_owner_display_value(), str(user))
-
-    def test_get_type_display_value_returns_type_str(self):
-        filter = ExperimentFilterset(
-            data=QueryDict(
-                urlencode(
-                    {"type": [Experiment.TYPE_PREF, Experiment.TYPE_ADDON]},
-                    True,
-                )
-            )
-        )
-        self.assertEqual(filter.get_type_display_value(), "Pref-Flip, Add-On")
 
 
 class TestExperimentOrderingForm(TestCase):
