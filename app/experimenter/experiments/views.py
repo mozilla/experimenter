@@ -288,7 +288,7 @@ class ExperimentFilterset(filters.FilterSet):
         date_before = self.data.get("date_range_before")
 
         if date_after and date_before:
-            return f"{experiment_date_field} between " f"{date_after} and {date_before}"
+            return f"{experiment_date_field} between {date_after} and {date_before}"
         elif date_after and date_before == "":
             return f"{experiment_date_field} after {date_after}"
         elif date_after == "" and date_before:
