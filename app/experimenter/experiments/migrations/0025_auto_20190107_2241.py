@@ -22,10 +22,7 @@ class Migration(migrations.Migration):
             model_name="experiment",
             name="type",
             field=models.CharField(
-                choices=[
-                    ("pref", "Pref-Flip Study"),
-                    ("addon", "Add-On Study"),
-                ],
+                choices=[("pref", "Pref-Flip Study"), ("addon", "Add-On Study")],
                 default="pref",
                 max_length=255,
             ),

@@ -17,8 +17,7 @@ class Migration(migrations.Migration):
             model_name="experiment",
             name="client_matching",
             field=models.TextField(
-                blank=True,
-                default="Prefs:\n\nStudies:\n\nAny additional filters:\n    ",
+                blank=True, default="Prefs:\n\nStudies:\n\nAny additional filters:\n    "
             ),
         ),
     ]

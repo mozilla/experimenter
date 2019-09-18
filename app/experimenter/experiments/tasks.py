@@ -155,9 +155,7 @@ def update_experiment_info():
                     send_period_ending_emails_task(experiment)
             else:
                 logger.info(
-                    "Skipping Experiment: {}. No Normandy id found".format(
-                        experiment
-                    )
+                    "Skipping Experiment: {}. No Normandy id found".format(experiment)
                 )
         except (IntegrityError, KeyError, normandy.NormandyError):
             logger.info(
@@ -252,9 +250,7 @@ def send_period_ending_emails_task(experiment):
             experiment=experiment, type=ExperimentConstants.EXPERIMENT_ENDS
         ).exists():
             email.send_experiment_ending_email(experiment)
-            logger.info(
-                "Sent ending email for Experiment: {}".format(experiment)
-            )
+            logger.info("Sent ending email for Experiment: {}".format(experiment))
     # send enrollment ending emails if enrollment end
     # date is 5 days out
     if experiment.enrollment_end_date and experiment.enrollment_ending_soon:
@@ -263,9 +259,7 @@ def send_period_ending_emails_task(experiment):
         ).exists():
             email.send_enrollment_pause_email(experiment)
             logger.info(
-                "Sent enrollment pause email for Experiment: {}".format(
-                    experiment
-                )
+                "Sent enrollment pause email for Experiment: {}".format(experiment)
             )
 
 
@@ -289,13 +283,8 @@ def update_bug_resolution_task(user_id, experiment_id):
     metrics.incr("update_bug_resolution.started")
     experiment = Experiment.objects.get(id=experiment_id)
 
-    if (
-        experiment.status == experiment.STATUS_COMPLETE
-        or experiment.bugzilla_id is None
-    ):
-        logger.info(
-            "Skipping update either experiment complete or no bugzilla ticket"
-        )
+    if experiment.status == experiment.STATUS_COMPLETE or experiment.bugzilla_id is None:
+        logger.info("Skipping update either experiment complete or no bugzilla ticket")
         return
 
     logger.info("Updating Bugzilla Resolution")
@@ -335,9 +324,7 @@ def update_ds_bug_task(experiment_id):
             url:{url}"""
     )
     comment = comment.format(
-        name=experiment.name,
-        status=experiment.status,
-        url=experiment.experiment_url,
+        name=experiment.name, status=experiment.status, url=experiment.experiment_url
     )
     try:
         logger.info("adding comment to ds bug")

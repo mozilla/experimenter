@@ -14,9 +14,7 @@ class OpenIDCAuthMiddlewareTests(TestCase):
         self.response = "Response"
         self.middleware = OpenIDCAuthMiddleware(lambda request: self.response)
 
-        mock_resolve_patcher = mock.patch(
-            "experimenter.openidc.middleware.resolve"
-        )
+        mock_resolve_patcher = mock.patch("experimenter.openidc.middleware.resolve")
         self.mock_resolve = mock_resolve_patcher.start()
         self.addCleanup(mock_resolve_patcher.stop)
 
@@ -81,9 +79,7 @@ class OpenIDCAuthMiddlewareTests(TestCase):
         self.assertEqual(User.objects.all().count(), 0)
 
         with self.settings(
-            OPENIDC_AUTH_WHITELIST=[],
-            DEBUG=True,
-            DEV_USER_EMAIL="dev@example.com",
+            OPENIDC_AUTH_WHITELIST=[], DEBUG=True, DEV_USER_EMAIL="dev@example.com"
         ):
             response = self.middleware(request)
 
@@ -105,9 +101,7 @@ class OpenIDCAuthMiddlewareTests(TestCase):
         self.assertEqual(User.objects.all().count(), 0)
 
         with self.settings(
-            OPENIDC_AUTH_WHITELIST=[],
-            DEBUG=False,
-            DEV_USER_EMAIL="dev@example.com",
+            OPENIDC_AUTH_WHITELIST=[], DEBUG=False, DEV_USER_EMAIL="dev@example.com"
         ):
             response = self.middleware(request)
 

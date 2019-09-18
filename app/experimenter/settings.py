@@ -119,16 +119,10 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
-    },
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 OPENIDC_EMAIL_HEADER = config("OPENIDC_HEADER")
@@ -176,9 +170,7 @@ LOGGING = {
             "()": "dockerflow.logging.JsonLogFormatter",
             "logger_name": "experimenter",
         },
-        "verbose": {
-            "format": "%(levelname)s %(asctime)s %(name)s %(message)s"
-        },
+        "verbose": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
     },
     "handlers": {
         "console": {
@@ -193,11 +185,7 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": False,
         },
-        "django.request": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
+        "django.request": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
     },
     "root": {"handlers": ["console"], "level": "DEBUG"},
 }
@@ -215,9 +203,7 @@ RAVEN_CONFIG = {
 # Django Rest Framework Configuration
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
-    "DEFAULT_FILTER_BACKENDS": (
-        "django_filters.rest_framework.DjangoFilterBackend",
-    ),
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "experimenter.openidc.middleware.OpenIDCRestFrameworkAuthenticator",
     ),
@@ -231,9 +217,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 DASHBOARD_RATE_LIMIT = 2
 
 # Experiments list pagination
-EXPERIMENTS_PAGINATE_BY = config(
-    "EXPERIMENTS_PAGINATE_BY", default=10, cast=int
-)
+EXPERIMENTS_PAGINATE_BY = config("EXPERIMENTS_PAGINATE_BY", default=10, cast=int)
 
 USE_GOOGLE_ANALYTICS = config("USE_GOOGLE_ANALYTICS", default=True, cast=bool)
 
@@ -278,12 +262,10 @@ BUGZILLA_USER_URL = "{path}?api_key={api_key}".format(
 )
 
 BUGZILLA_BUG_URL = "{path}?api_key={api_key}".format(
-    path=urljoin(BUGZILLA_HOST, "/rest/bug?id={bug_id}"),
-    api_key=BUGZILLA_API_KEY,
+    path=urljoin(BUGZILLA_HOST, "/rest/bug?id={bug_id}"), api_key=BUGZILLA_API_KEY
 )
 BUGZILLA_COMMENT_URL = "{path}?api_key={api_key}".format(
-    path=urljoin(BUGZILLA_HOST, "/rest/bug/{id}/comment"),
-    api_key=BUGZILLA_API_KEY,
+    path=urljoin(BUGZILLA_HOST, "/rest/bug/{id}/comment"), api_key=BUGZILLA_API_KEY
 )
 
 REDIS_HOST = config("REDIS_HOST")
@@ -332,9 +314,7 @@ MARKUS_BACKEND = [
 
 # Normandy URLs
 DELIVERY_CONSOLE_HOST = config("DELIVERY_CONSOLE_HOST")
-DELIVERY_CONSOLE_NEW_RECIPE_URL = urljoin(
-    DELIVERY_CONSOLE_HOST, "/recipe/new/"
-)
+DELIVERY_CONSOLE_NEW_RECIPE_URL = urljoin(DELIVERY_CONSOLE_HOST, "/recipe/new/")
 DELIVERY_CONSOLE_RECIPE_URL = urljoin(DELIVERY_CONSOLE_HOST, "/recipe/{id}/")
 DELIVERY_CONSOLE_EXPERIMENT_IMPORT_URL = urljoin(
     DELIVERY_CONSOLE_HOST, "/recipe/import/{slug}/"
@@ -344,6 +324,5 @@ NORMANDY_API_RECIPE_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/{id}/")
 
 # Jira URL
 JIRA_URL = config(
-    "JIRA_URL",
-    default="https://moz-pi-test.atlassian.net/servicedesk/customer/portal/9",
+    "JIRA_URL", default="https://moz-pi-test.atlassian.net/servicedesk/customer/portal/9"
 )

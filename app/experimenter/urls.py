@@ -7,9 +7,7 @@ from experimenter.experiments.views import ExperimentListView
 
 
 urlpatterns = [
-    re_path(
-        r"^api/v1/experiments/", include("experimenter.experiments.api_urls")
-    ),
+    re_path(r"^api/v1/experiments/", include("experimenter.experiments.api_urls")),
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^experiments/", include("experimenter.experiments.web_urls")),
     re_path(r"^$", ExperimentListView.as_view(), name="home"),
@@ -17,6 +15,5 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns = (
-        static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-        + urlpatterns
+        static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + urlpatterns
     )

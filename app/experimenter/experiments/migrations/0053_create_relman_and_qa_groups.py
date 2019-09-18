@@ -26,9 +26,7 @@ def create_permissions(apps, schema_editor):
 def remove_permissions(apps, schema_editor):
     Permission = apps.get_model("auth", "Permission")
 
-    relman_signoff = Permission.objects.get(
-        codename="can_check_relman_signoff"
-    )
+    relman_signoff = Permission.objects.get(codename="can_check_relman_signoff")
     relman_signoff.delete()
 
     qa_signoff = Permission.objects.get(codename="can_check_QA_signoff")

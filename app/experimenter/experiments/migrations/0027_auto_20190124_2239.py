@@ -44,9 +44,7 @@ class Migration(migrations.Migration):
             field=models.PositiveIntegerField(blank=True, null=True),
         ),
         migrations.RunPython(set_durations, set_end_dates),
-        migrations.RemoveField(
-            model_name="experiment", name="proposed_end_date"
-        ),
+        migrations.RemoveField(model_name="experiment", name="proposed_end_date"),
         migrations.AlterField(
             model_name="experiment",
             name="risks",

@@ -13,9 +13,7 @@ class TestPaginationUrl(SimpleTestCase):
         self.assertEqual("?page=123", rendered_template)
 
     def test_with_other_keys(self):
-        context = Context(
-            {"request": RequestFactory().get("/", {"foo": "bar"})}
-        )
+        context = Context({"request": RequestFactory().get("/", {"foo": "bar"})})
         template_to_render = Template(
             "{% load experiment_extras %}" "{% pagination_url 2 %}"
         )
@@ -39,9 +37,7 @@ class TestPaginationUrl(SimpleTestCase):
         self.assertEqual(".", rendered_template)
 
     def test_back_to_first_page_with_other_data(self):
-        context = Context(
-            {"request": RequestFactory().get("/", {"foo": "bar"})}
-        )
+        context = Context({"request": RequestFactory().get("/", {"foo": "bar"})})
         template_to_render = Template(
             "{% load experiment_extras %}" "{% pagination_url 1 %}"
         )

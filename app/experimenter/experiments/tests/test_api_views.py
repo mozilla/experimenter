@@ -48,16 +48,14 @@ class TestExperimentListView(TestCase):
             pending_experiments.append(experiment)
 
         response = self.client.get(
-            reverse("experiments-api-list"),
-            {"status": Experiment.STATUS_REVIEW},
+            reverse("experiments-api-list"), {"status": Experiment.STATUS_REVIEW}
         )
         self.assertEqual(response.status_code, 200)
 
         json_data = json.loads(response.content)
 
         serialized_experiments = ExperimentSerializer(
-            Experiment.objects.filter(status=Experiment.STATUS_REVIEW),
-            many=True,
+            Experiment.objects.filter(status=Experiment.STATUS_REVIEW), many=True
         ).data
 
         self.assertEqual(serialized_experiments, json_data)
@@ -70,9 +68,7 @@ class TestExperimentDetailView(TestCase):
         experiment = ExperimentFactory.create_with_variants()
 
         response = self.client.get(
-            reverse(
-                "experiments-api-detail", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-api-detail", kwargs={"slug": experiment.slug}),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
@@ -89,9 +85,7 @@ class TestExperimentRecipeView(TestCase):
         experiment = ExperimentFactory.create_with_variants()
 
         response = self.client.get(
-            reverse(
-                "experiments-api-recipe", kwargs={"slug": experiment.slug}
-            ),
+            reverse("experiments-api-recipe", kwargs={"slug": experiment.slug}),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
@@ -160,6 +154,4 @@ class TestExperimentCloneView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["name"], "best experiment")
-        self.assertEqual(
-            response.json()["clone_url"], "/experiments/best-experiment/"
-        )
+        self.assertEqual(response.json()["clone_url"], "/experiments/best-experiment/")

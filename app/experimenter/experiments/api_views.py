@@ -38,8 +38,7 @@ class ExperimentSendIntentToShipEmailView(UpdateAPIView):
 
         if experiment.review_intent_to_ship:
             return Response(
-                {"error": "email-already-sent"},
-                status=status.HTTP_409_CONFLICT,
+                {"error": "email-already-sent"}, status=status.HTTP_409_CONFLICT
             )
 
         email.send_intent_to_ship_email(experiment.id)

@@ -13,10 +13,7 @@ class Migration(migrations.Migration):
             model_name="experiment",
             name="other_normandy_ids",
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.IntegerField(),
-                blank=True,
-                null=True,
-                size=None,
+                base_field=models.IntegerField(), blank=True, null=True, size=None
             ),
         )
     ]

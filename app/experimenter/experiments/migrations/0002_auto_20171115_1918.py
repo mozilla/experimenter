@@ -46,10 +46,7 @@ class Migration(migrations.Migration):
                         max_length=255,
                     ),
                 ),
-                (
-                    "pref_key",
-                    models.CharField(blank=True, max_length=255, null=True),
-                ),
+                ("pref_key", models.CharField(blank=True, max_length=255, null=True)),
                 (
                     "pref_type",
                     models.CharField(
@@ -64,8 +61,7 @@ class Migration(migrations.Migration):
                 (
                     "pref_branch",
                     models.CharField(
-                        choices=[("default", "default"), ("user", "user")],
-                        max_length=255,
+                        choices=[("default", "default"), ("user", "user")], max_length=255
                     ),
                 ),
                 ("firefox_version", models.CharField(max_length=255)),
@@ -85,20 +81,12 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=255, unique=True)),
                 ("slug", models.SlugField(max_length=255, unique=True)),
                 ("objectives", models.TextField(default="")),
-                (
-                    "analysis",
-                    models.TextField(blank=True, default="", null=True),
-                ),
+                ("analysis", models.TextField(blank=True, default="", null=True)),
                 ("dashboard_url", models.URLField(blank=True, null=True)),
-                (
-                    "dashboard_image_url",
-                    models.URLField(blank=True, null=True),
-                ),
+                ("dashboard_image_url", models.URLField(blank=True, null=True)),
                 (
                     "population_percent",
-                    models.DecimalField(
-                        decimal_places=4, default="0", max_digits=7
-                    ),
+                    models.DecimalField(decimal_places=4, default="0", max_digits=7),
                 ),
                 (
                     "project",
@@ -109,10 +97,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "Experiment",
-                "verbose_name_plural": "Experiments",
-            },
+            options={"verbose_name": "Experiment", "verbose_name_plural": "Experiments"},
         ),
         migrations.CreateModel(
             name="ExperimentChangeLog",
@@ -197,12 +182,7 @@ class Migration(migrations.Migration):
                 ("is_control", models.BooleanField(default=False)),
                 ("description", models.TextField(default="")),
                 ("ratio", models.PositiveIntegerField(default=1)),
-                (
-                    "value",
-                    django.contrib.postgres.fields.jsonb.JSONField(
-                        default=False
-                    ),
-                ),
+                ("value", django.contrib.postgres.fields.jsonb.JSONField(default=False)),
                 (
                     "experiment",
                     models.ForeignKey(
@@ -219,8 +199,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name="experimentvariant",
-            unique_together=set(
-                [("is_control", "experiment"), ("slug", "experiment")]
-            ),
+            unique_together=set([("is_control", "experiment"), ("slug", "experiment")]),
         ),
     ]

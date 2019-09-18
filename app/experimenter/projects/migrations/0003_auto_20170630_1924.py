@@ -23,8 +23,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="project",
             name="image",
-            field=models.FileField(
-                blank=True, null=True, upload_to="projects/"
-            ),
+            field=models.FileField(blank=True, null=True, upload_to="projects/"),
         ),
     ]

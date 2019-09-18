@@ -20,9 +20,7 @@ def populate_risk_revenue(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("experiments", "0048_experiment_risk_external_team_impact")
-    ]
+    dependencies = [("experiments", "0048_experiment_risk_external_team_impact")]
 
     operations = [
         migrations.AddField(

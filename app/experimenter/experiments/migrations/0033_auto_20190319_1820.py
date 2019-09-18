@@ -11,9 +11,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="experiment",
             name="addon_experiment_id",
-            field=models.CharField(
-                blank=True, max_length=255, null=True, unique=True
-            ),
+            field=models.CharField(blank=True, max_length=255, null=True, unique=True),
         ),
         migrations.AddField(
             model_name="experiment",
@@ -33,8 +31,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="experiment",
             name="population_percent",
-            field=models.DecimalField(
-                decimal_places=4, default=0.0, max_digits=7
-            ),
+            field=models.DecimalField(decimal_places=4, default=0.0, max_digits=7),
         ),
     ]

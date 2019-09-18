@@ -29,13 +29,9 @@ class Command(BaseCommand):
         for i in range(options["num_of_experiments"]):
             random_type = random.choice(Experiment.TYPE_CHOICES)[0]
             if options["status"]:
-                ExperimentFactory.create_with_status(
-                    options["status"], type=random_type
-                )
+                ExperimentFactory.create_with_status(options["status"], type=random_type)
             else:
-                status = Experiment.STATUS_CHOICES[
-                    i % len(Experiment.STATUS_CHOICES)
-                ][0]
+                status = Experiment.STATUS_CHOICES[i % len(Experiment.STATUS_CHOICES)][0]
                 experiment = ExperimentFactory.create_with_status(
                     status, type=random_type
                 )

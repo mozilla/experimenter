@@ -1,2 +1,3 @@
 [flake8]
 exclude=migrations,settings*
+max-line-length = 90
