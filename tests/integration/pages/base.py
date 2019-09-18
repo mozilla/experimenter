@@ -12,7 +12,9 @@ class Base(Page):
         )
 
     def wait_for_page_to_load(self):
-        self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
+        self.wait.until(
+            EC.presence_of_element_located(self._page_wait_locator)
+        )
 
         return self
 
@@ -24,6 +26,7 @@ class Base(Page):
 
 class Header(Region):
 
+    _current_user_locator = (By.CSS_SELECTOR, ".fa-user")
     _owned_experiments_link_locator = (
         By.CSS_SELECTOR,
         ".container .nocolorstyle:nth-child(1)",
@@ -32,6 +35,10 @@ class Header(Region):
         By.CSS_SELECTOR,
         ".container .nocolorstyle:nth-child(2)",
     )
+
+    @property
+    def current_user(self):
+        return self.find_element(*self._current_user_locator).text
 
     def click_owned_experiments(self):
         """Clicks owned experiments link."""

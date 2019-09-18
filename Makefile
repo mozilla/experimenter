@@ -27,10 +27,10 @@ lint: test_build
 	docker-compose -f docker-compose-test.yml run app flake8 .
 
 black_check: test_build
-	docker-compose -f docker-compose-test.yml run app black -l 79 --check .
+	docker-compose -f docker-compose-test.yml run app black -l 90 --check .
 
 black_fix: test_build
-	docker-compose -f docker-compose-test.yml run app black -l 79 .
+	docker-compose -f docker-compose-test.yml run app black -l 90 .
 
 code_format: black_fix
 	echo "Code Formatted"
@@ -98,8 +98,14 @@ integration_build: build
 integration_shell: integration_build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox bash 
 
+integration_up_detached: integration_build
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml up -d
+
 integration_up: integration_build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml up
 
-integration_test: integration_kill ssl integration_build
+integration_test: integration_kill ssl integration_build create_integration_test_user
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox tox -c tests/integration
+
+create_integration_test_user: integration_up_detached
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run app python manage.py shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'adminpass')"

@@ -39,14 +39,7 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExperimentVariant
-        fields = (
-            "description",
-            "is_control",
-            "name",
-            "ratio",
-            "slug",
-            "value",
-        )
+        fields = ("description", "is_control", "name", "ratio", "slug", "value")
 
 
 class LocaleSerializer(serializers.ModelSerializer):
@@ -203,9 +196,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
 
 class FilterObjectBucketSampleSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
-    input = serializers.ReadOnlyField(
-        default=["normandy.recipe.id", "normandy.userId"]
-    )
+    input = serializers.ReadOnlyField(default=["normandy.recipe.id", "normandy.userId"])
     start = serializers.ReadOnlyField(default=0)
     count = serializers.SerializerMethodField()
     total = serializers.ReadOnlyField(default=10000)
@@ -333,13 +324,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Experiment
-        fields = (
-            "action_name",
-            "name",
-            "filter_object",
-            "comment",
-            "arguments",
-        )
+        fields = ("action_name", "name", "filter_object", "comment", "arguments")
 
     def get_action_name(self, obj):
         if obj.is_pref_experiment:
@@ -382,9 +367,7 @@ class ExperimentCloneSerializer(serializers.ModelSerializer):
         )
 
         if existing_slug_or_name:
-            raise serializers.ValidationError(
-                "This experiment name already exists."
-            )
+            raise serializers.ValidationError("This experiment name already exists.")
 
         if slugify(value):
             return value

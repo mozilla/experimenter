@@ -8,7 +8,5 @@ class Migration(migrations.Migration):
     dependencies = [("experiments", "0046_experiment_risk_data_category")]
 
     operations = [
-        migrations.RemoveField(
-            model_name="experiment", name="addon_testing_url"
-        )
+        migrations.RemoveField(model_name="experiment", name="addon_testing_url")
     ]

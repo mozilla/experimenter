@@ -12,9 +12,7 @@ def update_dates(apps, schema_editor):  # pragma: no cover
     for experiment in Experiment.objects.all():
         try:
             start_date = ExperimentChangeLog.objects.get(
-                experiment=experiment,
-                old_status="Accepted",
-                new_status="Launched",
+                experiment=experiment, old_status="Accepted", new_status="Launched"
             ).changed_on
             experiment.proposed_start_date = start_date
         except:
@@ -22,9 +20,7 @@ def update_dates(apps, schema_editor):  # pragma: no cover
 
         try:
             end_date = ExperimentChangeLog.objects.get(
-                experiment=experiment,
-                old_status="Launched",
-                new_status="Complete",
+                experiment=experiment, old_status="Launched", new_status="Complete"
             ).changed_on
             experiment.proposed_end_date = end_date
         except:
@@ -44,9 +40,7 @@ def add_project_to_name(apps, schema_editor):  # pragma: no cover
     Experiment = apps.get_model("experiments", "Experiment")
 
     for experiment in Experiment.objects.all():
-        experiment.name = "{} {}".format(
-            experiment.project.name, experiment.name
-        )
+        experiment.name = "{} {}".format(experiment.project.name, experiment.name)
         experiment.save()
 
 

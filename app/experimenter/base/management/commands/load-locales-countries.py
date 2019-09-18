@@ -16,8 +16,7 @@ class Command(BaseCommand):
     def ensure_all_locales():
         new = []
         existing = {
-            code: name
-            for code, name in Locale.objects.all().values_list("code", "name")
+            code: name for code, name in Locale.objects.all().values_list("code", "name")
         }
         # It's important to use .items() here or else it will trigger
         # product_details.ProductDetails.__getattr__ for each key lookup.
@@ -34,8 +33,7 @@ class Command(BaseCommand):
     def ensure_all_countries():
         new = []
         existing = {
-            code: name
-            for code, name in Country.objects.all().values_list("code", "name")
+            code: name for code, name in Country.objects.all().values_list("code", "name")
         }
         for code, name in countries:
             if code not in existing:

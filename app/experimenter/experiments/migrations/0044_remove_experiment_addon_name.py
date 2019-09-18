@@ -7,6 +7,4 @@ class Migration(migrations.Migration):
 
     dependencies = [("experiments", "0043_auto_20190404_2015")]
 
-    operations = [
-        migrations.RemoveField(model_name="experiment", name="addon_name")
-    ]
+    operations = [migrations.RemoveField(model_name="experiment", name="addon_name")]

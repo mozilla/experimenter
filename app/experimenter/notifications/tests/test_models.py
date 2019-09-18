@@ -26,15 +26,11 @@ class TestNotificationModel(TestCase):
 
         unread_notifications = []
         for i in range(3):
-            unread_notifications.append(
-                NotificationFactory.create(user=user, read=False)
-            )
+            unread_notifications.append(NotificationFactory.create(user=user, read=False))
 
         read_notifications = []
         for i in range(3):
-            read_notifications.append(
-                NotificationFactory.create(user=user, read=True)
-            )
+            read_notifications.append(NotificationFactory.create(user=user, read=True))
 
         self.assertTrue(user.notifications.has_unread)
 
@@ -54,12 +50,8 @@ class TestNotificationModel(TestCase):
             user1_notifications.append(NotificationFactory.create(user=user1))
             user2_notifications.append(NotificationFactory.create(user=user2))
 
-        self.assertEqual(
-            set(user1.notifications.get_unread()), set(user1_notifications)
-        )
+        self.assertEqual(set(user1.notifications.get_unread()), set(user1_notifications))
         self.assertEqual(set(user1.notifications.get_unread()), set([]))
 
-        self.assertEqual(
-            set(user2.notifications.get_unread()), set(user2_notifications)
-        )
+        self.assertEqual(set(user2.notifications.get_unread()), set(user2_notifications))
         self.assertEqual(set(user2.notifications.get_unread()), set([]))

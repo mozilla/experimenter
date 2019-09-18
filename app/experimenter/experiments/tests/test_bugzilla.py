@@ -53,9 +53,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
                 "product": "Shield",
                 "component": "Shield Study",
                 "version": "unspecified",
-                "summary": "[Experiment]: {experiment}".format(
-                    experiment=experiment
-                ),
+                "summary": "[Experiment]: {experiment}".format(experiment=experiment),
                 "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
                     experiment=experiment
                 ),
@@ -88,9 +86,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "product": "Shield",
             "component": "Shield Study",
             "version": "unspecified",
-            "summary": "[Experiment]: {experiment}".format(
-                experiment=experiment
-            ),
+            "summary": "[Experiment]: {experiment}".format(experiment=experiment),
             "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
                 experiment=experiment
             ),
@@ -126,9 +122,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "product": "Shield",
             "component": "Shield Study",
             "version": "unspecified",
-            "summary": "[Experiment]: {experiment}".format(
-                experiment=experiment
-            ),
+            "summary": "[Experiment]: {experiment}".format(experiment=experiment),
             "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
                 experiment=experiment
             ),
@@ -164,9 +158,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "product": "Shield",
             "component": "Shield Study",
             "version": "unspecified",
-            "summary": "[Experiment]: {experiment}".format(
-                experiment=experiment
-            ),
+            "summary": "[Experiment]: {experiment}".format(experiment=experiment),
             "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
                 experiment=experiment
             ),
@@ -197,9 +189,9 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
 
         expected_name = "a" * 150
 
-        expected_summary = (
-            "[Experiment]: Pref-Flip Experiment: {name}..."
-        ).format(name=expected_name)
+        expected_summary = ("[Experiment]: Pref-Flip Experiment: {name}...").format(
+            name=expected_name
+        )
         self.assertEqual(summary, expected_summary)
 
 
@@ -214,9 +206,7 @@ class TestFormatBugBody(TestCase):
     def test_format_bug_body_lists_countries_locales(self):
         country = CountryFactory(code="CA", name="Canada")
         locale = LocaleFactory(code="da", name="Danish")
-        experiment = ExperimentFactory.create(
-            countries=[country], locales=[locale]
-        )
+        experiment = ExperimentFactory.create(countries=[country], locales=[locale])
         body = format_bug_body(experiment)
         self.assertIn("Countries: Canada (CA)", body)
         self.assertIn("Locales: Danish (da)", body)
@@ -237,8 +227,7 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
 
         update_experiment_bug(experiment)
         summary = (
-            "[Experiment] Pref-Flip Experiment: "
-            "An Experiment Fx 55.0 to 56.0 Beta"
+            "[Experiment] Pref-Flip Experiment: " "An Experiment Fx 55.0 to 56.0 Beta"
         )
 
         self.mock_bugzilla_requests_put.assert_called_with(
@@ -257,9 +246,7 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
             firefox_channel="Nightly",
         )
         update_experiment_bug(experiment)
-        summary = (
-            "[Experiment] Add-On Experiment: An Experiment Fx 56.0 Nightly"
-        )
+        summary = "[Experiment] Add-On Experiment: An Experiment Fx 56.0 Nightly"
 
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
@@ -301,9 +288,7 @@ class TestUpdateBugzillaResolution(MockBugzillaMixin, TestCase):
         )
 
     def test_bugzilla_resolution_with_completed_status(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_COMPLETE
-        )
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_COMPLETE)
 
         update_bug_resolution(experiment)
 
@@ -360,9 +345,7 @@ class TestAddExperimentComment(MockBugzillaMixin, TestCase):
 class TestMakeBugzillaCall(MockBugzillaMixin, TestCase):
 
     def test_api_error_logs_message(self):
-        mock_response_data = {
-            "message": "Error creating Bugzilla Bug because of reasons"
-        }
+        mock_response_data = {"message": "Error creating Bugzilla Bug because of reasons"}
         mock_response = mock.Mock()
         mock_response = mock.Mock()
         mock_response.json = mock.Mock()
