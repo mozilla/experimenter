@@ -10,11 +10,7 @@ from django.urls import reverse
 from django.views.generic import CreateView, DetailView, UpdateView
 from django.views.generic.edit import ModelFormMixin
 from django_filters.views import FilterView
-from django.contrib.postgres.search import (
-    SearchQuery,
-    SearchRank,
-    SearchVector,
-)
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 import django_filters.widgets as widgets
 
 from experimenter.experiments.constants import ExperimentConstants
@@ -52,10 +48,7 @@ class ExperimentFilterset(filters.FilterSet):
     search = filters.CharFilter(
         method="filter_search",
         widget=SearchWidget(
-            attrs={
-                "class": "form-control",
-                "placeholder": "Search Experiments",
-            }
+            attrs={"class": "form-control", "placeholder": "Search Experiments"}
         ),
     )
     type = filters.MultipleChoiceFilter(
@@ -102,9 +95,7 @@ class ExperimentFilterset(filters.FilterSet):
     )
     date_range = filters.DateFromToRangeFilter(
         method="date_range_filter",
-        widget=DateRangeWidget(
-            attrs={"type": "date", "class": "form-control"}
-        ),
+        widget=DateRangeWidget(attrs={"type": "date", "class": "form-control"}),
     )
 
     in_qa = filters.BooleanFilter(
@@ -273,9 +264,7 @@ class ExperimentFilterset(filters.FilterSet):
 
     def is_paused_filter(self, queryset, name, value):
         if value:
-            return queryset.filter(
-                is_paused=True, status=Experiment.STATUS_LIVE
-            )
+            return queryset.filter(is_paused=True, status=Experiment.STATUS_LIVE)
 
         return queryset
 
@@ -299,10 +288,7 @@ class ExperimentFilterset(filters.FilterSet):
         date_before = self.data.get("date_range_before")
 
         if date_after and date_before:
-            return (
-                f"{experiment_date_field} between "
-                f"{date_after} and {date_before}"
-            )
+            return f"{experiment_date_field} between " f"{date_after} and {date_before}"
         elif date_after and date_before == "":
             return f"{experiment_date_field} after {date_after}"
         elif date_after == "" and date_before:
@@ -322,8 +308,7 @@ class ExperimentOrderingForm(forms.Form):
     )
 
     ordering = forms.ChoiceField(
-        choices=ORDERING_CHOICES,
-        widget=forms.Select(attrs={"class": "form-control"}),
+        choices=ORDERING_CHOICES, widget=forms.Select(attrs={"class": "form-control"})
     )
 
 
@@ -350,9 +335,7 @@ class ExperimentListView(FilterView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        qs = qs.annotate(
-            firefox_channel_sort=Experiment.firefox_channel_sort()
-        )
+        qs = qs.annotate(firefox_channel_sort=Experiment.firefox_channel_sort())
         return qs
 
     def get_ordering(self):
@@ -364,9 +347,7 @@ class ExperimentListView(FilterView):
         return self.ordering_form.ORDERING_CHOICES[0][0]
 
     def get_context_data(self, *args, **kwargs):
-        return super().get_context_data(
-            ordering_form=self.ordering_form, *args, **kwargs
-        )
+        return super().get_context_data(ordering_form=self.ordering_form, *args, **kwargs)
 
 
 class ExperimentFormMixin(object):
@@ -378,13 +359,8 @@ class ExperimentFormMixin(object):
         return kwargs
 
     def get_success_url(self):
-        if (
-            "action" in self.request.POST
-            and self.request.POST["action"] == "continue"
-        ):
-            return reverse(
-                self.next_view_name, kwargs={"slug": self.object.slug}
-            )
+        if "action" in self.request.POST and self.request.POST["action"] == "continue":
+            return reverse(self.next_view_name, kwargs={"slug": self.object.slug})
 
         return reverse("experiments-detail", kwargs={"slug": self.object.slug})
 
@@ -459,14 +435,10 @@ class ExperimentDetailView(ExperimentFormMixin, ModelFormMixin, DetailView):
     def get_context_data(self, *args, **kwargs):
         if "normandy_id" in self.request.GET:
             normandy_id_form = NormandyIdForm(
-                request=self.request,
-                data=self.request.GET,
-                instance=self.object,
+                request=self.request, data=self.request.GET, instance=self.object
             )
         else:
-            normandy_id_form = NormandyIdForm(
-                request=self.request, instance=self.object
-            )
+            normandy_id_form = NormandyIdForm(request=self.request, instance=self.object)
 
         return super().get_context_data(
             normandy_id_form=normandy_id_form, *args, **kwargs
@@ -478,9 +450,7 @@ class ExperimentStatusUpdateView(ExperimentFormMixin, UpdateView):
     model = Experiment
 
     def form_invalid(self, form):
-        return redirect(
-            reverse("experiments-detail", kwargs={"slug": self.object.slug})
-        )
+        return redirect(reverse("experiments-detail", kwargs={"slug": self.object.slug}))
 
 
 class ExperimentReviewUpdateView(ExperimentFormMixin, UpdateView):
@@ -513,9 +483,7 @@ class ExperimentNormandyUpdateView(ExperimentFormMixin, UpdateView):
         return response
 
     def form_invalid(self, form):
-        url = reverse(
-            "experiments-detail", kwargs={"slug": self.kwargs["slug"]}
-        )
+        url = reverse("experiments-detail", kwargs={"slug": self.kwargs["slug"]})
         query_parameters = form.data.copy()
         query_parameters.pop("csrfmiddlewaretoken", None)
 
@@ -529,9 +497,7 @@ class ExperimentCommentCreateView(ExperimentFormMixin, CreateView):
         comment = form.save()
         return redirect(
             "{url}#{section}-comments".format(
-                url=reverse(
-                    "experiments-detail", kwargs={"slug": self.kwargs["slug"]}
-                ),
+                url=reverse("experiments-detail", kwargs={"slug": self.kwargs["slug"]}),
                 section=comment.section,
             )
         )
