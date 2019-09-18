@@ -27,9 +27,6 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=255)),
                 ("slug", models.SlugField(max_length=255, unique=True)),
             ],
-            options={
-                "verbose_name_plural": "Projects",
-                "verbose_name": "Project",
-            },
+            options={"verbose_name_plural": "Projects", "verbose_name": "Project"},
         )
     ]

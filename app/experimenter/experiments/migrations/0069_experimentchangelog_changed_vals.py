@@ -10,9 +10,7 @@ class Migration(migrations.Migration):
     dependencies = [("experiments", "0068_experiment_related_to")]
 
     def format_to_new_changelog(apps, schema_editor):
-        ExperimentChangeLog = apps.get_model(
-            "experiments", "ExperimentChangeLog"
-        )
+        ExperimentChangeLog = apps.get_model("experiments", "ExperimentChangeLog")
         for changeLog in ExperimentChangeLog.objects.all():
             changed_values = {}
             # ensure change log has new_values
@@ -39,10 +37,6 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RunPython(format_to_new_changelog),
-        migrations.RemoveField(
-            model_name="experimentchangelog", name="new_values"
-        ),
-        migrations.RemoveField(
-            model_name="experimentchangelog", name="old_values"
-        ),
+        migrations.RemoveField(model_name="experimentchangelog", name="new_values"),
+        migrations.RemoveField(model_name="experimentchangelog", name="old_values"),
     ]
