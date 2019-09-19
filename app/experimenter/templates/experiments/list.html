@@ -193,11 +193,7 @@
 
 {% block extrascripts %}
   <script src="{% static "js/experiment-date-filter.js" %}"></script>
-  <script>
-    $("select[multiple]").selectpicker({
-      noneSelectedText: "All Types"
-    });
-  </script>
+  <script src="{% static "js/experiment-list-select.js" %}"></script>
 {% endblock %}
 
 {% block page_id %}page-list-view{% endblock %}
