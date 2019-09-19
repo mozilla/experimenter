@@ -33,67 +33,6 @@ from experimenter.experiments.forms import (
 from experimenter.experiments.models import Experiment
 
 
-class ExperimentFiltersetForm(forms.ModelForm):
-    in_qa = forms.BooleanField(required=False)
-    surveys = forms.BooleanField(required=False)
-    search = forms.CharField(required=False)
-    subscribed = forms.BooleanField(required=False)
-    firefox_version = forms.CharField(required=False)
-    longrunning = forms.BooleanField(required=False)
-    is_paused = forms.BooleanField(required=False)
-
-    class Meta:
-        model = Experiment
-        fields = (
-            "search",
-            "type",
-            "status",
-            "firefox_channel",
-            "firefox_version",
-            "owner",
-            "in_qa",
-            "surveys",
-            "archived",
-            "subscribed",
-            "longrunning",
-            "is_paused",
-        )
-
-    def clean_archived(self):
-        allow_archived = self.cleaned_data.get("archived", False)
-
-        # If we pass in archived=True what we actually mean is
-        # don't filter on archived at all, ie show all experiments
-        # including archived
-        if allow_archived:
-            return None
-
-        return False
-
-    def get_type_display_value(self):
-        return dict(Experiment.TYPE_CHOICES).get(self.data.get("type"))
-
-    def get_owner_display_value(self):
-        user_id = self.data.get("owner", None)
-
-        if user_id is not None:
-            return str(get_user_model().objects.get(id=user_id))
-
-    def get_display_start_date_info(self):
-        experiment_date_field = self.data.get("experiment_date_field")
-        date_after = self.data.get("date_range_after")
-        date_before = self.data.get("date_range_before")
-
-        if date_after and date_before:
-            return f"{experiment_date_field} between " f"{date_after} and {date_before}"
-        elif date_after and date_before == "":
-            return f"{experiment_date_field} after {date_after}"
-        elif date_after == "" and date_before:
-            return f"{experiment_date_field} before {date_before}"
-        else:
-            return ""
-
-
 # the default widget has a dash character between the two date fields,
 # and what we want is the word "To", so we are making our own widget here
 class DateRangeWidget(widgets.DateRangeWidget):
@@ -112,10 +51,10 @@ class ExperimentFilterset(filters.FilterSet):
             attrs={"class": "form-control", "placeholder": "Search Experiments"}
         ),
     )
-    type = filters.ChoiceFilter(
-        empty_label="All Types",
+    type = filters.MultipleChoiceFilter(
         choices=Experiment.TYPE_CHOICES,
-        widget=forms.Select(attrs={"class": "form-control"}),
+        conjoined=False,
+        widget=forms.SelectMultiple(attrs={"class": "form-control"}),
     )
     status = filters.ChoiceFilter(
         empty_label="All Statuses",
@@ -140,7 +79,9 @@ class ExperimentFilterset(filters.FilterSet):
     )
 
     archived = filters.BooleanFilter(
-        label="Show archived experiments", widget=forms.CheckboxInput()
+        label="Show archived experiments",
+        widget=forms.CheckboxInput(),
+        method="archived_filter",
     )
     experiment_date_field = filters.ChoiceFilter(
         empty_label="No Date Restriction",
@@ -189,8 +130,20 @@ class ExperimentFilterset(filters.FilterSet):
 
     class Meta:
         model = Experiment
-        form = ExperimentFiltersetForm
-        fields = ExperimentFiltersetForm.Meta.fields
+        fields = (
+            "search",
+            "type",
+            "status",
+            "firefox_channel",
+            "firefox_version",
+            "owner",
+            "in_qa",
+            "surveys",
+            "archived",
+            "subscribed",
+            "longrunning",
+            "is_paused",
+        )
 
     def filter_search(self, queryset, name, value):
         vector = SearchVector(
@@ -221,6 +174,11 @@ class ExperimentFilterset(filters.FilterSet):
             .order_by("-rank")
         )
 
+    def archived_filter(self, queryset, name, value):
+        if not value:
+            return queryset.exclude(archived=True)
+        return queryset
+
     def experiment_date_field_filter(self, queryset, name, value):
         # this custom method isn't doing anything. There has to
         # be a custom method to be able to display the select
@@ -228,14 +186,12 @@ class ExperimentFilterset(filters.FilterSet):
         return queryset
 
     def version_filter(self, queryset, name, value):
-
         return queryset.filter(
             Q(firefox_min_version__lte=value, firefox_max_version__gte=value)
             | Q(firefox_min_version=value)
         )
 
     def date_range_filter(self, queryset, name, value):
-
         date_type = self.form.cleaned_data["experiment_date_field"]
 
         experiment_date_field = {
@@ -311,6 +267,34 @@ class ExperimentFilterset(filters.FilterSet):
             return queryset.filter(is_paused=True, status=Experiment.STATUS_LIVE)
 
         return queryset
+
+    def get_type_display_value(self):
+        return ", ".join(
+            [
+                dict(Experiment.TYPE_CHOICES)[type].replace(" Experiment", "")
+                for type in self.data.getlist("type")
+            ]
+        )
+
+    def get_owner_display_value(self):
+        user_id = self.data.get("owner")
+
+        if user_id is not None:
+            return str(get_user_model().objects.get(id=user_id))
+
+    def get_display_start_date_info(self):
+        experiment_date_field = self.data.get("experiment_date_field")
+        date_after = self.data.get("date_range_after")
+        date_before = self.data.get("date_range_before")
+
+        if date_after and date_before:
+            return f"{experiment_date_field} between {date_after} and {date_before}"
+        elif date_after and date_before == "":
+            return f"{experiment_date_field} after {date_after}"
+        elif date_after == "" and date_before:
+            return f"{experiment_date_field} before {date_before}"
+        else:
+            return ""
 
 
 class ExperimentOrderingForm(forms.Form):

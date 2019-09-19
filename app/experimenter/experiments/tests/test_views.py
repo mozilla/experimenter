@@ -5,6 +5,7 @@ import re
 from urllib.parse import urlencode
 
 import mock
+from django.http.request import QueryDict
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -23,28 +24,27 @@ from experimenter.experiments.tests.mixins import MockTasksMixin, MockRequestMix
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.experiments.views import (
     ExperimentFilterset,
-    ExperimentFiltersetForm,
     ExperimentFormMixin,
     ExperimentOrderingForm,
 )
 
 
-class TestExperimentFiltersetForm(TestCase):
-
-    def test_get_owner_display_value_returns_user_str(self):
-        user = UserFactory.create()
-        form = ExperimentFiltersetForm({"owner": user.id})
-        self.assertEqual(form.get_owner_display_value(), str(user))
-
-    def test_get_type_display_value_returns_type_str(self):
-        form = ExperimentFiltersetForm({"type": Experiment.TYPE_ADDON})
-        self.assertEqual(
-            form.get_type_display_value(),
-            dict(Experiment.TYPE_CHOICES)[Experiment.TYPE_ADDON],
-        )
-
-
 class TestExperimentFilterset(MockRequestMixin, TestCase):
+
+    def test_filters_by_multiple_types(self):
+        pref = ExperimentFactory.create(type=Experiment.TYPE_PREF)
+        addon = ExperimentFactory.create(type=Experiment.TYPE_ADDON)
+        ExperimentFactory.create(type=Experiment.TYPE_GENERIC)
+
+        filter = ExperimentFilterset(
+            data=QueryDict(
+                urlencode({"type": [Experiment.TYPE_PREF, Experiment.TYPE_ADDON]}, True)
+            ),
+            queryset=Experiment.objects.all(),
+        )
+        self.assertTrue(filter.is_valid())
+        self.assertEqual(set(filter.qs), set([pref, addon]))
+        self.assertEqual(filter.get_type_display_value(), "Pref-Flip, Add-On")
 
     def test_filters_out_archived_by_default(self):
         for i in range(3):
@@ -82,6 +82,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         )
 
         self.assertEqual(set(filter.qs), set(Experiment.objects.filter(owner=owner)))
+        self.assertEqual(filter.get_owner_display_value(), str(owner))
 
     def test_filters_by_status(self):
         for i in range(3):
@@ -277,6 +278,127 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
 
         self.assertEqual(set(filter.qs), set([exp_1, exp_2]))
 
+    def set_up_date_tests(self):
+
+        self.exp_1 = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            name="experiment 1",
+            proposed_start_date=datetime.date(2019, 4, 5),
+            proposed_duration=30,
+            proposed_enrollment=3,
+        )
+
+        self.exp_2 = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            name="experiment 2",
+            proposed_start_date=datetime.date(2019, 3, 29),
+            proposed_duration=14,
+            proposed_enrollment=4,
+        )
+
+        self.exp_3 = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            name="experiment 3",
+            proposed_start_date=datetime.date(2019, 5, 29),
+            proposed_duration=30,
+            proposed_enrollment=None,
+        )
+
+        self.exp_4 = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            name="experiment 4",
+            proposed_start_date=datetime.date(2019, 3, 15),
+            proposed_duration=25,
+            proposed_enrollment=1,
+        )
+
+        self.start_range_date = "2019-04-01"
+        self.end_range_date = "2019-05-01"
+        self.user_email = "user@example.com"
+
+    def test_list_shows_all_experiments_with_start_in_range(self):
+        self.set_up_date_tests()
+
+        filter = ExperimentFilterset(
+            data={
+                "experiment_date_field": Experiment.EXPERIMENT_STARTS,
+                "date_range_after": self.start_range_date,
+                "date_range_before": self.end_range_date,
+            }
+        )
+
+        self.assertEqual(set(filter.qs), set([self.exp_1]))
+        self.assertEqual(
+            filter.get_display_start_date_info(),
+            "starting between 2019-04-01 and 2019-05-01",
+        )
+
+    def test_list_shows_all_experiments_with_pause_in_range(self):
+        self.set_up_date_tests()
+
+        filter = ExperimentFilterset(
+            data={
+                "experiment_date_field": Experiment.EXPERIMENT_PAUSES,
+                "date_range_after": self.start_range_date,
+                "date_range_before": self.end_range_date,
+            }
+        )
+
+        self.assertEqual(set(filter.qs), set([self.exp_1, self.exp_2]))
+        self.assertEqual(
+            filter.get_display_start_date_info(),
+            "pausing between 2019-04-01 and 2019-05-01",
+        )
+
+    def test_list_shows_all_experiments_with_end_in_range(self):
+        self.set_up_date_tests()
+
+        filter = ExperimentFilterset(
+            data={
+                "experiment_date_field": Experiment.EXPERIMENT_ENDS,
+                "date_range_after": self.start_range_date,
+                "date_range_before": self.end_range_date,
+            }
+        )
+
+        self.assertEqual(set(filter.qs), set([self.exp_2, self.exp_4]))
+        self.assertEqual(
+            filter.get_display_start_date_info(),
+            "ending between 2019-04-01 and 2019-05-01",
+        )
+
+    def test_list_shows_all_experiments_with_start_in_range_start_date_only(self):
+        self.set_up_date_tests()
+
+        filter = ExperimentFilterset(
+            data={
+                "experiment_date_field": Experiment.EXPERIMENT_STARTS,
+                "date_range_after": self.start_range_date,
+                "date_range_before": "",
+            }
+        )
+
+        self.assertEqual(set(filter.qs), set([self.exp_1, self.exp_3]))
+        self.assertEqual(
+            filter.get_display_start_date_info(), "starting after 2019-04-01"
+        )
+
+    def test_list_shows_all_experiments_with_start_in_range_end_date_only(self):
+        self.set_up_date_tests()
+
+        filter = ExperimentFilterset(
+            data={
+                "experiment_date_field": Experiment.EXPERIMENT_STARTS,
+                "date_range_after": "",
+                "date_range_before": self.end_range_date,
+            }
+        )
+
+        self.assertEqual(set(filter.qs), set([self.exp_1, self.exp_2, self.exp_4]))
+        self.assertEqual(
+            filter.get_display_start_date_info(), "starting before 2019-05-01"
+        )
+
 
 class TestExperimentOrderingForm(TestCase):
 
@@ -317,153 +439,6 @@ class TestExperimentListView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(list(context["experiments"]), list(experiments))
 
-    def set_up_date_tests(self):
-
-        self.exp_1 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
-            name="experiment 1",
-            proposed_start_date=datetime.date(2019, 4, 5),
-            proposed_duration=30,
-            proposed_enrollment=3,
-        )
-
-        self.exp_2 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
-            name="experiment 2",
-            proposed_start_date=datetime.date(2019, 3, 29),
-            proposed_duration=14,
-            proposed_enrollment=4,
-        )
-
-        self.exp_3 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
-            name="experiment 3",
-            proposed_start_date=datetime.date(2019, 5, 29),
-            proposed_duration=30,
-            proposed_enrollment=None,
-        )
-
-        self.exp_4 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
-            name="experiment 4",
-            proposed_start_date=datetime.date(2019, 3, 15),
-            proposed_duration=25,
-            proposed_enrollment=1,
-        )
-
-        self.start_range_date = "2019-04-01"
-        self.end_range_date = "2019-05-01"
-        self.user_email = "user@example.com"
-
-    def test_list_shows_all_experiments_with_start_in_range(self):
-
-        self.set_up_date_tests()
-
-        response = self.client.get(
-            "{url}?{params}".format(
-                url=reverse("home"),
-                params=urlencode(
-                    {
-                        "experiment_date_field": Experiment.EXPERIMENT_STARTS,
-                        "date_range_after": self.start_range_date,
-                        "date_range_before": self.end_range_date,
-                    }
-                ),
-            ),
-            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
-        )
-
-        context = response.context[0]
-
-        self.assertEqual(set(context["experiments"]), set([self.exp_1]))
-
-    def test_list_shows_all_experiments_with_pause_in_range(self):
-        self.set_up_date_tests()
-
-        response = self.client.get(
-            "{url}?{params}".format(
-                url=reverse("home"),
-                params=urlencode(
-                    {
-                        "experiment_date_field": Experiment.EXPERIMENT_PAUSES,
-                        "date_range_after": self.start_range_date,
-                        "date_range_before": self.end_range_date,
-                    }
-                ),
-            ),
-            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
-        )
-
-        context = response.context[0]
-
-        self.assertEqual(set(context["experiments"]), set([self.exp_1, self.exp_2]))
-
-    def test_list_shows_all_experiments_with_end_in_range(self):
-        self.set_up_date_tests()
-
-        response = self.client.get(
-            "{url}?{params}".format(
-                url=reverse("home"),
-                params=urlencode(
-                    {
-                        "experiment_date_field": Experiment.EXPERIMENT_ENDS,
-                        "date_range_after": self.start_range_date,
-                        "date_range_before": self.end_range_date,
-                    }
-                ),
-            ),
-            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
-        )
-
-        context = response.context[0]
-
-        self.assertEqual(set(context["experiments"]), set([self.exp_2, self.exp_4]))
-
-    def test_list_shows_all_experiments_with_start_in_range_start_date_only(self):
-
-        self.set_up_date_tests()
-
-        response = self.client.get(
-            "{url}?{params}".format(
-                url=reverse("home"),
-                params=urlencode(
-                    {
-                        "experiment_date_field": Experiment.EXPERIMENT_STARTS,
-                        "date_range_after": self.start_range_date,
-                        "date_range_before": "",
-                    }
-                ),
-            ),
-            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
-        )
-
-        context = response.context[0]
-
-        self.assertEqual(set(context["experiments"]), set([self.exp_1, self.exp_3]))
-
-    def test_list_shows_all_experiments_with_start_in_range_end_date_only(self):
-        self.set_up_date_tests()
-
-        response = self.client.get(
-            "{url}?{params}".format(
-                url=reverse("home"),
-                params=urlencode(
-                    {
-                        "experiment_date_field": Experiment.EXPERIMENT_STARTS,
-                        "date_range_after": "",
-                        "date_range_before": self.end_range_date,
-                    }
-                ),
-            ),
-            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
-        )
-
-        context = response.context[0]
-
-        self.assertEqual(
-            set(context["experiments"]), set([self.exp_1, self.exp_2, self.exp_4])
-        )
-
     def test_list_view_shows_all_including_archived(self):
         user_email = "user@example.com"
 
@@ -495,17 +470,20 @@ class TestExperimentListView(TestCase):
         filtered_channel = Experiment.CHANNEL_CHOICES[1][0]
         filtered_owner = UserFactory.create()
         filtered_status = Experiment.STATUS_DRAFT
+        filtered_types = (Experiment.TYPE_PREF, Experiment.TYPE_GENERIC)
         filtered_version = Experiment.VERSION_CHOICES[1][0]
 
-        for i in range(10):
-            ExperimentFactory.create_with_status(
-                firefox_channel=filtered_channel,
-                firefox_min_version=filtered_version,
-                owner=filtered_owner,
-                target_status=filtered_status,
-            )
+        for i in range(3):
+            for filtered_type in filtered_types:
+                ExperimentFactory.create_with_status(
+                    firefox_channel=filtered_channel,
+                    firefox_min_version=filtered_version,
+                    owner=filtered_owner,
+                    target_status=filtered_status,
+                    type=filtered_type,
+                )
 
-        for i in range(10):
+        for i in range(3):
             ExperimentFactory.create_with_status(
                 random.choice(Experiment.STATUS_CHOICES)[0]
             )
@@ -515,6 +493,7 @@ class TestExperimentListView(TestCase):
             firefox_min_version=filtered_version,
             owner=filtered_owner,
             status=filtered_status,
+            type__in=filtered_types,
         ).order_by(ordering)
 
         response = self.client.get(
@@ -527,7 +506,9 @@ class TestExperimentListView(TestCase):
                         "ordering": ordering,
                         "owner": filtered_owner.id,
                         "status": filtered_status,
-                    }
+                        "type": filtered_types,
+                    },
+                    True,
                 ),
             ),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
