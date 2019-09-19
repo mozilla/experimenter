@@ -487,7 +487,6 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         data = {
             "type": Experiment.TYPE_PREF,
             "owner": self.user.id,
-            "engineering_owner": "Lisa the Engineer",
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
             "data_science_bugzilla_url": bug_url,
@@ -499,7 +498,6 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         experiment = form.save()
 
         self.assertEqual(experiment.owner, self.user)
-        self.assertEqual(experiment.engineering_owner, self.data["engineering_owner"])
         self.assertEqual(experiment.status, experiment.STATUS_DRAFT)
         self.assertEqual(experiment.name, self.data["name"])
         self.assertEqual(experiment.slug, "a-new-experiment")
@@ -587,6 +585,13 @@ class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
             "countries": [],
         }
 
+    def test_no_fields_required(self):
+        experiment = ExperimentFactory.create()
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data={}, instance=experiment
+        )
+        self.assertTrue(form.is_valid())
+
     def test_form_saves_timeline_population_data(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, countries=[], locales=[]
@@ -601,30 +606,12 @@ class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.firefox_max_version, self.data["firefox_max_version"])
         self.assertEqual(experiment.firefox_channel, self.data["firefox_channel"])
 
-    def test_form_start_date_not_optional(self):
-        del self.data["proposed_start_date"]
-        form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
-
-        self.assertFalse(form.is_valid())
-
-    def test_form_duration_not_optional(self):
-        del self.data["proposed_duration"]
-        form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
-
-        self.assertFalse(form.is_valid())
-
     def test_enrollment_must_be_less_or_equal_duration(self):
         self.data["proposed_enrollment"] = 2
         self.data["proposed_duration"] = 1
 
         form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
-
-    def test_enrollment_is_optional(self):
-        del self.data["proposed_enrollment"]
-
-        form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
-        self.assertTrue(form.is_valid())
 
     def test_large_duration_is_invalid(self):
         self.data["proposed_duration"] = Experiment.MAX_DURATION + 1
@@ -815,12 +802,6 @@ class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
         )
         self.assertTrue(not form.is_valid())
         self.assertTrue(form.errors["countries"])
-
-    def test_form_is_invalid_if_population_percent_is_0(self):
-        self.data["population_percent"] = "0"
-        form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("population_percent", form.errors)
 
     def test_form_is_invalid_if_population_percent_below_0(self):
         self.data["population_percent"] = "-1"
@@ -1376,6 +1357,13 @@ class TestExperimentDesignPrefForm(MockRequestMixin, TestCase):
 
 class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
 
+    def test_no_fields_required(self):
+        experiment = ExperimentFactory.create()
+        form = ExperimentObjectivesForm(
+            request=self.request, data={}, instance=experiment
+        )
+        self.assertTrue(form.is_valid())
+
     def test_form_saves_objectives(self):
         created_experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
 
@@ -1424,6 +1412,11 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         "test_builds": "Latest build",
         "qa_status": "It ain't easy being green",
     }
+
+    def test_no_fields_required(self):
+        experiment = ExperimentFactory.create()
+        form = ExperimentRisksForm(request=self.request, data={}, instance=experiment)
+        self.assertTrue(form.is_valid())
 
     def test_form_saves_risks(self):
         created_experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)

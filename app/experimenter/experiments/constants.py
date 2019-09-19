@@ -365,6 +365,12 @@ class ExperimentConstants(object):
         https://wiki.mozilla.org/Release_Management/Calendar
     """
 
+    PLATFORM_HELP_TEXT = """
+        <p>
+          Select the target platform for this experiment.
+        </p>
+    """
+
     CLIENT_MATCHING_HELP_TEXT = """
       <p>
         Describe the criteria a client must meet to participate in the
