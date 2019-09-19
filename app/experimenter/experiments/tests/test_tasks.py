@@ -335,7 +335,7 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 
             self.assertFalse(
                 mm.has_record(
-                    markus.INCR, "expeiments.tasks.update_experiement_bug.failed"
+                    markus.INCR, "experiments.tasks.update_experiement_bug.failed"
                 )
             )
 
