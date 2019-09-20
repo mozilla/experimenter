@@ -771,6 +771,7 @@ class TestExperimentCreateView(TestCase):
 
         bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
         data = {
+            "action": "continue",
             "type": Experiment.TYPE_PREF,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
@@ -815,6 +816,7 @@ class TestExperimentOverviewUpdateView(TestCase):
 
         bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
         data = {
+            "action": "continue",
             "type": Experiment.TYPE_PREF,
             "name": "A new name!",
             "short_description": "A new description!",
@@ -867,6 +869,7 @@ class TestExperimentTimelinePopulationUpdateView(TestCase):
         new_duration = experiment.proposed_duration + 1
 
         data = {
+            "action": "continue",
             "proposed_start_date": new_start_date,
             "proposed_enrollment": new_enrollment,
             "proposed_duration": new_duration,
@@ -971,6 +974,7 @@ class TestExperimentDesignUpdateView(TestCase):
         )
 
         data = {
+            "action": "continue",
             "pref_key": "browser.test.example",
             "pref_type": Experiment.PREF_TYPE_STR,
             "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
@@ -1028,6 +1032,7 @@ class TestExperimentObjectivesUpdateView(TestCase):
         )
 
         data = {
+            "action": "continue",
             "objectives": "Some new objectives!",
             "analysis_owner": "Suzy Data Science",
             "analysis": "Some new analysis!",

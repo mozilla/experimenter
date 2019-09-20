@@ -407,7 +407,7 @@ class ExperimentFormMixin(object):
 
 class ExperimentCreateView(ExperimentFormMixin, CreateView):
     form_class = ExperimentOverviewForm
-    next_view_name = "experiments-variants-update"
+    next_view_name = "experiments-design-update"
     template_name = "experiments/edit_overview.html"
 
     def get_initial(self):
@@ -424,7 +424,7 @@ class ExperimentOverviewUpdateView(ExperimentFormMixin, UpdateView):
 
 class ExperimentTimelinePopulationUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentTimelinePopulationForm
-    next_view_name = "experiments-variants-update"
+    next_view_name = "experiments-design-update"
     template_name = "experiments/edit_timeline_population.html"
 
 
