@@ -181,15 +181,15 @@ class ChangeLogMixin(object):
                             "new_value": new_val,
                             "display_name": display_name,
                         }
-
-        ExperimentChangeLog.objects.create(
-            experiment=experiment,
-            changed_by=self.request.user,
-            old_status=old_status,
-            new_status=experiment.status,
-            changed_values=changed_values,
-            message=self.get_changelog_message(),
-        )
+        if self._has_changed(old_status, changed_values, experiment):
+            ExperimentChangeLog.objects.create(
+                experiment=experiment,
+                changed_by=self.request.user,
+                old_status=old_status,
+                new_status=experiment.status,
+                changed_values=changed_values,
+                message=self.get_changelog_message(),
+            )
 
         return experiment
 
@@ -197,6 +197,15 @@ class ChangeLogMixin(object):
         if self.fields[field].label:
             return self.fields[field].label
         return field.replace("_", " ").title()
+
+    def _has_changed(self, old_status, changed_values, experiment):
+        return any(
+            [
+                changed_values != {},
+                self.get_changelog_message() != "",
+                old_status != experiment.status,
+            ]
+        )
 
 
 class ExperimentOverviewForm(NameSlugFormMixin, ChangeLogMixin, forms.ModelForm):
