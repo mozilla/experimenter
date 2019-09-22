@@ -1370,6 +1370,9 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
         required=False,
     )
 
+    def get_changelog_message(self):
+        return "Recipe ID(s) Added"
+
     def clean(self):
         cleaned_data = super().clean()
 
