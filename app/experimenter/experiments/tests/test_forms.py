@@ -216,25 +216,27 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
 
         self.assertEqual(change.old_status, old_status)
         self.assertEqual(change.new_status, new_status)
-    
+
     def test_changelog_not_produced_when_no_change(self):
 
-        experiment = ExperimentFactory.create_with_status(target_status=Experiment.STATUS_DRAFT)
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_DRAFT
+        )
         num_of_changes = experiment.changes.count()
+
         class TestForm(ChangeLogMixin, forms.ModelForm):
 
             class Meta:
                 model = Experiment
                 fields = ("name",)
-        
-        form = TestForm(request=self.request, data={"name":experiment.name}, instance=experiment)
+
+        form = TestForm(
+            request=self.request, data={"name": experiment.name}, instance=experiment
+        )
         self.assertTrue(form.is_valid())
         form.save()
         experiment = Experiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.changes.count(),num_of_changes)
-        
-
-
+        self.assertEqual(experiment.changes.count(), num_of_changes)
 
     def test_changelog_values(self):
         experiment = Experiment()
