@@ -1355,6 +1355,9 @@ class ExperimentCommentForm(forms.ModelForm):
 
 
 class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
+
+    IDS_ADDED_MESSAGE = "Recipe ID(s) Added"
+
     normandy_id = forms.IntegerField(
         label="Primary Recipe ID",
         widget=forms.TextInput(
@@ -1371,7 +1374,7 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
     )
 
     def get_changelog_message(self):
-        return "Recipe ID(s) Added"
+        return self.IDS_ADDED_MESSAGE
 
     def clean(self):
         cleaned_data = super().clean()
