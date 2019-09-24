@@ -63,9 +63,10 @@
 
   {% include "experiments/section_overview.html" with section_name=experiment.SECTION_OVERVIEW section_complete=True experiment=experiment edit_url_name="experiments-overview-update" comments=experiment.comments.sections.overview %}
 
-  {% if experiment.status == experiment.STATUS_COMPLETE %}
+  {% if experiment.is_begun %}
     {% include "experiments/section_results.html" with section_name=experiment.SECTION_RESULTS section_title="Results" section_complete=experiment.completed_results experiment=experiment edit_url_name="experiments-results-update" comments=experiment.comments.sections.results %}
   {% endif %}
+
   {% include "experiments/section_timeline.html" with section_name=experiment.SECTION_TIMELINE section_complete=experiment.completed_timeline experiment=experiment edit_url_name="experiments-timeline-pop-update" comments=experiment.comments.sections.timeline %}
 
   {% if experiment.has_normandy_info %}
@@ -91,10 +92,6 @@
   {% include "experiments/section_risks.html" with section_name=experiment.SECTION_RISKS section_complete=experiment.completed_risks experiment=experiment edit_url_name="experiments-risks-update" comments=experiment.comments.sections.risks %}
 
   {% include "experiments/section_testing.html" with section_name=experiment.SECTION_TESTING section_title="Test Plan" section_complete=experiment.completed_testing experiment=experiment edit_url_name="experiments-risks-update" comments=experiment.comments.sections.testing %}
-
-  {% if experiment.is_begun and experiment.status != experiment.STATUS_COMPLETE %}
-    {% include "experiments/section_results.html" with section_name=experiment.SECTION_RESULTS section_title="Results" section_complete=experiment.completed_results experiment=experiment edit_url_name="experiments-results-update" comments=experiment.comments.sections.results %}
-  {% endif %}
 
 {% endblock %}
 
