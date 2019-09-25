@@ -1910,3 +1910,18 @@ class TestNormandyIdForm(MockRequestMixin, TestCase):
         )
 
         self.assertTrue(form.is_valid())
+
+    def test_form_changelog_has_message(self):
+        experiment = ExperimentFactory.create()
+
+        form = NormandyIdForm(
+            self.request,
+            instance=experiment,
+            data={"normandy_id": "4343", "other_normandy_ids": "443"},
+        )
+
+        self.assertTrue(form.is_valid())
+
+        form.save()
+
+        self.assertTrue(experiment.changes.latest().message, "Recipe ID(s) Added")
