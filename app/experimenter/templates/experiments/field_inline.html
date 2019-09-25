@@ -2,16 +2,20 @@
   <div class="col-3 text-right">
     <label class="col-form-label" for="{{ field.id_for_label }}">
       <strong>{{ field.label }}</strong>
-      <div class="text-muted">
-        {% if field.field.required %}
+      {% if marked_required or field.field.required %}
+        <div class="text-danger">
           Required
-        {% else %}
+        </div>
+      {% else %}
+        <div class="text-muted">
           Optional
-        {% endif %}
-      </div>
+        </div>
+      {% endif %}
     </label>
     <div>
-      <a href="#{{ field.id_for_label }}-help" data-toggle="collapse" aria-expanded="false" aria-controls="{{ field.id_for_label }}-help">Help</a>
+      {% block help %}
+        <a href="#{{ field.id_for_label }}-help" data-toggle="collapse" aria-expanded="false" aria-controls="{{ field.id_for_label }}-help">Help</a>
+      {% endblock %}
     </div>
   </div>
 
