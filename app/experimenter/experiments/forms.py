@@ -199,12 +199,10 @@ class ChangeLogMixin(object):
         return field.replace("_", " ").title()
 
     def _has_changed(self, old_status, changed_values, experiment):
-        return any(
-            [
-                changed_values != {},
-                self.get_changelog_message() != "",
-                old_status != experiment.status,
-            ]
+        return (
+            changed_values
+            or self.get_changelog_message()
+            or old_status != experiment.status
         )
 
 
