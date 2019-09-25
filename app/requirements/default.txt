@@ -121,9 +121,9 @@ django-mozilla-product-details==0.14.1 \
 django-countries==5.5 \
     --hash=sha256:22e96236101783cfe5222ef5174972242a7e8176336d119a4dc111aedce35897 \
     --hash=sha256:1cefad9ec804d6a0318b91c5394b5aef00336755928f44d0a6420507719d65c8
-markus==1.2.0 \
-    --hash=sha256:86bbeb16de1b1920d291c81a39b7a7c61c94b665cd8d10c6b69c994ce4fd5bcc \
-    --hash=sha256:9bce7bd152578703a8e4aa5a765c7c0d94bcdd69f7bc5e42d29b893e3abf2e5a
+markus==2.0.0 \
+    --hash=sha256:0080cee440426ae6e55c6e6130eba6f60e63715def77b7fda751310aacb63a4c \
+    --hash=sha256:a1c0da25166d8126d52bfa23b8258d1700b99ceb5d260d781e71cbd38020f078
 datadog==0.30.0 \
     --hash=sha256:bbfd8c3a13e87b9c15fb982dff269b983ad9fb5ab610e7f17d92b0bc001fbe0f \
     --hash=sha256:07c053e39c6509023d69bc2f3b8e3d5d101b4e75baf2da2b9fc707391c3e773d
