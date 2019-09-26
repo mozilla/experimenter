@@ -36,6 +36,7 @@ services:
     links:
       - db
       - redis
+      - normandy-app
     volumes:
       - ./app:/app
     command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l debug"
@@ -80,23 +81,33 @@ services:
       - private_nw
   
   delivery-console_app:
-    image: delivery-console_app:latest
-    command: bash -c "yarn start"
+    build:
+      context: ./delivery-console
+      dockerfile: $PWD/delivery-console/Dockerfile
+    command: bash -c "REACT_APP_EXPERIMENTER_API_ROOT_URL=https://localhost/api/ REACT_APP_NORMANDY_ADMIN_API_ROOT_URL=https://localhost:8000/api/ yarn start"
+    links:
+      - normandy-app
     ports:
       - "3000:3000"
+    networks:
+      - private_nw
+      - public_nw
 
-  normandy_app:
-    image: normandy_app:latest
-    command: bash -c "/app/bin/wait-for-it.sh normandy_db:5431 -- python manage.py migrate; ./bin/download_geolite2.sh; python manage.py update_actions; python manage.py update_actions; python manage.py initial_data; ./bin/runsslserver.sh 0.0.0.0:8000"
+  normandy-app:
+    build:
+      context: ./normandy
+      dockerfile: $PWD/normandy/Dockerfile.development
+    command: bash -c "/app/bin/wait-for-it.sh normandy_db:5431; ./bin/download_geolite2.sh; python manage.py migrate; python manage.py update_actions; python manage.py initial_data; ./bin/runsslserver.sh 0.0.0.0:8000"
     links:
       - normandy_db
-    networks:
-      - public_nw
-      - private_nw
     environment:
       - DATABASE_URL=postgres://postgres:postgres@normandy_db/normandy
+      - DJANGO_ALLOWED_HOSTS=normandy-app,localhost
     ports:
       - "8000:8000"
+    networks:
+      - private_nw
+      - public_nw
 
   normandy_db:
     image: postgres:9.6
