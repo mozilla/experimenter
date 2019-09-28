@@ -25,10 +25,11 @@ class Migration(migrations.Migration):
 
         # prune changelogs that describe no change
         for experiment in Experiment.objects.all():
-            changes = experiment.changes.filter(changed_values={}, old_status=F("new_status")).order_by("changed_on")
+            changes = experiment.changes.filter(
+                changed_values={}, old_status=F("new_status")
+            ).order_by("changed_on")
             seen_edits = set()
             current_date = None
-            
 
             for change in changes:
                 if change.changed_on.date() != current_date:
