@@ -156,7 +156,7 @@ class TestMigration(MigrationTestCase):
             1,
         )
 
-        # 9. User1 Edit Experiment review log
+        # 9. User2 Edit Experiment review log
         self.assertEqual(
             ExperimentChangeLog.objects.filter(
                 experiment=exp1,
@@ -168,7 +168,7 @@ class TestMigration(MigrationTestCase):
             1,
         )
 
-        # 10 User2: collasped dummy review log
+        # 10 User1: collasped dummy review log
         self.assertEqual(
             ExperimentChangeLog.objects.filter(
                 experiment=exp1,
