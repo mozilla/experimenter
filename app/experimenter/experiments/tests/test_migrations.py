@@ -6,11 +6,7 @@ from django.db.migrations.executor import MigrationExecutor
 from django.test.testcases import TransactionTestCase
 
 from experimenter.experiments.models import Experiment, ExperimentChangeLog
-from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
-    UserFactory,
-    ExperimentVariantFactory,
-)
+from experimenter.experiments.tests.factories import ExperimentFactory, UserFactory
 
 from experimenter.experiments.constants import ExperimentConstants
 
