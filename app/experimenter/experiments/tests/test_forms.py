@@ -448,7 +448,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "type": Experiment.TYPE_PREF,
             "owner": self.user.id,
             "engineering_owner": "Lisa the Engineer",
-            "analysis_owner": "Jim Data Guy",
+            "analysis_owner": self.user.id,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
             "public_name": "A new public experiment!",
@@ -469,7 +469,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
             "data_science_bugzilla_url": bug_url,
-            "analysis_owner": "Jim Data Guy",
+            "analysis_owner": self.user.id,
         }
         form = ExperimentOverviewForm(request=self.request, data=data)
         self.assertTrue(form.is_valid())
@@ -1359,7 +1359,6 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
 
         data = {
             "objectives": "The objective is to experiment!",
-            "analysis_owner": "Jim Bob The Data Scientist",
             "analysis": "Lets analyze the results!",
             "survey_required": True,
             "survey_urls": "example.com",
