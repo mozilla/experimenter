@@ -34,6 +34,7 @@ from experimenter.experiments.forms import (
     JSONField,
     NormandyIdForm,
     ExperimentTimelinePopulationForm,
+    ExperimentOrderingForm,
 )
 from experimenter.experiments.models import (
     Experiment,
@@ -1925,3 +1926,15 @@ class TestNormandyIdForm(MockRequestMixin, TestCase):
         form.save()
 
         self.assertTrue(experiment.changes.latest().message, "Recipe ID(s) Added")
+
+
+class TestExperimentOrderingForm(TestCase):
+
+    def test_accepts_valid_ordering(self):
+        ordering = ExperimentOrderingForm.ORDERING_CHOICES[1][0]
+        form = ExperimentOrderingForm({"ordering": ordering})
+        self.assertTrue(form.is_valid())
+
+    def test_rejects_invalid_ordering(self):
+        form = ExperimentOrderingForm({"ordering": "invalid ordering"})
+        self.assertFalse(form.is_valid())

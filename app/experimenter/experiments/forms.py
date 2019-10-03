@@ -1400,3 +1400,18 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
     class Meta:
         model = Experiment
         fields = ("normandy_id", "other_normandy_ids")
+
+
+class ExperimentOrderingForm(forms.Form):
+    ORDERING_CHOICES = (
+        ("-latest_change", "Most Recently Updated"),
+        ("latest_change", "Least Recently Updated"),
+        ("firefox_min_version", "Firefox Min Version Ascending"),
+        ("-firefox_min_version", "Firefox Min Version Descending"),
+        ("firefox_channel_sort", "Firefox Channel Ascending"),
+        ("-firefox_channel_sort", "Firefox Channel Descending"),
+    )
+
+    ordering = forms.ChoiceField(
+        choices=ORDERING_CHOICES, widget=forms.Select(attrs={"class": "form-control"})
+    )
