@@ -98,7 +98,9 @@ class ExperimentConstants(object):
         ("80.0", "Firefox 80.0"),
     )
 
-    MIN_VERSION_CHOICES = ((None, "Firefox Min Version (Required)"),) + ((VERSION_CHOICES))
+    MIN_VERSION_CHOICES = ((None, "Firefox Min Version (Required)"),) + (
+        (VERSION_CHOICES)
+    )
 
     MAX_VERSION_CHOICES = ((None, "Firefox Max Version"),) + ((VERSION_CHOICES))
 
