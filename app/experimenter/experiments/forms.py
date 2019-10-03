@@ -1362,6 +1362,9 @@ class ExperimentCommentForm(forms.ModelForm):
 
 
 class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
+
+    IDS_ADDED_MESSAGE = "Recipe ID(s) Added"
+
     normandy_id = forms.IntegerField(
         label="Primary Recipe ID",
         widget=forms.TextInput(
@@ -1376,6 +1379,9 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
         ),
         required=False,
     )
+
+    def get_changelog_message(self):
+        return self.IDS_ADDED_MESSAGE
 
     def clean(self):
         cleaned_data = super().clean()
@@ -1401,3 +1407,18 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
     class Meta:
         model = Experiment
         fields = ("normandy_id", "other_normandy_ids")
+
+
+class ExperimentOrderingForm(forms.Form):
+    ORDERING_CHOICES = (
+        ("-latest_change", "Most Recently Updated"),
+        ("latest_change", "Least Recently Updated"),
+        ("firefox_min_version", "Firefox Min Version Ascending"),
+        ("-firefox_min_version", "Firefox Min Version Descending"),
+        ("firefox_channel_sort", "Firefox Channel Ascending"),
+        ("-firefox_channel_sort", "Firefox Channel Descending"),
+    )
+
+    ordering = forms.ChoiceField(
+        choices=ORDERING_CHOICES, widget=forms.Select(attrs={"class": "form-control"})
+    )
