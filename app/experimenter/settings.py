@@ -37,6 +37,9 @@ HOSTNAME = config("HOSTNAME")
 
 ALLOWED_HOSTS = [HOSTNAME]
 
+if DEBUG:
+    ALLOWED_HOSTS += ["localhost"]
+
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Application definition

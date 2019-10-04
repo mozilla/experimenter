@@ -91,12 +91,16 @@ integration_kill:
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml kill
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml rm -f
 
-integration_build: build
-	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml build 
+integration_build: integration_kill ssl build
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- python manage.py migrate;python manage.py load-locales-countries"
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run app python manage.py createsuperuser --username admin --email admin@example.com --noinput
 
 integration_shell: integration_build
-	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox bash 
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox bash
+
+integration_up_shell:
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox bash
 
 integration_up_detached: integration_build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml up -d
@@ -104,8 +108,6 @@ integration_up_detached: integration_build
 integration_up: integration_build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml up
 
-integration_test: integration_kill ssl integration_build create_integration_test_user
+integration_test: integration_build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox tox -c tests/integration
 
-create_integration_test_user: integration_up_detached
-	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run app python manage.py shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'adminpass')"
