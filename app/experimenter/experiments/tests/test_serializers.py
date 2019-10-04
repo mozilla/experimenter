@@ -432,6 +432,8 @@ class TestExperimentRecipeSerializer(TestCase):
             ExperimentRecipePrefArgumentsSerializer(experiment).data,
         )
 
+        self.assertEqual(serializer.data["experimenter_slug"], experiment.slug)
+
     def test_serializer_outputs_expected_schema_for_addon_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_SHIP,
@@ -457,6 +459,8 @@ class TestExperimentRecipeSerializer(TestCase):
             serializer.data["arguments"],
             ExperimentRecipeAddonArgumentsSerializer(experiment).data,
         )
+
+        self.assertEqual(serializer.data["experimenter_slug"], experiment.slug)
 
     def test_serializer_excludes_locales_if_none_set(self):
         experiment = ExperimentFactory.create_with_status(

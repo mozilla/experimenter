@@ -321,10 +321,18 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
     filter_object = serializers.SerializerMethodField()
     comment = serializers.ReadOnlyField(source="client_matching")
     arguments = serializers.SerializerMethodField()
+    experimenter_slug = serializers.ReadOnlyField(source="slug")
 
     class Meta:
         model = Experiment
-        fields = ("action_name", "name", "filter_object", "comment", "arguments", "slug")
+        fields = (
+            "action_name",
+            "name",
+            "filter_object",
+            "comment",
+            "arguments",
+            "experimenter_slug",
+        )
 
     def get_action_name(self, obj):
         if obj.is_pref_experiment:
