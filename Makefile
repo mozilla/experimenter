@@ -93,8 +93,7 @@ integration_kill:
 
 integration_build: integration_kill ssl build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml build
-	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- python manage.py migrate;python manage.py load-locales-countries"
-	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run app python manage.py createsuperuser --username admin --email admin@example.com --noinput
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- python manage.py migrate;python manage.py load-locales-countries;python manage.py createsuperuser --username admin --email admin@example.com --noinput"
 
 integration_shell: integration_build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox bash
