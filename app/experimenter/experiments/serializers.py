@@ -324,7 +324,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Experiment
-        fields = ("action_name", "name", "filter_object", "comment", "arguments")
+        fields = ("action_name", "name", "filter_object", "comment", "arguments", "slug")
 
     def get_action_name(self, obj):
         if obj.is_pref_experiment:
