@@ -1150,6 +1150,11 @@ class TestExperimentModel(TestCase):
         self.assertEqual(change.old_status, None)
         self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
+    def test_variant_json_load(self):
+        variant = ExperimentVariant()
+        variant.value = '{"key": "value"}'
+        self.assertEqual(variant.json_load_value, {"key": "value"})
+
 
 class TestExperimentChangeLog(TestCase):
 

@@ -764,6 +764,10 @@ class ExperimentVariant(models.Model):
         else:
             return "Treatment"
 
+    @property
+    def json_load_value(self):
+        return json.loads(self.value)
+
 
 class ExperimentChangeLogManager(models.Manager):
 
