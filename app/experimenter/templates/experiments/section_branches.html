@@ -15,7 +15,11 @@
     <div class="border-left-grey pl-3 mb-4">
       <h5>{{ variant.ratio }}% {{ variant.name }}</h5>
       {% if experiment.is_pref_experiment %}
-        <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
+        {% if experiment.pref_type == "json string" %}
+          <p><strong>{{ experiment.pref_key }} = <pre class="text-info">{{ variant.json_load_value| pprint}}</pre></strong></p>
+        {% else %}
+          <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
+        {% endif %}
       {% endif %}
       <p>{{ variant.description|urlize|linebreaks }}</p>
     </div>
