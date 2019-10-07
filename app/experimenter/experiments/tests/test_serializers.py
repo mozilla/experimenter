@@ -30,6 +30,7 @@ from experimenter.experiments.serializers import (
     LocaleSerializer,
     ExperimentChangeLogSerializer,
     ExperimentCloneSerializer,
+    ExperimentRecipeBranchedArgumentsSerializer,
 )
 
 from experimenter.experiments.tests.mixins import MockRequestMixin
@@ -437,6 +438,7 @@ class TestExperimentRecipeSerializer(TestCase):
     def test_serializer_outputs_expected_schema_for_addon_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_SHIP,
+            firefox_min_version="63.0",
             type=Experiment.TYPE_ADDON,
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
@@ -461,6 +463,17 @@ class TestExperimentRecipeSerializer(TestCase):
         )
 
         self.assertEqual(serializer.data["experimenter_slug"], experiment.slug)
+        
+    def test_serializer_outputs_expect_schema_for_branched_addon(self):
+        experiment = ExperimentFactory.create(
+            firefox_min_version="70.0", type=Experiment.TYPE_ADDON
+        )
+        serializer = ExperimentRecipeSerializer(experiment)
+        self.assertEqual(serializer.data["action_name"], "opt-out-study")
+        self.assertEqual(
+            serializer.data["arguments"],
+            ExperimentRecipeBranchedArgumentsSerializer(experiment).data,
+        )
 
     def test_serializer_excludes_locales_if_none_set(self):
         experiment = ExperimentFactory.create_with_status(

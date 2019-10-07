@@ -631,6 +631,10 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
+    def firefox_min_addon_serializer_version(self):
+        return 68
+
+    @property
     def versions_integer_list(self):
         max = self.firefox_max_version_integer or self.firefox_min_version_integer
         return list(range(self.firefox_min_version_integer, max + 1))

@@ -287,6 +287,13 @@ class ExperimentRecipeVariantSerializer(serializers.ModelSerializer):
         return obj.value
 
 
+class ExperimentRecipeAddonVariantSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ExperimentVariant
+        fields = ("ratio", "slug")
+
+
 class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
     preferenceBranchType = serializers.ReadOnlyField(source="pref_branch")
     slug = serializers.ReadOnlyField(source="normandy_slug")
@@ -305,6 +312,22 @@ class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
             "preferenceType",
             "branches",
         )
+
+
+class ExperimentRecipeBranchedArgumentsSerializer(serializers.ModelSerializer):
+    userFacingName = userFacingDescription = serializers.ReadOnlyField(
+        source="public_name"
+    )
+    userFacingDescription = serializers.ReadOnlyField(source="public_description")
+    branches = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Experiment
+        fields = ("slug", "userFacingName", "userFacingDescription", "branches")
+
+    def get_branches(self, obj):
+        variants = obj.variants
+        return ExperimentRecipeAddonVariantSerializer(variants, many=True).data
 
 
 class ExperimentRecipeAddonArgumentsSerializer(serializers.ModelSerializer):
@@ -356,10 +379,16 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
         return filter_objects
 
     def get_arguments(self, obj):
+        min_version = obj.firefox_min_version_integer
         if obj.is_pref_experiment:
             return ExperimentRecipePrefArgumentsSerializer(obj).data
-        elif obj.is_addon_experiment:
+        elif (
+            obj.is_addon_experiment
+            and min_version <= obj.firefox_min_addon_serializer_version
+        ):
             return ExperimentRecipeAddonArgumentsSerializer(obj).data
+        elif obj.is_addon_experiment:
+            return ExperimentRecipeBranchedArgumentsSerializer(obj).data
 
 
 class ExperimentCloneSerializer(serializers.ModelSerializer):
