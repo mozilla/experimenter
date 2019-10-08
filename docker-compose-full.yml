@@ -9,6 +9,7 @@ services:
     links:
       - db
       - redis
+      - normandy
     volumes:
       - ./app:/app
       - static_volume:/app/experimenter/served/
@@ -36,10 +37,12 @@ services:
     links:
       - db
       - redis
-      - normandy-app
+      - normandy
     volumes:
       - ./app:/app
     command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l debug"
+    environment:
+      - NORMANDY_API_HOST=https://normandy:8000
     networks:
       - private_nw
       - public_nw
@@ -80,20 +83,20 @@ services:
     networks:
       - private_nw
   
-  delivery-console_app:
+  delivery-console:
     build:
       context: ./delivery-console
       dockerfile: $PWD/delivery-console/Dockerfile
     command: bash -c "REACT_APP_EXPERIMENTER_API_ROOT_URL=https://localhost/api/ REACT_APP_NORMANDY_ADMIN_API_ROOT_URL=https://localhost:8000/api/ yarn start"
     links:
-      - normandy-app
+      - normandy
     ports:
       - "3000:3000"
     networks:
       - private_nw
       - public_nw
 
-  normandy-app:
+  normandy:
     build:
       context: ./normandy
       dockerfile: $PWD/normandy/Dockerfile.development
@@ -102,7 +105,7 @@ services:
       - normandy_db
     environment:
       - DATABASE_URL=postgres://postgres:postgres@normandy_db/normandy
-      - DJANGO_ALLOWED_HOSTS=normandy-app,localhost
+      - DJANGO_ALLOWED_HOSTS=normandy,localhost
     ports:
       - "8000:8000"
     networks:

@@ -90,7 +90,7 @@ bash: compose_build
 	docker-compose run app bash
 
 normandy_shell: compose_build_all
-	docker-compose -f docker-compose-full.yml run normandy-app ./manage.py shell
+	docker-compose -f docker-compose-full.yml run normandy ./manage.py shell
 
 refresh: kill migrate load_locales_countries load_dummy_experiments
 
