@@ -382,13 +382,10 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
         min_version = obj.firefox_min_version_integer
         if obj.is_pref_experiment:
             return ExperimentRecipePrefArgumentsSerializer(obj).data
-        elif (
-            obj.is_addon_experiment
-            and min_version <= obj.firefox_min_addon_serializer_version
-        ):
-            return ExperimentRecipeAddonArgumentsSerializer(obj).data
-        elif obj.is_addon_experiment:
+        elif obj.is_addon_experiment and obj.is_branched_addon:
             return ExperimentRecipeBranchedArgumentsSerializer(obj).data
+        elif obj.is_addon_experiment:
+            return ExperimentRecipeAddonArgumentsSerializer(obj).data
 
 
 class ExperimentCloneSerializer(serializers.ModelSerializer):
