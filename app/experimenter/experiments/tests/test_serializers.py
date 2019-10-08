@@ -463,7 +463,7 @@ class TestExperimentRecipeSerializer(TestCase):
         )
 
         self.assertEqual(serializer.data["experimenter_slug"], experiment.slug)
-        
+
     def test_serializer_outputs_expect_schema_for_branched_addon(self):
         experiment = ExperimentFactory.create(
             firefox_min_version="70.0", type=Experiment.TYPE_ADDON
