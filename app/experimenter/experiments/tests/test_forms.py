@@ -34,6 +34,7 @@ from experimenter.experiments.forms import (
     JSONField,
     NormandyIdForm,
     ExperimentTimelinePopulationForm,
+    ExperimentOrderingForm,
 )
 from experimenter.experiments.models import (
     Experiment,
@@ -217,6 +218,27 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         self.assertEqual(change.old_status, old_status)
         self.assertEqual(change.new_status, new_status)
 
+    def test_changelog_not_produced_when_no_change(self):
+
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_DRAFT
+        )
+        num_of_changes = experiment.changes.count()
+
+        class TestForm(ChangeLogMixin, forms.ModelForm):
+
+            class Meta:
+                model = Experiment
+                fields = ("name",)
+
+        form = TestForm(
+            request=self.request, data={"name": experiment.name}, instance=experiment
+        )
+        self.assertTrue(form.is_valid())
+        form.save()
+        experiment = Experiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.changes.count(), num_of_changes)
+
     def test_changelog_values(self):
         experiment = Experiment()
         experiment.save()
@@ -368,49 +390,49 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         experiment = form.save()
         latest_changes = experiment.changes.latest()
 
-        expected_data = {
-            "variants": {
-                "display_name": "Branches",
-                "new_value": [
-                    {
-                        "description": "branch 1 desc",
-                        "is_control": False,
-                        "name": "branch 1 name",
-                        "ratio": 50,
-                        "slug": "branch-1-name",
-                        "value": "8",
-                    },
-                    {
-                        "description": "variant 0 desc",
-                        "is_control": True,
-                        "name": "variant 0 name",
-                        "ratio": 50,
-                        "slug": "variant-0-name",
-                        "value": "5",
-                    },
-                    {
-                        "description": "old branch 1 desc",
-                        "is_control": True,
-                        "name": "old branch 1 name",
-                        "ratio": 50,
-                        "slug": "old-branch-1-name",
-                        "value": "8",
-                    },
-                ],
-                "old_value": [
-                    {
-                        "description": "old branch 1 desc",
-                        "is_control": True,
-                        "name": "old branch 1 name",
-                        "ratio": 50,
-                        "slug": "old-branch-1-name",
-                        "value": "8",
-                    }
-                ],
+        old_value = [
+            {
+                "description": "old branch 1 desc",
+                "is_control": True,
+                "name": "old branch 1 name",
+                "ratio": 50,
+                "slug": "old-branch-1-name",
+                "value": "8",
             }
-        }
+        ]
 
-        self.assertEqual(expected_data, latest_changes.changed_values)
+        new_value = [
+            {
+                "description": "branch 1 desc",
+                "is_control": False,
+                "name": "branch 1 name",
+                "ratio": 50,
+                "slug": "branch-1-name",
+                "value": "8",
+            },
+            {
+                "description": "variant 0 desc",
+                "is_control": True,
+                "name": "variant 0 name",
+                "ratio": 50,
+                "slug": "variant-0-name",
+                "value": "5",
+            },
+            {
+                "description": "old branch 1 desc",
+                "is_control": True,
+                "name": "old branch 1 name",
+                "ratio": 50,
+                "slug": "old-branch-1-name",
+                "value": "8",
+            },
+        ]
+
+        variant_changes = latest_changes.changed_values["variants"]
+
+        self.assertEqual(variant_changes["display_name"], "Branches")
+        self.assertEqual(variant_changes["old_value"], old_value)
+        self.assertCountEqual(variant_changes["new_value"], new_value)
 
 
 @override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")
@@ -1925,3 +1947,15 @@ class TestNormandyIdForm(MockRequestMixin, TestCase):
         form.save()
 
         self.assertTrue(experiment.changes.latest().message, "Recipe ID(s) Added")
+
+
+class TestExperimentOrderingForm(TestCase):
+
+    def test_accepts_valid_ordering(self):
+        ordering = ExperimentOrderingForm.ORDERING_CHOICES[1][0]
+        form = ExperimentOrderingForm({"ordering": ordering})
+        self.assertTrue(form.is_valid())
+
+    def test_rejects_invalid_ordering(self):
+        form = ExperimentOrderingForm({"ordering": "invalid ordering"})
+        self.assertFalse(form.is_valid())

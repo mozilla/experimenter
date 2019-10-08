@@ -49,25 +49,18 @@
                 target="_blank"
                 class="btn btn-primary"
                 role="button"
+                id="export-normandy-button"
               >
                 Export to Normandy
               </a>
-
-              <button
-                class="btn btn-secondary mx-1"
-                data-toggle="collapse"
-                data-target="#stn-step2"
-              >
-                Already exported
-              </button>
             </p>
           </div>
 
           <form
             method="post"
             action="{% url "experiments-normandy-update" slug=experiment.slug %}"
-            class="collapse {% if normandy_id_form.normandy_id.value or normandy_id_form.other_normandy_ids.value %}show{% endif %}"
-            id="stn-step2"
+            id="id-form"
+            class="d-none"
           >
             {% csrf_token %}
             <hr />
@@ -106,6 +99,16 @@
 
 {% block extrascripts %}
   {{ block.super }}
+  <script>
+    const modal = $("#normandyModal");
+    const normandyIdForm = modal.find("#id-form");
+
+    jQuery(function($) {
+      $("#export-normandy-button").on("click", function(e) {
+        normandyIdForm.removeClass("d-none");
+      })
+    })
+  </script>
 
   {% if normandy_id_form.errors %}
     <script>
@@ -114,4 +117,5 @@
       });
     </script>
   {% endif %}
+
 {% endblock %}
