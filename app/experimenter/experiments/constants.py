@@ -183,7 +183,7 @@ class ExperimentConstants(object):
         (SECTION_RESULTS, "Results"),
     )
 
-    #Branched Addon Stuff
+    # Branched Addon Stuff
     FX_MIN_BRANCHED_ADDON_VERSION = 68
 
     # Labels

@@ -326,8 +326,7 @@ class ExperimentRecipeBranchedArgumentsSerializer(serializers.ModelSerializer):
         fields = ("slug", "userFacingName", "userFacingDescription", "branches")
 
     def get_branches(self, obj):
-        variants = obj.variants
-        return ExperimentRecipeAddonVariantSerializer(variants, many=True).data
+        return ExperimentRecipeAddonVariantSerializer(obj.variants, many=True).data
 
 
 class ExperimentRecipeAddonArgumentsSerializer(serializers.ModelSerializer):
@@ -379,7 +378,6 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
         return filter_objects
 
     def get_arguments(self, obj):
-        min_version = obj.firefox_min_version_integer
         if obj.is_pref_experiment:
             return ExperimentRecipePrefArgumentsSerializer(obj).data
         elif obj.is_addon_experiment and obj.is_branched_addon:

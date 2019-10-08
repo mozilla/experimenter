@@ -470,6 +470,18 @@ class TestExperimentRecipeSerializer(TestCase):
         )
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "opt-out-study")
+        self.assertEqual(serializer.data["name"], experiment.name)
+        self.assertEqual(serializer.data["comment"], experiment.client_matching)
+        self.assertEqual(
+            serializer.data["filter_object"],
+            [
+                FilterObjectBucketSampleSerializer(experiment).data,
+                FilterObjectChannelSerializer(experiment).data,
+                FilterObjectVersionsSerializer(experiment).data,
+                FilterObjectLocaleSerializer(experiment).data,
+                FilterObjectCountrySerializer(experiment).data,
+            ],
+        )
         self.assertEqual(
             serializer.data["arguments"],
             ExperimentRecipeBranchedArgumentsSerializer(experiment).data,

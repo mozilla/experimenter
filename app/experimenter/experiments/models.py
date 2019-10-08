@@ -632,7 +632,10 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def is_branched_addon(self):
-        return self.firefox_min_version_integer > ExperimentConstants.FX_MIN_BRANCHED_ADDON_VERSION
+        return (
+            self.firefox_min_version_integer
+            > ExperimentConstants.FX_MIN_BRANCHED_ADDON_VERSION
+        )
 
     @property
     def versions_integer_list(self):
