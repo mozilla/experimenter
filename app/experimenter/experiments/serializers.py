@@ -441,7 +441,7 @@ class ExperimentDesignBranchSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {"branch_name": "That's an invalid name."}
                 )
-                
+
 
         return value
 
@@ -451,10 +451,10 @@ class ExperimentDesignBranchSerializer(serializers.ModelSerializer):
 
 
 class ExperimentDesignPrefSerializer(serializers.ModelSerializer):
-    type = serializers.CharField(allow_null=True, allow_blank=True)
-    pref_key = serializers.CharField(allow_null=True, allow_blank=True)
-    pref_type = serializers.CharField(allow_null=True, allow_blank=True)
-    pref_branch = serializers.CharField(allow_null=True, allow_blank=True)
+    type = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    pref_key = serializers.CharField()
+    pref_type = serializers.CharField()
+    pref_branch = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     variants = ExperimentDesignBranchSerializer(many=True)
 
     class Meta:
@@ -530,11 +530,9 @@ class ExperimentDesignPrefSerializer(serializers.ModelSerializer):
 
 
 class ExperimentDesignAddonSerializer(serializers.ModelSerializer):
-    type = serializers.CharField(allow_null=True, allow_blank=True)
-    addon_experiment_id = serializers.CharField(
-        allow_null=True, allow_blank=True
-    )
-    addon_release_url = serializers.URLField(allow_null=True, allow_blank=True)
+    type = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    addon_experiment_id = serializers.CharField()
+    addon_release_url = serializers.URLField()
     variants = ExperimentDesignBranchSerializer(many=True)
 
     class Meta:
@@ -615,7 +613,7 @@ def validate_variants(data):
     for variant in variants:
         if variant["name"] in existing_name:
             raise serializers.ValidationError(
-                {"branch_name": ["All branches must have a unique name"]}
+                {"branch_name": ["All branches must have a unique name."]}
             )
         else:
             existing_name.append(variant["name"])
@@ -623,7 +621,7 @@ def validate_variants(data):
             raise serializers.ValidationError(
                 {
                     "branch_value": [
-                        "All branches must have a unique pref value"
+                        "All branches must have a unique pref value."
                     ]
                 }
             )

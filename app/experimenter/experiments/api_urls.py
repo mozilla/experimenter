@@ -37,16 +37,16 @@ urlpatterns = [
     url(
         r"^(?P<slug>[\w-]+)/design-addon",
         ExperimentDesignAddonView.as_view(),
-        name="experiments-api-recipe",
+        name="experiments-design-addon",
     ),
     url(
         r"^(?P<slug>[\w-]+)/design-pref",
         ExperimentDesignPrefView.as_view(),
-        name="experiments-api-recipe",
+        name="experiments-design-pref",
     ),
     url(
         r"^(?P<slug>[\w-]+)/design-generic",
         ExperimentDesignGenericView.as_view(),
-        name="experiments-api-recipe",
+        name="experiments-design-generic",
     ),
 ]
