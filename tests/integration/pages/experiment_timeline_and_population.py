@@ -21,7 +21,8 @@ class TimelineAndPopulationPage(Base):
         self.wait.until(
             lambda _: "Experiment Timeline"
             in self.find_element(
-                By.CSS_SELECTOR, "div.form-group:nth-child(2) > h4:nth-child(1)"
+                By.CSS_SELECTOR,
+                "body.page-edit-timeline-and-population"
             ).text
         )
         return self
