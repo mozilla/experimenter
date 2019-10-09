@@ -235,6 +235,7 @@ export default class DesignForm extends React.Component {
         return response.json();
       })
       .then(function(json) {
+
         if (json.variants == "") {
           return that.setState({
             type: json.type,
@@ -326,12 +327,15 @@ export default class DesignForm extends React.Component {
   }
 
   async handleSubmit(e) {
+    e.preventDefault();
+
     const data = new FormData(e.target);
 
     var object = {};
     data.forEach((value, key) => {object[key] = value});
 
     let url;
+
     if (this.state.type == "pref") {
       url = `/api/v1/experiments/${this.slug}/design-pref`
     } else if (this.state.type == "addon") {
@@ -348,6 +352,7 @@ export default class DesignForm extends React.Component {
       }
     });
 
+
     if (res.status == "200") {
       location.replace(`/experiments/${this.slug}`)
     }
@@ -355,6 +360,8 @@ export default class DesignForm extends React.Component {
     const json = await res.json();
     this.handleValidationErrors(json);
   }
+
+  
 
   render() {
     return (

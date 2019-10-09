@@ -426,27 +426,32 @@ class ExperimentCloneSerializer(serializers.ModelSerializer):
         return instance.clone(name, user)
 
 
-class ExperimentDesignBranchSerializer(serializers.ModelSerializer):
+class ExperimentDesignBranchBaseSerializer(serializers.ModelSerializer):
     description = serializers.CharField()
     is_control = serializers.BooleanField()
     name = serializers.CharField()
     ratio = serializers.IntegerField()
-    value = serializers.CharField()
 
     def validate_name(self, value):
-        if value:
-            if not slugify(value):
-                raise serializers.ValidationError(
-                    {"branch_name": "That's an invalid name."}
-                )
+        if not slugify(value):
+            raise serializers.ValidationError(
+                {"branch_name": "That's an invalid name."}
+            )
 
 
         return value
 
     class Meta:
-        fields = ["description", "is_control", "name", "value", "ratio"]
+        fields = ["description", "is_control", "name", "ratio"]
         model = ExperimentVariant
 
+
+class ExperimentDesignBranchPrefSerializer(ExperimentDesignBranchBaseSerializer):
+    value = serializers.CharField()
+
+    class Meta:
+        fields = ["description", "is_control", "name", "ratio", "value"]
+        model = ExperimentVariant
 
 
 class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
@@ -508,20 +513,20 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
 
 
 class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
-    type = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     pref_key = serializers.CharField()
     pref_type = serializers.CharField()
     pref_branch = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-    variants = ExperimentDesignBranchSerializer(many=True)
+    variants = ExperimentDesignBranchPrefSerializer(many=True)
 
     class Meta:
         model = Experiment
         fields = ("type", "pref_key", "pref_type", "pref_branch", "variants")
 
     def validate(self, data):
+        super().validate(data)
+
         variants = data["variants"]
 
-        super().validate(data)
 
         for variant in variants:
             if data.get("pref_type", "") == "integer":
@@ -558,10 +563,9 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
 
 
 class ExperimentDesignAddonSerializer(ExperimentDesignBaseSerializer):
-    type = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     addon_experiment_id = serializers.CharField()
     addon_release_url = serializers.URLField()
-    variants = ExperimentDesignBranchSerializer(many=True)
+    variants = ExperimentDesignBranchBaseSerializer(many=True)
 
     class Meta:
         model = Experiment
@@ -574,9 +578,8 @@ class ExperimentDesignAddonSerializer(ExperimentDesignBaseSerializer):
 
 
 class ExperimentDesignGenericSerializer(ExperimentDesignBaseSerializer):
-    type = serializers.CharField(allow_null=True, allow_blank=True)
     design = serializers.CharField(allow_null=True, allow_blank=True)
-    variants = ExperimentDesignBranchSerializer(many=True)
+    variants = ExperimentDesignBranchBaseSerializer(many=True)
 
     class Meta:
         model = Experiment
