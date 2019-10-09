@@ -220,11 +220,11 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         empty_label="Data Science Owner",
     )
     public_name = forms.CharField(
-        label="Public Name", required=False, help_text=Experiment.PUBLIC_NAME_HELP_TEXT
+        required=True, label="Public Name", help_text=Experiment.PUBLIC_NAME_HELP_TEXT
     )
     public_description = forms.CharField(
+        required=True,
         label="Public Description",
-        required=False,
         help_text=Experiment.PUBLIC_DESCRIPTION_HELP_TEXT,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
@@ -254,12 +254,12 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
             "name",
             "slug",
             "short_description",
+            "public_name",
+            "public_description",
             "data_science_bugzilla_url",
             "owner",
             "analysis_owner",
             "engineering_owner",
-            "public_name",
-            "public_description",
             "feature_bugzilla_url",
             "related_work",
             "related_to",

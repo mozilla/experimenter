@@ -468,15 +468,15 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
 
         self.data = {
             "type": Experiment.TYPE_PREF,
-            "owner": self.user.id,
-            "engineering_owner": "Lisa the Engineer",
-            "analysis_owner": self.user.id,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
-            "public_name": "A new public experiment!",
-            "related_to": [self.related_exp],
-            "public_description": "Let us learn new public things",
             "data_science_bugzilla_url": bug_url,
+            "owner": self.user.id,
+            "analysis_owner": self.user.id,
+            "engineering_owner": "Lisa the Engineer",
+            "public_name": "A new public experiment!",
+            "public_description": "Let us learn new public things",
+            "related_to": [self.related_exp],
             "feature_bugzilla_url": bug_url,
             "related_work": "Designs: https://www.example.com/myproject/",
         }
@@ -491,6 +491,8 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "short_description": "Let us learn new things",
             "data_science_bugzilla_url": bug_url,
             "analysis_owner": self.user.id,
+            "public_name": "Public Name",
+            "public_description": "Public Description",
         }
         form = ExperimentOverviewForm(request=self.request, data=data)
         self.assertTrue(form.is_valid())
@@ -534,36 +536,6 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
 
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
-
-
-def get_variants_form_data():
-    return {
-        "pref_key": "browser.test.example",
-        "pref_type": Experiment.PREF_TYPE_STR,
-        "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
-        "addon_experiment_id": slugify(faker.catch_phrase()),
-        "addon_release_url": "https://www.example.com/release.xpi",
-        "design": "Design",
-        "variants-TOTAL_FORMS": "3",
-        "variants-INITIAL_FORMS": "0",
-        "variants-MIN_NUM_FORMS": "0",
-        "variants-MAX_NUM_FORMS": "1000",
-        "variants-0-is_control": True,
-        "variants-0-ratio": "34",
-        "variants-0-name": "control name",
-        "variants-0-description": "control desc",
-        "variants-0-value": '"control value"',
-        "variants-1-is_control": False,
-        "variants-1-ratio": "33",
-        "variants-1-name": "branch 1 name",
-        "variants-1-description": "branch 1 desc",
-        "variants-1-value": '"branch 1 value"',
-        "variants-2-is_control": False,
-        "variants-2-ratio": "33",
-        "variants-2-name": "branch 2 name",
-        "variants-2-description": "branch 2 desc",
-        "variants-2-value": '"branch 2 value"',
-    }
 
 
 class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
@@ -863,7 +835,7 @@ class TestExperimentVariantFormSet(MockRequestMixin, TestCase):
             Experiment.STATUS_DRAFT, num_variants=0
         )
 
-        self.data = get_variants_form_data()
+        self.data = get_design_form_data()
 
     def test_formset_valid_if_sizes_sum_to_100(self):
         self.data["variants-0-ratio"] = "34"
@@ -933,7 +905,7 @@ class TestExperimentDesignBaseForm(MockRequestMixin, TestCase):
             Experiment.STATUS_DRAFT, num_variants=0, countries=[], locales=[]
         )
 
-        self.data = get_variants_form_data()
+        self.data = get_design_form_data()
 
     def test_formset_saves_new_variants(self):
         form = self.form_class(
@@ -1151,13 +1123,53 @@ class TestExperimentDesignBaseForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment2.variants.count(), 3)
 
 
+def get_variants_form_data():
+    return {
+        "variants-TOTAL_FORMS": "3",
+        "variants-INITIAL_FORMS": "0",
+        "variants-MIN_NUM_FORMS": "0",
+        "variants-MAX_NUM_FORMS": "1000",
+        "variants-0-is_control": True,
+        "variants-0-ratio": "34",
+        "variants-0-name": "control name",
+        "variants-0-description": "control desc",
+        "variants-0-value": '"control value"',
+        "variants-1-is_control": False,
+        "variants-1-ratio": "33",
+        "variants-1-name": "branch 1 name",
+        "variants-1-description": "branch 1 desc",
+        "variants-1-value": '"branch 1 value"',
+        "variants-2-is_control": False,
+        "variants-2-ratio": "33",
+        "variants-2-name": "branch 2 name",
+        "variants-2-description": "branch 2 desc",
+        "variants-2-value": '"branch 2 value"',
+    }
+
+
+def get_design_form_data():
+    data = get_variants_form_data()
+    data.update(
+        {
+            "pref_key": "browser.test.example",
+            "pref_type": Experiment.PREF_TYPE_STR,
+            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
+            "addon_experiment_id": slugify(faker.catch_phrase()),
+            "addon_release_url": "https://www.example.com/release.xpi",
+            "design": "Design",
+        }
+    )
+    return data
+
+
 class TestExperimentDesignGenericForm(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
         self.data = get_variants_form_data()
+        self.data.update({"design": "Design"})
 
-    def test_form_saves_addon_information(self):
+    def test_form_saves_design_information(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_GENERIC, design=Experiment.DESIGN_DEFAULT
         )
@@ -1178,21 +1190,29 @@ class TestExperimentDesignAddonForm(MockRequestMixin, TestCase):
     def setUp(self):
         super().setUp()
         self.data = get_variants_form_data()
+        self.data.update(
+            {
+                "addon_experiment_id": slugify(faker.catch_phrase()),
+                "addon_release_url": "https://www.example.com/release.xpi",
+            }
+        )
 
-    def test_form_saves_addon_information(self):
+    def test_minimum_required_fields(self):
         experiment = ExperimentFactory.create(
             addon_experiment_id=None, addon_release_url=None
         )
 
+        data = get_variants_form_data()
+        data["addon_release_url"] = "https://www.example.com/release.xpi"
+
         form = ExperimentDesignAddonForm(
-            request=self.request, data=self.data, instance=experiment
+            request=self.request, data=data, instance=experiment
         )
 
         self.assertTrue(form.is_valid())
 
         experiment = form.save()
 
-        self.assertEqual(experiment.addon_experiment_id, self.data["addon_experiment_id"])
         self.assertEqual(experiment.addon_release_url, self.data["addon_release_url"])
 
     def test_addon_experiment_id_is_unique(self):
@@ -1252,8 +1272,15 @@ class TestExperimentDesignPrefForm(MockRequestMixin, TestCase):
     def setUp(self):
         super().setUp()
         self.data = get_variants_form_data()
+        self.data.update(
+            {
+                "pref_key": "browser.test.example",
+                "pref_type": Experiment.PREF_TYPE_STR,
+                "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
+            }
+        )
 
-    def test_form_saves_pref_information(self):
+    def test_minimum_required_fields(self):
         experiment = ExperimentFactory.create(
             pref_key=None, pref_type=None, pref_branch=None
         )
