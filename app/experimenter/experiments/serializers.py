@@ -457,7 +457,6 @@ class ExperimentDesignBranchPrefSerializer(ExperimentDesignBranchBaseSerializer)
 class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
     type = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
-
     class Meta:
         model = Experiment
         fields = ("type")
@@ -475,14 +474,6 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
                 {"branch_name": ["All branches must have a unique name."]}
             )
 
-        if not len(set(variant["value"] for variant in variants)) == len(variants):
-            raise serializers.ValidationError(
-                {
-                    "branch_value": [
-                        "All branches must have a unique pref value."
-                    ]
-                }
-            )
 
         return data
 
@@ -492,16 +483,27 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
         existing_variants = instance.variants.all()
         existing_variants.delete()
 
-        for variant in variants:
-            ExperimentVariant.objects.create(
-                experiment=instance,
-                is_control=variant["is_control"],
-                value=variant["value"],
-                description=variant["description"],
-                name=variant["name"],
-                ratio=variant["ratio"],
-                slug=slugify(variant["name"]),
-            )
+        if instance.type == "pref":
+            for variant in variants:
+                ExperimentVariant.objects.create(
+                    experiment=instance,
+                    is_control=variant["is_control"],
+                    value=variant["value"],
+                    description=variant["description"],
+                    name=variant["name"],
+                    ratio=variant["ratio"],
+                    slug=slugify(variant["name"]),
+                )
+        else:
+            for variant in variants:
+                ExperimentVariant.objects.create(
+                    experiment=instance,
+                    is_control=variant["is_control"],
+                    description=variant["description"],
+                    name=variant["name"],
+                    ratio=variant["ratio"],
+                    slug=slugify(variant["name"]),
+                )
 
         for key in validated_data:
             setattr(instance, key, validated_data.get(key, getattr(instance, key)))
@@ -527,6 +529,14 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
 
         variants = data["variants"]
 
+        if not len(set(variant["value"] for variant in variants)) == len(variants):
+            raise serializers.ValidationError(
+                {
+                    "branch_value": [
+                        "All branches must have a unique pref value."
+                    ]
+                }
+            )
 
         for variant in variants:
             if data.get("pref_type", "") == "integer":
