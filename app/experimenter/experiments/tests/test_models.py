@@ -1058,6 +1058,22 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(experiment.firefox_min_version_integer, 57)
 
+    def test_is_branched_addon_returns_true_for_addon_and_greater_version(self):
+        experiment = ExperimentFactory(
+            type=Experiment.TYPE_ADDON, firefox_min_version="70.0"
+        )
+        self.assertTrue(experiment.is_branched_addon)
+
+    def test_is_branched_addon_when_exp_is_addon_but_lower_version(self):
+        experiment = ExperimentFactory(
+            type=Experiment.TYPE_ADDON, firefox_min_version="66.0"
+        )
+        self.assertFalse(experiment.is_branched_addon)
+
+    def test_is_branched_addon_returns_false_for_pref_type(self):
+        experiment = ExperimentFactory()
+        self.assertFalse(experiment.is_branched_addon)
+
     def test_experiment_population_returns_correct_string(self):
         experiment = ExperimentFactory(
             population_percent="0.5",
