@@ -9,7 +9,10 @@ import django.db.models.deletion
 
 def closest_user(users, target_name):
     return sorted(
-        [(SM(None, user.email, target_name).ratio(), user) for user in users],
+        [
+            (SM(None, user.email.lower(), target_name.lower()).ratio(), user)
+            for user in users
+        ],
         reverse=True,
     )[0][1]
 
