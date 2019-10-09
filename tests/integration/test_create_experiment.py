@@ -12,6 +12,8 @@ def test_add_branch(base_url, selenium):
     experiment = home.create_experiment()
     experiment.name = "This is a test"
     experiment.short_description = "Testing in here"
+    experiment.public_name = "Public Name"
+    experiment.public_description = "Public Description"
     experiment.bugzilla_url = "http://bugzilla.com/show_bug.cgi?id=1234"
     experiment.analysis_owner = "admin"
     exp_detail = experiment.save_btn()
@@ -30,6 +32,8 @@ def test_remove_branch(base_url, selenium):
     experiment = home.create_experiment()
     experiment.name = "This is a test"
     experiment.short_description = "Testing in here"
+    experiment.public_name = "Public Name"
+    experiment.public_description = "Public Description"
     experiment.bugzilla_url = "http://bugzilla.com/show_bug.cgi?id=1234"
     experiment.analysis_owner = "admin"
     exp_detail = experiment.save_btn()
@@ -52,6 +56,8 @@ def test_duplicate_branch_name(base_url, selenium):
     experiment = home.create_experiment()
     experiment.name = "This is a test"
     experiment.short_description = "Testing in here"
+    experiment.public_name = "Public Name"
+    experiment.public_description = "Public Description"
     experiment.bugzilla_url = "http://bugzilla.com/show_bug.cgi?id=1234"
     experiment.analysis_owner = "admin"
     exp_detail = experiment.save_btn()
