@@ -53,6 +53,13 @@ class Experiment(ExperimentConstants, models.Model):
         on_delete=models.CASCADE,
         related_name="owned_experiments",
     )
+    analysis_owner = models.ForeignKey(
+        get_user_model(),
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="analyzed_experiments",
+    )
     subscribers = models.ManyToManyField(
         get_user_model(), blank=True, related_name="subscribed_experiments"
     )
@@ -136,7 +143,6 @@ class Experiment(ExperimentConstants, models.Model):
     analysis = models.TextField(
         default=ExperimentConstants.ANALYSIS_DEFAULT, blank=True, null=True
     )
-    analysis_owner = models.CharField(max_length=255, blank=True, null=True)
 
     survey_required = models.BooleanField(default=False)
     survey_urls = models.TextField(blank=True, null=True)

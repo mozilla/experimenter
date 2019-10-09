@@ -10,10 +10,10 @@ def test_add_branch(base_url, selenium):
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
-    experiment.fill_name("This is a test")
-    experiment.fill_short_description("Testing in here")
-    experiment.fill_bugzilla_url("http://bugzilla.com/show_bug.cgi?id=1234")
-    experiment.fill_data_science_owner("jim@example.com")
+    experiment.name = "This is a test"
+    experiment.short_description = "Testing in here"
+    experiment.bugzilla_url = "http://bugzilla.com/show_bug.cgi?id=1234"
+    experiment.analysis_owner = "admin"
     exp_detail = experiment.save_btn()
     exp_design = exp_detail.click_edit()
     exp_design.input_firefox_pref_name("robot rock")
@@ -28,10 +28,10 @@ def test_remove_branch(base_url, selenium):
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
-    experiment.fill_name("This is a test")
-    experiment.fill_short_description("Testing in here")
-    experiment.fill_bugzilla_url("http://bugzilla.com/show_bug.cgi?id=1234")
-    experiment.fill_data_science_owner("jim@example.com")
+    experiment.name = "This is a test"
+    experiment.short_description = "Testing in here"
+    experiment.bugzilla_url = "http://bugzilla.com/show_bug.cgi?id=1234"
+    experiment.analysis_owner = "admin"
     exp_detail = experiment.save_btn()
     exp_design = exp_detail.click_edit()
     exp_design.input_firefox_pref_name("robot rock")
@@ -50,10 +50,10 @@ def test_duplicate_branch_name(base_url, selenium):
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
-    experiment.fill_name("This is a test")
-    experiment.fill_short_description("Testing in here")
-    experiment.fill_bugzilla_url("http://bugzilla.com/show_bug.cgi?id=1234")
-    experiment.fill_data_science_owner("jim@example.com")
+    experiment.name = "This is a test"
+    experiment.short_description = "Testing in here"
+    experiment.bugzilla_url = "http://bugzilla.com/show_bug.cgi?id=1234"
+    experiment.analysis_owner = "admin"
     exp_detail = experiment.save_btn()
     exp_design = exp_detail.click_edit()
     exp_design.input_firefox_pref_name("robot rock")

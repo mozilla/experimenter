@@ -287,7 +287,7 @@ class TestExperimentCreateView(TestCase):
             "feature_bugzilla_url": bug_url,
             "related_work": "Designs: https://www.example.com/myproject/",
             "owner": user.id,
-            "analysis_owner": "Sam Telemetry",
+            "analysis_owner": user.id,
         }
 
         with self.settings(BUGZILLA_HOST="https://bugzilla.mozilla.org"):
@@ -332,7 +332,7 @@ class TestExperimentOverviewUpdateView(TestCase):
             "feature_bugzilla_url": bug_url,
             "related_work": "Designs: https://www.example.com/myproject/",
             "owner": user.id,
-            "analysis_owner": "Sandy Data Engineer",
+            "analysis_owner": user.id,
         }
 
         response = self.client.post(
@@ -345,7 +345,7 @@ class TestExperimentOverviewUpdateView(TestCase):
         experiment = Experiment.objects.get()
         self.assertEqual(experiment.name, data["name"])
         self.assertEqual(experiment.short_description, data["short_description"])
-        self.assertEqual(experiment.analysis_owner, data["analysis_owner"])
+        self.assertEqual(experiment.analysis_owner, user)
 
         self.assertEqual(experiment.changes.count(), 2)
 
@@ -512,7 +512,6 @@ class TestExperimentObjectivesUpdateView(TestCase):
         data = {
             "action": "continue",
             "objectives": "Some new objectives!",
-            "analysis_owner": "Suzy Data Science",
             "analysis": "Some new analysis!",
             "survey_required": False,
         }

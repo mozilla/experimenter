@@ -237,11 +237,15 @@ class ExperimentOverviewForm(NameSlugFormMixin, ChangeLogMixin, forms.ModelForm)
         label="Engineering Owner",
         help_text=Experiment.ENGINEERING_OWNER_HELP_TEXT,
     )
-    analysis_owner = forms.CharField(
+    analysis_owner = forms.ModelChoiceField(
         required=True,
         label="Data Science Owner",
         help_text=Experiment.ANALYSIS_OWNER_HELP_TEXT,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        queryset=get_user_model().objects.all().order_by("email"),
+        # This one forces the <select> widget to not include a blank
+        # option which would otherwise be included because the model field
+        # is nullable.
+        empty_label="Data Science Owner",
     )
     public_name = forms.CharField(
         label="Public Name", required=False, help_text=Experiment.PUBLIC_NAME_HELP_TEXT
