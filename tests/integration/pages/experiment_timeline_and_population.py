@@ -19,11 +19,10 @@ class TimelineAndPopulationPage(Base):
 
     def wait_for_page_to_load(self):
         self.wait.until(
-            lambda _: "Experiment Timeline"
-            in self.find_element(
+            lambda _: self.find_element(
                 By.CSS_SELECTOR,
                 "body.page-edit-timeline-and-population"
-            ).text
+            )
         )
         return self
 

@@ -15,7 +15,7 @@ def capabilities(capabilities):
 @pytest.fixture
 def firefox_options(firefox_options):
     """Set Firefox Options."""
-    firefox_options.headless = True
+    # firefox_options.headless = True
     return firefox_options
 
 
@@ -35,8 +35,10 @@ def fill_overview(selenium, base_url):
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
-    experiment.fill_name("This is a test")
-    experiment.fill_short_description("Testing in here")
-    experiment.fill_bugzilla_url("http://bugzilla.com/show_bug.cgi?id=1234")
-    experiment.fill_data_science_owner("jim@example.com")
+    experiment.name = "This is a test"
+    experiment.short_description = "Testing in here"
+    experiment.bugzilla_url = "http://bugzilla.com/show_bug.cgi?id=1234"
+    experiment.analysis_owner = "dev@example.com"
+    import time
+    # time.sleep(30)
     return experiment.save_and_continue_btn()
