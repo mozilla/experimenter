@@ -8,13 +8,14 @@ import django.db.models.deletion
 
 
 def closest_user(users, target_name):
-    return sorted(
-        [
-            (SM(None, user.email.lower(), target_name.lower()).ratio(), user)
-            for user in users
-        ],
-        reverse=True,
-    )[0][1]
+    if target_name:
+        return sorted(
+            [
+                (SM(None, user.email.lower(), target_name.lower()).ratio(), user)
+                for user in users
+            ],
+            reverse=True,
+        )[0][1]
 
 
 def forward_analysis_owner(apps, schema_editor):
