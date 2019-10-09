@@ -37,7 +37,11 @@ class TestMigration0073(MigrationTestCase):
 
         user_jdata = OldUser.objects.create(username=jdata, email=jdata)
         OldUser.objects.create(username=jdota, email=jdota)
-        experiment = OldExperiment.objects.create(analysis_owner="Jim Data")
+        experiment = OldExperiment.objects.create(
+            name="Beep", slug="beep", analysis_owner="Jim Data"
+        )
+
+        OldExperiment.objects.create(name="Boop", slug="boop", analysis_owner=None)
 
         self.migrate_to_dest()
 
