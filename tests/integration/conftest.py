@@ -3,6 +3,8 @@ import requests
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 
+from pages.home import Home
+
 
 @pytest.fixture
 def capabilities(capabilities):
@@ -23,8 +25,18 @@ def _verify_url(request, base_url):
     verify = request.config.option.verify_base_url
     if base_url and verify:
         session = requests.Session()
-        retries = Retry(
-            backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
-        )
+        retries = Retry(backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
         session.mount(base_url, HTTPAdapter(max_retries=retries))
         session.get(base_url, verify=False)
+
+
+@pytest.fixture
+def fill_overview(selenium, base_url):
+    selenium.get(base_url)
+    home = Home(selenium, base_url).wait_for_page_to_load()
+    experiment = home.create_experiment()
+    experiment.name = "This is a test"
+    experiment.short_description = "Testing in here"
+    experiment.bugzilla_url = "http://bugzilla.com/show_bug.cgi?id=1234"
+    experiment.analysis_owner = "dev@example.com"
+    return experiment.save_and_continue_btn()
