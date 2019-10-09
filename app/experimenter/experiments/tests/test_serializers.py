@@ -466,7 +466,10 @@ class TestExperimentRecipeSerializer(TestCase):
 
     def test_serializer_outputs_expect_schema_for_branched_addon(self):
         experiment = ExperimentFactory.create(
-            firefox_min_version="70.0", type=Experiment.TYPE_ADDON
+            firefox_min_version="70.0",
+            type=Experiment.TYPE_ADDON,
+            locales=[LocaleFactory.create()],
+            countries=[CountryFactory.create()],
         )
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "opt-out-study")
