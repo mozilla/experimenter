@@ -427,13 +427,11 @@ class ExperimentCloneSerializer(serializers.ModelSerializer):
 
 
 class ExperimentDesignBranchSerializer(serializers.ModelSerializer):
-    description = serializers.CharField(allow_null=True, allow_blank=True)
-    is_control = serializers.BooleanField(required=False)
-    name = serializers.CharField(allow_null=True, allow_blank=True)
-    ratio = serializers.IntegerField(
-        allow_null=True, max_value=100, min_value=0, required=False
-    )
-    value = serializers.CharField(allow_null=True, allow_blank=True)
+    description = serializers.CharField()
+    is_control = serializers.BooleanField()
+    name = serializers.CharField()
+    ratio = serializers.IntegerField()
+    value = serializers.CharField()
 
     def validate_name(self, value):
         if value:
@@ -450,7 +448,66 @@ class ExperimentDesignBranchSerializer(serializers.ModelSerializer):
         model = ExperimentVariant
 
 
-class ExperimentDesignPrefSerializer(serializers.ModelSerializer):
+
+class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
+    type = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
+
+    class Meta:
+        model = Experiment
+        fields = ("type")
+
+    def validate(self, data):
+        variants = data["variants"]
+
+        if sum([variant["ratio"] for variant in variants]) != 100:
+            raise serializers.ValidationError(
+                {"branch_ratio": ["All branch sizes must add up to 100."]}
+            )
+
+        if not len(set(variant["name"] for variant in variants)) == len(variants):
+            raise serializers.ValidationError(
+                {"branch_name": ["All branches must have a unique name."]}
+            )
+
+        if not len(set(variant["value"] for variant in variants)) == len(variants):
+            raise serializers.ValidationError(
+                {
+                    "branch_value": [
+                        "All branches must have a unique pref value."
+                    ]
+                }
+            )
+
+        return data
+
+    def update(self, instance, validated_data):
+        variants = validated_data.pop("variants")
+
+        existing_variants = instance.variants.all()
+        existing_variants.delete()
+
+        for variant in variants:
+            ExperimentVariant.objects.create(
+                experiment=instance,
+                is_control=variant["is_control"],
+                value=variant["value"],
+                description=variant["description"],
+                name=variant["name"],
+                ratio=variant["ratio"],
+                slug=slugify(variant["name"]),
+            )
+
+        for key in validated_data:
+            setattr(instance, key, validated_data.get(key, getattr(instance, key)))
+
+        instance.save()
+
+        return instance
+
+
+
+class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
     type = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     pref_key = serializers.CharField()
     pref_type = serializers.CharField()
@@ -464,31 +521,9 @@ class ExperimentDesignPrefSerializer(serializers.ModelSerializer):
     def validate(self, data):
         variants = data["variants"]
 
-        if sum([variant["ratio"] for variant in variants]) != 100:
-            raise serializers.ValidationError(
-                {"branch_ratio": ["All branch sizes must add up to 100."]}
-            )
+        super().validate(data)
 
-        existing_name = []
-        existing_pref_value = []
         for variant in variants:
-            if variant["name"] in existing_name:
-                raise serializers.ValidationError(
-                    {"branch_name": ["All branches must have a unique name"]}
-                )
-            else:
-                existing_name.append(variant["name"])
-            if variant["value"] in existing_pref_value:
-                raise serializers.ValidationError(
-                    {
-                        "branch_value": [
-                            "All branches must have a unique pref value"
-                        ]
-                    }
-                )
-            else:
-                existing_pref_value.append(variant["value"])
-
             if data.get("pref_type", "") == "integer":
                 try:
                     int(variant["value"])
@@ -521,15 +556,8 @@ class ExperimentDesignPrefSerializer(serializers.ModelSerializer):
 
         return data
 
-    def update(self, instance, validated_data):
-        update_model(instance, validated_data)
 
-        instance.save()
-
-        return instance
-
-
-class ExperimentDesignAddonSerializer(serializers.ModelSerializer):
+class ExperimentDesignAddonSerializer(ExperimentDesignBaseSerializer):
     type = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     addon_experiment_id = serializers.CharField()
     addon_release_url = serializers.URLField()
@@ -544,20 +572,8 @@ class ExperimentDesignAddonSerializer(serializers.ModelSerializer):
             "variants",
         )
 
-    def validate(self, data):
-        validate_variants(data)
 
-        return data
-
-    def update(self, instance, validated_data):
-        update_model(instance, validated_data)
-
-        instance.save()
-
-        return instance
-
-
-class ExperimentDesignGenericSerializer(serializers.ModelSerializer):
+class ExperimentDesignGenericSerializer(ExperimentDesignBaseSerializer):
     type = serializers.CharField(allow_null=True, allow_blank=True)
     design = serializers.CharField(allow_null=True, allow_blank=True)
     variants = ExperimentDesignBranchSerializer(many=True)
@@ -565,65 +581,3 @@ class ExperimentDesignGenericSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experiment
         fields = ("type", "design", "variants")
-
-    def validate(self, data):
-        validate_variants(data)
-
-        return data
-
-    def update(self, instance, validated_data):
-        update_model(instance, validated_data)
-
-        instance.save()
-
-        return instance
-
-
-def update_model(instance, validated_data):
-    variants = validated_data.pop("variants")
-
-    existing_variants = instance.variants.all()
-    existing_variants.delete()
-
-    for variant in variants:
-        ExperimentVariant.objects.create(
-            experiment=instance,
-            is_control=variant["is_control"],
-            value=variant["value"],
-            description=variant["description"],
-            name=variant["name"],
-            ratio=variant["ratio"],
-            slug=slugify(variant["name"]),
-        )
-
-    for key in validated_data:
-        setattr(instance, key, validated_data.get(key, getattr(instance, key)))
-
-
-def validate_variants(data):
-    variants = data["variants"]
-
-    if sum([variant["ratio"] for variant in variants]) != 100:
-        raise serializers.ValidationError(
-            {"branch_ratio": ["All branch sizes must add up to 100."]}
-        )
-
-    existing_name = []
-    existing_pref_value = []
-    for variant in variants:
-        if variant["name"] in existing_name:
-            raise serializers.ValidationError(
-                {"branch_name": ["All branches must have a unique name."]}
-            )
-        else:
-            existing_name.append(variant["name"])
-        if variant["value"] in existing_pref_value:
-            raise serializers.ValidationError(
-                {
-                    "branch_value": [
-                        "All branches must have a unique pref value."
-                    ]
-                }
-            )
-        else:
-            existing_pref_value.append(variant["value"])

@@ -565,6 +565,39 @@ class TestExperimentDesignPrefSerializer(TestCase):
             }
         )
 
+    def test_serializer_saves_pref_experiment_design(self):
+        experiment = ExperimentFactory.create(
+            type=ExperimentConstants.TYPE_PREF,
+            pref_key="first pref name"
+        )
+        variant_1 = {
+            "name": "Terrific branch",
+            "ratio": 50,
+            "value": "true",
+            "description": "Very terrific branch.",
+            "is_control": True,
+        }
+        variant_2 = {
+            "name": "Great branch",
+            "ratio": 50,
+            "value": "false",
+            "description": "Very great branch.",
+            "is_control": False,
+        }
+
+        data = {
+            "type": ExperimentConstants.TYPE_PREF,
+            "pref_type": "boolean",
+            "pref_key": "second name",
+            "variants": [variant_1, variant_2],
+        }
+
+        serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
+        self.assertTrue(serializer.is_valid())
+
+        serializer.save()
+        self.assertEqual(serializer.data['pref_key'], "second name")
+
     def test_serializer_rejects_ratio_not_100(self):
         experiment = ExperimentFactory.create(
             type=ExperimentConstants.TYPE_PREF,
@@ -574,12 +607,16 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "ratio": 50,
             "value": "true",
             "description": "Very terrific branch.",
+            "is_control": True,
+
         }
         variant_2 = {
             "name": "Great branch",
             "ratio": 40,
             "value": "false",
             "description": "Very great branch.",
+            "is_control": False,
+
         }
 
         data = {
@@ -594,34 +631,6 @@ class TestExperimentDesignPrefSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(set(serializer.errors), set(['branch_ratio']))
 
-    def test_serializer_saves_pref_experiment_design(self):
-        experiment = ExperimentFactory.create(
-            type=ExperimentConstants.TYPE_PREF,
-        )
-        variant_1 = {
-            "name": "Terrific branch",
-            "ratio": 50,
-            "value": "true",
-            "description": "Very terrific branch.",
-        }
-        variant_2 = {
-            "name": "Great branch",
-            "ratio": 50,
-            "value": "false",
-            "description": "Very great branch.",
-        }
-
-        data = {
-            "type": ExperimentConstants.TYPE_PREF,
-            "pref_type": "boolean",
-            "pref_key": "name",
-            "variants": [variant_1, variant_2],
-        }
-
-        serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
-
-        self.assertTrue(serializer.is_valid())
-
     def test_serializer_rejects_duplicate_branch_names(self):
         experiment = ExperimentFactory.create(
             type=ExperimentConstants.TYPE_PREF,
@@ -631,12 +640,16 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "ratio": 50,
             "value": "true",
             "description": "Very terrific branch.",
+            "is_control": True,
+
         }
         variant_2 = {
             "name": "Great branch",
             "ratio": 50,
             "value": "false",
             "description": "Very great branch.",
+            "is_control": True,
+
         }
 
         data = {
@@ -660,12 +673,15 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "ratio": 50,
             "value": "dog",
             "description": "Very terrific branch.",
+            "is_control": True,
+
         }
         variant_2 = {
             "name": "Great branch",
             "ratio": 50,
             "value": "dog",
             "description": "Very great branch.",
+            "is_control": False,
         }
 
         data = {
@@ -688,12 +704,14 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "ratio": 50,
             "value": "dog",
             "description": "Very terrific branch.",
+            "is_control": True,
         }
         variant_2 = {
             "name": "Great branch",
             "ratio": 50,
             "value": "cat",
             "description": "Very great branch.",
+            "is_control": False,
         }
 
         data = {
@@ -716,12 +734,15 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "ratio": 50,
             "value": 25,
             "description": "Very terrific branch.",
+            "is_control": True,
+
         }
         variant_2 = {
             "name": "Great branch",
             "ratio": 50,
             "value": 35,
             "description": "Very great branch.",
+            "is_control": False,
         }
 
         data = {
@@ -743,12 +764,14 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "ratio": 50,
             "value": "dog",
             "description": "Very terrific branch.",
+            "is_control": True,
         }
         variant_2 = {
             "name": "Great branch",
             "ratio": 50,
             "value": "cat",
             "description": "Very great branch.",
+            "is_control": False,
         }
 
         data = {
@@ -771,12 +794,14 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "ratio": 50,
             "value": "{}",
             "description": "Very terrific branch.",
+            "is_control": True,
         }
         variant_2 = {
             "name": "Great branch",
             "ratio": 50,
             "value": '{"variant":[1,2,3,4]}',
             "description": "Very great branch.",
+            "is_control": False,
         }
 
         data = {
@@ -798,12 +823,14 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "ratio": 50,
             "value": "dog",
             "description": "Very terrific branch.",
+            "is_control": True,
         }
         variant_2 = {
             "name": "Great branch",
             "ratio": 50,
             "value": "cat",
             "description": "Very great branch.",
+            "is_control": False,
         }
 
         data = {
