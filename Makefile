@@ -44,7 +44,7 @@ check: test_build check_migrations black_check lint test
 compose_build: build ssl
 	docker-compose build
 
-compose_build_all:
+compose_build_all: build ssl 
 	docker-compose -f docker-compose-full.yml build
 
 compose_kill:
