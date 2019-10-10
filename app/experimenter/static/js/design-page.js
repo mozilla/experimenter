@@ -59,14 +59,7 @@ export default class DesignForm extends React.Component {
   }
 
   async componentDidMount () {
-    let url;
-    if (this.props.expType == "pref") {
-      url = `/api/v1/experiments/${this.props.slug}/design-pref`
-    } else if (this.props.expType == "addon") {
-      url = `/api/v1/experiments/${this.props.slug}/design-addon`
-    } else {
-      url = `/api/v1/experiments/${this.props.slug}/design-generic`
-    }
+    const url = this.getApiUrl()
 
     const response = await fetch(url);
 
@@ -91,43 +84,6 @@ export default class DesignForm extends React.Component {
     json.loaded = true;
     return this.setState(json)
   }
-  //
-  // async componentDidMount() {
-  //   const that = this;
-  //
-  //   let url;
-  //   if (this.state.type == "pref") {
-  //     url = `/api/v1/experiments/${this.props.slug}/design-pref`
-  //   } else if (this.state.type == "addon") {
-  //     url = `/api/v1/experiments/${this.props.slug}/design-addon`
-  //   } else {
-  //     url = `/api/v1/experiments/${this.props.slug}/design-generic`
-  //   }
-  //
-  //   const response = await fetch(url);
-  //
-  //   const json = await response.json();
-  //
-  //   if (json.variants.length == 0) {
-  //     for (let i = 0; i < 2; i++) {
-  //       let emptyBranch = {
-  //         ratio: null,
-  //         name: "",
-  //         description: "",
-  //         value: "",
-  //         }
-  //         if (i == 0) {
-  //           emptyBranch.is_control == true;
-  //         } else {
-  //           emptyBranch.is_control == false;
-  //         }
-  //     json.variants.push(emptyBranch)
-  //     }
-  //   }
-  //
-  //   return that.setState(json)
-  //
-  // }
 
 
   addBranch(e) {
@@ -198,6 +154,11 @@ export default class DesignForm extends React.Component {
     this.setState({errors: json})
   }
 
+  getApiUrl() {
+    return `/api/v1/experiments/${this.props.slug}/design-${this.state.type}/`;
+  }
+
+
   async handleSubmit(e) {
     e.preventDefault();
 
@@ -206,15 +167,7 @@ export default class DesignForm extends React.Component {
     var object = {};
     data.forEach((value, key) => {object[key] = value});
 
-    let url;
-
-    if (this.state.type == "pref") {
-      url = `/api/v1/experiments/${this.props.slug}/design-pref`
-    } else if (this.state.type == "addon") {
-      url = `/api/v1/experiments/${this.props.slug}/design-addon`
-    } else {
-      url = `/api/v1/experiments/${this.props.slug}/design-generic`
-    }
+    const url = this.getApiUrl()
 
     const res = await fetch(url, {
       method: "PUT",
@@ -226,7 +179,7 @@ export default class DesignForm extends React.Component {
 
 
     if (res.status == "200") {
-      location.replace(`/experiments/${this.props.slug}`)
+      location.replace(`/experiments/${this.props.slug}/`)
     }
 
     const json = await res.json();
@@ -264,7 +217,7 @@ export default class DesignForm extends React.Component {
                           data-index={index}
                           onClick={this.removeBranch}
                         >
-                          X Remove Branch
+                          <span class="fas fa-times"></span> Remove Branch
                         </Button>
                       ) : null}
                     </Col>
@@ -347,7 +300,7 @@ export default class DesignForm extends React.Component {
               </Row>
               <Row>
                 <Col className="text-right">
-                  <a className="mr-1">X Cancel Editing</a>
+                  <a className="mr-1 btn btn-default" href={`/experiments/${this.props.slug}/`}><span class="fas fa-times"></span> Cancel Editing</a>
                   <Button variant="primary" type="submit" className="mr-1">
                     Save
                   </Button>
