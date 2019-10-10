@@ -262,30 +262,7 @@ export default class DesignForm extends React.Component {
         return response.json();
       })
       .then(function(json) {
-
-        console.log("###", json);
-        if (json.variants == "") {
-          return that.setState({
-            type: json.type,
-            pref_key: json.pref_key,
-            pref_type: json.pref_type,
-            pref_branch: json.pref_branch,
-            addon_experiment_id: json.addon_experiment_id,
-            addon_release_url:json.addon_release_url,
-            design: json.design
-          })
-        } else {
-          return that.setState({
-            type: json.type,
-            pref_key: json.pref_key,
-            pref_type: json.pref_type,
-            pref_branch: json.pref_branch,
-            addon_experiment_id: json.addon_experiment_id,
-            addon_release_url:json.addon_release_url,
-            design: json.design,
-            variants: json.variants
-          });
-        }
+        return that.setState(json)
       });
   }
 
@@ -305,7 +282,6 @@ export default class DesignForm extends React.Component {
 
   removeBranch(e) {
     this.state.variants.splice(e.target.dataset.index, 1);
-
     this.setState({ variants: this.state.variants });
   }
 
