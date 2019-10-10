@@ -8,203 +8,13 @@ import {
   FormControl,
   FormLabel
 } from "react-bootstrap";
+import PrefValueInput from "pref-value-input";
+
+import TypeForm from "type-form";
+import Error from "error-form";
 
 const branchesDiv = document.getElementById("react-branches-form");
 
-function PrefForm(props) {
-  return (
-    <div>
-      <Row>
-        <Col md={{ span: 4, offset: 3 }}>
-          <h4>Firefox Pref</h4>
-        </Col>
-      </Row>
-      <Row>
-        <Col md={3} className="text-right mb-3">
-          <FormLabel>
-            <strong>Pref Name</strong>
-          </FormLabel>
-          <br />
-          <a href="/">help</a>
-        </Col>
-        <Col md={9}>
-          <FormControl
-            type="text"
-            name="pref-name"
-            value={props.pref_key}
-            onChange={props.handleInputChange}
-          />
-        </Col>
-      </Row>
-      <Row>
-        <Col md={3} className="text-right mb-3">
-          <FormLabel>
-            <strong>Pref Type</strong>
-          </FormLabel>
-          <br />
-          <a href="/">help</a>
-        </Col>
-        <Col md={9}>
-          <FormControl as="select"
-            type="text"
-            name="pref-type"
-            value={props.pref_type}
-            onChange={props.handleInputChange}
-          >
-            <option>Firefox Pref Type</option>
-            <option>boolean</option>
-            <option>integer</option>
-            <option>string</option>
-            <option>json string</option>
-          </FormControl>
-        </Col>
-      </Row>
-      <Row>
-        <Col md={3} className="text-right mb-3">
-          <FormLabel>
-            <strong>Pref Branch</strong>
-          </FormLabel>
-          <br />
-          <a href="/">help</a>
-        </Col>
-        <Col md={9}>
-          <FormControl
-            type="text"
-            name="pref-branch"
-            value={props.pref_branch}
-            onChange={props.handleInputChange}
-          />
-        </Col>
-      </Row>
-    </div>
-  );
-}
-
-function AddonForm(props) {
-  return (
-    <div>
-      <Row>
-        <Col md={{ span: 4, offset: 3 }}>
-          <h4>Firefox Add-On</h4>
-        </Col>
-      </Row>
-      <Row>
-        <Col md={3} className="text-right mb-3">
-          <FormLabel>
-            <strong>Active Experiment Name</strong>
-          </FormLabel>
-          <br />
-          <a href="/">help</a>
-        </Col>
-        <Col md={9}>
-          <FormControl
-            type="text"
-            name="addon-experiment-id"
-            onChange={props.handleInputChange}
-            value={props.addon_experiment_id}
-            className= {props.errors.addon_experiment_id ? "is-invalid" : "" }
-          />
-          {props.errors.addon_experiment_id ? <Error error={props.errors.addon_experiment_id}/>  : ""}
-        </Col>
-      </Row>
-      <Row>
-        <Col md={3} className="text-right mb-3">
-          <FormLabel>
-            <strong>Signed Release URL</strong>
-          </FormLabel>
-          <br />
-          <a href="/">help</a>
-        </Col>
-        <Col md={9}>
-          <FormControl
-            type="text"
-            name="addon-release-url"
-            onChange={props.handleInputChange}
-            value={props.addon_release_url}
-            className= {props.errors.addon_release_url ? "is-invalid" : "" }
-          />
-          {props.errors.addon_release_url ? <Error error={props.errors.addon_release_url}/>  : ""}
-        </Col>
-      </Row>
-    </div>
-  );
-}
-
-function GenericForm(props) {
-  return (
-    <div>
-      <Row>
-        <Col md={{ span: 4, offset: 3 }}>
-          <h4>Generic</h4>
-        </Col>
-      </Row>
-      <Row>
-        <Col md={3} className="text-right mb-3">
-          <FormLabel>
-            <strong>Design</strong>
-          </FormLabel>
-          <br />
-          <a href="/">help</a>
-        </Col>
-        <Col md={9}>
-          <FormControl
-            as="textarea"
-            name="design"
-            rows={4}
-            value={props.design}
-            onChange={props.handleInputChange}
-          />
-        </Col>
-      </Row>
-    </div>
-  );
-}
-
-function TypeForm(props) {
-  const type = props.type;
-
-  if (type == "pref") {
-    return <PrefForm {...props}/>;
-  } else if (type == "addon") {
-    return <AddonForm {...props}/>;
-  } else {
-    return <GenericForm {...props}/>;
-  }
-}
-
-function Error(props) {
-  console.log(props.error);
-  return (
-    <div  className="invalid-feedback my-2">
-      <span className="fas fa-exclamation"></span> {props.error}
-    </div>
-  )
-}
-
-function PrefValueInput(props) {
-    return (
-      <Row>
-        <Col md={3} className="text-right mb-3">
-          <FormLabel>
-            <strong>Pref Value</strong>
-          </FormLabel>
-          <br />
-          <a href="/">help</a>
-        </Col>
-        <Col md={9}>
-          <FormControl
-            data-index={props.index}
-            type="text"
-            name={"variants-" + props.index + "-value"}
-            onChange={props.updateValue}
-            value={props.variants[props.index].value}
-            className= {props.errors.branch_value ? "is-invalid" : "" }
-          />
-          {props.errors.branch_value ? <Error error={props.errors.branch_value}/>  : ""}
-        </Col>
-      </Row>
-  )
-}
 
 export default class DesignForm extends React.Component {
   constructor(props) {
@@ -245,9 +55,7 @@ export default class DesignForm extends React.Component {
     };
   }
 
-  componentDidMount() {
-    const that = this;
-
+  async componentDidMount () {
     let url;
     if (this.state.type == "pref") {
       url = `/api/v1/experiments/${this.props.slug}/design-pref`
@@ -257,14 +65,65 @@ export default class DesignForm extends React.Component {
       url = `/api/v1/experiments/${this.props.slug}/design-generic`
     }
 
-    fetch(url)
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(json) {
-        return that.setState(json)
-      });
+    const response = await fetch(url);
+
+    const json = await response.json();
+
+    if (json.variants.length == 0) {
+      for (let i = 0; i < 2; i++) {
+        let emptyBranch = {
+          ratio: null,
+          name: "",
+          description: "",
+          value: "",
+          }
+          if (i == 0) {
+            emptyBranch.is_control == true;
+          } else {
+            emptyBranch.is_control == false;
+          }
+      json.variants.push(emptyBranch)
+      }
+    }
+    return this.setState(json)
   }
+  //
+  // async componentDidMount() {
+  //   const that = this;
+  //
+  //   let url;
+  //   if (this.state.type == "pref") {
+  //     url = `/api/v1/experiments/${this.props.slug}/design-pref`
+  //   } else if (this.state.type == "addon") {
+  //     url = `/api/v1/experiments/${this.props.slug}/design-addon`
+  //   } else {
+  //     url = `/api/v1/experiments/${this.props.slug}/design-generic`
+  //   }
+  //
+  //   const response = await fetch(url);
+  //
+  //   const json = await response.json();
+  //
+  //   if (json.variants.length == 0) {
+  //     for (let i = 0; i < 2; i++) {
+  //       let emptyBranch = {
+  //         ratio: null,
+  //         name: "",
+  //         description: "",
+  //         value: "",
+  //         }
+  //         if (i == 0) {
+  //           emptyBranch.is_control == true;
+  //         } else {
+  //           emptyBranch.is_control == false;
+  //         }
+  //     json.variants.push(emptyBranch)
+  //     }
+  //   }
+  //
+  //   return that.setState(json)
+  //
+  // }
 
 
   addBranch(e) {

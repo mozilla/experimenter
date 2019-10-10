@@ -5,6 +5,15 @@
   "main": "index.js",
   "dependencies": {},
   "devDependencies": {},
+  "alias": {
+    "addon-form": "./experimenter/static/js/addon-form.js",
+    "pref-form": "./experimenter/static/js/pref-form.js",
+    "generic-form": "./experimenter/static/js/generic-form.js",
+    "type-form": "./experimenter/static/js/type-form.js",
+    "pref-value-input": "./experimenter/static/js/pref-value-input.js",
+    "error-form": "./experimenter/static/js/error.js"
+
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "parcel build experimenter/static/css/index.css experimenter/static/js/index.js --out-dir experimenter/static/assets --public-url /static/assets/",
