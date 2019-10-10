@@ -380,7 +380,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
     def get_arguments(self, obj):
         if obj.is_pref_experiment:
             return ExperimentRecipePrefArgumentsSerializer(obj).data
-        elif obj.is_addon_experiment and obj.is_branched_addon:
+        elif obj.is_branched_addon:
             return ExperimentRecipeBranchedArgumentsSerializer(obj).data
         elif obj.is_addon_experiment:
             return ExperimentRecipeAddonArgumentsSerializer(obj).data
