@@ -45,8 +45,7 @@ function PrefForm(props) {
           <a href="/">help</a>
         </Col>
         <Col md={9}>
-          <FormControl
-            as="select"
+          <FormControl as="select"
             type="text"
             name="pref-type"
             value={props.pref_type}
@@ -103,13 +102,9 @@ function AddonForm(props) {
             name="addon-experiment-id"
             onChange={props.handleInputChange}
             value={props.addon_experiment_id}
-            className={props.errors.addon_experiment_id ? "is-invalid" : ""}
+            className= {props.errors.addon_experiment_id ? "is-invalid" : "" }
           />
-          {props.errors.addon_experiment_id ? (
-            <Error error={props.errors.addon_experiment_id} />
-          ) : (
-            ""
-          )}
+          {props.errors.addon_experiment_id ? <Error error={props.errors.addon_experiment_id}/>  : ""}
         </Col>
       </Row>
       <Row>
@@ -126,13 +121,9 @@ function AddonForm(props) {
             name="addon-release-url"
             onChange={props.handleInputChange}
             value={props.addon_release_url}
-            className={props.errors.addon_release_url ? "is-invalid" : ""}
+            className= {props.errors.addon_release_url ? "is-invalid" : "" }
           />
-          {props.errors.addon_release_url ? (
-            <Error error={props.errors.addon_release_url} />
-          ) : (
-            ""
-          )}
+          {props.errors.addon_release_url ? <Error error={props.errors.addon_release_url}/>  : ""}
         </Col>
       </Row>
     </div>
@@ -173,57 +164,51 @@ function TypeForm(props) {
   const type = props.type;
 
   if (type == "pref") {
-    return <PrefForm {...props} />;
+    return <PrefForm {...props}/>;
   } else if (type == "addon") {
-    return <AddonForm {...props} />;
+    return <AddonForm {...props}/>;
   } else {
-    return <GenericForm {...props} />;
+    return <GenericForm {...props}/>;
   }
 }
 
 function Error(props) {
   console.log(props.error);
   return (
-    <div className="invalid-feedback my-2">
+    <div  className="invalid-feedback my-2">
       <span className="fas fa-exclamation"></span> {props.error}
     </div>
-  );
+  )
 }
 
 function PrefValueInput(props) {
-  return (
-    <Row>
-      <Col md={3} className="text-right mb-3">
-        <FormLabel>
-          <strong>Pref Value</strong>
-        </FormLabel>
-        <br />
-        <a href="/">help</a>
-      </Col>
-      <Col md={9}>
-        <FormControl
-          data-index={props.index}
-          type="text"
-          name={"variants-" + props.index + "-value"}
-          onChange={props.updateValue}
-          value={props.variants[props.index].value}
-          className={props.errors.branch_value ? "is-invalid" : ""}
-        />
-        {props.errors.branch_value ? (
-          <Error error={props.errors.branch_value} />
-        ) : (
-          ""
-        )}
-      </Col>
-    </Row>
-  );
+    return (
+      <Row>
+        <Col md={3} className="text-right mb-3">
+          <FormLabel>
+            <strong>Pref Value</strong>
+          </FormLabel>
+          <br />
+          <a href="/">help</a>
+        </Col>
+        <Col md={9}>
+          <FormControl
+            data-index={props.index}
+            type="text"
+            name={"variants-" + props.index + "-value"}
+            onChange={props.updateValue}
+            value={props.variants[props.index].value}
+            className= {props.errors.branch_value ? "is-invalid" : "" }
+          />
+          {props.errors.branch_value ? <Error error={props.errors.branch_value}/>  : ""}
+        </Col>
+      </Row>
+  )
 }
 
 export default class DesignForm extends React.Component {
   constructor(props) {
     super(props);
-
-    this.slug = props.slug;
 
     this.addBranch = this.addBranch.bind(this);
     this.removeBranch = this.removeBranch.bind(this);
@@ -243,22 +228,19 @@ export default class DesignForm extends React.Component {
       addon_experiment_id: "",
       addon_release_url: "",
       design: "",
-      variants: [
-        {
-          ratio: null,
-          name: "",
-          description: "",
-          value: "",
-          is_control: true
-        },
-        {
-          ratio: null,
-          name: "",
-          description: "",
-          value: "",
-          is_control: false
-        }
-      ],
+      variants: [{
+        ratio: null,
+        name: "",
+        description: "",
+        value: "",
+        is_control: true,
+      }, {
+        ratio: null,
+        name: "",
+        description: "",
+        value: "",
+        is_control: false,
+      }],
       errors: {}
     };
   }
@@ -268,11 +250,11 @@ export default class DesignForm extends React.Component {
 
     let url;
     if (this.state.type == "pref") {
-      url = `/api/v1/experiments/${this.slug}/design-pref`;
+      url = `/api/v1/experiments/${this.props.slug}/design-pref`
     } else if (this.state.type == "addon") {
-      url = `/api/v1/experiments/${this.slug}/design-addon`;
+      url = `/api/v1/experiments/${this.props.slug}/design-addon`
     } else {
-      url = `/api/v1/experiments/${this.slug}/design-generic`;
+      url = `/api/v1/experiments/${this.props.slug}/design-generic`
     }
 
     fetch(url)
@@ -280,6 +262,8 @@ export default class DesignForm extends React.Component {
         return response.json();
       })
       .then(function(json) {
+
+        console.log("###", json);
         if (json.variants == "") {
           return that.setState({
             type: json.type,
@@ -287,9 +271,9 @@ export default class DesignForm extends React.Component {
             pref_type: json.pref_type,
             pref_branch: json.pref_branch,
             addon_experiment_id: json.addon_experiment_id,
-            addon_release_url: json.addon_release_url,
+            addon_release_url:json.addon_release_url,
             design: json.design
-          });
+          })
         } else {
           return that.setState({
             type: json.type,
@@ -297,7 +281,7 @@ export default class DesignForm extends React.Component {
             pref_type: json.pref_type,
             pref_branch: json.pref_branch,
             addon_experiment_id: json.addon_experiment_id,
-            addon_release_url: json.addon_release_url,
+            addon_release_url:json.addon_release_url,
             design: json.design,
             variants: json.variants
           });
@@ -305,35 +289,39 @@ export default class DesignForm extends React.Component {
       });
   }
 
+
   addBranch(e) {
-    e.preventDefault();
     this.setState({
       variants: this.state.variants.concat({
         ratio: null,
         name: "",
         description: "",
         value: "",
-        is_control: false
+        is_control: false,
       })
     });
   }
 
+
   removeBranch(e) {
-    e.preventDefault();
     this.state.variants.splice(e.target.dataset.index, 1);
 
     this.setState({ variants: this.state.variants });
   }
 
+
   updateRatio(e) {
-    this.state.variants[e.target.dataset.index].ratio = e.target.value;
-    this.setState({ variants: this.state.variants });
+    this.state.variants[e.target.dataset.index].ratio = e.target.value
+    this.setState({variants: this.state.variants})
   }
 
+
   updateName(e) {
-    this.state.variants[e.target.dataset.index].name = e.target.value;
-    this.setState({ variants: this.state.variants });
+    this.state.variants[e.target.dataset.index].name = e.target.value
+    this.setState({variants: this.state.variants})
+
   }
+
 
   updateDescription(e) {
     var stateCopy = { ...this.state.variants };
@@ -342,6 +330,7 @@ export default class DesignForm extends React.Component {
     this.setState(stateCopy);
   }
 
+
   updateValue(e) {
     var stateCopy = { ...this.state.variants };
     stateCopy[e.target.dataset.index].value = e.target.value;
@@ -349,24 +338,25 @@ export default class DesignForm extends React.Component {
     this.setState(stateCopy);
   }
 
+
   handleInputChange(e) {
     if (e.target.name == "pref-name") {
-      this.setState({ pref_key: e.target.value });
+      this.setState({pref_key: e.target.value})
     } else if (e.target.name == "pref-type") {
-      this.setState({ pref_type: e.target.value });
+      this.setState({pref_type: e.target.value})
     } else if (e.target.name == "pref-branch") {
-      this.setState({ pref_branch: e.target.value });
+      this.setState({pref_branch: e.target.value})
     } else if (e.target.name == "design") {
-      this.setState({ design: e.target.value });
+      this.setState({design: e.target.value})
     } else if (e.target.name == "addon-experiment-id") {
-      this.setState({ addon_experiment_id: e.target.value });
+      this.setState({addon_experiment_id: e.target.value})
     } else if (e.target.name == "addon-release-url") {
-      this.setState({ addon_release_url: e.target.value });
+      this.setState({addon_release_url: e.target.value})
     }
   }
 
   handleValidationErrors(json) {
-    this.setState({ errors: json });
+    this.setState({errors: json})
   }
 
   async handleSubmit(e) {
@@ -375,18 +365,16 @@ export default class DesignForm extends React.Component {
     const data = new FormData(e.target);
 
     var object = {};
-    data.forEach((value, key) => {
-      object[key] = value;
-    });
+    data.forEach((value, key) => {object[key] = value});
 
     let url;
 
     if (this.state.type == "pref") {
-      url = `/api/v1/experiments/${this.slug}/design-pref`;
+      url = `/api/v1/experiments/${this.props.slug}/design-pref`
     } else if (this.state.type == "addon") {
-      url = `/api/v1/experiments/${this.slug}/design-addon`;
+      url = `/api/v1/experiments/${this.props.slug}/design-addon`
     } else {
-      url = `/api/v1/experiments/${this.slug}/design-generic`;
+      url = `/api/v1/experiments/${this.props.slug}/design-generic`
     }
 
     const res = await fetch(url, {
@@ -397,8 +385,9 @@ export default class DesignForm extends React.Component {
       }
     });
 
+
     if (res.status == "200") {
-      location.replace(`/experiments/${this.slug}`);
+      location.replace(`/experiments/${this.props.slug}`)
     }
 
     const json = await res.json();
@@ -452,15 +441,9 @@ export default class DesignForm extends React.Component {
                       name={"variants-" + index + "-ratio"}
                       onChange={this.updateRatio}
                       value={branch.ratio}
-                      className={
-                        this.state.errors.branch_ratio ? "is-invalid" : ""
-                      }
+                      className= {this.state.errors.branch_ratio ? "is-invalid" : "" }
                     />
-                    {this.state.errors.branch_ratio ? (
-                      <Error error={this.state.errors.branch_ratio} />
-                    ) : (
-                      ""
-                    )}
+                    {this.state.errors.branch_ratio ? <Error error={this.state.errors.branch_ratio}/>  : ""}
                   </Col>
                 </Row>
                 <Row>
@@ -478,15 +461,9 @@ export default class DesignForm extends React.Component {
                       name={"variants-" + index + "-name"}
                       onChange={this.updateName}
                       value={branch.name}
-                      className={
-                        this.state.errors.branch_name ? "is-invalid" : ""
-                      }
+                      className= {this.state.errors.branch_name ? "is-invalid" : "" }
                     />
-                    {this.state.errors.branch_name ? (
-                      <Error error={this.state.errors.branch_name} />
-                    ) : (
-                      ""
-                    )}
+                    {this.state.errors.branch_name ? <Error error={this.state.errors.branch_name}/> : ""}
                   </Col>
                 </Row>
                 <Row>
@@ -510,15 +487,7 @@ export default class DesignForm extends React.Component {
                     />
                   </Col>
                 </Row>
-                {this.state.type == "pref" ? (
-                  <PrefValueInput
-                    updateValue={this.updateValue}
-                    index={index}
-                    {...this.state}
-                  />
-                ) : (
-                  ""
-                )}
+                {this.state.type == "pref" ? < PrefValueInput updateValue={this.updateValue} index={index} {...this.state}/> : ""}
                 <hr className="heavy-line my-5" />
               </div>
             ))}
