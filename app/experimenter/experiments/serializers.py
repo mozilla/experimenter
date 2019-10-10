@@ -315,6 +315,7 @@ class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
 
 
 class ExperimentRecipeBranchedArgumentsSerializer(serializers.ModelSerializer):
+    slug = serializers.ReadOnlyField(source="normandy_slug")
     userFacingName = userFacingDescription = serializers.ReadOnlyField(
         source="public_name"
     )
