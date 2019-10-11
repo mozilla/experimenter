@@ -8,8 +8,8 @@ import {
   FormControl,
   FormLabel
 } from "react-bootstrap";
+import {boundMethod} from 'autobind-decorator';
 import PrefValueInput from "pref-value-input";
-
 import TypeForm from "type-form";
 import Error from "error-form";
 
@@ -19,18 +19,6 @@ const branchesDiv = document.getElementById("react-branches-form");
 export default class DesignForm extends React.Component {
   constructor(props) {
     super(props);
-
-    // this.type = props.type
-
-    this.addBranch = this.addBranch.bind(this);
-    this.removeBranch = this.removeBranch.bind(this);
-
-    this.updateRatio = this.updateRatio.bind(this);
-    this.updateName = this.updateName.bind(this);
-    this.updateDescription = this.updateDescription.bind(this);
-    this.updateValue = this.updateValue.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
 
     this.state = {
       type: props.expType,
@@ -85,7 +73,7 @@ export default class DesignForm extends React.Component {
     return this.setState(json)
   }
 
-
+@boundMethod
   addBranch(e) {
     this.setState({
       variants: this.state.variants.concat({
@@ -98,26 +86,26 @@ export default class DesignForm extends React.Component {
     });
   }
 
-
+  @boundMethod
   removeBranch(e) {
     this.state.variants.splice(e.target.dataset.index, 1);
     this.setState({ variants: this.state.variants });
   }
 
-
+  @boundMethod
   updateRatio(e) {
     this.state.variants[e.target.dataset.index].ratio = e.target.value
     this.setState({variants: this.state.variants})
   }
 
-
+  @boundMethod
   updateName(e) {
     this.state.variants[e.target.dataset.index].name = e.target.value
     this.setState({variants: this.state.variants})
 
   }
 
-
+  @boundMethod
   updateDescription(e) {
     var stateCopy = { ...this.state.variants };
     stateCopy[e.target.dataset.index].description = e.target.value;
@@ -125,7 +113,7 @@ export default class DesignForm extends React.Component {
     this.setState(stateCopy);
   }
 
-
+  @boundMethod
   updateValue(e) {
     var stateCopy = { ...this.state.variants };
     stateCopy[e.target.dataset.index].value = e.target.value;
@@ -133,7 +121,7 @@ export default class DesignForm extends React.Component {
     this.setState(stateCopy);
   }
 
-
+  @boundMethod
   handleInputChange(e) {
     if (e.target.name == "pref-name") {
       this.setState({pref_key: e.target.value})
