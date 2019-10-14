@@ -92,7 +92,6 @@ export default class DesignForm extends React.Component {
   addBranch(e) {
     let stateCopy = {...this.state}
 
-    console.log(stateCopy.variants);
     stateCopy.variants.push({
       ratio: null,
       name: "",

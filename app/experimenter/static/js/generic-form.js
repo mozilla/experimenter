@@ -9,6 +9,7 @@ import {
   FormLabel
 } from "react-bootstrap";
 import HelpBox from "help-box";
+import Error from "error-form";
 
 export default function GenericForm(props) {
   return (
@@ -23,6 +24,8 @@ export default function GenericForm(props) {
           <FormLabel>
             <strong>Design</strong>
           </FormLabel>
+          <br />
+          <span className="text-muted optional-marker">Optional</span>
           <br />
           <a href="#" id="design" onClick={props.toggleHelp}>help</a>
         </Col>

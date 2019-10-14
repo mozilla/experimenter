@@ -11,7 +11,6 @@ import {
 
 
 export default function Error(props) {
-  console.log(props.error);
   return (
     <div  className="invalid-feedback my-2">
       <span className="fas fa-exclamation"></span> {props.error}

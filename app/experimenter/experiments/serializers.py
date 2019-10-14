@@ -517,13 +517,19 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
 class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
     pref_key = serializers.CharField()
     pref_type = serializers.CharField()
-    pref_branch = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    pref_branch = serializers.CharField()
     variants = ExperimentDesignBranchPrefSerializer(many=True)
 
     class Meta:
         model = Experiment
         fields = ("type", "pref_key", "pref_type", "pref_branch", "variants")
 
+    def validate_pref_type(self, value):
+        if value == "Firefox Pref Type":
+            raise serializers.ValidationError(["Please select a type."])
+
+        return value
+        
     def validate(self, data):
         super().validate(data)
 

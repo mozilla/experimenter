@@ -9,6 +9,7 @@ import {
   FormLabel
 } from "react-bootstrap";
 import HelpBox from "help-box";
+import Error from "error-form";
 
 
 export default function PrefForm(props) {
@@ -34,6 +35,7 @@ export default function PrefForm(props) {
             value={props.pref_key}
             onChange={props.handleInputChange}
           />
+          {props.errors.pref_key ? <Error error={props.errors.pref_key}/>  : ""}
           <HelpBox showing={props.help.prefKey}>
             <p>
               Enter the full name of the Firefox pref key that this
@@ -71,6 +73,7 @@ export default function PrefForm(props) {
             <option>string</option>
             <option>json string</option>
           </FormControl>
+          {props.errors.pref_type ? <Error error={props.errors.pref_type}/>  : ""}
           <HelpBox showing={props.help.prefType}>
             <p>
               Select the type of the pref entered above.
@@ -98,6 +101,7 @@ export default function PrefForm(props) {
             value={props.pref_branch}
             onChange={props.handleInputChange}
           />
+          {props.errors.pref_branch ? <Error error={props.errors.pref_branch}/>  : ""}
           <HelpBox showing={props.help.prefBranch}>
             <p>
               Select the pref branch the experiment will write its
