@@ -34,7 +34,7 @@ from experimenter.experiments.serializers import (
     ExperimentDesignAddonSerializer,
     ExperimentDesignPrefSerializer,
     ExperimentDesignGenericSerializer,
-
+    ExperimentDesignBaseSerializer,
 )
 from experimenter.experiments.constants import ExperimentConstants
 
@@ -544,6 +544,54 @@ class TestExperimentRecipeSerializer(TestCase):
         filter_object_types = [f["type"] for f in serializer.data["filter_object"]]
         self.assertNotIn("country", filter_object_types)
 
+
+class TestExperimentDesignBaseSerializer(TestCase):
+
+    def test_serializer_rejects_ratio_not_100(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_ADDON)
+        variant_1 = {
+            "name": "Terrific branch",
+            "ratio": 50,
+            "description": "Very terrific branch.",
+            "is_control": True,
+        }
+        variant_2 = {
+            "name": "Great branch",
+            "ratio": 40,
+            "description": "Very great branch.",
+            "is_control": False,
+        }
+
+        data = {"type": ExperimentConstants.TYPE_PREF, "variants": [variant_1, variant_2]}
+
+        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(set(serializer.errors), set(["branch_ratio"]))
+
+    def test_serializer_rejects_duplicate_branch_names(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_ADDON)
+        variant_1 = {
+            "name": "Great branch",
+            "ratio": 50,
+            "description": "Very terrific branch.",
+            "is_control": True,
+        }
+        variant_2 = {
+            "name": "Great branch",
+            "ratio": 50,
+            "description": "Very great branch.",
+            "is_control": True,
+        }
+
+        data = {"type": ExperimentConstants.TYPE_PREF, "variants": [variant_1, variant_2]}
+
+        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(set(serializer.errors), set(["branch_name"]))
+
+
 class TestExperimentDesignPrefSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
@@ -562,13 +610,12 @@ class TestExperimentDesignPrefSerializer(TestCase):
                     ExperimentVariantSerializer(variant).data
                     for variant in experiment.variants.all()
                 ],
-            }
+            },
         )
 
     def test_serializer_saves_pref_experiment_design(self):
         experiment = ExperimentFactory.create(
-            type=ExperimentConstants.TYPE_PREF,
-            pref_key="first pref name"
+            type=ExperimentConstants.TYPE_PREF, pref_key="first pref name"
         )
         variant_1 = {
             "name": "Terrific branch",
@@ -589,92 +636,25 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "type": ExperimentConstants.TYPE_PREF,
             "pref_type": "boolean",
             "pref_key": "second name",
+            "pref_branch": "default",
             "variants": [variant_1, variant_2],
         }
 
         serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
         self.assertTrue(serializer.is_valid())
 
-        serializer.save()
-        self.assertEqual(serializer.data['pref_key'], "second name")
+        experiment = serializer.save()
 
-    def test_serializer_rejects_ratio_not_100(self):
-        experiment = ExperimentFactory.create(
-            type=ExperimentConstants.TYPE_PREF,
-        )
-        variant_1 = {
-            "name": "Terrific branch",
-            "ratio": 50,
-            "value": "true",
-            "description": "Very terrific branch.",
-            "is_control": True,
-
-        }
-        variant_2 = {
-            "name": "Great branch",
-            "ratio": 40,
-            "value": "false",
-            "description": "Very great branch.",
-            "is_control": False,
-
-        }
-
-        data = {
-            "type": ExperimentConstants.TYPE_PREF,
-            "pref_type": "boolean",
-            "pref_key": "name",
-            "variants": [variant_1, variant_2],
-        }
-
-        serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
-
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(set(serializer.errors), set(['branch_ratio']))
-
-    def test_serializer_rejects_duplicate_branch_names(self):
-        experiment = ExperimentFactory.create(
-            type=ExperimentConstants.TYPE_PREF,
-        )
-        variant_1 = {
-            "name": "Great branch",
-            "ratio": 50,
-            "value": "true",
-            "description": "Very terrific branch.",
-            "is_control": True,
-
-        }
-        variant_2 = {
-            "name": "Great branch",
-            "ratio": 50,
-            "value": "false",
-            "description": "Very great branch.",
-            "is_control": True,
-
-        }
-
-        data = {
-            "type": ExperimentConstants.TYPE_PREF,
-            "pref_type": "boolean",
-            "pref_key": "name",
-            "variants": [variant_1, variant_2],
-        }
-
-        serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
-
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(set(serializer.errors), set(['branch_name']))
+        self.assertEqual(experiment.pref_key, "second name")
 
     def test_serializer_rejects_duplicate_branch_values(self):
-        experiment = ExperimentFactory.create(
-            type=ExperimentConstants.TYPE_PREF,
-        )
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
         variant_1 = {
             "name": "Terrific branch",
             "ratio": 50,
             "value": "dog",
             "description": "Very terrific branch.",
             "is_control": True,
-
         }
         variant_2 = {
             "name": "Great branch",
@@ -688,17 +668,16 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "type": ExperimentConstants.TYPE_PREF,
             "pref_type": "string",
             "pref_key": "name",
+            "pref_branch": "default",
             "variants": [variant_1, variant_2],
         }
         serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
 
         self.assertFalse(serializer.is_valid())
-        self.assertEqual(set(serializer.errors), set(['branch_value']))
+        self.assertEqual(set(serializer.errors), set(["branch_value"]))
 
     def test_serializer_rejects_inconsistent_pref_type_bool(self):
-        experiment = ExperimentFactory.create(
-            type=ExperimentConstants.TYPE_PREF,
-        )
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
         variant_1 = {
             "name": "Terrific branch",
             "ratio": 50,
@@ -718,24 +697,22 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "type": ExperimentConstants.TYPE_PREF,
             "pref_type": "boolean",
             "pref_key": "name",
+            "pref_branch": "default",
             "variants": [variant_1, variant_2],
         }
         serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
 
         self.assertFalse(serializer.is_valid())
-        self.assertEqual(set(serializer.errors), set(['branch_value']))
+        self.assertEqual(set(serializer.errors), set(["branch_value"]))
 
     def test_serializer_accepts_int_branch_values(self):
-        experiment = ExperimentFactory.create(
-            type=ExperimentConstants.TYPE_PREF,
-        )
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
         variant_1 = {
             "name": "Terrific branch",
             "ratio": 50,
             "value": 25,
             "description": "Very terrific branch.",
             "is_control": True,
-
         }
         variant_2 = {
             "name": "Great branch",
@@ -749,6 +726,7 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "type": ExperimentConstants.TYPE_PREF,
             "pref_type": "integer",
             "pref_key": "name",
+            "pref_branch": "default",
             "variants": [variant_1, variant_2],
         }
         serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
@@ -756,9 +734,7 @@ class TestExperimentDesignPrefSerializer(TestCase):
         self.assertTrue(serializer.is_valid())
 
     def test_serializer_rejects_inconsistent_pref_type_int(self):
-        experiment = ExperimentFactory.create(
-            type=ExperimentConstants.TYPE_PREF,
-        )
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
         variant_1 = {
             "name": "Terrific branch",
             "ratio": 50,
@@ -778,17 +754,16 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "type": ExperimentConstants.TYPE_PREF,
             "pref_type": "integer",
             "pref_key": "name",
+            "pref_branch": "default",
             "variants": [variant_1, variant_2],
         }
         serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
 
         self.assertFalse(serializer.is_valid())
-        self.assertEqual(set(serializer.errors), set(['branch_value']))
+        self.assertEqual(set(serializer.errors), set(["branch_value"]))
 
     def test_serializer_accepts_pref_type_json_value(self):
-        experiment = ExperimentFactory.create(
-            type=ExperimentConstants.TYPE_PREF,
-        )
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
         variant_1 = {
             "name": "Terrific branch",
             "ratio": 50,
@@ -807,6 +782,7 @@ class TestExperimentDesignPrefSerializer(TestCase):
         data = {
             "type": ExperimentConstants.TYPE_PREF,
             "pref_type": "json string",
+            "pref_branch": "default",
             "pref_key": "name",
             "variants": [variant_1, variant_2],
         }
@@ -815,9 +791,7 @@ class TestExperimentDesignPrefSerializer(TestCase):
         self.assertTrue(serializer.is_valid())
 
     def test_serializer_rejects_inconsistent_pref_type_json(self):
-        experiment = ExperimentFactory.create(
-            type=ExperimentConstants.TYPE_PREF,
-        )
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
         variant_1 = {
             "name": "Terrific branch",
             "ratio": 50,
@@ -837,12 +811,13 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "type": ExperimentConstants.TYPE_PREF,
             "pref_type": "json string",
             "pref_key": "name",
+            "pref_branch": "default",
             "variants": [variant_1, variant_2],
         }
         serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
 
         self.assertFalse(serializer.is_valid())
-        self.assertEqual(set(serializer.errors), set(['branch_value']))
+        self.assertEqual(set(serializer.errors), set(["branch_value"]))
 
 
 class TestExperimentDesignAddonSerializer(TestCase):
@@ -862,8 +837,92 @@ class TestExperimentDesignAddonSerializer(TestCase):
                     ExperimentVariantSerializer(variant).data
                     for variant in experiment.variants.all()
                 ],
-            }
+            },
         )
+
+    def test_serializer_saves_design_addon_experiment(self):
+        experiment = ExperimentFactory.create(
+            type=ExperimentConstants.TYPE_ADDON,
+            addon_release_url="http://www.example.com",
+            addon_experiment_id="experiment id 1",
+        )
+        variant_1 = {
+            "name": "Terrific branch",
+            "ratio": 50,
+            "description": "Very terrific branch.",
+            "is_control": True,
+        }
+        variant_2 = {
+            "name": "Great branch",
+            "ratio": 50,
+            "description": "Very great branch.",
+            "is_control": False,
+        }
+
+        data = {
+            "type": ExperimentConstants.TYPE_GENERIC,
+            "addon_release_url": "http://www.example.com",
+            "addon_experiment_id": "experiment id new",
+            "variants": [variant_1, variant_2],
+        }
+
+        serializer = ExperimentDesignAddonSerializer(instance=experiment, data=data)
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.addon_experiment_id, "experiment id new")
+
+
+class TestExperimentDesignGenericSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+
+        serializer = ExperimentDesignGenericSerializer(experiment)
+
+        self.assertEqual(
+            serializer.data,
+            {
+                "type": experiment.type,
+                "design": experiment.design,
+                "variants": [
+                    ExperimentVariantSerializer(variant).data
+                    for variant in experiment.variants.all()
+                ],
+            },
+        )
+
+    def test_serializer_saves_design_generic_experiment(self):
+        experiment = ExperimentFactory.create(
+            type=ExperimentConstants.TYPE_GENERIC, design="First Design"
+        )
+        variant_1 = {
+            "name": "Terrific branch",
+            "ratio": 50,
+            "description": "Very terrific branch.",
+            "is_control": True,
+        }
+        variant_2 = {
+            "name": "Great branch",
+            "ratio": 50,
+            "description": "Very great branch.",
+            "is_control": False,
+        }
+
+        data = {
+            "type": ExperimentConstants.TYPE_GENERIC,
+            "design": "Second Design",
+            "variants": [variant_1, variant_2],
+        }
+
+        serializer = ExperimentDesignGenericSerializer(instance=experiment, data=data)
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.design, "Second Design")
+
 
 class TestCloneSerializer(MockRequestMixin, TestCase):
 

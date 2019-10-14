@@ -434,10 +434,7 @@ class ExperimentDesignBranchBaseSerializer(serializers.ModelSerializer):
 
     def validate_name(self, value):
         if not slugify(value):
-            raise serializers.ValidationError(
-                {"branch_name": "That's an invalid name."}
-            )
-
+            raise serializers.ValidationError({"branch_name": "That's an invalid name."})
 
         return value
 
@@ -456,10 +453,11 @@ class ExperimentDesignBranchPrefSerializer(ExperimentDesignBranchBaseSerializer)
 
 class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
     type = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    variants = ExperimentDesignBranchBaseSerializer(many=True)
 
     class Meta:
         model = Experiment
-        fields = ("type")
+        fields = ("type", "variants")
 
     def validate(self, data):
         variants = data["variants"]
@@ -473,7 +471,6 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"branch_name": ["All branches must have a unique name."]}
             )
-
 
         return data
 
@@ -513,7 +510,6 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
         return instance
 
 
-
 class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
     pref_key = serializers.CharField()
     pref_type = serializers.CharField()
@@ -529,7 +525,7 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
             raise serializers.ValidationError(["Please select a type."])
 
         return value
-        
+
     def validate(self, data):
         super().validate(data)
 
@@ -537,11 +533,7 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
 
         if not len(set(variant["value"] for variant in variants)) == len(variants):
             raise serializers.ValidationError(
-                {
-                    "branch_value": [
-                        "All branches must have a unique pref value."
-                    ]
-                }
+                {"branch_value": ["All branches must have a unique pref value."]}
             )
 
         for variant in variants:
@@ -550,11 +542,7 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
                     int(variant["value"])
                 except:
                     raise serializers.ValidationError(
-                        {
-                            "branch_value": [
-                                "The pref value must be an integer."
-                            ]
-                        }
+                        {"branch_value": ["The pref value must be an integer."]}
                     )
 
             if data.get("pref_type", "") == "boolean":
@@ -568,11 +556,7 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
                     json_object = json.loads(variant["value"])
                 except:
                     raise serializers.ValidationError(
-                        {
-                            "branch_value": [
-                                "The pref value must be valid json string."
-                            ]
-                        }
+                        {"branch_value": ["The pref value must be valid json string."]}
                     )
 
         return data
@@ -581,21 +565,14 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
 class ExperimentDesignAddonSerializer(ExperimentDesignBaseSerializer):
     addon_experiment_id = serializers.CharField()
     addon_release_url = serializers.URLField()
-    variants = ExperimentDesignBranchBaseSerializer(many=True)
 
     class Meta:
         model = Experiment
-        fields = (
-            "type",
-            "addon_release_url",
-            "addon_experiment_id",
-            "variants",
-        )
+        fields = ("type", "addon_release_url", "addon_experiment_id", "variants")
 
 
 class ExperimentDesignGenericSerializer(ExperimentDesignBaseSerializer):
     design = serializers.CharField(allow_null=True, allow_blank=True)
-    variants = ExperimentDesignBranchBaseSerializer(many=True)
 
     class Meta:
         model = Experiment
