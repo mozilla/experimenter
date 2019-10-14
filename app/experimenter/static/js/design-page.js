@@ -44,15 +44,6 @@ export default class DesignForm extends React.Component {
       }],
       errors: {},
       loaded: false,
-      help: {
-        prefKey: false,
-        prefType: false,
-        prefBranch: false,
-        addonExperimentId: false,
-        addonReleaseUrl: false,
-        design: false,
-        variants: [{ratio: false, name: false, description: false, value: false}, {ratio: false, name: false, description: false, value: false}]
-      }
     };
   }
 
@@ -80,6 +71,20 @@ export default class DesignForm extends React.Component {
       }
     }
     json.loaded = true;
+    json.help = {
+      prefKey: false,
+      prefType: false,
+      prefBranch: false,
+      addonExperimentId: false,
+      addonReleaseUrl: false,
+      design: false,
+      variants: []
+    }
+    for (let i = 0; i < json.variants.length; i++) {
+      json.help.variants.push(
+        {ratio: false, name: false, description: false, value: false}
+      )
+    }
     return this.setState(json)
   }
 
@@ -103,21 +108,6 @@ export default class DesignForm extends React.Component {
     })
 
     this.setState(stateCopy)
-    // this.setState({
-    //   variants: this.state.variants.concat({
-    //     ratio: null,
-    //     name: "",
-    //     description: "",
-    //     value: "",
-    //     is_control: false,
-    //   }),
-    //   help: this.state.help.variants.concat({
-        // ratio: false,
-        // name: false,
-        // description: false,
-        // value: false
-    //   })
-    // });
   }
 
   @boundMethod
