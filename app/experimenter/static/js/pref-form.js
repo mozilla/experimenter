@@ -8,6 +8,7 @@ import {
   FormControl,
   FormLabel
 } from "react-bootstrap";
+import HelpBox from "help-box";
 
 
 export default function PrefForm(props) {
@@ -24,7 +25,7 @@ export default function PrefForm(props) {
             <strong>Pref Name</strong>
           </FormLabel>
           <br />
-          <a href="/">help</a>
+          <a href="#" id="pref-key" onClick={props.toggleHelp}>help</a>
         </Col>
         <Col md={9}>
           <FormControl
@@ -33,6 +34,20 @@ export default function PrefForm(props) {
             value={props.pref_key}
             onChange={props.handleInputChange}
           />
+          <HelpBox showing={props.help.prefKey}>
+            <p>
+              Enter the full name of the Firefox pref key that this
+              experiment will control. A pref experiment can control
+              exactly one pref, and each branch will receive a different
+              value for that pref. You can find all Firefox prefs in
+              about:config and any pref that appears there can be the
+              target of an experiment.
+            </p>
+            <p>
+              <strong>Example: </strong>
+              browser.example.component.enable_large_sign_in_button
+            </p>
+          </HelpBox>
         </Col>
       </Row>
       <Row>
@@ -41,7 +56,7 @@ export default function PrefForm(props) {
             <strong>Pref Type</strong>
           </FormLabel>
           <br />
-          <a href="/">help</a>
+          <a href="#" id="pref-type" onClick={props.toggleHelp}>help</a>
         </Col>
         <Col md={9}>
           <FormControl as="select"
@@ -56,6 +71,16 @@ export default function PrefForm(props) {
             <option>string</option>
             <option>json string</option>
           </FormControl>
+          <HelpBox showing={props.help.prefType}>
+            <p>
+              Select the type of the pref entered above.
+              The pref type will be shown in the third
+              column in about:config.
+            </p>
+            <p>
+              <strong>Example:</strong> boolean
+            </p>
+          </HelpBox>
         </Col>
       </Row>
       <Row>
@@ -64,7 +89,7 @@ export default function PrefForm(props) {
             <strong>Pref Branch</strong>
           </FormLabel>
           <br />
-          <a href="/">help</a>
+          <a href="#" id="pref-branch" onClick={props.toggleHelp}>help</a>
         </Col>
         <Col md={9}>
           <FormControl
@@ -73,6 +98,19 @@ export default function PrefForm(props) {
             value={props.pref_branch}
             onChange={props.handleInputChange}
           />
+          <HelpBox showing={props.help.prefBranch}>
+            <p>
+              Select the pref branch the experiment will write its
+              pref value to. If you're not sure what this means,
+              you should stick to the 'default' pref branch. Pref
+              branches are a little more complicated than can be
+              written here, but you can find
+              <a href="https://developer.mozilla.org/en-US/docs/Archive/Add-ons/Code_snippets/Preferences#Default_preferences"> more information here</a>.
+            </p>
+            <p>
+              <strong>Example:</strong> default
+            </p>
+          </HelpBox>
         </Col>
       </Row>
     </div>

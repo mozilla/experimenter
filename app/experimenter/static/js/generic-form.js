@@ -8,6 +8,7 @@ import {
   FormControl,
   FormLabel
 } from "react-bootstrap";
+import HelpBox from "help-box";
 
 export default function GenericForm(props) {
   return (
@@ -23,7 +24,7 @@ export default function GenericForm(props) {
             <strong>Design</strong>
           </FormLabel>
           <br />
-          <a href="/">help</a>
+          <a href="#" id="design" onClick={props.toggleHelp}>help</a>
         </Col>
         <Col md={9}>
           <FormControl
@@ -33,6 +34,11 @@ export default function GenericForm(props) {
             value={props.design}
             onChange={props.handleInputChange}
           />
+          <HelpBox showing={props.help.design}>
+            <p>
+              Specify the design of the experiment.
+            </p>
+          </HelpBox>
         </Col>
       </Row>
     </div>

@@ -12,6 +12,7 @@ import {boundMethod} from 'autobind-decorator';
 import PrefValueInput from "pref-value-input";
 import TypeForm from "type-form";
 import Error from "error-form";
+import HelpBox from "help-box";
 
 const branchesDiv = document.getElementById("react-branches-form");
 
@@ -43,6 +44,15 @@ export default class DesignForm extends React.Component {
       }],
       errors: {},
       loaded: false,
+      help: {
+        prefKey: false,
+        prefType: false,
+        prefBranch: false,
+        addonExperimentId: false,
+        addonReleaseUrl: false,
+        design: false,
+        variants: [{ratio: false, name: false, description: false, value: false}, {ratio: false, name: false, description: false, value: false}]
+      }
     };
   }
 
@@ -75,15 +85,39 @@ export default class DesignForm extends React.Component {
 
 @boundMethod
   addBranch(e) {
-    this.setState({
-      variants: this.state.variants.concat({
-        ratio: null,
-        name: "",
-        description: "",
-        value: "",
-        is_control: false,
-      })
-    });
+    let stateCopy = {...this.state}
+
+    console.log(stateCopy.variants);
+    stateCopy.variants.push({
+      ratio: null,
+      name: "",
+      description: "",
+      value: "",
+      is_control: false,
+    })
+    stateCopy.help.variants.push({
+      ratio: false,
+      name: false,
+      description: false,
+      value: false
+    })
+
+    this.setState(stateCopy)
+    // this.setState({
+    //   variants: this.state.variants.concat({
+    //     ratio: null,
+    //     name: "",
+    //     description: "",
+    //     value: "",
+    //     is_control: false,
+    //   }),
+    //   help: this.state.help.variants.concat({
+        // ratio: false,
+        // name: false,
+        // description: false,
+        // value: false
+    //   })
+    // });
   }
 
   @boundMethod
@@ -142,11 +176,48 @@ export default class DesignForm extends React.Component {
     this.setState({errors: json})
   }
 
+  @boundMethod
+  toggleHelp(e) {
+    e.preventDefault();
+    let stateCopy = {...this.state.help}
+    if (e.target.id == "branch-ratio") {
+      stateCopy.variants[e.target.dataset.index].ratio = !stateCopy.variants[e.target.dataset.index].ratio
+      this.setState({help: stateCopy})
+    } else if (e.target.id == "branch-name") {
+      stateCopy.variants[e.target.dataset.index].name = !stateCopy.variants[e.target.dataset.index].name
+      this.setState({help: stateCopy})
+    } else if (e.target.id == "branch-description") {
+      stateCopy.variants[e.target.dataset.index].description = !stateCopy.variants[e.target.dataset.index].description
+      this.setState({help: stateCopy})
+    } else if (e.target.id == "branch-value") {
+      stateCopy.variants[e.target.dataset.index].value = !stateCopy.variants[e.target.dataset.index].value
+      this.setState({help: stateCopy})
+    } else if (e.target.id == "pref-key") {
+      stateCopy.prefKey = !stateCopy.prefKey
+      this.setState({help: stateCopy})
+    } else if (e.target.id == "pref-type") {
+      stateCopy.prefType = !stateCopy.prefType
+      this.setState({help: stateCopy})
+    } else if (e.target.id == "pref-branch") {
+      stateCopy.prefBranch = !stateCopy.prefBranch
+      this.setState({help: stateCopy})
+    } else if (e.target.id == "design") {
+      stateCopy.design = !stateCopy.design
+      this.setState({help: stateCopy})
+    } else if (e.target.id == "addon-experiment-id") {
+      stateCopy.addonExperimentId = !stateCopy.addonExperimentId
+      this.setState({help: stateCopy})
+    } else if (e.target.id == "addon-release-url") {
+      stateCopy.addonReleaseUrl = !stateCopy.addonReleaseUrl
+      this.setState({help: stateCopy})
+    }
+  }
+
   getApiUrl() {
     return `/api/v1/experiments/${this.props.slug}/design-${this.state.type}/`;
   }
 
-
+  @boundMethod
   async handleSubmit(e) {
     e.preventDefault();
 
@@ -177,7 +248,7 @@ export default class DesignForm extends React.Component {
   render() {
     const dataExists = this.state.loaded;
     if (!dataExists) {
-      return null; // or load indicator
+      return null;
     } else {
       return (
         <div>
@@ -185,6 +256,7 @@ export default class DesignForm extends React.Component {
             <form onSubmit={this.handleSubmit}>
               <TypeForm
                 handleInputChange={this.handleInputChange}
+                toggleHelp={this.toggleHelp}
                 {...this.state}
               />
               <hr className="heavy-line my-5" />
@@ -205,7 +277,7 @@ export default class DesignForm extends React.Component {
                           data-index={index}
                           onClick={this.removeBranch}
                         >
-                          <span class="fas fa-times"></span> Remove Branch
+                          <span className="fas fa-times"></span> Remove Branch
                         </Button>
                       ) : null}
                     </Col>
@@ -216,7 +288,7 @@ export default class DesignForm extends React.Component {
                         <strong>Branch Size</strong>
                       </FormLabel>
                       <br />
-                      <a href="/">help</a>
+                      <a href="#" id="branch-ratio" data-index={index} onClick={this.toggleHelp}>help</a>
                     </Col>
                     <Col md={9}>
                       <FormControl
@@ -228,6 +300,18 @@ export default class DesignForm extends React.Component {
                         className= {this.state.errors.branch_ratio ? "is-invalid" : "" }
                       />
                       {this.state.errors.branch_ratio ? <Error error={this.state.errors.branch_ratio}/>  : ""}
+                      <HelpBox showing={this.state.help.variants[index].ratio}>
+                        <p>
+                          Choose the size of this branch represented as a
+                          whole number. The size of all branches together
+                          must be equal to 100. It does not have to be exact,
+                          so these sizes are simply a recommendation of the
+                          relative distribution of the branches.
+                        </p>
+                        <p>
+                          <strong>Example:</strong> 50
+                        </p>
+                      </HelpBox>
                     </Col>
                   </Row>
                   <Row>
@@ -236,7 +320,7 @@ export default class DesignForm extends React.Component {
                         <strong>Name</strong>
                       </FormLabel>
                       <br />
-                      <a href="/">help</a>
+                      <a href="#" id="branch-name" data-index={index} onClick={this.toggleHelp}>help</a>
                     </Col>
                     <Col md={9}>
                       <FormControl
@@ -248,6 +332,21 @@ export default class DesignForm extends React.Component {
                         className= {this.state.errors.branch_name ? "is-invalid" : "" }
                       />
                       {this.state.errors.branch_name ? <Error error={this.state.errors.branch_name}/> : ""}
+                      <HelpBox showing={this.state.help.variants[index].name}>
+                        <p>
+                          The control group should represent the users receiving the
+                          existing, unchanged version of what you're testing. For
+                          example, if you're testing making a button larger to see
+                          if users click on it more often, the control group would
+                          receive the existing button size. You should name your
+                          control branch based on the experience or functionality
+                          that group of users will be receiving. Don't name it
+                          'Control Group', we already know it's the control group!
+                        </p>
+                        <p>
+                          <strong>Example:</strong> Normal Button Size
+                        </p>
+                      </HelpBox>
                     </Col>
                   </Row>
                   <Row>
@@ -256,7 +355,7 @@ export default class DesignForm extends React.Component {
                         <strong>Description</strong>
                       </FormLabel>
                       <br />
-                      <a href="/">help</a>
+                      <a href="#" id="branch-description" data-index={index} onClick={this.toggleHelp}>help</a>
                     </Col>
                     <Col md={9}>
                       <FormControl
@@ -269,9 +368,20 @@ export default class DesignForm extends React.Component {
                         value={branch.description}
                         className="mb-4"
                       />
+                      <HelpBox showing={this.state.help.variants[index].description}>
+                        <p>
+                           Describe the experience or functionality the control
+                           group will receive in more detail.
+                        </p>
+                        <p>
+                          <strong>Example:</strong> The control group will
+                          receive the existing 80px sign in button located
+                          at the top right of the screen.
+                        </p>
+                      </HelpBox>
                     </Col>
                   </Row>
-                  {this.state.type == "pref" ? < PrefValueInput updateValue={this.updateValue} index={index} {...this.state}/> : ""}
+                  {this.state.type == "pref" ? < PrefValueInput updateValue={this.updateValue} index={index} toggleHelp={this.toggleHelp} {...this.state}/> : ""}
                   <hr className="heavy-line my-5" />
                 </div>
               ))}
@@ -288,7 +398,7 @@ export default class DesignForm extends React.Component {
               </Row>
               <Row>
                 <Col className="text-right">
-                  <a className="mr-1 btn btn-default" href={`/experiments/${this.props.slug}/`}><span class="fas fa-times"></span> Cancel Editing</a>
+                  <a className="mr-1 btn btn-default" href={`/experiments/${this.props.slug}/`}><span className="fas fa-times"></span> Cancel Editing</a>
                   <Button variant="primary" type="submit" className="mr-1">
                     Save
                   </Button>

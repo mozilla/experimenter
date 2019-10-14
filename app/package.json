@@ -25,7 +25,8 @@
     "generic-form": "./experimenter/static/js/generic-form.js",
     "type-form": "./experimenter/static/js/type-form.js",
     "pref-value-input": "./experimenter/static/js/pref-value-input.js",
-    "error-form": "./experimenter/static/js/error.js"
+    "error-form": "./experimenter/static/js/error.js",
+    "help-box":  "./experimenter/static/js/help-box.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
