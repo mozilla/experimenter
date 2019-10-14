@@ -162,7 +162,24 @@ export default class DesignForm extends React.Component {
   }
 
   handleValidationErrors(json) {
-    this.setState({errors: json})
+    if (json.variants) {
+      // normalize the shape of the validation error data coming back 
+      // from the server
+      for (let variant of json.variants) {
+        if ('ratio' in variant) {
+          this.setState({errors: {branch_ratio: variant.ratio}})
+        } else if ('name' in variant){
+          this.setState({errors: {branch_name: variant.name}})
+        } else if ('description' in variant) {
+          this.setState({errors: {branch_description: variant.description}})
+        } else if ('value' in variant){
+          this.setState({errors: {branch_value: variant.value}})
+        }
+      }
+    } else {
+      this.setState({errors: json})
+    }
+
   }
 
   @boundMethod
@@ -355,8 +372,9 @@ export default class DesignForm extends React.Component {
                         name={"variants-" + index + "-description"}
                         onChange={this.updateDescription}
                         value={branch.description}
-                        className="mb-4"
+                        className={this.state.errors.branch_description ? "is-invalid mb-4" : "mb-4" }
                       />
+                      {this.state.errors.branch_description ? <Error error={this.state.errors.branch_description}/> : ""}
                       <HelpBox showing={this.state.help.variants[index].description}>
                         <p>
                            Describe the experience or functionality the control
