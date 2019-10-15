@@ -22,7 +22,7 @@ class NormandyDecodeError(NormandyError):
 
 def make_normandy_call(url):
     try:
-        response = requests.get(url)
+        response = requests.get(url, verify=(not settings.DEBUG))
         response.raise_for_status()
         return response.json()
     except requests.exceptions.HTTPError as e:
