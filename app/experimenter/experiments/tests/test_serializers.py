@@ -158,7 +158,7 @@ class TestChangeLogSerializer(TestCase):
             "platform": experiment.platform,
             "objectives": experiment.objectives,
             "analysis": experiment.analysis,
-            "analysis_owner": experiment.analysis_owner,
+            "analysis_owner": experiment.analysis_owner.id,
             "survey_required": experiment.survey_required,
             "survey_urls": experiment.survey_urls,
             "survey_instructions": experiment.survey_instructions,
@@ -432,6 +432,8 @@ class TestExperimentRecipeSerializer(TestCase):
             ExperimentRecipePrefArgumentsSerializer(experiment).data,
         )
 
+        self.assertEqual(serializer.data["experimenter_slug"], experiment.slug)
+
     def test_serializer_outputs_expected_schema_for_addon_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_SHIP,
@@ -457,6 +459,8 @@ class TestExperimentRecipeSerializer(TestCase):
             serializer.data["arguments"],
             ExperimentRecipeAddonArgumentsSerializer(experiment).data,
         )
+
+        self.assertEqual(serializer.data["experimenter_slug"], experiment.slug)
 
     def test_serializer_excludes_locales_if_none_set(self):
         experiment = ExperimentFactory.create_with_status(

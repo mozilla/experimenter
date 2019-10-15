@@ -25,6 +25,7 @@ faker = FakerFactory.create()
 class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     type = Experiment.TYPE_PREF
     owner = factory.SubFactory(UserFactory)
+    analysis_owner = factory.SubFactory(UserFactory)
     engineering_owner = factory.LazyAttribute(lambda o: faker.name())
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: "{}_".format(slugify(o.name)))
@@ -78,7 +79,6 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
         lambda o: "https://www.example.com/{}-release.xpi".format(o.addon_experiment_id)
     )
     objectives = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 5000)))
-    analysis_owner = factory.LazyAttribute(lambda o: faker.name())
     analysis = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 5000)))
 
     risk_internal_only = False

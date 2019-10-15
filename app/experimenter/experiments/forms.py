@@ -181,15 +181,15 @@ class ChangeLogMixin(object):
                             "new_value": new_val,
                             "display_name": display_name,
                         }
-
-        ExperimentChangeLog.objects.create(
-            experiment=experiment,
-            changed_by=self.request.user,
-            old_status=old_status,
-            new_status=experiment.status,
-            changed_values=changed_values,
-            message=self.get_changelog_message(),
-        )
+        if self._has_changed(old_status, changed_values, experiment):
+            ExperimentChangeLog.objects.create(
+                experiment=experiment,
+                changed_by=self.request.user,
+                old_status=old_status,
+                new_status=experiment.status,
+                changed_values=changed_values,
+                message=self.get_changelog_message(),
+            )
 
         return experiment
 
@@ -197,6 +197,13 @@ class ChangeLogMixin(object):
         if self.fields[field].label:
             return self.fields[field].label
         return field.replace("_", " ").title()
+
+    def _has_changed(self, old_status, changed_values, experiment):
+        return (
+            changed_values
+            or self.get_changelog_message()
+            or old_status != experiment.status
+        )
 
 
 class ExperimentOverviewForm(NameSlugFormMixin, ChangeLogMixin, forms.ModelForm):
@@ -230,11 +237,15 @@ class ExperimentOverviewForm(NameSlugFormMixin, ChangeLogMixin, forms.ModelForm)
         label="Engineering Owner",
         help_text=Experiment.ENGINEERING_OWNER_HELP_TEXT,
     )
-    analysis_owner = forms.CharField(
+    analysis_owner = forms.ModelChoiceField(
         required=True,
         label="Data Science Owner",
         help_text=Experiment.ANALYSIS_OWNER_HELP_TEXT,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        queryset=get_user_model().objects.all().order_by("email"),
+        # This one forces the <select> widget to not include a blank
+        # option which would otherwise be included because the model field
+        # is nullable.
+        empty_label="Data Science Owner",
     )
     public_name = forms.CharField(
         label="Public Name", required=False, help_text=Experiment.PUBLIC_NAME_HELP_TEXT
@@ -1400,3 +1411,18 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
     class Meta:
         model = Experiment
         fields = ("normandy_id", "other_normandy_ids")
+
+
+class ExperimentOrderingForm(forms.Form):
+    ORDERING_CHOICES = (
+        ("-latest_change", "Most Recently Updated"),
+        ("latest_change", "Least Recently Updated"),
+        ("firefox_min_version", "Firefox Min Version Ascending"),
+        ("-firefox_min_version", "Firefox Min Version Descending"),
+        ("firefox_channel_sort", "Firefox Channel Ascending"),
+        ("-firefox_channel_sort", "Firefox Channel Descending"),
+    )
+
+    ordering = forms.ChoiceField(
+        choices=ORDERING_CHOICES, widget=forms.Select(attrs={"class": "form-control"})
+    )
