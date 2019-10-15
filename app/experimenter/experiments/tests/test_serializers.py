@@ -159,7 +159,7 @@ class TestChangeLogSerializer(TestCase):
             "platform": experiment.platform,
             "objectives": experiment.objectives,
             "analysis": experiment.analysis,
-            "analysis_owner": experiment.analysis_owner,
+            "analysis_owner": experiment.analysis_owner.id,
             "survey_required": experiment.survey_required,
             "survey_urls": experiment.survey_urls,
             "survey_instructions": experiment.survey_instructions,

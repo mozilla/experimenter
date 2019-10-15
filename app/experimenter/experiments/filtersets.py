@@ -58,6 +58,11 @@ class ExperimentFilterset(filters.FilterSet):
         queryset=get_user_model().objects.all().order_by("email"),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
+    analysis_owner = filters.ModelChoiceFilter(
+        empty_label="All Data Scientists",
+        queryset=get_user_model().objects.all().order_by("email"),
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
 
     archived = filters.BooleanFilter(
         label="Show archived experiments",
@@ -118,6 +123,7 @@ class ExperimentFilterset(filters.FilterSet):
             "firefox_channel",
             "firefox_version",
             "owner",
+            "analysis_owner",
             "in_qa",
             "surveys",
             "archived",
@@ -131,6 +137,7 @@ class ExperimentFilterset(filters.FilterSet):
             "name",
             "short_description",
             "owner__email",
+            "analysis_owner__email",
             "slug",
             "related_work",
             "addon_experiment_id",
@@ -139,7 +146,6 @@ class ExperimentFilterset(filters.FilterSet):
             "public_description",
             "objectives",
             "analysis",
-            "analysis_owner",
             "engineering_owner",
             "bugzilla_id",
             "normandy_slug",
