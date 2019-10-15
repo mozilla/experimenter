@@ -153,6 +153,9 @@ WARNING: this will remove your database and all data.  Use this to reset your de
 ### refresh
 Will run kill, migrate, load_locales_countries load_dummy_experiments
 
+### up_all
+will start up a normandy and delivery console instance. Prereqs. Symlink normandy and delivery console eg. `ln -s ../normandy normandy`, ensure user is assigned superuser status
+
 ## API
 
 ### GET /api/v1/experiments/

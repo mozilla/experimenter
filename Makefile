@@ -44,6 +44,9 @@ check: test_build check_migrations black_check lint test
 compose_build: build ssl
 	docker-compose build
 
+compose_build_all: build ssl 
+	docker-compose -f docker-compose-full.yml build
+
 compose_kill:
 	docker-compose kill
 
@@ -56,6 +59,9 @@ kill: compose_kill compose_rm
 up: compose_kill compose_build
 	docker-compose up
 
+up_all: compose_build_all
+	docker-compose -f docker-compose-full.yml up
+	
 gunicorn: compose_build
 	docker-compose -f docker-compose.yml -f docker-compose-gunicorn.yml up
 
@@ -83,6 +89,8 @@ dbshell: compose_build
 bash: compose_build
 	docker-compose run app bash
 
+normandy_shell: compose_build_all
+	docker-compose -f docker-compose-full.yml run normandy ./manage.py shell
 
 refresh: kill migrate load_locales_countries load_dummy_experiments
 
