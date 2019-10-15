@@ -280,7 +280,7 @@ export default class DesignForm extends React.Component {
               />
               <hr className="heavy-line my-5" />
               {this.state.variants.map((branch, index) => (
-                <div key={index}>
+                <div key={index} id="control-branch-group">
                   <Row className="mb-3">
                     <Col md={{ span: 4, offset: 3 }}>
                       {index == 0 ? (

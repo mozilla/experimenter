@@ -520,6 +520,12 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
 
         return value
 
+    def validate_pref_branch(self, value):
+        if value == "Firefox Pref Branch":
+            raise serializers.ValidationError(["Please select a branch."])
+
+        return value
+
     def validate(self, data):
         super().validate(data)
 

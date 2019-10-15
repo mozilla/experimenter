@@ -36,6 +36,7 @@ export default function PrefForm(props) {
             id="id_pref_key"
             value={props.pref_key}
             onChange={props.handleInputChange}
+            className={props.errors.pref_key ? "is-invalid" : ""}
           />
           {props.errors.pref_key ? <Error error={props.errors.pref_key} /> : ""}
           <HelpBox showing={props.help.prefKey}>
@@ -71,6 +72,7 @@ export default function PrefForm(props) {
             id="id_pref_type"
             value={props.pref_type}
             onChange={props.handleInputChange}
+            className={props.errors.pref_type ? "is-invalid" : ""}
           >
             <option>Firefox Pref Type</option>
             <option>boolean</option>
@@ -106,12 +108,18 @@ export default function PrefForm(props) {
         </Col>
         <Col md={9}>
           <FormControl
+            as="select"
             type="text"
             name="pref-branch"
             id="id_pref_branch"
             value={props.pref_branch}
             onChange={props.handleInputChange}
-          />
+            className={props.errors.pref_branch ? "is-invalid" : ""}
+          >
+            <option>Firefox Pref Branch</option>
+            <option>default</option>
+            <option>user</option>
+          </FormControl>
           {props.errors.pref_branch ? (
             <Error error={props.errors.pref_branch} />
           ) : (
