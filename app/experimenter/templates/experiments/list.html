@@ -112,6 +112,9 @@
               {% if experiment.survey_required %}
                 <span class="badge badge-secondary mb-2">Includes Survey</span>
               {% endif %}
+              {% if experiment.completed_results %}
+                <span class="badge badge-primary mb-2">Has Results</span>
+              {% endif %}
             </div>
           </div>
         </div>
