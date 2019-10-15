@@ -676,6 +676,35 @@ class TestExperimentDesignPrefSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(set(serializer.errors), set(["branch_value"]))
 
+    def test_serializer_rejects_no_type_choice(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        variant_1 = {
+            "name": "Terrific branch",
+            "ratio": 50,
+            "value": "dog",
+            "description": "Very terrific branch.",
+            "is_control": True,
+        }
+        variant_2 = {
+            "name": "Great branch",
+            "ratio": 50,
+            "value": "dog",
+            "description": "Very great branch.",
+            "is_control": False,
+        }
+
+        data = {
+            "type": ExperimentConstants.TYPE_PREF,
+            "pref_type": "Firefox Pref Type",
+            "pref_key": "name",
+            "pref_branch": "default",
+            "variants": [variant_1, variant_2],
+        }
+        serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(set(serializer.errors), set(["pref_type"]))
+
     def test_serializer_rejects_inconsistent_pref_type_bool(self):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
         variant_1 = {

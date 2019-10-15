@@ -27,7 +27,9 @@ export default function GenericForm(props) {
           <br />
           <span className="text-muted optional-marker">Optional</span>
           <br />
-          <a href="#" id="design" onClick={props.toggleHelp}>help</a>
+          <a href="#" id="design" onClick={props.toggleHelp}>
+            help
+          </a>
         </Col>
         <Col md={9}>
           <FormControl
@@ -38,9 +40,7 @@ export default function GenericForm(props) {
             onChange={props.handleInputChange}
           />
           <HelpBox showing={props.help.design}>
-            <p>
-              Specify the design of the experiment.
-            </p>
+            <p>Specify the design of the experiment.</p>
           </HelpBox>
         </Col>
       </Row>

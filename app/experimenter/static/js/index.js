@@ -15,5 +15,5 @@ if (branchesDiv) {
   const slug = branchesDiv.dataset.experimentSlug;
   const expType = branchesDiv.dataset.experimentType;
 
-  ReactDOM.render(<DesignForm slug={slug} expType={expType}/>, branchesDiv);
+  ReactDOM.render(<DesignForm slug={slug} expType={expType} />, branchesDiv);
 }

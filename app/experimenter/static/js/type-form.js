@@ -16,10 +16,10 @@ export default function TypeForm(props) {
   const type = props.type;
 
   if (type == "pref") {
-    return <PrefForm {...props}/>;
+    return <PrefForm {...props} />;
   } else if (type == "addon") {
-    return <AddonForm {...props}/>;
+    return <AddonForm {...props} />;
   } else {
-    return <GenericForm {...props}/>;
+    return <GenericForm {...props} />;
   }
 }

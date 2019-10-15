@@ -432,12 +432,6 @@ class ExperimentDesignBranchBaseSerializer(serializers.ModelSerializer):
     name = serializers.CharField()
     ratio = serializers.IntegerField()
 
-    def validate_name(self, value):
-        if not slugify(value):
-            raise serializers.ValidationError({"branch_name": "That's an invalid name."})
-
-        return value
-
     class Meta:
         fields = ["description", "is_control", "name", "ratio"]
         model = ExperimentVariant
@@ -540,7 +534,7 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
             if data.get("pref_type", "") == "integer":
                 try:
                     int(variant["value"])
-                except:
+                except ValueError:
                     raise serializers.ValidationError(
                         {"branch_value": ["The pref value must be an integer."]}
                     )
@@ -553,8 +547,8 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
 
             if data.get("pref_type", "") == "json string":
                 try:
-                    json_object = json.loads(variant["value"])
-                except:
+                    json.loads(variant["value"])
+                except ValueError:
                     raise serializers.ValidationError(
                         {"branch_value": ["The pref value must be valid json string."]}
                     )
@@ -572,7 +566,7 @@ class ExperimentDesignAddonSerializer(ExperimentDesignBaseSerializer):
 
 
 class ExperimentDesignGenericSerializer(ExperimentDesignBaseSerializer):
-    design = serializers.CharField(allow_null=True, allow_blank=True)
+    design = serializers.CharField(allow_null=True, allow_blank=True, required=False)
 
     class Meta:
         model = Experiment

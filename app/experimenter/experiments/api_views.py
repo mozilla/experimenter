@@ -3,14 +3,9 @@ from rest_framework.generics import (
     UpdateAPIView,
     RetrieveAPIView,
     RetrieveUpdateAPIView,
-    GenericAPIView,
 )
 from rest_framework.response import Response
 from rest_framework import status
-from django.shortcuts import redirect
-from django.urls import reverse
-
-import json
 
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment

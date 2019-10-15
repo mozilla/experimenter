@@ -11,20 +11,20 @@ from pages.base import Base
 
 class DesignPage(Base):
 
-    _add_branch_btn_locator = (By.CSS_SELECTOR, ".btn-success")
+    _add_branch_btn_locator = (By.CSS_SELECTOR, "#add-branch-button")
     _branch_form_root_locator = (
         By.CSS_SELECTOR,
-        "#formset > div:nth-child(5) > div",
+        "#design-form",
     )
-    _continue_btn_locator = (By.CSS_SELECTOR, "button.btn:nth-child(3)")
+    _continue_btn_locator = (By.CSS_SELECTOR, "#save-continue")
     _firefox_pref_name_locator = (By.CSS_SELECTOR, "#id_pref_key")
     _firefox_pref_type_locator = (
         By.CSS_SELECTOR,
-        "#id_pref_type > option:nth-child(2)",
+        "#id_pref_type",
     )
     _firefox_pref_branch_locator = (
         By.CSS_SELECTOR,
-        "#id_pref_branch > option:nth-child(2)",
+        "#id_pref_branch",
     )
     _new_branch_locator = (
         By.CSS_SELECTOR,
@@ -83,7 +83,7 @@ class DesignPage(Base):
 
         _remove_branch_btn_locator = (
             By.CSS_SELECTOR,
-            "div > div > button",
+            "#remove-branch-button",
         )
         _new_branch_locator = (By.CSS_SELECTOR, "div > div > h4")
 

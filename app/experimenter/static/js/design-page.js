@@ -8,14 +8,13 @@ import {
   FormControl,
   FormLabel
 } from "react-bootstrap";
-import {boundMethod} from 'autobind-decorator';
+import { boundMethod } from "autobind-decorator";
 import PrefValueInput from "pref-value-input";
 import TypeForm from "type-form";
 import Error from "error-form";
 import HelpBox from "help-box";
 
 const branchesDiv = document.getElementById("react-branches-form");
-
 
 export default class DesignForm extends React.Component {
   constructor(props) {
@@ -29,26 +28,29 @@ export default class DesignForm extends React.Component {
       addon_experiment_id: "",
       addon_release_url: "",
       design: "",
-      variants: [{
-        ratio: null,
-        name: "",
-        description: "",
-        value: "",
-        is_control: true,
-      }, {
-        ratio: null,
-        name: "",
-        description: "",
-        value: "",
-        is_control: false,
-      }],
+      variants: [
+        {
+          ratio: null,
+          name: "",
+          description: "",
+          value: "",
+          is_control: true
+        },
+        {
+          ratio: null,
+          name: "",
+          description: "",
+          value: "",
+          is_control: false
+        }
+      ],
       errors: {},
-      loaded: false,
+      loaded: false
     };
   }
 
-  async componentDidMount () {
-    const url = this.getApiUrl()
+  async componentDidMount() {
+    const url = this.getApiUrl();
 
     const response = await fetch(url);
 
@@ -60,14 +62,14 @@ export default class DesignForm extends React.Component {
           ratio: null,
           name: "",
           description: "",
-          value: "",
-          }
-          if (i == 0) {
-            emptyBranch.is_control = true;
-          } else {
-            emptyBranch.is_control = false;
-          }
-      json.variants.push(emptyBranch)
+          value: ""
+        };
+        if (i == 0) {
+          emptyBranch.is_control = true;
+        } else {
+          emptyBranch.is_control = false;
+        }
+        json.variants.push(emptyBranch);
       }
     }
     json.loaded = true;
@@ -79,34 +81,37 @@ export default class DesignForm extends React.Component {
       addonReleaseUrl: false,
       design: false,
       variants: []
-    }
+    };
     for (let i = 0; i < json.variants.length; i++) {
-      json.help.variants.push(
-        {ratio: false, name: false, description: false, value: false}
-      )
+      json.help.variants.push({
+        ratio: false,
+        name: false,
+        description: false,
+        value: false
+      });
     }
-    return this.setState(json)
+    return this.setState(json);
   }
 
-@boundMethod
+  @boundMethod
   addBranch(e) {
-    let stateCopy = {...this.state}
+    let stateCopy = { ...this.state };
 
     stateCopy.variants.push({
       ratio: null,
       name: "",
       description: "",
       value: "",
-      is_control: false,
-    })
+      is_control: false
+    });
     stateCopy.help.variants.push({
       ratio: false,
       name: false,
       description: false,
       value: false
-    })
+    });
 
-    this.setState(stateCopy)
+    this.setState(stateCopy);
   }
 
   @boundMethod
@@ -117,15 +122,14 @@ export default class DesignForm extends React.Component {
 
   @boundMethod
   updateRatio(e) {
-    this.state.variants[e.target.dataset.index].ratio = e.target.value
-    this.setState({variants: this.state.variants})
+    this.state.variants[e.target.dataset.index].ratio = e.target.value;
+    this.setState({ variants: this.state.variants });
   }
 
   @boundMethod
   updateName(e) {
-    this.state.variants[e.target.dataset.index].name = e.target.value
-    this.setState({variants: this.state.variants})
-
+    this.state.variants[e.target.dataset.index].name = e.target.value;
+    this.setState({ variants: this.state.variants });
   }
 
   @boundMethod
@@ -147,75 +151,83 @@ export default class DesignForm extends React.Component {
   @boundMethod
   handleInputChange(e) {
     if (e.target.name == "pref-name") {
-      this.setState({pref_key: e.target.value})
+      this.setState({ pref_key: e.target.value });
     } else if (e.target.name == "pref-type") {
-      this.setState({pref_type: e.target.value})
+      this.setState({ pref_type: e.target.value });
     } else if (e.target.name == "pref-branch") {
-      this.setState({pref_branch: e.target.value})
+      this.setState({ pref_branch: e.target.value });
     } else if (e.target.name == "design") {
-      this.setState({design: e.target.value})
+      this.setState({ design: e.target.value });
     } else if (e.target.name == "addon-experiment-id") {
-      this.setState({addon_experiment_id: e.target.value})
+      this.setState({ addon_experiment_id: e.target.value });
     } else if (e.target.name == "addon-release-url") {
-      this.setState({addon_release_url: e.target.value})
+      this.setState({ addon_release_url: e.target.value });
     }
   }
 
   handleValidationErrors(json) {
     if (json.variants) {
-      // normalize the shape of the validation error data coming back 
+      // normalize the shape of the validation error data coming back
       // from the server
       for (let variant of json.variants) {
-        if ('ratio' in variant) {
-          this.setState({errors: {branch_ratio: variant.ratio}})
-        } else if ('name' in variant){
-          this.setState({errors: {branch_name: variant.name}})
-        } else if ('description' in variant) {
-          this.setState({errors: {branch_description: variant.description}})
-        } else if ('value' in variant){
-          this.setState({errors: {branch_value: variant.value}})
+        if ("ratio" in variant) {
+          this.setState({ errors: { branch_ratio: variant.ratio } });
+        } else if ("name" in variant) {
+          this.setState({ errors: { branch_name: variant.name } });
+        } else if ("description" in variant) {
+          this.setState({
+            errors: { branch_description: variant.description }
+          });
+        } else if ("value" in variant) {
+          this.setState({ errors: { branch_value: variant.value } });
         }
       }
     } else {
-      this.setState({errors: json})
+      this.setState({ errors: json });
     }
-
   }
 
   @boundMethod
   toggleHelp(e) {
     e.preventDefault();
-    let stateCopy = {...this.state.help}
+    let stateCopy = { ...this.state.help };
     if (e.target.id == "branch-ratio") {
-      stateCopy.variants[e.target.dataset.index].ratio = !stateCopy.variants[e.target.dataset.index].ratio
-      this.setState({help: stateCopy})
+      stateCopy.variants[e.target.dataset.index].ratio = !stateCopy.variants[
+        e.target.dataset.index
+      ].ratio;
+      this.setState({ help: stateCopy });
     } else if (e.target.id == "branch-name") {
-      stateCopy.variants[e.target.dataset.index].name = !stateCopy.variants[e.target.dataset.index].name
-      this.setState({help: stateCopy})
+      stateCopy.variants[e.target.dataset.index].name = !stateCopy.variants[
+        e.target.dataset.index
+      ].name;
+      this.setState({ help: stateCopy });
     } else if (e.target.id == "branch-description") {
-      stateCopy.variants[e.target.dataset.index].description = !stateCopy.variants[e.target.dataset.index].description
-      this.setState({help: stateCopy})
+      stateCopy.variants[e.target.dataset.index].description = !stateCopy
+        .variants[e.target.dataset.index].description;
+      this.setState({ help: stateCopy });
     } else if (e.target.id == "branch-value") {
-      stateCopy.variants[e.target.dataset.index].value = !stateCopy.variants[e.target.dataset.index].value
-      this.setState({help: stateCopy})
+      stateCopy.variants[e.target.dataset.index].value = !stateCopy.variants[
+        e.target.dataset.index
+      ].value;
+      this.setState({ help: stateCopy });
     } else if (e.target.id == "pref-key") {
-      stateCopy.prefKey = !stateCopy.prefKey
-      this.setState({help: stateCopy})
+      stateCopy.prefKey = !stateCopy.prefKey;
+      this.setState({ help: stateCopy });
     } else if (e.target.id == "pref-type") {
-      stateCopy.prefType = !stateCopy.prefType
-      this.setState({help: stateCopy})
+      stateCopy.prefType = !stateCopy.prefType;
+      this.setState({ help: stateCopy });
     } else if (e.target.id == "pref-branch") {
-      stateCopy.prefBranch = !stateCopy.prefBranch
-      this.setState({help: stateCopy})
+      stateCopy.prefBranch = !stateCopy.prefBranch;
+      this.setState({ help: stateCopy });
     } else if (e.target.id == "design") {
-      stateCopy.design = !stateCopy.design
-      this.setState({help: stateCopy})
+      stateCopy.design = !stateCopy.design;
+      this.setState({ help: stateCopy });
     } else if (e.target.id == "addon-experiment-id") {
-      stateCopy.addonExperimentId = !stateCopy.addonExperimentId
-      this.setState({help: stateCopy})
+      stateCopy.addonExperimentId = !stateCopy.addonExperimentId;
+      this.setState({ help: stateCopy });
     } else if (e.target.id == "addon-release-url") {
-      stateCopy.addonReleaseUrl = !stateCopy.addonReleaseUrl
-      this.setState({help: stateCopy})
+      stateCopy.addonReleaseUrl = !stateCopy.addonReleaseUrl;
+      this.setState({ help: stateCopy });
     }
   }
 
@@ -230,9 +242,11 @@ export default class DesignForm extends React.Component {
     const data = new FormData(e.target);
 
     var object = {};
-    data.forEach((value, key) => {object[key] = value});
+    data.forEach((value, key) => {
+      object[key] = value;
+    });
 
-    const url = this.getApiUrl()
+    const url = this.getApiUrl();
 
     const res = await fetch(url, {
       method: "PUT",
@@ -242,9 +256,8 @@ export default class DesignForm extends React.Component {
       }
     });
 
-
     if (res.status == "200") {
-      location.replace(`/experiments/${this.props.slug}/`)
+      location.replace(`/experiments/${this.props.slug}/`);
     }
 
     const json = await res.json();
@@ -259,7 +272,7 @@ export default class DesignForm extends React.Component {
       return (
         <div>
           <Container>
-            <form onSubmit={this.handleSubmit}>
+            <form onSubmit={this.handleSubmit} id="design-form">
               <TypeForm
                 handleInputChange={this.handleInputChange}
                 toggleHelp={this.toggleHelp}
@@ -282,6 +295,7 @@ export default class DesignForm extends React.Component {
                           variant="danger"
                           data-index={index}
                           onClick={this.removeBranch}
+                          id="remove-branch-button"
                         >
                           <span className="fas fa-times"></span> Remove Branch
                         </Button>
@@ -294,7 +308,14 @@ export default class DesignForm extends React.Component {
                         <strong>Branch Size</strong>
                       </FormLabel>
                       <br />
-                      <a href="#" id="branch-ratio" data-index={index} onClick={this.toggleHelp}>help</a>
+                      <a
+                        href="#"
+                        id="branch-ratio"
+                        data-index={index}
+                        onClick={this.toggleHelp}
+                      >
+                        help
+                      </a>
                     </Col>
                     <Col md={9}>
                       <FormControl
@@ -303,16 +324,22 @@ export default class DesignForm extends React.Component {
                         name={"variants-" + index + "-ratio"}
                         onChange={this.updateRatio}
                         value={branch.ratio}
-                        className= {this.state.errors.branch_ratio ? "is-invalid" : "" }
+                        className={
+                          this.state.errors.branch_ratio ? "is-invalid" : ""
+                        }
                       />
-                      {this.state.errors.branch_ratio ? <Error error={this.state.errors.branch_ratio}/>  : ""}
+                      {this.state.errors.branch_ratio ? (
+                        <Error error={this.state.errors.branch_ratio} />
+                      ) : (
+                        ""
+                      )}
                       <HelpBox showing={this.state.help.variants[index].ratio}>
                         <p>
-                          Choose the size of this branch represented as a
-                          whole number. The size of all branches together
-                          must be equal to 100. It does not have to be exact,
-                          so these sizes are simply a recommendation of the
-                          relative distribution of the branches.
+                          Choose the size of this branch represented as a whole
+                          number. The size of all branches together must be
+                          equal to 100. It does not have to be exact, so these
+                          sizes are simply a recommendation of the relative
+                          distribution of the branches.
                         </p>
                         <p>
                           <strong>Example:</strong> 50
@@ -326,7 +353,14 @@ export default class DesignForm extends React.Component {
                         <strong>Name</strong>
                       </FormLabel>
                       <br />
-                      <a href="#" id="branch-name" data-index={index} onClick={this.toggleHelp}>help</a>
+                      <a
+                        href="#"
+                        id="branch-name"
+                        data-index={index}
+                        onClick={this.toggleHelp}
+                      >
+                        help
+                      </a>
                     </Col>
                     <Col md={9}>
                       <FormControl
@@ -335,19 +369,26 @@ export default class DesignForm extends React.Component {
                         name={"variants-" + index + "-name"}
                         onChange={this.updateName}
                         value={branch.name}
-                        className= {this.state.errors.branch_name ? "is-invalid" : "" }
+                        className={
+                          this.state.errors.branch_name ? "is-invalid" : ""
+                        }
                       />
-                      {this.state.errors.branch_name ? <Error error={this.state.errors.branch_name}/> : ""}
+                      {this.state.errors.branch_name ? (
+                        <Error error={this.state.errors.branch_name} />
+                      ) : (
+                        ""
+                      )}
                       <HelpBox showing={this.state.help.variants[index].name}>
                         <p>
-                          The control group should represent the users receiving the
-                          existing, unchanged version of what you're testing. For
-                          example, if you're testing making a button larger to see
-                          if users click on it more often, the control group would
-                          receive the existing button size. You should name your
-                          control branch based on the experience or functionality
-                          that group of users will be receiving. Don't name it
-                          'Control Group', we already know it's the control group!
+                          The control group should represent the users receiving
+                          the existing, unchanged version of what you're
+                          testing. For example, if you're testing making a
+                          button larger to see if users click on it more often,
+                          the control group would receive the existing button
+                          size. You should name your control branch based on the
+                          experience or functionality that group of users will
+                          be receiving. Don't name it 'Control Group', we
+                          already know it's the control group!
                         </p>
                         <p>
                           <strong>Example:</strong> Normal Button Size
@@ -361,7 +402,14 @@ export default class DesignForm extends React.Component {
                         <strong>Description</strong>
                       </FormLabel>
                       <br />
-                      <a href="#" id="branch-description" data-index={index} onClick={this.toggleHelp}>help</a>
+                      <a
+                        href="#"
+                        id="branch-description"
+                        data-index={index}
+                        onClick={this.toggleHelp}
+                      >
+                        help
+                      </a>
                     </Col>
                     <Col md={9}>
                       <FormControl
@@ -372,29 +420,49 @@ export default class DesignForm extends React.Component {
                         name={"variants-" + index + "-description"}
                         onChange={this.updateDescription}
                         value={branch.description}
-                        className={this.state.errors.branch_description ? "is-invalid mb-4" : "mb-4" }
+                        className={
+                          this.state.errors.branch_description
+                            ? "is-invalid mb-4"
+                            : "mb-4"
+                        }
                       />
-                      {this.state.errors.branch_description ? <Error error={this.state.errors.branch_description}/> : ""}
-                      <HelpBox showing={this.state.help.variants[index].description}>
+                      {this.state.errors.branch_description ? (
+                        <Error error={this.state.errors.branch_description} />
+                      ) : (
+                        ""
+                      )}
+                      <HelpBox
+                        showing={this.state.help.variants[index].description}
+                      >
                         <p>
-                           Describe the experience or functionality the control
-                           group will receive in more detail.
+                          Describe the experience or functionality the control
+                          group will receive in more detail.
                         </p>
                         <p>
                           <strong>Example:</strong> The control group will
-                          receive the existing 80px sign in button located
-                          at the top right of the screen.
+                          receive the existing 80px sign in button located at
+                          the top right of the screen.
                         </p>
                       </HelpBox>
                     </Col>
                   </Row>
-                  {this.state.type == "pref" ? < PrefValueInput updateValue={this.updateValue} index={index} toggleHelp={this.toggleHelp} {...this.state}/> : ""}
+                  {this.state.type == "pref" ? (
+                    <PrefValueInput
+                      updateValue={this.updateValue}
+                      index={index}
+                      toggleHelp={this.toggleHelp}
+                      {...this.state}
+                    />
+                  ) : (
+                    ""
+                  )}
                   <hr className="heavy-line my-5" />
                 </div>
               ))}
               <Row>
                 <Col className="text-right">
                   <Button
+                    id="add-branch-button"
                     variant="success"
                     className="mb-4"
                     onClick={this.addBranch}
@@ -405,11 +473,16 @@ export default class DesignForm extends React.Component {
               </Row>
               <Row>
                 <Col className="text-right">
-                  <a className="mr-1 btn btn-default" href={`/experiments/${this.props.slug}/`}><span className="fas fa-times"></span> Cancel Editing</a>
+                  <a
+                    className="mr-1 btn btn-default"
+                    href={`/experiments/${this.props.slug}/`}
+                  >
+                    <span className="fas fa-times"></span> Cancel Editing
+                  </a>
                   <Button variant="primary" type="submit" className="mr-1">
                     Save
                   </Button>
-                  <Button variant="primary" type="submit">
+                  <Button id="save-continue" variant="primary" type="submit">
                     Save and Continue
                   </Button>
                 </Col>
@@ -419,6 +492,5 @@ export default class DesignForm extends React.Component {
         </div>
       );
     }
-
   }
 }
