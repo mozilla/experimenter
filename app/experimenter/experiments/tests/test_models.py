@@ -1064,7 +1064,7 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.is_branched_addon)
 
-    def test_is_branched_addon_when_exp_is_addon_but_lower_version(self):
+    def test_is_branched_addon_returns_false_for_addon_and_lower_version(self):
         experiment = ExperimentFactory(
             type=Experiment.TYPE_ADDON, firefox_min_version="66.0"
         )
