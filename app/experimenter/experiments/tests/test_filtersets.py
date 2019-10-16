@@ -264,6 +264,24 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
 
         self.assertEqual(set(filter.qs), set([exp_1, exp_2]))
 
+    def test_filters_for_results_completed(self):
+        exp1 = ExperimentFactory.create(results_url="https://example.com")
+        exp2 = ExperimentFactory.create(results_initial="some random initial blurb")
+        exp3 = ExperimentFactory.create(results_lessons_learned="a lesson was learned")
+        exp4 = ExperimentFactory.create(
+            results_url="https://example.com",
+            results_initial="some other random initial blurb",
+            results_lessons_learned="a very important lesson was learned",
+        )
+        ExperimentFactory.create()
+
+        filter = ExperimentFilterset(
+            {"completed_results": "on"},
+            request=self.request,
+            queryset=Experiment.objects.all(),
+        )
+        self.assertCountEqual(list(filter.qs), [exp1, exp2, exp3, exp4])
+
     def set_up_date_tests(self):
 
         self.exp_1 = ExperimentFactory.create_with_status(
