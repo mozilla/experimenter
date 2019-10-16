@@ -112,6 +112,9 @@
               {% if experiment.survey_required %}
                 <span class="badge badge-secondary mb-2">Includes Survey</span>
               {% endif %}
+              {% if experiment.completed_results %}
+                <span class="badge badge-primary mb-2">Has Results</span>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -165,7 +168,7 @@
     </div>
 
     {% for field in filter.form %}
-      {% if field.name == "in_qa" or field.name == "surveys" or field.name == "archived" or field.name == "subscribed" or field.name == "longrunning" or field.name == "is_paused" %}
+      {% if field.name == "in_qa" or field.name == "surveys" or field.name == "archived" or field.name == "subscribed" or field.name == "longrunning" or field.name == "is_paused" or field.name == "completed_results" %}
         <label>
           {{ field }}
           {{ field.label }}
