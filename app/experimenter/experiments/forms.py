@@ -27,34 +27,6 @@ from experimenter.experiments.serializers import ChangeLogSerializer
 from experimenter.notifications.models import Notification
 
 
-class NameSlugFormMixin(object):
-    """
-    Automatically generate a slug from the name field
-    """
-
-    def clean_name(self):
-        name = self.cleaned_data["name"]
-        slug = slugify(name)
-
-        if not slug:
-            raise forms.ValidationError(
-                "This name must include non-punctuation characters."
-            )
-
-        return name
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if self.instance.slug:
-            del cleaned_data["slug"]
-        else:
-            name = cleaned_data.get("name")
-            cleaned_data["slug"] = slugify(name)
-
-        return cleaned_data
-
-
 class JSONField(forms.CharField):
 
     def clean(self, value):
@@ -206,7 +178,7 @@ class ChangeLogMixin(object):
         )
 
 
-class ExperimentOverviewForm(NameSlugFormMixin, ChangeLogMixin, forms.ModelForm):
+class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
 
     type = forms.ChoiceField(
         label="Type", choices=Experiment.TYPE_CHOICES, help_text=Experiment.TYPE_HELP_TEXT
@@ -292,8 +264,13 @@ class ExperimentOverviewForm(NameSlugFormMixin, ChangeLogMixin, forms.ModelForm)
     related_to.widget.attrs.update({"data-live-search": "true"})
 
     def clean_name(self):
-        name = super().clean_name()
+        name = self.cleaned_data["name"]
         slug = slugify(name)
+
+        if not slug:
+            raise forms.ValidationError(
+                "This name must include non-punctuation characters."
+            )
 
         if (
             self.instance.pk is None
@@ -304,8 +281,19 @@ class ExperimentOverviewForm(NameSlugFormMixin, ChangeLogMixin, forms.ModelForm)
 
         return name
 
+    def clean(self):
+        cleaned_data = super().clean()
 
-class ExperimentVariantGenericForm(NameSlugFormMixin, forms.ModelForm):
+        if self.instance.slug:
+            del cleaned_data["slug"]
+        else:
+            name = cleaned_data.get("name")
+            cleaned_data["slug"] = slugify(name)
+
+        return cleaned_data
+
+
+class ExperimentVariantGenericForm(forms.ModelForm):
 
     experiment = forms.ModelChoiceField(queryset=Experiment.objects.all(), required=False)
     is_control = forms.BooleanField(required=False)
@@ -332,6 +320,25 @@ class ExperimentVariantGenericForm(NameSlugFormMixin, forms.ModelForm):
     class Meta:
         model = ExperimentVariant
         fields = ["description", "experiment", "is_control", "name", "ratio", "slug"]
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        slug = slugify(name)
+
+        if not slug:
+            raise forms.ValidationError(
+                "This name must include non-punctuation characters."
+            )
+
+        return name
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        name = cleaned_data.get("name")
+        cleaned_data["slug"] = slugify(name)
+
+        return cleaned_data
 
 
 class ExperimentVariantPrefForm(ExperimentVariantGenericForm):

@@ -139,6 +139,22 @@ class TestExperimentVariantGenericForm(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("ratio", form.errors)
 
+    def test_checks_empty_slug(self):
+        self.data["name"] = "!"
+        form = ExperimentVariantGenericForm(self.data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("name", form.errors)
+
+    def test_updates_variant_slug(self):
+        variant = ExperimentVariantFactory.create(slug="the-treatment-variant")
+        form = ExperimentVariantGenericForm(self.data, instance=variant)
+
+        self.assertTrue(form.is_valid())
+
+        saved_variant = form.save()
+        self.assertEqual(saved_variant.slug, "the-control-variant")
+
 
 class TestExperimentVariantPrefForm(TestCase):
 
