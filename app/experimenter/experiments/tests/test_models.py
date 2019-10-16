@@ -1113,6 +1113,9 @@ class TestExperimentModel(TestCase):
             review_ux=True,
             firefox_min_version=Experiment.VERSION_CHOICES[1][0],
             firefox_max_version="",
+            results_initial="Some great initial results.",
+            results_lessons_learned="Lessons were learned.",
+            results_url="http://www.example.com",
         )
 
         experiment.clone("best experiment", user_2)
@@ -1142,6 +1145,9 @@ class TestExperimentModel(TestCase):
         self.assertFalse(cloned_experiment.review_ux)
         self.assertFalse(cloned_experiment.addon_experiment_id)
         self.assertFalse(cloned_experiment.addon_release_url)
+        self.assertFalse(cloned_experiment.results_lessons_learned)
+        self.assertFalse(cloned_experiment.results_initial)
+        self.assertFalse(cloned_experiment.results_url)
 
         self.assertEqual(cloned_experiment.changes.count(), 1)
 
