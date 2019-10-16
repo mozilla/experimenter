@@ -360,6 +360,8 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
     def get_action_name(self, obj):
         if obj.is_pref_experiment:
             return "preference-experiment"
+        elif obj.is_branched_addon:
+            return "branched-addon-study"
         elif obj.is_addon_experiment:
             return "opt-out-study"
 

@@ -489,7 +489,7 @@ class TestExperimentRecipeSerializer(TestCase):
         variant.save()
 
         serializer = ExperimentRecipeSerializer(experiment)
-        self.assertEqual(serializer.data["action_name"], "opt-out-study")
+        self.assertEqual(serializer.data["action_name"], "branched-addon-study")
         self.assertEqual(serializer.data["name"], experiment.name)
         self.assertEqual(serializer.data["comment"], experiment.client_matching)
         self.assertEqual(
