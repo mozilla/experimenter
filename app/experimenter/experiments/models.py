@@ -700,6 +700,9 @@ class Experiment(ExperimentConstants, models.Model):
             "review_comms",
             "review_impacted_teams",
             "proposed_start_date",
+            "results_url",
+            "results_initial",
+            "results_lessons_learned",
         ]
 
         cloned.id = None
