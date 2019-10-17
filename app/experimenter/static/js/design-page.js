@@ -44,7 +44,15 @@ export default class DesignForm extends React.Component {
           is_control: false
         }
       ],
-      errors: {variants: [{ratio:"", name:"", description:"", value:""}, {ratio:"", name:"", description:"", value:""}]},
+      errors: {
+        pref_key: "",
+        pref_type: "",
+        pref_branch: "",
+        addon_experiment_id: "",
+        addon_release_url: "",
+        design: "",
+        variants: [{ratio:"", name:"", description:"", value:""}, {ratio:"", name:"", description:"", value:""}]
+      },
       loaded: false
     };
   }
@@ -71,7 +79,12 @@ export default class DesignForm extends React.Component {
         }
         json.variants.push(emptyBranch);
       }
+    } else {
+      json.variants.sort(function (a, b) {
+        return a.is_control == "true" ? -1 : b == "true" ? 1 : 0;
+      })
     }
+
     json.loaded = true;
     json.help = {
       prefKey: false,
@@ -117,6 +130,12 @@ export default class DesignForm extends React.Component {
       description: false,
       value: false
     });
+    stateCopy.errors.variants.push({
+      ratio: false,
+      name: false,
+      description: false,
+      value: false
+    });
 
     this.setState(stateCopy);
   }
@@ -124,62 +143,51 @@ export default class DesignForm extends React.Component {
   @boundMethod
   removeBranch(e) {
     this.state.variants.splice(e.target.dataset.index, 1);
+    this.state.help.variants.splice(e.target.dataset.index, 1);
+    this.state.errors.variants.splice(e.target.dataset.index, 1);
+
     this.setState({ variants: this.state.variants });
   }
 
   @boundMethod
-  updateRatio(e) {
-    this.state.variants[e.target.dataset.index].ratio = e.target.value;
-    this.setState({ variants: this.state.variants });
-  }
-
-  @boundMethod
-  updateName(e) {
-    this.state.variants[e.target.dataset.index].name = e.target.value;
-    this.setState({ variants: this.state.variants });
-  }
-
-  @boundMethod
-  updateDescription(e) {
-    var stateCopy = { ...this.state.variants };
-    stateCopy[e.target.dataset.index].description = e.target.value;
-
-    this.setState(stateCopy);
-  }
-
-  @boundMethod
-  updateValue(e) {
-    var stateCopy = { ...this.state.variants };
-    stateCopy[e.target.dataset.index].value = e.target.value;
+  handleVariantInputChange(e) {
+    let stateCopy = {...this.state.variants};
+    let inputName = e.target.name
+    stateCopy[e.target.dataset.index].inputName = e.target.value
 
     this.setState(stateCopy);
   }
 
   @boundMethod
   handleInputChange(e) {
-    if (e.target.name == "pref-name") {
-      this.setState({ pref_key: e.target.value });
-    } else if (e.target.name == "pref-type") {
-      this.setState({ pref_type: e.target.value });
-    } else if (e.target.name == "pref-branch") {
-      this.setState({ pref_branch: e.target.value });
-    } else if (e.target.name == "design") {
-      this.setState({ design: e.target.value });
-    } else if (e.target.name == "addon-experiment-id") {
-      this.setState({ addon_experiment_id: e.target.value });
-    } else if (e.target.name == "addon-release-url") {
-      this.setState({ addon_release_url: e.target.value });
-    }
+    let stateCopy = {...this.state}
+    stateCopy[e.target.name] = e.target.value;
+
+    this.setState(stateCopy);
+
   }
 
   handleValidationErrors(json) {
-    this.setState({ errors: json });
-    console.log(this.state);
+
+    let errors = {
+      pref_key: "",
+      pref_type: "",
+      pref_branch: "",
+      addon_experiment_id: "",
+      addon_release_url: "",
+      design: "",
+      variants: [{ratio:"", name:"", description:"", value:""}, {ratio:"", name:"", description:"", value:""}]
+    }
+    const jsonKeys = Object.keys(json)
+
+    errors[jsonKeys[0]] = json[jsonKeys[0]]
+
+    this.setState({errors: errors })
+
   }
 
   @boundMethod
   toggleHelp(e) {
-    e.preventDefault();
     let stateCopy = { ...this.state.help };
     if (e.target.id == "branch-ratio") {
       stateCopy.variants[e.target.dataset.index].ratio = !stateCopy.variants[
@@ -310,9 +318,10 @@ export default class DesignForm extends React.Component {
                     <Col md={9}>
                       <FormControl
                         data-index={index}
+                        id={"variants-" + index + "-ratio"}
                         type="text"
-                        name={"variants-" + index + "-ratio"}
-                        onChange={this.updateRatio}
+                        name="ratio"
+                        onChange={this.handleVariantInputChange}
                         value={branch.ratio}
                         className={
                           this.state.errors.variants[index].ratio ? "is-invalid" : ""
@@ -356,8 +365,9 @@ export default class DesignForm extends React.Component {
                       <FormControl
                         data-index={index}
                         type="text"
-                        name={"variants-" + index + "-name"}
-                        onChange={this.updateName}
+                        id={"variants-" + index + "-name"}
+                        name="name"
+                        onChange={this.handleVariantInputChange}
                         value={branch.name}
                         className={
                           this.state.errors.variants[index].name ? "is-invalid" : ""
@@ -407,8 +417,9 @@ export default class DesignForm extends React.Component {
                         rows={3}
                         data-index={index}
                         type="text"
-                        name={"variants-" + index + "-description"}
-                        onChange={this.updateDescription}
+                        id={"variants-" + index + "-description"}
+                        name="description"
+                        onChange={this.handleVariantInputChange}
                         value={branch.description}
                         className={
                           this.state.errors.variants[index].description

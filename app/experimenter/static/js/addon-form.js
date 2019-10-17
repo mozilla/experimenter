@@ -32,7 +32,7 @@ export default function AddonForm(props) {
         <Col md={9}>
           <FormControl
             type="text"
-            name="addon-experiment-id"
+            name="addon_experiment_id"
             onChange={props.handleInputChange}
             value={props.addon_experiment_id}
             className={props.errors.addon_experiment_id ? "is-invalid" : ""}
@@ -71,7 +71,7 @@ export default function AddonForm(props) {
         <Col md={9}>
           <FormControl
             type="text"
-            name="addon-release-url"
+            name="addon_release_url"
             onChange={props.handleInputChange}
             value={props.addon_release_url}
             className={props.errors.addon_release_url ? "is-invalid" : ""}

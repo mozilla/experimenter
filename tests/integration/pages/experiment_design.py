@@ -103,19 +103,19 @@ class DesignPage(Base):
             return self.find_element(*self._new_branch_locator)
 
         def set_branch_name(self, text=None):
-            locator = (By.NAME, f"variants-{self.number}-name")
+            locator = (By.ID, f"variants-{self.number}-name")
             element = self.find_element(*locator)
             element.send_keys(text)
             return
 
         def set_branch_description(self, text=None):
-            locator = (By.NAME, f"variants-{self.number}-description")
+            locator = (By.ID, f"variants-{self.number}-description")
             element = self.find_element(*locator)
             element.send_keys(text)
             return
 
         def set_branch_value(self, text=None):
-            locator = (By.NAME, f"variants-{self.number}-value")
+            locator = (By.ID, f"variants-{self.number}-value")
             element = self.find_element(*locator)
             element.send_keys(text)
             return

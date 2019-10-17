@@ -32,7 +32,7 @@ export default function PrefForm(props) {
         <Col md={9}>
           <FormControl
             type="text"
-            name="pref-name"
+            name="pref_name"
             id="id_pref_key"
             value={props.pref_key}
             onChange={props.handleInputChange}
@@ -68,7 +68,7 @@ export default function PrefForm(props) {
           <FormControl
             as="select"
             type="text"
-            name="pref-type"
+            name="pref_type"
             id="id_pref_type"
             value={props.pref_type}
             onChange={props.handleInputChange}
@@ -110,7 +110,7 @@ export default function PrefForm(props) {
           <FormControl
             as="select"
             type="text"
-            name="pref-branch"
+            name="pref_branch"
             id="id_pref_branch"
             value={props.pref_branch}
             onChange={props.handleInputChange}

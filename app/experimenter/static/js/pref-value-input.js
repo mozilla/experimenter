@@ -32,8 +32,9 @@ export default function PrefValueInput(props) {
         <FormControl
           data-index={props.index}
           type="text"
-          name={"variants-" + props.index + "-value"}
-          onChange={props.updateValue}
+          id={"variants-" + props.index + "-value"}
+          name="value"
+          onChange={props.handleVariantInputChange}
           value={props.variants[props.index].value}
           className={props.errors.variants[props.index].value ? "is-invalid" : ""}
         />
