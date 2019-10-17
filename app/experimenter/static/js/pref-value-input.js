@@ -35,10 +35,10 @@ export default function PrefValueInput(props) {
           name={"variants-" + props.index + "-value"}
           onChange={props.updateValue}
           value={props.variants[props.index].value}
-          className={props.errors.branch_value ? "is-invalid" : ""}
+          className={props.errors.variants[props.index].value ? "is-invalid" : ""}
         />
-        {props.errors.branch_value ? (
-          <Error error={props.errors.branch_value} />
+        {props.errors.variants[props.index].value ? (
+          <Error error={props.errors.variants[props.index].value} />
         ) : (
           ""
         )}

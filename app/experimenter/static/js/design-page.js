@@ -44,7 +44,7 @@ export default class DesignForm extends React.Component {
           is_control: false
         }
       ],
-      errors: {},
+      errors: {variants: [{ratio:"", name:"", description:"", value:""}, {ratio:"", name:"", description:"", value:""}]},
       loaded: false
     };
   }
@@ -82,6 +82,7 @@ export default class DesignForm extends React.Component {
       design: false,
       variants: []
     };
+    json.errors = {variants: []}
     for (let i = 0; i < json.variants.length; i++) {
       json.help.variants.push({
         ratio: false,
@@ -89,6 +90,12 @@ export default class DesignForm extends React.Component {
         description: false,
         value: false
       });
+      json.errors.variants.push({
+        ratio: false,
+        name: false,
+        description: false,
+        value: false
+      })
     }
     return this.setState(json);
   }
@@ -166,25 +173,8 @@ export default class DesignForm extends React.Component {
   }
 
   handleValidationErrors(json) {
-    if (json.variants) {
-      // normalize the shape of the validation error data coming back
-      // from the server
-      for (let variant of json.variants) {
-        if ("ratio" in variant) {
-          this.setState({ errors: { branch_ratio: variant.ratio } });
-        } else if ("name" in variant) {
-          this.setState({ errors: { branch_name: variant.name } });
-        } else if ("description" in variant) {
-          this.setState({
-            errors: { branch_description: variant.description }
-          });
-        } else if ("value" in variant) {
-          this.setState({ errors: { branch_value: variant.value } });
-        }
-      }
-    } else {
-      this.setState({ errors: json });
-    }
+    this.setState({ errors: json });
+    console.log(this.state);
   }
 
   @boundMethod
@@ -325,11 +315,11 @@ export default class DesignForm extends React.Component {
                         onChange={this.updateRatio}
                         value={branch.ratio}
                         className={
-                          this.state.errors.branch_ratio ? "is-invalid" : ""
+                          this.state.errors.variants[index].ratio ? "is-invalid" : ""
                         }
                       />
-                      {this.state.errors.branch_ratio ? (
-                        <Error error={this.state.errors.branch_ratio} />
+                      {this.state.errors.variants[index].ratio ? (
+                        <Error error={this.state.errors.variants[index].ratio} />
                       ) : (
                         ""
                       )}
@@ -370,11 +360,11 @@ export default class DesignForm extends React.Component {
                         onChange={this.updateName}
                         value={branch.name}
                         className={
-                          this.state.errors.branch_name ? "is-invalid" : ""
+                          this.state.errors.variants[index].name ? "is-invalid" : ""
                         }
                       />
-                      {this.state.errors.branch_name ? (
-                        <Error error={this.state.errors.branch_name} />
+                      {this.state.errors.variants[index].name ? (
+                        <Error error={this.state.errors.variants[index].name} />
                       ) : (
                         ""
                       )}
@@ -421,13 +411,13 @@ export default class DesignForm extends React.Component {
                         onChange={this.updateDescription}
                         value={branch.description}
                         className={
-                          this.state.errors.branch_description
+                          this.state.errors.variants[index].description
                             ? "is-invalid mb-4"
                             : "mb-4"
                         }
                       />
-                      {this.state.errors.branch_description ? (
-                        <Error error={this.state.errors.branch_description} />
+                      {this.state.errors.variants[index].description ? (
+                        <Error error={this.state.errors.variants[index].description} />
                       ) : (
                         ""
                       )}
