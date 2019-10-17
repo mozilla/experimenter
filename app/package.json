@@ -20,13 +20,14 @@
     "@babel/preset-react": "^7.6.3"
   },
   "alias": {
-    "addon-form": "./experimenter/static/js/addon-form.js",
-    "pref-form": "./experimenter/static/js/pref-form.js",
-    "generic-form": "./experimenter/static/js/generic-form.js",
-    "type-form": "./experimenter/static/js/type-form.js",
-    "pref-value-input": "./experimenter/static/js/pref-value-input.js",
+    "design-form": "./experimenter/static/js/designForm.js",
+    "addon-form": "./experimenter/static/js/addonForm.js",
+    "pref-form": "./experimenter/static/js/prefForm.js",
+    "generic-form": "./experimenter/static/js/genericForm.js",
+    "type-form": "./experimenter/static/js/typeForm.js",
+    "pref-value-input": "./experimenter/static/js/prefValueInput.js",
     "error-form": "./experimenter/static/js/error.js",
-    "help-box":  "./experimenter/static/js/help-box.js"
+    "help-box":  "./experimenter/static/js/helpBox.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

@@ -4,7 +4,7 @@ import bsSelect from "bootstrap-select";
 import popper from "popper.js";
 import React from "react";
 import ReactDOM from "react-dom";
-import DesignForm from "./design-page";
+import DesignForm from "design-form";
 
 window.jQuery = jQuery;
 window.$ = jQuery;
