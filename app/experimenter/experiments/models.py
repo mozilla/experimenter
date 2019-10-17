@@ -262,7 +262,7 @@ class Experiment(ExperimentConstants, models.Model):
         return self.type in (self.TYPE_PREF, self.TYPE_ADDON)
 
     def generate_normandy_slug(self):
-        if self.is_addon_experiment:
+        if self.is_addon_experiment and not self.is_branched_addon:
             if not self.addon_experiment_id:
                 raise ValueError(
                     (
