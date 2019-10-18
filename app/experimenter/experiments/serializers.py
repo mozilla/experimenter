@@ -319,7 +319,7 @@ class ExperimentRecipeAddonArgumentsSerializer(serializers.ModelSerializer):
 class ExperimentRecipeSerializer(serializers.ModelSerializer):
     action_name = serializers.SerializerMethodField()
     filter_object = serializers.SerializerMethodField()
-    comment = serializers.ReadOnlyField(source="client_matching")
+    comment = serializers.SerializerMethodField()
     arguments = serializers.SerializerMethodField()
     experimenter_slug = serializers.ReadOnlyField(source="slug")
 
@@ -360,6 +360,11 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return ExperimentRecipePrefArgumentsSerializer(obj).data
         elif obj.is_addon_experiment:
             return ExperimentRecipeAddonArgumentsSerializer(obj).data
+
+    def get_comment(self, obj):
+        comment = "Platform: {}\n".format(obj.platform)
+        comment += obj.client_matching
+        return comment
 
 
 class ExperimentCloneSerializer(serializers.ModelSerializer):

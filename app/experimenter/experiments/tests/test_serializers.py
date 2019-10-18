@@ -412,11 +412,13 @@ class TestExperimentRecipeSerializer(TestCase):
             type=Experiment.TYPE_PREF,
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
+            platform=Experiment.PLATFORM_MAC,
         )
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "preference-experiment")
         self.assertEqual(serializer.data["name"], experiment.name)
-        self.assertEqual(serializer.data["comment"], experiment.client_matching)
+        expected_comment = "Platform: All Mac\n{}".format(experiment.client_matching)
+        self.assertEqual(serializer.data["comment"], expected_comment)
         self.assertEqual(
             serializer.data["filter_object"],
             [
@@ -440,11 +442,14 @@ class TestExperimentRecipeSerializer(TestCase):
             type=Experiment.TYPE_ADDON,
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
+            platform=Experiment.PLATFORM_WINDOWS,
         )
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "opt-out-study")
         self.assertEqual(serializer.data["name"], experiment.name)
-        self.assertEqual(serializer.data["comment"], experiment.client_matching)
+
+        expected_comment = "Platform: All Windows\n{}".format(experiment.client_matching)
+        self.assertEqual(serializer.data["comment"], expected_comment)
         self.assertEqual(
             serializer.data["filter_object"],
             [
