@@ -362,9 +362,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return ExperimentRecipeAddonArgumentsSerializer(obj).data
 
     def get_comment(self, obj):
-        comment = "Platform: {}\n".format(obj.platform)
-        comment += obj.client_matching
-        return comment
+        return f"Platform: {obj.platform}\n{obj.client_matching}"
 
 
 class ExperimentCloneSerializer(serializers.ModelSerializer):
