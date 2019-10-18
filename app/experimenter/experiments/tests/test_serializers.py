@@ -489,6 +489,7 @@ class TestExperimentRecipeSerializer(TestCase):
             public_description="this is my public description!",
             public_name="public name",
             normandy_slug="some-random-slug",
+            platform=Experiment.PLATFORM_LINUX,
         )
 
         variant = ExperimentVariant(slug="slug-value", ratio=25, experiment=experiment)
@@ -498,7 +499,8 @@ class TestExperimentRecipeSerializer(TestCase):
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "branched-addon-study")
         self.assertEqual(serializer.data["name"], experiment.name)
-        self.assertEqual(serializer.data["comment"], experiment.client_matching)
+        expected_comment = "Platform: All Linux\n{}".format(experiment.client_matching)
+        self.assertEqual(serializer.data["comment"], expected_comment)
         self.assertEqual(
             serializer.data["filter_object"],
             [
