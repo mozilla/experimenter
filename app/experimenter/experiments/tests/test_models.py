@@ -297,7 +297,9 @@ class TestExperimentModel(TestCase):
 
     def test_generate_normandy_slug_raises_valueerror_without_addon_info(self):
         experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ADDON, addon_experiment_id=None
+            type=Experiment.TYPE_ADDON,
+            addon_experiment_id=None,
+            firefox_min_version="60.0",
         )
 
         with self.assertRaises(ValueError):
@@ -305,10 +307,25 @@ class TestExperimentModel(TestCase):
 
     def test_generate_normandy_slug_uses_addon_info_for_addon_experiment(self):
         experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ADDON, addon_experiment_id="addon_experiment_id"
+            type=Experiment.TYPE_ADDON,
+            addon_experiment_id="addon_experiment_id",
+            firefox_min_version="60.0",
         )
 
         self.assertEqual(experiment.generate_normandy_slug(), "addon_experiment_id")
+
+    def test_generate_normandy_slug_uses_addon_info_for_branched_addon_experiment(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ADDON,
+            name="some random name",
+            firefox_min_version="70.0",
+            firefox_max_version="71.0",
+            firefox_channel=Experiment.CHANNEL_BETA,
+        )
+        self.assertEqual(
+            "addon-some-random-name-beta-70-71-bug-12345",
+            experiment.generate_normandy_slug(),
+        )
 
     def test_generate_normandy_slug_is_shorter_than_max_normandy_len(self):
         experiment = ExperimentFactory.create(
@@ -1057,6 +1074,22 @@ class TestExperimentModel(TestCase):
         )
 
         self.assertEqual(experiment.firefox_min_version_integer, 57)
+
+    def test_is_branched_addon_returns_true_for_addon_and_greater_version(self):
+        experiment = ExperimentFactory(
+            type=Experiment.TYPE_ADDON, firefox_min_version="70.0"
+        )
+        self.assertTrue(experiment.is_branched_addon)
+
+    def test_is_branched_addon_returns_false_for_addon_and_lower_version(self):
+        experiment = ExperimentFactory(
+            type=Experiment.TYPE_ADDON, firefox_min_version="66.0"
+        )
+        self.assertFalse(experiment.is_branched_addon)
+
+    def test_is_branched_addon_returns_false_for_pref_type(self):
+        experiment = ExperimentFactory()
+        self.assertFalse(experiment.is_branched_addon)
 
     def test_experiment_population_returns_correct_string(self):
         experiment = ExperimentFactory(

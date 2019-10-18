@@ -262,7 +262,7 @@ class Experiment(ExperimentConstants, models.Model):
         return self.type in (self.TYPE_PREF, self.TYPE_ADDON)
 
     def generate_normandy_slug(self):
-        if self.is_addon_experiment:
+        if self.is_addon_experiment and not self.is_branched_addon:
             if not self.addon_experiment_id:
                 raise ValueError(
                     (
@@ -634,6 +634,14 @@ class Experiment(ExperimentConstants, models.Model):
     def firefox_min_version_integer(self):
         return int(
             ExperimentConstants.VERSION_REGEX.match(self.firefox_min_version).group(0)
+        )
+
+    @property
+    def is_branched_addon(self):
+        return (
+            self.is_addon_experiment
+            and self.firefox_min_version_integer
+            >= ExperimentConstants.FX_MIN_BRANCHED_ADDON_VERSION
         )
 
     @property
