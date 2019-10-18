@@ -288,10 +288,14 @@ class ExperimentRecipeVariantSerializer(serializers.ModelSerializer):
 
 
 class ExperimentRecipeAddonVariantSerializer(serializers.ModelSerializer):
+    extensionApiId = serializers.SerializerMethodField()
 
     class Meta:
         model = ExperimentVariant
-        fields = ("ratio", "slug")
+        fields = ("ratio", "slug", "extensionApiId")
+
+    def get_extensionApiId(self, obj):
+        return None
 
 
 class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):

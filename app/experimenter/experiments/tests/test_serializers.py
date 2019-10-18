@@ -363,7 +363,9 @@ class TestExperimentRecipeAddonVariantSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         variant = ExperimentVariant(slug="slug-value", ratio=25)
         serializer = ExperimentRecipeAddonVariantSerializer(variant)
-        self.assertEqual({"ratio": 25, "slug": "slug-value"}, serializer.data)
+        self.assertEqual(
+            {"ratio": 25, "slug": "slug-value", "extensionApiId": None}, serializer.data
+        )
 
 
 class TestExperimentRecipeVariantSerializer(TestCase):
@@ -508,7 +510,7 @@ class TestExperimentRecipeSerializer(TestCase):
                 "slug": "some-random-slug",
                 "userFacingName": "public name",
                 "userFacingDescription": "this is my public description!",
-                "branches": [{"ratio": 25, "slug": "slug-value"}],
+                "branches": [{"ratio": 25, "slug": "slug-value", "extensionApiId": None}],
             },
         )
 
