@@ -315,6 +315,25 @@ class ExperimentRecipeAddonVariantSerializer(serializers.ModelSerializer):
         return None
 
 
+class ExperimentRecipeMultiPrefVariantSerializer(serializers.ModelSerializer):
+    preferences = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ExperimentVariant
+        fields = ("preferences", "ratio", "slug")
+
+    def get_preferences(self, obj):
+        preference_values = {}
+        preference_values["preferenceBranchType"] = obj.experiment.pref_branch
+        preference_values["preferenceType"] = obj.experiment.pref_type
+        preference_values["preferenceValue"] = obj.value
+
+        preferences = {}
+        preferences[obj.experiment.normandy_slug] = preference_values
+
+        return preferences
+
+
 class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
     preferenceBranchType = serializers.ReadOnlyField(source="pref_branch")
     slug = serializers.ReadOnlyField(source="normandy_slug")
@@ -345,10 +364,40 @@ class ExperimentRecipeBranchedArgumentsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Experiment
+        fields = ("slug", "userFacingName", "userFacingDescription")
+
+
+class ExperimentRecipeBranchedAddonArgumentsSerializer(
+    ExperimentRecipeBranchedArgumentsSerializer
+):
+    branches = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Experiment
         fields = ("slug", "userFacingName", "userFacingDescription", "branches")
 
     def get_branches(self, obj):
         return ExperimentRecipeAddonVariantSerializer(obj.variants, many=True).data
+
+
+class ExperimentRecipeMultiPrefArgumentsSerializer(
+    ExperimentRecipeBranchedArgumentsSerializer
+):
+    branches = serializers.SerializerMethodField()
+    experimentDocumentUrl = serializers.ReadOnlyField(source="experiment_url")
+
+    class Meta:
+        model = Experiment
+        fields = (
+            "slug",
+            "userFacingName",
+            "userFacingDescription",
+            "branches",
+            "experimentDocumentUrl",
+        )
+
+    def get_branches(self, obj):
+        return ExperimentRecipeMultiPrefVariantSerializer(obj.variants, many=True).data
 
 
 class ExperimentRecipeAddonArgumentsSerializer(serializers.ModelSerializer):
@@ -379,6 +428,8 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
         )
 
     def get_action_name(self, obj):
+        if obj.is_multi_pref:
+            return "multi-preference-experiment"
         if obj.is_pref_experiment:
             return "preference-experiment"
         elif obj.is_branched_addon:
@@ -402,10 +453,12 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
         return filter_objects
 
     def get_arguments(self, obj):
-        if obj.is_pref_experiment:
+        if obj.is_multi_pref:
+            return ExperimentRecipeMultiPrefArgumentsSerializer(obj).data
+        elif obj.is_pref_experiment:
             return ExperimentRecipePrefArgumentsSerializer(obj).data
         elif obj.is_branched_addon:
-            return ExperimentRecipeBranchedArgumentsSerializer(obj).data
+            return ExperimentRecipeBranchedAddonArgumentsSerializer(obj).data
         elif obj.is_addon_experiment:
             return ExperimentRecipeAddonArgumentsSerializer(obj).data
 
