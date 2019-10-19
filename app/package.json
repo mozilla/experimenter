@@ -27,7 +27,8 @@
     "type-form": "./experimenter/static/js/typeForm.js",
     "pref-value-input": "./experimenter/static/js/prefValueInput.js",
     "error-form": "./experimenter/static/js/error.js",
-    "help-box":  "./experimenter/static/js/helpBox.js"
+    "help-box": "./experimenter/static/js/helpBox.js",
+    "design-input": "./experimenter/static/js/designInput.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

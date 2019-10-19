@@ -13,6 +13,7 @@ import PrefValueInput from "pref-value-input";
 import TypeForm from "type-form";
 import Error from "error-form";
 import HelpBox from "help-box";
+import DesignInput from "design-input";
 
 const branchesDiv = document.getElementById("react-branches-form");
 
@@ -51,7 +52,10 @@ export default class DesignForm extends React.Component {
         addon_experiment_id: "",
         addon_release_url: "",
         design: "",
-        variants: [{ratio:"", name:"", description:"", value:""}, {ratio:"", name:"", description:"", value:""}]
+        variants: [
+          { ratio: "", name: "", description: "", value: "" },
+          { ratio: "", name: "", description: "", value: "" }
+        ]
       },
       loaded: false
     };
@@ -80,35 +84,21 @@ export default class DesignForm extends React.Component {
         json.variants.push(emptyBranch);
       }
     } else {
-      json.variants.sort(function (a, b) {
+      json.variants.sort(function(a, b) {
         return a.is_control == "true" ? -1 : b == "true" ? 1 : 0;
-      })
+      });
     }
 
     json.loaded = true;
-    json.help = {
-      prefKey: false,
-      prefType: false,
-      prefBranch: false,
-      addonExperimentId: false,
-      addonReleaseUrl: false,
-      design: false,
-      variants: []
-    };
-    json.errors = {variants: []}
+
+    json.errors = {variants: []};
     for (let i = 0; i < json.variants.length; i++) {
-      json.help.variants.push({
-        ratio: false,
-        name: false,
-        description: false,
-        value: false
-      });
       json.errors.variants.push({
         ratio: false,
         name: false,
         description: false,
         value: false
-      })
+      });
     }
     return this.setState(json);
   }
@@ -151,24 +141,22 @@ export default class DesignForm extends React.Component {
 
   @boundMethod
   handleVariantInputChange(e) {
-    let stateCopy = {...this.state.variants};
-    let inputName = e.target.name
-    stateCopy[e.target.dataset.index].inputName = e.target.value
+    let stateCopy = { ...this.state.variants };
+    let inputName = e.target.name;
+    stateCopy[e.target.dataset.index][inputName] = e.target.value;
 
     this.setState(stateCopy);
   }
 
   @boundMethod
   handleInputChange(e) {
-    let stateCopy = {...this.state}
+    let stateCopy = { ...this.state };
     stateCopy[e.target.name] = e.target.value;
 
     this.setState(stateCopy);
-
   }
 
   handleValidationErrors(json) {
-
     let errors = {
       pref_key: "",
       pref_type: "",
@@ -176,57 +164,16 @@ export default class DesignForm extends React.Component {
       addon_experiment_id: "",
       addon_release_url: "",
       design: "",
-      variants: [{ratio:"", name:"", description:"", value:""}, {ratio:"", name:"", description:"", value:""}]
-    }
-    const jsonKeys = Object.keys(json)
+      variants: [
+        { ratio: "", name: "", description: "", value: "" },
+        { ratio: "", name: "", description: "", value: "" }
+      ]
+    };
+    const jsonKeys = Object.keys(json);
 
-    errors[jsonKeys[0]] = json[jsonKeys[0]]
+    errors[jsonKeys[0]] = json[jsonKeys[0]];
 
-    this.setState({errors: errors })
-
-  }
-
-  @boundMethod
-  toggleHelp(e) {
-    let stateCopy = { ...this.state.help };
-    if (e.target.id == "branch-ratio") {
-      stateCopy.variants[e.target.dataset.index].ratio = !stateCopy.variants[
-        e.target.dataset.index
-      ].ratio;
-      this.setState({ help: stateCopy });
-    } else if (e.target.id == "branch-name") {
-      stateCopy.variants[e.target.dataset.index].name = !stateCopy.variants[
-        e.target.dataset.index
-      ].name;
-      this.setState({ help: stateCopy });
-    } else if (e.target.id == "branch-description") {
-      stateCopy.variants[e.target.dataset.index].description = !stateCopy
-        .variants[e.target.dataset.index].description;
-      this.setState({ help: stateCopy });
-    } else if (e.target.id == "branch-value") {
-      stateCopy.variants[e.target.dataset.index].value = !stateCopy.variants[
-        e.target.dataset.index
-      ].value;
-      this.setState({ help: stateCopy });
-    } else if (e.target.id == "pref-key") {
-      stateCopy.prefKey = !stateCopy.prefKey;
-      this.setState({ help: stateCopy });
-    } else if (e.target.id == "pref-type") {
-      stateCopy.prefType = !stateCopy.prefType;
-      this.setState({ help: stateCopy });
-    } else if (e.target.id == "pref-branch") {
-      stateCopy.prefBranch = !stateCopy.prefBranch;
-      this.setState({ help: stateCopy });
-    } else if (e.target.id == "design") {
-      stateCopy.design = !stateCopy.design;
-      this.setState({ help: stateCopy });
-    } else if (e.target.id == "addon-experiment-id") {
-      stateCopy.addonExperimentId = !stateCopy.addonExperimentId;
-      this.setState({ help: stateCopy });
-    } else if (e.target.id == "addon-release-url") {
-      stateCopy.addonReleaseUrl = !stateCopy.addonReleaseUrl;
-      this.setState({ help: stateCopy });
-    }
+    this.setState({ errors: errors });
   }
 
   getApiUrl() {
@@ -300,85 +247,37 @@ export default class DesignForm extends React.Component {
                       ) : null}
                     </Col>
                   </Row>
-                  <Row>
-                    <Col md={3} className="text-right mb-3">
-                      <FormLabel>
-                        <strong>Branch Size</strong>
-                      </FormLabel>
-                      <br />
-                      <a
-                        href="#"
-                        id="branch-ratio"
-                        data-index={index}
-                        onClick={this.toggleHelp}
-                      >
-                        help
-                      </a>
-                    </Col>
-                    <Col md={9}>
-                      <FormControl
-                        data-index={index}
-                        id={"variants-" + index + "-ratio"}
-                        type="text"
-                        name="ratio"
-                        onChange={this.handleVariantInputChange}
-                        value={branch.ratio}
-                        className={
-                          this.state.errors.variants[index].ratio ? "is-invalid" : ""
-                        }
-                      />
-                      {this.state.errors.variants[index].ratio ? (
-                        <Error error={this.state.errors.variants[index].ratio} />
-                      ) : (
-                        ""
-                      )}
-                      <HelpBox showing={this.state.help.variants[index].ratio}>
+                  <DesignInput
+                    label="Branch Size"
+                    name="ratio"
+                    index={index}
+                    handleInputChange={this.handleVariantInputChange}
+                    value={branch.ratio}
+                    error={this.state.errors.variants[index].ratio}
+                    helpContent={
+                      <div>
                         <p>
-                          Choose the size of this branch represented as a whole
-                          number. The size of all branches together must be
-                          equal to 100. It does not have to be exact, so these
-                          sizes are simply a recommendation of the relative
-                          distribution of the branches.
+                          Choose the size of this branch represented as a
+                          whole number. The size of all branches together must
+                          be equal to 100. It does not have to be exact, so
+                          these sizes are simply a recommendation of the
+                          relative distribution of the branches.
                         </p>
                         <p>
                           <strong>Example:</strong> 50
                         </p>
-                      </HelpBox>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col md={3} className="text-right mb-3">
-                      <FormLabel>
-                        <strong>Name</strong>
-                      </FormLabel>
-                      <br />
-                      <a
-                        href="#"
-                        id="branch-name"
-                        data-index={index}
-                        onClick={this.toggleHelp}
-                      >
-                        help
-                      </a>
-                    </Col>
-                    <Col md={9}>
-                      <FormControl
-                        data-index={index}
-                        type="text"
-                        id={"variants-" + index + "-name"}
-                        name="name"
-                        onChange={this.handleVariantInputChange}
-                        value={branch.name}
-                        className={
-                          this.state.errors.variants[index].name ? "is-invalid" : ""
-                        }
-                      />
-                      {this.state.errors.variants[index].name ? (
-                        <Error error={this.state.errors.variants[index].name} />
-                      ) : (
-                        ""
-                      )}
-                      <HelpBox showing={this.state.help.variants[index].name}>
+                      </div>
+                    }
+                  ></DesignInput>
+                  <DesignInput
+                    label="Name"
+                    name="name"
+                    index={index}
+                    handleInputChange={this.handleVariantInputChange}
+                    value={branch.name}
+                    error={this.state.errors.variants[index].name}
+                    helpContent={
+                      <div>
                         <p>
                           The control group should represent the users receiving
                           the existing, unchanged version of what you're
@@ -393,48 +292,21 @@ export default class DesignForm extends React.Component {
                         <p>
                           <strong>Example:</strong> Normal Button Size
                         </p>
-                      </HelpBox>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col md={3} className="text-right mb-3">
-                      <FormLabel>
-                        <strong>Description</strong>
-                      </FormLabel>
-                      <br />
-                      <a
-                        href="#"
-                        id="branch-description"
-                        data-index={index}
-                        onClick={this.toggleHelp}
-                      >
-                        help
-                      </a>
-                    </Col>
-                    <Col md={9}>
-                      <FormControl
-                        as="textarea"
-                        rows={3}
-                        data-index={index}
-                        type="text"
-                        id={"variants-" + index + "-description"}
-                        name="description"
-                        onChange={this.handleVariantInputChange}
-                        value={branch.description}
-                        className={
-                          this.state.errors.variants[index].description
-                            ? "is-invalid mb-4"
-                            : "mb-4"
-                        }
-                      />
-                      {this.state.errors.variants[index].description ? (
-                        <Error error={this.state.errors.variants[index].description} />
-                      ) : (
-                        ""
-                      )}
-                      <HelpBox
-                        showing={this.state.help.variants[index].description}
-                      >
+                      </div>
+                    }
+                  >
+                  </DesignInput>
+                  <DesignInput
+                    label="Description"
+                    name="description"
+                    as="textarea"
+                    rows="3"
+                    index={index}
+                    handleInputChange={this.handleVariantInputChange}
+                    value={branch.description}
+                    error={this.state.errors.variants[index].description}
+                    helpContent={
+                      <div>
                         <p>
                           Describe the experience or functionality the control
                           group will receive in more detail.
@@ -444,19 +316,41 @@ export default class DesignForm extends React.Component {
                           receive the existing 80px sign in button located at
                           the top right of the screen.
                         </p>
-                      </HelpBox>
-                    </Col>
-                  </Row>
+                      </div>
+                    }
+                  >
+                  </DesignInput>
                   {this.state.type == "pref" ? (
-                    <PrefValueInput
-                      updateValue={this.updateValue}
+                    <DesignInput
+                      label="Pref Value"
+                      name="value"
                       index={index}
-                      toggleHelp={this.toggleHelp}
-                      {...this.state}
-                    />
-                  ) : (
-                    ""
-                  )}
+                      handleInputChange={this.handleVariantInputChange}
+                      value={branch.value}
+                      error={this.state.errors.variants[index].value}
+                      margin="mt-4"
+                      helpContent= {
+                        <div>
+                          <p className="mt-2">
+                            Choose the value of the pref for the control group. This value must
+                            be valid JSON in order to be sent to Shield. This should be the
+                            right type (boolean, string, number), and should be the value that
+                            represents the control or default state to compare to.
+                          </p>
+                          <p>
+                            <strong>Boolean Example:</strong> false
+                          </p>
+                          <p>
+                            <strong>String Example:</strong> some text
+                          </p>
+                          <p>
+                            <strong>Integer Example:</strong> 13
+                          </p>
+                        </div>
+                      }
+                    >
+                    </DesignInput>
+                  ) : ("")}
                   <hr className="heavy-line my-5" />
                 </div>
               ))}
