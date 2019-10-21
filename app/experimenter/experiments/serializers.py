@@ -287,6 +287,17 @@ class ExperimentRecipeVariantSerializer(serializers.ModelSerializer):
         return obj.value
 
 
+class ExperimentRecipeAddonVariantSerializer(serializers.ModelSerializer):
+    extensionApiId = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ExperimentVariant
+        fields = ("ratio", "slug", "extensionApiId")
+
+    def get_extensionApiId(self, obj):
+        return None
+
+
 class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
     preferenceBranchType = serializers.ReadOnlyField(source="pref_branch")
     slug = serializers.ReadOnlyField(source="normandy_slug")
@@ -307,6 +318,22 @@ class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
         )
 
 
+class ExperimentRecipeBranchedArgumentsSerializer(serializers.ModelSerializer):
+    slug = serializers.ReadOnlyField(source="normandy_slug")
+    userFacingName = userFacingDescription = serializers.ReadOnlyField(
+        source="public_name"
+    )
+    userFacingDescription = serializers.ReadOnlyField(source="public_description")
+    branches = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Experiment
+        fields = ("slug", "userFacingName", "userFacingDescription", "branches")
+
+    def get_branches(self, obj):
+        return ExperimentRecipeAddonVariantSerializer(obj.variants, many=True).data
+
+
 class ExperimentRecipeAddonArgumentsSerializer(serializers.ModelSerializer):
     name = serializers.ReadOnlyField(source="addon_experiment_id")
     description = serializers.ReadOnlyField(source="public_description")
@@ -319,7 +346,7 @@ class ExperimentRecipeAddonArgumentsSerializer(serializers.ModelSerializer):
 class ExperimentRecipeSerializer(serializers.ModelSerializer):
     action_name = serializers.SerializerMethodField()
     filter_object = serializers.SerializerMethodField()
-    comment = serializers.ReadOnlyField(source="client_matching")
+    comment = serializers.SerializerMethodField()
     arguments = serializers.SerializerMethodField()
     experimenter_slug = serializers.ReadOnlyField(source="slug")
 
@@ -337,6 +364,8 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
     def get_action_name(self, obj):
         if obj.is_pref_experiment:
             return "preference-experiment"
+        elif obj.is_branched_addon:
+            return "branched-addon-study"
         elif obj.is_addon_experiment:
             return "opt-out-study"
 
@@ -358,8 +387,13 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
     def get_arguments(self, obj):
         if obj.is_pref_experiment:
             return ExperimentRecipePrefArgumentsSerializer(obj).data
+        elif obj.is_branched_addon:
+            return ExperimentRecipeBranchedArgumentsSerializer(obj).data
         elif obj.is_addon_experiment:
             return ExperimentRecipeAddonArgumentsSerializer(obj).data
+
+    def get_comment(self, obj):
+        return f"Platform: {obj.platform}\n{obj.client_matching}"
 
 
 class ExperimentCloneSerializer(serializers.ModelSerializer):

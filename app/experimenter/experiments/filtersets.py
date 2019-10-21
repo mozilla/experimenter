@@ -114,6 +114,12 @@ class ExperimentFilterset(filters.FilterSet):
         method="is_paused_filter",
     )
 
+    completed_results = filters.BooleanFilter(
+        label="Show experiments with results completed",
+        widget=forms.CheckboxInput(),
+        method="completed_results_filter",
+    )
+
     class Meta:
         model = Experiment
         fields = (
@@ -130,6 +136,7 @@ class ExperimentFilterset(filters.FilterSet):
             "subscribed",
             "longrunning",
             "is_paused",
+            "completed_results",
         )
 
     def filter_search(self, queryset, name, value):
@@ -253,6 +260,13 @@ class ExperimentFilterset(filters.FilterSet):
         if value:
             return queryset.filter(is_paused=True, status=Experiment.STATUS_LIVE)
 
+        return queryset
+
+    def completed_results_filter(self, queryset, name, value):
+        if value:
+            return queryset.exclude(
+                results_url=None, results_initial=None, results_lessons_learned=None
+            )
         return queryset
 
     def get_type_display_value(self):
