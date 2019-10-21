@@ -26,7 +26,7 @@ export default function AddonForm(props) {
         handleInputChange={props.handleInputChange}
         value={props.addon_experiment_id}
         error={props.errors.addon_experiment_id}
-        helpContent= {
+        helpContent={
           <div>
             <p>
               Enter the <code>activeExperimentName</code> as it appears in the
@@ -42,15 +42,14 @@ export default function AddonForm(props) {
             </p>
           </div>
         }
-      >
-      </DesignInput>
+      ></DesignInput>
       <DesignInput
         label="Signed Release URL"
         name="addon_release_url"
         handleInputChange={props.handleInputChange}
         value={props.addon_release_url}
         error={props.errors.addon_release_url}
-        helpContent= {
+        helpContent={
           <div>
             <p>
               Enter the URL where the release build of your add-on can be found.
@@ -68,8 +67,7 @@ export default function AddonForm(props) {
             </p>
           </div>
         }
-      >
-      </DesignInput>
+      ></DesignInput>
     </div>
   );
 }

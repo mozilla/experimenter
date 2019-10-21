@@ -12,7 +12,6 @@ import HelpBox from "help-box";
 import Error from "error-form";
 import DesignInput from "design-input";
 
-
 export default function PrefForm(props) {
   return (
     <div>
@@ -24,6 +23,7 @@ export default function PrefForm(props) {
       <DesignInput
         label="Pref Name"
         name="pref_key"
+        id="id_pref_key"
         handleInputChange={props.handleInputChange}
         value={props.pref_key}
         error={props.errors.pref_key}
@@ -42,11 +42,11 @@ export default function PrefForm(props) {
             </p>
           </div>
         }
-      >
-      </DesignInput>
+      ></DesignInput>
       <DesignInput
         label="Pref Type"
         name="pref_type"
+        id="id_pref_type"
         handleInputChange={props.handleInputChange}
         value={props.pref_type}
         error={props.errors.pref_type}
@@ -73,11 +73,12 @@ export default function PrefForm(props) {
       <DesignInput
         label="Pref Branch"
         name="pref_branch"
+        id="id_pref_branch"
         handleInputChange={props.handleInputChange}
         value={props.pref_branch}
         error={props.errors.pref_branch}
         as="select"
-        helpContent= {
+        helpContent={
           <div>
             <p>
               Select the pref branch the experiment will write its pref value
@@ -95,11 +96,11 @@ export default function PrefForm(props) {
             </p>
           </div>
         }
-        >
-          <option>Firefox Pref Branch</option>
-          <option>default</option>
-          <option>user</option>
-        </DesignInput>
+      >
+        <option>Firefox Pref Branch</option>
+        <option>default</option>
+        <option>user</option>
+      </DesignInput>
     </div>
   );
 }

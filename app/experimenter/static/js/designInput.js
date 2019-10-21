@@ -12,19 +12,18 @@ import { boundMethod } from "autobind-decorator";
 import Error from "error-form";
 import HelpBox from "help-box";
 
-
 export default class DesignInput extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       help_showing: false
-    }
+    };
   }
 
   @boundMethod
   toggleHelp(e) {
-    this.setState({help_showing: !this.state.help_showing});
+    this.setState({ help_showing: !this.state.help_showing });
   }
 
   render() {
@@ -49,7 +48,7 @@ export default class DesignInput extends React.Component {
             as={this.props.as}
             rows={this.props.rows}
             data-index={this.props.index}
-            id={"variants-" + this.props.index + "-" + this.props.name}
+            id={this.props.id}
             type="text"
             name={this.props.name}
             onChange={this.props.handleInputChange}
@@ -58,12 +57,12 @@ export default class DesignInput extends React.Component {
           >
             {this.props.children}
           </FormControl>
-          {this.props.error ? (<Error error={this.props.error} />) : ("")}
+          {this.props.error ? <Error error={this.props.error} /> : ""}
           <HelpBox showing={this.state.help_showing}>
             {this.props.helpContent}
           </HelpBox>
         </Col>
       </Row>
-    )
+    );
   }
 }

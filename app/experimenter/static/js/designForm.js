@@ -63,8 +63,7 @@ export default class DesignForm extends React.Component {
   }
 
   async componentDidMount() {
-
-    const response = await this.makeFetchCall("GET")
+    const response = await this.makeFetchCall("GET");
 
     const json = await response.json();
 
@@ -159,7 +158,7 @@ export default class DesignForm extends React.Component {
       design: ""
     };
 
-    let variants = []
+    let variants = [];
     for (let i = 0; i < this.state.variants.length; i++) {
       variants.push({
         ratio: false,
@@ -168,7 +167,7 @@ export default class DesignForm extends React.Component {
         value: false
       });
     }
-    errors.variants = variants
+    errors.variants = variants;
 
     const jsonKeys = Object.keys(json);
 
@@ -191,7 +190,6 @@ export default class DesignForm extends React.Component {
         "Content-Type": "application/json"
       }
     });
-
   }
 
   @boundMethod
@@ -286,6 +284,7 @@ export default class DesignForm extends React.Component {
                   <DesignInput
                     label="Branch Size"
                     name="ratio"
+                    id={"variants-" + index + "-ratio"}
                     index={index}
                     handleInputChange={this.handleVariantInputChange}
                     value={branch.ratio}
@@ -308,6 +307,7 @@ export default class DesignForm extends React.Component {
                   <DesignInput
                     label="Name"
                     name="name"
+                    id={"variants-" + index + "-name"}
                     index={index}
                     handleInputChange={this.handleVariantInputChange}
                     value={branch.name}
@@ -337,6 +337,7 @@ export default class DesignForm extends React.Component {
                     as="textarea"
                     rows="3"
                     index={index}
+                    id={"variants-" + index + "-description"}
                     handleInputChange={this.handleVariantInputChange}
                     value={branch.description}
                     error={this.state.errors.variants[index].description}
@@ -358,6 +359,7 @@ export default class DesignForm extends React.Component {
                     <DesignInput
                       label="Pref Value"
                       name="value"
+                      id={"variants-" + index + "-value"}
                       index={index}
                       handleInputChange={this.handleVariantInputChange}
                       value={branch.value}

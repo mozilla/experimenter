@@ -28,8 +28,7 @@ export default function GenericForm(props) {
             <p>Specify the design of the experiment.</p>
           </div>
         }
-      >
-      </DesignInput>
+      ></DesignInput>
     </div>
   );
 }

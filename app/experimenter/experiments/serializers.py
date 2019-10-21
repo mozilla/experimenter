@@ -461,19 +461,14 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
             for variant in variants:
                 error_list.append({"ratio": ["All branch sizes must add up to 100."]})
 
-            raise serializers.ValidationError(
-                {"variants": error_list}
-            )
-
+            raise serializers.ValidationError({"variants": error_list})
 
         if not len(set(variant["name"] for variant in variants)) == len(variants):
             error_list = []
             for variant in variants:
                 error_list.append({"name": ["All branches must have a unique name."]})
 
-            raise serializers.ValidationError(
-                {"variants": error_list}
-            )
+            raise serializers.ValidationError({"variants": error_list})
 
         return data
 
@@ -543,11 +538,11 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
         if not len(set(variant["value"] for variant in variants)) == len(variants):
             error_list = []
             for variant in variants:
-                error_list.append({"value": ["All branches must have a unique pref value."]})
+                error_list.append(
+                    {"value": ["All branches must have a unique pref value."]}
+                )
 
-            raise serializers.ValidationError(
-                {"variants": error_list}
-            )
+            raise serializers.ValidationError({"variants": error_list})
 
         error_list = []
         for variant in variants:
@@ -559,14 +554,12 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
                 else:
                     error_list.append({"value": ""})
 
-
             if data.get("pref_type", "") == "boolean":
                 if variant["value"] not in ["true", "false"]:
                     error_list.append({"value": ["The pref value must be a boolean."]})
 
                 else:
                     error_list.append({"value": ""})
-
 
             if data.get("pref_type", "") == "json string":
                 try:
@@ -576,12 +569,9 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
                 else:
                     error_list.append({"value": ""})
 
-
         for entry in error_list:
             if entry["value"] != "":
-                raise serializers.ValidationError(
-                    {"variants": error_list}
-                )
+                raise serializers.ValidationError({"variants": error_list})
         return data
 
 
