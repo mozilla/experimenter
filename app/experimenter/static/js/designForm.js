@@ -63,9 +63,8 @@ export default class DesignForm extends React.Component {
   }
 
   async componentDidMount() {
-    const url = this.getApiUrl();
 
-    const response = await fetch(url);
+    const response = await this.makeFetchCall("GET")
 
     const json = await response.json();
 
@@ -151,7 +150,6 @@ export default class DesignForm extends React.Component {
   }
 
   handleValidationErrors(json) {
-    console.log("inside handlevalider", json);
     let errors = {
       pref_key: "",
       pref_type: "",
@@ -183,6 +181,19 @@ export default class DesignForm extends React.Component {
     return `/api/v1/experiments/${this.props.slug}/design-${this.state.type}/`;
   }
 
+  async makeFetchCall(method, body) {
+    const url = this.getApiUrl();
+
+    return await fetch(url, {
+      method: method,
+      body: body,
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+  }
+
   @boundMethod
   async handleSubmit(e) {
     e.preventDefault();
@@ -194,15 +205,17 @@ export default class DesignForm extends React.Component {
       object[key] = value;
     });
 
-    const url = this.getApiUrl();
+    const res = await this.makeFetchCall("PUT", JSON.stringify(this.state));
 
-    const res = await fetch(url, {
-      method: "PUT",
-      body: JSON.stringify(this.state),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    });
+    // const url = this.getApiUrl();
+
+    // const res = await fetch(url, {
+    //   method: "PUT",
+    //   body: JSON.stringify(this.state),
+    //   headers: {
+    //     "Content-Type": "application/json"
+    //   }
+    // });
 
     if (res.status == "200") {
       location.replace(`/experiments/${this.props.slug}/`);

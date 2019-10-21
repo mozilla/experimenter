@@ -13,7 +13,6 @@ import HelpBox from "help-box";
 import DesignInput from "design-input";
 
 export default function AddonForm(props) {
-  console.log(props);
   return (
     <div>
       <Row>
