@@ -9,8 +9,9 @@ import {
   FormLabel
 } from "react-bootstrap";
 import { boundMethod } from "autobind-decorator";
-import PrefValueInput from "pref-value-input";
-import TypeForm from "type-form";
+import PrefForm from "pref-form";
+import GenericForm from "generic-form";
+import AddonForm from "addon-form";
 import Error from "error-form";
 import HelpBox from "help-box";
 import DesignInput from "design-input";
@@ -91,7 +92,7 @@ export default class DesignForm extends React.Component {
 
     json.loaded = true;
 
-    json.errors = {variants: []};
+    json.errors = { variants: [] };
     for (let i = 0; i < json.variants.length; i++) {
       json.errors.variants.push({
         ratio: false,
@@ -114,12 +115,6 @@ export default class DesignForm extends React.Component {
       value: "",
       is_control: false
     });
-    stateCopy.help.variants.push({
-      ratio: false,
-      name: false,
-      description: false,
-      value: false
-    });
     stateCopy.errors.variants.push({
       ratio: false,
       name: false,
@@ -133,7 +128,6 @@ export default class DesignForm extends React.Component {
   @boundMethod
   removeBranch(e) {
     this.state.variants.splice(e.target.dataset.index, 1);
-    this.state.help.variants.splice(e.target.dataset.index, 1);
     this.state.errors.variants.splice(e.target.dataset.index, 1);
 
     this.setState({ variants: this.state.variants });
@@ -157,18 +151,27 @@ export default class DesignForm extends React.Component {
   }
 
   handleValidationErrors(json) {
+    console.log("inside handlevalider", json);
     let errors = {
       pref_key: "",
       pref_type: "",
       pref_branch: "",
       addon_experiment_id: "",
       addon_release_url: "",
-      design: "",
-      variants: [
-        { ratio: "", name: "", description: "", value: "" },
-        { ratio: "", name: "", description: "", value: "" }
-      ]
+      design: ""
     };
+
+    let variants = []
+    for (let i = 0; i < this.state.variants.length; i++) {
+      variants.push({
+        ratio: false,
+        name: false,
+        description: false,
+        value: false
+      });
+    }
+    errors.variants = variants
+
     const jsonKeys = Object.keys(json);
 
     errors[jsonKeys[0]] = json[jsonKeys[0]];
@@ -218,11 +221,31 @@ export default class DesignForm extends React.Component {
         <div>
           <Container>
             <form onSubmit={this.handleSubmit} id="design-form">
-              <TypeForm
-                handleInputChange={this.handleInputChange}
-                toggleHelp={this.toggleHelp}
-                {...this.state}
-              />
+              {this.state.type == "pref" ? (
+                <PrefForm
+                  handleInputChange={this.handleInputChange}
+                  {...this.state}
+                ></PrefForm>
+              ) : (
+                ""
+              )}
+              {this.state.type == "addon" ? (
+                <AddonForm
+                  handleInputChange={this.handleInputChange}
+                  {...this.state}
+                ></AddonForm>
+              ) : (
+                ""
+              )}
+              {this.state.type == "generic" ? (
+                <GenericForm
+                  handleInputChange={this.handleInputChange}
+                  {...this.state}
+                ></GenericForm>
+              ) : (
+                ""
+              )}
+
               <hr className="heavy-line my-5" />
               {this.state.variants.map((branch, index) => (
                 <div key={index} id="control-branch-group">
@@ -257,11 +280,11 @@ export default class DesignForm extends React.Component {
                     helpContent={
                       <div>
                         <p>
-                          Choose the size of this branch represented as a
-                          whole number. The size of all branches together must
-                          be equal to 100. It does not have to be exact, so
-                          these sizes are simply a recommendation of the
-                          relative distribution of the branches.
+                          Choose the size of this branch represented as a whole
+                          number. The size of all branches together must be
+                          equal to 100. It does not have to be exact, so these
+                          sizes are simply a recommendation of the relative
+                          distribution of the branches.
                         </p>
                         <p>
                           <strong>Example:</strong> 50
@@ -294,8 +317,7 @@ export default class DesignForm extends React.Component {
                         </p>
                       </div>
                     }
-                  >
-                  </DesignInput>
+                  ></DesignInput>
                   <DesignInput
                     label="Description"
                     name="description"
@@ -318,8 +340,7 @@ export default class DesignForm extends React.Component {
                         </p>
                       </div>
                     }
-                  >
-                  </DesignInput>
+                  ></DesignInput>
                   {this.state.type == "pref" ? (
                     <DesignInput
                       label="Pref Value"
@@ -329,13 +350,15 @@ export default class DesignForm extends React.Component {
                       value={branch.value}
                       error={this.state.errors.variants[index].value}
                       margin="mt-4"
-                      helpContent= {
+                      helpContent={
                         <div>
                           <p className="mt-2">
-                            Choose the value of the pref for the control group. This value must
-                            be valid JSON in order to be sent to Shield. This should be the
-                            right type (boolean, string, number), and should be the value that
-                            represents the control or default state to compare to.
+                            Choose the value of the pref for the control group.
+                            This value must be valid JSON in order to be sent to
+                            Shield. This should be the right type (boolean,
+                            string, number), and should be the value that
+                            represents the control or default state to compare
+                            to.
                           </p>
                           <p>
                             <strong>Boolean Example:</strong> false
@@ -348,9 +371,10 @@ export default class DesignForm extends React.Component {
                           </p>
                         </div>
                       }
-                    >
-                    </DesignInput>
-                  ) : ("")}
+                    ></DesignInput>
+                  ) : (
+                    ""
+                  )}
                   <hr className="heavy-line my-5" />
                 </div>
               ))}

@@ -10,39 +10,25 @@ import {
 } from "react-bootstrap";
 import Error from "error-form";
 import HelpBox from "help-box";
+import DesignInput from "design-input";
 
 export default function AddonForm(props) {
+  console.log(props);
   return (
     <div>
       <Row>
         <Col md={{ span: 4, offset: 3 }}>
-          <h4>Firefox Add-On</h4>
+          <h4 className="mb-3">Firefox Add-On</h4>
         </Col>
       </Row>
-      <Row>
-        <Col md={3} className="text-right mb-3">
-          <FormLabel>
-            <strong>Active Experiment Name</strong>
-          </FormLabel>
-          <br />
-          <a href="#" id="addon-experiment-id" onClick={props.toggleHelp}>
-            help
-          </a>
-        </Col>
-        <Col md={9}>
-          <FormControl
-            type="text"
-            name="addon_experiment_id"
-            onChange={props.handleInputChange}
-            value={props.addon_experiment_id}
-            className={props.errors.addon_experiment_id ? "is-invalid" : ""}
-          />
-          {props.errors.addon_experiment_id ? (
-            <Error error={props.errors.addon_experiment_id} />
-          ) : (
-            ""
-          )}
-          <HelpBox showing={props.help.addonExperimentId}>
+      <DesignInput
+        label="Addon Experiment Name"
+        name="addon_experiment_id"
+        handleInputChange={props.handleInputChange}
+        value={props.addon_experiment_id}
+        error={props.errors.addon_experiment_id}
+        helpContent= {
+          <div>
             <p>
               Enter the <code>activeExperimentName</code> as it appears in the
               add-on. It may appear in <code>manifest.json</code> as
@@ -55,33 +41,18 @@ export default function AddonForm(props) {
                 See here for more info.
               </a>
             </p>
-          </HelpBox>
-        </Col>
-      </Row>
-      <Row>
-        <Col md={3} className="text-right mb-3">
-          <FormLabel>
-            <strong>Signed Release URL</strong>
-          </FormLabel>
-          <br />
-          <a href="#" id="addon-release-url" onClick={props.toggleHelp}>
-            help
-          </a>
-        </Col>
-        <Col md={9}>
-          <FormControl
-            type="text"
-            name="addon_release_url"
-            onChange={props.handleInputChange}
-            value={props.addon_release_url}
-            className={props.errors.addon_release_url ? "is-invalid" : ""}
-          />
-          {props.errors.addon_release_url ? (
-            <Error error={props.errors.addon_release_url} />
-          ) : (
-            ""
-          )}
-          <HelpBox showing={props.help.addonReleaseUrl}>
+          </div>
+        }
+      >
+      </DesignInput>
+      <DesignInput
+        label="Signed Release URL"
+        name="addon_release_url"
+        handleInputChange={props.handleInputChange}
+        value={props.addon_release_url}
+        error={props.errors.addon_release_url}
+        helpContent= {
+          <div>
             <p>
               Enter the URL where the release build of your add-on can be found.
               This is often attached to a bugzilla ticket. This MUST BE the
@@ -96,9 +67,10 @@ export default function AddonForm(props) {
                 See here for more info.
               </a>
             </p>
-          </HelpBox>
-        </Col>
-      </Row>
+          </div>
+        }
+      >
+      </DesignInput>
     </div>
   );
 }

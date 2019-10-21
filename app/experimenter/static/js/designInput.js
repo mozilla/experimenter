@@ -9,8 +9,6 @@ import {
   FormLabel
 } from "react-bootstrap";
 import { boundMethod } from "autobind-decorator";
-import PrefValueInput from "pref-value-input";
-import TypeForm from "type-form";
 import Error from "error-form";
 import HelpBox from "help-box";
 
@@ -57,7 +55,9 @@ export default class DesignInput extends React.Component {
             onChange={this.props.handleInputChange}
             value={this.props.value}
             className={this.props.error ? "is-invalid" : ""}
-          />
+          >
+            {this.props.children}
+          </FormControl>
           {this.props.error ? (<Error error={this.props.error} />) : ("")}
           <HelpBox showing={this.state.help_showing}>
             {this.props.helpContent}

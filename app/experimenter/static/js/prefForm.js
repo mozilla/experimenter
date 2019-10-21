@@ -10,6 +10,8 @@ import {
 } from "react-bootstrap";
 import HelpBox from "help-box";
 import Error from "error-form";
+import DesignInput from "design-input";
+
 
 export default function PrefForm(props) {
   return (
@@ -19,27 +21,14 @@ export default function PrefForm(props) {
           <h4>Firefox Pref</h4>
         </Col>
       </Row>
-      <Row>
-        <Col md={3} className="text-right mb-3">
-          <FormLabel>
-            <strong>Pref Name</strong>
-          </FormLabel>
-          <br />
-          <a href="#" id="pref-key" onClick={props.toggleHelp}>
-            help
-          </a>
-        </Col>
-        <Col md={9}>
-          <FormControl
-            type="text"
-            name="pref_name"
-            id="id_pref_key"
-            value={props.pref_key}
-            onChange={props.handleInputChange}
-            className={props.errors.pref_key ? "is-invalid" : ""}
-          />
-          {props.errors.pref_key ? <Error error={props.errors.pref_key} /> : ""}
-          <HelpBox showing={props.help.prefKey}>
+      <DesignInput
+        label="Pref Name"
+        name="pref_key"
+        handleInputChange={props.handleInputChange}
+        value={props.pref_key}
+        error={props.errors.pref_key}
+        helpContent={
+          <div>
             <p>
               Enter the full name of the Firefox pref key that this experiment
               will control. A pref experiment can control exactly one pref, and
@@ -51,41 +40,19 @@ export default function PrefForm(props) {
               <strong>Example: </strong>
               browser.example.component.enable_large_sign_in_button
             </p>
-          </HelpBox>
-        </Col>
-      </Row>
-      <Row>
-        <Col md={3} className="text-right mb-3">
-          <FormLabel>
-            <strong>Pref Type</strong>
-          </FormLabel>
-          <br />
-          <a href="#" id="pref-type" onClick={props.toggleHelp}>
-            help
-          </a>
-        </Col>
-        <Col md={9}>
-          <FormControl
-            as="select"
-            type="text"
-            name="pref_type"
-            id="id_pref_type"
-            value={props.pref_type}
-            onChange={props.handleInputChange}
-            className={props.errors.pref_type ? "is-invalid" : ""}
-          >
-            <option>Firefox Pref Type</option>
-            <option>boolean</option>
-            <option>integer</option>
-            <option>string</option>
-            <option>json string</option>
-          </FormControl>
-          {props.errors.pref_type ? (
-            <Error error={props.errors.pref_type} />
-          ) : (
-            ""
-          )}
-          <HelpBox showing={props.help.prefType}>
+          </div>
+        }
+      >
+      </DesignInput>
+      <DesignInput
+        label="Pref Type"
+        name="pref_type"
+        handleInputChange={props.handleInputChange}
+        value={props.pref_type}
+        error={props.errors.pref_type}
+        as="select"
+        helpContent={
+          <div>
             <p>
               Select the type of the pref entered above. The pref type will be
               shown in the third column in about:config.
@@ -93,39 +60,25 @@ export default function PrefForm(props) {
             <p>
               <strong>Example:</strong> boolean
             </p>
-          </HelpBox>
-        </Col>
-      </Row>
-      <Row>
-        <Col md={3} className="text-right mb-3">
-          <FormLabel>
-            <strong>Pref Branch</strong>
-          </FormLabel>
-          <br />
-          <a href="#" id="pref-branch" onClick={props.toggleHelp}>
-            help
-          </a>
-        </Col>
-        <Col md={9}>
-          <FormControl
-            as="select"
-            type="text"
-            name="pref_branch"
-            id="id_pref_branch"
-            value={props.pref_branch}
-            onChange={props.handleInputChange}
-            className={props.errors.pref_branch ? "is-invalid" : ""}
-          >
-            <option>Firefox Pref Branch</option>
-            <option>default</option>
-            <option>user</option>
-          </FormControl>
-          {props.errors.pref_branch ? (
-            <Error error={props.errors.pref_branch} />
-          ) : (
-            ""
-          )}
-          <HelpBox showing={props.help.prefBranch}>
+          </div>
+        }
+      >
+        <option>Firefox Pref Type</option>
+        <option>boolean</option>
+        <option>integer</option>
+        <option>string</option>
+        <option>json string</option>
+      </DesignInput>
+
+      <DesignInput
+        label="Pref Branch"
+        name="pref_branch"
+        handleInputChange={props.handleInputChange}
+        value={props.pref_branch}
+        error={props.errors.pref_branch}
+        as="select"
+        helpContent= {
+          <div>
             <p>
               Select the pref branch the experiment will write its pref value
               to. If you're not sure what this means, you should stick to the
@@ -140,9 +93,13 @@ export default function PrefForm(props) {
             <p>
               <strong>Example:</strong> default
             </p>
-          </HelpBox>
-        </Col>
-      </Row>
+          </div>
+        }
+        >
+          <option>Firefox Pref Branch</option>
+          <option>default</option>
+          <option>user</option>
+        </DesignInput>
     </div>
   );
 }
