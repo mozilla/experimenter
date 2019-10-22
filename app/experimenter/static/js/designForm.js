@@ -16,8 +16,6 @@ import Error from "error-form";
 import HelpBox from "help-box";
 import DesignInput from "design-input";
 
-const branchesDiv = document.getElementById("react-branches-form");
-
 export default class DesignForm extends React.Component {
   constructor(props) {
     super(props);
