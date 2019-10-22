@@ -169,7 +169,9 @@ export default class DesignForm extends React.Component {
 
     const jsonKeys = Object.keys(json);
 
-    errors[jsonKeys[0]] = json[jsonKeys[0]];
+    for (const key of jsonKeys) {
+      errors[key] = json[key];
+    }
 
     this.setState({ errors: errors });
   }
