@@ -463,10 +463,21 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
 
             raise serializers.ValidationError({"variants": error_list})
 
-        if not len(set(variant["name"] for variant in variants)) == len(variants):
+        if not len(set(slugify(variant["name"]) for variant in variants)) == len(
+            variants
+        ):
             error_list = []
             for variant in variants:
-                error_list.append({"name": ["All branches must have a unique name."]})
+                error_list.append(
+                    {
+                        "name": [
+                            (
+                                "All branches must have a unique name"
+                                "and not contain special characters."
+                            )
+                        ]
+                    }
+                )
 
             raise serializers.ValidationError({"variants": error_list})
 
