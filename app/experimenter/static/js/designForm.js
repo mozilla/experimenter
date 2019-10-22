@@ -176,12 +176,8 @@ export default class DesignForm extends React.Component {
     this.setState({ errors: errors });
   }
 
-  getApiUrl() {
-    return `/api/v1/experiments/${this.props.slug}/design-${this.state.type}/`;
-  }
-
   async makeFetchCall(method, body) {
-    const url = this.getApiUrl();
+    const url = `/api/v1/experiments/${this.props.slug}/design-${this.state.type}/`
 
     return await fetch(url, {
       method: method,
@@ -204,16 +200,6 @@ export default class DesignForm extends React.Component {
     });
 
     const res = await this.makeFetchCall("PUT", JSON.stringify(this.state));
-
-    // const url = this.getApiUrl();
-
-    // const res = await fetch(url, {
-    //   method: "PUT",
-    //   body: JSON.stringify(this.state),
-    //   headers: {
-    //     "Content-Type": "application/json"
-    //   }
-    // });
 
     if (res.status == "200") {
       location.replace(`/experiments/${this.props.slug}/`);
