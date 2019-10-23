@@ -44,18 +44,6 @@ export default class DesignForm extends React.Component {
           is_control: false
         }
       ],
-      errors: {
-        pref_key: "",
-        pref_type: "",
-        pref_branch: "",
-        addon_experiment_id: "",
-        addon_release_url: "",
-        design: "",
-        variants: [
-          { ratio: "", name: "", description: "", value: "" },
-          { ratio: "", name: "", description: "", value: "" }
-        ]
-      },
       loaded: false
     };
   }
@@ -147,33 +135,7 @@ export default class DesignForm extends React.Component {
   }
 
   handleValidationErrors(json) {
-    let errors = {
-      pref_key: "",
-      pref_type: "",
-      pref_branch: "",
-      addon_experiment_id: "",
-      addon_release_url: "",
-      design: ""
-    };
-
-    let variants = [];
-    for (let i = 0; i < this.state.variants.length; i++) {
-      variants.push({
-        ratio: false,
-        name: false,
-        description: false,
-        value: false
-      });
-    }
-    errors.variants = variants;
-
-    const jsonKeys = Object.keys(json);
-
-    for (const key of jsonKeys) {
-      errors[key] = json[key];
-    }
-
-    this.setState({ errors: errors });
+    this.setState({ errors: json });
   }
 
   async makeFetchCall(method, body) {
