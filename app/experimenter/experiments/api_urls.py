@@ -6,6 +6,9 @@ from experimenter.experiments.api_views import (
     ExperimentRecipeView,
     ExperimentSendIntentToShipEmailView,
     ExperimentCloneView,
+    ExperimentDesignAddonView,
+    ExperimentDesignPrefView,
+    ExperimentDesignGenericView,
 )
 
 
@@ -30,5 +33,20 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/clone",
         ExperimentCloneView.as_view(),
         name="experiments-api-clone",
+    ),
+    url(
+        r"^(?P<slug>[\w-]+)/design-addon",
+        ExperimentDesignAddonView.as_view(),
+        name="experiments-design-addon",
+    ),
+    url(
+        r"^(?P<slug>[\w-]+)/design-pref",
+        ExperimentDesignPrefView.as_view(),
+        name="experiments-design-pref",
+    ),
+    url(
+        r"^(?P<slug>[\w-]+)/design-generic",
+        ExperimentDesignGenericView.as_view(),
+        name="experiments-design-generic",
     ),
 ]

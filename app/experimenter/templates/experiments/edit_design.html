@@ -15,69 +15,9 @@
 {% endblock %}
 
 {% block edit_form %}
-  {% if experiment.is_generic_experiment %}
-    {% include "experiments/field_inline.html" with field=form.design %}
 
-    <hr class="heavy-line my-5"/>
-  {% endif %}
+    <div data-experiment-slug="{{ object.slug }}" data-experiment-type="{{object.type}}" id="react-branches-form"></div>
 
-  {% if experiment.is_pref_experiment %}
-    <div class="form-group row">
-      <h4 id="firefox-pref-label" class="col-9 offset-3">Firefox Pref</h4>
-    </div>
-
-    {% include "experiments/field_inline.html" with field=form.pref_key %}
-
-    {% include "experiments/field_inline.html" with field=form.pref_type %}
-
-    {% include "experiments/field_inline.html" with field=form.pref_branch %}
-
-    <hr class="heavy-line my-5"/>
-  {% endif %}
-
-  {% if experiment.is_addon_experiment %}
-    <div class="form-group row">
-      <h4 class="col-9 offset-3">Firefox Add-On</h4>
-    </div>
-
-    {% include "experiments/field_inline.html" with field=form.addon_experiment_id %}
-
-    {% include "experiments/field_inline.html" with field=form.addon_release_url %}
-
-    <hr class="heavy-line my-5"/>
-  {% endif %}
-
-  <div id="formset" data-formset-prefix="{{ form.variants_formset.prefix }}">
-    {{ form.variants_formset.management_form }}
-
-    <div data-formset-body>
-      {% for variant_form in form.variants_formset %}
-        {% if forloop.counter0 == 0 %}
-          {% include "experiments/edit_branch_inline.html" with form=variant_form is_control=True is_pref=experiment.is_pref_experiment %}
-        {% else %}
-          {% include "experiments/edit_branch_inline.html" with form=variant_form is_control=False is_pref=experiment.is_pref_experiment branch_num=forloop.counter0 %}
-        {% endif %}
-      {% endfor %}
-    </div>
-
-    <div class="form-group row">
-      <div class="col-9 offset-3 text-right">
-        <!-- This button will add a new form when clicked -->
-        <button type="button" class="btn btn-success" data-formset-add>
-          <span class="fas fa-plus"></span> Add Branch
-        </button>
-      </div>
-    </div>
-
-    <!-- The empty form template. By wrapping this in a <script> tag, the
-    __prefix__ placeholder can easily be replaced in both attributes and
-    any scripts -->
-    <script type="form-template" data-formset-empty-form>
-      {% escapescript %}
-        {% include "experiments/edit_branch_inline.html" with form=form.variants_formset.empty_form is_control=False is_pref=experiment.is_pref_experiment branch_num="__prefix__" %}
-      {% endescapescript %}
-    </script>
-  </div>
 {% endblock %}
 
 {% block edit_info %}
@@ -102,6 +42,9 @@
       determined by your addon.
     </p>
   {% endif %}
+{% endblock %}
+
+{% block edit_buttons %}
 {% endblock %}
 
 {% block extrascripts %}

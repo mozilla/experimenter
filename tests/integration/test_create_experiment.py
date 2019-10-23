@@ -68,4 +68,4 @@ def test_duplicate_branch_name(base_url, selenium):
     extra_branch.set_branch_description('THIS IS A TEST')
     extra_branch.set_branch_value("false")
     exp_design.click_continue()
-    selenium.find_element_by_css_selector("#formset .invalid-feedback")
+    selenium.find_element_by_css_selector("#design-form .invalid-feedback")
