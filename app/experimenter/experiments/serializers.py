@@ -424,3 +424,180 @@ class ExperimentCloneSerializer(serializers.ModelSerializer):
         name = validated_data.get("name")
 
         return instance.clone(name, user)
+
+
+class ExperimentDesignBranchBaseSerializer(serializers.ModelSerializer):
+    description = serializers.CharField()
+    is_control = serializers.BooleanField()
+    name = serializers.CharField()
+    ratio = serializers.IntegerField()
+
+    class Meta:
+        fields = ["description", "is_control", "name", "ratio"]
+        model = ExperimentVariant
+
+
+class ExperimentDesignBranchPrefSerializer(ExperimentDesignBranchBaseSerializer):
+    value = serializers.CharField()
+
+    class Meta:
+        fields = ["description", "is_control", "name", "ratio", "value"]
+        model = ExperimentVariant
+
+
+class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
+    type = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    variants = ExperimentDesignBranchBaseSerializer(many=True)
+
+    class Meta:
+        model = Experiment
+        fields = ("type", "variants")
+
+    def validate(self, data):
+        variants = data["variants"]
+
+        if sum([variant["ratio"] for variant in variants]) != 100:
+            error_list = []
+            for variant in variants:
+                error_list.append({"ratio": ["All branch sizes must add up to 100."]})
+
+            raise serializers.ValidationError({"variants": error_list})
+
+        if not len(set(slugify(variant["name"]) for variant in variants)) == len(
+            variants
+        ):
+            error_list = []
+            for variant in variants:
+                error_list.append(
+                    {
+                        "name": [
+                            (
+                                "All branches must have a unique name"
+                                "and not contain special characters."
+                            )
+                        ]
+                    }
+                )
+
+            raise serializers.ValidationError({"variants": error_list})
+
+        return data
+
+    def update(self, instance, validated_data):
+        variants = validated_data.pop("variants")
+
+        existing_variants = instance.variants.all()
+        existing_variants.delete()
+
+        if instance.type == "pref":
+            for variant in variants:
+                ExperimentVariant.objects.create(
+                    experiment=instance,
+                    is_control=variant["is_control"],
+                    value=variant["value"],
+                    description=variant["description"],
+                    name=variant["name"],
+                    ratio=variant["ratio"],
+                    slug=slugify(variant["name"]),
+                )
+        else:
+            for variant in variants:
+                ExperimentVariant.objects.create(
+                    experiment=instance,
+                    is_control=variant["is_control"],
+                    description=variant["description"],
+                    name=variant["name"],
+                    ratio=variant["ratio"],
+                    slug=slugify(variant["name"]),
+                )
+
+        for key in validated_data:
+            setattr(instance, key, validated_data.get(key, getattr(instance, key)))
+
+        instance.save()
+
+        return instance
+
+
+class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
+    pref_key = serializers.CharField()
+    pref_type = serializers.CharField()
+    pref_branch = serializers.CharField()
+    variants = ExperimentDesignBranchPrefSerializer(many=True)
+
+    class Meta:
+        model = Experiment
+        fields = ("type", "pref_key", "pref_type", "pref_branch", "variants")
+
+    def validate_pref_type(self, value):
+        if value == "Firefox Pref Type":
+            raise serializers.ValidationError(["Please select a type."])
+
+        return value
+
+    def validate_pref_branch(self, value):
+        if value == "Firefox Pref Branch":
+            raise serializers.ValidationError(["Please select a branch."])
+
+        return value
+
+    def validate(self, data):
+        super().validate(data)
+
+        variants = data["variants"]
+
+        if not len(set(variant["value"] for variant in variants)) == len(variants):
+            error_list = []
+            for variant in variants:
+                error_list.append(
+                    {"value": ["All branches must have a unique pref value."]}
+                )
+
+            raise serializers.ValidationError({"variants": error_list})
+
+        error_list = []
+        for variant in variants:
+            if data.get("pref_type", "") == "integer":
+                try:
+                    int(variant["value"])
+                except ValueError:
+                    error_list.append({"value": ["The pref value must be an integer."]})
+                else:
+                    error_list.append({"value": ""})
+
+            if data.get("pref_type", "") == "boolean":
+                if variant["value"] not in ["true", "false"]:
+                    error_list.append({"value": ["The pref value must be a boolean."]})
+
+                else:
+                    error_list.append({"value": ""})
+
+            if data.get("pref_type", "") == "json string":
+                try:
+                    json.loads(variant["value"])
+                except ValueError:
+                    error_list.append({"value": ["The pref value must be valid JSON."]})
+                else:
+                    error_list.append({"value": ""})
+
+        for entry in error_list:
+            if entry["value"] != "":
+                raise serializers.ValidationError({"variants": error_list})
+        return data
+
+
+class ExperimentDesignAddonSerializer(ExperimentDesignBaseSerializer):
+    addon_experiment_id = serializers.CharField()
+    addon_release_url = serializers.URLField()
+
+    class Meta:
+        model = Experiment
+        fields = ("type", "addon_release_url", "addon_experiment_id", "variants")
+
+
+class ExperimentDesignGenericSerializer(ExperimentDesignBaseSerializer):
+    design = serializers.CharField(allow_null=True, allow_blank=True, required=False)
+
+    class Meta:
+        model = Experiment
+        fields = ("type", "design", "variants")
