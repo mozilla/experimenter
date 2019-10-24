@@ -20,7 +20,7 @@ export default function GenericForm(props) {
         name="design"
         handleInputChange={props.handleInputChange}
         value={props.design}
-        error={props.errors.design}
+        error={props.errors ? props.errors.design : ""}
         as="textarea"
         rows="10"
         helpContent={

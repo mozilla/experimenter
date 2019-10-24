@@ -17,6 +17,7 @@ export default class DesignInput extends React.Component {
     super(props);
 
     this.state = {
+      value: this.props.value,
       help_showing: false
     };
   }
@@ -24,6 +25,11 @@ export default class DesignInput extends React.Component {
   @boundMethod
   toggleHelp(e) {
     this.setState({ help_showing: !this.state.help_showing });
+  }
+
+  @boundMethod
+  updateValue(e) {
+    this.setState({ value: e.target.value });
   }
 
   render() {
@@ -51,8 +57,8 @@ export default class DesignInput extends React.Component {
             id={this.props.id}
             type="text"
             name={this.props.name}
-            onChange={this.props.handleInputChange}
-            value={this.props.value}
+            onChange={this.updateValue}
+            value={this.state.value}
             className={this.props.error ? "is-invalid" : ""}
           >
             {this.props.children}
