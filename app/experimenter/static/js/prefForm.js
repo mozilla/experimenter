@@ -26,7 +26,7 @@ export default function PrefForm(props) {
         id="id_pref_key"
         handleInputChange={props.handleInputChange}
         value={props.pref_key}
-        error={props.errors.pref_key}
+        error={props.errors ? props.errors.pref_key : ""}
         helpContent={
           <div>
             <p>
@@ -49,7 +49,7 @@ export default function PrefForm(props) {
         id="id_pref_type"
         handleInputChange={props.handleInputChange}
         value={props.pref_type}
-        error={props.errors.pref_type}
+        error={props.errors ? props.errors.pref_type : ""}
         as="select"
         helpContent={
           <div>
@@ -76,7 +76,7 @@ export default function PrefForm(props) {
         id="id_pref_branch"
         handleInputChange={props.handleInputChange}
         value={props.pref_branch}
-        error={props.errors.pref_branch}
+        error={props.errors ? props.errors.pref_branch : ""}
         as="select"
         helpContent={
           <div>

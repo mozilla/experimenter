@@ -15,35 +15,13 @@ import AddonForm from "addon-form";
 import Error from "error-form";
 import HelpBox from "help-box";
 import DesignInput from "design-input";
+import Serialize from "form-serialize";
 
 export default class DesignForm extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      type: props.expType,
-      pref_key: "",
-      pref_type: "",
-      pref_branch: "",
-      addon_experiment_id: "",
-      addon_release_url: "",
-      design: "",
-      variants: [
-        {
-          ratio: null,
-          name: "",
-          description: "",
-          value: "",
-          is_control: true
-        },
-        {
-          ratio: null,
-          name: "",
-          description: "",
-          value: "",
-          is_control: false
-        }
-      ],
       loaded: false
     };
   }
@@ -53,38 +31,8 @@ export default class DesignForm extends React.Component {
 
     const json = await response.json();
 
-    if (json.variants.length == 0) {
-      for (let i = 0; i < 2; i++) {
-        let emptyBranch = {
-          ratio: null,
-          name: "",
-          description: "",
-          value: ""
-        };
-        if (i == 0) {
-          emptyBranch.is_control = true;
-        } else {
-          emptyBranch.is_control = false;
-        }
-        json.variants.push(emptyBranch);
-      }
-    } else {
-      json.variants.sort(function(a, b) {
-        return a.is_control == "true" ? -1 : b == "true" ? 1 : 0;
-      });
-    }
-
     json.loaded = true;
 
-    json.errors = { variants: [] };
-    for (let i = 0; i < json.variants.length; i++) {
-      json.errors.variants.push({
-        ratio: false,
-        name: false,
-        description: false,
-        value: false
-      });
-    }
     return this.setState(json);
   }
 
@@ -99,12 +47,6 @@ export default class DesignForm extends React.Component {
       value: "",
       is_control: false
     });
-    stateCopy.errors.variants.push({
-      ratio: false,
-      name: false,
-      description: false,
-      value: false
-    });
 
     this.setState(stateCopy);
   }
@@ -112,7 +54,6 @@ export default class DesignForm extends React.Component {
   @boundMethod
   removeBranch(e) {
     this.state.variants.splice(e.target.dataset.index, 1);
-    this.state.errors.variants.splice(e.target.dataset.index, 1);
 
     this.setState({ variants: this.state.variants });
   }
@@ -139,7 +80,7 @@ export default class DesignForm extends React.Component {
   }
 
   async makeFetchCall(method, body) {
-    const url = `/api/v1/experiments/${this.props.slug}/design-${this.state.type}/`
+    const url = `/api/v1/experiments/${this.props.slug}/design-${this.props.expType}/`;
 
     return await fetch(url, {
       method: method,
@@ -154,14 +95,10 @@ export default class DesignForm extends React.Component {
   async handleSubmit(e) {
     e.preventDefault();
 
-    const data = new FormData(e.target);
+    const form = document.querySelector("#design-form");
+    const object = Serialize(form, { hash: true });
 
-    var object = {};
-    data.forEach((value, key) => {
-      object[key] = value;
-    });
-
-    const res = await this.makeFetchCall("PUT", JSON.stringify(this.state));
+    const res = await this.makeFetchCall("PUT", JSON.stringify(object));
 
     if (res.status == "200") {
       location.replace(`/experiments/${this.props.slug}/`);
@@ -231,12 +168,16 @@ export default class DesignForm extends React.Component {
                   </Row>
                   <DesignInput
                     label="Branch Size"
-                    name="ratio"
+                    name={"variants[" + index + "][ratio]"}
                     id={"variants-" + index + "-ratio"}
                     index={index}
                     handleInputChange={this.handleVariantInputChange}
                     value={branch.ratio}
-                    error={this.state.errors.variants[index].ratio}
+                    error={
+                      this.state.errors
+                        ? this.state.errors.variants[index].ratio
+                        : ""
+                    }
                     helpContent={
                       <div>
                         <p>
@@ -254,12 +195,16 @@ export default class DesignForm extends React.Component {
                   ></DesignInput>
                   <DesignInput
                     label="Name"
-                    name="name"
+                    name={"variants[" + index + "][name]"}
                     id={"variants-" + index + "-name"}
                     index={index}
                     handleInputChange={this.handleVariantInputChange}
                     value={branch.name}
-                    error={this.state.errors.variants[index].name}
+                    error={
+                      this.state.errors
+                        ? this.state.errors.variants[index].name
+                        : ""
+                    }
                     helpContent={
                       <div>
                         <p>
@@ -281,14 +226,18 @@ export default class DesignForm extends React.Component {
                   ></DesignInput>
                   <DesignInput
                     label="Description"
-                    name="description"
+                    name={"variants[" + index + "][description]"}
                     as="textarea"
                     rows="3"
                     index={index}
                     id={"variants-" + index + "-description"}
                     handleInputChange={this.handleVariantInputChange}
                     value={branch.description}
-                    error={this.state.errors.variants[index].description}
+                    error={
+                      this.state.errors
+                        ? this.state.errors.variants[index].description
+                        : ""
+                    }
                     helpContent={
                       <div>
                         <p>
@@ -306,12 +255,16 @@ export default class DesignForm extends React.Component {
                   {this.state.type == "pref" ? (
                     <DesignInput
                       label="Pref Value"
-                      name="value"
+                      name={"variants[" + index + "][value]"}
                       id={"variants-" + index + "-value"}
                       index={index}
                       handleInputChange={this.handleVariantInputChange}
                       value={branch.value}
-                      error={this.state.errors.variants[index].value}
+                      error={
+                        this.state.errors
+                          ? this.state.errors.variants[index].value
+                          : ""
+                      }
                       margin="mt-4"
                       helpContent={
                         <div>
@@ -338,6 +291,11 @@ export default class DesignForm extends React.Component {
                   ) : (
                     ""
                   )}
+                  <FormControl
+                    className="d-none"
+                    name={"variants[" + index + "][is_control]"}
+                    value={index == 0 ? true : false}
+                  ></FormControl>
                   <hr className="heavy-line my-5" />
                 </div>
               ))}

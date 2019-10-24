@@ -25,7 +25,7 @@ export default function AddonForm(props) {
         name="addon_experiment_id"
         handleInputChange={props.handleInputChange}
         value={props.addon_experiment_id}
-        error={props.errors.addon_experiment_id}
+        error={props.errors ? props.errors.addon_experiment_id : ""}
         helpContent={
           <div>
             <p>
@@ -48,7 +48,7 @@ export default function AddonForm(props) {
         name="addon_release_url"
         handleInputChange={props.handleInputChange}
         value={props.addon_release_url}
-        error={props.errors.addon_release_url}
+        error={props.errors ? props.errors.addon_release_url : ""}
         helpContent={
           <div>
             <p>
