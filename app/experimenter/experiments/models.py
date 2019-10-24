@@ -782,8 +782,8 @@ class ExperimentVariant(models.Model):
             return "Treatment"
 
     @property
-    def json_load_value(self):
-        return json.loads(self.value)
+    def json_dumps_value(self):
+        return json.dumps(json.loads(self.value), indent=2)
 
 
 class ExperimentChangeLogManager(models.Manager):
