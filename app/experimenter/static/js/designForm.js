@@ -349,7 +349,7 @@ export default class DesignForm extends React.Component {
                     className="mb-4"
                     onClick={this.addBranch}
                   >
-                    + Add Branch
+                    <span className="fas fa-plus"/> Add Branch
                   </Button>
                 </Col>
               </Row>
@@ -362,10 +362,10 @@ export default class DesignForm extends React.Component {
                     <span className="fas fa-times"></span> Cancel Editing
                   </a>
                   <Button variant="primary" type="submit" className="mr-1">
-                    Save
+                    <span className="fas fa-save"/> Save Draft
                   </Button>
                   <Button id="save-continue" variant="primary" type="submit">
-                    Save and Continue
+                    <span className="fas fa-save"/> Save Draft and Continue
                   </Button>
                 </Col>
               </Row>
