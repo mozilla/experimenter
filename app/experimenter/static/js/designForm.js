@@ -31,6 +31,10 @@ export default class DesignForm extends React.Component {
 
     const json = await response.json();
 
+    const controlBranchIndex = json.variants.findIndex(element => element.is_control)
+    const controlBranch = json.variants.splice(controlBranchIndex, 1)[0]
+    json.variants.unshift(controlBranch)
+
     json.loaded = true;
 
     return this.setState(json);
