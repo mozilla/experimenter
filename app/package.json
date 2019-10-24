@@ -13,7 +13,8 @@
     "react": ">=16.8.0",
     "react-bootstrap": "^1.0.0-beta.11",
     "react-dom": ">=16.8.0",
-    "@babel/plugin-proposal-decorators": "7.6.0"
+    "@babel/plugin-proposal-decorators": "7.6.0",
+    "form-serialize": "0.7.2"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
