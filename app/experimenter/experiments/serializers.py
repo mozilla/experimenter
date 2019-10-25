@@ -427,13 +427,14 @@ class ExperimentCloneSerializer(serializers.ModelSerializer):
 
 
 class ExperimentDesignBranchBaseSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
     description = serializers.CharField()
     is_control = serializers.BooleanField()
     name = serializers.CharField()
     ratio = serializers.IntegerField()
 
     class Meta:
-        fields = ["description", "is_control", "name", "ratio"]
+        fields = ["id", "description", "is_control", "name", "ratio"]
         model = ExperimentVariant
 
 
@@ -484,37 +485,23 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
         return data
 
     def update(self, instance, validated_data):
-        variants = validated_data.pop("variants")
+        variants_data = validated_data.pop("variants")
+        instance = super().update(instance, validated_data)
 
-        existing_variants = instance.variants.all()
-        existing_variants.delete()
+        existing_variant_ids = set(instance.variants.all().values_list("id", flat=True))
 
-        if instance.type == "pref":
-            for variant in variants:
-                ExperimentVariant.objects.create(
-                    experiment=instance,
-                    is_control=variant["is_control"],
-                    value=variant["value"],
-                    description=variant["description"],
-                    name=variant["name"],
-                    ratio=variant["ratio"],
-                    slug=slugify(variant["name"]),
-                )
-        else:
-            for variant in variants:
-                ExperimentVariant.objects.create(
-                    experiment=instance,
-                    is_control=variant["is_control"],
-                    description=variant["description"],
-                    name=variant["name"],
-                    ratio=variant["ratio"],
-                    slug=slugify(variant["name"]),
-                )
+        # Create or update variants
+        for variant_data in variants_data:
+            variant_data["experiment"] = instance
+            variant_data["slug"] = slugify(variant_data["name"])
+            ExperimentVariant(**variant_data).save()
 
-        for key in validated_data:
-            setattr(instance, key, validated_data.get(key, getattr(instance, key)))
+        # Delete removed variants
+        submitted_variant_ids = set([v.get("id") for v in variants_data if v.get("id")])
+        removed_ids = existing_variant_ids - submitted_variant_ids
 
-        instance.save()
+        if removed_ids:
+            ExperimentVariant.objects.filter(id__in=removed_ids).delete()
 
         return instance
 
