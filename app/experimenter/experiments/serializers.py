@@ -473,7 +473,7 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
                     {
                         "name": [
                             (
-                                "All branches must have a unique name"
+                                "All branches must have a unique name "
                                 "and not contain special characters."
                             )
                         ]
