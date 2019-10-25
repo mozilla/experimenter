@@ -22,6 +22,7 @@ export default class DesignForm extends React.Component {
     super(props);
 
     this.state = {
+      errors: {},
       loaded: false
     };
   }
@@ -186,7 +187,7 @@ export default class DesignForm extends React.Component {
                     handleInputChange={this.handleVariantInputChange}
                     value={branch.ratio}
                     error={
-                      this.state.errors
+                      this.state.errors.variants
                         ? this.state.errors.variants[index].ratio
                         : ""
                     }
@@ -213,7 +214,7 @@ export default class DesignForm extends React.Component {
                     handleInputChange={this.handleVariantInputChange}
                     value={branch.name}
                     error={
-                      this.state.errors
+                      this.state.errors.variants
                         ? this.state.errors.variants[index].name
                         : ""
                     }
@@ -246,7 +247,7 @@ export default class DesignForm extends React.Component {
                     handleInputChange={this.handleVariantInputChange}
                     value={branch.description}
                     error={
-                      this.state.errors
+                      this.state.errors.variants
                         ? this.state.errors.variants[index].description
                         : ""
                     }
@@ -273,7 +274,7 @@ export default class DesignForm extends React.Component {
                       handleInputChange={this.handleVariantInputChange}
                       value={branch.value}
                       error={
-                        this.state.errors
+                        this.state.errors.variants
                           ? this.state.errors.variants[index].value
                           : ""
                       }
