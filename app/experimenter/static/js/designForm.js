@@ -307,6 +307,11 @@ export default class DesignForm extends React.Component {
                   )}
                   <FormControl
                     className="d-none"
+                    name={"variants[" + index + "][id]"}
+                    value={branch.id}
+                  ></FormControl>
+                  <FormControl
+                    className="d-none"
                     name={"variants[" + index + "][is_control]"}
                     value={index == 0 ? true : false}
                   ></FormControl>
