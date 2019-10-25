@@ -8,9 +8,10 @@ import {
   FormControl,
   FormLabel
 } from "react-bootstrap";
-import HelpBox from "help-box";
-import Error from "error-form";
-import DesignInput from "design-input";
+
+import HelpBox from "experimenter/components/HelpBox";
+import Error from "experimenter/components/Error";
+import DesignInput from "experimenter/components/DesignInput";
 
 export default function PrefForm(props) {
   return (
