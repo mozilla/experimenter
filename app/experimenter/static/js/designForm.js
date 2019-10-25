@@ -115,7 +115,15 @@ export default class DesignForm extends React.Component {
   render() {
     const dataExists = this.state.loaded;
     if (!dataExists) {
-      return null;
+      return (
+        <Container>
+          <div class="fa-5x">
+            <Row className="justify-content-center">
+              <i className="fas fa-spinner fa-spin"></i>
+            </Row>
+          </div>
+        </Container>
+      );
     } else {
       return (
         <div>
