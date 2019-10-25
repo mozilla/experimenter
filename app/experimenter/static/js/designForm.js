@@ -22,6 +22,7 @@ export default class DesignForm extends React.Component {
     super(props);
 
     this.state = {
+      values: {},
       errors: {},
       loaded: false
     };
@@ -30,20 +31,20 @@ export default class DesignForm extends React.Component {
   async componentDidMount() {
     const response = await this.makeFetchCall("GET");
 
-    const json = await response.json();
+    const data = await response.json();
 
-    const controlBranchIndex = json.variants.findIndex(element => element.is_control)
-    const controlBranch = json.variants.splice(controlBranchIndex, 1)[0]
-    json.variants.unshift(controlBranch)
+    const controlBranchIndex = data.variants.findIndex(element => element.is_control)
+    const controlBranch = data.variants.splice(controlBranchIndex, 1)[0]
+    data.variants.unshift(controlBranch)
 
-    json.loaded = true;
+    data.loaded = true;
 
-    return this.setState(json);
+    return this.setState({values: data});
   }
 
   @boundMethod
   addBranch(e) {
-    let stateCopy = { ...this.state };
+    let stateCopy = { ...this.state.values };
 
     stateCopy.variants.push({
       ratio: null,
@@ -58,14 +59,14 @@ export default class DesignForm extends React.Component {
 
   @boundMethod
   removeBranch(e) {
-    this.state.variants.splice(e.target.dataset.index, 1);
+    this.state.values.variants.splice(e.target.dataset.index, 1);
 
-    this.setState({ variants: this.state.variants });
+    this.setState({ variants: this.state.values.variants });
   }
 
   @boundMethod
   handleVariantInputChange(e) {
-    let stateCopy = { ...this.state.variants };
+    let stateCopy = { ...this.state.values.variants };
     let inputName = e.target.name;
     stateCopy[e.target.dataset.index][inputName] = e.target.value;
 
@@ -74,7 +75,7 @@ export default class DesignForm extends React.Component {
 
   @boundMethod
   handleInputChange(e) {
-    let stateCopy = { ...this.state };
+    let stateCopy = { ...this.state.values };
     stateCopy[e.target.name] = e.target.value;
 
     this.setState(stateCopy);
@@ -114,7 +115,7 @@ export default class DesignForm extends React.Component {
   }
 
   render() {
-    const dataExists = this.state.loaded;
+    const dataExists = this.state.values.loaded;
     if (!dataExists) {
       return (
         <Container>
@@ -130,33 +131,33 @@ export default class DesignForm extends React.Component {
         <div>
           <Container>
             <form onSubmit={this.handleSubmit} id="design-form">
-              {this.state.type == "pref" ? (
+              {this.state.values.type == "pref" ? (
                 <PrefForm
                   handleInputChange={this.handleInputChange}
-                  {...this.state}
+                  {...this.state.values}
                 ></PrefForm>
               ) : (
                 ""
               )}
-              {this.state.type == "addon" ? (
+              {this.state.values.type == "addon" ? (
                 <AddonForm
                   handleInputChange={this.handleInputChange}
-                  {...this.state}
+                  {...this.state.values}
                 ></AddonForm>
               ) : (
                 ""
               )}
-              {this.state.type == "generic" ? (
+              {this.state.values.type == "generic" ? (
                 <GenericForm
                   handleInputChange={this.handleInputChange}
-                  {...this.state}
+                  {...this.state.values}
                 ></GenericForm>
               ) : (
                 ""
               )}
 
               <hr className="heavy-line my-5" />
-              {this.state.variants.map((branch, index) => (
+              {this.state.values.variants.map((branch, index) => (
                 <div key={index} id="control-branch-group">
                   <Row className="mb-3">
                     <Col md={{ span: 4, offset: 3 }}>
@@ -265,7 +266,7 @@ export default class DesignForm extends React.Component {
                       </div>
                     }
                   ></DesignInput>
-                  {this.state.type == "pref" ? (
+                  {this.state.values.type == "pref" ? (
                     <DesignInput
                       label="Pref Value"
                       name={"variants[" + index + "][value]"}
