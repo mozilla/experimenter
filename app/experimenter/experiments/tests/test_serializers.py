@@ -548,28 +548,178 @@ class TestExperimentRecipeSerializer(TestCase):
 class TestExperimentDesignBaseSerializer(TestCase):
 
     def setUp(self):
-        self.variant_1 = {
+        self.control_variant_data = {
             "name": "Terrific branch",
             "ratio": 50,
             "description": "Very terrific branch.",
             "is_control": True,
         }
-        self.variant_2 = {
+        self.treatment_variant_data = {
             "name": "Great branch",
             "ratio": 50,
             "description": "Very great branch.",
             "is_control": False,
         }
 
+    def test_serializer_saves_new_variants(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+
+        self.assertEqual(experiment.variants.all().count(), 0)
+
+        data = {
+            "type": ExperimentConstants.TYPE_GENERIC,
+            "variants": [self.control_variant_data, self.treatment_variant_data],
+        }
+
+        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.variants.all().count(), 2)
+
+        control_variant = experiment.variants.get(is_control=True)
+        self.assertEqual(control_variant.name, self.control_variant_data["name"])
+        self.assertEqual(control_variant.ratio, self.control_variant_data["ratio"])
+        self.assertEqual(
+            control_variant.description, self.control_variant_data["description"]
+        )
+
+        treatment_variant = experiment.variants.get(is_control=False)
+        self.assertEqual(treatment_variant.name, self.treatment_variant_data["name"])
+        self.assertEqual(treatment_variant.ratio, self.treatment_variant_data["ratio"])
+        self.assertEqual(
+            treatment_variant.description, self.treatment_variant_data["description"]
+        )
+
+    def test_serializer_updates_existing_variants(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+        control_variant = ExperimentVariantFactory.create(
+            experiment=experiment, is_control=True
+        )
+        treatment_variant = ExperimentVariantFactory.create(
+            experiment=experiment, is_control=False
+        )
+
+        self.assertEqual(experiment.variants.all().count(), 2)
+
+        self.control_variant_data["id"] = control_variant.id
+        self.treatment_variant_data["id"] = treatment_variant.id
+
+        data = {
+            "type": ExperimentConstants.TYPE_GENERIC,
+            "variants": [self.control_variant_data, self.treatment_variant_data],
+        }
+
+        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.variants.all().count(), 2)
+
+        control_variant = ExperimentVariant.objects.get(id=control_variant.id)
+        self.assertEqual(control_variant.name, self.control_variant_data["name"])
+        self.assertEqual(control_variant.ratio, self.control_variant_data["ratio"])
+        self.assertEqual(
+            control_variant.description, self.control_variant_data["description"]
+        )
+
+        treatment_variant = ExperimentVariant.objects.get(id=treatment_variant.id)
+        self.assertEqual(treatment_variant.name, self.treatment_variant_data["name"])
+        self.assertEqual(treatment_variant.ratio, self.treatment_variant_data["ratio"])
+        self.assertEqual(
+            treatment_variant.description, self.treatment_variant_data["description"]
+        )
+
+    def test_serializer_deletes_removed_variants(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+        control_variant = ExperimentVariantFactory.create(
+            experiment=experiment, is_control=True
+        )
+        ExperimentVariantFactory.create(experiment=experiment, is_control=False)
+        treatment2_variant = ExperimentVariantFactory.create(
+            experiment=experiment, is_control=False
+        )
+
+        self.assertEqual(experiment.variants.all().count(), 3)
+
+        self.control_variant_data["id"] = control_variant.id
+        self.treatment_variant_data["id"] = treatment2_variant.id
+
+        data = {
+            "type": ExperimentConstants.TYPE_GENERIC,
+            "variants": [self.control_variant_data, self.treatment_variant_data],
+        }
+
+        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.variants.all().count(), 2)
+        self.assertEqual(
+            set(experiment.variants.all()), set([control_variant, treatment2_variant])
+        )
+
+    def test_serializer_adds_new_variant(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+        control_variant = ExperimentVariantFactory.create(
+            experiment=experiment, is_control=True
+        )
+        treatment1_variant = ExperimentVariantFactory.create(
+            experiment=experiment, is_control=False
+        )
+
+        self.assertEqual(experiment.variants.all().count(), 2)
+
+        self.control_variant_data["id"] = control_variant.id
+        self.control_variant_data["ratio"] = 33
+        self.treatment_variant_data["id"] = treatment1_variant.id
+        self.treatment_variant_data["ratio"] = 33
+
+        treatment2_variant_data = {
+            "name": "New Branch",
+            "ratio": 34,
+            "description": "New Branch",
+            "is_control": False,
+        }
+
+        data = {
+            "type": ExperimentConstants.TYPE_GENERIC,
+            "variants": [
+                self.control_variant_data,
+                self.treatment_variant_data,
+                treatment2_variant_data,
+            ],
+        }
+
+        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.variants.all().count(), 3)
+
+        new_variant = ExperimentVariant.objects.get(name=treatment2_variant_data["name"])
+        self.assertEqual(
+            set(experiment.variants.all()),
+            set([control_variant, treatment1_variant, new_variant]),
+        )
+
     def test_serializer_rejects_ratio_not_100(self):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_ADDON)
 
-        self.variant_1["ratio"] = 50
-        self.variant_2["ratio"] = 40
+        self.control_variant_data["ratio"] = 50
+        self.treatment_variant_data["ratio"] = 40
 
         data = {
             "type": ExperimentConstants.TYPE_PREF,
-            "variants": [self.variant_1, self.variant_2],
+            "variants": [self.control_variant_data, self.treatment_variant_data],
         }
 
         serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
@@ -580,11 +730,11 @@ class TestExperimentDesignBaseSerializer(TestCase):
     def test_serializer_rejects_duplicate_branch_names(self):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
 
-        self.variant_1["name"] = "Great branch"
+        self.control_variant_data["name"] = "Great branch"
 
         data = {
             "type": ExperimentConstants.TYPE_PREF,
-            "variants": [self.variant_1, self.variant_2],
+            "variants": [self.control_variant_data, self.treatment_variant_data],
         }
 
         serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
