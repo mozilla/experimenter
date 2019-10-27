@@ -20,6 +20,7 @@ export default class DesignForm extends React.Component {
     this.state = {
       values: {},
       errors: {},
+      continue: false,
       loaded: false
     };
   }
@@ -106,11 +107,22 @@ export default class DesignForm extends React.Component {
     const res = await this.makeFetchCall("PUT", JSON.stringify(object));
 
     if (res.status == "200") {
-      location.replace(`/experiments/${this.props.slug}/`);
+      if (this.state.continue){
+        location.replace(`/experiments/${this.props.slug}/edit-objectives/`);
+      }
+      else{
+        location.replace(`/experiments/${this.props.slug}/`);
+      }
+      
     }
 
     const json = await res.json();
     this.handleValidationErrors(json);
+  }
+
+  @boundMethod
+  setContinue(e){
+    this.setState({continue:true})
   }
 
   render() {
@@ -165,7 +177,7 @@ export default class DesignForm extends React.Component {
                   <Button variant="primary" type="submit" className="mr-1">
                     <span className="fas fa-save"/> Save Draft
                   </Button>
-                  <Button id="save-continue" variant="primary" type="submit">
+                  <Button id="save-continue" variant="primary" type="submit" onClick={this.setContinue}>
                     <span className="fas fa-save"/> Save Draft and Continue
                   </Button>
                 </Col>
