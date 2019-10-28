@@ -16,8 +16,6 @@ billiard==3.5.0.5 \
 kombu==4.6.3 \
     --hash=sha256:55b71d3785def3470a16217fe0780f9e6f95e61bf9ad39ef8dce0177224eab77 \
     --hash=sha256:eb365ea795cd7e629ba2f1f398e0c3ba354b91ef4de225ffdf6ab45fdfc7d581
-django-jquery-js==3.1.1 \
-    --hash=sha256:308e6472801f89be7c02fa3d06bea6470cfbcab8287db80c64b1093717b8eea9
 Faker==2.0.0 \
     --hash=sha256:b3bb64aff9571510de6812df45122b633dbc6227e870edae3ed9430f94698521 \
     --hash=sha256:96ad7902706f2409a2d0c3de5132f69b413555a419bacec99d3f16e657895b47

@@ -48,8 +48,6 @@ django-cors-headers==3.1.1 \
 django-filter==2.2.0 \
     --hash=sha256:558c727bce3ffa89c4a7a0b13bc8976745d63e5fd576b3a9a851650ef11c401b \
     --hash=sha256:c3deb57f0dd7ff94d7dce52a047516822013e2b441bed472b722a317658cfd14
-django-formset-js-improved==0.5.0.2 \
-    --hash=sha256:251649ca389144728359b57d5845c601b3420fdafa2e4634668de614e14953ce
 django-widget-tweaks==1.4.5 \
     --hash=sha256:65c960f3d75008a285e4b10f4d21f9eae4160fd77a0f6097ad545185f8648bd6 \
     --hash=sha256:f2e2c9c9be1ccc59061e248dcc2144f4906d594abe1a563902f4bdf6aa14e432

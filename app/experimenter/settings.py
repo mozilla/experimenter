@@ -55,8 +55,6 @@ INSTALLED_APPS = [
     "corsheaders",
     "raven.contrib.django.raven_compat",
     "rest_framework",
-    "djangoformsetjs",
-    "jquery",
     "widget_tweaks",
     "experimenter.base",
     "experimenter.experiments",
