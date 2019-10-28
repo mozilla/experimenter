@@ -125,6 +125,11 @@ export default class DesignForm extends React.Component {
     this.setState({continue:true})
   }
 
+  @boundMethod
+  setNotToContinue(e){
+    this.setState({continue:false})
+  }
+
   render() {
     const dataExists = this.state.values.loaded;
     if (!dataExists) {
@@ -174,7 +179,7 @@ export default class DesignForm extends React.Component {
                   >
                     <span className="fas fa-times"></span> Cancel Editing
                   </a>
-                  <Button variant="primary" type="submit" className="mr-1">
+                  <Button variant="primary" type="submit" className="mr-1" onClick={this.setNotToContinue}>
                     <span className="fas fa-save"/> Save Draft
                   </Button>
                   <Button id="save-continue" variant="primary" type="submit" onClick={this.setContinue}>
