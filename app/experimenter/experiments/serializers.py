@@ -40,12 +40,11 @@ class VariantsListSerializer(serializers.ListSerializer):
     def to_representation(self, data):
         data = super().to_representation(data)
         if data == []:
-            blank_variant = {}
+            blank_variant = {"is_control": False}
+            control_blank_variant = {"is_control": True}
             for field in self.child.fields:
                 blank_variant[field] = None
-                control_blank_variant = blank_variant.copy()
-                blank_variant["is_control"] = False
-                control_blank_variant["is_control"] = True
+                control_blank_variant[field] = None
 
             return [control_blank_variant, blank_variant]
         return data
