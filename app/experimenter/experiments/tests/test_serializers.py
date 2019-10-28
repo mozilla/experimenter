@@ -762,11 +762,13 @@ class TestExperimentDesignPrefSerializer(TestCase):
         }
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        experiment = ExperimentFactory.create_with_variants(
+            type=ExperimentConstants.TYPE_PREF
+        )
 
         serializer = ExperimentDesignPrefSerializer(experiment)
 
-        self.assertEqual(
+        self.assertCountEqual(
             serializer.data,
             {
                 "type": ExperimentConstants.TYPE_PREF,
@@ -776,6 +778,37 @@ class TestExperimentDesignPrefSerializer(TestCase):
                 "variants": [
                     ExperimentVariantSerializer(variant).data
                     for variant in experiment.variants.all()
+                ],
+            },
+        )
+
+    def test_serializer_outputs_dummy_variants_when_no_variants(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+
+        serializer = ExperimentDesignPrefSerializer(experiment)
+
+        self.assertCountEqual(
+            serializer.data,
+            {
+                "type": ExperimentConstants.TYPE_PREF,
+                "pref_key": experiment.pref_key,
+                "pref_type": experiment.pref_type,
+                "pref_branch": experiment.pref_branch,
+                "variants": [
+                    {
+                        "description": None,
+                        "is_control": True,
+                        "name": None,
+                        "ratio": None,
+                        "value": None,
+                    },
+                    {
+                        "description": None,
+                        "is_control": False,
+                        "name": None,
+                        "ratio": None,
+                        "value": None,
+                    },
                 ],
             },
         )
@@ -814,7 +847,6 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "variants": [self.variant_1, self.variant_2],
         }
         serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
-
         self.assertFalse(serializer.is_valid())
         self.assertIn("variants", serializer.errors)
 
@@ -938,11 +970,13 @@ class TestExperimentDesignPrefSerializer(TestCase):
 class TestExperimentDesignAddonSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_ADDON)
+        experiment = ExperimentFactory.create_with_variants(
+            type=ExperimentConstants.TYPE_ADDON
+        )
 
         serializer = ExperimentDesignAddonSerializer(experiment)
-
-        self.assertEqual(
+        self.maxDiff = None
+        self.assertCountEqual(
             serializer.data,
             {
                 "type": ExperimentConstants.TYPE_ADDON,
@@ -951,6 +985,35 @@ class TestExperimentDesignAddonSerializer(TestCase):
                 "variants": [
                     ExperimentVariantSerializer(variant).data
                     for variant in experiment.variants.all()
+                ],
+            },
+        )
+
+    def test_serializer_outputs_dummy_variants_when_no_variants(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_ADDON)
+
+        serializer = ExperimentDesignPrefSerializer(experiment)
+
+        self.assertCountEqual(
+            serializer.data,
+            {
+                "type": ExperimentConstants.TYPE_PREF,
+                "pref_key": experiment.pref_key,
+                "pref_type": experiment.pref_type,
+                "pref_branch": experiment.pref_branch,
+                "variants": [
+                    {
+                        "description": None,
+                        "is_control": True,
+                        "name": None,
+                        "ratio": None,
+                    },
+                    {
+                        "description": None,
+                        "is_control": False,
+                        "name": None,
+                        "ratio": None,
+                    },
                 ],
             },
         )
@@ -992,11 +1055,13 @@ class TestExperimentDesignAddonSerializer(TestCase):
 class TestExperimentDesignGenericSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+        experiment = ExperimentFactory.create_with_variants(
+            type=ExperimentConstants.TYPE_GENERIC
+        )
 
         serializer = ExperimentDesignGenericSerializer(experiment)
 
-        self.assertEqual(
+        self.assertCountEqual(
             serializer.data,
             {
                 "type": experiment.type,
@@ -1004,6 +1069,35 @@ class TestExperimentDesignGenericSerializer(TestCase):
                 "variants": [
                     ExperimentVariantSerializer(variant).data
                     for variant in experiment.variants.all()
+                ],
+            },
+        )
+
+    def test_serializer_outputs_dummy_variants_when_no_variants(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+
+        serializer = ExperimentDesignPrefSerializer(experiment)
+
+        self.assertCountEqual(
+            serializer.data,
+            {
+                "type": ExperimentConstants.TYPE_PREF,
+                "pref_key": experiment.pref_key,
+                "pref_type": experiment.pref_type,
+                "pref_branch": experiment.pref_branch,
+                "variants": [
+                    {
+                        "description": None,
+                        "is_control": True,
+                        "name": None,
+                        "ratio": None,
+                    },
+                    {
+                        "description": None,
+                        "is_control": False,
+                        "name": None,
+                        "ratio": None,
+                    },
                 ],
             },
         )
