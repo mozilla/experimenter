@@ -119,7 +119,7 @@ export default class DesignForm extends React.Component {
     if (!dataExists) {
       return (
         <Container>
-          <div class="fa-5x">
+          <div className="fa-5x">
             <Row className="justify-content-center">
               <i className="fas fa-spinner fa-spin"></i>
             </Row>
@@ -134,7 +134,7 @@ export default class DesignForm extends React.Component {
               {this.state.values.type == "pref" ? (
                 <PrefForm
                   handleInputChange={this.handleInputChange}
-                  {...this.state.values}
+                  {...this.state}
                 ></PrefForm>
               ) : (
                 ""
@@ -142,7 +142,7 @@ export default class DesignForm extends React.Component {
               {this.state.values.type == "addon" ? (
                 <AddonForm
                   handleInputChange={this.handleInputChange}
-                  {...this.state.values}
+                  {...this.state}
                 ></AddonForm>
               ) : (
                 ""
@@ -150,7 +150,7 @@ export default class DesignForm extends React.Component {
               {this.state.values.type == "generic" ? (
                 <GenericForm
                   handleInputChange={this.handleInputChange}
-                  {...this.state.values}
+                  {...this.state}
                 ></GenericForm>
               ) : (
                 ""
