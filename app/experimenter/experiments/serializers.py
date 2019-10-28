@@ -35,6 +35,21 @@ class PrefTypeField(serializers.Field):
             return obj
 
 
+class VariantsListSerializer(serializers.ListSerializer):
+
+    def to_representation(self, data):
+        data = super().to_representation(data)
+        if data == []:
+            blank_variant = {"is_control": False}
+            control_blank_variant = {"is_control": True}
+            for field in self.child.fields:
+                blank_variant[field] = None
+                control_blank_variant[field] = None
+
+            return [control_blank_variant, blank_variant]
+        return data
+
+
 class ExperimentVariantSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -434,6 +449,7 @@ class ExperimentDesignBranchBaseSerializer(serializers.ModelSerializer):
     ratio = serializers.IntegerField()
 
     class Meta:
+        list_serializer_class = VariantsListSerializer
         fields = ["id", "description", "is_control", "name", "ratio"]
         model = ExperimentVariant
 
@@ -441,7 +457,7 @@ class ExperimentDesignBranchBaseSerializer(serializers.ModelSerializer):
 class ExperimentDesignBranchPrefSerializer(ExperimentDesignBranchBaseSerializer):
     value = serializers.CharField()
 
-    class Meta:
+    class Meta(ExperimentDesignBranchBaseSerializer.Meta):
         fields = ["description", "is_control", "name", "ratio", "value"]
         model = ExperimentVariant
 
