@@ -9,8 +9,9 @@ import {
   FormLabel
 } from "react-bootstrap";
 import { boundMethod } from "autobind-decorator";
-import Error from "error-form";
-import HelpBox from "help-box";
+
+import Error from "experimenter/components/Error";
+import HelpBox from "experimenter/components/HelpBox";
 
 export default class DesignInput extends React.Component {
   constructor(props) {
