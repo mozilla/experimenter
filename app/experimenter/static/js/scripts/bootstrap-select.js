@@ -1,11 +1,3 @@
-// Initialize the formset plugin
-jQuery(function($) {
-  $("#formset").formset({
-    animateForms: true,
-    reorderMode: "dom"
-  });
-});
-
 // Initialize the bootstrap-select plugin
 // https://developer.snapappointments.com/bootstrap-select/
 jQuery(function($) {

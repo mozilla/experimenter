@@ -8,9 +8,10 @@ import {
   FormControl,
   FormLabel
 } from "react-bootstrap";
-import Error from "error-form";
-import HelpBox from "help-box";
-import DesignInput from "design-input";
+
+import Error from "experimenter/components/Error";
+import HelpBox from "experimenter/components/HelpBox";
+import DesignInput from "experimenter/components/DesignInput";
 
 export default function AddonForm(props) {
   return (

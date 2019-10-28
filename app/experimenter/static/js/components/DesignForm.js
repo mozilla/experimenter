@@ -9,13 +9,14 @@ import {
   FormLabel
 } from "react-bootstrap";
 import { boundMethod } from "autobind-decorator";
-import PrefForm from "pref-form";
-import GenericForm from "generic-form";
-import AddonForm from "addon-form";
-import Error from "error-form";
-import HelpBox from "help-box";
-import DesignInput from "design-input";
 import Serialize from "form-serialize";
+
+import PrefForm from "experimenter/components/PrefForm";
+import GenericForm from "experimenter/components/GenericForm";
+import AddonForm from "experimenter/components/AddonForm";
+import Error from "experimenter/components/Error";
+import HelpBox from "experimenter/components/HelpBox";
+import DesignInput from "experimenter/components/DesignInput";
 
 export default class DesignForm extends React.Component {
   constructor(props) {
