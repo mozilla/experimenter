@@ -21,13 +21,7 @@
     "@babel/preset-react": "^7.6.3"
   },
   "alias": {
-    "design-form": "./experimenter/static/js/designForm.js",
-    "addon-form": "./experimenter/static/js/addonForm.js",
-    "pref-form": "./experimenter/static/js/prefForm.js",
-    "generic-form": "./experimenter/static/js/genericForm.js",
-    "error-form": "./experimenter/static/js/error.js",
-    "help-box": "./experimenter/static/js/helpBox.js",
-    "design-input": "./experimenter/static/js/designInput.js"
+    "experimenter": "./experimenter/static/js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
