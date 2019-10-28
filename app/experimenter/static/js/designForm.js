@@ -22,6 +22,8 @@ export default class DesignForm extends React.Component {
     super(props);
 
     this.state = {
+      values: {},
+      errors: {},
       loaded: false
     };
   }
@@ -29,16 +31,20 @@ export default class DesignForm extends React.Component {
   async componentDidMount() {
     const response = await this.makeFetchCall("GET");
 
-    const json = await response.json();
+    const data = await response.json();
 
-    json.loaded = true;
+    const controlBranchIndex = data.variants.findIndex(element => element.is_control)
+    const controlBranch = data.variants.splice(controlBranchIndex, 1)[0]
+    data.variants.unshift(controlBranch)
 
-    return this.setState(json);
+    data.loaded = true;
+
+    return this.setState({values: data});
   }
 
   @boundMethod
   addBranch(e) {
-    let stateCopy = { ...this.state };
+    let stateCopy = { ...this.state.values };
 
     stateCopy.variants.push({
       ratio: null,
@@ -53,14 +59,14 @@ export default class DesignForm extends React.Component {
 
   @boundMethod
   removeBranch(e) {
-    this.state.variants.splice(e.target.dataset.index, 1);
+    this.state.values.variants.splice(e.target.dataset.index, 1);
 
-    this.setState({ variants: this.state.variants });
+    this.setState({ variants: this.state.values.variants });
   }
 
   @boundMethod
   handleVariantInputChange(e) {
-    let stateCopy = { ...this.state.variants };
+    let stateCopy = { ...this.state.values.variants };
     let inputName = e.target.name;
     stateCopy[e.target.dataset.index][inputName] = e.target.value;
 
@@ -69,7 +75,7 @@ export default class DesignForm extends React.Component {
 
   @boundMethod
   handleInputChange(e) {
-    let stateCopy = { ...this.state };
+    let stateCopy = { ...this.state.values };
     stateCopy[e.target.name] = e.target.value;
 
     this.setState(stateCopy);
@@ -109,15 +115,23 @@ export default class DesignForm extends React.Component {
   }
 
   render() {
-    const dataExists = this.state.loaded;
+    const dataExists = this.state.values.loaded;
     if (!dataExists) {
-      return null;
+      return (
+        <Container>
+          <div className="fa-5x">
+            <Row className="justify-content-center">
+              <i className="fas fa-spinner fa-spin"></i>
+            </Row>
+          </div>
+        </Container>
+      );
     } else {
       return (
         <div>
           <Container>
             <form onSubmit={this.handleSubmit} id="design-form">
-              {this.state.type == "pref" ? (
+              {this.state.values.type == "pref" ? (
                 <PrefForm
                   handleInputChange={this.handleInputChange}
                   {...this.state}
@@ -125,7 +139,7 @@ export default class DesignForm extends React.Component {
               ) : (
                 ""
               )}
-              {this.state.type == "addon" ? (
+              {this.state.values.type == "addon" ? (
                 <AddonForm
                   handleInputChange={this.handleInputChange}
                   {...this.state}
@@ -133,7 +147,7 @@ export default class DesignForm extends React.Component {
               ) : (
                 ""
               )}
-              {this.state.type == "generic" ? (
+              {this.state.values.type == "generic" ? (
                 <GenericForm
                   handleInputChange={this.handleInputChange}
                   {...this.state}
@@ -143,7 +157,7 @@ export default class DesignForm extends React.Component {
               )}
 
               <hr className="heavy-line my-5" />
-              {this.state.variants.map((branch, index) => (
+              {this.state.values.variants.map((branch, index) => (
                 <div key={index} id="control-branch-group">
                   <Row className="mb-3">
                     <Col md={{ span: 4, offset: 3 }}>
@@ -174,7 +188,7 @@ export default class DesignForm extends React.Component {
                     handleInputChange={this.handleVariantInputChange}
                     value={branch.ratio}
                     error={
-                      this.state.errors
+                      this.state.errors.variants
                         ? this.state.errors.variants[index].ratio
                         : ""
                     }
@@ -201,7 +215,7 @@ export default class DesignForm extends React.Component {
                     handleInputChange={this.handleVariantInputChange}
                     value={branch.name}
                     error={
-                      this.state.errors
+                      this.state.errors.variants
                         ? this.state.errors.variants[index].name
                         : ""
                     }
@@ -234,7 +248,7 @@ export default class DesignForm extends React.Component {
                     handleInputChange={this.handleVariantInputChange}
                     value={branch.description}
                     error={
-                      this.state.errors
+                      this.state.errors.variants
                         ? this.state.errors.variants[index].description
                         : ""
                     }
@@ -252,7 +266,7 @@ export default class DesignForm extends React.Component {
                       </div>
                     }
                   ></DesignInput>
-                  {this.state.type == "pref" ? (
+                  {this.state.values.type == "pref" ? (
                     <DesignInput
                       label="Pref Value"
                       name={"variants[" + index + "][value]"}
@@ -261,7 +275,7 @@ export default class DesignForm extends React.Component {
                       handleInputChange={this.handleVariantInputChange}
                       value={branch.value}
                       error={
-                        this.state.errors
+                        this.state.errors.variants
                           ? this.state.errors.variants[index].value
                           : ""
                       }
@@ -291,6 +305,11 @@ export default class DesignForm extends React.Component {
                   ) : (
                     ""
                   )}
+                  <FormControl
+                    className="d-none"
+                    name={"variants[" + index + "][id]"}
+                    value={branch.id}
+                  ></FormControl>
                   <FormControl
                     className="d-none"
                     name={"variants[" + index + "][is_control]"}
