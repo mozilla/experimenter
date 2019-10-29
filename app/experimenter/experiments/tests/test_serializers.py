@@ -388,7 +388,7 @@ class TestExperimentRecipeVariantSerializer(TestCase):
 class TestExperimentRecipePrefArgumentsSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
+        experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_INT)
         serializer = ExperimentRecipePrefArgumentsSerializer(experiment)
         self.assertEqual(
             serializer.data,
@@ -398,6 +398,24 @@ class TestExperimentRecipePrefArgumentsSerializer(TestCase):
                 "experimentDocumentUrl": experiment.experiment_url,
                 "preferenceName": experiment.pref_key,
                 "preferenceType": experiment.pref_type,
+                "branches": [
+                    ExperimentRecipeVariantSerializer(variant).data
+                    for variant in experiment.variants.all()
+                ],
+            },
+        )
+
+    def test_serializer_outputs_expected_schema_with_json_str(self):
+        experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_JSON_STR)
+        serializer = ExperimentRecipePrefArgumentsSerializer(experiment)
+        self.assertEqual(
+            serializer.data,
+            {
+                "preferenceBranchType": experiment.pref_branch,
+                "slug": experiment.normandy_slug,
+                "experimentDocumentUrl": experiment.experiment_url,
+                "preferenceName": experiment.pref_key,
+                "preferenceType": "string",
                 "branches": [
                     ExperimentRecipeVariantSerializer(variant).data
                     for variant in experiment.variants.all()
