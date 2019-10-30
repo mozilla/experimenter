@@ -101,8 +101,7 @@ export default class DesignForm extends React.Component {
     let object = Serialize(form, { hash: true });
   
     //remove undefined/deleted variants
-    let filtered_variants = object.variants.filter(item=>item!=undefined);
-    object.variants = filtered_variants
+    object.variants = object.variants.filter(item=>item!=undefined);
 
     const res = await this.makeFetchCall("PUT", JSON.stringify(object));
 

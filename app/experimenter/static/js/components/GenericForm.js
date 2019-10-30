@@ -20,7 +20,6 @@ export default function GenericForm(props) {
           </div>
         }
       />
-
       <hr className="heavy-line my-5" />
       <BranchManager {...props} branchComponent={<GenericBranch />} />
     </div>

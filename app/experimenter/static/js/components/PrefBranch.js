@@ -3,7 +3,7 @@ import { Button, Row, Col, FormControl } from "react-bootstrap";
 import DesignInput from "experimenter/components/DesignInput";
 export default function PrefBranch(props) {
   return (
-    <div key={props.id}>
+    <div key={props.id} id="control-branch-group">
       <Row className="mb-3">
         <Col md={{ span: 4, offset: 3 }}>
           {props.values.is_control ? (

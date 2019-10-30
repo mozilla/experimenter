@@ -30,8 +30,7 @@ export default class BranchManager extends React.Component {
 
   @boundMethod
   addBranch() {
-    this.state.variants[this.state.variants_counter] = {};
-    this.state.variants_counter += 1;
+    this.state.variants[this.state.variants_counter++] = {};
     this.setState(this.state);
   }
 
