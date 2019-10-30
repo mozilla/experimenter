@@ -94,6 +94,7 @@ export default function PrefForm(props) {
         <option>default</option>
         <option>user</option>
       </DesignInput>
+      <hr className="heavy-line my-5" />
       <BranchManager {...props} branchComponent={<PrefBranch />} />
     </div>
   );
