@@ -40,11 +40,13 @@ class VariantsListSerializer(serializers.ListSerializer):
     def to_representation(self, data):
         data = super().to_representation(data)
         if data == []:
-            blank_variant = {"is_control": False}
-            control_blank_variant = {"is_control": True}
+            blank_variant = {}
+            control_blank_variant = {}
             for field in self.child.fields:
                 blank_variant[field] = None
                 control_blank_variant[field] = None
+            blank_variant["is_control"] = False
+            control_blank_variant["is_control"] = True
 
             return [control_blank_variant, blank_variant]
         return data
@@ -458,7 +460,7 @@ class ExperimentDesignBranchPrefSerializer(ExperimentDesignBranchBaseSerializer)
     value = serializers.CharField()
 
     class Meta(ExperimentDesignBranchBaseSerializer.Meta):
-        fields = ["description", "is_control", "name", "ratio", "value"]
+        fields = ["id", "description", "is_control", "name", "ratio", "value"]
         model = ExperimentVariant
 
 

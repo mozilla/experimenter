@@ -1,16 +1,8 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import {
-  Button,
-  Container,
-  Row,
-  Col,
-  FormControl,
-  FormLabel
-} from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 
-import Error from "experimenter/components/Error";
-import HelpBox from "experimenter/components/HelpBox";
+import BranchManager from "experimenter/components/BranchManager";
+import GenericBranch from "experimenter/components/GenericBranch";
 import DesignInput from "experimenter/components/DesignInput";
 
 export default function AddonForm(props) {
@@ -68,7 +60,9 @@ export default function AddonForm(props) {
             </p>
           </div>
         }
-      ></DesignInput>
+      />
+      <hr className="heavy-line my-5" />
+      <BranchManager {...props} branchComponent={<GenericBranch />} />
     </div>
   );
 }
