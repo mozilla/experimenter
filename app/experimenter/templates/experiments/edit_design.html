@@ -1,6 +1,5 @@
 {% extends "experiments/edit_base.html" %}
 
-{% load formset_tags %}
 {% load static %}
 {% load widget_tweaks %}
 
@@ -45,12 +44,6 @@
 {% endblock %}
 
 {% block edit_buttons %}
-{% endblock %}
-
-{% block extrascripts %}
-  <script src="{% static "js/jquery.formset.js" %}"></script>
-
-  <script src="{% static "js/edit-variants.js" %}"></script>
 {% endblock %}
 
 {% block page_id %}page-edit-variants{% endblock %}
