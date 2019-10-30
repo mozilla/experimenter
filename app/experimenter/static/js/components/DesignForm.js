@@ -125,16 +125,6 @@ export default class DesignForm extends React.Component {
 
   }
 
-  @boundMethod
-  setContinue(e){
-    this.setState({continue:true})
-  }
-
-  @boundMethod
-  setNotToContinue(e){
-    this.setState({continue:false})
-  }
-
   render() {
     const dataExists = this.state.values.loaded;
     if (!dataExists) {
