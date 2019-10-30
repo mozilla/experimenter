@@ -137,6 +137,15 @@ select {
   background-color: #457b27;
 }
 
+.proceed-status-color{
+  color: white;
+  background-color: #00cc00;
+}
+
+.back-status-color{
+  color:white;
+  background-color: #ee9a49;
+}
 .subscribe-bell {
   color: #e432af;
 }
