@@ -318,7 +318,7 @@ class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
     slug = serializers.ReadOnlyField(source="normandy_slug")
     experimentDocumentUrl = serializers.ReadOnlyField(source="experiment_url")
     preferenceName = serializers.ReadOnlyField(source="pref_key")
-    preferenceType = serializers.ReadOnlyField(source="pref_type")
+    preferenceType = PrefTypeField(source="pref_type")
     branches = ExperimentRecipeVariantSerializer(many=True, source="variants")
 
     class Meta:
