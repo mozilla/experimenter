@@ -47,7 +47,7 @@ export default class DesignInput extends React.Component {
             data-index={this.props.index}
             onClick={this.toggleHelp}
           >
-            help
+            Help
           </a>
         </Col>
         <Col md={9}>
