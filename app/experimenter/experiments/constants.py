@@ -60,7 +60,7 @@ class ExperimentConstants(object):
 
     STATUS_PROCEED_REVIEW = "Begin Sign-Offs"
     STATUS_PROCEED_SHIP = "Confirm Ready to Ship"
-    
+
     EMAIL_CHOICES = (
         (EXPERIMENT_STARTS, EXPERIMENT_STARTS),
         (EXPERIMENT_PAUSES, EXPERIMENT_PAUSES),
