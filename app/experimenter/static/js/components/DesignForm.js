@@ -94,7 +94,7 @@ export default class DesignForm extends React.Component {
   }
 
   @boundMethod
-  async handleSubmit(e) {
+  async handleSubmit(e, url) {
     e.preventDefault();
 
     const form = document.querySelector("#design-form");
@@ -106,11 +106,23 @@ export default class DesignForm extends React.Component {
     const res = await this.makeFetchCall("PUT", JSON.stringify(object));
 
     if (res.status == "200") {
-      location.replace(`/experiments/${this.props.slug}/`);
+        location.replace(url);
     }
 
     const json = await res.json();
     this.handleValidationErrors(json);
+  }
+
+  @boundMethod
+  handleSubmitSave(e){
+    this.handleSubmit(e,`/experiments/${this.props.slug}/`)
+
+  }
+
+  @boundMethod
+  handleSubmitContinue(e){
+    this.handleSubmit(e,`/experiments/${this.props.slug}/edit-objectives/`)
+
   }
 
   render() {
@@ -162,10 +174,10 @@ export default class DesignForm extends React.Component {
                   >
                     <span className="fas fa-times"></span> Cancel Editing
                   </a>
-                  <Button variant="primary" type="submit" className="mr-1">
+                  <Button variant="primary" type="submit" className="mr-1" onClick={this.handleSubmitSave}>
                     <span className="fas fa-save"/> Save Draft
                   </Button>
-                  <Button id="save-continue" variant="primary" type="submit">
+                  <Button id="save-continue" variant="primary" type="submit" onClick={this.handleSubmitContinue}>
                     <span className="fas fa-save"/> Save Draft and Continue
                   </Button>
                 </Col>
