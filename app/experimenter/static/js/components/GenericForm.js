@@ -1,17 +1,7 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import {
-  Button,
-  Container,
-  Row,
-  Col,
-  FormControl,
-  FormLabel
-} from "react-bootstrap";
-
-import HelpBox from "experimenter/components/HelpBox";
-import Error from "experimenter/components/Error";
 import DesignInput from "experimenter/components/DesignInput";
+import BranchManager from "experimenter/components/BranchManager";
+import GenericBranch from "experimenter/components/GenericBranch";
 
 export default function GenericForm(props) {
   return (
@@ -29,7 +19,10 @@ export default function GenericForm(props) {
             <p>Specify the design of the experiment.</p>
           </div>
         }
-      ></DesignInput>
+      />
+
+      <hr className="heavy-line my-5" />
+      <BranchManager {...props} branchComponent={<GenericBranch />} />
     </div>
   );
 }
