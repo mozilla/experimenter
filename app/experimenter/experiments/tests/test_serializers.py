@@ -745,7 +745,7 @@ class TestExperimentDesignBaseSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("variants", serializer.errors)
 
-    def test_serializer_rejects_ratios_0_or_100(self):
+    def test_serializer_rejects_ratios_0_or_above_100(self):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_ADDON)
 
         self.control_variant_data["ratio"] = 0
