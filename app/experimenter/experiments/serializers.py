@@ -450,6 +450,12 @@ class ExperimentDesignBranchBaseSerializer(serializers.ModelSerializer):
     name = serializers.CharField()
     ratio = serializers.IntegerField()
 
+    def validate_ratio(self, value):
+        if value == 0 or value == 100:
+            raise serializers.ValidationError(["Branch sizes must be between 1 and 99."])
+
+        return value
+
     class Meta:
         list_serializer_class = VariantsListSerializer
         fields = ["id", "description", "is_control", "name", "ratio"]
