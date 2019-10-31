@@ -99,7 +99,7 @@ export default class DesignForm extends React.Component {
 
     const form = document.querySelector("#design-form");
     let object = Serialize(form, { hash: true });
-  
+
     //remove undefined/deleted variants
     object.variants = object.variants.filter(item=>item!=undefined);
 
@@ -111,6 +111,7 @@ export default class DesignForm extends React.Component {
 
     const json = await res.json();
     this.handleValidationErrors(json);
+    document.querySelector('.is-invalid').scrollIntoView();
   }
 
   @boundMethod
@@ -165,7 +166,7 @@ export default class DesignForm extends React.Component {
                 ></GenericForm>
               ) : (
                 ""
-              )}             
+              )}
               <Row>
                 <Col className="text-right">
                   <a
