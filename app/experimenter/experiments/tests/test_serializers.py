@@ -745,6 +745,36 @@ class TestExperimentDesignBaseSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("variants", serializer.errors)
 
+    def test_serializer_rejects_ratios_of_0(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_ADDON)
+
+        self.control_variant_data["ratio"] = 0
+
+        data = {
+            "type": ExperimentConstants.TYPE_ADDON,
+            "variants": [self.control_variant_data],
+        }
+
+        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("variants", serializer.errors)
+
+    def test_serializer_rejects_ratios_above_100(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_ADDON)
+
+        self.control_variant_data["ratio"] = 110
+
+        data = {
+            "type": ExperimentConstants.TYPE_ADDON,
+            "variants": [self.control_variant_data],
+        }
+
+        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("variants", serializer.errors)
+
     def test_serializer_rejects_duplicate_branch_names(self):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
 
