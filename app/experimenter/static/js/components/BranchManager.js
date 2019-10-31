@@ -31,6 +31,11 @@ export default class BranchManager extends React.Component {
   @boundMethod
   addBranch() {
     this.state.variants[this.state.variants_counter++] = {};
+    //add empty error entry for new variant branch
+    if (this.props.errors.variants){
+      this.props.errors.variants.push({})
+    }
+
     this.setState(this.state);
   }
 
