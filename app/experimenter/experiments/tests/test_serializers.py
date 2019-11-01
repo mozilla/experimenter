@@ -584,6 +584,7 @@ class TestExperimentRecipeSerializer(TestCase):
             public_description="this is my public description!",
             public_name="public name",
             normandy_slug="some-random-slug",
+            platform=Experiment.PLATFORM_WINDOWS,
         )
 
         variant = ExperimentVariant(
@@ -592,10 +593,11 @@ class TestExperimentRecipeSerializer(TestCase):
 
         variant.save()
 
+        expected_comment = "Platform: All Windows\n{}".format(experiment.client_matching)
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "multi-preference-experiment")
         self.assertEqual(serializer.data["name"], experiment.name)
-        self.assertEqual(serializer.data["comment"], experiment.client_matching)
+        self.assertEqual(serializer.data["comment"], expected_comment)
         self.assertEqual(
             serializer.data["filter_object"],
             [
