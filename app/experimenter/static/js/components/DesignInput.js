@@ -25,6 +25,7 @@ export default class DesignInput extends React.Component {
 
   @boundMethod
   toggleHelp(e) {
+    e.preventDefault() 
     this.setState({ help_showing: !this.state.help_showing });
   }
 
