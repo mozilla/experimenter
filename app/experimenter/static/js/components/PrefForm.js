@@ -1,17 +1,9 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import {
-  Button,
-  Container,
-  Row,
-  Col,
-  FormControl,
-  FormLabel
-} from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 
-import HelpBox from "experimenter/components/HelpBox";
-import Error from "experimenter/components/Error";
 import DesignInput from "experimenter/components/DesignInput";
+import BranchManager from "experimenter/components/BranchManager";
+import PrefBranch from "./PrefBranch";
 
 export default function PrefForm(props) {
   return (
@@ -102,6 +94,8 @@ export default function PrefForm(props) {
         <option>default</option>
         <option>user</option>
       </DesignInput>
+      <hr className="heavy-line my-5" />
+      <BranchManager {...props} branchComponent={<PrefBranch />} />
     </div>
   );
 }

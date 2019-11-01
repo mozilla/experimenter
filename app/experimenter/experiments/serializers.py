@@ -40,11 +40,13 @@ class VariantsListSerializer(serializers.ListSerializer):
     def to_representation(self, data):
         data = super().to_representation(data)
         if data == []:
-            blank_variant = {"is_control": False}
-            control_blank_variant = {"is_control": True}
+            blank_variant = {}
+            control_blank_variant = {}
             for field in self.child.fields:
                 blank_variant[field] = None
                 control_blank_variant[field] = None
+            blank_variant["is_control"] = False
+            control_blank_variant["is_control"] = True
 
             return [control_blank_variant, blank_variant]
         return data
@@ -448,6 +450,12 @@ class ExperimentDesignBranchBaseSerializer(serializers.ModelSerializer):
     name = serializers.CharField()
     ratio = serializers.IntegerField()
 
+    def validate_ratio(self, value):
+        if 1 <= value <= 100:
+            return value
+
+        raise serializers.ValidationError(["Branch sizes must be between 1 and 100."])
+
     class Meta:
         list_serializer_class = VariantsListSerializer
         fields = ["id", "description", "is_control", "name", "ratio"]
@@ -458,7 +466,7 @@ class ExperimentDesignBranchPrefSerializer(ExperimentDesignBranchBaseSerializer)
     value = serializers.CharField()
 
     class Meta(ExperimentDesignBranchBaseSerializer.Meta):
-        fields = ["description", "is_control", "name", "ratio", "value"]
+        fields = ["id", "description", "is_control", "name", "ratio", "value"]
         model = ExperimentVariant
 
 
@@ -596,6 +604,19 @@ class ExperimentDesignAddonSerializer(ExperimentDesignBaseSerializer):
     class Meta:
         model = Experiment
         fields = ("type", "addon_release_url", "addon_experiment_id", "variants")
+
+    def validate_addon_experiment_id(self, value):
+        existing = Experiment.objects.filter(addon_experiment_id=value)
+
+        if self.instance:
+            existing = existing.exclude(id=self.instance.id)
+
+        if existing.exists():
+            raise serializers.ValidationError(
+                ["An experiment with this Addon Experiment Name already exists."]
+            )
+
+        return value
 
 
 class ExperimentDesignGenericSerializer(ExperimentDesignBaseSerializer):

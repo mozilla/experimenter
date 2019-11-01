@@ -1,12 +1,9 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import {
   Button,
   Container,
   Row,
-  Col,
-  FormControl,
-  FormLabel
+  Col
 } from "react-bootstrap";
 import { boundMethod } from "autobind-decorator";
 import Serialize from "form-serialize";
@@ -14,9 +11,7 @@ import Serialize from "form-serialize";
 import PrefForm from "experimenter/components/PrefForm";
 import GenericForm from "experimenter/components/GenericForm";
 import AddonForm from "experimenter/components/AddonForm";
-import Error from "experimenter/components/Error";
-import HelpBox from "experimenter/components/HelpBox";
-import DesignInput from "experimenter/components/DesignInput";
+import BranchManager from "experimenter/components/BranchManager";
 
 export default class DesignForm extends React.Component {
   constructor(props) {
@@ -99,20 +94,36 @@ export default class DesignForm extends React.Component {
   }
 
   @boundMethod
-  async handleSubmit(e) {
+  async handleSubmit(e, url) {
     e.preventDefault();
 
     const form = document.querySelector("#design-form");
-    const object = Serialize(form, { hash: true });
+    let object = Serialize(form, { hash: true });
+
+    //remove undefined/deleted variants
+    object.variants = object.variants.filter(item=>item!=undefined);
 
     const res = await this.makeFetchCall("PUT", JSON.stringify(object));
 
     if (res.status == "200") {
-      location.replace(`/experiments/${this.props.slug}/`);
+        location.replace(url);
     }
 
     const json = await res.json();
     this.handleValidationErrors(json);
+    document.querySelector('.is-invalid').scrollIntoView();
+  }
+
+  @boundMethod
+  handleSubmitSave(e){
+    this.handleSubmit(e,`/experiments/${this.props.slug}/`)
+
+  }
+
+  @boundMethod
+  handleSubmitContinue(e){
+    this.handleSubmit(e,`/experiments/${this.props.slug}/edit-objectives/`)
+
   }
 
   render() {
@@ -156,181 +167,6 @@ export default class DesignForm extends React.Component {
               ) : (
                 ""
               )}
-
-              <hr className="heavy-line my-5" />
-              {this.state.values.variants.map((branch, index) => (
-                <div key={index} id="control-branch-group">
-                  <Row className="mb-3">
-                    <Col md={{ span: 4, offset: 3 }}>
-                      {index == 0 ? (
-                        <h4>Control Branch</h4>
-                      ) : (
-                        <h4>Branch {index}</h4>
-                      )}
-                    </Col>
-                    <Col md={5} className="text-right">
-                      {index != 0 ? (
-                        <Button
-                          variant="danger"
-                          data-index={index}
-                          onClick={this.removeBranch}
-                          id="remove-branch-button"
-                        >
-                          <span className="fas fa-times"></span> Remove Branch
-                        </Button>
-                      ) : null}
-                    </Col>
-                  </Row>
-                  <DesignInput
-                    label="Branch Size"
-                    name={"variants[" + index + "][ratio]"}
-                    id={"variants-" + index + "-ratio"}
-                    index={index}
-                    handleInputChange={this.handleVariantInputChange}
-                    value={branch.ratio}
-                    error={
-                      this.state.errors.variants
-                        ? this.state.errors.variants[index].ratio
-                        : ""
-                    }
-                    helpContent={
-                      <div>
-                        <p>
-                          Choose the size of this branch represented as a whole
-                          number. The size of all branches together must be
-                          equal to 100. It does not have to be exact, so these
-                          sizes are simply a recommendation of the relative
-                          distribution of the branches.
-                        </p>
-                        <p>
-                          <strong>Example:</strong> 50
-                        </p>
-                      </div>
-                    }
-                  ></DesignInput>
-                  <DesignInput
-                    label="Name"
-                    name={"variants[" + index + "][name]"}
-                    id={"variants-" + index + "-name"}
-                    index={index}
-                    handleInputChange={this.handleVariantInputChange}
-                    value={branch.name}
-                    error={
-                      this.state.errors.variants
-                        ? this.state.errors.variants[index].name
-                        : ""
-                    }
-                    helpContent={
-                      <div>
-                        <p>
-                          The control group should represent the users receiving
-                          the existing, unchanged version of what you're
-                          testing. For example, if you're testing making a
-                          button larger to see if users click on it more often,
-                          the control group would receive the existing button
-                          size. You should name your control branch based on the
-                          experience or functionality that group of users will
-                          be receiving. Don't name it 'Control Group', we
-                          already know it's the control group!
-                        </p>
-                        <p>
-                          <strong>Example:</strong> Normal Button Size
-                        </p>
-                      </div>
-                    }
-                  ></DesignInput>
-                  <DesignInput
-                    label="Description"
-                    name={"variants[" + index + "][description]"}
-                    as="textarea"
-                    rows="3"
-                    index={index}
-                    id={"variants-" + index + "-description"}
-                    handleInputChange={this.handleVariantInputChange}
-                    value={branch.description}
-                    error={
-                      this.state.errors.variants
-                        ? this.state.errors.variants[index].description
-                        : ""
-                    }
-                    helpContent={
-                      <div>
-                        <p>
-                          Describe the experience or functionality the control
-                          group will receive in more detail.
-                        </p>
-                        <p>
-                          <strong>Example:</strong> The control group will
-                          receive the existing 80px sign in button located at
-                          the top right of the screen.
-                        </p>
-                      </div>
-                    }
-                  ></DesignInput>
-                  {this.state.values.type == "pref" ? (
-                    <DesignInput
-                      label="Pref Value"
-                      name={"variants[" + index + "][value]"}
-                      id={"variants-" + index + "-value"}
-                      index={index}
-                      handleInputChange={this.handleVariantInputChange}
-                      value={branch.value}
-                      error={
-                        this.state.errors.variants
-                          ? this.state.errors.variants[index].value
-                          : ""
-                      }
-                      margin="mt-4"
-                      helpContent={
-                        <div>
-                          <p className="mt-2">
-                            Choose the value of the pref for the control group.
-                            This value must be valid JSON in order to be sent to
-                            Shield. This should be the right type (boolean,
-                            string, number), and should be the value that
-                            represents the control or default state to compare
-                            to.
-                          </p>
-                          <p>
-                            <strong>Boolean Example:</strong> false
-                          </p>
-                          <p>
-                            <strong>String Example:</strong> some text
-                          </p>
-                          <p>
-                            <strong>Integer Example:</strong> 13
-                          </p>
-                        </div>
-                      }
-                    ></DesignInput>
-                  ) : (
-                    ""
-                  )}
-                  <FormControl
-                    className="d-none"
-                    name={"variants[" + index + "][id]"}
-                    value={branch.id}
-                  ></FormControl>
-                  <FormControl
-                    className="d-none"
-                    name={"variants[" + index + "][is_control]"}
-                    value={index == 0 ? true : false}
-                  ></FormControl>
-                  <hr className="heavy-line my-5" />
-                </div>
-              ))}
-              <Row>
-                <Col className="text-right">
-                  <Button
-                    id="add-branch-button"
-                    variant="success"
-                    className="mb-4"
-                    onClick={this.addBranch}
-                  >
-                    <span className="fas fa-plus"/> Add Branch
-                  </Button>
-                </Col>
-              </Row>
               <Row>
                 <Col className="text-right">
                   <a
@@ -339,10 +175,10 @@ export default class DesignForm extends React.Component {
                   >
                     <span className="fas fa-times"></span> Cancel Editing
                   </a>
-                  <Button variant="primary" type="submit" className="mr-1">
+                  <Button variant="primary" type="submit" className="mr-1" onClick={this.handleSubmitSave}>
                     <span className="fas fa-save"/> Save Draft
                   </Button>
-                  <Button id="save-continue" variant="primary" type="submit">
+                  <Button id="save-continue" variant="primary" type="submit" onClick={this.handleSubmitContinue}>
                     <span className="fas fa-save"/> Save Draft and Continue
                   </Button>
                 </Col>
