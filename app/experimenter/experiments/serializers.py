@@ -600,7 +600,12 @@ class ExperimentDesignAddonSerializer(ExperimentDesignBaseSerializer):
         fields = ("type", "addon_release_url", "addon_experiment_id", "variants")
 
     def validate_addon_experiment_id(self, value):
-        if Experiment.objects.filter(addon_experiment_id=value).exists():
+        existing = Experiment.objects.filter(addon_experiment_id=value)
+
+        if self.instance:
+            existing = existing.exclude(id=self.instance.id)
+
+        if existing.exists():
             raise serializers.ValidationError(
                 ["An experiment with this Addon Experiment Name already exists."]
             )

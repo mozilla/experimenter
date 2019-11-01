@@ -1090,6 +1090,27 @@ class TestExperimentDesignAddonSerializer(TestCase):
 
         self.assertEqual(experiment.addon_experiment_id, "experiment id new")
 
+    def test_serializer_saves_unmodified_addon_experiment_id(self):
+        addon_experiment_id = "experiment@shield.org"
+        experiment = ExperimentFactory.create(addon_experiment_id=addon_experiment_id)
+
+        data = {
+            "type": ExperimentConstants.TYPE_ADDON,
+            "addon_release_url": "http://www.example.com",
+            "addon_experiment_id": addon_experiment_id,
+            "variants": [
+                {
+                    "name": "Terrific branch",
+                    "ratio": 100,
+                    "description": "Very terrific branch.",
+                    "is_control": True,
+                }
+            ],
+        }
+
+        serializer = ExperimentDesignAddonSerializer(instance=experiment, data=data)
+        self.assertTrue(serializer.is_valid())
+
 
 class TestExperimentDesignGenericSerializer(TestCase):
 
