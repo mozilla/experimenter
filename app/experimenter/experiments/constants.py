@@ -187,7 +187,7 @@ class ExperimentConstants(object):
     )
 
     # Branched Addon Stuff
-    FX_MIN_BRANCHED_ADDON_VERSION = 68
+    FX_MIN_MULTI_BRANCHED_VERSION = 68
 
     # Labels
     RISK_INTERNAL_ONLY_LABEL = "Is this experiment sensitive and/or internal only?"

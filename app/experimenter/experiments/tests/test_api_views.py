@@ -86,7 +86,9 @@ class TestExperimentRecipeView(TestCase):
 
     def test_get_experiment_recipe_returns_recipe_info(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_variants()
+        experiment = ExperimentFactory.create_with_variants(
+            normandy_slug="a-normandy-slug"
+        )
 
         response = self.client.get(
             reverse("experiments-api-recipe", kwargs={"slug": experiment.slug}),
