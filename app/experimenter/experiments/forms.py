@@ -1059,7 +1059,7 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
     # Required
     review_science = forms.BooleanField(
         required=False,
-        label="Data Science Peer Review",
+        label="Data Science Sign-Off",
         help_text=Experiment.REVIEW_SCIENCE_HELP_TEXT,
     )
     review_engineering = forms.BooleanField(
