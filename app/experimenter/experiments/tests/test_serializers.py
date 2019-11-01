@@ -35,6 +35,7 @@ from experimenter.experiments.serializers import (
     ExperimentDesignPrefSerializer,
     ExperimentDesignGenericSerializer,
     ExperimentDesignBaseSerializer,
+    ExperimentRecipeMultiPrefVariantSerializer,
 )
 
 from experimenter.experiments.constants import ExperimentConstants
@@ -373,6 +374,33 @@ class TestExperimentRecipeAddonVariantSerializer(TestCase):
         )
 
 
+class TestExperimentRecipeMultiPrefVariantSerialzer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentFactory.create(
+            normandy_slug="normandy-slug",
+            pref_branch=Experiment.PREF_BRANCH_DEFAULT,
+            pref_type=Experiment.PREF_TYPE_INT,
+        )
+        variant = ExperimentVariant(
+            slug="slug-value", ratio=25, experiment=experiment, value=26
+        )
+        serializer = ExperimentRecipeMultiPrefVariantSerializer(variant)
+        expected_data = {
+            "preferences": {
+                "normandy-slug": {
+                    "preferenceBranchType": "default",
+                    "preferenceType": "integer",
+                    "preferenceValue": 26,
+                }
+            },
+            "ratio": 25,
+            "slug": "slug-value",
+        }
+
+        self.assertEqual(expected_data, serializer.data)
+
+
 class TestExperimentRecipeVariantSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
@@ -443,6 +471,7 @@ class TestExperimentRecipeSerializer(TestCase):
     def test_serializer_outputs_expected_schema_for_pref_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_SHIP,
+            firefox_min_version="65.0",
             type=Experiment.TYPE_PREF,
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
@@ -543,6 +572,64 @@ class TestExperimentRecipeSerializer(TestCase):
                 "branches": [{"ratio": 25, "slug": "slug-value", "extensionApiId": None}],
             },
         )
+
+    def test_serializer_outputs_expect_schema_for_multipref(self):
+
+        experiment = ExperimentFactory.create(
+            pref_type=Experiment.PREF_TYPE_INT,
+            pref_branch=Experiment.PREF_BRANCH_DEFAULT,
+            firefox_min_version="70.0",
+            locales=[LocaleFactory.create()],
+            countries=[CountryFactory.create()],
+            public_description="this is my public description!",
+            public_name="public name",
+            normandy_slug="some-random-slug",
+            platform=Experiment.PLATFORM_WINDOWS,
+        )
+
+        variant = ExperimentVariant(
+            slug="slug-value", ratio=25, experiment=experiment, value=5
+        )
+
+        variant.save()
+
+        expected_comment = "Platform: All Windows\n{}".format(experiment.client_matching)
+        serializer = ExperimentRecipeSerializer(experiment)
+        self.assertEqual(serializer.data["action_name"], "multi-preference-experiment")
+        self.assertEqual(serializer.data["name"], experiment.name)
+        self.assertEqual(serializer.data["comment"], expected_comment)
+        self.assertEqual(
+            serializer.data["filter_object"],
+            [
+                FilterObjectBucketSampleSerializer(experiment).data,
+                FilterObjectChannelSerializer(experiment).data,
+                FilterObjectVersionsSerializer(experiment).data,
+                FilterObjectLocaleSerializer(experiment).data,
+                FilterObjectCountrySerializer(experiment).data,
+            ],
+        )
+
+        expected_data = {
+            "slug": "some-random-slug",
+            "experimentDocumentUrl": experiment.experiment_url,
+            "userFacingName": "public name",
+            "userFacingDescription": "this is my public description!",
+            "branches": [
+                {
+                    "preferences": {
+                        "some-random-slug": {
+                            "preferenceBranchType": "default",
+                            "preferenceType": Experiment.PREF_TYPE_INT,
+                            "preferenceValue": 5,
+                        }
+                    },
+                    "ratio": 25,
+                    "slug": "slug-value",
+                }
+            ],
+        }
+
+        self.assertCountEqual(serializer.data["arguments"], expected_data)
 
     def test_serializer_excludes_locales_if_none_set(self):
         experiment = ExperimentFactory.create_with_status(
