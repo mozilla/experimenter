@@ -11,7 +11,6 @@ import Serialize from "form-serialize";
 import PrefForm from "experimenter/components/PrefForm";
 import GenericForm from "experimenter/components/GenericForm";
 import AddonForm from "experimenter/components/AddonForm";
-import BranchManager from "experimenter/components/BranchManager";
 
 export default class DesignForm extends React.Component {
   constructor(props) {
@@ -100,6 +99,10 @@ export default class DesignForm extends React.Component {
     const form = document.querySelector("#design-form");
     let object = Serialize(form, { hash: true });
 
+    if (!object.design && this.state.values.type=="generic"){
+      object.design = null
+    }
+  
     //remove undefined/deleted variants
     object.variants = object.variants.filter(item=>item!=undefined);
 

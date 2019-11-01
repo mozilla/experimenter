@@ -499,7 +499,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_design(self):
-        return self.design != self.DESIGN_DEFAULT
+        return self.design not in (self.DESIGN_DEFAULT, None, "")
 
     @property
     def completed_addon(self):
