@@ -266,7 +266,7 @@ class ExperimentFilterset(filters.FilterSet):
         if value:
             return queryset.exclude(
                 results_url=None, results_initial=None, results_lessons_learned=None
-            )
+            ).exclude(results_url="", results_initial="", results_lessons_learned="")
         return queryset
 
     def get_type_display_value(self):
