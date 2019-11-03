@@ -790,6 +790,21 @@ class TestExperimentDesignBaseSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("variants", serializer.errors)
 
+    def test_serializer_rejects_special_char_branch_names(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+
+        self.control_variant_data["name"] = "&re@t br@nche$!"
+
+        data = {
+            "type": ExperimentConstants.TYPE_PREF,
+            "variants": [self.control_variant_data, self.treatment_variant_data],
+        }
+
+        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("variants", serializer.errors)
+
 
 class TestExperimentDesignPrefSerializer(TestCase):
 
