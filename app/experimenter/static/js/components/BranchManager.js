@@ -1,7 +1,26 @@
 import React from "react";
 import { Row, Col, Button } from "react-bootstrap";
+import {boundClass} from "autobind-decorator";
 
-export default class BranchManager extends React.Component {
+@boundClass
+class BranchManager extends React.Component {
+  constructor(props){
+    super(props);
+    this.state={
+      variants:props.variants,
+    };
+  }
+  handleChange(index, value){
+    const variants = [...this.props.variants];
+    variants.splice(index,1, value);
+    this.setState({variants});
+    this.props.onChange(variants);
+
+  }
+
+  componentDidMount(){
+    this.props.onChange(this.state.variants);
+  }
 
   render() {
     const {onAddBranch, onRemoveBranch} = this.props;
@@ -17,6 +36,7 @@ export default class BranchManager extends React.Component {
               index={index}
               remove={onRemoveBranch}
               errors={this.props.errors}
+              onChange={(value)=>{this.handleChange(index, value)}}
             />
           </div>
         ))}
@@ -36,3 +56,4 @@ export default class BranchManager extends React.Component {
     );
   }
 }
+export default BranchManager;

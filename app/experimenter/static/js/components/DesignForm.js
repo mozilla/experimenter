@@ -56,6 +56,7 @@ export default class DesignForm extends React.Component {
   removeBranch(index) {
     const variants = [ ...this.state.values.variants ];
     variants.splice(index, 1);
+    console.log(variants);
     this.setState({
       values:{
         ...this.state.values,
@@ -79,6 +80,16 @@ export default class DesignForm extends React.Component {
     stateCopy[e.target.name] = e.target.value;
 
     this.setState(stateCopy);
+  }
+
+  @boundMethod
+  handleDataChange(key, value){
+    this.setState({
+      values:{
+        ...this.state.values,
+        [key]:value,
+      }
+    });
   }
 
   handleValidationErrors(json) {
@@ -105,8 +116,8 @@ export default class DesignForm extends React.Component {
     let object = Serialize(form, { hash: true });
 
     //remove undefined/deleted variants
-    object.variants = object.variants.filter(item=>item!=undefined);
-
+    //object.variants = object.variants.filter(item=>item!=undefined);
+    object.variants = this.state.values.variants;
     const res = await this.makeFetchCall("PUT", JSON.stringify(object));
 
     if (res.status == "200") {
@@ -156,6 +167,7 @@ export default class DesignForm extends React.Component {
           <form onSubmit={this.handleSubmit} id="design-form">
             <Form
               handleInputChange={this.handleInputChange}
+              handleDataChange={this.handleDataChange}
               onAddBranch={this.addBranch}
               onRemoveBranch={this.removeBranch}
               {...this.state}

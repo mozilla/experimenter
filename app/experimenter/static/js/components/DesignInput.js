@@ -31,6 +31,9 @@ export default class DesignInput extends React.Component {
 
   @boundMethod
   updateValue(e) {
+    if(this.props.onChange){
+      this.props.onChange(e.target.value);
+    }
     this.setState({ value: e.target.value });
   }
 
