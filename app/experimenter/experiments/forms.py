@@ -1127,7 +1127,7 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
     )
     review_impacted_teams = forms.BooleanField(
         required=False,
-        label="Impacted Team(s) Signed-Off",
+        label="Review from a Fx Module Peer",
         help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
     )
 
