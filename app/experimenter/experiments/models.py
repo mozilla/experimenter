@@ -641,7 +641,15 @@ class Experiment(ExperimentConstants, models.Model):
         return (
             self.is_addon_experiment
             and self.firefox_min_version_integer
-            >= ExperimentConstants.FX_MIN_BRANCHED_ADDON_VERSION
+            >= ExperimentConstants.FX_MIN_MULTI_BRANCHED_VERSION
+        )
+
+    @property
+    def is_multi_pref(self):
+        return (
+            self.is_pref_experiment
+            and self.firefox_min_version_integer
+            >= ExperimentConstants.FX_MIN_MULTI_BRANCHED_VERSION
         )
 
     @property
