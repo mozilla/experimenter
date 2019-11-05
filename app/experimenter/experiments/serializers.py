@@ -1,6 +1,5 @@
 import time
 import json
-import re
 from rest_framework import serializers
 from django.utils.text import slugify
 from django.urls import reverse
@@ -511,8 +510,10 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
         unique_names = len(
             set([slugify(variant["name"]) for variant in variants])
         ) == len(variants)
+
         all_contains_alphanumeric_and_spaces = all(
-            [re.match("^[A-Za-z0-9 ]*$", variant["name"]) for variant in variants]
+            Experiment.EXPERIMENT_VARIANT_NAME_REGEX.match(variant["name"])
+            for variant in variants
         )
 
         return unique_names and all_contains_alphanumeric_and_spaces
