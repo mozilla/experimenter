@@ -62,7 +62,14 @@ export default function AddonForm(props) {
         }
       />
       <hr className="heavy-line my-5" />
-      <BranchManager {...props} branchComponent={<GenericBranch />} />
+      <BranchManager
+        variants={props.values.variants} 
+        onAddBranch={props.onAddBranch}
+        onRemoveBranch={props.onRemoveBranch} 
+        type="addon" 
+        branchComponent={GenericBranch}
+        errors={props.errors} 
+      />
     </div>
   );
 }

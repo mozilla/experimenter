@@ -21,7 +21,14 @@ export default function GenericForm(props) {
         }
       />
       <hr className="heavy-line my-5" />
-      <BranchManager {...props} branchComponent={<GenericBranch />} />
+      <BranchManager
+        variants={props.values.variants} 
+        onAddBranch={props.onAddBranch}
+        onRemoveBranch={props.onRemoveBranch} 
+        type="generic" 
+        branchComponent={GenericBranch}
+        errors={props.errors} 
+      />
     </div>
   );
 }
