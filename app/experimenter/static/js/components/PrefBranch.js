@@ -16,7 +16,7 @@ export default function PrefBranch(props) {
           {props.id != 0 ? (
             <Button
               variant="danger"
-              onClick={props.remove}
+              onClick={()=>{props.remove(props.index)}}
               id="remove-branch-button"
             >
               <span className="fas fa-times"></span> Remove Branch

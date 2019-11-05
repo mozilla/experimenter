@@ -1,57 +1,23 @@
 import React from "react";
-import { boundMethod } from "autobind-decorator";
 import { Row, Col, Button } from "react-bootstrap";
-import PrefBranch from "experimenter/components/PrefBranch";
+
 export default class BranchManager extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      variants: {}
-    };
-  }
-  componentDidMount() {
-    let variants = this.props.values.variants;
-    let variants_counter = variants.length;
-    let variants_map = Object.assign({}, variants);
-    let variant_keys = Object.keys(variants[0]);
-    this.setState({
-      variants: variants_map,
-      variants_counter,
-      variant_keys
-    });
-  }
-
-  @boundMethod
-  removeBranch(id) {
-    delete this.state.variants[id];
-    this.setState({ variants: this.state.variants });
-  }
-
-  @boundMethod
-  addBranch() {
-    this.state.variants[this.state.variants_counter++] = {};
-    //add empty error entry for new variant branch
-    if (this.props.errors.variants){
-      this.props.errors.variants.push({})
-    }
-
-    this.setState(this.state);
-  }
 
   render() {
+    const {onAddBranch, onRemoveBranch} = this.props;
+    const BranchComponent = this.props.branchComponent;
     return (
       <div>
-        {Object.keys(this.state.variants).map((variant_id, index) => (
+        {this.props.variants.map((variant, index) => (
           <div>
-            {React.cloneElement(this.props.branchComponent, {
-              values: this.state.variants[variant_id],
-              id: variant_id,
-              type: this.props.values.type,
-              index: index,
-              remove: () => this.removeBranch(variant_id),
-              errors: this.props.errors
-            })}
+            <BranchComponent
+              values={variant}
+              id={index}
+              type={this.props.type}
+              index={index}
+              remove={onRemoveBranch}
+              errors={this.props.errors}
+            />
           </div>
         ))}
         <Row>
@@ -60,7 +26,7 @@ export default class BranchManager extends React.Component {
               id="add-branch-button"
               variant="success"
               className="mb-4"
-              onClick={this.addBranch}
+              onClick={onAddBranch}
             >
               <span className="fas fa-plus" /> Add Branch
             </Button>

@@ -11,7 +11,6 @@ import Serialize from "form-serialize";
 import PrefForm from "experimenter/components/PrefForm";
 import GenericForm from "experimenter/components/GenericForm";
 import AddonForm from "experimenter/components/AddonForm";
-import BranchManager from "experimenter/components/BranchManager";
 
 export default class DesignForm extends React.Component {
   constructor(props) {
@@ -33,31 +32,38 @@ export default class DesignForm extends React.Component {
     const controlBranch = data.variants.splice(controlBranchIndex, 1)[0]
     data.variants.unshift(controlBranch)
 
-    data.loaded = true;
-
-    return this.setState({values: data});
-  }
-
-  @boundMethod
-  addBranch(e) {
-    let stateCopy = { ...this.state.values };
-
-    stateCopy.variants.push({
-      ratio: null,
-      name: "",
-      description: "",
-      value: "",
-      is_control: false
+    this.setState({
+      loaded:true,
+      values:data,
     });
-
-    this.setState(stateCopy);
   }
 
   @boundMethod
-  removeBranch(e) {
-    this.state.values.variants.splice(e.target.dataset.index, 1);
+  addBranch() {
+    const {values} = this.state;
+    this.setState({
+      values:{
+        ...values,
+        variants:[
+          ...values.variants,
+          {},
+        ],
+      },
+    });
+  }
 
-    this.setState({ variants: this.state.values.variants });
+  @boundMethod
+  removeBranch(index) {
+    console.log(index);
+    console.log(this.state.values.variants);
+    const variants = [...this.state.values.variants].splice(index, 1);
+    console.log(variants);
+    this.setState({
+      values:{
+        ...this.state.values,
+        variants,
+      },
+    });
   }
 
   @boundMethod
@@ -127,8 +133,7 @@ export default class DesignForm extends React.Component {
   }
 
   render() {
-    const dataExists = this.state.values.loaded;
-    if (!dataExists) {
+    if (!this.state.loaded) {
       return (
         <Container>
           <div className="fa-5x">
@@ -138,55 +143,44 @@ export default class DesignForm extends React.Component {
           </div>
         </Container>
       );
-    } else {
-      return (
-        <div>
-          <Container>
-            <form onSubmit={this.handleSubmit} id="design-form">
-              {this.state.values.type == "pref" ? (
-                <PrefForm
-                  handleInputChange={this.handleInputChange}
-                  {...this.state}
-                ></PrefForm>
-              ) : (
-                ""
-              )}
-              {this.state.values.type == "addon" ? (
-                <AddonForm
-                  handleInputChange={this.handleInputChange}
-                  {...this.state}
-                ></AddonForm>
-              ) : (
-                ""
-              )}
-              {this.state.values.type == "generic" ? (
-                <GenericForm
-                  handleInputChange={this.handleInputChange}
-                  {...this.state}
-                ></GenericForm>
-              ) : (
-                ""
-              )}
-              <Row>
-                <Col className="text-right">
-                  <a
-                    className="mr-1 btn btn-default"
-                    href={`/experiments/${this.props.slug}/`}
-                  >
-                    <span className="fas fa-times"></span> Cancel Editing
-                  </a>
-                  <Button variant="primary" type="submit" className="mr-1" onClick={this.handleSubmitSave}>
-                    <span className="fas fa-save"/> Save Draft
-                  </Button>
-                  <Button id="save-continue" variant="primary" type="submit" onClick={this.handleSubmitContinue}>
-                    <span className="fas fa-save"/> Save Draft and Continue
-                  </Button>
-                </Col>
-              </Row>
-            </form>
-          </Container>
-        </div>
-      );
+    } 
+    let Form;
+    if (this.state.values.type === "pref"){
+      Form = PrefForm;
+    } else if(this.state.values.type === "addon"){
+      Form = AddonForm;
+    } else{
+      Form = GenericForm;
     }
+    return (
+      <div>
+        <Container>
+          <form onSubmit={this.handleSubmit} id="design-form">
+            <Form
+              handleInputChange={this.handleInputChange}
+              onAddBranch={this.addBranch}
+              onRemoveBranch={this.removeBranch}
+              {...this.state}
+            />
+            <Row>
+              <Col className="text-right">
+                <a
+                  className="mr-1 btn btn-default"
+                  href={`/experiments/${this.props.slug}/`}
+                >
+                  <span className="fas fa-times"></span> Cancel Editing
+                </a>
+                <Button variant="primary" type="submit" className="mr-1" onClick={this.handleSubmitSave}>
+                  <span className="fas fa-save"/> Save Draft
+                </Button>
+                <Button id="save-continue" variant="primary" type="submit" onClick={this.handleSubmitContinue}>
+                  <span className="fas fa-save"/> Save Draft and Continue
+                </Button>
+              </Col>
+            </Row>
+          </form>
+        </Container>
+      </div>
+    );
   }
 }
