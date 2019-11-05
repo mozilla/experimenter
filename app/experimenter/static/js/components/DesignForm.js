@@ -78,6 +78,8 @@ export default class DesignForm extends React.Component {
   }
 
   handleValidationErrors(json) {
+    this.refs.savebtn.removeAttribute("disabled");
+    this.refs.savecontbtn.removeAttribute("disabled");
     this.setState({ errors: json });
   }
 
@@ -96,6 +98,9 @@ export default class DesignForm extends React.Component {
   @boundMethod
   async handleSubmit(e, url) {
     e.preventDefault();
+
+    this.refs.savecontbtn.setAttribute("disabled", "disabled");
+    this.refs.savebtn.setAttribute("disabled", "disabled");
 
     const form = document.querySelector("#design-form");
     let object = Serialize(form, { hash: true });
@@ -175,10 +180,10 @@ export default class DesignForm extends React.Component {
                   >
                     <span className="fas fa-times"></span> Cancel Editing
                   </a>
-                  <Button variant="primary" type="submit" className="mr-1" onClick={this.handleSubmitSave}>
+                  <Button ref="savebtn" variant="primary" type="submit" className="mr-1" onClick={this.handleSubmitSave}>
                     <span className="fas fa-save"/> Save Draft
                   </Button>
-                  <Button id="save-continue" variant="primary" type="submit" onClick={this.handleSubmitContinue}>
+                  <Button ref="savecontbtn" id="save-continue" variant="primary" type="submit" onClick={this.handleSubmitContinue}>
                     <span className="fas fa-save"/> Save Draft and Continue
                   </Button>
                 </Col>
