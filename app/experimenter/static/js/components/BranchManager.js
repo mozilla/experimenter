@@ -16,8 +16,10 @@ class BranchManager extends React.PureComponent {
     const { branches, onAddBranch, onRemoveBranch } = this.props;
 
     // Make sure the control branch is the first branch
-    const sortedBranches = [...branches];
-    sortedBranches.sort((a, b) => (a.is_control ? -1 : 0));
+    const sortedBranches = [
+      ...branches.filter(b => b.is_control),
+      ...branches.filter(b => !b.is_control),
+    ];
 
     return (
       <React.Fragment>

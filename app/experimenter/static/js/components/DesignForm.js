@@ -25,13 +25,6 @@ export default class DesignForm extends React.PureComponent {
 
   async componentDidMount() {
     const data = await makeApiRequest(this.getEndpointUrl());
-
-    const controlBranchIndex = data.variants.findIndex(
-      element => element.is_control
-    );
-    const controlBranch = data.variants.splice(controlBranchIndex, 1)[0];
-    data.variants.unshift(controlBranch);
-
     this.setState({
       loaded: true,
       data
