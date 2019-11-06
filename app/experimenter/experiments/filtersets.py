@@ -265,9 +265,9 @@ class ExperimentFilterset(filters.FilterSet):
     def completed_results_filter(self, queryset, name, value):
         if value:
             return queryset.exclude(
-                (Q(results_url="") | Q(results_url=None)),
-                (Q(results_initial="") | Q(results_initial=None)),
-                (Q(results_lessons_learned="") | Q(results_lessons_learned=None)),
+                Q(results_url="") | Q(results_url=None),
+                Q(results_initial="") | Q(results_initial=None),
+                Q(results_lessons_learned="") | Q(results_lessons_learned=None),
             )
         return queryset
 
