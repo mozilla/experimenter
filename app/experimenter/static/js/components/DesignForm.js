@@ -5,6 +5,7 @@ import { boundClass } from "autobind-decorator";
 import PrefForm from "experimenter/components/PrefForm";
 import GenericForm from "experimenter/components/GenericForm";
 import AddonForm from "experimenter/components/AddonForm";
+import { makeApiRequest } from "experimenter/utils/api";
 
 @boundClass
 export default class DesignForm extends React.PureComponent {
@@ -18,10 +19,12 @@ export default class DesignForm extends React.PureComponent {
     };
   }
 
-  async componentDidMount() {
-    const response = await this.makeFetchCall("GET");
+  getEndpointUrl() {
+    return `experiments/${this.props.slug}/design-${this.props.expType}/`;
+  }
 
-    const data = await response.json();
+  async componentDidMount() {
+    const data = await makeApiRequest(this.getEndpointUrl());
 
     const controlBranchIndex = data.variants.findIndex(
       element => element.is_control
@@ -75,47 +78,36 @@ export default class DesignForm extends React.PureComponent {
     });
   }
 
-  handleValidationErrors(json) {
-    this.setState({ errors: json });
-  }
+  async handleSubmit(event, redirectUrl) {
+    event.preventDefault();
 
-  async makeFetchCall(method, body) {
-    const url = `/api/v1/experiments/${this.props.slug}/design-${this.props.expType}/`;
-
-    return await fetch(url, {
-      method: method,
-      body: body,
-      headers: {
-        "Content-Type": "application/json"
-      }
+    const requestSave = makeApiRequest(this.getEndpointUrl(), {
+      method: "PUT",
+      data: this.state.data,
     });
+
+    requestSave
+      .then(() => {
+        location.replace(redirectUrl);
+      })
+      .catch(err => {
+        this.setState({
+          errors: err.data,
+        });
+
+        const invalid = document.querySelector(".is-invalid");
+        if (invalid) {
+         invalid.scrollIntoView();
+        }
+      });
   }
 
-  async handleSubmit(e, url) {
-    e.preventDefault();
-
-    // TODO: Refactor this out in an API fetch helper with smarter response handling
-    const res = await this.makeFetchCall("PUT", JSON.stringify(this.state.data));
-
-    if (res.status == "200") {
-      location.replace(url);
-    }
-
-    const json = await res.json();
-    this.handleValidationErrors(json);
-
-    const invalid = document.querySelector(".is-invalid");
-    if (invalid) {
-     invalid.scrollIntoView();
-    }
+  handleSubmitSave(event) {
+    this.handleSubmit(event, `/experiments/${this.props.slug}/`);
   }
 
-  handleSubmitSave(e) {
-    this.handleSubmit(e, `/experiments/${this.props.slug}/`);
-  }
-
-  handleSubmitContinue(e) {
-    this.handleSubmit(e, `/experiments/${this.props.slug}/edit-objectives/`);
+  handleSubmitContinue(event) {
+    this.handleSubmit(event, `/experiments/${this.props.slug}/edit-objectives/`);
   }
 
   render() {
