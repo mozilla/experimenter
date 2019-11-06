@@ -541,9 +541,7 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
 
             raise serializers.ValidationError({"variants": error_list})
 
-        if not len(set(slugify(variant["name"]) for variant in variants)) == len(
-            variants
-        ):
+        if not self.is_variant_valid(variants):
             error_list = []
             for variant in variants:
                 error_list.append(
@@ -560,6 +558,18 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"variants": error_list})
 
         return data
+
+    def is_variant_valid(self, variants):
+        unique_names = len(
+            set([slugify(variant["name"]) for variant in variants])
+        ) == len(variants)
+
+        all_contains_alphanumeric_and_spaces = all(
+            Experiment.EXPERIMENT_VARIANT_NAME_REGEX.match(variant["name"])
+            for variant in variants
+        )
+
+        return unique_names and all_contains_alphanumeric_and_spaces
 
     def update(self, instance, validated_data):
         variants_data = validated_data.pop("variants")
