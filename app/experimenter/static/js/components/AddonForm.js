@@ -55,13 +55,12 @@ export default class AddonForm extends React.PureComponent {
                 Enter the URL where the release build of your add-on can be
                 found. This is often attached to a bugzilla ticket. This MUST BE
                 the release signed add-on (not the test add-on) that you want
-                deployed.
+                deployed.&nbsp;
                 <a
                   target="_blank"
                   rel="noreferrer noopener"
                   href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Add-ons"
                 >
-                  {" "}
                   See here for more info.
                 </a>
               </p>

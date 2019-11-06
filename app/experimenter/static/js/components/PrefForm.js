@@ -86,9 +86,8 @@ export default class PrefForm extends React.PureComponent {
                 Select the pref branch the experiment will write its pref value
                 to. If you're not sure what this means, you should stick to the
                 'default' pref branch. Pref branches are a little more
-                complicated than can be written here, but you can find
+                complicated than can be written here, but you can find&nbsp;
                 <a href="https://developer.mozilla.org/en-US/docs/Archive/Add-ons/Code_snippets/Preferences#Default_preferences">
-                  {" "}
                   more information here
                 </a>
                 .
