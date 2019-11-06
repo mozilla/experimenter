@@ -189,6 +189,9 @@ class ExperimentConstants(object):
     # Branched Addon Stuff
     FX_MIN_MULTI_BRANCHED_VERSION = 68
 
+    # ExperimentVariantName REGEX
+    EXPERIMENT_VARIANT_NAME_REGEX = re.compile(r"^[a-z0-9 ]+$", re.IGNORECASE)
+
     # Labels
     RISK_INTERNAL_ONLY_LABEL = "Is this experiment sensitive and/or internal only?"
     RISK_PARTNER_RELATED_LABEL = "Is this experiment partner related?"
