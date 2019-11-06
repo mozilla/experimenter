@@ -1,58 +1,41 @@
 import React from "react";
-import { boundMethod } from "autobind-decorator";
 import { Row, Col, Button } from "react-bootstrap";
-import PrefBranch from "experimenter/components/PrefBranch";
-export default class BranchManager extends React.Component {
-  constructor(props) {
-    super(props);
+import { boundClass } from "autobind-decorator";
 
-    this.state = {
-      variants: {}
-    };
-  }
-  componentDidMount() {
-    let variants = this.props.values.variants;
-    let variants_counter = variants.length;
-    let variants_map = Object.assign({}, variants);
-    let variant_keys = Object.keys(variants[0]);
-    this.setState({
-      variants: variants_map,
-      variants_counter,
-      variant_keys
-    });
-  }
+import Branch from "experimenter/components/Branch";
 
-  @boundMethod
-  removeBranch(id) {
-    delete this.state.variants[id];
-    this.setState({ variants: this.state.variants });
-  }
-
-  @boundMethod
-  addBranch() {
-    this.state.variants[this.state.variants_counter++] = {};
-    //add empty error entry for new variant branch
-    if (this.props.errors.variants){
-      this.props.errors.variants.push({})
-    }
-
-    this.setState(this.state);
+@boundClass
+class BranchManager extends React.PureComponent {
+  handleChange(index, value) {
+    const branches = [...this.props.branches];
+    branches.splice(index, 1, value);
+    this.props.onChange(branches);
   }
 
   render() {
+    const { branches, onAddBranch, onRemoveBranch } = this.props;
+
+    // Make sure the control branch is the first branch
+    const sortedBranches = [
+      ...branches.filter(b => b.is_control),
+      ...branches.filter(b => !b.is_control),
+    ];
+
     return (
-      <div>
-        {Object.keys(this.state.variants).map((variant_id, index) => (
-          <div>
-            {React.cloneElement(this.props.branchComponent, {
-              values: this.state.variants[variant_id],
-              id: variant_id,
-              type: this.props.values.type,
-              index: index,
-              remove: () => this.removeBranch(variant_id),
-              errors: this.props.errors
-            })}
-          </div>
+      <React.Fragment>
+        {sortedBranches.map((variant, index) => (
+          <React.Fragment key={index}>
+            <Branch
+              index={index}
+              branch={variant}
+              branchFieldsComponent={this.props.branchFieldsComponent}
+              remove={onRemoveBranch}
+              errors={this.props.errors}
+              onChange={value => {
+                this.handleChange(index, value);
+              }}
+            />
+          </React.Fragment>
         ))}
         <Row>
           <Col className="text-right">
@@ -60,13 +43,14 @@ export default class BranchManager extends React.Component {
               id="add-branch-button"
               variant="success"
               className="mb-4"
-              onClick={this.addBranch}
+              onClick={onAddBranch}
             >
               <span className="fas fa-plus" /> Add Branch
             </Button>
           </Col>
         </Row>
-      </div>
+      </React.Fragment>
     );
   }
 }
+export default BranchManager;
