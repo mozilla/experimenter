@@ -1,44 +1,39 @@
 import React from "react";
 import { Row, Col, Button } from "react-bootstrap";
-import {boundClass} from "autobind-decorator";
+import { boundClass } from "autobind-decorator";
+
+import Branch from "experimenter/components/Branch";
 
 @boundClass
-class BranchManager extends React.Component {
-  constructor(props){
-    super(props);
-    this.state={
-      variants:props.variants,
-    };
-  }
-  handleChange(index, value){
-    const variants = [...this.props.variants];
-    variants.splice(index,1, value);
-    this.setState({variants});
-    this.props.onChange(variants);
-
-  }
-
-  componentDidMount(){
-    this.props.onChange(this.state.variants);
+class BranchManager extends React.PureComponent {
+  handleChange(index, value) {
+    const branches = [...this.props.branches];
+    branches.splice(index, 1, value);
+    this.props.onChange(branches);
   }
 
   render() {
-    const {onAddBranch, onRemoveBranch} = this.props;
-    const BranchComponent = this.props.branchComponent;
+    const { branches, onAddBranch, onRemoveBranch } = this.props;
+
+    // Make sure the control branch is the first branch
+    const sortedBranches = [...branches];
+    sortedBranches.sort((a, b) => (a.is_control ? -1 : 0));
+
     return (
-      <div>
-        {this.props.variants.map((variant, index) => (
-          <div>
-            <BranchComponent
-              values={variant}
-              id={index}
-              type={this.props.type}
+      <React.Fragment>
+        {sortedBranches.map((variant, index) => (
+          <React.Fragment key={index}>
+            <Branch
               index={index}
+              branch={variant}
+              branchFieldsComponent={this.props.branchFieldsComponent}
               remove={onRemoveBranch}
               errors={this.props.errors}
-              onChange={(value)=>{this.handleChange(index, value)}}
+              onChange={value => {
+                this.handleChange(index, value);
+              }}
             />
-          </div>
+          </React.Fragment>
         ))}
         <Row>
           <Col className="text-right">
@@ -52,7 +47,7 @@ class BranchManager extends React.Component {
             </Button>
           </Col>
         </Row>
-      </div>
+      </React.Fragment>
     );
   }
 }

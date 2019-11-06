@@ -1,23 +1,18 @@
 import React from "react";
-import {
-  Button,
-  Container,
-  Row,
-  Col
-} from "react-bootstrap";
-import { boundMethod } from "autobind-decorator";
-import Serialize from "form-serialize";
+import { Button, Container, Row, Col } from "react-bootstrap";
+import { boundClass } from "autobind-decorator";
 
 import PrefForm from "experimenter/components/PrefForm";
 import GenericForm from "experimenter/components/GenericForm";
 import AddonForm from "experimenter/components/AddonForm";
 
-export default class DesignForm extends React.Component {
+@boundClass
+export default class DesignForm extends React.PureComponent {
   constructor(props) {
     super(props);
 
     this.state = {
-      values: {},
+      data: {},
       errors: {},
       loaded: false
     };
@@ -28,65 +23,54 @@ export default class DesignForm extends React.Component {
 
     const data = await response.json();
 
-    const controlBranchIndex = data.variants.findIndex(element => element.is_control)
-    const controlBranch = data.variants.splice(controlBranchIndex, 1)[0]
-    data.variants.unshift(controlBranch)
+    const controlBranchIndex = data.variants.findIndex(
+      element => element.is_control
+    );
+    const controlBranch = data.variants.splice(controlBranchIndex, 1)[0];
+    data.variants.unshift(controlBranch);
 
     this.setState({
-      loaded:true,
-      values:data,
+      loaded: true,
+      data
     });
   }
 
-  @boundMethod
   addBranch() {
-    const {values} = this.state;
+    const { data } = this.state;
     this.setState({
-      values:{
-        ...values,
-        variants:[
-          ...values.variants,
-          {},
-        ],
-      },
+      data: {
+        ...data,
+        variants: [
+          ...data.variants,
+          {
+            ratio: "",
+            name: "",
+            description: "",
+            value: "",
+            is_control: false,
+            id: null
+          }
+        ]
+      }
     });
   }
 
-  @boundMethod
   removeBranch(index) {
-    const variants = [ ...this.state.values.variants ];
+    const variants = [...this.state.data.variants];
     variants.splice(index, 1);
     this.setState({
-      values:{
-        ...this.state.values,
-        variants,
-      },
+      data: {
+        ...this.state.data,
+        variants
+      }
     });
   }
 
-  @boundMethod
-  handleVariantInputChange(e) {
-    let stateCopy = { ...this.state.values.variants };
-    let inputName = e.target.name;
-    stateCopy[e.target.dataset.index][inputName] = e.target.value;
-
-    this.setState(stateCopy);
-  }
-
-  @boundMethod
-  handleInputChange(e) {
-    let stateCopy = { ...this.state.values };
-    stateCopy[e.target.name] = e.target.value;
-
-    this.setState(stateCopy);
-  }
-
-  @boundMethod
-  handleDataChange(key, value){
+  handleDataChange(key, value) {
     this.setState({
-      values:{
-        ...this.state.values,
-        [key]:value,
+      data: {
+        ...this.state.data,
+        [key]: value
       }
     });
   }
@@ -107,37 +91,31 @@ export default class DesignForm extends React.Component {
     });
   }
 
-  @boundMethod
   async handleSubmit(e, url) {
     e.preventDefault();
 
-    const form = document.querySelector("#design-form");
-    let object = Serialize(form, { hash: true });
-
-    //remove undefined/deleted variants
-    //object.variants = object.variants.filter(item=>item!=undefined);
-    object.variants = this.state.values.variants;
-    const res = await this.makeFetchCall("PUT", JSON.stringify(object));
+    // TODO: Refactor this out in an API fetch helper with smarter response handling
+    const res = await this.makeFetchCall("PUT", JSON.stringify(this.state.data));
 
     if (res.status == "200") {
-        location.replace(url);
+      location.replace(url);
     }
 
     const json = await res.json();
     this.handleValidationErrors(json);
-    document.querySelector('.is-invalid').scrollIntoView();
+
+    const invalid = document.querySelector(".is-invalid");
+    if (invalid) {
+     invalid.scrollIntoView();
+    }
   }
 
-  @boundMethod
-  handleSubmitSave(e){
-    this.handleSubmit(e,`/experiments/${this.props.slug}/`)
-
+  handleSubmitSave(e) {
+    this.handleSubmit(e, `/experiments/${this.props.slug}/`);
   }
 
-  @boundMethod
-  handleSubmitContinue(e){
-    this.handleSubmit(e,`/experiments/${this.props.slug}/edit-objectives/`)
-
+  handleSubmitContinue(e) {
+    this.handleSubmit(e, `/experiments/${this.props.slug}/edit-objectives/`);
   }
 
   render() {
@@ -146,30 +124,36 @@ export default class DesignForm extends React.Component {
         <Container>
           <div className="fa-5x">
             <Row className="justify-content-center">
-              <i className="fas fa-spinner fa-spin"></i>
+              <i className="fas fa-spinner fa-spin" />
             </Row>
           </div>
         </Container>
       );
-    } 
-    let Form;
-    if (this.state.values.type === "pref"){
-      Form = PrefForm;
-    } else if(this.state.values.type === "addon"){
-      Form = AddonForm;
-    } else{
-      Form = GenericForm;
     }
+
+    // Select the appropriate form component to use based on experiment type
+    let Form;
+    switch (this.state.data.type) {
+      case "pref":
+        Form = PrefForm;
+        break;
+      case "addon":
+        Form = AddonForm;
+      default:
+        Form = GenericForm;
+    }
+
     return (
       <div>
         <Container>
           <form onSubmit={this.handleSubmit} id="design-form">
             <Form
-              handleInputChange={this.handleInputChange}
               handleDataChange={this.handleDataChange}
               onAddBranch={this.addBranch}
               onRemoveBranch={this.removeBranch}
-              {...this.state}
+              data={this.state.data}
+              errors={this.state.errors}
+              loaded={this.state.loaded}
             />
             <Row>
               <Col className="text-right">
@@ -177,13 +161,25 @@ export default class DesignForm extends React.Component {
                   className="mr-1 btn btn-default"
                   href={`/experiments/${this.props.slug}/`}
                 >
-                  <span className="fas fa-times"></span> Cancel Editing
+                  <span className="fas fa-times" /> Cancel Editing
                 </a>
-                <Button variant="primary" type="submit" className="mr-1" onClick={this.handleSubmitSave}>
-                  <span className="fas fa-save"/> Save Draft
+
+                <Button
+                  variant="primary"
+                  type="submit"
+                  className="mr-1"
+                  onClick={this.handleSubmitSave}
+                >
+                  <span className="fas fa-save" /> Save Draft
                 </Button>
-                <Button id="save-continue" variant="primary" type="submit" onClick={this.handleSubmitContinue}>
-                  <span className="fas fa-save"/> Save Draft and Continue
+
+                <Button
+                  id="save-continue"
+                  variant="primary"
+                  type="submit"
+                  onClick={this.handleSubmitContinue}
+                >
+                  <span className="fas fa-save" /> Save Draft and Continue
                 </Button>
               </Col>
             </Row>

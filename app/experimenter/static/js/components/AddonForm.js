@@ -2,26 +2,27 @@ import React from "react";
 import { Row, Col } from "react-bootstrap";
 
 import BranchManager from "experimenter/components/BranchManager";
-import GenericBranch from "experimenter/components/GenericBranch";
+import GenericBranchFields from "experimenter/components/GenericBranchFields";
 import DesignInput from "experimenter/components/DesignInput";
-import {boundClass} from "autobind-decorator";
-@boundClass
-class AddonForm extends React.Component {
 
-  render(){
+export default class AddonForm extends React.PureComponent {
+  render() {
     return (
       <div>
-        <Row>
+        <Row className="mb-3">
           <Col md={{ span: 4, offset: 3 }}>
             <h4 className="mb-3">Firefox Add-On</h4>
           </Col>
         </Row>
+
         <DesignInput
           label="Addon Experiment Name"
           name="addon_experiment_id"
-          handleInputChange={props.handleInputChange}
-          value={props.values.addon_experiment_id}
-          error={props.errors ? props.errors.addon_experiment_id : ""}
+          onChange={value => {
+            this.props.handleDataChange("addon_experiment_id", value);
+          }}
+          value={this.props.data.addon_experiment_id}
+          error={this.props.errors ? this.props.errors.addon_experiment_id : ""}
           helpContent={
             <div>
               <p>
@@ -38,19 +39,22 @@ class AddonForm extends React.Component {
               </p>
             </div>
           }
-        ></DesignInput>
+        />
+
         <DesignInput
           label="Signed Release URL"
           name="addon_release_url"
-          handleInputChange={props.handleInputChange}
-          value={props.values.addon_release_url}
-          error={props.errors ? props.errors.addon_release_url : ""}
+          onChange={value => {
+            this.props.handleDataChange("addon_release_url", value);
+          }}
+          value={this.props.data.addon_release_url}
+          error={this.props.errors ? this.props.errors.addon_release_url : ""}
           helpContent={
             <div>
               <p>
-                Enter the URL where the release build of your add-on can be found.
-                This is often attached to a bugzilla ticket. This MUST BE the
-                release signed add-on (not the test add-on) that you want
+                Enter the URL where the release build of your add-on can be
+                found. This is often attached to a bugzilla ticket. This MUST BE
+                the release signed add-on (not the test add-on) that you want
                 deployed.
                 <a
                   target="_blank"
@@ -64,19 +68,20 @@ class AddonForm extends React.Component {
             </div>
           }
         />
+
         <hr className="heavy-line my-5" />
+
         <BranchManager
-          variants={props.values.variants} 
-          onAddBranch={props.onAddBranch}
-          onRemoveBranch={props.onRemoveBranch}
-          onChange={(value)=>{this.props.handleDataChange("variants", value)}} 
-          type="addon" 
-          branchComponent={GenericBranch}
-          errors={props.errors} 
+          branches={this.props.data.variants}
+          onAddBranch={this.props.onAddBranch}
+          onRemoveBranch={this.props.onRemoveBranch}
+          onChange={value => {
+            this.props.handleDataChange("variants", value);
+          }}
+          branchFieldsComponent={GenericBranchFields}
+          errors={this.props.errors}
         />
       </div>
     );
   }
 }
-
-export default AddonForm;

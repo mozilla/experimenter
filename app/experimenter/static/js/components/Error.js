@@ -12,7 +12,7 @@ import {
 export default function Error(props) {
   return (
     <div className="invalid-feedback my-2">
-      <span className="fas fa-exclamation"></span> {props.error}
+      <span className="fas fa-exclamation" /> {props.error}
     </div>
   );
 }

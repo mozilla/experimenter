@@ -8,33 +8,24 @@ import {
   FormControl,
   FormLabel
 } from "react-bootstrap";
-import { boundMethod } from "autobind-decorator";
+import { boundClass } from "autobind-decorator";
 
 import Error from "experimenter/components/Error";
 import HelpBox from "experimenter/components/HelpBox";
 
-export default class DesignInput extends React.Component {
+@boundClass
+export default class DesignInput extends React.PureComponent {
   constructor(props) {
     super(props);
 
     this.state = {
-      value: this.props.value,
       help_showing: false
     };
   }
 
-  @boundMethod
   toggleHelp(e) {
     e.preventDefault();
     this.setState({ help_showing: !this.state.help_showing });
-  }
-
-  @boundMethod
-  updateValue(e) {
-    if(this.props.onChange){
-      this.props.onChange(e.target.value);
-    }
-    this.setState({ value: e.target.value });
   }
 
   render() {
@@ -62,8 +53,10 @@ export default class DesignInput extends React.Component {
             id={this.props.id}
             type="text"
             name={this.props.name}
-            onChange={this.updateValue}
-            value={this.state.value}
+            onChange={event => {
+              this.props.onChange(event.target.value);
+            }}
+            value={this.props.value}
             className={this.props.error ? "is-invalid" : ""}
           >
             {this.props.children}

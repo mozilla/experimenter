@@ -1,17 +1,20 @@
 import React from "react";
+
 import DesignInput from "experimenter/components/DesignInput";
 import BranchManager from "experimenter/components/BranchManager";
-import GenericBranch from "experimenter/components/GenericBranch";
+import GenericBranchFields from "experimenter/components/GenericBranchFields";
 
-class GenericForm extends React.Component {
-  render(){
+export default class GenericForm extends React.PureComponent {
+  render() {
     return (
       <div>
         <DesignInput
           label="Design"
           name="design"
-          handleInputChange={this.props.handleInputChange}
-          value={this.props.values.design}
+          onChange={value => {
+            this.props.handleDataChange("design", value);
+          }}
+          value={this.props.data.design}
           error={this.props.errors ? this.props.errors.design : ""}
           as="textarea"
           rows="10"
@@ -21,19 +24,20 @@ class GenericForm extends React.Component {
             </div>
           }
         />
+
         <hr className="heavy-line my-5" />
+
         <BranchManager
-          variants={this.props.values.variants} 
+          branches={this.props.data.variants}
           onAddBranch={this.props.onAddBranch}
           onRemoveBranch={this.props.onRemoveBranch}
-          onChange={(value)=>{this.props.handleDataChange("variants", value)}}
-          type="generic" 
-          branchComponent={GenericBranch}
-          errors={this.props.errors} 
+          onChange={value => {
+            this.props.handleDataChange("variants", value);
+          }}
+          branchFieldsComponent={GenericBranchFields}
+          errors={this.props.errors}
         />
       </div>
     );
   }
 }
-
-export default GenericForm;
