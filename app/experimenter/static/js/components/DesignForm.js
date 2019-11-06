@@ -56,7 +56,6 @@ export default class DesignForm extends React.Component {
   removeBranch(index) {
     const variants = [ ...this.state.values.variants ];
     variants.splice(index, 1);
-    console.log(variants);
     this.setState({
       values:{
         ...this.state.values,
