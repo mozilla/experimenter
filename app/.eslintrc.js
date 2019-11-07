@@ -32,6 +32,7 @@ module.exports = {
         "args": "after-used",
         "ignoreRestSiblings": false,
       }
-    ]
+    ],
+    "no-useless-escape": "off"
   }
 }
