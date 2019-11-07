@@ -23,6 +23,12 @@ test: test_build
 test-watch: compose_build
 	docker-compose -f docker-compose-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- ptw -- --testmon --show-capture=no --disable-warnings"
 
+eslint_assets: test_build
+	docker-compose -f docker-compose-test.yml run app sh -c "yarn run lint"
+
+eslint_fix: test_build
+	docker-compose -f docker-compose-test.yml run app sh -c "yarn run lint-fix"
+
 lint: test_build
 	docker-compose -f docker-compose-test.yml run app flake8 .
 
@@ -32,7 +38,7 @@ black_check: test_build
 black_fix: test_build
 	docker-compose -f docker-compose-test.yml run app black -l 90 .
 
-code_format: black_fix
+code_format: black_fix eslint_fix
 	echo "Code Formatted"
 
 check_migrations: test_build
