@@ -124,6 +124,7 @@ export default class DesignForm extends React.PureComponent {
         break;
       case "addon":
         Form = AddonForm;
+        break;
       default:
         Form = GenericForm;
     }
