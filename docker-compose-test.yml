@@ -8,6 +8,7 @@ services:
       - DEBUG=False
     volumes:
       - ./app:/app
+      - /app/node_modules/
     links:
       - db
     networks:
