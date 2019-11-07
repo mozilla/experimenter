@@ -907,34 +907,6 @@ class TestExperimentDesignBaseSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("variants", serializer.errors)
 
-    def test_serializer_outputs_dummy_variants_when_no_variants(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
-
-        serializer = ExperimentDesignBaseSerializer(experiment)
-
-        self.assertCountEqual(
-            serializer.data,
-            {
-                "type": ExperimentConstants.TYPE_GENERIC,
-                "variants": [
-                    {
-                        "description": None,
-                        "is_control": True,
-                        "name": None,
-                        "ratio": None,
-                        "value": None,
-                    },
-                    {
-                        "description": None,
-                        "is_control": False,
-                        "name": None,
-                        "ratio": None,
-                        "value": None,
-                    },
-                ],
-            },
-        )
-
 
 class TestExperimentDesignPrefSerializer(TestCase):
 
@@ -1164,6 +1136,39 @@ class TestExperimentDesignPrefSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("pref_branch", serializer.errors)
 
+    def test_serializer_outputs_dummy_variants_when_no_variants(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+
+        serializer = ExperimentDesignPrefSerializer(experiment)
+
+        self.assertEqual(
+            serializer.data,
+            {
+                "type": ExperimentConstants.TYPE_PREF,
+                "pref_key": experiment.pref_key,
+                "pref_type": experiment.pref_type,
+                "pref_branch": experiment.pref_branch,
+                "variants": [
+                    {
+                        "description": None,
+                        "is_control": True,
+                        "name": None,
+                        "ratio": None,
+                        "value": None,
+                        "id": None,
+                    },
+                    {
+                        "description": None,
+                        "is_control": False,
+                        "name": None,
+                        "ratio": None,
+                        "value": None,
+                        "id": None,
+                    },
+                ],
+            },
+        )
+
 
 class TestExperimentDesignAddonSerializer(TestCase):
 
@@ -1274,6 +1279,36 @@ class TestExperimentDesignAddonSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("addon_experiment_id", serializer.errors)
 
+    def test_serializer_outputs_dummy_variants_when_no_variants(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_ADDON)
+
+        serializer = ExperimentDesignAddonSerializer(experiment)
+
+        self.assertEqual(
+            serializer.data,
+            {
+                "type": ExperimentConstants.TYPE_ADDON,
+                "addon_release_url": experiment.addon_release_url,
+                "addon_experiment_id": experiment.addon_experiment_id,
+                "variants": [
+                    {
+                        "description": None,
+                        "is_control": True,
+                        "name": None,
+                        "ratio": None,
+                        "id": None,
+                    },
+                    {
+                        "description": None,
+                        "is_control": False,
+                        "name": None,
+                        "ratio": None,
+                        "id": None,
+                    },
+                ],
+            },
+        )
+
 
 class TestExperimentDesignGenericSerializer(TestCase):
 
@@ -1325,6 +1360,35 @@ class TestExperimentDesignGenericSerializer(TestCase):
         experiment = serializer.save()
 
         self.assertEqual(experiment.design, "Second Design")
+
+    def test_serializer_outputs_dummy_variants_when_no_variants(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+
+        serializer = ExperimentDesignGenericSerializer(experiment)
+
+        self.assertEqual(
+            serializer.data,
+            {
+                "type": ExperimentConstants.TYPE_GENERIC,
+                "design": experiment.design,
+                "variants": [
+                    {
+                        "description": None,
+                        "is_control": True,
+                        "name": None,
+                        "ratio": None,
+                        "id": None,
+                    },
+                    {
+                        "description": None,
+                        "is_control": False,
+                        "name": None,
+                        "ratio": None,
+                        "id": None,
+                    },
+                ],
+            },
+        )
 
 
 class TestCloneSerializer(MockRequestMixin, TestCase):
