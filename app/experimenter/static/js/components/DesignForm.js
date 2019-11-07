@@ -43,8 +43,7 @@ export default class DesignForm extends React.PureComponent {
             name: "",
             description: "",
             value: "",
-            is_control: false,
-            id: null
+            is_control: false
           }
         ]
       }
