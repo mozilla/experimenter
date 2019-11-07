@@ -38,7 +38,7 @@ black_check: test_build
 black_fix: test_build
 	docker-compose -f docker-compose-test.yml run app black -l 90 .
 
-code_format: black_fix eslint_fix
+code_format: black_fix
 	echo "Code Formatted"
 
 check_migrations: test_build
@@ -50,7 +50,7 @@ check: test_build check_migrations black_check lint test
 compose_build: build ssl
 	docker-compose build
 
-compose_build_all: build ssl 
+compose_build_all: build ssl
 	docker-compose -f docker-compose-full.yml build
 
 compose_kill:
@@ -67,7 +67,7 @@ up: compose_kill compose_build
 
 up_all: compose_build_all
 	docker-compose -f docker-compose-full.yml up
-	
+
 gunicorn: compose_build
 	docker-compose -f docker-compose.yml -f docker-compose-gunicorn.yml up
 
@@ -123,4 +123,3 @@ integration_up: integration_build
 
 integration_test: integration_build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox tox -c tests/integration
-
