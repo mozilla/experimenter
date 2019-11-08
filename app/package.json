@@ -42,9 +42,6 @@
     "lint": "eslint experimenter/static/js/components/**/*.js experimenter/static/js/index.js",
     "lint-fix": "eslint --fix experimenter/static/js/components/**/*.js experimenter/static/js/index.js"
   },
-  "prettier": {
-    "trailingComma": "all"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mozilla/experimenter.git"
