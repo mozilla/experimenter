@@ -447,7 +447,7 @@ class ExperimentDesignBranchBaseSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     description = serializers.CharField()
     is_control = serializers.BooleanField()
-    name = serializers.CharField()
+    name = serializers.CharField(max_length=255)
     ratio = serializers.IntegerField()
 
     class Meta:
@@ -465,7 +465,9 @@ class ExperimentDesignBranchPrefSerializer(ExperimentDesignBranchBaseSerializer)
 
 
 class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
-    type = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    type = serializers.CharField(
+        required=False, allow_null=True, allow_blank=True, max_length=255
+    )
     variants = ExperimentDesignBranchBaseSerializer(many=True)
 
     class Meta:
@@ -525,9 +527,9 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
 
 
 class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
-    pref_key = serializers.CharField()
-    pref_type = serializers.CharField()
-    pref_branch = serializers.CharField()
+    pref_key = serializers.CharField(max_length=255)
+    pref_type = serializers.CharField(max_length=255)
+    pref_branch = serializers.CharField(max_length=255)
     variants = ExperimentDesignBranchPrefSerializer(many=True)
 
     class Meta:
@@ -592,8 +594,8 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
 
 
 class ExperimentDesignAddonSerializer(ExperimentDesignBaseSerializer):
-    addon_experiment_id = serializers.CharField()
-    addon_release_url = serializers.URLField()
+    addon_experiment_id = serializers.CharField(max_length=255)
+    addon_release_url = serializers.URLField(max_length=400)
 
     class Meta:
         model = Experiment
