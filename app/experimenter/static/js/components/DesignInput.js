@@ -73,7 +73,7 @@ DesignInput.propTypes = {
   as: PropTypes.string,
   rows: PropTypes.string,
   id: PropTypes.string,
-  error: PropTypes.string,
+  error: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   children: PropTypes.array,
   helpContent: PropTypes.object,
   onChange: PropTypes.func

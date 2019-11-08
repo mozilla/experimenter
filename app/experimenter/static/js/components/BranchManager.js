@@ -62,6 +62,6 @@ BranchManager.propTypes = {
   onAddBranch: PropTypes.func,
   onRemoveBranch: PropTypes.func,
   onChange: PropTypes.func,
-  branchFieldsComponent: PropTypes.element,
+  branchFieldsComponent: PropTypes.func,
   branches: PropTypes.array
 };

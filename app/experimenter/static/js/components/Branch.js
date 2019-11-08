@@ -68,7 +68,7 @@ Branch.propTypes = {
   index: PropTypes.number,
   onChange: PropTypes.func,
   remove: PropTypes.func,
-  branchFieldsComponent: PropTypes.element,
+  branchFieldsComponent: PropTypes.func,
   branch: PropTypes.object
 };
 
