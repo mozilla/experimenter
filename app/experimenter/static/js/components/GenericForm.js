@@ -47,5 +47,5 @@ GenericForm.propTypes = {
   handleDataChange: PropTypes.func,
   errors: PropTypes.object,
   onAddBranch: PropTypes.func,
-  onRemoveBranch: PropTypes.func
+  onRemoveBranch: PropTypes.func,
 };

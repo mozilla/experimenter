@@ -104,7 +104,7 @@ GenericBranchFields.propTypes = {
   handleChange: PropTypes.func,
   errors: PropTypes.object,
   index: PropTypes.number,
-  branch: PropTypes.object
+  branch: PropTypes.object,
 };
 
 export default GenericBranchFields;

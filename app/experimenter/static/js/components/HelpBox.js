@@ -12,5 +12,5 @@ export default function HelpBox(props) {
 
 HelpBox.propTypes = {
   showing: PropTypes.bool,
-  children: PropTypes.object
+  children: PropTypes.object,
 };

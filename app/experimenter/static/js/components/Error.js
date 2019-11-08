@@ -10,5 +10,5 @@ export default function Error(props) {
 }
 
 Error.propTypes = {
-  error: PropTypes.array
+  error: PropTypes.array,
 };

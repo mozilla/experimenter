@@ -10,7 +10,7 @@ class Branch extends React.PureComponent {
     onChange({
       ...branch,
       is_control: this.props.index === 0,
-      [key]: value
+      [key]: value,
     });
   }
 
@@ -69,7 +69,7 @@ Branch.propTypes = {
   onChange: PropTypes.func,
   remove: PropTypes.func,
   branchFieldsComponent: PropTypes.func,
-  branch: PropTypes.object
+  branch: PropTypes.object,
 };
 
 export default Branch;

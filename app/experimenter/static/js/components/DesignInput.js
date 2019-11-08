@@ -12,7 +12,7 @@ class DesignInput extends React.PureComponent {
     super(props);
 
     this.state = {
-      help_showing: false
+      help_showing: false,
     };
   }
 
@@ -76,7 +76,7 @@ DesignInput.propTypes = {
   error: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
   children: PropTypes.array,
   helpContent: PropTypes.object,
-  onChange: PropTypes.func
+  onChange: PropTypes.func,
 };
 
 export default DesignInput;

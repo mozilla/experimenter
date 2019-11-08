@@ -19,7 +19,7 @@ class BranchManager extends React.PureComponent {
     // Make sure the control branch is the first branch
     const sortedBranches = [
       ...branches.filter(b => b.is_control),
-      ...branches.filter(b => !b.is_control)
+      ...branches.filter(b => !b.is_control),
     ];
 
     return (
@@ -63,5 +63,5 @@ BranchManager.propTypes = {
   onRemoveBranch: PropTypes.func,
   onChange: PropTypes.func,
   branchFieldsComponent: PropTypes.func,
-  branches: PropTypes.array
+  branches: PropTypes.array,
 };

@@ -91,5 +91,5 @@ AddonForm.propTypes = {
   handleDataChange: PropTypes.func,
   onAddBranch: PropTypes.func,
   onRemoveBranch: PropTypes.func,
-  errors: PropTypes.object
+  errors: PropTypes.object,
 };

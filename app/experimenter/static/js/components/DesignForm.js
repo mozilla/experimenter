@@ -16,7 +16,7 @@ class DesignForm extends React.PureComponent {
     this.state = {
       data: {},
       errors: {},
-      loaded: false
+      loaded: false,
     };
   }
 
@@ -28,7 +28,7 @@ class DesignForm extends React.PureComponent {
     const data = await makeApiRequest(this.getEndpointUrl());
     this.setState({
       loaded: true,
-      data
+      data,
     });
   }
 
@@ -44,10 +44,10 @@ class DesignForm extends React.PureComponent {
             name: "",
             description: "",
             value: "",
-            is_control: false
-          }
-        ]
-      }
+            is_control: false,
+          },
+        ],
+      },
     });
   }
 
@@ -57,8 +57,8 @@ class DesignForm extends React.PureComponent {
     this.setState({
       data: {
         ...this.state.data,
-        variants
-      }
+        variants,
+      },
     });
   }
 
@@ -66,8 +66,8 @@ class DesignForm extends React.PureComponent {
     this.setState({
       data: {
         ...this.state.data,
-        [key]: value
-      }
+        [key]: value,
+      },
     });
   }
 
@@ -76,7 +76,7 @@ class DesignForm extends React.PureComponent {
 
     const requestSave = makeApiRequest(this.getEndpointUrl(), {
       method: "PUT",
-      data: this.state.data
+      data: this.state.data,
     });
 
     requestSave
@@ -85,7 +85,7 @@ class DesignForm extends React.PureComponent {
       })
       .catch(err => {
         this.setState({
-          errors: err.data
+          errors: err.data,
         });
 
         const invalid = document.querySelector(".is-invalid");
@@ -102,7 +102,7 @@ class DesignForm extends React.PureComponent {
   handleSubmitContinue(event) {
     this.handleSubmit(
       event,
-      `/experiments/${this.props.slug}/edit-objectives/`
+      `/experiments/${this.props.slug}/edit-objectives/`,
     );
   }
 
@@ -181,7 +181,7 @@ class DesignForm extends React.PureComponent {
 
 DesignForm.propTypes = {
   expType: PropTypes.string,
-  slug: PropTypes.string
+  slug: PropTypes.string,
 };
 
 export default DesignForm;
