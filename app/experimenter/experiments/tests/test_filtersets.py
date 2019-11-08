@@ -274,6 +274,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             results_lessons_learned="a very important lesson was learned",
         )
         ExperimentFactory.create()
+        ExperimentFactory.create(results_lessons_learned="")
 
         filter = ExperimentFilterset(
             {"completed_results": "on"},
