@@ -35,6 +35,7 @@ from experimenter.experiments.serializers import (
     ExperimentDesignPrefSerializer,
     ExperimentDesignGenericSerializer,
     ExperimentDesignBaseSerializer,
+    ExperimentDesignBranchBaseSerializer,
 )
 
 from experimenter.experiments.constants import ExperimentConstants
@@ -563,6 +564,20 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertNotIn("country", filter_object_types)
 
 
+class TestExperimentDesignBranchBaseSerializer(TestCase):
+
+    def test_serializer_rejects_too_long_names(self):
+        data = {
+            "name": "Terrific branch" * 100,
+            "ratio": 50,
+            "description": "Very terrific branch.",
+            "is_control": True,
+        }
+        serializer = ExperimentDesignBranchBaseSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("name", serializer.errors)
+
+
 class TestExperimentDesignBaseSerializer(TestCase):
 
     def setUp(self):
@@ -984,8 +999,58 @@ class TestExperimentDesignPrefSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("variants", serializer.errors)
 
+    def test_serializer_rejects_too_long_pref_type(self):
+        data = {
+            "type": ExperimentConstants.TYPE_PREF,
+            "pref_type": "json string" * 100,
+            "pref_key": "name",
+            "pref_branch": "default",
+            "variants": [self.variant_1, self.variant_2],
+        }
+        serializer = ExperimentDesignPrefSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("pref_type", serializer.errors)
+
+    def test_serializer_rejects_too_long_pref_key(self):
+        data = {
+            "type": ExperimentConstants.TYPE_PREF,
+            "pref_type": "json string",
+            "pref_key": "name" * 100,
+            "pref_branch": "default",
+            "variants": [self.variant_1, self.variant_2],
+        }
+        serializer = ExperimentDesignPrefSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("pref_key", serializer.errors)
+
+    def test_serializer_rejects_too_long_pref_branch(self):
+        data = {
+            "type": ExperimentConstants.TYPE_PREF,
+            "pref_type": "json string",
+            "pref_key": "name",
+            "pref_branch": "default" * 100,
+            "variants": [self.variant_1, self.variant_2],
+        }
+        serializer = ExperimentDesignPrefSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("pref_branch", serializer.errors)
+
 
 class TestExperimentDesignAddonSerializer(TestCase):
+
+    def setUp(self):
+        self.control_variant_data = {
+            "name": "Terrific branch",
+            "ratio": 50,
+            "description": "Very terrific branch.",
+            "is_control": True,
+        }
+        self.treatment_variant_data = {
+            "name": "Great branch",
+            "ratio": 50,
+            "description": "Very great branch.",
+            "is_control": False,
+        }
 
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create_with_variants(
@@ -1044,14 +1109,7 @@ class TestExperimentDesignAddonSerializer(TestCase):
             "type": ExperimentConstants.TYPE_ADDON,
             "addon_release_url": "http://www.example.com",
             "addon_experiment_id": addon_experiment_id,
-            "variants": [
-                {
-                    "name": "Terrific branch",
-                    "ratio": 100,
-                    "description": "Very terrific branch.",
-                    "is_control": True,
-                }
-            ],
+            "variants": [self.control_variant_data, self.treatment_variant_data],
         }
 
         serializer = ExperimentDesignAddonSerializer(data=data)
@@ -1063,24 +1121,12 @@ class TestExperimentDesignAddonSerializer(TestCase):
             addon_release_url="http://www.example.com",
             addon_experiment_id="experiment id 1",
         )
-        variant_1 = {
-            "name": "Terrific branch",
-            "ratio": 50,
-            "description": "Very terrific branch.",
-            "is_control": True,
-        }
-        variant_2 = {
-            "name": "Great branch",
-            "ratio": 50,
-            "description": "Very great branch.",
-            "is_control": False,
-        }
 
         data = {
             "type": ExperimentConstants.TYPE_GENERIC,
             "addon_release_url": "http://www.example.com",
             "addon_experiment_id": "experiment id new",
-            "variants": [variant_1, variant_2],
+            "variants": [self.control_variant_data, self.treatment_variant_data],
         }
 
         serializer = ExperimentDesignAddonSerializer(instance=experiment, data=data)
@@ -1098,18 +1144,35 @@ class TestExperimentDesignAddonSerializer(TestCase):
             "type": ExperimentConstants.TYPE_ADDON,
             "addon_release_url": "http://www.example.com",
             "addon_experiment_id": addon_experiment_id,
-            "variants": [
-                {
-                    "name": "Terrific branch",
-                    "ratio": 100,
-                    "description": "Very terrific branch.",
-                    "is_control": True,
-                }
-            ],
+            "variants": [self.control_variant_data, self.treatment_variant_data],
         }
 
         serializer = ExperimentDesignAddonSerializer(instance=experiment, data=data)
         self.assertTrue(serializer.is_valid())
+
+    def test_serializer_rejects_too_long_urls(self):
+        data = {
+            "type": ExperimentConstants.TYPE_ADDON,
+            "addon_release_url": "http://www.example.com" * 100,
+            "addon_experiment_id": "experiment id new",
+            "variants": [self.control_variant_data, self.treatment_variant_data],
+        }
+
+        serializer = ExperimentDesignAddonSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("addon_release_url", serializer.errors)
+
+    def test_serializer_rejects_too_long_experiment_ids(self):
+        data = {
+            "type": ExperimentConstants.TYPE_ADDON,
+            "addon_release_url": "http://www.example.com",
+            "addon_experiment_id": "experiment id" * 100,
+            "variants": [self.control_variant_data, self.treatment_variant_data],
+        }
+
+        serializer = ExperimentDesignAddonSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("addon_experiment_id", serializer.errors)
 
 
 class TestExperimentDesignGenericSerializer(TestCase):
