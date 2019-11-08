@@ -1,13 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import {
-  Button,
-  Container,
-  Row,
-  Col,
-  FormControl,
-  FormLabel
-} from "react-bootstrap";
+import PropTypes from "prop-types";
 
 export default function Error(props) {
   return (
@@ -16,3 +8,7 @@ export default function Error(props) {
     </div>
   );
 }
+
+Error.propTypes = {
+  error: PropTypes.string
+};

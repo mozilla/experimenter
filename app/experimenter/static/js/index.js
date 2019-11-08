@@ -9,6 +9,9 @@ import DesignForm from "experimenter/components/DesignForm";
 
 window.jQuery = jQuery;
 window.$ = jQuery;
+window.bsSelect = bsSelect;
+window.bootstrap = bootstrap;
+window.popper = popper;
 
 const branchesDiv = document.getElementById("react-branches-form");
 

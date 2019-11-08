@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import { boundClass } from "autobind-decorator";
+import PropTypes from "prop-types";
 
 import PrefForm from "experimenter/components/PrefForm";
 import GenericForm from "experimenter/components/GenericForm";
@@ -8,7 +9,7 @@ import AddonForm from "experimenter/components/AddonForm";
 import { makeApiRequest } from "experimenter/utils/api";
 
 @boundClass
-export default class DesignForm extends React.PureComponent {
+class DesignForm extends React.PureComponent {
   constructor(props) {
     super(props);
 
@@ -75,7 +76,7 @@ export default class DesignForm extends React.PureComponent {
 
     const requestSave = makeApiRequest(this.getEndpointUrl(), {
       method: "PUT",
-      data: this.state.data,
+      data: this.state.data
     });
 
     requestSave
@@ -84,12 +85,12 @@ export default class DesignForm extends React.PureComponent {
       })
       .catch(err => {
         this.setState({
-          errors: err.data,
+          errors: err.data
         });
 
         const invalid = document.querySelector(".is-invalid");
         if (invalid) {
-         invalid.scrollIntoView();
+          invalid.scrollIntoView();
         }
       });
   }
@@ -99,7 +100,10 @@ export default class DesignForm extends React.PureComponent {
   }
 
   handleSubmitContinue(event) {
-    this.handleSubmit(event, `/experiments/${this.props.slug}/edit-objectives/`);
+    this.handleSubmit(
+      event,
+      `/experiments/${this.props.slug}/edit-objectives/`
+    );
   }
 
   render() {
@@ -174,3 +178,10 @@ export default class DesignForm extends React.PureComponent {
     );
   }
 }
+
+DesignForm.propTypes = {
+  expType: PropTypes.string,
+  slug: PropTypes.string
+};
+
+export default DesignForm;

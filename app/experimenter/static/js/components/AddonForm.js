@@ -1,5 +1,6 @@
 import React from "react";
 import { Row, Col } from "react-bootstrap";
+import PropTypes from "prop-types";
 
 import BranchManager from "experimenter/components/BranchManager";
 import GenericBranchFields from "experimenter/components/GenericBranchFields";
@@ -84,3 +85,11 @@ export default class AddonForm extends React.PureComponent {
     );
   }
 }
+
+AddonForm.propTypes = {
+  data: PropTypes.object,
+  handleDataChange: PropTypes.func,
+  onAddBranch: PropTypes.func,
+  onRemoveBranch: PropTypes.func,
+  errors: PropTypes.object
+};

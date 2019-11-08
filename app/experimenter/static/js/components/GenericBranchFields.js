@@ -1,5 +1,6 @@
 import { boundClass } from "autobind-decorator";
 import React from "react";
+import PropTypes from "prop-types";
 
 import DesignInput from "experimenter/components/DesignInput";
 
@@ -7,7 +8,12 @@ import DesignInput from "experimenter/components/DesignInput";
 class GenericBranchFields extends React.PureComponent {
   getErrorMessage(name) {
     const { errors, index } = this.props;
-    if (errors && errors.variants && errors.variants[index] && errors.variants[index][name]) {
+    if (
+      errors &&
+      errors.variants &&
+      errors.variants[index] &&
+      errors.variants[index][name]
+    ) {
       return errors.variants[index][name];
     }
     return "";
@@ -93,5 +99,12 @@ class GenericBranchFields extends React.PureComponent {
     );
   }
 }
+
+GenericBranchFields.propTypes = {
+  handleChange: PropTypes.func,
+  errors: PropTypes.object,
+  index: PropTypes.number,
+  branch: PropTypes.object
+};
 
 export default GenericBranchFields;

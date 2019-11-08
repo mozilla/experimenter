@@ -1,5 +1,6 @@
 import React from "react";
 import { Row, Col } from "react-bootstrap";
+import PropTypes from "prop-types";
 
 import DesignInput from "experimenter/components/DesignInput";
 import BranchManager from "experimenter/components/BranchManager";
@@ -119,3 +120,11 @@ export default class PrefForm extends React.PureComponent {
     );
   }
 }
+
+PrefForm.propTypes = {
+  data: PropTypes.object,
+  handleDataChange: PropTypes.func,
+  onAddBranch: PropTypes.func,
+  onRemoveBranch: PropTypes.func,
+  errors: PropTypes.object
+};

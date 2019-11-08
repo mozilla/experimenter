@@ -1,13 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import {
-  Button,
-  Container,
-  Row,
-  Col,
-  FormControl,
-  FormLabel
-} from "react-bootstrap";
+import PropTypes from "prop-types";
 
 export default function HelpBox(props) {
   let className = "text-muted collapse mt-2";
@@ -17,3 +9,8 @@ export default function HelpBox(props) {
 
   return <div className={className}>{props.children}</div>;
 }
+
+HelpBox.propTypes = {
+  showing: PropTypes.bool,
+  children: PropTypes.object
+};
