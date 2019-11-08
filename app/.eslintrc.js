@@ -33,6 +33,6 @@ module.exports = {
         "ignoreRestSiblings": false,
       }
     ],
-    "no-useless-escape": "off"
+    "react/no-unescaped-entities": 0
   }
 }
