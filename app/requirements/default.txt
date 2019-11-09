@@ -86,9 +86,9 @@ psycopg2==2.8.3 \
 pytest==4.5.0 \
     --hash=sha256:b8bf138592384bd4e87338cb0f256bf5f615398a649d4bd83915f0e4047a5ca6 \
     --hash=sha256:1a8aa4fa958f8f451ac5441f3ac130d9fc86ea38780dd2715e6d5c5882700b24
-pytest-django==3.5.1 \
-    --hash=sha256:4adfe5fb3ed47f0ba55506dd3daf688b1f74d5e69148c10ad2dd2f79f40c0d62 \
-    --hash=sha256:264fb4c506db5d48a6364c311a0b00b7b48a52715bad8839b2d8bee9b99ed6bb
+pytest-django==3.6.0 \
+    --hash=sha256:497e8d967d2ec82b3388267b2f1f037761ff34c10ebb13c534d8c5804846e4eb \
+    --hash=sha256:b6c900461a6a7c450dcf11736cabc289a90f5d6f28ef74c46e32e86ffd16a4bd
 pytest-testmon==0.9.18 \
     --hash=sha256:05648f9b22aeeda9d32e61b46fa78c9ff28f217d69005b3b19ffb75d5992187e
 pytest-watch==4.2.0 \
