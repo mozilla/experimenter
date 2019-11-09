@@ -1,25 +1,18 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import {
-  Button,
-  Container,
-  Row,
-  Col,
-  FormControl,
-  FormLabel
-} from "react-bootstrap";
+import { Row, Col, FormControl, FormLabel } from "react-bootstrap";
 import { boundClass } from "autobind-decorator";
+import PropTypes from "prop-types";
 
 import Error from "experimenter/components/Error";
 import HelpBox from "experimenter/components/HelpBox";
 
 @boundClass
-export default class DesignInput extends React.PureComponent {
+class DesignInput extends React.PureComponent {
   constructor(props) {
     super(props);
 
     this.state = {
-      help_showing: false
+      help_showing: false,
     };
   }
 
@@ -70,3 +63,20 @@ export default class DesignInput extends React.PureComponent {
     );
   }
 }
+
+DesignInput.propTypes = {
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  margin: PropTypes.string,
+  label: PropTypes.string,
+  name: PropTypes.string,
+  index: PropTypes.number,
+  as: PropTypes.string,
+  rows: PropTypes.string,
+  id: PropTypes.string,
+  error: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+  children: PropTypes.array,
+  helpContent: PropTypes.object,
+  onChange: PropTypes.func,
+};
+
+export default DesignInput;
