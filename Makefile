@@ -38,13 +38,13 @@ black_check: test_build
 black_fix: test_build
 	docker-compose -f docker-compose-test.yml run app black -l 90 .
 
-code_format: black_fix
+code_format: black_fix eslint_fix
 	echo "Code Formatted"
 
 check_migrations: test_build
 	docker-compose -f docker-compose-test.yml run app sh -c "/app/bin/wait-for-it.sh db:5432 -- python manage.py makemigrations --check --dry-run --noinput"
 
-check: test_build check_migrations black_check lint test
+check: test_build check_migrations black_check lint eslint_assets test
 	echo "Success"
 
 compose_build: build ssl

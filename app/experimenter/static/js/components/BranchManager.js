@@ -1,6 +1,7 @@
 import React from "react";
 import { Row, Col, Button } from "react-bootstrap";
 import { boundClass } from "autobind-decorator";
+import PropTypes from "prop-types";
 
 import Branch from "experimenter/components/Branch";
 
@@ -54,3 +55,13 @@ class BranchManager extends React.PureComponent {
   }
 }
 export default BranchManager;
+
+BranchManager.propTypes = {
+  data: PropTypes.object,
+  errors: PropTypes.object,
+  onAddBranch: PropTypes.func,
+  onRemoveBranch: PropTypes.func,
+  onChange: PropTypes.func,
+  branchFieldsComponent: PropTypes.func,
+  branches: PropTypes.array,
+};

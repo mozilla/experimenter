@@ -1,5 +1,5 @@
 import React from "react";
-
+import PropTypes from "prop-types";
 import DesignInput from "experimenter/components/DesignInput";
 import BranchManager from "experimenter/components/BranchManager";
 import GenericBranchFields from "experimenter/components/GenericBranchFields";
@@ -41,3 +41,11 @@ export default class GenericForm extends React.PureComponent {
     );
   }
 }
+
+GenericForm.propTypes = {
+  data: PropTypes.object,
+  handleDataChange: PropTypes.func,
+  errors: PropTypes.object,
+  onAddBranch: PropTypes.func,
+  onRemoveBranch: PropTypes.func,
+};
