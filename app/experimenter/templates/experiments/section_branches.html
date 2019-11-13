@@ -21,6 +21,9 @@
           <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
         {% endif %}
       {% endif %}
+      {% if experiment.is_branched_addon %}
+      <strong>Addon Release URL: </strong>{{ variant.addon_release_url }}
+      {% endif %}
       <p>{{ variant.description|urlize|linebreaks }}</p>
     </div>
   {% endfor %}

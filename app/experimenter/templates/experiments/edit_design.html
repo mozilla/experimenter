@@ -14,7 +14,11 @@
 {% endblock %}
 
 {% block edit_form %}
+  {% if object.is_branched_addon %}
+    <div data-experiment-slug="{{ object.slug }}" data-experiment-type="branched-addon" id="react-branches-form"></div>
+  {% else %}
     <div data-experiment-slug="{{ object.slug }}" data-experiment-type="{{object.type}}" id="react-branches-form"></div>
+  {% endif %}
 {% endblock %}
 
 {% block edit_info %}

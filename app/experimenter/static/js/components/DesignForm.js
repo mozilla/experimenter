@@ -28,11 +28,18 @@ class DesignForm extends React.PureComponent {
   }
 
   getEndpointUrl() {
-    return `experiments/${this.props.slug}/design-${this.props.experimentType}/`;
+    if (this.state.data.get("is_branched_addon")) {
+      return `experiments/${this.props.slug}/design-branched-addon/`;
+    }
+    return `experiments/${this.props.slug}/design-${this.state.data.get(
+      "type",
+    )}/`;
   }
 
   async componentDidMount() {
-    const data = await makeApiRequest(this.getEndpointUrl());
+    const data = await makeApiRequest(
+      `experiments/${this.props.slug}/design-${this.props.experimentType}/`,
+    );
 
     this.setState({
       loaded: true,
@@ -56,7 +63,6 @@ class DesignForm extends React.PureComponent {
     event.preventDefault();
 
     this.setState({ saving: true });
-
     const requestSave = makeApiRequest(this.getEndpointUrl(), {
       method: "PUT",
       data: this.state.data.toJS(),
@@ -92,6 +98,20 @@ class DesignForm extends React.PureComponent {
       event,
       `/experiments/${this.props.slug}/edit-objectives/`,
     );
+  }
+
+  handleBranchedAddonRadio(event) {
+    let value = event.target.value;
+
+    if (value == "true") {
+      value = true;
+    } else {
+      value = false;
+    }
+    this.setState(({ data, errors }) => ({
+      data: data.set("is_branched_addon", value),
+      errors: new Map(),
+    }));
   }
 
   render() {
@@ -130,6 +150,7 @@ class DesignForm extends React.PureComponent {
               data={this.state.data}
               errors={this.state.errors}
               loaded={this.state.loaded}
+              handleBranchedAddonRadio={this.handleBranchedAddonRadio}
             />
             <Row>
               <Col className="text-right">

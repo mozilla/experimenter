@@ -216,3 +216,8 @@ pre.json {
   background-color: white;
   border-color: #ced4da;
 }
+
+#custom-switch {
+  height: 2em;
+  width: 90px;
+}
