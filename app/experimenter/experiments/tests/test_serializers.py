@@ -37,6 +37,7 @@ from experimenter.experiments.serializers import (
     ExperimentDesignBaseSerializer,
     ExperimentRecipeMultiPrefVariantSerializer,
     ExperimentDesignBranchBaseSerializer,
+    ExperimentDesignBranchedAddonSerializer,
 )
 
 from experimenter.experiments.constants import ExperimentConstants
@@ -1376,6 +1377,61 @@ class TestExperimentDesignGenericSerializer(TestCase):
                 ],
             },
         )
+
+
+class TestExperimentDesignBranchedAddonSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentFactory.create_with_variants(
+            type=ExperimentConstants.TYPE_ADDON
+        )
+        experiment.is_branched_addon = True
+        experiment.save()
+
+        serializer = ExperimentDesignBranchedAddonSerializer(experiment)
+
+        self.assertCountEqual(
+            serializer.data,
+            {
+                "type": experiment.type,
+                "is_branched_addon": True,
+                "variants": [
+                    ExperimentVariantSerializer(variant).data
+                    for variant in experiment.variants.all()
+                ],
+            },
+        )
+
+    def test_serializer_saves_branched_addon_experiment(self):
+        experiment = ExperimentFactory.create_with_variants(
+            type=ExperimentConstants.TYPE_ADDON, is_branched_addon=False
+        )
+        variant_1 = {
+            "addon_release_url": "http://example.com",
+            "name": "Terrific branch",
+            "ratio": 50,
+            "description": "Very terrific branch.",
+            "is_control": True,
+        }
+        variant_2 = {
+            "addon_release_url": "http://example2.com",
+            "name": "Great branch",
+            "ratio": 50,
+            "description": "Very great branch.",
+            "is_control": False,
+        }
+
+        data = {"is_branched_addon": True, "variants": [variant_1, variant_2]}
+
+        serializer = ExperimentDesignBranchedAddonSerializer(
+            instance=experiment, data=data
+        )
+
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertTrue(experiment.is_branched_addon)
 
 
 class TestCloneSerializer(MockRequestMixin, TestCase):

@@ -96,6 +96,7 @@ class Experiment(ExperimentConstants, models.Model):
         max_length=255, unique=True, blank=True, null=True
     )
     addon_release_url = models.URLField(max_length=400, blank=True, null=True)
+    is_branched_addon = models.BooleanField(default=False)
 
     pref_key = models.CharField(max_length=255, blank=True, null=True)
     pref_type = models.CharField(
@@ -264,7 +265,7 @@ class Experiment(ExperimentConstants, models.Model):
         return self.type in (self.TYPE_PREF, self.TYPE_ADDON)
 
     def generate_normandy_slug(self):
-        if self.is_addon_experiment and not self.is_branched_addon:
+        if self.is_addon_experiment and not self.use_branched_addon_serializer:
             if not self.addon_experiment_id:
                 raise ValueError(
                     (
@@ -513,6 +514,13 @@ class Experiment(ExperimentConstants, models.Model):
         return self.variants.exists()
 
     @property
+    def completed_branched_addon(self):
+        for variant in self.variants.all():
+            if not variant.addon_release_url:
+                return False
+        return True
+
+    @property
     def completed_objectives(self):
         return (
             self.objectives
@@ -615,7 +623,10 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
         if self.is_addon_experiment:
-            completed = completed and self.completed_addon
+            if self.is_branched_addon:
+                completed = completed and self.completed_branched_addon
+            else:
+                completed = completed and self.completed_addon
 
         if self.is_generic_experiment:
             completed = completed and self.completed_design
@@ -647,7 +658,7 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
-    def is_branched_addon(self):
+    def use_branched_addon_serializer(self):
         return (
             self.is_addon_experiment
             and self.firefox_min_version_integer
@@ -783,6 +794,7 @@ class ExperimentVariant(models.Model):
     description = models.TextField(default="")
     ratio = models.PositiveIntegerField(default=1)
     value = models.TextField(blank=False, null=True)
+    addon_release_url = models.URLField(max_length=400, blank=True, null=True)
 
     class Meta:
         verbose_name = "Experiment Variant"
