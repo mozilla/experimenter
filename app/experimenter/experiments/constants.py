@@ -100,7 +100,7 @@ class ExperimentConstants(object):
 
     MIN_VERSION_CHOICES = ((None, "Firefox Min Version"),) + ((VERSION_CHOICES))
 
-    MAX_VERSION_CHOICES = ((None, "No Max Version (Optional)"),) + ((VERSION_CHOICES))
+    MAX_VERSION_CHOICES = ((None, "Firefox Max Version"),) + ((VERSION_CHOICES))
 
     VERSION_REGEX = re.compile(r"[\d]+")
 
