@@ -53,8 +53,9 @@ class DesignForm extends React.PureComponent {
   }
 
   removeBranch(index) {
-    this.setState(({ data }) => ({
+    this.setState(({ data, errors }) => ({
       data: data.update("variants", variants => variants.delete(index)),
+      errors: errors.update("variants", variants => variants.delete(index)),
     }));
   }
 
