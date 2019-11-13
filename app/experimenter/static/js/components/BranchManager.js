@@ -1,43 +1,64 @@
+import { boundClass } from "autobind-decorator";
+import { List, Map } from "immutable";
+import PropTypes from "prop-types";
 import React from "react";
 import { Row, Col, Button } from "react-bootstrap";
-import { boundClass } from "autobind-decorator";
-import PropTypes from "prop-types";
 
 import Branch from "experimenter/components/Branch";
 
 @boundClass
 class BranchManager extends React.PureComponent {
+  static propTypes = {
+    branches: PropTypes.instanceOf(List),
+    branchFieldsComponent: PropTypes.func,
+    errors: PropTypes.instanceOf(Map),
+    onAddBranch: PropTypes.func,
+    onChange: PropTypes.func,
+    onRemoveBranch: PropTypes.func,
+  };
+
   handleChange(index, value) {
-    const branches = [...this.props.branches];
-    branches.splice(index, 1, value);
-    this.props.onChange(branches);
+    const { branches, onChange } = this.props;
+    onChange(branches.set(index, value));
+  }
+
+  renderBranch(branch, index) {
+    const { branchFieldsComponent, errors, onRemoveBranch } = this.props;
+
+    return (
+      <Branch
+        key={index}
+        index={index}
+        branch={branch}
+        branchFieldsComponent={branchFieldsComponent}
+        remove={onRemoveBranch}
+        errors={errors}
+        onChange={value => {
+          this.handleChange(index, value);
+        }}
+      />
+    );
+  }
+
+  renderBranches() {
+    const { branches } = this.props;
+
+    return branches
+      .withMutations(mutable => {
+        // Make sure the control branch is the first branch
+        mutable
+          .filter(b => b.get("is_control"))
+          .concat(branches.filter(b => !b.get("is_control")));
+      })
+      .map(this.renderBranch);
   }
 
   render() {
-    const { branches, onAddBranch, onRemoveBranch } = this.props;
-
-    // Make sure the control branch is the first branch
-    const sortedBranches = [
-      ...branches.filter(b => b.is_control),
-      ...branches.filter(b => !b.is_control),
-    ];
+    const { onAddBranch } = this.props;
 
     return (
       <React.Fragment>
-        {sortedBranches.map((variant, index) => (
-          <React.Fragment key={index}>
-            <Branch
-              index={index}
-              branch={variant}
-              branchFieldsComponent={this.props.branchFieldsComponent}
-              remove={onRemoveBranch}
-              errors={this.props.errors}
-              onChange={value => {
-                this.handleChange(index, value);
-              }}
-            />
-          </React.Fragment>
-        ))}
+        {this.renderBranches()}
         <Row>
           <Col className="text-right">
             <Button
@@ -55,13 +76,3 @@ class BranchManager extends React.PureComponent {
   }
 }
 export default BranchManager;
-
-BranchManager.propTypes = {
-  data: PropTypes.object,
-  errors: PropTypes.object,
-  onAddBranch: PropTypes.func,
-  onRemoveBranch: PropTypes.func,
-  onChange: PropTypes.func,
-  branchFieldsComponent: PropTypes.func,
-  branches: PropTypes.array,
-};

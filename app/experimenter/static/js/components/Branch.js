@@ -1,17 +1,26 @@
 import { boundClass } from "autobind-decorator";
+import { Map } from "immutable";
+import PropTypes from "prop-types";
 import React from "react";
 import { Button, Row, Col } from "react-bootstrap";
-import PropTypes from "prop-types";
 
 @boundClass
 class Branch extends React.PureComponent {
+  static propTypes = {
+    branch: PropTypes.instanceOf(Map),
+    branchFieldsComponent: PropTypes.func,
+    errors: PropTypes.instanceOf(Map),
+    index: PropTypes.number,
+    onChange: PropTypes.func,
+    remove: PropTypes.func,
+  };
+
   handleChange(key, value) {
     const { onChange, branch } = this.props;
-    onChange({
-      ...branch,
-      is_control: this.props.index === 0,
-      [key]: value,
-    });
+    const updated = branch
+      .set("is_control", this.props.index === 0)
+      .set(key, value);
+    onChange(updated);
   }
 
   renderTitle() {
@@ -62,14 +71,5 @@ class Branch extends React.PureComponent {
     );
   }
 }
-
-Branch.propTypes = {
-  errors: PropTypes.object,
-  index: PropTypes.number,
-  onChange: PropTypes.func,
-  remove: PropTypes.func,
-  branchFieldsComponent: PropTypes.func,
-  branch: PropTypes.object,
-};
 
 export default Branch;
