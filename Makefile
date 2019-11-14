@@ -121,5 +121,7 @@ integration_up_detached: integration_build
 integration_up: integration_build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml up
 
-integration_test: integration_build
+integration_test: kill integration_build
 	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml run firefox tox -c tests/integration
+	docker-compose -p experimenter_integration -f docker-compose.integration-test.yml kill 
+
