@@ -38,7 +38,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "parcel build experimenter/static/css/index.css experimenter/static/js/index.js --out-dir experimenter/static/assets --public-url /static/assets/",
-    "watch": "parcel watch experimenter/static/css/index.css experimenter/static/js/index.js --out-dir experimenter/static/assets --https --hmr-hostname localhost --hmr-port 33123 --public-url /static/assets/",
+    "watch": "parcel watch experimenter/static/css/index.css experimenter/static/js/index.js --out-dir experimenter/static/assets --public-url /static/assets/",
     "lint": "eslint experimenter/static/js/components/**/*.js experimenter/static/js/index.js",
     "lint-fix": "eslint --fix experimenter/static/js/components/**/*.js experimenter/static/js/index.js"
   },
