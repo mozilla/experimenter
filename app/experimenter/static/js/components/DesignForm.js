@@ -40,7 +40,7 @@ class DesignForm extends React.PureComponent {
     this.setState({
       loaded: true,
       data: fromJS(data),
-      errors: fromJS(errors)
+      errors: fromJS(errors),
     });
   }
 
@@ -51,18 +51,19 @@ class DesignForm extends React.PureComponent {
       description: "",
       value: "",
       is_control: false,
-
-      const emptyErrorsBranch = fromJS({
-        ratio: "",
-        name: "",
-        description: "",
-        value: "",
-      })
+    });
+    const emptyErrorsBranch = fromJS({
+      ratio: "",
+      name: "",
+      description: "",
+      value: "",
     });
 
     this.setState(({ data, errors }) => ({
       data: data.update("variants", variants => variants.push(emptyBranch)),
-      errors: errors.update("variants", variants => variants.push(emptyErrorsBranch)),
+      errors: errors.update("variants", variants =>
+        variants.push(emptyErrorsBranch),
+      ),
     }));
   }
 
