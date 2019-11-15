@@ -1,12 +1,21 @@
+import { Map } from "immutable";
+import PropTypes from "prop-types";
 import React from "react";
 import { Row, Col } from "react-bootstrap";
-import PropTypes from "prop-types";
 
-import DesignInput from "experimenter/components/DesignInput";
 import BranchManager from "experimenter/components/BranchManager";
+import DesignInput from "experimenter/components/DesignInput";
 import PrefBranchFields from "experimenter/components/PrefBranchFields";
 
 export default class PrefForm extends React.PureComponent {
+  static propTypes = {
+    data: PropTypes.instanceOf(Map),
+    errors: PropTypes.instanceOf(Map),
+    handleDataChange: PropTypes.func,
+    onAddBranch: PropTypes.func,
+    onRemoveBranch: PropTypes.func,
+  };
+
   render() {
     return (
       <div>
@@ -23,8 +32,8 @@ export default class PrefForm extends React.PureComponent {
           onChange={value => {
             this.props.handleDataChange("pref_key", value);
           }}
-          value={this.props.data.pref_key}
-          error={this.props.errors ? this.props.errors.pref_key : ""}
+          value={this.props.data.get("pref_key")}
+          error={this.props.errors.get("pref_key", "")}
           helpContent={
             <div>
               <p>
@@ -49,8 +58,8 @@ export default class PrefForm extends React.PureComponent {
           onChange={value => {
             this.props.handleDataChange("pref_type", value);
           }}
-          value={this.props.data.pref_type}
-          error={this.props.errors ? this.props.errors.pref_type : ""}
+          value={this.props.data.get("pref_type")}
+          error={this.props.errors.get("pref_type", "")}
           as="select"
           helpContent={
             <div>
@@ -78,8 +87,8 @@ export default class PrefForm extends React.PureComponent {
           onChange={value => {
             this.props.handleDataChange("pref_branch", value);
           }}
-          value={this.props.data.pref_branch}
-          error={this.props.errors ? this.props.errors.pref_branch : ""}
+          value={this.props.data.get("pref_branch")}
+          error={this.props.errors.get("pref_branch", "")}
           as="select"
           helpContent={
             <div>
@@ -107,7 +116,7 @@ export default class PrefForm extends React.PureComponent {
         <hr className="heavy-line my-5" />
 
         <BranchManager
-          branches={this.props.data.variants}
+          branches={this.props.data.get("variants")}
           onAddBranch={this.props.onAddBranch}
           onRemoveBranch={this.props.onRemoveBranch}
           onChange={value => {
@@ -120,11 +129,3 @@ export default class PrefForm extends React.PureComponent {
     );
   }
 }
-
-PrefForm.propTypes = {
-  data: PropTypes.object,
-  handleDataChange: PropTypes.func,
-  onAddBranch: PropTypes.func,
-  onRemoveBranch: PropTypes.func,
-  errors: PropTypes.object,
-};

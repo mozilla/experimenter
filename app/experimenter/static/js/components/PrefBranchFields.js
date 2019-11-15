@@ -1,22 +1,22 @@
 import { boundClass } from "autobind-decorator";
-import React from "react";
+import { Map } from "immutable";
 import PropTypes from "prop-types";
+import React from "react";
 
 import DesignInput from "experimenter/components/DesignInput";
 
 @boundClass
 class PrefBranchFields extends React.PureComponent {
+  static propTypes = {
+    branch: PropTypes.instanceOf(Map),
+    errors: PropTypes.instanceOf(Map),
+    handleChange: PropTypes.func,
+    index: PropTypes.number,
+  };
+
   getErrorMessage(name) {
     const { errors, index } = this.props;
-    if (
-      errors &&
-      errors.variants &&
-      errors.variants[index] &&
-      errors.variants[index][name]
-    ) {
-      return errors.variants[index][name];
-    }
-    return "";
+    return errors.getIn(["variants", index, name], "");
   }
 
   renderField(name, label) {
@@ -101,7 +101,7 @@ class PrefBranchFields extends React.PureComponent {
         label={label}
         name={`variants[${this.props.index}][${name}]`}
         id={`variants-${this.props.index}-${name}`}
-        value={this.props.branch[name]}
+        value={this.props.branch.get(name)}
         onChange={value => {
           this.props.handleChange(name, value);
         }}
@@ -122,12 +122,5 @@ class PrefBranchFields extends React.PureComponent {
     );
   }
 }
-
-PrefBranchFields.propTypes = {
-  handleChange: PropTypes.func,
-  errors: PropTypes.object,
-  index: PropTypes.number,
-  branch: PropTypes.object,
-};
 
 export default PrefBranchFields;

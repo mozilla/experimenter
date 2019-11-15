@@ -1,74 +1,67 @@
+import { boundClass } from "autobind-decorator";
+import { fromJS, Map } from "immutable";
+import PropTypes from "prop-types";
 import React from "react";
 import { Button, Container, Row, Col } from "react-bootstrap";
-import { boundClass } from "autobind-decorator";
-import PropTypes from "prop-types";
 
-import PrefForm from "experimenter/components/PrefForm";
-import GenericForm from "experimenter/components/GenericForm";
 import AddonForm from "experimenter/components/AddonForm";
+import GenericForm from "experimenter/components/GenericForm";
+import PrefForm from "experimenter/components/PrefForm";
 import { makeApiRequest } from "experimenter/utils/api";
 
 @boundClass
 class DesignForm extends React.PureComponent {
+  static propTypes = {
+    experimentType: PropTypes.string,
+    slug: PropTypes.string,
+  };
+
   constructor(props) {
     super(props);
 
     this.state = {
-      data: {},
-      errors: {},
+      data: new Map(),
+      errors: new Map(),
       loaded: false,
     };
   }
 
   getEndpointUrl() {
-    return `experiments/${this.props.slug}/design-${this.props.expType}/`;
+    return `experiments/${this.props.slug}/design-${this.props.experimentType}/`;
   }
 
   async componentDidMount() {
     const data = await makeApiRequest(this.getEndpointUrl());
     this.setState({
       loaded: true,
-      data,
+      data: fromJS(data),
     });
   }
 
   addBranch() {
-    const { data } = this.state;
-    this.setState({
-      data: {
-        ...data,
-        variants: [
-          ...data.variants,
-          {
-            ratio: "",
-            name: "",
-            description: "",
-            value: "",
-            is_control: false,
-          },
-        ],
-      },
+    const emptyBranch = fromJS({
+      ratio: "",
+      name: "",
+      description: "",
+      value: "",
+      is_control: false,
     });
+
+    this.setState(({ data }) => ({
+      data: data.update("variants", variants => variants.push(emptyBranch)),
+    }));
   }
 
   removeBranch(index) {
-    const variants = [...this.state.data.variants];
-    variants.splice(index, 1);
-    this.setState({
-      data: {
-        ...this.state.data,
-        variants,
-      },
-    });
+    this.setState(({ data }) => ({
+      data: data.update("variants", variants => variants.delete(index)),
+    }));
   }
 
   handleDataChange(key, value) {
-    this.setState({
-      data: {
-        ...this.state.data,
-        [key]: value,
-      },
-    });
+    this.setState(({ data }) => ({
+      data: data.set(key, value),
+    }));
   }
 
   async handleSubmit(event, redirectUrl) {
@@ -76,7 +69,7 @@ class DesignForm extends React.PureComponent {
 
     const requestSave = makeApiRequest(this.getEndpointUrl(), {
       method: "PUT",
-      data: this.state.data,
+      data: this.state.data.toJS(),
     });
 
     requestSave
@@ -85,7 +78,7 @@ class DesignForm extends React.PureComponent {
       })
       .catch(err => {
         this.setState({
-          errors: err.data,
+          errors: fromJS(err.data),
         });
 
         const invalid = document.querySelector(".is-invalid");
@@ -121,7 +114,7 @@ class DesignForm extends React.PureComponent {
 
     // Select the appropriate form component to use based on experiment type
     let Form;
-    switch (this.state.data.type) {
+    switch (this.state.data.get("type")) {
       case "pref":
         Form = PrefForm;
         break;
@@ -178,10 +171,5 @@ class DesignForm extends React.PureComponent {
     );
   }
 }
-
-DesignForm.propTypes = {
-  expType: PropTypes.string,
-  slug: PropTypes.string,
-};
 
 export default DesignForm;

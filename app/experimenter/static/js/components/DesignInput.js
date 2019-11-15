@@ -1,13 +1,31 @@
-import React from "react";
-import { Row, Col, FormControl, FormLabel } from "react-bootstrap";
 import { boundClass } from "autobind-decorator";
 import PropTypes from "prop-types";
+import React from "react";
+import { Row, Col, FormControl, FormLabel } from "react-bootstrap";
 
 import Error from "experimenter/components/Error";
 import HelpBox from "experimenter/components/HelpBox";
 
 @boundClass
 class DesignInput extends React.PureComponent {
+  static propTypes = {
+    as: PropTypes.string,
+    children: PropTypes.oneOfType([
+      PropTypes.arrayOf(PropTypes.node),
+      PropTypes.node,
+    ]),
+    error: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    helpContent: PropTypes.object,
+    id: PropTypes.string,
+    index: PropTypes.number,
+    label: PropTypes.string,
+    margin: PropTypes.string,
+    name: PropTypes.string,
+    onChange: PropTypes.func,
+    rows: PropTypes.string,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  };
+
   constructor(props) {
     super(props);
 
@@ -54,7 +72,7 @@ class DesignInput extends React.PureComponent {
           >
             {this.props.children}
           </FormControl>
-          {this.props.error ? <Error error={this.props.error} /> : ""}
+          {this.props.error ? <Error error={this.props.error} /> : null}
           <HelpBox showing={this.state.help_showing}>
             {this.props.helpContent}
           </HelpBox>
@@ -63,20 +81,5 @@ class DesignInput extends React.PureComponent {
     );
   }
 }
-
-DesignInput.propTypes = {
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  margin: PropTypes.string,
-  label: PropTypes.string,
-  name: PropTypes.string,
-  index: PropTypes.number,
-  as: PropTypes.string,
-  rows: PropTypes.string,
-  id: PropTypes.string,
-  error: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
-  children: PropTypes.array,
-  helpContent: PropTypes.object,
-  onChange: PropTypes.func,
-};
 
 export default DesignInput;
