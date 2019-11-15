@@ -18,18 +18,6 @@ services:
     networks:
       - private_nw
 
-  yarn:
-    image: app:build
-    env_file: .env.integration
-    volumes:
-      - static_volume:/app/experimenter/served/
-      - node_modules_volume:/app/node_modules/
-    command: bash -c "yarn run watch"
-    networks:
-      - private_nw
-    ports:
-      - "33123:33123"
-
   worker:
     image: app:build
     env_file: .env.integration

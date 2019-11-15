@@ -477,7 +477,6 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
     firefox_max_version = forms.ChoiceField(
         choices=Experiment.MAX_VERSION_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
-        required=False,
     )
     firefox_channel = forms.ChoiceField(
         choices=Experiment.CHANNEL_CHOICES,
