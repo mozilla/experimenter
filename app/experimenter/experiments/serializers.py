@@ -45,8 +45,11 @@ class VariantsListSerializer(serializers.ListSerializer):
             for field in self.child.fields:
                 blank_variant[field] = None
                 control_blank_variant[field] = None
+
             blank_variant["is_control"] = False
             control_blank_variant["is_control"] = True
+            del blank_variant["id"]
+            del control_blank_variant["id"]
 
             return [control_blank_variant, blank_variant]
         return data
