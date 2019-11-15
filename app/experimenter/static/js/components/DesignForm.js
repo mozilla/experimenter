@@ -82,13 +82,17 @@ class DesignForm extends React.PureComponent {
       .catch(err => {
         this.setState({
           errors: fromJS(err.data),
-          saving: false,
         });
 
         const invalid = document.querySelector(".is-invalid");
         if (invalid) {
           invalid.scrollIntoView();
         }
+      })
+      .finally(() => {
+        this.setState({
+          saving: false,
+        });
       });
   }
 
