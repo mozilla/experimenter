@@ -1,10 +1,20 @@
-import React from "react";
+import { Map } from "immutable";
 import PropTypes from "prop-types";
-import DesignInput from "experimenter/components/DesignInput";
+import React from "react";
+
 import BranchManager from "experimenter/components/BranchManager";
+import DesignInput from "experimenter/components/DesignInput";
 import GenericBranchFields from "experimenter/components/GenericBranchFields";
 
 export default class GenericForm extends React.PureComponent {
+  static propTypes = {
+    data: PropTypes.instanceOf(Map),
+    errors: PropTypes.instanceOf(Map),
+    handleDataChange: PropTypes.func,
+    onAddBranch: PropTypes.func,
+    onRemoveBranch: PropTypes.func,
+  };
+
   render() {
     return (
       <div>
@@ -14,8 +24,8 @@ export default class GenericForm extends React.PureComponent {
           onChange={value => {
             this.props.handleDataChange("design", value);
           }}
-          value={this.props.data.design}
-          error={this.props.errors ? this.props.errors.design : ""}
+          value={this.props.data.get("design")}
+          error={this.props.errors.get("design", "")}
           as="textarea"
           rows="10"
           helpContent={
@@ -28,7 +38,7 @@ export default class GenericForm extends React.PureComponent {
         <hr className="heavy-line my-5" />
 
         <BranchManager
-          branches={this.props.data.variants}
+          branches={this.props.data.get("variants")}
           onAddBranch={this.props.onAddBranch}
           onRemoveBranch={this.props.onRemoveBranch}
           onChange={value => {
@@ -41,11 +51,3 @@ export default class GenericForm extends React.PureComponent {
     );
   }
 }
-
-GenericForm.propTypes = {
-  data: PropTypes.object,
-  handleDataChange: PropTypes.func,
-  errors: PropTypes.object,
-  onAddBranch: PropTypes.func,
-  onRemoveBranch: PropTypes.func,
-};

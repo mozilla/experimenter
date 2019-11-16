@@ -269,6 +269,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             "proposed_duration": 20,
             "population_percent": "10",
             "firefox_min_version": "56.0",
+            "firefox_max_version": "58.0",
             "firefox_channel": Experiment.CHANNEL_BETA,
             "client_matching": "en-us",
             "platform": Experiment.PLATFORM_WINDOWS,
@@ -323,6 +324,11 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "new_value": "56.0",
                 "old_value": None,
                 "display_name": "Firefox Min Version",
+            },
+            "firefox_max_version": {
+                "new_value": "58.0",
+                "old_value": None,
+                "display_name": "Firefox Max Version",
             },
             "proposed_start_date": {
                 "new_value": timezone.now().date().strftime("%Y-%m-%d"),
@@ -852,11 +858,11 @@ class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("firefox_max_version", form.errors)
 
-    def test_form_is_valid_if_firefox_max_left_blank(self):
+    def test_form_is_not_valid_if_firefox_max_left_blank(self):
         self.data["firefox_min_version"] = "66.0"
         self.data["firefox_max_version"] = ""
         form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
-        self.assertTrue(form.is_valid())
+        self.assertFalse(form.is_valid())
 
 
 @parameterized_class(

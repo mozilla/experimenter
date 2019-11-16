@@ -42,9 +42,11 @@ class VariantsListSerializer(serializers.ListSerializer):
         if data == []:
             blank_variant = {}
             control_blank_variant = {}
-            for field in self.child.fields:
+            initial_fields = set(self.child.fields) - set(["id"])
+            for field in initial_fields:
                 blank_variant[field] = None
                 control_blank_variant[field] = None
+
             blank_variant["is_control"] = False
             control_blank_variant["is_control"] = True
 
