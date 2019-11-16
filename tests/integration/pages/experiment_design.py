@@ -11,20 +11,20 @@ from pages.base import Base
 
 class DesignPage(Base):
 
-    _add_branch_btn_locator = (By.CSS_SELECTOR, ".btn-success")
+    _add_branch_btn_locator = (By.CSS_SELECTOR, "#add-branch-button")
     _branch_form_root_locator = (
         By.CSS_SELECTOR,
-        "#formset > div:nth-child(5) > div",
+        "#control-branch-group",
     )
-    _continue_btn_locator = (By.CSS_SELECTOR, "button.btn:nth-child(3)")
+    _continue_btn_locator = (By.CSS_SELECTOR, "#save-continue")
     _firefox_pref_name_locator = (By.CSS_SELECTOR, "#id_pref_key")
     _firefox_pref_type_locator = (
         By.CSS_SELECTOR,
-        "#id_pref_type > option:nth-child(2)",
+        "#id_pref_type",
     )
     _firefox_pref_branch_locator = (
         By.CSS_SELECTOR,
-        "#id_pref_branch > option:nth-child(2)",
+        "#id_pref_branch",
     )
     _new_branch_locator = (
         By.CSS_SELECTOR,
@@ -83,7 +83,7 @@ class DesignPage(Base):
 
         _remove_branch_btn_locator = (
             By.CSS_SELECTOR,
-            "div > div > button",
+            "#remove-branch-button",
         )
         _new_branch_locator = (By.CSS_SELECTOR, "div > div > h4")
 
@@ -103,19 +103,19 @@ class DesignPage(Base):
             return self.find_element(*self._new_branch_locator)
 
         def set_branch_name(self, text=None):
-            locator = (By.ID, f"id_variants-{self.number}-name")
+            locator = (By.ID, f"variants-{self.number}-name")
             element = self.find_element(*locator)
             element.send_keys(text)
             return
 
         def set_branch_description(self, text=None):
-            locator = (By.ID, f"id_variants-{self.number}-description")
+            locator = (By.ID, f"variants-{self.number}-description")
             element = self.find_element(*locator)
             element.send_keys(text)
             return
 
         def set_branch_value(self, text=None):
-            locator = (By.ID, f"id_variants-{self.number}-value")
+            locator = (By.ID, f"variants-{self.number}-value")
             element = self.find_element(*locator)
             element.send_keys(text)
             return

@@ -4,11 +4,15 @@ from django.conf import settings
 from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
+from experimenter.experiments.constants import ExperimentConstants
 
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.serializers import (
     ExperimentSerializer,
     ExperimentRecipeSerializer,
+    ExperimentDesignPrefSerializer,
+    ExperimentDesignAddonSerializer,
+    ExperimentDesignGenericSerializer,
 )
 from experimenter.experiments.tests.factories import ExperimentFactory
 
@@ -82,7 +86,9 @@ class TestExperimentRecipeView(TestCase):
 
     def test_get_experiment_recipe_returns_recipe_info(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_variants()
+        experiment = ExperimentFactory.create_with_variants(
+            normandy_slug="a-normandy-slug"
+        )
 
         response = self.client.get(
             reverse("experiments-api-recipe", kwargs={"slug": experiment.slug}),
@@ -155,3 +161,292 @@ class TestExperimentCloneView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["name"], "best experiment")
         self.assertEqual(response.json()["clone_url"], "/experiments/best-experiment/")
+
+
+class TestExperimentDesignPrefView(TestCase):
+
+    def test_get_design_pref_returns_design_info(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_variants(type="pref")
+
+        response = self.client.get(
+            reverse("experiments-design-pref", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        json_data = json.loads(response.content)
+        serialized_experiment = ExperimentDesignPrefSerializer(experiment).data
+        self.assertEqual(serialized_experiment, json_data)
+
+    def test_put_to_view_saves_design_info(self):
+        experiment = ExperimentFactory.create(
+            name="great experiment", slug="great-experiment"
+        )
+        user_email = "user@example.com"
+
+        variant_1 = {
+            "name": "Terrific branch",
+            "ratio": 50,
+            "description": "Very terrific branch.",
+            "is_control": True,
+            "value": "value 1",
+        }
+        variant_2 = {
+            "name": "Great branch",
+            "ratio": 50,
+            "description": "Very great branch.",
+            "is_control": False,
+            "value": "value 2",
+        }
+
+        data = json.dumps(
+            {
+                "type": "pref",
+                "pref_key": "pref 1",
+                "pref_branch": "default",
+                "pref_type": "string",
+                "variants": [variant_1, variant_2],
+            }
+        )
+
+        response = self.client.put(
+            reverse("experiments-design-pref", kwargs={"slug": experiment.slug}),
+            data,
+            content_type="application/json",
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_put_to_view_returns_400_on_missing_required_field(self):
+        experiment = ExperimentFactory.create(
+            name="great experiment", slug="great-experiment"
+        )
+        user_email = "user@example.com"
+
+        variant_1 = {
+            "name": "Terrific branch",
+            "ratio": 50,
+            "description": "Very terrific branch.",
+            "is_control": True,
+            "value": "value 1",
+        }
+        variant_2 = {
+            "name": "Great branch",
+            "ratio": 50,
+            "description": "Very great branch.",
+            "is_control": False,
+            "value": "value 2",
+        }
+
+        data = json.dumps(
+            {
+                "type": "pref",
+                "pref_branch": "default",
+                "pref_type": "string",
+                "variants": [variant_1, variant_2],
+            }
+        )
+
+        response = self.client.put(
+            reverse("experiments-design-pref", kwargs={"slug": experiment.slug}),
+            data,
+            content_type="application/json",
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["pref_key"], ["This field is required."])
+
+
+class TestExperimentDesignAddonView(TestCase):
+
+    def test_get_design_addon_returns_design_info(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_variants(
+            type=ExperimentConstants.TYPE_ADDON
+        )
+
+        response = self.client.get(
+            reverse("experiments-design-addon", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        json_data = json.loads(response.content)
+
+        serialized_experiment = ExperimentDesignAddonSerializer(experiment).data
+        self.assertEqual(serialized_experiment, json_data)
+
+    def test_put_to_view_saves_design_info(self):
+        experiment = ExperimentFactory.create(
+            name="great experiment",
+            slug="great-experiment",
+            type=ExperimentConstants.TYPE_ADDON,
+        )
+        user_email = "user@example.com"
+
+        variant_1 = {
+            "name": "Terrific branch",
+            "ratio": 50,
+            "description": "Very terrific branch.",
+            "is_control": True,
+        }
+        variant_2 = {
+            "name": "Great branch",
+            "ratio": 50,
+            "description": "Very great branch.",
+            "is_control": False,
+        }
+
+        data = json.dumps(
+            {
+                "type": ExperimentConstants.TYPE_ADDON,
+                "addon_experiment_id": "1234",
+                "addon_release_url": "http://www.example.com",
+                "variants": [variant_1, variant_2],
+            }
+        )
+
+        response = self.client.put(
+            reverse("experiments-design-addon", kwargs={"slug": experiment.slug}),
+            data,
+            content_type="application/json",
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_put_to_view_returns_400_on_missing_required_field(self):
+        experiment = ExperimentFactory.create(
+            name="great experiment",
+            slug="great-experiment",
+            type=ExperimentConstants.TYPE_ADDON,
+        )
+        user_email = "user@example.com"
+
+        variant_1 = {
+            "name": "Terrific branch",
+            "ratio": 50,
+            "description": "Very terrific branch.",
+            "is_control": True,
+        }
+        variant_2 = {
+            "name": "Great branch",
+            "ratio": 50,
+            "description": "Very great branch.",
+            "is_control": False,
+        }
+
+        data = json.dumps(
+            {
+                "type": ExperimentConstants.TYPE_ADDON,
+                "addon_experiment_id": "1234",
+                "variants": [variant_1, variant_2],
+            }
+        )
+
+        response = self.client.put(
+            reverse("experiments-design-addon", kwargs={"slug": experiment.slug}),
+            data,
+            content_type="application/json",
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json()["addon_release_url"], ["This field is required."]
+        )
+
+
+class TestExperimentDesignGenericView(TestCase):
+
+    def test_get_design_addon_returns_design_info(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_variants(
+            type=ExperimentConstants.TYPE_GENERIC
+        )
+
+        response = self.client.get(
+            reverse("experiments-design-generic", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        json_data = json.loads(response.content)
+
+        serialized_experiment = ExperimentDesignGenericSerializer(experiment).data
+        self.assertEqual(serialized_experiment, json_data)
+
+    def test_put_to_view_saves_design_info(self):
+        experiment = ExperimentFactory.create(
+            name="great experiment",
+            slug="great-experiment",
+            type=ExperimentConstants.TYPE_GENERIC,
+        )
+        user_email = "user@example.com"
+
+        variant_1 = {
+            "name": "Terrific branch",
+            "ratio": 50,
+            "description": "Very terrific branch.",
+            "is_control": True,
+        }
+        variant_2 = {
+            "name": "Great branch",
+            "ratio": 50,
+            "description": "Very great branch.",
+            "is_control": False,
+        }
+
+        data = json.dumps(
+            {
+                "type": ExperimentConstants.TYPE_GENERIC,
+                "design": "design 1",
+                "variants": [variant_1, variant_2],
+            }
+        )
+
+        response = self.client.put(
+            reverse("experiments-design-generic", kwargs={"slug": experiment.slug}),
+            data,
+            content_type="application/json",
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_put_to_view_design_is_optional(self):
+        experiment = ExperimentFactory.create(
+            name="great experiment",
+            slug="great-experiment",
+            type=ExperimentConstants.TYPE_GENERIC,
+        )
+        user_email = "user@example.com"
+
+        variant_1 = {
+            "name": "Terrific branch",
+            "ratio": 50,
+            "description": "Very terrific branch.",
+            "is_control": True,
+        }
+        variant_2 = {
+            "name": "Great branch",
+            "ratio": 50,
+            "description": "Very great branch.",
+            "is_control": False,
+        }
+
+        data = json.dumps(
+            {"type": ExperimentConstants.TYPE_GENERIC, "variants": [variant_1, variant_2]}
+        )
+
+        response = self.client.put(
+            reverse("experiments-design-generic", kwargs={"slug": experiment.slug}),
+            data,
+            content_type="application/json",
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)

@@ -641,7 +641,15 @@ class Experiment(ExperimentConstants, models.Model):
         return (
             self.is_addon_experiment
             and self.firefox_min_version_integer
-            >= ExperimentConstants.FX_MIN_BRANCHED_ADDON_VERSION
+            >= ExperimentConstants.FX_MIN_MULTI_BRANCHED_VERSION
+        )
+
+    @property
+    def is_multi_pref(self):
+        return (
+            self.is_pref_experiment
+            and self.firefox_min_version_integer
+            >= ExperimentConstants.FX_MIN_MULTI_BRANCHED_VERSION
         )
 
     @property
@@ -782,8 +790,8 @@ class ExperimentVariant(models.Model):
             return "Treatment"
 
     @property
-    def json_load_value(self):
-        return json.loads(self.value)
+    def json_dumps_value(self):
+        return json.dumps(json.loads(self.value), indent=2)
 
 
 class ExperimentChangeLogManager(models.Manager):

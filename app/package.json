@@ -3,12 +3,45 @@
   "version": "1.0.0",
   "description": "a tool for managing experiments in Firefox",
   "main": "index.js",
-  "dependencies": {},
-  "devDependencies": {},
+  "dependencies": {
+    "autobind-decorator": "2.4.0",
+    "bootstrap": "4.3.1",
+    "bootstrap-select": "1.13.12",
+    "immutable": "4.0.0-rc.12",
+    "jquery": "3.4.1",
+    "popper.js": "1.16.0",
+    "prettier": "1.19.1",
+    "react": "16.12.0",
+    "react-bootstrap": "1.0.0-beta.14",
+    "react-dom": "16.12.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.7.2",
+    "@babel/plugin-proposal-class-properties": "7.7.0",
+    "@babel/plugin-proposal-decorators": "7.7.0",
+    "@babel/preset-react": "7.7.0",
+    "babel-eslint": "10.0.3",
+    "eslint": "6.6.0",
+    "eslint-config-prettier": "6.5.0",
+    "eslint-config-standard": "14.1.0",
+    "eslint-plugin-import": "2.18.2",
+    "eslint-plugin-jest": "23.0.4",
+    "eslint-plugin-node": "10.0.0",
+    "eslint-plugin-prettier": "3.1.1",
+    "eslint-plugin-promise": "4.2.1",
+    "eslint-plugin-react": "7.16.0",
+    "eslint-plugin-standard": "4.0.1",
+    "parcel-bundler": "1.12.4"
+  },
+  "alias": {
+    "experimenter": "./experimenter/static/js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "parcel build experimenter/static/css/index.css experimenter/static/js/index.js --out-dir experimenter/static/assets --public-url /static/assets/",
-    "watch": "parcel watch experimenter/static/css/index.css experimenter/static/js/index.js --out-dir experimenter/static/assets --https --hmr-hostname localhost --hmr-port 33123 --public-url /static/assets/"
+    "watch": "parcel watch experimenter/static/css/index.css experimenter/static/js/index.js --out-dir experimenter/static/assets --public-url /static/assets/",
+    "lint": "eslint experimenter/static/js/components/**/*.js experimenter/static/js/index.js",
+    "lint-fix": "eslint --fix experimenter/static/js/components/**/*.js experimenter/static/js/index.js"
   },
   "repository": {
     "type": "git",
@@ -20,11 +53,26 @@
     "url": "https://github.com/mozilla/experimenter/issues"
   },
   "homepage": "https://github.com/mozilla/experimenter#readme",
-  "dependencies": {
-    "bootstrap": "4.1.3",
-    "bootstrap-select": "1.13.10",
-    "jquery": "3.4.1",
-    "popper.js": "1.15.0",
-    "parcel-bundler": "1.12.3"
+  "browserslist": [
+    "last 1 firefox versions"
+  ],
+  "babel": {
+    "presets": [
+      "@babel/preset-react"
+    ],
+    "plugins": [
+      [
+        "@babel/plugin-proposal-decorators",
+        {
+          "legacy": true
+        }
+      ],
+      [
+        "@babel/plugin-proposal-class-properties",
+        {
+          "loose": true
+        }
+      ]
+    ]
   }
 }

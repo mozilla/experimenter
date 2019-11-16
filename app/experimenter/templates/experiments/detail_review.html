@@ -12,10 +12,10 @@
       <input type="hidden" name="status" value="{{ experiment.STATUS_SHIP }}">
       <button
         type="submit"
-        class="col btn status-color-Ship mb-3"
+        class="col btn proceed-status-color mb-3"
       >
         <span class="fas fa-shipping-fast "></span>
-        {{ experiment.STATUS_SHIP_LABEL }}
+        {{ experiment.STATUS_PROCEED_SHIP }}
       </button>
     </form>
   {% else %}
@@ -24,7 +24,7 @@
       class="col btn btn-secondary disabled mb-3"
     >
       <span class="fas fa-ban"></span>
-      {{ experiment.STATUS_SHIP_LABEL }}
+      {{ experiment.STATUS_PROCEED_SHIP }}
     </button>
   {% endif %}
 
@@ -36,7 +36,7 @@
     <input type="hidden" name="status" value="{{ experiment.STATUS_DRAFT }}">
     <button
       type="submit"
-      class="col btn status-color-Draft mb-4"
+      class="col btn back-status-color mb-4"
     >
       <span class="fas fa-undo"></span>
       Return to {{ experiment.STATUS_DRAFT_LABEL }}
@@ -123,5 +123,5 @@
 
 {% block extrascripts %}
   {{ block.super }}
-  <script src="{% static "js/detail-review.js" %}"></script>
+  <script src="{% static "js/scripts/detail-review.js" %}"></script>
 {% endblock %}

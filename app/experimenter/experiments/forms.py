@@ -477,7 +477,6 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
     firefox_max_version = forms.ChoiceField(
         choices=Experiment.MAX_VERSION_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
-        required=False,
     )
     firefox_channel = forms.ChoiceField(
         choices=Experiment.CHANNEL_CHOICES,
@@ -1059,7 +1058,7 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
     # Required
     review_science = forms.BooleanField(
         required=False,
-        label="Data Science Peer Review",
+        label="Data Science Sign-Off",
         help_text=Experiment.REVIEW_SCIENCE_HELP_TEXT,
     )
     review_engineering = forms.BooleanField(
@@ -1127,7 +1126,7 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
     )
     review_impacted_teams = forms.BooleanField(
         required=False,
-        label="Impacted Team(s) Signed-Off",
+        label="Review from a Fx Module Peer",
         help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
     )
 
