@@ -59,7 +59,10 @@ compose_kill:
 compose_rm:
 	docker-compose rm -f
 
-kill: compose_kill compose_rm
+volumes_rm:
+	docker volume ls -q | xargs docker volume rm
+
+kill: compose_kill compose_rm volumes_rm
 	echo "All containers removed!"
 
 up: compose_kill compose_build
