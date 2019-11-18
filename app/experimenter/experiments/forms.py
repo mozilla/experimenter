@@ -17,6 +17,7 @@ from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments import tasks
 from experimenter.experiments.bugzilla import get_bugzilla_id
+from experimenter.experiments.changelog_utils import generate_changed_values
 from experimenter.experiments.models import (
     Experiment,
     ExperimentComment,
@@ -72,87 +73,26 @@ class ChangeLogMixin(object):
 
         experiment = super().save(*args, **kwargs)
 
-        changed_values = {}
-        old_status = None
-
         self.new_serialized_vals = ChangeLogSerializer(self.instance).data
         latest_change = experiment.changes.latest()
-
-        # account for changes in variant values
+        old_status = latest_change.new_status if latest_change else None
         if latest_change:
-            old_status = latest_change.new_status
-            if (
-                self.old_serialized_vals["variants"]
-                != self.new_serialized_vals["variants"]
-            ):
-                old_value = self.old_serialized_vals["variants"]
-                new_value = self.new_serialized_vals["variants"]
-                display_name = "Branches"
-                changed_values["variants"] = {
-                    "old_value": old_value,
-                    "new_value": new_value,
-                    "display_name": display_name,
-                }
+            changed_values = generate_changed_values(
+                self.old_serialized_vals,
+                self.new_serialized_vals,
+                latest_change,
+                self.changed_data,
+                self.fields,
+            )
+        else:
+            changed_values = generate_changed_values(
+                None,
+                self.new_serialized_vals,
+                latest_change,
+                self.changed_data,
+                self.fields,
+            )
 
-        elif self.new_serialized_vals.get("variants"):
-            old_value = None
-            new_value = self.new_serialized_vals["variants"]
-            display_name = "Branches"
-            changed_values["variants"] = {
-                "old_value": old_value,
-                "new_value": new_value,
-                "display_name": display_name,
-            }
-
-        if self.changed_data:
-            if latest_change:
-                old_status = latest_change.new_status
-
-                for field in self.changed_data:
-                    old_val = None
-                    new_val = None
-
-                    if field in self.old_serialized_vals:
-                        if field in ("countries", "locales"):
-                            old_field_values = self.old_serialized_vals[field]
-                            codes = [obj["code"] for obj in old_field_values]
-                            old_val = codes
-                        else:
-                            old_val = self.old_serialized_vals[field]
-                    if field in self.new_serialized_vals:
-                        if field in ("countries", "locales"):
-                            new_field_values = self.new_serialized_vals[field]
-                            codes = [obj["code"] for obj in new_field_values]
-                            new_val = codes
-                        else:
-                            new_val = self.new_serialized_vals[field]
-
-                    display_name = self._get_display_name(field)
-
-                    if new_val or old_val:
-                        changed_values[field] = {
-                            "old_value": old_val,
-                            "new_value": new_val,
-                            "display_name": display_name,
-                        }
-
-            else:
-                for field in self.changed_data:
-                    old_val = None
-                    new_val = None
-                    if field in self.new_serialized_vals:
-                        if field in ("countries", "locales"):
-                            new_field_values = self.new_serialized_vals[field]
-                            codes = [obj["code"] for obj in new_field_values]
-                            new_val = codes
-                        else:
-                            new_val = self.new_serialized_vals[field]
-                        display_name = self._get_display_name(field)
-                        changed_values[field] = {
-                            "old_value": old_val,
-                            "new_value": new_val,
-                            "display_name": display_name,
-                        }
         if self._has_changed(old_status, changed_values, experiment):
             ExperimentChangeLog.objects.create(
                 experiment=experiment,
@@ -165,10 +105,12 @@ class ChangeLogMixin(object):
 
         return experiment
 
+    """
     def _get_display_name(self, field):
         if self.fields[field].label:
             return self.fields[field].label
         return field.replace("_", " ").title()
+    """
 
     def _has_changed(self, old_status, changed_values, experiment):
         return (

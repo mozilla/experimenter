@@ -1118,9 +1118,12 @@ class TestExperimentDesignBranchMultiPrefSerializer(TestCase):
         )
 
 
-class TestExperimentDesignBaseSerializer(TestCase):
+
+
+class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
 
     def setUp(self):
+        super().setUp()
         self.control_variant_data = {
             "name": "Terrific branch",
             "ratio": 50,
@@ -1144,7 +1147,9 @@ class TestExperimentDesignBaseSerializer(TestCase):
             "variants": [self.control_variant_data, self.treatment_variant_data],
         }
 
-        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+        serializer = ExperimentDesignBaseSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
 
         self.assertTrue(serializer.is_valid())
 
@@ -1185,7 +1190,9 @@ class TestExperimentDesignBaseSerializer(TestCase):
             "variants": [self.control_variant_data, self.treatment_variant_data],
         }
 
-        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+        serializer = ExperimentDesignBaseSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
 
         self.assertTrue(serializer.is_valid())
 
@@ -1227,7 +1234,9 @@ class TestExperimentDesignBaseSerializer(TestCase):
             "variants": [self.control_variant_data, self.treatment_variant_data],
         }
 
-        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+        serializer = ExperimentDesignBaseSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
 
         self.assertTrue(serializer.is_valid())
 
@@ -1270,7 +1279,9 @@ class TestExperimentDesignBaseSerializer(TestCase):
             ],
         }
 
-        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+        serializer = ExperimentDesignBaseSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
 
         self.assertTrue(serializer.is_valid())
 
@@ -1361,9 +1372,11 @@ class TestExperimentDesignBaseSerializer(TestCase):
         self.assertIn("variants", serializer.errors)
 
 
-class TestExperimentDesignPrefSerializer(TestCase):
+class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
 
     def setUp(self):
+        super().setUp()
+
         self.variant_1 = {
             "name": "Terrific branch",
             "ratio": 50,
@@ -1415,8 +1428,9 @@ class TestExperimentDesignPrefSerializer(TestCase):
             "variants": [self.variant_1, self.variant_2],
         }
 
-        serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
-
+        serializer = ExperimentDesignPrefSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
         self.assertTrue(serializer.is_valid())
 
         experiment = serializer.save()
@@ -1633,9 +1647,10 @@ class TestExperimentDesignPrefSerializer(TestCase):
         )
 
 
-class TestExperimentDesignAddonSerializer(TestCase):
+class TestExperimentDesignAddonSerializer(MockRequestMixin, TestCase):
 
     def setUp(self):
+        super().setUp()
         self.control_variant_data = {
             "name": "Terrific branch",
             "ratio": 50,
@@ -1655,7 +1670,6 @@ class TestExperimentDesignAddonSerializer(TestCase):
         )
 
         serializer = ExperimentDesignAddonSerializer(experiment)
-        self.maxDiff = None
         self.assertCountEqual(
             serializer.data,
             {
@@ -1682,7 +1696,9 @@ class TestExperimentDesignAddonSerializer(TestCase):
             "variants": [self.control_variant_data, self.treatment_variant_data],
         }
 
-        serializer = ExperimentDesignAddonSerializer(instance=experiment, data=data)
+        serializer = ExperimentDesignAddonSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
         self.assertTrue(serializer.is_valid())
 
         experiment = serializer.save()
@@ -1718,7 +1734,7 @@ class TestExperimentDesignAddonSerializer(TestCase):
         )
 
 
-class TestExperimentDesignGenericSerializer(TestCase):
+class TestExperimentDesignGenericSerializer(MockRequestMixin, TestCase):
 
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create_with_variants(
@@ -1762,7 +1778,9 @@ class TestExperimentDesignGenericSerializer(TestCase):
             "variants": [variant_1, variant_2],
         }
 
-        serializer = ExperimentDesignGenericSerializer(instance=experiment, data=data)
+        serializer = ExperimentDesignGenericSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
         self.assertTrue(serializer.is_valid())
 
         experiment = serializer.save()

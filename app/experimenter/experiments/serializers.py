@@ -12,6 +12,7 @@ from experimenter.experiments.models import (
     VariantPreferences,
     ExperimentChangeLog,
 )
+from experimenter.experiments.changelog_utils import generate_changed_values
 
 
 class JSTimestampField(serializers.Field):
@@ -695,11 +696,17 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
         return unique_names and all_contains_alphanumeric_and_spaces
 
     def update(self, instance, validated_data):
+
+        old_serialized_vals = ChangeLogSerializer(instance).data
+        changed_log = instance.changes.latest()
+        changed_data = validated_data.copy()
+
+        # self.update_changelog(instance, validated_data)
+
         variants_data = validated_data.pop("variants")
         instance = super().update(instance, validated_data)
 
         existing_variant_ids = set(instance.variants.all().values_list("id", flat=True))
-
         # Create or update variants
         for variant_data in variants_data:
             variant_data["experiment"] = instance
@@ -713,6 +720,20 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
         if removed_ids:
             ExperimentVariant.objects.filter(id__in=removed_ids).delete()
 
+        new_serialized_vals = ChangeLogSerializer(instance).data
+
+        changed_values = generate_changed_values(
+            old_serialized_vals, new_serialized_vals, changed_log, changed_data
+        )
+
+        if changed_values:
+            ExperimentChangeLog.objects.create(
+                experiment=instance,
+                changed_by=self.context["request"].user,
+                old_status=instance.status,
+                new_status=instance.status,
+                changed_values=changed_values,
+            )
         return instance
 
 
@@ -751,6 +772,14 @@ class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
             VariantPreferences.objects.filter(id__in=removed_ids).delete()
 
         return instance
+
+
+
+class ExperimentChangelogVariantSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ExperimentVariant
+        fields = ("id", "description", "is_control", "name", "ratio", "value")
 
 
 class ExperimentDesignPrefSerializer(PrefValidationMixin, ExperimentDesignBaseSerializer):
