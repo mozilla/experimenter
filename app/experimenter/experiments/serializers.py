@@ -48,7 +48,9 @@ class VariantsListSerializer(serializers.ListSerializer):
                 control_blank_variant[field] = None
 
             blank_variant["is_control"] = False
+            blank_variant["ratio"] = 50
             control_blank_variant["is_control"] = True
+            control_blank_variant["ratio"] = 50
 
             return [control_blank_variant, blank_variant]
         return data
