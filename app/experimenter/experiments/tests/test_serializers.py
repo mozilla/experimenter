@@ -1153,14 +1153,14 @@ class TestExperimentDesignPrefSerializer(TestCase):
                         "description": None,
                         "is_control": True,
                         "name": None,
-                        "ratio": None,
+                        "ratio": 50,
                         "value": None,
                     },
                     {
                         "description": None,
                         "is_control": False,
                         "name": None,
-                        "ratio": None,
+                        "ratio": 50,
                         "value": None,
                     },
                 ],
@@ -1289,18 +1289,8 @@ class TestExperimentDesignAddonSerializer(TestCase):
                 "addon_release_url": experiment.addon_release_url,
                 "addon_experiment_id": experiment.addon_experiment_id,
                 "variants": [
-                    {
-                        "description": None,
-                        "is_control": True,
-                        "name": None,
-                        "ratio": None,
-                    },
-                    {
-                        "description": None,
-                        "is_control": False,
-                        "name": None,
-                        "ratio": None,
-                    },
+                    {"description": None, "is_control": True, "name": None, "ratio": 50},
+                    {"description": None, "is_control": False, "name": None, "ratio": 50},
                 ],
             },
         )
@@ -1368,18 +1358,8 @@ class TestExperimentDesignGenericSerializer(TestCase):
                 "type": ExperimentConstants.TYPE_GENERIC,
                 "design": experiment.design,
                 "variants": [
-                    {
-                        "description": None,
-                        "is_control": True,
-                        "name": None,
-                        "ratio": None,
-                    },
-                    {
-                        "description": None,
-                        "is_control": False,
-                        "name": None,
-                        "ratio": None,
-                    },
+                    {"description": None, "is_control": True, "name": None, "ratio": 50},
+                    {"description": None, "is_control": False, "name": None, "ratio": 50},
                 ],
             },
         )
