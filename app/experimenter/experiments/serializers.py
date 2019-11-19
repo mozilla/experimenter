@@ -500,7 +500,9 @@ class VariantsListSerializer(serializers.ListSerializer):
             data = [control_blank_variant, blank_variant]
 
         control_branch = [b for b in data if b["is_control"]][0]
-        treatment_branches = [b for b in data if not b["is_control"]]
+        treatment_branches = sorted(
+            [b for b in data if not b["is_control"]], key=lambda b: b.get("id")
+        )
 
         return [control_branch] + treatment_branches
 

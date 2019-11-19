@@ -42,8 +42,8 @@ class BranchManager extends React.PureComponent {
 
   render() {
     const { onAddBranch, branches } = this.props;
-    const controlBranch = branches.filter(b => b.get("is_control")).get(0);
-    const treatmentBranches = branches.filter(b => !b.get("is_control"));
+    const controlBranch = branches.get(0);
+    const treatmentBranches = branches.slice(1);
 
     return (
       <React.Fragment>
