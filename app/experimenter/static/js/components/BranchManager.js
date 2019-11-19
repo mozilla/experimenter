@@ -42,13 +42,9 @@ class BranchManager extends React.PureComponent {
 
   render() {
     const { onAddBranch, branches } = this.props;
-    const controlBranch = branches.get(0);
-    const treatmentBranches = branches.slice(1);
-
     return (
       <React.Fragment>
-        {this.renderBranch(controlBranch, 0)}
-        {treatmentBranches.map((b, i) => this.renderBranch(b, i + 1))}
+        {branches.map((b, i) => this.renderBranch(b, i))}
         <Row>
           <Col className="text-right">
             <Button
