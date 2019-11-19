@@ -664,6 +664,15 @@ class TestExperimentDesignBranchBaseSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("name", serializer.errors)
 
+    def test_serializer_puts_control_branch_first(self):
+        ExperimentVariantFactory.create(is_control=True)
+        [ExperimentVariantFactory.create(is_control=False) for i in range(3)]
+        serializer = ExperimentDesignBranchBaseSerializer(
+            ExperimentVariant.objects.all().order_by("-id"), many=True
+        )
+        self.assertTrue(serializer.data[0]["is_control"])
+        self.assertFalse(any([b["is_control"] for b in serializer.data[1:]]))
+
 
 class TestExperimentDesignBaseSerializer(TestCase):
 
