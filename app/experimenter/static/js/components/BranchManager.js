@@ -40,25 +40,11 @@ class BranchManager extends React.PureComponent {
     );
   }
 
-  renderBranches() {
-    const { branches } = this.props;
-
-    return branches
-      .withMutations(mutable => {
-        // Make sure the control branch is the first branch
-        mutable
-          .filter(b => b.get("is_control"))
-          .concat(branches.filter(b => !b.get("is_control")));
-      })
-      .map(this.renderBranch);
-  }
-
   render() {
-    const { onAddBranch } = this.props;
-
+    const { onAddBranch, branches } = this.props;
     return (
       <React.Fragment>
-        {this.renderBranches()}
+        {branches.map((b, i) => this.renderBranch(b, i))}
         <Row>
           <Col className="text-right">
             <Button
