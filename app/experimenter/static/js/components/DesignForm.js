@@ -52,18 +52,10 @@ class DesignForm extends React.PureComponent {
       value: "",
       is_control: false,
     });
-    const emptyErrorsBranch = fromJS({
-      ratio: "",
-      name: "",
-      description: "",
-      value: "",
-    });
 
     this.setState(({ data, errors }) => ({
       data: data.update("variants", variants => variants.push(emptyBranch)),
-      errors: errors.update("variants", variants =>
-        variants.push(emptyErrorsBranch),
-      ),
+      errors: errors.update("variants", variants => variants.push({})),
     }));
   }
 
