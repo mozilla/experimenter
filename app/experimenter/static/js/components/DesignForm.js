@@ -23,6 +23,7 @@ class DesignForm extends React.PureComponent {
       data: new Map(),
       errors: new Map(),
       loaded: false,
+      saving: false,
     };
   }
 
@@ -67,6 +68,8 @@ class DesignForm extends React.PureComponent {
   async handleSubmit(event, redirectUrl) {
     event.preventDefault();
 
+    this.setState({ saving: true });
+
     const requestSave = makeApiRequest(this.getEndpointUrl(), {
       method: "PUT",
       data: this.state.data.toJS(),
@@ -85,6 +88,11 @@ class DesignForm extends React.PureComponent {
         if (invalid) {
           invalid.scrollIntoView();
         }
+      })
+      .finally(() => {
+        this.setState({
+          saving: false,
+        });
       });
   }
 
@@ -147,6 +155,7 @@ class DesignForm extends React.PureComponent {
                 </a>
 
                 <Button
+                  disabled={this.state.saving}
                   variant="primary"
                   type="submit"
                   className="mr-1"
@@ -156,6 +165,7 @@ class DesignForm extends React.PureComponent {
                 </Button>
 
                 <Button
+                  disabled={this.state.saving}
                   id="save-continue"
                   variant="primary"
                   type="submit"
