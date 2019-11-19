@@ -701,8 +701,6 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
         changed_log = instance.changes.latest()
         changed_data = validated_data.copy()
 
-        # self.update_changelog(instance, validated_data)
-
         variants_data = validated_data.pop("variants")
         instance = super().update(instance, validated_data)
 

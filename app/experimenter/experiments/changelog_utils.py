@@ -1,9 +1,4 @@
-from rest_framework import serializers
-from experimenter.experiments.models import (
-    Experiment,
-    ExperimentVariant,
-    ExperimentChangeLog,
-)
+# blank lines...
 
 
 def generate_changed_values(
@@ -87,9 +82,8 @@ def generate_changed_values(
                     }
     return changed_values
 
+
 def _get_display_name(field, form_fields):
     if form_fields and form_fields[field].label:
         return form_fields[field].label
     return field.replace("_", " ").title()
-
-

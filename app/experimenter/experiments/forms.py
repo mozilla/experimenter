@@ -105,13 +105,6 @@ class ChangeLogMixin(object):
 
         return experiment
 
-    """
-    def _get_display_name(self, field):
-        if self.fields[field].label:
-            return self.fields[field].label
-        return field.replace("_", " ").title()
-    """
-
     def _has_changed(self, old_status, changed_values, experiment):
         return (
             changed_values
