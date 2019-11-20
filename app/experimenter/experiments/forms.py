@@ -504,10 +504,11 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
         queryset=Country.objects.all(),
         to_field_name="code",
     )
-    platform = forms.CharField(
+    platform = forms.ChoiceField(
         required=False,
         label="Platform",
         help_text=Experiment.PLATFORM_HELP_TEXT,
+        choices=Experiment.PLATFORM_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
     )
     client_matching = forms.CharField(
