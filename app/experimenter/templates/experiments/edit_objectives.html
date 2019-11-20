@@ -9,8 +9,8 @@
 {% endblock %}
 
 {% block edit_form %}
-  {% include "experiments/field_inline.html" with field=form.objectives%}
-  {% include "experiments/field_inline.html" with field=form.analysis %}
+  {% include "experiments/field_inline.html" with field=form.objectives marked_required=True %}
+  {% include "experiments/field_inline.html" with field=form.analysis marked_required=True %}
   {% include "experiments/radio_field_label_inline.html" with field=form.survey_required %}
 
   <div id="survey-url-and-instructions"  class="collapse">

@@ -98,7 +98,9 @@ class ExperimentConstants(object):
         ("80.0", "Firefox 80.0"),
     )
 
-    MIN_VERSION_CHOICES = ((None, "Firefox Min Version"),) + ((VERSION_CHOICES))
+    MIN_VERSION_CHOICES = ((None, "Firefox Min Version (Required)"),) + (
+        (VERSION_CHOICES)
+    )
 
     MAX_VERSION_CHOICES = ((None, "Firefox Max Version"),) + ((VERSION_CHOICES))
 
@@ -363,6 +365,12 @@ class ExperimentConstants(object):
 
     VERSION_HELP_TEXT = """
         https://wiki.mozilla.org/Release_Management/Calendar
+    """
+
+    PLATFORM_HELP_TEXT = """
+        <p>
+          Select the target platform for this experiment.
+        </p>
     """
 
     CLIENT_MATCHING_HELP_TEXT = """

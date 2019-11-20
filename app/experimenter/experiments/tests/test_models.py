@@ -870,6 +870,12 @@ class TestExperimentModel(TestCase):
         )
         self.assertFalse(experiment.completed_risks)
 
+    def test_risk_not_completed_when_technical_description_required(self):
+        experiment = ExperimentFactory.create(
+            risk_technical=True, risk_technical_description=""
+        )
+        self.assertFalse(experiment.completed_risks)
+
     def test_risk_completed_when_risk_questions_and_testing_completed(self):
         experiment = ExperimentFactory.create(
             risk_partner_related=False,
