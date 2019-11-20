@@ -664,6 +664,18 @@ class TestExperimentDesignBranchBaseSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("name", serializer.errors)
 
+    def test_serializer_puts_control_branch_first_and_sorts_rest_by_id(self):
+        ExperimentVariantFactory.create(is_control=True)
+        sorted_treatment_ids = sorted(
+            [ExperimentVariantFactory.create(is_control=False).id for i in range(3)]
+        )
+        serializer = ExperimentDesignBranchBaseSerializer(
+            ExperimentVariant.objects.all().order_by("-id"), many=True
+        )
+        self.assertTrue(serializer.data[0]["is_control"])
+        self.assertFalse(any([b["is_control"] for b in serializer.data[1:]]))
+        self.assertEqual(sorted_treatment_ids, [b["id"] for b in serializer.data[1:]])
+
 
 class TestExperimentDesignBaseSerializer(TestCase):
 
@@ -1153,14 +1165,14 @@ class TestExperimentDesignPrefSerializer(TestCase):
                         "description": None,
                         "is_control": True,
                         "name": None,
-                        "ratio": None,
+                        "ratio": 50,
                         "value": None,
                     },
                     {
                         "description": None,
                         "is_control": False,
                         "name": None,
-                        "ratio": None,
+                        "ratio": 50,
                         "value": None,
                     },
                 ],
@@ -1289,18 +1301,8 @@ class TestExperimentDesignAddonSerializer(TestCase):
                 "addon_release_url": experiment.addon_release_url,
                 "addon_experiment_id": experiment.addon_experiment_id,
                 "variants": [
-                    {
-                        "description": None,
-                        "is_control": True,
-                        "name": None,
-                        "ratio": None,
-                    },
-                    {
-                        "description": None,
-                        "is_control": False,
-                        "name": None,
-                        "ratio": None,
-                    },
+                    {"description": None, "is_control": True, "name": None, "ratio": 50},
+                    {"description": None, "is_control": False, "name": None, "ratio": 50},
                 ],
             },
         )
@@ -1368,18 +1370,8 @@ class TestExperimentDesignGenericSerializer(TestCase):
                 "type": ExperimentConstants.TYPE_GENERIC,
                 "design": experiment.design,
                 "variants": [
-                    {
-                        "description": None,
-                        "is_control": True,
-                        "name": None,
-                        "ratio": None,
-                    },
-                    {
-                        "description": None,
-                        "is_control": False,
-                        "name": None,
-                        "ratio": None,
-                    },
+                    {"description": None, "is_control": True, "name": None, "ratio": 50},
+                    {"description": None, "is_control": False, "name": None, "ratio": 50},
                 ],
             },
         )

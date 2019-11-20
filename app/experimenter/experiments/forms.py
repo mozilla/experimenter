@@ -210,7 +210,7 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.ENGINEERING_OWNER_HELP_TEXT,
     )
     analysis_owner = forms.ModelChoiceField(
-        required=True,
+        required=False,
         label="Data Science Owner",
         help_text=Experiment.ANALYSIS_OWNER_HELP_TEXT,
         queryset=get_user_model().objects.all().order_by("email"),
@@ -220,11 +220,11 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         empty_label="Data Science Owner",
     )
     public_name = forms.CharField(
-        label="Public Name", required=False, help_text=Experiment.PUBLIC_NAME_HELP_TEXT
+        required=True, label="Public Name", help_text=Experiment.PUBLIC_NAME_HELP_TEXT
     )
     public_description = forms.CharField(
+        required=True,
         label="Public Description",
-        required=False,
         help_text=Experiment.PUBLIC_DESCRIPTION_HELP_TEXT,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
@@ -254,12 +254,12 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
             "name",
             "slug",
             "short_description",
+            "public_name",
+            "public_description",
             "data_science_bugzilla_url",
             "owner",
             "analysis_owner",
             "engineering_owner",
-            "public_name",
-            "public_description",
             "feature_bugzilla_url",
             "related_work",
             "related_to",
@@ -444,13 +444,13 @@ class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
 class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
     proposed_start_date = forms.DateField(
-        required=True,
+        required=False,
         label="Proposed Start Date",
         help_text=Experiment.PROPOSED_START_DATE_HELP_TEXT,
         widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
     )
     proposed_duration = forms.IntegerField(
-        required=True,
+        required=False,
         min_value=1,
         label="Proposed Experiment Duration (days)",
         help_text=Experiment.PROPOSED_DURATION_HELP_TEXT,
@@ -464,46 +464,57 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
         widget=forms.NumberInput(attrs={"class": "form-control"}),
     )
     population_percent = forms.DecimalField(
+        required=False,
         label="Population Percentage",
         help_text=Experiment.POPULATION_PERCENT_HELP_TEXT,
         initial="0.00",
         widget=forms.NumberInput(attrs={"class": "form-control"}),
     )
     firefox_min_version = forms.ChoiceField(
+        required=False,
         choices=Experiment.MIN_VERSION_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
         help_text=Experiment.VERSION_HELP_TEXT,
     )
     firefox_max_version = forms.ChoiceField(
+        required=False,
         choices=Experiment.MAX_VERSION_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
     )
     firefox_channel = forms.ChoiceField(
+        required=False,
         choices=Experiment.CHANNEL_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
         label="Firefox Channel",
         help_text=Experiment.CHANNEL_HELP_TEXT,
     )
-    client_matching = forms.CharField(
-        label="Population Filtering",
-        help_text=Experiment.CLIENT_MATCHING_HELP_TEXT,
-        widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
-    )
     locales = CustomModelMultipleChoiceField(
-        label="Locales",
         required=False,
+        label="Locales",
         all_label="All locales",
         help_text="Applicable only if you don't select All",
         queryset=Locale.objects.all(),
         to_field_name="code",
     )
     countries = CustomModelMultipleChoiceField(
-        label="Countries",
         required=False,
+        label="Countries",
         all_label="All countries",
         help_text="Applicable only if you don't select All",
         queryset=Country.objects.all(),
         to_field_name="code",
+    )
+    platform = forms.CharField(
+        required=False,
+        label="Platform",
+        help_text=Experiment.PLATFORM_HELP_TEXT,
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+    client_matching = forms.CharField(
+        required=False,
+        label="Population Filtering",
+        help_text=Experiment.CLIENT_MATCHING_HELP_TEXT,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
     )
     # See https://developer.snapappointments.com/bootstrap-select/examples/
     # for more options that relate to the initial rendering of the HTML
@@ -543,9 +554,9 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
         super().__init__(data=data, instance=instance, *args, **kwargs)
 
     def clean_population_percent(self):
-        population_percent = self.cleaned_data["population_percent"]
+        population_percent = self.cleaned_data.get("population_percent")
 
-        if not (0 < population_percent <= 100):
+        if population_percent and not (0 < population_percent <= 100):
             raise forms.ValidationError(
                 "The population size must be between 0 and 100 percent."
             )
@@ -553,23 +564,23 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
         return population_percent
 
     def clean_firefox_max_version(self):
-        firefox_min_version = self.cleaned_data["firefox_min_version"]
-        firefox_max_version = self.cleaned_data["firefox_max_version"]
+        firefox_min_version = self.cleaned_data.get("firefox_min_version")
+        firefox_max_version = self.cleaned_data.get("firefox_max_version")
 
-        if firefox_max_version:
+        if firefox_min_version and firefox_max_version:
             if firefox_max_version <= firefox_min_version:
                 raise forms.ValidationError(
-                    "The max version must " "be larger than the min version."
+                    "The max version must be larger than the min version."
                 )
 
             return firefox_max_version
 
     def clean_proposed_start_date(self):
-        start_date = self.cleaned_data["proposed_start_date"]
+        start_date = self.cleaned_data.get("proposed_start_date")
 
         if start_date and start_date < timezone.now().date():
             raise forms.ValidationError(
-                ("The experiment start date must " "be no earlier than the current date.")
+                "The experiment start date must be no earlier than the current date."
             )
 
         return start_date
@@ -578,8 +589,8 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
         cleaned_data = super().clean()
 
         # enrollment may be None
-        enrollment = cleaned_data.get("proposed_enrollment", None)
-        duration = cleaned_data.get("proposed_duration", None)
+        enrollment = cleaned_data.get("proposed_enrollment")
+        duration = cleaned_data.get("proposed_duration")
 
         if (enrollment and duration) and enrollment > duration:
             msg = (
@@ -755,18 +766,21 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
         return False
 
     objectives = forms.CharField(
+        required=False,
         label="Objectives",
         help_text=Experiment.OBJECTIVES_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
 
     analysis = forms.CharField(
+        required=False,
         label="Analysis Plan",
         help_text=Experiment.ANALYSIS_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
 
     survey_required = forms.TypedChoiceField(
+        required=False,
         label=Experiment.SURVEY_REQUIRED_LABEL,
         help_text=Experiment.SURVEY_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -835,6 +849,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
 
     # Radio Buttons
     risk_internal_only = forms.TypedChoiceField(
+        required=False,
         label=Experiment.RISK_INTERNAL_ONLY_LABEL,
         help_text=Experiment.RISK_INTERNAL_ONLY_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -843,6 +858,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         empty_value=None,
     )
     risk_partner_related = forms.TypedChoiceField(
+        required=False,
         label=Experiment.RISK_PARTNER_RELATED_LABEL,
         help_text=Experiment.RISK_PARTNER_RELATED_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -851,6 +867,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         empty_value=None,
     )
     risk_brand = forms.TypedChoiceField(
+        required=False,
         label=Experiment.RISK_BRAND_LABEL,
         help_text=Experiment.RISK_BRAND_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -859,6 +876,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         empty_value=None,
     )
     risk_fast_shipped = forms.TypedChoiceField(
+        required=False,
         label=Experiment.RISK_FAST_SHIPPED_LABEL,
         help_text=Experiment.RISK_FAST_SHIPPED_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -867,6 +885,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         empty_value=None,
     )
     risk_confidential = forms.TypedChoiceField(
+        required=False,
         label=Experiment.RISK_CONFIDENTIAL_LABEL,
         help_text=Experiment.RISK_CONFIDENTIAL_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -875,6 +894,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         empty_value=None,
     )
     risk_release_population = forms.TypedChoiceField(
+        required=False,
         label=Experiment.RISK_RELEASE_POPULATION_LABEL,
         help_text=Experiment.RISK_RELEASE_POPULATION_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -883,6 +903,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         empty_value=None,
     )
     risk_revenue = forms.TypedChoiceField(
+        required=False,
         label=Experiment.RISK_REVENUE_LABEL,
         help_text=Experiment.RISK_REVENUE_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -891,6 +912,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         empty_value=None,
     )
     risk_data_category = forms.TypedChoiceField(
+        required=False,
         label=Experiment.RISK_DATA_CATEGORY_LABEL,
         help_text=Experiment.RISK_DATA_CATEGORY_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -899,6 +921,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         empty_value=None,
     )
     risk_external_team_impact = forms.TypedChoiceField(
+        required=False,
         label=Experiment.RISK_EXTERNAL_TEAM_IMPACT_LABEL,
         help_text=Experiment.RISK_EXTERNAL_TEAM_IMPACT_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -907,6 +930,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         empty_value=None,
     )
     risk_telemetry_data = forms.TypedChoiceField(
+        required=False,
         label=Experiment.RISK_TELEMETRY_DATA_LABEL,
         help_text=Experiment.RISK_TELEMETRY_DATA_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -915,6 +939,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         empty_value=None,
     )
     risk_ux = forms.TypedChoiceField(
+        required=False,
         label=Experiment.RISK_UX_LABEL,
         help_text=Experiment.RISK_UX_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -923,6 +948,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         empty_value=None,
     )
     risk_security = forms.TypedChoiceField(
+        required=False,
         label=Experiment.RISK_SECURITY_LABEL,
         help_text=Experiment.RISK_SECURITY_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -931,6 +957,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         empty_value=None,
     )
     risk_revision = forms.TypedChoiceField(
+        required=False,
         label=Experiment.RISK_REVISION_LABEL,
         help_text=Experiment.RISK_REVISION_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -939,6 +966,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         empty_value=None,
     )
     risk_technical = forms.TypedChoiceField(
+        required=False,
         label=Experiment.RISK_TECHNICAL_LABEL,
         help_text=Experiment.RISK_TECHNICAL_HELP_TEXT,
         choices=RADIO_OPTIONS,
@@ -999,6 +1027,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         ),
     )
     qa_status = forms.CharField(
+        required=False,
         label="QA Status",
         help_text=Experiment.QA_STATUS_HELP_TEXT,
         widget=forms.Textarea(
@@ -1033,25 +1062,6 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
             "test_builds",
             "qa_status",
         )
-
-    def clean(self):
-        cleaned_data = super().clean()
-        if (
-            "risk_technical" in cleaned_data
-            and "risk_technical_description" in cleaned_data
-        ):
-            # Both checked, now we need to do an invariance check on these
-            # two. This is to match what's done with jQuery in the form:
-            # the 'risk_technical_description' needs to be required
-            # if 'risk_technical' is ``True``.
-            if cleaned_data.get("risk_technical"):
-                if not cleaned_data["risk_technical_description"]:
-                    msg = (
-                        f"This is required if "
-                        f"'{Experiment.RISK_TECHNICAL_LABEL}' is true."
-                    )
-                    raise forms.ValidationError({"risk_technical_description": msg})
-        return cleaned_data
 
 
 class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm):
