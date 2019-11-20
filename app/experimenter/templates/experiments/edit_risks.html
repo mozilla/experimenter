@@ -42,7 +42,7 @@
     {% include "experiments/radio_field_inline.html" with field=form.risk_technical %}
 
     <div id="risks_technical_description_field" class="collapse">
-      {% include "experiments/field_inline_help_link.html" with field=form.risk_technical_description %}
+      {% include "experiments/field_inline_help_link.html" with field=form.risk_technical_description marked_required=True %}
     </div>
 
     <div id="risks_field" class="collapse">
@@ -53,7 +53,7 @@
 
     {% include "experiments/field_inline.html" with field=form.test_builds %}
 
-    {% include "experiments/field_inline.html" with field=form.qa_status %}
+    {% include "experiments/field_inline.html" with field=form.qa_status marked_required=True %}
 {% endblock %}
 
 {% block edit_buttons %}
