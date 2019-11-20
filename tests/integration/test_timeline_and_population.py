@@ -82,6 +82,7 @@ def test_firefox_min_version_updates_correctly(selenium, base_url, setup_form):
     """Test setting a Firefox min version."""
     form = setup_form
     assert form.firefox_min_version == ""
+    form.firefox_max_version = "80.0"
     version = "65.0"
     form.firefox_min_version = version
     form.save_and_continue()
