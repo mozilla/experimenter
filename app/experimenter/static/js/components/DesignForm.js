@@ -33,9 +33,15 @@ class DesignForm extends React.PureComponent {
 
   async componentDidMount() {
     const data = await makeApiRequest(this.getEndpointUrl());
+
+    const errors = {
+      variants: data.variants.map(() => ({})),
+    };
+
     this.setState({
       loaded: true,
       data: fromJS(data),
+      errors: fromJS(errors),
     });
   }
 
@@ -48,14 +54,16 @@ class DesignForm extends React.PureComponent {
       is_control: false,
     });
 
-    this.setState(({ data }) => ({
+    this.setState(({ data, errors }) => ({
       data: data.update("variants", variants => variants.push(emptyBranch)),
+      errors: errors.update("variants", variants => variants.push({})),
     }));
   }
 
   removeBranch(index) {
-    this.setState(({ data }) => ({
+    this.setState(({ data, errors }) => ({
       data: data.update("variants", variants => variants.delete(index)),
+      errors: errors.update("variants", variants => variants.delete(index)),
     }));
   }
 
