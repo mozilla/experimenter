@@ -811,12 +811,6 @@ class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("firefox_max_version", form.errors)
 
-    def test_form_is_not_valid_if_firefox_max_left_blank(self):
-        self.data["firefox_min_version"] = "66.0"
-        self.data["firefox_max_version"] = ""
-        form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-
 
 @parameterized_class(
     ["form_class"],
@@ -1420,7 +1414,7 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
 
     valid_data = {
         "risk_internal_only": True,
-        "risk_partner_related": True,
+        "risk_partner_related": False,
         "risk_brand": True,
         "risk_fast_shipped": True,
         "risk_confidential": True,
@@ -1457,7 +1451,7 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
 
         experiment = form.save()
         self.assertTrue(experiment.risk_internal_only)
-        self.assertTrue(experiment.risk_partner_related)
+        self.assertFalse(experiment.risk_partner_related)
         self.assertTrue(experiment.risk_brand)
         self.assertTrue(experiment.risk_fast_shipped)
         self.assertTrue(experiment.risk_confidential)
@@ -1470,30 +1464,6 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.testing, data["testing"])
         self.assertEqual(experiment.test_builds, data["test_builds"])
         self.assertEqual(experiment.qa_status, data["qa_status"])
-
-    def test_risk_technical_description_empty(self):
-        created_experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
-
-        data = self.valid_data.copy()
-        data["risk_technical_description"] = ""
-
-        form = ExperimentRisksForm(
-            request=self.request, data=data, instance=created_experiment
-        )
-        self.assertFalse(form.is_valid())
-        self.assertIn("risk_technical_description", form.errors)
-
-    def test_risk_technical_description_empty_not_risk_technical(self):
-        created_experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
-
-        data = self.valid_data.copy()
-        data["risk_technical"] = False
-        data["risk_technical_description"] = ""
-
-        form = ExperimentRisksForm(
-            request=self.request, data=data, instance=created_experiment
-        )
-        self.assertTrue(form.is_valid())
 
 
 class TestExperimentResultsForm(MockRequestMixin, TestCase):
