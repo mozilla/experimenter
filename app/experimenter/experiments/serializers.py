@@ -35,27 +35,6 @@ class PrefTypeField(serializers.Field):
             return obj
 
 
-class VariantsListSerializer(serializers.ListSerializer):
-
-    def to_representation(self, data):
-        data = super().to_representation(data)
-        if data == []:
-            blank_variant = {}
-            control_blank_variant = {}
-            initial_fields = set(self.child.fields) - set(["id"])
-            for field in initial_fields:
-                blank_variant[field] = None
-                control_blank_variant[field] = None
-
-            blank_variant["is_control"] = False
-            blank_variant["ratio"] = 50
-            control_blank_variant["is_control"] = True
-            control_blank_variant["ratio"] = 50
-
-            return [control_blank_variant, blank_variant]
-        return data
-
-
 class ExperimentVariantSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -498,6 +477,34 @@ class ExperimentCloneSerializer(serializers.ModelSerializer):
         name = validated_data.get("name")
 
         return instance.clone(name, user)
+
+
+class VariantsListSerializer(serializers.ListSerializer):
+
+    def to_representation(self, data):
+        data = super().to_representation(data)
+
+        if data == []:
+            blank_variant = {}
+            control_blank_variant = {}
+            initial_fields = set(self.child.fields) - set(["id"])
+            for field in initial_fields:
+                blank_variant[field] = None
+                control_blank_variant[field] = None
+
+            blank_variant["is_control"] = False
+            blank_variant["ratio"] = 50
+            control_blank_variant["is_control"] = True
+            control_blank_variant["ratio"] = 50
+
+            data = [control_blank_variant, blank_variant]
+
+        control_branch = [b for b in data if b["is_control"]][0]
+        treatment_branches = sorted(
+            [b for b in data if not b["is_control"]], key=lambda b: b.get("id")
+        )
+
+        return [control_branch] + treatment_branches
 
 
 class ExperimentDesignBranchBaseSerializer(serializers.ModelSerializer):
