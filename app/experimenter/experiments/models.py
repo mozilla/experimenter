@@ -114,7 +114,9 @@ class Experiment(ExperimentConstants, models.Model):
     public_name = models.CharField(max_length=255, blank=True, null=True)
 
     public_description = models.TextField(blank=True, null=True)
-    population_percent = models.DecimalField(max_digits=7, decimal_places=4, default=0.0)
+    population_percent = models.DecimalField(
+        max_digits=7, decimal_places=4, default=0.0, blank=True, null=True
+    )
     firefox_min_version = models.CharField(
         max_length=255, choices=ExperimentConstants.VERSION_CHOICES
     )
@@ -492,14 +494,15 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def completed_population(self):
         return (
-            self.population_percent > 0
-            and self.firefox_min_version != ""
-            and self.firefox_channel != ""
+            self.population_percent
+            and self.firefox_min_version
+            and self.firefox_max_version
+            and self.firefox_channel
         )
 
     @property
     def completed_design(self):
-        return self.design != self.DESIGN_DEFAULT
+        return self.design and self.design != self.DESIGN_DEFAULT
 
     @property
     def completed_addon(self):
@@ -512,7 +515,9 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def completed_objectives(self):
         return (
-            self.objectives != self.OBJECTIVES_DEFAULT
+            self.objectives
+            and self.objectives != self.OBJECTIVES_DEFAULT
+            and self.analysis
             and self.analysis != self.ANALYSIS_DEFAULT
         )
 
@@ -541,7 +546,12 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_risks(self):
-        return None not in self._risk_questions
+        completed = None not in self._risk_questions
+
+        if self.risk_technical:
+            completed = completed and self.risk_technical_description
+
+        return completed
 
     @property
     def completed_testing(self):

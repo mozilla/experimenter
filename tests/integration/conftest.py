@@ -38,6 +38,7 @@ def fill_overview(selenium, base_url):
     experiment = home.create_experiment()
     experiment.name = "This is a test"
     experiment.short_description = "Testing in here"
+    experiment.public_name = "Public Name"
+    experiment.public_description = "Public Description"
     experiment.bugzilla_url = "http://bugzilla.com/show_bug.cgi?id=1234"
-    experiment.analysis_owner = "dev@example.com"
     return experiment.save_and_continue_btn()

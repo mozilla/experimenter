@@ -19,9 +19,9 @@
     <h4 class="col-9 offset-3">Experiment Timeline</h4>
   </div>
 
-  {% include "experiments/field_inline.html" with field=form.proposed_start_date %}
+  {% include "experiments/field_inline.html" with field=form.proposed_start_date marked_required=True %}
 
-  {% include "experiments/field_inline.html" with field=form.proposed_duration %}
+  {% include "experiments/field_inline.html" with field=form.proposed_duration  marked_required=True %}
 
   {% include "experiments/field_inline.html" with field=form.proposed_enrollment %}
 
@@ -32,14 +32,17 @@
     <h4 class="col-9 offset-3">Experiment Population</h4>
   </div>
 
-  {% include "experiments/field_inline.html" with field=form.population_percent %}
+  {% include "experiments/field_inline.html" with field=form.population_percent marked_required=True %}
 
-  {% include "experiments/field_inline_help_link.html" with field=form.firefox_channel %}
+  {% include "experiments/field_inline_help_link.html" with field=form.firefox_channel marked_required=True %}
 
   <div class="form-group row">
     <div class="col-3 text-right">
       <label class="control-label">
         <strong>Firefox Versions</strong>
+        <div class="text-danger">
+          Required
+        </div>
       </label>
       <br>
       <a target="_blank" rel="noreferrer noopener" href="{{ form.firefox_min_version.help_text }}">Help</a>
