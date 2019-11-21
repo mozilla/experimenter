@@ -34,42 +34,21 @@ class DesignForm extends React.PureComponent {
   async componentDidMount() {
     const data = await makeApiRequest(this.getEndpointUrl());
 
-    const errors = {
-      variants: data.variants.map(() => ({})),
-    };
-
     this.setState({
       loaded: true,
       data: fromJS(data),
-      errors: fromJS(errors),
     });
-  }
-
-  addBranch() {
-    const emptyBranch = fromJS({
-      ratio: "",
-      name: "",
-      description: "",
-      value: "",
-      is_control: false,
-    });
-
-    this.setState(({ data, errors }) => ({
-      data: data.update("variants", variants => variants.push(emptyBranch)),
-      errors: errors.update("variants", variants => variants.push({})),
-    }));
-  }
-
-  removeBranch(index) {
-    this.setState(({ data, errors }) => ({
-      data: data.update("variants", variants => variants.delete(index)),
-      errors: errors.update("variants", variants => variants.delete(index)),
-    }));
   }
 
   handleDataChange(key, value) {
     this.setState(({ data }) => ({
       data: data.set(key, value),
+    }));
+  }
+
+  handleErrorsChange(key, value) {
+    this.setState(({ errors }) => ({
+      errors: errors.set(key, value),
     }));
   }
 
@@ -147,8 +126,7 @@ class DesignForm extends React.PureComponent {
           <form onSubmit={this.handleSubmit} id="design-form">
             <Form
               handleDataChange={this.handleDataChange}
-              onAddBranch={this.addBranch}
-              onRemoveBranch={this.removeBranch}
+              handleErrorsChange={this.handleErrorsChange}
               data={this.state.data}
               errors={this.state.errors}
               loaded={this.state.loaded}

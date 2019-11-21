@@ -17,28 +17,27 @@ class Branch extends React.PureComponent {
 
   handleChange(key, value) {
     const { onChange, branch } = this.props;
-    const updated = branch
-      .set("is_control", this.props.index === 0)
-      .set(key, value);
-    onChange(updated);
+    onChange(branch.set(key, value));
   }
 
   renderTitle() {
-    if (this.props.index === 0) {
+    const { branch, index } = this.props;
+    if (branch.get("is_control")) {
       return <h4>Control Branch</h4>;
     }
-    return <h4>Branch {this.props.index}</h4>;
+    return <h4>Branch {index}</h4>;
   }
 
   renderRemoveButton() {
-    if (this.props.index === 0) {
+    const { branch, index } = this.props;
+    if (branch.get("is_control")) {
       return null;
     }
     return (
       <Button
         variant="danger"
         onClick={() => {
-          this.props.remove(this.props.index);
+          this.props.remove(index);
         }}
         id="remove-branch-button"
       >
