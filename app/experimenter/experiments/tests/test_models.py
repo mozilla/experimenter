@@ -346,6 +346,14 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(len(normandy_slug), settings.NORMANDY_SLUG_MAX_LEN)
 
+    def test_is_rollout_false_for_not_type_rollout(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_PREF)
+        self.assertFalse(experiment.is_rollout)
+
+    def test_is_rollout_true_for_type_rollout(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        self.assertTrue(experiment.is_rollout)
+
     def test_normandy_recipe_json_serializes_pref_study(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         recipe_json = json.loads(experiment.normandy_recipe_json)

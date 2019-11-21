@@ -366,7 +366,7 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
     proposed_duration = forms.IntegerField(
         required=False,
         min_value=1,
-        label="Proposed Delivery Duration (days)",
+        label="Proposed Total Duration (days)",
         help_text=Experiment.PROPOSED_DURATION_HELP_TEXT,
         widget=forms.NumberInput(attrs={"class": "form-control"}),
     )

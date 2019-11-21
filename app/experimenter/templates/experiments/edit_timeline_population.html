@@ -23,7 +23,9 @@
 
   {% include "experiments/field_inline.html" with field=form.proposed_duration  marked_required=True %}
 
-  {% include "experiments/field_inline.html" with field=form.proposed_enrollment %}
+  {% if not object.is_rollout %}
+    {% include "experiments/field_inline.html" with field=form.proposed_enrollment %}
+  {% endif %}
 
 
   <hr class="heavy-line my-5">

@@ -476,6 +476,10 @@ class Experiment(ExperimentConstants, models.Model):
         return self.type == self.TYPE_PREF
 
     @property
+    def is_rollout(self):
+        return self.type == self.TYPE_ROLLOUT
+
+    @property
     def is_editable(self):
         return self.status in (self.STATUS_DRAFT, self.STATUS_REVIEW)
 

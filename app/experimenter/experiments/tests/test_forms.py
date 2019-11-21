@@ -313,7 +313,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             "proposed_duration": {
                 "new_value": 20,
                 "old_value": None,
-                "display_name": "Proposed Delivery Duration (days)",
+                "display_name": "Proposed Total Duration (days)",
             },
             "population_percent": {
                 "new_value": "10.0000",
