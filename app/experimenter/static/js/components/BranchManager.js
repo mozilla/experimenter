@@ -1,5 +1,5 @@
 import { boundClass } from "autobind-decorator";
-import { List, Map } from "immutable";
+import { fromJS, List, Map } from "immutable";
 import PropTypes from "prop-types";
 import React from "react";
 import { Row, Col, Button } from "react-bootstrap";
@@ -9,21 +9,50 @@ import Branch from "experimenter/components/Branch";
 @boundClass
 class BranchManager extends React.PureComponent {
   static propTypes = {
-    branches: PropTypes.instanceOf(List),
     branchFieldsComponent: PropTypes.func,
-    errors: PropTypes.instanceOf(Map),
-    onAddBranch: PropTypes.func,
-    onChange: PropTypes.func,
-    onRemoveBranch: PropTypes.func,
+    branches: PropTypes.instanceOf(List),
+    errors: PropTypes.instanceOf(List),
+    handleDataChange: PropTypes.func,
+    handleErrorsChange: PropTypes.func,
   };
 
   handleChange(index, value) {
-    const { branches, onChange } = this.props;
-    onChange(branches.set(index, value));
+    const { branches, handleDataChange } = this.props;
+    handleDataChange("variants", branches.set(index, value));
+  }
+
+  addBranch() {
+    const {
+      branches,
+      errors,
+      handleDataChange,
+      handleErrorsChange,
+    } = this.props;
+    const emptyBranch = fromJS({
+      ratio: "",
+      name: "",
+      description: "",
+      value: "",
+      is_control: false,
+    });
+
+    handleDataChange("variants", branches.push(emptyBranch));
+    handleErrorsChange("variants", errors.push(fromJS({})));
+  }
+
+  removeBranch(index) {
+    const {
+      branches,
+      errors,
+      handleDataChange,
+      handleErrorsChange,
+    } = this.props;
+    handleDataChange("variants", branches.delete(index));
+    handleErrorsChange("variants", errors.delete(index));
   }
 
   renderBranch(branch, index) {
-    const { branchFieldsComponent, errors, onRemoveBranch } = this.props;
+    const { branchFieldsComponent, errors } = this.props;
 
     return (
       <Branch
@@ -31,8 +60,10 @@ class BranchManager extends React.PureComponent {
         index={index}
         branch={branch}
         branchFieldsComponent={branchFieldsComponent}
-        remove={onRemoveBranch}
-        errors={errors}
+        remove={index => {
+          this.removeBranch(index);
+        }}
+        errors={errors.get(index, new Map())}
         onChange={value => {
           this.handleChange(index, value);
         }}
@@ -41,7 +72,7 @@ class BranchManager extends React.PureComponent {
   }
 
   render() {
-    const { onAddBranch, branches } = this.props;
+    const { branches } = this.props;
     return (
       <React.Fragment>
         {branches.map((b, i) => this.renderBranch(b, i))}
@@ -51,7 +82,7 @@ class BranchManager extends React.PureComponent {
               id="add-branch-button"
               variant="success"
               className="mb-4"
-              onClick={onAddBranch}
+              onClick={this.addBranch}
             >
               <span className="fas fa-plus" /> Add Branch
             </Button>

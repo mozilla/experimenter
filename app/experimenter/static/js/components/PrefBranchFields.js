@@ -14,11 +14,6 @@ class PrefBranchFields extends React.PureComponent {
     index: PropTypes.number,
   };
 
-  getErrorMessage(name) {
-    const { errors, index } = this.props;
-    return errors.getIn(["variants", index, name], "");
-  }
-
   renderField(name, label) {
     let helpContent;
     switch (name) {
@@ -105,7 +100,7 @@ class PrefBranchFields extends React.PureComponent {
         onChange={value => {
           this.props.handleChange(name, value);
         }}
-        error={this.getErrorMessage(name)}
+        error={this.props.errors.get(name)}
         helpContent={helpContent}
       />
     );
