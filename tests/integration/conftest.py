@@ -16,6 +16,7 @@ def capabilities(capabilities):
 def firefox_options(firefox_options):
     """Set Firefox Options."""
     firefox_options.headless = True
+    firefox_options.log.level = 'trace'
     return firefox_options
 
 
