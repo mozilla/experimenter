@@ -308,11 +308,13 @@ class ExperimentRecipeMultiPrefVariantSerializer(serializers.ModelSerializer):
     def get_preferences(self, obj):
         preference_values = {}
         preference_values["preferenceBranchType"] = obj.experiment.pref_branch
-        preference_values["preferenceType"] = obj.experiment.pref_type
+        preference_values["preferenceType"] = PrefTypeField().to_representation(
+            obj.experiment.pref_type
+        )
         preference_values["preferenceValue"] = obj.value
 
         preferences = {}
-        preferences[obj.experiment.normandy_slug] = preference_values
+        preferences[obj.experiment.pref_key] = preference_values
 
         return preferences
 

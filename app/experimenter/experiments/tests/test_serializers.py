@@ -381,22 +381,23 @@ class TestExperimentRecipeMultiPrefVariantSerialzer(TestCase):
         experiment = ExperimentFactory.create(
             normandy_slug="normandy-slug",
             pref_branch=Experiment.PREF_BRANCH_DEFAULT,
-            pref_type=Experiment.PREF_TYPE_INT,
+            pref_type=Experiment.PREF_TYPE_JSON_STR,
+            pref_key="browser.pref",
         )
         variant = ExperimentVariant(
-            slug="slug-value", ratio=25, experiment=experiment, value=26
+            slug="control", ratio=25, experiment=experiment, value='{"some": "json"}'
         )
         serializer = ExperimentRecipeMultiPrefVariantSerializer(variant)
         expected_data = {
             "preferences": {
-                "normandy-slug": {
+                "browser.pref": {
                     "preferenceBranchType": "default",
-                    "preferenceType": "integer",
-                    "preferenceValue": 26,
+                    "preferenceType": "string",
+                    "preferenceValue": '{"some": "json"}',
                 }
             },
             "ratio": 25,
-            "slug": "slug-value",
+            "slug": "control",
         }
 
         self.assertEqual(expected_data, serializer.data)
