@@ -1,4 +1,4 @@
-import { Map } from "immutable";
+import { List, Map } from "immutable";
 import PropTypes from "prop-types";
 import React from "react";
 
@@ -11,8 +11,7 @@ export default class GenericForm extends React.PureComponent {
     data: PropTypes.instanceOf(Map),
     errors: PropTypes.instanceOf(Map),
     handleDataChange: PropTypes.func,
-    onAddBranch: PropTypes.func,
-    onRemoveBranch: PropTypes.func,
+    handleErrorsChange: PropTypes.func,
   };
 
   render() {
@@ -38,14 +37,11 @@ export default class GenericForm extends React.PureComponent {
         <hr className="heavy-line my-5" />
 
         <BranchManager
-          branches={this.props.data.get("variants")}
-          onAddBranch={this.props.onAddBranch}
-          onRemoveBranch={this.props.onRemoveBranch}
-          onChange={value => {
-            this.props.handleDataChange("variants", value);
-          }}
           branchFieldsComponent={GenericBranchFields}
-          errors={this.props.errors}
+          branches={this.props.data.get("variants", new List())}
+          errors={this.props.errors.get("variants", new List())}
+          handleDataChange={this.props.handleDataChange}
+          handleErrorsChange={this.props.handleErrorsChange}
         />
       </div>
     );
