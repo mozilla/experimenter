@@ -10,11 +10,13 @@ class ExperimentConstants(object):
     TYPE_PREF = "pref"
     TYPE_ADDON = "addon"
     TYPE_GENERIC = "generic"
+    TYPE_ROLLOUT = "rollout"
 
     TYPE_CHOICES = (
         (TYPE_PREF, "Pref-Flip Experiment"),
         (TYPE_ADDON, "Add-On Experiment"),
         (TYPE_GENERIC, "Generic Experiment"),
+        (TYPE_ROLLOUT, "Staged Rollout"),
     )
 
     # date range stuff
@@ -234,16 +236,24 @@ class ExperimentConstants(object):
         sent to Firefox users.
       </p>
       <p>
-        A <strong>{[1]}</strong> experiment uses prefs to enable code which
+        A <strong>{[1]}</strong> uses prefs to enable code which
         has already been merged into Firefox and deployed with a standard
         Firefox release in a disabled state, and will be selectively enabled
         for users that enroll into the experiment.
       </p>
       <p>
-        An <strong>{[1]}</strong> experiment sends a Firefox Add-On which
+        An <strong>{[1]}</strong> sends a Firefox Add-On which
         contains the code for the experimental feature to the users that
         enroll in the experiment.  After the experiment is complete, that
         add-on is automatically removed.
+      </p>
+      <p>
+        A <strong>{[1]}</strong> captures any change which is delivered
+        through something other than the previous types.
+      </p>
+      <p>
+        A <strong>{[1]}</strong> slowly deploys a pref or addon change
+        to increasing numbers of users.
       </p>
     """.format(
         *TYPE_CHOICES

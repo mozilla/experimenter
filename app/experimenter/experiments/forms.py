@@ -92,17 +92,6 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
     type = forms.ChoiceField(
         label="Type", choices=Experiment.TYPE_CHOICES, help_text=Experiment.TYPE_HELP_TEXT
     )
-    name = forms.CharField(label="Name", help_text=Experiment.NAME_HELP_TEXT)
-    slug = forms.CharField(required=False, widget=forms.HiddenInput())
-    short_description = forms.CharField(
-        label="Short Description",
-        help_text=Experiment.SHORT_DESCRIPTION_HELP_TEXT,
-        widget=forms.Textarea(attrs={"rows": 3}),
-    )
-    data_science_bugzilla_url = BugzillaURLField(
-        label="Data Science Bugzilla URL",
-        help_text=Experiment.DATA_SCIENCE_BUGZILLA_HELP_TEXT,
-    )
     owner = forms.ModelChoiceField(
         required=True,
         label="Delivery Owner",
@@ -112,6 +101,27 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         # option which would otherwise be included because the model field
         # is nullable.
         empty_label=None,
+    )
+    name = forms.CharField(label="Name", help_text=Experiment.NAME_HELP_TEXT)
+    slug = forms.CharField(required=False, widget=forms.HiddenInput())
+    short_description = forms.CharField(
+        label="Description",
+        help_text=Experiment.SHORT_DESCRIPTION_HELP_TEXT,
+        widget=forms.Textarea(attrs={"rows": 3}),
+    )
+    public_name = forms.CharField(
+        required=True, label="Public Name", help_text=Experiment.PUBLIC_NAME_HELP_TEXT
+    )
+    public_description = forms.CharField(
+        required=True,
+        label="Public Description",
+        help_text=Experiment.PUBLIC_DESCRIPTION_HELP_TEXT,
+        widget=forms.Textarea(attrs={"rows": 3}),
+    )
+    data_science_bugzilla_url = BugzillaURLField(
+        required=False,
+        label="Data Science Bugzilla URL",
+        help_text=Experiment.DATA_SCIENCE_BUGZILLA_HELP_TEXT,
     )
     engineering_owner = forms.CharField(
         required=False,
@@ -128,16 +138,6 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         # is nullable.
         empty_label="Data Science Owner",
     )
-    public_name = forms.CharField(
-        required=True, label="Public Name", help_text=Experiment.PUBLIC_NAME_HELP_TEXT
-    )
-    public_description = forms.CharField(
-        required=True,
-        label="Public Description",
-        help_text=Experiment.PUBLIC_DESCRIPTION_HELP_TEXT,
-        widget=forms.Textarea(attrs={"rows": 3}),
-    )
-
     feature_bugzilla_url = BugzillaURLField(
         required=False,
         label="Feature Bugzilla URL",
@@ -160,13 +160,13 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         model = Experiment
         fields = [
             "type",
+            "owner",
             "name",
             "slug",
             "short_description",
             "public_name",
             "public_description",
             "data_science_bugzilla_url",
-            "owner",
             "analysis_owner",
             "engineering_owner",
             "feature_bugzilla_url",
@@ -202,6 +202,11 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         else:
             name = cleaned_data.get("name")
             cleaned_data["slug"] = slugify(name)
+
+        if cleaned_data["type"] != ExperimentConstants.TYPE_ROLLOUT:
+            if not cleaned_data["data_science_bugzilla_url"]:
+                msg = "This field is required."
+                self._errors["data_science_bugzilla_url"] = [msg]
 
         return cleaned_data
 

@@ -216,3 +216,11 @@ pre.json {
   background-color: white;
   border-color: #ced4da;
 }
+
+.required-label.required .text-muted {
+  display: none;
+}
+
+.required-label.optional .text-danger {
+  display: none;
+}

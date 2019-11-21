@@ -545,6 +545,20 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
 
+    def test_bugzilla_url_required_for_non_rollout(self):
+        self.data["type"] = Experiment.TYPE_PREF
+        del self.data["data_science_bugzilla_url"]
+
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+
+    def test_bugzilla_url_optional_for_rollout(self):
+        self.data["type"] = Experiment.TYPE_ROLLOUT
+        del self.data["data_science_bugzilla_url"]
+
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertTrue(form.is_valid())
+
 
 class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
 
