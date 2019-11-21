@@ -52,9 +52,11 @@
       {% include "experiments/field_inline.html" with field=form.risks %}
     </div>
 
-    {% include "experiments/field_inline.html" with field=form.testing %}
+    {% if not object.is_rollout %}
+      {% include "experiments/field_inline.html" with field=form.testing %}
 
-    {% include "experiments/field_inline.html" with field=form.test_builds %}
+      {% include "experiments/field_inline.html" with field=form.test_builds %}
+    {% endif %}
 
     {% include "experiments/field_inline.html" with field=form.qa_status marked_required=True %}
 {% endblock %}
