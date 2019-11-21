@@ -28,15 +28,7 @@ class BranchManager extends React.PureComponent {
       handleDataChange,
       handleErrorsChange,
     } = this.props;
-    const emptyBranch = fromJS({
-      ratio: "",
-      name: "",
-      description: "",
-      value: "",
-      is_control: false,
-    });
-
-    handleDataChange("variants", branches.push(emptyBranch));
+    handleDataChange("variants", branches.push(fromJS({is_control: false})));
     handleErrorsChange("variants", errors.push(fromJS({})));
   }
 
