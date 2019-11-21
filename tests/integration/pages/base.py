@@ -23,6 +23,9 @@ class Base(Page):
         """Return the header class."""
         return Header(self)
 
+    def save_and_continue(self):
+        element = self.selenium.find_element(By.CSS_SELECTOR, "#save-and-continue-btn")
+        element.click()
 
 class Header(Region):
 
