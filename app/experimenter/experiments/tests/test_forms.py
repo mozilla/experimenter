@@ -1646,23 +1646,28 @@ class TestExperimentReviewForm(
 
     def test_required_reviews(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW, review_relman=True, review_science=True
+            Experiment.STATUS_REVIEW,
+            type=Experiment.TYPE_PREF,
+            review_relman=True,
+            review_science=True,
         )
 
         form = ExperimentReviewForm(request=self.request, data={}, instance=experiment)
 
         self.assertEqual(
-            form.required_reviews,
-            [
-                form["review_science"],
-                form["review_advisory"],
-                form["review_engineering"],
-                form["review_qa_requested"],
-                form["review_intent_to_ship"],
-                form["review_bugzilla"],
-                form["review_qa"],
-                form["review_relman"],
-            ],
+            set([f.name for f in form.required_reviews]),
+            set(
+                [
+                    "review_science",
+                    "review_advisory",
+                    "review_engineering",
+                    "review_qa_requested",
+                    "review_intent_to_ship",
+                    "review_bugzilla",
+                    "review_qa",
+                    "review_relman",
+                ]
+            ),
         )
 
     def test_required_reviews_when_a_risk_partner_related_is_true(self):
@@ -1712,6 +1717,44 @@ class TestExperimentReviewForm(
 
         self.assertNotIn(form["review_vp"], form.optional_reviews)
         self.assertIn(form["review_vp"], form.required_reviews)
+
+    def test_required_reviews_for_rollout(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        form = ExperimentReviewForm(self.request, instance=experiment)
+
+        self.assertEqual(
+            set([f.name for f in form.required_reviews]),
+            set(
+                [
+                    "review_qa",
+                    "review_intent_to_ship",
+                    "review_qa_requested",
+                    "review_advisory",
+                    "review_relman",
+                ]
+            ),
+        )
+
+    def test_optional_reviews_for_rollout(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        form = ExperimentReviewForm(self.request, instance=experiment)
+
+        self.assertEqual(
+            set([f.name for f in form.optional_reviews]),
+            set(
+                [
+                    "review_impacted_teams",
+                    "review_ux",
+                    "review_legal",
+                    "review_security",
+                    "review_vp",
+                    "review_comms",
+                    "review_data_steward",
+                ]
+            ),
+        )
 
     def test_cannot_check_review_relman_without_permissions(self):
         user_1 = UserFactory.create()

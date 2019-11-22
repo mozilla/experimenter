@@ -1030,7 +1030,7 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
     # Optional
     review_advisory = forms.BooleanField(
         required=False,
-        label="Lightning Advisory (Optional)",
+        label="Lightning Advisory",
         help_text=Experiment.REVIEW_LIGHTNING_ADVISING_HELP_TEXT,
     )
     review_legal = forms.BooleanField(
@@ -1093,14 +1093,12 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
 
     @property
     def optional_reviews(self):
-        return [
-            self[r]
-            for r in list(
-                sorted(
-                    set(self.Meta.fields) - set(self.instance.get_all_required_reviews())
-                )
-            )
-        ]
+        reviews = set(self.fields) - set(self.instance.get_all_required_reviews())
+
+        if self.instance.is_rollout:
+            reviews -= set(["review_science", "review_bugzilla", "review_engineering"])
+
+        return [self[r] for r in sorted(reviews)]
 
     @property
     def added_reviews(self):

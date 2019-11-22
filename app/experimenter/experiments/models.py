@@ -590,30 +590,35 @@ class Experiment(ExperimentConstants, models.Model):
         }
 
     def _default_required_reviews(self):
-        return [
-            "review_science",
+        reviews = [
             "review_advisory",
-            "review_engineering",
             "review_qa_requested",
             "review_intent_to_ship",
-            "review_bugzilla",
             "review_qa",
             "review_relman",
         ]
+
+        if not self.is_rollout:
+            reviews += ["review_science", "review_bugzilla", "review_engineering"]
+
+        return reviews
 
     def get_all_required_reviews(self):
         required_reviews = self._default_required_reviews()
         for review, risk in self._conditional_required_reviews_mapping.items():
             if risk:
                 required_reviews.append(review)
+
         return required_reviews
 
     @property
     def completed_required_reviews(self):
         required_reviews = self.get_all_required_reviews()
 
-        # review advisory is an exception that is not required
-        required_reviews.remove("review_advisory")
+        if not self.is_rollout:
+            # review advisory is an exception that is not required
+            required_reviews.remove("review_advisory")
+
         return all([getattr(self, r) for r in required_reviews])
 
     @property

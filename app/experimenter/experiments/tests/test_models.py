@@ -963,6 +963,32 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.completed_required_reviews)
 
+    def test_lightning_advising_required_for_rollout(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            review_advisory=False,
+            review_science=True,
+            review_engineering=True,
+            review_qa_requested=True,
+            review_intent_to_ship=True,
+            review_bugzilla=True,
+            review_qa=True,
+            review_relman=True,
+        )
+        self.assertFalse(experiment.completed_required_reviews)
+
+    def test_required_reviews_for_rollout(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            review_advisory=True,
+            review_science=True,
+            review_qa_requested=True,
+            review_intent_to_ship=True,
+            review_qa=True,
+            review_relman=True,
+        )
+        self.assertTrue(experiment.completed_required_reviews)
+
     def test_completed_all_sections_false_when_incomplete(self):
         experiment = ExperimentFactory.create()
         self.assertFalse(experiment.completed_all_sections)
