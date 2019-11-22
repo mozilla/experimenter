@@ -19,7 +19,6 @@ class DesignInput extends React.PureComponent {
     id: PropTypes.string,
     index: PropTypes.number,
     label: PropTypes.string,
-    margin: PropTypes.string,
     name: PropTypes.string,
     onChange: PropTypes.func,
     rows: PropTypes.string,
@@ -41,9 +40,9 @@ class DesignInput extends React.PureComponent {
 
   render() {
     return (
-      <Row className={this.props.margin}>
-        <Col md={3} className="text-right mb-3">
-          <FormLabel>
+      <Row className="mb-3">
+        <Col md={3} className="text-right">
+          <FormLabel className="pt-2">
             <strong>{this.props.label}</strong>
           </FormLabel>
           <br />
