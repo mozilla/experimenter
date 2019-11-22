@@ -19,6 +19,9 @@ class ExperimentConstants(object):
         (TYPE_ROLLOUT, "Staged Rollout"),
     )
 
+    # Rollout types
+    ROLLOUT_TYPE_CHOICES = ((TYPE_PREF, "Pref Rollout"), (TYPE_ADDON, "Add-On Rollout"))
+
     # date range stuff
     EXPERIMENT_STARTS = "starting"
     EXPERIMENT_PAUSES = "pausing"

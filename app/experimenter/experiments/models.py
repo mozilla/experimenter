@@ -1,26 +1,25 @@
-import json
-import datetime
-import time
 from collections import defaultdict
 from urllib.parse import urljoin
 import copy
+import datetime
+import json
+import time
 
 from django.conf import settings
-from django.utils.text import slugify
 from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import JSONField
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import Case, Max, Value, When
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.text import slugify
 
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
-
-from django.contrib.postgres.fields import JSONField
-from django.core.serializers.json import DjangoJSONEncoder
 
 
 class ExperimentManager(models.Manager):
@@ -93,6 +92,12 @@ class Experiment(ExperimentConstants, models.Model):
     )
 
     is_multi_pref = models.BooleanField(default=False)
+    rollout_type = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.ROLLOUT_TYPE_CHOICES,
+        blank=True,
+        null=True,
+    )
 
     addon_experiment_id = models.CharField(
         max_length=255, unique=True, blank=True, null=True

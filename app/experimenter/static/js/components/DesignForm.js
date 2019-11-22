@@ -7,6 +7,7 @@ import { Button, Container, Row, Col } from "react-bootstrap";
 import AddonForm from "experimenter/components/AddonForm";
 import GenericForm from "experimenter/components/GenericForm";
 import PrefForm from "experimenter/components/PrefForm";
+import RolloutForm from "experimenter/components/RolloutForm";
 import { makeApiRequest } from "experimenter/utils/api";
 
 @boundClass
@@ -147,6 +148,9 @@ class DesignForm extends React.PureComponent {
         break;
       case "addon":
         Form = AddonForm;
+        break;
+      case "rollout":
+        Form = RolloutForm;
         break;
       default:
         Form = GenericForm;

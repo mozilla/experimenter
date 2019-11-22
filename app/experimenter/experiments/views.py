@@ -9,9 +9,6 @@ from experimenter.experiments.filtersets import ExperimentFilterset
 from experimenter.experiments.forms import (
     ExperimentArchiveForm,
     ExperimentCommentForm,
-    ExperimentDesignAddonForm,
-    ExperimentDesignGenericForm,
-    ExperimentDesignPrefForm,
     ExperimentObjectivesForm,
     ExperimentOverviewForm,
     ExperimentResultsForm,
@@ -102,17 +99,9 @@ class ExperimentTimelinePopulationUpdateView(ExperimentFormMixin, UpdateView):
     template_name = "experiments/edit_timeline_population.html"
 
 
-class ExperimentDesignUpdateView(ExperimentFormMixin, UpdateView):
-    next_view_name = "experiments-objectives-update"
+class ExperimentDesignUpdateView(DetailView):
+    model = Experiment
     template_name = "experiments/edit_design.html"
-
-    def get_form_class(self):
-        if self.object.is_addon_experiment:
-            return ExperimentDesignAddonForm
-        elif self.object.is_pref_experiment:
-            return ExperimentDesignPrefForm
-        elif self.object.is_generic_experiment:
-            return ExperimentDesignGenericForm
 
 
 class ExperimentObjectivesUpdateView(ExperimentFormMixin, UpdateView):
