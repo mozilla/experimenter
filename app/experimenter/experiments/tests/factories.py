@@ -28,9 +28,13 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     analysis_owner = factory.SubFactory(UserFactory)
     engineering_owner = factory.LazyAttribute(lambda o: faker.name())
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    public_name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: "{}_".format(slugify(o.name)))
     archived = False
     short_description = factory.LazyAttribute(
+        lambda o: faker.text(random.randint(100, 500))
+    )
+    public_description = factory.LazyAttribute(
         lambda o: faker.text(random.randint(100, 500))
     )
     data_science_bugzilla_url = "{}show_bug.cgi?id=12345".format(settings.BUGZILLA_HOST)
