@@ -2,7 +2,7 @@ import { List, Map } from "immutable";
 import PropTypes from "prop-types";
 
 import React from "react";
-import { Row, Col, Form } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 
 import BranchManager from "experimenter/components/BranchManager";
 import DesignInput from "experimenter/components/DesignInput";
@@ -35,7 +35,7 @@ export default class AddonForm extends React.PureComponent {
         </Row>
 
         <RadioButton
-          { ...this.props }
+          {...this.props}
           elementLabel="Does this experiment ship a single addon to all branches or multiple addons?"
           radioGroupName="branchedAddonGroup"
           radioLabel1="Single Addon"
@@ -123,3 +123,9 @@ function SingleAddonFields(props) {
     </React.Fragment>
   );
 }
+
+SingleAddonFields.propTypes = {
+  handleDataChange: PropTypes.func,
+  data: PropTypes.instanceOf(Map),
+  errors: PropTypes.instanceOf(Map),
+};

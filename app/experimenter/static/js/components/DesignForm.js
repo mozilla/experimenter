@@ -108,7 +108,7 @@ class DesignForm extends React.PureComponent {
     } else {
       value = false;
     }
-    this.setState(({ data, errors }) => ({
+    this.setState(({ data }) => ({
       data: data.set("is_branched_addon", value),
       errors: new Map(),
     }));
