@@ -49,6 +49,32 @@ export default class AddonForm extends React.PureComponent {
         </Row>
 
         <DesignInput
+          label="Playbook"
+          name="rollout_playbook"
+          onChange={value => {
+            this.props.handleDataChange("rollout_playbook", value);
+          }}
+          value={this.props.data.get("rollout_playbook")}
+          error={this.props.errors.get("rollout_playbook", "")}
+          as="select"
+          helpContent={
+            <div>
+              <p>
+                <a href="https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=90737068#StagedRollouts/GradualRollouts-Playbooks">
+                  Playbook Help
+                </a>
+              </p>
+            </div>
+          }
+        >
+          <option>Select Playbook</option>
+          <option value="low_risk">Low Risk</option>
+          <option value="high_risk">High Risk</option>
+          <option value="marketing">Marketing Launch Schedule</option>
+          <option value="custom">Custom</option>
+        </DesignInput>
+
+        <DesignInput
           label="Description"
           name="design"
           onChange={value => {
@@ -125,12 +151,37 @@ export default class AddonForm extends React.PureComponent {
               <option>string</option>
               <option>json string</option>
             </DesignInput>
+
+            <DesignInput
+              label="Pref Value"
+              name="pref_value"
+              id="id_pref_value"
+              onChange={value => {
+                this.props.handleDataChange("pref_value", value);
+              }}
+              value={this.props.data.get("pref_value")}
+              error={this.props.errors.get("pref_value", "")}
+              helpContent={
+                <div>
+                  <p></p>
+                  <p></p>
+                </div>
+              }
+            />
+            <Row className="mb-3">
+              <Col md={{ span: 9, offset: 3 }}>
+                <p>
+                  *Note: Pref Rollouts always use the{" "}
+                  <strong>Default Pref Branch</strong>
+                </p>
+              </Col>
+            </Row>
           </div>
         )}
 
         {this.props.data.get("rollout_type") === "addon" && (
           <DesignInput
-            label="Signed Release URL"
+            label="Signed Add-On URL"
             name="addon_release_url"
             onChange={value => {
               this.props.handleDataChange("addon_release_url", value);

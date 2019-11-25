@@ -98,6 +98,12 @@ class Experiment(ExperimentConstants, models.Model):
         blank=True,
         null=True,
     )
+    rollout_playbook = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.ROLLOUT_PLAYBOOK_CHOICES,
+        blank=True,
+        null=True,
+    )
 
     addon_experiment_id = models.CharField(
         max_length=255, unique=True, blank=True, null=True
@@ -118,6 +124,7 @@ class Experiment(ExperimentConstants, models.Model):
         blank=True,
         null=True,
     )
+    pref_value = models.TextField(blank=True, null=True)
 
     public_name = models.CharField(max_length=255, blank=True, null=True)
 
@@ -804,8 +811,8 @@ class ExperimentVariant(models.Model):
     is_control = models.BooleanField(default=False)
     description = models.TextField(default="")
     ratio = models.PositiveIntegerField(default=1)
-    value = models.TextField(blank=False, null=True)
     addon_release_url = models.URLField(max_length=400, blank=True, null=True)
+    value = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Experiment Variant"

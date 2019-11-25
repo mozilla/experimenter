@@ -853,8 +853,25 @@ class ExperimentDesignBranchedAddonSerializer(ExperimentDesignBaseSerializer):
 
 
 class ExperimentDesignRolloutSerializer(ExperimentDesignBaseSerializer):
+    rollout_playbook = serializers.ChoiceField(
+        choices=Experiment.ROLLOUT_PLAYBOOK_CHOICES
+    )
+    rollout_type = serializers.ChoiceField(choices=Experiment.ROLLOUT_TYPE_CHOICES)
     addon_release_url = serializers.URLField(max_length=400)
 
     class Meta:
         model = Experiment
-        fields = ("rollout_type", "design", "addon_release_url")
+        fields = (
+            "rollout_playbook",
+            "rollout_type",
+            "design",
+            "addon_release_url",
+            "pref_key",
+            "pref_type",
+            "pref_value",
+        )
+
+    def validate(self, data):
+        raise serializers.ValidationError("This experiment name already exists.")
+
+        return data

@@ -19,8 +19,19 @@ class ExperimentConstants(object):
         (TYPE_ROLLOUT, "Staged Rollout"),
     )
 
-    # Rollout types
+    # Rollout stuff
     ROLLOUT_TYPE_CHOICES = ((TYPE_PREF, "Pref Rollout"), (TYPE_ADDON, "Add-On Rollout"))
+
+    ROLLOUT_PLAYBOOK_LOW_RISK = "low_risk"
+    ROLLOUT_PLAYBOOK_HIGH_RISK = "high_risk"
+    ROLLOUT_PLAYBOOK_MARKETING = "marketing"
+    ROLLOUT_PLAYBOOK_CUSTOM = "custom"
+    ROLLOUT_PLAYBOOK_CHOICES = (
+        (ROLLOUT_PLAYBOOK_LOW_RISK, "Low Risk Schedule"),
+        (ROLLOUT_PLAYBOOK_HIGH_RISK, "High Risk Schedule"),
+        (ROLLOUT_PLAYBOOK_MARKETING, "Marketing Launch Schedule"),
+        (ROLLOUT_PLAYBOOK_CUSTOM, "Custom"),
+    )
 
     # date range stuff
     EXPERIMENT_STARTS = "starting"
