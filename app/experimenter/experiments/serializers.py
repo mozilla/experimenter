@@ -690,7 +690,13 @@ class ExperimentDesignAddonSerializer(ExperimentDesignBaseSerializer):
 
     class Meta:
         model = Experiment
-        fields = ("type", "addon_release_url", "addon_experiment_id", "variants", "is_branched_addon")
+        fields = (
+            "type",
+            "addon_release_url",
+            "addon_experiment_id",
+            "variants",
+            "is_branched_addon",
+        )
 
     def validate_addon_experiment_id(self, value):
         existing = Experiment.objects.filter(addon_experiment_id=value)

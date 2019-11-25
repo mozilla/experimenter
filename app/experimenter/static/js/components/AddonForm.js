@@ -31,10 +31,10 @@ export default class AddonForm extends React.PureComponent {
             label="Addon Experiment Name"
             name="addon_experiment_id"
             onChange={value => {
-              this.props.handleDataChange("addon_experiment_id", value);
+              props.handleDataChange("addon_experiment_id", value);
             }}
-            value={this.props.data.get("addon_experiment_id")}
-            error={this.props.errors.get("addon_experiment_id", "")}
+            value={props.data.get("addon_experiment_id")}
+            error={props.errors.get("addon_experiment_id", "")}
             helpContent={ADDON_EXPERIMENT_ID_HELP}
           />
 
@@ -42,10 +42,10 @@ export default class AddonForm extends React.PureComponent {
             label="Signed Release URL"
             name="addon_release_url"
             onChange={value => {
-              this.props.handleDataChange("addon_release_url", value);
+              props.handleDataChange("addon_release_url", value);
             }}
-            value={this.props.data.get("addon_release_url")}
-            error={this.props.errors.get("addon_release_url", "")}
+            value={props.data.get("addon_release_url")}
+            error={props.errors.get("addon_release_url", "")}
             helpContent={ADDON_RELEASE_URL_HELP}
           />
           <hr className="heavy-line my-5" />
@@ -64,7 +64,7 @@ export default class AddonForm extends React.PureComponent {
         </Row>
 
         <RadioButton
-          { ...this.props }
+          {...this.props}
           elementLabel="Does this experiment ship a single addon to all branches or multiple addons?"
           radioGroupName="branchedAddonGroup"
           radioLabel1="Single Addon"

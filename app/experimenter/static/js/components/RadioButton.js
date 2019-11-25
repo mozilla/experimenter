@@ -1,12 +1,18 @@
 import React from "react";
 import { Row, Col, Form } from "react-bootstrap";
 import PropTypes from "prop-types";
-import { List, Map } from "immutable";
+import { Map } from "immutable";
 
 export default class RadioButton extends React.PureComponent {
   static propTypes = {
     data: PropTypes.instanceOf(Map),
     handleBranchedAddonRadio: PropTypes.func,
+    elementLabel: PropTypes.string,
+    radioValue1: PropTypes.string,
+    radioValue2: PropTypes.string,
+    radioLabel1: PropTypes.string,
+    radioLabel2: PropTypes.string,
+    radioGroupName: PropTypes.string,
   };
 
   constructor(props) {
