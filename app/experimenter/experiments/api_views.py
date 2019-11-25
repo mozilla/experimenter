@@ -73,9 +73,7 @@ class ExperimentDesignPrefView(RetrieveUpdateAPIView):
 
 class ExperimentDesignAddonView(RetrieveUpdateAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.filter(
-        type=ExperimentConstants.TYPE_ADDON, is_branched_addon=False
-    )
+    queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_ADDON)
     serializer_class = ExperimentDesignAddonSerializer
 
 
@@ -87,7 +85,5 @@ class ExperimentDesignGenericView(RetrieveUpdateAPIView):
 
 class ExperimentDesignBranchedAddonView(RetrieveUpdateAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.filter(
-        type=ExperimentConstants.TYPE_ADDON, is_branched_addon=True
-    )
+    queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_ADDON)
     serializer_class = ExperimentDesignBranchedAddonSerializer

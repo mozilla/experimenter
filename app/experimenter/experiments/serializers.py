@@ -728,31 +728,10 @@ class ExperimentBranchedAddonBranchSerializer(ExperimentDesignBranchBaseSerializ
         fields = ["addon_release_url", "id", "description", "is_control", "name", "ratio"]
 
 
-class ExperimentDesignBranchedAddonSerializer(serializers.ModelSerializer):
+class ExperimentDesignBranchedAddonSerializer(ExperimentDesignBaseSerializer):
     variants = ExperimentBranchedAddonBranchSerializer(many=True)
     is_branched_addon = serializers.BooleanField()
 
     class Meta:
         model = Experiment
         fields = ("type", "is_branched_addon", "variants")
-
-    def update(self, instance, validated_data):
-        variants_data = validated_data.pop("variants")
-        instance = super().update(instance, validated_data)
-
-        existing_variant_ids = set(instance.variants.all().values_list("id", flat=True))
-
-        # Create or update variants
-        for variant_data in variants_data:
-            variant_data["experiment"] = instance
-            variant_data["slug"] = slugify(variant_data["name"])
-            ExperimentVariant(**variant_data).save()
-
-        # Delete removed variants
-        submitted_variant_ids = set([v.get("id") for v in variants_data if v.get("id")])
-        removed_ids = existing_variant_ids - submitted_variant_ids
-
-        if removed_ids:
-            ExperimentVariant.objects.filter(id__in=removed_ids).delete()
-
-        return instance
