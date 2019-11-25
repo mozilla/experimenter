@@ -11,6 +11,8 @@ import {
   ADDON_EXPERIMENT_ID_HELP,
   ADDON_RELEASE_URL_HELP,
 } from "experimenter/components/constants";
+import BranchedAddonFields from "experimenter/components/BranchedAddonFields";
+import RadioButton from "experimenter/components/RadioButton";
 
 export default class AddonForm extends React.PureComponent {
   static propTypes = {
@@ -61,36 +63,16 @@ export default class AddonForm extends React.PureComponent {
           </Col>
         </Row>
 
-        <Row>
-          <Col md={{ span: 9, offset: 3 }}>
-            <Form.Group className="mb-3">
-              <Form.Label>
-                <strong>
-                  Does this experiment ship a single addon to all branches or
-                  multiple addons?
-                </strong>
-              </Form.Label>
-              <Form.Check
-                name="branchedAddonGroup"
-                inline
-                value="false"
-                defaultChecked={!this.props.data.get("is_branched_addon")}
-                label="Single Addon"
-                type="radio"
-                onChange={this.props.handleBranchedAddonRadio}
-              />
-              <Form.Check
-                name="branchedAddonGroup"
-                inline
-                label="Multiple Addons"
-                value="true"
-                defaultChecked={this.props.data.get("is_branched_addon")}
-                type="radio"
-                onChange={this.props.handleBranchedAddonRadio}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+        <RadioButton
+          { ...this.props }
+          elementLabel="Does this experiment ship a single addon to all branches or multiple addons?"
+          radioGroupName="branchedAddonGroup"
+          radioLabel1="Single Addon"
+          radioLabel2="Multiple Addons"
+          radioValue1="false"
+          radioValue2="true"
+        />
+
         <hr className="heavy-line my-5" />
 
         {this.renderSingleAddonFields()}
