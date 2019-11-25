@@ -96,8 +96,8 @@ pytest-testmon==0.9.19 \
     --hash=sha256:f622fd9d0f5a0df253f0e6773713c3df61306b64abdfb202d39a85dcba1d1f59
 pytest-watch==4.2.0 \
     --hash=sha256:06136f03d5b361718b8d0d234042f7b2f203910d8568f63df2f866b547b3d4b9
-python-decouple==3.1 \
-    --hash=sha256:1317df14b43efee4337a4aa02914bf004f010cd56d6c4bd894e6474ec8c4fe2d
+python-decouple==3.3 \
+    --hash=sha256:55c546b85b0c47a15a47a4312d451a437f7344a9be3e001660bccd93b637de95
 raven==6.10.0 \
     --hash=sha256:44a13f87670836e153951af9a3c80405d36b43097db869a36e92809673692ce4 \
     --hash=sha256:3fa6de6efa2493a7c827472e984ce9b020797d0da16f1db67197bcc23c8fae54
@@ -110,9 +110,9 @@ requests[security]==2.22.0 \
 whitenoise==4.1.4 \
     --hash=sha256:6dfea214b7c12efd689007abf9afa87a426586e9dbc051873ad2c8e535e2a1ac \
     --hash=sha256:22f79cf8f1f509639330f93886acaece8ec5ac5e9600c3b981d33c34e8a42dfd
-parameterized==0.7.0 \
-    --hash=sha256:020343a281efcfe9b71b9028a91817f981202c14d72104b5a2fbe401dee25a18 \
-    --hash=sha256:d8c8837fb677ed2d5a93b9e2308ce0da3aeb58cf513120d501e0b7af14da78d5
+parameterized==0.7.1 \
+    --hash=sha256:ea0326ba5bbbe7c427329a27b75003410df07d1173ca254976f8f5a64922c322 \
+    --hash=sha256:6a94dbea30c6abde99fd4c2f2042c1bf7f980e48908bf92ead62394f93cf57ed
 pytest-cov==2.8.1 \
     --hash=sha256:cdbdef4f870408ebdbfeb44e63e07eb18bb4619fae852f6e760645fa36172626 \
     --hash=sha256:cc6742d8bac45070217169f5f72ceee1e0e55b0221f54bcf24845972d3a47f2b
