@@ -517,7 +517,7 @@ class VariantsListSerializer(serializers.ListSerializer):
         return [control_branch] + treatment_branches
 
 
-class ExperimentDesignBranchBaseSerializer(serializers.ModelSerializer):
+class ExperimentDesignVariantBaseSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     description = serializers.CharField()
     is_control = serializers.BooleanField()
@@ -536,10 +536,10 @@ class ExperimentDesignBranchBaseSerializer(serializers.ModelSerializer):
         model = ExperimentVariant
 
 
-class ExperimentDesignBranchPrefSerializer(ExperimentDesignBranchBaseSerializer):
+class ExperimentDesignVariantPrefSerializer(ExperimentDesignVariantBaseSerializer):
     value = serializers.CharField()
 
-    class Meta(ExperimentDesignBranchBaseSerializer.Meta):
+    class Meta(ExperimentDesignVariantBaseSerializer.Meta):
         fields = ["id", "description", "is_control", "name", "ratio", "value"]
         model = ExperimentVariant
 
@@ -548,7 +548,7 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
     type = serializers.CharField(
         required=False, allow_null=True, allow_blank=True, max_length=255
     )
-    variants = ExperimentDesignBranchBaseSerializer(many=True)
+    variants = ExperimentDesignVariantBaseSerializer(many=True)
 
     class Meta:
         model = Experiment
@@ -620,7 +620,7 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
     pref_key = serializers.CharField(max_length=255)
     pref_type = serializers.CharField(max_length=255)
     pref_branch = serializers.CharField(max_length=255)
-    variants = ExperimentDesignBranchPrefSerializer(many=True)
+    variants = ExperimentDesignVariantPrefSerializer(many=True)
 
     class Meta:
         model = Experiment
@@ -684,32 +684,12 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
 
 
 class ExperimentDesignAddonSerializer(ExperimentDesignBaseSerializer):
-    addon_experiment_id = serializers.CharField(max_length=255)
     addon_release_url = serializers.URLField(max_length=400)
     is_branched_addon = serializers.BooleanField()
 
     class Meta:
         model = Experiment
-        fields = (
-            "type",
-            "addon_release_url",
-            "addon_experiment_id",
-            "variants",
-            "is_branched_addon",
-        )
-
-    def validate_addon_experiment_id(self, value):
-        existing = Experiment.objects.filter(addon_experiment_id=value)
-
-        if self.instance:
-            existing = existing.exclude(id=self.instance.id)
-
-        if existing.exists():
-            raise serializers.ValidationError(
-                ["An experiment with this Addon Experiment Name already exists."]
-            )
-
-        return value
+        fields = ("type", "addon_release_url", "variants", "is_branched_addon")
 
 
 class ExperimentDesignGenericSerializer(ExperimentDesignBaseSerializer):
@@ -720,16 +700,16 @@ class ExperimentDesignGenericSerializer(ExperimentDesignBaseSerializer):
         fields = ("type", "design", "variants")
 
 
-class ExperimentBranchedAddonBranchSerializer(ExperimentDesignBranchBaseSerializer):
+class ExperimentBranchedAddonVariantSerializer(ExperimentDesignVariantBaseSerializer):
     addon_release_url = serializers.URLField(max_length=400)
 
-    class Meta:
+    class Meta(ExperimentDesignVariantBaseSerializer.Meta):
         model = ExperimentVariant
         fields = ["addon_release_url", "id", "description", "is_control", "name", "ratio"]
 
 
 class ExperimentDesignBranchedAddonSerializer(ExperimentDesignBaseSerializer):
-    variants = ExperimentBranchedAddonBranchSerializer(many=True)
+    variants = ExperimentBranchedAddonVariantSerializer(many=True)
     is_branched_addon = serializers.BooleanField()
 
     class Meta:

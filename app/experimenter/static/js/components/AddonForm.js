@@ -28,17 +28,6 @@ export default class AddonForm extends React.PureComponent {
       return (
         <React.Fragment>
           <DesignInput
-            label="Addon Experiment Name"
-            name="addon_experiment_id"
-            onChange={value => {
-              props.handleDataChange("addon_experiment_id", value);
-            }}
-            value={props.data.get("addon_experiment_id")}
-            error={props.errors.get("addon_experiment_id", "")}
-            helpContent={ADDON_EXPERIMENT_ID_HELP}
-          />
-
-          <DesignInput
             label="Signed Release URL"
             name="addon_release_url"
             onChange={value => {

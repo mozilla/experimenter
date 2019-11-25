@@ -30,14 +30,14 @@ from experimenter.experiments.serializers import (
     LocaleSerializer,
     ExperimentChangeLogSerializer,
     ExperimentCloneSerializer,
-    ExperimentRecipeAddonVariantSerializer,
     ExperimentDesignAddonSerializer,
-    ExperimentDesignPrefSerializer,
-    ExperimentDesignGenericSerializer,
     ExperimentDesignBaseSerializer,
-    ExperimentRecipeMultiPrefVariantSerializer,
-    ExperimentDesignBranchBaseSerializer,
     ExperimentDesignBranchedAddonSerializer,
+    ExperimentDesignGenericSerializer,
+    ExperimentDesignPrefSerializer,
+    ExperimentDesignVariantBaseSerializer,
+    ExperimentRecipeAddonVariantSerializer,
+    ExperimentRecipeMultiPrefVariantSerializer,
 )
 
 from experimenter.experiments.constants import ExperimentConstants
@@ -653,7 +653,7 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertNotIn("country", filter_object_types)
 
 
-class TestExperimentDesignBranchBaseSerializer(TestCase):
+class TestExperimentDesignVariantBaseSerializer(TestCase):
 
     def test_serializer_rejects_too_long_names(self):
         data = {
@@ -662,7 +662,7 @@ class TestExperimentDesignBranchBaseSerializer(TestCase):
             "description": "Very terrific branch.",
             "is_control": True,
         }
-        serializer = ExperimentDesignBranchBaseSerializer(data=data)
+        serializer = ExperimentDesignVariantBaseSerializer(data=data)
         self.assertFalse(serializer.is_valid())
         self.assertIn("name", serializer.errors)
 
@@ -671,7 +671,7 @@ class TestExperimentDesignBranchBaseSerializer(TestCase):
         sorted_treatment_ids = sorted(
             [ExperimentVariantFactory.create(is_control=False).id for i in range(3)]
         )
-        serializer = ExperimentDesignBranchBaseSerializer(
+        serializer = ExperimentDesignVariantBaseSerializer(
             ExperimentVariant.objects.all().order_by("-id"), many=True
         )
         self.assertTrue(serializer.data[0]["is_control"])
@@ -1209,7 +1209,6 @@ class TestExperimentDesignAddonSerializer(TestCase):
             serializer.data,
             {
                 "type": ExperimentConstants.TYPE_ADDON,
-                "addon_experiment_id": experiment.addon_experiment_id,
                 "addon_release_url": experiment.addon_release_url,
                 "is_branched_addon": False,
                 "variants": [
@@ -1219,31 +1218,15 @@ class TestExperimentDesignAddonSerializer(TestCase):
             },
         )
 
-    def test_serializer_checks_for_duplicate_addon_names(self):
-        addon_experiment_id = "experiment@shield.org"
-        ExperimentFactory.create(addon_experiment_id=addon_experiment_id)
-
-        data = {
-            "type": ExperimentConstants.TYPE_ADDON,
-            "addon_release_url": "http://www.example.com",
-            "addon_experiment_id": addon_experiment_id,
-            "variants": [self.control_variant_data, self.treatment_variant_data],
-        }
-
-        serializer = ExperimentDesignAddonSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-
     def test_serializer_saves_design_addon_experiment(self):
         experiment = ExperimentFactory.create(
             type=ExperimentConstants.TYPE_ADDON,
             addon_release_url="http://www.example.com",
-            addon_experiment_id="experiment id 1",
         )
 
         data = {
             "type": ExperimentConstants.TYPE_ADDON,
             "addon_release_url": "http://www.example.com",
-            "addon_experiment_id": "experiment id new",
             "is_branched_addon": False,
             "variants": [self.control_variant_data, self.treatment_variant_data],
         }
@@ -1253,28 +1236,10 @@ class TestExperimentDesignAddonSerializer(TestCase):
 
         experiment = serializer.save()
 
-        self.assertEqual(experiment.addon_experiment_id, "experiment id new")
-
-    def test_serializer_saves_unmodified_addon_experiment_id(self):
-        addon_experiment_id = "experiment@shield.org"
-        experiment = ExperimentFactory.create(addon_experiment_id=addon_experiment_id)
-
-        data = {
-            "type": ExperimentConstants.TYPE_ADDON,
-            "addon_release_url": "http://www.example.com",
-            "addon_experiment_id": addon_experiment_id,
-            "is_branched_addon": False,
-            "variants": [self.control_variant_data, self.treatment_variant_data],
-        }
-
-        serializer = ExperimentDesignAddonSerializer(instance=experiment, data=data)
-        self.assertTrue(serializer.is_valid())
-
     def test_serializer_rejects_too_long_urls(self):
         data = {
             "type": ExperimentConstants.TYPE_ADDON,
             "addon_release_url": "http://www.example.com" * 100,
-            "addon_experiment_id": "experiment id new",
             "is_branched_addon": False,
             "variants": [self.control_variant_data, self.treatment_variant_data],
         }
@@ -1282,19 +1247,6 @@ class TestExperimentDesignAddonSerializer(TestCase):
         serializer = ExperimentDesignAddonSerializer(data=data)
         self.assertFalse(serializer.is_valid())
         self.assertIn("addon_release_url", serializer.errors)
-
-    def test_serializer_rejects_too_long_experiment_ids(self):
-        data = {
-            "type": ExperimentConstants.TYPE_ADDON,
-            "addon_release_url": "http://www.example.com",
-            "addon_experiment_id": "experiment id" * 100,
-            "is_branched_addon": False,
-            "variants": [self.control_variant_data, self.treatment_variant_data],
-        }
-
-        serializer = ExperimentDesignAddonSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn("addon_experiment_id", serializer.errors)
 
     def test_serializer_outputs_dummy_variants_when_no_variants(self):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_ADDON)
@@ -1306,7 +1258,6 @@ class TestExperimentDesignAddonSerializer(TestCase):
             {
                 "type": ExperimentConstants.TYPE_ADDON,
                 "addon_release_url": experiment.addon_release_url,
-                "addon_experiment_id": experiment.addon_experiment_id,
                 "is_branched_addon": False,
                 "variants": [
                     {"description": None, "is_control": True, "name": None, "ratio": 50},
