@@ -802,7 +802,7 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.completed_addon)
 
-    def test_branched_addon_is_not_complete_when_release_url_not_set(self):
+    def test_completed_addon_is_not_complete_when_release_url_not_set_for_branched(self):
         experiment = ExperimentFactory.create_with_variants(
             type=Experiment.TYPE_ADDON, is_branched_addon=True
         )
@@ -810,16 +810,18 @@ class TestExperimentModel(TestCase):
         variant.addon_release_url = None
         variant.save()
 
-        self.assertFalse(experiment.completed_branched_addon)
+        self.assertFalse(experiment.completed_addon)
 
-    def test_branched_addon_complete_when_release_url_for_each_branch_set(self):
+    def test_completed_addon_complete_when_release_url_for_each_branch_set_for_branched(
+        self
+    ):
         experiment = ExperimentFactory.create_with_variants(
             type=Experiment.TYPE_ADDON, is_branched_addon=True
         )
         for variant in experiment.variants.all():
             self.assertTrue(variant.addon_release_url)
 
-        self.assertTrue(experiment.completed_branched_addon)
+        self.assertTrue(experiment.completed_addon)
 
     def test_variants_is_not_complete_when_no_variants_saved(self):
         experiment = ExperimentFactory.create()

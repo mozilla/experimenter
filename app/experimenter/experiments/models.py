@@ -507,18 +507,14 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_addon(self):
-        return self.addon_experiment_id and self.addon_release_url
+        if self.is_branched_addon:
+            return all([v.addon_release_url for v in self.variants.all()])
+        else:
+            return self.addon_experiment_id and self.addon_release_url
 
     @property
     def completed_variants(self):
         return self.variants.exists()
-
-    @property
-    def completed_branched_addon(self):
-        for variant in self.variants.all():
-            if not variant.addon_release_url:
-                return False
-        return True
 
     @property
     def completed_objectives(self):
@@ -623,10 +619,7 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
         if self.is_addon_experiment:
-            if self.is_branched_addon:
-                completed = completed and self.completed_branched_addon
-            else:
-                completed = completed and self.completed_addon
+            completed = completed and self.completed_addon
 
         if self.is_generic_experiment:
             completed = completed and self.completed_design
