@@ -1211,6 +1211,7 @@ class TestExperimentDesignAddonSerializer(TestCase):
                 "type": ExperimentConstants.TYPE_ADDON,
                 "addon_experiment_id": experiment.addon_experiment_id,
                 "addon_release_url": experiment.addon_release_url,
+                "is_branched_addon": False,
                 "variants": [
                     ExperimentVariantSerializer(variant).data
                     for variant in experiment.variants.all()
@@ -1243,6 +1244,7 @@ class TestExperimentDesignAddonSerializer(TestCase):
             "type": ExperimentConstants.TYPE_ADDON,
             "addon_release_url": "http://www.example.com",
             "addon_experiment_id": "experiment id new",
+            "is_branched_addon": False,
             "variants": [self.control_variant_data, self.treatment_variant_data],
         }
 
@@ -1261,6 +1263,7 @@ class TestExperimentDesignAddonSerializer(TestCase):
             "type": ExperimentConstants.TYPE_ADDON,
             "addon_release_url": "http://www.example.com",
             "addon_experiment_id": addon_experiment_id,
+            "is_branched_addon": False,
             "variants": [self.control_variant_data, self.treatment_variant_data],
         }
 
@@ -1272,6 +1275,7 @@ class TestExperimentDesignAddonSerializer(TestCase):
             "type": ExperimentConstants.TYPE_ADDON,
             "addon_release_url": "http://www.example.com" * 100,
             "addon_experiment_id": "experiment id new",
+            "is_branched_addon": False,
             "variants": [self.control_variant_data, self.treatment_variant_data],
         }
 
@@ -1284,6 +1288,7 @@ class TestExperimentDesignAddonSerializer(TestCase):
             "type": ExperimentConstants.TYPE_ADDON,
             "addon_release_url": "http://www.example.com",
             "addon_experiment_id": "experiment id" * 100,
+            "is_branched_addon": False,
             "variants": [self.control_variant_data, self.treatment_variant_data],
         }
 
@@ -1302,6 +1307,7 @@ class TestExperimentDesignAddonSerializer(TestCase):
                 "type": ExperimentConstants.TYPE_ADDON,
                 "addon_release_url": experiment.addon_release_url,
                 "addon_experiment_id": experiment.addon_experiment_id,
+                "is_branched_addon": False,
                 "variants": [
                     {"description": None, "is_control": True, "name": None, "ratio": 50},
                     {"description": None, "is_control": False, "name": None, "ratio": 50},
