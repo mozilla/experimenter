@@ -1,10 +1,11 @@
-import { List, Map } from "immutable";
 import PropTypes from "prop-types";
 import React from "react";
+import { List, Map } from "immutable";
 
 import BranchManager from "experimenter/components/BranchManager";
 import DesignInput from "experimenter/components/DesignInput";
 import GenericBranchFields from "experimenter/components/GenericBranchFields";
+import { DESIGN_HELP } from "experimenter/components/constants";
 
 export default class GenericForm extends React.PureComponent {
   static propTypes = {
@@ -27,11 +28,7 @@ export default class GenericForm extends React.PureComponent {
           error={this.props.errors.get("design", "")}
           as="textarea"
           rows="10"
-          helpContent={
-            <div>
-              <p>Specify the design of the experiment.</p>
-            </div>
-          }
+          helpContent={DESIGN_HELP}
         />
 
         <hr className="heavy-line my-5" />

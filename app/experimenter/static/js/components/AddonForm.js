@@ -1,11 +1,15 @@
-import { List, Map } from "immutable";
 import PropTypes from "prop-types";
 import React from "react";
+import { List, Map } from "immutable";
 import { Row, Col } from "react-bootstrap";
 
 import BranchManager from "experimenter/components/BranchManager";
 import DesignInput from "experimenter/components/DesignInput";
 import GenericBranchFields from "experimenter/components/GenericBranchFields";
+import {
+  ADDON_EXPERIMENT_ID_HELP,
+  ADDON_RELEASE_URL_HELP,
+} from "experimenter/components/constants";
 
 export default class AddonForm extends React.PureComponent {
   static propTypes = {
@@ -32,22 +36,7 @@ export default class AddonForm extends React.PureComponent {
           }}
           value={this.props.data.get("addon_experiment_id")}
           error={this.props.errors.get("addon_experiment_id", "")}
-          helpContent={
-            <div>
-              <p>
-                Enter the <code>activeExperimentName</code> as it appears in the
-                add-on. It may appear in <code>manifest.json</code> as
-                <code> applications.gecko.id </code>
-                <a
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Add-ons"
-                >
-                  See here for more info.
-                </a>
-              </p>
-            </div>
-          }
+          helpContent={ADDON_EXPERIMENT_ID_HELP}
         />
 
         <DesignInput
@@ -58,23 +47,7 @@ export default class AddonForm extends React.PureComponent {
           }}
           value={this.props.data.get("addon_release_url")}
           error={this.props.errors.get("addon_release_url", "")}
-          helpContent={
-            <div>
-              <p>
-                Enter the URL where the release build of your add-on can be
-                found. This is often attached to a bugzilla ticket. This MUST BE
-                the release signed add-on (not the test add-on) that you want
-                deployed.&nbsp;
-                <a
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Add-ons"
-                >
-                  See here for more info.
-                </a>
-              </p>
-            </div>
-          }
+          helpContent={ADDON_RELEASE_URL_HELP}
         />
 
         <hr className="heavy-line my-5" />
