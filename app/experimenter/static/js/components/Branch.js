@@ -17,7 +17,7 @@ class Branch extends React.PureComponent {
     remove: PropTypes.func,
   };
 
-  handleChange(key, value) {
+  handleBranchFieldChange(key, value) {
     const { onChange, branch } = this.props;
     onChange(branch.set(key, value));
   }
@@ -38,7 +38,7 @@ class Branch extends React.PureComponent {
         id={`variants-${this.props.index}-${name}`}
         value={value}
         onChange={value => {
-          this.handleChange(name, value);
+          this.handleBranchFieldChange(name, value);
         }}
         error={error}
         helpContent={help}
@@ -79,7 +79,7 @@ class Branch extends React.PureComponent {
         <BranchFields
           branch={this.props.branch}
           errors={this.props.errors}
-          handleChange={this.handleChange}
+          onChange={this.handleBranchFieldChange}
           index={this.props.index}
           renderField={this.renderField}
         />
