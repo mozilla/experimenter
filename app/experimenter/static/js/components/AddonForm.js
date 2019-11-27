@@ -50,8 +50,11 @@ export default class AddonForm extends React.PureComponent {
               radioLabel2="Multiple add-ons"
               radioValue1="false"
               radioValue2="true"
-              onChange={value =>
-                this.props.handleDataChange("is_branched_addon", value)
+              onChange={event =>
+                this.props.handleDataChange(
+                  "is_branched_addon",
+                  event.target.value === "true",
+                )
               }
               value={this.props.data.get("is_branched_addon")}
             />

@@ -1,8 +1,8 @@
-import { boundClass } from "autobind-decorator";
-import { fromJS, Map } from "immutable";
 import PropTypes from "prop-types";
 import React from "react";
 import { Button, Container, Row, Col } from "react-bootstrap";
+import { boundClass } from "autobind-decorator";
+import { fromJS, Map } from "immutable";
 
 import AddonForm from "experimenter/components/AddonForm";
 import GenericForm from "experimenter/components/GenericForm";
@@ -13,9 +13,10 @@ import { makeApiRequest } from "experimenter/utils/api";
 @boundClass
 class DesignForm extends React.PureComponent {
   static propTypes = {
+    experimentType: PropTypes.string,
+    isBranchedAddon: PropTypes.bool,
     isBranchedAddon: PropTypes.bool,
     isMultiPref: PropTypes.bool,
-    experimentType: PropTypes.string,
     slug: PropTypes.string,
   };
 
@@ -154,6 +155,7 @@ class DesignForm extends React.PureComponent {
         break;
       default:
         Form = GenericForm;
+        break;
     }
 
     return (

@@ -52,6 +52,26 @@ export const PREF_BRANCH_HELP = (
   </div>
 );
 
+export const PREF_VALUE_HELP = (
+  <div>
+    <p className="mt-2">
+      Choose the value of the pref for the control group. This value must be
+      valid JSON in order to be sent to Shield. This should be the right type
+      (boolean, string, number), and should be the value that represents the
+      control or default state to compare to.
+    </p>
+    <p>
+      <strong>Boolean Example:</strong> false
+    </p>
+    <p>
+      <strong>String Example:</strong> some text
+    </p>
+    <p>
+      <strong>Integer Example:</strong> 13
+    </p>
+  </div>
+);
+
 export const ADDON_EXPERIMENT_ID_HELP = (
   <div>
     <p>
@@ -126,26 +146,6 @@ export const BRANCH_DESCRIPTION_HELP = (
     <p>
       <strong>Example:</strong> The control group will receive the existing 80px
       sign in button located at the top right of the screen.
-    </p>
-  </div>
-);
-
-export const PREF_VALUE_HELP = (
-  <div>
-    <p className="mt-2">
-      Choose the value of the pref for the control group. This value must be
-      valid JSON in order to be sent to Shield. This should be the right type
-      (boolean, string, number), and should be the value that represents the
-      control or default state to compare to.
-    </p>
-    <p>
-      <strong>Boolean Example:</strong> false
-    </p>
-    <p>
-      <strong>String Example:</strong> some text
-    </p>
-    <p>
-      <strong>Integer Example:</strong> 13
     </p>
   </div>
 );

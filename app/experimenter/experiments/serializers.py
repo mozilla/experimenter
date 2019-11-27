@@ -857,7 +857,14 @@ class ExperimentDesignRolloutSerializer(ExperimentDesignBaseSerializer):
         choices=Experiment.ROLLOUT_PLAYBOOK_CHOICES
     )
     rollout_type = serializers.ChoiceField(choices=Experiment.ROLLOUT_TYPE_CHOICES)
-    addon_release_url = serializers.URLField(max_length=400)
+    addon_release_url = serializers.URLField(
+        max_length=400, allow_null=True, required=False
+    )
+
+    ROLLOUT_TYPE_FIELDS = {
+        Experiment.TYPE_PREF: ("pref_key", "pref_type", "pref_value"),
+        Experiment.TYPE_ADDON: ("addon_release_url",),
+    }
 
     class Meta:
         model = Experiment
@@ -870,3 +877,18 @@ class ExperimentDesignRolloutSerializer(ExperimentDesignBaseSerializer):
             "pref_type",
             "pref_value",
         )
+
+    def validate(self, data):
+        data = super().validate(data)
+        rollout_type = data["rollout_type"]
+
+        errors = {}
+
+        for type_field in self.ROLLOUT_TYPE_FIELDS[rollout_type]:
+            if type_field not in data or not data[type_field]:
+                errors[type_field] = ["This field is required."]
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+        return data

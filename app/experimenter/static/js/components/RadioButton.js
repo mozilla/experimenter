@@ -14,10 +14,6 @@ export default class RadioButton extends React.PureComponent {
     value: PropTypes.bool,
   };
 
-  handleRadioChange(event) {
-    this.props.onChange(event.target.value === "true");
-  }
-
   render() {
     return (
       <Form.Group>
@@ -29,22 +25,22 @@ export default class RadioButton extends React.PureComponent {
 
         <Form.Check
           className="mb-2"
-          defaultChecked={!this.props.value}
+          defaultChecked={this.props.value === this.props.radioValue1}
           id={`${this.props.fieldName}-${this.props.radioValue1}`}
           label={`${this.props.radioLabel1}`}
           name={this.props.fieldName}
-          onChange={e => this.handleRadioChange(e)}
+          onChange={this.props.onChange}
           type="radio"
           value={this.props.radioValue1}
         />
 
         <Form.Check
           className="mb-2"
-          defaultChecked={this.props.value}
+          defaultChecked={this.props.value === this.props.radioValue2}
           id={`${this.props.fieldName}-${this.props.radioValue2}`}
           label={`${this.props.radioLabel2}`}
           name={this.props.fieldName}
-          onChange={e => this.handleRadioChange(e)}
+          onChange={this.props.onChange}
           type="radio"
           value={this.props.radioValue2}
         />

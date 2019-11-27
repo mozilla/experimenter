@@ -1,11 +1,21 @@
-import { Map } from "immutable";
 import PropTypes from "prop-types";
 import React from "react";
-import { Row, Col, Form } from "react-bootstrap";
+import { Map } from "immutable";
+import { Row, Col } from "react-bootstrap";
 
 import DesignInput from "experimenter/components/DesignInput";
+import RadioButton from "experimenter/components/RadioButton";
+import {
+  ADDON_RELEASE_URL_HELP,
+  PREF_KEY_HELP,
+  PREF_TYPE_HELP,
+  PREF_VALUE_HELP,
+} from "experimenter/components/constants";
 
-export default class AddonForm extends React.PureComponent {
+const TYPE_PREF = "pref";
+const TYPE_ADDON = "addon";
+
+export default class RolloutForm extends React.PureComponent {
   static propTypes = {
     data: PropTypes.instanceOf(Map),
     errors: PropTypes.instanceOf(Map),
@@ -13,40 +23,103 @@ export default class AddonForm extends React.PureComponent {
     handleErrorsChange: PropTypes.func,
   };
 
+  renderAddonFields() {
+    if (this.props.data.get("rollout_type") === TYPE_ADDON) {
+      return (
+        <DesignInput
+          label="Signed Add-On URL"
+          name="addon_release_url"
+          onChange={value => {
+            this.props.handleDataChange("addon_release_url", value);
+          }}
+          value={this.props.data.get("addon_release_url")}
+          error={this.props.errors.get("addon_release_url", "")}
+          helpContent={ADDON_RELEASE_URL_HELP}
+        />
+      );
+    }
+  }
+
+  renderPrefFields() {
+    if (this.props.data.get("rollout_type") === TYPE_PREF) {
+      return (
+        <React.Fragment>
+          <DesignInput
+            label="Pref Name"
+            name="pref_key"
+            id="id_pref_key"
+            onChange={value => {
+              this.props.handleDataChange("pref_key", value);
+            }}
+            value={this.props.data.get("pref_key")}
+            error={this.props.errors.get("pref_key", "")}
+            helpContent={PREF_KEY_HELP}
+          />
+
+          <DesignInput
+            label="Pref Type"
+            name="pref_type"
+            id="id_pref_type"
+            onChange={value => {
+              this.props.handleDataChange("pref_type", value);
+            }}
+            value={this.props.data.get("pref_type")}
+            error={this.props.errors.get("pref_type", "")}
+            as="select"
+            helpContent={PREF_TYPE_HELP}
+          >
+            <option>Firefox Pref Type</option>
+            <option>boolean</option>
+            <option>integer</option>
+            <option>string</option>
+            <option>json string</option>
+          </DesignInput>
+
+          <DesignInput
+            label="Pref Value"
+            name="pref_value"
+            id="id_pref_value"
+            onChange={value => {
+              this.props.handleDataChange("pref_value", value);
+            }}
+            value={this.props.data.get("pref_value")}
+            error={this.props.errors.get("pref_value", "")}
+            helpContent={PREF_VALUE_HELP}
+          />
+          <Row className="mb-3">
+            <Col md={{ span: 9, offset: 3 }}>
+              <p>
+                *Note: Pref Rollouts always use the{" "}
+                <strong>Default Pref Branch</strong>
+              </p>
+            </Col>
+          </Row>
+        </React.Fragment>
+      );
+    }
+  }
+
   render() {
     return (
       <div>
-        <Row className="mb-3">
+        <Row>
           <Col md={{ span: 9, offset: 3 }}>
-            <h4>Rollout Type</h4>
-          </Col>
-        </Row>
-        <Row className="mb-3">
-          <Col md={{ span: 9, offset: 3 }}>
-            <Form.Check
-              inline
-              type="radio"
-              name="rollout-type"
-              id="rollout-type-pref"
-              label="Pref Rollout"
-              value="pref"
-              onChange={e => {
-                this.props.handleDataChange("rollout_type", e.target.value);
-              }}
-            />
-            <Form.Check
-              inline
-              type="radio"
-              name="rollout-type"
-              id="rollout-type-addon"
-              label="Addon Rollout"
-              value="addon"
-              onChange={e => {
-                this.props.handleDataChange("rollout_type", e.target.value);
-              }}
+            <RadioButton
+              elementLabel="Rollout Type:"
+              fieldName="rollout_type"
+              radioLabel1="Pref Rollout"
+              radioLabel2="Add-On Rollout"
+              radioValue1={TYPE_PREF}
+              radioValue2={TYPE_ADDON}
+              onChange={event =>
+                this.props.handleDataChange("rollout_type", event.target.value)
+              }
+              value={this.props.data.get("rollout_type")}
             />
           </Col>
         </Row>
+
+        <hr className="heavy-line my-5" />
 
         <DesignInput
           label="Playbook"
@@ -94,119 +167,9 @@ export default class AddonForm extends React.PureComponent {
           }
         />
 
-        {this.props.data.get("rollout_type") === "pref" && (
-          <div>
-            <DesignInput
-              label="Pref Name"
-              name="pref_key"
-              id="id_pref_key"
-              onChange={value => {
-                this.props.handleDataChange("pref_key", value);
-              }}
-              value={this.props.data.get("pref_key")}
-              error={this.props.errors.get("pref_key", "")}
-              helpContent={
-                <div>
-                  <p>
-                    Enter the full name of the Firefox pref key that this
-                    experiment will control. A pref experiment can control
-                    exactly one pref, and each branch will receive a different
-                    value for that pref. You can find all Firefox prefs in
-                    about:config and any pref that appears there can be the
-                    target of an experiment.
-                  </p>
-                  <p>
-                    <strong>Example: </strong>
-                    browser.example.component.enable_large_sign_in_button
-                  </p>
-                </div>
-              }
-            />
+        {this.renderAddonFields()}
 
-            <DesignInput
-              label="Pref Type"
-              name="pref_type"
-              id="id_pref_type"
-              onChange={value => {
-                this.props.handleDataChange("pref_type", value);
-              }}
-              value={this.props.data.get("pref_type")}
-              error={this.props.errors.get("pref_type", "")}
-              as="select"
-              helpContent={
-                <div>
-                  <p>
-                    Select the type of the pref entered above. The pref type
-                    will be shown in the third column in about:config.
-                  </p>
-                  <p>
-                    <strong>Example:</strong> boolean
-                  </p>
-                </div>
-              }
-            >
-              <option>Firefox Pref Type</option>
-              <option>boolean</option>
-              <option>integer</option>
-              <option>string</option>
-              <option>json string</option>
-            </DesignInput>
-
-            <DesignInput
-              label="Pref Value"
-              name="pref_value"
-              id="id_pref_value"
-              onChange={value => {
-                this.props.handleDataChange("pref_value", value);
-              }}
-              value={this.props.data.get("pref_value")}
-              error={this.props.errors.get("pref_value", "")}
-              helpContent={
-                <div>
-                  <p></p>
-                  <p></p>
-                </div>
-              }
-            />
-            <Row className="mb-3">
-              <Col md={{ span: 9, offset: 3 }}>
-                <p>
-                  *Note: Pref Rollouts always use the{" "}
-                  <strong>Default Pref Branch</strong>
-                </p>
-              </Col>
-            </Row>
-          </div>
-        )}
-
-        {this.props.data.get("rollout_type") === "addon" && (
-          <DesignInput
-            label="Signed Add-On URL"
-            name="addon_release_url"
-            onChange={value => {
-              this.props.handleDataChange("addon_release_url", value);
-            }}
-            value={this.props.data.get("addon_release_url")}
-            error={this.props.errors.get("addon_release_url", "")}
-            helpContent={
-              <div>
-                <p>
-                  Enter the URL where the release build of your add-on can be
-                  found. This is often attached to a bugzilla ticket. This MUST
-                  BE the release signed add-on (not the test add-on) that you
-                  want deployed.&nbsp;
-                  <a
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Add-ons"
-                  >
-                    See here for more info.
-                  </a>
-                </p>
-              </div>
-            }
-          />
-        )}
+        {this.renderPrefFields()}
       </div>
     );
   }

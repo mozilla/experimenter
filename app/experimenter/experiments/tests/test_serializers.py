@@ -41,6 +41,7 @@ from experimenter.experiments.serializers import (
     ExperimentDesignBranchedAddonSerializer,
     ExperimentDesignGenericSerializer,
     ExperimentDesignPrefSerializer,
+    ExperimentDesignRolloutSerializer,
     ExperimentDesignVariantBaseSerializer,
     ExperimentRecipeAddonVariantSerializer,
     ExperimentRecipeMultiPrefVariantSerializer,
@@ -1994,6 +1995,79 @@ class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
 
         self.assertTrue(experiment.is_branched_addon)
         self.assertEqual(experiment.changes.count(), 1)
+
+
+class TestExperimentDesignRolloutSerializer(MockRequestMixin, TestCase):
+
+    def test_pref_fields_required_for_rollout_type_pref(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        data = {
+            "rollout_type": Experiment.TYPE_PREF,
+            "rollout_playbook": Experiment.ROLLOUT_PLAYBOOK_LOW_RISK,
+        }
+
+        serializer = ExperimentDesignRolloutSerializer(instance=experiment, data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("pref_key", serializer.errors)
+        self.assertIn("pref_type", serializer.errors)
+        self.assertIn("pref_value", serializer.errors)
+
+    def test_addon_fields_required_for_rollout_type_addon(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        data = {
+            "rollout_type": Experiment.TYPE_ADDON,
+            "rollout_playbook": Experiment.ROLLOUT_PLAYBOOK_LOW_RISK,
+        }
+
+        serializer = ExperimentDesignRolloutSerializer(instance=experiment, data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("addon_release_url", serializer.errors)
+
+    def test_saves_pref_rollout(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        data = {
+            "rollout_type": Experiment.TYPE_PREF,
+            "rollout_playbook": Experiment.ROLLOUT_PLAYBOOK_LOW_RISK,
+            "pref_key": "browser.pref",
+            "pref_type": Experiment.PREF_TYPE_INT,
+            "pref_value": "1",
+        }
+
+        serializer = ExperimentDesignRolloutSerializer(instance=experiment, data=data)
+
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.rollout_type, data["rollout_type"])
+        self.assertEqual(experiment.rollout_playbook, data["rollout_playbook"])
+        self.assertEqual(experiment.pref_key, data["pref_key"])
+        self.assertEqual(experiment.pref_type, data["pref_type"])
+        self.assertEqual(experiment.pref_value, data["pref_value"])
+
+    def test_saves_addon_rollout(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        data = {
+            "rollout_type": Experiment.TYPE_ADDON,
+            "rollout_playbook": Experiment.ROLLOUT_PLAYBOOK_LOW_RISK,
+            "addon_release_url": "https://www.example.com/addon.xpi",
+        }
+
+        serializer = ExperimentDesignRolloutSerializer(instance=experiment, data=data)
+
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.rollout_type, data["rollout_type"])
+        self.assertEqual(experiment.rollout_playbook, data["rollout_playbook"])
+        self.assertEqual(experiment.addon_release_url, data["addon_release_url"])
 
 
 class TestCloneSerializer(MockRequestMixin, TestCase):

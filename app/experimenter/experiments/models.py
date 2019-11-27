@@ -95,8 +95,7 @@ class Experiment(ExperimentConstants, models.Model):
     rollout_type = models.CharField(
         max_length=255,
         choices=ExperimentConstants.ROLLOUT_TYPE_CHOICES,
-        blank=True,
-        null=True,
+        default=ExperimentConstants.TYPE_PREF,
     )
     rollout_playbook = models.CharField(
         max_length=255,
