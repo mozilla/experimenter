@@ -870,8 +870,3 @@ class ExperimentDesignRolloutSerializer(ExperimentDesignBaseSerializer):
             "pref_type",
             "pref_value",
         )
-
-    def validate(self, data):
-        raise serializers.ValidationError("This experiment name already exists.")
-
-        return data
