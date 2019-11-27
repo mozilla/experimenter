@@ -14,7 +14,6 @@ class GenericBranchFields extends React.PureComponent {
   static propTypes = {
     branch: PropTypes.instanceOf(Map),
     errors: PropTypes.instanceOf(Map),
-    index: PropTypes.number,
     renderField: PropTypes.func,
   };
 

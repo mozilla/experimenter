@@ -1,18 +1,14 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { List, Map } from "immutable";
-import { Row, Col, Form } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 
 import BranchManager from "experimenter/components/BranchManager";
 import BranchedAddonFields from "experimenter/components/BranchedAddonFields";
 import DesignInput from "experimenter/components/DesignInput";
 import GenericBranchFields from "experimenter/components/GenericBranchFields";
-import {
-  ADDON_EXPERIMENT_ID_HELP,
-  ADDON_RELEASE_URL_HELP,
-} from "experimenter/components/constants";
-import BranchedAddonFields from "experimenter/components/BranchedAddonFields";
 import RadioButton from "experimenter/components/RadioButton";
+import { ADDON_RELEASE_URL_HELP } from "experimenter/components/constants";
 
 export default class AddonForm extends React.PureComponent {
   static propTypes = {
@@ -31,10 +27,10 @@ export default class AddonForm extends React.PureComponent {
             label="Signed Release URL"
             name="addon_release_url"
             onChange={value => {
-              props.handleDataChange("addon_release_url", value);
+              this.props.handleDataChange("addon_release_url", value);
             }}
-            value={props.data.get("addon_release_url")}
-            error={props.errors.get("addon_release_url", "")}
+            value={this.props.data.get("addon_release_url")}
+            error={this.props.errors.get("addon_release_url", "")}
             helpContent={ADDON_RELEASE_URL_HELP}
           />
           <hr className="heavy-line my-5" />
