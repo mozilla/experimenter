@@ -100,20 +100,6 @@ class DesignForm extends React.PureComponent {
     );
   }
 
-  handleBranchedAddonRadio(event) {
-    let value = event.target.value;
-
-    if (value == "true") {
-      value = true;
-    } else {
-      value = false;
-    }
-    this.setState(({ data }) => ({
-      data: data.set("is_branched_addon", value),
-      errors: new Map(),
-    }));
-  }
-
   render() {
     if (!this.state.loaded) {
       return (

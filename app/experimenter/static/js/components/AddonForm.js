@@ -16,7 +16,6 @@ export default class AddonForm extends React.PureComponent {
     errors: PropTypes.instanceOf(Map),
     handleDataChange: PropTypes.func,
     handleErrorsChange: PropTypes.func,
-    handleBranchedAddonRadio: PropTypes.func,
   };
 
   renderSingleAddonFields() {
@@ -49,13 +48,16 @@ export default class AddonForm extends React.PureComponent {
         </Row>
 
         <RadioButton
-          {...this.props}
           elementLabel="Does this experiment ship a single addon to all branches or multiple addons?"
           radioGroupName="branchedAddonGroup"
           radioLabel1="Single Addon"
           radioLabel2="Multiple Addons"
           radioValue1="false"
           radioValue2="true"
+          onChange={value =>
+            this.props.handleDataChange("is_branched_addon", value)
+          }
+          value={this.props.data.get("is_branched_addon")}
         />
 
         <hr className="heavy-line my-5" />

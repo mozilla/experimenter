@@ -1,22 +1,25 @@
+import PropTypes from "prop-types";
 import React from "react";
 import { Row, Col, Form } from "react-bootstrap";
-import PropTypes from "prop-types";
-import { Map } from "immutable";
 
 export default class RadioButton extends React.PureComponent {
   static propTypes = {
-    data: PropTypes.instanceOf(Map),
-    handleBranchedAddonRadio: PropTypes.func,
     elementLabel: PropTypes.string,
-    radioValue1: PropTypes.string,
-    radioValue2: PropTypes.string,
+    onChange: PropTypes.func,
+    radioGroupName: PropTypes.string,
     radioLabel1: PropTypes.string,
     radioLabel2: PropTypes.string,
-    radioGroupName: PropTypes.string,
+    radioValue1: PropTypes.string,
+    radioValue2: PropTypes.string,
+    value: PropTypes.bool,
   };
 
   constructor(props) {
     super(props);
+  }
+
+  handleRadioChange(event) {
+    this.props.onChange(event.target.value === "true");
   }
 
   render() {
@@ -33,19 +36,19 @@ export default class RadioButton extends React.PureComponent {
             <Form.Check
               inline
               value={this.props.radioValue1}
-              defaultChecked={!this.props.data.get("is_branched_addon")}
+              defaultChecked={!this.props.value}
               label={this.props.radioLabel1}
               type="radio"
-              onChange={this.props.handleBranchedAddonRadio}
+              onChange={e => this.handleRadioChange(e)}
               name={this.props.radioGroupName}
             />
             <Form.Check
               inline
               label={this.props.radioLabel2}
               value={this.props.radioValue2}
-              defaultChecked={this.props.data.get("is_branched_addon")}
+              defaultChecked={this.props.value}
               type="radio"
-              onChange={this.props.handleBranchedAddonRadio}
+              onChange={e => this.handleRadioChange(e)}
               name={this.props.radioGroupName}
             />
           </Form.Group>

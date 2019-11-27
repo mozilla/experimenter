@@ -510,7 +510,7 @@ class Experiment(ExperimentConstants, models.Model):
         if self.is_branched_addon:
             return all([v.addon_release_url for v in self.variants.all()])
         else:
-            return self.addon_experiment_id and self.addon_release_url
+            return self.addon_release_url
 
     @property
     def completed_variants(self):
