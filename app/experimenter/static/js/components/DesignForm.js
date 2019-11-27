@@ -12,6 +12,7 @@ import { makeApiRequest } from "experimenter/utils/api";
 @boundClass
 class DesignForm extends React.PureComponent {
   static propTypes = {
+    isBranchedAddon: PropTypes.bool,
     experimentType: PropTypes.string,
     slug: PropTypes.string,
   };
@@ -27,19 +28,21 @@ class DesignForm extends React.PureComponent {
     };
   }
 
+  isBranchedAddon() {
+    return (
+      this.state.data.get("is_branched_addon") || this.props.isBranchedAddon
+    );
+  }
+
   getEndpointUrl() {
-    if (this.state.data.get("is_branched_addon")) {
+    if (this.isBranchedAddon()) {
       return `experiments/${this.props.slug}/design-branched-addon/`;
     }
-    return `experiments/${this.props.slug}/design-${this.state.data.get(
-      "type",
-    )}/`;
+    return `experiments/${this.props.slug}/design-${this.props.experimentType}/`;
   }
 
   async componentDidMount() {
-    const data = await makeApiRequest(
-      `experiments/${this.props.slug}/design-${this.props.experimentType}/`,
-    );
+    const data = await makeApiRequest(this.getEndpointUrl());
 
     this.setState({
       loaded: true,
@@ -136,7 +139,6 @@ class DesignForm extends React.PureComponent {
               data={this.state.data}
               errors={this.state.errors}
               loaded={this.state.loaded}
-              handleBranchedAddonRadio={this.handleBranchedAddonRadio}
             />
             <Row>
               <Col className="text-right">
