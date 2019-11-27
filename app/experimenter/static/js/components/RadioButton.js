@@ -1,12 +1,12 @@
 import PropTypes from "prop-types";
 import React from "react";
-import { Row, Col, Form } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 
 export default class RadioButton extends React.PureComponent {
   static propTypes = {
     elementLabel: PropTypes.string,
+    fieldName: PropTypes.string,
     onChange: PropTypes.func,
-    radioGroupName: PropTypes.string,
     radioLabel1: PropTypes.string,
     radioLabel2: PropTypes.string,
     radioValue1: PropTypes.string,
@@ -24,36 +24,35 @@ export default class RadioButton extends React.PureComponent {
 
   render() {
     return (
-      <Row>
-        <Col md={{ span: 9, offset: 3 }}>
-          <Form.Group className="mb-3">
-            <Form.Row>
-              <Form.Label>
-                <strong>{this.props.elementLabel}</strong>
-              </Form.Label>
-            </Form.Row>
+      <Form.Group>
+        <Form.Row>
+          <Form.Label>
+            <h5>{this.props.elementLabel}</h5>
+          </Form.Label>
+        </Form.Row>
 
-            <Form.Check
-              inline
-              value={this.props.radioValue1}
-              defaultChecked={!this.props.value}
-              label={this.props.radioLabel1}
-              type="radio"
-              onChange={e => this.handleRadioChange(e)}
-              name={this.props.radioGroupName}
-            />
-            <Form.Check
-              inline
-              label={this.props.radioLabel2}
-              value={this.props.radioValue2}
-              defaultChecked={this.props.value}
-              type="radio"
-              onChange={e => this.handleRadioChange(e)}
-              name={this.props.radioGroupName}
-            />
-          </Form.Group>
-        </Col>
-      </Row>
+        <Form.Check
+          className="mb-2"
+          defaultChecked={!this.props.value}
+          id={`${this.props.fieldName}-${this.props.radioValue1}`}
+          label={`${this.props.radioLabel1}`}
+          name={this.props.fieldName}
+          onChange={e => this.handleRadioChange(e)}
+          type="radio"
+          value={this.props.radioValue1}
+        />
+
+        <Form.Check
+          className="mb-2"
+          defaultChecked={this.props.value}
+          id={`${this.props.fieldName}-${this.props.radioValue2}`}
+          label={`${this.props.radioLabel2}`}
+          name={this.props.fieldName}
+          onChange={e => this.handleRadioChange(e)}
+          type="radio"
+          value={this.props.radioValue2}
+        />
+      </Form.Group>
     );
   }
 }

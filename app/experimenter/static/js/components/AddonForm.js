@@ -23,7 +23,7 @@ export default class AddonForm extends React.PureComponent {
       return (
         <React.Fragment>
           <DesignInput
-            label="Signed Release URL"
+            label="Signed Add-On URL"
             name="addon_release_url"
             onChange={value => {
               this.props.handleDataChange("addon_release_url", value);
@@ -41,24 +41,22 @@ export default class AddonForm extends React.PureComponent {
   render() {
     return (
       <div>
-        <Row className="mb-3">
-          <Col md={{ span: 4, offset: 3 }}>
-            <h4 className="mb-3">Firefox Add-On</h4>
+        <Row>
+          <Col md={{ span: 9, offset: 3 }}>
+            <RadioButton
+              elementLabel="How many add-ons does this experiment ship?"
+              fieldName="is_branched_addon"
+              radioLabel1="A single add-on for all branches"
+              radioLabel2="Multiple add-ons"
+              radioValue1="false"
+              radioValue2="true"
+              onChange={value =>
+                this.props.handleDataChange("is_branched_addon", value)
+              }
+              value={this.props.data.get("is_branched_addon")}
+            />
           </Col>
         </Row>
-
-        <RadioButton
-          elementLabel="Does this experiment ship a single addon to all branches or multiple addons?"
-          radioGroupName="branchedAddonGroup"
-          radioLabel1="Single Addon"
-          radioLabel2="Multiple Addons"
-          radioValue1="false"
-          radioValue2="true"
-          onChange={value =>
-            this.props.handleDataChange("is_branched_addon", value)
-          }
-          value={this.props.data.get("is_branched_addon")}
-        />
 
         <hr className="heavy-line my-5" />
 

@@ -22,13 +22,6 @@ class BranchedAddonFields extends React.PureComponent {
     return (
       <React.Fragment>
         {this.props.renderField(
-          "addon_release_url",
-          "Signed Release URL",
-          this.props.branch.get("addon_release_url"),
-          this.props.errors.get("addon_release_url"),
-          ADDON_RELEASE_URL_HELP,
-        )}
-        {this.props.renderField(
           "ratio",
           "Branch Size",
           this.props.branch.get("ratio"),
@@ -48,6 +41,13 @@ class BranchedAddonFields extends React.PureComponent {
           this.props.branch.get("description"),
           this.props.errors.get("description"),
           BRANCH_DESCRIPTION_HELP,
+        )}
+        {this.props.renderField(
+          "addon_release_url",
+          "Signed Add-On URL",
+          this.props.branch.get("addon_release_url"),
+          this.props.errors.get("addon_release_url"),
+          ADDON_RELEASE_URL_HELP,
         )}
       </React.Fragment>
     );
