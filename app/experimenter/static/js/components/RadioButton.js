@@ -14,10 +14,6 @@ export default class RadioButton extends React.PureComponent {
     value: PropTypes.bool,
   };
 
-  constructor(props) {
-    super(props);
-  }
-
   handleRadioChange(event) {
     this.props.onChange(event.target.value === "true");
   }
