@@ -38,6 +38,7 @@ from experimenter.experiments.serializers import (
     ExperimentDesignVariantBaseSerializer,
     ExperimentRecipeAddonVariantSerializer,
     ExperimentRecipeMultiPrefVariantSerializer,
+    PrefValidationMixin,
 )
 
 from experimenter.experiments.constants import ExperimentConstants
@@ -70,6 +71,27 @@ class TestPrefTypeField(TestCase):
             field.to_representation(Experiment.PREF_TYPE_JSON_STR),
             Experiment.PREF_TYPE_STR,
         )
+
+
+class TestPrefValidationMixin(TestCase):
+
+    def test_matching_type_value(self):
+        pref_type = "json string"
+        pref_value = "{}"
+        error_list = []
+        validator = PrefValidationMixin()
+        validator.validate_pref(pref_type, pref_value, error_list)
+
+        self.assertFalse(any(error_list))
+
+    def test_non_matching_type_value(self):
+        pref_type = "json string"
+        pref_value = "not a json string"
+        error_list = []
+        validator = PrefValidationMixin()
+        validator.validate_pref(pref_type, pref_value, error_list)
+
+        self.assertTrue(any(error_list))
 
 
 class TestExperimentVariantSerializer(TestCase):

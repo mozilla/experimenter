@@ -616,7 +616,36 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
         return instance
 
 
-class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
+class PrefValidationMixin(serializers.ModelSerializer):
+
+    def validate_pref(self, pref_type, pref_value, error_list):
+        if pref_type == "integer":
+            try:
+                int(pref_value)
+            except ValueError:
+                error_list.append({"value": "The pref value must be an integer."})
+            else:
+                error_list.append({})
+
+        if pref_type == "boolean":
+            if pref_value not in ["true", "false"]:
+                error_list.append({"value": "The pref value must be a boolean."})
+
+            else:
+                error_list.append({})
+
+        if pref_type == "json string":
+            try:
+                json.loads(pref_value)
+            except ValueError:
+                error_list.append({"value": "The pref value must be valid JSON."})
+            else:
+                error_list.append({})
+        if pref_type == "string":
+            error_list.append({})
+
+
+class ExperimentDesignPrefSerializer(PrefValidationMixin, ExperimentDesignBaseSerializer):
     pref_key = serializers.CharField(max_length=255)
     pref_type = serializers.CharField(max_length=255)
     pref_branch = serializers.CharField(max_length=255)
@@ -653,33 +682,12 @@ class ExperimentDesignPrefSerializer(ExperimentDesignBaseSerializer):
             raise serializers.ValidationError({"variants": error_list})
 
         error_list = []
+        pref_type = data.get("pref_type", "")
         for variant in variants:
-            if data.get("pref_type", "") == "integer":
-                try:
-                    int(variant["value"])
-                except ValueError:
-                    error_list.append({"value": ["The pref value must be an integer."]})
-                else:
-                    error_list.append({"value": ""})
+            self.validate_pref(pref_type, variant["value"], error_list)
 
-            if data.get("pref_type", "") == "boolean":
-                if variant["value"] not in ["true", "false"]:
-                    error_list.append({"value": ["The pref value must be a boolean."]})
-
-                else:
-                    error_list.append({"value": ""})
-
-            if data.get("pref_type", "") == "json string":
-                try:
-                    json.loads(variant["value"])
-                except ValueError:
-                    error_list.append({"value": ["The pref value must be valid JSON."]})
-                else:
-                    error_list.append({"value": ""})
-
-        for entry in error_list:
-            if entry["value"] != "":
-                raise serializers.ValidationError({"variants": error_list})
+        if any(error_list):
+            raise serializers.ValidationError({"variants": error_list})
         return data
 
 
