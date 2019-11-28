@@ -6,19 +6,21 @@ import { Row, Col } from "react-bootstrap";
 import DesignInput from "experimenter/components/DesignInput";
 import RadioButton from "experimenter/components/RadioButton";
 import {
+  ADDON_RELEASE_URL_HELP,
+  PREF_BRANCH_HELP,
+  PREF_KEY_HELP,
   PREF_TYPE_BOOL,
+  PREF_TYPE_HELP,
   PREF_TYPE_INT,
   PREF_TYPE_JSON_STR,
   PREF_TYPE_STR,
+  PREF_VALUE_HELP,
+  ROLLOUT_DESCRIPTION_HELP,
   ROLLOUT_PLAYBOOK_CUSTOM,
+  ROLLOUT_PLAYBOOK_HELP,
   ROLLOUT_PLAYBOOK_HIGH_RISK,
   ROLLOUT_PLAYBOOK_LOW_RISK,
   ROLLOUT_PLAYBOOK_MARKETING,
-  ADDON_RELEASE_URL_HELP,
-  PREF_KEY_HELP,
-  PREF_TYPE_HELP,
-  PREF_VALUE_HELP,
-  PREF_BRANCH_HELP,
   TYPE_ADDON,
   TYPE_PREF,
 } from "experimenter/components/constants";
@@ -138,15 +140,7 @@ export default class RolloutForm extends React.PureComponent {
           value={this.props.data.get("rollout_playbook")}
           error={this.props.errors.get("rollout_playbook", "")}
           as="select"
-          helpContent={
-            <div>
-              <p>
-                <a href="https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=90737068#StagedRollouts/GradualRollouts-Playbooks">
-                  Playbook Help
-                </a>
-              </p>
-            </div>
-          }
+          helpContent={ROLLOUT_PLAYBOOK_HELP}
         >
           <option>Select Playbook</option>
           <option value={ROLLOUT_PLAYBOOK_LOW_RISK}>Low Risk</option>
@@ -167,14 +161,7 @@ export default class RolloutForm extends React.PureComponent {
           error={this.props.errors.get("design", "")}
           as="textarea"
           rows="3"
-          helpContent={
-            <div>
-              <p>
-                Describe the changes that will be shipped in this rollout and
-                how they fill affect users.
-              </p>
-            </div>
-          }
+          helpContent={ROLLOUT_DESCRIPTION_HELP}
         />
 
         {this.renderAddonFields()}

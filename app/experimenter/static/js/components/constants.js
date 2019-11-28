@@ -164,3 +164,26 @@ export const BRANCH_DESCRIPTION_HELP = (
     </p>
   </div>
 );
+
+export const ROLLOUT_PLAYBOOK_HELP = (
+  <div>
+    <p>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=90737068#StagedRollouts/GradualRollouts-Playbooks"
+      >
+        Playbook Help
+      </a>
+    </p>
+  </div>
+);
+
+export const ROLLOUT_DESCRIPTION_HELP = (
+  <div>
+    <p>
+      Describe the changes that will be shipped in this rollout and how they
+      fill affect users.
+    </p>
+  </div>
+);
