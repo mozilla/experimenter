@@ -9,6 +9,7 @@ from experimenter.experiments.api_views import (
     ExperimentDesignAddonView,
     ExperimentDesignPrefView,
     ExperimentDesignGenericView,
+    ExperimentDesignBranchedAddonView,
 )
 
 
@@ -48,5 +49,10 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/design-generic",
         ExperimentDesignGenericView.as_view(),
         name="experiments-design-generic",
+    ),
+    url(
+        r"^(?P<slug>[\w-]+)/design-branched-addon",
+        ExperimentDesignBranchedAddonView.as_view(),
+        name="experiments-design-branched-addon",
     ),
 ]

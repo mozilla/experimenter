@@ -802,6 +802,27 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.completed_addon)
 
+    def test_completed_addon_is_not_complete_when_release_url_not_set_for_branched(self):
+        experiment = ExperimentFactory.create_with_variants(
+            type=Experiment.TYPE_ADDON, is_branched_addon=True
+        )
+        variant = experiment.variants.first()
+        variant.addon_release_url = None
+        variant.save()
+
+        self.assertFalse(experiment.completed_addon)
+
+    def test_completed_addon_complete_when_release_url_for_each_branch_set_for_branched(
+        self
+    ):
+        experiment = ExperimentFactory.create_with_variants(
+            type=Experiment.TYPE_ADDON, is_branched_addon=True
+        )
+        for variant in experiment.variants.all():
+            self.assertTrue(variant.addon_release_url)
+
+        self.assertTrue(experiment.completed_addon)
+
     def test_variants_is_not_complete_when_no_variants_saved(self):
         experiment = ExperimentFactory.create()
         self.assertFalse(experiment.completed_variants)
@@ -957,6 +978,26 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.completed_all_sections)
 
+    def test_completed_all_sections_false_for_branchedadd_exp_without_url(self):
+        experiment = ExperimentFactory.create_with_variants(
+            is_branched_addon=True, type=Experiment.TYPE_ADDON
+        )
+        variant = experiment.variants.first()
+        variant.addon_release_url = None
+        variant.save()
+
+        self.assertFalse(experiment.completed_all_sections)
+
+    def test_completed_all_sections_true_for_branchedadd_exp_with_url(self):
+        experiment = ExperimentFactory.create_with_variants(
+            type=Experiment.TYPE_ADDON, is_branched_addon=True
+        )
+
+        for variant in experiment.variants.all():
+            self.assertTrue(variant.addon_release_url)
+
+        self.assertTrue(experiment.completed_all_sections)
+
     def test_completed_all_sections_false_for_generic_without_design(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,
@@ -1081,21 +1122,25 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(experiment.firefox_min_version_integer, 57)
 
-    def test_is_branched_addon_returns_true_for_addon_and_greater_version(self):
+    def test_use_branched_addon_serializer_returns_true_for_addon_and_greater_version(
+        self
+    ):
         experiment = ExperimentFactory(
             type=Experiment.TYPE_ADDON, firefox_min_version="70.0"
         )
-        self.assertTrue(experiment.is_branched_addon)
+        self.assertTrue(experiment.use_branched_addon_serializer)
 
-    def test_is_branched_addon_returns_false_for_addon_and_lower_version(self):
+    def test_use_branched_addon_serializer_returns_false_for_addon_and_lower_version(
+        self
+    ):
         experiment = ExperimentFactory(
             type=Experiment.TYPE_ADDON, firefox_min_version="66.0"
         )
-        self.assertFalse(experiment.is_branched_addon)
+        self.assertFalse(experiment.use_branched_addon_serializer)
 
-    def test_is_branched_addon_returns_false_for_pref_type(self):
+    def test_use_branched_addon_serializer_returns_false_for_pref_type(self):
         experiment = ExperimentFactory()
-        self.assertFalse(experiment.is_branched_addon)
+        self.assertFalse(experiment.use_branched_addon_serializer)
 
     def test_is_multi_pref_returns_true_for_pref_and_greater_version(self):
         experiment = ExperimentFactory(

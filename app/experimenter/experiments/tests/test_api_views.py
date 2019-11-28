@@ -304,6 +304,7 @@ class TestExperimentDesignAddonView(TestCase):
             {
                 "type": ExperimentConstants.TYPE_ADDON,
                 "addon_experiment_id": "1234",
+                "is_branched_addon": False,
                 "addon_release_url": "http://www.example.com",
                 "variants": [variant_1, variant_2],
             }

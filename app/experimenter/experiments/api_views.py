@@ -17,6 +17,7 @@ from experimenter.experiments.serializers import (
     ExperimentDesignPrefSerializer,
     ExperimentDesignAddonSerializer,
     ExperimentDesignGenericSerializer,
+    ExperimentDesignBranchedAddonSerializer,
 )
 
 
@@ -80,3 +81,9 @@ class ExperimentDesignGenericView(RetrieveUpdateAPIView):
     lookup_field = "slug"
     queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_GENERIC)
     serializer_class = ExperimentDesignGenericSerializer
+
+
+class ExperimentDesignBranchedAddonView(RetrieveUpdateAPIView):
+    lookup_field = "slug"
+    queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_ADDON)
+    serializer_class = ExperimentDesignBranchedAddonSerializer

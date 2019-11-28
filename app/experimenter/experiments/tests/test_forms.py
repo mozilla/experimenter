@@ -340,13 +340,14 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         self.assertEqual(expected_data, latest_changes.changed_values)
 
     def test_changelog_values_with_prev_log(self):
-
         experiment = ExperimentFactory.create_with_variants(
             type=Experiment.TYPE_PREF,
             num_variants=0,
             pref_type=Experiment.PREF_TYPE_INT,
             pref_branch=Experiment.PREF_BRANCH_DEFAULT,
         )
+        addon_url = "https://www.example.com/old-branch-1-name-release.xpi"
+
         ExperimentVariantFactory(
             name="old branch 1 name",
             slug="old-branch-1-name",
@@ -355,6 +356,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             is_control=True,
             description="old branch 1 desc",
             experiment=experiment,
+            addon_release_url=addon_url,
         )
 
         changed_values = {
@@ -368,6 +370,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                         "value": "8",
                         "is_control": True,
                         "description": "old branch 1 desc",
+                        "addon_release_url": addon_url,
                     }
                 ],
                 "display_name": "Branches",
@@ -420,6 +423,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "ratio": 50,
                 "slug": "old-branch-1-name",
                 "value": "8",
+                "addon_release_url": addon_url,
             }
         ]
 
@@ -431,6 +435,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "ratio": 50,
                 "slug": "branch-1-name",
                 "value": "8",
+                "addon_release_url": None,
             },
             {
                 "description": "variant 0 desc",
@@ -439,6 +444,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "ratio": 50,
                 "slug": "variant-0-name",
                 "value": "5",
+                "addon_release_url": None,
             },
             {
                 "description": "old branch 1 desc",
@@ -447,6 +453,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "ratio": 50,
                 "slug": "old-branch-1-name",
                 "value": "8",
+                "addon_release_url": addon_url,
             },
         ]
 

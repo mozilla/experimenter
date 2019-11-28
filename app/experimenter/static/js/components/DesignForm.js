@@ -12,6 +12,7 @@ import { makeApiRequest } from "experimenter/utils/api";
 @boundClass
 class DesignForm extends React.PureComponent {
   static propTypes = {
+    isBranchedAddon: PropTypes.bool,
     experimentType: PropTypes.string,
     slug: PropTypes.string,
   };
@@ -27,7 +28,16 @@ class DesignForm extends React.PureComponent {
     };
   }
 
+  isBranchedAddon() {
+    return (
+      this.state.data.get("is_branched_addon") || this.props.isBranchedAddon
+    );
+  }
+
   getEndpointUrl() {
+    if (this.isBranchedAddon()) {
+      return `experiments/${this.props.slug}/design-branched-addon/`;
+    }
     return `experiments/${this.props.slug}/design-${this.props.experimentType}/`;
   }
 
@@ -56,7 +66,6 @@ class DesignForm extends React.PureComponent {
     event.preventDefault();
 
     this.setState({ saving: true });
-
     const requestSave = makeApiRequest(this.getEndpointUrl(), {
       method: "PUT",
       data: this.state.data.toJS(),
