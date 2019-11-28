@@ -1,5 +1,20 @@
 import React from "react";
 
+export const TYPE_ADDON = "addon";
+export const TYPE_PREF = "pref";
+export const TYPE_GENERIC = "generic";
+export const TYPE_ROLLOUT = "rollout";
+
+export const ROLLOUT_PLAYBOOK_LOW_RISK = "low_risk";
+export const ROLLOUT_PLAYBOOK_HIGH_RISK = "high_risk";
+export const ROLLOUT_PLAYBOOK_MARKETING = "marketing";
+export const ROLLOUT_PLAYBOOK_CUSTOM = "custom";
+
+export const PREF_TYPE_BOOL = "boolean";
+export const PREF_TYPE_INT = "integer";
+export const PREF_TYPE_STR = "string";
+export const PREF_TYPE_JSON_STR = "json string";
+
 export const DESIGN_HELP = (
   <div>
     <p>Specify the design of the experiment.</p>

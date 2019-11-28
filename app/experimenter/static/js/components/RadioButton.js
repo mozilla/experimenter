@@ -16,7 +16,7 @@ export default class RadioButton extends React.PureComponent {
 
   render() {
     return (
-      <Form.Group>
+      <Form.Group className="mb-4">
         <Form.Row>
           <Form.Label>
             <h5>{this.props.elementLabel}</h5>

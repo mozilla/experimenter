@@ -6,14 +6,21 @@ import { Row, Col } from "react-bootstrap";
 import DesignInput from "experimenter/components/DesignInput";
 import RadioButton from "experimenter/components/RadioButton";
 import {
+  PREF_TYPE_BOOL,
+  PREF_TYPE_INT,
+  PREF_TYPE_JSON_STR,
+  PREF_TYPE_STR,
+  ROLLOUT_PLAYBOOK_CUSTOM,
+  ROLLOUT_PLAYBOOK_HIGH_RISK,
+  ROLLOUT_PLAYBOOK_LOW_RISK,
+  ROLLOUT_PLAYBOOK_MARKETING,
   ADDON_RELEASE_URL_HELP,
   PREF_KEY_HELP,
   PREF_TYPE_HELP,
   PREF_VALUE_HELP,
+  TYPE_ADDON,
+  TYPE_PREF,
 } from "experimenter/components/constants";
-
-const TYPE_PREF = "pref";
-const TYPE_ADDON = "addon";
 
 export default class RolloutForm extends React.PureComponent {
   static propTypes = {
@@ -69,10 +76,10 @@ export default class RolloutForm extends React.PureComponent {
             helpContent={PREF_TYPE_HELP}
           >
             <option>Firefox Pref Type</option>
-            <option>boolean</option>
-            <option>integer</option>
-            <option>string</option>
-            <option>json string</option>
+            <option value={PREF_TYPE_BOOL}>boolean</option>
+            <option value={PREF_TYPE_INT}>integer</option>
+            <option value={PREF_TYPE_STR}>string</option>
+            <option value={PREF_TYPE_JSON_STR}>json string</option>
           </DesignInput>
 
           <DesignInput
@@ -86,6 +93,7 @@ export default class RolloutForm extends React.PureComponent {
             error={this.props.errors.get("pref_value", "")}
             helpContent={PREF_VALUE_HELP}
           />
+
           <Row className="mb-3">
             <Col md={{ span: 9, offset: 3 }}>
               <p>
@@ -101,11 +109,11 @@ export default class RolloutForm extends React.PureComponent {
 
   render() {
     return (
-      <div>
+      <React.Fragment>
         <Row>
           <Col md={{ span: 9, offset: 3 }}>
             <RadioButton
-              elementLabel="Rollout Type:"
+              elementLabel="What type of rollout is this?"
               fieldName="rollout_type"
               radioLabel1="Pref Rollout"
               radioLabel2="Add-On Rollout"
@@ -118,8 +126,6 @@ export default class RolloutForm extends React.PureComponent {
             />
           </Col>
         </Row>
-
-        <hr className="heavy-line my-5" />
 
         <DesignInput
           label="Playbook"
@@ -141,10 +147,12 @@ export default class RolloutForm extends React.PureComponent {
           }
         >
           <option>Select Playbook</option>
-          <option value="low_risk">Low Risk</option>
-          <option value="high_risk">High Risk</option>
-          <option value="marketing">Marketing Launch Schedule</option>
-          <option value="custom">Custom</option>
+          <option value={ROLLOUT_PLAYBOOK_LOW_RISK}>Low Risk</option>
+          <option value={ROLLOUT_PLAYBOOK_HIGH_RISK}>High Risk</option>
+          <option value={ROLLOUT_PLAYBOOK_MARKETING}>
+            Marketing Launch Schedule
+          </option>
+          <option value={ROLLOUT_PLAYBOOK_CUSTOM}>Custom</option>
         </DesignInput>
 
         <DesignInput
@@ -170,7 +178,7 @@ export default class RolloutForm extends React.PureComponent {
         {this.renderAddonFields()}
 
         {this.renderPrefFields()}
-      </div>
+      </React.Fragment>
     );
   }
 }

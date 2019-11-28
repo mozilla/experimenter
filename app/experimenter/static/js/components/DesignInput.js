@@ -44,16 +44,20 @@ class DesignInput extends React.PureComponent {
         <Col md={3} className="text-right">
           <FormLabel className="pt-2">
             <strong>{this.props.label}</strong>
+            <div className="required-label required">
+              <div className="text-danger">Required</div>
+            </div>
           </FormLabel>
-          <br />
-          <a
-            href="#"
-            name={this.props.name}
-            data-index={this.props.index}
-            onClick={this.toggleHelp}
-          >
-            Help
-          </a>
+          <div>
+            <a
+              href="#"
+              name={this.props.name}
+              data-index={this.props.index}
+              onClick={this.toggleHelp}
+            >
+              Help
+            </a>
+          </div>
         </Col>
         <Col md={9}>
           <FormControl
