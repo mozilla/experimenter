@@ -4,13 +4,14 @@ import { Map } from "immutable";
 import { boundClass } from "autobind-decorator";
 
 import {
+  ADDON_RELEASE_URL_HELP,
   BRANCH_RATIO_HELP,
   BRANCH_NAME_HELP,
   BRANCH_DESCRIPTION_HELP,
 } from "experimenter/components/constants";
 
 @boundClass
-class GenericBranchFields extends React.PureComponent {
+class BranchedAddonFields extends React.PureComponent {
   static propTypes = {
     branch: PropTypes.instanceOf(Map),
     errors: PropTypes.instanceOf(Map),
@@ -41,9 +42,16 @@ class GenericBranchFields extends React.PureComponent {
           this.props.errors.get("description"),
           BRANCH_DESCRIPTION_HELP,
         )}
+        {this.props.renderField(
+          "addon_release_url",
+          "Signed Add-On URL",
+          this.props.branch.get("addon_release_url"),
+          this.props.errors.get("addon_release_url"),
+          ADDON_RELEASE_URL_HELP,
+        )}
       </React.Fragment>
     );
   }
 }
 
-export default GenericBranchFields;
+export default BranchedAddonFields;
