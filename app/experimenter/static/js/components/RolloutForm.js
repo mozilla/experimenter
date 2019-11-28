@@ -18,6 +18,7 @@ import {
   PREF_KEY_HELP,
   PREF_TYPE_HELP,
   PREF_VALUE_HELP,
+  PREF_BRANCH_HELP,
   TYPE_ADDON,
   TYPE_PREF,
 } from "experimenter/components/constants";
@@ -52,16 +53,14 @@ export default class RolloutForm extends React.PureComponent {
       return (
         <React.Fragment>
           <DesignInput
-            label="Pref Name"
-            name="pref_key"
-            id="id_pref_key"
-            onChange={value => {
-              this.props.handleDataChange("pref_key", value);
-            }}
-            value={this.props.data.get("pref_key")}
-            error={this.props.errors.get("pref_key", "")}
-            helpContent={PREF_KEY_HELP}
-          />
+            label="Pref Branch"
+            as="select"
+            helpContent={PREF_BRANCH_HELP}
+            note="*Note: Pref Rollouts always use the Default Pref Branch"
+          >
+            <option>Default Branch</option>
+            <option disabled>User Branch</option>
+          </DesignInput>
 
           <DesignInput
             label="Pref Type"
@@ -83,6 +82,18 @@ export default class RolloutForm extends React.PureComponent {
           </DesignInput>
 
           <DesignInput
+            label="Pref Name"
+            name="pref_key"
+            id="id_pref_key"
+            onChange={value => {
+              this.props.handleDataChange("pref_key", value);
+            }}
+            value={this.props.data.get("pref_key")}
+            error={this.props.errors.get("pref_key", "")}
+            helpContent={PREF_KEY_HELP}
+          />
+
+          <DesignInput
             label="Pref Value"
             name="pref_value"
             id="id_pref_value"
@@ -93,15 +104,6 @@ export default class RolloutForm extends React.PureComponent {
             error={this.props.errors.get("pref_value", "")}
             helpContent={PREF_VALUE_HELP}
           />
-
-          <Row className="mb-3">
-            <Col md={{ span: 9, offset: 3 }}>
-              <p>
-                *Note: Pref Rollouts always use the{" "}
-                <strong>Default Pref Branch</strong>
-              </p>
-            </Col>
-          </Row>
         </React.Fragment>
       );
     }

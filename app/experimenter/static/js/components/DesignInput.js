@@ -20,6 +20,7 @@ class DesignInput extends React.PureComponent {
     index: PropTypes.number,
     label: PropTypes.string,
     name: PropTypes.string,
+    note: PropTypes.string,
     onChange: PropTypes.func,
     rows: PropTypes.string,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -75,6 +76,7 @@ class DesignInput extends React.PureComponent {
           >
             {this.props.children}
           </FormControl>
+          {this.props.note ? <p className="py-1">{this.props.note}</p> : null}
           {this.props.error ? <Error error={this.props.error} /> : null}
           <HelpBox showing={this.state.help_showing}>
             {this.props.helpContent}
