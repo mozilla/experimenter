@@ -5,12 +5,13 @@ Add-On
 {% endblock %}
 
 {% block section_content %}
-  <p>
-    <strong class="mr-2">Experiment ID:</strong>
-  </p>
-  <p>
-    <code>{{ experiment.addon_experiment_id }}</code>
-  </p>
   <p><strong>Release Build</strong></p>
   <p><a href="{{ experiment.addon_release_url }}" target="_blank" rel="noreferrer noopener">{{ experiment.addon_release_url }}</a></p>
+
+  {% if experiment.addon_experiment_id %}
+    <p><strong >Experiment ID:</strong></p>
+    <p>
+      <code>{{ experiment.addon_experiment_id }}</code>
+    </p>
+  {% endif %}
 {% endblock %}

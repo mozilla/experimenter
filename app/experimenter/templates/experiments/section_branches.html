@@ -22,6 +22,10 @@
         {% endif %}
       {% endif %}
       <p>{{ variant.description|urlize|linebreaks }}</p>
+      {% if experiment.is_branched_addon %}
+        <p><strong>Addon Release URL: </strong></p>
+        <p>{{ variant.addon_release_url|urlize }}</p>
+      {% endif %}
     </div>
   {% endfor %}
 {% endblock %}

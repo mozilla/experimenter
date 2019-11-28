@@ -222,6 +222,10 @@ class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: slugify(o.name))
 
+    @factory.lazy_attribute
+    def addon_release_url(self):
+        return "https://www.example.com/{}-release.xpi".format(slugify(self.name))
+
     class Meta:
         model = ExperimentVariant
 

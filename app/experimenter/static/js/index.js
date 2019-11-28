@@ -18,9 +18,14 @@ const branchesDiv = document.getElementById("react-branches-form");
 if (branchesDiv) {
   const slug = branchesDiv.dataset.experimentSlug;
   const experimentType = branchesDiv.dataset.experimentType;
+  const isBranchedAddon = branchesDiv.dataset.isBranchedAddon === "True";
 
   ReactDOM.render(
-    <DesignForm slug={slug} experimentType={experimentType} />,
+    <DesignForm
+      slug={slug}
+      experimentType={experimentType}
+      isBranchedAddon={isBranchedAddon}
+    />,
     branchesDiv,
   );
 }

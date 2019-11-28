@@ -1,8 +1,10 @@
-import { boundClass } from "autobind-decorator";
-import { Map } from "immutable";
 import PropTypes from "prop-types";
 import React from "react";
 import { Button, Row, Col } from "react-bootstrap";
+import { Map } from "immutable";
+import { boundClass } from "autobind-decorator";
+
+import DesignInput from "experimenter/components/DesignInput";
 
 @boundClass
 class Branch extends React.PureComponent {
@@ -15,7 +17,7 @@ class Branch extends React.PureComponent {
     remove: PropTypes.func,
   };
 
-  handleChange(key, value) {
+  handleBranchFieldChange(key, value) {
     const { onChange, branch } = this.props;
     onChange(branch.set(key, value));
   }
@@ -26,6 +28,22 @@ class Branch extends React.PureComponent {
       return <h4>Control Branch</h4>;
     }
     return <h4>Branch {index}</h4>;
+  }
+
+  renderField(name, label, value, error, help) {
+    return (
+      <DesignInput
+        label={label}
+        name={`variants[${this.props.index}][${name}]`}
+        id={`variants-${this.props.index}-${name}`}
+        value={value}
+        onChange={value => {
+          this.handleBranchFieldChange(name, value);
+        }}
+        error={error}
+        helpContent={help}
+      />
+    );
   }
 
   renderRemoveButton() {
@@ -59,10 +77,11 @@ class Branch extends React.PureComponent {
         </Row>
 
         <BranchFields
-          handleChange={this.handleChange}
-          index={this.props.index}
           branch={this.props.branch}
           errors={this.props.errors}
+          onChange={this.handleBranchFieldChange}
+          index={this.props.index}
+          renderField={this.renderField}
         />
 
         <hr className="heavy-line my-5" />
