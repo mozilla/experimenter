@@ -75,23 +75,59 @@ class TestPrefTypeField(TestCase):
 
 class TestPrefValidationMixin(TestCase):
 
-    def test_matching_type_value(self):
+    def test_matching_json_string_type_value(self):
         pref_type = "json string"
         pref_value = "{}"
-        error_list = []
+        key_value = "key_value"
         validator = PrefValidationMixin()
-        validator.validate_pref(pref_type, pref_value, error_list)
+        value = validator.validate_pref(pref_type, pref_value, key_value)
 
-        self.assertFalse(any(error_list))
+        self.assertEqual(value, {})
 
-    def test_non_matching_type_value(self):
+    def test_non_matching_json_string_type_value(self):
         pref_type = "json string"
         pref_value = "not a json string"
-        error_list = []
+        key_value = "key_value"
         validator = PrefValidationMixin()
-        validator.validate_pref(pref_type, pref_value, error_list)
+        value = validator.validate_pref(pref_type, pref_value, key_value)
 
-        self.assertTrue(any(error_list))
+        self.assertEqual(value, {key_value: "The pref value must be valid JSON."})
+
+    def test_matching_integer_type_value(self):
+        pref_type = "integer"
+        pref_value = "8"
+        key_value = "key_value"
+        validator = PrefValidationMixin()
+        value = validator.validate_pref(pref_type, pref_value, key_value)
+
+        self.assertEqual(value, {})
+
+    def test_non_matching_integer_type_value(self):
+        pref_type = "integer"
+        pref_value = "not a integer"
+        key_value = "key_value"
+        validator = PrefValidationMixin()
+        value = validator.validate_pref(pref_type, pref_value, key_value)
+
+        self.assertEqual(value, {key_value: "The pref value must be an integer."})
+
+    def test_matching_boolean_type_value(self):
+        pref_type = "boolean"
+        pref_value = "true"
+        key_value = "key_value"
+        validator = PrefValidationMixin()
+        value = validator.validate_pref(pref_type, pref_value, key_value)
+
+        self.assertEqual(value, {})
+
+    def test_non_matching_boolean_type_value(self):
+        pref_type = "boolean"
+        pref_value = "not a boolean"
+        key_value = "key_value"
+        validator = PrefValidationMixin()
+        value = validator.validate_pref(pref_type, pref_value, key_value)
+
+        self.assertEqual(value, {key_value: "The pref value must be a boolean."})
 
 
 class TestExperimentVariantSerializer(TestCase):

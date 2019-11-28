@@ -616,33 +616,25 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
         return instance
 
 
-class PrefValidationMixin(serializers.ModelSerializer):
+class PrefValidationMixin(object):
 
-    def validate_pref(self, pref_type, pref_value, error_list):
+    def validate_pref(self, pref_type, pref_value, value):
         if pref_type == "integer":
             try:
                 int(pref_value)
             except ValueError:
-                error_list.append({"value": "The pref value must be an integer."})
-            else:
-                error_list.append({})
+                return {value: "The pref value must be an integer."}
 
         if pref_type == "boolean":
             if pref_value not in ["true", "false"]:
-                error_list.append({"value": "The pref value must be a boolean."})
-
-            else:
-                error_list.append({})
+                return {value: "The pref value must be a boolean."}
 
         if pref_type == "json string":
             try:
                 json.loads(pref_value)
             except ValueError:
-                error_list.append({"value": "The pref value must be valid JSON."})
-            else:
-                error_list.append({})
-        if pref_type == "string":
-            error_list.append({})
+                return {value: "The pref value must be valid JSON."}
+        return {}
 
 
 class ExperimentDesignPrefSerializer(PrefValidationMixin, ExperimentDesignBaseSerializer):
@@ -684,7 +676,7 @@ class ExperimentDesignPrefSerializer(PrefValidationMixin, ExperimentDesignBaseSe
         error_list = []
         pref_type = data.get("pref_type", "")
         for variant in variants:
-            self.validate_pref(pref_type, variant["value"], error_list)
+            error_list.append(self.validate_pref(pref_type, variant["value"], "value"))
 
         if any(error_list):
             raise serializers.ValidationError({"variants": error_list})
