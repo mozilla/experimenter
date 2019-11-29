@@ -637,36 +637,6 @@ class ExperimentDesignBranchMultiPrefSerializer(
             pref_value = pref["pref_value"]
             field_name = "pref_value"
             error_list.append(self.validate_pref(pref_type, pref_value, field_name))
-            """
-            if pref.get("pref_type", "") == "integer":
-                try:
-                    int(pref["pref_value"])
-                except ValueError:
-                    error_list.append(
-                        {"pref_value": "The pref value must be an integer."}
-                    )
-                else:
-                    error_list.append({})
-
-            if pref.get("pref_type", "") == "boolean":
-                if pref["pref_value"] not in ["true", "false"]:
-                    error_list.append({"pref_value": "The pref value must be a boolean."})
-
-                else:
-                    error_list.append({})
-
-            if pref.get("pref_type", "") == "json string":
-                try:
-                    json.loads(pref["pref_value"])
-                except ValueError:
-                    error_list.append(
-                        {"pref_value": "The pref value must be valid JSON."}
-                    )
-                else:
-                    error_list.append({})
-            if pref.get("pref_type", "") == "string":
-                error_list.append({})
-            """
 
             if any(error_list):
                 raise serializers.ValidationError(error_list)
