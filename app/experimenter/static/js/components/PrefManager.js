@@ -11,26 +11,27 @@ class PrefManager extends React.PureComponent {
   static propTypes = {
     preferences: PropTypes.instanceOf(List),
     errors: PropTypes.instanceOf(List),
-    handleErrorsChange: PropTypes.func,
-    onChange: PropTypes.func,
+    onErrorChange: PropTypes.func,
+    onDataChange: PropTypes.func,
   };
 
   handlePrefChange(index, value) {
-    const { preferences, onChange } = this.props;
+    const { preferences, onDataChange } = this.props;
 
-    onChange(preferences.set(index, value));
+    onDataChange(preferences.set(index, value));
   }
 
   addPref() {
-    const { preferences, errors, onChange } = this.props;
-    onChange(preferences.push(fromJS({})));
-    this.handlePrefErrorsChange(errors.push(fromJS({})));
+    const { preferences, errors, onDataChange, onErrorChange } = this.props;
+    onDataChange(preferences.push(fromJS({})));
+    onErrorChange(errors.push(fromJS({})));
   }
 
   removePref(index) {
-    const { preferences, errors, onChange, handleErrorsChange } = this.props;
-    onChange(preferences.delete(index));
-    handleErrorsChange(errors.delete(index));
+    const { preferences, errors, onDataChange, onErrorChange } = this.props;
+
+    onDataChange(preferences.delete(index));
+    onErrorChange(errors.delete(index));
   }
 
   renderPref(preference, index) {

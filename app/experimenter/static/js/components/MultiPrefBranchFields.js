@@ -18,11 +18,9 @@ class MultiPrefBranchFields extends React.PureComponent {
     handleErrorsChange: PropTypes.instanceOf(Map),
     index: PropTypes.number,
     onChange: PropTypes.func,
+    onErrorChange: PropTypes.func,
     renderField: PropTypes.func,
   };
-  handlePrefChange(value) {
-    this.props.onChange("preferences", value);
-  }
 
   render() {
     return (
@@ -52,10 +50,12 @@ class MultiPrefBranchFields extends React.PureComponent {
           preferences={this.props.branch.get("preferences", new List())}
           errors={this.props.errors.get("preferences", new List())}
           variant_index={this.props.index}
-          onChange={value => {
-            this.handlePrefChange(value);
+          onDataChange={value => {
+            this.props.onChange("preferences", value);
           }}
-          handleErrorsChange={this.props.handleErrorsChange}
+          onErrorChange={errors => {
+            this.props.onErrorChange("preferences", errors);
+          }}
         />
       </React.Fragment>
     );
