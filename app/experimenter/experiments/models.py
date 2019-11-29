@@ -92,6 +92,8 @@ class Experiment(ExperimentConstants, models.Model):
         validators=[MaxValueValidator(ExperimentConstants.MAX_DURATION)],
     )
 
+    is_multi_pref = models.BooleanField(default=False)
+
     addon_experiment_id = models.CharField(
         max_length=255, unique=True, blank=True, null=True
     )
@@ -659,12 +661,12 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
-    def is_multi_pref(self):
+    def use_multi_pref_serializer(self):
         return (
             self.is_pref_experiment
             and self.firefox_min_version_integer
             >= ExperimentConstants.FX_MIN_MULTI_BRANCHED_VERSION
-        )
+        ) or self.is_multi_pref
 
     @property
     def versions_integer_list(self):
@@ -807,6 +809,39 @@ class ExperimentVariant(models.Model):
     @property
     def json_dumps_value(self):
         return json.dumps(json.loads(self.value), indent=2)
+
+
+class VariantPreferences(models.Model):
+    variant = models.ForeignKey(
+        ExperimentVariant,
+        blank=False,
+        null=False,
+        related_name="preferences",
+        on_delete=models.CASCADE,
+    )
+    pref_name = models.CharField(max_length=255, blank=False, null=False)
+    pref_type = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.PREF_TYPE_CHOICES,
+        blank=False,
+        null=False,
+    )
+    pref_branch = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.PREF_BRANCH_CHOICES,
+        blank=False,
+        null=False,
+    )
+
+    pref_value = models.CharField(max_length=255, blank=False, null=False)
+
+    class Meta:
+        unique_together = (("variant", "pref_name"),)
+
+    def save(self, *args, **kwargs):
+        super().clean()
+
+        super().save()
 
 
 class ExperimentChangeLogManager(models.Manager):
