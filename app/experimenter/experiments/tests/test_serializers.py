@@ -452,7 +452,8 @@ class TestExperimentRecipeMultiPrefVariantSerialzer(TestCase):
             slug="control", ratio=25, experiment=experiment, value='{"some": "json"}'
         )
         serializer = ExperimentRecipeMultiPrefVariantSerializer(
-            variant, context={"formatted": experiment.use_multi_pref_serializer}
+            variant,
+            context={"is_multi_pref_formatted": experiment.use_multi_pref_serializer},
         )
         expected_data = {
             "preferences": {
@@ -1009,6 +1010,7 @@ class TestExperimentDesignMultiPrefSerializer(TestCase):
         self.assertEqual(variant.preferences.filter(id=variant_pref.id).count(), 0)
 
     def test_serializer_updates_existing_variant_pref(self):
+
         variant = ExperimentVariantFactory.create(experiment=self.experiment)
         variant_pref = VariantPreferencesFactory.create(variant=variant)
         self.pref1["id"] = variant_pref.id
@@ -1046,7 +1048,6 @@ class TestExperimentDesignMultiPrefSerializer(TestCase):
         self.assertEqual(
             serializer.data,
             {
-                "type": Experiment.TYPE_PREF,
                 "is_multi_pref": True,
                 "variants": [
                     {

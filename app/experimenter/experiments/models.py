@@ -838,11 +838,6 @@ class VariantPreferences(models.Model):
     class Meta:
         unique_together = (("variant", "pref_name"),)
 
-    def save(self, *args, **kwargs):
-        super().clean()
-
-        super().save()
-
 
 class ExperimentChangeLogManager(models.Manager):
 

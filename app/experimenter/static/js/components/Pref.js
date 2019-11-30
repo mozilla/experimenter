@@ -22,7 +22,7 @@ class Pref extends React.PureComponent {
     remove: PropTypes.func,
   };
 
-  handleChange(key, value) {
+  handlePrefValueChange(key, value) {
     const { onChange, preference } = this.props;
     onChange(preference.set(key, value));
   }
@@ -54,7 +54,7 @@ class Pref extends React.PureComponent {
           name="pref_key"
           id="id_pref_key"
           onChange={value => {
-            this.handleChange("pref_name", value);
+            this.handlePrefValueChange("pref_name", value);
           }}
           value={
             this.props.preference
@@ -70,7 +70,7 @@ class Pref extends React.PureComponent {
           name="pref_type"
           id="id_pref_type"
           onChange={value => {
-            this.handleChange("pref_type", value);
+            this.handlePrefValueChange("pref_type", value);
           }}
           value={
             this.props.preference
@@ -93,7 +93,7 @@ class Pref extends React.PureComponent {
           name="pref_branch"
           id="id_pref_branch"
           onChange={value => {
-            this.handleChange("pref_branch", value);
+            this.handlePrefValueChange("pref_branch", value);
           }}
           value={
             this.props.preference
@@ -113,7 +113,7 @@ class Pref extends React.PureComponent {
           name="pref_value"
           id="id_pref_value"
           onChange={value => {
-            this.handleChange("pref_value", value);
+            this.handlePrefValueChange("pref_value", value);
           }}
           value={
             this.props.preference

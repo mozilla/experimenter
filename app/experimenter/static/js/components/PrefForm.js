@@ -84,11 +84,6 @@ export default class PrefForm extends React.PureComponent {
   render() {
     return (
       <div>
-        <Row className="mb-3">
-          <Col md={{ span: 4, offset: 3 }}>
-            <h3>Firefox Pref</h3>
-          </Col>
-        </Row>
         <Row>
           <Col md={{ span: 9, offset: 3 }}>
             <RadioButton

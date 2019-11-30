@@ -29,7 +29,6 @@
         {% if experiment.pref_type == "json string" %}
           <p><strong>{{ experiment.pref_key }} = <pre class="text-info">{{ variant.json_dumps_value}}</pre></strong></p>
         {% else %}
-        <h1>HI</h1>
           <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
         {% endif %}
       {% endif %}

@@ -315,7 +315,7 @@ class ExperimentRecipeMultiPrefVariantSerializer(serializers.ModelSerializer):
         fields = ("preferences", "ratio", "slug")
 
     def get_preferences(self, obj):
-        if self.context["formatted"]:
+        if self.context["is_multi_pref_formatted"]:
             return VariantPreferenceArgumentsSerializer(obj.preferences, many=True).data
 
         return self.format_preferences(obj)
@@ -408,7 +408,9 @@ class ExperimentRecipeMultiPrefArgumentsSerializer(
 
     def get_branches(self, obj):
         return ExperimentRecipeMultiPrefVariantSerializer(
-            obj.variants, many=True, context={"formatted": obj.use_multi_pref_serializer}
+            obj.variants,
+            many=True,
+            context={"is_multi_pref_formatted": obj.use_multi_pref_serializer},
         ).data
 
 
@@ -615,7 +617,7 @@ class ExperimentDesignBranchMultiPrefSerializer(
                 data
             )
             raise serializers.ValidationError(error_list)
-        self.is_value_type_match(data)
+        self.validate_value_type_match(data)
         return data
 
     def is_pref_valid(self, preferences):
@@ -630,7 +632,7 @@ class ExperimentDesignBranchMultiPrefSerializer(
 
         return unique_names and all_contains_alphanumeric_and_spaces
 
-    def is_value_type_match(self, preferences):
+    def validate_value_type_match(self, preferences):
         error_list = []
         for pref in preferences:
             pref_type = pref.get("pref_type", "")
@@ -715,13 +717,12 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
 
 
 class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
-    type = serializers.CharField()
     is_multi_pref = serializers.BooleanField()
     variants = ExperimentDesignBranchMultiPrefSerializer(many=True)
 
     class Meta:
         model = Experiment
-        fields = ("type", "is_multi_pref", "variants")
+        fields = ("is_multi_pref", "variants")
 
     def update(self, instance, validated_data):
         variant_preferences = [
@@ -729,17 +730,20 @@ class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
         ]
 
         instance = super().update(instance, validated_data)
-        existing_pref_ids = self.get_existing_preference_ids(instance)
+        existing_pref_ids = list(
+            instance.variants.all().values_list("preferences__id", flat=True)
+        )
         submitted_pref_ids = []
-        for variant_data, pref in variant_preferences:
+        for variant_data, prefs in variant_preferences:
 
             variant = ExperimentVariant.objects.get(**variant_data)
-            for preference in pref:
-                preference["variant_id"] = variant.id
-                VariantPreferences(**preference).save()
+            for pref in prefs:
+                pref["variant_id"] = variant.id
+                VariantPreferences(**pref).save()
 
-                if preference.get("id"):
-                    submitted_pref_ids.append(preference.get("id"))
+                if pref.get("id"):
+                    pref_id = pref.get("id")
+                    submitted_pref_ids.append(pref_id)
 
         removed_ids = set(existing_pref_ids) - set(submitted_pref_ids)
 
@@ -747,13 +751,6 @@ class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
             VariantPreferences.objects.filter(id__in=removed_ids).delete()
 
         return instance
-
-    def get_existing_preference_ids(self, instance):
-        pref_ids = []
-
-        for variant in instance.variants.all():
-            pref_ids.extend([p.id for p in variant.preferences.all()])
-        return pref_ids
 
 
 class ExperimentDesignPrefSerializer(PrefValidationMixin, ExperimentDesignBaseSerializer):

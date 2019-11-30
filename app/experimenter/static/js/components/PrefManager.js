@@ -23,7 +23,7 @@ class PrefManager extends React.PureComponent {
 
   addPref() {
     const { preferences, errors, onDataChange, onErrorChange } = this.props;
-    onDataChange(preferences.push(fromJS({})));
+    onDataChange(preferences.push(fromJS({ pref_value: "" })));
     onErrorChange(errors.push(fromJS({})));
   }
 
