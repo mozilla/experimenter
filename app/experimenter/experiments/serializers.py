@@ -741,8 +741,7 @@ class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
                 pref["variant_id"] = variant.id
                 VariantPreferences(**pref).save()
 
-                if pref.get("id"):
-                    pref_id = pref.get("id")
+                if pref_id:=pref.get("id"):
                     submitted_pref_ids.append(pref_id)
 
         removed_ids = set(existing_pref_ids) - set(submitted_pref_ids)
