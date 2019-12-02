@@ -736,7 +736,7 @@ class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
         submitted_pref_ids = []
         for variant_data, prefs in variant_preferences:
 
-            variant = ExperimentVariant.objects.get(**variant_data)
+            variant = instance.variants.get(name=variant_data["name"])
             for pref in prefs:
                 pref["variant_id"] = variant.id
                 VariantPreferences(**pref).save()
