@@ -69,17 +69,6 @@
   </button>
 {% endblock %}
 
-{% block edit_info %}
-  <h4><span class="fas fa-info-circle"></span> Risks &amp; Testing</h4>
-  <p>
-    An experiment may have risks to its user population or the entire Firefox population, help identify them here.
-  </p>
-  <p>
-    The testing plan should describe how this experiment can be tested locally before it is launched to ensure
-    it is behaving as expected and does not cause unintended negative effects to other features or the rest of the browser.
-  </p>
-{% endblock %}
-
 {% block extrascripts %}
 <script src="{% static "js/scripts/edit-risks.js" %}"></script>
 
