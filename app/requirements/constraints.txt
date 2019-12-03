@@ -117,10 +117,9 @@ backcall==0.1.0 \
 pexpect==4.7.0 \
     --hash=sha256:2094eefdfcf37a1fdbfb9aa090862c1a4878e5c7e0e7e7088bdb511c558e5cd1 \
     --hash=sha256:9e2c1fd0e6ee3a49b28f95d4b33bc389c89b20af6a1255906e90ff1262ce62eb
-prompt_toolkit==2.0.10 \
-    --hash=sha256:e7f8af9e3d70f514373bf41aa51bc33af12a6db3f71461ea47fea985defb2c31 \
-    --hash=sha256:46642344ce457641f28fc9d1c9ca939b63dadf8df128b86f1b9860e59c73a5e4 \
-    --hash=sha256:f15af68f66e664eaa559d4ac8a928111eebd5feda0c11738b5998045224829db
+prompt_toolkit==3.0.2 \
+    --hash=sha256:0278d2f51b5ceba6ea8da39f76d15684e84c996b325475f6e5720edc584326a7 \
+    --hash=sha256:63daee79aa8366c8f1c637f1a4876b890da5fc92a19ebd2f7080ebacb901e990
 pickleshare==0.7.5 \
     --hash=sha256:87683d47965c1da65cdacaf31c8441d12b8044cdec9aca500cd78fc2c683afca \
     --hash=sha256:9649af414d74d4df115d5d718f82acb59c9d418196b7b4290ed47a12ce62df56
