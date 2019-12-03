@@ -16,25 +16,6 @@
   {% include "experiments/edit_nav_inline.html" with step=1 object=object %}
 {% endblock %}
 
-{% block edit_info %}
-  <h4><span class="fas fa-info-circle"></span> Getting Started</h4>
-  <p>
-    Your experiment will start as a draft.
-  </p>
-  <p>
-    Fill out the information on this page to save your draft.
-  </p>
-  <p>
-    After your draft is created, you can fill out the remaining sections
-    now or later.
-  </p>
-  <p>
-    When all of the sections are complete and reviewed, you can
-    launch your experiment to Shield.
-  </p>
-{% endblock %}
-
-
 {% block extrascripts %}
   <script>
     $("select[multiple]").selectpicker()
