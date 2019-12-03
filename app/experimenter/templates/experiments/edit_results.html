@@ -16,18 +16,3 @@ Edit <a href="{% url "experiments-detail" slug=object.slug %}">
   {% include "experiments/field_inline.html" with field=form.results_lessons_learned %}
 
 {% endblock %}
-
-
-{% block edit_info %}
-  <h4><span class="fas fa-info-circle"></span> Results</h4>
-
-  <p>
-    All experiments have results.
-    Even an experiment not working is a result.
-    Result details help people find the artifacts created from
-    experiment analysis.  They also help us identify trends, so
-    we can focus our resources on impactful experiments and
-    addressing the most common issues.
-  </p>
-
-{% endblock %}

@@ -23,20 +23,6 @@
   {% include "experiments/edit_nav_inline.html" with step=4 object=object %}
 {% endblock %}
 
-{% block edit_info %}
-  <h4><span class="fas fa-info-circle"></span> Objectives &amp; Analysis</h4>
-  <p>
-    The objective of your experiment is the thing you are trying to measure or learn
-    by doing the experiment.
-  </p>
-  <p>
-    The analysis plan is how you will use metrics to satisfy that objective.
-  </p>
-  <p>
-    Describe both in detail here.
-  </p>
-{% endblock %}
-
 {% block extrascripts %}
     <script src="{% static "js/scripts/edit-objectives.js" %}"></script>
 {% endblock %}

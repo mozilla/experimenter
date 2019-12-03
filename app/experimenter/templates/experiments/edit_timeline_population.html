@@ -75,37 +75,6 @@
 
 {% endblock %}
 
-{% block edit_info %}
-  <h4><span class="fas fa-info-circle"></span> Population</h4>
-
-  <p>
-    Define the population of your experiment.
-    All experiments must specify a channel, a version, and a percentage of
-    those users to target.
-  </p>
-
-  <p>
-    All users that are enrolled in your experiment will be assigned to
-    exactly one branch.  There must be at least 1 branch called Control,
-    and any number of additional branches.
-    The size of all branches must add to 100.
-  </p>
-
-  {% if experiment.is_pref_experiment %}
-    <p>
-      The experimental pref will be set to the value of the branch
-      they are assigned to.  When the experiment completes,
-      the pref will be reset to its original value before the
-      experiment started.
-    </p>
-  {% else %}
-    <p>
-      The functionality each user receives in each branch will be
-      determined by your addon.
-    </p>
-  {% endif %}
-{% endblock %}
-
 {% block page_id %}page-edit-timeline-and-population{% endblock %}
 
 {% block extrascripts %}
