@@ -23,7 +23,7 @@
               {{ section_content|urlize|linebreaks }}
             {% endblock %}
           {% elif section_name == "results" and not section_complete %}
-            <p>Please <a href="{% url edit_url_name slug=experiment.slug %}">add results </a> to this experiment.</p>
+            <p>Please <a href="{% url edit_url_name slug=experiment.slug %}">add results </a> to this delivery.</p>
 
           {% else %}
             <p>You must <a href="{% url edit_url_name slug=experiment.slug %}">complete the {{ section_name }} form</a> before you can launch your experiment.</p>

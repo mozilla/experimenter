@@ -28,7 +28,7 @@
        long-running
     {% endif %}
 
-    Experiment{{ paginator.count|pluralize:"s" }}
+    Deliver{{ paginator.count|pluralize:"y,ies" }}
 
     {% if filter.form.firefox_version.value %}
       including Firefox Version
@@ -65,7 +65,7 @@
     <div class="col">
       <a class="col btn btn-primary" href="{% url "experiments-create" %}">
         <span class="fas fa-edit"></span>
-        Create Experiment
+        Create Delivery
       </a>
     </div>
   </div>
@@ -156,7 +156,7 @@
 {% block main_sidebar %}
   <form method="GET">
     <div class="form-group mb-2">
-      <strong>Sort Experiments</strong>
+      <strong>Sort Deliveries</strong>
     </div>
 
     <div class="form-group">
@@ -164,7 +164,7 @@
     </div>
 
     <div class="form-group">
-      <strong>Filter Experiments</strong>
+      <strong>Filter Deliveries</strong>
     </div>
 
     {% for field in filter.form %}

@@ -29,7 +29,7 @@ class ExperimentFilterset(filters.FilterSet):
     search = filters.CharFilter(
         method="filter_search",
         widget=SearchWidget(
-            attrs={"class": "form-control", "placeholder": "Search Experiments"}
+            attrs={"class": "form-control", "placeholder": "Search Deliveries"}
         ),
     )
     type = filters.MultipleChoiceFilter(
@@ -65,16 +65,16 @@ class ExperimentFilterset(filters.FilterSet):
     )
 
     archived = filters.BooleanFilter(
-        label="Show archived experiments",
+        label="Show archived deliveries",
         widget=forms.CheckboxInput(),
         method="archived_filter",
     )
     experiment_date_field = filters.ChoiceFilter(
         empty_label="No Date Restriction",
         choices=[
-            (Experiment.EXPERIMENT_STARTS, "Experiment Starts"),
-            (Experiment.EXPERIMENT_PAUSES, "Experiment Pauses"),
-            (Experiment.EXPERIMENT_ENDS, "Experiment Ends"),
+            (Experiment.EXPERIMENT_STARTS, "Delivery Starts"),
+            (Experiment.EXPERIMENT_PAUSES, "Delivery Pauses"),
+            (Experiment.EXPERIMENT_ENDS, "Delivery Ends"),
         ],
         widget=forms.Select(attrs={"class": "form-control"}),
         method="experiment_date_field_filter",
@@ -85,37 +85,37 @@ class ExperimentFilterset(filters.FilterSet):
     )
 
     in_qa = filters.BooleanFilter(
-        label="Show only experiments in QA",
+        label="Show only deliveries in QA",
         widget=forms.CheckboxInput(),
         method="in_qa_filter",
     )
 
     surveys = filters.BooleanFilter(
-        label="Show experiments with surveys",
+        label="Show deliveries with surveys",
         widget=forms.CheckboxInput(),
         method="surveys_filter",
     )
 
     subscribed = filters.BooleanFilter(
-        label="Show subscribed experiments",
+        label="Show subscribed deliveries",
         widget=forms.CheckboxInput(),
         method="subscribed_filter",
     )
 
     longrunning = filters.BooleanFilter(
-        label="Show long-running experiments",
+        label="Show long-running deliveries",
         widget=forms.CheckboxInput(),
         method="longrunning_filter",
     )
 
     is_paused = filters.BooleanFilter(
-        label="Show enrollment complete experiments",
+        label="Show enrollment complete deliveries",
         widget=forms.CheckboxInput(),
         method="is_paused_filter",
     )
 
     completed_results = filters.BooleanFilter(
-        label="Show experiments with results completed",
+        label="Show deliveries with results completed",
         widget=forms.CheckboxInput(),
         method="completed_results_filter",
     )
