@@ -354,6 +354,18 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
         self.assertTrue(experiment.is_rollout)
 
+    def test_is_pref_rollout(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT, rollout_type=Experiment.TYPE_PREF
+        )
+        self.assertTrue(experiment.is_pref_rollout)
+
+    def test_is_addon_rollout(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT, rollout_type=Experiment.TYPE_ADDON
+        )
+        self.assertTrue(experiment.is_addon_rollout)
+
     def test_normandy_recipe_json_serializes_pref_study(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         recipe_json = json.loads(experiment.normandy_recipe_json)
@@ -853,6 +865,42 @@ class TestExperimentModel(TestCase):
             objectives="Some objectives!", analysis="Some analysis!"
         )
         self.assertTrue(experiment.completed_objectives)
+
+    def test_addon_rollout_completed(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_type=Experiment.TYPE_ADDON,
+            addon_release_url="https://example.com/addon.xpi",
+        )
+        self.assertTrue(experiment.completed_addon_rollout)
+
+    def test_pref_rollout_completed(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_type=Experiment.TYPE_PREF,
+            pref_type=Experiment.PREF_TYPE_STR,
+            pref_key="abc",
+            pref_value="abc",
+        )
+        self.assertTrue(experiment.completed_pref_rollout)
+
+    def test_rollout_completed_for_pref(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_type=Experiment.TYPE_PREF,
+            pref_type=Experiment.PREF_TYPE_STR,
+            pref_key="abc",
+            pref_value="abc",
+        )
+        self.assertTrue(experiment.completed_rollout)
+
+    def test_rollout_completed_for_addon(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_type=Experiment.TYPE_ADDON,
+            addon_release_url="https://example.com/addon.xpi",
+        )
+        self.assertTrue(experiment.completed_rollout)
 
     def test_risk_questions_returns_a_tuple(self):
         experiment = ExperimentFactory.create(
