@@ -43,7 +43,7 @@ class TestIntentToShipEmail(TestCase):
 
         sent_email = mail.outbox[-1]
         self.assertEqual(
-            sent_email.subject, "SHIELD Study Intent to ship: Experiment 56.0 Nightly"
+            sent_email.subject, "Delivery Intent to ship: Experiment 56.0 Nightly"
         )
         self.assertEqual(sent_email.from_email, sender)
         self.assertEqual(
@@ -91,7 +91,7 @@ class TestIntentToShipEmail(TestCase):
 
         sent_email = mail.outbox[-1]
         self.assertEqual(
-            sent_email.subject, "SHIELD Study Intent to ship: Experiment 56.0 Nightly"
+            sent_email.subject, "Delivery Intent to ship: Experiment 56.0 Nightly"
         )
         self.assertIn(f"Experimenter Bug: {bug_url}", sent_email.body)
         self.assertIn(
@@ -145,7 +145,7 @@ class TestStatusUpdateEmail(TestCase):
 
         self.assertEqual(
             sent_email.subject,
-            "Experiment launched: Greatest Experiment 68.0 to 69.0 Nightly",
+            "Delivery launched: Greatest Experiment 68.0 to 69.0 Nightly",
         )
         self.assertTrue(
             self.experiment.emails.filter(
@@ -166,7 +166,7 @@ class TestStatusUpdateEmail(TestCase):
 
         self.assertEqual(
             sent_email.subject,
-            "Experiment ending soon: Greatest Experiment 68.0 to 69.0 Nightly",
+            "Delivery ending soon: Greatest Experiment 68.0 to 69.0 Nightly",
         )
         self.assertEqual(sent_email.content_subtype, "html")
         self.assertTrue(

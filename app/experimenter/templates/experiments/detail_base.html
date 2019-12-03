@@ -34,7 +34,7 @@
       {% if experiment.bugzilla_url %}
         <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.bugzilla_url }}">
           <img class="link-icon" src="{% static "imgs/bugzilla.png" %}" alt="bugzilla">
-          Experiment Bugzilla Ticket
+          Delivery Bugzilla Ticket
         </a>
       {% endif %}
 
@@ -120,10 +120,10 @@
       <strong>
         {% if request.user in experiment.subscribers.all %}
           <span class="fas fa-bell-slash"></span>
-          Unsubscribe from this experiment
+          Unsubscribe from this delivery
         {% else %}
           <span class="fas fa-bell"></span>
-          Subscribe to this experiment
+          Subscribe to this delivery
         {% endif %}
       </strong>
     </button>
@@ -144,9 +144,9 @@
       <strong>
         <span class="fas fa-archive"></span>
         {% if experiment.archived %}
-          Unarchive this experiment
+          Unarchive this delivery
         {% else %}
-          Archive this experiment
+          Archive this delivery
         {% endif %}
       </strong>
     </button>
@@ -160,7 +160,7 @@
   >
     <strong>
       <span class="fas fa-clone"></span>
-      Clone this Experiment
+      Clone this Delivery
     </strong>
   </button>
 
@@ -287,7 +287,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Clone Experiment</h5>
+          <h5 class="modal-title">Clone Delivery</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -296,7 +296,7 @@
         <div class="modal-body">
 
           <div class="form-group">
-            <label for="experiment-name">Name of New Experiment:</label>
+            <label for="experiment-name">Name of New Delivery:</label>
             <input id="experiment-name-input" type="text" class="form-control" name="name" aria-describedby="experimentName" value="{{experiment.name}} V2">
           </div>
 
