@@ -5,16 +5,27 @@
 {% endblock %}
 
 {% block section_content %}
+{% if not experiment.is_multi_pref %}
   {% if experiment.pref_type %}
   <strong>Pref Type</strong> <p>{{ experiment.pref_type }}</p>
   {% endif %}
   {% if experiment.pref_branch %}
   <strong>Pref Branch</strong> <p>{{ experiment.pref_branch }}</p>
   {% endif %}
+{% endif %}
   {% for variant in experiment.variants.all %}
     <div class="border-left-grey pl-3 mb-4">
       <h5>{{ variant.ratio }}% {{ variant.name }}</h5>
-      {% if experiment.is_pref_experiment %}
+      {% if experiment.is_multi_pref %}
+        {% for preference in variant.preferences.all %}
+        
+          <div class="border-left-grey pl-3 ml-2"> 
+            <p><strong> Pref Type = <span class="text-info">{{ preference.pref_type }}</span></strong></p>
+            <p><strong> Pref Branch = <span class="text-info">{{ preference.pref_branch }}</span></strong></p>
+            <p><strong> {{ preference.pref_name }} = <span class="text-info">{{ preference.pref_value }}</span></strong></p>
+          </div>
+        {% endfor %}
+      {% elif experiment.is_pref_experiment %}
         {% if experiment.pref_type == "json string" %}
           <p><strong>{{ experiment.pref_key }} = <pre class="text-info">{{ variant.json_dumps_value}}</pre></strong></p>
         {% else %}

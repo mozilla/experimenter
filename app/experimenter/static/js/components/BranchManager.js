@@ -43,6 +43,11 @@ class BranchManager extends React.PureComponent {
     handleDataChange("variants", branches.set(index, value));
   }
 
+  handleBranchErrorChange(index, value) {
+    const { errors, handleErrorsChange } = this.props;
+    handleErrorsChange("variants", errors.set(index, value));
+  }
+
   renderBranch(branch, index) {
     const { branchFieldsComponent, errors } = this.props;
 
@@ -58,6 +63,9 @@ class BranchManager extends React.PureComponent {
         errors={errors.get(index, new Map())}
         onChange={value => {
           this.handleBranchChange(index, value);
+        }}
+        onErrorChange={errors => {
+          this.handleBranchErrorChange(index, errors);
         }}
       />
     );

@@ -13,6 +13,7 @@ import { makeApiRequest } from "experimenter/utils/api";
 class DesignForm extends React.PureComponent {
   static propTypes = {
     isBranchedAddon: PropTypes.bool,
+    isMultiPref: PropTypes.bool,
     experimentType: PropTypes.string,
     slug: PropTypes.string,
   };
@@ -28,15 +29,20 @@ class DesignForm extends React.PureComponent {
     };
   }
 
+  isMultiPref() {
+    return this.state.data.get("is_multi_pref", this.props.isMultiPref);
+  }
+
   isBranchedAddon() {
-    return (
-      this.state.data.get("is_branched_addon") || this.props.isBranchedAddon
-    );
+    return this.state.data.get("is_branched_addon", this.props.isBranchedAddon);
   }
 
   getEndpointUrl() {
     if (this.isBranchedAddon()) {
       return `experiments/${this.props.slug}/design-branched-addon/`;
+    }
+    if (this.isMultiPref()) {
+      return `experiments/${this.props.slug}/design-multi-pref/`;
     }
     return `experiments/${this.props.slug}/design-${this.props.experimentType}/`;
   }
@@ -115,7 +121,6 @@ class DesignForm extends React.PureComponent {
         </Container>
       );
     }
-
     // Select the appropriate form component to use based on experiment type
     let Form;
     switch (this.state.data.get("type")) {

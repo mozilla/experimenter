@@ -9,6 +9,7 @@ from experimenter.base.models import Country, Locale
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
+    VariantPreferences,
     ExperimentChangeLog,
 )
 
@@ -314,6 +315,12 @@ class ExperimentRecipeMultiPrefVariantSerializer(serializers.ModelSerializer):
         fields = ("preferences", "ratio", "slug")
 
     def get_preferences(self, obj):
+        if self.context["is_multi_pref_formatted"]:
+            return VariantPreferenceArgumentsSerializer(obj.preferences, many=True).data
+
+        return self.format_preferences(obj)
+
+    def format_preferences(self, obj):
         preference_values = {}
         preference_values["preferenceBranchType"] = obj.experiment.pref_branch
         preference_values["preferenceType"] = PrefTypeField().to_representation(
@@ -325,6 +332,16 @@ class ExperimentRecipeMultiPrefVariantSerializer(serializers.ModelSerializer):
         preferences[obj.experiment.pref_key] = preference_values
 
         return preferences
+
+
+class VariantPreferenceArgumentsSerializer(serializers.ModelSerializer):
+    preferenceBranchType = serializers.ReadOnlyField(source="pref_branch")
+    preferenceType = PrefTypeField(source="pref_type")
+    preferenceValue = serializers.ReadOnlyField(source="pref_value")
+
+    class Meta:
+        model = VariantPreferences
+        fields = ("preferenceBranchType", "preferenceType", "preferenceValue")
 
 
 class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
@@ -390,7 +407,11 @@ class ExperimentRecipeMultiPrefArgumentsSerializer(
         )
 
     def get_branches(self, obj):
-        return ExperimentRecipeMultiPrefVariantSerializer(obj.variants, many=True).data
+        return ExperimentRecipeMultiPrefVariantSerializer(
+            obj.variants,
+            many=True,
+            context={"is_multi_pref_formatted": obj.use_multi_pref_serializer},
+        ).data
 
 
 class ExperimentRecipeAddonArgumentsSerializer(serializers.ModelSerializer):
@@ -421,7 +442,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
         )
 
     def get_action_name(self, obj):
-        if obj.is_multi_pref:
+        if obj.use_multi_pref_serializer:
             return "multi-preference-experiment"
         if obj.is_pref_experiment:
             return "preference-experiment"
@@ -446,7 +467,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
         return filter_objects
 
     def get_arguments(self, obj):
-        if obj.is_multi_pref:
+        if obj.use_multi_pref_serializer:
             return ExperimentRecipeMultiPrefArgumentsSerializer(obj).data
         elif obj.is_pref_experiment:
             return ExperimentRecipePrefArgumentsSerializer(obj).data
@@ -489,6 +510,27 @@ class ExperimentCloneSerializer(serializers.ModelSerializer):
         return instance.clone(name, user)
 
 
+class PrefValidationMixin(object):
+
+    def validate_pref(self, pref_type, pref_value, field_name):
+        if pref_type == "integer":
+            try:
+                int(pref_value)
+            except ValueError:
+                return {field_name: "The pref value must be an integer."}
+
+        if pref_type == "boolean":
+            if pref_value not in ["true", "false"]:
+                return {field_name: "The pref value must be a boolean."}
+
+        if pref_type == "json string":
+            try:
+                json.loads(pref_value)
+            except ValueError:
+                return {field_name: "The pref value must be valid JSON."}
+        return {}
+
+
 class VariantsListSerializer(serializers.ListSerializer):
 
     def to_representation(self, data):
@@ -506,6 +548,10 @@ class VariantsListSerializer(serializers.ListSerializer):
             blank_variant["ratio"] = 50
             control_blank_variant["is_control"] = True
             control_blank_variant["ratio"] = 50
+
+            if "preferences" in initial_fields:
+                blank_variant["preferences"] = []
+                control_blank_variant["preferences"] = []
 
             data = [control_blank_variant, blank_variant]
 
@@ -542,6 +588,60 @@ class ExperimentDesignVariantPrefSerializer(ExperimentDesignVariantBaseSerialize
     class Meta(ExperimentDesignVariantBaseSerializer.Meta):
         fields = ["id", "description", "is_control", "name", "ratio", "value"]
         model = ExperimentVariant
+
+
+class ExperimentDesignBranchVariantPreferencesSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+    pref_name = serializers.CharField(max_length=255)
+    pref_type = serializers.CharField(max_length=255)
+    pref_branch = serializers.CharField(max_length=255)
+    pref_value = serializers.CharField(max_length=255)
+
+    class Meta:
+        model = VariantPreferences
+        fields = ["id", "pref_name", "pref_type", "pref_branch", "pref_value"]
+
+
+class ExperimentDesignBranchMultiPrefSerializer(
+    PrefValidationMixin, ExperimentDesignVariantBaseSerializer
+):
+    preferences = ExperimentDesignBranchVariantPreferencesSerializer(many=True)
+
+    class Meta(ExperimentDesignVariantBaseSerializer.Meta):
+        fields = ["id", "description", "is_control", "name", "ratio", "preferences"]
+        model = ExperimentVariant
+
+    def validate_preferences(self, data):
+        if not self.is_pref_valid(data):
+            error_list = [{"pref_name": "Pref name per Branch needs to be unique"}] * len(
+                data
+            )
+            raise serializers.ValidationError(error_list)
+        self.validate_value_type_match(data)
+        return data
+
+    def is_pref_valid(self, preferences):
+        unique_names = len(
+            set([slugify(pref["pref_name"]) for pref in preferences])
+        ) == len(preferences)
+
+        all_contains_alphanumeric_and_spaces = all(
+            Experiment.EXPERIMENT_VARIANT_NAME_REGEX.match(pref["pref_name"])
+            for pref in preferences
+        )
+
+        return unique_names and all_contains_alphanumeric_and_spaces
+
+    def validate_value_type_match(self, preferences):
+        error_list = []
+        for pref in preferences:
+            pref_type = pref.get("pref_type", "")
+            pref_value = pref["pref_value"]
+            field_name = "pref_value"
+            error_list.append(self.validate_pref(pref_type, pref_value, field_name))
+
+            if any(error_list):
+                raise serializers.ValidationError(error_list)
 
 
 class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
@@ -616,28 +716,45 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
         return instance
 
 
-class PrefValidationMixin(object):
+class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
+    is_multi_pref = serializers.BooleanField()
+    variants = ExperimentDesignBranchMultiPrefSerializer(many=True)
 
-    def validate_pref(self, pref_type, pref_value, value):
-        if pref_type == "integer":
-            try:
-                int(pref_value)
-            except ValueError:
-                return {value: "The pref value must be an integer."}
+    class Meta:
+        model = Experiment
+        fields = ("is_multi_pref", "variants")
 
-        if pref_type == "boolean":
-            if pref_value not in ["true", "false"]:
-                return {value: "The pref value must be a boolean."}
+    def update(self, instance, validated_data):
+        variant_preferences = [
+            (v_d, v_d.pop("preferences")) for v_d in validated_data["variants"]
+        ]
 
-        if pref_type == "json string":
-            try:
-                json.loads(pref_value)
-            except ValueError:
-                return {value: "The pref value must be valid JSON."}
-        return {}
+        instance = super().update(instance, validated_data)
+        existing_pref_ids = list(
+            instance.variants.all().values_list("preferences__id", flat=True)
+        )
+        submitted_pref_ids = []
+        for variant_data, prefs in variant_preferences:
+
+            variant = instance.variants.get(name=variant_data["name"])
+            for pref in prefs:
+                pref["variant_id"] = variant.id
+                VariantPreferences(**pref).save()
+
+                if pref.get("id"):
+                    pref_id = pref.get("id")
+                    submitted_pref_ids.append(pref_id)
+
+        removed_ids = set(existing_pref_ids) - set(submitted_pref_ids)
+
+        if removed_ids:
+            VariantPreferences.objects.filter(id__in=removed_ids).delete()
+
+        return instance
 
 
 class ExperimentDesignPrefSerializer(PrefValidationMixin, ExperimentDesignBaseSerializer):
+    is_multi_pref = serializers.BooleanField()
     pref_key = serializers.CharField(max_length=255)
     pref_type = serializers.CharField(max_length=255)
     pref_branch = serializers.CharField(max_length=255)
@@ -645,7 +762,14 @@ class ExperimentDesignPrefSerializer(PrefValidationMixin, ExperimentDesignBaseSe
 
     class Meta:
         model = Experiment
-        fields = ("type", "pref_key", "pref_type", "pref_branch", "variants")
+        fields = (
+            "type",
+            "is_multi_pref",
+            "pref_key",
+            "pref_type",
+            "pref_branch",
+            "variants",
+        )
 
     def validate_pref_type(self, value):
         if value == "Firefox Pref Type":
