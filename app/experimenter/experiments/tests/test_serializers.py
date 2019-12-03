@@ -1506,10 +1506,12 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
             instance=experiment, data=data, context={"request": self.request}
         )
         self.assertTrue(serializer.is_valid())
+        self.assertEqual(experiment.changes.count(),0)
 
         experiment = serializer.save()
 
         self.assertEqual(experiment.pref_key, "second name")
+        self.assertEqual(experiment.changes.count(),1)
 
     def test_serializer_rejects_duplicate_branch_values(self):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
@@ -1528,6 +1530,8 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
         self.assertFalse(serializer.is_valid())
         self.assertIn("variants", serializer.errors)
+        experiment = Experiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.changes.count(),0)
 
     def test_serializer_rejects_no_type_choice(self):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
@@ -1544,6 +1548,8 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(set(serializer.errors), set(["pref_type"]))
+        experiment = Experiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.changes.count(),0)
 
     def test_serializer_rejects_no_branch_choice(self):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
@@ -1578,6 +1584,8 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertIn("variants", serializer.errors)
+        experiment = Experiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.changes.count(), 0)
 
     def test_serializer_accepts_int_branch_values(self):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
@@ -1774,8 +1782,10 @@ class TestExperimentDesignAddonSerializer(MockRequestMixin, TestCase):
             instance=experiment, data=data, context={"request": self.request}
         )
         self.assertTrue(serializer.is_valid())
-
+        self.assertEqual(experiment.changes.count(),0)
         experiment = serializer.save()
+
+        self.assertEqual(experiment.changes.count(),1)
 
     def test_serializer_rejects_too_long_urls(self):
         data = {
@@ -1856,10 +1866,12 @@ class TestExperimentDesignGenericSerializer(MockRequestMixin, TestCase):
             instance=experiment, data=data, context={"request": self.request}
         )
         self.assertTrue(serializer.is_valid())
+        self.assertEqual(experiment.changes.count(),0)
 
         experiment = serializer.save()
 
         self.assertEqual(experiment.design, "Second Design")
+        self.assertEqual(experiment.changes.count(),1)
 
     def test_serializer_outputs_dummy_variants_when_no_variants(self):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
@@ -1928,10 +1940,12 @@ class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
         )
 
         self.assertTrue(serializer.is_valid())
+        self.assertEqual(experiment.changes.count(),0)
 
         experiment = serializer.save()
 
         self.assertTrue(experiment.is_branched_addon)
+        self.assertEqual(experiment.changes.count(),1)
 
 
 class TestCloneSerializer(MockRequestMixin, TestCase):
