@@ -21,7 +21,6 @@ from experimenter.experiments.changelog_utils import generate_change_log
 from experimenter.experiments.models import (
     Experiment,
     ExperimentComment,
-    ExperimentChangeLog,
     ExperimentVariant,
 )
 from experimenter.experiments.serializers import ChangeLogSerializer

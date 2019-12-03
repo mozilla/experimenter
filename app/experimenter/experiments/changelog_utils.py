@@ -1,10 +1,5 @@
 
-from experimenter.experiments.models import (
-    Experiment,
-    ExperimentComment,
-    ExperimentChangeLog,
-    ExperimentVariant,
-)
+from experimenter.experiments.models import ExperimentChangeLog
 
 
 def generate_change_log(

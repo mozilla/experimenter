@@ -645,7 +645,6 @@ class ExperimentDesignBranchMultiPrefSerializer(
                 raise serializers.ValidationError(error_list)
 
 
-
 class ChangelogSerializerMixin(object):
 
     def __init__(self, *args, **kwargs):
