@@ -12,7 +12,7 @@ from experimenter.experiments.models import (
     VariantPreferences,
     ExperimentChangeLog,
 )
-from experimenter.experiments.changelog_utils import generate_changed_values
+from experimenter.experiments.changelog_utils import generate_change_log
 
 
 class JSTimestampField(serializers.Field):
@@ -645,7 +645,29 @@ class ExperimentDesignBranchMultiPrefSerializer(
                 raise serializers.ValidationError(error_list)
 
 
-class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
+
+class ChangelogSerializerMixin(object):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.id:
+            self.old_serialized_vals = ChangeLogSerializer(self.instance).data
+
+    def update_changelog(self, instance, validated_data):
+        instance = self.update_instance(instance, validated_data)
+        new_serialized_vals = ChangeLogSerializer(instance).data
+        user = self.context["request"].user
+        changed_data = validated_data.copy()
+        generate_change_log(
+            self.old_serialized_vals, new_serialized_vals, instance, changed_data, user
+        )
+
+        return instance
+
+
+class ExperimentDesignBaseSerializer(
+    ChangelogSerializerMixin, serializers.ModelSerializer
+):
     type = serializers.CharField(
         required=False, allow_null=True, allow_blank=True, max_length=255
     )
@@ -695,11 +717,7 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
 
         return unique_names and all_contains_alphanumeric_and_spaces
 
-    def update(self, instance, validated_data):
-
-        old_serialized_vals = ChangeLogSerializer(instance).data
-        changed_log = instance.changes.latest()
-        changed_data = validated_data.copy()
+    def update_instance(self, instance, validated_data):
 
         variants_data = validated_data.pop("variants")
         instance = super().update(instance, validated_data)
@@ -717,22 +735,10 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
 
         if removed_ids:
             ExperimentVariant.objects.filter(id__in=removed_ids).delete()
-
-        new_serialized_vals = ChangeLogSerializer(instance).data
-
-        changed_values = generate_changed_values(
-            old_serialized_vals, new_serialized_vals, changed_log, changed_data
-        )
-
-        if changed_values:
-            ExperimentChangeLog.objects.create(
-                experiment=instance,
-                changed_by=self.context["request"].user,
-                old_status=instance.status,
-                new_status=instance.status,
-                changed_values=changed_values,
-            )
         return instance
+
+    def update(self, instance, validated_data):
+        return self.update_changelog(instance, validated_data)
 
 
 class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
@@ -770,7 +776,6 @@ class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
             VariantPreferences.objects.filter(id__in=removed_ids).delete()
 
         return instance
-
 
 
 class ExperimentChangelogVariantSerializer(serializers.ModelSerializer):

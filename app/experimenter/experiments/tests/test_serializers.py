@@ -1,9 +1,14 @@
 import datetime
+from copy import deepcopy
 from decimal import Decimal
 
 from django.test import TestCase
 
-from experimenter.experiments.models import Experiment, ExperimentVariant
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentVariant,
+    ExperimentChangeLog,
+)
 from experimenter.experiments.tests.factories import (
     LocaleFactory,
     CountryFactory,
@@ -11,6 +16,7 @@ from experimenter.experiments.tests.factories import (
     ExperimentVariantFactory,
     VariantPreferencesFactory,
     ExperimentChangeLogFactory,
+    UserFactory,
 )
 from experimenter.experiments.serializers import (
     CountrySerializer,
@@ -43,8 +49,8 @@ from experimenter.experiments.serializers import (
     ExperimentDesignBranchVariantPreferencesSerializer,
     ExperimentDesignMultiPrefSerializer,
     ExperimentDesignBranchMultiPrefSerializer,
+    ChangelogSerializerMixin,
 )
-
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.tests.mixins import MockRequestMixin
 
@@ -436,6 +442,74 @@ class TestExperimentRecipeAddonVariantSerializer(TestCase):
         self.assertEqual(
             {"ratio": 25, "slug": "slug-value", "extensionApiId": None}, serializer.data
         )
+
+
+class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
+
+    def test_update_changelog_creates_no_log_when_no_change(self):
+        experiment = ExperimentFactory.create()
+        data = {"variants": []}
+
+        self.assertEqual(experiment.changes.count(), 0)
+        serializer = ExperimentDesignBaseSerializer(
+            instance=experiment, context={"request": self.request}
+        )
+        experiment = serializer.update_changelog(experiment, data)
+        self.assertEqual(experiment.changes.count(), 1)
+
+    def test_update_change_log_creates_log_with_correct_change(self):
+        
+        experiment = ExperimentFactory.create()
+        variant = ExperimentVariantFactory.create(experiment=experiment, ratio=100, description = "it's a description", name="variant name")
+
+        variant_data = {
+            "ratio": 100,
+            "description": variant.description,
+            "name": variant.name,
+        }
+        changed_values = {
+            "variants": {
+                "new_value": {"variants": [variant_data]},
+                "old_value": None,
+                "display_name": "Branches",
+            }
+        }
+        ExperimentChangeLog.objects.create(
+            experiment=experiment,
+            changed_by=UserFactory(),
+            old_status=Experiment.STATUS_DRAFT,
+            new_status=Experiment.STATUS_DRAFT,
+            changed_values=changed_values,
+            message="",
+        )
+
+        self.assertEqual(experiment.changes.count(), 1)
+
+        change_data = {
+            "variants": [
+                {
+                    "id": variant.id,
+                    "ratio": 100,
+                    "description": "some other description",
+                    "name": "some other name",
+                }
+            ]
+        }
+        changed_data_copy = deepcopy(change_data)
+        serializer = ExperimentDesignBaseSerializer(instance=experiment, context={"request": self.request})
+        serializer.update_changelog(experiment, change_data)
+
+        serializer_variant_data = ExperimentVariantSerializer(variant).data
+        
+        self.assertEqual(experiment.changes.count(),2)
+        changed_values = experiment.changes.latest().changed_values
+
+        variant = ExperimentVariant.objects.get(id=variant.id)
+        changed_serializer_variant_data = ExperimentVariantSerializer(variant).data
+
+        self.assertIn("variants", changed_values)
+        self.assertEqual(changed_values["variants"]["old_value"],[serializer_variant_data] )
+        self.assertEqual(changed_values["variants"]["new_value"],[changed_serializer_variant_data])
 
 
 class TestExperimentRecipeMultiPrefVariantSerialzer(TestCase):
@@ -1805,7 +1879,7 @@ class TestExperimentDesignGenericSerializer(MockRequestMixin, TestCase):
         )
 
 
-class TestExperimentDesignBranchedAddonSerializer(TestCase):
+class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
 
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create_with_variants(
@@ -1850,7 +1924,7 @@ class TestExperimentDesignBranchedAddonSerializer(TestCase):
         data = {"is_branched_addon": True, "variants": [variant_1, variant_2]}
 
         serializer = ExperimentDesignBranchedAddonSerializer(
-            instance=experiment, data=data
+            instance=experiment, data=data, context={"request": self.request}
         )
 
         self.assertTrue(serializer.is_valid())

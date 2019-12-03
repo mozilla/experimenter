@@ -3,14 +3,16 @@ from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
+    UserFactory,
 )
 from experimenter.experiments.serializers import ChangeLogSerializer
-from experimenter.experiments.changelog_utils import generate_changed_values
+
+from experimenter.experiments.changelog_utils import generate_change_log
 
 
 class TestChangeLogUtils(TestCase):
 
-    def test_generate_changed_values_gives_correct_output(self):
+    def test_generate_change_log_gives_correct_output(self):
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_REVIEW,
             num_variants=0,
@@ -55,11 +57,13 @@ class TestChangeLogUtils(TestCase):
             ],
         }
 
-        latest_change = experiment.changes.latest()
+        user = UserFactory.create()
 
-        changed_value = generate_changed_values(
-            old_serialized_val, new_serialized_val, latest_change, changed_data
+        generate_change_log(
+            old_serialized_val, new_serialized_val, experiment, changed_data, user
         )
+
+        changed_value = experiment.changes.latest().changed_values
         expected_changed_value = {
             "firefox_min_version": {
                 "display_name": "Firefox Min Version",
@@ -115,15 +119,14 @@ class TestChangeLogUtils(TestCase):
             expected_changed_value["variants"], changed_value["variants"]
         )
 
-    def test_generate_changed_values_is_empty_when_no_change(self):
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_REVIEW
-        )
+    def test_generate_change_log_is_empty_when_no_change(self):
+        experiment = ExperimentFactory.create()
         old_serialized_val = ChangeLogSerializer(experiment).data
         new_serialized_val = ChangeLogSerializer(experiment).data
-        latest_change = experiment.changes.latest()
         changed_data = {}
-        changed_value = generate_changed_values(
-            old_serialized_val, new_serialized_val, latest_change, changed_data
+        user = UserFactory.create()
+        generate_change_log(
+            old_serialized_val, new_serialized_val, experiment, changed_data, user
         )
-        self.assertEqual(changed_value, {})
+        changed_values = experiment.changes.latest().changed_values
+        self.assertEqual(changed_values, {})

@@ -1,17 +1,29 @@
-# blank lines...
+
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentComment,
+    ExperimentChangeLog,
+    ExperimentVariant,
+)
 
 
-def generate_changed_values(
+def generate_change_log(
     old_serialized_vals,
     new_serialized_vals,
-    latest_change,
+    instance,
     changed_data,
+    user,
+    message=None,
     form_fields=None,
 ):
     changed_values = {}
+    old_status = None
+
+    latest_change = instance.changes.latest()
 
     # account for changes in variant values
     if latest_change:
+        old_status = latest_change.new_status
         if old_serialized_vals["variants"] != new_serialized_vals["variants"]:
             old_value = old_serialized_vals["variants"]
             new_value = new_serialized_vals["variants"]
@@ -34,6 +46,7 @@ def generate_changed_values(
 
     if changed_data:
         if latest_change:
+            old_status = latest_change.new_status
 
             for field in changed_data:
                 old_val = None
@@ -80,7 +93,19 @@ def generate_changed_values(
                         "new_value": new_val,
                         "display_name": display_name,
                     }
-    return changed_values
+    if _has_changed(old_status, changed_values, instance, message):
+        ExperimentChangeLog.objects.create(
+            experiment=instance,
+            changed_by=user,
+            old_status=old_status,
+            new_status=instance.status,
+            changed_values=changed_values,
+            message=message,
+        )
+
+
+def _has_changed(old_status, changed_values, experiment, message):
+    return changed_values or message or old_status != experiment.status
 
 
 def _get_display_name(field, form_fields):
