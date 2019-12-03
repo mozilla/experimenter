@@ -336,7 +336,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "display_name": "Proposed Start Date",
             },
         }
-        self.maxDiff = None
 
         self.assertEqual(expected_data, latest_changes.changed_values)
 
