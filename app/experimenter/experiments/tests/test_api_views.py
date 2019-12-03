@@ -11,10 +11,15 @@ from experimenter.experiments.serializers import (
     ExperimentSerializer,
     ExperimentRecipeSerializer,
     ExperimentDesignPrefSerializer,
+    ExperimentDesignMultiPrefSerializer,
     ExperimentDesignAddonSerializer,
     ExperimentDesignGenericSerializer,
 )
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.factories import (
+    ExperimentFactory,
+    ExperimentVariantFactory,
+    VariantPreferencesFactory,
+)
 
 
 class TestExperimentListView(TestCase):
@@ -203,6 +208,7 @@ class TestExperimentDesignPrefView(TestCase):
         data = json.dumps(
             {
                 "type": "pref",
+                "is_multi_pref": False,
                 "pref_key": "pref 1",
                 "pref_branch": "default",
                 "pref_type": "string",
@@ -258,6 +264,97 @@ class TestExperimentDesignPrefView(TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["pref_key"], ["This field is required."])
+
+
+class TestExperimentDesignMultiPrefView(TestCase):
+
+    def setUp(self):
+        self.user_email = "user@example.com"
+        self.experiment = ExperimentFactory.create(type="pref")
+        self.variant = ExperimentVariantFactory.create(
+            experiment=self.experiment, is_control=True
+        )
+        self.preference = VariantPreferencesFactory.create(variant=self.variant)
+
+    def test_get_design_multi_pref_returns_design_info(self):
+
+        response = self.client.get(
+            reverse(
+                "experiments-design-multi-pref", kwargs={"slug": self.experiment.slug}
+            ),
+            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        json_data = json.loads(response.content)
+        serialized_experiment = ExperimentDesignMultiPrefSerializer(self.experiment).data
+        self.assertEqual(serialized_experiment, json_data)
+
+    def test_put_to_view_save_design_info(self):
+        experiment = ExperimentFactory.create(
+            name="an experiment", slug="an-experiment", type="pref"
+        )
+        variant = {
+            "name": "variant1",
+            "ratio": 100,
+            "description": "variant1 description",
+            "is_control": True,
+            "preferences": [
+                {
+                    "pref_name": "the name is pref name",
+                    "pref_value": "it's a string value",
+                    "pref_type": "string",
+                    "pref_branch": "default",
+                }
+            ],
+        }
+        data = json.dumps(
+            {"type": Experiment.TYPE_PREF, "is_multi_pref": True, "variants": [variant]}
+        )
+
+        response = self.client.put(
+            reverse("experiments-design-multi-pref", kwargs={"slug": experiment.slug}),
+            data,
+            content_type="application/json",
+            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_put_to_view_returns_400_for_dup_pref_name(self):
+        experiment = ExperimentFactory.create(
+            name="an experiment", slug="an-experiment", type="pref"
+        )
+        variant = {
+            "name": "variant1",
+            "ratio": 100,
+            "description": "variant1 description",
+            "is_control": True,
+            "preferences": [
+                {
+                    "pref_name": "the name is pref name",
+                    "pref_value": "it's a string value",
+                    "pref_type": "string",
+                    "pref_branch": "default",
+                },
+                {
+                    "pref_name": "the name is pref name",
+                    "pref_value": "it's another string value",
+                    "pref_type": "string",
+                    "pref_branch": "default",
+                },
+            ],
+        }
+        data = json.dumps({"variants": [variant]})
+
+        response = self.client.put(
+            reverse("experiments-design-multi-pref", kwargs={"slug": experiment.slug}),
+            data,
+            content_type="application/json",
+            **{settings.OPENIDC_EMAIL_HEADER: self.user_email},
+        )
+
+        self.assertEqual(response.status_code, 400)
 
 
 class TestExperimentDesignAddonView(TestCase):
