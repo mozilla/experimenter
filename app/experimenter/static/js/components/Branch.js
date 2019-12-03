@@ -14,12 +14,17 @@ class Branch extends React.PureComponent {
     errors: PropTypes.instanceOf(Map),
     index: PropTypes.number,
     onChange: PropTypes.func,
+    onErrorChange: PropTypes.func,
     remove: PropTypes.func,
   };
 
   handleBranchFieldChange(key, value) {
     const { onChange, branch } = this.props;
     onChange(branch.set(key, value));
+  }
+  handleErrorBranchFieldChange(key, value) {
+    const { onErrorChange, errors } = this.props;
+    onErrorChange(errors.set(key, value));
   }
 
   renderTitle() {
@@ -80,6 +85,7 @@ class Branch extends React.PureComponent {
           branch={this.props.branch}
           errors={this.props.errors}
           onChange={this.handleBranchFieldChange}
+          onErrorChange={this.handleErrorBranchFieldChange}
           index={this.props.index}
           renderField={this.renderField}
         />
