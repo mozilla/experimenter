@@ -16,7 +16,7 @@
 {% block edit_form %}
 
   <div class="form-group row">
-    <h4 class="col-9 offset-3">Experiment Timeline</h4>
+    <h4 class="col-9 offset-3">Delivery Timeline</h4>
   </div>
 
   {% include "experiments/field_inline.html" with field=form.proposed_start_date marked_required=True %}
@@ -29,7 +29,7 @@
   <hr class="heavy-line my-5">
 
   <div class="form-group row">
-    <h4 class="col-9 offset-3">Experiment Population</h4>
+    <h4 class="col-9 offset-3">Delivery Population</h4>
   </div>
 
   {% include "experiments/field_inline.html" with field=form.population_percent marked_required=True %}

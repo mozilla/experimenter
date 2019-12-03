@@ -196,7 +196,7 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
     )
     owner = forms.ModelChoiceField(
         required=True,
-        label="Experiment Owner",
+        label="Delivery Owner",
         help_text=Experiment.OWNER_HELP_TEXT,
         queryset=get_user_model().objects.all().order_by("email"),
         # This one forces the <select> widget to not include a blank
@@ -241,9 +241,9 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         widget=forms.Textarea(attrs={"rows": 3}),
     )
     related_to = forms.ModelMultipleChoiceField(
-        label="Related Experiments",
+        label="Related Deliveries",
         required=False,
-        help_text="Is this related to a previously run experiment?",
+        help_text="Is this related to a previously run delivery?",
         queryset=Experiment.objects.all(),
     )
 
@@ -452,7 +452,7 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
     proposed_duration = forms.IntegerField(
         required=False,
         min_value=1,
-        label="Proposed Experiment Duration (days)",
+        label="Proposed Delivery Duration (days)",
         help_text=Experiment.PROPOSED_DURATION_HELP_TEXT,
         widget=forms.NumberInput(attrs={"class": "form-control"}),
     )
@@ -581,7 +581,7 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
 
         if start_date and start_date < timezone.now().date():
             raise forms.ValidationError(
-                "The experiment start date must be no earlier than the current date."
+                "The delivery start date must be no earlier than the current date."
             )
 
         return start_date
@@ -596,9 +596,9 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
         if (enrollment and duration) and enrollment > duration:
             msg = (
                 "Enrollment duration is optional, but if set, "
-                "must be lower than the experiment duration. "
+                "must be lower than the delivery duration. "
                 "If enrollment duration is not specified - users "
-                "are enrolled for the entire experiment."
+                "are enrolled for the entire delivery."
             )
             self._errors["proposed_enrollment"] = [msg]
 
@@ -1271,7 +1271,7 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
         if self.old_status != self.new_status and not expected_status:
             raise forms.ValidationError(
                 (
-                    "You can not change an Experiment's status "
+                    "You can not change a Delivery's status "
                     "from {old_status} to {new_status}"
                 ).format(old_status=self.old_status, new_status=self.new_status)
             )
@@ -1318,16 +1318,16 @@ class ExperimentArchiveForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm
         return not self.instance.archived
 
     def get_changelog_message(self):
-        message = "Archived Experiment"
+        message = "Archived Delivery"
         if not self.instance.archived:
-            message = "Unarchived Experiment"
+            message = "Unarchived Delivery"
         return message
 
     def save(self, *args, **kwargs):
         experiment = Experiment.objects.get(id=self.instance.id)
 
         if not experiment.is_archivable:
-            notification_msg = "This experiment cannot be archived in its current state!"
+            notification_msg = "This delivery cannot be archived in its current state!"
             Notification.objects.create(user=self.request.user, message=notification_msg)
             return experiment
 

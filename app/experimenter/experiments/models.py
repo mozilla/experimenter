@@ -846,16 +846,16 @@ class ExperimentChangeLogManager(models.Manager):
 
 
 class ExperimentChangeLog(models.Model):
-    STATUS_NONE_DRAFT = "Created Experiment"
-    STATUS_DRAFT_DRAFT = "Edited Experiment"
+    STATUS_NONE_DRAFT = "Created Delivery"
+    STATUS_DRAFT_DRAFT = "Edited Delivery"
     STATUS_DRAFT_REVIEW = "Ready for Sign-Off"
     STATUS_REVIEW_DRAFT = "Return to Draft"
-    STATUS_REVIEW_REVIEW = "Edited Experiment"
+    STATUS_REVIEW_REVIEW = "Edited Delivery"
     STATUS_REVIEW_SHIP = "Marked as Ready to Ship"
     STATUS_SHIP_ACCEPTED = "Accepted by Normandy"
     STATUS_SHIP_REVIEW = "Canceled Ready to Ship"
-    STATUS_ACCEPTED_LIVE = "Launched Experiment"
-    STATUS_LIVE_COMPLETE = "Completed Experiment"
+    STATUS_ACCEPTED_LIVE = "Launched Delivery"
+    STATUS_LIVE_COMPLETE = "Completed Delivery"
     STATUS_ADDED_RESULTS = "Added Results"
 
     PRETTY_STATUS_LABELS = {
