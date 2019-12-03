@@ -491,6 +491,14 @@ class Experiment(ExperimentConstants, models.Model):
         return self.type == self.TYPE_ROLLOUT
 
     @property
+    def is_pref_rollout(self):
+        return self.is_rollout and self.rollout_type == self.TYPE_PREF
+
+    @property
+    def is_addon_rollout(self):
+        return self.is_rollout and self.rollout_type == self.TYPE_ADDON
+
+    @property
     def is_editable(self):
         return self.status in (self.STATUS_DRAFT, self.STATUS_REVIEW)
 
@@ -501,6 +509,10 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def is_high_risk(self):
         return any(self._risk_questions)
+
+    @property
+    def should_have_variants(self):
+        return self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC)
 
     @property
     def completed_overview(self):
@@ -524,6 +536,20 @@ class Experiment(ExperimentConstants, models.Model):
         return self.design and self.design != self.DESIGN_DEFAULT
 
     @property
+    def completed_pref_rollout(self):
+        return self.is_pref_rollout and all(
+            [self.pref_type, self.pref_key, self.pref_value]
+        )
+
+    @property
+    def completed_addon_rollout(self):
+        return self.is_addon_rollout and self.addon_release_url
+
+    @property
+    def completed_rollout(self):
+        return self.completed_pref_rollout or self.completed_addon_rollout
+
+    @property
     def completed_addon(self):
         if self.is_branched_addon:
             return all([v.addon_release_url for v in self.variants.all()])
@@ -532,7 +558,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_variants(self):
-        return self.variants.exists()
+        return self.should_have_variants and self.variants.exists()
 
     @property
     def completed_objectives(self):

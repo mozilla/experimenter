@@ -1,0 +1,33 @@
+{% extends "experiments/section_base.html" %}
+
+{% block section_title %}
+  Rollout
+{% endblock %}
+
+{% block section_content %}
+  <strong>Rollout Playbook</strong>
+  <p>{{ experiment.rollout_playbook }}</p>
+  {% if experiment.pref_type %}
+  <strong>Pref Type</strong> <p>{{ experiment.pref_type }}</p>
+  {% endif %}
+  {% if experiment.pref_branch %}
+  <strong>Pref Branch</strong> <p>{{ experiment.pref_branch }}</p>
+  {% endif %}
+  {% for variant in experiment.variants.all %}
+    <div class="border-left-grey pl-3 mb-4">
+      <h5>{{ variant.ratio }}% {{ variant.name }}</h5>
+      {% if experiment.is_pref_experiment %}
+        {% if experiment.pref_type == "json string" %}
+          <p><strong>{{ experiment.pref_key }} = <pre class="text-info">{{ variant.json_dumps_value}}</pre></strong></p>
+        {% else %}
+          <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
+        {% endif %}
+      {% endif %}
+      <p>{{ variant.description|urlize|linebreaks }}</p>
+      {% if experiment.is_branched_addon %}
+        <p><strong>Addon Release URL: </strong></p>
+        <p>{{ variant.addon_release_url|urlize }}</p>
+      {% endif %}
+    </div>
+  {% endfor %}
+{% endblock %}

@@ -183,6 +183,7 @@ class ExperimentConstants(object):
     SECTION_POPULATION = "population"
     SECTION_DESIGN = "design"
     SECTION_ADDON = "addon"
+    SECTION_ROLLOUT = "rollout"
     SECTION_BRANCHES = "branches"
     SECTION_OBJECTIVES = "objectives"
     SECTION_ANALYSIS = "analysis"
@@ -198,6 +199,7 @@ class ExperimentConstants(object):
         (SECTION_POPULATION, "Population"),
         (SECTION_DESIGN, "Design"),
         (SECTION_ADDON, "Add-On"),
+        (SECTION_ROLLOUT, "Rollout"),
         (SECTION_BRANCHES, "Branches"),
         (SECTION_OBJECTIVES, "Objectives"),
         (SECTION_ANALYSIS, "Analysis"),
