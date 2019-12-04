@@ -569,7 +569,7 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
         firefox_max_version = self.cleaned_data.get("firefox_max_version")
 
         if firefox_min_version and firefox_max_version:
-            if firefox_max_version <= firefox_min_version:
+            if firefox_max_version < firefox_min_version:
                 raise forms.ValidationError(
                     "The max version must be larger than the min version."
                 )
