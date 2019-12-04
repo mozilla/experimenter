@@ -732,9 +732,9 @@ class ExperimentDesignBaseSerializer(
 
         if removed_ids:
             ExperimentVariant.objects.filter(id__in=removed_ids).delete()
-            
+
         self.update_changelog(instance, validated_data)
-        
+
         return instance
 
 
