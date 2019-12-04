@@ -313,7 +313,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             "proposed_duration": {
                 "new_value": 20,
                 "old_value": None,
-                "display_name": "Proposed Experiment Duration (days)",
+                "display_name": "Proposed Delivery Duration (days)",
             },
             "population_percent": {
                 "new_value": "10.0000",
@@ -1882,7 +1882,7 @@ class TestExperimentArchiveForm(MockRequestMixin, MockTasksMixin, TestCase):
 
         self.assertEqual(self.mock_tasks_update_bug_resolution.delay.call_count, 1)
         self.assertTrue(experiment.archived)
-        self.assertEqual(experiment.changes.latest().message, "Archived Experiment")
+        self.assertEqual(experiment.changes.latest().message, "Archived Delivery")
 
         form = ExperimentArchiveForm(self.request, instance=experiment, data={})
         self.assertTrue(form.is_valid())
@@ -1890,7 +1890,7 @@ class TestExperimentArchiveForm(MockRequestMixin, MockTasksMixin, TestCase):
         experiment = form.save()
         self.assertEqual(self.mock_tasks_update_bug_resolution.delay.call_count, 2)
         self.assertFalse(experiment.archived)
-        self.assertEqual(experiment.changes.latest().message, "Unarchived Experiment")
+        self.assertEqual(experiment.changes.latest().message, "Unarchived Delivery")
 
     def test_form_stays_unarchived_when_live(self):
         self.assertEqual(Notification.objects.count(), 0)

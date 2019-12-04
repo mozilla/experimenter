@@ -176,7 +176,7 @@ class TestExperimentListView(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         html = response.content.decode("utf-8")
-        total_count_regex = re.compile(rf"{number_of_experiments}\s+Experiments")
+        total_count_regex = re.compile(rf"{number_of_experiments}\s+Deliveries")
         self.assertTrue(total_count_regex.search(html))
 
         # Go to page 2, and the total shouldn't change.
