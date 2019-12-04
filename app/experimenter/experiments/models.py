@@ -414,14 +414,17 @@ class Experiment(ExperimentConstants, models.Model):
             return self.proposed_duration - self.proposed_enrollment
         return 0
 
+    def _format_date(self, date):
+        return date.strftime("%b %d, %Y")
+
     def _format_date_string(self, start_date, end_date):
         start_text = "Unknown"
         if start_date:
-            start_text = start_date.strftime("%b %d, %Y")
+            start_text = self._format_date(start_date)
 
         end_text = "Unknown"
         if end_date:
-            end_text = end_date.strftime("%b %d, %Y")
+            end_text = self._format_date(end_date)
 
         day_text = "days"
         duration_text = "Unknown"
@@ -447,6 +450,50 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def observation_dates(self):
         return self._format_date_string(self.enrollment_end_date, self.end_date)
+
+    @property
+    def rollout_dates(self):
+        if self.start_date and self.end_date:
+            dates = {}
+
+            start_date = self._format_date(self.start_date)
+            first_increase = self._format_date(self.start_date + datetime.timedelta(days=7))
+            final_increase = self._format_date(self.start_date + datetime.timedelta(days=21))
+
+            if self.rollout_playbook == self.ROLLOUT_PLAYBOOK_LOW_RISK:
+                dates["first_increase"] = {
+                    "date": start_date,
+                    "percent": "25%",
+                }
+                dates["second_increase"] = {
+                    "date": first_increase,
+                    "percent": "75%",
+                }
+                dates["final_increase"] = {
+                    "date": final_increase,
+                    "percent": "100%",
+                }
+            elif self.rollout_playbook == self.ROLLOUT_PLAYBOOK_HIGH_RISK:
+                dates["first_increase"] = {
+                    "date": start_date,
+                    "percent": "25%",
+                }
+                dates["second_increase"] = {
+                    "date": first_increase,
+                    "percent": "50%",
+                }
+                dates["final_increase"] = {
+                    "date": final_increase,
+                    "percent": "100%",
+                }
+            elif self.rollout_playbook == self.ROLLOUT_PLAYBOOK_MARKETING:
+                dates["final_increase"] = {
+                    "date": start_date,
+                    "percent": "100%",
+                }
+
+
+            return dates
 
     @cached_property
     def control(self):
@@ -520,7 +567,12 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_timeline(self):
-        return self.proposed_start_date and self.proposed_duration
+        completed = self.proposed_start_date and self.proposed_duration
+
+        if self.is_rollout:
+            completed = completed and self.rollout_playbook
+
+        return completed
 
     @property
     def completed_population(self):

@@ -377,6 +377,14 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.PROPOSED_ENROLLMENT_HELP_TEXT,
         widget=forms.NumberInput(attrs={"class": "form-control"}),
     )
+    rollout_playbook = forms.ChoiceField(
+        required=False,
+        label="Rollout Playbook",
+        choices=Experiment.ROLLOUT_PLAYBOOK_CHOICES,
+        widget=forms.Select(attrs={"class": "form-control"}),
+        help_text=Experiment.ROLLOUT_PLAYBOOK_HELP_TEXT,
+
+    )
     population_percent = forms.DecimalField(
         required=False,
         label="Population Percentage",
@@ -443,6 +451,7 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
             "proposed_start_date",
             "proposed_duration",
             "proposed_enrollment",
+            "rollout_playbook",
             "population_percent",
             "firefox_min_version",
             "firefox_max_version",

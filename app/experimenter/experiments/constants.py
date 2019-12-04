@@ -27,10 +27,11 @@ class ExperimentConstants(object):
     ROLLOUT_PLAYBOOK_MARKETING = "marketing"
     ROLLOUT_PLAYBOOK_CUSTOM = "custom"
     ROLLOUT_PLAYBOOK_CHOICES = (
+        (None, "Rollout Playbook"),
         (ROLLOUT_PLAYBOOK_LOW_RISK, "Low Risk Schedule"),
         (ROLLOUT_PLAYBOOK_HIGH_RISK, "High Risk Schedule"),
         (ROLLOUT_PLAYBOOK_MARKETING, "Marketing Launch Schedule"),
-        (ROLLOUT_PLAYBOOK_CUSTOM, "Custom"),
+        (ROLLOUT_PLAYBOOK_CUSTOM, "Custom Schedule"),
     )
 
     # date range stuff
@@ -336,6 +337,18 @@ class ExperimentConstants(object):
       </p>
       <p>
         <strong>Example:</strong> 10
+      </p>
+    """
+
+    ROLLOUT_PLAYBOOK_HELP_TEXT = """
+      <p>
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=90737068#StagedRollouts/GradualRollouts-Playbooks"
+        >
+          Playbook Help
+        </a>
       </p>
     """
 

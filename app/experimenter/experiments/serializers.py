@@ -853,9 +853,6 @@ class ExperimentDesignBranchedAddonSerializer(ExperimentDesignBaseSerializer):
 
 
 class ExperimentDesignRolloutSerializer(ExperimentDesignBaseSerializer):
-    rollout_playbook = serializers.ChoiceField(
-        choices=Experiment.ROLLOUT_PLAYBOOK_CHOICES
-    )
     rollout_type = serializers.ChoiceField(choices=Experiment.ROLLOUT_TYPE_CHOICES)
     addon_release_url = serializers.URLField(
         max_length=400, allow_null=True, required=False
@@ -869,7 +866,6 @@ class ExperimentDesignRolloutSerializer(ExperimentDesignBaseSerializer):
     class Meta:
         model = Experiment
         fields = (
-            "rollout_playbook",
             "rollout_type",
             "design",
             "addon_release_url",

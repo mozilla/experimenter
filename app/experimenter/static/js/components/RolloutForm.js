@@ -132,26 +132,6 @@ export default class RolloutForm extends React.PureComponent {
         </Row>
 
         <DesignInput
-          label="Playbook"
-          name="rollout_playbook"
-          onChange={value => {
-            this.props.handleDataChange("rollout_playbook", value);
-          }}
-          value={this.props.data.get("rollout_playbook")}
-          error={this.props.errors.get("rollout_playbook", "")}
-          as="select"
-          helpContent={ROLLOUT_PLAYBOOK_HELP}
-        >
-          <option>Select Playbook</option>
-          <option value={ROLLOUT_PLAYBOOK_LOW_RISK}>Low Risk</option>
-          <option value={ROLLOUT_PLAYBOOK_HIGH_RISK}>High Risk</option>
-          <option value={ROLLOUT_PLAYBOOK_MARKETING}>
-            Marketing Launch Schedule
-          </option>
-          <option value={ROLLOUT_PLAYBOOK_CUSTOM}>Custom</option>
-        </DesignInput>
-
-        <DesignInput
           label="Description"
           name="design"
           onChange={value => {
