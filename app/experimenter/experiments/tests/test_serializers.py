@@ -445,14 +445,37 @@ class TestExperimentRecipeAddonVariantSerializer(TestCase):
 class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
 
     def test_update_changelog_creates_no_log_when_no_change(self):
-        experiment = ExperimentFactory.create()
-        data = {"variants": []}
-
-        self.assertEqual(experiment.changes.count(), 0)
-        serializer = ExperimentDesignBaseSerializer(
-            instance=experiment, context={"request": self.request}
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_DRAFT, num_variants=0
         )
-        experiment = serializer.update_changelog(experiment, data)
+        variant = ExperimentVariantFactory.create(
+            ratio=100,
+            name="variant name",
+            experiment=experiment,
+            value=None,
+            addon_release_url=None,
+        )
+
+        data = {
+            "variants": [
+                {
+                    "id": variant.id,
+                    "ratio": variant.ratio,
+                    "description": variant.description,
+                    "name": variant.name,
+                    "is_control": variant.is_control,
+                }
+            ]
+        }
+
+        self.assertEqual(experiment.changes.count(), 1)
+        serializer = ExperimentDesignBaseSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
+
         self.assertEqual(experiment.changes.count(), 1)
 
     def test_update_change_log_creates_log_with_correct_change(self):
@@ -495,13 +518,16 @@ class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
                     "ratio": 100,
                     "description": "some other description",
                     "name": "some other name",
+                    "is_control": False,
                 }
             ]
         }
         serializer = ExperimentDesignBaseSerializer(
-            instance=experiment, context={"request": self.request}
+            instance=experiment, data=change_data, context={"request": self.request}
         )
-        serializer.update_changelog(experiment, change_data)
+
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
 
         serializer_variant_data = ExperimentVariantSerializer(variant).data
 
