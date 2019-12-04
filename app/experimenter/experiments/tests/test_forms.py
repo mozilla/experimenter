@@ -826,6 +826,12 @@ class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("firefox_max_version", form.errors)
 
+    def test_form_is_valid_if_firefox_max_is_equal_to_min(self):
+        self.data["firefox_min_version"] = "66.0"
+        self.data["firefox_max_version"] = "66.0"
+        form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
+        self.assertTrue(form.is_valid())
+
 
 @parameterized_class(
     ["form_class"],
