@@ -653,7 +653,6 @@ class ChangelogSerializerMixin(object):
             self.old_serialized_vals = ChangeLogSerializer(self.instance).data
 
     def update_changelog(self, instance, validated_data):
-        instance = self.update_instance(instance, validated_data)
         new_serialized_vals = ChangeLogSerializer(instance).data
         user = self.context["request"].user
         changed_data = validated_data.copy()
@@ -716,8 +715,7 @@ class ExperimentDesignBaseSerializer(
 
         return unique_names and all_contains_alphanumeric_and_spaces
 
-    def update_instance(self, instance, validated_data):
-
+    def update(self, instance, validated_data):
         variants_data = validated_data.pop("variants")
         instance = super().update(instance, validated_data)
 
@@ -734,10 +732,10 @@ class ExperimentDesignBaseSerializer(
 
         if removed_ids:
             ExperimentVariant.objects.filter(id__in=removed_ids).delete()
+            
+        self.update_changelog(instance, validated_data)
+        
         return instance
-
-    def update(self, instance, validated_data):
-        return self.update_changelog(instance, validated_data)
 
 
 class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
