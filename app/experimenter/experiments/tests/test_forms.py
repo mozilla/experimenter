@@ -511,6 +511,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.name, self.data["name"])
         self.assertEqual(experiment.slug, "a-new-experiment")
         self.assertEqual(experiment.short_description, self.data["short_description"])
+        self.assertEqual(experiment.changes.count(), 1)
 
     def test_form_creates_experiment(self):
         form = ExperimentOverviewForm(request=self.request, data=self.data)
@@ -579,11 +580,15 @@ class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
             request=self.request, data=self.data, instance=experiment
         )
 
+        self.assertEqual(experiment.changes.count(), 1)
+
         experiment = form.save()
 
         self.assertEqual(experiment.proposed_start_date, self.data["proposed_start_date"])
         self.assertEqual(experiment.firefox_max_version, self.data["firefox_max_version"])
         self.assertEqual(experiment.firefox_channel, self.data["firefox_channel"])
+
+        self.assertEqual(experiment.changes.count(), 2)
 
     def test_enrollment_must_be_less_or_equal_duration(self):
         self.data["proposed_enrollment"] = 2
@@ -796,6 +801,7 @@ class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
 
     def test_form_saves_population(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        self.assertEqual(experiment.changes.count(), 1)
 
         form = ExperimentTimelinePopulationForm(
             request=self.request, data=self.data, instance=experiment
@@ -810,6 +816,8 @@ class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.firefox_channel, self.data["firefox_channel"])
         self.assertEqual(experiment.client_matching, self.data["client_matching"])
         self.assertEqual(experiment.platform, self.data["platform"])
+
+        self.assertEqual(experiment.changes.count(), 2)
 
     def test_form_is_invalid_if_firefox_max_is_lower_than_min(self):
         self.data["firefox_min_version"] = "66.0"
@@ -1400,6 +1408,7 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
 
     def test_form_saves_objectives(self):
         created_experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        self.assertEqual(created_experiment.changes.count(), 1)
 
         data = {
             "objectives": "The objective is to experiment!",
@@ -1421,6 +1430,8 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
         self.assertTrue(experiment.survey_required)
         self.assertEqual(experiment.survey_urls, data["survey_urls"])
         self.assertEqual(experiment.survey_instructions, data["survey_instructions"])
+
+        self.assertEqual(experiment.changes.count(), 2)
 
 
 class TestExperimentRisksForm(MockRequestMixin, TestCase):
@@ -1454,6 +1465,7 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
 
     def test_form_saves_risks(self):
         created_experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        self.assertEqual(created_experiment.changes.count(), 1)
 
         data = self.valid_data.copy()
         form = ExperimentRisksForm(
@@ -1478,11 +1490,14 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.test_builds, data["test_builds"])
         self.assertEqual(experiment.qa_status, data["qa_status"])
 
+        self.assertEqual(experiment.changes.count(), 2)
+
 
 class TestExperimentResultsForm(MockRequestMixin, TestCase):
 
     def test_form_saves_results(self):
         experiment = ExperimentFactory.create()
+        self.assertEqual(experiment.changes.count(), 0)
         data = {
             "results_url": "https://example.com",
             "results_initial": "Initially, all went well.",
@@ -1497,6 +1512,8 @@ class TestExperimentResultsForm(MockRequestMixin, TestCase):
 
         self.assertEqual(experiment.results_url, "https://example.com")
         self.assertEqual(experiment.results_initial, "Initially, all went well.")
+
+        self.assertEqual(experiment.changes.count(), 1)
 
 
 class TestExperimentReviewForm(
@@ -1515,6 +1532,7 @@ class TestExperimentReviewForm(
         self.request.user = user
 
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_REVIEW)
+        self.assertEqual(experiment.changes.count(), 2)
 
         self.assertFalse(experiment.review_science)
         self.assertFalse(experiment.review_engineering)
@@ -1571,8 +1589,11 @@ class TestExperimentReviewForm(
         self.assertTrue(experiment.review_comms)
         self.assertTrue(experiment.review_impacted_teams)
 
+        self.assertEqual(experiment.changes.count(), 3)
+
     def test_added_reviews_property(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_REVIEW)
+        self.assertEqual(experiment.changes.count(), 2)
 
         data = {"review_bugzilla": True, "review_science": True}
 
@@ -1586,10 +1607,14 @@ class TestExperimentReviewForm(
         self.assertIn(form.fields["review_bugzilla"].label, form.added_reviews)
         self.assertIn(form.fields["review_science"].label, form.added_reviews)
 
+        self.assertEqual(experiment.changes.count(), 3)
+
     def test_removed_reviews_property(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW, review_bugzilla=True, review_science=True
         )
+
+        self.assertEqual(experiment.changes.count(), 2)
 
         data = {"review_bugzilla": False, "review_science": False}
 
@@ -1602,6 +1627,8 @@ class TestExperimentReviewForm(
         self.assertEqual(len(form.removed_reviews), 2)
         self.assertIn(form.fields["review_bugzilla"].label, form.removed_reviews)
         self.assertIn(form.fields["review_science"].label, form.removed_reviews)
+
+        self.assertEqual(experiment.changes.count(), 3)
 
     def test_required_reviews(self):
         experiment = ExperimentFactory.create_with_status(
