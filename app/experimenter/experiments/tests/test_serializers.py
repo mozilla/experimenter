@@ -1008,11 +1008,7 @@ class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
         )
 
     def test_serializer_saves_multipref_experiment_design(self):
-        data = {
-            "type": Experiment.TYPE_PREF,
-            "is_multi_pref": True,
-            "variants": [self.control_variant, self.branch1],
-        }
+        data = {"is_multi_pref": True, "variants": [self.control_variant, self.branch1]}
 
         serializer = ExperimentDesignMultiPrefSerializer(
             instance=self.experiment, data=data, context={"request": self.request}
@@ -1102,11 +1098,7 @@ class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
         self.assertEqual(variant.preferences.all().count(), 1)
         self.assertTrue(variant.preferences.get(id=variant_pref.id))
 
-        data = {
-            "type": Experiment.TYPE_PREF,
-            "is_multi_pref": False,
-            "variants": [self.control_variant],
-        }
+        data = {"is_multi_pref": False, "variants": [self.control_variant]}
         serializer = ExperimentDesignMultiPrefSerializer(
             instance=self.experiment, data=data, context={"request": self.request}
         )
@@ -1131,11 +1123,7 @@ class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
         self.assertEqual(variant.preferences.all().count(), 1)
         self.assertTrue(variant.preferences.get(id=variant_pref.id))
 
-        data = {
-            "type": Experiment.TYPE_PREF,
-            "is_multi_pref": True,
-            "variants": [self.control_variant],
-        }
+        data = {"is_multi_pref": True, "variants": [self.control_variant]}
         serializer = ExperimentDesignMultiPrefSerializer(
             instance=self.experiment, data=data, context={"request": self.request}
         )
@@ -1253,10 +1241,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
 
         self.assertEqual(experiment.variants.all().count(), 0)
 
-        data = {
-            "type": ExperimentConstants.TYPE_GENERIC,
-            "variants": [self.control_variant_data, self.treatment_variant_data],
-        }
+        data = {"variants": [self.control_variant_data, self.treatment_variant_data]}
 
         serializer = ExperimentDesignBaseSerializer(
             instance=experiment, data=data, context={"request": self.request}
@@ -1296,10 +1281,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         self.control_variant_data["id"] = control_variant.id
         self.treatment_variant_data["id"] = treatment_variant.id
 
-        data = {
-            "type": ExperimentConstants.TYPE_GENERIC,
-            "variants": [self.control_variant_data, self.treatment_variant_data],
-        }
+        data = {"variants": [self.control_variant_data, self.treatment_variant_data]}
 
         serializer = ExperimentDesignBaseSerializer(
             instance=experiment, data=data, context={"request": self.request}
@@ -1340,10 +1322,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         self.control_variant_data["id"] = control_variant.id
         self.treatment_variant_data["id"] = treatment2_variant.id
 
-        data = {
-            "type": ExperimentConstants.TYPE_GENERIC,
-            "variants": [self.control_variant_data, self.treatment_variant_data],
-        }
+        data = {"variants": [self.control_variant_data, self.treatment_variant_data]}
 
         serializer = ExperimentDesignBaseSerializer(
             instance=experiment, data=data, context={"request": self.request}
@@ -1382,12 +1361,11 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         }
 
         data = {
-            "type": ExperimentConstants.TYPE_GENERIC,
             "variants": [
                 self.control_variant_data,
                 self.treatment_variant_data,
                 treatment2_variant_data,
-            ],
+            ]
         }
 
         serializer = ExperimentDesignBaseSerializer(
@@ -1412,10 +1390,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         self.control_variant_data["ratio"] = 50
         self.treatment_variant_data["ratio"] = 40
 
-        data = {
-            "type": ExperimentConstants.TYPE_GENERIC,
-            "variants": [self.control_variant_data, self.treatment_variant_data],
-        }
+        data = {"variants": [self.control_variant_data, self.treatment_variant_data]}
 
         serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
 
@@ -1427,10 +1402,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
 
         self.control_variant_data["ratio"] = 0
 
-        data = {
-            "type": ExperimentConstants.TYPE_GENERIC,
-            "variants": [self.control_variant_data],
-        }
+        data = {"variants": [self.control_variant_data]}
 
         serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
 
@@ -1442,10 +1414,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
 
         self.control_variant_data["ratio"] = 110
 
-        data = {
-            "type": ExperimentConstants.TYPE_GENERIC,
-            "variants": [self.control_variant_data],
-        }
+        data = {"variants": [self.control_variant_data]}
 
         serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
 
@@ -1457,10 +1426,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
 
         self.control_variant_data["name"] = "Great branch"
 
-        data = {
-            "type": ExperimentConstants.TYPE_GENERIC,
-            "variants": [self.control_variant_data, self.treatment_variant_data],
-        }
+        data = {"variants": [self.control_variant_data, self.treatment_variant_data]}
 
         serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
 
@@ -1472,10 +1438,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
 
         self.control_variant_data["name"] = "&re@t br@nche$!"
 
-        data = {
-            "type": ExperimentConstants.TYPE_PREF,
-            "variants": [self.control_variant_data, self.treatment_variant_data],
-        }
+        data = {"variants": [self.control_variant_data, self.treatment_variant_data]}
 
         serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
 
@@ -1513,7 +1476,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.assertCountEqual(
             serializer.data,
             {
-                "type": ExperimentConstants.TYPE_PREF,
                 "is_multi_pref": False,
                 "pref_key": experiment.pref_key,
                 "pref_type": experiment.pref_type,
@@ -1531,7 +1493,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         )
 
         data = {
-            "type": ExperimentConstants.TYPE_PREF,
             "is_multi_pref": False,
             "pref_type": "boolean",
             "pref_key": "second name",
@@ -1557,7 +1518,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.variant_2["value"] = "value 1"
 
         data = {
-            "type": ExperimentConstants.TYPE_PREF,
             "is_multi_pref": False,
             "pref_type": "string",
             "pref_key": "name",
@@ -1574,7 +1534,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
 
         data = {
-            "type": ExperimentConstants.TYPE_PREF,
             "is_multi_pref": False,
             "pref_type": "Firefox Pref Type",
             "pref_key": "name",
@@ -1592,7 +1551,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
 
         data = {
-            "type": ExperimentConstants.TYPE_PREF,
             "is_multi_pref": False,
             "pref_type": "boolean",
             "pref_key": "name",
@@ -1610,7 +1568,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.variant_1["value"] = "value 1"
 
         data = {
-            "type": ExperimentConstants.TYPE_PREF,
             "is_multi_pref": False,
             "pref_type": "boolean",
             "pref_key": "name",
@@ -1631,7 +1588,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.variant_2["value"] = 40
 
         data = {
-            "type": ExperimentConstants.TYPE_PREF,
             "is_multi_pref": False,
             "pref_type": "integer",
             "pref_key": "name",
@@ -1648,7 +1604,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.variant_2["value"] = "value 2"
 
         data = {
-            "type": ExperimentConstants.TYPE_PREF,
             "is_multi_pref": False,
             "pref_type": "integer",
             "pref_key": "name",
@@ -1667,7 +1622,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.variant_2["value"] = '{"variant":[1,2,3,4]}'
 
         data = {
-            "type": ExperimentConstants.TYPE_PREF,
             "is_multi_pref": False,
             "pref_type": "json string",
             "pref_branch": "default",
@@ -1685,7 +1639,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.variant_2["value"] = "value 2"
 
         data = {
-            "type": ExperimentConstants.TYPE_PREF,
             "is_multi_pref": False,
             "pref_type": "json string",
             "pref_key": "name",
@@ -1699,7 +1652,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
 
     def test_serializer_rejects_too_long_pref_type(self):
         data = {
-            "type": ExperimentConstants.TYPE_PREF,
             "pref_type": "json string" * 100,
             "pref_key": "name",
             "pref_branch": "default",
@@ -1711,7 +1663,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
 
     def test_serializer_rejects_too_long_pref_key(self):
         data = {
-            "type": ExperimentConstants.TYPE_PREF,
             "pref_type": "json string",
             "pref_key": "name" * 100,
             "pref_branch": "default",
@@ -1723,7 +1674,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
 
     def test_serializer_rejects_too_long_pref_branch(self):
         data = {
-            "type": ExperimentConstants.TYPE_PREF,
             "pref_type": "json string",
             "pref_key": "name",
             "pref_branch": "default" * 100,
@@ -1741,7 +1691,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.assertEqual(
             serializer.data,
             {
-                "type": ExperimentConstants.TYPE_PREF,
                 "is_multi_pref": False,
                 "pref_key": experiment.pref_key,
                 "pref_type": experiment.pref_type,
@@ -1792,7 +1741,6 @@ class TestExperimentDesignAddonSerializer(MockRequestMixin, TestCase):
         self.assertCountEqual(
             serializer.data,
             {
-                "type": ExperimentConstants.TYPE_ADDON,
                 "addon_release_url": experiment.addon_release_url,
                 "is_branched_addon": False,
                 "variants": [
@@ -1809,7 +1757,6 @@ class TestExperimentDesignAddonSerializer(MockRequestMixin, TestCase):
         )
 
         data = {
-            "type": ExperimentConstants.TYPE_ADDON,
             "addon_release_url": "http://www.example.com",
             "is_branched_addon": False,
             "variants": [self.control_variant_data, self.treatment_variant_data],
@@ -1826,7 +1773,6 @@ class TestExperimentDesignAddonSerializer(MockRequestMixin, TestCase):
 
     def test_serializer_rejects_too_long_urls(self):
         data = {
-            "type": ExperimentConstants.TYPE_ADDON,
             "addon_release_url": "http://www.example.com" * 100,
             "is_branched_addon": False,
             "variants": [self.control_variant_data, self.treatment_variant_data],
@@ -1844,7 +1790,6 @@ class TestExperimentDesignAddonSerializer(MockRequestMixin, TestCase):
         self.assertEqual(
             serializer.data,
             {
-                "type": ExperimentConstants.TYPE_ADDON,
                 "addon_release_url": experiment.addon_release_url,
                 "is_branched_addon": False,
                 "variants": [
@@ -1867,7 +1812,6 @@ class TestExperimentDesignGenericSerializer(MockRequestMixin, TestCase):
         self.assertCountEqual(
             serializer.data,
             {
-                "type": experiment.type,
                 "design": experiment.design,
                 "variants": [
                     ExperimentVariantSerializer(variant).data
@@ -1893,11 +1837,7 @@ class TestExperimentDesignGenericSerializer(MockRequestMixin, TestCase):
             "is_control": False,
         }
 
-        data = {
-            "type": ExperimentConstants.TYPE_GENERIC,
-            "design": "Second Design",
-            "variants": [variant_1, variant_2],
-        }
+        data = {"design": "Second Design", "variants": [variant_1, variant_2]}
 
         serializer = ExperimentDesignGenericSerializer(
             instance=experiment, data=data, context={"request": self.request}
@@ -1918,7 +1858,6 @@ class TestExperimentDesignGenericSerializer(MockRequestMixin, TestCase):
         self.assertEqual(
             serializer.data,
             {
-                "type": ExperimentConstants.TYPE_GENERIC,
                 "design": experiment.design,
                 "variants": [
                     {"description": None, "is_control": True, "name": None, "ratio": 50},
@@ -1942,7 +1881,6 @@ class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
         self.assertCountEqual(
             serializer.data,
             {
-                "type": experiment.type,
                 "is_branched_addon": True,
                 "variants": [
                     ExperimentVariantSerializer(variant).data
