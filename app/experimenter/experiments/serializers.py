@@ -317,9 +317,21 @@ class ExperimentRecipeMultiPrefVariantSerializer(serializers.ModelSerializer):
 
     def get_preferences(self, obj):
         if self.context["is_multi_pref_formatted"]:
-            return VariantPreferenceArgumentsSerializer(obj.preferences, many=True).data
+            pref_data = VariantPreferenceArgumentsSerializer(
+                obj.preferences, many=True
+            ).data
+            return self.format_pref_arg_serializer_data(pref_data)
 
         return self.format_preferences(obj)
+
+    # list -> dict
+    def format_pref_arg_serializer_data(self, data):
+        formatted_pref = {}
+        for entry in data:
+            pref_name = entry.pop("pref_name")
+            formatted_pref[pref_name] = entry
+
+        return formatted_pref
 
     def format_preferences(self, obj):
         preference_values = {}
@@ -342,7 +354,12 @@ class VariantPreferenceArgumentsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VariantPreferences
-        fields = ("preferenceBranchType", "preferenceType", "preferenceValue")
+        fields = (
+            "preferenceBranchType",
+            "preferenceType",
+            "preferenceValue",
+            "pref_name",
+        )
 
 
 class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
@@ -411,7 +428,7 @@ class ExperimentRecipeMultiPrefArgumentsSerializer(
         return ExperimentRecipeMultiPrefVariantSerializer(
             obj.variants,
             many=True,
-            context={"is_multi_pref_formatted": obj.use_multi_pref_serializer},
+            context={"is_multi_pref_formatted": obj.is_multi_pref},
         ).data
 
 

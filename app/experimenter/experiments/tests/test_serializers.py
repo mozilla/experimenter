@@ -548,7 +548,7 @@ class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
 
 class TestExperimentRecipeMultiPrefVariantSerialzer(TestCase):
 
-    def test_serializer_outputs_expected_schema(self):
+    def test_serializer_outputs_expected_schema_non_multi_pref_format(self):
         experiment = ExperimentFactory.create(
             normandy_slug="normandy-slug",
             pref_branch=Experiment.PREF_BRANCH_DEFAULT,
@@ -560,8 +560,7 @@ class TestExperimentRecipeMultiPrefVariantSerialzer(TestCase):
             slug="control", ratio=25, experiment=experiment, value='{"some": "json"}'
         )
         serializer = ExperimentRecipeMultiPrefVariantSerializer(
-            variant,
-            context={"is_multi_pref_formatted": experiment.use_multi_pref_serializer},
+            variant, context={"is_multi_pref_formatted": experiment.is_multi_pref}
         )
         expected_data = {
             "preferences": {
@@ -569,6 +568,33 @@ class TestExperimentRecipeMultiPrefVariantSerialzer(TestCase):
                     "preferenceBranchType": "default",
                     "preferenceType": "string",
                     "preferenceValue": '{"some": "json"}',
+                }
+            },
+            "ratio": 25,
+            "slug": "control",
+        }
+
+        self.assertEqual(expected_data, serializer.data)
+
+    def test_serializer_outputs_expected_schema_for_multi_pref_format(self):
+        experiment = ExperimentFactory.create(
+            normandy_slug="normandy-slug", firefox_min_version="55.0", is_multi_pref=True
+        )
+        variant = ExperimentVariantFactory.create(
+            slug="control", ratio=25, experiment=experiment
+        )
+
+        preference = VariantPreferencesFactory.create(variant=variant)
+
+        serializer = ExperimentRecipeMultiPrefVariantSerializer(
+            variant, context={"is_multi_pref_formatted": experiment.is_multi_pref}
+        )
+        expected_data = {
+            "preferences": {
+                preference.pref_name: {
+                    "preferenceBranchType": preference.pref_branch,
+                    "preferenceType": preference.pref_type,
+                    "preferenceValue": preference.pref_value,
                 }
             },
             "ratio": 25,
