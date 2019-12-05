@@ -12,6 +12,7 @@ from experimenter.experiments.models import (
     VariantPreferences,
     ExperimentChangeLog,
 )
+from experimenter.experiments.changelog_utils import generate_change_log
 
 
 class JSTimestampField(serializers.Field):
@@ -644,7 +645,27 @@ class ExperimentDesignBranchMultiPrefSerializer(
                 raise serializers.ValidationError(error_list)
 
 
-class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
+class ChangelogSerializerMixin(object):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.id:
+            self.old_serialized_vals = ChangeLogSerializer(self.instance).data
+
+    def update_changelog(self, instance, validated_data):
+        new_serialized_vals = ChangeLogSerializer(instance).data
+        user = self.context["request"].user
+        changed_data = validated_data.copy()
+        generate_change_log(
+            self.old_serialized_vals, new_serialized_vals, instance, changed_data, user
+        )
+
+        return instance
+
+
+class ExperimentDesignBaseSerializer(
+    ChangelogSerializerMixin, serializers.ModelSerializer
+):
     type = serializers.CharField(
         required=False, allow_null=True, allow_blank=True, max_length=255
     )
@@ -699,7 +720,6 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
         instance = super().update(instance, validated_data)
 
         existing_variant_ids = set(instance.variants.all().values_list("id", flat=True))
-
         # Create or update variants
         for variant_data in variants_data:
             variant_data["experiment"] = instance
@@ -712,6 +732,8 @@ class ExperimentDesignBaseSerializer(serializers.ModelSerializer):
 
         if removed_ids:
             ExperimentVariant.objects.filter(id__in=removed_ids).delete()
+
+        self.update_changelog(instance, validated_data)
 
         return instance
 
@@ -751,6 +773,13 @@ class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
             VariantPreferences.objects.filter(id__in=removed_ids).delete()
 
         return instance
+
+
+class ExperimentChangelogVariantSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ExperimentVariant
+        fields = ("id", "description", "is_control", "name", "ratio", "value")
 
 
 class ExperimentDesignPrefSerializer(PrefValidationMixin, ExperimentDesignBaseSerializer):
