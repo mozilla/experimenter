@@ -587,6 +587,55 @@ class TestExperimentModel(TestCase):
             experiment.observation_dates, "Jan 11, 2019 - Jan 21, 2019 (10 days)"
         )
 
+    def test_rollout_dates_low_risk_playbook(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_playbook=Experiment.ROLLOUT_PLAYBOOK_LOW_RISK,
+            proposed_start_date=datetime.date(2020, 1, 1),
+        )
+        self.assertEqual(
+            experiment.rollout_dates,
+            {
+                "first_increase": {"date": "Jan 01, 2020", "percent": "25%"},
+                "second_increase": {"date": "Jan 08, 2020", "percent": "75%"},
+                "final_increase": {"date": "Jan 22, 2020", "percent": "100%"},
+            },
+        )
+
+    def test_rollout_dates_high_risk_playbook(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_playbook=Experiment.ROLLOUT_PLAYBOOK_HIGH_RISK,
+            proposed_start_date=datetime.date(2020, 1, 1),
+        )
+        self.assertEqual(
+            experiment.rollout_dates,
+            {
+                "first_increase": {"date": "Jan 01, 2020", "percent": "25%"},
+                "second_increase": {"date": "Jan 08, 2020", "percent": "50%"},
+                "final_increase": {"date": "Jan 22, 2020", "percent": "100%"},
+            },
+        )
+
+    def test_rollout_dates_marketing_playbook(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_playbook=Experiment.ROLLOUT_PLAYBOOK_MARKETING,
+            proposed_start_date=datetime.date(2020, 1, 1),
+        )
+        self.assertEqual(
+            experiment.rollout_dates,
+            {"final_increase": {"date": "Jan 01, 2020", "percent": "100%"}},
+        )
+
+    def test_rollout_dates_custom_playbook(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_playbook=Experiment.ROLLOUT_PLAYBOOK_CUSTOM,
+            proposed_start_date=datetime.date(2020, 1, 1),
+        )
+        self.assertEqual(experiment.rollout_dates, {})
+
     def test_enrollment_is_complete(self):
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_LIVE, is_paused=True
@@ -784,13 +833,32 @@ class TestExperimentModel(TestCase):
 
     def test_timeline_is_not_complete_when_missing_dates(self):
         experiment = ExperimentFactory.create(
-            proposed_start_date=None, proposed_duration=None
+            type=Experiment.TYPE_PREF, proposed_start_date=None, proposed_duration=None
         )
         self.assertFalse(experiment.completed_timeline)
 
     def test_timeline_is_complete_when_dates_set(self):
         experiment = ExperimentFactory.create(
-            proposed_start_date=datetime.date.today(), proposed_duration=10
+            type=Experiment.TYPE_PREF,
+            proposed_start_date=datetime.date.today(),
+            proposed_duration=10,
+        )
+        self.assertTrue(experiment.completed_timeline)
+
+    def test_timeline_is_not_complete_when_missing_playbook_for_rollout(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            proposed_start_date=datetime.date.today(),
+            proposed_duration=10,
+        )
+        self.assertFalse(experiment.completed_timeline)
+
+    def test_timeline_is_complete_with_playbook_for_rollout(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            proposed_start_date=datetime.date.today(),
+            proposed_duration=10,
+            rollout_playbook=Experiment.ROLLOUT_PLAYBOOK_CUSTOM,
         )
         self.assertTrue(experiment.completed_timeline)
 

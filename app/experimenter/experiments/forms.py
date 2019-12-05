@@ -383,7 +383,6 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
         choices=Experiment.ROLLOUT_PLAYBOOK_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
         help_text=Experiment.ROLLOUT_PLAYBOOK_HELP_TEXT,
-
     )
     population_percent = forms.DecimalField(
         required=False,

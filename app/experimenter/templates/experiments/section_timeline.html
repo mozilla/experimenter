@@ -5,44 +5,52 @@ Timeline
 {% endblock %}
 
 {% block section_content %}
-  {% if experiment.is_rollout  %}
-    <div class="row mb-3">
-      <div class="col">
-        <strong>Rollout {{ experiment.get_rollout_playbook_display }}</strong>
+
+  {% if experiment.is_rollout %}
+
+    {% if experiment.rollout_dates %}
+      <div class="row mb-3">
+        <div class="col">
+          <strong>Rollout {{ experiment.get_rollout_playbook_display }}</strong>
+        </div>
       </div>
-    </div>
-    <div class="row justify-content-center">
-      {% if experiment.rollout_dates.first_increase %}
-        <div class="col-4 text-center align-self-end">
-          <div class="alert alert-primary">
-            Rollout to {{ experiment.rollout_dates.first_increase.percent }}
+      <div class="row justify-content-center">
+        {% if experiment.rollout_dates.first_increase %}
+          <div class="col-4 text-center align-self-end">
+            <div class="alert alert-primary">
+              Rollout to {{ experiment.rollout_dates.first_increase.percent }}
+            </div>
+            <p>{{ experiment.rollout_dates.first_increase.date }}</p>
           </div>
-          <p>{{ experiment.rollout_dates.first_increase.date }}</p>
-        </div>
-      {% endif %}
+        {% endif %}
 
-      {% if experiment.rollout_dates.second_increase %}
-        <div class="col-4 text-center align-self-end">
-          <div class="alert alert-info">
-            <br/>
-            Rollout to {{ experiment.rollout_dates.second_increase.percent }}
+        {% if experiment.rollout_dates.second_increase %}
+          <div class="col-4 text-center align-self-end">
+            <div class="alert alert-info">
+              <br/>
+              Rollout to {{ experiment.rollout_dates.second_increase.percent }}
+            </div>
+            <p>{{ experiment.rollout_dates.second_increase.date }}</p>
           </div>
-          <p>{{ experiment.rollout_dates.second_increase.date }}</p>
-        </div>
-      {% endif %}
+        {% endif %}
 
-      {% if experiment.rollout_dates.final_increase %}
-        <div class="col-4 text-center align-self-end">
-          <div class="alert alert-success">
-            <br/>
-            <br/>
-            Rollout to {{ experiment.rollout_dates.final_increase.percent }}
+        {% if experiment.rollout_dates.final_increase %}
+          <div class="col-4 text-center align-self-end">
+            <div class="alert alert-success">
+              <br/>
+              <br/>
+              Rollout to {{ experiment.rollout_dates.final_increase.percent }}
+            </div>
+            <p>{{ experiment.rollout_dates.final_increase.date }}</p>
           </div>
-          <p>{{ experiment.rollout_dates.final_increase.date }}</p>
-        </div>
-      {% endif %}
-    </div>
+        {% endif %}
+      </div>
+    {% else %}
+      <p>This rollout uses a custom schedule.  Please describe it in the comments below.</p>
+    {% endif %}
+
   {% else %}
+
     <div class="row mb-3">
       <div class="col">
         <div class="row">
@@ -82,5 +90,6 @@ Timeline
         </div>
       </div>
     {% endif %}
+
   {% endif %}
 {% endblock %}

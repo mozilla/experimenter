@@ -457,41 +457,23 @@ class Experiment(ExperimentConstants, models.Model):
             dates = {}
 
             start_date = self._format_date(self.start_date)
-            first_increase = self._format_date(self.start_date + datetime.timedelta(days=7))
-            final_increase = self._format_date(self.start_date + datetime.timedelta(days=21))
+            first_increase = self._format_date(
+                self.start_date + datetime.timedelta(days=7)
+            )
+            final_increase = self._format_date(
+                self.start_date + datetime.timedelta(days=21)
+            )
 
             if self.rollout_playbook == self.ROLLOUT_PLAYBOOK_LOW_RISK:
-                dates["first_increase"] = {
-                    "date": start_date,
-                    "percent": "25%",
-                }
-                dates["second_increase"] = {
-                    "date": first_increase,
-                    "percent": "75%",
-                }
-                dates["final_increase"] = {
-                    "date": final_increase,
-                    "percent": "100%",
-                }
+                dates["first_increase"] = {"date": start_date, "percent": "25%"}
+                dates["second_increase"] = {"date": first_increase, "percent": "75%"}
+                dates["final_increase"] = {"date": final_increase, "percent": "100%"}
             elif self.rollout_playbook == self.ROLLOUT_PLAYBOOK_HIGH_RISK:
-                dates["first_increase"] = {
-                    "date": start_date,
-                    "percent": "25%",
-                }
-                dates["second_increase"] = {
-                    "date": first_increase,
-                    "percent": "50%",
-                }
-                dates["final_increase"] = {
-                    "date": final_increase,
-                    "percent": "100%",
-                }
+                dates["first_increase"] = {"date": start_date, "percent": "25%"}
+                dates["second_increase"] = {"date": first_increase, "percent": "50%"}
+                dates["final_increase"] = {"date": final_increase, "percent": "100%"}
             elif self.rollout_playbook == self.ROLLOUT_PLAYBOOK_MARKETING:
-                dates["final_increase"] = {
-                    "date": start_date,
-                    "percent": "100%",
-                }
-
+                dates["final_increase"] = {"date": start_date, "percent": "100%"}
 
             return dates
 

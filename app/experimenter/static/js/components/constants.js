@@ -5,11 +5,6 @@ export const TYPE_PREF = "pref";
 export const TYPE_GENERIC = "generic";
 export const TYPE_ROLLOUT = "rollout";
 
-export const ROLLOUT_PLAYBOOK_LOW_RISK = "low_risk";
-export const ROLLOUT_PLAYBOOK_HIGH_RISK = "high_risk";
-export const ROLLOUT_PLAYBOOK_MARKETING = "marketing";
-export const ROLLOUT_PLAYBOOK_CUSTOM = "custom";
-
 export const PREF_TYPE_BOOL = "boolean";
 export const PREF_TYPE_INT = "integer";
 export const PREF_TYPE_STR = "string";
@@ -161,20 +156,6 @@ export const BRANCH_DESCRIPTION_HELP = (
     <p>
       <strong>Example:</strong> The control group will receive the existing 80px
       sign in button located at the top right of the screen.
-    </p>
-  </div>
-);
-
-export const ROLLOUT_PLAYBOOK_HELP = (
-  <div>
-    <p>
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=90737068#StagedRollouts/GradualRollouts-Playbooks"
-      >
-        Playbook Help
-      </a>
     </p>
   </div>
 );
