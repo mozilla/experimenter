@@ -123,7 +123,7 @@ class DesignForm extends React.PureComponent {
     }
     // Select the appropriate form component to use based on experiment type
     let Form;
-    switch (this.state.data.get("type")) {
+    switch (this.props.experimentType) {
       case "pref":
         Form = PrefForm;
         break;

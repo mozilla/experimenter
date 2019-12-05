@@ -666,14 +666,11 @@ class ChangelogSerializerMixin(object):
 class ExperimentDesignBaseSerializer(
     ChangelogSerializerMixin, serializers.ModelSerializer
 ):
-    type = serializers.CharField(
-        required=False, allow_null=True, allow_blank=True, max_length=255
-    )
     variants = ExperimentDesignVariantBaseSerializer(many=True)
 
     class Meta:
         model = Experiment
-        fields = ("type", "variants")
+        fields = ("variants",)
 
     def validate(self, data):
         variants = data["variants"]
@@ -791,14 +788,7 @@ class ExperimentDesignPrefSerializer(PrefValidationMixin, ExperimentDesignBaseSe
 
     class Meta:
         model = Experiment
-        fields = (
-            "type",
-            "is_multi_pref",
-            "pref_key",
-            "pref_type",
-            "pref_branch",
-            "variants",
-        )
+        fields = ("is_multi_pref", "pref_key", "pref_type", "pref_branch", "variants")
 
     def validate_pref_type(self, value):
         if value == "Firefox Pref Type":
@@ -842,7 +832,7 @@ class ExperimentDesignAddonSerializer(ExperimentDesignBaseSerializer):
 
     class Meta:
         model = Experiment
-        fields = ("type", "addon_release_url", "variants", "is_branched_addon")
+        fields = ("addon_release_url", "variants", "is_branched_addon")
 
 
 class ExperimentDesignGenericSerializer(ExperimentDesignBaseSerializer):
@@ -850,7 +840,7 @@ class ExperimentDesignGenericSerializer(ExperimentDesignBaseSerializer):
 
     class Meta:
         model = Experiment
-        fields = ("type", "design", "variants")
+        fields = ("design", "variants")
 
 
 class ExperimentBranchedAddonVariantSerializer(ExperimentDesignVariantBaseSerializer):
@@ -867,4 +857,4 @@ class ExperimentDesignBranchedAddonSerializer(ExperimentDesignBaseSerializer):
 
     class Meta:
         model = Experiment
-        fields = ("type", "is_branched_addon", "variants")
+        fields = ("is_branched_addon", "variants")
