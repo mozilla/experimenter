@@ -33,17 +33,19 @@ class Pref extends React.PureComponent {
 
   renderRemoveButton() {
     const { index } = this.props;
-    return (
-      <Button
-        variant="outline-danger"
-        onClick={() => {
-          this.props.remove(index);
-        }}
-        id="remove-branch-button"
-      >
-        <span className="fas fa-times" /> Remove Pref
-      </Button>
-    );
+    if (index != 0) {
+      return (
+        <Button
+          variant="outline-danger"
+          onClick={() => {
+            this.props.remove(index);
+          }}
+          id="remove-branch-button"
+        >
+          <span className="fas fa-times" /> Remove Pref
+        </Button>
+      );
+    }
   }
 
   renderPrefBranch() {

@@ -56,10 +56,29 @@ class DesignForm extends React.PureComponent {
     });
   }
 
-  handleDataChange(key, value) {
+  async handleDataChange(key, value) {
     this.setState(({ data }) => ({
       data: data.set(key, value),
+      loading: true,
     }));
+  }
+
+  async handleMultiPrefChange(key, value) {
+    this.setState(
+      ({ data }) => ({
+        data: data.set(key, value),
+        loading: true,
+      }),
+      async () => {
+        const data = await makeApiRequest(this.getEndpointUrl());
+        data["is_multi_pref"] = value;
+
+        this.setState({
+          data: fromJS(data),
+          loading: false,
+        });
+      },
+    );
   }
 
   handleErrorsChange(key, value) {
@@ -144,6 +163,7 @@ class DesignForm extends React.PureComponent {
               data={this.state.data}
               errors={this.state.errors}
               loaded={this.state.loaded}
+              handleMultiPrefChange={this.handleMultiPrefChange}
             />
             <Row>
               <Col className="text-right">
