@@ -308,51 +308,37 @@ class ExperimentRecipeAddonVariantSerializer(serializers.ModelSerializer):
         return None
 
 
-class ExperimentRecipeMultiPrefVariantSerializer(serializers.ModelSerializer):
-    preferences = serializers.SerializerMethodField()
+class VariantPreferenceRecipeListSerializer(serializers.ListSerializer):
 
-    class Meta:
-        model = ExperimentVariant
-        fields = ("preferences", "ratio", "slug")
+    def to_representation(self, obj):
+        experiment = obj.instance.experiment
+        variant = obj.instance
+        serialized_data = super().to_representation(obj)
 
-    def get_preferences(self, obj):
-        if self.context["is_multi_pref_formatted"]:
-            pref_data = VariantPreferenceArgumentsSerializer(
-                obj.preferences, many=True
-            ).data
-            return self.format_pref_arg_serializer_data(pref_data)
+        if experiment.is_multi_pref:
+            return {entry.pop("pref_name"): entry for entry in serialized_data}
 
-        return self.format_preferences(obj)
+        else:
+            preference_values = {}
+            preference_values["preferenceBranchType"] = experiment.pref_branch
+            preference_values["preferenceType"] = PrefTypeField().to_representation(
+                experiment.pref_type
+            )
+            preference_values["preferenceValue"] = variant.value
 
-    # list -> dict
-    def format_pref_arg_serializer_data(self, data):
-        formatted_pref = {}
-        for entry in data:
-            pref_name = entry.pop("pref_name")
-            formatted_pref[pref_name] = entry
+            preference = {}
+            preference[experiment.pref_key] = preference_values
 
-        return formatted_pref
-
-    def format_preferences(self, obj):
-        preference_values = {}
-        preference_values["preferenceBranchType"] = obj.experiment.pref_branch
-        preference_values["preferenceType"] = PrefTypeField().to_representation(
-            obj.experiment.pref_type
-        )
-        preference_values["preferenceValue"] = obj.value
-
-        preferences = {}
-        preferences[obj.experiment.pref_key] = preference_values
-
-        return preferences
+            return preference
 
 
-class VariantPreferenceArgumentsSerializer(serializers.ModelSerializer):
+class VariantPreferenceRecipeSerializer(serializers.ModelSerializer):
     preferenceBranchType = serializers.ReadOnlyField(source="pref_branch")
     preferenceType = PrefTypeField(source="pref_type")
     preferenceValue = serializers.ReadOnlyField(source="pref_value")
 
     class Meta:
+        list_serializer_class = VariantPreferenceRecipeListSerializer
         model = VariantPreferences
         fields = (
             "preferenceBranchType",
@@ -360,6 +346,14 @@ class VariantPreferenceArgumentsSerializer(serializers.ModelSerializer):
             "preferenceValue",
             "pref_name",
         )
+
+
+class ExperimentRecipeMultiPrefVariantSerializer(serializers.ModelSerializer):
+    preferences = VariantPreferenceRecipeSerializer(many=True)
+
+    class Meta:
+        model = ExperimentVariant
+        fields = ("preferences", "ratio", "slug")
 
 
 class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
@@ -425,11 +419,7 @@ class ExperimentRecipeMultiPrefArgumentsSerializer(
         )
 
     def get_branches(self, obj):
-        return ExperimentRecipeMultiPrefVariantSerializer(
-            obj.variants,
-            many=True,
-            context={"is_multi_pref_formatted": obj.is_multi_pref},
-        ).data
+        return ExperimentRecipeMultiPrefVariantSerializer(obj.variants, many=True).data
 
 
 class ExperimentRecipeAddonArgumentsSerializer(serializers.ModelSerializer):
