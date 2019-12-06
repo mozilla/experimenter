@@ -888,10 +888,6 @@ class ExperimentVariant(models.Model):
         else:
             return "Treatment"
 
-    @property
-    def json_dumps_value(self):
-        return json.dumps(json.loads(self.value), indent=2)
-
 
 class VariantPreferences(models.Model):
     variant = models.ForeignKey(

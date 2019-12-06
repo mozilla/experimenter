@@ -852,7 +852,9 @@ class ExperimentDesignBranchedAddonSerializer(ExperimentDesignBaseSerializer):
         fields = ("is_branched_addon", "variants")
 
 
-class ExperimentDesignRolloutSerializer(ExperimentDesignBaseSerializer):
+class ExperimentDesignRolloutSerializer(
+    PrefValidationMixin, ExperimentDesignBaseSerializer
+):
     rollout_type = serializers.ChoiceField(choices=Experiment.ROLLOUT_TYPE_CHOICES)
     addon_release_url = serializers.URLField(
         max_length=400, allow_null=True, required=False
@@ -886,5 +888,12 @@ class ExperimentDesignRolloutSerializer(ExperimentDesignBaseSerializer):
 
         if errors:
             raise serializers.ValidationError(errors)
+
+        if data["rollout_type"] == Experiment.TYPE_PREF:
+            pref_invalid = self.validate_pref(
+                data["pref_type"], data["pref_value"], "pref_value"
+            )
+            if pref_invalid:
+                raise serializers.ValidationError(pref_invalid)
 
         return data

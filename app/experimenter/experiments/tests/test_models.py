@@ -1411,12 +1411,6 @@ class TestExperimentModel(TestCase):
         self.assertEqual(change.old_status, None)
         self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
-    def test_variant_json_dumps(self):
-        variant = ExperimentVariant()
-        variant.value = '{"key": "value","key1":"value1"}'
-        expected_value = json.dumps({"key": "value", "key1": "value1"}, indent=2)
-        self.assertEqual(variant.json_dumps_value, expected_value)
-
 
 class TestVariantPreferences(TestCase):
 

@@ -2013,6 +2013,22 @@ class TestExperimentDesignRolloutSerializer(MockRequestMixin, TestCase):
         self.assertIn("pref_type", serializer.errors)
         self.assertIn("pref_value", serializer.errors)
 
+    def test_validates_pref_type_matches_value(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        data = {
+            "rollout_type": Experiment.TYPE_PREF,
+            "pref_key": "browser.pref",
+            "pref_type": Experiment.PREF_TYPE_INT,
+            "pref_value": "abc",
+        }
+
+        serializer = ExperimentDesignRolloutSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+
+        self.assertFalse(serializer.is_valid())
+
     def test_addon_fields_required_for_rollout_type_addon(self):
         experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
 
