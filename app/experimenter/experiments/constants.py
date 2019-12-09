@@ -194,7 +194,7 @@ class ExperimentConstants(object):
     FX_MIN_MULTI_BRANCHED_VERSION = 68
 
     # ExperimentVariantName REGEX
-    EXPERIMENT_VARIANT_NAME_REGEX = re.compile(r"^[a-z0-9 ]+$", re.IGNORECASE)
+    EXPERIMENT_VARIANT_NAME_REGEX = re.compile(r"^[a-z0-9 \-]+$", re.IGNORECASE)
 
     # Labels
     RISK_INTERNAL_ONLY_LABEL = "Is this delivery sensitive and/or internal only?"

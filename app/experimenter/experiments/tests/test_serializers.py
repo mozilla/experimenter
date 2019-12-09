@@ -1513,6 +1513,17 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("variants", serializer.errors)
 
+    def test_serializer_allows_hyphens(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+
+        self.control_variant_data["name"] = "there are hy-phens and spaces"
+
+        data = {"variants": [self.control_variant_data, self.treatment_variant_data]}
+
+        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+
+        self.assertTrue(serializer.is_valid())
+
 
 class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
 
