@@ -180,8 +180,9 @@ class Experiment(ExperimentConstants, models.Model):
     risk_security = models.NullBooleanField(default=None, blank=True, null=True)
     risk_revision = models.NullBooleanField(default=None, blank=True, null=True)
     risk_technical = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_technical_description = models.TextField(blank=True, null=True)
+    risk_higher_risk = models.NullBooleanField(default=None, blank=True, null=True)
 
+    risk_technical_description = models.TextField(blank=True, null=True)
     risks = models.TextField(blank=True, null=True)
 
     # Testing
@@ -548,6 +549,7 @@ class Experiment(ExperimentConstants, models.Model):
             self.risk_security,
             self.risk_revision,
             self.risk_technical,
+            self.risk_higher_risk,
         )
 
     @property
