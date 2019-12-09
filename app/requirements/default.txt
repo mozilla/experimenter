@@ -91,9 +91,9 @@ pytest==4.5.0 \
 pytest-django==3.7.0 \
     --hash=sha256:ef3d15b35ed7e46293475e6f282e71a53bcd8c6f87bdc5d5e7ad0f4d49352127 \
     --hash=sha256:17592f06d51c2ef4b7a0fb24aa32c8b6998506a03c8439606cb96db160106659
-pytest-testmon==0.9.19 \
-    --hash=sha256:f542d168103d14748be7afd45071df2f1b1dda218e33dedd300a87885bffc2f4 \
-    --hash=sha256:f622fd9d0f5a0df253f0e6773713c3df61306b64abdfb202d39a85dcba1d1f59
+pytest-testmon==1.0.1 \
+    --hash=sha256:8f048b90763bf16c957539c96bcf2d08492ea1b9d8056df1293da8fd73df2bf0 \
+    --hash=sha256:b823b03faf5778d1e15fb9f52e104df4da9c1021daeb313b339fccbbfb8dbd5f
 pytest-watch==4.2.0 \
     --hash=sha256:06136f03d5b361718b8d0d234042f7b2f203910d8568f63df2f866b547b3d4b9
 python-decouple==3.3 \
