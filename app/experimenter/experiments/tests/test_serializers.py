@@ -985,7 +985,6 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertCountEqual(serializer.data["arguments"], expected_data)
 
     def test_serializer_outputs_expected_schema_for_addon_rollout(self):
-        self.maxDiff = None
         experiment = ExperimentFactory.create(
             addon_release_url="https://www.example.com/addon.xpi",
             countries=[],
@@ -1030,7 +1029,6 @@ class TestExperimentRecipeSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_schema_for_pref_rollout(self):
-        self.maxDiff = None
         experiment = ExperimentFactory.create(
             countries=[],
             firefox_channel=Experiment.CHANNEL_BETA,
