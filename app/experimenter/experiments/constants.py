@@ -222,6 +222,11 @@ class ExperimentConstants(object):
     )
     RISK_REVISION_LABEL = "Is this delivery a revision of a previous delivery?"
     RISK_TECHNICAL_LABEL = "Is this delivery Complex / Technically Risky?"
+    RISK_HIGHER_RISK_LABEL = (
+        """I have been advised that this delivery design creates a
+        higher risk of errors due to complexity or timing requirements."""
+    )
+
     SURVEY_REQUIRED_LABEL = "Is a Survey Required?"
     SURVEY_INSTRUCTIONS_LABEL = "Survey Launch Instructions"
 
@@ -812,6 +817,10 @@ class ExperimentConstants(object):
     RISK_TECHNICAL_HELP_TEXT = """
       https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
     """  # noqa
+
+    RISK_HIGHER_RISK_HELP_TEXT = """
+      https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
+    """
 
     # Text defaults
     CLIENT_MATCHING_DEFAULT = (

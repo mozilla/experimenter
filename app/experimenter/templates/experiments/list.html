@@ -85,6 +85,9 @@
             {% if experiment.archived %}
               <span class="badge badge-pill badge-small align-middle bg-secondary text-white">Archived</span>
             {% endif %}
+            {% if experiment.risk_higher_risk %}
+              <span class="badge badge-pill badge-small align-middle bg-danger text-white">Higher Risk</span>
+            {% endif %}
             {% if request.user in experiment.subscribers.all %}
               <span class="fas fa-bell subscribe-bell"></span>
             {% endif %}
