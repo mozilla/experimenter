@@ -326,10 +326,7 @@ class VariantPreferenceRecipeListSerializer(serializers.ListSerializer):
             )
             preference_values["preferenceValue"] = variant.value
 
-            preference = {}
-            preference[experiment.pref_key] = preference_values
-
-            return preference
+            return {experiment.pref_key: preference_values}
 
 
 class VariantPreferenceRecipeSerializer(serializers.ModelSerializer):
