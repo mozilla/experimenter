@@ -211,7 +211,10 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
                 "public_description",
             )
             for required_field in required_fields:
-                if not cleaned_data[required_field]:
+                if (
+                    not cleaned_data.get(required_field)
+                    and required_field not in self._errors
+                ):
                     self._errors[required_field] = [required_msg]
 
         return cleaned_data

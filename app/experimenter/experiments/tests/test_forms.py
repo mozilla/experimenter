@@ -579,6 +579,12 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertTrue(form.is_valid())
 
+    def test_invalid_bugzilla_url(self):
+        self.data["data_science_bugzilla_url"] = "https://example.com/notbugzilla"
+
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+
 
 class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
 
