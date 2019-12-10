@@ -1,35 +1,35 @@
 jQuery(function ($) {
   const rolloutType = "rollout";
 
-  function updateDSOwner() {
-    const group = $("#id_analysis_owner").closest('.form-group');
-    if ($('#id_type option:selected').val() === rolloutType) {
-      group.hide();
-    } else {
-      group.show();
-    }
-  }
+  function updateHiddenFields() {
+    const fields = ["analysis_owner", "data_science_bugzilla_url", "public_name", "public_description"];
+    const requiredFields = ["data_science_bugzilla_url", "public_name", "public_description"];
 
-  function updateDSBug() {
-    const input = $("#id_data_science_bugzilla_url");
-    const group = input.closest('.form-group');
-    const label = $("label[for='id_data_science_bugzilla_url'] .required-label");
-    if ($('#id_type option:selected').val() === rolloutType) {
-      input.removeAttr("required");
-      label.addClass("optional").removeClass("required");
-      group.hide();
-    } else {
-      input.attr("required", "true");
-      label.addClass("required").removeClass("optional");
-      group.show();
+    for (const field of fields ) {
+      const input = $(`#id_${field}`);
+      const group = input.closest('.form-group');
+      const label = $(`label[for="id_${field}"] .required-label`);
+      if ($('#id_type option:selected').val() === rolloutType) {
+        group.hide();
+
+        if (requiredFields.includes(field)) {
+          input.removeAttr("required");
+          label.addClass("optional").removeClass("required");
+        }
+      } else {
+        group.show();
+
+        if (requiredFields.includes(field)) {
+          input.attr("required", "true");
+          label.addClass("required").removeClass("optional");
+        }
+      }
     }
   }
 
   $('#id_type').change(function (e) {
-    updateDSBug();
-    updateDSOwner();
+    updateHiddenFields();
   });
 
-  updateDSBug();
-  updateDSOwner();
+  updateHiddenFields();
 });

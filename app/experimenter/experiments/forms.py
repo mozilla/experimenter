@@ -110,10 +110,10 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         widget=forms.Textarea(attrs={"rows": 3}),
     )
     public_name = forms.CharField(
-        required=True, label="Public Name", help_text=Experiment.PUBLIC_NAME_HELP_TEXT
+        required=False, label="Public Name", help_text=Experiment.PUBLIC_NAME_HELP_TEXT
     )
     public_description = forms.CharField(
-        required=True,
+        required=False,
         label="Public Description",
         help_text=Experiment.PUBLIC_DESCRIPTION_HELP_TEXT,
         widget=forms.Textarea(attrs={"rows": 3}),
@@ -204,9 +204,15 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
             cleaned_data["slug"] = slugify(name)
 
         if cleaned_data["type"] != ExperimentConstants.TYPE_ROLLOUT:
-            if not cleaned_data["data_science_bugzilla_url"]:
-                msg = "This field is required."
-                self._errors["data_science_bugzilla_url"] = [msg]
+            required_msg = "This field is required."
+            required_fields = (
+                "data_science_bugzilla_url",
+                "public_name",
+                "public_description",
+            )
+            for required_field in required_fields:
+                if not cleaned_data[required_field]:
+                    self._errors[required_field] = [required_msg]
 
         return cleaned_data
 

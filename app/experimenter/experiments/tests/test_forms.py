@@ -488,7 +488,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "related_work": "Designs: https://www.example.com/myproject/",
         }
 
-    def test_minimum_required_fields(self):
+    def test_minimum_required_fields_for_experiment(self):
         bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
 
         data = {
@@ -497,9 +497,29 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
             "data_science_bugzilla_url": bug_url,
-            "analysis_owner": self.user.id,
             "public_name": "Public Name",
             "public_description": "Public Description",
+        }
+        form = ExperimentOverviewForm(request=self.request, data=data)
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.owner, self.user)
+        self.assertEqual(experiment.status, experiment.STATUS_DRAFT)
+        self.assertEqual(experiment.name, data["name"])
+        self.assertEqual(experiment.slug, "a-new-experiment")
+        self.assertEqual(experiment.short_description, data["short_description"])
+        self.assertEqual(experiment.public_name, data["public_name"])
+        self.assertEqual(experiment.public_description, data["public_description"])
+        self.assertEqual(experiment.changes.count(), 1)
+
+    def test_minimum_required_fields_for_rollout(self):
+        data = {
+            "type": Experiment.TYPE_ROLLOUT,
+            "owner": self.user.id,
+            "name": "A new experiment!",
+            "short_description": "Let us learn new things",
         }
         form = ExperimentOverviewForm(request=self.request, data=data)
         self.assertTrue(form.is_valid())
