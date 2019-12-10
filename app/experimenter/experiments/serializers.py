@@ -450,8 +450,15 @@ class ExperimentRecipePrefRolloutArgumentsSerializer(serializers.ModelSerializer
         model = Experiment
         fields = ("slug", "preferences")
 
+    def get_value(self, obj):
+        pref_type = obj.pref_type
+        if pref_type in (Experiment.PREF_TYPE_BOOL, Experiment.PREF_TYPE_INT):
+            return json.loads(obj.pref_value)
+
+        return obj.pref_value
+
     def get_preferences(self, obj):
-        return [{"preferenceName": obj.pref_key, "value": obj.pref_value}]
+        return [{"preferenceName": obj.pref_key, "value": self.get_value(obj)}]
 
 
 class ExperimentRecipeSerializer(serializers.ModelSerializer):

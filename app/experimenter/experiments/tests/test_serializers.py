@@ -737,25 +737,57 @@ class TestExperimentRecipeAddonRolloutArgumentsSerializer(TestCase):
 
 class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
 
-    def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP,
+    def test_serializer_outputs_expected_schema_for_int(self):
+        experiment = ExperimentFactory.create(
             type=Experiment.TYPE_ROLLOUT,
+            normandy_slug="normandy-slug",
             rollout_type=Experiment.TYPE_PREF,
+            pref_type=Experiment.PREF_TYPE_INT,
+            pref_key="browser.pref",
+            pref_value="4",
+        )
+        serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
+        self.assertDictEqual(
+            serializer.data,
+            {
+                "slug": "normandy-slug",
+                "preferences": [{"preferenceName": "browser.pref", "value": 4}],
+            },
+        )
+
+    def test_serializer_outputs_expected_schema_for_bool(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            normandy_slug="normandy-slug",
+            rollout_type=Experiment.TYPE_PREF,
+            pref_type=Experiment.PREF_TYPE_BOOL,
             pref_key="browser.pref",
             pref_value="true",
         )
         serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
-        self.assertEqual(
+        self.assertDictEqual(
             serializer.data,
             {
-                "slug": experiment.normandy_slug,
-                "preferences": [
-                    {
-                        "preferenceName": experiment.pref_key,
-                        "value": experiment.pref_value,
-                    }
-                ],
+                "slug": "normandy-slug",
+                "preferences": [{"preferenceName": "browser.pref", "value": True}],
+            },
+        )
+
+    def test_serializer_outputs_expected_schema_for_str(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            normandy_slug="normandy-slug",
+            rollout_type=Experiment.TYPE_PREF,
+            pref_type=Experiment.PREF_TYPE_STR,
+            pref_key="browser.pref",
+            pref_value="a string",
+        )
+        serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
+        self.assertDictEqual(
+            serializer.data,
+            {
+                "slug": "normandy-slug",
+                "preferences": [{"preferenceName": "browser.pref", "value": "a string"}],
             },
         )
 
@@ -1042,6 +1074,7 @@ class TestExperimentRecipeSerializer(TestCase):
             pref_key="browser.pref",
             pref_value="true",
             rollout_type=Experiment.TYPE_PREF,
+            pref_type=Experiment.PREF_TYPE_BOOL,
             slug="experimenter-slug",
             type=Experiment.TYPE_ROLLOUT,
         )
@@ -1051,7 +1084,7 @@ class TestExperimentRecipeSerializer(TestCase):
             {
                 "action_name": "preference-rollout",
                 "arguments": {
-                    "preferences": [{"preferenceName": "browser.pref", "value": "true"}],
+                    "preferences": [{"preferenceName": "browser.pref", "value": True}],
                     "slug": "normandy-slug",
                 },
                 "comment": "Platform: All Windows\n"
