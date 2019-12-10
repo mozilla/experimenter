@@ -22,6 +22,10 @@ class MultiPrefBranchFields extends React.PureComponent {
     renderField: PropTypes.func,
   };
 
+  static defaultProps = {
+    errors: new Map(),
+  };
+
   render() {
     return (
       <React.Fragment>
