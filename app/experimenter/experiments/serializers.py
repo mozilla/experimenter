@@ -630,12 +630,7 @@ class ExperimentDesignBranchMultiPrefSerializer(
             set([slugify(pref["pref_name"]) for pref in preferences])
         ) == len(preferences)
 
-        all_contains_alphanumeric_and_spaces = all(
-            Experiment.EXPERIMENT_VARIANT_NAME_REGEX.match(pref["pref_name"])
-            for pref in preferences
-        )
-
-        return unique_names and all_contains_alphanumeric_and_spaces
+        return unique_names
 
     def validate_value_type_match(self, preferences):
         error_list = []
