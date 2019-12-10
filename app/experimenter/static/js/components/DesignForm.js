@@ -62,6 +62,24 @@ class DesignForm extends React.PureComponent {
     }));
   }
 
+  async handleReloadAPIState(key, value) {
+    this.setState(
+      ({ data }) => ({
+        data: data.set(key, value),
+        loading: true,
+      }),
+      async () => {
+        const data = await makeApiRequest(this.getEndpointUrl());
+        data[key] = value;
+
+        this.setState({
+          data: fromJS(data),
+          loading: false,
+        });
+      },
+    );
+  }
+
   handleErrorsChange(key, value) {
     this.setState(({ errors }) => ({
       errors: errors.set(key, value),
@@ -144,6 +162,7 @@ class DesignForm extends React.PureComponent {
               data={this.state.data}
               errors={this.state.errors}
               loaded={this.state.loaded}
+              handleReloadAPIState={this.handleReloadAPIState}
             />
             <Row>
               <Col className="text-right">
