@@ -62,7 +62,7 @@ class DesignForm extends React.PureComponent {
     }));
   }
 
-  async refreshState(key, value) {
+  async handleReloadAPIState(key, value) {
     this.setState(
       ({ data }) => ({
         data: data.set(key, value),
@@ -162,7 +162,7 @@ class DesignForm extends React.PureComponent {
               data={this.state.data}
               errors={this.state.errors}
               loaded={this.state.loaded}
-              refreshState={this.refreshState}
+              handleReloadAPIState={this.handleReloadAPIState}
             />
             <Row>
               <Col className="text-right">
