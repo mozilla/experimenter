@@ -548,7 +548,7 @@ class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
 
 class TestExperimentRecipeMultiPrefVariantSerialzer(TestCase):
 
-    def test_serializer_outputs_expected_schema(self):
+    def test_serializer_outputs_expected_schema_non_multi_pref_format(self):
         experiment = ExperimentFactory.create(
             normandy_slug="normandy-slug",
             pref_branch=Experiment.PREF_BRANCH_DEFAULT,
@@ -559,10 +559,7 @@ class TestExperimentRecipeMultiPrefVariantSerialzer(TestCase):
         variant = ExperimentVariant(
             slug="control", ratio=25, experiment=experiment, value='{"some": "json"}'
         )
-        serializer = ExperimentRecipeMultiPrefVariantSerializer(
-            variant,
-            context={"is_multi_pref_formatted": experiment.use_multi_pref_serializer},
-        )
+        serializer = ExperimentRecipeMultiPrefVariantSerializer(variant)
         expected_data = {
             "preferences": {
                 "browser.pref": {
@@ -576,6 +573,77 @@ class TestExperimentRecipeMultiPrefVariantSerialzer(TestCase):
         }
 
         self.assertEqual(expected_data, serializer.data)
+
+    def test_serializer_outputs_expected_schema_for_multi_pref_format(self):
+        experiment = ExperimentFactory.create(
+            normandy_slug="normandy-slug", firefox_min_version="55.0", is_multi_pref=True
+        )
+        variant = ExperimentVariantFactory.create(
+            slug="control", ratio=25, experiment=experiment
+        )
+
+        preference = VariantPreferencesFactory.create(variant=variant)
+        serializer = ExperimentRecipeMultiPrefVariantSerializer(variant)
+
+        self.assertEqual(serializer.data["ratio"], 25)
+        self.assertEqual(serializer.data["slug"], "control")
+
+        serialized_preferences = serializer.data["preferences"]
+        self.assertEqual(
+            serialized_preferences[preference.pref_name],
+            {
+                "preferenceBranchType": preference.pref_branch,
+                "preferenceType": preference.pref_type,
+                "preferenceValue": preference.pref_value,
+            },
+        )
+
+
+class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
+
+    def test_seriailzer_outputs_expected_schema_for_single_pref_experiment(self):
+        experiment = ExperimentFactory.create(
+            pref_type=Experiment.PREF_TYPE_JSON_STR, firefox_max_version="70.0"
+        )
+        variant = ExperimentVariantFactory.create(experiment=experiment)
+
+        serializer = ExperimentRecipeMultiPrefVariantSerializer(variant)
+
+        self.assertEqual(serializer.data["ratio"], variant.ratio)
+        self.assertEqual(serializer.data["slug"], variant.slug)
+
+        serialized_preferences = serializer.data["preferences"]
+        self.assertEqual(
+            serialized_preferences[experiment.pref_key],
+            {
+                "preferenceBranchType": experiment.pref_branch,
+                "preferenceType": PrefTypeField().to_representation(experiment.pref_type),
+                "preferenceValue": variant.value,
+            },
+        )
+
+    def test_seriailzer_outputs_expected_schema_for_multi_pref_variant(self):
+        experiment = ExperimentFactory.create(
+            pref_type=Experiment.PREF_TYPE_JSON_STR, is_multi_pref=True
+        )
+        variant = ExperimentVariantFactory.create(experiment=experiment)
+        preference = VariantPreferencesFactory.create(variant=variant)
+        serializer = ExperimentRecipeMultiPrefVariantSerializer(variant)
+
+        self.assertEqual(serializer.data["ratio"], variant.ratio)
+        self.assertEqual(serializer.data["slug"], variant.slug)
+
+        serialized_preferences = serializer.data["preferences"]
+        self.assertEqual(
+            serialized_preferences[preference.pref_name],
+            {
+                "preferenceBranchType": preference.pref_branch,
+                "preferenceType": PrefTypeField().to_representation(preference.pref_type),
+                "preferenceValue": preference.pref_value,
+            },
+        )
+        self.assertEqual(serializer.data["ratio"], variant.ratio)
+        self.assertEqual(serializer.data["slug"], variant.slug)
 
 
 class TestExperimentRecipeVariantSerializer(TestCase):
