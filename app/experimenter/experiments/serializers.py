@@ -555,8 +555,8 @@ class VariantsListSerializer(serializers.ListSerializer):
             control_blank_variant["ratio"] = 50
 
             if "preferences" in initial_fields:
-                blank_variant["preferences"] = []
-                control_blank_variant["preferences"] = []
+                blank_variant["preferences"] = [{}]
+                control_blank_variant["preferences"] = [{}]
 
             data = [control_blank_variant, blank_variant]
 
