@@ -276,7 +276,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def should_use_normandy(self):
-        return self.type in (self.TYPE_PREF, self.TYPE_ADDON)
+        return self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_ROLLOUT)
 
     def generate_normandy_slug(self):
         if self.is_addon_experiment and not self.use_branched_addon_serializer:
@@ -697,10 +697,12 @@ class Experiment(ExperimentConstants, models.Model):
         completed = (
             self.completed_timeline
             and self.completed_population
-            and self.completed_variants
             and self.completed_objectives
             and self.completed_risks
         )
+
+        if self.should_have_variants:
+            completed = completed and self.completed_variants
 
         if self.is_addon_experiment:
             completed = completed and self.completed_addon

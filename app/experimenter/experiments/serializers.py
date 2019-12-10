@@ -389,6 +389,7 @@ class ExperimentRecipeBranchedArgumentsSerializer(serializers.ModelSerializer):
 class ExperimentRecipeBranchedAddonArgumentsSerializer(
     ExperimentRecipeBranchedArgumentsSerializer
 ):
+    slug = serializers.ReadOnlyField(source="normandy_slug")
     branches = serializers.SerializerMethodField()
 
     class Meta:
@@ -402,6 +403,7 @@ class ExperimentRecipeBranchedAddonArgumentsSerializer(
 class ExperimentRecipeMultiPrefArgumentsSerializer(
     ExperimentRecipeBranchedArgumentsSerializer
 ):
+    slug = serializers.ReadOnlyField(source="normandy_slug")
     branches = serializers.SerializerMethodField()
     experimentDocumentUrl = serializers.ReadOnlyField(source="experiment_url")
 
@@ -426,6 +428,30 @@ class ExperimentRecipeAddonArgumentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experiment
         fields = ("name", "description")
+
+
+class ExperimentRecipeAddonRolloutArgumentsSerializer(serializers.ModelSerializer):
+    slug = serializers.ReadOnlyField(source="normandy_slug")
+    extensionApiId = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Experiment
+        fields = ("slug", "extensionApiId")
+
+    def get_extensionApiId(self, obj):
+        return f"TODO: {obj.addon_release_url}"
+
+
+class ExperimentRecipePrefRolloutArgumentsSerializer(serializers.ModelSerializer):
+    slug = serializers.ReadOnlyField(source="normandy_slug")
+    preferences = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Experiment
+        fields = ("slug", "preferences")
+
+    def get_preferences(self, obj):
+        return [{"preferenceName": obj.pref_key, "value": obj.pref_value}]
 
 
 class ExperimentRecipeSerializer(serializers.ModelSerializer):
@@ -455,6 +481,10 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return "branched-addon-study"
         elif obj.is_addon_experiment:
             return "opt-out-study"
+        elif obj.is_addon_rollout:
+            return "addon-rollout"
+        elif obj.is_pref_rollout:
+            return "preference-rollout"
 
     def get_filter_object(self, obj):
         filter_objects = [
@@ -480,6 +510,10 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return ExperimentRecipeBranchedAddonArgumentsSerializer(obj).data
         elif obj.is_addon_experiment:
             return ExperimentRecipeAddonArgumentsSerializer(obj).data
+        elif obj.is_addon_rollout:
+            return ExperimentRecipeAddonRolloutArgumentsSerializer(obj).data
+        elif obj.is_pref_rollout:
+            return ExperimentRecipePrefRolloutArgumentsSerializer(obj).data
 
     def get_comment(self, obj):
         return f"Platform: {obj.platform}\n{obj.client_matching}"

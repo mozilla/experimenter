@@ -59,10 +59,10 @@ check_migrations: test_build
 	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)"
 
 check: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)&&$(PYTHON_CHECK_MIGRATIONS)&&$(BLACK_CHECK)&&$(FLAKE8)&&$(ESLINT)&&$(PYTHON_TEST)"
+	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)&&$(BLACK_CHECK)&&$(FLAKE8)&&$(ESLINT)&&$(PYTHON_TEST)"
 
 checkfast: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)&&$(PYTHON_CHECK_MIGRATIONS)&&$(BLACK_CHECK)&&$(FLAKE8)&&$(ESLINT)&&$(PYTHON_TEST_FAST)"
+	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)&&$(BLACK_CHECK)&&$(FLAKE8)&&$(ESLINT)&&$(PYTHON_TEST_FAST)"
 
 compose_build: build ssl
 	$(COMPOSE)  build
