@@ -1508,9 +1508,15 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
 
         data = {"variants": [self.control_variant_data, self.treatment_variant_data]}
 
-        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+        serializer = ExperimentDesignBaseSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
 
         self.assertTrue(serializer.is_valid())
+        serializer.save()
+
+        variant = ExperimentVariant.objects.get(name="&re@t -br@nche$!")
+        self.assertEqual(variant.slug, "ret-brnche")
 
 
 class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
