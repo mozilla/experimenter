@@ -884,6 +884,15 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         coerce=coerce_truthy,
         empty_value=None,
     )
+    risk_higher_risk = forms.TypedChoiceField(
+        required=False,
+        label=Experiment.RISK_HIGHER_RISK_LABEL,
+        help_text=Experiment.RISK_HIGHER_RISK_HELP_TEXT,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
+    )
 
     # Optional Risk Descriptions
     risk_technical_description = forms.CharField(
@@ -966,6 +975,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
             "risk_security",
             "risk_revision",
             "risk_technical",
+            "risk_higher_risk",
             "risk_technical_description",
             "risks",
             "testing",

@@ -60,7 +60,7 @@
       {{ experiment.risk_data_category|yesno:"Yes,No"}}
     </strong>
   </p>
-  
+
   <p>
     {{ experiment.RISK_EXTERNAL_TEAM_IMPACT_LABEL }}
     <strong class="{% if experiment.risk_external_team_impact %}text-danger{% endif %}">
@@ -74,7 +74,7 @@
       {{ experiment.risk_telemetry_data|yesno:"Yes,No"}}
     </strong>
   </p>
-  
+
   <p>
     {{ experiment.RISK_UX_LABEL }}
     <strong class="{% if experiment.risk_ux %}text-danger{% endif %}">
@@ -88,7 +88,7 @@
       {{ experiment.risk_security|yesno:"Yes,No"}}
     </strong>
   </p>
-  
+
   <p>
     {{ experiment.RISK_REVISION_LABEL }}
     <strong class="{% if experiment.risk_revision %}text-success{% endif %}">
@@ -100,6 +100,13 @@
     {{ experiment.RISK_TECHNICAL_LABEL }}
     <strong class="{% if experiment.risk_technical %}text-danger{% endif %}">
       {{ experiment.risk_technical|yesno:"Yes,No" }}
+    </strong>
+  </p>
+
+  <p>
+    {{ experiment.RISK_HIGHER_RISK_LABEL }}
+    <strong class="{% if experiment.risk_higher_risk %}text-danger{% endif %}">
+      {{ experiment.risk_higher_risk|yesno:"Yes,No" }}
     </strong>
   </p>
 

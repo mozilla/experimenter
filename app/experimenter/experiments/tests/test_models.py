@@ -862,6 +862,7 @@ class TestExperimentModel(TestCase):
             risk_security=False,
             risk_revision=True,
             risk_technical=False,
+            risk_higher_risk=True,
         )
         self.assertEqual(
             experiment._risk_questions,
@@ -880,6 +881,7 @@ class TestExperimentModel(TestCase):
                 False,
                 True,
                 False,
+                True,
             ),
         )
 

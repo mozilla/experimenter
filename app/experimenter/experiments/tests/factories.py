@@ -100,6 +100,7 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     risk_security = False
     risk_revision = False
     risk_technical = False
+    risk_higher_risk = False
 
     risk_technical_description = factory.LazyAttribute(
         lambda o: faker.text(random.randint(500, 1000))
