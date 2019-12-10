@@ -21,6 +21,7 @@ export default class PrefForm extends React.PureComponent {
     errors: PropTypes.instanceOf(Map),
     handleDataChange: PropTypes.func,
     handleErrorsChange: PropTypes.func,
+    handleReloadAPIState: PropTypes.func,
   };
 
   renderSingularPrefInfo() {
@@ -94,7 +95,7 @@ export default class PrefForm extends React.PureComponent {
               radioValue1="false"
               radioValue2="true"
               onChange={value =>
-                this.props.handleDataChange("is_multi_pref", value)
+                this.props.handleReloadAPIState("is_multi_pref", value)
               }
               value={this.props.data.get("is_multi_pref")}
             />
