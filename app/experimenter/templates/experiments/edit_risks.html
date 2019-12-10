@@ -41,6 +41,9 @@
 
     {% include "experiments/radio_field_inline.html" with field=form.risk_technical %}
 
+    {% include "experiments/radio_field_inline.html" with field=form.risk_higher_risk %}
+
+
     <div id="risks_technical_description_field" class="collapse">
       {% include "experiments/field_inline_help_link.html" with field=form.risk_technical_description marked_required=True %}
     </div>
