@@ -32,7 +32,7 @@ class DesignPage(Base):
     )
     _page_wait_locator = (
         By.CSS_SELECTOR,
-        "body.page-edit-variants",
+        "form",
     )
 
 
