@@ -713,9 +713,9 @@ class ExperimentDesignBaseSerializer(
         fields = ("variants",)
 
     def validate(self, data):
-        if variants:
-            variants = data["variants"]
+        variants = data.get("variants")
 
+        if variants:
             if sum([variant["ratio"] for variant in variants]) != 100:
                 error_list = []
                 for variant in variants:
@@ -726,7 +726,9 @@ class ExperimentDesignBaseSerializer(
             if not self.is_variant_valid(variants):
                 error_list = []
                 for variant in variants:
-                    error_list.append({"name": [("All branches must have a unique name")]})
+                    error_list.append(
+                        {"name": [("All branches must have a unique name")]}
+                    )
 
                 raise serializers.ValidationError({"variants": error_list})
 
