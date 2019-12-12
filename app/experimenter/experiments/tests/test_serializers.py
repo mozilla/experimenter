@@ -1224,14 +1224,14 @@ class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
                         "is_control": True,
                         "name": None,
                         "ratio": 50,
-                        "preferences": [],
+                        "preferences": [{}],
                     },
                     {
                         "description": None,
                         "is_control": False,
                         "name": None,
                         "ratio": 50,
-                        "preferences": [],
+                        "preferences": [{}],
                     },
                 ],
             },
@@ -1501,17 +1501,22 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("variants", serializer.errors)
 
-    def test_serializer_rejects_special_char_branch_names(self):
+    def test_serializer_allows_special_char_branch_names(self):
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
 
-        self.control_variant_data["name"] = "&re@t br@nche$!"
+        self.control_variant_data["name"] = "&re@t -br@nche$!"
 
         data = {"variants": [self.control_variant_data, self.treatment_variant_data]}
 
-        serializer = ExperimentDesignBaseSerializer(instance=experiment, data=data)
+        serializer = ExperimentDesignBaseSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
 
-        self.assertFalse(serializer.is_valid())
-        self.assertIn("variants", serializer.errors)
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+
+        variant = ExperimentVariant.objects.get(name="&re@t -br@nche$!")
+        self.assertEqual(variant.slug, "ret-brnche")
 
 
 class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):

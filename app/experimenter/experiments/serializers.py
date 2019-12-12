@@ -555,8 +555,8 @@ class VariantsListSerializer(serializers.ListSerializer):
             control_blank_variant["ratio"] = 50
 
             if "preferences" in initial_fields:
-                blank_variant["preferences"] = []
-                control_blank_variant["preferences"] = []
+                blank_variant["preferences"] = [{}]
+                control_blank_variant["preferences"] = [{}]
 
             data = [control_blank_variant, blank_variant]
 
@@ -684,32 +684,19 @@ class ExperimentDesignBaseSerializer(
         if not self.is_variant_valid(variants):
             error_list = []
             for variant in variants:
-                error_list.append(
-                    {
-                        "name": [
-                            (
-                                "All branches must have a unique name "
-                                "and not contain special characters."
-                            )
-                        ]
-                    }
-                )
+                error_list.append({"name": [("All branches must have a unique name")]})
 
             raise serializers.ValidationError({"variants": error_list})
 
         return data
 
     def is_variant_valid(self, variants):
-        unique_names = len(
-            set([slugify(variant["name"]) for variant in variants])
-        ) == len(variants)
 
-        all_contains_alphanumeric_and_spaces = all(
-            Experiment.EXPERIMENT_VARIANT_NAME_REGEX.match(variant["name"])
-            for variant in variants
-        )
+        slugified_nanes = [slugify(variant["name"]) for variant in variants]
+        unique_names = len(set(slugified_nanes)) == len(variants)
+        non_empty = all(slugified_nanes)
 
-        return unique_names and all_contains_alphanumeric_and_spaces
+        return unique_names and non_empty
 
     def update(self, instance, validated_data):
         variants_data = validated_data.pop("variants")
