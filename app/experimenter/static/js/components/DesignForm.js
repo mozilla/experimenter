@@ -73,13 +73,17 @@ class DesignForm extends React.PureComponent {
         loading: true,
       }),
       async () => {
-        const data = await makeApiRequest(this.getEndpointUrl());
-        data[key] = value;
+        try {
+          const data = await makeApiRequest(this.getEndpointUrl());
+          data[key] = value;
 
-        this.setState({
-          data: fromJS(data),
-          loading: false,
-        });
+          this.setState({
+            data: fromJS(data),
+            loading: false,
+          });
+        } catch (error) {
+          console.log(error.message);
+        }
       },
     );
   }
