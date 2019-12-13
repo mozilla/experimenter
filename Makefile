@@ -134,7 +134,7 @@ integration_kill:
 
 integration_build: integration_kill ssl build
 	$(COMPOSE_INTEGRATION) build
-	$(COMPOSE_INTEGRATION) run app sh -c "$(WAIT_FOR_DB) python manage.py migrate;python manage.py load-locales-countries;python manage.py createsuperuser --username admin --email admin@example.com --noinput"
+	$(COMPOSE_INTEGRATION) run app sh -c "$(WAIT_FOR_DB) python manage.py migrate;python manage.py load-countries;python manage.py loaddata ./fixtures/locales.json;python manage.py createsuperuser --username admin --email admin@example.com --noinput"
 
 integration_shell: integration_build
 	$(COMPOSE_INTEGRATION) run firefox bash
