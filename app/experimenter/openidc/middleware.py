@@ -3,9 +3,10 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from rest_framework.authentication import SessionAuthentication
+from django.contrib.auth.middleware import AuthenticationMiddleware
 
 
-class OpenIDCAuthMiddleware(object):
+class OpenIDCAuthMiddleware(AuthenticationMiddleware):
     """
     An authentication middleware that depends on a header being set in the
     request. This header will be populated by nginx configured to authenticate
