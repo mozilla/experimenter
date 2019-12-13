@@ -186,20 +186,31 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
             # Simple build, do nothing.
             return
 
-        if extracted is None:
+        if extracted is None and Locale.objects.all().count() == 0:
             extracted = _generate_many_to_many_list(LocaleFactory)
+
+        elif extracted is None and Locale.objects.all():
+            total = Locale.objects.all().count()
+            rand_num = random.randint(0, total)
+            extracted = Locale.objects.order_by("?")[:rand_num]
 
         for locale in extracted:
             self.locales.add(locale)
 
     @factory.post_generation
     def countries(self, create, extracted, **kwargs):
+
         if not create:
             # Simple build, do nothing.
             return
 
-        if extracted is None:
+        if extracted is None and Country.objects.all().count() == 0:
             extracted = _generate_many_to_many_list(CountryFactory)
+
+        elif extracted is None and Country.objects.all():
+            total = Country.objects.all().count()
+            rand_num = random.randint(0, total)
+            extracted = Country.objects.order_by("?")[:rand_num]
 
         for country in extracted:
             self.countries.add(country)
