@@ -872,6 +872,12 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create()
         self.assertTrue(experiment.completed_population)
 
+    def test_population_is_complete_for_rollout_without_population_percent(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT, population_percent=0.0
+        )
+        self.assertTrue(experiment.completed_population)
+
     def test_design_is_not_complete_when_defaults_set(self):
         experiment = ExperimentFactory.create(design=Experiment.DESIGN_DEFAULT)
         self.assertFalse(experiment.completed_design)
@@ -1315,12 +1321,22 @@ class TestExperimentModel(TestCase):
 
     def test_experiment_population_returns_correct_string(self):
         experiment = ExperimentFactory(
+            type=Experiment.TYPE_PREF,
             population_percent="0.5",
             firefox_min_version="57.0",
             firefox_max_version="",
             firefox_channel="Nightly",
         )
         self.assertEqual(experiment.population, "0.5% of Nightly Firefox 57.0")
+
+    def test_experiment_population_returns_correct_string_for_rollout(self):
+        experiment = ExperimentFactory(
+            type=Experiment.TYPE_ROLLOUT,
+            firefox_min_version="57.0",
+            firefox_max_version="",
+            firefox_channel="Nightly",
+        )
+        self.assertEqual(experiment.population, "Nightly Firefox 57.0")
 
     def test_experiment_firefox_channel_sort_does_sorting(self):
         ExperimentFactory.create(firefox_channel=Experiment.CHANNEL_NIGHTLY)
