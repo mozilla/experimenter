@@ -10,11 +10,28 @@ class ExperimentConstants(object):
     TYPE_PREF = "pref"
     TYPE_ADDON = "addon"
     TYPE_GENERIC = "generic"
+    TYPE_ROLLOUT = "rollout"
 
     TYPE_CHOICES = (
         (TYPE_PREF, "Pref-Flip Experiment"),
         (TYPE_ADDON, "Add-On Experiment"),
         (TYPE_GENERIC, "Generic Experiment"),
+        (TYPE_ROLLOUT, "Staged Rollout"),
+    )
+
+    # Rollout stuff
+    ROLLOUT_TYPE_CHOICES = ((TYPE_PREF, "Pref Rollout"), (TYPE_ADDON, "Add-On Rollout"))
+
+    ROLLOUT_PLAYBOOK_LOW_RISK = "low_risk"
+    ROLLOUT_PLAYBOOK_HIGH_RISK = "high_risk"
+    ROLLOUT_PLAYBOOK_MARKETING = "marketing"
+    ROLLOUT_PLAYBOOK_CUSTOM = "custom"
+    ROLLOUT_PLAYBOOK_CHOICES = (
+        (None, "Rollout Playbook"),
+        (ROLLOUT_PLAYBOOK_LOW_RISK, "Low Risk Schedule"),
+        (ROLLOUT_PLAYBOOK_HIGH_RISK, "High Risk Schedule"),
+        (ROLLOUT_PLAYBOOK_MARKETING, "Marketing Launch Schedule"),
+        (ROLLOUT_PLAYBOOK_CUSTOM, "Custom Schedule"),
     )
 
     # date range stuff
@@ -167,6 +184,7 @@ class ExperimentConstants(object):
     SECTION_POPULATION = "population"
     SECTION_DESIGN = "design"
     SECTION_ADDON = "addon"
+    SECTION_ROLLOUT = "rollout"
     SECTION_BRANCHES = "branches"
     SECTION_OBJECTIVES = "objectives"
     SECTION_ANALYSIS = "analysis"
@@ -182,6 +200,7 @@ class ExperimentConstants(object):
         (SECTION_POPULATION, "Population"),
         (SECTION_DESIGN, "Design"),
         (SECTION_ADDON, "Add-On"),
+        (SECTION_ROLLOUT, "Rollout"),
         (SECTION_BRANCHES, "Branches"),
         (SECTION_OBJECTIVES, "Objectives"),
         (SECTION_ANALYSIS, "Analysis"),
@@ -234,16 +253,24 @@ class ExperimentConstants(object):
         sent to Firefox users.
       </p>
       <p>
-        A <strong>{[1]}</strong> experiment uses prefs to enable code which
+        A <strong>{[1]}</strong> uses prefs to enable code which
         has already been merged into Firefox and deployed with a standard
         Firefox release in a disabled state, and will be selectively enabled
         for users that enroll into the experiment.
       </p>
       <p>
-        An <strong>{[1]}</strong> experiment sends a Firefox Add-On which
+        An <strong>{[1]}</strong> sends a Firefox Add-On which
         contains the code for the experimental feature to the users that
         enroll in the experiment.  After the experiment is complete, that
         add-on is automatically removed.
+      </p>
+      <p>
+        A <strong>{[1]}</strong> captures any change which is delivered
+        through something other than the previous types.
+      </p>
+      <p>
+        A <strong>{[1]}</strong> slowly deploys a pref or addon change
+        to increasing numbers of users.
       </p>
     """.format(
         *TYPE_CHOICES
@@ -310,6 +337,18 @@ class ExperimentConstants(object):
       </p>
       <p>
         <strong>Example:</strong> 10
+      </p>
+    """
+
+    ROLLOUT_PLAYBOOK_HELP_TEXT = """
+      <p>
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=90737068#StagedRollouts/GradualRollouts-Playbooks"
+        >
+          Playbook Help
+        </a>
       </p>
     """
 

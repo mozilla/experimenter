@@ -2,15 +2,20 @@
   <div class="col-3 text-right">
     <label class="col-form-label" for="{{ field.id_for_label }}">
       <strong>{{ field.label }}</strong>
-      {% if marked_required or field.field.required %}
+      <div class="required-label
+        {% if marked_required or field.field.required %}
+          required
+        {% else %}
+          optional
+        {% endif %}
+      ">
         <div class="text-danger">
           Required
         </div>
-      {% else %}
         <div class="text-muted">
           Optional
         </div>
-      {% endif %}
+      </div>
     </label>
     <div>
       {% block help %}

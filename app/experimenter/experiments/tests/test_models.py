@@ -346,6 +346,26 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(len(normandy_slug), settings.NORMANDY_SLUG_MAX_LEN)
 
+    def test_is_rollout_false_for_not_type_rollout(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_PREF)
+        self.assertFalse(experiment.is_rollout)
+
+    def test_is_rollout_true_for_type_rollout(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        self.assertTrue(experiment.is_rollout)
+
+    def test_is_pref_rollout(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT, rollout_type=Experiment.TYPE_PREF
+        )
+        self.assertTrue(experiment.is_pref_rollout)
+
+    def test_is_addon_rollout(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT, rollout_type=Experiment.TYPE_ADDON
+        )
+        self.assertTrue(experiment.is_addon_rollout)
+
     def test_normandy_recipe_json_serializes_pref_study(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         recipe_json = json.loads(experiment.normandy_recipe_json)
@@ -567,6 +587,55 @@ class TestExperimentModel(TestCase):
             experiment.observation_dates, "Jan 11, 2019 - Jan 21, 2019 (10 days)"
         )
 
+    def test_rollout_dates_low_risk_playbook(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_playbook=Experiment.ROLLOUT_PLAYBOOK_LOW_RISK,
+            proposed_start_date=datetime.date(2020, 1, 1),
+        )
+        self.assertEqual(
+            experiment.rollout_dates,
+            {
+                "first_increase": {"date": "Jan 01, 2020", "percent": "25%"},
+                "second_increase": {"date": "Jan 08, 2020", "percent": "75%"},
+                "final_increase": {"date": "Jan 22, 2020", "percent": "100%"},
+            },
+        )
+
+    def test_rollout_dates_high_risk_playbook(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_playbook=Experiment.ROLLOUT_PLAYBOOK_HIGH_RISK,
+            proposed_start_date=datetime.date(2020, 1, 1),
+        )
+        self.assertEqual(
+            experiment.rollout_dates,
+            {
+                "first_increase": {"date": "Jan 01, 2020", "percent": "25%"},
+                "second_increase": {"date": "Jan 08, 2020", "percent": "50%"},
+                "final_increase": {"date": "Jan 22, 2020", "percent": "100%"},
+            },
+        )
+
+    def test_rollout_dates_marketing_playbook(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_playbook=Experiment.ROLLOUT_PLAYBOOK_MARKETING,
+            proposed_start_date=datetime.date(2020, 1, 1),
+        )
+        self.assertEqual(
+            experiment.rollout_dates,
+            {"final_increase": {"date": "Jan 01, 2020", "percent": "100%"}},
+        )
+
+    def test_rollout_dates_custom_playbook(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_playbook=Experiment.ROLLOUT_PLAYBOOK_CUSTOM,
+            proposed_start_date=datetime.date(2020, 1, 1),
+        )
+        self.assertEqual(experiment.rollout_dates, {})
+
     def test_enrollment_is_complete(self):
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_LIVE, is_paused=True
@@ -764,13 +833,32 @@ class TestExperimentModel(TestCase):
 
     def test_timeline_is_not_complete_when_missing_dates(self):
         experiment = ExperimentFactory.create(
-            proposed_start_date=None, proposed_duration=None
+            type=Experiment.TYPE_PREF, proposed_start_date=None, proposed_duration=None
         )
         self.assertFalse(experiment.completed_timeline)
 
     def test_timeline_is_complete_when_dates_set(self):
         experiment = ExperimentFactory.create(
-            proposed_start_date=datetime.date.today(), proposed_duration=10
+            type=Experiment.TYPE_PREF,
+            proposed_start_date=datetime.date.today(),
+            proposed_duration=10,
+        )
+        self.assertTrue(experiment.completed_timeline)
+
+    def test_timeline_is_not_complete_when_missing_playbook_for_rollout(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            proposed_start_date=datetime.date.today(),
+            proposed_duration=10,
+        )
+        self.assertFalse(experiment.completed_timeline)
+
+    def test_timeline_is_complete_with_playbook_for_rollout(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            proposed_start_date=datetime.date.today(),
+            proposed_duration=10,
+            rollout_playbook=Experiment.ROLLOUT_PLAYBOOK_CUSTOM,
         )
         self.assertTrue(experiment.completed_timeline)
 
@@ -782,6 +870,12 @@ class TestExperimentModel(TestCase):
 
     def test_population_is_complete_when_values_set(self):
         experiment = ExperimentFactory.create()
+        self.assertTrue(experiment.completed_population)
+
+    def test_population_is_complete_for_rollout_without_population_percent(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT, population_percent=0.0
+        )
         self.assertTrue(experiment.completed_population)
 
     def test_design_is_not_complete_when_defaults_set(self):
@@ -845,6 +939,42 @@ class TestExperimentModel(TestCase):
             objectives="Some objectives!", analysis="Some analysis!"
         )
         self.assertTrue(experiment.completed_objectives)
+
+    def test_addon_rollout_completed(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_type=Experiment.TYPE_ADDON,
+            addon_release_url="https://example.com/addon.xpi",
+        )
+        self.assertTrue(experiment.completed_addon_rollout)
+
+    def test_pref_rollout_completed(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_type=Experiment.TYPE_PREF,
+            pref_type=Experiment.PREF_TYPE_STR,
+            pref_key="abc",
+            pref_value="abc",
+        )
+        self.assertTrue(experiment.completed_pref_rollout)
+
+    def test_rollout_completed_for_pref(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_type=Experiment.TYPE_PREF,
+            pref_type=Experiment.PREF_TYPE_STR,
+            pref_key="abc",
+            pref_value="abc",
+        )
+        self.assertTrue(experiment.completed_rollout)
+
+    def test_rollout_completed_for_addon(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_type=Experiment.TYPE_ADDON,
+            addon_release_url="https://example.com/addon.xpi",
+        )
+        self.assertTrue(experiment.completed_rollout)
 
     def test_risk_questions_returns_a_tuple(self):
         experiment = ExperimentFactory.create(
@@ -950,6 +1080,32 @@ class TestExperimentModel(TestCase):
             review_qa_requested=True,
             review_intent_to_ship=True,
             review_bugzilla=True,
+            review_qa=True,
+            review_relman=True,
+        )
+        self.assertTrue(experiment.completed_required_reviews)
+
+    def test_lightning_advising_required_for_rollout(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            review_advisory=False,
+            review_science=True,
+            review_engineering=True,
+            review_qa_requested=True,
+            review_intent_to_ship=True,
+            review_bugzilla=True,
+            review_qa=True,
+            review_relman=True,
+        )
+        self.assertFalse(experiment.completed_required_reviews)
+
+    def test_required_reviews_for_rollout(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            review_advisory=True,
+            review_science=True,
+            review_qa_requested=True,
+            review_intent_to_ship=True,
             review_qa=True,
             review_relman=True,
         )
@@ -1165,12 +1321,22 @@ class TestExperimentModel(TestCase):
 
     def test_experiment_population_returns_correct_string(self):
         experiment = ExperimentFactory(
+            type=Experiment.TYPE_PREF,
             population_percent="0.5",
             firefox_min_version="57.0",
             firefox_max_version="",
             firefox_channel="Nightly",
         )
         self.assertEqual(experiment.population, "0.5% of Nightly Firefox 57.0")
+
+    def test_experiment_population_returns_correct_string_for_rollout(self):
+        experiment = ExperimentFactory(
+            type=Experiment.TYPE_ROLLOUT,
+            firefox_min_version="57.0",
+            firefox_max_version="",
+            firefox_channel="Nightly",
+        )
+        self.assertEqual(experiment.population, "Nightly Firefox 57.0")
 
     def test_experiment_firefox_channel_sort_does_sorting(self):
         ExperimentFactory.create(firefox_channel=Experiment.CHANNEL_NIGHTLY)
@@ -1260,12 +1426,6 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(change.old_status, None)
         self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
-
-    def test_variant_json_dumps(self):
-        variant = ExperimentVariant()
-        variant.value = '{"key": "value","key1":"value1"}'
-        expected_value = json.dumps({"key": "value", "key1": "value1"}, indent=2)
-        self.assertEqual(variant.json_dumps_value, expected_value)
 
 
 class TestVariantPreferences(TestCase):

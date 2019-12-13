@@ -32,7 +32,6 @@ export default class AddonForm extends React.PureComponent {
             error={this.props.errors.get("addon_release_url", "")}
             helpContent={ADDON_RELEASE_URL_HELP}
           />
-          <hr className="heavy-line my-5" />
         </React.Fragment>
       );
     }
@@ -48,19 +47,22 @@ export default class AddonForm extends React.PureComponent {
               fieldName="is_branched_addon"
               radioLabel1="A single add-on for all branches"
               radioLabel2="Multiple add-ons"
-              radioValue1="false"
-              radioValue2="true"
-              onChange={value =>
-                this.props.handleDataChange("is_branched_addon", value)
+              radioValue1={false}
+              radioValue2={true}
+              onChange={event =>
+                this.props.handleDataChange(
+                  "is_branched_addon",
+                  event.target.value === "true",
+                )
               }
               value={this.props.data.get("is_branched_addon")}
             />
           </Col>
         </Row>
 
-        <hr className="heavy-line my-5" />
-
         {this.renderSingleAddonFields()}
+
+        <hr className="heavy-line my-5" />
 
         <BranchManager
           branchFieldsComponent={

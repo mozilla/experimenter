@@ -1,20 +1,27 @@
-import { boundClass } from "autobind-decorator";
-import { fromJS, Map } from "immutable";
 import PropTypes from "prop-types";
 import React from "react";
 import { Button, Container, Row, Col } from "react-bootstrap";
+import { boundClass } from "autobind-decorator";
+import { fromJS, Map } from "immutable";
 
 import AddonForm from "experimenter/components/AddonForm";
 import GenericForm from "experimenter/components/GenericForm";
 import PrefForm from "experimenter/components/PrefForm";
+import RolloutForm from "experimenter/components/RolloutForm";
 import { makeApiRequest } from "experimenter/utils/api";
+import {
+  TYPE_PREF,
+  TYPE_ADDON,
+  TYPE_GENERIC,
+  TYPE_ROLLOUT,
+} from "experimenter/components/constants";
 
 @boundClass
 class DesignForm extends React.PureComponent {
   static propTypes = {
+    experimentType: PropTypes.string,
     isBranchedAddon: PropTypes.bool,
     isMultiPref: PropTypes.bool,
-    experimentType: PropTypes.string,
     slug: PropTypes.string,
   };
 
@@ -30,11 +37,17 @@ class DesignForm extends React.PureComponent {
   }
 
   isMultiPref() {
-    return this.state.data.get("is_multi_pref", this.props.isMultiPref);
+    return (
+      this.props.experimentType === TYPE_PREF &&
+      this.state.data.get("is_multi_pref", this.props.isMultiPref)
+    );
   }
 
   isBranchedAddon() {
-    return this.state.data.get("is_branched_addon", this.props.isBranchedAddon);
+    return (
+      this.props.experimentType === TYPE_ADDON &&
+      this.state.data.get("is_branched_addon", this.props.isBranchedAddon)
+    );
   }
 
   getEndpointUrl() {
@@ -142,14 +155,18 @@ class DesignForm extends React.PureComponent {
     // Select the appropriate form component to use based on experiment type
     let Form;
     switch (this.props.experimentType) {
-      case "pref":
+      case TYPE_PREF:
         Form = PrefForm;
         break;
-      case "addon":
+      case TYPE_ADDON:
         Form = AddonForm;
         break;
-      default:
+      case TYPE_ROLLOUT:
+        Form = RolloutForm;
+        break;
+      case TYPE_GENERIC:
         Form = GenericForm;
+        break;
     }
 
     return (

@@ -1,5 +1,15 @@
 import React from "react";
 
+export const TYPE_ADDON = "addon";
+export const TYPE_PREF = "pref";
+export const TYPE_GENERIC = "generic";
+export const TYPE_ROLLOUT = "rollout";
+
+export const PREF_TYPE_BOOL = "boolean";
+export const PREF_TYPE_INT = "integer";
+export const PREF_TYPE_STR = "string";
+export const PREF_TYPE_JSON_STR = "json string";
+
 export const DESIGN_HELP = (
   <div>
     <p>Specify the design of the experiment.</p>
@@ -48,6 +58,26 @@ export const PREF_BRANCH_HELP = (
     </p>
     <p>
       <strong>Example:</strong> default
+    </p>
+  </div>
+);
+
+export const PREF_VALUE_HELP = (
+  <div>
+    <p className="mt-2">
+      Choose the value of the pref for the control group. This value must be
+      valid JSON in order to be sent to Shield. This should be the right type
+      (boolean, string, number), and should be the value that represents the
+      control or default state to compare to.
+    </p>
+    <p>
+      <strong>Boolean Example:</strong> false
+    </p>
+    <p>
+      <strong>String Example:</strong> some text
+    </p>
+    <p>
+      <strong>Integer Example:</strong> 13
     </p>
   </div>
 );
@@ -130,22 +160,11 @@ export const BRANCH_DESCRIPTION_HELP = (
   </div>
 );
 
-export const PREF_VALUE_HELP = (
+export const ROLLOUT_DESCRIPTION_HELP = (
   <div>
-    <p className="mt-2">
-      Choose the value of the pref for the control group. This value must be
-      valid JSON in order to be sent to Shield. This should be the right type
-      (boolean, string, number), and should be the value that represents the
-      control or default state to compare to.
-    </p>
     <p>
-      <strong>Boolean Example:</strong> false
-    </p>
-    <p>
-      <strong>String Example:</strong> some text
-    </p>
-    <p>
-      <strong>Integer Example:</strong> 13
+      Describe the changes that will be shipped in this rollout and how they
+      fill affect users.
     </p>
   </div>
 );
