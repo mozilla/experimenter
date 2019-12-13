@@ -91,8 +91,13 @@ migrate: compose_build
 createuser: compose_build
 	$(COMPOSE) run app python manage.py createsuperuser
 
-load_locales_countries: compose_build
-	$(COMPOSE) run app python manage.py load-locales-countries
+load_locales: compose_build
+	$(COMPOSE) run app python manage.py loaddata ./fixtures/locales.json
+
+load_countries: compose_build
+	$(COMPOSE) run app python manage.py load-countries
+
+load_locales_countries:load_locales load_countries
 
 load_dummy_experiments: compose_build
 	$(COMPOSE) run app python manage.py load-dummy-experiments
