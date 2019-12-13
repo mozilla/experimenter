@@ -643,6 +643,10 @@ class Experiment(ExperimentConstants, models.Model):
         return completed
 
     @property
+    def should_show_risks(self):
+        return self.completed_risks or self.is_begun
+
+    @property
     def completed_testing(self):
         return self.qa_status
 
