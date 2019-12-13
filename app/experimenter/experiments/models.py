@@ -544,6 +544,10 @@ class Experiment(ExperimentConstants, models.Model):
         return self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC)
 
     @property
+    def should_have_population_percent(self):
+        return self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC)
+
+    @property
     def completed_overview(self):
         return self.pk is not None
 
@@ -558,12 +562,14 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_population(self):
-        return (
-            self.population_percent
-            and self.firefox_min_version
-            and self.firefox_max_version
-            and self.firefox_channel
+        completed = (
+            self.firefox_min_version and self.firefox_max_version and self.firefox_channel
         )
+
+        if self.should_have_population_percent:
+            completed = completed and self.population_percent
+
+        return completed
 
     @property
     def completed_design(self):
@@ -759,11 +765,16 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def population(self):
-        return "{percent:g}% of {channel} Firefox {firefox_version}".format(
-            percent=float(self.population_percent),
-            firefox_version=self.format_firefox_versions,
-            channel=self.firefox_channel,
+        population = "{channel} Firefox {firefox_version}".format(
+            firefox_version=self.format_firefox_versions, channel=self.firefox_channel
         )
+
+        if self.should_have_population_percent:
+            population = "{percent:g}% of {population}".format(
+                population=population, percent=float(self.population_percent)
+            )
+
+        return population
 
     @staticmethod
     def firefox_channel_sort():

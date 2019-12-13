@@ -36,7 +36,9 @@
     <h4 class="col-9 offset-3">Delivery Population</h4>
   </div>
 
-  {% include "experiments/field_inline.html" with field=form.population_percent marked_required=True %}
+  {% if object.should_have_population_percent %}
+    {% include "experiments/field_inline.html" with field=form.population_percent marked_required=True %}
+  {% endif %}
 
   {% include "experiments/field_inline_help_link.html" with field=form.firefox_channel marked_required=True %}
 
