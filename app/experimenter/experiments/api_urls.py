@@ -1,16 +1,17 @@
 from django.conf.urls import url
 
 from experimenter.experiments.api_views import (
+    ExperimentCloneView,
+    ExperimentDesignAddonView,
+    ExperimentDesignBranchedAddonView,
+    ExperimentDesignGenericView,
+    ExperimentDesignMultiPrefView,
+    ExperimentDesignPrefView,
+    ExperimentDesignRolloutView,
     ExperimentDetailView,
     ExperimentListView,
     ExperimentRecipeView,
     ExperimentSendIntentToShipEmailView,
-    ExperimentCloneView,
-    ExperimentDesignAddonView,
-    ExperimentDesignPrefView,
-    ExperimentDesignMultiPrefView,
-    ExperimentDesignGenericView,
-    ExperimentDesignBranchedAddonView,
 )
 
 
@@ -60,5 +61,10 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/design-branched-addon",
         ExperimentDesignBranchedAddonView.as_view(),
         name="experiments-design-branched-addon",
+    ),
+    url(
+        r"^(?P<slug>[\w-]+)/design-rollout",
+        ExperimentDesignRolloutView.as_view(),
+        name="experiments-design-rollout",
     ),
 ]

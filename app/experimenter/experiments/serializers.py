@@ -389,6 +389,7 @@ class ExperimentRecipeBranchedArgumentsSerializer(serializers.ModelSerializer):
 class ExperimentRecipeBranchedAddonArgumentsSerializer(
     ExperimentRecipeBranchedArgumentsSerializer
 ):
+    slug = serializers.ReadOnlyField(source="normandy_slug")
     branches = serializers.SerializerMethodField()
 
     class Meta:
@@ -402,6 +403,7 @@ class ExperimentRecipeBranchedAddonArgumentsSerializer(
 class ExperimentRecipeMultiPrefArgumentsSerializer(
     ExperimentRecipeBranchedArgumentsSerializer
 ):
+    slug = serializers.ReadOnlyField(source="normandy_slug")
     branches = serializers.SerializerMethodField()
     experimentDocumentUrl = serializers.ReadOnlyField(source="experiment_url")
 
@@ -426,6 +428,37 @@ class ExperimentRecipeAddonArgumentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experiment
         fields = ("name", "description")
+
+
+class ExperimentRecipeAddonRolloutArgumentsSerializer(serializers.ModelSerializer):
+    slug = serializers.ReadOnlyField(source="normandy_slug")
+    extensionApiId = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Experiment
+        fields = ("slug", "extensionApiId")
+
+    def get_extensionApiId(self, obj):
+        return f"TODO: {obj.addon_release_url}"
+
+
+class ExperimentRecipePrefRolloutArgumentsSerializer(serializers.ModelSerializer):
+    slug = serializers.ReadOnlyField(source="normandy_slug")
+    preferences = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Experiment
+        fields = ("slug", "preferences")
+
+    def get_value(self, obj):
+        pref_type = obj.pref_type
+        if pref_type in (Experiment.PREF_TYPE_BOOL, Experiment.PREF_TYPE_INT):
+            return json.loads(obj.pref_value)
+
+        return obj.pref_value
+
+    def get_preferences(self, obj):
+        return [{"preferenceName": obj.pref_key, "value": self.get_value(obj)}]
 
 
 class ExperimentRecipeSerializer(serializers.ModelSerializer):
@@ -455,6 +488,10 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return "branched-addon-study"
         elif obj.is_addon_experiment:
             return "opt-out-study"
+        elif obj.is_addon_rollout:
+            return "addon-rollout"
+        elif obj.is_pref_rollout:
+            return "preference-rollout"
 
     def get_filter_object(self, obj):
         filter_objects = [
@@ -480,6 +517,10 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return ExperimentRecipeBranchedAddonArgumentsSerializer(obj).data
         elif obj.is_addon_experiment:
             return ExperimentRecipeAddonArgumentsSerializer(obj).data
+        elif obj.is_addon_rollout:
+            return ExperimentRecipeAddonRolloutArgumentsSerializer(obj).data
+        elif obj.is_pref_rollout:
+            return ExperimentRecipePrefRolloutArgumentsSerializer(obj).data
 
     def get_comment(self, obj):
         return f"Platform: {obj.platform}\n{obj.client_matching}"
@@ -672,21 +713,24 @@ class ExperimentDesignBaseSerializer(
         fields = ("variants",)
 
     def validate(self, data):
-        variants = data["variants"]
+        variants = data.get("variants")
 
-        if sum([variant["ratio"] for variant in variants]) != 100:
-            error_list = []
-            for variant in variants:
-                error_list.append({"ratio": ["All branch sizes must add up to 100."]})
+        if variants:
+            if sum([variant["ratio"] for variant in variants]) != 100:
+                error_list = []
+                for variant in variants:
+                    error_list.append({"ratio": ["All branch sizes must add up to 100."]})
 
-            raise serializers.ValidationError({"variants": error_list})
+                raise serializers.ValidationError({"variants": error_list})
 
-        if not self.is_variant_valid(variants):
-            error_list = []
-            for variant in variants:
-                error_list.append({"name": [("All branches must have a unique name")]})
+            if not self.is_variant_valid(variants):
+                error_list = []
+                for variant in variants:
+                    error_list.append(
+                        {"name": [("All branches must have a unique name")]}
+                    )
 
-            raise serializers.ValidationError({"variants": error_list})
+                raise serializers.ValidationError({"variants": error_list})
 
         return data
 
@@ -699,22 +743,27 @@ class ExperimentDesignBaseSerializer(
         return unique_names and non_empty
 
     def update(self, instance, validated_data):
-        variants_data = validated_data.pop("variants")
+        variants_data = validated_data.pop("variants", [])
         instance = super().update(instance, validated_data)
 
-        existing_variant_ids = set(instance.variants.all().values_list("id", flat=True))
-        # Create or update variants
-        for variant_data in variants_data:
-            variant_data["experiment"] = instance
-            variant_data["slug"] = slugify(variant_data["name"])
-            ExperimentVariant(**variant_data).save()
+        if variants_data:
+            existing_variant_ids = set(
+                instance.variants.all().values_list("id", flat=True)
+            )
+            # Create or update variants
+            for variant_data in variants_data:
+                variant_data["experiment"] = instance
+                variant_data["slug"] = slugify(variant_data["name"])
+                ExperimentVariant(**variant_data).save()
 
-        # Delete removed variants
-        submitted_variant_ids = set([v.get("id") for v in variants_data if v.get("id")])
-        removed_ids = existing_variant_ids - submitted_variant_ids
+            # Delete removed variants
+            submitted_variant_ids = set(
+                [v.get("id") for v in variants_data if v.get("id")]
+            )
+            removed_ids = existing_variant_ids - submitted_variant_ids
 
-        if removed_ids:
-            ExperimentVariant.objects.filter(id__in=removed_ids).delete()
+            if removed_ids:
+                ExperimentVariant.objects.filter(id__in=removed_ids).delete()
 
         self.update_changelog(instance, validated_data)
 
@@ -844,3 +893,50 @@ class ExperimentDesignBranchedAddonSerializer(ExperimentDesignBaseSerializer):
     class Meta:
         model = Experiment
         fields = ("is_branched_addon", "variants")
+
+
+class ExperimentDesignRolloutSerializer(
+    PrefValidationMixin, ExperimentDesignBaseSerializer
+):
+    rollout_type = serializers.ChoiceField(choices=Experiment.ROLLOUT_TYPE_CHOICES)
+    addon_release_url = serializers.URLField(
+        max_length=400, allow_null=True, required=False
+    )
+
+    ROLLOUT_TYPE_FIELDS = {
+        Experiment.TYPE_PREF: ("pref_key", "pref_type", "pref_value"),
+        Experiment.TYPE_ADDON: ("addon_release_url",),
+    }
+
+    class Meta:
+        model = Experiment
+        fields = (
+            "rollout_type",
+            "design",
+            "addon_release_url",
+            "pref_key",
+            "pref_type",
+            "pref_value",
+        )
+
+    def validate(self, data):
+        data = super().validate(data)
+        rollout_type = data["rollout_type"]
+
+        errors = {}
+
+        for type_field in self.ROLLOUT_TYPE_FIELDS[rollout_type]:
+            if type_field not in data or not data[type_field]:
+                errors[type_field] = ["This field is required."]
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+        if data["rollout_type"] == Experiment.TYPE_PREF:
+            pref_invalid = self.validate_pref(
+                data["pref_type"], data["pref_value"], "pref_value"
+            )
+            if pref_invalid:
+                raise serializers.ValidationError(pref_invalid)
+
+        return data

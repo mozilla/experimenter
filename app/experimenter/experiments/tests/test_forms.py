@@ -313,7 +313,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             "proposed_duration": {
                 "new_value": 20,
                 "old_value": None,
-                "display_name": "Proposed Delivery Duration (days)",
+                "display_name": "Proposed Total Duration (days)",
             },
             "population_percent": {
                 "new_value": "10.0000",
@@ -488,7 +488,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "related_work": "Designs: https://www.example.com/myproject/",
         }
 
-    def test_minimum_required_fields(self):
+    def test_minimum_required_fields_for_experiment(self):
         bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
 
         data = {
@@ -497,9 +497,29 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
             "data_science_bugzilla_url": bug_url,
-            "analysis_owner": self.user.id,
             "public_name": "Public Name",
             "public_description": "Public Description",
+        }
+        form = ExperimentOverviewForm(request=self.request, data=data)
+        self.assertTrue(form.is_valid())
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.owner, self.user)
+        self.assertEqual(experiment.status, experiment.STATUS_DRAFT)
+        self.assertEqual(experiment.name, data["name"])
+        self.assertEqual(experiment.slug, "a-new-experiment")
+        self.assertEqual(experiment.short_description, data["short_description"])
+        self.assertEqual(experiment.public_name, data["public_name"])
+        self.assertEqual(experiment.public_description, data["public_description"])
+        self.assertEqual(experiment.changes.count(), 1)
+
+    def test_minimum_required_fields_for_rollout(self):
+        data = {
+            "type": Experiment.TYPE_ROLLOUT,
+            "owner": self.user.id,
+            "name": "A new experiment!",
+            "short_description": "Let us learn new things",
         }
         form = ExperimentOverviewForm(request=self.request, data=data)
         self.assertTrue(form.is_valid())
@@ -541,6 +561,26 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
     def test_unique_name_with_same_slug_raises_error(self):
         ExperimentFactory.create(slug="slug")
         self.data["name"] = "slug#"
+
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+
+    def test_bugzilla_url_required_for_non_rollout(self):
+        self.data["type"] = Experiment.TYPE_PREF
+        del self.data["data_science_bugzilla_url"]
+
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertFalse(form.is_valid())
+
+    def test_bugzilla_url_optional_for_rollout(self):
+        self.data["type"] = Experiment.TYPE_ROLLOUT
+        del self.data["data_science_bugzilla_url"]
+
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertTrue(form.is_valid())
+
+    def test_invalid_bugzilla_url(self):
+        self.data["data_science_bugzilla_url"] = "https://example.com/notbugzilla"
 
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
@@ -1632,23 +1672,28 @@ class TestExperimentReviewForm(
 
     def test_required_reviews(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW, review_relman=True, review_science=True
+            Experiment.STATUS_REVIEW,
+            type=Experiment.TYPE_PREF,
+            review_relman=True,
+            review_science=True,
         )
 
         form = ExperimentReviewForm(request=self.request, data={}, instance=experiment)
 
         self.assertEqual(
-            form.required_reviews,
-            [
-                form["review_science"],
-                form["review_advisory"],
-                form["review_engineering"],
-                form["review_qa_requested"],
-                form["review_intent_to_ship"],
-                form["review_bugzilla"],
-                form["review_qa"],
-                form["review_relman"],
-            ],
+            set([f.name for f in form.required_reviews]),
+            set(
+                [
+                    "review_science",
+                    "review_advisory",
+                    "review_engineering",
+                    "review_qa_requested",
+                    "review_intent_to_ship",
+                    "review_bugzilla",
+                    "review_qa",
+                    "review_relman",
+                ]
+            ),
         )
 
     def test_required_reviews_when_a_risk_partner_related_is_true(self):
@@ -1698,6 +1743,44 @@ class TestExperimentReviewForm(
 
         self.assertNotIn(form["review_vp"], form.optional_reviews)
         self.assertIn(form["review_vp"], form.required_reviews)
+
+    def test_required_reviews_for_rollout(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        form = ExperimentReviewForm(self.request, instance=experiment)
+
+        self.assertEqual(
+            set([f.name for f in form.required_reviews]),
+            set(
+                [
+                    "review_qa",
+                    "review_intent_to_ship",
+                    "review_qa_requested",
+                    "review_advisory",
+                    "review_relman",
+                ]
+            ),
+        )
+
+    def test_optional_reviews_for_rollout(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        form = ExperimentReviewForm(self.request, instance=experiment)
+
+        self.assertEqual(
+            set([f.name for f in form.optional_reviews]),
+            set(
+                [
+                    "review_impacted_teams",
+                    "review_ux",
+                    "review_legal",
+                    "review_security",
+                    "review_vp",
+                    "review_comms",
+                    "review_data_steward",
+                ]
+            ),
+        )
 
     def test_cannot_check_review_relman_without_permissions(self):
         user_1 = UserFactory.create()

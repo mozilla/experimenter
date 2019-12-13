@@ -16,16 +16,17 @@ window.popper = popper;
 const branchesDiv = document.getElementById("react-branches-form");
 
 if (branchesDiv) {
-  const slug = branchesDiv.dataset.experimentSlug;
   const experimentType = branchesDiv.dataset.experimentType;
   const isBranchedAddon = branchesDiv.dataset.isBranchedAddon === "True";
   const isMultiPref = branchesDiv.dataset.isMultiPref.toLowerCase() === "true";
+  const slug = branchesDiv.dataset.experimentSlug;
+
   ReactDOM.render(
     <DesignForm
-      slug={slug}
       experimentType={experimentType}
       isBranchedAddon={isBranchedAddon}
       isMultiPref={isMultiPref}
+      slug={slug}
     />,
     branchesDiv,
   );

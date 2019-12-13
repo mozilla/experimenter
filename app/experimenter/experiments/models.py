@@ -1,26 +1,25 @@
-import json
-import datetime
-import time
 from collections import defaultdict
 from urllib.parse import urljoin
 import copy
+import datetime
+import json
+import time
 
 from django.conf import settings
-from django.utils.text import slugify
 from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import JSONField
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import Case, Max, Value, When
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.text import slugify
 
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
-
-from django.contrib.postgres.fields import JSONField
-from django.core.serializers.json import DjangoJSONEncoder
 
 
 class ExperimentManager(models.Manager):
@@ -93,6 +92,17 @@ class Experiment(ExperimentConstants, models.Model):
     )
 
     is_multi_pref = models.BooleanField(default=False)
+    rollout_type = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.ROLLOUT_TYPE_CHOICES,
+        default=ExperimentConstants.TYPE_PREF,
+    )
+    rollout_playbook = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.ROLLOUT_PLAYBOOK_CHOICES,
+        blank=True,
+        null=True,
+    )
 
     addon_experiment_id = models.CharField(
         max_length=255, unique=True, blank=True, null=True
@@ -113,6 +123,7 @@ class Experiment(ExperimentConstants, models.Model):
         blank=True,
         null=True,
     )
+    pref_value = models.TextField(blank=True, null=True)
 
     public_name = models.CharField(max_length=255, blank=True, null=True)
 
@@ -265,7 +276,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def should_use_normandy(self):
-        return self.type in (self.TYPE_PREF, self.TYPE_ADDON)
+        return self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_ROLLOUT)
 
     def generate_normandy_slug(self):
         if self.is_addon_experiment and not self.use_branched_addon_serializer:
@@ -403,14 +414,17 @@ class Experiment(ExperimentConstants, models.Model):
             return self.proposed_duration - self.proposed_enrollment
         return 0
 
+    def _format_date(self, date):
+        return date.strftime("%b %d, %Y")
+
     def _format_date_string(self, start_date, end_date):
         start_text = "Unknown"
         if start_date:
-            start_text = start_date.strftime("%b %d, %Y")
+            start_text = self._format_date(start_date)
 
         end_text = "Unknown"
         if end_date:
-            end_text = end_date.strftime("%b %d, %Y")
+            end_text = self._format_date(end_date)
 
         day_text = "days"
         duration_text = "Unknown"
@@ -436,6 +450,32 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def observation_dates(self):
         return self._format_date_string(self.enrollment_end_date, self.end_date)
+
+    @property
+    def rollout_dates(self):
+        if self.start_date and self.end_date:
+            dates = {}
+
+            start_date = self._format_date(self.start_date)
+            first_increase = self._format_date(
+                self.start_date + datetime.timedelta(days=7)
+            )
+            final_increase = self._format_date(
+                self.start_date + datetime.timedelta(days=21)
+            )
+
+            if self.rollout_playbook == self.ROLLOUT_PLAYBOOK_LOW_RISK:
+                dates["first_increase"] = {"date": start_date, "percent": "25%"}
+                dates["second_increase"] = {"date": first_increase, "percent": "75%"}
+                dates["final_increase"] = {"date": final_increase, "percent": "100%"}
+            elif self.rollout_playbook == self.ROLLOUT_PLAYBOOK_HIGH_RISK:
+                dates["first_increase"] = {"date": start_date, "percent": "25%"}
+                dates["second_increase"] = {"date": first_increase, "percent": "50%"}
+                dates["final_increase"] = {"date": final_increase, "percent": "100%"}
+            elif self.rollout_playbook == self.ROLLOUT_PLAYBOOK_MARKETING:
+                dates["final_increase"] = {"date": start_date, "percent": "100%"}
+
+            return dates
 
     @cached_property
     def control(self):
@@ -476,6 +516,18 @@ class Experiment(ExperimentConstants, models.Model):
         return self.type == self.TYPE_PREF
 
     @property
+    def is_rollout(self):
+        return self.type == self.TYPE_ROLLOUT
+
+    @property
+    def is_pref_rollout(self):
+        return self.is_rollout and self.rollout_type == self.TYPE_PREF
+
+    @property
+    def is_addon_rollout(self):
+        return self.is_rollout and self.rollout_type == self.TYPE_ADDON
+
+    @property
     def is_editable(self):
         return self.status in (self.STATUS_DRAFT, self.STATUS_REVIEW)
 
@@ -488,25 +540,54 @@ class Experiment(ExperimentConstants, models.Model):
         return any(self._risk_questions)
 
     @property
+    def should_have_variants(self):
+        return self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC)
+
+    @property
+    def should_have_population_percent(self):
+        return self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC)
+
+    @property
     def completed_overview(self):
         return self.pk is not None
 
     @property
     def completed_timeline(self):
-        return self.proposed_start_date and self.proposed_duration
+        completed = self.proposed_start_date and self.proposed_duration
+
+        if self.is_rollout:
+            completed = completed and self.rollout_playbook
+
+        return completed
 
     @property
     def completed_population(self):
-        return (
-            self.population_percent
-            and self.firefox_min_version
-            and self.firefox_max_version
-            and self.firefox_channel
+        completed = (
+            self.firefox_min_version and self.firefox_max_version and self.firefox_channel
         )
+
+        if self.should_have_population_percent:
+            completed = completed and self.population_percent
+
+        return completed
 
     @property
     def completed_design(self):
         return self.design and self.design != self.DESIGN_DEFAULT
+
+    @property
+    def completed_pref_rollout(self):
+        return self.is_pref_rollout and all(
+            [self.pref_type, self.pref_key, self.pref_value]
+        )
+
+    @property
+    def completed_addon_rollout(self):
+        return self.is_addon_rollout and self.addon_release_url
+
+    @property
+    def completed_rollout(self):
+        return self.completed_pref_rollout or self.completed_addon_rollout
 
     @property
     def completed_addon(self):
@@ -517,7 +598,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_variants(self):
-        return self.variants.exists()
+        return self.should_have_variants and self.variants.exists()
 
     @property
     def completed_objectives(self):
@@ -586,30 +667,35 @@ class Experiment(ExperimentConstants, models.Model):
         }
 
     def _default_required_reviews(self):
-        return [
-            "review_science",
+        reviews = [
             "review_advisory",
-            "review_engineering",
             "review_qa_requested",
             "review_intent_to_ship",
-            "review_bugzilla",
             "review_qa",
             "review_relman",
         ]
+
+        if not self.is_rollout:
+            reviews += ["review_science", "review_bugzilla", "review_engineering"]
+
+        return reviews
 
     def get_all_required_reviews(self):
         required_reviews = self._default_required_reviews()
         for review, risk in self._conditional_required_reviews_mapping.items():
             if risk:
                 required_reviews.append(review)
+
         return required_reviews
 
     @property
     def completed_required_reviews(self):
         required_reviews = self.get_all_required_reviews()
 
-        # review advisory is an exception that is not required
-        required_reviews.remove("review_advisory")
+        if not self.is_rollout:
+            # review advisory is an exception that is not required
+            required_reviews.remove("review_advisory")
+
         return all([getattr(self, r) for r in required_reviews])
 
     @property
@@ -617,10 +703,12 @@ class Experiment(ExperimentConstants, models.Model):
         completed = (
             self.completed_timeline
             and self.completed_population
-            and self.completed_variants
             and self.completed_objectives
             and self.completed_risks
         )
+
+        if self.should_have_variants:
+            completed = completed and self.completed_variants
 
         if self.is_addon_experiment:
             completed = completed and self.completed_addon
@@ -677,11 +765,16 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def population(self):
-        return "{percent:g}% of {channel} Firefox {firefox_version}".format(
-            percent=float(self.population_percent),
-            firefox_version=self.format_firefox_versions,
-            channel=self.firefox_channel,
+        population = "{channel} Firefox {firefox_version}".format(
+            firefox_version=self.format_firefox_versions, channel=self.firefox_channel
         )
+
+        if self.should_have_population_percent:
+            population = "{percent:g}% of {population}".format(
+                population=population, percent=float(self.population_percent)
+            )
+
+        return population
 
     @staticmethod
     def firefox_channel_sort():
@@ -790,8 +883,8 @@ class ExperimentVariant(models.Model):
     is_control = models.BooleanField(default=False)
     description = models.TextField(default="")
     ratio = models.PositiveIntegerField(default=1)
-    value = models.TextField(blank=False, null=True)
     addon_release_url = models.URLField(max_length=400, blank=True, null=True)
+    value = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Experiment Variant"
@@ -807,10 +900,6 @@ class ExperimentVariant(models.Model):
             return "Control"
         else:
             return "Treatment"
-
-    @property
-    def json_dumps_value(self):
-        return json.dumps(json.loads(self.value), indent=2)
 
 
 class VariantPreferences(models.Model):

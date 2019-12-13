@@ -11,14 +11,15 @@ from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment
 from experimenter.experiments import email
 from experimenter.experiments.serializers import (
-    ExperimentSerializer,
-    ExperimentRecipeSerializer,
     ExperimentCloneSerializer,
-    ExperimentDesignPrefSerializer,
     ExperimentDesignAddonSerializer,
-    ExperimentDesignGenericSerializer,
     ExperimentDesignBranchedAddonSerializer,
+    ExperimentDesignGenericSerializer,
     ExperimentDesignMultiPrefSerializer,
+    ExperimentDesignPrefSerializer,
+    ExperimentDesignRolloutSerializer,
+    ExperimentRecipeSerializer,
+    ExperimentSerializer,
 )
 
 
@@ -94,3 +95,9 @@ class ExperimentDesignBranchedAddonView(RetrieveUpdateAPIView):
     lookup_field = "slug"
     queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_ADDON)
     serializer_class = ExperimentDesignBranchedAddonSerializer
+
+
+class ExperimentDesignRolloutView(RetrieveUpdateAPIView):
+    lookup_field = "slug"
+    queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_ROLLOUT)
+    serializer_class = ExperimentDesignRolloutSerializer

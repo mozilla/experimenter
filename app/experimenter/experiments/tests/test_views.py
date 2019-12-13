@@ -12,11 +12,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
-from experimenter.experiments.forms import (
-    ExperimentDesignAddonForm,
-    ExperimentDesignGenericForm,
-    ExperimentDesignPrefForm,
-)
 from experimenter.experiments.forms import NormandyIdForm
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
@@ -419,92 +414,14 @@ class TestExperimentTimelinePopulationUpdateView(TestCase):
 
 class TestExperimentDesignUpdateView(TestCase):
 
-    def test_uses_addon_form_for_addon_experiment(self):
+    def test_page_loads(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, type=Experiment.TYPE_ADDON
-        )
+        experiment = ExperimentFactory.create()
         response = self.client.get(
             reverse("experiments-design-update", kwargs={"slug": experiment.slug}),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.context["form"], ExperimentDesignAddonForm)
-
-    def test_uses_pref_form_for_pref_experiment(self):
-        user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, type=Experiment.TYPE_PREF
-        )
-        response = self.client.get(
-            reverse("experiments-design-update", kwargs={"slug": experiment.slug}),
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.context["form"], ExperimentDesignPrefForm)
-
-    def test_uses_generic_form_for_generic_experiment(self):
-        user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, type=Experiment.TYPE_GENERIC
-        )
-        response = self.client.get(
-            reverse("experiments-design-update", kwargs={"slug": experiment.slug}),
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.context["form"], ExperimentDesignGenericForm)
-
-    def test_view_saves_experiment(self):
-        user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
-
-        data = {
-            "action": "continue",
-            "pref_key": "browser.test.example",
-            "pref_type": Experiment.PREF_TYPE_STR,
-            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
-            "variants-TOTAL_FORMS": "3",
-            "variants-INITIAL_FORMS": "0",
-            "variants-MIN_NUM_FORMS": "0",
-            "variants-MAX_NUM_FORMS": "1000",
-            "variants-0-is_control": True,
-            "variants-0-ratio": "34",
-            "variants-0-name": "control name",
-            "variants-0-description": "control desc",
-            "variants-0-value": '"control value"',
-            "variants-1-is_control": False,
-            "variants-1-ratio": "33",
-            "variants-1-name": "branch 1 name",
-            "variants-1-description": "branch 1 desc",
-            "variants-1-value": '"branch 1 value"',
-            "variants-2-is_control": False,
-            "variants-2-ratio": "33",
-            "variants-2-name": "branch 2 name",
-            "variants-2-description": "branch 2 desc",
-            "variants-2-value": '"branch 2 value"',
-        }
-
-        response = self.client.post(
-            reverse("experiments-design-update", kwargs={"slug": experiment.slug}),
-            data,
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 302)
-
-        experiment = Experiment.objects.get()
-
-        self.assertEqual(experiment.pref_key, data["pref_key"])
-        self.assertEqual(experiment.pref_type, data["pref_type"])
-        self.assertEqual(experiment.pref_branch, data["pref_branch"])
-
-        self.assertEqual(experiment.changes.count(), 2)
-
-        change = experiment.changes.latest()
-
-        self.assertEqual(change.changed_by.email, user_email)
-        self.assertEqual(change.old_status, experiment.STATUS_DRAFT)
-        self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
 
 class TestExperimentObjectivesUpdateView(TestCase):

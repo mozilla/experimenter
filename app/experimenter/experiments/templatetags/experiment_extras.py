@@ -1,3 +1,5 @@
+import json
+
 from django import template
 
 register = template.Library()
@@ -41,3 +43,8 @@ def pagination_url(context, page, **kwargs):
         return f"?{data.urlencode()}"
     else:
         return "."
+
+
+@register.filter
+def as_json(value):
+    return json.dumps(json.loads(value), indent=2)

@@ -11,19 +11,25 @@ Overview
   <p><strong>Delivery Owner</strong></p>
   <p>{{ experiment.owner }}</p>
 
-  <p><strong>Data Science Owner</strong></p>
-  <p>{{ experiment.analysis_owner }}</p>
+  {% if experiment.analysis_owner %}
+    <p><strong>Data Science Owner</strong></p>
+    <p>{{ experiment.analysis_owner }}</p>
+  {% endif %}
 
   {% if experiment.engineering_owner %}
     <p><strong>Engineering Owner</strong></p>
     <p>{{ experiment.engineering_owner }}</p>
   {% endif %}
 
-  <p><strong>Public Name</strong></p>
-  <p>{{ experiment.public_name }}</p>
+  {% if experiment.public_name %}
+    <p><strong>Public Name</strong></p>
+    <p>{{ experiment.public_name }}</p>
+  {% endif %}
 
-  <p><strong>Public Description</strong> </p>
-  {{ experiment.public_description|urlize|linebreaks }}
+  {% if experiment.public_description %}
+    <p><strong>Public Description</strong> </p>
+    {{ experiment.public_description|urlize|linebreaks }}
+  {% endif %}
 
   <p><strong>Related Work</strong></p>
   {{ experiment.related_work|urlize|linebreaks }}

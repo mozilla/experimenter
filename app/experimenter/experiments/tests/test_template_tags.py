@@ -43,3 +43,20 @@ class TestPaginationUrl(SimpleTestCase):
         )
         rendered_template = template_to_render.render(context)
         self.assertEqual("?foo=bar", rendered_template)
+
+
+class TestAsJson(SimpleTestCase):
+
+    def test_formats_json(self):
+        context = Context({"json_val": '{"key": "value"}'})
+        template = Template(
+            """
+            {% load experiment_extras %}
+            {{ json_val|as_json }}
+          """
+        )
+        rendered = template.render(context)
+        self.assertEqual(
+            rendered.strip().replace(" ", "").replace("\n", ""),
+            "{&quot;key&quot;:&quot;value&quot;}",
+        )

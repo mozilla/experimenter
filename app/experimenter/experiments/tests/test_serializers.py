@@ -5,23 +5,39 @@ from django.test import TestCase
 
 from experimenter.experiments.models import (
     Experiment,
-    ExperimentVariant,
     ExperimentChangeLog,
+    ExperimentVariant,
 )
 from experimenter.experiments.tests.factories import (
-    LocaleFactory,
     CountryFactory,
+    ExperimentChangeLogFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
-    VariantPreferencesFactory,
-    ExperimentChangeLogFactory,
+    LocaleFactory,
     UserFactory,
+    VariantPreferencesFactory,
 )
 from experimenter.experiments.serializers import (
-    CountrySerializer,
     ChangeLogSerializer,
+    CountrySerializer,
+    ExperimentChangeLogSerializer,
+    ExperimentCloneSerializer,
+    ExperimentDesignAddonSerializer,
+    ExperimentDesignBaseSerializer,
+    ExperimentDesignBranchMultiPrefSerializer,
+    ExperimentDesignBranchVariantPreferencesSerializer,
+    ExperimentDesignBranchedAddonSerializer,
+    ExperimentDesignGenericSerializer,
+    ExperimentDesignMultiPrefSerializer,
+    ExperimentDesignPrefSerializer,
+    ExperimentDesignRolloutSerializer,
+    ExperimentDesignVariantBaseSerializer,
     ExperimentRecipeAddonArgumentsSerializer,
+    ExperimentRecipeAddonRolloutArgumentsSerializer,
+    ExperimentRecipeAddonVariantSerializer,
+    ExperimentRecipeMultiPrefVariantSerializer,
     ExperimentRecipePrefArgumentsSerializer,
+    ExperimentRecipePrefRolloutArgumentsSerializer,
     ExperimentRecipeSerializer,
     ExperimentRecipeVariantSerializer,
     ExperimentSerializer,
@@ -32,22 +48,9 @@ from experimenter.experiments.serializers import (
     FilterObjectLocaleSerializer,
     FilterObjectVersionsSerializer,
     JSTimestampField,
-    PrefTypeField,
     LocaleSerializer,
-    ExperimentChangeLogSerializer,
-    ExperimentCloneSerializer,
-    ExperimentDesignAddonSerializer,
-    ExperimentDesignBaseSerializer,
-    ExperimentDesignBranchedAddonSerializer,
-    ExperimentDesignGenericSerializer,
-    ExperimentDesignPrefSerializer,
-    ExperimentDesignVariantBaseSerializer,
-    ExperimentRecipeAddonVariantSerializer,
-    ExperimentRecipeMultiPrefVariantSerializer,
+    PrefTypeField,
     PrefValidationMixin,
-    ExperimentDesignBranchVariantPreferencesSerializer,
-    ExperimentDesignMultiPrefSerializer,
-    ExperimentDesignBranchMultiPrefSerializer,
 )
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.tests.mixins import MockRequestMixin
@@ -700,13 +703,91 @@ class TestExperimentRecipePrefArgumentsSerializer(TestCase):
 class TestExperimentRecipeAddonArgumentsSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP, type=Experiment.TYPE_ADDON
+        )
         serializer = ExperimentRecipeAddonArgumentsSerializer(experiment)
         self.assertEqual(
             serializer.data,
             {
                 "name": experiment.addon_experiment_id,
                 "description": experiment.public_description,
+            },
+        )
+
+
+class TestExperimentRecipeAddonRolloutArgumentsSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_SHIP,
+            type=Experiment.TYPE_ROLLOUT,
+            rollout_type=Experiment.TYPE_ADDON,
+            addon_release_url="https://www.example.com/addon.xpi",
+        )
+        serializer = ExperimentRecipeAddonRolloutArgumentsSerializer(experiment)
+        self.assertEqual(
+            serializer.data,
+            {
+                "slug": experiment.normandy_slug,
+                "extensionApiId": "TODO: https://www.example.com/addon.xpi",
+            },
+        )
+
+
+class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
+
+    def test_serializer_outputs_expected_schema_for_int(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            normandy_slug="normandy-slug",
+            rollout_type=Experiment.TYPE_PREF,
+            pref_type=Experiment.PREF_TYPE_INT,
+            pref_key="browser.pref",
+            pref_value="4",
+        )
+        serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
+        self.assertDictEqual(
+            serializer.data,
+            {
+                "slug": "normandy-slug",
+                "preferences": [{"preferenceName": "browser.pref", "value": 4}],
+            },
+        )
+
+    def test_serializer_outputs_expected_schema_for_bool(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            normandy_slug="normandy-slug",
+            rollout_type=Experiment.TYPE_PREF,
+            pref_type=Experiment.PREF_TYPE_BOOL,
+            pref_key="browser.pref",
+            pref_value="true",
+        )
+        serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
+        self.assertDictEqual(
+            serializer.data,
+            {
+                "slug": "normandy-slug",
+                "preferences": [{"preferenceName": "browser.pref", "value": True}],
+            },
+        )
+
+    def test_serializer_outputs_expected_schema_for_str(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            normandy_slug="normandy-slug",
+            rollout_type=Experiment.TYPE_PREF,
+            pref_type=Experiment.PREF_TYPE_STR,
+            pref_key="browser.pref",
+            pref_value="a string",
+        )
+        serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
+        self.assertDictEqual(
+            serializer.data,
+            {
+                "slug": "normandy-slug",
+                "preferences": [{"preferenceName": "browser.pref", "value": "a string"}],
             },
         )
 
@@ -934,6 +1015,96 @@ class TestExperimentRecipeSerializer(TestCase):
         }
 
         self.assertCountEqual(serializer.data["arguments"], expected_data)
+
+    def test_serializer_outputs_expected_schema_for_addon_rollout(self):
+        experiment = ExperimentFactory.create(
+            addon_release_url="https://www.example.com/addon.xpi",
+            countries=[],
+            firefox_channel=Experiment.CHANNEL_BETA,
+            firefox_max_version="71",
+            firefox_min_version="70",
+            locales=[],
+            name="Experimenter Name",
+            normandy_slug="normandy-slug",
+            platform=Experiment.PLATFORM_WINDOWS,
+            population_percent=30.0,
+            rollout_type=Experiment.TYPE_ADDON,
+            slug="experimenter-slug",
+            type=Experiment.TYPE_ROLLOUT,
+        )
+        serializer = ExperimentRecipeSerializer(experiment)
+        self.assertDictEqual(
+            serializer.data,
+            {
+                "action_name": "addon-rollout",
+                "arguments": {
+                    "extensionApiId": "TODO: https://www.example.com/addon.xpi",
+                    "slug": "normandy-slug",
+                },
+                "comment": "Platform: All Windows\n"
+                "Geos: US, CA, GB\n"
+                'Some "additional" filtering',
+                "experimenter_slug": "experimenter-slug",
+                "filter_object": [
+                    {
+                        "count": 3000,
+                        "input": ["normandy.recipe.id", "normandy.userId"],
+                        "start": 0,
+                        "total": 10000,
+                        "type": "bucketSample",
+                    },
+                    {"channels": ["beta"], "type": "channel"},
+                    {"type": "version", "versions": [70, 71]},
+                ],
+                "name": "Experimenter Name",
+            },
+        )
+
+    def test_serializer_outputs_expected_schema_for_pref_rollout(self):
+        experiment = ExperimentFactory.create(
+            countries=[],
+            firefox_channel=Experiment.CHANNEL_BETA,
+            firefox_max_version="71",
+            firefox_min_version="70",
+            locales=[],
+            name="Experimenter Name",
+            normandy_slug="normandy-slug",
+            platform=Experiment.PLATFORM_WINDOWS,
+            population_percent=30.0,
+            pref_key="browser.pref",
+            pref_value="true",
+            rollout_type=Experiment.TYPE_PREF,
+            pref_type=Experiment.PREF_TYPE_BOOL,
+            slug="experimenter-slug",
+            type=Experiment.TYPE_ROLLOUT,
+        )
+        serializer = ExperimentRecipeSerializer(experiment)
+        self.assertDictEqual(
+            serializer.data,
+            {
+                "action_name": "preference-rollout",
+                "arguments": {
+                    "preferences": [{"preferenceName": "browser.pref", "value": True}],
+                    "slug": "normandy-slug",
+                },
+                "comment": "Platform: All Windows\n"
+                "Geos: US, CA, GB\n"
+                'Some "additional" filtering',
+                "experimenter_slug": "experimenter-slug",
+                "filter_object": [
+                    {
+                        "count": 3000,
+                        "input": ["normandy.recipe.id", "normandy.userId"],
+                        "start": 0,
+                        "total": 10000,
+                        "type": "bucketSample",
+                    },
+                    {"type": "channel", "channels": ["beta"]},
+                    {"type": "version", "versions": [70, 71]},
+                ],
+                "name": "Experimenter Name",
+            },
+        )
 
     def test_serializer_excludes_locales_if_none_set(self):
         experiment = ExperimentFactory.create_with_status(
@@ -1994,6 +2165,93 @@ class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
 
         self.assertTrue(experiment.is_branched_addon)
         self.assertEqual(experiment.changes.count(), 1)
+
+
+class TestExperimentDesignRolloutSerializer(MockRequestMixin, TestCase):
+
+    def test_pref_fields_required_for_rollout_type_pref(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        data = {"rollout_type": Experiment.TYPE_PREF}
+
+        serializer = ExperimentDesignRolloutSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("pref_key", serializer.errors)
+        self.assertIn("pref_type", serializer.errors)
+        self.assertIn("pref_value", serializer.errors)
+
+    def test_validates_pref_type_matches_value(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        data = {
+            "rollout_type": Experiment.TYPE_PREF,
+            "pref_key": "browser.pref",
+            "pref_type": Experiment.PREF_TYPE_INT,
+            "pref_value": "abc",
+        }
+
+        serializer = ExperimentDesignRolloutSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+
+        self.assertFalse(serializer.is_valid())
+
+    def test_addon_fields_required_for_rollout_type_addon(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        data = {"rollout_type": Experiment.TYPE_ADDON}
+
+        serializer = ExperimentDesignRolloutSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("addon_release_url", serializer.errors)
+
+    def test_saves_pref_rollout(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        data = {
+            "rollout_type": Experiment.TYPE_PREF,
+            "pref_key": "browser.pref",
+            "pref_type": Experiment.PREF_TYPE_INT,
+            "pref_value": "1",
+        }
+
+        serializer = ExperimentDesignRolloutSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.rollout_type, data["rollout_type"])
+        self.assertEqual(experiment.pref_key, data["pref_key"])
+        self.assertEqual(experiment.pref_type, data["pref_type"])
+        self.assertEqual(experiment.pref_value, data["pref_value"])
+
+    def test_saves_addon_rollout(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        data = {
+            "rollout_type": Experiment.TYPE_ADDON,
+            "addon_release_url": "https://www.example.com/addon.xpi",
+        }
+
+        serializer = ExperimentDesignRolloutSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.rollout_type, data["rollout_type"])
+        self.assertEqual(experiment.addon_release_url, data["addon_release_url"])
 
 
 class TestCloneSerializer(MockRequestMixin, TestCase):

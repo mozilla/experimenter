@@ -23,7 +23,11 @@
 
   {% include "experiments/field_inline.html" with field=form.proposed_duration  marked_required=True %}
 
-  {% include "experiments/field_inline.html" with field=form.proposed_enrollment %}
+  {% if object.is_rollout %}
+    {% include "experiments/field_inline.html" with field=form.rollout_playbook marked_required=True %}
+  {% else %}
+    {% include "experiments/field_inline.html" with field=form.proposed_enrollment %}
+  {% endif %}
 
 
   <hr class="heavy-line my-5">
@@ -32,7 +36,9 @@
     <h4 class="col-9 offset-3">Delivery Population</h4>
   </div>
 
-  {% include "experiments/field_inline.html" with field=form.population_percent marked_required=True %}
+  {% if object.should_have_population_percent %}
+    {% include "experiments/field_inline.html" with field=form.population_percent marked_required=True %}
+  {% endif %}
 
   {% include "experiments/field_inline_help_link.html" with field=form.firefox_channel marked_required=True %}
 
