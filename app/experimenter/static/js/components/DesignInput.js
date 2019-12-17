@@ -14,6 +14,7 @@ class DesignInput extends React.PureComponent {
       PropTypes.arrayOf(PropTypes.node),
       PropTypes.node,
     ]),
+    dataTestId: PropTypes.string,
     error: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
     helpContent: PropTypes.object,
     id: PropTypes.string,
@@ -66,6 +67,7 @@ class DesignInput extends React.PureComponent {
             rows={this.props.rows}
             data-index={this.props.index}
             id={this.props.id}
+            data-testid={this.props.dataTestId}
             type="text"
             name={this.props.name}
             onChange={event => {

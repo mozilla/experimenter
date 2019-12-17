@@ -24,6 +24,7 @@ PYTHON_TEST_FAST = python manage.py test -v 3 --parallel
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 ESLINT = yarn lint
 ESLINT_FIX = yarn lint-fix
+JS_TEST = yarn test
 FLAKE8 = flake8 .
 BLACK_CHECK = black -l 90 --check .
 BLACK_FIX = black -l 90 .
@@ -32,7 +33,7 @@ test_build: build
 	$(COMPOSE_TEST) build
 
 test: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST)"
+	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST)&&$(JS_TEST)"
 
 testfast: test_build
 	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST_FAST)"
@@ -42,6 +43,12 @@ eslint: test_build
 
 eslint_fix: test_build
 	$(COMPOSE_TEST) run app sh -c "$(ESLINT_FIX)"
+
+py_test: test_build
+	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST)"
+
+js_test: test_build
+	$(COMPOSE_TEST) run app sh -c "$(JS_TEST)"
 
 flake8: test_build
 	$(COMPOSE_TEST) run app sh -c "$(FLAKE8)"
