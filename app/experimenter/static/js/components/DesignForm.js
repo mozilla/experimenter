@@ -61,12 +61,16 @@ class DesignForm extends React.PureComponent {
   }
 
   async componentDidMount() {
-    const data = await makeApiRequest(this.getEndpointUrl());
+    try {
+      const data = await makeApiRequest(this.getEndpointUrl());
 
-    this.setState({
-      loaded: true,
-      data: fromJS(data),
-    });
+      this.setState({
+        loaded: true,
+        data: fromJS(data),
+      });
+    } catch (error) {
+      console.error(error.message);
+    }
   }
 
   handleDataChange(key, value) {
@@ -82,13 +86,17 @@ class DesignForm extends React.PureComponent {
         loading: true,
       }),
       async () => {
-        const data = await makeApiRequest(this.getEndpointUrl());
-        data[key] = value;
+        try {
+          const data = await makeApiRequest(this.getEndpointUrl());
+          data[key] = value;
 
-        this.setState({
-          data: fromJS(data),
-          loading: false,
-        });
+          this.setState({
+            data: fromJS(data),
+            loading: false,
+          });
+        } catch (error) {
+          console.log(error.message);
+        }
       },
     );
   }
