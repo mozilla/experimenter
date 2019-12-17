@@ -317,7 +317,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def normandy_recipe_json(self):
-        from experimenter.experiments.serializers import ExperimentRecipeSerializer
+        from experimenter.experiments.serializers.recipe import ExperimentRecipeSerializer
 
         return json.dumps(ExperimentRecipeSerializer(self).data, indent=2)
 
