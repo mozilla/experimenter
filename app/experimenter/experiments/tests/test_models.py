@@ -13,7 +13,7 @@ from experimenter.experiments.models import (
     VariantPreferences,
     ExperimentChangeLog,
 )
-from experimenter.experiments.serializers import ExperimentRecipeSerializer
+from experimenter.experiments.serializers.recipe import ExperimentRecipeSerializer
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
