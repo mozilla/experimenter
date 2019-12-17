@@ -61,12 +61,16 @@ class DesignForm extends React.PureComponent {
   }
 
   async componentDidMount() {
-    const data = await makeApiRequest(this.getEndpointUrl());
+    try {
+      const data = await makeApiRequest(this.getEndpointUrl());
 
-    this.setState({
-      loaded: true,
-      data: fromJS(data),
-    });
+      this.setState({
+        loaded: true,
+        data: fromJS(data),
+      });
+    } catch (error) {
+      console.error(error.message);
+    }
   }
 
   handleDataChange(key, value) {
@@ -82,13 +86,17 @@ class DesignForm extends React.PureComponent {
         loading: true,
       }),
       async () => {
-        const data = await makeApiRequest(this.getEndpointUrl());
-        data[key] = value;
+        try {
+          const data = await makeApiRequest(this.getEndpointUrl());
+          data[key] = value;
 
-        this.setState({
-          data: fromJS(data),
-          loading: false,
-        });
+          this.setState({
+            data: fromJS(data),
+            loading: false,
+          });
+        } catch (error) {
+          console.log(error.message);
+        }
       },
     );
   }
@@ -144,7 +152,7 @@ class DesignForm extends React.PureComponent {
     if (!this.state.loaded) {
       return (
         <Container>
-          <div className="fa-5x">
+          <div className="fa-5x" data-testId="spinner">
             <Row className="justify-content-center">
               <i className="fas fa-spinner fa-spin" />
             </Row>
