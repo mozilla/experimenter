@@ -5,43 +5,91 @@ Timeline
 {% endblock %}
 
 {% block section_content %}
-  <div class="row mb-3">
-    <div class="col">
-      <div class="row">
-        <div class="col pr-0">
-          <p class="border-bottom-teal">{{ experiment.start_date }}</p>
-          <strong>Delivery: </strong>{{ experiment.proposed_duration }} Day{{ experiment.proposed_duration|pluralize }}
-        </div>
-        <div class="col pl-0 text-right">
-          <p class="border-bottom-teal">{{ experiment.end_date }}</p>
+
+  {% if experiment.is_rollout %}
+
+    {% if experiment.rollout_dates %}
+      <div class="row mb-3">
+        <div class="col">
+          <strong>Rollout {{ experiment.get_rollout_playbook_display }}</strong>
         </div>
       </div>
-    </div>
-  </div>
-  {% if experiment.observation_duration %}
+      <div class="row justify-content-center">
+        {% if experiment.rollout_dates.first_increase %}
+          <div class="col-4 text-center align-self-end">
+            <div class="alert alert-primary">
+              Rollout to {{ experiment.rollout_dates.first_increase.percent }}
+            </div>
+            <p>{{ experiment.rollout_dates.first_increase.date }}</p>
+          </div>
+        {% endif %}
+
+        {% if experiment.rollout_dates.second_increase %}
+          <div class="col-4 text-center align-self-end">
+            <div class="alert alert-info">
+              <br/>
+              Rollout to {{ experiment.rollout_dates.second_increase.percent }}
+            </div>
+            <p>{{ experiment.rollout_dates.second_increase.date }}</p>
+          </div>
+        {% endif %}
+
+        {% if experiment.rollout_dates.final_increase %}
+          <div class="col-4 text-center align-self-end">
+            <div class="alert alert-success">
+              <br/>
+              <br/>
+              Rollout to {{ experiment.rollout_dates.final_increase.percent }}
+            </div>
+            <p>{{ experiment.rollout_dates.final_increase.date }}</p>
+          </div>
+        {% endif %}
+      </div>
+    {% else %}
+      <p>This rollout uses a custom schedule.  Please describe it in the comments below.</p>
+    {% endif %}
+
+  {% else %}
+
     <div class="row mb-3">
-      <div class="col-6">
+      <div class="col">
         <div class="row">
-          <div class="col-6 pr-0">
-            <p class="border-bottom-blue">{{ experiment.start_date }}</p>
-            <strong>Enrollment: </strong>{{ experiment.proposed_enrollment}} Day{{ experiment.proposed_enrollment|pluralize }}
+          <div class="col pr-0">
+            <p class="border-bottom-teal">{{ experiment.start_date }}</p>
+            <strong>Total Duration: </strong>{{ experiment.proposed_duration }} Day{{ experiment.proposed_duration|pluralize }}
           </div>
-          <div class="col-6 pl-0 text-right">
-            <p class="border-bottom-blue">{{ experiment.enrollment_end_date }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="row">
-          <div class="col-6 pr-0">
-            <p class="border-bottom-green">{{ experiment.enrollment_end_date }}</p>
-            <strong>Observation: </strong>{{ experiment.observation_duration }} Day{{ experiment.observation_duration|pluralize }}
-          </div>
-          <div class="col-6 pl-0 text-right">
-            <p class="border-bottom-green">{{ experiment.end_date }}</p>
+          <div class="col pl-0 text-right">
+            <p class="border-bottom-teal">{{ experiment.end_date }}</p>
           </div>
         </div>
       </div>
     </div>
+    {% if experiment.observation_duration %}
+      <div class="row mb-3">
+        <div class="col-6">
+          <div class="row">
+            <div class="col-6 pr-0">
+              <p class="border-bottom-blue">{{ experiment.start_date }}</p>
+              <strong>Enrollment: </strong>{{ experiment.proposed_enrollment}} Day{{ experiment.proposed_enrollment|pluralize }}
+            </div>
+            <div class="col-6 pl-0 text-right">
+              <p class="border-bottom-blue">{{ experiment.enrollment_end_date }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="row">
+            <div class="col-6 pr-0">
+              <p class="border-bottom-green">{{ experiment.enrollment_end_date }}</p>
+              <strong>Observation: </strong>{{ experiment.observation_duration }} Day{{ experiment.observation_duration|pluralize }}
+            </div>
+            <div class="col-6 pl-0 text-right">
+              <p class="border-bottom-green">{{ experiment.end_date }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
   {% endif %}
 {% endblock %}

@@ -1,0 +1,33 @@
+{% extends "experiments/section_base.html" %}
+
+{% load experiment_extras %}
+
+{% block section_title %}
+  Rollout
+{% endblock %}
+
+{% block section_content %}
+  <strong>Description</strong>
+  <p>{{ experiment.design|urlize|linebreaks }}</p>
+  {% if experiment.is_pref_rollout %}
+    <strong>Pref Type</strong>
+    <p>{{ experiment.pref_type }}</p>
+
+    <strong>Pref Branch</strong>
+    <p>Default</p>
+
+    <strong>Pref Value</strong>
+    <div class="border-left-grey pl-3 mb-4">
+      {% if experiment.pref_type == "json string" %}
+        <p><strong>{{ experiment.pref_key }} = <pre class="text-info">{{ experiment.pref_value|as_json }}</pre></strong></p>
+      {% else %}
+        <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ experiment.pref_value }}</span></strong></p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if experiment.is_addon_rollout %}
+    <p><strong>Addon Release URL: </strong></p>
+    <p>{{ experiment.addon_release_url|urlize }}</p>
+  {% endif %}
+{% endblock %}

@@ -89,13 +89,19 @@
     {% include "experiments/section_design.html" with section_name=experiment.SECTION_DESIGN section_complete=experiment.completed_design experiment=experiment edit_url_name="experiments-design-update" comments=experiment.comments.sections.design %}
   {% endif %}
 
-  {% include "experiments/section_branches.html" with section_name=experiment.SECTION_BRANCHES section_complete=experiment.completed_variants experiment=experiment edit_url_name="experiments-design-update" comments=experiment.comments.sections.branches  %}
+  {% if experiment.should_have_variants %}
+    {% include "experiments/section_branches.html" with section_name=experiment.SECTION_BRANCHES section_complete=experiment.completed_variants experiment=experiment edit_url_name="experiments-design-update" comments=experiment.comments.sections.branches %}
+  {% endif %}
+
+  {% if experiment.is_rollout %}
+    {% include "experiments/section_rollout.html" with section_name=experiment.SECTION_ROLLOUT section_complete=experiment.completed_rollout experiment=experiment edit_url_name="experiments-design-update" comments=experiment.comments.sections.rollout %}
+  {% endif %}
 
   {% include "experiments/section_base.html" with section_name=experiment.SECTION_OBJECTIVES section_title="Objectives" section_complete=experiment.completed_objectives section_content=experiment.objectives experiment=experiment edit_url_name="experiments-objectives-update" comments=experiment.comments.sections.objectives %}
 
   {% include "experiments/section_analysis.html" with section_name=experiment.SECTION_ANALYSIS section_title="Analysis" section_complete=experiment.completed_objectives section_content=experiment.analysis experiment=experiment edit_url_name="experiments-objectives-update" comments=experiment.comments.sections.analysis %}
 
-  {% include "experiments/section_risks.html" with section_name=experiment.SECTION_RISKS section_complete=experiment.completed_risks experiment=experiment edit_url_name="experiments-risks-update" comments=experiment.comments.sections.risks %}
+  {% include "experiments/section_risks.html" with section_name=experiment.SECTION_RISKS section_complete=experiment.should_show_risks experiment=experiment edit_url_name="experiments-risks-update" comments=experiment.comments.sections.risks %}
 
   {% include "experiments/section_testing.html" with section_name=experiment.SECTION_TESTING section_title="Test Plan" section_complete=experiment.completed_testing experiment=experiment edit_url_name="experiments-risks-update" comments=experiment.comments.sections.testing %}
 
