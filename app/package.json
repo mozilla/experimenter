@@ -1,5 +1,23 @@
 {
   "name": "experimenter",
+  "jest": {
+    "automock": false,
+    "verbose": true,
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": -10
+      }
+    },
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "moduleNameMapper": {
+      "^experimenter/(.*)$": "<rootDir>/experimenter/static/js/$1"
+    }
+  },
   "version": "1.0.0",
   "description": "a tool for managing experiments in Firefox",
   "main": "index.js",
@@ -13,7 +31,8 @@
     "prettier": "1.19.1",
     "react": "16.12.0",
     "react-bootstrap": "1.0.0-beta.16",
-    "react-dom": "16.12.0"
+    "react-dom": "16.12.0",
+    "@testing-library/dom": "latest"
   },
   "devDependencies": {
     "@babel/core": "7.7.5",
@@ -31,17 +50,24 @@
     "eslint-plugin-promise": "4.2.1",
     "eslint-plugin-react": "7.17.0",
     "eslint-plugin-standard": "4.0.1",
-    "parcel-bundler": "1.12.4"
+    "parcel-bundler": "1.12.4",
+    "@babel/preset-env": "7.7.1",
+    "@testing-library/jest-dom": "4.2.3",
+    "@testing-library/react": "9.3.2",
+    "babel-jest": "24.9.0",
+    "faker": "4.1.0",
+    "jest": "24.9.0",
+    "jest-dom": "4.0.0"
   },
   "alias": {
     "experimenter": "./experimenter/static/js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "parcel build experimenter/static/css/index.css experimenter/static/js/index.js --out-dir experimenter/static/assets --public-url /static/assets/",
     "watch": "parcel watch experimenter/static/css/index.css experimenter/static/js/index.js --out-dir experimenter/static/assets --public-url /static/assets/",
-    "lint": "eslint experimenter/static/js/components/**/*.js experimenter/static/js/index.js",
-    "lint-fix": "eslint --fix experimenter/static/js/components/**/*.js experimenter/static/js/index.js"
+    "lint": "eslint experimenter/static/js/components/**/*.js experimenter/static/js/tests/**/*.js experimenter/static/js/index.js",
+    "lint-fix": "eslint --fix experimenter/static/js/components/**/*.js experimenter/static/js/tests/**/*.js experimenter/static/js/index.js"
   },
   "repository": {
     "type": "git",
@@ -58,7 +84,8 @@
   ],
   "babel": {
     "presets": [
-      "@babel/preset-react"
+      "@babel/preset-react",
+      "@babel/preset-env"
     ],
     "plugins": [
       [

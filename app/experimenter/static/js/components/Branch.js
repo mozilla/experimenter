@@ -39,6 +39,7 @@ class Branch extends React.PureComponent {
     return (
       <DesignInput
         label={label}
+        dataTestId={label}
         name={`variants[${this.props.index}][${name}]`}
         id={`variants-${this.props.index}-${name}`}
         value={value}
@@ -73,7 +74,11 @@ class Branch extends React.PureComponent {
     const BranchFields = this.props.branchFieldsComponent;
 
     return (
-      <div key={this.props.index} id="control-branch-group">
+      <div
+        key={this.props.index}
+        id="control-branch-group"
+        data-testid={"branch" + this.props.index}
+      >
         <Row className="mb-3">
           <Col md={{ span: 4, offset: 3 }}>{this.renderTitle()}</Col>
           <Col md={5} className="text-right">
