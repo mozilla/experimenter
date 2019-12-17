@@ -47,7 +47,7 @@ export async function request(url, options = {}, extraHeaders = {}) {
       data = await response.json();
       message = data.detail || response.statusText;
     } catch (error) {
-      message = error.message;
+      message = `Invalid JSON in API Response: ${url}`;
       err = error;
     }
 
