@@ -72,6 +72,38 @@ export class AddonDataFactory extends GenericDataFactory {
       type: "addon",
     };
   }
+export class PrefVariantsFactory extends VariantsFactory {
+  getFields() {
+    return {
+      value: new Field(faker.lorem.word),
+      ...super.getFields(),
+    };
+  }
+}
+export class PrefDataFactory extends Factory {
+  getFields() {
+    return {
+      pref_key: new Field(faker.lorem.word),
+      pref_type: "string",
+      pref_branch: "default",
+      variants: [],
+    };
+  }
+
+  postGeneration() {
+    super.postGeneration();
+    const { generateVariants } = this.options;
+    if (generateVariants) {
+      const variants = [];
+      for (let i = 0; i < generateVariants; i++) {
+        variants.push(PrefVariantsFactory.build());
+      }
+      this.data.variants = [...this.data.variants, ...variants];
+    }
+    if (this.data.variants.length) {
+      this.data.variants[0].is_control = true;
+    }
+  }
 }
 
 export class BranchedAddonDataFactory extends Factory {
