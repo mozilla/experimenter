@@ -6,6 +6,9 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 class Base(Page):
+
+    _save_btn_locator = (By.CSS_SELECTOR, "#save-btn")
+
     def __init__(self, selenium, base_url, locale="en-US", **kwargs):
         super(Base, self).__init__(
             selenium, base_url, locale=locale, timeout=30, **kwargs
@@ -26,6 +29,12 @@ class Base(Page):
     def save_and_continue(self):
         element = self.selenium.find_element(By.CSS_SELECTOR, "#save-and-continue-btn")
         element.click()
+
+    def save_btn(self):
+        self.find_element(*self._save_btn_locator).click()
+        from pages.experiment_detail import DetailPage
+
+        return DetailPage(self.driver, self.base_url).wait_for_page_to_load()
 
 class Header(Region):
 
