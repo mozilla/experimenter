@@ -92,11 +92,14 @@ export default class PrefForm extends React.PureComponent {
               fieldName="is_multi_pref"
               radioLabel1="One Pref for all branches"
               radioLabel2="Different Prefs per branch"
-              radioValue1="false"
-              radioValue2="true"
-              onChange={value =>
-                this.props.handleReloadAPIState("is_multi_pref", value)
-              }
+              radioValue1={false}
+              radioValue2={true}
+              onChange={event => {
+                this.props.handleReloadAPIState(
+                  "is_multi_pref",
+                  event.target.value === "true",
+                );
+              }}
               value={this.props.data.get("is_multi_pref")}
             />
             <hr className="heavy-line my-5" />
