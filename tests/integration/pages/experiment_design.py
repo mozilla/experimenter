@@ -12,29 +12,16 @@ from pages.base import Base
 class DesignPage(Base):
 
     _add_branch_btn_locator = (By.CSS_SELECTOR, "#add-branch-button")
-    _branch_form_root_locator = (
-        By.CSS_SELECTOR,
-        "#control-branch-group",
-    )
+    _branch_form_root_locator = (By.CSS_SELECTOR, "#control-branch-group")
     _continue_btn_locator = (By.CSS_SELECTOR, "#save-continue")
     _firefox_pref_name_locator = (By.CSS_SELECTOR, "#id_pref_key")
-    _firefox_pref_type_locator = (
-        By.CSS_SELECTOR,
-        "#id_pref_type",
-    )
-    _firefox_pref_branch_locator = (
-        By.CSS_SELECTOR,
-        "#id_pref_branch",
-    )
+    _firefox_pref_type_locator = (By.CSS_SELECTOR, "#id_pref_type")
+    _firefox_pref_branch_locator = (By.CSS_SELECTOR, "#id_pref_branch")
     _new_branch_locator = (
         By.CSS_SELECTOR,
         "#formset > div:nth-child(5) > div:nth-child(3) > div:nth-child(1) > h4:nth-child(1)",
     )
-    _page_wait_locator = (
-        By.CSS_SELECTOR,
-        "#id_pref_key",
-    )
-
+    _page_wait_locator = (By.CSS_SELECTOR, "body.page-edit-variants")
 
     def create_new_branch(self):
         """Creates a new branch."""
@@ -47,7 +34,10 @@ class DesignPage(Base):
     def current_branches(self):
         """Returns list of current branches."""
         els = self.find_elements(*self._branch_form_root_locator)
-        branches =  [self.BranchRegion(self, root=el, count=count) for count, el in enumerate(els)]
+        branches = [
+            self.BranchRegion(self, root=el, count=count)
+            for count, el in enumerate(els)
+        ]
         for count, item in enumerate(branches):
             if not item.is_displayed:
                 del branches[count]
@@ -74,17 +64,11 @@ class DesignPage(Base):
         return
 
     class BranchRegion(Region):
-
         def __init__(self, page, root=None, count=None, **kwargs):
-            super().__init__(
-                page=page, root=root, **kwargs
-            )
+            super().__init__(page=page, root=root, **kwargs)
             self.number = count
 
-        _remove_branch_btn_locator = (
-            By.CSS_SELECTOR,
-            "#remove-branch-button",
-        )
+        _remove_branch_btn_locator = (By.CSS_SELECTOR, "#remove-branch-button")
         _new_branch_locator = (By.CSS_SELECTOR, "div > div > h4")
 
         @property
