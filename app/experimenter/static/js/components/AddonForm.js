@@ -21,7 +21,7 @@ export default class AddonForm extends React.PureComponent {
   renderSingleAddonFields() {
     if (!this.props.data.get("is_branched_addon")) {
       return (
-        <React.Fragment>
+        <div data-testid="addonUrl">
           <DesignInput
             label="Signed Add-On URL"
             name="addon_release_url"
@@ -32,7 +32,7 @@ export default class AddonForm extends React.PureComponent {
             error={this.props.errors.get("addon_release_url", "")}
             helpContent={ADDON_RELEASE_URL_HELP}
           />
-        </React.Fragment>
+        </div>
       );
     }
   }

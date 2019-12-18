@@ -7,14 +7,18 @@ from django.urls import reverse
 from experimenter.experiments.constants import ExperimentConstants
 
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.serializers import (
-    ExperimentSerializer,
-    ExperimentRecipeSerializer,
+from experimenter.experiments.serializers.entities import ExperimentSerializer
+
+from experimenter.experiments.serializers.recipe import ExperimentRecipeSerializer
+
+from experimenter.experiments.serializers.design import (
     ExperimentDesignPrefSerializer,
     ExperimentDesignMultiPrefSerializer,
     ExperimentDesignAddonSerializer,
     ExperimentDesignGenericSerializer,
 )
+
+
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,

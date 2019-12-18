@@ -10,17 +10,17 @@ from rest_framework import status
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment
 from experimenter.experiments import email
-from experimenter.experiments.serializers import (
-    ExperimentCloneSerializer,
+from experimenter.experiments.serializers.entities import ExperimentSerializer
+from experimenter.experiments.serializers.clone import ExperimentCloneSerializer
+from experimenter.experiments.serializers.design import (
     ExperimentDesignAddonSerializer,
     ExperimentDesignBranchedAddonSerializer,
     ExperimentDesignGenericSerializer,
     ExperimentDesignMultiPrefSerializer,
     ExperimentDesignPrefSerializer,
     ExperimentDesignRolloutSerializer,
-    ExperimentRecipeSerializer,
-    ExperimentSerializer,
 )
+from experimenter.experiments.serializers.recipe import ExperimentRecipeSerializer
 
 
 class ExperimentListView(ListAPIView):
