@@ -48,10 +48,7 @@ describe("The `DesignForm` component for Pref Experiments", () => {
   const radioButtonSetup = () => {
     const apiResponse = PrefDataFactory.build({}, { generateVariants: 2 });
 
-    let multiPrefApiResponse = PrefDataFactory.build(
-      {},
-      { generateVariants: 2 },
-    );
+    let multiPrefApiResponse = PrefDataFactory.build({}, { generateVariants: 2 });
 
     for (let variant of multiPrefApiResponse.variants) {
       variant["preferences"] = [{}];
@@ -61,7 +58,7 @@ describe("The `DesignForm` component for Pref Experiments", () => {
       .spyOn(Api, "makeApiRequest")
       .mockReturnValueOnce(apiResponse)
       .mockReturnValueOnce(multiPrefApiResponse);
-  };
+  }
 
   it("displays and edits data about single pref experiments", async () => {
     const apiResponse = setup();
@@ -199,13 +196,9 @@ describe("The `DesignForm` component for Pref Experiments", () => {
   it("changes to multipref and displays blank pref form", async () => {
     radioButtonSetup();
 
-    const {
-      getByLabelText,
-      getAllByLabelText,
-      getAllByText,
-      container,
-      getByTestId,
-    } = await render(<DesignForm experimentType={"pref"} />);
+    const { getByLabelText, getAllByLabelText, getAllByText, container, getByTestId } = await render(
+      <DesignForm experimentType={"pref"} />,
+    );
 
     await waitForFormToLoad(container);
 
