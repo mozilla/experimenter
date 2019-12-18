@@ -5,7 +5,7 @@ from experimenter.experiments.tests.factories import (
     ExperimentVariantFactory,
     UserFactory,
 )
-from experimenter.experiments.serializers import ChangeLogSerializer
+from experimenter.experiments.serializers.entities import ChangeLogSerializer
 
 from experimenter.experiments.changelog_utils import generate_change_log
 

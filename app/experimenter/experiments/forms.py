@@ -23,7 +23,7 @@ from experimenter.experiments.models import (
     ExperimentComment,
     ExperimentVariant,
 )
-from experimenter.experiments.serializers import ChangeLogSerializer
+from experimenter.experiments.serializers.entities import ChangeLogSerializer
 from experimenter.notifications.models import Notification
 
 
