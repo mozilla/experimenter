@@ -809,6 +809,10 @@ class Experiment(ExperimentConstants, models.Model):
     def is_enrollment_complete(self):
         return self.is_paused and self.status == self.STATUS_LIVE
 
+    @property
+    def is_pref_value_json_string(self):
+        return self.pref_type == ExperimentConstants.PREF_TYPE_JSON_STR
+
     def clone(self, name, user):
 
         cloned = copy.copy(self)
@@ -932,6 +936,10 @@ class VariantPreferences(models.Model):
 
     class Meta:
         unique_together = (("variant", "pref_name"),)
+
+    @property
+    def is_json_string_type(self):
+        return self.pref_type == ExperimentConstants.PREF_TYPE_JSON_STR
 
 
 class ExperimentChangeLogManager(models.Manager):

@@ -24,15 +24,15 @@
           <div class="border-left-grey pl-3 ml-2">
             <p><strong> Pref Type = <span class="text-info">{{ preference.pref_type }}</span></strong></p>
             <p><strong> Pref Branch = <span class="text-info">{{ preference.pref_branch }}</span></strong></p>
-            {% if preference.pref_type == "json string" %}
-              <p><strong> {{ preference.pref_name }} = <span class="text-info">{{ preference.pref_value|as_json }}</span></strong></p>
+            {% if preference.is_json_string_type %}
+              <p><strong> {{ preference.pref_name }} = <pre class="text-info">{{ preference.pref_value|as_json }}</pre></strong></p>
             {% else %}
               <p><strong> {{ preference.pref_name }} = <span class="text-info">{{ preference.pref_value }}</span></strong></p>
             {% endif %}
           </div>
         {% endfor %}
       {% elif experiment.is_pref_experiment %}
-        {% if experiment.pref_type == "json string" %}
+        {% if experiment.is_pref_value_json_string %}
           <p><strong>{{ experiment.pref_key }} = <pre class="text-info">{{ variant.value|as_json }}</pre></strong></p>
         {% else %}
           <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
