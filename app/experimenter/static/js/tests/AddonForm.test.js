@@ -98,7 +98,7 @@ describe("The `DesignForm` component for Addons", () => {
 
     await waitForFormToLoad(container);
 
-    removeBranch(container);
+    removeBranch(container, 0);
 
     expect(queryByText("Branch 1")).toBeNull();
     // One Set of Fields for Control Branch Only
