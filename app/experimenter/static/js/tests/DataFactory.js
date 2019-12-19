@@ -1,7 +1,7 @@
 import faker from "faker";
 import { AutoIncrementField, Factory, Field } from "experimenter/tests/factory";
 
-export class VariantsFactory extends Factory {
+export class VariantFactory extends Factory {
   getFields() {
     return {
       id: new AutoIncrementField(),
@@ -15,20 +15,19 @@ export class VariantsFactory extends Factory {
   }
 }
 
-export class GenericDataFactory extends Factory {
+export class DesignFactory extends Factory {
   getFields() {
     return {
-      designs: new Field(faker.lorem.paragraph),
       variants: [],
-      type: "addon",
     };
   }
+
   postGeneration() {
     const { generateVariants } = this.options;
     if (generateVariants) {
       const variants = [];
       for (let i = 0; i < generateVariants; i++) {
-        variants.push(VariantsFactory.build());
+        variants.push(this.buildVariant());
       }
       this.data.variants = [...this.data.variants, ...variants];
     }
@@ -89,22 +88,12 @@ export class PrefDataFactory extends Factory {
       pref_key: new Field(faker.lorem.word),
       pref_type: "string",
       pref_branch: "default",
-      variants: [],
+      ...super.getFields(),
     };
   }
 
-  postGeneration() {
-    const { generateVariants } = this.options;
-    if (generateVariants) {
-      const variants = [];
-      for (let i = 0; i < generateVariants; i++) {
-        variants.push(PrefVariantsFactory.build());
-      }
-      this.data.variants = [...this.data.variants, ...variants];
-    }
-    if (this.data.variants.length) {
-      this.data.variants[0].is_control = true;
-    }
+  buildVariant() {
+    return PrefVariantFactory.build();
   }
 }
 
