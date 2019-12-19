@@ -4,6 +4,7 @@ from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
     UserFactory,
+    VariantPreferencesFactory,
 )
 from experimenter.experiments.serializers.entities import ChangeLogSerializer
 
@@ -41,8 +42,23 @@ class TestChangeLogUtils(TestCase):
             slug="variant2-slug",
         )
         variant2.save()
+
+        VariantPreferencesFactory.create(
+            variant=variant2,
+            pref_name="p1",
+            pref_type=Experiment.PREF_TYPE_INT,
+            pref_branch=Experiment.PREF_BRANCH_DEFAULT,
+            pref_value="5",
+        )
+
         experiment.save()
         new_serialized_val = ChangeLogSerializer(experiment).data
+        changed_variant_pref = {
+            "pref_name": "p1",
+            "pref_type": "integer",
+            "pref_branch": "default",
+            "pref_value": "5",
+        }
         changed_data = {
             "short_description": "changing the description",
             "qa_status": "good",
@@ -53,6 +69,7 @@ class TestChangeLogUtils(TestCase):
                     "description": "variant2 description",
                     "name": "variant2",
                     "slug": "variant2-slug",
+                    "preferences": [changed_variant_pref],
                 }
             ],
         }

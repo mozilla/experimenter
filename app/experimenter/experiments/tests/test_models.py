@@ -968,6 +968,14 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.completed_rollout)
 
+    def test_is_pref_value_json_string_returns_true(self):
+        experiment = ExperimentFactory.create(pref_type=Experiment.PREF_TYPE_JSON_STR)
+        self.assertTrue(experiment.is_pref_value_json_string)
+
+    def test_is_pref_value_jsons_string_returns_false_for_non_json_type(self):
+        experiment = ExperimentFactory.create(pref_type=Experiment.PREF_TYPE_INT)
+        self.assertFalse(experiment.is_pref_value_json_string)
+
     def test_rollout_completed_for_addon(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_ROLLOUT,
@@ -1474,6 +1482,14 @@ class TestVariantPreferences(TestCase):
         self.pref.save()
 
         self.assertTrue(self.variant.preferences.count, 1)
+
+    def test_is_json_string_type_returns_false(self):
+        self.assertFalse(self.pref.is_json_string_type)
+
+    def test_is_json_string_type_returns_true_for_json_string_type(self):
+        self.pref.pref_type = Experiment.PREF_TYPE_JSON_STR
+        self.pref.save()
+        self.assertTrue(self.pref.is_json_string_type)
 
 
 class TestExperimentChangeLog(TestCase):

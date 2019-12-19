@@ -258,6 +258,8 @@ class TestChangeLogSerializer(TestCase):
             "results_url": experiment.results_url,
             "results_initial": experiment.results_initial,
             "results_lessons_learned": experiment.results_lessons_learned,
+            "rollout_playbook": experiment.rollout_playbook,
+            "rollout_type": experiment.rollout_type,
         }
 
         self.assertEqual(set(serializer.data.keys()), set(expected_data.keys()))
