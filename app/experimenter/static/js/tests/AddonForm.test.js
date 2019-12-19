@@ -10,6 +10,11 @@ import {
 import "@testing-library/jest-dom/extend-expect";
 import DesignForm from "experimenter/components/DesignForm";
 import * as Api from "experimenter/utils/api";
+import {
+  addBranch,
+  removeBranch,
+  waitForFormToLoad,
+} from "experimenter/tests/helpers.js";
 import { AddonDataFactory } from "./DataFactory";
 
 describe("The `DesignForm` component for Addons", () => {
@@ -87,20 +92,15 @@ describe("The `DesignForm` component for Addons", () => {
 
   it("removes branch 1", async () => {
     setup();
-    const {
-      getAllByText,
-      getByText,
-      queryByText,
-      queryByTestId,
-    } = await render(<DesignForm experimentType={"addon"} />);
+    const { getAllByText, queryByText, container } = await render(
+      <DesignForm experimentType={"addon"} />,
+    );
 
-    await wait(() => {
-      expect(queryByTestId("spinner")).not.toBeInTheDocument();
-    });
+    await waitForFormToLoad(container);
 
-    fireEvent.click(getByText("Remove Branch"));
+    removeBranch(container);
+
     expect(queryByText("Branch 1")).toBeNull();
-
     // One Set of Fields for Control Branch Only
     expect(getAllByText("Branch Size")).toHaveLength(1);
     expect(getAllByText("Name")).toHaveLength(1);
@@ -109,16 +109,16 @@ describe("The `DesignForm` component for Addons", () => {
 
   it("Adds a new branch", async () => {
     setup();
-    const { getByText, getAllByText, queryByTestId } = await render(
+
+    const { getAllByText, getByText, container } = await render(
       <DesignForm experimentType={"addon"} />,
     );
 
-    await wait(() => {
-      expect(queryByTestId("spinner")).not.toBeInTheDocument();
-    });
-    fireEvent.click(getByText("Add Branch"));
-    expect(getByText("Branch 2")).not.toBeNull();
+    await waitForFormToLoad(container);
 
+    addBranch(container);
+
+    expect(getByText("Branch 2")).not.toBeNull();
     // 3 Sets of Fields
     expect(getAllByText("Branch Size")).toHaveLength(3);
     expect(getAllByText("Name")).toHaveLength(3);
