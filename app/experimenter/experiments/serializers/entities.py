@@ -6,6 +6,7 @@ from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
     ExperimentChangeLog,
+    VariantPreferences,
 )
 from experimenter.experiments.serializers.geo import CountrySerializer, LocaleSerializer
 
@@ -32,7 +33,15 @@ class PrefTypeField(serializers.Field):
             return obj
 
 
+class ExperimentPreferenceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = VariantPreferences
+        fields = ("pref_name", "pref_type", "pref_branch", "pref_value")
+
+
 class ExperimentVariantSerializer(serializers.ModelSerializer):
+    preferences = ExperimentPreferenceSerializer(many=True, required=False)
 
     class Meta:
         model = ExperimentVariant
@@ -44,6 +53,7 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
             "slug",
             "value",
             "addon_release_url",
+            "preferences",
         )
 
 
@@ -131,6 +141,8 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "results_url",
             "results_initial",
             "results_lessons_learned",
+            "rollout_type",
+            "rollout_playbook",
         )
 
 
