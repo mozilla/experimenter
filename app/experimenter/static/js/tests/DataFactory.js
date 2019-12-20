@@ -16,8 +16,8 @@ export class VariantsFactory extends Factory {
 export class GenericDataFactory extends Factory {
   getFields() {
     return {
-      designs : new Field(faker.lorem.paragraph),
-      variants:[],
+      designs: new Field(faker.lorem.paragraph),
+      variants: [],
     };
   }
   postGeneration() {
@@ -45,5 +45,3 @@ export class AddonDataFactory extends GenericDataFactory {
     };
   }
 }
-
-

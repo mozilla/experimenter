@@ -14,7 +14,7 @@ import {
   removeBranch,
   waitForFormToLoad,
 } from "experimenter/tests/helpers.js";
-import {GenericDataFactory} from "experimenter/tests/DataFactory";
+import { GenericDataFactory } from "experimenter/tests/DataFactory";
 
 describe("The `DesignForm` component for generic", () => {
   afterEach(() => {
@@ -40,8 +40,7 @@ describe("The `DesignForm` component for generic", () => {
       { generateVariants: 2 },
     );
     const rejectResponse = {
-      data: {design:["This field is required."],
-      },
+      data: { design: ["This field is required."] },
     };
     jest
       .spyOn(Api, "makeApiRequest")
@@ -51,9 +50,12 @@ describe("The `DesignForm` component for generic", () => {
 
   it("renders generic forms", async () => {
     const successResponse = setup();
-    const { getByDisplayValue, getByText,getAllByText, container } = await render(
-      <DesignForm experimentType={"generic"} />,
-    );
+    const {
+      getByDisplayValue,
+      getByText,
+      getAllByText,
+      container,
+    } = await render(<DesignForm experimentType={"generic"} />);
 
     expect(Api.makeApiRequest).toHaveBeenCalled();
 
@@ -70,8 +72,6 @@ describe("The `DesignForm` component for generic", () => {
       expect(getByDisplayValue(variant.ratio.toString())).toBeInTheDocument();
     }
   });
-
-
 
   it("removes branch 1", async () => {
     setup();
@@ -168,7 +168,7 @@ describe("The `DesignForm` component for generic", () => {
       target: { value: "branch2 description" },
     });
 
-    removeBranch(container,0);
+    removeBranch(container, 0);
 
     expect(ratio0Input.value).toBe("75");
     expect(name0Input.value).toBe("branch0 name");
@@ -213,7 +213,6 @@ describe("The `DesignForm` component for generic", () => {
 
     await waitForFormToLoad(container);
 
-
     const designValueInput = getByTestId("design");
     fireEvent.change(designValueInput, { target: { value: "" } });
 
@@ -223,8 +222,6 @@ describe("The `DesignForm` component for generic", () => {
 
     await waitForDomChange("design");
 
-    expect(
-      getByText("This field is required."),
-    ).toBeInTheDocument();
+    expect(getByText("This field is required.")).toBeInTheDocument();
   });
 });
