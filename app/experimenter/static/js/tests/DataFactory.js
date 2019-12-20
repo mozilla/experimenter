@@ -12,12 +12,12 @@ export class VariantsFactory extends Factory {
     };
   }
 }
-export class AddonDataFactory extends Factory {
+
+export class GenericDataFactory extends Factory {
   getFields() {
     return {
-      addon_release_url: new Field(faker.internet.url),
-      variants: [],
-      type: "addon",
+      designs : new Field(faker.lorem.paragraph),
+      variants:[],
     };
   }
   postGeneration() {
@@ -35,3 +35,15 @@ export class AddonDataFactory extends Factory {
     }
   }
 }
+
+export class AddonDataFactory extends GenericDataFactory {
+  getFields() {
+    return {
+      addon_release_url: new Field(faker.internet.url),
+      variants: [],
+      type: "addon",
+    };
+  }
+}
+
+
