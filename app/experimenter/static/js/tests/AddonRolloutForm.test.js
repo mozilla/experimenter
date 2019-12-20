@@ -2,16 +2,13 @@ import React from "react";
 import {
   render,
   cleanup,
-  wait,
   waitForDomChange,
   fireEvent,
 } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import DesignForm from "experimenter/components/DesignForm";
 import * as Api from "experimenter/utils/api";
-import {
-  waitForFormToLoad
-} from "experimenter/tests/helpers.js";
+import { waitForFormToLoad } from "experimenter/tests/helpers.js";
 import { AddonRolloutFactory } from "./DataFactory";
 
 describe("The `DesignForm` component for Addons", () => {
@@ -48,7 +45,6 @@ describe("The `DesignForm` component for Addons", () => {
 
     await waitForFormToLoad(container);
     expect(Api.makeApiRequest).toHaveBeenCalled();
-
 
     expect(getAllByText("Description")).toHaveLength(1);
     expect(getAllByText("Signed Add-On URL")).toHaveLength(1);
