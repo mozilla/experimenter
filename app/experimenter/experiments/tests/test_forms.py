@@ -46,6 +46,7 @@ from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     UserFactory,
     ExperimentVariantFactory,
+    VariantPreferencesFactory,
 )
 from experimenter.experiments.tests.mixins import (
     MockBugzillaMixin,
@@ -348,7 +349,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         )
         addon_url = "https://www.example.com/old-branch-1-name-release.xpi"
 
-        ExperimentVariantFactory(
+        variant = ExperimentVariantFactory(
             name="old branch 1 name",
             slug="old-branch-1-name",
             ratio=50,
@@ -359,6 +360,20 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             addon_release_url=addon_url,
         )
 
+        VariantPreferencesFactory.create(
+            variant=variant,
+            pref_name="p1",
+            pref_type=Experiment.PREF_TYPE_INT,
+            pref_branch=Experiment.PREF_BRANCH_DEFAULT,
+            pref_value=5,
+        )
+
+        changed_variant_pref_value = {
+            "pref_name": "p1",
+            "pref_type": "integer",
+            "pref_branch": "default",
+            "pref_value": "5",
+        }
         changed_values = {
             "variants": {
                 "old_value": None,
@@ -371,6 +386,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                         "is_control": True,
                         "description": "old branch 1 desc",
                         "addon_release_url": addon_url,
+                        "preferences": [changed_variant_pref_value],
                     }
                 ],
                 "display_name": "Branches",
@@ -424,6 +440,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "slug": "old-branch-1-name",
                 "value": "8",
                 "addon_release_url": addon_url,
+                "preferences": [changed_variant_pref_value],
             }
         ]
 
@@ -436,6 +453,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "slug": "branch-1-name",
                 "value": "8",
                 "addon_release_url": None,
+                "preferences": [],
             },
             {
                 "description": "variant 0 desc",
@@ -445,6 +463,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "slug": "variant-0-name",
                 "value": "5",
                 "addon_release_url": None,
+                "preferences": [],
             },
             {
                 "description": "old branch 1 desc",
@@ -454,6 +473,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "slug": "old-branch-1-name",
                 "value": "8",
                 "addon_release_url": addon_url,
+                "preferences": [changed_variant_pref_value],
             },
         ]
 
