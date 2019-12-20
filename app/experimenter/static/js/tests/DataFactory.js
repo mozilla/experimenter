@@ -35,3 +35,16 @@ export class AddonDataFactory extends Factory {
     }
   }
 }
+
+export class AddonRolloutFactory extends Factory {
+  getFields() {
+    return {
+      rollout_type: "addon",
+      design: new Field(faker.lorem.paragraph),
+      addon_release_url: new Field(faker.internet.url),
+      pref_key: null,
+      pref_type: null,
+      pref_value: null,
+    };
+  }
+}

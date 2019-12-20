@@ -33,6 +33,7 @@ export default class RolloutForm extends React.PureComponent {
       return (
         <DesignInput
           label="Signed Add-On URL"
+          dataTestId="addonUrl"
           name="addon_release_url"
           onChange={value => {
             this.props.handleDataChange("addon_release_url", value);
@@ -128,6 +129,7 @@ export default class RolloutForm extends React.PureComponent {
 
         <DesignInput
           label="Description"
+          dataTestId="design"
           name="design"
           onChange={value => {
             this.props.handleDataChange("design", value);
