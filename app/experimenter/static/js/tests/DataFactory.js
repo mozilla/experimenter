@@ -1,7 +1,7 @@
 import faker from "faker";
 import { AutoIncrementField, Factory, Field } from "experimenter/tests/factory";
 
-export class VariantFactory extends Factory {
+export class VariantsFactory extends Factory {
   getFields() {
     return {
       id: new AutoIncrementField(),
@@ -20,16 +20,16 @@ export class GenericDataFactory extends Factory {
     return {
       designs: new Field(faker.lorem.paragraph),
       variants: [],
+      type: "addon",
     };
   }
-
   postGeneration() {
     super.postGeneration();
     const { generateVariants } = this.options;
     if (generateVariants) {
       const variants = [];
       for (let i = 0; i < generateVariants; i++) {
-        variants.push(this.buildVariant());
+        variants.push(VariantsFactory.build());
       }
       this.data.variants = [...this.data.variants, ...variants];
     }
@@ -81,19 +81,29 @@ export class PrefVariantsFactory extends VariantsFactory {
     };
   }
 }
-
-export class PrefDataFactory extends DesignFactory {
+export class PrefDataFactory extends Factory {
   getFields() {
     return {
       pref_key: new Field(faker.lorem.word),
       pref_type: "string",
       pref_branch: "default",
-      ...super.getFields(),
+      variants: [],
     };
   }
 
-  buildVariant() {
-    return PrefVariantFactory.build();
+  postGeneration() {
+    super.postGeneration();
+    const { generateVariants } = this.options;
+    if (generateVariants) {
+      const variants = [];
+      for (let i = 0; i < generateVariants; i++) {
+        variants.push(PrefVariantsFactory.build());
+      }
+      this.data.variants = [...this.data.variants, ...variants];
+    }
+    if (this.data.variants.length) {
+      this.data.variants[0].is_control = true;
+    }
   }
 }
 
