@@ -24,7 +24,6 @@ export class GenericDataFactory extends Factory {
     };
   }
   postGeneration() {
-    super.postGeneration();
     const { generateVariants } = this.options;
     if (generateVariants) {
       const variants = [];
@@ -92,7 +91,6 @@ export class PrefDataFactory extends Factory {
   }
 
   postGeneration() {
-    super.postGeneration();
     const { generateVariants } = this.options;
     if (generateVariants) {
       const variants = [];
