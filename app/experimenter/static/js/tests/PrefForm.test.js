@@ -2,13 +2,18 @@ import React from "react";
 import {
   render,
   cleanup,
-  waitForElement,
+  waitForDomChange,
   fireEvent,
 } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import DesignForm from "experimenter/components/DesignForm";
 import * as Api from "experimenter/utils/api";
 import { PrefDataFactory } from "./DataFactory";
+import {
+  addBranch,
+  removeBranch,
+  waitForFormToLoad,
+} from "experimenter/tests/helpers.js";
 
 describe("The `DesignForm` component for Prefs", () => {
   afterEach(() => {
@@ -16,13 +21,39 @@ describe("The `DesignForm` component for Prefs", () => {
     cleanup();
   });
 
-  it("displays and edits data about single pref experiments", async () => {
+  const setup = () => {
     const apiResponse = PrefDataFactory.build({}, { generateVariants: 2 });
     jest
       .spyOn(Api, "makeApiRequest")
       .mockImplementation(async () => apiResponse);
 
-    const { getByText, getByLabelText, getAllByLabelText } = await render(
+    return apiResponse;
+  };
+
+  const rejectedSetUp = () => {
+    const apiResponse = PrefDataFactory.build({}, { generateVariants: 2 });
+
+    const rejectApiResponse = {
+      data: {
+        variants: [{ ratio: ["Branch sizes must be between 1 and 100."] }, {}],
+      },
+    };
+
+    jest
+      .spyOn(Api, "makeApiRequest")
+      .mockReturnValueOnce(apiResponse)
+      .mockRejectedValueOnce(rejectApiResponse);
+  };
+
+  it("displays and edits data about single pref experiments", async () => {
+    const apiResponse = setup();
+
+    const {
+      getByText,
+      getByLabelText,
+      getAllByLabelText,
+      container,
+    } = await render(
       <DesignForm
         slug="the-slug"
         experimentType={"pref"}
@@ -32,10 +63,10 @@ describe("The `DesignForm` component for Prefs", () => {
 
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
 
+    await waitForFormToLoad(container);
+
     // Get the fields
-    const prefNameInput = await waitForElement(() =>
-      getByLabelText(/Pref Name/),
-    );
+    const prefNameInput = getByLabelText(/Pref Name/);
     const prefTypeInput = getByLabelText(/Pref Type/);
     const prefBranchInput = getByLabelText(/Pref Branch/);
     const branchRatioInputs = getAllByLabelText(/Branch Size/);
@@ -84,5 +115,66 @@ describe("The `DesignForm` component for Prefs", () => {
     expect(url).toBe("experiments/the-slug/design-pref/");
     expect(data.pref_key).toBe("the-new-pref-name");
     expect(data.variants[1].value).toBe("the-new-pref-value-for-branch-2");
+  });
+
+  it("adds a branch", async () => {
+    setup();
+
+    const { getAllByText, container } = await render(
+      <DesignForm experimentType={"addon"} />,
+    );
+
+    await waitForFormToLoad(container);
+
+    addBranch(container);
+
+    expect(getAllByText("Branch Size")).toHaveLength(3);
+    expect(getAllByText("Name")).toHaveLength(3);
+    expect(getAllByText("Description")).toHaveLength(3);
+  });
+
+  it("removes a branch", async () => {
+    setup();
+
+    const { getAllByText, container } = await render(
+      <DesignForm experimentType={"addon"} />,
+    );
+
+    await waitForFormToLoad(container);
+
+    removeBranch(container, 0);
+
+    expect(getAllByText("Branch Size")).toHaveLength(1);
+    expect(getAllByText("Name")).toHaveLength(1);
+    expect(getAllByText("Description")).toHaveLength(1);
+  });
+
+  it("displays errors when branch size is over 100", async () => {
+    rejectedSetUp();
+
+    let scrollIntoViewMock = jest.fn();
+    window.HTMLElement.prototype.scrollIntoView = scrollIntoViewMock;
+
+    const { getAllByLabelText, getByText, container } = await render(
+      <DesignForm experimentType={"addon"} />,
+    );
+
+    await waitForFormToLoad(container);
+
+    expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
+
+    const firstBranchRatioInput = getAllByLabelText(/Branch Size/)[0];
+
+    fireEvent.change(firstBranchRatioInput, { target: { value: "1000" } });
+
+    fireEvent.click(getByText("Save Draft and Continue"));
+
+    expect(Api.makeApiRequest).toHaveBeenCalled();
+
+    await waitForDomChange(firstBranchRatioInput);
+
+    expect(
+      getByText("Branch sizes must be between 1 and 100."),
+    ).toBeInTheDocument();
   });
 });
