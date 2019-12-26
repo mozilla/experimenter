@@ -121,7 +121,7 @@ describe("The `DesignForm` component for Prefs", () => {
     setup();
 
     const { getAllByText, container } = await render(
-      <DesignForm experimentType={"addon"} />,
+      <DesignForm experimentType={"pref"} />,
     );
 
     await waitForFormToLoad(container);
@@ -137,7 +137,7 @@ describe("The `DesignForm` component for Prefs", () => {
     setup();
 
     const { getAllByText, container } = await render(
-      <DesignForm experimentType={"addon"} />,
+      <DesignForm experimentType={"pref"} />,
     );
 
     await waitForFormToLoad(container);
@@ -156,7 +156,7 @@ describe("The `DesignForm` component for Prefs", () => {
     window.HTMLElement.prototype.scrollIntoView = scrollIntoViewMock;
 
     const { getAllByLabelText, getByText, container } = await render(
-      <DesignForm experimentType={"addon"} />,
+      <DesignForm experimentType={"pref"} />,
     );
 
     await waitForFormToLoad(container);
