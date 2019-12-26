@@ -91,7 +91,6 @@ export class PrefDataFactory extends Factory {
   }
 
   postGeneration() {
-    super.postGeneration();
     const { generateVariants } = this.options;
     if (generateVariants) {
       const variants = [];
