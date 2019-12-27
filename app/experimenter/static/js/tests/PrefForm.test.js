@@ -177,4 +177,24 @@ describe("The `DesignForm` component for Prefs", () => {
       getByText("Branch sizes must be between 1 and 100."),
     ).toBeInTheDocument();
   });
+
+  it("changes to multipref and displays blank pref form", async () => {
+    setup();
+
+    const { getByLabelText, getAllByText, container } = await render(
+      <DesignForm experimentType={"pref"} />,
+    );
+
+    await waitForFormToLoad(container);
+
+    fireEvent.click(getByLabelText("Different Prefs per branch"));
+
+    expect(getAllByText("Add Pref")).toHaveLength(2);
+
+    // blank pref forms are being displayed
+    expect(getAllByText("Pref Name")).toHaveLength(2);
+    expect(getAllByText("Pref Type")).toHaveLength(2);
+    expect(getAllByText("Pref Branch")).toHaveLength(2);
+    expect(getAllByText("Pref Value")).toHaveLength(2);
+  });
 });
