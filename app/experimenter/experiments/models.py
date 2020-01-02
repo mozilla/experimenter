@@ -132,16 +132,16 @@ class Experiment(ExperimentConstants, models.Model):
         max_digits=7, decimal_places=4, default=0.0, blank=True, null=True
     )
     firefox_min_version = models.CharField(
-        max_length=255, choices=ExperimentConstants.VERSION_CHOICES
+        max_length=255, choices=ExperimentConstants.VERSION_CHOICES, blank=True, null=True
     )
     firefox_max_version = models.CharField(
         max_length=255, choices=ExperimentConstants.VERSION_CHOICES, blank=True, null=True
     )
     firefox_channel = models.CharField(
-        max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES
+        max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES, blank=True, null=True
     )
     client_matching = models.TextField(
-        default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True
+        default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True, null=True
     )
     locales = models.ManyToManyField(Locale, blank=True)
     countries = models.ManyToManyField(Country, blank=True)
@@ -149,6 +149,7 @@ class Experiment(ExperimentConstants, models.Model):
         max_length=255,
         choices=ExperimentConstants.PLATFORM_CHOICES,
         default=ExperimentConstants.PLATFORM_ALL,
+        null=True,
     )
     design = models.TextField(
         default=ExperimentConstants.DESIGN_DEFAULT, blank=True, null=True

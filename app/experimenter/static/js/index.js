@@ -6,6 +6,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import DesignForm from "experimenter/components/DesignForm";
+import TimelinePopForm from "experimenter/components/TimelinePopForm";
 
 window.jQuery = jQuery;
 window.$ = jQuery;
@@ -14,6 +15,7 @@ window.bootstrap = bootstrap;
 window.popper = popper;
 
 const branchesDiv = document.getElementById("react-branches-form");
+const timelinePopDiv = document.getElementById("react-timelinepop-form");
 
 if (branchesDiv) {
   const experimentType = branchesDiv.dataset.experimentType;
@@ -29,5 +31,21 @@ if (branchesDiv) {
       slug={slug}
     />,
     branchesDiv,
+  );
+}
+
+if (timelinePopDiv) {
+  const slug = timelinePopDiv.dataset.experimentSlug;
+  const shouldHavePopPercent = timelinePopDiv.dataset.shouldHavePopPercent;
+  const allCountries = JSON.parse(timelinePopDiv.dataset.allCountries);
+  const allLocales = JSON.parse(timelinePopDiv.dataset.allLocales);
+  ReactDOM.render(
+    <TimelinePopForm
+      slug={slug}
+      shouldHavePopPercent={shouldHavePopPercent}
+      allCountries={allCountries}
+      allLocales={allLocales}
+    />,
+    timelinePopDiv,
   );
 }

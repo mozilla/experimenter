@@ -139,7 +139,8 @@
                       ]
                     },
                     "client_matching": {
-                      "type": "string"
+                      "type": "string",
+                      "nullable": true
                     },
                     "locales": {
                       "type": "array",
@@ -185,7 +186,8 @@
                         "All Windows",
                         "All Mac",
                         "All Linux"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "start_date": {
                       "type": "string"
@@ -210,7 +212,8 @@
                         "Nightly",
                         "Beta",
                         "Release"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "firefox_min_version": {
                       "enum": [
@@ -240,7 +243,8 @@
                         "78.0",
                         "79.0",
                         "80.0"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "firefox_max_version": {
                       "enum": [
@@ -460,8 +464,6 @@
                     "countries",
                     "start_date",
                     "end_date",
-                    "firefox_channel",
-                    "firefox_min_version",
                     "pref_type",
                     "proposed_start_date",
                     "variants",
@@ -542,7 +544,8 @@
                         ]
                       },
                       "client_matching": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                       },
                       "locales": {
                         "type": "array",
@@ -588,7 +591,8 @@
                           "All Windows",
                           "All Mac",
                           "All Linux"
-                        ]
+                        ],
+                        "nullable": true
                       },
                       "start_date": {
                         "type": "string"
@@ -613,7 +617,8 @@
                           "Nightly",
                           "Beta",
                           "Release"
-                        ]
+                        ],
+                        "nullable": true
                       },
                       "firefox_min_version": {
                         "enum": [
@@ -643,7 +648,8 @@
                           "78.0",
                           "79.0",
                           "80.0"
-                        ]
+                        ],
+                        "nullable": true
                       },
                       "firefox_max_version": {
                         "enum": [
@@ -863,8 +869,6 @@
                       "countries",
                       "start_date",
                       "end_date",
-                      "firefox_channel",
-                      "firefox_min_version",
                       "pref_type",
                       "proposed_start_date",
                       "variants",
@@ -4223,6 +4227,716 @@
             "application/json": {
               "schema": {
                 "properties": {
+                  "proposed_start_date": {
+                    "type": "string",
+                    "format": "date",
+                    "nullable": true
+                  },
+                  "proposed_enrollment": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "proposed_duration": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "population_percent": {
+                    "type": "number",
+                    "multipleOf": 0.0001,
+                    "maximum": 100.0,
+                    "minimum": -1000,
+                    "nullable": true
+                  },
+                  "firefox_channel": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "firefox_min_version": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "firefox_max_version": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "locales": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "platform": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "client_matching": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "proposed_start_date": {
+                    "type": "string",
+                    "format": "date",
+                    "nullable": true
+                  },
+                  "proposed_enrollment": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "proposed_duration": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "population_percent": {
+                    "type": "number",
+                    "multipleOf": 0.0001,
+                    "maximum": 100.0,
+                    "minimum": -1000,
+                    "nullable": true
+                  },
+                  "firefox_channel": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "firefox_min_version": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "firefox_max_version": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "locales": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "platform": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "client_matching": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "proposed_start_date": {
+                    "type": "string",
+                    "format": "date",
+                    "nullable": true
+                  },
+                  "proposed_enrollment": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "proposed_duration": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "population_percent": {
+                    "type": "number",
+                    "multipleOf": 0.0001,
+                    "maximum": 100.0,
+                    "minimum": -1000,
+                    "nullable": true
+                  },
+                  "firefox_channel": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "firefox_min_version": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "firefox_max_version": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "locales": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "platform": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "client_matching": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "proposed_start_date": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "proposed_enrollment": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "proposed_duration": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "population_percent": {
+                      "type": "number",
+                      "multipleOf": 0.0001,
+                      "maximum": 100.0,
+                      "minimum": -1000,
+                      "nullable": true
+                    },
+                    "firefox_channel": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "firefox_min_version": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "firefox_max_version": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "locales": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "value"
+                        ]
+                      },
+                      "nullable": true
+                    },
+                    "countries": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "value"
+                        ]
+                      },
+                      "nullable": true
+                    },
+                    "platform": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "client_matching": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "operationId": "PartialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "proposed_start_date": {
+                    "type": "string",
+                    "format": "date",
+                    "nullable": true
+                  },
+                  "proposed_enrollment": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "proposed_duration": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "population_percent": {
+                    "type": "number",
+                    "multipleOf": 0.0001,
+                    "maximum": 100.0,
+                    "minimum": -1000,
+                    "nullable": true
+                  },
+                  "firefox_channel": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "firefox_min_version": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "firefox_max_version": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "locales": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "platform": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "client_matching": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "proposed_start_date": {
+                    "type": "string",
+                    "format": "date",
+                    "nullable": true
+                  },
+                  "proposed_enrollment": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "proposed_duration": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "population_percent": {
+                    "type": "number",
+                    "multipleOf": 0.0001,
+                    "maximum": 100.0,
+                    "minimum": -1000,
+                    "nullable": true
+                  },
+                  "firefox_channel": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "firefox_min_version": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "firefox_max_version": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "locales": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "platform": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "client_matching": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "proposed_start_date": {
+                    "type": "string",
+                    "format": "date",
+                    "nullable": true
+                  },
+                  "proposed_enrollment": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "proposed_duration": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "population_percent": {
+                    "type": "number",
+                    "multipleOf": 0.0001,
+                    "maximum": 100.0,
+                    "minimum": -1000,
+                    "nullable": true
+                  },
+                  "firefox_channel": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "firefox_min_version": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "firefox_max_version": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "locales": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "platform": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "client_matching": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "proposed_start_date": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "proposed_enrollment": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "proposed_duration": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "population_percent": {
+                      "type": "number",
+                      "multipleOf": 0.0001,
+                      "maximum": 100.0,
+                      "minimum": -1000,
+                      "nullable": true
+                    },
+                    "firefox_channel": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "firefox_min_version": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "firefox_max_version": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "locales": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "value"
+                        ]
+                      },
+                      "nullable": true
+                    },
+                    "countries": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "value"
+                        ]
+                      },
+                      "nullable": true
+                    },
+                    "platform": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "client_matching": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/experiments/{slug}/intent-to-ship-email": {
+      "put": {
+        "operationId": "UpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
                   "type": {
                     "enum": [
                       "pref",
@@ -4260,7 +4974,8 @@
                     ]
                   },
                   "client_matching": {
-                    "type": "string"
+                    "type": "string",
+                    "nullable": true
                   },
                   "locales": {
                     "type": "array",
@@ -4306,7 +5021,8 @@
                       "All Windows",
                       "All Mac",
                       "All Linux"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "start_date": {
                     "type": "string"
@@ -4327,7 +5043,8 @@
                       "Nightly",
                       "Beta",
                       "Release"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_min_version": {
                     "enum": [
@@ -4357,7 +5074,8 @@
                       "78.0",
                       "79.0",
                       "80.0"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_max_version": {
                     "enum": [
@@ -4577,8 +5295,6 @@
                   "countries",
                   "start_date",
                   "end_date",
-                  "firefox_channel",
-                  "firefox_min_version",
                   "pref_type",
                   "proposed_start_date",
                   "variants",
@@ -4626,7 +5342,8 @@
                     ]
                   },
                   "client_matching": {
-                    "type": "string"
+                    "type": "string",
+                    "nullable": true
                   },
                   "locales": {
                     "type": "array",
@@ -4672,7 +5389,8 @@
                       "All Windows",
                       "All Mac",
                       "All Linux"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "start_date": {
                     "type": "string"
@@ -4693,7 +5411,8 @@
                       "Nightly",
                       "Beta",
                       "Release"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_min_version": {
                     "enum": [
@@ -4723,7 +5442,8 @@
                       "78.0",
                       "79.0",
                       "80.0"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_max_version": {
                     "enum": [
@@ -4943,8 +5663,6 @@
                   "countries",
                   "start_date",
                   "end_date",
-                  "firefox_channel",
-                  "firefox_min_version",
                   "pref_type",
                   "proposed_start_date",
                   "variants",
@@ -4992,7 +5710,8 @@
                     ]
                   },
                   "client_matching": {
-                    "type": "string"
+                    "type": "string",
+                    "nullable": true
                   },
                   "locales": {
                     "type": "array",
@@ -5038,7 +5757,8 @@
                       "All Windows",
                       "All Mac",
                       "All Linux"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "start_date": {
                     "type": "string"
@@ -5059,7 +5779,8 @@
                       "Nightly",
                       "Beta",
                       "Release"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_min_version": {
                     "enum": [
@@ -5089,7 +5810,8 @@
                       "78.0",
                       "79.0",
                       "80.0"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_max_version": {
                     "enum": [
@@ -5309,8 +6031,6 @@
                   "countries",
                   "start_date",
                   "end_date",
-                  "firefox_channel",
-                  "firefox_min_version",
                   "pref_type",
                   "proposed_start_date",
                   "variants",
@@ -5367,7 +6087,8 @@
                       ]
                     },
                     "client_matching": {
-                      "type": "string"
+                      "type": "string",
+                      "nullable": true
                     },
                     "locales": {
                       "type": "array",
@@ -5413,7 +6134,8 @@
                         "All Windows",
                         "All Mac",
                         "All Linux"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "start_date": {
                       "type": "string"
@@ -5438,7 +6160,8 @@
                         "Nightly",
                         "Beta",
                         "Release"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "firefox_min_version": {
                       "enum": [
@@ -5468,7 +6191,8 @@
                         "78.0",
                         "79.0",
                         "80.0"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "firefox_max_version": {
                       "enum": [
@@ -5688,8 +6412,6 @@
                     "countries",
                     "start_date",
                     "end_date",
-                    "firefox_channel",
-                    "firefox_min_version",
                     "pref_type",
                     "proposed_start_date",
                     "variants",
@@ -5761,7 +6483,8 @@
                     ]
                   },
                   "client_matching": {
-                    "type": "string"
+                    "type": "string",
+                    "nullable": true
                   },
                   "locales": {
                     "type": "array",
@@ -5807,7 +6530,8 @@
                       "All Windows",
                       "All Mac",
                       "All Linux"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "start_date": {
                     "type": "string"
@@ -5828,7 +6552,8 @@
                       "Nightly",
                       "Beta",
                       "Release"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_min_version": {
                     "enum": [
@@ -5858,7 +6583,8 @@
                       "78.0",
                       "79.0",
                       "80.0"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_max_version": {
                     "enum": [
@@ -6113,7 +6839,8 @@
                     ]
                   },
                   "client_matching": {
-                    "type": "string"
+                    "type": "string",
+                    "nullable": true
                   },
                   "locales": {
                     "type": "array",
@@ -6159,7 +6886,8 @@
                       "All Windows",
                       "All Mac",
                       "All Linux"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "start_date": {
                     "type": "string"
@@ -6180,7 +6908,8 @@
                       "Nightly",
                       "Beta",
                       "Release"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_min_version": {
                     "enum": [
@@ -6210,7 +6939,8 @@
                       "78.0",
                       "79.0",
                       "80.0"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_max_version": {
                     "enum": [
@@ -6465,7 +7195,8 @@
                     ]
                   },
                   "client_matching": {
-                    "type": "string"
+                    "type": "string",
+                    "nullable": true
                   },
                   "locales": {
                     "type": "array",
@@ -6511,7 +7242,8 @@
                       "All Windows",
                       "All Mac",
                       "All Linux"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "start_date": {
                     "type": "string"
@@ -6532,7 +7264,8 @@
                       "Nightly",
                       "Beta",
                       "Release"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_min_version": {
                     "enum": [
@@ -6562,7 +7295,8 @@
                       "78.0",
                       "79.0",
                       "80.0"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_max_version": {
                     "enum": [
@@ -6826,7 +7560,8 @@
                       ]
                     },
                     "client_matching": {
-                      "type": "string"
+                      "type": "string",
+                      "nullable": true
                     },
                     "locales": {
                       "type": "array",
@@ -6872,7 +7607,8 @@
                         "All Windows",
                         "All Mac",
                         "All Linux"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "start_date": {
                       "type": "string"
@@ -6897,7 +7633,8 @@
                         "Nightly",
                         "Beta",
                         "Release"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "firefox_min_version": {
                       "enum": [
@@ -6927,7 +7664,8 @@
                         "78.0",
                         "79.0",
                         "80.0"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "firefox_max_version": {
                       "enum": [
@@ -7147,8 +7885,6 @@
                     "countries",
                     "start_date",
                     "end_date",
-                    "firefox_channel",
-                    "firefox_min_version",
                     "pref_type",
                     "proposed_start_date",
                     "variants",

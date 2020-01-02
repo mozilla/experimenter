@@ -9,6 +9,7 @@ from experimenter.experiments.api_views import (
     ExperimentDesignPrefView,
     ExperimentDesignRolloutView,
     ExperimentSendIntentToShipEmailView,
+    ExperimentTimelinePopulationView,
 )
 
 
@@ -52,5 +53,10 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/design-rollout",
         ExperimentDesignRolloutView.as_view(),
         name="experiments-design-rollout",
+    ),
+    url(
+        r"^(?P<slug>[\w-]+)/timeline-population",
+        ExperimentTimelinePopulationView.as_view(),
+        name="experiments-timeline-population",
     ),
 ]

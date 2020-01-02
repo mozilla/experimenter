@@ -26,6 +26,7 @@
   "description": "a tool for managing experiments in Firefox",
   "main": "index.js",
   "dependencies": {
+    "@testing-library/dom": "latest",
     "autobind-decorator": "2.4.0",
     "bootstrap": "4.4.1",
     "bootstrap-select": "1.13.12",
@@ -42,6 +43,7 @@
     "@babel/core": "7.8.7",
     "@babel/plugin-proposal-class-properties": "7.8.3",
     "@babel/plugin-proposal-decorators": "7.8.3",
+    "@babel/preset-env": "7.8.3",
     "@babel/preset-react": "7.8.3",
     "babel-eslint": "10.1.0",
     "eslint": "6.8.0",
@@ -61,7 +63,8 @@
     "babel-jest": "25.1.0",
     "faker": "4.1.0",
     "jest": "24.9.0",
-    "jest-dom": "4.0.0"
+    "jest-dom": "4.0.0",
+    "parcel-bundler": "1.12.4"
   },
   "alias": {
     "experimenter": "./experimenter/static/js"
