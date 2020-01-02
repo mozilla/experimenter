@@ -369,4 +369,32 @@ describe("The `DesignForm` component for Branched Addons", () => {
 
     expect(getByText("This field is required.")).toBeInTheDocument();
   });
+
+  it("adds a `branchedAddon` branch", async () => {
+    setup();
+
+    const { getAllByText, container } = await render(
+      <DesignForm experimentType={"addon"} isBranchedAddon={true} />,
+    );
+
+    await waitForFormToLoad(container);
+
+    addBranch(container);
+
+    expect(getAllByText(/Signed Add-On URL/)).toHaveLength(3);
+  });
+
+  it("removes a `branchedAddon` branch", async () => {
+    setup();
+
+    const { getAllByText, container } = await render(
+      <DesignForm experimentType={"addon"} isBranchedAddon={true} />,
+    );
+
+    await waitForFormToLoad(container);
+
+    removeBranch(container, 0);
+
+    expect(getAllByText(/Signed Add-On URL/)).toHaveLength(1);
+  });
 });
