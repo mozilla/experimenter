@@ -11,7 +11,7 @@ import * as Api from "experimenter/utils/api";
 import { waitForFormToLoad } from "experimenter/tests/helpers.js";
 import { AddonRolloutFactory } from "./DataFactory";
 
-describe("The `DesignForm` component for Addons", () => {
+describe("The `DesignForm` component for Addon Rollouts", () => {
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();
