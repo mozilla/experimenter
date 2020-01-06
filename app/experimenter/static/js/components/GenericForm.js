@@ -21,6 +21,7 @@ export default class GenericForm extends React.PureComponent {
         <DesignInput
           label="Design"
           name="design"
+          dataTestId="design"
           onChange={value => {
             this.props.handleDataChange("design", value);
           }}
