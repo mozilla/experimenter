@@ -53,7 +53,7 @@
     "parcel-bundler": "1.12.4",
     "@babel/preset-env": "7.7.7",
     "@testing-library/jest-dom": "4.2.4",
-    "@testing-library/react": "9.3.2",
+    "@testing-library/react": "9.4.0",
     "babel-jest": "24.9.0",
     "faker": "4.1.0",
     "jest": "24.9.0",
