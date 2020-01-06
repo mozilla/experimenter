@@ -72,6 +72,8 @@ export class AddonDataFactory extends GenericDataFactory {
       type: "addon",
     };
   }
+}
+
 export class PrefVariantsFactory extends VariantsFactory {
   getFields() {
     return {
@@ -80,6 +82,7 @@ export class PrefVariantsFactory extends VariantsFactory {
     };
   }
 }
+
 export class PrefDataFactory extends Factory {
   getFields() {
     return {

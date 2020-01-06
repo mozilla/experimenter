@@ -15,7 +15,7 @@ import {
   waitForFormToLoad,
 } from "experimenter/tests/helpers.js";
 
-describe("The `DesignForm` component for Prefs", () => {
+describe("The `DesignForm` component for Pref Experiments", () => {
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();
