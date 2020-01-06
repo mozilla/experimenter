@@ -152,7 +152,7 @@ class DesignForm extends React.PureComponent {
     if (!this.state.loaded) {
       return (
         <Container>
-          <div className="fa-5x" data-testId="spinner">
+          <div className="fa-5x" data-testid="spinner">
             <Row className="justify-content-center">
               <i className="fas fa-spinner fa-spin" />
             </Row>

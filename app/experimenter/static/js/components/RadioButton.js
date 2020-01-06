@@ -9,9 +9,9 @@ export default class RadioButton extends React.PureComponent {
     onChange: PropTypes.func,
     radioLabel1: PropTypes.string,
     radioLabel2: PropTypes.string,
-    radioValue1: PropTypes.string,
-    radioValue2: PropTypes.string,
-    value: PropTypes.bool,
+    radioValue1: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+    radioValue2: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   };
 
   render() {

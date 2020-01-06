@@ -15,7 +15,11 @@ class DesignInput extends React.PureComponent {
       PropTypes.node,
     ]),
     dataTestId: PropTypes.string,
-    error: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    error: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.array,
+      PropTypes.object,
+    ]),
     helpContent: PropTypes.object,
     id: PropTypes.string,
     index: PropTypes.number,
