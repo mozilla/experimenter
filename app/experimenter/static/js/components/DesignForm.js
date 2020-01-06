@@ -95,6 +95,7 @@ class DesignForm extends React.PureComponent {
             loading: false,
           });
         } catch (error) {
+          console.log(error);
           console.log(error.message);
         }
       },

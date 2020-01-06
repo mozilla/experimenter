@@ -84,7 +84,6 @@ class VariantsListSerializer(serializers.ListSerializer):
 
         return [control_branch] + treatment_branches
 
-
 class ExperimentDesignVariantBaseSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     description = serializers.CharField()
