@@ -45,6 +45,24 @@ describe("The `DesignForm` component for Pref Experiments", () => {
       .mockRejectedValueOnce(rejectApiResponse);
   };
 
+  const radioButtonSetup = () => {
+    const apiResponse = PrefDataFactory.build({}, { generateVariants: 2 });
+
+    let multiPrefApiResponse = PrefDataFactory.build(
+      {},
+      { generateVariants: 2 },
+    );
+
+    for (let variant of multiPrefApiResponse.variants) {
+      variant["preferences"] = [{}];
+    }
+
+    jest
+      .spyOn(Api, "makeApiRequest")
+      .mockReturnValueOnce(apiResponse)
+      .mockReturnValueOnce(multiPrefApiResponse);
+  };
+
   it("displays and edits data about single pref experiments", async () => {
     const apiResponse = setup();
 
@@ -179,22 +197,30 @@ describe("The `DesignForm` component for Pref Experiments", () => {
   });
 
   it("changes to multipref and displays blank pref form", async () => {
-    setup();
+    radioButtonSetup();
 
-    const { getByLabelText, getAllByText, container } = await render(
-      <DesignForm experimentType={"pref"} />,
-    );
+    const {
+      getByLabelText,
+      getAllByLabelText,
+      getAllByText,
+      container,
+      getByTestId,
+    } = await render(<DesignForm experimentType={"pref"} />);
 
     await waitForFormToLoad(container);
 
     fireEvent.click(getByLabelText("Different Prefs per branch"));
 
+    expect(Api.makeApiRequest).toHaveBeenCalled();
+
+    await waitForDomChange(getByTestId("branch0"));
+
     expect(getAllByText("Add Pref")).toHaveLength(2);
 
     // blank pref forms are being displayed
-    expect(getAllByText("Pref Name")).toHaveLength(2);
-    expect(getAllByText("Pref Type")).toHaveLength(2);
-    expect(getAllByText("Pref Branch")).toHaveLength(2);
-    expect(getAllByText("Pref Value")).toHaveLength(2);
+    expect(getAllByLabelText(/Pref Name/)).toHaveLength(2);
+    expect(getAllByLabelText(/Pref Type/)).toHaveLength(2);
+    expect(getAllByLabelText(/Pref Branch/)).toHaveLength(2);
+    expect(getAllByLabelText(/Pref Value/)).toHaveLength(2);
   });
 });
