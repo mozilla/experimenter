@@ -36,7 +36,6 @@ export class GenericDataFactory extends Factory {
   }
 }
 
-
 export class AddonRolloutFactory extends Factory {
   getFields() {
     return {
