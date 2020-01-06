@@ -13,7 +13,7 @@ RUN chmod +x /app/bin/wait-for-it.sh
 RUN apt-get update
 RUN apt-get install -y postgresql-client
 
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get install -y nodejs
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
