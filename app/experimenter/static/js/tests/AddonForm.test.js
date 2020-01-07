@@ -17,7 +17,7 @@ import {
 } from "experimenter/tests/helpers.js";
 import { AddonDataFactory } from "./DataFactory";
 
-describe("The `DesignForm` component for Addons", () => {
+describe("The `DesignForm` component for Addon", () => {
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();
