@@ -10,5 +10,9 @@ export default function Error(props) {
 }
 
 Error.propTypes = {
-  error: PropTypes.array,
+  error: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.array,
+    PropTypes.object,
+  ]),
 };
