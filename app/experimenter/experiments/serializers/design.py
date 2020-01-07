@@ -55,11 +55,11 @@ class VariantsListSerializer(serializers.ListSerializer):
 
     def to_representation(self, data):
         data = super().to_representation(data)
+        initial_fields = set(self.child.fields) - set(["id"])
 
         if data == []:
             blank_variant = {}
             control_blank_variant = {}
-            initial_fields = set(self.child.fields) - set(["id"])
             for field in initial_fields:
                 blank_variant[field] = None
                 control_blank_variant[field] = None
@@ -69,11 +69,12 @@ class VariantsListSerializer(serializers.ListSerializer):
             control_blank_variant["is_control"] = True
             control_blank_variant["ratio"] = 50
 
-            if "preferences" in initial_fields:
-                blank_variant["preferences"] = [{}]
-                control_blank_variant["preferences"] = [{}]
-
             data = [control_blank_variant, blank_variant]
+
+        if "preferences" in initial_fields:
+            for variant in data:
+                if not variant["preferences"]:
+                    variant["preferences"] = [{}]
 
         control_branch = [b for b in data if b["is_control"]][0]
         treatment_branches = sorted(
