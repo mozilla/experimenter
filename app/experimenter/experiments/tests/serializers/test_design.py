@@ -1,6 +1,7 @@
 
 
 from django.test import TestCase
+from rest_framework import serializers
 
 from experimenter.experiments.models import (
     Experiment,
@@ -596,6 +597,34 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
 
         variant = ExperimentVariant.objects.get(name="&re@t -br@nche$!")
         self.assertEqual(variant.slug, "ret-brnche")
+
+    def test_serializer_swapping_variant_name_throws_returns_errors(self):
+        experiment = ExperimentFactory.create()
+        variant1 = ExperimentVariantFactory.create(experiment=experiment)
+        variant2 = ExperimentVariantFactory.create(experiment=experiment)
+
+        v1_data = ExperimentVariantSerializer(variant1).data
+        v2_data = ExperimentVariantSerializer(variant2).data
+
+        # swap names
+        v1_data["name"], v2_data["name"] = v2_data["name"], v1_data["name"]
+        v1_data["ratio"] = 50
+        v2_data["ratio"] = 50
+
+        data = {"variants": [v1_data, v2_data]}
+
+        serializer = ExperimentDesignBaseSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+        self.assertTrue(serializer.is_valid())
+
+        
+        with self.assertRaises(serializers.ValidationError):
+            serializer.save()
+
+            self.assertIn(
+                "Experimenter Error Occured: duplicate key value violates unique constraint", serializer.errors
+            )
 
 
 class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
