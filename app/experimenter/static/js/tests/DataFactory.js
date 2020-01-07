@@ -55,6 +55,10 @@ export class AddonDataFactory extends GenericDataFactory {
       addon_release_url: new Field(faker.internet.url),
       variants: [],
       type: "addon",
+    };
+  }
+}
+
 export class BranchedAddonDataFactory extends Factory {
   getFields() {
     return {
