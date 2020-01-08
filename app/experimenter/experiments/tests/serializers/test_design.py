@@ -618,13 +618,23 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         )
         self.assertTrue(serializer.is_valid())
 
-        
+        self.assertEqual(experiment.changes.count(), 0)
+
         with self.assertRaises(serializers.ValidationError):
             serializer.save()
 
             self.assertIn(
-                "Experimenter Error Occured: duplicate key value violates unique constraint", serializer.errors
+                "Experimenter Error Occured: duplicate key value",
+                serializer.errors,
             )
+
+            # no changes occured
+            self.assertEqual(experiment.changes.count(), 0)
+            variant1 = ExperimentVariant.get(id=variant1.id)
+            variant2 = ExperimentVariant.get(id=variant2.id)
+
+            self.assertEqual(variant1.name, v2_data["name"])
+            self.assertEqual(variant2.name, v1_data["name"])
 
 
 class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
