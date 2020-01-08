@@ -624,8 +624,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
             serializer.save()
 
             self.assertIn(
-                "Experimenter Error Occured: duplicate key value",
-                serializer.errors,
+                "Experimenter Error Occured: duplicate key value", serializer.errors
             )
 
             # no changes occured
