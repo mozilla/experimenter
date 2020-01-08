@@ -72,135 +72,137 @@
 {% endblock %}
 
 {% block main_content %}
-  {% for experiment in experiments %}
-    <a class="noanchorstyle hovershadow" href="{% url "experiments-detail" slug=experiment.slug %}">
-      <div class="row">
-        <div class="col">
-          <h5>
-            {{ experiment }}
-            <span class="badge badge-pill badge-small align-middle status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
-            {% if experiment.is_enrollment_complete %}
-              <span class="badge badge-pill badge-small align-middle enrollment-complete-color">Enrollment Complete</span>
-            {% endif %}
-            {% if experiment.archived %}
-              <span class="badge badge-pill badge-small align-middle bg-secondary text-white">Archived</span>
-            {% endif %}
-            {% if experiment.risk_higher_risk %}
-              <span class="badge badge-pill badge-small align-middle bg-danger text-white">Higher Risk</span>
-            {% endif %}
-            {% if request.user in experiment.subscribers.all %}
-              <span class="fas fa-bell subscribe-bell"></span>
-            {% endif %}
-          </h5>
-        </div>
-      </div>
-
-      <div class="card row pt-2 mb-5">
-        <div class="container">
+  <div class="row">
+    <div class="col-9">
+      {% for experiment in experiments %}
+        <a class="noanchorstyle hovershadow" href="{% url "experiments-detail" slug=experiment.slug %}">
           <div class="row">
-            <div class="col-8 list-summary">
-              <p>
-                <strong>
-                  {{ experiment.owner }}
-                </strong>
-              </p>
-              {{ experiment.short_description|linebreaks }}
-            </div>
-            <div class="col-4 text-right">
-              <h5>{{ experiment.population }}</h5>
-              <p>{{ experiment.dates }}</p>
-              {% if experiment.enrollment_end_date %}
-                <p>Enrolling until {{ experiment.enrollment_end_date }}</p>
-              {% endif %}
-              {% if experiment.rollout_dates.first_increase %}
-                <p>First increase on {{ experiment.rollout_dates.first_increase.date }} to {{ experiment.rollout_dates.first_increase.percent }}</p>
-              {% endif %}
-              {% if experiment.rollout_dates.final_increase %}
-                <p>Final increase on {{ experiment.rollout_dates.final_increase.date }} to {{ experiment.rollout_dates.final_increase.percent }}</p>
-              {% endif %}
-              {% if experiment.survey_required %}
-                <span class="badge badge-secondary mb-2">Includes Survey</span>
-              {% endif %}
-              {% if experiment.completed_results %}
-                <span class="badge badge-primary mb-2">Has Results</span>
-              {% endif %}
+            <div class="col">
+              <h5>
+                {{ experiment }}
+                <span class="badge badge-pill badge-small align-middle status-color-{{ experiment.status }}">{{ experiment.get_status_display }}</span>
+                {% if experiment.is_enrollment_complete %}
+                  <span class="badge badge-pill badge-small align-middle enrollment-complete-color">Enrollment Complete</span>
+                {% endif %}
+                {% if experiment.archived %}
+                  <span class="badge badge-pill badge-small align-middle bg-secondary text-white">Archived</span>
+                {% endif %}
+                {% if experiment.risk_higher_risk %}
+                  <span class="badge badge-pill badge-small align-middle bg-danger text-white">Higher Risk</span>
+                {% endif %}
+                {% if request.user in experiment.subscribers.all %}
+                  <span class="fas fa-bell subscribe-bell"></span>
+                {% endif %}
+              </h5>
             </div>
           </div>
+
+          <div class="card row pt-2 mb-5">
+            <div class="container">
+              <div class="row">
+                <div class="col-8 list-summary">
+                  <p>
+                    <strong>
+                      {{ experiment.owner }}
+                    </strong>
+                  </p>
+                  {{ experiment.short_description|linebreaks }}
+                </div>
+                <div class="col-4 text-right">
+                  <h5>{{ experiment.population }}</h5>
+                  <p>{{ experiment.dates }}</p>
+                  {% if experiment.enrollment_end_date %}
+                    <p>Enrolling until {{ experiment.enrollment_end_date }}</p>
+                  {% endif %}
+                  {% if experiment.rollout_dates.first_increase %}
+                    <p>First increase on {{ experiment.rollout_dates.first_increase.date }} to {{ experiment.rollout_dates.first_increase.percent }}</p>
+                  {% endif %}
+                  {% if experiment.rollout_dates.final_increase %}
+                    <p>Final increase on {{ experiment.rollout_dates.final_increase.date }} to {{ experiment.rollout_dates.final_increase.percent }}</p>
+                  {% endif %}
+                  {% if experiment.survey_required %}
+                    <span class="badge badge-secondary mb-2">Includes Survey</span>
+                  {% endif %}
+                  {% if experiment.completed_results %}
+                    <span class="badge badge-primary mb-2">Has Results</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+
+      <div class="row">
+        <div class="col text-center">
+          <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="{% pagination_url page_obj.previous_page_number %}" tabindex="-1">Previous</a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <a class="page-link" href="#">Previous</a>
+              </li>
+            {% endif %}
+            {% for page_num in page_obj.paginator.page_range %}
+              <li class="page-item {% ifequal page_obj.number page_num %}active{% endifequal %}">
+                <a class="page-link" href="{% pagination_url page_num %}">{{ page_num }}</a>
+              </li>
+            {% endfor %}
+            {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="{% pagination_url page_obj.next_page_number %}">Next</a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <a class="page-link" href="#">Next</a>
+              </li>
+            {% endif %}
+          </ul>
         </div>
       </div>
-    </a>
-  {% endfor %}
+    </div>
+    <div class="col-3">
+      <form method="GET">
+        <div class="form-group mb-2">
+          <strong>Sort Deliveries</strong>
+        </div>
 
-  <div class="row">
-    <div class="col text-center">
-      <ul class="pagination justify-content-center">
-        {% if page_obj.has_previous %}
-          <li class="page-item">
-            <a class="page-link" href="{% pagination_url page_obj.previous_page_number %}" tabindex="-1">Previous</a>
-          </li>
-        {% else %}
-          <li class="page-item disabled">
-            <a class="page-link" href="#">Previous</a>
-          </li>
-        {% endif %}
-        {% for page_num in page_obj.paginator.page_range %}
-          <li class="page-item {% ifequal page_obj.number page_num %}active{% endifequal %}">
-            <a class="page-link" href="{% pagination_url page_num %}">{{ page_num }}</a>
-          </li>
+        <div class="form-group">
+          {{ ordering_form.ordering }}
+        </div>
+
+        <div class="form-group">
+          <strong>Filter Deliveries</strong>
+        </div>
+
+        {% for field in filter.form %}
+          {% if field.name == "in_qa" or field.name == "surveys" or field.name == "archived" or field.name == "subscribed" or field.name == "longrunning" or field.name == "is_paused" or field.name == "completed_results" %}
+            <label>
+              {{ field }}
+              {{ field.label }}
+            </label>
+          {% elif field.name == "experiment_date_field" %}
+            <hr class="my-4">
+            <div class="form-group">
+              {{ field }}
+            </div>
+          {% else %}
+            <div class="form-group">
+              {{ field }}
+            </div>
+          {% endif %}
         {% endfor %}
-        {% if page_obj.has_next %}
-          <li class="page-item">
-            <a class="page-link" href="{% pagination_url page_obj.next_page_number %}">Next</a>
-          </li>
-        {% else %}
-          <li class="page-item disabled">
-            <a class="page-link" href="#">Next</a>
-          </li>
-        {% endif %}
-      </ul>
-    </div>
-  </div>
-{% endblock %}
 
-{% block main_sidebar %}
-  <form method="GET">
-    <div class="form-group mb-2">
-      <strong>Sort Deliveries</strong>
-    </div>
-
-    <div class="form-group">
-      {{ ordering_form.ordering }}
-    </div>
-
-    <div class="form-group">
-      <strong>Filter Deliveries</strong>
-    </div>
-
-    {% for field in filter.form %}
-      {% if field.name == "in_qa" or field.name == "surveys" or field.name == "archived" or field.name == "subscribed" or field.name == "longrunning" or field.name == "is_paused" or field.name == "completed_results" %}
-        <label>
-          {{ field }}
-          {{ field.label }}
-        </label>
-      {% elif field.name == "experiment_date_field" %}
-        <hr class="my-4">
-        <div class="form-group">
-          {{ field }}
+        <div class="form-group text-right">
+          <button type="submit" class="btn btn-primary">
+            <span class="fas fa-check"></span>
+            Apply
+          </button>
         </div>
-      {% else %}
-        <div class="form-group">
-          {{ field }}
-        </div>
-      {% endif %}
-    {% endfor %}
-
-    <div class="form-group text-right">
-      <button type="submit" class="btn btn-primary">
-        <span class="fas fa-check"></span>
-        Apply
-      </button>
+      </form>
     </div>
-  </form>
 {% endblock %}
 
 {% block extrascripts %}
