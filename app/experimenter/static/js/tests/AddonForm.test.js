@@ -15,9 +15,9 @@ import {
   removeBranch,
   waitForFormToLoad,
 } from "experimenter/tests/helpers.js";
-import { AddonDataFactory } from "./DataFactory";
+import { AddonDataFactory, BranchedAddonDataFactory } from "./DataFactory";
 
-describe("The `DesignForm` component for Addons", () => {
+describe("The `DesignForm` component for Addon", () => {
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();
@@ -264,5 +264,137 @@ describe("The `DesignForm` component for Addons", () => {
     expect(
       getByText("Branch sizes must be between 1 and 100."),
     ).toBeInTheDocument();
+  });
+});
+
+describe("The `DesignForm` component for Branched Addons", () => {
+  const setup = () => {
+    const apiResponse = BranchedAddonDataFactory.build(
+      {},
+      { generateVariants: 2 },
+    );
+    jest
+      .spyOn(Api, "makeApiRequest")
+      .mockImplementation(async () => apiResponse);
+
+    return apiResponse;
+  };
+
+  const rejectedSetUp = () => {
+    const apiResponse = BranchedAddonDataFactory.build(
+      {},
+      { generateVariants: 2 },
+    );
+
+    const rejectApiResponse = {
+      data: {
+        variants: [{ addon_release_url: ["This field is required."] }, {}],
+      },
+    };
+
+    jest
+      .spyOn(Api, "makeApiRequest")
+      .mockReturnValueOnce(apiResponse)
+      .mockRejectedValueOnce(rejectApiResponse);
+  };
+
+  afterEach(() => {
+    Api.makeApiRequest.mockClear();
+    cleanup();
+  });
+
+  it("displays and edits data about branched addon experiments", async () => {
+    const apiResponse = setup();
+
+    const { getByText, getAllByLabelText, container } = await render(
+      <DesignForm
+        slug="the-slug"
+        experimentType={"addon"}
+        isBranchedAddon={true}
+      />,
+    );
+
+    expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
+
+    await waitForFormToLoad(container);
+
+    const addonUrlInputs = getAllByLabelText(/Signed Add-On URL/);
+
+    expect(addonUrlInputs[0].value).toBe(
+      apiResponse.variants[0].addon_release_url,
+    );
+
+    // Edit some fields
+    location.replace = () => {};
+    fireEvent.change(addonUrlInputs[0], {
+      target: { value: "http://www.example.com" },
+    });
+
+    fireEvent.click(getByText("Save Draft and Continue"));
+
+    // Check that the correct data was sent to the server
+    expect(Api.makeApiRequest).toHaveBeenCalledTimes(2);
+    const [url, { data }] = Api.makeApiRequest.mock.calls[1];
+    expect(url).toBe("experiments/the-slug/design-branched-addon/");
+    expect(data.variants[0].addon_release_url).toBe("http://www.example.com");
+  });
+
+  it("displays errors on branched addon variants", async () => {
+    rejectedSetUp();
+
+    let scrollIntoViewMock = jest.fn();
+    window.HTMLElement.prototype.scrollIntoView = scrollIntoViewMock;
+
+    const { getByText, getAllByLabelText, container } = await render(
+      <DesignForm
+        slug="the-slug"
+        experimentType={"addon"}
+        isBranchedAddon={true}
+      />,
+    );
+
+    await waitForFormToLoad(container);
+
+    expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
+
+    const firstAddonUrlInput = getAllByLabelText(/Signed Add-On URL/)[0];
+
+    fireEvent.change(firstAddonUrlInput, { target: { value: "" } });
+
+    fireEvent.click(getByText("Save Draft and Continue"));
+
+    expect(Api.makeApiRequest).toHaveBeenCalled();
+
+    await waitForDomChange(firstAddonUrlInput);
+
+    expect(getByText("This field is required.")).toBeInTheDocument();
+  });
+
+  it("adds a `branchedAddon` branch", async () => {
+    setup();
+
+    const { getAllByText, container } = await render(
+      <DesignForm experimentType={"addon"} isBranchedAddon={true} />,
+    );
+
+    await waitForFormToLoad(container);
+
+    addBranch(container);
+
+    expect(getAllByText(/Signed Add-On URL/)).toHaveLength(3);
+  });
+
+  it("removes a `branchedAddon` branch", async () => {
+    setup();
+
+    const { getAllByText, container } = await render(
+      <DesignForm experimentType={"addon"} isBranchedAddon={true} />,
+    );
+
+    await waitForFormToLoad(container);
+
+    removeBranch(container, 0);
+
+    expect(getAllByText(/Signed Add-On URL/)).toHaveLength(1);
   });
 });

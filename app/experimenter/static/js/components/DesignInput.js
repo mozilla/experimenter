@@ -15,7 +15,11 @@ class DesignInput extends React.PureComponent {
       PropTypes.node,
     ]),
     dataTestId: PropTypes.string,
-    error: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    error: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.array,
+      PropTypes.object,
+    ]),
     helpContent: PropTypes.object,
     id: PropTypes.string,
     index: PropTypes.number,
@@ -44,7 +48,7 @@ class DesignInput extends React.PureComponent {
     return (
       <Row className="mb-3">
         <Col md={3} className="text-right">
-          <FormLabel className="pt-2">
+          <FormLabel className="pt-2" for={this.props.id}>
             <strong>{this.props.label}</strong>
             <div className="required-label required">
               <div className="text-danger">Required</div>
