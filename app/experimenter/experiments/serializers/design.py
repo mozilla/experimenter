@@ -199,7 +199,6 @@ class ExperimentDesignBaseSerializer(
 
         return unique_names and non_empty
 
-    @transaction.atomic
     def update(self, instance, validated_data):
         try:
             with transaction.atomic():
@@ -228,8 +227,10 @@ class ExperimentDesignBaseSerializer(
             self.update_changelog(instance, validated_data)
 
             return instance
-        except IntegrityError as e:
-            error_string = "Experimenter Error Occured: {}".format(e)
+        except IntegrityError:
+            error_string = (
+                "Error: unable to save this change, please contact an experimenter admin"
+            )
             error = [{"name": error_string}] * len(variants_data)
 
             raise serializers.ValidationError({"variants": error})
