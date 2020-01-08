@@ -1,6 +1,7 @@
 
 
 from django.test import TestCase
+from rest_framework import serializers
 
 from experimenter.experiments.models import (
     Experiment,
@@ -596,6 +597,43 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
 
         variant = ExperimentVariant.objects.get(name="&re@t -br@nche$!")
         self.assertEqual(variant.slug, "ret-brnche")
+
+    def test_serializer_swapping_variant_name_throws_returns_errors(self):
+        experiment = ExperimentFactory.create()
+        variant1 = ExperimentVariantFactory.create(experiment=experiment)
+        variant2 = ExperimentVariantFactory.create(experiment=experiment)
+
+        v1_data = ExperimentVariantSerializer(variant1).data
+        v2_data = ExperimentVariantSerializer(variant2).data
+
+        # swap names
+        v1_data["name"], v2_data["name"] = v2_data["name"], v1_data["name"]
+        v1_data["ratio"] = 50
+        v2_data["ratio"] = 50
+
+        data = {"variants": [v1_data, v2_data]}
+
+        serializer = ExperimentDesignBaseSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+        self.assertTrue(serializer.is_valid())
+
+        self.assertEqual(experiment.changes.count(), 0)
+
+        with self.assertRaises(serializers.ValidationError):
+            serializer.save()
+
+            self.assertIn(
+                "Experimenter Error Occured: duplicate key value", serializer.errors
+            )
+
+            # no changes occured
+            self.assertEqual(experiment.changes.count(), 0)
+            variant1 = ExperimentVariant.get(id=variant1.id)
+            variant2 = ExperimentVariant.get(id=variant2.id)
+
+            self.assertEqual(variant1.name, v2_data["name"])
+            self.assertEqual(variant2.name, v1_data["name"])
 
 
 class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
