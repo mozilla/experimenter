@@ -26,57 +26,53 @@ from experimenter.experiments.serializers.recipe import (
     FilterObjectCountrySerializer,
     FilterObjectLocaleSerializer,
     FilterObjectVersionsSerializer,
-    VariantPrefValueField,
-    VariantPreferencePrefValueField,
+    PrefValueField,
 )
 
 from experimenter.experiments.serializers.entities import PrefTypeField
 
 
-class TestVariantPrefValueField(TestCase):
+class TestPrefValueField(TestCase):
 
-    def test_pref_value_returns_int_when_type_is_int(self):
+    def test_variant_pref_value_returns_int_when_type_is_int(self):
         experiment = ExperimentFactory.create(pref_type=Experiment.PREF_TYPE_INT)
         variant = ExperimentVariantFactory.create(experiment=experiment, value="8")
-        value = VariantPrefValueField().to_representation(variant)
+        value = PrefValueField().to_representation(variant)
         self.assertEqual(value, 8)
 
-    def test_pref_value_returns_bool_when_type_is_bool(self):
+    def test_variant_pref_value_returns_bool_when_type_is_bool(self):
         experiment = ExperimentFactory.create(pref_type=Experiment.PREF_TYPE_BOOL)
         variant = ExperimentVariantFactory.create(experiment=experiment, value="false")
-        value = VariantPrefValueField().to_representation(variant)
+        value = PrefValueField().to_representation(variant)
         self.assertEqual(value, False)
 
-    def test_pref_str_returns_bool_when_type_is_str(self):
+    def test_variant_pref_value_str_returns_bool_when_type_is_str(self):
         experiment = ExperimentFactory.create(pref_type=Experiment.PREF_TYPE_STR)
         variant = ExperimentVariantFactory.create(
             experiment=experiment, value="it's a string"
         )
-        value = VariantPrefValueField().to_representation(variant)
+        value = PrefValueField().to_representation(variant)
         self.assertEqual(value, "it's a string")
 
-
-class TestVariantPreferencePrefValueField(TestCase):
-
-    def test_pref_value_returns_bool_when_type_is_bool(self):
+    def test_variantpref_pref_value_returns_bool_when_type_is_bool(self):
         vp = VariantPreferencesFactory.create(
             pref_type=Experiment.PREF_TYPE_BOOL, pref_value="false"
         )
-        value = VariantPreferencePrefValueField().to_representation(vp)
+        value = PrefValueField().to_representation(vp)
         self.assertEqual(value, False)
 
-    def test_pref_value_returns_int_when_type_is_int(self):
+    def test_variantpref_pref_value_returns_int_when_type_is_int(self):
         vp = VariantPreferencesFactory.create(
             pref_type=Experiment.PREF_TYPE_INT, pref_value="22"
         )
-        value = VariantPreferencePrefValueField().to_representation(vp)
+        value = PrefValueField().to_representation(vp)
         self.assertEqual(value, 22)
 
-    def test_pref_value_returns_str_when_type_is_str(self):
+    def test_variantpref_pref_value_returns_str_when_type_is_str(self):
         vp = VariantPreferencesFactory.create(
             pref_type=Experiment.PREF_TYPE_STR, pref_value="it's another string"
         )
-        value = VariantPreferencePrefValueField().to_representation(vp)
+        value = PrefValueField().to_representation(vp)
         self.assertEqual(value, "it's another string")
 
 
