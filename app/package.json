@@ -16,7 +16,10 @@
     },
     "moduleNameMapper": {
       "^experimenter/(.*)$": "<rootDir>/experimenter/static/js/$1"
-    }
+    },
+    "testPathIgnorePatterns": [
+      "<rootDir>/experimenter/served/"
+    ]
   },
   "version": "1.0.0",
   "description": "a tool for managing experiments in Firefox",
