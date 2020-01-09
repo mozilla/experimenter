@@ -48,11 +48,8 @@ from experimenter.experiments.tests.factories import (
     ExperimentVariantFactory,
     VariantPreferencesFactory,
 )
-from experimenter.experiments.tests.mixins import (
-    MockBugzillaMixin,
-    MockTasksMixin,
-    MockRequestMixin,
-)
+from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
+from experimenter.experiments.tests.mixins import MockTasksMixin, MockRequestMixin
 
 from experimenter.notifications.models import Notification
 

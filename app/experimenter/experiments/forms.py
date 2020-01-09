@@ -14,10 +14,10 @@ from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
 from experimenter.base.models import Country, Locale
-from experimenter.experiments.constants import ExperimentConstants
+from experimenter.bugzilla import get_bugzilla_id
 from experimenter.experiments import tasks
-from experimenter.experiments.bugzilla import get_bugzilla_id
 from experimenter.experiments.changelog_utils import generate_change_log
+from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import (
     Experiment,
     ExperimentComment,
