@@ -62,6 +62,7 @@ export default class RolloutForm extends React.PureComponent {
 
           <DesignInput
             label="Pref Type"
+            dataTestId="prefType"
             name="pref_type"
             id="id_pref_type"
             onChange={value => {
@@ -81,6 +82,7 @@ export default class RolloutForm extends React.PureComponent {
 
           <DesignInput
             label="Pref Name"
+            dataTestId="prefName"
             name="pref_key"
             id="id_pref_key"
             onChange={value => {
@@ -93,6 +95,7 @@ export default class RolloutForm extends React.PureComponent {
 
           <DesignInput
             label="Pref Value"
+            dataTestId="prefValue"
             name="pref_value"
             id="id_pref_value"
             onChange={value => {
