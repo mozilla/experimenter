@@ -3,25 +3,25 @@ import requests
 from django.test import TestCase
 from django.conf import settings
 
-from experimenter.experiments.models import Experiment
-from experimenter.experiments.bugzilla import (
+from experimenter.bugzilla import (
+    add_experiment_comment,
     BugzillaError,
     create_experiment_bug,
     format_bug_body,
-    make_bugzilla_call,
-    update_experiment_bug,
+    format_summary,
     get_bugzilla_id,
+    make_bugzilla_call,
     set_bugzilla_id_value,
     update_bug_resolution,
-    add_experiment_comment,
-    format_summary,
+    update_experiment_bug,
 )
+from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
     CountryFactory,
+    ExperimentFactory,
     LocaleFactory,
 )
-from experimenter.experiments.tests.mixins import MockBugzillaMixin
+from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 
 
 class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
@@ -226,9 +226,7 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
         )
 
         update_experiment_bug(experiment)
-        summary = (
-            "[Experiment] Pref-Flip Experiment: " "An Experiment Fx 55.0 to 56.0 Beta"
-        )
+        summary = "[Experiment] Pref-Flip Experiment: An Experiment Fx 55.0 to 56.0 Beta"
 
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
