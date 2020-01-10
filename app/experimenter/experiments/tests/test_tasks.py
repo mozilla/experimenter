@@ -8,16 +8,14 @@ from requests.exceptions import RequestException
 import markus
 import mock
 
+from experimenter import bugzilla
 from experimenter import normandy
-from experimenter.experiments import bugzilla, tasks
-from experimenter.experiments.models import Experiment, ExperimentEmail
+from experimenter.experiments import tasks
 from experimenter.experiments.constants import ExperimentConstants
+from experimenter.experiments.models import Experiment, ExperimentEmail
 from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.experiments.tests.mixins import (
-    MockBugzillaMixin,
-    MockRequestMixin,
-    MockTasksMixin,
-)
+from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
+from experimenter.experiments.tests.mixins import MockRequestMixin, MockTasksMixin
 from experimenter.normandy.tests.mixins import MockNormandyMixin
 from experimenter.notifications.models import Notification
 
