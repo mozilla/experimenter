@@ -104,7 +104,7 @@ describe("The `DesignForm` component for Pref Rollouts", () => {
 
   it("Make Edits to Form and is saved ", async () => {
     const data = setup();
-    const { getByTestId, getByText, container } = await render(
+    const { getByLabelText, getByText, container } = await render(
       <DesignForm experimentType={"rollout"} />,
     );
 
@@ -116,10 +116,10 @@ describe("The `DesignForm` component for Pref Rollouts", () => {
     const prefName = "browser.enabled";
     const prefValue = "true";
 
-    const designInput = getByTestId("design");
-    const prefTypeInput = getByTestId("prefType");
-    const prefNameInput = getByTestId("prefName");
-    const prefValueInput = getByTestId("prefValue");
+    const designInput = getByLabelText(/Description/);
+    const prefTypeInput = getByLabelText(/Pref Type/);
+    const prefNameInput = getByLabelText(/Pref Name/);
+    const prefValueInput = getByLabelText(/Pref Value/);
 
     fireEvent.change(designInput, { target: { value: design } });
     fireEvent.change(prefTypeInput, { target: { value: prefType } });
@@ -148,15 +148,15 @@ describe("The `DesignForm` component for Pref Rollouts", () => {
     let scrollIntoViewMock = jest.fn();
     window.HTMLElement.prototype.scrollIntoView = scrollIntoViewMock;
 
-    const { getByTestId, getByText, container } = await render(
+    const { getByLabelText, getByText, container } = await render(
       <DesignForm experimentType={"rollout"} />,
     );
 
     await waitForFormToLoad(container);
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
 
-    const designInput = getByTestId("design");
-    const prefNameInput = getByTestId("prefName");
+    const designInput = getByLabelText(/Description/);
+    const prefNameInput = getByLabelText(/Pref Name/);
 
     const designValue = "it's my design description value";
 

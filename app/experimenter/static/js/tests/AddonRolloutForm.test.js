@@ -104,7 +104,7 @@ describe("The `DesignForm` component for Addon Rollouts", () => {
 
   it("Make Edits to Form and is saved ", async () => {
     const data = setup();
-    const { getByTestId, getByText, container } = await render(
+    const { getByLabelText, getByText, container } = await render(
       <DesignForm experimentType={"rollout"} />,
     );
 
@@ -113,8 +113,8 @@ describe("The `DesignForm` component for Addon Rollouts", () => {
 
     const designValue = " it's my design description value";
     const addonUrlValue = "https://example.com";
-    const designInput = getByTestId("design");
-    const addonUrlInput = getByTestId("addonUrl");
+    const designInput = getByLabelText(/Description/);
+    const addonUrlInput = getByLabelText(/Signed Add-On URL/);
     fireEvent.change(designInput, { target: { value: designValue } });
     fireEvent.change(addonUrlInput, { target: { value: addonUrlValue } });
 
@@ -136,15 +136,15 @@ describe("The `DesignForm` component for Addon Rollouts", () => {
     let scrollIntoViewMock = jest.fn();
     window.HTMLElement.prototype.scrollIntoView = scrollIntoViewMock;
 
-    const { getByTestId, getByText, container } = await render(
+    const { getByLabelText, getByText, container } = await render(
       <DesignForm experimentType={"rollout"} />,
     );
 
     await waitForFormToLoad(container);
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
 
-    const designInput = getByTestId("design");
-    const addonUrlInput = getByTestId("addonUrl");
+    const designInput = getByLabelText(/Description/);
+    const addonUrlInput = getByLabelText(/Signed Add-On URL/);
 
     const designValue = " it's my design description value";
 
