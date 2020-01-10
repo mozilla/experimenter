@@ -53,7 +53,12 @@ describe("The `DesignForm` component for Addon", () => {
 
   it("renders addon forms", async () => {
     const successResponse = setup();
-    const { getByDisplayValue, getAllByText, queryByTestId } = await render(
+    const {
+      getAllByDisplayValue,
+      getAllByText,
+      getByDisplayValue,
+      queryByTestId,
+    } = await render(
       <DesignForm experimentType={"addon"} isBranchedAddon={false} />,
     );
 
@@ -71,7 +76,9 @@ describe("The `DesignForm` component for Addon", () => {
     for (let variant of successResponse.variants) {
       expect(getByDisplayValue(variant.name)).toBeInTheDocument();
       expect(getByDisplayValue(variant.description)).toBeInTheDocument();
-      expect(getByDisplayValue(variant.ratio.toString())).toBeInTheDocument();
+      getAllByDisplayValue(variant.ratio).map(e =>
+        expect(e).toBeInTheDocument(),
+      );
     }
   });
 
