@@ -384,7 +384,6 @@ class TestExperimentRecipeSerializer(TestCase):
                 FilterObjectCountrySerializer(experiment).data,
             ],
         )
-
         expected_data = {
             "slug": "some-random-slug",
             "experimentDocumentUrl": experiment.experiment_url,
@@ -393,7 +392,7 @@ class TestExperimentRecipeSerializer(TestCase):
             "branches": [
                 {
                     "preferences": {
-                        "some-random-slug": {
+                        experiment.pref_key: {
                             "preferenceBranchType": "default",
                             "preferenceType": Experiment.PREF_TYPE_INT,
                             "preferenceValue": 5,
@@ -405,7 +404,7 @@ class TestExperimentRecipeSerializer(TestCase):
             ],
         }
 
-        self.assertCountEqual(serializer.data["arguments"], expected_data)
+        self.assertEqual(serializer.data["arguments"], expected_data)
 
     def test_serializer_outputs_expected_schema_for_multipref(self):
 
@@ -452,7 +451,7 @@ class TestExperimentRecipeSerializer(TestCase):
             "branches": [
                 {
                     "preferences": {
-                        "some-random-slug": {
+                        pref.pref_name: {
                             "preferenceBranchType": pref.pref_branch,
                             "preferenceType": pref.pref_type,
                             "preferenceValue": pref.pref_value,
@@ -464,7 +463,7 @@ class TestExperimentRecipeSerializer(TestCase):
             ],
         }
 
-        self.assertCountEqual(serializer.data["arguments"], expected_data)
+        self.assertEqual(serializer.data["arguments"], expected_data)
 
     def test_serializer_outputs_expected_schema_for_addon_rollout(self):
         experiment = ExperimentFactory.create(
