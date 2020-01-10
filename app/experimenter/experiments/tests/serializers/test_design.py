@@ -136,10 +136,10 @@ class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
 
         serializer = ExperimentDesignMultiPrefSerializer(experiment)
         serializer.data["variants"][0]["preferences"][0].pop("id")
-        self.assertCountEqual(
-            serializer.data["variants"][0],
+        self.assertEqual(
+            dict(serializer.data["variants"][0]),
             {
-                "id": vp.id,
+                "id": variant.id,
                 "description": variant.description,
                 "is_control": variant.is_control,
                 "name": variant.name,
@@ -662,20 +662,30 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         )
 
         serializer = ExperimentDesignPrefSerializer(experiment)
-
-        self.assertCountEqual(
-            serializer.data,
+        serializer_data = serializer.data
+        variant_data = serializer_data.pop("variants")
+        variant_data = [dict(variant) for variant in variant_data]
+        expected_variant_data = [
+            {
+                "id": variant.id,
+                "description": variant.description,
+                "is_control": variant.is_control,
+                "name": variant.name,
+                "value": variant.value,
+                "ratio": variant.ratio,
+            }
+            for variant in experiment.variants.all()
+        ]
+        self.assertEqual(
+            serializer_data,
             {
                 "is_multi_pref": False,
                 "pref_key": experiment.pref_key,
                 "pref_type": experiment.pref_type,
                 "pref_branch": experiment.pref_branch,
-                "variants": [
-                    ExperimentVariantSerializer(variant).data
-                    for variant in experiment.variants.all()
-                ],
             },
         )
+        self.assertCountEqual(expected_variant_data, variant_data)
 
     def test_serializer_saves_pref_experiment_design(self):
         experiment = ExperimentFactory.create(
@@ -928,17 +938,27 @@ class TestExperimentDesignAddonSerializer(MockRequestMixin, TestCase):
         )
 
         serializer = ExperimentDesignAddonSerializer(experiment)
-        self.assertCountEqual(
-            serializer.data,
+        serializer_data = serializer.data
+        variant_data = serializer_data.pop("variants")
+        variant_data = [dict(variant) for variant in variant_data]
+        expected_variant_data = [
+            {
+                "id": variant.id,
+                "description": variant.description,
+                "is_control": variant.is_control,
+                "name": variant.name,
+                "ratio": variant.ratio,
+            }
+            for variant in experiment.variants.all()
+        ]
+        self.assertEqual(
+            serializer_data,
             {
                 "addon_release_url": experiment.addon_release_url,
                 "is_branched_addon": False,
-                "variants": [
-                    ExperimentVariantSerializer(variant).data
-                    for variant in experiment.variants.all()
-                ],
             },
         )
+        self.assertCountEqual(variant_data, expected_variant_data)
 
     def test_serializer_saves_design_addon_experiment(self):
         experiment = ExperimentFactory.create(
@@ -998,17 +1018,22 @@ class TestExperimentDesignGenericSerializer(MockRequestMixin, TestCase):
         )
 
         serializer = ExperimentDesignGenericSerializer(experiment)
-
-        self.assertCountEqual(
-            serializer.data,
+        serializer_data = serializer.data
+        variant_data = serializer_data.pop("variants")
+        variant_data = [dict(variant) for variant in variant_data]
+        expected_variant_data = [
             {
-                "design": experiment.design,
-                "variants": [
-                    ExperimentVariantSerializer(variant).data
-                    for variant in experiment.variants.all()
-                ],
-            },
-        )
+                "id": variant.id,
+                "description": variant.description,
+                "is_control": variant.is_control,
+                "name": variant.name,
+                "ratio": variant.ratio,
+            }
+            for variant in experiment.variants.all()
+        ]
+
+        self.assertEqual(serializer_data, {"design": experiment.design})
+        self.assertCountEqual(variant_data, expected_variant_data)
 
     def test_serializer_saves_design_generic_experiment(self):
         experiment = ExperimentFactory.create(
@@ -1067,17 +1092,25 @@ class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
         experiment.save()
 
         serializer = ExperimentDesignBranchedAddonSerializer(experiment)
-
-        self.assertCountEqual(
-            serializer.data,
+        serializer_data = serializer.data
+        variant_data = serializer_data.pop("variants")
+        variant_data = [dict(variant) for variant in variant_data]
+        expected_variant_data = [
             {
-                "is_branched_addon": True,
-                "variants": [
-                    ExperimentVariantSerializer(variant).data
-                    for variant in experiment.variants.all()
-                ],
-            },
-        )
+                "id": variant.id,
+                "description": variant.description,
+                "is_control": variant.is_control,
+                "name": variant.name,
+                "ratio": variant.ratio,
+                "addon_release_url": variant.addon_release_url,
+            }
+            for variant in experiment.variants.all()
+        ]
+
+        self.maxDiff = None
+
+        self.assertEqual(serializer_data, {"is_branched_addon": True})
+        self.assertCountEqual(variant_data, expected_variant_data)
 
     def test_serializer_saves_branched_addon_experiment(self):
         experiment = ExperimentFactory.create_with_variants(
