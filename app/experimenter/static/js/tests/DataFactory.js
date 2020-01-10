@@ -7,7 +7,9 @@ export class VariantsFactory extends Factory {
       id: new AutoIncrementField(),
       description: new Field(faker.lorem.sentence),
       name: new Field(faker.lorem.word),
-      ratio: new Field(faker.random.number, { min: 1, max: 100 }),
+      ratio: new Field(() =>
+        faker.random.number({ min: 1, max: 100 }).toString(),
+      ),
       is_control: false,
     };
   }
