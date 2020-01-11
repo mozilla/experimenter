@@ -66,262 +66,260 @@
 {% endblock %}
 
 {% block main_content %}
+
+  {% include "experiments/section_overview.html" with section_name=experiment.SECTION_OVERVIEW section_complete=True experiment=experiment edit_url_name="experiments-overview-update" comments=experiment.comments.sections.overview %}
+
+  {% if experiment.is_begun %}
+    {% include "experiments/section_results.html" with section_name=experiment.SECTION_RESULTS section_title="Results" section_complete=experiment.completed_results experiment=experiment edit_url_name="experiments-results-update" comments=experiment.comments.sections.results %}
+  {% endif %}
+
+  {% include "experiments/section_timeline.html" with section_name=experiment.SECTION_TIMELINE section_complete=experiment.completed_timeline experiment=experiment edit_url_name="experiments-timeline-pop-update" comments=experiment.comments.sections.timeline %}
+
+  {% if experiment.has_normandy_info %}
+    {% include "experiments/section_normandy.html" with section_name=experiment.SECTION_NORMANDY section_complete=True experiment=experiment comments=experiment.comments.sections.normandy %}
+  {% endif %}
+
+  {% include "experiments/section_population.html" with section_name=experiment.SECTION_POPULATION section_complete=experiment.completed_population experiment=experiment edit_url_name="experiments-timeline-pop-update" comments=experiment.comments.sections.population %}
+
+  {% if experiment.is_addon_experiment and not experiment.is_branched_addon %}
+    {% include "experiments/section_addon.html" with section_name=experiment.SECTION_ADDON section_complete=experiment.completed_addon experiment=experiment edit_url_name="experiments-design-update" comments=experiment.comments.sections.addon %}
+  {% endif %}
+
+  {% if experiment.is_generic_experiment %}
+    {% include "experiments/section_design.html" with section_name=experiment.SECTION_DESIGN section_complete=experiment.completed_design experiment=experiment edit_url_name="experiments-design-update" comments=experiment.comments.sections.design %}
+  {% endif %}
+
+  {% if experiment.should_have_variants %}
+    {% include "experiments/section_branches.html" with section_name=experiment.SECTION_BRANCHES section_complete=experiment.completed_variants experiment=experiment edit_url_name="experiments-design-update" comments=experiment.comments.sections.branches %}
+  {% endif %}
+
+  {% if experiment.is_rollout %}
+    {% include "experiments/section_rollout.html" with section_name=experiment.SECTION_ROLLOUT section_complete=experiment.completed_rollout experiment=experiment edit_url_name="experiments-design-update" comments=experiment.comments.sections.rollout %}
+  {% endif %}
+
+  {% include "experiments/section_base.html" with section_name=experiment.SECTION_OBJECTIVES section_title="Objectives" section_complete=experiment.completed_objectives section_content=experiment.objectives experiment=experiment edit_url_name="experiments-objectives-update" comments=experiment.comments.sections.objectives %}
+
+  {% include "experiments/section_analysis.html" with section_name=experiment.SECTION_ANALYSIS section_title="Analysis" section_complete=experiment.completed_objectives section_content=experiment.analysis experiment=experiment edit_url_name="experiments-objectives-update" comments=experiment.comments.sections.analysis %}
+
+  {% include "experiments/section_risks.html" with section_name=experiment.SECTION_RISKS section_complete=experiment.should_show_risks experiment=experiment edit_url_name="experiments-risks-update" comments=experiment.comments.sections.risks %}
+
+  {% include "experiments/section_testing.html" with section_name=experiment.SECTION_TESTING section_title="Test Plan" section_complete=experiment.completed_testing experiment=experiment edit_url_name="experiments-risks-update" comments=experiment.comments.sections.testing %}
+
+{% endblock %}
+
+{% block main_sidebar %}
+  <h4>&nbsp;</h4>
+
+  {% block main_sidebar_buttons %}
+  {% endblock %}
+
   <div class="row">
-    <div class="col-9">
-      {% include "experiments/section_overview.html" with section_name=experiment.SECTION_OVERVIEW section_complete=True experiment=experiment edit_url_name="experiments-overview-update" comments=experiment.comments.sections.overview %}
+    <h5 class="col">Actions</h5>
+  </div>
 
-      {% if experiment.is_begun %}
-        {% include "experiments/section_results.html" with section_name=experiment.SECTION_RESULTS section_title="Results" section_complete=experiment.completed_results experiment=experiment edit_url_name="experiments-results-update" comments=experiment.comments.sections.results %}
+  <form
+    action="{% url "experiments-subscribed-update" slug=experiment.slug %}"
+    method="POST"
+  >
+    {% csrf_token %}
+    <button
+      type="submit"
+      class="btn btn-link p-0 mb-2"
+    >
+      <strong>
+        {% if request.user in experiment.subscribers.all %}
+          <span class="fas fa-bell-slash"></span>
+          Unsubscribe from this delivery
+        {% else %}
+          <span class="fas fa-bell"></span>
+          Subscribe to this delivery
+        {% endif %}
+      </strong>
+    </button>
+  </form>
+
+  <form
+    action="{% url "experiments-archive-update" slug=experiment.slug %}"
+    method="POST"
+  >
+    {% csrf_token %}
+    <button
+      type="submit"
+      class="btn btn-link p-0"
+      {% if not experiment.is_archivable %}
+      disabled
       {% endif %}
+    >
+      <strong>
+        <span class="fas fa-archive"></span>
+        {% if experiment.archived %}
+          Unarchive this delivery
+        {% else %}
+          Archive this delivery
+        {% endif %}
+      </strong>
+    </button>
+  </form>
 
-      {% include "experiments/section_timeline.html" with section_name=experiment.SECTION_TIMELINE section_complete=experiment.completed_timeline experiment=experiment edit_url_name="experiments-timeline-pop-update" comments=experiment.comments.sections.timeline %}
+  <button
+    type="button"
+    data-toggle="modal" data-target="#clone-experiment-modal"
+    class="btn btn-link clone-experiment p-0 mt-2"
+    data-url="{% url 'experiments-api-clone' experiment.slug %}"
+  >
+    <strong>
+      <span class="fas fa-clone"></span>
+      Clone this Delivery
+    </strong>
+  </button>
 
-      {% if experiment.has_normandy_info %}
-        {% include "experiments/section_normandy.html" with section_name=experiment.SECTION_NORMANDY section_complete=True experiment=experiment comments=experiment.comments.sections.normandy %}
-      {% endif %}
+  {% block main_sidebar_extra %}
+  {% endblock %}
 
-      {% include "experiments/section_population.html" with section_name=experiment.SECTION_POPULATION section_complete=experiment.completed_population experiment=experiment edit_url_name="experiments-timeline-pop-update" comments=experiment.comments.sections.population %}
-
-      {% if experiment.is_addon_experiment and not experiment.is_branched_addon %}
-        {% include "experiments/section_addon.html" with section_name=experiment.SECTION_ADDON section_complete=experiment.completed_addon experiment=experiment edit_url_name="experiments-design-update" comments=experiment.comments.sections.addon %}
-      {% endif %}
-
-      {% if experiment.is_generic_experiment %}
-        {% include "experiments/section_design.html" with section_name=experiment.SECTION_DESIGN section_complete=experiment.completed_design experiment=experiment edit_url_name="experiments-design-update" comments=experiment.comments.sections.design %}
-      {% endif %}
-
-      {% if experiment.should_have_variants %}
-        {% include "experiments/section_branches.html" with section_name=experiment.SECTION_BRANCHES section_complete=experiment.completed_variants experiment=experiment edit_url_name="experiments-design-update" comments=experiment.comments.sections.branches %}
-      {% endif %}
-
-      {% if experiment.is_rollout %}
-        {% include "experiments/section_rollout.html" with section_name=experiment.SECTION_ROLLOUT section_complete=experiment.completed_rollout experiment=experiment edit_url_name="experiments-design-update" comments=experiment.comments.sections.rollout %}
-      {% endif %}
-
-      {% include "experiments/section_base.html" with section_name=experiment.SECTION_OBJECTIVES section_title="Objectives" section_complete=experiment.completed_objectives section_content=experiment.objectives experiment=experiment edit_url_name="experiments-objectives-update" comments=experiment.comments.sections.objectives %}
-
-      {% include "experiments/section_analysis.html" with section_name=experiment.SECTION_ANALYSIS section_title="Analysis" section_complete=experiment.completed_objectives section_content=experiment.analysis experiment=experiment edit_url_name="experiments-objectives-update" comments=experiment.comments.sections.analysis %}
-
-      {% include "experiments/section_risks.html" with section_name=experiment.SECTION_RISKS section_complete=experiment.should_show_risks experiment=experiment edit_url_name="experiments-risks-update" comments=experiment.comments.sections.risks %}
-
-      {% include "experiments/section_testing.html" with section_name=experiment.SECTION_TESTING section_title="Test Plan" section_complete=experiment.completed_testing experiment=experiment edit_url_name="experiments-risks-update" comments=experiment.comments.sections.testing %}
+  {% if not experiment.is_editable %}
+    <div class="row">
+      <h5 class="col mt-3">Sign-Offs</h5>
     </div>
-    <div class="col-3">
-      <h4>&nbsp;</h4>
 
-      {% block main_sidebar_buttons %}
-      {% endblock %}
-
-      <div class="row">
-        <h5 class="col">Actions</h5>
-      </div>
-
-      <form
-        action="{% url "experiments-subscribed-update" slug=experiment.slug %}"
-        method="POST"
-      >
-        {% csrf_token %}
-        <button
-          type="submit"
-          class="btn btn-link p-0 mb-2"
-        >
-          <strong>
-            {% if request.user in experiment.subscribers.all %}
-              <span class="fas fa-bell-slash"></span>
-              Unsubscribe from this delivery
-            {% else %}
-              <span class="fas fa-bell"></span>
-              Subscribe to this delivery
-            {% endif %}
-          </strong>
-        </button>
-      </form>
-
-      <form
-        action="{% url "experiments-archive-update" slug=experiment.slug %}"
-        method="POST"
-      >
-        {% csrf_token %}
-        <button
-          type="submit"
-          class="btn btn-link p-0"
-          {% if not experiment.is_archivable %}
-          disabled
-          {% endif %}
-        >
-          <strong>
-            <span class="fas fa-archive"></span>
-            {% if experiment.archived %}
-              Unarchive this delivery
-            {% else %}
-              Archive this delivery
-            {% endif %}
-          </strong>
-        </button>
-      </form>
-
-      <button
-        type="button"
-        data-toggle="modal" data-target="#clone-experiment-modal"
-        class="btn btn-link clone-experiment p-0 mt-2"
-        data-url="{% url 'experiments-api-clone' experiment.slug %}"
-      >
-        <strong>
-          <span class="fas fa-clone"></span>
-          Clone this Delivery
-        </strong>
-      </button>
-
-      {% block main_sidebar_extra %}
-      {% endblock %}
-
-      {% if not experiment.is_editable %}
+    <div class="text-muted">
+      {% for field in form %}
         <div class="row">
-          <h5 class="col mt-3">Sign-Offs</h5>
+          <div class="col mb-1">
+            {% if field.value %}
+              <span class="fas fa-check"></span>
+            {% else %}
+              <span class="fas fa-times"></span>
+            {% endif %}
+
+            {{ field.label }}
+          </div>
         </div>
+      {% endfor %}
+    </div>
+  {% endif %}
 
-        <div class="text-muted">
-          {% for field in form %}
-            <div class="row">
-              <div class="col mb-1">
-                {% if field.value %}
-                  <span class="fas fa-check"></span>
-                {% else %}
-                  <span class="fas fa-times"></span>
-                {% endif %}
+  <div class="row">
+    <h5 class="col mt-3">History</h5>
+  </div>
 
-                {{ field.label }}
+  {% for date, users_changes in experiment.ordered_changes %}
+    <div class="row">
+      <div class="col">
+        <strong>{{ date }}</strong>
+      </div>
+    </div>
+
+    {% for user, user_changes in users_changes %}
+      <div class="row">
+        <div class="col">
+          {{ user }}
+          {% for user_change in user_changes %}
+            {% if user_change.changed_values %}
+            <p class="ml-4">
+              <a href="" id="editExperiment{{user_change.id}}" data-toggle="modal" data-target="#changelog-modal{{user_change.id}}">
+                <span class="fas fa-info-circle"></span>
+                {{user_change}}
+              </a>
+            </p>
+
+            <div id="changelog-modal{{user_change.id}}" class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header d-block">
+                      <div class="d-flex">
+                        <h5 class="modal-title">Edited by {{user}} </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                      </div>
+                      <p class="text-muted">{{user_change.changed_on}}</p>
+                    </div>
+
+                    <div class="modal-body">
+                        <table class="table">
+                            <thead class="thead-light">
+                              <tr>
+                                <th scope="col"></th>
+                                <th scope="col">Previous</th>
+                                <th scope="col">Changed</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in user_change.changed_values.items %}
+                              <tr>
+                                {% if key == "variants" %}
+                                <th scope="row">Branches</th>
+                                <td>
+                                  {% for variant in value.old_value %}
+                                    <strong>Branch: </strong>
+                                    <br/>
+                                      {% for var_key, var_value in variant.items %}
+                                        <p class="ml-3"><strong>{{var_key}}: </strong>{{var_value}}</p>
+                                      {% endfor %}
+                                  {% endfor %}
+                                </td>
+                                <td>
+                                    {% for variant in value.new_value %}
+                                      <strong>Branch: </strong>
+                                      <br/>
+                                        {% for var_key, var_value in variant.items %}
+                                        <p class="ml-3"><strong>{{var_key}}: </strong>{{var_value}}</p>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </td>
+                                {% else %}
+                                  <th scope="row">{{value.display_name|safe}}</th>
+                                  <td>{{value.old_value|linebreaks}}</td>
+                                  <td>{{value.new_value|linebreaks}}</td>
+                                {% endif %}
+                              </tr>
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                    </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                      </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            {% else %}
+            <p class="ml-4 text-muted">{{ user_change }}</p>
+            {% endif %}
           {% endfor %}
         </div>
-      {% endif %}
-
-      <div class="row">
-        <h5 class="col mt-3">History</h5>
       </div>
+    {% endfor %}
+  {% endfor %}
 
-      {% for date, users_changes in experiment.ordered_changes %}
-        <div class="row">
-          <div class="col">
-            <strong>{{ date }}</strong>
-          </div>
+  <div id="clone-experiment-modal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Clone Delivery</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
 
-        {% for user, user_changes in users_changes %}
-          <div class="row">
-            <div class="col">
-              {{ user }}
-              {% for user_change in user_changes %}
-                {% if user_change.changed_values %}
-                <p class="ml-4">
-                  <a href="" id="editExperiment{{user_change.id}}" data-toggle="modal" data-target="#changelog-modal{{user_change.id}}">
-                    <span class="fas fa-info-circle"></span>
-                    {{user_change}}
-                  </a>
-                </p>
+        <div class="modal-body">
 
-                <div id="changelog-modal{{user_change.id}}" class="modal" tabindex="-1" role="dialog">
-                    <div class="modal-dialog modal-lg" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header d-block">
-                          <div class="d-flex">
-                            <h5 class="modal-title">Edited by {{user}} </h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                              </button>
-                          </div>
-                          <p class="text-muted">{{user_change.changed_on}}</p>
-                        </div>
-
-                        <div class="modal-body">
-                            <table class="table">
-                                <thead class="thead-light">
-                                  <tr>
-                                    <th scope="col"></th>
-                                    <th scope="col">Previous</th>
-                                    <th scope="col">Changed</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                    {% for key, value in user_change.changed_values.items %}
-                                  <tr>
-                                    {% if key == "variants" %}
-                                    <th scope="row">Branches</th>
-                                    <td>
-                                      {% for variant in value.old_value %}
-                                        <strong>Branch: </strong>
-                                        <br/>
-                                          {% for var_key, var_value in variant.items %}
-                                            <p class="ml-3"><strong>{{var_key}}: </strong>{{var_value}}</p>
-                                          {% endfor %}
-                                      {% endfor %}
-                                    </td>
-                                    <td>
-                                        {% for variant in value.new_value %}
-                                          <strong>Branch: </strong>
-                                          <br/>
-                                            {% for var_key, var_value in variant.items %}
-                                            <p class="ml-3"><strong>{{var_key}}: </strong>{{var_value}}</p>
-                                            {% endfor %}
-                                        {% endfor %}
-                                    </td>
-                                    {% else %}
-                                      <th scope="row">{{value.display_name|safe}}</th>
-                                      <td>{{value.old_value|linebreaks}}</td>
-                                      <td>{{value.new_value|linebreaks}}</td>
-                                    {% endif %}
-                                  </tr>
-                                  {% endfor %}
-                                </tbody>
-                              </table>
-                        </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                          </div>
-                      </div>
-                    </div>
-                  </div>
-                {% else %}
-                <p class="ml-4 text-muted">{{ user_change }}</p>
-                {% endif %}
-              {% endfor %}
-            </div>
+          <div class="form-group">
+            <label for="experiment-name">Name of New Delivery:</label>
+            <input id="experiment-name-input" type="text" class="form-control" name="name" aria-describedby="experimentName" value="{{experiment.name}} V2">
           </div>
-        {% endfor %}
-      {% endfor %}
 
-      <div id="clone-experiment-modal" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Clone Delivery</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
+          <p class="error-field d-none text-danger">
+          </p>
 
-            <div class="modal-body">
-
-              <div class="form-group">
-                <label for="experiment-name">Name of New Delivery:</label>
-                <input id="experiment-name-input" type="text" class="form-control" name="name" aria-describedby="experimentName" value="{{experiment.name}} V2">
-              </div>
-
-              <p class="error-field d-none text-danger">
-              </p>
-
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary send">Clone</button>
-              </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary send">Clone</button>
           </div>
-        </div>
       </div>
     </div>
   </div>
 {% endblock %}
-
 
 {% block extrascripts %}
   <script src="{% static "js/scripts/detail-base.js" %}"></script>
