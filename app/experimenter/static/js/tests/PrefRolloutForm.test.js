@@ -9,16 +9,16 @@ import "@testing-library/jest-dom/extend-expect";
 import DesignForm from "experimenter/components/DesignForm";
 import * as Api from "experimenter/utils/api";
 import { waitForFormToLoad } from "experimenter/tests/helpers.js";
-import { AddonRolloutFactory } from "./DataFactory";
+import { PrefRolloutFactory } from "./DataFactory";
 
-describe("The `DesignForm` component for Addon Rollouts", () => {
+describe("The `DesignForm` component for Pref Rollouts", () => {
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();
   });
 
   const setup = () => {
-    const mockSuccessResponse = AddonRolloutFactory.build();
+    const mockSuccessResponse = PrefRolloutFactory.build();
     jest
       .spyOn(Api, "makeApiRequest")
       .mockImplementation(() => Promise.resolve(mockSuccessResponse));
@@ -27,9 +27,9 @@ describe("The `DesignForm` component for Addon Rollouts", () => {
   };
 
   const rejectedSetUp = () => {
-    const mockSuccessResponse = AddonRolloutFactory.build();
+    const mockSuccessResponse = PrefRolloutFactory.build();
     const rejectResponse = {
-      data: { addon_release_url: ["This field is required."] },
+      data: { pref_key: ["This field is required."] },
     };
     jest
       .spyOn(Api, "makeApiRequest")
@@ -37,7 +37,7 @@ describe("The `DesignForm` component for Addon Rollouts", () => {
       .mockRejectedValueOnce(rejectResponse);
   };
 
-  it("renders addonRollout forms", async () => {
+  it("renders pref rollout forms", async () => {
     setup();
     const { getAllByText, container } = await render(
       <DesignForm experimentType={"rollout"} />,
@@ -47,12 +47,12 @@ describe("The `DesignForm` component for Addon Rollouts", () => {
     expect(Api.makeApiRequest).toHaveBeenCalled();
 
     expect(getAllByText("Description")).toHaveLength(1);
-    expect(getAllByText("Signed Add-On URL")).toHaveLength(1);
+    expect(getAllByText("Pref Branch")).toHaveLength(1);
   });
 
-  it("click on addon radio button switches to addon forms", async () => {
-    const mockSuccessResponse = AddonRolloutFactory.build();
-    mockSuccessResponse.rollout_type = "pref";
+  it("click on pref radio button switches to pref forms", async () => {
+    const mockSuccessResponse = PrefRolloutFactory.build();
+    mockSuccessResponse.rollout_type = "addon";
     jest
       .spyOn(Api, "makeApiRequest")
       .mockImplementation(() => Promise.resolve(mockSuccessResponse));
@@ -62,13 +62,13 @@ describe("The `DesignForm` component for Addon Rollouts", () => {
     await waitForFormToLoad(container);
 
     expect(Api.makeApiRequest).toHaveBeenCalled();
+    expect(getByText("Signed Add-On URL")).toBeInTheDocument();
+
+    fireEvent.click(getByLabelText("Pref Rollout"));
+
     expect(getByText("Pref Value")).toBeInTheDocument();
     expect(getByText("Pref Name")).toBeInTheDocument();
     expect(getByText("Pref Type")).toBeInTheDocument();
-
-    fireEvent.click(getByLabelText("Add-On Rollout"));
-
-    expect(getByText("Signed Add-On URL")).toBeInTheDocument();
   });
 
   it("Saves and Redirects", async () => {
@@ -111,27 +111,39 @@ describe("The `DesignForm` component for Addon Rollouts", () => {
     await waitForFormToLoad(container);
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
 
-    const designValue = " it's my design description value";
-    const addonUrlValue = "https://example.com";
-    const designInput = getByLabelText(/Description/);
-    const addonUrlInput = getByLabelText(/Signed Add-On URL/);
-    fireEvent.change(designInput, { target: { value: designValue } });
-    fireEvent.change(addonUrlInput, { target: { value: addonUrlValue } });
+    const design = "it's my design description value";
+    const prefType = "boolean";
+    const prefName = "browser.enabled";
+    const prefValue = "true";
 
-    expect(designInput.value).toBe(designValue);
-    expect(addonUrlInput.value).toBe(addonUrlValue);
+    const designInput = getByLabelText(/Description/);
+    const prefTypeInput = getByLabelText(/Pref Type/);
+    const prefNameInput = getByLabelText(/Pref Name/);
+    const prefValueInput = getByLabelText(/Pref Value/);
+
+    fireEvent.change(designInput, { target: { value: design } });
+    fireEvent.change(prefTypeInput, { target: { value: prefType } });
+    fireEvent.change(prefNameInput, { target: { value: prefName } });
+    fireEvent.change(prefValueInput, { target: { value: prefValue } });
+
+    expect(designInput.value).toBe(design);
+    expect(prefTypeInput.value).toBe(prefType);
+    expect(prefNameInput.value).toBe(prefName);
+    expect(prefValueInput.value).toBe(prefValue);
 
     fireEvent.submit(getByText("Save Draft and Continue"));
 
-    data.design = designValue;
-    data.addon_release_url = addonUrlValue;
+    data.design = design;
+    data.pref_type = prefType;
+    data.pref_key = prefName;
+    data.pref_value = prefValue;
     expect(Api.makeApiRequest).toBeCalledWith(expect.anything(), {
       data: data,
       method: "PUT",
     });
   });
 
-  it("Make addon url blank, returns a required field error", async () => {
+  it("Make pref name blank, returns a required field error", async () => {
     rejectedSetUp();
     let scrollIntoViewMock = jest.fn();
     window.HTMLElement.prototype.scrollIntoView = scrollIntoViewMock;
@@ -144,18 +156,18 @@ describe("The `DesignForm` component for Addon Rollouts", () => {
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
 
     const designInput = getByLabelText(/Description/);
-    const addonUrlInput = getByLabelText(/Signed Add-On URL/);
+    const prefNameInput = getByLabelText(/Pref Name/);
 
-    const designValue = " it's my design description value";
+    const designValue = "it's my design description value";
 
     fireEvent.change(designInput, { target: { value: designValue } });
-    fireEvent.change(addonUrlInput, { target: { value: "" } });
+    fireEvent.change(prefNameInput, { target: { value: "" } });
 
     fireEvent.submit(getByText("Save Draft and Continue"));
 
     expect(Api.makeApiRequest).toHaveBeenCalled();
 
-    await waitForDomChange(addonUrlInput);
+    await waitForDomChange(prefNameInput);
 
     expect(getByText("This field is required.")).toBeInTheDocument();
   });
