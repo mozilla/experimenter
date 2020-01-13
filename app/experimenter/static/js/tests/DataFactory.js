@@ -7,7 +7,9 @@ export class VariantsFactory extends Factory {
       id: new AutoIncrementField(),
       description: new Field(faker.lorem.sentence),
       name: new Field(faker.lorem.word),
-      ratio: new Field(faker.random.number, { min: 1, max: 100 }),
+      ratio: new Field(() =>
+        faker.random.number({ min: 1, max: 100 }).toString(),
+      ),
       is_control: false,
     };
   }
@@ -45,6 +47,19 @@ export class AddonRolloutFactory extends Factory {
       pref_key: null,
       pref_type: null,
       pref_value: null,
+    };
+  }
+}
+
+export class PrefRolloutFactory extends Factory {
+  getFields() {
+    return {
+      rollout_type: "pref",
+      design: new Field(faker.lorem.paragraph),
+      addon_release_url: null,
+      pref_key: "browser.enabled",
+      pref_type: "bool",
+      pref_value: "true",
     };
   }
 }

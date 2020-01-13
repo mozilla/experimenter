@@ -32,8 +32,8 @@ export default class RolloutForm extends React.PureComponent {
     if (this.props.data.get("rollout_type") === TYPE_ADDON) {
       return (
         <DesignInput
+          id="id_addon_release_url"
           label="Signed Add-On URL"
-          dataTestId="addonUrl"
           name="addon_release_url"
           onChange={value => {
             this.props.handleDataChange("addon_release_url", value);
@@ -63,9 +63,9 @@ export default class RolloutForm extends React.PureComponent {
           </DesignInput>
 
           <DesignInput
+            id="id_pref_type"
             label="Pref Type"
             name="pref_type"
-            id="id_pref_type"
             onChange={value => {
               this.props.handleDataChange("pref_type", value);
             }}
@@ -83,9 +83,9 @@ export default class RolloutForm extends React.PureComponent {
           </DesignInput>
 
           <DesignInput
+            id="id_pref_key"
             label="Pref Name"
             name="pref_key"
-            id="id_pref_key"
             onChange={value => {
               this.props.handleDataChange("pref_key", value);
             }}
@@ -96,9 +96,9 @@ export default class RolloutForm extends React.PureComponent {
           />
 
           <DesignInput
+            id="id_pref_value"
             label="Pref Value"
             name="pref_value"
-            id="id_pref_value"
             onChange={value => {
               this.props.handleDataChange("pref_value", value);
             }}
@@ -133,8 +133,8 @@ export default class RolloutForm extends React.PureComponent {
         </Row>
 
         <DesignInput
+          id="id_design"
           label="Description"
-          dataTestId="design"
           name="design"
           onChange={value => {
             this.props.handleDataChange("design", value);

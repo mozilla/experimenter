@@ -26,9 +26,54 @@ from experimenter.experiments.serializers.recipe import (
     FilterObjectCountrySerializer,
     FilterObjectLocaleSerializer,
     FilterObjectVersionsSerializer,
+    PrefValueField,
 )
 
 from experimenter.experiments.serializers.entities import PrefTypeField
+
+
+class TestPrefValueField(TestCase):
+
+    def test_variant_pref_value_returns_int_when_type_is_int(self):
+        experiment = ExperimentFactory.create(pref_type=Experiment.PREF_TYPE_INT)
+        variant = ExperimentVariantFactory.create(experiment=experiment, value="8")
+        value = PrefValueField().to_representation(variant)
+        self.assertEqual(value, 8)
+
+    def test_variant_pref_value_returns_bool_when_type_is_bool(self):
+        experiment = ExperimentFactory.create(pref_type=Experiment.PREF_TYPE_BOOL)
+        variant = ExperimentVariantFactory.create(experiment=experiment, value="false")
+        value = PrefValueField().to_representation(variant)
+        self.assertEqual(value, False)
+
+    def test_variant_pref_value_str_returns_bool_when_type_is_str(self):
+        experiment = ExperimentFactory.create(pref_type=Experiment.PREF_TYPE_STR)
+        variant = ExperimentVariantFactory.create(
+            experiment=experiment, value="it's a string"
+        )
+        value = PrefValueField().to_representation(variant)
+        self.assertEqual(value, "it's a string")
+
+    def test_variantpref_pref_value_returns_bool_when_type_is_bool(self):
+        vp = VariantPreferencesFactory.create(
+            pref_type=Experiment.PREF_TYPE_BOOL, pref_value="false"
+        )
+        value = PrefValueField().to_representation(vp)
+        self.assertEqual(value, False)
+
+    def test_variantpref_pref_value_returns_int_when_type_is_int(self):
+        vp = VariantPreferencesFactory.create(
+            pref_type=Experiment.PREF_TYPE_INT, pref_value="22"
+        )
+        value = PrefValueField().to_representation(vp)
+        self.assertEqual(value, 22)
+
+    def test_variantpref_pref_value_returns_str_when_type_is_str(self):
+        vp = VariantPreferencesFactory.create(
+            pref_type=Experiment.PREF_TYPE_STR, pref_value="it's another string"
+        )
+        value = PrefValueField().to_representation(vp)
+        self.assertEqual(value, "it's another string")
 
 
 class TestFilterObjectBucketSampleSerializer(TestCase):
@@ -339,7 +384,6 @@ class TestExperimentRecipeSerializer(TestCase):
                 FilterObjectCountrySerializer(experiment).data,
             ],
         )
-
         expected_data = {
             "slug": "some-random-slug",
             "experimentDocumentUrl": experiment.experiment_url,
@@ -348,7 +392,7 @@ class TestExperimentRecipeSerializer(TestCase):
             "branches": [
                 {
                     "preferences": {
-                        "some-random-slug": {
+                        experiment.pref_key: {
                             "preferenceBranchType": "default",
                             "preferenceType": Experiment.PREF_TYPE_INT,
                             "preferenceValue": 5,
@@ -360,7 +404,7 @@ class TestExperimentRecipeSerializer(TestCase):
             ],
         }
 
-        self.assertCountEqual(serializer.data["arguments"], expected_data)
+        self.assertEqual(serializer.data["arguments"], expected_data)
 
     def test_serializer_outputs_expected_schema_for_multipref(self):
 
@@ -407,7 +451,7 @@ class TestExperimentRecipeSerializer(TestCase):
             "branches": [
                 {
                     "preferences": {
-                        "some-random-slug": {
+                        pref.pref_name: {
                             "preferenceBranchType": pref.pref_branch,
                             "preferenceType": pref.pref_type,
                             "preferenceValue": pref.pref_value,
@@ -419,7 +463,7 @@ class TestExperimentRecipeSerializer(TestCase):
             ],
         }
 
-        self.assertCountEqual(serializer.data["arguments"], expected_data)
+        self.assertEqual(serializer.data["arguments"], expected_data)
 
     def test_serializer_outputs_expected_schema_for_addon_rollout(self):
         experiment = ExperimentFactory.create(
