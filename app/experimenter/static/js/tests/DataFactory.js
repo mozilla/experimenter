@@ -51,6 +51,19 @@ export class AddonRolloutFactory extends Factory {
   }
 }
 
+export class PrefRolloutFactory extends Factory {
+  getFields() {
+    return {
+      rollout_type: "pref",
+      design: new Field(faker.lorem.paragraph),
+      addon_release_url: null,
+      pref_key: "browser.enabled",
+      pref_type: "bool",
+      pref_value: "true",
+    };
+  }
+}
+
 export class AddonDataFactory extends GenericDataFactory {
   getFields() {
     return {
