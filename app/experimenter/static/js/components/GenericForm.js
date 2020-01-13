@@ -30,6 +30,7 @@ export default class GenericForm extends React.PureComponent {
           as="textarea"
           rows="10"
           helpContent={DESIGN_HELP}
+          labelColumnWidth={2}
         />
 
         <hr className="heavy-line my-5" />

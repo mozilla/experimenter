@@ -48,6 +48,7 @@ class Branch extends React.PureComponent {
         }}
         error={error}
         helpContent={help}
+        labelColumnWidth={2}
       />
     );
   }
@@ -80,8 +81,8 @@ class Branch extends React.PureComponent {
         data-testid={"branch" + this.props.index}
       >
         <Row className="mb-3">
-          <Col md={{ span: 4, offset: 3 }}>{this.renderTitle()}</Col>
-          <Col md={5} className="text-right">
+          <Col md={{ span: 4, offset: 2 }}>{this.renderTitle()}</Col>
+          <Col md={6} className="text-right">
             {this.renderRemoveButton()}
           </Col>
         </Row>

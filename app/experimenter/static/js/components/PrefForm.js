@@ -38,6 +38,7 @@ export default class PrefForm extends React.PureComponent {
             value={this.props.data.get("pref_key")}
             error={this.props.errors.get("pref_key", "")}
             helpContent={PREF_KEY_HELP}
+            labelColumnWidth={2}
           />
 
           <DesignInput
@@ -51,6 +52,7 @@ export default class PrefForm extends React.PureComponent {
             error={this.props.errors.get("pref_type", "")}
             as="select"
             helpContent={PREF_TYPE_HELP}
+            labelColumnWidth={2}
           >
             <option>Firefox Pref Type</option>
             <option>boolean</option>
@@ -70,6 +72,7 @@ export default class PrefForm extends React.PureComponent {
             error={this.props.errors.get("pref_branch", "")}
             as="select"
             helpContent={PREF_BRANCH_HELP}
+            labelColumnWidth={2}
           >
             <option>Firefox Pref Branch</option>
             <option>default</option>
@@ -86,7 +89,7 @@ export default class PrefForm extends React.PureComponent {
     return (
       <div>
         <Row>
-          <Col md={{ span: 9, offset: 3 }}>
+          <Col md={{ span: 10, offset: 2 }}>
             <RadioButton
               elementLabel="How Many Prefs does this ship?"
               fieldName="is_multi_pref"

@@ -38,7 +38,7 @@ class PrefManager extends React.PureComponent {
     const { errors } = this.props;
 
     return (
-      <Col md={{ span: 9, offset: 2 }}>
+      <Col md={{ span: 11, offset: 1 }}>
         <Pref
           key={index}
           index={index}

@@ -23,6 +23,7 @@ class DesignInput extends React.PureComponent {
     helpContent: PropTypes.object,
     id: PropTypes.string,
     index: PropTypes.number,
+    labelColumnWidth: PropTypes.number,
     label: PropTypes.string,
     name: PropTypes.string,
     note: PropTypes.string,
@@ -44,11 +45,15 @@ class DesignInput extends React.PureComponent {
     this.setState({ help_showing: !this.state.help_showing });
   }
 
+  determineInputColumnWidth() {
+    return 12 - this.props.labelColumnWidth;
+  }
+
   render() {
     return (
       <Row className="mb-3">
-        <Col md={3} className="text-right">
-          <FormLabel className="pt-2" for={this.props.id}>
+        <Col md={this.props.labelColumnWidth} className="text-right">
+          <FormLabel for={this.props.id}>
             <strong>{this.props.label}</strong>
             <div className="required-label required">
               <div className="text-danger">Required</div>
@@ -65,7 +70,7 @@ class DesignInput extends React.PureComponent {
             </a>
           </div>
         </Col>
-        <Col md={9}>
+        <Col md={this.determineInputColumnWidth()}>
           <FormControl
             as={this.props.as}
             rows={this.props.rows}

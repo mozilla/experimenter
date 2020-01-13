@@ -41,6 +41,7 @@ export default class RolloutForm extends React.PureComponent {
           value={this.props.data.get("addon_release_url")}
           error={this.props.errors.get("addon_release_url", "")}
           helpContent={ADDON_RELEASE_URL_HELP}
+          labelColumnWidth={2}
         />
       );
     }
@@ -55,6 +56,7 @@ export default class RolloutForm extends React.PureComponent {
             as="select"
             helpContent={PREF_BRANCH_HELP}
             note="*Note: Pref Rollouts always use the Default Pref Branch"
+            labelColumnWidth={2}
           >
             <option>Default Branch</option>
             <option disabled>User Branch</option>
@@ -71,6 +73,7 @@ export default class RolloutForm extends React.PureComponent {
             error={this.props.errors.get("pref_type", "")}
             as="select"
             helpContent={PREF_TYPE_HELP}
+            labelColumnWidth={2}
           >
             <option>Firefox Pref Type</option>
             <option value={PREF_TYPE_BOOL}>boolean</option>
@@ -89,6 +92,7 @@ export default class RolloutForm extends React.PureComponent {
             value={this.props.data.get("pref_key")}
             error={this.props.errors.get("pref_key", "")}
             helpContent={PREF_KEY_HELP}
+            labelColumnWidth={2}
           />
 
           <DesignInput
@@ -101,6 +105,7 @@ export default class RolloutForm extends React.PureComponent {
             value={this.props.data.get("pref_value")}
             error={this.props.errors.get("pref_value", "")}
             helpContent={PREF_VALUE_HELP}
+            labelColumnWidth={2}
           />
         </React.Fragment>
       );
@@ -111,7 +116,7 @@ export default class RolloutForm extends React.PureComponent {
     return (
       <React.Fragment>
         <Row>
-          <Col md={{ span: 9, offset: 3 }}>
+          <Col md={{ span: 10, offset: 2 }}>
             <RadioButton
               elementLabel="What type of rollout is this?"
               fieldName="rollout_type"
@@ -139,6 +144,7 @@ export default class RolloutForm extends React.PureComponent {
           as="textarea"
           rows="3"
           helpContent={ROLLOUT_DESCRIPTION_HELP}
+          labelColumnWidth={2}
         />
 
         {this.renderAddonFields()}
