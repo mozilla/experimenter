@@ -55,7 +55,6 @@ class PrefManager extends React.PureComponent {
 
   render() {
     const { preferences } = this.props;
-
     return (
       <React.Fragment>
         {preferences.map((p, i) => this.renderPref(p, i))}
