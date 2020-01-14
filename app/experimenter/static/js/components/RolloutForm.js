@@ -7,7 +7,7 @@ import DesignInput from "experimenter/components/DesignInput";
 import RadioButton from "experimenter/components/RadioButton";
 import {
   ADDON_RELEASE_URL_HELP,
-  PREF_BRANCH_HELP,
+  ROLLOUT_PREF_BRANCH_HELP,
   PREF_KEY_HELP,
   PREF_TYPE_BOOL,
   PREF_TYPE_HELP,
@@ -54,7 +54,7 @@ export default class RolloutForm extends React.PureComponent {
           <DesignInput
             label="Pref Branch"
             as="select"
-            helpContent={PREF_BRANCH_HELP}
+            helpContent={ROLLOUT_PREF_BRANCH_HELP}
             note="*Note: Pref Rollouts always use the Default Pref Branch"
             labelColumnWidth={2}
           >
