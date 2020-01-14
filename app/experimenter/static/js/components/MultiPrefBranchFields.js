@@ -60,6 +60,7 @@ class MultiPrefBranchFields extends React.PureComponent {
           onErrorChange={errors => {
             this.props.onErrorChange("preferences", errors);
           }}
+          variantIndex={this.props.index}
         />
       </React.Fragment>
     );
