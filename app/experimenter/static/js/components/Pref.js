@@ -20,6 +20,7 @@ class Pref extends React.PureComponent {
     index: PropTypes.number,
     onChange: PropTypes.func,
     remove: PropTypes.func,
+    variantIndex: PropTypes.number,
   };
 
   handlePrefValueChange(key, value) {
@@ -56,7 +57,7 @@ class Pref extends React.PureComponent {
             <DesignInput
               label="Pref Branch"
               name="pref_branch"
-              id="id_pref_branch"
+              id={`pref-branch-${this.props.variantIndex}-${this.props.index}`}
               onChange={value => {
                 this.handlePrefValueChange("pref_branch", value);
               }}
@@ -80,7 +81,7 @@ class Pref extends React.PureComponent {
             <DesignInput
               label="Pref Type"
               name="pref_type"
-              id="id_pref_type"
+              id={`pref-type-${this.props.variantIndex}-${this.props.index}`}
               onChange={value => {
                 this.handlePrefValueChange("pref_type", value);
               }}
@@ -107,7 +108,7 @@ class Pref extends React.PureComponent {
             <DesignInput
               label="Pref Name"
               name="pref_key"
-              id="id_pref_key"
+              id={`pref-key-${this.props.variantIndex}-${this.props.index}`}
               onChange={value => {
                 this.handlePrefValueChange("pref_name", value);
               }}
@@ -126,7 +127,7 @@ class Pref extends React.PureComponent {
             <DesignInput
               label="Pref Value"
               name="pref_value"
-              id="id_pref_value"
+              id={`pref-value-${this.props.variantIndex}-${this.props.index}`}
               onChange={value => {
                 this.handlePrefValueChange("pref_value", value);
               }}

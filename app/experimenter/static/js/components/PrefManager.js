@@ -13,6 +13,7 @@ class PrefManager extends React.PureComponent {
     errors: PropTypes.instanceOf(List),
     onErrorChange: PropTypes.func,
     onDataChange: PropTypes.func,
+    variantIndex: PropTypes.number,
   };
 
   handlePrefChange(index, value) {
@@ -46,6 +47,7 @@ class PrefManager extends React.PureComponent {
           errors={errors.get(index, new Map())}
           remove={this.removePref}
           onChange={value => this.handlePrefChange(index, value)}
+          variantIndex={this.props.variantIndex}
         />
       </Col>
     );
