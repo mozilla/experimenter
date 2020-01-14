@@ -2,174 +2,186 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="icon" href="{% static "imgs/favicon.ico" %}" type="image/x-icon" />
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="https://code.cdn.mozilla.net/fonts/fira.css">
+  <link rel="icon" href="{% static "imgs/favicon.ico" %}" type="image/x-icon" />
 
-    <link rel="stylesheet" href="{% static "lib/fontawesome/css/all.css" %}">
+  <link rel="stylesheet" href="{% static "lib/fira/fira.css" %}">
 
-    <link rel="stylesheet" href="{% static "assets/css/index.css" %}">
+  <link rel="stylesheet" href="{% static "lib/fontawesome/css/all.css" %}">
 
-    {% block title %}
-      {% if experiment.name %}
-        <title>{{experiment.name}}</title>
-      {% else %}
-        <title>Mozilla Experimenter</title>
-      {% endif %}
-    {% endblock %}
+  <link rel="stylesheet" href="{% static "assets/css/index.css" %}">
 
-    {% block extrahead %}
-    {% endblock %}
-  </head>
+  {% block title %}
+  {% if experiment.name %}
+  <title>{{experiment.name}}</title>
+  {% else %}
+  <title>Mozilla Experimenter</title>
+  {% endif %}
+  {% endblock %}
 
-  <body class="{% block page_id %}{% endblock %}">
+  {% block extrahead %}
+  {% endblock %}
+</head>
 
-    <div class="bg-primary text-white">
-      <div class="container">
-        <div class="row py-3">
-          <div class="col">
-            <h3 class="pt-2">
-              <a class="noanchorstyle" href="{% url "home" %}">
-                <svg id="header-icon">
-                  <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs></defs><title/><rect class="a" height="21" rx="4" ry="4" width="12" x="2" y="40"/><rect class="a" height="40" rx="4" ry="4" width="12" x="18" y="21"/><rect class="a" height="30" rx="4" ry="4" width="12" x="34" y="31"/><rect class="a" height="51" rx="4" ry="4" width="12" x="50" y="10"/></svg>
+<body class="{% block page_id %}{% endblock %}">
+
+  <div class="bg-primary text-white">
+    <div class="container">
+      <div class="row py-3">
+        <div class="col">
+          <h3 class="pt-2">
+            <a class="noanchorstyle" href="{% url "home" %}">
+              <svg id="header-icon">
+                <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                  <defs></defs>
+                  <title />
+                  <rect class="a" height="21" rx="4" ry="4" width="12" x="2" y="40" />
+                  <rect class="a" height="40" rx="4" ry="4" width="12" x="18" y="21" />
+                  <rect class="a" height="30" rx="4" ry="4" width="12" x="34" y="31" />
+                  <rect class="a" height="51" rx="4" ry="4" width="12" x="50" y="10" />
                 </svg>
-                <strong>Mozilla</strong> Experimenter
-              </a>
-            </h3>
-            <a class="text-white" href="slack://channel?team=T027LFU12&id=CF94YGE03">
-              <span class="fab fa-slack"></span>
-              #ask-experimenter on Slack
+              </svg>
+              <strong>Mozilla</strong> Experimenter
             </a>
-            &nbsp;
-            <a class="text-white" target="_blank" rel="noreferrer noopener" href="https://github.com/mozilla/experimenter/issues/new">
-              <span class="fas fa-comment-alt"></span>
-              Leave Feedback
-            </a>
+          </h3>
+          <a class="text-white" href="slack://channel?team=T027LFU12&id=CF94YGE03">
+            <span class="fab fa-slack"></span>
+            #ask-experimenter on Slack
+          </a>
+          &nbsp;
+          <a class="text-white" target="_blank" rel="noreferrer noopener"
+            href="https://github.com/mozilla/experimenter/issues/new">
+            <span class="fas fa-comment-alt"></span>
+            Leave Feedback
+          </a>
+        </div>
+        <div class="col text-right">
+          <div>
+            <span class="fas fa-user"></span>
+            {{ request.user }}
           </div>
-          <div class="col text-right">
-            <div>
-              <span class="fas fa-user"></span>
-              {{ request.user }}
-            </div>
 
-            <div>
-              <a class="nocolorstyle d-block" href="{% url "home" %}?owner={{ request.user.id }}&amp;archived=on">
-                {{ request.user.owned_experiments.count }} Owned Deliver{{ request.user.owned_experiments.count|pluralize:"y,ies" }}
-              </a>
-              <a class="nocolorstyle d-block" href="{% url "home" %}?subscribed=on&archived=on">
-                {{ request.user.subscribed_experiments.count }} Subscribed Deliver{{ request.user.subscribed_experiments.count|pluralize:"y,ies" }}
-              </a>
-            </div>
+          <div>
+            <a class="nocolorstyle d-block" href="{% url "home" %}?owner={{ request.user.id }}&amp;archived=on">
+              {{ request.user.owned_experiments.count }} Owned
+              Deliver{{ request.user.owned_experiments.count|pluralize:"y,ies" }}
+            </a>
+            <a class="nocolorstyle d-block" href="{% url "home" %}?subscribed=on&archived=on">
+              {{ request.user.subscribed_experiments.count }} Subscribed
+              Deliver{{ request.user.subscribed_experiments.count|pluralize:"y,ies" }}
+            </a>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div id="sub-header">
-      <div class="container">
-        <div class="row py-3">
-          <div class="col-9">
-            {% block header_content %}
-            {% endblock %}
-          </div>
-
-          <div class="col-3 text-right">
-            {% block header_sidebar %}
-            {% endblock %}
-          </div>
+  <div id="sub-header">
+    <div class="container">
+      <div class="row py-3">
+        <div class="col-9">
+          {% block header_content %}
+          {% endblock %}
         </div>
-      </div>
-    </div>
 
-    {% if request.user.notifications.has_unread %}
-      <div class="alert-primary">
-        <div class="container">
-          <div class="row">
-            <div class="col pt-3 pb-1">
-              {% for message in request.user.notifications.get_unread %}
-                <p>
-                  <span class="fas fa-info-circle"></span>
-                  {{ message|safe }}
-                </p>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endif %}
-
-    {% if messages %}
-      <div class="alert-danger">
-        <div class="container">
-          <div class="row">
-            <div class="col pt-3 pb-1">
-              {% for message in messages %}
-                <p>
-                  <span class="fas fa-info-circle"></span>
-                  {{ message }}
-                </p>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endif %}
-
-    <div class="alert-info">
-      <div class="container">
-        <div class="row">
-          {% block header_links %}
+        <div class="col-3 text-right">
+          {% block header_sidebar %}
           {% endblock %}
         </div>
       </div>
     </div>
+  </div>
 
+  {% if request.user.notifications.has_unread %}
+  <div class="alert-primary">
     <div class="container">
-      <div class="row mt-3">
-        {% block main %}
-          <div class="col-9">
-            {% block main_content %}
-            {% endblock %}
-          </div>
-          <div class="col-3">
-            {% block main_sidebar %}
-            {% endblock %}
-          </div>
+      <div class="row">
+        <div class="col pt-3 pb-1">
+          {% for message in request.user.notifications.get_unread %}
+          <p>
+            <span class="fas fa-info-circle"></span>
+            {{ message|safe }}
+          </p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if messages %}
+  <div class="alert-danger">
+    <div class="container">
+      <div class="row">
+        <div class="col pt-3 pb-1">
+          {% for message in messages %}
+          <p>
+            <span class="fas fa-info-circle"></span>
+            {{ message }}
+          </p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="alert-info">
+    <div class="container">
+      <div class="row">
+        {% block header_links %}
         {% endblock %}
       </div>
     </div>
+  </div>
 
-    <footer>
-      <div class="container">
-        <div class="row">
-          <div class="col mb-3 text-center">
-            <hr/>
-            © Mozilla Corporation 2019
-          </div>
+  <div class="container">
+    <div class="row mt-3">
+      {% block main %}
+        <div class="col-9">
+          {% block main_content %}
+          {% endblock %}
+        </div>
+        <div class="col-3">
+          {% block main_sidebar %}
+          {% endblock %}
+        </div>
+      {% endblock %}
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col mb-3 text-center">
+          <hr />
+          © Mozilla Corporation 2019
         </div>
       </div>
-    </footer>
+    </div>
+  </footer>
 
-    <script src="{% static "assets/js/index.js" %}"></script>
+  <script src="{% static "assets/js/index.js" %}"></script>
 
-    {% if USE_GOOGLE_ANALYTICS %}
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-123143157-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+  {% if USE_GOOGLE_ANALYTICS %}
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-123143157-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-      gtag('config', 'UA-123143157-1');
-    </script>
-    {% endif %}
+    gtag('config', 'UA-123143157-1');
+  </script>
+  {% endif %}
 
-    {% block extrascripts %}
-    {% endblock %}
-  </body>
+  {% block extrascripts %}
+  {% endblock %}
+</body>
+
 </html>
