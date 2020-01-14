@@ -13,14 +13,21 @@ from experimenter.experiments.serializers.entities import PrefTypeField
 
 class PrefValueField(serializers.Field):
 
+    def __init__(self, type_field, value_field, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.type_field = type_field
+        self.value_field = value_field
+
     def to_representation(self, obj):
-        model = type(obj).__name__
-        if model == "ExperimentVariant":
-            pref_type = obj.experiment.pref_type
-            value = obj.value
-        else:
-            pref_type = obj.pref_type
-            value = obj.pref_value
+        model_fields = (
+            type(obj)
+            .objects.filter(id=obj.id)
+            .values(self.type_field, self.value_field)
+            .first()
+        )
+
+        pref_type = model_fields[self.type_field]
+        value = model_fields[self.value_field]
 
         if pref_type in (Experiment.PREF_TYPE_BOOL, Experiment.PREF_TYPE_INT):
             return json.loads(value)
@@ -107,7 +114,9 @@ class FilterObjectCountrySerializer(serializers.ModelSerializer):
 
 
 class ExperimentRecipeVariantSerializer(serializers.ModelSerializer):
-    value = PrefValueField(source="*")
+    value = PrefValueField(
+        type_field="experiment__pref_type", value_field="value", source="*"
+    )
 
     class Meta:
         model = ExperimentVariant
@@ -128,7 +137,9 @@ class ExperimentRecipeAddonVariantSerializer(serializers.ModelSerializer):
 class SingularPreferenceRecipeValueSerializer(serializers.ModelSerializer):
     preferenceBranchType = serializers.ReadOnlyField(source="experiment.pref_branch")
     preferenceType = PrefTypeField(source="experiment.pref_type")
-    preferenceValue = PrefValueField(source="*")
+    preferenceValue = PrefValueField(
+        type_field="experiment__pref_type", value_field="value", source="*"
+    )
 
     class Meta:
         model = ExperimentVariant
@@ -152,7 +163,9 @@ class VariantPreferenceRecipeListSerializer(serializers.ListSerializer):
 class VariantPreferenceRecipeSerializer(serializers.ModelSerializer):
     preferenceBranchType = serializers.ReadOnlyField(source="pref_branch")
     preferenceType = PrefTypeField(source="pref_type")
-    preferenceValue = PrefValueField(source="*")
+    preferenceValue = PrefValueField(
+        type_field="pref_type", value_field="pref_value", source="*"
+    )
 
     class Meta:
         list_serializer_class = VariantPreferenceRecipeListSerializer
@@ -264,7 +277,7 @@ class ExperimentRecipeAddonRolloutArgumentsSerializer(serializers.ModelSerialize
 
 class RolloutPrefRecipeSerialzer(serializers.ModelSerializer):
     preferenceName = serializers.ReadOnlyField(source="pref_key")
-    value = PrefValueField(source="*")
+    value = PrefValueField(type_field="pref_type", value_field="pref_value", source="*")
 
     class Meta:
         model = Experiment
