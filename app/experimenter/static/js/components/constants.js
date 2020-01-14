@@ -168,3 +168,16 @@ export const ROLLOUT_DESCRIPTION_HELP = (
     </p>
   </div>
 );
+
+export const ROLLOUT_PREF_BRANCH_HELP = (
+  <div>
+    <p>
+      Select the pref branch the experiment will write its pref value to. If
+      you're not sure what this means, please read:&nbsp;
+      <a href="https://docs.telemetry.mozilla.org/cookbooks/client_guidelines.html">
+        more about it here
+      </a>
+      .
+    </p>
+  </div>
+);

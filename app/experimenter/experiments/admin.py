@@ -4,6 +4,7 @@ from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
     ExperimentChangeLog,
+    VariantPreferences,
 )
 
 
@@ -79,15 +80,20 @@ class ExperimentAdmin(admin.ModelAdmin):
             "Client Config",
             {
                 "fields": (
+                    "is_branched_addon",
+                    "is_multi_pref",
                     "firefox_channel",
                     "firefox_min_version",
                     "firefox_max_version",
                     "population_percent",
                     "addon_experiment_id",
                     "addon_release_url",
+                    "rollout_type",
+                    "rollout_playbook",
                     "pref_key",
                     "pref_type",
                     "pref_branch",
+                    "design",
                     "locales",
                     "countries",
                     "platform",
@@ -152,6 +158,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "risk_revision",
                     "risk_technical",
                     "risk_technical_description",
+                    "risk_higher_risk",
                     "risks",
                     "testing",
                     "test_builds",
@@ -170,4 +177,18 @@ class ExperimentAdmin(admin.ModelAdmin):
         return False
 
 
+class ExperimentVariantPreferenceInlineAdmin(admin.StackedInline):
+    extra = 0
+    fields = ("pref_name", "pref_type", "pref_branch", "pref_value")
+    model = VariantPreferences
+    verbose_name = "Experiment Variant Preference"
+    verbose_name_plural = "Experiment Variants Preferences"
+
+
+class ExperimentVariantAdmin(admin.ModelAdmin):
+    inlines = (ExperimentVariantPreferenceInlineAdmin,)
+    list_display = ("name", "experiment", "ratio", "value")
+
+
 admin.site.register(Experiment, ExperimentAdmin)
+admin.site.register(ExperimentVariant, ExperimentVariantAdmin)

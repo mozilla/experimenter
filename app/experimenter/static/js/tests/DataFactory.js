@@ -7,7 +7,9 @@ export class VariantsFactory extends Factory {
       id: new AutoIncrementField(),
       description: new Field(faker.lorem.sentence),
       name: new Field(faker.lorem.word),
-      ratio: new Field(faker.random.number, { min: 1, max: 100 }),
+      ratio: new Field(() =>
+        faker.random.number({ min: 1, max: 100 }).toString(),
+      ),
       is_control: false,
     };
   }
@@ -18,10 +20,10 @@ export class GenericDataFactory extends Factory {
     return {
       designs: new Field(faker.lorem.paragraph),
       variants: [],
+      type: "addon",
     };
   }
   postGeneration() {
-    super.postGeneration();
     const { generateVariants } = this.options;
     if (generateVariants) {
       const variants = [];
@@ -36,6 +38,32 @@ export class GenericDataFactory extends Factory {
   }
 }
 
+export class AddonRolloutFactory extends Factory {
+  getFields() {
+    return {
+      rollout_type: "addon",
+      design: new Field(faker.lorem.paragraph),
+      addon_release_url: new Field(faker.internet.url),
+      pref_key: null,
+      pref_type: null,
+      pref_value: null,
+    };
+  }
+}
+
+export class PrefRolloutFactory extends Factory {
+  getFields() {
+    return {
+      rollout_type: "pref",
+      design: new Field(faker.lorem.paragraph),
+      addon_release_url: null,
+      pref_key: "browser.enabled",
+      pref_type: "bool",
+      pref_value: "true",
+    };
+  }
+}
+
 export class AddonDataFactory extends GenericDataFactory {
   getFields() {
     return {
@@ -43,5 +71,134 @@ export class AddonDataFactory extends GenericDataFactory {
       variants: [],
       type: "addon",
     };
+  }
+}
+
+export class PrefVariantsFactory extends VariantsFactory {
+  getFields() {
+    return {
+      value: new Field(faker.lorem.word),
+      ...super.getFields(),
+    };
+  }
+}
+
+export class PrefDataFactory extends Factory {
+  getFields() {
+    return {
+      pref_key: new Field(faker.lorem.word),
+      pref_type: "string",
+      pref_branch: "default",
+      variants: [],
+    };
+  }
+
+  postGeneration() {
+    const { generateVariants } = this.options;
+    if (generateVariants) {
+      const variants = [];
+      for (let i = 0; i < generateVariants; i++) {
+        variants.push(PrefVariantsFactory.build());
+      }
+      this.data.variants = [...this.data.variants, ...variants];
+    }
+    if (this.data.variants.length) {
+      this.data.variants[0].is_control = true;
+    }
+  }
+}
+
+export class BranchedAddonDataFactory extends Factory {
+  getFields() {
+    return {
+      is_branched_addon: true,
+      variants: [],
+    };
+  }
+
+  postGeneration() {
+    const { generateVariants } = this.options;
+    if (generateVariants) {
+      const variants = [];
+      for (let i = 0; i < generateVariants; i++) {
+        variants.push(BranchedAddonVariantFactory.build());
+      }
+      this.data.variants = [...this.data.variants, ...variants];
+    }
+    if (this.data.variants.length) {
+      this.data.variants[0].is_control = true;
+    }
+  }
+}
+
+export class BranchedAddonVariantFactory extends Factory {
+  getFields() {
+    return {
+      id: new AutoIncrementField(),
+      description: new Field(faker.lorem.sentence),
+      name: new Field(faker.lorem.word),
+      ratio: new Field(faker.random.number, { min: 1, max: 100 }),
+      is_control: false,
+      addon_release_url: new Field(faker.internet.url),
+    };
+  }
+}
+
+// *********************** Multipref factories **********************
+
+export class MultiPrefVariantDataFactory extends Factory {
+  getFields() {
+    return {
+      pref_name: new Field(faker.lorem.word),
+      pref_type: "string",
+      pref_branch: "default",
+      pref_value: new Field(faker.lorem.word),
+      id: new AutoIncrementField(),
+    };
+  }
+}
+
+export class MainMultiPrefVariantDataFactory extends Factory {
+  getFields() {
+    return {
+      id: new AutoIncrementField(),
+      description: new Field(faker.lorem.sentence),
+      name: new Field(faker.lorem.word),
+      ratio: new Field(faker.random.number, { min: 1, max: 100 }),
+      is_control: false,
+      preferences: [],
+    };
+  }
+
+  postGeneration() {
+    const preferences = [];
+    for (let i = 0; i < 2; i++) {
+      preferences.push(MultiPrefVariantDataFactory.build());
+    }
+    this.data.preferences = [...this.data.preferences, ...preferences];
+  }
+}
+
+export class MultiPrefDataFactory extends Factory {
+  getFields() {
+    return {
+      is_multi_pref: true,
+      variants: [],
+    };
+  }
+
+  postGeneration() {
+    const { generateVariants } = this.options;
+
+    if (generateVariants) {
+      const variants = [];
+      for (let i = 0; i < generateVariants; i++) {
+        variants.push(MainMultiPrefVariantDataFactory.build());
+      }
+      this.data.variants = [...this.data.variants, ...variants];
+    }
+    if (this.data.variants.length) {
+      this.data.variants[0].is_control = true;
+    }
   }
 }

@@ -51,6 +51,7 @@ describe("The `DesignForm` component for generic", () => {
   it("renders generic forms", async () => {
     const successResponse = setup();
     const {
+      getAllByDisplayValue,
       getByDisplayValue,
       getByText,
       getAllByText,
@@ -69,7 +70,9 @@ describe("The `DesignForm` component for generic", () => {
     for (let variant of successResponse.variants) {
       expect(getByDisplayValue(variant.name)).toBeInTheDocument();
       expect(getByDisplayValue(variant.description)).toBeInTheDocument();
-      expect(getByDisplayValue(variant.ratio.toString())).toBeInTheDocument();
+      getAllByDisplayValue(variant.ratio).map(e =>
+        expect(e).toBeInTheDocument(),
+      );
     }
   });
 

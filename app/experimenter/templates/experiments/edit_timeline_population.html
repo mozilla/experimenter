@@ -16,7 +16,7 @@
 {% block edit_form %}
 
   <div class="form-group row">
-    <h4 class="col-9 offset-3">Delivery Timeline</h4>
+    <h4 class="col-10 offset-2">Delivery Timeline</h4>
   </div>
 
   {% include "experiments/field_inline.html" with field=form.proposed_start_date marked_required=True %}
@@ -33,7 +33,7 @@
   <hr class="heavy-line my-5">
 
   <div class="form-group row">
-    <h4 class="col-9 offset-3">Delivery Population</h4>
+    <h4 class="col-10 offset-2">Delivery Population</h4>
   </div>
 
   {% if object.should_have_population_percent %}
@@ -43,7 +43,7 @@
   {% include "experiments/field_inline_help_link.html" with field=form.firefox_channel marked_required=True %}
 
   <div class="form-group row">
-    <div class="col-3 text-right">
+    <div class="col-2 text-right">
       <label class="control-label">
         <strong>Firefox Versions</strong>
         <div class="text-danger">
@@ -53,7 +53,7 @@
       <br>
       <a target="_blank" rel="noreferrer noopener" href="{{ form.firefox_min_version.help_text }}">Help</a>
     </div>
-    <div class="col-9">
+    <div class="col-10">
       <div class="row">
         <div class="col-5 pr-0">
           {% include "experiments/field_input_inline.html" with field=form.firefox_min_version %}

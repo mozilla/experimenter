@@ -1,6 +1,7 @@
 import json
 
 from rest_framework import serializers
+from django.db import IntegrityError, transaction
 from django.utils.text import slugify
 
 from experimenter.experiments.models import (
@@ -55,11 +56,11 @@ class VariantsListSerializer(serializers.ListSerializer):
 
     def to_representation(self, data):
         data = super().to_representation(data)
+        initial_fields = set(self.child.fields) - set(["id"])
 
         if data == []:
             blank_variant = {}
             control_blank_variant = {}
-            initial_fields = set(self.child.fields) - set(["id"])
             for field in initial_fields:
                 blank_variant[field] = None
                 control_blank_variant[field] = None
@@ -69,11 +70,12 @@ class VariantsListSerializer(serializers.ListSerializer):
             control_blank_variant["is_control"] = True
             control_blank_variant["ratio"] = 50
 
-            if "preferences" in initial_fields:
-                blank_variant["preferences"] = [{}]
-                control_blank_variant["preferences"] = [{}]
-
             data = [control_blank_variant, blank_variant]
+
+        if "preferences" in initial_fields:
+            for variant in data:
+                if not variant["preferences"]:
+                    variant["preferences"] = [{}]
 
         control_branch = [b for b in data if b["is_control"]][0]
         treatment_branches = sorted(
@@ -199,31 +201,40 @@ class ExperimentDesignBaseSerializer(
         return unique_names and non_empty
 
     def update(self, instance, validated_data):
-        variants_data = validated_data.pop("variants", [])
-        instance = super().update(instance, validated_data)
+        try:
+            with transaction.atomic():
+                variants_data = validated_data.pop("variants", [])
+                instance = super().update(instance, validated_data)
 
-        if variants_data:
-            existing_variant_ids = set(
-                instance.variants.all().values_list("id", flat=True)
+            if variants_data:
+                existing_variant_ids = set(
+                    instance.variants.all().values_list("id", flat=True)
+                )
+                # Create or update variants
+                for variant_data in variants_data:
+                    variant_data["experiment"] = instance
+                    variant_data["slug"] = slugify(variant_data["name"])
+                    ExperimentVariant(**variant_data).save()
+
+                # Delete removed variants
+                submitted_variant_ids = set(
+                    [v.get("id") for v in variants_data if v.get("id")]
+                )
+                removed_ids = existing_variant_ids - submitted_variant_ids
+
+                if removed_ids:
+                    ExperimentVariant.objects.filter(id__in=removed_ids).delete()
+
+            self.update_changelog(instance, validated_data)
+
+            return instance
+        except IntegrityError:
+            error_string = (
+                "Error: unable to save this change, please contact an experimenter admin"
             )
-            # Create or update variants
-            for variant_data in variants_data:
-                variant_data["experiment"] = instance
-                variant_data["slug"] = slugify(variant_data["name"])
-                ExperimentVariant(**variant_data).save()
+            error = [{"name": error_string}] * len(variants_data)
 
-            # Delete removed variants
-            submitted_variant_ids = set(
-                [v.get("id") for v in variants_data if v.get("id")]
-            )
-            removed_ids = existing_variant_ids - submitted_variant_ids
-
-            if removed_ids:
-                ExperimentVariant.objects.filter(id__in=removed_ids).delete()
-
-        self.update_changelog(instance, validated_data)
-
-        return instance
+            raise serializers.ValidationError({"variants": error})
 
 
 class ExperimentDesignRolloutSerializer(
