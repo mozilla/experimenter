@@ -41,7 +41,7 @@ class Pref extends React.PureComponent {
           onClick={() => {
             this.props.remove(index);
           }}
-          id="remove-pref-branch-button"
+          data-testid={`remove-pref-${this.props.variantIndex}-${this.props.index}`}
         >
           <span className="fas fa-times" /> Remove Pref
         </Button>
