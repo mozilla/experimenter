@@ -32,8 +32,8 @@ export default class RolloutForm extends React.PureComponent {
     if (this.props.data.get("rollout_type") === TYPE_ADDON) {
       return (
         <DesignInput
+          id="id_addon_release_url"
           label="Signed Add-On URL"
-          dataTestId="addonUrl"
           name="addon_release_url"
           onChange={value => {
             this.props.handleDataChange("addon_release_url", value);
@@ -41,6 +41,7 @@ export default class RolloutForm extends React.PureComponent {
           value={this.props.data.get("addon_release_url")}
           error={this.props.errors.get("addon_release_url", "")}
           helpContent={ADDON_RELEASE_URL_HELP}
+          labelColumnWidth={2}
         />
       );
     }
@@ -55,15 +56,16 @@ export default class RolloutForm extends React.PureComponent {
             as="select"
             helpContent={PREF_BRANCH_HELP}
             note="*Note: Pref Rollouts always use the Default Pref Branch"
+            labelColumnWidth={2}
           >
             <option>Default Branch</option>
             <option disabled>User Branch</option>
           </DesignInput>
 
           <DesignInput
+            id="id_pref_type"
             label="Pref Type"
             name="pref_type"
-            id="id_pref_type"
             onChange={value => {
               this.props.handleDataChange("pref_type", value);
             }}
@@ -71,6 +73,7 @@ export default class RolloutForm extends React.PureComponent {
             error={this.props.errors.get("pref_type", "")}
             as="select"
             helpContent={PREF_TYPE_HELP}
+            labelColumnWidth={2}
           >
             <option>Firefox Pref Type</option>
             <option value={PREF_TYPE_BOOL}>boolean</option>
@@ -80,27 +83,29 @@ export default class RolloutForm extends React.PureComponent {
           </DesignInput>
 
           <DesignInput
+            id="id_pref_key"
             label="Pref Name"
             name="pref_key"
-            id="id_pref_key"
             onChange={value => {
               this.props.handleDataChange("pref_key", value);
             }}
             value={this.props.data.get("pref_key")}
             error={this.props.errors.get("pref_key", "")}
             helpContent={PREF_KEY_HELP}
+            labelColumnWidth={2}
           />
 
           <DesignInput
+            id="id_pref_value"
             label="Pref Value"
             name="pref_value"
-            id="id_pref_value"
             onChange={value => {
               this.props.handleDataChange("pref_value", value);
             }}
             value={this.props.data.get("pref_value")}
             error={this.props.errors.get("pref_value", "")}
             helpContent={PREF_VALUE_HELP}
+            labelColumnWidth={2}
           />
         </React.Fragment>
       );
@@ -111,7 +116,7 @@ export default class RolloutForm extends React.PureComponent {
     return (
       <React.Fragment>
         <Row>
-          <Col md={{ span: 9, offset: 3 }}>
+          <Col md={{ span: 10, offset: 2 }}>
             <RadioButton
               elementLabel="What type of rollout is this?"
               fieldName="rollout_type"
@@ -128,8 +133,8 @@ export default class RolloutForm extends React.PureComponent {
         </Row>
 
         <DesignInput
+          id="id_design"
           label="Description"
-          dataTestId="design"
           name="design"
           onChange={value => {
             this.props.handleDataChange("design", value);
@@ -139,6 +144,7 @@ export default class RolloutForm extends React.PureComponent {
           as="textarea"
           rows="3"
           helpContent={ROLLOUT_DESCRIPTION_HELP}
+          labelColumnWidth={2}
         />
 
         {this.renderAddonFields()}

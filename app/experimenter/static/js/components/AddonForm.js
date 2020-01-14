@@ -31,6 +31,7 @@ export default class AddonForm extends React.PureComponent {
             value={this.props.data.get("addon_release_url")}
             error={this.props.errors.get("addon_release_url", "")}
             helpContent={ADDON_RELEASE_URL_HELP}
+            labelColumnWidth={2}
           />
         </div>
       );
@@ -41,7 +42,7 @@ export default class AddonForm extends React.PureComponent {
     return (
       <div>
         <Row>
-          <Col md={{ span: 9, offset: 3 }}>
+          <Col md={{ span: 10, offset: 2 }}>
             <RadioButton
               elementLabel="How many add-ons does this experiment ship?"
               fieldName="is_branched_addon"

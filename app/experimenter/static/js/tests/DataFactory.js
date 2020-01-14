@@ -20,10 +20,10 @@ export class GenericDataFactory extends Factory {
     return {
       designs: new Field(faker.lorem.paragraph),
       variants: [],
+      type: "addon",
     };
   }
   postGeneration() {
-    super.postGeneration();
     const { generateVariants } = this.options;
     if (generateVariants) {
       const variants = [];
@@ -51,6 +51,19 @@ export class AddonRolloutFactory extends Factory {
   }
 }
 
+export class PrefRolloutFactory extends Factory {
+  getFields() {
+    return {
+      rollout_type: "pref",
+      design: new Field(faker.lorem.paragraph),
+      addon_release_url: null,
+      pref_key: "browser.enabled",
+      pref_type: "bool",
+      pref_value: "true",
+    };
+  }
+}
+
 export class AddonDataFactory extends GenericDataFactory {
   getFields() {
     return {
@@ -58,6 +71,40 @@ export class AddonDataFactory extends GenericDataFactory {
       variants: [],
       type: "addon",
     };
+  }
+}
+
+export class PrefVariantsFactory extends VariantsFactory {
+  getFields() {
+    return {
+      value: new Field(faker.lorem.word),
+      ...super.getFields(),
+    };
+  }
+}
+
+export class PrefDataFactory extends Factory {
+  getFields() {
+    return {
+      pref_key: new Field(faker.lorem.word),
+      pref_type: "string",
+      pref_branch: "default",
+      variants: [],
+    };
+  }
+
+  postGeneration() {
+    const { generateVariants } = this.options;
+    if (generateVariants) {
+      const variants = [];
+      for (let i = 0; i < generateVariants; i++) {
+        variants.push(PrefVariantsFactory.build());
+      }
+      this.data.variants = [...this.data.variants, ...variants];
+    }
+    if (this.data.variants.length) {
+      this.data.variants[0].is_control = true;
+    }
   }
 }
 
