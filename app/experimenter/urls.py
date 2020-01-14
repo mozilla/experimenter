@@ -2,10 +2,10 @@ from django.conf import settings
 from django.conf.urls import re_path, include
 from django.conf.urls.static import static
 from django.contrib import admin
-from rest_framework.documentation import include_docs_urls
 from rest_framework.schemas import get_schema_view
-from experimenter.experiments.views import ExperimentListView
 from django.views.generic import TemplateView
+
+from experimenter.experiments.views import ExperimentListView
 
 
 urlpatterns = [
