@@ -32,7 +32,6 @@ NORMANDY_DEFAULT_CHANGELOG_USER = "unknown-user@normandy.mozilla.com"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
-
 HOSTNAME = config("HOSTNAME")
 
 ALLOWED_HOSTS = [HOSTNAME]
@@ -328,12 +327,14 @@ JIRA_URL = config(
     "JIRA_URL", default="https://moz-pi-test.atlassian.net/servicedesk/customer/portal/9"
 )
 
-SECURE_SSL_REDIRECT = not DEBUG
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
-SECURE_REFERRER_POLICY = "origin"
+SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=False, cast=bool)
+SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=False, cast=bool)
+CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=False, cast=bool)
+SECURE_REFERRER_POLICY = config("SECURE_REFERRER_POLICY", default=False)
 
 # HSTS settings
-SECURE_HSTS_SECONDS = 31536000
-SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
-SECURE_HSTS_PRELOAD = not DEBUG
+SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default=0, cast=int)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = config(
+    "SECURE_HSTS_INCLUDE_SUBDOMAINS", default=False, cast=bool
+)
+SECURE_HSTS_PRELOAD = config("SECURE_HSTS_PRELOAD", default=False, cast=bool)
