@@ -364,6 +364,19 @@ class Experiment(ExperimentConstants, models.Model):
         return reverse("experiments-api-recipe", kwargs={"slug": self.slug})
 
     @property
+    def progress_bar_highlighted(self):
+        results = []
+        highlighted = True
+
+        for status in ExperimentConstants.PROGRESS_BAR_CHOICES:
+            results.append((status[1], highlighted))
+
+            if self.status == status[0]:
+                highlighted = False
+
+        return results
+
+    @property
     def has_external_urls(self):
         return (
             self.bugzilla_url

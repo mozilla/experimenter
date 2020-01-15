@@ -1,5 +1,5 @@
   <div class="row">
-    <h4 id="{{ section_name }}" class="col section-title">
+    <h4 id="{{ section_name }}" class="col-8 section-title">
       {% if not section_complete %}
         <span class="text-warning fas fa-exclamation-circle"></span>
       {% endif %}
@@ -8,10 +8,18 @@
         {{ section_title }}
       {% endblock %}
 
+
+
       <a class="section-anchor-link" href="#{{ section_name }}">
         <span class="fas fa-link"></span>
       </a>
     </h4>
+    <div class="col-4">
+      <div class="row float-right">
+        {% block progress_previous_button %}
+        {% endblock %}
+      </div>
+    </div>
   </div>
 
   <div class="card row mb-3 pt-3">

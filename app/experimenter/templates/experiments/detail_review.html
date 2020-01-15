@@ -2,47 +2,34 @@
 
 {% load static %}
 
-{% block main_sidebar_buttons %}
+{% block progress_next_button %}
   {% if experiment.is_ready_to_launch %}
     <form
       action="{% url "experiments-status-update" slug=experiment.slug %}"
       method="POST"
+      class="h-100"
     >
       {% csrf_token %}
       <input type="hidden" name="status" value="{{ experiment.STATUS_SHIP }}">
       <button
         type="submit"
-        class="col btn proceed-status-color mb-3"
+        class="col btn proceed-status-color"
       >
-        <span class="fas fa-shipping-fast "></span>
+        <span class="fas fa-shipping-fast"></span>
         {{ experiment.STATUS_PROCEED_SHIP }}
       </button>
     </form>
   {% else %}
     <button
       type="submit"
-      class="col btn btn-secondary disabled mb-3"
+      class="col btn btn-secondary disabled progress-button"
     >
       <span class="fas fa-ban"></span>
       {{ experiment.STATUS_PROCEED_SHIP }}
     </button>
   {% endif %}
-
-  <form
-    action="{% url "experiments-status-update" slug=experiment.slug %}"
-    method="POST"
-  >
-    {% csrf_token %}
-    <input type="hidden" name="status" value="{{ experiment.STATUS_DRAFT }}">
-    <button
-      type="submit"
-      class="col btn back-status-color mb-4"
-    >
-      <span class="fas fa-undo"></span>
-      Return to {{ experiment.STATUS_DRAFT_LABEL }}
-    </button>
-  </form>
 {% endblock %}
+
 
 {% block main_sidebar_extra %}
   <div class="form-group row">

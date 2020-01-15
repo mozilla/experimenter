@@ -114,46 +114,44 @@
   </div>
   {% endif %}
 
-  {% if messages %}
-  <div class="alert-danger">
-    <div class="container">
-      <div class="row">
-        <div class="col pt-3 pb-1">
-          {% for message in messages %}
-          <p>
-            <span class="fas fa-info-circle"></span>
-            {{ message }}
-          </p>
-          {% endfor %}
+
+    {% if messages %}
+      <div class="alert-danger">
+        <div class="container">
+          <div class="row">
+            <div class="col pt-3 pb-1">
+              {% for message in messages %}
+              <p>
+                <span class="fas fa-info-circle"></span>
+                {{ message }}
+              </p>
+              {% endfor %}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-  {% endif %}
+    {% endif %}
 
-  <div class="alert-info">
+
+    {% block progress_bar %}
+    {% endblock %}
+
+    
     <div class="container">
-      <div class="row">
-        {% block header_links %}
+      <div class="row mt-3">
+        {% block main %}
+          <div class="col-9">
+            {% block main_content %}
+            {% endblock %}
+          </div>
+          <div class="col-3">
+            {% block main_sidebar %}
+            {% endblock %}
+          </div>
         {% endblock %}
       </div>
     </div>
-  </div>
 
-  <div class="container">
-    <div class="row mt-3">
-      {% block main %}
-        <div class="col-9">
-          {% block main_content %}
-          {% endblock %}
-        </div>
-        <div class="col-3">
-          {% block main_sidebar %}
-          {% endblock %}
-        </div>
-      {% endblock %}
-    </div>
-  </div>
 
   <footer>
     <div class="container">
