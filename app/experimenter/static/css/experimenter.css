@@ -159,6 +159,7 @@ select {
 .link-icon {
   height: 15px;
   margin-top: -3px;
+  color: #45a1ff;
 }
 
 .border-left-grey {
@@ -223,4 +224,29 @@ pre.json {
 
 .required-label.optional .text-danger {
   display: none;
+}
+
+.bar-piece {
+  background-color: #D4D4D4;
+  padding: 0 1px;
+  color: #A4A4A4;
+  background-clip: content-box;
+}
+
+.bar-piece-highlighted {
+  background-color: #007BFF;
+  color: white;
+  padding: 0 1px;
+  background-clip: content-box;
+}
+
+.whole-bar {
+  border-radius: 2rem;
+  overflow: hidden;
+  text-align: center;
+}
+
+.progress-label {
+  line-height: 35px;
+  vertical-align: middle;
 }

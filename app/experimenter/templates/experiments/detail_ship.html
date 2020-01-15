@@ -1,10 +1,10 @@
 {% extends "experiments/detail_base.html" %}
 
-{% block main_sidebar_buttons %}
+{% block progress_next_button %}
   {% if experiment.should_use_normandy %}
     <button
       type="submit"
-      class="col btn btn-danger mb-3"
+      class="col btn btn-danger"
       data-toggle="modal"
       data-target="#normandyModal"
     >
@@ -12,21 +12,6 @@
       Send to Normandy
     </button>
   {% endif %}
-
-  <form
-    action="{% url "experiments-status-update" slug=experiment.slug %}"
-    method="POST"
-  >
-    {% csrf_token %}
-    <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
-    <button
-      type="submit"
-      class="col btn back-status-color mb-4"
-    >
-      <span class="fas fa-undo"></span>
-      Return to Sign-Off
-    </button>
-  </form>
 
   <!-- Modal -->
   <div class="modal fade" id="normandyModal" tabindex="-1" role="dialog" aria-labelledby="normandyModalLabel" aria-hidden="true">

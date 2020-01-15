@@ -16,7 +16,7 @@ class TimelineAndPopulationPage(Base):
     _firefox_max_version_locator = (By.CSS_SELECTOR, "#id_firefox_max_version")
     _locale_btn_locator = (
         By.XPATH,
-        "/html/body/div[4]/div/div[1]/div[2]/div/form/div[9]/div[2]/div[1]/button",
+        "/html/body/div[3]/div/div/div[2]/div/form/div[9]/div[2]/div[1]/button"
     )
     _platform_locator = (By.CSS_SELECTOR, "#id_platform")
     _proposed_duration_locator = (By.CSS_SELECTOR, "#id_proposed_duration")
