@@ -31,38 +31,30 @@
   {% endif %}
 {% endblock %}
 
-{% block header_links %}
-  {% if experiment.has_external_urls %}
-    <div class="col py-2">
-      {% if experiment.bugzilla_url %}
-        <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.bugzilla_url }}">
-          <img class="link-icon" src="{% static "imgs/bugzilla.png" %}" alt="bugzilla">
-          Delivery Bugzilla Ticket
-        </a>
-      {% endif %}
-
-      {% if experiment.data_science_bugzilla_url %}
-        <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.data_science_bugzilla_url }}">
-          <img class="link-icon" src="{% static "imgs/bugzilla.png" %}" alt="bugzilla">
-          Data Science Bugzilla Ticket
-        </a>
-      {% endif %}
-
-      {% if experiment.feature_bugzilla_url %}
-        <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.feature_bugzilla_url }}">
-          <img class="link-icon" src="{% static "imgs/bugzilla.png" %}" alt="bugzilla">
-          Feature Bugzilla Ticket
-        </a>
-      {% endif %}
-
-      {% if experiment.monitoring_dashboard_url %}
-        <a class="alert-link" target="_blank" rel="noreferrer noopener" href="{{ experiment.monitoring_dashboard_url }}">
-          <span class="fas fa-chart-bar"></span>
-          Live Monitoring Dashboard
-        </a>
-      {% endif %}
+{% block progress_bar %}
+<div class="container">
+  <div class="row my-4">
+    <div class="col-9 h-100">
+      <div class="row whole-bar">
+        {% for status in experiment.progress_bar_highlighted %}
+          {% if status.1 %}
+            <div class="col-2 bar-piece-highlighted">
+              <span class="progress-label">{{status.0}}</span>
+            </div>
+          {% else %}
+            <div class="col-2 bar-piece">
+              <span class="progress-label">{{status.0}}</span>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
     </div>
-  {% endif %}
+    <div class="col-3">
+      {% block progress_next_button %}
+      {% endblock %}
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block main_content %}
@@ -107,11 +99,61 @@
 
 {% endblock %}
 
+
 {% block main_sidebar %}
   <h4>&nbsp;</h4>
 
-  {% block main_sidebar_buttons %}
-  {% endblock %}
+  {% if experiment.has_external_urls %}
+    <div class="row">
+      <div class="col-12">
+        <h5>Links</h5>
+      </div>
+    </div>
+      {% if experiment.bugzilla_url %}
+      <div class="row py-1">
+        <div class="col-12">
+          <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.bugzilla_url }}">
+            <span class="fas fa-bug pb-2"></span>
+            Delivery Bugzilla Ticket
+          </a>
+        </div>
+      </div>
+      {% endif %}
+
+    {% if experiment.data_science_bugzilla_url %}
+      <div class="row py-1">
+        <div class="col-12">
+            <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.data_science_bugzilla_url }}">
+              <span class="fas fa-bug pb-2"></span>
+              Data Science Bugzilla Ticket
+            </a>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if experiment.feature_bugzilla_url %}
+      <div class="row py-1">
+        <div class="col-12">
+          <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.feature_bugzilla_url }}">
+            <span class="fas fa-bug pb-2"></span>
+            Feature Bugzilla Ticket
+          </a>
+        </div>
+      </div>
+    {% endif %}
+
+
+      {% if experiment.monitoring_dashboard_url %}
+        <div class="row">
+          <div class="col-12">
+            <a class="alert-link" target="_blank" rel="noreferrer noopener" href="{{ experiment.monitoring_dashboard_url }}">
+              <span class="fas fa-chart-bar"></span>
+              Live Monitoring Dashboard
+            </a>
+          </div>
+        </div>
+      {% endif %}
+  {% endif %}
 
   <div class="row">
     <h5 class="col">Actions</h5>

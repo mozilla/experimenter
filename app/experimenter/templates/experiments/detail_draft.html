@@ -1,6 +1,6 @@
 {% extends "experiments/detail_base.html" %}
 
-{% block main_sidebar_buttons %}
+{% block progress_next_button %}
   <form
     action="{% url "experiments-status-update" slug=experiment.slug %}"
     method="POST"
@@ -12,7 +12,7 @@
 
     <button
       type="submit"
-      class="col btn proceed-status-color mb-4"
+      class="col btn proceed-status-color"
     >
       <span class="fas fa-check-square"></span>
       {{ experiment.STATUS_PROCEED_REVIEW }}
