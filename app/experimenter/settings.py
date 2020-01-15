@@ -327,3 +327,13 @@ NORMANDY_API_RECIPE_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/{id}/")
 JIRA_URL = config(
     "JIRA_URL", default="https://moz-pi-test.atlassian.net/servicedesk/customer/portal/9"
 )
+
+SECURE_SSL_REDIRECT = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_REFERRER_POLICY = "origin"
+
+# HSTS settings
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+SECURE_HSTS_PRELOAD = not DEBUG
