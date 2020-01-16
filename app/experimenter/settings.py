@@ -32,6 +32,7 @@ NORMANDY_DEFAULT_CHANGELOG_USER = "unknown-user@normandy.mozilla.com"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
+
 HOSTNAME = config("HOSTNAME")
 
 ALLOWED_HOSTS = [HOSTNAME]
