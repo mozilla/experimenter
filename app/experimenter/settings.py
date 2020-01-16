@@ -327,14 +327,10 @@ JIRA_URL = config(
     "JIRA_URL", default="https://moz-pi-test.atlassian.net/servicedesk/customer/portal/9"
 )
 
-SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=False, cast=bool)
+
 SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=False, cast=bool)
 CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=False, cast=bool)
 SECURE_REFERRER_POLICY = config("SECURE_REFERRER_POLICY", default=False)
 
-# HSTS settings
-SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default=0, cast=int)
-SECURE_HSTS_INCLUDE_SUBDOMAINS = config(
-    "SECURE_HSTS_INCLUDE_SUBDOMAINS", default=False, cast=bool
-)
-SECURE_HSTS_PRELOAD = config("SECURE_HSTS_PRELOAD", default=False, cast=bool)
+# Silenced ssl_redirect and sts checks
+SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004"]
