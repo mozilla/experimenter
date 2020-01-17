@@ -327,3 +327,11 @@ NORMANDY_API_RECIPE_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/{id}/")
 JIRA_URL = config(
     "JIRA_URL", default="https://moz-pi-test.atlassian.net/servicedesk/customer/portal/9"
 )
+
+
+SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=False, cast=bool)
+CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=False, cast=bool)
+SECURE_REFERRER_POLICY = config("SECURE_REFERRER_POLICY", default=False)
+
+# Silenced ssl_redirect and sts checks
+SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004"]
