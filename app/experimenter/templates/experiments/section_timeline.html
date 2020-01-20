@@ -18,7 +18,7 @@ Timeline
         {% if experiment.rollout_dates.first_increase %}
           <div class="col-4 text-center align-self-end">
             <div class="alert alert-primary">
-              Rollout to {{ experiment.rollout_dates.first_increase.percent }}
+              Rollout to {{ experiment.rollout_dates.first_increase.percent }}&percnt;
             </div>
             <p>{{ experiment.rollout_dates.first_increase.date }}</p>
           </div>
@@ -28,7 +28,7 @@ Timeline
           <div class="col-4 text-center align-self-end">
             <div class="alert alert-info">
               <br/>
-              Rollout to {{ experiment.rollout_dates.second_increase.percent }}
+              Rollout to {{ experiment.rollout_dates.second_increase.percent }}&percnt;
             </div>
             <p>{{ experiment.rollout_dates.second_increase.date }}</p>
           </div>
@@ -39,7 +39,7 @@ Timeline
             <div class="alert alert-success">
               <br/>
               <br/>
-              Rollout to {{ experiment.rollout_dates.final_increase.percent }}
+              Rollout to {{ experiment.rollout_dates.final_increase.percent }}&percnt;
             </div>
             <p>{{ experiment.rollout_dates.final_increase.date }}</p>
           </div>

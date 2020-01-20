@@ -465,15 +465,15 @@ class Experiment(ExperimentConstants, models.Model):
             )
 
             if self.rollout_playbook == self.ROLLOUT_PLAYBOOK_LOW_RISK:
-                dates["first_increase"] = {"date": start_date, "percent": "25%"}
-                dates["second_increase"] = {"date": first_increase, "percent": "75%"}
-                dates["final_increase"] = {"date": final_increase, "percent": "100%"}
+                dates["first_increase"] = {"date": start_date, "percent": "25"}
+                dates["second_increase"] = {"date": first_increase, "percent": "75"}
+                dates["final_increase"] = {"date": final_increase, "percent": "100"}
             elif self.rollout_playbook == self.ROLLOUT_PLAYBOOK_HIGH_RISK:
-                dates["first_increase"] = {"date": start_date, "percent": "25%"}
-                dates["second_increase"] = {"date": first_increase, "percent": "50%"}
-                dates["final_increase"] = {"date": final_increase, "percent": "100%"}
+                dates["first_increase"] = {"date": start_date, "percent": "25"}
+                dates["second_increase"] = {"date": first_increase, "percent": "50"}
+                dates["final_increase"] = {"date": final_increase, "percent": "100"}
             elif self.rollout_playbook == self.ROLLOUT_PLAYBOOK_MARKETING:
-                dates["final_increase"] = {"date": start_date, "percent": "100%"}
+                dates["final_increase"] = {"date": start_date, "percent": "100"}
 
             return dates
 
@@ -545,7 +545,9 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def should_have_population_percent(self):
-        return self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC)
+        return (self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC)) or (
+            self.is_rollout and self.is_begun
+        )
 
     @property
     def completed_overview(self):
