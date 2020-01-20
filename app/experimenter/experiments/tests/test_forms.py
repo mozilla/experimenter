@@ -609,27 +609,41 @@ class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
         super().setUp()
 
         self.data = {
-            "population_percent": "10.0",
             "proposed_start_date": timezone.now().date(),
+            "proposed_duration": 20,
+            "proposed_enrollment": 10,
+            "population_percent": "10.0",
+            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
             "firefox_min_version": "67.0",
             "firefox_max_version": "69.0",
-            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-            "client_matching": "en-us",
-            "platform": Experiment.PLATFORM_WINDOWS,
-            "proposed_enrollment": 10,
-            "proposed_duration": 20,
             "locales": [],
             "countries": [],
+            "platform": Experiment.PLATFORM_WINDOWS,
+            "client_matching": "en-us",
         }
 
     def test_no_fields_required(self):
         experiment = ExperimentFactory.create()
+        data = {
+            "proposed_start_date": "",
+            "proposed_duration": "",
+            "proposed_enrollment": "",
+            "population_percent": "",
+            "firefox_channel": "",
+            "firefox_min_version": "",
+            "firefox_max_version": "",
+            "locales": [],
+            "countries": [],
+            "platform": "",
+            "client_matching": "",
+        }
         form = ExperimentTimelinePopulationForm(
-            request=self.request, data={}, instance=experiment
+            request=self.request, data=data, instance=experiment
         )
         self.assertTrue(form.is_valid())
+        experiment = form.save()
 
-    def test_form_saves_timeline_population_data(self):
+    def test_form_saves_experiment_timeline_population_data(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, countries=[], locales=[]
         )
@@ -642,8 +656,49 @@ class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
         experiment = form.save()
 
         self.assertEqual(experiment.proposed_start_date, self.data["proposed_start_date"])
-        self.assertEqual(experiment.firefox_max_version, self.data["firefox_max_version"])
+        self.assertEqual(experiment.proposed_duration, self.data["proposed_duration"])
+        self.assertEqual(experiment.proposed_enrollment, self.data["proposed_enrollment"])
+        self.assertEqual(experiment.population_percent, decimal.Decimal("10.000"))
         self.assertEqual(experiment.firefox_channel, self.data["firefox_channel"])
+        self.assertEqual(experiment.firefox_min_version, self.data["firefox_min_version"])
+        self.assertEqual(experiment.firefox_max_version, self.data["firefox_max_version"])
+        self.assertEqual(experiment.platform, self.data["platform"])
+        self.assertEqual(experiment.client_matching, self.data["client_matching"])
+
+        self.assertEqual(experiment.changes.count(), 2)
+
+    def test_form_saves_rollout_timeline_population_data(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            type=Experiment.TYPE_ROLLOUT,
+            countries=[],
+            locales=[],
+        )
+
+        data = {
+            "proposed_start_date": timezone.now().date(),
+            "proposed_duration": 20,
+            "rollout_playbook": Experiment.ROLLOUT_PLAYBOOK_LOW_RISK,
+            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
+            "firefox_min_version": "67.0",
+            "firefox_max_version": "69.0",
+            "locales": [],
+            "countries": [],
+        }
+
+        form = ExperimentTimelinePopulationForm(
+            request=self.request, data=data, instance=experiment
+        )
+
+        self.assertEqual(experiment.changes.count(), 1)
+
+        experiment = form.save()
+
+        self.assertEqual(experiment.proposed_start_date, data["proposed_start_date"])
+        self.assertEqual(experiment.firefox_min_version, data["firefox_min_version"])
+        self.assertEqual(experiment.firefox_max_version, data["firefox_max_version"])
+        self.assertEqual(experiment.firefox_channel, data["firefox_channel"])
+        self.assertEqual(experiment.population_percent, decimal.Decimal("25.000"))
 
         self.assertEqual(experiment.changes.count(), 2)
 
@@ -855,26 +910,6 @@ class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
         form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
         self.assertIn("population_percent", form.errors)
-
-    def test_form_saves_population(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
-        self.assertEqual(experiment.changes.count(), 1)
-
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-
-        self.assertTrue(form.is_valid())
-
-        experiment = form.save()
-
-        self.assertEqual(experiment.population_percent, decimal.Decimal("10.000"))
-        self.assertEqual(experiment.firefox_min_version, self.data["firefox_min_version"])
-        self.assertEqual(experiment.firefox_channel, self.data["firefox_channel"])
-        self.assertEqual(experiment.client_matching, self.data["client_matching"])
-        self.assertEqual(experiment.platform, self.data["platform"])
-
-        self.assertEqual(experiment.changes.count(), 2)
 
     def test_form_is_invalid_if_firefox_max_is_lower_than_min(self):
         self.data["firefox_min_version"] = "66.0"

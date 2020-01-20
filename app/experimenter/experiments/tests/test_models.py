@@ -596,9 +596,9 @@ class TestExperimentModel(TestCase):
         self.assertEqual(
             experiment.rollout_dates,
             {
-                "first_increase": {"date": "Jan 01, 2020", "percent": "25%"},
-                "second_increase": {"date": "Jan 08, 2020", "percent": "75%"},
-                "final_increase": {"date": "Jan 22, 2020", "percent": "100%"},
+                "first_increase": {"date": "Jan 01, 2020", "percent": "25"},
+                "second_increase": {"date": "Jan 08, 2020", "percent": "75"},
+                "final_increase": {"date": "Jan 22, 2020", "percent": "100"},
             },
         )
 
@@ -611,9 +611,9 @@ class TestExperimentModel(TestCase):
         self.assertEqual(
             experiment.rollout_dates,
             {
-                "first_increase": {"date": "Jan 01, 2020", "percent": "25%"},
-                "second_increase": {"date": "Jan 08, 2020", "percent": "50%"},
-                "final_increase": {"date": "Jan 22, 2020", "percent": "100%"},
+                "first_increase": {"date": "Jan 01, 2020", "percent": "25"},
+                "second_increase": {"date": "Jan 08, 2020", "percent": "50"},
+                "final_increase": {"date": "Jan 22, 2020", "percent": "100"},
             },
         )
 
@@ -625,7 +625,7 @@ class TestExperimentModel(TestCase):
         )
         self.assertEqual(
             experiment.rollout_dates,
-            {"final_increase": {"date": "Jan 01, 2020", "percent": "100%"}},
+            {"final_increase": {"date": "Jan 01, 2020", "percent": "100"}},
         )
 
     def test_rollout_dates_custom_playbook(self):
