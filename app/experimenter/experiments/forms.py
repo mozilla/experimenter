@@ -1,3 +1,4 @@
+import decimal
 import json
 
 from django import forms
@@ -534,6 +535,20 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
             self._errors["proposed_enrollment"] = [msg]
 
         return cleaned_data
+
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+
+        if self.instance.is_rollout:
+            rollout_size = self.instance.rollout_dates.get(
+                "first_increase"
+            ) or self.instance.rollout_dates.get("final_increase")
+
+            if rollout_size:
+                experiment.population_percent = decimal.Decimal(rollout_size["percent"])
+                experiment.save()
+
+        return experiment
 
 
 class ExperimentDesignBaseForm(ChangeLogMixin, forms.ModelForm):
