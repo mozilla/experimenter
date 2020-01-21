@@ -331,7 +331,7 @@ JIRA_URL = config(
 
 SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=False, cast=bool)
 CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=False, cast=bool)
-SECURE_REFERRER_POLICY = config("SECURE_REFERRER_POLICY", default="no-referrer")
+SECURE_REFERRER_POLICY = config("SECURE_REFERRER_POLICY", default="origin")
 
 # Silenced ssl_redirect and sts checks
 SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004"]
