@@ -158,8 +158,8 @@ describe("The `DesignForm` component for generic", () => {
     const branch2name = "branch2 name";
     const branch2description = "branch2 description";
 
-    const designInput =  getByTestId("design");
-    fireEvent.change(designInput, {target:{value: designValue}});
+    const designInput = getByTestId("design");
+    fireEvent.change(designInput, { target: { value: designValue } });
 
     const controlBranch = getByTestId("branch0");
     const ratio0Input = within(controlBranch).getByTestId("Branch Size");
@@ -185,7 +185,7 @@ describe("The `DesignForm` component for generic", () => {
 
     removeBranch(container, 0);
 
-    expect(designInput.value).toBe(design);
+    expect(designInput.value).toBe(designValue);
     expect(ratio0Input.value).toBe(branch0ratio);
     expect(name0Input.value).toBe(branch0name);
     expect(description0Input.value).toBe(branch0description);
@@ -210,7 +210,7 @@ describe("The `DesignForm` component for generic", () => {
       ratio: branch0ratio,
     };
     data.variants = [editedControlBranch, newlyAddedBranch];
-    data.design=designValue;
+    data.design = designValue;
     expect(Api.makeApiRequest).toBeCalledWith(expect.anything(), {
       data: data,
       method: "PUT",

@@ -8,7 +8,10 @@ import {
 import "@testing-library/jest-dom/extend-expect";
 import DesignForm from "experimenter/components/DesignForm";
 import * as Api from "experimenter/utils/api";
-import { PrefDataFactory, MultiPrefDataFactory } from "./DataFactory";
+import {
+  PrefDataFactory,
+  MultiPrefDataFactory,
+} from "experimenter/tests/DataFactory";
 import {
   addBranch,
   removeBranch,
@@ -133,8 +136,8 @@ describe("The `DesignForm` component for Pref Experiments", () => {
     // Edit some fields
     location.replace = () => {};
     fireEvent.change(prefNameInput, { target: { value: "the-new-pref-name" } });
-    fireEvent.change(prefBranchInput, {target: {value:"user"}});
-    fireEvent.change(prefTypeInput,{target: {value:"json string"}});
+    fireEvent.change(prefBranchInput, { target: { value: "user" } });
+    fireEvent.change(prefTypeInput, { target: { value: "json string" } });
     fireEvent.change(branchValueInputs[1], {
       target: { value: "the-new-pref-value-for-branch-2" },
     });
@@ -237,27 +240,22 @@ describe("The `DesignForm` component for Pref Experiments", () => {
     expect(getAllByLabelText(/Pref Value/)).toHaveLength(2);
   });
 
+  it("changes to multipref and fails", async () => {
+    radioButtonErrorSetup();
+    console.error = jest.fn();
+    const { getByLabelText, container } = await render(
+      <DesignForm experimentType={"pref"} />,
+    );
 
-it("changes to multipref and fails", async () => {
-  radioButtonErrorSetup();
-  console.error = jest.fn();
-  const {
-    getByLabelText,
-    container,
-  } = await render(<DesignForm experimentType={"pref"} />);
+    await waitForFormToLoad(container);
 
-  await waitForFormToLoad(container);
+    fireEvent.click(getByLabelText("Different Prefs per branch"));
 
-  fireEvent.click(getByLabelText("Different Prefs per branch"));
-
-  expect(Api.makeApiRequest).toHaveBeenCalled();
-  await waitForFormToLoad(container);
-  expect(console.error).toHaveBeenCalled();
-
-
+    expect(Api.makeApiRequest).toHaveBeenCalled();
+    await waitForFormToLoad(container);
+    expect(console.error).toHaveBeenCalled();
+  });
 });
-});
-
 
 describe("The `DesignForm` component for MultiPrefs", () => {
   afterEach(() => {
@@ -294,12 +292,6 @@ describe("The `DesignForm` component for MultiPrefs", () => {
       .mockRejectedValueOnce(rejectApiResponse);
   };
 
-  const rejectedPrefChangeSetUp = ()=>{
-    const apiResponse = MultiPrefDataFactory.build({}, {generateVariants:2});
-    const badResponse  = Error("Bad Request");
-    jest.spyOn(Api, "makeApiRequest").mockReturnValueOnce(apiResponse).mockRejectedValueOnce(badResponse)
-  };
-
   it("displays and edits data about multi pref experiments", async () => {
     const apiResponse = setup();
 
@@ -312,7 +304,7 @@ describe("The `DesignForm` component for MultiPrefs", () => {
     await waitForFormToLoad(container);
 
     const prefNameInputs = getAllByLabelText(/Pref Name/);
-    const prefBranchInputs= getAllByLabelText(/Pref Branch/);
+    const prefBranchInputs = getAllByLabelText(/Pref Branch/);
     const prefTypeInputs = getAllByLabelText(/Pref Type/);
     const prefValueInputs = getAllByLabelText(/Pref Value/);
 
@@ -330,7 +322,7 @@ describe("The `DesignForm` component for MultiPrefs", () => {
     fireEvent.change(prefBranchInputs[0], {
       target: { value: "user" },
     });
-    fireEvent.change(prefTypeInputs[0], {target:{value:"json string"}});
+    fireEvent.change(prefTypeInputs[0], { target: { value: "json string" } });
     fireEvent.change(prefValueInputs[0], {
       target: { value: "the-new-pref-value" },
     });
@@ -344,8 +336,9 @@ describe("The `DesignForm` component for MultiPrefs", () => {
     expect(data.variants[0].preferences[0].pref_name).toBe("the-new-pref-name");
     expect(data.variants[0].preferences[0].pref_branch).toBe("user");
     expect(data.variants[0].preferences[0].pref_type).toBe("json string");
-    expect(data.variants[0].preferences[0].pref_value).toBe("the-new-pref-value");
-
+    expect(data.variants[0].preferences[0].pref_value).toBe(
+      "the-new-pref-value",
+    );
   });
 
   it("displays errors on pref branches", async () => {
@@ -387,8 +380,6 @@ describe("The `DesignForm` component for MultiPrefs", () => {
 
     expect(getAllByLabelText(/Pref Name/)).toHaveLength(5);
   });
-
-
 
   it("removes a pref", async () => {
     const apiResponse = setup();

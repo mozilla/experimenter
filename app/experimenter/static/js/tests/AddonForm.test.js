@@ -15,7 +15,10 @@ import {
   removeBranch,
   waitForFormToLoad,
 } from "experimenter/tests/helpers.js";
-import { AddonDataFactory, BranchedAddonDataFactory } from "experimenter/tests/DataFactory";
+import {
+  AddonDataFactory,
+  BranchedAddonDataFactory,
+} from "experimenter/tests/DataFactory";
 
 describe("The `DesignForm` component for Addon", () => {
   afterEach(() => {
@@ -51,11 +54,11 @@ describe("The `DesignForm` component for Addon", () => {
       .mockRejectedValueOnce(rejectResponse);
   };
 
-  const badResponseSetUp = ()=>{
+  const badResponseSetUp = () => {
     const mockResponse = Error("A bad response has been returned");
-    jest.spyOn(Api, "makeApiRequest").mockImplementation(()=>Promise.resolve(mockResponse));
-
-
+    jest
+      .spyOn(Api, "makeApiRequest")
+      .mockImplementation(() => Promise.resolve(mockResponse));
   };
 
   it("renders addon forms", async () => {
@@ -139,17 +142,14 @@ describe("The `DesignForm` component for Addon", () => {
     expect(getAllByText("Description")).toHaveLength(3);
   });
 
-  it("Handles a bad Response Correctly",async()=>{
+  it("Handles a bad Response Correctly", async () => {
     badResponseSetUp();
     console.error = jest.fn();
 
-    const { container } = await render(
-      <DesignForm experimentType={"addon"} />,
-    );
+    await render(<DesignForm experimentType={"addon"} />);
 
     expect(Api.makeApiRequest).toHaveBeenCalled();
     expect(console.error).toHaveBeenCalled();
-
   });
 
   it("Saves and Redirects", async () => {
@@ -192,7 +192,6 @@ describe("The `DesignForm` component for Addon", () => {
     expect(location.replace).toHaveBeenCalled();
   });
 
-
   it("Cancels and nothing is saved ", async () => {
     setup();
     const { getByText, queryByTestId } = await render(
@@ -209,7 +208,7 @@ describe("The `DesignForm` component for Addon", () => {
   it("Make Edits to Form and is saved ", async () => {
     const data = setup();
     const { getByTestId, getByText, queryByTestId } = await render(
-      <DesignForm experimentType={"addon"}/>,
+      <DesignForm experimentType={"addon"} />,
     );
 
     await wait(() => {
@@ -228,7 +227,7 @@ describe("The `DesignForm` component for Addon", () => {
     const branch2description = "branch2 description";
 
     const addonUrlInput = getByTestId("addonUrl");
-    fireEvent.change(addonUrlInput, {target:{value:addonurlValue}});
+    fireEvent.change(addonUrlInput, { target: { value: addonurlValue } });
 
     const controlBranch = getByTestId("branch0");
     const ratio0Input = within(controlBranch).getByTestId("Branch Size");
