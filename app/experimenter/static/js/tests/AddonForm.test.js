@@ -15,7 +15,7 @@ import {
   removeBranch,
   waitForFormToLoad,
 } from "experimenter/tests/helpers.js";
-import { AddonDataFactory, BranchedAddonDataFactory } from "./DataFactory";
+import { AddonDataFactory, BranchedAddonDataFactory } from "experimenter/tests/DataFactory";
 
 describe("The `DesignForm` component for Addon", () => {
   afterEach(() => {
@@ -49,6 +49,13 @@ describe("The `DesignForm` component for Addon", () => {
       .spyOn(Api, "makeApiRequest")
       .mockReturnValueOnce(mockSuccessResponse)
       .mockRejectedValueOnce(rejectResponse);
+  };
+
+  const badResponseSetUp = ()=>{
+    const mockResponse = Error("A bad response has been returned");
+    jest.spyOn(Api, "makeApiRequest").mockImplementation(()=>Promise.resolve(mockResponse));
+
+
   };
 
   it("renders addon forms", async () => {
@@ -132,6 +139,19 @@ describe("The `DesignForm` component for Addon", () => {
     expect(getAllByText("Description")).toHaveLength(3);
   });
 
+  it("Handles a bad Response Correctly",async()=>{
+    badResponseSetUp();
+    console.error = jest.fn();
+
+    const { container } = await render(
+      <DesignForm experimentType={"addon"} />,
+    );
+
+    expect(Api.makeApiRequest).toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalled();
+
+  });
+
   it("Saves and Redirects", async () => {
     delete location.replace;
     location.replace = jest.fn();
@@ -152,6 +172,27 @@ describe("The `DesignForm` component for Addon", () => {
     expect(location.replace).toHaveBeenCalled();
   });
 
+  it("Saves", async () => {
+    delete location.replace;
+    location.replace = jest.fn();
+    setup();
+    const { getByText, queryByTestId } = await render(
+      <DesignForm experimentType={"addon"} />,
+    );
+    await wait(() => {
+      expect(queryByTestId("spinner")).not.toBeInTheDocument();
+    });
+    fireEvent.click(getByText("Save Draft"));
+    expect(getByText("Save Draft")).toHaveAttribute("disabled");
+
+    expect(Api.makeApiRequest).toHaveBeenCalledTimes(2);
+    let button = getByText("Save Draft and Continue");
+    // wait for button to no longer be disabled
+    await waitForDomChange({ button });
+    expect(location.replace).toHaveBeenCalled();
+  });
+
+
   it("Cancels and nothing is saved ", async () => {
     setup();
     const { getByText, queryByTestId } = await render(
@@ -168,7 +209,7 @@ describe("The `DesignForm` component for Addon", () => {
   it("Make Edits to Form and is saved ", async () => {
     const data = setup();
     const { getByTestId, getByText, queryByTestId } = await render(
-      <DesignForm experimentType={"addon"} />,
+      <DesignForm experimentType={"addon"}/>,
     );
 
     await wait(() => {
@@ -176,56 +217,70 @@ describe("The `DesignForm` component for Addon", () => {
     });
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
 
+    const addonurlValue = "https://example.com";
+
+    const branch0size = "75";
+    const branch0name = "branch0 name";
+    const branch0description = "branch0 description";
+
+    const branch2size = "25";
+    const branch2name = "branch2 name";
+    const branch2description = "branch2 description";
+
+    const addonUrlInput = getByTestId("addonUrl");
+    fireEvent.change(addonUrlInput, {target:{value:addonurlValue}});
+
     const controlBranch = getByTestId("branch0");
     const ratio0Input = within(controlBranch).getByTestId("Branch Size");
-    fireEvent.change(ratio0Input, { target: { value: "75" } });
+    fireEvent.change(ratio0Input, { target: { value: branch0size } });
     const name0Input = within(controlBranch).getByTestId("Name");
-    fireEvent.change(name0Input, { target: { value: "branch0 name" } });
+    fireEvent.change(name0Input, { target: { value: branch0name } });
     const description0Input = within(controlBranch).getByTestId("Description");
     fireEvent.change(description0Input, {
-      target: { value: "branch0 description" },
+      target: { value: branch0description },
     });
 
     fireEvent.click(getByText("Add Branch"));
 
     const branch2 = getByTestId("branch2");
     const ratio2Input = within(branch2).getByTestId("Branch Size");
-    fireEvent.change(ratio2Input, { target: { value: "25" } });
+    fireEvent.change(ratio2Input, { target: { value: branch2size } });
     const name2Input = within(branch2).getByTestId("Name");
-    fireEvent.change(name2Input, { target: { value: "branch2 name" } });
+    fireEvent.change(name2Input, { target: { value: branch2name } });
     const description2Input = within(branch2).getByTestId("Description");
     fireEvent.change(description2Input, {
-      target: { value: "branch2 description" },
+      target: { value: branch2description },
     });
 
     const branch1 = getByTestId("branch1");
     const removeButton = within(branch1).getByText("Remove Branch");
     fireEvent.click(removeButton);
 
-    expect(ratio0Input.value).toBe("75");
-    expect(name0Input.value).toBe("branch0 name");
-    expect(description0Input.value).toBe("branch0 description");
+    expect(ratio0Input.value).toBe(branch0size);
+    expect(name0Input.value).toBe(branch0name);
+    expect(description0Input.value).toBe(branch0description);
 
-    expect(ratio2Input.value).toBe("25");
-    expect(name2Input.value).toBe("branch2 name");
-    expect(description2Input.value).toBe("branch2 description");
+    expect(ratio2Input.value).toBe(branch2size);
+    expect(name2Input.value).toBe(branch2name);
+    expect(description2Input.value).toBe(branch2description);
 
     fireEvent.submit(getByText("Save Draft and Continue"));
 
     const newlyAddedBranch = {
-      description: "branch2 description",
+      description: branch2description,
       is_control: false,
-      name: "branch2 name",
-      ratio: "25",
+      name: branch2name,
+      ratio: branch2size,
     };
     const editedControlBranch = {
       id: data.variants[0].id,
-      description: "branch0 description",
+      description: branch0description,
       is_control: true,
-      name: "branch0 name",
-      ratio: "75",
+      name: branch0name,
+      ratio: branch0size,
     };
     data.variants = [editedControlBranch, newlyAddedBranch];
+    data.addon_release_url = addonurlValue;
     expect(Api.makeApiRequest).toBeCalledWith(expect.anything(), {
       data: data,
       method: "PUT",

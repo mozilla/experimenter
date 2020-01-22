@@ -114,7 +114,7 @@ describe("The `DesignForm` component for Pref Rollouts", () => {
     const design = "it's my design description value";
     const prefType = "boolean";
     const prefName = "browser.enabled";
-    const prefValue = "true";
+    const prefValue = "false";
 
     const designInput = getByLabelText(/Description/);
     const prefTypeInput = getByLabelText(/Pref Type/);
