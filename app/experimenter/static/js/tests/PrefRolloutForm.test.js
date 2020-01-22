@@ -9,7 +9,7 @@ import "@testing-library/jest-dom/extend-expect";
 import DesignForm from "experimenter/components/DesignForm";
 import * as Api from "experimenter/utils/api";
 import { waitForFormToLoad } from "experimenter/tests/helpers.js";
-import { PrefRolloutFactory } from "./DataFactory";
+import { PrefRolloutFactory } from "experimenter/tests/DataFactory";
 
 describe("The `DesignForm` component for Pref Rollouts", () => {
   afterEach(() => {
