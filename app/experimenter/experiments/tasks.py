@@ -1,3 +1,5 @@
+import decimal
+
 import markus
 import requests
 from django.contrib.auth import get_user_model
@@ -142,28 +144,28 @@ def update_experiment_info():
             logger.info("Updating Experiment: {}".format(experiment))
             if experiment.normandy_id:
                 recipe_data = normandy.get_recipe(experiment.normandy_id)
+
                 if needs_to_be_updated(recipe_data, experiment.status):
                     experiment = update_status_task(experiment, recipe_data)
                     update_ds_bug_task.delay(experiment.id)
+
                     if experiment.status == Experiment.STATUS_LIVE:
                         add_start_date_comment_task.delay(experiment.id)
                         email.send_experiment_launch_email(experiment)
 
                     elif experiment.status == Experiment.STATUS_COMPLETE:
                         comp_experiment_update_res_task.delay(experiment.id)
+
                 if experiment.status == Experiment.STATUS_LIVE:
+                    update_population_percent(experiment, recipe_data)
                     set_is_paused_value_task.delay(experiment.id, recipe_data)
                     send_period_ending_emails_task(experiment)
             else:
                 logger.info(
                     "Skipping Experiment: {}. No Normandy id found".format(experiment)
                 )
-        except (IntegrityError, KeyError, normandy.NormandyError):
-            logger.info(
-                "Failed to get Normandy Recipe. Recipe ID: {}".format(
-                    experiment.normandy_id
-                )
-            )
+        except (IntegrityError, KeyError, normandy.NormandyError) as e:
+            logger.info(f"Failed to update Experiment {experiment}: {e}")
     metrics.incr("update_experiment_info.completed")
 
 
@@ -243,8 +245,18 @@ def set_is_paused_value_task(experiment_id, recipe_data):
             experiment.changes.create(message=message, changed_by=default_user)
 
 
-def send_period_ending_emails_task(experiment):
+def update_population_percent(experiment, recipe_data):
+    if "filter_object" in recipe_data:
+        filter_objects = {f["type"]: f for f in recipe_data["filter_object"]}
+        if "bucketSample" in filter_objects:
+            bucket_sample = filter_objects["bucketSample"]
+            experiment.population_percent = decimal.Decimal(
+                bucket_sample["count"] / bucket_sample["total"] * 100
+            )
+            experiment.save()
 
+
+def send_period_ending_emails_task(experiment):
     # send experiment ending soon emails if end date is 5 days out
     if experiment.ending_soon:
         if not ExperimentEmail.objects.filter(
@@ -267,6 +279,7 @@ def send_period_ending_emails_task(experiment):
 def needs_to_be_updated(recipe_data, status):
     if recipe_data is None:
         return False
+
     enabled = recipe_data["enabled"]
     accepted_update = enabled and status == Experiment.STATUS_ACCEPTED
     live_update = not enabled and status == Experiment.STATUS_LIVE
