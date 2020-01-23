@@ -13,13 +13,13 @@ Results
   {% endif %}
   <p><strong>Initial Results: </strong></p>
   {% if experiment.results_initial %}
-    <p>{{ experiment.results_initial|linebreaks }}</p>
+    <p>{{ experiment.results_initial|urlize|linebreaks }}</p>
   {% else %}
     <p><em class="text-secondary">Not Complete.</em></p>
   {% endif %}
   <p><strong>Lessons Learned: </strong></p>
   {% if experiment.results_lessons_learned %}
-    <p>{{ experiment.results_lessons_learned|linebreaks }}</p>
+    <p>{{ experiment.results_lessons_learned|urlize|linebreaks }}</p>
   {% else %}
     <p><em class="text-secondary">Not Complete.</em></p>
   {% endif %}
