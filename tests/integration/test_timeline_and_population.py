@@ -64,7 +64,7 @@ def test_population_precentage_updates_correctly(selenium, base_url, fill_overvi
     assert overview.population_precentage == "0.0000"
     precentage = "37.0"
     overview.population_precentage = precentage
-    assert overview.population_precentage == f"0{precentage}"
+    assert overview.population_precentage == precentage
 
 
 @pytest.mark.nondestructive
