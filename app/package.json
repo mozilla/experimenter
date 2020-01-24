@@ -5,10 +5,7 @@
     "verbose": true,
     "coverageThreshold": {
       "global": {
-        "branches": 100,
-        "functions": 100,
-        "lines": 100,
-        "statements": -10
+        "lines": 100
       }
     },
     "transform": {
@@ -19,6 +16,9 @@
     },
     "testPathIgnorePatterns": [
       "<rootDir>/experimenter/served/"
+    ],
+    "collectCoverageFrom": [
+      "<rootDir>/experimenter/static/js/components/**"
     ]
   },
   "version": "1.0.0",
@@ -66,7 +66,7 @@
     "experimenter": "./experimenter/static/js"
   },
   "scripts": {
-    "test": "jest --silent",
+    "test": "jest --silent --coverage",
     "build": "parcel build experimenter/static/css/index.css experimenter/static/js/index.js --out-dir experimenter/static/assets --public-url /static/assets/",
     "watch": "parcel watch experimenter/static/css/index.css experimenter/static/js/index.js --out-dir experimenter/static/assets --public-url /static/assets/",
     "lint": "eslint experimenter/static/js/components/**/*.js experimenter/static/js/tests/**/*.js experimenter/static/js/index.js",

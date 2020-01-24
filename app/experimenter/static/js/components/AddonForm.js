@@ -21,10 +21,11 @@ export default class AddonForm extends React.PureComponent {
   renderSingleAddonFields() {
     if (!this.props.data.get("is_branched_addon")) {
       return (
-        <div data-testid="addonUrl">
+        <div>
           <DesignInput
             label="Signed Add-On URL"
             name="addon_release_url"
+            dataTestId="addonUrl"
             onChange={value => {
               this.props.handleDataChange("addon_release_url", value);
             }}

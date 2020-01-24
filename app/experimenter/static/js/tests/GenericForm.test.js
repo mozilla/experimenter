@@ -149,54 +149,68 @@ describe("The `DesignForm` component for generic", () => {
     await waitForFormToLoad(container);
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
 
+    const designValue = "a design plan";
+    const branch0ratio = "75";
+    const branch0name = "branch0 name";
+    const branch0description = "branch0 description";
+
+    const branch2ratio = "25";
+    const branch2name = "branch2 name";
+    const branch2description = "branch2 description";
+
+    const designInput = getByTestId("design");
+    fireEvent.change(designInput, { target: { value: designValue } });
+
     const controlBranch = getByTestId("branch0");
     const ratio0Input = within(controlBranch).getByTestId("Branch Size");
-    fireEvent.change(ratio0Input, { target: { value: "75" } });
+    fireEvent.change(ratio0Input, { target: { value: branch0ratio } });
     const name0Input = within(controlBranch).getByTestId("Name");
-    fireEvent.change(name0Input, { target: { value: "branch0 name" } });
+    fireEvent.change(name0Input, { target: { value: branch0name } });
     const description0Input = within(controlBranch).getByTestId("Description");
     fireEvent.change(description0Input, {
-      target: { value: "branch0 description" },
+      target: { value: branch0description },
     });
 
     addBranch(container);
 
     const branch2 = getByTestId("branch2");
     const ratio2Input = within(branch2).getByTestId("Branch Size");
-    fireEvent.change(ratio2Input, { target: { value: "25" } });
+    fireEvent.change(ratio2Input, { target: { value: branch2ratio } });
     const name2Input = within(branch2).getByTestId("Name");
-    fireEvent.change(name2Input, { target: { value: "branch2 name" } });
+    fireEvent.change(name2Input, { target: { value: branch2name } });
     const description2Input = within(branch2).getByTestId("Description");
     fireEvent.change(description2Input, {
-      target: { value: "branch2 description" },
+      target: { value: branch2description },
     });
 
     removeBranch(container, 0);
 
-    expect(ratio0Input.value).toBe("75");
-    expect(name0Input.value).toBe("branch0 name");
-    expect(description0Input.value).toBe("branch0 description");
+    expect(designInput.value).toBe(designValue);
+    expect(ratio0Input.value).toBe(branch0ratio);
+    expect(name0Input.value).toBe(branch0name);
+    expect(description0Input.value).toBe(branch0description);
 
-    expect(ratio2Input.value).toBe("25");
-    expect(name2Input.value).toBe("branch2 name");
-    expect(description2Input.value).toBe("branch2 description");
+    expect(ratio2Input.value).toBe(branch2ratio);
+    expect(name2Input.value).toBe(branch2name);
+    expect(description2Input.value).toBe(branch2description);
 
     fireEvent.submit(getByText("Save Draft and Continue"));
 
     const newlyAddedBranch = {
-      description: "branch2 description",
+      description: branch2description,
       is_control: false,
-      name: "branch2 name",
-      ratio: "25",
+      name: branch2name,
+      ratio: branch2ratio,
     };
     const editedControlBranch = {
       id: data.variants[0].id,
-      description: "branch0 description",
+      description: branch0description,
       is_control: true,
-      name: "branch0 name",
-      ratio: "75",
+      name: branch0name,
+      ratio: branch0ratio,
     };
     data.variants = [editedControlBranch, newlyAddedBranch];
+    data.design = designValue;
     expect(Api.makeApiRequest).toBeCalledWith(expect.anything(), {
       data: data,
       method: "PUT",

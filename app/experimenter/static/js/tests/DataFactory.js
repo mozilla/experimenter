@@ -18,7 +18,7 @@ export class VariantsFactory extends Factory {
 export class GenericDataFactory extends Factory {
   getFields() {
     return {
-      designs: new Field(faker.lorem.paragraph),
+      design: new Field(faker.lorem.paragraph),
       variants: [],
       type: "addon",
     };
@@ -67,6 +67,7 @@ export class PrefRolloutFactory extends Factory {
 export class AddonDataFactory extends GenericDataFactory {
   getFields() {
     return {
+      is_branched_addon: false,
       addon_release_url: new Field(faker.internet.url),
       variants: [],
       type: "addon",
