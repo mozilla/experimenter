@@ -459,7 +459,7 @@ class ExperimentConstants(object):
       </p>
     """
 
-    pref_name_HELP_TEXT = """
+    PREF_NAME_HELP_TEXT = """
       <p>
         Enter the full name of the Firefox pref key that this experiment
         will control.  A pref experiment can control exactly one pref,
