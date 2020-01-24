@@ -6,7 +6,7 @@ import { Button, Row, Col } from "react-bootstrap";
 import DesignInput from "experimenter/components/DesignInput";
 
 import {
-  pref_name_HELP,
+  PREF_NAME_HELP,
   PREF_TYPE_HELP,
   PREF_BRANCH_HELP,
 } from "experimenter/components/constants";
@@ -118,7 +118,7 @@ class Pref extends React.PureComponent {
                   : null
               }
               error={this.props.errors.get("pref_name", null)}
-              helpContent={pref_name_HELP}
+              helpContent={PREF_NAME_HELP}
               labelColumnWidth={3}
             />
           </div>

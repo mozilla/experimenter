@@ -9,7 +9,7 @@ import DesignInput from "experimenter/components/DesignInput";
 import PrefBranchFields from "experimenter/components/PrefBranchFields";
 import MultiPrefBranchFields from "experimenter/components/MultiPrefBranchFields";
 import {
-  pref_name_HELP,
+  PREF_NAME_HELP,
   PREF_TYPE_HELP,
   PREF_BRANCH_HELP,
 } from "experimenter/components/constants";
@@ -37,7 +37,7 @@ export default class PrefForm extends React.PureComponent {
             }}
             value={this.props.data.get("pref_name")}
             error={this.props.errors.get("pref_name", "")}
-            helpContent={pref_name_HELP}
+            helpContent={PREF_NAME_HELP}
             labelColumnWidth={2}
           />
 

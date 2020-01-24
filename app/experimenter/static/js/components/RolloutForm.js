@@ -8,7 +8,7 @@ import RadioButton from "experimenter/components/RadioButton";
 import {
   ADDON_RELEASE_URL_HELP,
   ROLLOUT_PREF_BRANCH_HELP,
-  pref_name_HELP,
+  PREF_NAME_HELP,
   PREF_TYPE_BOOL,
   PREF_TYPE_HELP,
   PREF_TYPE_INT,
@@ -91,7 +91,7 @@ export default class RolloutForm extends React.PureComponent {
             }}
             value={this.props.data.get("pref_name")}
             error={this.props.errors.get("pref_name", "")}
-            helpContent={pref_name_HELP}
+            helpContent={PREF_NAME_HELP}
             labelColumnWidth={2}
           />
 
