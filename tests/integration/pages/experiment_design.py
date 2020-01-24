@@ -14,7 +14,7 @@ class DesignPage(Base):
     _add_branch_btn_locator = (By.CSS_SELECTOR, "#add-branch-button")
     _branch_form_root_locator = (By.CSS_SELECTOR, "#control-branch-group")
     _continue_btn_locator = (By.CSS_SELECTOR, "#save-continue")
-    _firefox_pref_name_locator = (By.CSS_SELECTOR, "#id_pref_key")
+    _firefox_pref_name_locator = (By.CSS_SELECTOR, "#id_pref_name")
     _firefox_pref_type_locator = (By.CSS_SELECTOR, "#id_pref_type")
     _firefox_pref_branch_locator = (By.CSS_SELECTOR, "#id_pref_branch")
     _new_branch_locator = (
@@ -35,8 +35,7 @@ class DesignPage(Base):
         """Returns list of current branches."""
         els = self.find_elements(*self._branch_form_root_locator)
         branches = [
-            self.BranchRegion(self, root=el, count=count)
-            for count, el in enumerate(els)
+            self.BranchRegion(self, root=el, count=count) for count, el in enumerate(els)
         ]
         for count, item in enumerate(branches):
             if not item.is_displayed:
