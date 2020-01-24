@@ -9,7 +9,7 @@ import "@testing-library/jest-dom/extend-expect";
 import DesignForm from "experimenter/components/DesignForm";
 import * as Api from "experimenter/utils/api";
 import { waitForFormToLoad } from "experimenter/tests/helpers.js";
-import { PrefRolloutFactory } from "./DataFactory";
+import { PrefRolloutFactory } from "experimenter/tests/DataFactory";
 
 describe("The `DesignForm` component for Pref Rollouts", () => {
   afterEach(() => {
@@ -114,7 +114,7 @@ describe("The `DesignForm` component for Pref Rollouts", () => {
     const design = "it's my design description value";
     const prefType = "boolean";
     const prefName = "browser.enabled";
-    const prefValue = "true";
+    const prefValue = "false";
 
     const designInput = getByLabelText(/Description/);
     const prefTypeInput = getByLabelText(/Pref Type/);
