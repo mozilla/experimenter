@@ -246,7 +246,7 @@ class ExperimentDesignRolloutSerializer(
     )
 
     ROLLOUT_TYPE_FIELDS = {
-        Experiment.TYPE_PREF: ("pref_key", "pref_type", "pref_value"),
+        Experiment.TYPE_PREF: ("pref_name", "pref_type", "pref_value"),
         Experiment.TYPE_ADDON: ("addon_release_url",),
     }
 
@@ -256,7 +256,7 @@ class ExperimentDesignRolloutSerializer(
             "rollout_type",
             "design",
             "addon_release_url",
-            "pref_key",
+            "pref_name",
             "pref_type",
             "pref_value",
         )
@@ -330,14 +330,14 @@ class ExperimentChangelogVariantSerializer(serializers.ModelSerializer):
 
 class ExperimentDesignPrefSerializer(PrefValidationMixin, ExperimentDesignBaseSerializer):
     is_multi_pref = serializers.BooleanField()
-    pref_key = serializers.CharField(max_length=255)
+    pref_name = serializers.CharField(max_length=255)
     pref_type = serializers.CharField(max_length=255)
     pref_branch = serializers.CharField(max_length=255)
     variants = ExperimentDesignVariantPrefSerializer(many=True)
 
     class Meta:
         model = Experiment
-        fields = ("is_multi_pref", "pref_key", "pref_type", "pref_branch", "variants")
+        fields = ("is_multi_pref", "pref_name", "pref_type", "pref_branch", "variants")
 
     def validate_pref_type(self, value):
         if value == "Firefox Pref Type":

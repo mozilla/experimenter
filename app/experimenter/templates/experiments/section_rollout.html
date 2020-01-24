@@ -19,9 +19,9 @@
     <strong>Pref Value</strong>
     <div class="border-left-grey pl-3 mb-4">
       {% if experiment.pref_type == "json string" %}
-        <p><strong>{{ experiment.pref_key }} = <pre class="text-info">{{ experiment.pref_value|as_json }}</pre></strong></p>
+        <p><strong>{{ experiment.pref_name }} = <pre class="text-info">{{ experiment.pref_value|as_json }}</pre></strong></p>
       {% else %}
-        <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ experiment.pref_value }}</span></strong></p>
+        <p><strong>{{ experiment.pref_name }} = <span class="text-info">{{ experiment.pref_value }}</span></strong></p>
       {% endif %}
     </div>
   {% endif %}

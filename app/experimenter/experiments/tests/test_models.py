@@ -953,7 +953,7 @@ class TestExperimentModel(TestCase):
             type=Experiment.TYPE_ROLLOUT,
             rollout_type=Experiment.TYPE_PREF,
             pref_type=Experiment.PREF_TYPE_STR,
-            pref_key="abc",
+            pref_name="abc",
             pref_value="abc",
         )
         self.assertTrue(experiment.completed_pref_rollout)
@@ -963,7 +963,7 @@ class TestExperimentModel(TestCase):
             type=Experiment.TYPE_ROLLOUT,
             rollout_type=Experiment.TYPE_PREF,
             pref_type=Experiment.PREF_TYPE_STR,
-            pref_key="abc",
+            pref_name="abc",
             pref_value="abc",
         )
         self.assertTrue(experiment.completed_rollout)

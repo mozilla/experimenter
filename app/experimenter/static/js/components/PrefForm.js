@@ -9,7 +9,7 @@ import DesignInput from "experimenter/components/DesignInput";
 import PrefBranchFields from "experimenter/components/PrefBranchFields";
 import MultiPrefBranchFields from "experimenter/components/MultiPrefBranchFields";
 import {
-  PREF_KEY_HELP,
+  pref_name_HELP,
   PREF_TYPE_HELP,
   PREF_BRANCH_HELP,
 } from "experimenter/components/constants";
@@ -30,14 +30,14 @@ export default class PrefForm extends React.PureComponent {
         <div>
           <DesignInput
             label="Pref Name"
-            name="pref_key"
-            id="id_pref_key"
+            name="pref_name"
+            id="id_pref_name"
             onChange={value => {
-              this.props.handleDataChange("pref_key", value);
+              this.props.handleDataChange("pref_name", value);
             }}
-            value={this.props.data.get("pref_key")}
-            error={this.props.errors.get("pref_key", "")}
-            helpContent={PREF_KEY_HELP}
+            value={this.props.data.get("pref_name")}
+            error={this.props.errors.get("pref_name", "")}
+            helpContent={pref_name_HELP}
             labelColumnWidth={2}
           />
 

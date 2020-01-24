@@ -148,7 +148,7 @@ class ExperimentFilterset(filters.FilterSet):
             "slug",
             "related_work",
             "addon_experiment_id",
-            "pref_key",
+            "pref_name",
             "public_name",
             "public_description",
             "objectives",
