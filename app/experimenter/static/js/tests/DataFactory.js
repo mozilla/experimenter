@@ -44,7 +44,7 @@ export class AddonRolloutFactory extends Factory {
       rollout_type: "addon",
       design: new Field(faker.lorem.paragraph),
       addon_release_url: new Field(faker.internet.url),
-      pref_key: null,
+      pref_name: null,
       pref_type: null,
       pref_value: null,
     };
@@ -57,7 +57,7 @@ export class PrefRolloutFactory extends Factory {
       rollout_type: "pref",
       design: new Field(faker.lorem.paragraph),
       addon_release_url: null,
-      pref_key: "browser.enabled",
+      pref_name: "browser.enabled",
       pref_type: "bool",
       pref_value: "true",
     };
@@ -87,7 +87,7 @@ export class PrefVariantsFactory extends VariantsFactory {
 export class PrefDataFactory extends Factory {
   getFields() {
     return {
-      pref_key: new Field(faker.lorem.word),
+      pref_name: new Field(faker.lorem.word),
       pref_type: "string",
       pref_branch: "default",
       variants: [],

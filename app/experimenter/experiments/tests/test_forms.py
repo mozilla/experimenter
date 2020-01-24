@@ -400,7 +400,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         )
 
         data = {
-            "pref_key": experiment.pref_key,
+            "pref_name": experiment.pref_name,
             "pref_type": Experiment.PREF_TYPE_INT,
             "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
             "addon_experiment_id": experiment.addon_experiment_id,
@@ -1258,7 +1258,7 @@ def get_design_form_data():
     data = get_variants_form_data()
     data.update(
         {
-            "pref_key": "browser.test.example",
+            "pref_name": "browser.test.example",
             "pref_type": Experiment.PREF_TYPE_STR,
             "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
             "addon_experiment_id": slugify(faker.catch_phrase()),
@@ -1381,7 +1381,7 @@ class TestExperimentDesignPrefForm(MockRequestMixin, TestCase):
         self.data = get_variants_form_data()
         self.data.update(
             {
-                "pref_key": "browser.test.example",
+                "pref_name": "browser.test.example",
                 "pref_type": Experiment.PREF_TYPE_STR,
                 "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
             }
@@ -1389,7 +1389,7 @@ class TestExperimentDesignPrefForm(MockRequestMixin, TestCase):
 
     def test_minimum_required_fields(self):
         experiment = ExperimentFactory.create(
-            pref_key=None, pref_type=None, pref_branch=None
+            pref_name=None, pref_type=None, pref_branch=None
         )
 
         form = ExperimentDesignPrefForm(
@@ -1400,7 +1400,7 @@ class TestExperimentDesignPrefForm(MockRequestMixin, TestCase):
 
         experiment = form.save()
 
-        self.assertEqual(experiment.pref_key, self.data["pref_key"])
+        self.assertEqual(experiment.pref_name, self.data["pref_name"])
         self.assertEqual(experiment.pref_type, self.data["pref_type"])
         self.assertEqual(experiment.pref_branch, self.data["pref_branch"])
 

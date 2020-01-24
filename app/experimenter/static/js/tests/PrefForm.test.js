@@ -107,7 +107,7 @@ describe("The `DesignForm` component for Pref Experiments", () => {
     const branchValueInputs = getAllByLabelText(/Value/);
 
     // Check that the data returned from the server is displayed
-    expect(prefNameInput.value).toBe(apiResponse.pref_key);
+    expect(prefNameInput.value).toBe(apiResponse.pref_name);
     expect(prefTypeInput.children[prefTypeInput.selectedIndex].innerText).toBe(
       apiResponse.pref_value,
     );
@@ -147,7 +147,7 @@ describe("The `DesignForm` component for Pref Experiments", () => {
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(2);
     const [url, { data }] = Api.makeApiRequest.mock.calls[1];
     expect(url).toBe("experiments/the-slug/design-pref/");
-    expect(data.pref_key).toBe("the-new-pref-name");
+    expect(data.pref_name).toBe("the-new-pref-name");
     expect(data.variants[1].value).toBe("the-new-pref-value-for-branch-2");
   });
 

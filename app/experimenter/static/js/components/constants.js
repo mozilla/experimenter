@@ -16,7 +16,7 @@ export const DESIGN_HELP = (
   </div>
 );
 
-export const PREF_KEY_HELP = (
+export const pref_name_HELP = (
   <div>
     <p>
       Enter the full name of the Firefox pref key that this experiment will

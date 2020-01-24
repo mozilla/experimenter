@@ -213,7 +213,7 @@ class TestExperimentDesignPrefView(TestCase):
             {
                 "type": "pref",
                 "is_multi_pref": False,
-                "pref_key": "pref 1",
+                "pref_name": "pref 1",
                 "pref_branch": "default",
                 "pref_type": "string",
                 "variants": [variant_1, variant_2],
@@ -267,7 +267,7 @@ class TestExperimentDesignPrefView(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json()["pref_key"], ["This field is required."])
+        self.assertEqual(response.json()["pref_name"], ["This field is required."])
 
 
 class TestExperimentDesignMultiPrefView(TestCase):

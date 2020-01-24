@@ -157,7 +157,7 @@ class VariantPreferenceRecipeListSerializer(serializers.ListSerializer):
 
         else:
             preference_values = SingularPreferenceRecipeValueSerializer(obj.instance).data
-            return {experiment.pref_key: preference_values}
+            return {experiment.pref_name: preference_values}
 
 
 class VariantPreferenceRecipeSerializer(serializers.ModelSerializer):
@@ -190,7 +190,7 @@ class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
     preferenceBranchType = serializers.ReadOnlyField(source="pref_branch")
     slug = serializers.ReadOnlyField(source="normandy_slug")
     experimentDocumentUrl = serializers.ReadOnlyField(source="experiment_url")
-    preferenceName = serializers.ReadOnlyField(source="pref_key")
+    preferenceName = serializers.ReadOnlyField(source="pref_name")
     preferenceType = PrefTypeField(source="pref_type")
     branches = ExperimentRecipeVariantSerializer(many=True, source="variants")
 
@@ -276,7 +276,7 @@ class ExperimentRecipeAddonRolloutArgumentsSerializer(serializers.ModelSerialize
 
 
 class RolloutPrefRecipeSerialzer(serializers.ModelSerializer):
-    preferenceName = serializers.ReadOnlyField(source="pref_key")
+    preferenceName = serializers.ReadOnlyField(source="pref_name")
     value = PrefValueField(type_field="pref_type", value_field="pref_value", source="*")
 
     class Meta:
