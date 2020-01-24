@@ -16,7 +16,7 @@ class TimelineAndPopulationPage(Base):
     _firefox_max_version_locator = (By.CSS_SELECTOR, "#id_firefox_max_version")
     _locale_btn_locator = (
         By.XPATH,
-        "/html/body/div[4]/div/div[1]/div[2]/div/form/div[9]/div[2]/div[1]/button"
+        "/html/body/div[4]/div/div[1]/div[2]/div/form/div[9]/div[2]/div[1]/button",
     )
     _platform_locator = (By.CSS_SELECTOR, "#id_platform")
     _proposed_duration_locator = (By.CSS_SELECTOR, "#id_proposed_duration")
@@ -70,14 +70,13 @@ class TimelineAndPopulationPage(Base):
     @population_precentage.setter
     def population_precentage(self, text=None):
         element = self.find_element(*self._population_precentage_locator)
+        element.clear()
         element.send_keys(text)
 
     @property
     def firefox_channel(self):
         element = self.find_element(*self._firefox_channel_locator)
-        channels = element.find_elements(
-            By.CSS_SELECTOR, "#id_firefox_channel > option"
-        )
+        channels = element.find_elements(By.CSS_SELECTOR, "#id_firefox_channel > option")
         for item in channels:
             if item.get_attribute("selected"):
                 return item.get_attribute("value")
@@ -85,9 +84,7 @@ class TimelineAndPopulationPage(Base):
     @firefox_channel.setter
     def firefox_channel(self, channel=None):
         element = self.find_element(*self._firefox_channel_locator)
-        channels = element.find_elements(
-            By.CSS_SELECTOR, "#id_firefox_channel > option"
-        )
+        channels = element.find_elements(By.CSS_SELECTOR, "#id_firefox_channel > option")
         for item in channels:
             if item.get_attribute("value") == channel:
                 item.click()
@@ -138,9 +135,7 @@ class TimelineAndPopulationPage(Base):
         # scroll to element
         self.selenium.execute_script("arguments[0].scrollIntoView(true);", element)
         self.selenium.execute_script("arguments[0].click();", element)
-        locales = self.selenium.find_elements(
-            By.CSS_SELECTOR, "div.show:nth-child(3) a"
-        )
+        locales = self.selenium.find_elements(By.CSS_SELECTOR, "div.show:nth-child(3) a")
         for item in locales:
             if item.get_attribute("aria-selected") == "true":
                 locale_text = item.find_element(By.CSS_SELECTOR, "span.text").text
@@ -151,9 +146,7 @@ class TimelineAndPopulationPage(Base):
     def locale(self, locale=None):
         element = self.find_element(*self._locale_btn_locator)
         self.selenium.execute_script("arguments[0].click();", element)
-        locales = self.selenium.find_elements(
-            By.CSS_SELECTOR, "div.show:nth-child(3) a"
-        )
+        locales = self.selenium.find_elements(By.CSS_SELECTOR, "div.show:nth-child(3) a")
         for item in locales:
             if locale in item.find_element(By.CSS_SELECTOR, "span.text").text:
                 self.selenium.execute_script("arguments[0].click();", item)
