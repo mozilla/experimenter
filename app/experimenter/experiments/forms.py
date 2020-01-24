@@ -636,7 +636,7 @@ class ExperimentDesignPrefForm(ExperimentDesignBaseForm):
 
     pref_name = forms.CharField(
         label="Pref Name",
-        help_text=Experiment.pref_name_HELP_TEXT,
+        help_text=Experiment.PREF_NAME_HELP_TEXT,
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     pref_type = forms.ChoiceField(
