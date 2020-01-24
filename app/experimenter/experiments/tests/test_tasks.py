@@ -1,4 +1,5 @@
 from datetime import date
+import decimal
 
 from django.conf import settings
 from django.core import mail
@@ -543,6 +544,35 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].recipients(), [experiment.owner.email])
+
+    def test_live_rollout_updates_population_percent(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            population_percent=decimal.Decimal("25.000"),
+        )
+
+        mock_response_data = {
+            "approved_revision": {
+                "enabled": True,
+                "filter_object": [
+                    {"type": "bucketSample", "count": 5000, "total": 10000}
+                ],
+            }
+        }
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status = mock.Mock()
+        mock_response.raise_for_status.side_effect = None
+        mock_response.status_code = 200
+
+        self.mock_normandy_requests_get.return_value = mock_response
+
+        tasks.update_experiment_info()
+        experiment = Experiment.objects.get(normandy_id=1234)
+        self.assertEqual(experiment.population_percent, decimal.Decimal("50.000"))
 
 
 class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase):
