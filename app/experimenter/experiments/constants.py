@@ -459,7 +459,7 @@ class ExperimentConstants(object):
       </p>
     """
 
-    PREF_KEY_HELP_TEXT = """
+    PREF_NAME_HELP_TEXT = """
       <p>
         Enter the full name of the Firefox pref key that this experiment
         will control.  A pref experiment can control exactly one pref,
@@ -964,7 +964,7 @@ Value: {variant.value}
 
     What is the preference we will be changing
 
-{experiment.pref_key}
+{experiment.pref_name}
 
     What are the branches of the experiment and what values should
     each branch be set to?

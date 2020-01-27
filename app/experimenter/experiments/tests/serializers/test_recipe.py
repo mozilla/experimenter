@@ -205,7 +205,7 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
             normandy_slug="normandy-slug",
             rollout_type=Experiment.TYPE_PREF,
             pref_type=Experiment.PREF_TYPE_INT,
-            pref_key="browser.pref",
+            pref_name="browser.pref",
             pref_value="4",
         )
         serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
@@ -223,7 +223,7 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
             normandy_slug="normandy-slug",
             rollout_type=Experiment.TYPE_PREF,
             pref_type=Experiment.PREF_TYPE_BOOL,
-            pref_key="browser.pref",
+            pref_name="browser.pref",
             pref_value="true",
         )
         serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
@@ -241,7 +241,7 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
             normandy_slug="normandy-slug",
             rollout_type=Experiment.TYPE_PREF,
             pref_type=Experiment.PREF_TYPE_STR,
-            pref_key="browser.pref",
+            pref_name="browser.pref",
             pref_value="a string",
         )
         serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
@@ -404,7 +404,7 @@ class TestExperimentRecipeSerializer(TestCase):
             "branches": [
                 {
                     "preferences": {
-                        experiment.pref_key: {
+                        experiment.pref_name: {
                             "preferenceBranchType": "default",
                             "preferenceType": Experiment.PREF_TYPE_INT,
                             "preferenceValue": 5,
@@ -532,7 +532,7 @@ class TestExperimentRecipeSerializer(TestCase):
             normandy_slug="normandy-slug",
             platform=Experiment.PLATFORM_WINDOWS,
             population_percent=30.0,
-            pref_key="browser.pref",
+            pref_name="browser.pref",
             pref_value="true",
             rollout_type=Experiment.TYPE_PREF,
             pref_type=Experiment.PREF_TYPE_BOOL,
@@ -593,7 +593,7 @@ class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
             normandy_slug="normandy-slug",
             pref_branch=Experiment.PREF_BRANCH_DEFAULT,
             pref_type=Experiment.PREF_TYPE_JSON_STR,
-            pref_key="browser.pref",
+            pref_name="browser.pref",
             firefox_min_version="55.0",
         )
         variant = ExperimentVariantFactory.create(
@@ -651,7 +651,7 @@ class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
 
         serialized_preferences = serializer.data["preferences"]
         self.assertEqual(
-            serialized_preferences[experiment.pref_key],
+            serialized_preferences[experiment.pref_name],
             {
                 "preferenceBranchType": experiment.pref_branch,
                 "preferenceType": PrefTypeField().to_representation(experiment.pref_type),
@@ -706,7 +706,7 @@ class TestExperimentRecipePrefArgumentsSerializer(TestCase):
                 "preferenceBranchType": experiment.pref_branch,
                 "slug": experiment.normandy_slug,
                 "experimentDocumentUrl": experiment.experiment_url,
-                "preferenceName": experiment.pref_key,
+                "preferenceName": experiment.pref_name,
                 "preferenceType": experiment.pref_type,
                 "branches": [
                     ExperimentRecipeVariantSerializer(variant).data
@@ -724,7 +724,7 @@ class TestExperimentRecipePrefArgumentsSerializer(TestCase):
                 "preferenceBranchType": experiment.pref_branch,
                 "slug": experiment.normandy_slug,
                 "experimentDocumentUrl": experiment.experiment_url,
-                "preferenceName": experiment.pref_key,
+                "preferenceName": experiment.pref_name,
                 "preferenceType": "string",
                 "branches": [
                     ExperimentRecipeVariantSerializer(variant).data

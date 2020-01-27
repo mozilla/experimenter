@@ -90,7 +90,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "addon_release_url",
                     "rollout_type",
                     "rollout_playbook",
-                    "pref_key",
+                    "pref_name",
                     "pref_type",
                     "pref_branch",
                     "design",
