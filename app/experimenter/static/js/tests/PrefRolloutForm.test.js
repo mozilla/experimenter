@@ -29,7 +29,7 @@ describe("The `DesignForm` component for Pref Rollouts", () => {
   const rejectedSetUp = () => {
     const mockSuccessResponse = PrefRolloutFactory.build();
     const rejectResponse = {
-      data: { pref_key: ["This field is required."] },
+      data: { pref_name: ["This field is required."] },
     };
     jest
       .spyOn(Api, "makeApiRequest")
@@ -135,7 +135,7 @@ describe("The `DesignForm` component for Pref Rollouts", () => {
 
     data.design = design;
     data.pref_type = prefType;
-    data.pref_key = prefName;
+    data.pref_name = prefName;
     data.pref_value = prefValue;
     expect(Api.makeApiRequest).toBeCalledWith(expect.anything(), {
       data: data,

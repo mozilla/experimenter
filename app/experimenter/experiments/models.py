@@ -110,7 +110,7 @@ class Experiment(ExperimentConstants, models.Model):
     addon_release_url = models.URLField(max_length=400, blank=True, null=True)
     is_branched_addon = models.BooleanField(default=False)
 
-    pref_key = models.CharField(max_length=255, blank=True, null=True)
+    pref_name = models.CharField(max_length=255, blank=True, null=True)
     pref_type = models.CharField(
         max_length=255,
         choices=ExperimentConstants.PREF_TYPE_CHOICES,
@@ -580,7 +580,7 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def completed_pref_rollout(self):
         return self.is_pref_rollout and all(
-            [self.pref_type, self.pref_key, self.pref_value]
+            [self.pref_type, self.pref_name, self.pref_value]
         )
 
     @property

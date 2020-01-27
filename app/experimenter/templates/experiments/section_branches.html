@@ -33,9 +33,9 @@
         {% endfor %}
       {% elif experiment.is_pref_experiment %}
         {% if experiment.is_pref_value_json_string %}
-          <p><strong>{{ experiment.pref_key }} = <pre class="text-info">{{ variant.value|as_json }}</pre></strong></p>
+          <p><strong>{{ experiment.pref_name }} = <pre class="text-info">{{ variant.value|as_json }}</pre></strong></p>
         {% else %}
-          <p><strong>{{ experiment.pref_key }} = <span class="text-info">{{ variant.value }}</span></strong></p>
+          <p><strong>{{ experiment.pref_name }} = <span class="text-info">{{ variant.value }}</span></strong></p>
         {% endif %}
       {% endif %}
       <p>{{ variant.description|urlize|linebreaks }}</p>

@@ -6,7 +6,7 @@ import { Button, Row, Col } from "react-bootstrap";
 import DesignInput from "experimenter/components/DesignInput";
 
 import {
-  PREF_KEY_HELP,
+  PREF_NAME_HELP,
   PREF_TYPE_HELP,
   PREF_BRANCH_HELP,
 } from "experimenter/components/constants";
@@ -107,7 +107,7 @@ class Pref extends React.PureComponent {
           <div className="col-6">
             <DesignInput
               label="Pref Name"
-              name="pref_key"
+              name="pref_name"
               id={`pref-key-${this.props.variantIndex}-${this.props.index}`}
               onChange={value => {
                 this.handlePrefValueChange("pref_name", value);
@@ -118,7 +118,7 @@ class Pref extends React.PureComponent {
                   : null
               }
               error={this.props.errors.get("pref_name", null)}
-              helpContent={PREF_KEY_HELP}
+              helpContent={PREF_NAME_HELP}
               labelColumnWidth={3}
             />
           </div>
