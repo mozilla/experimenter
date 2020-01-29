@@ -67,11 +67,11 @@
 
 {% block main_content %}
 
-  {% include "experiments/section_overview.html" with section_name=experiment.SECTION_OVERVIEW section_complete=True experiment=experiment edit_url_name="experiments-overview-update" comments=experiment.comments.sections.overview %}
-
   {% if experiment.is_begun %}
     {% include "experiments/section_results.html" with section_name=experiment.SECTION_RESULTS section_title="Results" section_complete=experiment.completed_results experiment=experiment edit_url_name="experiments-results-update" comments=experiment.comments.sections.results %}
   {% endif %}
+
+  {% include "experiments/section_overview.html" with section_name=experiment.SECTION_OVERVIEW section_complete=True experiment=experiment edit_url_name="experiments-overview-update" comments=experiment.comments.sections.overview %}
 
   {% include "experiments/section_timeline.html" with section_name=experiment.SECTION_TIMELINE section_complete=experiment.completed_timeline experiment=experiment edit_url_name="experiments-timeline-pop-update" comments=experiment.comments.sections.timeline %}
 
