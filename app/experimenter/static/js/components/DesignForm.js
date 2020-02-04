@@ -192,7 +192,7 @@ class DesignForm extends React.PureComponent {
             <Row>
               <Col className="text-right">
                 <a
-                  className="mr-1 btn btn-default"
+                  className="mr-1 btn btn-link"
                   href={`/experiments/${this.props.slug}/`}
                 >
                   <span className="fas fa-times" /> Cancel Editing
