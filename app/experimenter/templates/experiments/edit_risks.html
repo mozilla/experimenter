@@ -63,7 +63,7 @@
 
 {% block edit_buttons %}
   {% if object %}
-    <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-default">
+    <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-link">
       <span class="fas fa-times"></span>
       Cancel Editing
     </a>
