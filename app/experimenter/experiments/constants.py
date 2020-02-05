@@ -223,9 +223,9 @@ class ExperimentConstants(object):
     RISK_RELEASE_POPULATION_LABEL = (
         "Does this delivery affect 1% or more of Release users?"
     )
-    RISK_REVENUE_LABEL = (
-        "Does this delivery have possible negative impact on revenue (ex: search, pocket revenue, New Tab page experience)?"
-    )
+    RISK_REVENUE_LABEL = """Does this delivery have possible negative impact on revenue 
+        (ex: search, pocket revenue, New Tab page experience)?"""
+
     RISK_DATA_CATEGORY_LABEL = "Are you using Category 3 or 4 data?"
     RISK_EXTERNAL_TEAM_IMPACT_LABEL = (
         "Does your project impact code in other module areas or teams outside your own?"
@@ -873,8 +873,7 @@ Do you plan on surveying users at the end of the delivery? Yes/No.
 Strategy and Insights can help create surveys if needed
     """
 
-    RISKS_DEFAULT = (
-        """
+    RISKS_DEFAULT = """
 If you answered "Yes" to any of the question above - this box is the area to
 capture the details.
 
@@ -885,29 +884,22 @@ This information makes it easier to collaborate with supporting teams (ex: for
 sign-offs). Good details avoid assumptions or delays, while people locate the
 information necessary to make an informed decision.
     """.strip()
-    )
 
-    RISK_TECHNICAL_DEFAULT = (
-        """
+    RISK_TECHNICAL_DEFAULT = """
 If you answered “yes”, your delivery is considered Complex. QA and Release
 Management will need details. Please outline the technical risk factors
 or complexity factors that have been identified and any mitigations.
 This information will automatically be put in emails to QA.
     """.strip()
-    )
 
-    TESTING_DEFAULT = (
-        """
+    TESTING_DEFAULT = """
 If additional QA is required, provide a plan (or links to them) for testing
 each branch of this delivery.
     """.strip()
-    )
 
-    TEST_BUILDS_DEFAULT = (
-        """
+    TEST_BUILDS_DEFAULT = """
 If applicable, link to any relevant test builds / staging information
     """.strip()
-    )
 
     QA_STATUS_DEFAULT = "What is the QA status: Not started, Green, Yellow, Red"
 
