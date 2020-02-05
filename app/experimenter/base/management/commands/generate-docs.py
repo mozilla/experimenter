@@ -44,7 +44,7 @@ class Command(BaseCommand):
             api_json = output.read()
 
             doc_rendered = render_to_string(
-                "swagger-ui-template.html", context={"spec": api_json},
+                "swagger-ui-template.html", context={"spec": api_json}
             )
 
             with open("/app/experimenter/docs/openapi-schema.json", "w+") as f:
