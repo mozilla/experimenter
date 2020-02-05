@@ -290,7 +290,7 @@
                       ],
                       "nullable": true
                     },
-                    "pref_key": {
+                    "pref_name": {
                       "type": "string",
                       "nullable": true,
                       "maxLength": 255
@@ -672,7 +672,7 @@
                         ],
                         "nullable": true
                       },
-                      "pref_key": {
+                      "pref_name": {
                         "type": "string",
                         "nullable": true,
                         "maxLength": 255
@@ -1363,7 +1363,7 @@
                     "is_multi_pref": {
                       "type": "boolean"
                     },
-                    "pref_key": {
+                    "pref_name": {
                       "type": "string",
                       "maxLength": 255
                     },
@@ -1411,7 +1411,7 @@
                   },
                   "required": [
                     "is_multi_pref",
-                    "pref_key",
+                    "pref_name",
                     "pref_type",
                     "pref_branch",
                     "variants"
@@ -1445,7 +1445,7 @@
                   "is_multi_pref": {
                     "type": "boolean"
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "maxLength": 255
                   },
@@ -1493,7 +1493,7 @@
                 },
                 "required": [
                   "is_multi_pref",
-                  "pref_key",
+                  "pref_name",
                   "pref_type",
                   "pref_branch",
                   "variants"
@@ -1506,7 +1506,7 @@
                   "is_multi_pref": {
                     "type": "boolean"
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "maxLength": 255
                   },
@@ -1554,7 +1554,7 @@
                 },
                 "required": [
                   "is_multi_pref",
-                  "pref_key",
+                  "pref_name",
                   "pref_type",
                   "pref_branch",
                   "variants"
@@ -1567,7 +1567,7 @@
                   "is_multi_pref": {
                     "type": "boolean"
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "maxLength": 255
                   },
@@ -1615,7 +1615,7 @@
                 },
                 "required": [
                   "is_multi_pref",
-                  "pref_key",
+                  "pref_name",
                   "pref_type",
                   "pref_branch",
                   "variants"
@@ -1633,7 +1633,7 @@
                     "is_multi_pref": {
                       "type": "boolean"
                     },
-                    "pref_key": {
+                    "pref_name": {
                       "type": "string",
                       "maxLength": 255
                     },
@@ -1681,7 +1681,7 @@
                   },
                   "required": [
                     "is_multi_pref",
-                    "pref_key",
+                    "pref_name",
                     "pref_type",
                     "pref_branch",
                     "variants"
@@ -1715,7 +1715,7 @@
                   "is_multi_pref": {
                     "type": "boolean"
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "maxLength": 255
                   },
@@ -1769,7 +1769,7 @@
                   "is_multi_pref": {
                     "type": "boolean"
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "maxLength": 255
                   },
@@ -1823,7 +1823,7 @@
                   "is_multi_pref": {
                     "type": "boolean"
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "maxLength": 255
                   },
@@ -1882,7 +1882,7 @@
                     "is_multi_pref": {
                       "type": "boolean"
                     },
-                    "pref_key": {
+                    "pref_name": {
                       "type": "string",
                       "maxLength": 255
                     },
@@ -1930,7 +1930,7 @@
                   },
                   "required": [
                     "is_multi_pref",
-                    "pref_key",
+                    "pref_name",
                     "pref_type",
                     "pref_branch",
                     "variants"
@@ -3670,7 +3670,7 @@
                       "maxLength": 400,
                       "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
                     },
-                    "pref_key": {
+                    "pref_name": {
                       "type": "string",
                       "nullable": true,
                       "maxLength": 255
@@ -3736,7 +3736,7 @@
                     "maxLength": 400,
                     "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -3781,7 +3781,7 @@
                     "maxLength": 400,
                     "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -3826,7 +3826,7 @@
                     "maxLength": 400,
                     "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -3876,7 +3876,7 @@
                       "maxLength": 400,
                       "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
                     },
-                    "pref_key": {
+                    "pref_name": {
                       "type": "string",
                       "nullable": true,
                       "maxLength": 255
@@ -3942,7 +3942,7 @@
                     "maxLength": 400,
                     "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -3984,7 +3984,7 @@
                     "maxLength": 400,
                     "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -4026,7 +4026,7 @@
                     "maxLength": 400,
                     "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -4073,7 +4073,7 @@
                       "maxLength": 400,
                       "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
                     },
-                    "pref_key": {
+                    "pref_name": {
                       "type": "string",
                       "nullable": true,
                       "maxLength": 255
@@ -4311,7 +4311,7 @@
                     ],
                     "nullable": true
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -4659,7 +4659,7 @@
                     ],
                     "nullable": true
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -5007,7 +5007,7 @@
                     ],
                     "nullable": true
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -5368,7 +5368,7 @@
                       ],
                       "nullable": true
                     },
-                    "pref_key": {
+                    "pref_name": {
                       "type": "string",
                       "nullable": true,
                       "maxLength": 255
@@ -5737,7 +5737,7 @@
                     ],
                     "nullable": true
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -6071,7 +6071,7 @@
                     ],
                     "nullable": true
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -6405,7 +6405,7 @@
                     ],
                     "nullable": true
                   },
-                  "pref_key": {
+                  "pref_name": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -6752,7 +6752,7 @@
                       ],
                       "nullable": true
                     },
-                    "pref_key": {
+                    "pref_name": {
                       "type": "string",
                       "nullable": true,
                       "maxLength": 255

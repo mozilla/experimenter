@@ -1,7 +1,9 @@
 import io
+import os
 import logging
 import json
 
+from django.conf import settings
 from django.core.management import call_command
 from django.template.loader import render_to_string
 from django.core.management.base import BaseCommand
@@ -20,32 +22,32 @@ class Command(BaseCommand):
         self.generate_docs(options)
 
     @staticmethod
-    def generate_docs(options):
-        if options["check"]:
-            output = io.StringIO()
-            call_command("generateschema", "--format=openapi-json", stdout=output)
-            output.seek(0)
-            api_json = output.read()
+    def read_json_doc():
+        output = io.StringIO()
+        call_command("generateschema", "--format=openapi-json", stdout=output)
+        output.seek(0)
+        return output.read()
 
-            with open("/app/experimenter/docs/openapi-schema.json", "r") as f:
+    @staticmethod
+    def generate_docs(options):
+        api_json = Command.read_json_doc()
+        docs_dir = os.path.join(settings.BASE_DIR, "docs")
+        schema_json_path = os.path.join(docs_dir, "openapi-schema.json")
+        swagger_html_path = os.path.join(docs_dir, "swagger-ui.html")
+
+        if options["check"]:
+            with open(schema_json_path, "r") as f:
                 old_json = f.read()
                 if json.loads(api_json) != json.loads(old_json):
                     raise ValueError("Api Schemas have changed and have not been updated")
 
         else:
-            output = io.StringIO()
-            call_command("generateschema", "--format=openapi-json", stdout=output)
-            output.seek(0)
-            api_json = output.read()
-
             doc_rendered = render_to_string(
                 "swagger-ui-template.html", context={"spec": api_json}
             )
 
-            with open("/app/experimenter/docs/openapi-schema.json", "w+") as f:
+            with open(schema_json_path, "w+") as f:
                 f.write(api_json)
-                f.close()
-            with open("/app/experimenter/docs/swagger-ui.html", "w+") as f:
+            with open(swagger_html_path, "w+") as f:
                 f.write(doc_rendered)
-                f.close()
                 logger.info("Docs generated Successfully")
