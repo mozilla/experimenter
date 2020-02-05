@@ -1,15 +1,10 @@
+import io
 import logging
-import random
 import json
 
 from django.core.management import call_command
-import io
-import codecs
 from django.template.loader import render_to_string
 from django.core.management.base import BaseCommand
-
-from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.experiments.models import Experiment
 
 
 logger = logging.getLogger()
