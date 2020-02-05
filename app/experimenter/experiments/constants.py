@@ -213,18 +213,19 @@ class ExperimentConstants(object):
     FX_MIN_MULTI_BRANCHED_VERSION = 68
 
     # Labels
-    RISK_INTERNAL_ONLY_LABEL = "Is this delivery sensitive and/or internal only?"
     RISK_PARTNER_RELATED_LABEL = "Is this delivery partner related?"
     RISK_BRAND_LABEL = "Does this have a high risk to the brand?"
-    RISK_FAST_SHIPPED_LABEL = (
-        """Does this delivery require uplifting code
+    RISK_FAST_SHIPPED_LABEL = """Does this delivery require uplifting code
          or a rushed delivery schedule?"""
+    RISK_CONFIDENTIAL_LABEL = (
+        "Is this delivery confidential to Mozilla, sensitive, or internal only?"
     )
-    RISK_CONFIDENTIAL_LABEL = "Is this delivery confidential to Mozilla?"
     RISK_RELEASE_POPULATION_LABEL = (
         "Does this delivery affect 1% or more of Release users?"
     )
-    RISK_REVENUE_LABEL = "Does this delivery have possible negative impact on revenue?"
+    RISK_REVENUE_LABEL = (
+        "Does this delivery have possible negative impact on revenue (ex: search, pocket revenue, New Tab page experience)?"
+    )
     RISK_DATA_CATEGORY_LABEL = "Are you using Category 3 or 4 data?"
     RISK_EXTERNAL_TEAM_IMPACT_LABEL = (
         "Does your project impact code in other module areas or teams outside your own?"
@@ -238,10 +239,8 @@ class ExperimentConstants(object):
     )
     RISK_REVISION_LABEL = "Is this delivery a revision of a previous delivery?"
     RISK_TECHNICAL_LABEL = "Is this delivery Complex / Technically Risky?"
-    RISK_HIGHER_RISK_LABEL = (
-        """I have been advised that this delivery design creates a
+    RISK_HIGHER_RISK_LABEL = """I have been advised that this delivery design creates a
         higher risk of errors due to complexity or timing requirements."""
-    )
 
     SURVEY_REQUIRED_LABEL = "Is a Survey Required?"
     SURVEY_INSTRUCTIONS_LABEL = "Survey Launch Instructions"
@@ -798,9 +797,6 @@ class ExperimentConstants(object):
     """  # noqa
 
     # Risks
-    RISK_INTERNAL_ONLY_HELP_TEXT = """
-      https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
-    """  # noqa
 
     RISK_PARTNER_RELATED_HELP_TEXT = """
       https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Risk
@@ -859,27 +855,23 @@ class ExperimentConstants(object):
     """
 
     # Text defaults
-    CLIENT_MATCHING_DEFAULT = (
-        """Prefs:
+    CLIENT_MATCHING_DEFAULT = """Prefs:
 
 Experiments:
 
 Any additional filters:
     """
-    )
 
     DESIGN_DEFAULT = "What is the design of this delivery? Explain in detail."
 
     OBJECTIVES_DEFAULT = "What is the objective of this delivery?  Explain in detail."
 
-    ANALYSIS_DEFAULT = (
-        """What is the main effect you are looking for and what data will
+    ANALYSIS_DEFAULT = """What is the main effect you are looking for and what data will
 you use to make these decisions? What metrics are you using to measure success
 
 Do you plan on surveying users at the end of the delivery? Yes/No.
 Strategy and Insights can help create surveys if needed
     """
-    )
 
     RISKS_DEFAULT = (
         """
@@ -937,8 +929,7 @@ If applicable, link to any relevant test builds / staging information
         https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-NormandyChangeWindow
     """
 
-    BUGZILLA_OVERVIEW_TEMPLATE = (
-        """
+    BUGZILLA_OVERVIEW_TEMPLATE = """
 {experiment.name}
 
 {experiment.short_description}
@@ -947,19 +938,15 @@ Experimenter is the source of truth for details and delivery. Changes to Bugzill
 
 More information: {experiment.experiment_url}
         """  # noqa
-    )
 
-    BUGZILLA_VARIANT_PREF_TEMPLATE = (
-        """- {variant.type} {variant.name} {variant.ratio}%:
+    BUGZILLA_VARIANT_PREF_TEMPLATE = """- {variant.type} {variant.name} {variant.ratio}%:
 
 Value: {variant.value}
 
 {variant.description}
         """
-    )
 
-    BUGZILLA_PREF_TEMPLATE = (
-        """
+    BUGZILLA_PREF_TEMPLATE = """
     Delivery Type: Pref Flip Experiment
 
     What is the preference we will be changing
@@ -1007,17 +994,13 @@ Locales: {locales}
 
 {experiment.experiment_url}
         """
-    )
 
-    BUGZILLA_VARIANT_ADDON_TEMPLATE = (
-        """- {variant.type} {variant.name} {variant.ratio}%:
+    BUGZILLA_VARIANT_ADDON_TEMPLATE = """- {variant.type} {variant.name} {variant.ratio}%:
 
 {variant.description}
         """
-    )
 
-    BUGZILLA_ADDON_TEMPLATE = (
-        """
+    BUGZILLA_ADDON_TEMPLATE = """
     Delivery Type: Add-on experiment
 
     What are the branches of the experiment:
@@ -1062,4 +1045,3 @@ Locales: {locales}
 
 {experiment.experiment_url}
         """
-    )
