@@ -4,45 +4,7 @@
 Overview
 {% endblock %}
 
-{% block progress_previous_button %}
-  {% if experiment.status == "Review" %}
-    <form
-      id="go_back_form"
-      action="{% url "experiments-status-update" slug=experiment.slug %}"
-      method="POST"
-    >
-      {% csrf_token %}
-      <input type="hidden" name="status" value="{{ experiment.STATUS_DRAFT }}">
-      <a
-        onclick="document.getElementById('go_back_form').submit()"
-        class="col"
-        href="#"
-      >
-        <span class="fas fa-undo mb-2"></span>
-        Return to {{ experiment.STATUS_DRAFT_LABEL }} Stage
-      </a>
-    </form>
-  {% endif %}
-  {% if experiment.status == "Ship" %}
-    <form
-      id="go_back_form"
-      action="{% url "experiments-status-update" slug=experiment.slug %}"
-      method="POST"
-    >
-      {% csrf_token %}
-      <input type="hidden" name="status" value="{{ experiment.STATUS_REVIEW }}">
-      <a
-        onclick="document.getElementById('go_back_form').submit()"
-        class="col"
-        href="#"
-      >
-        <span class="fas fa-undo mb-2"></span>
-        Return to Sign-Off Stage
-      </a>
-    </form>
-  {% endif %}
 
-{% endblock %}
 
 {% block section_content %}
   <p><strong>Description</strong></p>

@@ -364,15 +364,33 @@ class Experiment(ExperimentConstants, models.Model):
         return reverse("experiments-api-recipe", kwargs={"slug": self.slug})
 
     @property
-    def progress_bar_highlighted(self):
+    def status_progress(self):
         results = []
-        highlighted = True
+        completed = True
+        paddedStatuses = [(None, ""), *ExperimentConstants.STATUS_CHOICES, (None, "")]
+        statuses = zip(paddedStatuses, paddedStatuses[1:], paddedStatuses[2:])
 
-        for status in ExperimentConstants.PROGRESS_BAR_CHOICES:
-            results.append((status[1], highlighted))
+        for (previousStatus, _), (status, label), (nextStatus, _) in statuses:
+            if self.status == status:
+                completed = False
 
-            if self.status == status[0]:
-                highlighted = False
+            isCurrent = self.status == status
+
+            results.append(
+                {
+                    "status": status,
+                    "label": label,
+                    "completed": completed,
+                    "isCurrent": isCurrent,
+                    "previousStatus": previousStatus
+                    if previousStatus
+                    in (Experiment.STATUS_DRAFT, Experiment.STATUS_REVIEW)
+                    else None,
+                    "nextStatus": nextStatus
+                    if nextStatus in (Experiment.STATUS_REVIEW, Experiment.STATUS_SHIP)
+                    else None,
+                }
+            )
 
         return results
 

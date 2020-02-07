@@ -51,9 +51,9 @@ class ExperimentConstants(object):
     STATUS_COMPLETE = "Complete"
 
     STATUS_DRAFT_LABEL = "Draft"
-    STATUS_REVIEW_LABEL = "Ready for Sign-Off"
+    STATUS_REVIEW_LABEL = "Sign-Off"
     STATUS_SHIP_LABEL = "Ready to Ship"
-    STATUS_ACCEPTED_LABEL = "Accepted by Normandy"
+    STATUS_ACCEPTED_LABEL = "Exported to Normandy"
     STATUS_LIVE_LABEL = "Live"
     STATUS_COMPLETE_LABEL = "Complete"
 
@@ -62,15 +62,6 @@ class ExperimentConstants(object):
         (STATUS_REVIEW, STATUS_REVIEW_LABEL),
         (STATUS_SHIP, STATUS_SHIP_LABEL),
         (STATUS_ACCEPTED, STATUS_ACCEPTED_LABEL),
-        (STATUS_LIVE, STATUS_LIVE_LABEL),
-        (STATUS_COMPLETE, STATUS_COMPLETE_LABEL),
-    )
-
-    PROGRESS_BAR_CHOICES = (
-        (STATUS_DRAFT, STATUS_DRAFT_LABEL),
-        (STATUS_REVIEW, STATUS_REVIEW_LABEL),
-        (STATUS_SHIP, STATUS_SHIP_LABEL),
-        (STATUS_ACCEPTED, "Accepted"),
         (STATUS_LIVE, STATUS_LIVE_LABEL),
         (STATUS_COMPLETE, STATUS_COMPLETE_LABEL),
     )

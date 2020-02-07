@@ -1,5 +1,6 @@
+/* Page */
 :root {
-  --font-family-sans-serif: 'Fira Sans', sans-serif;
+  --font-family-sans-serif: "Fira Sans", sans-serif;
 }
 
 html {
@@ -7,9 +8,9 @@ html {
 }
 
 body {
-  background-color: #F8F8F8;
+  background-color: #f8f8f8;
   color: #212121;
-  font-family: 'Fira Sans', sans-serif;
+  font-family: "Fira Sans", sans-serif;
 }
 
 btn {
@@ -21,7 +22,7 @@ p {
 }
 
 a.nocolorstyle {
-	color: inherit;
+  color: inherit;
 }
 
 a.noanchorstyle {
@@ -43,6 +44,7 @@ select {
   padding-right: 20px;
 }
 
+/* Header */
 #header-icon {
   margin-top: -10px;
   height: 30px;
@@ -68,11 +70,11 @@ select {
 }
 
 .card {
-  transition: box-shadow ease-in-out .1s;
+  transition: box-shadow ease-in-out 0.1s;
 }
 
 .hovershadow:hover > .card {
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 }
 
 .section-anchor-link {
@@ -85,7 +87,7 @@ select {
 }
 
 .heavy-line {
-   border: 0;
+  border: 0;
   height: 1px;
   background: #333;
   background-image: linear-gradient(to right, #ccc, #333, #ccc);
@@ -97,6 +99,7 @@ select {
   padding: 0px 10px;
 }
 
+/* Status colours */
 .status-color-Draft {
   color: white;
   background-color: #8000d7;
@@ -132,18 +135,77 @@ select {
   background-color: #e9433e;
 }
 
-.enrollment-complete-color{
+/* Status borders */
+.status-border-Draft {
+  border-color: #8000d7 !important;
+  border: 1px solid #8000d7 !important;
+  border-left: 1px solid #8000d7 !important;
+  border-right: 1px solid #8000d7 !important;
+  border-top: 1px solid #8000d7 !important;
+  border-bottom: 1px solid #8000d7 !important;
+}
+
+.status-border-Review {
+  border-color: #ff9400 !important;
+  border: 1px solid #ff9400 !important;
+  border-left: 1px solid #ff9400 !important;
+  border-right: 1px solid #ff9400 !important;
+  border-top: 1px solid #ff9400 !important;
+  border-bottom: 1px solid #ff9400 !important;
+}
+
+.status-border-Ship {
+  border-color: #1cb7d8 !important;
+  border: 1px solid #1cb7d8 !important;
+  border-left: 1px solid #1cb7d8 !important;
+  border-right: 1px solid #1cb7d8 !important;
+  border-top: 1px solid #1cb7d8 !important;
+  border-bottom: 1px solid #1cb7d8 !important;
+}
+
+.status-border-Accepted {
+  border-color: #b5007f !important;
+  border: 1px solid #b5007f !important;
+  border-left: 1px solid #b5007f !important;
+  border-right: 1px solid #b5007f !important;
+  border-top: 1px solid #b5007f !important;
+  border-bottom: 1px solid #b5007f !important;
+}
+
+.status-border-Live {
+  border-color: #34c834 !important;
+  border: 1px solid #34c834 !important;
+  border-left: 1px solid #34c834 !important;
+  border-right: 1px solid #34c834 !important;
+  border-top: 1px solid #34c834 !important;
+  border-bottom: 1px solid #34c834 !important;
+}
+
+.status-border-Complete {
+  border-color: #0a84ff !important;
+  border: 1px solid #0a84ff !important;
+  border-left: 1px solid #0a84ff !important;
+  border-right: 1px solid #0a84ff !important;
+  border-top: 1px solid #0a84ff !important;
+  border-bottom: 1px solid #0a84ff !important;
+}
+
+.card[class*="status-border-"] {
+  margin-left: -1px !important;
+}
+
+.enrollment-complete-color {
   color: white;
   background-color: #457b27;
 }
 
-.proceed-status-color{
+.proceed-status-color {
   color: white;
   background-color: #00cc00;
 }
 
-.back-status-color{
-  color:white;
+.back-status-color {
+  color: white;
   background-color: #ee9a49;
 }
 .subscribe-bell {
@@ -163,19 +225,19 @@ select {
 }
 
 .border-left-grey {
-	border-left: 3px solid #ccc;
+  border-left: 3px solid #ccc;
 }
 
 .border-bottom-grey {
-	border-bottom: 3px solid #ccc;
+  border-bottom: 3px solid #ccc;
 }
 
 .border-bottom-blue {
-	border-bottom: 3px solid #45a1ff;
+  border-bottom: 3px solid #45a1ff;
 }
 
 .border-bottom-green {
-	border-bottom: 3px solid #30e60b;
+  border-bottom: 3px solid #30e60b;
 }
 
 .border-bottom-teal {
@@ -184,31 +246,31 @@ select {
 
 .bubble {
   border-radius: 4px;
-	background-color: #F3F3F3;
+  background-color: #f3f3f3;
 }
 
 pre.json {
-	overflow-x: auto;
-	white-space: pre-wrap;
-	white-space: -moz-pre-wrap;
-	white-space: -pre-wrap;
-	white-space: -o-pre-wrap;
-	word-wrap: break-word;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
   line-height: 2em;
   border: none !important;
 }
 
 .list-summary:before {
-  content:'';
-  width:100%;
-  height:100%;
-  position:absolute;
-  left:0;
-  top:0;
-  background:linear-gradient(transparent 12em, white);
+  content: "";
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: linear-gradient(transparent 12em, white);
 }
 
-.list-summary{
+.list-summary {
   overflow: hidden;
   max-height: 15em;
 }
@@ -224,29 +286,4 @@ pre.json {
 
 .required-label.optional .text-danger {
   display: none;
-}
-
-.bar-piece {
-  background-color: #D4D4D4;
-  padding: 0 1px;
-  color: #A4A4A4;
-  background-clip: content-box;
-}
-
-.bar-piece-highlighted {
-  background-color: #007BFF;
-  color: white;
-  padding: 0 1px;
-  background-clip: content-box;
-}
-
-.whole-bar {
-  border-radius: 2rem;
-  overflow: hidden;
-  text-align: center;
-}
-
-.progress-label {
-  line-height: 35px;
-  vertical-align: middle;
 }
