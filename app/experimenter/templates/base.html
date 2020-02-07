@@ -82,8 +82,9 @@
   </div>
 
   <div id="sub-header">
-    <div class="container">
-      <div class="row py-3">
+    <div class="container py-3">
+      {% block header %}
+      <div class="row">
         <div class="col-9">
           {% block header_content %}
           {% endblock %}
@@ -94,6 +95,7 @@
           {% endblock %}
         </div>
       </div>
+      {% endblock %}
     </div>
   </div>
 
@@ -115,42 +117,42 @@
   {% endif %}
 
 
-    {% if messages %}
-      <div class="alert-danger">
-        <div class="container">
-          <div class="row">
-            <div class="col pt-3 pb-1">
-              {% for message in messages %}
-              <p>
-                <span class="fas fa-info-circle"></span>
-                {{ message }}
-              </p>
-              {% endfor %}
-            </div>
-          </div>
+  {% if messages %}
+  <div class="alert-danger">
+    <div class="container">
+      <div class="row">
+        <div class="col pt-3 pb-1">
+          {% for message in messages %}
+          <p>
+            <span class="fas fa-info-circle"></span>
+            {{ message }}
+          </p>
+          {% endfor %}
         </div>
       </div>
-    {% endif %}
+    </div>
+  </div>
+  {% endif %}
 
 
-    {% block progress_bar %}
-    {% endblock %}
+  {% block progress_bar %}
+  {% endblock %}
 
-    
-    <div class="container">
-      <div class="row mt-3">
-        {% block main %}
-          <div class="col-9">
-            {% block main_content %}
-            {% endblock %}
-          </div>
-          <div class="col-3">
-            {% block main_sidebar %}
-            {% endblock %}
-          </div>
+
+  <div class="container">
+    <div class="row mt-3">
+      {% block main %}
+      <div class="col-9">
+        {% block main_content %}
         {% endblock %}
       </div>
+      <div class="col-3">
+        {% block main_sidebar %}
+        {% endblock %}
+      </div>
+      {% endblock %}
     </div>
+  </div>
 
 
   <footer>
