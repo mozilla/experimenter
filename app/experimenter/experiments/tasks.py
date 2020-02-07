@@ -246,7 +246,7 @@ def set_is_paused_value_task(experiment_id, recipe_data):
 
 
 def update_population_percent(experiment, recipe_data):
-    if "filter_object" in recipe_data:
+    if recipe_data and "filter_object" in recipe_data:
         filter_objects = {f["type"]: f for f in recipe_data["filter_object"]}
         if "bucketSample" in filter_objects:
             bucket_sample = filter_objects["bucketSample"]
@@ -333,10 +333,8 @@ def update_ds_bug_task(experiment_id):
     experiment = Experiment.objects.get(id=experiment_id)
     ds_bug_url = experiment.data_science_bugzilla_url
     ds_bug_id = bugzilla.get_bugzilla_id(ds_bug_url)
-    comment = (
-        """[Experiment]{name} status has been changed to: {status}
+    comment = """[Experiment]{name} status has been changed to: {status}
             url:{url}"""
-    )
     comment = comment.format(
         name=experiment.name, status=experiment.status, url=experiment.experiment_url
     )
