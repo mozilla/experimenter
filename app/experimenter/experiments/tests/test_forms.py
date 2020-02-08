@@ -1529,7 +1529,6 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
 class TestExperimentRisksForm(MockRequestMixin, TestCase):
 
     valid_data = {
-        "risk_internal_only": True,
         "risk_partner_related": False,
         "risk_brand": True,
         "risk_fast_shipped": True,
@@ -1567,7 +1566,6 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         self.assertTrue(form.is_valid())
 
         experiment = form.save()
-        self.assertTrue(experiment.risk_internal_only)
         self.assertFalse(experiment.risk_partner_related)
         self.assertTrue(experiment.risk_brand)
         self.assertTrue(experiment.risk_fast_shipped)
