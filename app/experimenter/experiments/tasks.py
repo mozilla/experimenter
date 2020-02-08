@@ -104,7 +104,7 @@ def update_experiment_bug_task(user_id, experiment_id):
 
     experiment = Experiment.objects.get(id=experiment_id)
 
-    if experiment.risk_internal_only:
+    if experiment.risk_confidential:
         logger.info("Skipping Bugzilla update for internal only experiment")
         return
 
@@ -333,10 +333,8 @@ def update_ds_bug_task(experiment_id):
     experiment = Experiment.objects.get(id=experiment_id)
     ds_bug_url = experiment.data_science_bugzilla_url
     ds_bug_id = bugzilla.get_bugzilla_id(ds_bug_url)
-    comment = (
-        """[Experiment]{name} status has been changed to: {status}
+    comment = """[Experiment]{name} status has been changed to: {status}
             url:{url}"""
-    )
     comment = comment.format(
         name=experiment.name, status=experiment.status, url=experiment.experiment_url
     )

@@ -103,7 +103,6 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "normandy_id",
             "data_science_bugzilla_url",
             "feature_bugzilla_url",
-            "risk_internal_only",
             "risk_partner_related",
             "risk_brand",
             "risk_fast_shipped",

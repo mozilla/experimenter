@@ -6,13 +6,6 @@
 
 {% block section_content %}
   <p>
-    {{ experiment.RISK_INTERNAL_ONLY_LABEL }}
-    <strong class="{% if experiment.risk_internal_only %}text-danger{% endif %}">
-      {{ experiment.risk_internal_only|yesno:"Yes,No" }}
-    </strong>
-  </p>
-
-  <p>
     {{ experiment.RISK_PARTNER_RELATED_LABEL }}
     <strong class="{% if experiment.risk_partner_related %}text-danger{% endif %}">
       {{ experiment.risk_partner_related|yesno:"Yes,No" }}

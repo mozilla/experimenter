@@ -986,7 +986,6 @@ class TestExperimentModel(TestCase):
 
     def test_risk_questions_returns_a_tuple(self):
         experiment = ExperimentFactory.create(
-            risk_internal_only=True,
             risk_partner_related=False,
             risk_brand=True,
             risk_fast_shipped=False,
@@ -1005,7 +1004,6 @@ class TestExperimentModel(TestCase):
         self.assertEqual(
             experiment._risk_questions,
             (
-                True,
                 False,
                 True,
                 False,
