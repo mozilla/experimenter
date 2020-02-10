@@ -246,7 +246,7 @@ def set_is_paused_value_task(experiment_id, recipe_data):
 
 
 def update_population_percent(experiment, recipe_data):
-    if "filter_object" in recipe_data:
+    if recipe_data and "filter_object" in recipe_data:
         filter_objects = {f["type"]: f for f in recipe_data["filter_object"]}
         if "bucketSample" in filter_objects:
             bucket_sample = filter_objects["bucketSample"]
