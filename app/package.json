@@ -3,6 +3,7 @@
   "jest": {
     "automock": false,
     "verbose": true,
+    "coverageReporters":["text"],
     "coverageThreshold": {
       "global": {
         "lines": 100
