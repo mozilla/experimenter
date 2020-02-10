@@ -104,7 +104,7 @@ def update_experiment_bug_task(user_id, experiment_id):
 
     experiment = Experiment.objects.get(id=experiment_id)
 
-    if experiment.risk_internal_only:
+    if experiment.risk_confidential:
         logger.info("Skipping Bugzilla update for internal only experiment")
         return
 

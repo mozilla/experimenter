@@ -143,7 +143,6 @@ class ExperimentAdmin(admin.ModelAdmin):
             "Risks & Testing",
             {
                 "fields": (
-                    "risk_internal_only",
                     "risk_partner_related",
                     "risk_brand",
                     "risk_fast_shipped",
