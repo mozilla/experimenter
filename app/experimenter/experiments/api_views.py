@@ -44,6 +44,7 @@ class ExperimentRecipeView(RetrieveAPIView):
 class ExperimentSendIntentToShipEmailView(UpdateAPIView):
     lookup_field = "slug"
     queryset = Experiment.objects.filter(status=Experiment.STATUS_REVIEW)
+    serializer_class = ExperimentSerializer
 
     def update(self, request, *args, **kwargs):
         experiment = self.get_object()

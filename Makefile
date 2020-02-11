@@ -28,6 +28,8 @@ JS_TEST = yarn test
 FLAKE8 = flake8 .
 BLACK_CHECK = black -l 90 --check .
 BLACK_FIX = black -l 90 .
+CHECK_DOCS = python manage.py generate-docs --check=true
+GENERATE_DOCS = python manage.py generate-docs
 
 test_build: build
 	$(COMPOSE_TEST) build
@@ -62,11 +64,17 @@ black_fix: test_build
 code_format: test_build
 	$(COMPOSE_TEST) run app sh -c "$(BLACK_FIX)&&$(ESLINT_FIX)"
 
+check_docs: test_build
+	$(COMPOSE_TEST) run app sh -c "$(CHECK_DOCS)"
+
+generate_docs: test_build
+	$(COMPOSE_TEST) run app sh -c "$(GENERATE_DOCS)"
+
 check_migrations: test_build
 	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)"
 
 check: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)&&$(BLACK_CHECK)&&$(FLAKE8)&&$(ESLINT)&&$(PYTHON_TEST)&&$(JS_TEST)"
+	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)&&$(CHECK_DOCS)&&$(BLACK_CHECK)&&$(FLAKE8)&&$(ESLINT)&&$(PYTHON_TEST)&&$(JS_TEST)"
 
 checkfast: test_build
 	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)&&$(BLACK_CHECK)&&$(FLAKE8)&&$(ESLINT)&&$(PYTHON_TEST_FAST)"
