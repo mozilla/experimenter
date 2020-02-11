@@ -699,6 +699,7 @@ class RadioWidgetCloser(forms.widgets.RadioSelect):
         This radio widget is similar to the RadioWidget
         except for the No and Yes buttons are closer together.
     """
+
     template_name = "experiments/radio_widget_closer.html"
 
 
@@ -795,15 +796,6 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
             return False
 
     # Radio Buttons
-    risk_internal_only = forms.TypedChoiceField(
-        required=False,
-        label=Experiment.RISK_INTERNAL_ONLY_LABEL,
-        help_text=Experiment.RISK_INTERNAL_ONLY_HELP_TEXT,
-        choices=RADIO_OPTIONS,
-        widget=RadioWidget,
-        coerce=coerce_truthy,
-        empty_value=None,
-    )
     risk_partner_related = forms.TypedChoiceField(
         required=False,
         label=Experiment.RISK_PARTNER_RELATED_LABEL,
@@ -998,7 +990,6 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
     class Meta:
         model = Experiment
         fields = (
-            "risk_internal_only",
             "risk_partner_related",
             "risk_brand",
             "risk_fast_shipped",

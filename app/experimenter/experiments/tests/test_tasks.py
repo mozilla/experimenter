@@ -131,10 +131,8 @@ class TestCommentDSBugTask(MockRequestMixin, MockBugzillaMixin, TestCase):
         self.experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         self.experiment.save()
 
-        self.comment = (
-            """[Experiment]{name} status has been changed to: {status}
+        self.comment = """[Experiment]{name} status has been changed to: {status}
             url:{url}"""
-        )
         self.expected_data = {
             "comment": self.comment.format(
                 name=self.experiment.name,
@@ -306,9 +304,9 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
             notification.message, tasks.NOTIFICATION_MESSAGE_UPDATE_BUG_FAILED
         )
 
-    def test_internal_only_does_not_update_bugzilla(self):
+    def test_confidential_only_does_not_update_bugzilla(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP, risk_internal_only=True
+            Experiment.STATUS_SHIP, risk_confidential=True
         )
 
         with MetricsMock() as mm:
@@ -719,7 +717,7 @@ class TestUpdateResolutionTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 
     def test_no_request_call_when_no_bug_id(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP, risk_internal_only=True
+            Experiment.STATUS_SHIP, risk_confidential=True
         )
         experiment.bugzilla_id = None
         experiment.save()
