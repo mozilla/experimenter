@@ -25,7 +25,6 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 [https://experimenter.services.mozilla.com/](https://experimenter.services.mozilla.com/)
 
-
 ## What is an experiment?
 
 An experiment is a way to measure how a change to your product affects how people use it.
@@ -52,48 +51,47 @@ An experiment has three parts:
 1. Analyze and collect the results to understand how the new feature impacted users
 1. Do it again!
 
-
 ## Installation
 
-1. Install [docker](https://www.docker.com/) on your machine
+1.  Install [docker](https://www.docker.com/) on your machine
 
-1. Clone the repo
+1.  Clone the repo
 
         git clone <your fork>
 
-1. Copy the sample env file
+1.  Copy the sample env file
 
         cp .env.sample .env
 
-1. Set DEBUG=True for local development
+1.  Set DEBUG=True for local development
 
         vi .env
 
-1. Create a new secret key and put it in .env
+1.  Create a new secret key and put it in .env
 
         make secretkey
 
-1. Run tests
+1.  Run tests
 
         make test
 
-1. Run database migrations
+1.  Run database migrations
 
         make migrate
 
-1. Make a local user
+1.  Make a local user
 
         make createuser
 
-1. Load the initial data
+1.  Load the initial data
 
         make load_locales_countries
 
-1. Run a dev instance
+1.  Run a dev instance
 
         make up
 
-1. Navigate to it and add an SSL exception to your browser
+1.  Navigate to it and add an SSL exception to your browser
 
         https://localhost/
 
@@ -106,167 +104,75 @@ Experimenter uses [docker](https://www.docker.com/) for all development, testing
 The following helpful commands have been provided via a Makefile:
 
 ### build
+
 Build the application container by executing the [build script](https://github.com/mozilla/experimenter/blob/master/scripts/build.sh)
 
 ### compose_build
+
 Build the supporting services (nginx, postgresql) defined in the [compose file](https://github.com/mozilla/experimenter/blob/master/docker-compose.yml)
 
 ### up
+
 Start a dev server listening on port 80 using the [Django runserver](https://docs.djangoproject.com/en/1.10/ref/django-admin/#runserver)
 
 ### test
+
 Run the Django test suite with code coverage
 
 ### lint
+
 Run flake8 against the code
 
 ### check
+
 Run both test and lint
 
 ### migrate
+
 Apply all django migrations
 
 ### createuser
+
 Create an admin user in the local dev instance
 
 ### load_locales_countries
+
 Populates locales and countries
 
 ### load_dummy_experiments
+
 Populates db with dummy experiments
 
 ### shell
+
 Start an ipython shell inside the container (this lets you import and test code, interact with the db, etc)
 
 ### bash
+
 Start a bash shell inside the container (this lets you interact with the containerized filesystem)
 
 ### ssl
+
 Create dummy SSL certs to use the dev server over a locally secure
 connection. This helps test client behaviour with a secure
 connection. This task is run automatically when needed.
 
 ### kill
+
 Stop and delete all docker containers.
-WARNING: this will remove your database and all data.  Use this to reset your dev environment.
+WARNING: this will remove your database and all data. Use this to reset your dev environment.
 
 ### refresh
+
 Will run kill, migrate, load_locales_countries load_dummy_experiments
 
 ### up_all
+
 will start up a normandy and delivery console instance. Prereqs. Symlink normandy and delivery console eg. `ln -s ../normandy normandy`, ensure user is assigned superuser status
 
 ## API
 
-### GET /api/v1/experiments/
-List all of the started experiments.
-
-#### Optional Query Parameters
-status - Return only the experiments with the given status, options are:
-- 'Draft'
-- 'Review'
-- 'Ship'
-- 'Accepted'
-- 'Live'
-- 'Complete'
-- 'Rejected'
-
-Example: GET /api/v1/experiments/?status=Pending
-
-        [
-           {
-              "client_matching":"Some \"additional\" filtering",
-              "locales": [{"code":"en-US", "name": "English (US)"}],
-              "countries": [{"code": "US", "name": "United States of America"}],
-              "control":{
-                 "description":"Eos sunt adipisci beatae. Aut sunt totam maiores reprehenderit sed vero. Nam fugit sequi repellendus cumque. Fugit maxime suscipit eius quas iure exercitationem voluptatibus.",
-                 "name":"Seamless 5thgeneration task-force",
-                 "ratio":7,
-                 "slug":"seamless-5thgeneration-task-force",
-                 "value":"\"synergized-client-driven-artificial-intelligence\""
-              },
-              "end_date":1505767052000.0,
-              "experiment_slug":"pref-flip-re-contextualized-systemic-synergy-self-enabling-needs-based-hardware",
-              "experiment_url":"https://localhost/experiments/experiment/144/change/",
-              "firefox_channel":"Release",
-              "firefox_version":"57.0",
-              "name":"Self-enabling needs-based hardware",
-              "population_percent":"60.0000",
-              "pref_branch":"default",
-              "pref_name":"browser.phased.hybrid.implementation.enabled",
-              "pref_type":"string",
-              "public_name": "An experiment!",
-              "public_description": "We are experimenting!",
-              "slug":"self-enabling-needs-based-hardware",
-              "start_date":1505767052000.0,
-              "status":"Complete",
-              "variant":{
-                 "description":"Modi perferendis repudiandae ducimus dolorem eum rem. Esse porro iure consectetur facere. Quidem nam enim dolore eius ab facilis.",
-                 "name":"Business-focused upward-trending Graphic Interface",
-                 "ratio":2,
-                 "slug":"business-focused-upward-trending-graphic-interface",
-                 "value":"\"synchronized-upward-trending-knowledgebase\""
-              }
-           },
-        ]
-
-### GET /api/v1/experiments/<experiment_slug>/
-Return a serialization of the requested experiment.
-
-Example: GET /api/v1/experiments/self-enabled-needs-based-hardware/
-
-         {
-            "client_matching":"Some \"additional\" filtering",
-            "locales": [{"code":"en-US", "name": "English (US)"}],
-            "countries": [{"code": "US", "name": "United States of America"}],
-            "control":{
-               "description":"Eos sunt adipisci beatae. Aut sunt totam maiores reprehenderit sed vero. Nam fugit sequi repellendus cumque. Fugit maxime suscipit eius quas iure exercitationem voluptatibus.",
-               "name":"Seamless 5thgeneration task-force",
-               "ratio":7,
-               "slug":"seamless-5thgeneration-task-force",
-               "value":"\"synergized-client-driven-artificial-intelligence\""
-            },
-            "end_date":1505767052000.0,
-            "experiment_slug":"pref-flip-re-contextualized-systemic-synergy-self-enabling-needs-based-hardware",
-            "experiment_url":"https://localhost/experiments/experiment/144/change/",
-            "firefox_channel":"Release",
-            "firefox_version":"57.0",
-            "name":"Self-enabling needs-based hardware",
-            "objectives":"Illo maiores libero ratione. Dolorum nostrum molestiae blanditiis cumque. Libero saepe ipsum accusantium maxime.",
-            "population_percent":"60.0000",
-            "pref_branch":"default",
-            "pref_name":"browser.phased.hybrid.implementation.enabled",
-            "pref_type":"string",
-            "addon_name": "Self-Enabling Addon",
-            "addon_experiment_id": "self-enabling-addon",
-            "addon_release_url": "https://example.com/release.xpi",
-            "slug":"self-enabling-needs-based-hardware",
-            "start_date":1505767052000.0,
-            "variant":{
-               "description":"Modi perferendis repudiandae ducimus dolorem eum rem. Esse porro iure consectetur facere. Quidem nam enim dolore eius ab facilis.",
-               "name":"Business-focused upward-trending Graphic Interface",
-               "ratio":2,
-               "slug":"business-focused-upward-trending-graphic-interface",
-               "value":"\"synchronized-upward-trending-knowledgebase\""
-            },
-            "changes":{
-                {
-                    "changed_on":"2019-04-01T17:53:30.747620Z",
-                    "changed_by":42,
-                    "pretty_status":"Created Experiment",
-                    "new_status":"Draft",
-                    "old_status":null
-                },
-                {
-                    "changed_on":"2019-04-16T17:53:30.747620Z",
-                    "changed_by":43,
-                    "pretty_status":"Ready for Sign-Off",
-                    "new_status":"Review",
-                    "old_status":"Draft"
-                }
-            }
-         }
-
+Api documentation can be found [here](https://htmlpreview.github.io/?https://github.com/mozilla/experimenter/blob/master/app/experimenter/docs/swagger-ui.html)
 
 ## Contributing
 
