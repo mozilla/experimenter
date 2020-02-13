@@ -172,7 +172,7 @@ will start up a normandy and delivery console instance. Prereqs. Symlink normand
 
 ## API
 
-Api documentation can be found [here](https://htmlpreview.github.io/?https://github.com/mozilla/experimenter/blob/master/app/experimenter/docs/swagger-ui.html)
+API documentation can be found [here](https://htmlpreview.github.io/?https://github.com/mozilla/experimenter/blob/master/app/experimenter/docs/swagger-ui.html)
 
 ## Contributing
 
