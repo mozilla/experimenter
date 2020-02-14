@@ -23,7 +23,6 @@ from experimenter.experiments.constants import ExperimentConstants
 
 
 class ExperimentManager(models.Manager):
-
     def get_queryset(self):
         return super().get_queryset().annotate(latest_change=Max("changes__changed_on"))
 
@@ -256,7 +255,6 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def monitoring_dashboard_url(self):
-
         def to_timestamp(date):
             return int(time.mktime(date.timetuple())) * 1000
 
@@ -616,22 +614,25 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def _risk_questions(self):
-        return (
-            self.risk_partner_related,
-            self.risk_brand,
-            self.risk_fast_shipped,
-            self.risk_confidential,
-            self.risk_release_population,
-            self.risk_revenue,
-            self.risk_data_category,
-            self.risk_external_team_impact,
-            self.risk_telemetry_data,
-            self.risk_ux,
-            self.risk_security,
-            self.risk_revision,
-            self.risk_technical,
-            self.risk_higher_risk,
-        )
+        risk_questions = [
+            "risk_partner_related",
+            "risk_brand",
+            "risk_fast_shipped",
+            "risk_confidential",
+            "risk_release_population",
+            "risk_revenue",
+            "risk_data_category",
+            "risk_external_team_impact",
+            "risk_telemetry_data",
+            "risk_ux",
+            "risk_security",
+            "risk_revision",
+            "risk_technical",
+            "risk_higher_risk",
+        ]
+
+        exclusions = ExperimentConstants.RISK_EXCLUSIONS.get(self.type, [])
+        return [getattr(self, risk) for risk in risk_questions if risk not in exclusions]
 
     @property
     def completed_risks(self):
@@ -943,7 +944,6 @@ class VariantPreferences(models.Model):
 
 
 class ExperimentChangeLogManager(models.Manager):
-
     def latest(self):
         return self.all().order_by("-changed_on").first()
 
@@ -1024,7 +1024,6 @@ class ExperimentChangeLog(models.Model):
 
 
 class ExperimentCommentManager(models.Manager):
-
     @cached_property
     def sections(self):
         sections = defaultdict(list)

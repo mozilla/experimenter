@@ -1003,7 +1003,7 @@ class TestExperimentModel(TestCase):
         )
         self.assertEqual(
             experiment._risk_questions,
-            (
+            [
                 False,
                 True,
                 False,
@@ -1018,8 +1018,46 @@ class TestExperimentModel(TestCase):
                 True,
                 False,
                 True,
-            ),
+            ],
         )
+
+    def test_risk_questions_returns_a_tuple_rollout(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            risk_partner_related=False,
+            risk_brand=True,
+            risk_fast_shipped=False,
+            risk_confidential=True,
+            risk_release_population=None,
+            risk_revenue=True,
+            risk_data_category=False,
+            risk_external_team_impact=True,
+            risk_telemetry_data=False,
+            risk_ux=True,
+            risk_security=False,
+            risk_revision=True,
+            risk_technical=False,
+            risk_higher_risk=True,
+        )
+        self.assertEqual(
+            experiment._risk_questions,
+            [
+                False,
+                True,
+                False,
+                True,
+                True,
+                False,
+                True,
+                False,
+                True,
+                False,
+                True,
+                False,
+                True,
+            ],
+        )
+
 
     def test_risk_not_completed_when_risk_questions_not_answered(self):
         experiment = ExperimentFactory.create(
