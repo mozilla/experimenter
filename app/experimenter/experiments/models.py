@@ -23,6 +23,7 @@ from experimenter.experiments.constants import ExperimentConstants
 
 
 class ExperimentManager(models.Manager):
+
     def get_queryset(self):
         return super().get_queryset().annotate(latest_change=Max("changes__changed_on"))
 
@@ -255,6 +256,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def monitoring_dashboard_url(self):
+
         def to_timestamp(date):
             return int(time.mktime(date.timetuple())) * 1000
 
@@ -614,7 +616,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def _risk_questions(self):
-        risk_questions = [
+        risk_questions = (
             "risk_partner_related",
             "risk_brand",
             "risk_fast_shipped",
@@ -629,7 +631,7 @@ class Experiment(ExperimentConstants, models.Model):
             "risk_revision",
             "risk_technical",
             "risk_higher_risk",
-        ]
+        )
 
         exclusions = ExperimentConstants.RISK_EXCLUSIONS.get(self.type, [])
         return [getattr(self, risk) for risk in risk_questions if risk not in exclusions]
@@ -944,6 +946,7 @@ class VariantPreferences(models.Model):
 
 
 class ExperimentChangeLogManager(models.Manager):
+
     def latest(self):
         return self.all().order_by("-changed_on").first()
 
@@ -1024,6 +1027,7 @@ class ExperimentChangeLog(models.Model):
 
 
 class ExperimentCommentManager(models.Manager):
+
     @cached_property
     def sections(self):
         sections = defaultdict(list)

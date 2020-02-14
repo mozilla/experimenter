@@ -1058,7 +1058,6 @@ class TestExperimentModel(TestCase):
             ],
         )
 
-
     def test_risk_not_completed_when_risk_questions_not_answered(self):
         experiment = ExperimentFactory.create(
             risk_partner_related=None,
