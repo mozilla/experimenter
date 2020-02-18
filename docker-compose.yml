@@ -70,7 +70,9 @@ services:
 
   db:
     restart: always
-    image: postgres:9.6
+    image: postgres:9.6.17
+    environment:
+      POSTGRES_PASSWORD: postgres
     volumes:
       - db_volume:/var/lib/postgresql
     networks:
