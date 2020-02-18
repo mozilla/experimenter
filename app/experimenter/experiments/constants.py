@@ -220,9 +220,7 @@ class ExperimentConstants(object):
     RISK_CONFIDENTIAL_LABEL = (
         "Is this delivery confidential to Mozilla, sensitive, or internal only?"
     )
-    RISK_RELEASE_POPULATION_LABEL = (
-        "Does this delivery affect 1% or more of Release users?"
-    )
+    RISK_RELEASE_POPULATION_LABEL = "Does this delivery affect 1 million Release users?"
     RISK_REVENUE_LABEL = """Does this delivery have possible negative impact on revenue
          (ex: search, pocket revenue, New Tab page experience)?"""
 
@@ -242,6 +240,7 @@ class ExperimentConstants(object):
     RISK_HIGHER_RISK_LABEL = """I have been advised that this delivery design creates a
         higher risk of errors due to complexity or timing requirements."""
 
+    RISK_EXCLUSIONS = {TYPE_ROLLOUT: ["risk_release_population"]}
     SURVEY_REQUIRED_LABEL = "Is a Survey Required?"
     SURVEY_INSTRUCTIONS_LABEL = "Survey Launch Instructions"
 

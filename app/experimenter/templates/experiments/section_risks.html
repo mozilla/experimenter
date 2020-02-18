@@ -33,12 +33,14 @@
     </strong>
   </p>
 
+  {% if not experiment.is_rollout %}
   <p>
     {{ experiment.RISK_RELEASE_POPULATION_LABEL }}
     <strong class="{% if experiment.risk_release_population %}text-danger{% endif %}">
       {{ experiment.risk_release_population|yesno:"Yes,No" }}
     </strong>
   </p>
+  {% endif %}
 
   <p>
     {{ experiment.RISK_REVENUE_LABEL }}
