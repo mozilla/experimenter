@@ -22,8 +22,9 @@
     {% include "experiments/radio_field_inline.html" with field=form.risk_fast_shipped %}
 
     {% include "experiments/radio_field_inline.html" with field=form.risk_confidential %}
-
-    {% include "experiments/radio_field_inline.html" with field=form.risk_release_population %}
+    {% if not experiment.is_rollout %}
+      {% include "experiments/radio_field_inline.html" with field=form.risk_release_population %}
+    {% endif %}
 
     {% include "experiments/radio_field_inline.html" with field=form.risk_revenue %}
 
