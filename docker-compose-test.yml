@@ -7,7 +7,6 @@ services:
     environment:
       - DEBUG=False
     volumes:
-      - ./app:/app
       - /app/node_modules/
     links:
       - db
@@ -16,7 +15,9 @@ services:
 
   db:
     restart: always
-    image: postgres:9.6
+    image: postgres:9.6.17
+    environment:
+      POSTGRES_PASSWORD: postgres
     networks:
       - private_nw
 

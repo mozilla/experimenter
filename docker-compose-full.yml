@@ -43,10 +43,12 @@ services:
       - public_nw
 
   normandy_db:
-    image: postgres:9.6
-    environment:
-      POSTGRES_DB: normandy
+    restart: always
+    image: postgres:9.6.17
     ports:
       - "5431:5432"
     networks:
       - private_nw
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: normandy
