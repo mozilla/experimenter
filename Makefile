@@ -61,17 +61,11 @@ black_check: test_build
 black_fix: test_build
 	$(COMPOSE_TEST) run app sh -c "$(BLACK_FIX)"
 
-code_format: test_build
-	$(COMPOSE_TEST) run app sh -c "$(BLACK_FIX)&&$(ESLINT_FIX)"
+check_migrations: test_build
+	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)"
 
 check_docs: test_build
 	$(COMPOSE_TEST) run app sh -c "$(CHECK_DOCS)"
-
-generate_docs: test_build
-	$(COMPOSE_TEST) run app sh -c "$(GENERATE_DOCS)"
-
-check_migrations: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)"
 
 check: test_build
 	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)&&$(CHECK_DOCS)&&$(BLACK_CHECK)&&$(FLAKE8)&&$(ESLINT)&&$(PYTHON_TEST)&&$(JS_TEST)"
@@ -96,6 +90,12 @@ kill: compose_kill compose_rm volumes_rm
 
 up: compose_kill compose_build
 	$(COMPOSE) up
+
+generate_docs: compose_build
+	$(COMPOSE) run app sh -c "$(GENERATE_DOCS)"
+
+code_format: compose_build
+	$(COMPOSE) run app sh -c "$(BLACK_FIX)&&$(ESLINT_FIX)"
 
 makemigrations: compose_build
 	$(COMPOSE) run app python manage.py makemigrations
