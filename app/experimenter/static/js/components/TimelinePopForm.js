@@ -278,6 +278,7 @@ class TimelinePopForm extends React.PureComponent {
               helpContent={COUNTRIES_LOCALES_HELP}
               labelColumnWidth={2}
               optional={true}
+              placeholder="All Locales"
             />
             <LabeledMultiSelect
               options={this.props.allCountries}
@@ -294,6 +295,7 @@ class TimelinePopForm extends React.PureComponent {
               helpContent={COUNTRIES_LOCALES_HELP}
               labelColumnWidth={2}
               optional={true}
+              placeholder="All Countries"
             />
             <DesignInput
               as="select"
@@ -351,7 +353,7 @@ class TimelinePopForm extends React.PureComponent {
 
                 <Button
                   disabled={this.state.saving}
-                  id="save-continue"
+                  id="save-and-continue-btn"
                   variant="primary"
                   type="submit"
                   onClick={this.handleSubmitContinue}

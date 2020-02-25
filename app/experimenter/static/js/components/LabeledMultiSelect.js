@@ -34,6 +34,7 @@ class LabeledMultiSelect extends React.PureComponent {
     type: PropTypes.string,
     optional: PropTypes.bool,
     options: PropTypes.array,
+    placeholder: PropTypes.string,
   };
 
   constructor(props) {
@@ -92,6 +93,7 @@ class LabeledMultiSelect extends React.PureComponent {
             isMulti
             options={this.props.options}
             id={this.props.id}
+            placeholder={this.props.placeholder}
             name={this.props.name}
             value={this.props.value}
             className={this.props.error ? "is-invalid" : ""}
