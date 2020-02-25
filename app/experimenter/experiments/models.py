@@ -579,9 +579,8 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_pref_rollout(self):
-        return self.is_pref_rollout and all(
-            [self.pref_type, self.pref_name, self.pref_value]
-        )
+
+        return self.is_pref_rollout and self.preferences.count() > 0
 
     @property
     def completed_addon_rollout(self):
@@ -922,14 +921,7 @@ class ExperimentVariant(models.Model):
             return "Treatment"
 
 
-class VariantPreferences(models.Model):
-    variant = models.ForeignKey(
-        ExperimentVariant,
-        blank=False,
-        null=False,
-        related_name="preferences",
-        on_delete=models.CASCADE,
-    )
+class Preference(models.Model):
     pref_name = models.CharField(max_length=255, blank=False, null=False)
     pref_type = models.CharField(
         max_length=255,
@@ -937,6 +929,17 @@ class VariantPreferences(models.Model):
         blank=False,
         null=False,
     )
+    pref_value = models.CharField(max_length=255, blank=False, null=False)
+
+    class Meta:
+        abstract = True
+
+    @property
+    def is_json_string_type(self):
+        return self.pref_type == ExperimentConstants.PREF_TYPE_JSON_STR
+
+
+class VariantPreferences(Preference):
     pref_branch = models.CharField(
         max_length=255,
         choices=ExperimentConstants.PREF_BRANCH_CHOICES,
@@ -944,14 +947,29 @@ class VariantPreferences(models.Model):
         null=False,
     )
 
-    pref_value = models.CharField(max_length=255, blank=False, null=False)
+    variant = models.ForeignKey(
+        ExperimentVariant,
+        blank=False,
+        null=False,
+        related_name="preferences",
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         unique_together = (("variant", "pref_name"),)
 
-    @property
-    def is_json_string_type(self):
-        return self.pref_type == ExperimentConstants.PREF_TYPE_JSON_STR
+
+class RolloutPreference(Preference):
+    experiment = models.ForeignKey(
+        Experiment,
+        blank=False,
+        null=False,
+        related_name="preferences",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        unique_together = (("experiment", "pref_name"),)
 
 
 class ExperimentChangeLogManager(models.Manager):

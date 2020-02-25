@@ -21,6 +21,7 @@ if (branchesDiv) {
   const experimentType = branchesDiv.dataset.experimentType;
   const isBranchedAddon = branchesDiv.dataset.isBranchedAddon === "True";
   const isMultiPref = branchesDiv.dataset.isMultiPref.toLowerCase() === "true";
+  const rolloutType = branchesDiv.dataset.rolloutType || "addon";
   const slug = branchesDiv.dataset.experimentSlug;
 
   ReactDOM.render(
@@ -28,6 +29,7 @@ if (branchesDiv) {
       experimentType={experimentType}
       isBranchedAddon={isBranchedAddon}
       isMultiPref={isMultiPref}
+      rolloutType={rolloutType}
       slug={slug}
     />,
     branchesDiv,
