@@ -23,6 +23,13 @@ class DesignPage(Base):
     )
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-edit-variants")
 
+    def wait_for_page_to_load(self):
+        self.wait.until(
+            lambda _: self.find_element(
+                *self._firefox_pref_name_locator).is_displayed()
+            )
+        return self
+
     def create_new_branch(self):
         """Creates a new branch."""
         num_of_branches = len(self.current_branches) + 1
