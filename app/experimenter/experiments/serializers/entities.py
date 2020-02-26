@@ -25,7 +25,6 @@ class JSTimestampField(serializers.Field):
 
 
 class PrefTypeField(serializers.Field):
-
     def to_representation(self, obj):
         if obj == Experiment.PREF_TYPE_JSON_STR:
             return Experiment.PREF_TYPE_STR
@@ -34,7 +33,6 @@ class PrefTypeField(serializers.Field):
 
 
 class ExperimentPreferenceSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = VariantPreferences
         fields = ("pref_name", "pref_type", "pref_branch", "pref_value")
@@ -101,7 +99,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "bugzilla_id",
             "normandy_slug",
             "normandy_id",
-            "data_science_bugzilla_url",
+            "data_science_issue_url",
             "feature_bugzilla_url",
             "risk_partner_related",
             "risk_brand",
@@ -146,7 +144,6 @@ class ChangeLogSerializer(serializers.ModelSerializer):
 
 
 class ExperimentChangeLogSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = ExperimentChangeLog
         fields = ("changed_on", "pretty_status", "new_status", "old_status")

@@ -184,13 +184,13 @@ class TestExperimentModel(TestCase):
 
     def test_has_external_urls_is_false_when_no_external_urls(self):
         experiment = ExperimentFactory.create(
-            bugzilla_id="", data_science_bugzilla_url="", feature_bugzilla_url=""
+            bugzilla_id="", data_science_issue_url="", feature_bugzilla_url=""
         )
         self.assertFalse(experiment.has_external_urls)
 
-    def test_has_external_urls_is_true_when_data_science_bugzilla_url_is_set(self):
+    def test_has_external_urls_is_true_when_data_science_issue_url_is_set(self):
         experiment = ExperimentFactory.create(
-            data_science_bugzilla_url="www.bugzilla.com/show_bug.cgi?id=123/"
+            data_science_issue_url="https://jira.mozilla.com/browse/DS-123"
         )
         self.assertTrue(experiment.has_external_urls)
 
@@ -1418,7 +1418,7 @@ class TestExperimentModel(TestCase):
             owner=user_1,
             bugzilla_id="4455667",
             pref_type=Experiment.TYPE_ADDON,
-            data_science_bugzilla_url="https://bugzilla.mozilla.org/123/",
+            data_science_issue_url="https://jira.mozilla.com/browse/",
             feature_bugzilla_url="https://bugzilla.mozilla.org/123/",
             addon_experiment_id="addon-id",
             addon_release_url="addon-url",

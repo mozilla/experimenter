@@ -1,5 +1,7 @@
 import decimal
 import json
+import re
+import os
 
 from django import forms
 from django.conf import settings
@@ -29,7 +31,6 @@ from experimenter.notifications.models import Notification
 
 
 class JSONField(forms.CharField):
-
     def clean(self, value):
         cleaned_value = super().clean(value)
 
@@ -42,8 +43,34 @@ class JSONField(forms.CharField):
         return cleaned_value
 
 
-class BugzillaURLField(forms.URLField):
+class DSIssueURLField(forms.URLField):
+    def clean(self, value):
+        cleaned_value = super().clean(value)
 
+        if cleaned_value:
+            err_str = "Please Provide a Valid URL ex: {ds_url}DS-123 or {ds_url}DO-123"
+
+            DS_root = os.path.join(settings.DS_ISSUE_HOST, "DS-")
+            DO_root = os.path.join(settings.DS_ISSUE_HOST, "DO-")
+
+            if (
+                DS_root not in cleaned_value and DO_root not in cleaned_value
+            ) or self.get_ds_issue_id(cleaned_value) is None:
+
+                raise forms.ValidationError(err_str.format(ds_url=settings.DS_ISSUE_HOST))
+        return cleaned_value
+
+    def get_ds_issue_id(self, bug_url):
+        ds = re.match("https://jira.mozilla.com/browse/DS-(\w+.*)", bug_url)
+        do = re.match("https://jira.mozilla.com/browse/DO-(\w+.*)", bug_url)
+
+        if ds:
+            return ds.group(1)
+
+        return do.group(1)
+
+
+class BugzillaURLField(forms.URLField):
     def clean(self, value):
         cleaned_value = super().clean(value)
 
@@ -59,7 +86,6 @@ class BugzillaURLField(forms.URLField):
 
 
 class ChangeLogMixin(object):
-
     def __init__(self, request, *args, **kwargs):
         self.request = request
         super().__init__(*args, **kwargs)
@@ -119,10 +145,10 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.PUBLIC_DESCRIPTION_HELP_TEXT,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
-    data_science_bugzilla_url = BugzillaURLField(
+    data_science_issue_url = DSIssueURLField(
         required=False,
-        label="Data Science Bugzilla URL",
-        help_text=Experiment.DATA_SCIENCE_BUGZILLA_HELP_TEXT,
+        label="Data Science Issue URL",
+        help_text=Experiment.DATA_SCIENCE_ISSUE_HELP_TEXT,
     )
     engineering_owner = forms.CharField(
         required=False,
@@ -167,7 +193,7 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
             "short_description",
             "public_name",
             "public_description",
-            "data_science_bugzilla_url",
+            "data_science_issue_url",
             "analysis_owner",
             "engineering_owner",
             "feature_bugzilla_url",
@@ -207,7 +233,7 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         if cleaned_data["type"] != ExperimentConstants.TYPE_ROLLOUT:
             required_msg = "This field is required."
             required_fields = (
-                "data_science_bugzilla_url",
+                "data_science_issue_url",
                 "public_name",
                 "public_description",
             )
@@ -291,7 +317,6 @@ class ExperimentVariantPrefForm(ExperimentVariantGenericForm):
 
 
 class ExperimentVariantsFormSet(BaseInlineFormSet):
-
     def clean(self):
         alive_forms = [form for form in self.forms if not form.cleaned_data["DELETE"]]
 
@@ -316,7 +341,6 @@ class ExperimentVariantsFormSet(BaseInlineFormSet):
 
 
 class ExperimentVariantsPrefFormSet(ExperimentVariantsFormSet):
-
     def clean(self):
         super().clean()
 
@@ -338,7 +362,6 @@ class ExperimentVariantsPrefFormSet(ExperimentVariantsFormSet):
 
 
 class CustomModelChoiceIterator(ModelChoiceIterator):
-
     def __iter__(self):
         yield (CustomModelMultipleChoiceField.ALL_KEY, self.field.all_label)
         for choice in super().__iter__():
@@ -552,7 +575,6 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
 
 
 class ExperimentDesignBaseForm(ChangeLogMixin, forms.ModelForm):
-
     class Meta:
         model = Experiment
         fields = []
@@ -1233,7 +1255,7 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
         ):
 
             tasks.create_experiment_bug_task.delay(self.request.user.id, experiment.id)
-            tasks.update_exp_id_to_ds_bug_task.delay(self.request.user.id, experiment.id)
+            # tasks.update_exp_id_to_ds_bug_task.delay(self.request.user.id, experiment.id)
 
         if (
             self.old_status == Experiment.STATUS_REVIEW
@@ -1246,7 +1268,7 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
 
             tasks.update_experiment_bug_task.delay(self.request.user.id, experiment.id)
 
-            tasks.update_ds_bug_task.delay(experiment.id)
+            # tasks.update_ds_bug_task.delay(experiment.id)
 
         return experiment
 

@@ -156,7 +156,7 @@ class ExperimentFilterset(filters.FilterSet):
             "engineering_owner",
             "bugzilla_id",
             "normandy_slug",
-            "data_science_bugzilla_url",
+            "data_science_issue_url",
             "feature_bugzilla_url",
         )
 

@@ -22,7 +22,6 @@ from experimenter.experiments.views import ExperimentFormMixin, ExperimentOrderi
 
 
 class TestExperimentListView(TestCase):
-
     def test_list_view_lists_experiments_with_default_order_no_archived(self):
         user_email = "user@example.com"
 
@@ -186,11 +185,8 @@ class TestExperimentListView(TestCase):
 
 
 class TestExperimentFormMixin(TestCase):
-
     def test_get_form_kwargs_adds_request(self):
-
         class BaseTestView(object):
-
             def __init__(self, request):
                 self.request = request
 
@@ -207,9 +203,7 @@ class TestExperimentFormMixin(TestCase):
 
     @mock.patch("experimenter.experiments.views.reverse")
     def test_get_success_url_returns_next_url_if_action_is_continue(self, mock_reverse):
-
         class BaseTestView(object):
-
             def __init__(self, request, instance):
                 self.request = request
                 self.object = instance
@@ -237,9 +231,7 @@ class TestExperimentFormMixin(TestCase):
 
     @mock.patch("experimenter.experiments.views.reverse")
     def test_get_success_url_returns_detail_url_if_action_is_empty(self, mock_reverse):
-
         class BaseTestView(object):
-
             def __init__(self, request, instance):
                 self.request = request
                 self.object = instance
@@ -267,12 +259,12 @@ class TestExperimentFormMixin(TestCase):
 
 
 class TestExperimentCreateView(TestCase):
-
     def test_view_creates_experiment(self):
         user = UserFactory.create()
         user_email = user.email
 
-        bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
+        ds_issue_url = "https://jira.mozilla.com/browse/DS-123"
+        bugzilla_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
         data = {
             "action": "continue",
             "type": Experiment.TYPE_PREF,
@@ -280,8 +272,8 @@ class TestExperimentCreateView(TestCase):
             "short_description": "Let us learn new things",
             "public_name": "Public Name",
             "public_description": "Public Description",
-            "data_science_bugzilla_url": bug_url,
-            "feature_bugzilla_url": bug_url,
+            "data_science_issue_url": ds_issue_url,
+            "feature_bugzilla_url": bugzilla_url,
             "related_work": "Designs: https://www.example.com/myproject/",
             "owner": user.id,
             "analysis_owner": user.id,
@@ -309,9 +301,11 @@ class TestExperimentCreateView(TestCase):
         self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
 
-@override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")
+@override_settings(
+    BUGZILLA_HOST="https://bugzilla.mozilla.org/",
+    DS_ISSUE_HOST="https://jira.mozilla.com/browse/",
+)
 class TestExperimentOverviewUpdateView(TestCase):
-
     def test_view_saves_experiment(self):
         user = UserFactory.create()
         user_email = user.email
@@ -319,7 +313,9 @@ class TestExperimentOverviewUpdateView(TestCase):
             Experiment.STATUS_DRAFT, proposed_enrollment=1, proposed_duration=2
         )
 
-        bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
+        ds_url = "{base}DS-123".format(base=settings.DS_ISSUE_HOST)
+        bug_url = "{base}show_bug.cgi?id=123".format(base=settings.BUGZILLA_HOST)
+
         data = {
             "action": "continue",
             "type": Experiment.TYPE_PREF,
@@ -327,7 +323,7 @@ class TestExperimentOverviewUpdateView(TestCase):
             "short_description": "A new description!",
             "public_name": "Public Name",
             "public_description": "Public Description",
-            "data_science_bugzilla_url": bug_url,
+            "data_science_issue_url": ds_url,
             "feature_bugzilla_url": bug_url,
             "related_work": "Designs: https://www.example.com/myproject/",
             "owner": user.id,
@@ -339,6 +335,7 @@ class TestExperimentOverviewUpdateView(TestCase):
             data,
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
+
         self.assertEqual(response.status_code, 302)
 
         experiment = Experiment.objects.get()
@@ -356,7 +353,6 @@ class TestExperimentOverviewUpdateView(TestCase):
 
 
 class TestExperimentTimelinePopulationUpdateView(TestCase):
-
     def test_view_saves_experiment(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_status(
@@ -413,7 +409,6 @@ class TestExperimentTimelinePopulationUpdateView(TestCase):
 
 
 class TestExperimentDesignUpdateView(TestCase):
-
     def test_page_loads(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create()
@@ -425,7 +420,6 @@ class TestExperimentDesignUpdateView(TestCase):
 
 
 class TestExperimentObjectivesUpdateView(TestCase):
-
     def test_view_saves_experiment(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
@@ -459,7 +453,6 @@ class TestExperimentObjectivesUpdateView(TestCase):
 
 
 class TestExperimentRisksUpdateView(TestCase):
-
     def test_view_saves_experiment(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
@@ -518,7 +511,6 @@ class TestExperimentRisksUpdateView(TestCase):
 
 
 class TestResultsUpdateView(TestCase):
-
     def test_view_saves_experiment(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_COMPLETE)
@@ -542,7 +534,6 @@ class TestResultsUpdateView(TestCase):
 
 
 class TestExperimentDetailView(TestCase):
-
     def test_view_renders_correctly(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
@@ -605,7 +596,6 @@ class TestExperimentDetailView(TestCase):
 
 
 class TestExperimentStatusUpdateView(MockTasksMixin, TestCase):
-
     def test_view_updates_status_and_redirects(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
@@ -647,7 +637,6 @@ class TestExperimentStatusUpdateView(MockTasksMixin, TestCase):
 
 
 class TestExperimentReviewUpdateView(TestCase):
-
     def test_view_updates_reviews_and_redirects(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_REVIEW)
@@ -694,7 +683,6 @@ class TestExperimentReviewUpdateView(TestCase):
 
 
 class TestExperimentCommentCreateView(TestCase):
-
     def test_view_creates_comment_redirects_to_detail_page(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
@@ -741,7 +729,6 @@ class TestExperimentCommentCreateView(TestCase):
 
 
 class TestExperimentArchiveUpdateView(MockTasksMixin, TestCase):
-
     def test_view_flips_archive_bool_and_redirects(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create(archived=False)
@@ -764,7 +751,6 @@ class TestExperimentArchiveUpdateView(MockTasksMixin, TestCase):
 
 
 class TestExperimentSubscribedUpdateView(TestCase):
-
     def test_view_flips_subscribed_bool_and_redirects(self):
         user = UserFactory()
         experiment = ExperimentFactory.create()
@@ -786,7 +772,6 @@ class TestExperimentSubscribedUpdateView(TestCase):
 
 
 class TestExperimentNormandyUpdateView(TestCase):
-
     def test_valid_recipe_id_updates_experiment_status(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)

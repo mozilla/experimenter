@@ -147,7 +147,7 @@ def update_experiment_info():
 
                 if needs_to_be_updated(recipe_data, experiment.status):
                     experiment = update_status_task(experiment, recipe_data)
-                    update_ds_bug_task.delay(experiment.id)
+                    # update_ds_bug_task.delay(experiment.id)
 
                     if experiment.status == Experiment.STATUS_LIVE:
                         add_start_date_comment_task.delay(experiment.id)
@@ -324,58 +324,3 @@ def update_bug_resolution_task(user_id, experiment_id):
             ),
         )
         raise e
-
-
-@app.task
-@metrics.timer_decorator("update_ds_bug.timing")
-def update_ds_bug_task(experiment_id):
-    metrics.incr("update_ds_bug.started")
-    experiment = Experiment.objects.get(id=experiment_id)
-    ds_bug_url = experiment.data_science_bugzilla_url
-    ds_bug_id = bugzilla.get_bugzilla_id(ds_bug_url)
-    comment = """[Experiment]{name} status has been changed to: {status}
-            url:{url}"""
-    comment = comment.format(
-        name=experiment.name, status=experiment.status, url=experiment.experiment_url
-    )
-    try:
-        logger.info("adding comment to ds bug")
-        bugzilla.add_experiment_comment(ds_bug_id, comment)
-        metrics.incr("update_ds_bug.completed")
-        logger.info("Data Science Bug status comment sent")
-    except bugzilla.BugzillaError as e:
-        metrics.incr("update_ds_bug.failed")
-        logger.info("Failed to add a status comment to db bugzilla ticket")
-        raise e
-
-
-@app.task
-@metrics.timer_decorator("update_exp_id_to_ds_bug.timing")
-def update_exp_id_to_ds_bug_task(user_id, experiment_id):
-    metrics.incr("update_add_experiment_id_to_ds_bug.started")
-
-    experiment = Experiment.objects.get(id=experiment_id)
-    ds_bug_url = experiment.data_science_bugzilla_url
-    ds_bug_id = bugzilla.get_bugzilla_id(ds_bug_url)
-    request_body = {"blocks": {"add": [experiment.bugzilla_id]}}
-    url = settings.BUGZILLA_UPDATE_URL.format(id=ds_bug_id)
-    try:
-        logger.info("adding block experiment id to ds bug id")
-        bugzilla.make_bugzilla_call(url, requests.put, data=request_body)
-        Notification.objects.create(
-            user_id=user_id,
-            message=NOTIFICATION_MESSAGE_DS_UPDATE.format(
-                bug_url=experiment.data_science_bugzilla_url
-            ),
-        )
-        metrics.incr("update_exp_id_to_ds_bug.completed")
-        logger.info("Data Science Bug status comment sent")
-    except bugzilla.BugzillaError:
-        metrics.incr("update_exp_id_to_ds_bug.failed")
-        logger.info("Failed to add a status comment to db bugzilla ticket")
-        Notification.objects.create(
-            user_id=user_id,
-            message=NOTIFICATION_MESSAGE_DS_UPDATE_ERROR.format(
-                bug_url=experiment.data_science_bugzilla_url
-            ),
-        )

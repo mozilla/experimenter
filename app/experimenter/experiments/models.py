@@ -23,7 +23,6 @@ from experimenter.experiments.constants import ExperimentConstants
 
 
 class ExperimentManager(models.Manager):
-
     def get_queryset(self):
         return super().get_queryset().annotate(latest_change=Max("changes__changed_on"))
 
@@ -171,7 +170,7 @@ class Experiment(ExperimentConstants, models.Model):
     normandy_id = models.PositiveIntegerField(blank=True, null=True)
     other_normandy_ids = ArrayField(models.IntegerField(), blank=True, null=True)
 
-    data_science_bugzilla_url = models.URLField(blank=True, null=True)
+    data_science_issue_url = models.URLField(blank=True, null=True)
     feature_bugzilla_url = models.URLField(blank=True, null=True)
 
     # Risk fields
@@ -256,7 +255,6 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def monitoring_dashboard_url(self):
-
         def to_timestamp(date):
             return int(time.mktime(date.timetuple())) * 1000
 
@@ -367,7 +365,7 @@ class Experiment(ExperimentConstants, models.Model):
         return (
             self.bugzilla_url
             or self.monitoring_dashboard_url
-            or self.data_science_bugzilla_url
+            or self.data_science_issue_url
             or self.feature_bugzilla_url
         )
 
@@ -946,7 +944,6 @@ class VariantPreferences(models.Model):
 
 
 class ExperimentChangeLogManager(models.Manager):
-
     def latest(self):
         return self.all().order_by("-changed_on").first()
 
@@ -1027,7 +1024,6 @@ class ExperimentChangeLog(models.Model):
 
 
 class ExperimentCommentManager(models.Manager):
-
     @cached_property
     def sections(self):
         sections = defaultdict(list)
