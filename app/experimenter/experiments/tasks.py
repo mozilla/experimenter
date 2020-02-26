@@ -147,7 +147,6 @@ def update_experiment_info():
 
                 if needs_to_be_updated(recipe_data, experiment.status):
                     experiment = update_status_task(experiment, recipe_data)
-                    # update_ds_bug_task.delay(experiment.id)
 
                     if experiment.status == Experiment.STATUS_LIVE:
                         add_start_date_comment_task.delay(experiment.id)

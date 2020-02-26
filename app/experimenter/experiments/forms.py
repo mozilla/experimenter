@@ -31,6 +31,7 @@ from experimenter.notifications.models import Notification
 
 
 class JSONField(forms.CharField):
+
     def clean(self, value):
         cleaned_value = super().clean(value)
 
@@ -44,6 +45,7 @@ class JSONField(forms.CharField):
 
 
 class DSIssueURLField(forms.URLField):
+
     def clean(self, value):
         cleaned_value = super().clean(value)
 
@@ -71,6 +73,7 @@ class DSIssueURLField(forms.URLField):
 
 
 class BugzillaURLField(forms.URLField):
+
     def clean(self, value):
         cleaned_value = super().clean(value)
 
@@ -86,6 +89,7 @@ class BugzillaURLField(forms.URLField):
 
 
 class ChangeLogMixin(object):
+
     def __init__(self, request, *args, **kwargs):
         self.request = request
         super().__init__(*args, **kwargs)
@@ -317,6 +321,7 @@ class ExperimentVariantPrefForm(ExperimentVariantGenericForm):
 
 
 class ExperimentVariantsFormSet(BaseInlineFormSet):
+
     def clean(self):
         alive_forms = [form for form in self.forms if not form.cleaned_data["DELETE"]]
 
@@ -341,6 +346,7 @@ class ExperimentVariantsFormSet(BaseInlineFormSet):
 
 
 class ExperimentVariantsPrefFormSet(ExperimentVariantsFormSet):
+
     def clean(self):
         super().clean()
 
@@ -362,6 +368,7 @@ class ExperimentVariantsPrefFormSet(ExperimentVariantsFormSet):
 
 
 class CustomModelChoiceIterator(ModelChoiceIterator):
+
     def __iter__(self):
         yield (CustomModelMultipleChoiceField.ALL_KEY, self.field.all_label)
         for choice in super().__iter__():
@@ -575,6 +582,7 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
 
 
 class ExperimentDesignBaseForm(ChangeLogMixin, forms.ModelForm):
+
     class Meta:
         model = Experiment
         fields = []
@@ -1255,7 +1263,6 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
         ):
 
             tasks.create_experiment_bug_task.delay(self.request.user.id, experiment.id)
-            # tasks.update_exp_id_to_ds_bug_task.delay(self.request.user.id, experiment.id)
 
         if (
             self.old_status == Experiment.STATUS_REVIEW
@@ -1267,8 +1274,6 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
             experiment.save()
 
             tasks.update_experiment_bug_task.delay(self.request.user.id, experiment.id)
-
-            # tasks.update_ds_bug_task.delay(experiment.id)
 
         return experiment
 
