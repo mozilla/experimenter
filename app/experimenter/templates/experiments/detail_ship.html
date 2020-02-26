@@ -113,6 +113,7 @@
   {% if normandy_id_form.errors %}
     <script>
       $(function() {
+        normandyIdForm.removeClass("d-none");
         $('#normandyModal').modal();
       });
     </script>
