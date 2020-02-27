@@ -191,6 +191,9 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "proposed_start_date",
             "proposed_enrollment",
             "proposed_duration",
+            "normandy_slug",
+            "normandy_id",
+            "other_normandy_ids",
             "variants",
             "changes",
         )
