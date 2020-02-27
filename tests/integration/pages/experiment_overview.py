@@ -36,10 +36,10 @@ class ExperimentOverview(Base):
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-edit-overview")
     _name_locator = (By.CSS_SELECTOR, "#id_name")
     _short_description_locator = (By.CSS_SELECTOR, "#id_short_description")
-     _bugzilla_url_locator = (
+    _bugzilla_url_locator = (
         By.CSS_SELECTOR,
         "id_data_science_bugzilla_url",
-     )
+    )
     _overview_name_locator = (By.CSS_SELECTOR, "#id_name")
     _overview_description_locator = (By.CSS_SELECTOR, "#id_short_description")
     _overview_bugzilla_url_locator = (By.CSS_SELECTOR, "#id_data_science_bugzilla_url")

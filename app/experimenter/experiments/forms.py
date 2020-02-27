@@ -63,8 +63,8 @@ class DSIssueURLField(forms.URLField):
         return cleaned_value
 
     def get_ds_issue_id(self, bug_url):
-        ds = re.match("https://jira.mozilla.com/browse/DS-(\w+.*)", bug_url)
-        do = re.match("https://jira.mozilla.com/browse/DO-(\w+.*)", bug_url)
+        ds = re.match(r"https://jira.mozilla.com/browse/DS-(\w+.*)", bug_url)
+        do = re.match(r"https://jira.mozilla.com/browse/DO-(\w+.*)", bug_url)
 
         if ds:
             return ds.group(1)

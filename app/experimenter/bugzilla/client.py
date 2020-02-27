@@ -167,7 +167,7 @@ def format_summary(experiment):
 
 
 def create_experiment_bug(experiment):
-    assigned_to, see_also, blocks = None, None, None
+    assigned_to, blocks = None, None
 
     if user_exists(experiment.owner.email):
         assigned_to = experiment.owner.email
