@@ -92,7 +92,7 @@ class TestExperimentSerializer(TestCase):
             Experiment.STATUS_COMPLETE,
             countries=[],
             locales=[],
-            normandy_slug="a-nomandy-slug",
+            normandy_slug="a-normandy-slug",
             normandy_id=123,
             other_normandy_ids=[],
         )
