@@ -54,15 +54,6 @@ NOTIFICATION_MESSAGE_ARCHIVE_ERROR_MESSAGE = (
     "Ticket</a> was UNABLE to update its resolution and status"
 )
 
-NOTIFICATION_MESSAGE_DS_UPDATE = (
-    'The <a target="_blank" rel="noreferrer noopener" href="{bug_url}">'
-    " Data Science Ticket</a> has been updated with experiment info"
-)
-NOTIFICATION_MESSAGE_DS_UPDATE_ERROR = (
-    'The <a target="_blank" rel="noreferrer noopener" href="{bug_url}">'
-    " Data Science Ticket</a> was UNABLE to updated with experiment_info"
-)
-
 
 @app.task
 @metrics.timer_decorator("create_experiment_bug.timing")
