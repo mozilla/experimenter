@@ -301,6 +301,24 @@
                       "nullable": true,
                       "minimum": 0
                     },
+                    "normandy_slug": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "normandy_id": {
+                      "type": "integer",
+                      "maximum": 2147483647,
+                      "nullable": true,
+                      "minimum": 0
+                    },
+                    "other_normandy_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      },
+                      "nullable": true
+                    },
                     "variants": {
                       "type": "array",
                       "items": {
@@ -682,6 +700,24 @@
                         "maximum": 1000,
                         "nullable": true,
                         "minimum": 0
+                      },
+                      "normandy_slug": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 255
+                      },
+                      "normandy_id": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "nullable": true,
+                        "minimum": 0
+                      },
+                      "other_normandy_ids": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer"
+                        },
+                        "nullable": true
                       },
                       "variants": {
                         "type": "array",
@@ -4322,6 +4358,24 @@
                     "nullable": true,
                     "minimum": 0
                   },
+                  "normandy_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "normandy_id": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "nullable": true,
+                    "minimum": 0
+                  },
+                  "other_normandy_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "nullable": true
+                  },
                   "variants": {
                     "type": "array",
                     "items": {
@@ -4670,6 +4724,24 @@
                     "nullable": true,
                     "minimum": 0
                   },
+                  "normandy_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "normandy_id": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "nullable": true,
+                    "minimum": 0
+                  },
+                  "other_normandy_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "nullable": true
+                  },
                   "variants": {
                     "type": "array",
                     "items": {
@@ -5017,6 +5089,24 @@
                     "maximum": 1000,
                     "nullable": true,
                     "minimum": 0
+                  },
+                  "normandy_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "normandy_id": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "nullable": true,
+                    "minimum": 0
+                  },
+                  "other_normandy_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "nullable": true
                   },
                   "variants": {
                     "type": "array",
@@ -5378,6 +5468,24 @@
                       "maximum": 1000,
                       "nullable": true,
                       "minimum": 0
+                    },
+                    "normandy_slug": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "normandy_id": {
+                      "type": "integer",
+                      "maximum": 2147483647,
+                      "nullable": true,
+                      "minimum": 0
+                    },
+                    "other_normandy_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      },
+                      "nullable": true
                     },
                     "variants": {
                       "type": "array",
@@ -5748,6 +5856,24 @@
                     "nullable": true,
                     "minimum": 0
                   },
+                  "normandy_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "normandy_id": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "nullable": true,
+                    "minimum": 0
+                  },
+                  "other_normandy_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "nullable": true
+                  },
                   "variants": {
                     "type": "array",
                     "items": {
@@ -6082,6 +6208,24 @@
                     "nullable": true,
                     "minimum": 0
                   },
+                  "normandy_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "normandy_id": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "nullable": true,
+                    "minimum": 0
+                  },
+                  "other_normandy_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "nullable": true
+                  },
                   "variants": {
                     "type": "array",
                     "items": {
@@ -6415,6 +6559,24 @@
                     "maximum": 1000,
                     "nullable": true,
                     "minimum": 0
+                  },
+                  "normandy_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "normandy_id": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "nullable": true,
+                    "minimum": 0
+                  },
+                  "other_normandy_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "nullable": true
                   },
                   "variants": {
                     "type": "array",
@@ -6762,6 +6924,24 @@
                       "maximum": 1000,
                       "nullable": true,
                       "minimum": 0
+                    },
+                    "normandy_slug": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "normandy_id": {
+                      "type": "integer",
+                      "maximum": 2147483647,
+                      "nullable": true,
+                      "minimum": 0
+                    },
+                    "other_normandy_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      },
+                      "nullable": true
                     },
                     "variants": {
                       "type": "array",

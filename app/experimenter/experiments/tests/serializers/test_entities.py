@@ -89,7 +89,12 @@ class TestExperimentSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_COMPLETE, countries=[], locales=[]
+            Experiment.STATUS_COMPLETE,
+            countries=[],
+            locales=[],
+            normandy_slug="a-normandy-slug",
+            normandy_id=123,
+            other_normandy_ids=[],
         )
 
         # ensure expected_data has "string" if pref_type is json string
@@ -122,6 +127,9 @@ class TestExperimentSerializer(TestCase):
             "start_date": JSTimestampField().to_representation(experiment.start_date),
             "status": Experiment.STATUS_COMPLETE,
             "type": experiment.type,
+            "normandy_slug": experiment.normandy_slug,
+            "normandy_id": experiment.normandy_id,
+            "other_normandy_ids": experiment.other_normandy_ids,
             "variants": [
                 ExperimentVariantSerializer(variant).data
                 for variant in experiment.variants.all()
