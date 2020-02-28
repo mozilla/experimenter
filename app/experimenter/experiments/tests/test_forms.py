@@ -15,6 +15,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from experimenter.experiments.forms import (
     BugzillaURLField,
+    DSIssueURLField,
     ChangeLogMixin,
     CustomModelMultipleChoiceField,
     ExperimentArchiveForm,
@@ -94,6 +95,22 @@ class TestBugzillaURLField(TestCase):
 
         with self.assertRaises(ValidationError):
             field.clean("www.example.com")
+
+
+@override_settings(DS_ISSUE_HOST="https://jira.mozilla.com/browse/")
+class TestDSIssueURLField(TestCase):
+
+    def test_accepts_ds_url_field(self):
+        field = DSIssueURLField()
+        ds_url = "{base}DS-1234".format(base=settings.DS_ISSUE_HOST)
+        cleaned = field.clean(ds_url)
+        self.assertEqual(cleaned, ds_url)
+
+    def test_rejects_wrong_project_name(self):
+        field = DSIssueURLField()
+        ds_url = "{base}AA-1234".format(base=settings.DS_ISSUE_HOST)
+        with self.assertRaises(ValidationError):
+            field.clean(ds_url)
 
 
 class TestExperimentVariantGenericForm(TestCase):
