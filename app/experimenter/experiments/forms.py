@@ -68,8 +68,9 @@ class DSIssueURLField(forms.URLField):
 
         if ds:
             return ds.group(1)
-        
+
         return do.group(1)
+
 
 class BugzillaURLField(forms.URLField):
 
