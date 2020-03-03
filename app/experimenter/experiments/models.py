@@ -674,16 +674,22 @@ class Experiment(ExperimentConstants, models.Model):
         }
 
     def _default_required_reviews(self):
+        # Ref: #2325, request for specific order of reviews
         reviews = [
+            "review_science",
             "review_advisory",
+            "review_engineering",
             "review_qa_requested",
             "review_intent_to_ship",
+            "review_bugzilla",
             "review_qa",
             "review_relman",
         ]
 
-        if not self.is_rollout:
-            reviews += ["review_science", "review_bugzilla", "review_engineering"]
+        rollout_exclusions = ["review_science", "review_bugzilla", "review_engineering"]
+
+        if self.is_rollout:
+            return [review for review in reviews if review not in rollout_exclusions]
 
         return reviews
 
