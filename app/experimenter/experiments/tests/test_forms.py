@@ -506,8 +506,8 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
-        ds_url = "{}DS-123".format(settings.DS_ISSUE_HOST)
-        bug_url = "{}show_bug.cgi?id=123".format(settings.BUGZILLA_HOST)
+        ds_url = "{base}DS-123".format(base=settings.DS_ISSUE_HOST)
+        bug_url = "{base}show_bug.cgi?id=123".format(base=settings.BUGZILLA_HOST)
         self.related_exp = ExperimentFactory.create()
 
         self.data = {
