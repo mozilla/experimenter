@@ -6,9 +6,9 @@ Django==3.0.3 \
 black==18.5b0 \
     --hash=sha256:4fec2566f9fbbd4a58de50a168cbe3ab952713530410d227e82e4c65d1fad946 \
     --hash=sha256:5fec0f25486046b9edb97961c946412ced96021247dd1a60ecd9f0567b68b030
-celery==4.2.1 \
-    --hash=sha256:77dab4677e24dc654d42dfbdfed65fa760455b6bb563a0877ecc35f4cfcfc678 \
-    --hash=sha256:ad7a7411772b80a4d6c64f2f7f723200e39fb66cf614a7fdfab76d345acc7b13
+celery==4.4.1 \
+    --hash=sha256:3c5fcd6bfcf9a6323cb742cfc121d1790d50cfeddf300ba723cfa0b356413f07 \
+    --hash=sha256:a650525303ee866fb0c62c82f68681fcc2183eebbfafae552c27d30125fe518b
 coverage==4.5.4 \
     --hash=sha256:eee64c616adeff7db37cc37da4180a3a5b6177f5c46b187894e633f088fb5b28 \
     --hash=sha256:ef824cad1f980d27f26166f86856efe11eff9912c4fed97d3804820d43fa550c \
