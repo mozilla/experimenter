@@ -30,7 +30,7 @@ class Command(BaseCommand):
             if "/api/v1/" in path:
                 for method in paths[path]:
                     paths[path][method]["tags"] = ["public"]
-            elif "/api/v2" in path:
+            elif "/api/v2/" in path:
                 for method in paths[path]:
                     paths[path][method]["tags"] = ["private"]
         return json.dumps(schema, indent=2)
