@@ -674,7 +674,6 @@ class Experiment(ExperimentConstants, models.Model):
         }
 
     def _default_required_reviews(self):
-        # Ref: #2325, request for specific order of reviews
         reviews = [
             "review_science",
             "review_advisory",

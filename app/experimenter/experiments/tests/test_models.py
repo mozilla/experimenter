@@ -1261,7 +1261,7 @@ class TestExperimentModel(TestCase):
         self.assertFalse(experiment.is_ready_to_launch)
 
     def test_review_order_is_correct_for_experiment(self):
-        experiment = ExperimentFactory.create()
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_PREF)
         expected_reviews = [
             "review_science",
             "review_advisory",
