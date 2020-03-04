@@ -74,12 +74,10 @@ compose_build: build ssl
 
 compose_stop:
 	$(COMPOSE) kill
-	$(COMPOSE_FULL) kill
 	$(COMPOSE_INTEGRATION) kill
 
 compose_rm:
 	$(COMPOSE) rm -f -v
-	$(COMPOSE_FULL) rm -f -v
 	$(COMPOSE_INTEGRATION) rm -f -v
 
 volumes_rm:
@@ -143,6 +141,10 @@ compose_build_all: build ssl
 
 up_all: compose_build_all
 	$(COMPOSE_FULL) up
+
+kill_all: kill
+	$(COMPOSE_FULL) kill
+	$(COMPOSE_FULL) -v rm
 
 normandy_shell: compose_build_all
 	$(COMPOSE_FULL) run normandy ./manage.py shell
