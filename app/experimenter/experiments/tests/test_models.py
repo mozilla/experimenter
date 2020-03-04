@@ -1260,6 +1260,33 @@ class TestExperimentModel(TestCase):
 
         self.assertFalse(experiment.is_ready_to_launch)
 
+    def test_review_order_is_correct_for_experiment(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_PREF)
+        expected_reviews = [
+            "review_science",
+            "review_advisory",
+            "review_engineering",
+            "review_qa_requested",
+            "review_intent_to_ship",
+            "review_bugzilla",
+            "review_qa",
+            "review_relman",
+        ]
+        reviews = experiment.get_all_required_reviews()
+        self.assertEqual(expected_reviews, reviews)
+
+    def test_review_order_is_correct_for_rollout(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        expected_reviews = [
+            "review_advisory",
+            "review_qa_requested",
+            "review_intent_to_ship",
+            "review_qa",
+            "review_relman",
+        ]
+        reviews = experiment.get_all_required_reviews()
+        self.assertEqual(expected_reviews, reviews)
+
     def test_completed_results_returns_true_if_any_results(self):
         experiment = ExperimentFactory.create(
             results_initial="The results here were great."
