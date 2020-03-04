@@ -8,9 +8,6 @@ from experimenter.experiments.api_views import (
     ExperimentDesignMultiPrefView,
     ExperimentDesignPrefView,
     ExperimentDesignRolloutView,
-    ExperimentDetailView,
-    ExperimentListView,
-    ExperimentRecipeView,
     ExperimentSendIntentToShipEmailView,
 )
 

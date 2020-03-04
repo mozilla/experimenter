@@ -1,17 +1,9 @@
 from django.conf.urls import url
 
 from experimenter.experiments.api_views import (
-    ExperimentCloneView,
-    ExperimentDesignAddonView,
-    ExperimentDesignBranchedAddonView,
-    ExperimentDesignGenericView,
-    ExperimentDesignMultiPrefView,
-    ExperimentDesignPrefView,
-    ExperimentDesignRolloutView,
     ExperimentDetailView,
     ExperimentListView,
     ExperimentRecipeView,
-    ExperimentSendIntentToShipEmailView,
 )
 
 
