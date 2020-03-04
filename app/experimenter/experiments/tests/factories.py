@@ -38,8 +38,10 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     public_description = factory.LazyAttribute(
         lambda o: faker.text(random.randint(100, 500))
     )
-    data_science_issue_url = "DS-12345".format(settings.DS_ISSUE_HOST)
-    feature_bugzilla_url = "{}show_bug.cgi?id=12345".format(settings.BUGZILLA_HOST)
+    data_science_issue_url = "{base}DS-12345".format(base=settings.DS_ISSUE_HOST)
+    feature_bugzilla_url = "{base}show_bug.cgi?id=12345".format(
+        base=settings.BUGZILLA_HOST
+    )
     related_work = "See also: https://www.example.com/myproject/"
     proposed_start_date = factory.LazyAttribute(
         lambda o: (timezone.now().date() + datetime.timedelta(days=random.randint(1, 10)))

@@ -74,7 +74,7 @@ class TestJSONField(TestCase):
             field.clean(invalid_json)
 
 
-@override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org/")
+@override_settings(BUGZILLA_HOST="https://bugzilla.example.com/")
 class TestBugzillaURLField(TestCase):
 
     def test_accepts_bugzilla_url(self):
@@ -97,7 +97,7 @@ class TestBugzillaURLField(TestCase):
             field.clean("www.example.com")
 
 
-@override_settings(DS_ISSUE_HOST="https://jira.mozilla.com/browse/")
+@override_settings(DS_ISSUE_HOST="https://jira.example.com/browse/")
 class TestDSIssueURLField(TestCase):
 
     def test_accepts_ds_url_field(self):
@@ -499,8 +499,8 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
 
 
 @override_settings(
-    BUGZILLA_HOST="https://bugzilla.mozilla.org/",
-    DS_ISSUE_HOST="https://jira.mozilla.com/browse/",
+    BUGZILLA_HOST="https://bugzilla.example.com/",
+    DS_ISSUE_HOST="https://jira.example.com/browse/",
 )
 class TestExperimentOverviewForm(MockRequestMixin, TestCase):
 
@@ -526,7 +526,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         }
 
     def test_minimum_required_fields_for_experiment(self):
-        bug_url = "https://jira.mozilla.com/browse/DO-123"
+        bug_url = "https://jira.example.com/browse/DO-123"
 
         data = {
             "type": Experiment.TYPE_PREF,

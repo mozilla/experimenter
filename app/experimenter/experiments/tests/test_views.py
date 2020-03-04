@@ -272,8 +272,8 @@ class TestExperimentCreateView(TestCase):
         user = UserFactory.create()
         user_email = user.email
 
-        ds_issue_url = "https://jira.mozilla.com/browse/DS-123"
-        bugzilla_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
+        ds_issue_url = "https://jira.example.com/browse/DS-123"
+        bugzilla_url = "https://bugzilla.example.com/show_bug.cgi?id=123"
         data = {
             "action": "continue",
             "type": Experiment.TYPE_PREF,
@@ -288,7 +288,10 @@ class TestExperimentCreateView(TestCase):
             "analysis_owner": user.id,
         }
 
-        with self.settings(BUGZILLA_HOST="https://bugzilla.mozilla.org"):
+        with self.settings(
+            BUGZILLA_HOST="https://bugzilla.example.com",
+            DS_ISSUE_HOST="https://jira.example.com/browse/",
+        ):
             response = self.client.post(
                 reverse("experiments-create"),
                 data,
@@ -311,8 +314,8 @@ class TestExperimentCreateView(TestCase):
 
 
 @override_settings(
-    BUGZILLA_HOST="https://bugzilla.mozilla.org/",
-    DS_ISSUE_HOST="https://jira.mozilla.com/browse/",
+    BUGZILLA_HOST="https://bugzilla.example.com/",
+    DS_ISSUE_HOST="https://jira.example.com/browse/",
 )
 class TestExperimentOverviewUpdateView(TestCase):
 

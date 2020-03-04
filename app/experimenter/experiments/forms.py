@@ -31,6 +31,7 @@ from experimenter.notifications.models import Notification
 
 
 class JSONField(forms.CharField):
+
     def clean(self, value):
         cleaned_value = super().clean(value)
 
@@ -44,6 +45,7 @@ class JSONField(forms.CharField):
 
 
 class DSIssueURLField(forms.URLField):
+
     def clean(self, value):
         cleaned_value = super().clean(value)
 
@@ -61,12 +63,13 @@ class DSIssueURLField(forms.URLField):
         return cleaned_value
 
     def get_ds_issue_id(self, bug_url):
-        ds = re.match(r"{DS_ISSUE_HOST}[DS|DO]-(\w+.*)", bug_url)
+        ds = re.match(re.escape(settings.DS_ISSUE_HOST) + r"(DS|DO)-(\w+.*)", bug_url)
 
         return ds.group(1)
 
 
 class BugzillaURLField(forms.URLField):
+
     def clean(self, value):
         cleaned_value = super().clean(value)
 
@@ -82,6 +85,7 @@ class BugzillaURLField(forms.URLField):
 
 
 class ChangeLogMixin(object):
+
     def __init__(self, request, *args, **kwargs):
         self.request = request
         super().__init__(*args, **kwargs)
@@ -313,6 +317,7 @@ class ExperimentVariantPrefForm(ExperimentVariantGenericForm):
 
 
 class ExperimentVariantsFormSet(BaseInlineFormSet):
+
     def clean(self):
         alive_forms = [form for form in self.forms if not form.cleaned_data["DELETE"]]
 
@@ -337,6 +342,7 @@ class ExperimentVariantsFormSet(BaseInlineFormSet):
 
 
 class ExperimentVariantsPrefFormSet(ExperimentVariantsFormSet):
+
     def clean(self):
         super().clean()
 
@@ -358,6 +364,7 @@ class ExperimentVariantsPrefFormSet(ExperimentVariantsFormSet):
 
 
 class CustomModelChoiceIterator(ModelChoiceIterator):
+
     def __iter__(self):
         yield (CustomModelMultipleChoiceField.ALL_KEY, self.field.all_label)
         for choice in super().__iter__():
@@ -571,6 +578,7 @@ class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
 
 
 class ExperimentDesignBaseForm(ChangeLogMixin, forms.ModelForm):
+
     class Meta:
         model = Experiment
         fields = []
