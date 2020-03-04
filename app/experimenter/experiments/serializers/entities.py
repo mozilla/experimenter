@@ -61,7 +61,6 @@ class ChangeLogSerializer(serializers.ModelSerializer):
     variants = ExperimentVariantSerializer(many=True, required=False)
     locales = LocaleSerializer(many=True, required=False)
     countries = CountrySerializer(many=True, required=False)
-    pref_type = PrefTypeField()
 
     class Meta:
         model = Experiment
