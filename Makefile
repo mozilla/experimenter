@@ -18,6 +18,8 @@ WAIT_FOR_DB = /app/bin/wait-for-it.sh db:5432 --
 
 COMPOSE = docker-compose -f docker-compose.yml
 COMPOSE_TEST = docker-compose -f docker-compose-test.yml
+COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml
+COMPOSE_FULL = docker-compose -f docker-compose.yml -f docker-compose-full.yml
 
 PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no
 PYTHON_TEST_FAST = python manage.py test -v 3 --parallel
@@ -70,20 +72,27 @@ checkfast: test_build
 compose_build: build ssl
 	$(COMPOSE)  build
 
-compose_kill:
+compose_stop:
 	$(COMPOSE) kill
+	$(COMPOSE_FULL) kill
+	$(COMPOSE_INTEGRATION) kill
 
 compose_rm:
-	$(COMPOSE) rm -f
+	$(COMPOSE) rm -f -v
+	$(COMPOSE_FULL) rm -f -v
+	$(COMPOSE_INTEGRATION) rm -f -v
 
 volumes_rm:
-	docker volume ls -q | xargs docker volume rm
+	docker volume ls -q | xargs docker volume rm -f
 
-kill: compose_kill compose_rm volumes_rm
+kill: compose_stop compose_rm volumes_rm
 	echo "All containers removed!"
 
-up: compose_kill compose_build
+up: compose_stop compose_build
 	$(COMPOSE) up
+
+up_detached: compose_stop compose_build
+	$(COMPOSE) up -d
 
 generate_docs: compose_build
 	$(COMPOSE) run app sh -c "$(GENERATE_DOCS)"
@@ -128,8 +137,6 @@ bash: compose_build
 
 refresh: kill migrate load_locales_countries load_dummy_experiments
 
-COMPOSE_FULL = docker-compose -f docker-compose.yml -f docker-compose-full.yml
-
 # experimenter + delivery console + normandy stack
 compose_build_all: build ssl
 	 $(COMPOSE_FULL) build
@@ -140,31 +147,18 @@ up_all: compose_build_all
 normandy_shell: compose_build_all
 	$(COMPOSE_FULL) run normandy ./manage.py shell
 
-COMPOSE_INTEGRATION = docker-compose -p experimenter_integration -f docker-compose.yml -f docker-compose.integration-test.yml
-
 # integration tests
-integration_kill:
-	$(COMPOSE_INTEGRATION) kill
-	$(COMPOSE_INTEGRATION) rm -f
-
-integration_build: integration_kill ssl build
+integration_build: compose_build
 	$(COMPOSE_INTEGRATION) build
-	$(COMPOSE_INTEGRATION) run app sh -c "$(WAIT_FOR_DB) python manage.py migrate;python manage.py load-countries;python manage.py loaddata ./fixtures/locales.json;python manage.py createsuperuser --username admin --email admin@example.com --noinput"
 
 integration_shell: integration_build
 	$(COMPOSE_INTEGRATION) run firefox bash
 
-integration_up_shell:
-	$(COMPOSE_INTEGRATION) run firefox bash
+integration_vnc_up: integration_build
+	$(COMPOSE_INTEGRATION) up vnc
 
-integration_up_detached: integration_build
-	$(COMPOSE_INTEGRATION) up -d
+integration_vnc_up_detached: integration_build
+	$(COMPOSE_INTEGRATION) up vnc -d
 
-integration_up: integration_build
-	$(COMPOSE_INTEGRATION) up
-
-integration_test_run: integration_build
+integration_test: integration_build
 	$(COMPOSE_INTEGRATION) run firefox tox -c tests/integration
-
-integration_test: compose_kill integration_test_run integration_kill
-	echo "Firefox tests complete!"

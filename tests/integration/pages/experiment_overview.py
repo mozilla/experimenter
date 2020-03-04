@@ -90,12 +90,12 @@ class ExperimentOverview(Base):
         return
 
     @property
-    def bugzilla_url(self):
+    def ds_issue_url(self):
         element = self.find_element(*self._ds_issue_url_locator)
         return element.get_attribute("value")
 
-    @bugzilla_url.setter
-    def bugzilla_url(self, text=None):
+    @ds_issue_url.setter
+    def ds_issue_url(self, text=None):
         element = self.find_element(*self._ds_issue_url_locator)
         random_chars = "".join(random.choices(string.digits, k=6))
         element.send_keys(f"{text}{random_chars}")
