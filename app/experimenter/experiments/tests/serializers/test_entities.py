@@ -185,8 +185,7 @@ class TestChangeLogSerializer(TestCase):
         serializer = ChangeLogSerializer(experiment)
 
         risk_tech_description = experiment.risk_technical_description
-        # ensure expected_data has "string" if pref_type is json string
-        pref_type = PrefTypeField().to_representation(experiment.pref_type)
+
         expected_data = {
             "type": experiment.type,
             "owner": experiment.owner.id,
@@ -201,7 +200,7 @@ class TestChangeLogSerializer(TestCase):
             "addon_experiment_id": experiment.addon_experiment_id,
             "addon_release_url": experiment.addon_release_url,
             "pref_name": experiment.pref_name,
-            "pref_type": pref_type,
+            "pref_type": experiment.pref_type,
             "pref_branch": experiment.pref_branch,
             "public_name": experiment.public_name,
             "public_description": experiment.public_description,
