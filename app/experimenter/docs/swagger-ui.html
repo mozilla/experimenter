@@ -13,7 +13,7 @@
       const spec = {
   "openapi": "3.0.2",
   "info": {
-    "title": "",
+    "title": "Experimenter API",
     "version": ""
   },
   "paths": {
@@ -71,7 +71,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "public"
+        ]
       }
     },
     "/api/v1/experiments/{slug}/": {
@@ -469,7 +472,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "public"
+        ]
       }
     },
     "/api/v1/experiments/": {
@@ -870,10 +876,13 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "public"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/design-addon": {
+    "/api/v2/experiments/{slug}/design-addon": {
       "get": {
         "operationId": "RetrieveExperiment",
         "description": "",
@@ -943,7 +952,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "put": {
         "operationId": "UpdateExperiment",
@@ -1165,7 +1177,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -1372,10 +1387,13 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/design-pref": {
+    "/api/v2/experiments/{slug}/design-pref": {
       "get": {
         "operationId": "RetrieveExperiment",
         "description": "",
@@ -1457,7 +1475,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "put": {
         "operationId": "UpdateExperiment",
@@ -1727,7 +1748,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -1976,10 +2000,13 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/design-multi-pref": {
+    "/api/v2/experiments/{slug}/design-multi-pref": {
       "get": {
         "operationId": "RetrieveExperiment",
         "description": "",
@@ -2075,7 +2102,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "put": {
         "operationId": "UpdateExperiment",
@@ -2401,7 +2431,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -2715,10 +2748,13 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/design-generic": {
+    "/api/v2/experiments/{slug}/design-generic": {
       "get": {
         "operationId": "RetrieveExperiment",
         "description": "",
@@ -2781,7 +2817,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "put": {
         "operationId": "UpdateExperiment",
@@ -2975,7 +3014,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -3160,10 +3202,13 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/design-branched-addon": {
+    "/api/v2/experiments/{slug}/design-branched-addon": {
       "get": {
         "operationId": "RetrieveExperiment",
         "description": "",
@@ -3233,7 +3278,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "put": {
         "operationId": "UpdateExperiment",
@@ -3455,7 +3503,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -3665,10 +3716,13 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/design-rollout": {
+    "/api/v2/experiments/{slug}/design-rollout": {
       "get": {
         "operationId": "RetrieveExperiment",
         "description": "",
@@ -3734,7 +3788,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "put": {
         "operationId": "UpdateExperiment",
@@ -3940,7 +3997,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -4137,10 +4197,13 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/intent-to-ship-email": {
+    "/api/v2/experiments/{slug}/intent-to-ship-email": {
       "put": {
         "operationId": "UpdateExperiment",
         "description": "",
@@ -5637,7 +5700,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -7093,10 +7159,13 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/clone": {
+    "/api/v2/experiments/{slug}/clone": {
       "put": {
         "operationId": "UpdateExperiment",
         "description": "",
@@ -7177,7 +7246,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -7250,12 +7322,14 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     }
   }
-}
-;
+};
       const ui = SwaggerUIBundle({
         spec: spec,
         dom_id: "#swagger-ui",
