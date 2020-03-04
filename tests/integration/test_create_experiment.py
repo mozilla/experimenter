@@ -5,7 +5,7 @@ from pages.home import Home
 
 
 @pytest.mark.nondestructive
-def test_add_branch(base_url, selenium):
+def test_add_branch(base_url, selenium, ds_issue_host):
     """Test adding a new branch."""
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
@@ -14,7 +14,7 @@ def test_add_branch(base_url, selenium):
     experiment.short_description = "Testing in here"
     experiment.public_name = "Public Name"
     experiment.public_description = "Public Description"
-    experiment.bugzilla_url = "https://jira.mozilla.com/browse/DS-123"
+    experiment.ds_issue_url = f"{ds_issue_host}DS-12345"
     exp_detail = experiment.save_btn()
     exp_design = exp_detail.click_edit()
     exp_design.input_firefox_pref_name("robot rock")
@@ -25,7 +25,7 @@ def test_add_branch(base_url, selenium):
 
 
 @pytest.mark.nondestructive
-def test_remove_branch(base_url, selenium):
+def test_remove_branch(base_url, selenium, ds_issue_host):
     """Test removing a branch."""
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
@@ -34,7 +34,7 @@ def test_remove_branch(base_url, selenium):
     experiment.short_description = "Testing in here"
     experiment.public_name = "Public Name"
     experiment.public_description = "Public Description"
-    experiment.bugzilla_url = "https://jira.mozilla.com/browse/DS-123"
+    experiment.ds_issue_url = f"{ds_issue_host}DS-12345"
     exp_detail = experiment.save_btn()
     exp_design = exp_detail.click_edit()
     exp_design.input_firefox_pref_name("robot rock")
@@ -48,7 +48,7 @@ def test_remove_branch(base_url, selenium):
 
 
 @pytest.mark.nondestructive
-def test_duplicate_branch_name(base_url, selenium):
+def test_duplicate_branch_name(base_url, selenium, ds_issue_host):
     """Test adding a branch with the same name as the control branch."""
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
@@ -57,7 +57,7 @@ def test_duplicate_branch_name(base_url, selenium):
     experiment.short_description = "Testing in here"
     experiment.public_name = "Public Name"
     experiment.public_description = "Public Description"
-    experiment.bugzilla_url = "https://jira.mozilla.com/browse/DS-123"
+    experiment.ds_issue_url = f"{ds_issue_host}DS-12345"
     exp_detail = experiment.save_btn()
     exp_design = exp_detail.click_edit()
     exp_design.input_firefox_pref_name("robot rock")
