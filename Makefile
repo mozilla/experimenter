@@ -43,9 +43,6 @@ testfast: test_build
 eslint: test_build
 	$(COMPOSE_TEST) run app sh -c "$(ESLINT)"
 
-eslint_fix: test_build
-	$(COMPOSE_TEST) run app sh -c "$(ESLINT_FIX)"
-
 py_test: test_build
 	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST)"
 
@@ -57,9 +54,6 @@ flake8: test_build
 
 black_check: test_build
 	$(COMPOSE_TEST) run app sh -c "$(BLACK_CHECK)"
-
-black_fix: test_build
-	$(COMPOSE_TEST) run app sh -c "$(BLACK_FIX)"
 
 check_migrations: test_build
 	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)"
@@ -93,6 +87,12 @@ up: compose_kill compose_build
 
 generate_docs: compose_build
 	$(COMPOSE) run app sh -c "$(GENERATE_DOCS)"
+
+eslint_fix: test_build
+	$(COMPOSE) run app sh -c "$(ESLINT_FIX)"
+
+black_fix: test_build
+	$(COMPOSE) run app sh -c "$(BLACK_FIX)"
 
 code_format: compose_build
 	$(COMPOSE) run app sh -c "$(BLACK_FIX)&&$(ESLINT_FIX)"
