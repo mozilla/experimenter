@@ -113,10 +113,10 @@
                 <p>Enrolling until {{ experiment.enrollment_end_date }}</p>
               {% endif %}
               {% if experiment.rollout_dates.first_increase %}
-                <p>First increase on {{ experiment.rollout_dates.first_increase.date }} to {{ experiment.rollout_dates.first_increase.percent }}</p>
+                <p>First increase on {{ experiment.rollout_dates.first_increase.date }} to {{ experiment.rollout_dates.first_increase.percent }}%</p>
               {% endif %}
               {% if experiment.rollout_dates.final_increase %}
-                <p>Final increase on {{ experiment.rollout_dates.final_increase.date }} to {{ experiment.rollout_dates.final_increase.percent }}</p>
+                <p>Final increase on {{ experiment.rollout_dates.final_increase.date }} to {{ experiment.rollout_dates.final_increase.percent }}%</p>
               {% endif %}
               {% if experiment.survey_required %}
                 <span class="badge badge-secondary mb-2">Includes Survey</span>
