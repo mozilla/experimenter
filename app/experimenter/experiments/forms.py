@@ -1,7 +1,6 @@
 import decimal
 import json
 import re
-from urllib.parse import urljoin
 
 from django import forms
 from django.conf import settings
@@ -52,20 +51,15 @@ class DSIssueURLField(forms.URLField):
         if cleaned_value:
             err_str = "Please Provide a Valid URL ex: {ds_url}DS-123 or {ds_url}DO-123"
 
-            DS_root = urljoin(settings.DS_ISSUE_HOST, "DS-")
-            DO_root = urljoin(settings.DS_ISSUE_HOST, "DO-")
-
-            if (
-                DS_root not in cleaned_value and DO_root not in cleaned_value
-            ) or self.get_ds_issue_id(cleaned_value) is None:
+            if self.validate_ds_issue_url(cleaned_value) is None:
 
                 raise forms.ValidationError(err_str.format(ds_url=settings.DS_ISSUE_HOST))
         return cleaned_value
 
-    def get_ds_issue_id(self, bug_url):
+    def validate_ds_issue_url(self, bug_url):
         ds = re.match(re.escape(settings.DS_ISSUE_HOST) + r"(DS|DO)-(\w+.*)", bug_url)
 
-        return ds.group(1)
+        return ds
 
 
 class BugzillaURLField(forms.URLField):
