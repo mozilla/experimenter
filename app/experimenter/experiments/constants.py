@@ -350,9 +350,9 @@ class ExperimentConstants(object):
       </p>
     """
 
-    DATA_SCIENCE_BUGZILLA_HELP_TEXT = """
+    DATA_SCIENCE_ISSUE_HELP_TEXT = """
       <p>
-        Provide a link to the Bugzilla ticket that was filed with the Data
+        Provide a link to the ticket that was filed with the Data
         Science team that tracks this delivery.  If you have not already
         filed a ticket with Data Science, you can do that <a
         target="_blank" rel="noreferrer noopener"
@@ -360,14 +360,11 @@ class ExperimentConstants(object):
       </p>
       <p>
         <strong>Example:</strong>
-        {bugzilla_host}show_bug.cgi?id=12345
+        {ds_issue_host}DO-352
       </p>
     """.format(
-        url=(
-            "https://mana.mozilla.org/wiki/display/PM/Mozilla+Data+Science"
-            "#MozillaDataScience-dsflagshipprograms2019"
-        ),
-        bugzilla_host=settings.BUGZILLA_HOST,
+        url=("https://mana.mozilla.org/wiki/display/PM/Data+Science+Jira+documentation"),
+        ds_issue_host=settings.DS_ISSUE_HOST,
     )
 
     FEATURE_BUGZILLA_HELP_TEXT = """
@@ -935,6 +932,7 @@ If applicable, link to any relevant test builds / staging information
 
 Experimenter is the source of truth for details and delivery. Changes to Bugzilla are not reflected in Experimenter and will not change delivery configuration.
 
+Data Science Issue: {experiment.data_science_issue_url}
 More information: {experiment.experiment_url}
         """  # noqa
 

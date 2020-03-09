@@ -184,13 +184,13 @@ class TestExperimentModel(TestCase):
 
     def test_has_external_urls_is_false_when_no_external_urls(self):
         experiment = ExperimentFactory.create(
-            bugzilla_id="", data_science_bugzilla_url="", feature_bugzilla_url=""
+            bugzilla_id="", data_science_issue_url="", feature_bugzilla_url=""
         )
         self.assertFalse(experiment.has_external_urls)
 
-    def test_has_external_urls_is_true_when_data_science_bugzilla_url_is_set(self):
+    def test_has_external_urls_is_true_when_data_science_issue_url_is_set(self):
         experiment = ExperimentFactory.create(
-            data_science_bugzilla_url="www.bugzilla.com/show_bug.cgi?id=123/"
+            data_science_issue_url="https://jira.example.com/browse/DS-123"
         )
         self.assertTrue(experiment.has_external_urls)
 
@@ -910,7 +910,7 @@ class TestExperimentModel(TestCase):
         self.assertFalse(experiment.completed_addon)
 
     def test_completed_addon_complete_when_release_url_for_each_branch_set_for_branched(
-        self
+        self,
     ):
         experiment = ExperimentFactory.create_with_variants(
             type=Experiment.TYPE_ADDON, is_branched_addon=True
@@ -1354,7 +1354,7 @@ class TestExperimentModel(TestCase):
         self.assertEqual(experiment.firefox_min_version_integer, 57)
 
     def test_use_branched_addon_serializer_returns_true_for_addon_and_greater_version(
-        self
+        self,
     ):
         experiment = ExperimentFactory(
             type=Experiment.TYPE_ADDON, firefox_min_version="70.0"
@@ -1362,7 +1362,7 @@ class TestExperimentModel(TestCase):
         self.assertTrue(experiment.use_branched_addon_serializer)
 
     def test_use_branched_addon_serializer_returns_false_for_addon_and_lower_version(
-        self
+        self,
     ):
         experiment = ExperimentFactory(
             type=Experiment.TYPE_ADDON, firefox_min_version="66.0"
@@ -1445,8 +1445,8 @@ class TestExperimentModel(TestCase):
             owner=user_1,
             bugzilla_id="4455667",
             pref_type=Experiment.TYPE_ADDON,
-            data_science_bugzilla_url="https://bugzilla.mozilla.org/123/",
-            feature_bugzilla_url="https://bugzilla.mozilla.org/123/",
+            data_science_issue_url="https://jira.example.com/browse/",
+            feature_bugzilla_url="https://bugzilla.example.com/123/",
             addon_experiment_id="addon-id",
             addon_release_url="addon-url",
             archived=True,

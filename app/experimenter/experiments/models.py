@@ -171,7 +171,7 @@ class Experiment(ExperimentConstants, models.Model):
     normandy_id = models.PositiveIntegerField(blank=True, null=True)
     other_normandy_ids = ArrayField(models.IntegerField(), blank=True, null=True)
 
-    data_science_bugzilla_url = models.URLField(blank=True, null=True)
+    data_science_issue_url = models.URLField(blank=True, null=True)
     feature_bugzilla_url = models.URLField(blank=True, null=True)
 
     # Risk fields
@@ -367,7 +367,7 @@ class Experiment(ExperimentConstants, models.Model):
         return (
             self.bugzilla_url
             or self.monitoring_dashboard_url
-            or self.data_science_bugzilla_url
+            or self.data_science_issue_url
             or self.feature_bugzilla_url
         )
 
