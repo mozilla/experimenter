@@ -1,15 +1,24 @@
-jQuery(function ($) {
+jQuery(function($) {
   const rolloutType = "rollout";
 
   function updateHiddenFields() {
-    const fields = ["analysis_owner", "data_science_bugzilla_url", "public_name", "public_description"];
-    const requiredFields = ["data_science_bugzilla_url", "public_name", "public_description"];
+    const fields = [
+      "analysis_owner",
+      "data_science_issue_url",
+      "public_name",
+      "public_description",
+    ];
+    const requiredFields = [
+      "data_science_issue_url",
+      "public_name",
+      "public_description",
+    ];
 
-    for (const field of fields ) {
+    for (const field of fields) {
       const input = $(`#id_${field}`);
-      const group = input.closest('.form-group');
+      const group = input.closest(".form-group");
       const label = $(`label[for="id_${field}"] .required-label`);
-      if ($('#id_type option:selected').val() === rolloutType) {
+      if ($("#id_type option:selected").val() === rolloutType) {
         group.hide();
 
         if (requiredFields.includes(field)) {
@@ -27,7 +36,7 @@ jQuery(function ($) {
     }
   }
 
-  $('#id_type').change(function (e) {
+  $("#id_type").change(function(e) {
     updateHiddenFields();
   });
 

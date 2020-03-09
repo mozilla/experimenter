@@ -36,13 +36,13 @@ class ExperimentOverview(Base):
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-edit-overview")
     _name_locator = (By.CSS_SELECTOR, "#id_name")
     _short_description_locator = (By.CSS_SELECTOR, "#id_short_description")
-    _bugzilla_url_locator = (
+    _ds_issue_url_locator = (
         By.CSS_SELECTOR,
-        "#id_data_science_bugzilla_url",
+        "#id_data_science_issue_url",
     )
     _overview_name_locator = (By.CSS_SELECTOR, "#id_name")
     _overview_description_locator = (By.CSS_SELECTOR, "#id_short_description")
-    _overview_bugzilla_url_locator = (By.CSS_SELECTOR, "#id_data_science_bugzilla_url")
+    _overview_ds_issue_url_locator = (By.CSS_SELECTOR, "#id_data_science_issue_url")
     _overview_data_science_owner_locator = (By.CSS_SELECTOR, "#id_analysis_owner")
     _save_btn_locator = (By.CSS_SELECTOR, "#save-btn")
     _save_and_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-btn")
@@ -91,12 +91,12 @@ class ExperimentOverview(Base):
 
     @property
     def bugzilla_url(self):
-        element = self.find_element(*self._bugzilla_url_locator)
+        element = self.find_element(*self._ds_issue_url_locator)
         return element.get_attribute("value")
 
     @bugzilla_url.setter
     def bugzilla_url(self, text=None):
-        element = self.find_element(*self._bugzilla_url_locator)
+        element = self.find_element(*self._ds_issue_url_locator)
         random_chars = "".join(random.choices(string.digits, k=6))
         element.send_keys(f"{text}{random_chars}")
         return
@@ -132,6 +132,7 @@ class ExperimentOverview(Base):
                 item.click()
                 return
         raise (Exception, "Owner selection not found")
+
     @property
     def engineering_owner(self):
         element = self.find_element(*self._engineering_owner_locator)

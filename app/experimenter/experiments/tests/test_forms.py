@@ -13,6 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from experimenter.experiments.forms import (
     BugzillaURLField,
+    DSIssueURLField,
     ChangeLogMixin,
     CustomModelMultipleChoiceField,
     ExperimentArchiveForm,
@@ -57,7 +58,7 @@ class TestJSONField(TestCase):
             field.clean(invalid_json)
 
 
-@override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")
+@override_settings(BUGZILLA_HOST="https://bugzilla.example.com/")
 class TestBugzillaURLField(TestCase):
 
     def test_accepts_bugzilla_url(self):
@@ -78,6 +79,22 @@ class TestBugzillaURLField(TestCase):
 
         with self.assertRaises(ValidationError):
             field.clean("www.example.com")
+
+
+@override_settings(DS_ISSUE_HOST="https://jira.example.com/browse/")
+class TestDSIssueURLField(TestCase):
+
+    def test_accepts_ds_url_field(self):
+        field = DSIssueURLField()
+        ds_url = "{base}DS-1234".format(base=settings.DS_ISSUE_HOST)
+        cleaned = field.clean(ds_url)
+        self.assertEqual(cleaned, ds_url)
+
+    def test_rejects_wrong_project_name(self):
+        field = DSIssueURLField()
+        ds_url = "{base}AA-1234".format(base=settings.DS_ISSUE_HOST)
+        with self.assertRaises(ValidationError):
+            field.clean(ds_url)
 
 
 class TestChangeLogMixin(MockRequestMixin, TestCase):
@@ -234,20 +251,23 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         self.assertEqual(expected_data, latest_changes.changed_values)
 
 
-@override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")
+@override_settings(
+    BUGZILLA_HOST="https://bugzilla.example.com/",
+    DS_ISSUE_HOST="https://jira.example.com/browse/",
+)
 class TestExperimentOverviewForm(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
-
-        bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
+        ds_url = "{base}DS-123".format(base=settings.DS_ISSUE_HOST)
+        bug_url = "{base}show_bug.cgi?id=123".format(base=settings.BUGZILLA_HOST)
         self.related_exp = ExperimentFactory.create()
 
         self.data = {
             "type": Experiment.TYPE_PREF,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
-            "data_science_bugzilla_url": bug_url,
+            "data_science_issue_url": ds_url,
             "owner": self.user.id,
             "analysis_owner": self.user.id,
             "engineering_owner": "Lisa the Engineer",
@@ -259,18 +279,19 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         }
 
     def test_minimum_required_fields_for_experiment(self):
-        bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
+        bug_url = "https://jira.example.com/browse/DO-123"
 
         data = {
             "type": Experiment.TYPE_PREF,
             "owner": self.user.id,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
-            "data_science_bugzilla_url": bug_url,
+            "data_science_issue_url": bug_url,
             "public_name": "Public Name",
             "public_description": "Public Description",
         }
         form = ExperimentOverviewForm(request=self.request, data=data)
+
         self.assertTrue(form.is_valid())
 
         experiment = form.save()
@@ -335,22 +356,23 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
 
-    def test_bugzilla_url_required_for_non_rollout(self):
+    def test_ds_issue_url_required_for_non_rollout(self):
         self.data["type"] = Experiment.TYPE_PREF
-        del self.data["data_science_bugzilla_url"]
+        del self.data["data_science_issue_url"]
 
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
 
     def test_bugzilla_url_optional_for_rollout(self):
         self.data["type"] = Experiment.TYPE_ROLLOUT
-        del self.data["data_science_bugzilla_url"]
+        del self.data["data_science_issue_url"]
 
         form = ExperimentOverviewForm(request=self.request, data=self.data)
+
         self.assertTrue(form.is_valid())
 
     def test_invalid_bugzilla_url(self):
-        self.data["data_science_bugzilla_url"] = "https://example.com/notbugzilla"
+        self.data["data_science_issue_url"] = "https://example.com/notbugzilla"
 
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())

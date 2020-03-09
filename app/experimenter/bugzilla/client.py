@@ -167,15 +167,14 @@ def format_summary(experiment):
 
 
 def create_experiment_bug(experiment):
-    assigned_to, see_also, blocks = None, None, None
+    assigned_to, blocks = None, None
 
     if user_exists(experiment.owner.email):
         assigned_to = experiment.owner.email
 
-    see_also = set_bugzilla_id_value(experiment.data_science_bugzilla_url)
     blocks = set_bugzilla_id_value(experiment.feature_bugzilla_url)
 
-    extra_fields = {"assigned_to": assigned_to, "see_also": see_also, "blocks": blocks}
+    extra_fields = {"assigned_to": assigned_to, "blocks": blocks}
 
     bug_data = format_creation_bug_body(experiment, extra_fields)
     response_data = make_bugzilla_call(
@@ -195,9 +194,9 @@ def get_bugzilla_id(bug_url):
 
 
 def set_bugzilla_id_value(bug_url):
-    data_science_bug_id = get_bugzilla_id(bug_url)
-    if data_science_bug_id and bug_exists(data_science_bug_id):
-        return [data_science_bug_id]
+    bug_id = get_bugzilla_id(bug_url)
+    if bug_id and bug_exists(bug_id):
+        return [bug_id]
 
 
 def add_experiment_comment(bugzilla_id, comment):

@@ -69,7 +69,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "normandy_slug",
                     "normandy_id",
                     "other_normandy_ids",
-                    "data_science_bugzilla_url",
+                    "data_science_issue_url",
                     "feature_bugzilla_url",
                     "related_work",
                     "is_paused",

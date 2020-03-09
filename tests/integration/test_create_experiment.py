@@ -14,7 +14,7 @@ def test_add_branch(base_url, selenium):
     experiment.short_description = "Testing in here"
     experiment.public_name = "Public Name"
     experiment.public_description = "Public Description"
-    experiment.bugzilla_url = "http://bugzilla.com/show_bug.cgi?id=1234"
+    experiment.bugzilla_url = "https://jira.mozilla.com/browse/DS-123"
     exp_detail = experiment.save_btn()
     exp_design = exp_detail.click_edit()
     exp_design.input_firefox_pref_name("robot rock")
@@ -22,6 +22,7 @@ def test_add_branch(base_url, selenium):
     exp_design.select_firefox_pref_branch()
     new_branch = exp_design.create_new_branch()
     assert "Branch 2" in new_branch.branch_number.text
+
 
 @pytest.mark.nondestructive
 def test_remove_branch(base_url, selenium):
@@ -33,7 +34,7 @@ def test_remove_branch(base_url, selenium):
     experiment.short_description = "Testing in here"
     experiment.public_name = "Public Name"
     experiment.public_description = "Public Description"
-    experiment.bugzilla_url = "http://bugzilla.com/show_bug.cgi?id=1234"
+    experiment.bugzilla_url = "https://jira.mozilla.com/browse/DS-123"
     exp_detail = experiment.save_btn()
     exp_design = exp_detail.click_edit()
     exp_design.input_firefox_pref_name("robot rock")
@@ -56,7 +57,7 @@ def test_duplicate_branch_name(base_url, selenium):
     experiment.short_description = "Testing in here"
     experiment.public_name = "Public Name"
     experiment.public_description = "Public Description"
-    experiment.bugzilla_url = "http://bugzilla.com/show_bug.cgi?id=1234"
+    experiment.bugzilla_url = "https://jira.mozilla.com/browse/DS-123"
     exp_detail = experiment.save_btn()
     exp_design = exp_detail.click_edit()
     exp_design.input_firefox_pref_name("robot rock")
@@ -64,11 +65,11 @@ def test_duplicate_branch_name(base_url, selenium):
     exp_design.select_firefox_pref_branch()
     control_branch = exp_design.current_branches[0]
     control_branch.set_branch_name("DUPLICATE BRANCH")
-    control_branch.set_branch_description('THIS IS A TEST')
+    control_branch.set_branch_description("THIS IS A TEST")
     control_branch.set_branch_value("false")
     extra_branch = exp_design.current_branches[-1]
     extra_branch.set_branch_name("DUPLICATE BRANCH")
-    extra_branch.set_branch_description('THIS IS A TEST')
+    extra_branch.set_branch_description("THIS IS A TEST")
     extra_branch.set_branch_value("false")
     exp_design.click_continue()
     selenium.find_element_by_css_selector("#design-form .invalid-feedback")

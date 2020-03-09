@@ -40,13 +40,14 @@
           Delivery Bugzilla Ticket
         </a>
       {% endif %}
+      {% if experiment.data_science_issue_url %}
 
-      {% if experiment.data_science_bugzilla_url %}
-        <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.data_science_bugzilla_url }}">
+        <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.data_science_issue_url }}">
           <img class="link-icon" src="{% static "imgs/bugzilla.png" %}" alt="bugzilla">
-          Data Science Bugzilla Ticket
+          Data Science Issue Ticket
         </a>
       {% endif %}
+
 
       {% if experiment.feature_bugzilla_url %}
         <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.feature_bugzilla_url }}">

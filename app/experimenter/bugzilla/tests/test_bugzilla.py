@@ -61,7 +61,6 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
                 "type": "task",
                 "priority": "P3",
                 "assigned_to": experiment.owner.email,
-                "see_also": [12345],
                 "blocks": [12345],
                 "url": experiment.experiment_url,
             },
@@ -74,7 +73,6 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
 
         self.mock_bugzilla_requests_get.side_effect = [
             self.buildMockFailureResponse(),
-            self.buildMockSuccessBugResponse(),
             self.buildMockSuccessBugResponse(),
         ]
 
@@ -94,45 +92,8 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "type": "task",
             "priority": "P3",
             "assigned_to": None,
-            "see_also": [12345],
             "blocks": [12345],
             "url": experiment.experiment_url,
-        }
-
-        self.mock_bugzilla_requests_post.assert_called_with(
-            settings.BUGZILLA_CREATE_URL, expected_call_data
-        )
-
-    def test_create_bugzilla_ticket_creation_with_see_also_bad_val(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, name="An Experiment"
-        )
-
-        self.mock_bugzilla_requests_get.side_effect = [
-            self.buildMockSuccessUserResponse(),
-            self.buildMockFailureResponse(),
-            self.buildMockSuccessBugResponse(),
-        ]
-
-        response_data = create_experiment_bug(experiment)
-
-        self.assertEqual(response_data, self.bugzilla_id)
-
-        expected_call_data = {
-            "product": "Shield",
-            "component": "Shield Study",
-            "version": "unspecified",
-            "summary": "[Experiment]: {experiment}".format(experiment=experiment),
-            "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
-                experiment=experiment
-            ),
-            "assigned_to": experiment.owner.email,
-            "cc": settings.BUGZILLA_CC_LIST,
-            "type": "task",
-            "priority": "P3",
-            "url": experiment.experiment_url,
-            "see_also": None,
-            "blocks": [12345],
         }
 
         self.mock_bugzilla_requests_post.assert_called_with(
@@ -146,8 +107,8 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
 
         self.mock_bugzilla_requests_get.side_effect = [
             self.buildMockSuccessUserResponse(),
-            self.buildMockSuccessBugResponse(),
             self.buildMockFailureResponse(),
+            self.buildMockSuccessResponse(),
         ]
 
         response_data = create_experiment_bug(experiment)
@@ -167,7 +128,6 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "type": "task",
             "priority": "P3",
             "url": experiment.experiment_url,
-            "see_also": [12345],
             "blocks": None,
         }
 

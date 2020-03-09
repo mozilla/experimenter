@@ -269,6 +269,9 @@ BUGZILLA_COMMENT_URL = "{path}?api_key={api_key}".format(
     path=urljoin(BUGZILLA_HOST, "/rest/bug/{id}/comment"), api_key=BUGZILLA_API_KEY
 )
 
+# DS Issue URL
+DS_ISSUE_HOST = config("DS_ISSUE_HOST")
+
 REDIS_HOST = config("REDIS_HOST")
 REDIS_PORT = config("REDIS_PORT")
 REDIS_DB = config("REDIS_DB")
