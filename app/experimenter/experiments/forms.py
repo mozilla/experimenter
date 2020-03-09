@@ -1,5 +1,6 @@
 import decimal
 import json
+import re
 
 from django import forms
 from django.conf import settings
@@ -32,6 +33,24 @@ class JSONField(forms.CharField):
             except json.JSONDecodeError:
                 raise forms.ValidationError("This is not valid JSON.")
 
+        return cleaned_value
+
+
+class DSIssueURLField(forms.URLField):
+
+    def clean(self, value):
+        cleaned_value = super().clean(value)
+
+        if cleaned_value:
+            err_str = "Please Provide a Valid URL ex: {ds_url}DS-123 or {ds_url}DO-123"
+
+            ds = re.match(
+                re.escape(settings.DS_ISSUE_HOST) + r"(DS|DO)-(\w+.*)", cleaned_value
+            )
+
+            if ds is None:
+
+                raise forms.ValidationError(err_str.format(ds_url=settings.DS_ISSUE_HOST))
         return cleaned_value
 
 
@@ -112,10 +131,10 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.PUBLIC_DESCRIPTION_HELP_TEXT,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
-    data_science_bugzilla_url = BugzillaURLField(
+    data_science_issue_url = DSIssueURLField(
         required=False,
-        label="Data Science Bugzilla URL",
-        help_text=Experiment.DATA_SCIENCE_BUGZILLA_HELP_TEXT,
+        label="Data Science Issue URL",
+        help_text=Experiment.DATA_SCIENCE_ISSUE_HELP_TEXT,
     )
     engineering_owner = forms.CharField(
         required=False,
@@ -160,7 +179,7 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
             "short_description",
             "public_name",
             "public_description",
-            "data_science_bugzilla_url",
+            "data_science_issue_url",
             "analysis_owner",
             "engineering_owner",
             "feature_bugzilla_url",
@@ -200,7 +219,7 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         if cleaned_data["type"] != ExperimentConstants.TYPE_ROLLOUT:
             required_msg = "This field is required."
             required_fields = (
-                "data_science_bugzilla_url",
+                "data_science_issue_url",
                 "public_name",
                 "public_description",
             )
@@ -971,7 +990,6 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
         ):
 
             tasks.create_experiment_bug_task.delay(self.request.user.id, experiment.id)
-            tasks.update_exp_id_to_ds_bug_task.delay(self.request.user.id, experiment.id)
 
         if (
             self.old_status == Experiment.STATUS_REVIEW
@@ -983,8 +1001,6 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
             experiment.save()
 
             tasks.update_experiment_bug_task.delay(self.request.user.id, experiment.id)
-
-            tasks.update_ds_bug_task.delay(experiment.id)
 
         return experiment
 
