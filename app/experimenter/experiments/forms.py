@@ -51,15 +51,14 @@ class DSIssueURLField(forms.URLField):
         if cleaned_value:
             err_str = "Please Provide a Valid URL ex: {ds_url}DS-123 or {ds_url}DO-123"
 
-            if self.validate_ds_issue_url(cleaned_value) is None:
+            ds = re.match(
+                re.escape(settings.DS_ISSUE_HOST) + r"(DS|DO)-(\w+.*)", cleaned_value
+            )
+
+            if ds is None:
 
                 raise forms.ValidationError(err_str.format(ds_url=settings.DS_ISSUE_HOST))
         return cleaned_value
-
-    def validate_ds_issue_url(self, bug_url):
-        ds = re.match(re.escape(settings.DS_ISSUE_HOST) + r"(DS|DO)-(\w+.*)", bug_url)
-
-        return ds
 
 
 class BugzillaURLField(forms.URLField):
