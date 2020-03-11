@@ -272,7 +272,8 @@ class TestExperimentCreateView(TestCase):
         user = UserFactory.create()
         user_email = user.email
 
-        bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
+        ds_issue_url = "https://jira.example.com/browse/DS-123"
+        bugzilla_url = "https://bugzilla.example.com/show_bug.cgi?id=123"
         data = {
             "action": "continue",
             "type": Experiment.TYPE_PREF,
@@ -280,14 +281,17 @@ class TestExperimentCreateView(TestCase):
             "short_description": "Let us learn new things",
             "public_name": "Public Name",
             "public_description": "Public Description",
-            "data_science_bugzilla_url": bug_url,
-            "feature_bugzilla_url": bug_url,
+            "data_science_issue_url": ds_issue_url,
+            "feature_bugzilla_url": bugzilla_url,
             "related_work": "Designs: https://www.example.com/myproject/",
             "owner": user.id,
             "analysis_owner": user.id,
         }
 
-        with self.settings(BUGZILLA_HOST="https://bugzilla.mozilla.org"):
+        with self.settings(
+            BUGZILLA_HOST="https://bugzilla.example.com",
+            DS_ISSUE_HOST="https://jira.example.com/browse/",
+        ):
             response = self.client.post(
                 reverse("experiments-create"),
                 data,
@@ -309,7 +313,10 @@ class TestExperimentCreateView(TestCase):
         self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
 
-@override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")
+@override_settings(
+    BUGZILLA_HOST="https://bugzilla.example.com/",
+    DS_ISSUE_HOST="https://jira.example.com/browse/",
+)
 class TestExperimentOverviewUpdateView(TestCase):
 
     def test_view_saves_experiment(self):
@@ -319,7 +326,9 @@ class TestExperimentOverviewUpdateView(TestCase):
             Experiment.STATUS_DRAFT, proposed_enrollment=1, proposed_duration=2
         )
 
-        bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
+        ds_url = "{base}DS-123".format(base=settings.DS_ISSUE_HOST)
+        bug_url = "{base}show_bug.cgi?id=123".format(base=settings.BUGZILLA_HOST)
+
         data = {
             "action": "continue",
             "type": Experiment.TYPE_PREF,
@@ -327,7 +336,7 @@ class TestExperimentOverviewUpdateView(TestCase):
             "short_description": "A new description!",
             "public_name": "Public Name",
             "public_description": "Public Description",
-            "data_science_bugzilla_url": bug_url,
+            "data_science_issue_url": ds_url,
             "feature_bugzilla_url": bug_url,
             "related_work": "Designs: https://www.example.com/myproject/",
             "owner": user.id,
@@ -339,6 +348,7 @@ class TestExperimentOverviewUpdateView(TestCase):
             data,
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
+
         self.assertEqual(response.status_code, 302)
 
         experiment = Experiment.objects.get()

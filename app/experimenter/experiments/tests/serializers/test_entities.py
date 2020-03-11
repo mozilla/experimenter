@@ -222,7 +222,7 @@ class TestChangeLogSerializer(TestCase):
             "bugzilla_id": experiment.bugzilla_id,
             "normandy_slug": experiment.normandy_slug,
             "normandy_id": experiment.normandy_id,
-            "data_science_bugzilla_url": experiment.data_science_bugzilla_url,
+            "data_science_issue_url": experiment.data_science_issue_url,
             "feature_bugzilla_url": experiment.feature_bugzilla_url,
             "risk_partner_related": experiment.risk_partner_related,
             "risk_brand": experiment.risk_brand,

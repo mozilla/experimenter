@@ -16,7 +16,7 @@ def capabilities(capabilities):
 def firefox_options(firefox_options):
     """Set Firefox Options."""
     firefox_options.headless = True
-    firefox_options.log.level = 'trace'
+    firefox_options.log.level = "trace"
     return firefox_options
 
 
@@ -40,5 +40,5 @@ def fill_overview(selenium, base_url):
     experiment.short_description = "Testing in here"
     experiment.public_name = "Public Name"
     experiment.public_description = "Public Description"
-    experiment.bugzilla_url = "http://bugzilla.com/show_bug.cgi?id=1234"
+    experiment.bugzilla_url = "https://jira.mozilla.com/browse/DS-123"
     return experiment
