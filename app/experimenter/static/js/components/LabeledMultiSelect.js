@@ -10,12 +10,6 @@ import HelpBox from "experimenter/components/HelpBox";
 @boundClass
 class LabeledMultiSelect extends React.PureComponent {
   static propTypes = {
-    as: PropTypes.string,
-    children: PropTypes.oneOfType([
-      PropTypes.arrayOf(PropTypes.node),
-      PropTypes.node,
-    ]),
-    dataTestId: PropTypes.string,
     error: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.array,
@@ -29,9 +23,7 @@ class LabeledMultiSelect extends React.PureComponent {
     name: PropTypes.string,
     note: PropTypes.string,
     onChange: PropTypes.func,
-    rows: PropTypes.string,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    type: PropTypes.string,
     optional: PropTypes.bool,
     options: PropTypes.array,
     placeholder: PropTypes.string,

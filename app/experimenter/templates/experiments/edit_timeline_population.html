@@ -16,7 +16,9 @@
 {% block edit_form %}
   <div
     data-experiment-slug="{{ object.slug }}"
+    {% if  object.should_have_population_percent %}
     data-should-have-pop-percent="{{ object.should_have_population_percent }}"
+    {% endif %}
     data-all-countries="{{ countries }}"
     data-all-locales="{{ locales }}"
     id="react-timelinepop-form"

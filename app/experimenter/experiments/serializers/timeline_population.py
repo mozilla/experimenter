@@ -7,7 +7,7 @@ from experimenter.experiments.serializers.design import ChangelogSerializerMixin
 
 
 class CountrySerializerMultiSelect(serializers.ModelSerializer):
-    value = serializers.CharField(source="id")
+    value = serializers.IntegerField(source="id")
     label = serializers.CharField(source="name")
 
     class Meta:
@@ -16,7 +16,7 @@ class CountrySerializerMultiSelect(serializers.ModelSerializer):
 
 
 class LocaleSerializerMultiSelect(serializers.ModelSerializer):
-    value = serializers.CharField(source="id")
+    value = serializers.IntegerField(source="id")
     label = serializers.CharField(source="name")
 
     class Meta:
@@ -41,6 +41,7 @@ class ExperimentTimelinePopSerializer(
         max_digits=7,
         decimal_places=4,
         max_value=100.0000,
+        min_value=0,
         allow_null=True,
         default=None,
     )

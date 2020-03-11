@@ -576,7 +576,7 @@ class TestExperimentTimelinePopulationView(TestCase):
         serialized_experiment = ExperimentTimelinePopSerializer(experiment).data
         self.assertEqual(serialized_experiment, json_data)
 
-    def test_put_to_view_saves_design_info(self):
+    def test_put_to_view_timeline_pop_info(self):
         user_email = "user@example.com"
 
         experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)

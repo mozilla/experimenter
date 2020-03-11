@@ -1,5 +1,7 @@
 from django.test import TestCase
 from rest_framework import serializers
+import datetime
+from decimal import *
 
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
@@ -38,11 +40,13 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
-
+        self.locale = LocaleFactory.create()
+        self.country = CountryFactory.create()
         self.experiment = ExperimentFactory.create(
             type=ExperimentConstants.TYPE_PREF,
-            locales=[LocaleFactory.create()],
-            countries=[CountryFactory.create()],
+            locales=[self.locale],
+            countries=[self.country],
+            population_percent="30.0000",
         )
 
     def test_serializer_outputs_expected_schema(self):
@@ -50,13 +54,23 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
         serializer = ExperimentTimelinePopSerializer(self.experiment)
 
         self.assertEqual(
-            serializer.data["proposed_start_date"],
-            self.experiment.proposed_start_date.strftime("%Y-%m-%d"),
+            serializer.data,
+            {
+                "proposed_start_date": self.experiment.proposed_start_date.strftime(
+                    "%Y-%m-%d"
+                ),
+                "proposed_enrollment": self.experiment.proposed_enrollment,
+                "proposed_duration": self.experiment.proposed_duration,
+                "population_percent": self.experiment.population_percent,
+                "firefox_channel": self.experiment.firefox_channel,
+                "firefox_min_version": self.experiment.firefox_min_version,
+                "firefox_max_version": self.experiment.firefox_max_version,
+                "locales": [{"value": self.locale.id, "label": self.locale.name}],
+                "countries": [{"value": self.country.id, "label": self.country.name}],
+                "platform": self.experiment.platform,
+                "client_matching": self.experiment.client_matching,
+            },
         )
-        self.assertEqual(
-            serializer.data["firefox_channel"], self.experiment.firefox_channel
-        )
-        self.assertEqual(serializer.data["platform"], self.experiment.platform)
 
     def test_all_values_are_optional(self):
         data = {}
@@ -72,10 +86,17 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
         locales = [{"value": locale.id, "label": locale.name}]
 
         data = {
+            "proposed_start_date": datetime.date.today(),
+            "proposed_duration": 50,
+            "proposed_enrollment": 20,
+            "population_percent": 32,
+            "firefox_channel": "Nightly",
             "firefox_min_version": "67.0",
             "firefox_max_version": "68.0",
             "countries": countries,
             "locales": locales,
+            "platform": "All Windows",
+            "client_matching": "matching client.",
         }
 
         serializer = ExperimentTimelinePopSerializer(
@@ -87,8 +108,17 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
         experiment = serializer.save()
 
         self.assertEqual(experiment.changes.count(), 1)
-        self.assertEqual(experiment.firefox_min_version, "67.0")
-        self.assertEqual(experiment.firefox_max_version, "68.0")
+        self.assertEqual(experiment.proposed_start_date, data["proposed_start_date"])
+        self.assertEqual(experiment.proposed_duration, data["proposed_duration"])
+        self.assertEqual(experiment.proposed_enrollment, data["proposed_enrollment"])
+        self.assertEqual(experiment.population_percent, data["population_percent"])
+        self.assertEqual(experiment.firefox_channel, data["firefox_channel"])
+        self.assertEqual(experiment.firefox_min_version, data["firefox_min_version"])
+        self.assertEqual(experiment.firefox_max_version, data["firefox_max_version"])
+        self.assertEqual(experiment.countries.get(), country)
+        self.assertEqual(experiment.locales.get(), locale)
+        self.assertEqual(experiment.platform, data["platform"])
+        self.assertEqual(experiment.client_matching, data["client_matching"])
 
     def test_serializer_rejects_firefox_min_less_max(self):
         data = {
@@ -101,6 +131,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
         serializer = ExperimentTimelinePopSerializer(instance=self.experiment, data=data)
 
         self.assertFalse(serializer.is_valid())
+        self.assertIn("firefox_max_version", serializer.errors)
 
     def test_serializer_rejects_date_in_past(self):
         data = {"proposed_start_date": "2019-2-01", "countries": [], "locales": []}
@@ -108,6 +139,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
         serializer = ExperimentTimelinePopSerializer(instance=self.experiment, data=data)
 
         self.assertFalse(serializer.is_valid())
+        self.assertIn("proposed_start_date", serializer.errors)
 
     def test_serializer_rejects_enrollment_greater_duration(self):
         data = {
@@ -120,3 +152,4 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
         serializer = ExperimentTimelinePopSerializer(instance=self.experiment, data=data)
 
         self.assertFalse(serializer.is_valid())
+        self.assertIn("proposed_enrollment", serializer.errors)

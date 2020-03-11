@@ -58,7 +58,7 @@ class TimelinePopForm extends React.PureComponent {
   }
 
   handleDataChange(key, value) {
-    if (value == "") {
+    if (value === "") {
       value = null;
     }
     this.setState(({ data }) => ({
@@ -76,7 +76,7 @@ class TimelinePopForm extends React.PureComponent {
   }
 
   displayPopulationPercent() {
-    if (this.props.shouldHavePopPercent == "True") {
+    if (this.props.shouldHavePopPercent) {
       return (
         <DesignInput
           label="Population Percentage"
@@ -139,10 +139,7 @@ class TimelinePopForm extends React.PureComponent {
   }
 
   handleSubmitContinue(event) {
-    this.handleSubmit(
-      event,
-      `/experiments/${this.props.slug}/edit-objectives/`,
-    );
+    this.handleSubmit(event, `/experiments/${this.props.slug}/edit-design/`);
   }
 
   render() {
