@@ -160,7 +160,7 @@ integration_vnc_up: integration_build
 	$(COMPOSE_INTEGRATION) up vnc
 
 integration_vnc_up_detached: integration_build
-	$(COMPOSE_INTEGRATION) up vnc -d
+	$(COMPOSE_INTEGRATION) up -d vnc
 
 integration_test: integration_build
 	$(COMPOSE_INTEGRATION) run firefox tox -c tests/integration
