@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [("experiments", "0081_remove_experiment_risk_internal_only")]
+    dependencies = [("experiments", "0082_auto_20200225_1924")]
 
     operations = [
         migrations.AlterField(
