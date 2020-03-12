@@ -11,14 +11,14 @@ COPY bin/wait-for-it.sh /app/bin/wait-for-it.sh
 RUN chmod +x /app/bin/wait-for-it.sh
 
 RUN apt-get update
-RUN apt-get install -y postgresql-client
+RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgresql-client
 
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
-RUN apt-get install -y nodejs
+RUN apt-get --no-install-recommends install -y nodejs
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN apt-get update && apt-get install yarn
+RUN apt-get update && apt-get --no-install-recommends install yarn
 
 COPY ./requirements /app/requirements
 
