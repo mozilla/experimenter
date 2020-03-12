@@ -4207,7 +4207,114 @@
         ]
       }
     },
-    "/api/v2/experiments/{slug}/intent-to-ship-email": {
+    "/api/v2/experiments/{slug}/timeline-population": {
+      "get": {
+        "operationId": "RetrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "proposed_start_date": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "proposed_enrollment": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "proposed_duration": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "population_percent": {
+                      "type": "number",
+                      "multipleOf": 0.0001,
+                      "maximum": 100.0,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "firefox_channel": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "firefox_min_version": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "firefox_max_version": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "locales": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "value"
+                        ]
+                      },
+                      "nullable": true
+                    },
+                    "countries": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "value"
+                        ]
+                      },
+                      "nullable": true
+                    },
+                    "platform": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "client_matching": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
       "put": {
         "operationId": "UpdateExperiment",
         "description": "",
@@ -4244,7 +4351,7 @@
                     "type": "number",
                     "multipleOf": 0.0001,
                     "maximum": 100.0,
-                    "minimum": -1000,
+                    "minimum": 0,
                     "nullable": true
                   },
                   "firefox_channel": {
@@ -4267,7 +4374,7 @@
                           "type": "string"
                         },
                         "value": {
-                          "type": "string"
+                          "type": "integer"
                         }
                       },
                       "required": [
@@ -4285,7 +4392,7 @@
                           "type": "string"
                         },
                         "value": {
-                          "type": "string"
+                          "type": "integer"
                         }
                       },
                       "required": [
@@ -4326,7 +4433,7 @@
                     "type": "number",
                     "multipleOf": 0.0001,
                     "maximum": 100.0,
-                    "minimum": -1000,
+                    "minimum": 0,
                     "nullable": true
                   },
                   "firefox_channel": {
@@ -4349,7 +4456,7 @@
                           "type": "string"
                         },
                         "value": {
-                          "type": "string"
+                          "type": "integer"
                         }
                       },
                       "required": [
@@ -4367,7 +4474,7 @@
                           "type": "string"
                         },
                         "value": {
-                          "type": "string"
+                          "type": "integer"
                         }
                       },
                       "required": [
@@ -4408,7 +4515,7 @@
                     "type": "number",
                     "multipleOf": 0.0001,
                     "maximum": 100.0,
-                    "minimum": -1000,
+                    "minimum": 0,
                     "nullable": true
                   },
                   "firefox_channel": {
@@ -4431,7 +4538,7 @@
                           "type": "string"
                         },
                         "value": {
-                          "type": "string"
+                          "type": "integer"
                         }
                       },
                       "required": [
@@ -4449,7 +4556,7 @@
                           "type": "string"
                         },
                         "value": {
-                          "type": "string"
+                          "type": "integer"
                         }
                       },
                       "required": [
@@ -4495,7 +4602,7 @@
                       "type": "number",
                       "multipleOf": 0.0001,
                       "maximum": 100.0,
-                      "minimum": -1000,
+                      "minimum": 0,
                       "nullable": true
                     },
                     "firefox_channel": {
@@ -4518,7 +4625,7 @@
                             "type": "string"
                           },
                           "value": {
-                            "type": "string"
+                            "type": "integer"
                           }
                         },
                         "required": [
@@ -4536,7 +4643,7 @@
                             "type": "string"
                           },
                           "value": {
-                            "type": "string"
+                            "type": "integer"
                           }
                         },
                         "required": [
@@ -4560,7 +4667,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -4598,7 +4708,7 @@
                     "type": "number",
                     "multipleOf": 0.0001,
                     "maximum": 100.0,
-                    "minimum": -1000,
+                    "minimum": 0,
                     "nullable": true
                   },
                   "firefox_channel": {
@@ -4621,7 +4731,7 @@
                           "type": "string"
                         },
                         "value": {
-                          "type": "string"
+                          "type": "integer"
                         }
                       },
                       "required": [
@@ -4639,7 +4749,7 @@
                           "type": "string"
                         },
                         "value": {
-                          "type": "string"
+                          "type": "integer"
                         }
                       },
                       "required": [
@@ -4680,7 +4790,7 @@
                     "type": "number",
                     "multipleOf": 0.0001,
                     "maximum": 100.0,
-                    "minimum": -1000,
+                    "minimum": 0,
                     "nullable": true
                   },
                   "firefox_channel": {
@@ -4703,7 +4813,7 @@
                           "type": "string"
                         },
                         "value": {
-                          "type": "string"
+                          "type": "integer"
                         }
                       },
                       "required": [
@@ -4721,7 +4831,7 @@
                           "type": "string"
                         },
                         "value": {
-                          "type": "string"
+                          "type": "integer"
                         }
                       },
                       "required": [
@@ -4762,7 +4872,7 @@
                     "type": "number",
                     "multipleOf": 0.0001,
                     "maximum": 100.0,
-                    "minimum": -1000,
+                    "minimum": 0,
                     "nullable": true
                   },
                   "firefox_channel": {
@@ -4785,7 +4895,7 @@
                           "type": "string"
                         },
                         "value": {
-                          "type": "string"
+                          "type": "integer"
                         }
                       },
                       "required": [
@@ -4803,7 +4913,7 @@
                           "type": "string"
                         },
                         "value": {
-                          "type": "string"
+                          "type": "integer"
                         }
                       },
                       "required": [
@@ -4849,7 +4959,7 @@
                       "type": "number",
                       "multipleOf": 0.0001,
                       "maximum": 100.0,
-                      "minimum": -1000,
+                      "minimum": 0,
                       "nullable": true
                     },
                     "firefox_channel": {
@@ -4872,7 +4982,7 @@
                             "type": "string"
                           },
                           "value": {
-                            "type": "string"
+                            "type": "integer"
                           }
                         },
                         "required": [
@@ -4890,7 +5000,7 @@
                             "type": "string"
                           },
                           "value": {
-                            "type": "string"
+                            "type": "integer"
                           }
                         },
                         "required": [
@@ -4914,10 +5024,13 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/intent-to-ship-email": {
+    "/api/v2/experiments/{slug}/intent-to-ship-email": {
       "put": {
         "operationId": "UpdateExperiment",
         "description": "",
