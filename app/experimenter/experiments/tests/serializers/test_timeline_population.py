@@ -1,7 +1,6 @@
 from django.test import TestCase
 from rest_framework import serializers
 import datetime
-from decimal import *
 
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
