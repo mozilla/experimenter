@@ -877,6 +877,9 @@ class Experiment(ExperimentConstants, models.Model):
 
         cloned.related_to.add(self)
 
+        cloned.countries.add(*self.countries.all())
+        cloned.locales.add(*self.locales.all())
+
         ExperimentChangeLog.objects.create(
             experiment=cloned,
             changed_by=get_user_model().objects.get(id=user.id),
