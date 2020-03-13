@@ -18,6 +18,9 @@ from experimenter.experiments.serializers.design import (
     ExperimentDesignGenericSerializer,
 )
 
+from experimenter.experiments.serializers.timeline_population import (
+    ExperimentTimelinePopSerializer
+)
 
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
@@ -546,6 +549,49 @@ class TestExperimentDesignGenericView(TestCase):
 
         response = self.client.put(
             reverse("experiments-design-generic", kwargs={"slug": experiment.slug}),
+            data,
+            content_type="application/json",
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+
+class TestExperimentTimelinePopulationView(TestCase):
+
+    def test_get_timeline_pop_returns_info(self):
+        user_email = "user@example.com"
+
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+
+        response = self.client.get(
+            reverse("experiments-timeline-population", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        json_data = json.loads(response.content)
+
+        serialized_experiment = ExperimentTimelinePopSerializer(experiment).data
+        self.assertEqual(serialized_experiment, json_data)
+
+    def test_put_to_view_timeline_pop_info(self):
+        user_email = "user@example.com"
+
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+
+        data = json.dumps(
+            {
+                "client_matching": "client match info",
+                "firefox_min_version": "67.0",
+                "countries": [],
+                "locales": [],
+            }
+        )
+
+        response = self.client.put(
+            reverse("experiments-timeline-population", kwargs={"slug": experiment.slug}),
             data,
             content_type="application/json",
             **{settings.OPENIDC_EMAIL_HEADER: user_email},

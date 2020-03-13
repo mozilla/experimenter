@@ -1,20 +1,15 @@
 import { boundClass } from "autobind-decorator";
 import PropTypes from "prop-types";
 import React from "react";
-import { Row, Col, FormControl, FormLabel } from "react-bootstrap";
+import { Row, Col, FormLabel } from "react-bootstrap";
+import Select from "react-select";
 
 import Error from "experimenter/components/Error";
 import HelpBox from "experimenter/components/HelpBox";
 
 @boundClass
-class DesignInput extends React.PureComponent {
+class LabeledMultiSelect extends React.PureComponent {
   static propTypes = {
-    as: PropTypes.string,
-    children: PropTypes.oneOfType([
-      PropTypes.arrayOf(PropTypes.node),
-      PropTypes.node,
-    ]),
-    dataTestId: PropTypes.string,
     error: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.array,
@@ -28,17 +23,14 @@ class DesignInput extends React.PureComponent {
     name: PropTypes.string,
     note: PropTypes.string,
     onChange: PropTypes.func,
-    rows: PropTypes.string,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    type: PropTypes.string,
     optional: PropTypes.bool,
-    noHelpLink: PropTypes.bool,
-    helpIsExternalLink: PropTypes.bool,
+    options: PropTypes.array,
+    placeholder: PropTypes.string,
   };
 
   constructor(props) {
     super(props);
-
     this.state = {
       help_showing: false,
     };
@@ -69,20 +61,14 @@ class DesignInput extends React.PureComponent {
     }
   }
 
-  showHelpLink() {
-    if (!this.props.noHelpLink) {
-      if (this.props.helpIsExternalLink) {
-        return (
-          <a
-            target="_blank"
-            rel="noreferrer noopener"
-            href={this.props.helpContent}
-          >
-            Help
-          </a>
-        );
-      } else {
-        return (
+  render() {
+    return (
+      <Row className="mb-3">
+        <Col md={this.props.labelColumnWidth} className="text-right">
+          <FormLabel for={this.props.id}>
+            <strong>{this.props.label}</strong>
+            {this.displayRequiredOrOptional()}
+          </FormLabel>
           <div>
             <a
               href="#"
@@ -93,38 +79,20 @@ class DesignInput extends React.PureComponent {
               Help
             </a>
           </div>
-        );
-      }
-    }
-  }
-
-  render() {
-    return (
-      <Row className="mb-3">
-        <Col md={this.props.labelColumnWidth} className="text-right">
-          <FormLabel for={this.props.id}>
-            <strong>{this.props.label}</strong>
-            {this.displayRequiredOrOptional()}
-          </FormLabel>
-          <div>{this.showHelpLink()}</div>
         </Col>
         <Col md={this.determineInputColumnWidth()}>
-          <FormControl
-            as={this.props.as}
-            rows={this.props.rows}
-            data-index={this.props.index}
+          <Select
+            isMulti
+            options={this.props.options}
             id={this.props.id}
-            data-testid={this.props.dataTestId}
-            type={this.props.type ? this.props.type : "text"}
+            placeholder={this.props.placeholder}
             name={this.props.name}
-            onChange={event => {
-              this.props.onChange(event.target.value);
-            }}
             value={this.props.value}
             className={this.props.error ? "is-invalid" : ""}
-          >
-            {this.props.children}
-          </FormControl>
+            onChange={selection => {
+              this.props.onChange(selection, this.props.name);
+            }}
+          />
           {this.props.note ? <p className="py-1">{this.props.note}</p> : null}
           {this.props.error ? <Error error={this.props.error} /> : null}
           <HelpBox showing={this.state.help_showing}>
@@ -136,4 +104,4 @@ class DesignInput extends React.PureComponent {
   }
 }
 
-export default DesignInput;
+export default LabeledMultiSelect;
