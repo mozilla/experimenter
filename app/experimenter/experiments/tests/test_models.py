@@ -1480,6 +1480,10 @@ class TestExperimentModel(TestCase):
         self.assertEqual(
             cloned_experiment.firefox_min_version, Experiment.VERSION_CHOICES[1][0]
         )
+        self.assertCountEqual(
+            cloned_experiment.countries.all(), experiment.countries.all()
+        )
+        self.assertCountEqual(cloned_experiment.locales.all(), experiment.locales.all())
         self.assertFalse(cloned_experiment.bugzilla_id)
         self.assertFalse(cloned_experiment.archived)
         self.assertFalse(cloned_experiment.review_science)
