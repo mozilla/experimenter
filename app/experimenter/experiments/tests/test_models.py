@@ -19,8 +19,6 @@ from experimenter.experiments.tests.factories import (
     ExperimentVariantFactory,
     ExperimentChangeLogFactory,
     ExperimentCommentFactory,
-    CountryFactory,
-    LocaleFactory,
 )
 
 
@@ -1485,6 +1483,7 @@ class TestExperimentModel(TestCase):
         self.assertCountEqual(
             cloned_experiment.countries.all(), experiment.countries.all()
         )
+        self.assertCountEqual(cloned_experiment.locales.all(), experiment.locales.all())
         self.assertFalse(cloned_experiment.bugzilla_id)
         self.assertFalse(cloned_experiment.archived)
         self.assertFalse(cloned_experiment.review_science)
