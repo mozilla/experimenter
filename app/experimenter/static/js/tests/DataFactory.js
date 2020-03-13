@@ -56,10 +56,13 @@ export class PrefRolloutFactory extends Factory {
     return {
       rollout_type: "pref",
       design: new Field(faker.lorem.paragraph),
-      addon_release_url: null,
-      pref_name: "browser.enabled",
-      pref_type: "bool",
-      pref_value: "true",
+      preferences: [
+        {
+          pref_name: "browser.enabled",
+          pref_type: "bool",
+          pref_value: "true",
+        },
+      ],
     };
   }
 }

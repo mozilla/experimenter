@@ -874,6 +874,322 @@
         ]
       }
     },
+    "/api/v2/experiments/{slug}/design-addon-rollout": {
+      "get": {
+        "operationId": "RetrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "rollout_type": {
+                      "enum": [
+                        "pref",
+                        "addon"
+                      ]
+                    },
+                    "design": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "addon_release_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true,
+                      "maxLength": 400,
+                      "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                    }
+                  },
+                  "required": [
+                    "rollout_type",
+                    "addon_release_url"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
+      "put": {
+        "operationId": "UpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "addon_release_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "maxLength": 400,
+                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  }
+                },
+                "required": [
+                  "rollout_type",
+                  "addon_release_url"
+                ]
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "addon_release_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "maxLength": 400,
+                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  }
+                },
+                "required": [
+                  "rollout_type",
+                  "addon_release_url"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "addon_release_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "maxLength": 400,
+                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  }
+                },
+                "required": [
+                  "rollout_type",
+                  "addon_release_url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "rollout_type": {
+                      "enum": [
+                        "pref",
+                        "addon"
+                      ]
+                    },
+                    "design": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "addon_release_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true,
+                      "maxLength": 400,
+                      "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                    }
+                  },
+                  "required": [
+                    "rollout_type",
+                    "addon_release_url"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
+      "patch": {
+        "operationId": "PartialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "addon_release_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "maxLength": 400,
+                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "addon_release_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "maxLength": 400,
+                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "addon_release_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "maxLength": 400,
+                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "rollout_type": {
+                      "enum": [
+                        "pref",
+                        "addon"
+                      ]
+                    },
+                    "design": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "addon_release_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true,
+                      "maxLength": 400,
+                      "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                    }
+                  },
+                  "required": [
+                    "rollout_type",
+                    "addon_release_url"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      }
+    },
     "/api/v2/experiments/{slug}/design-addon": {
       "get": {
         "operationId": "RetrieveExperiment",
@@ -1373,6 +1689,502 @@
                     "addon_release_url",
                     "variants",
                     "is_branched_addon"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      }
+    },
+    "/api/v2/experiments/{slug}/design-pref-rollout": {
+      "get": {
+        "operationId": "RetrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "rollout_type": {
+                      "enum": [
+                        "pref",
+                        "addon"
+                      ]
+                    },
+                    "design": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "preferences": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "pref_name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "pref_type": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "pref_value": {
+                            "type": "string",
+                            "maxLength": 255
+                          }
+                        },
+                        "required": [
+                          "pref_name",
+                          "pref_type",
+                          "pref_value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "rollout_type",
+                    "preferences"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
+      "put": {
+        "operationId": "UpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "preferences": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "pref_name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_type": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_value": {
+                          "type": "string",
+                          "maxLength": 255
+                        }
+                      },
+                      "required": [
+                        "pref_name",
+                        "pref_type",
+                        "pref_value"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "rollout_type",
+                  "preferences"
+                ]
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "preferences": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "pref_name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_type": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_value": {
+                          "type": "string",
+                          "maxLength": 255
+                        }
+                      },
+                      "required": [
+                        "pref_name",
+                        "pref_type",
+                        "pref_value"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "rollout_type",
+                  "preferences"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "preferences": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "pref_name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_type": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_value": {
+                          "type": "string",
+                          "maxLength": 255
+                        }
+                      },
+                      "required": [
+                        "pref_name",
+                        "pref_type",
+                        "pref_value"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "rollout_type",
+                  "preferences"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "rollout_type": {
+                      "enum": [
+                        "pref",
+                        "addon"
+                      ]
+                    },
+                    "design": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "preferences": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "pref_name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "pref_type": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "pref_value": {
+                            "type": "string",
+                            "maxLength": 255
+                          }
+                        },
+                        "required": [
+                          "pref_name",
+                          "pref_type",
+                          "pref_value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "rollout_type",
+                    "preferences"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
+      "patch": {
+        "operationId": "PartialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "preferences": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "pref_name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_type": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_value": {
+                          "type": "string",
+                          "maxLength": 255
+                        }
+                      },
+                      "required": [
+                        "pref_name",
+                        "pref_type",
+                        "pref_value"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "preferences": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "pref_name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_type": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_value": {
+                          "type": "string",
+                          "maxLength": 255
+                        }
+                      },
+                      "required": [
+                        "pref_name",
+                        "pref_type",
+                        "pref_value"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "preferences": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "pref_name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_type": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_value": {
+                          "type": "string",
+                          "maxLength": 255
+                        }
+                      },
+                      "required": [
+                        "pref_name",
+                        "pref_type",
+                        "pref_value"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "rollout_type": {
+                      "enum": [
+                        "pref",
+                        "addon"
+                      ]
+                    },
+                    "design": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "preferences": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "pref_name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "pref_type": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "pref_value": {
+                            "type": "string",
+                            "maxLength": 255
+                          }
+                        },
+                        "required": [
+                          "pref_name",
+                          "pref_type",
+                          "pref_value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "rollout_type",
+                    "preferences"
                   ]
                 }
               }
@@ -3702,487 +4514,6 @@
                   "required": [
                     "is_branched_addon",
                     "variants"
-                  ]
-                }
-              }
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "private"
-        ]
-      }
-    },
-    "/api/v2/experiments/{slug}/design-rollout": {
-      "get": {
-        "operationId": "RetrieveExperiment",
-        "description": "",
-        "parameters": [
-          {
-            "name": "slug",
-            "in": "path",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "rollout_type": {
-                      "enum": [
-                        "pref",
-                        "addon"
-                      ]
-                    },
-                    "design": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "addon_release_url": {
-                      "type": "string",
-                      "format": "uri",
-                      "nullable": true,
-                      "maxLength": 400,
-                      "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
-                    },
-                    "pref_name": {
-                      "type": "string",
-                      "nullable": true,
-                      "maxLength": 255
-                    },
-                    "pref_type": {
-                      "enum": [
-                        null,
-                        "boolean",
-                        "integer",
-                        "string",
-                        "json string"
-                      ],
-                      "nullable": true
-                    },
-                    "pref_value": {
-                      "type": "string",
-                      "nullable": true
-                    }
-                  },
-                  "required": [
-                    "rollout_type"
-                  ]
-                }
-              }
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "private"
-        ]
-      },
-      "put": {
-        "operationId": "UpdateExperiment",
-        "description": "",
-        "parameters": [
-          {
-            "name": "slug",
-            "in": "path",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "rollout_type": {
-                    "enum": [
-                      "pref",
-                      "addon"
-                    ]
-                  },
-                  "design": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "addon_release_url": {
-                    "type": "string",
-                    "format": "uri",
-                    "nullable": true,
-                    "maxLength": 400,
-                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
-                  },
-                  "pref_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
-                  "pref_type": {
-                    "enum": [
-                      null,
-                      "boolean",
-                      "integer",
-                      "string",
-                      "json string"
-                    ],
-                    "nullable": true
-                  },
-                  "pref_value": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                },
-                "required": [
-                  "rollout_type"
-                ]
-              }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "properties": {
-                  "rollout_type": {
-                    "enum": [
-                      "pref",
-                      "addon"
-                    ]
-                  },
-                  "design": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "addon_release_url": {
-                    "type": "string",
-                    "format": "uri",
-                    "nullable": true,
-                    "maxLength": 400,
-                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
-                  },
-                  "pref_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
-                  "pref_type": {
-                    "enum": [
-                      null,
-                      "boolean",
-                      "integer",
-                      "string",
-                      "json string"
-                    ],
-                    "nullable": true
-                  },
-                  "pref_value": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                },
-                "required": [
-                  "rollout_type"
-                ]
-              }
-            },
-            "multipart/form-data": {
-              "schema": {
-                "properties": {
-                  "rollout_type": {
-                    "enum": [
-                      "pref",
-                      "addon"
-                    ]
-                  },
-                  "design": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "addon_release_url": {
-                    "type": "string",
-                    "format": "uri",
-                    "nullable": true,
-                    "maxLength": 400,
-                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
-                  },
-                  "pref_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
-                  "pref_type": {
-                    "enum": [
-                      null,
-                      "boolean",
-                      "integer",
-                      "string",
-                      "json string"
-                    ],
-                    "nullable": true
-                  },
-                  "pref_value": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                },
-                "required": [
-                  "rollout_type"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "rollout_type": {
-                      "enum": [
-                        "pref",
-                        "addon"
-                      ]
-                    },
-                    "design": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "addon_release_url": {
-                      "type": "string",
-                      "format": "uri",
-                      "nullable": true,
-                      "maxLength": 400,
-                      "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
-                    },
-                    "pref_name": {
-                      "type": "string",
-                      "nullable": true,
-                      "maxLength": 255
-                    },
-                    "pref_type": {
-                      "enum": [
-                        null,
-                        "boolean",
-                        "integer",
-                        "string",
-                        "json string"
-                      ],
-                      "nullable": true
-                    },
-                    "pref_value": {
-                      "type": "string",
-                      "nullable": true
-                    }
-                  },
-                  "required": [
-                    "rollout_type"
-                  ]
-                }
-              }
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "private"
-        ]
-      },
-      "patch": {
-        "operationId": "PartialUpdateExperiment",
-        "description": "",
-        "parameters": [
-          {
-            "name": "slug",
-            "in": "path",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "rollout_type": {
-                    "enum": [
-                      "pref",
-                      "addon"
-                    ]
-                  },
-                  "design": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "addon_release_url": {
-                    "type": "string",
-                    "format": "uri",
-                    "nullable": true,
-                    "maxLength": 400,
-                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
-                  },
-                  "pref_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
-                  "pref_type": {
-                    "enum": [
-                      null,
-                      "boolean",
-                      "integer",
-                      "string",
-                      "json string"
-                    ],
-                    "nullable": true
-                  },
-                  "pref_value": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                }
-              }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "properties": {
-                  "rollout_type": {
-                    "enum": [
-                      "pref",
-                      "addon"
-                    ]
-                  },
-                  "design": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "addon_release_url": {
-                    "type": "string",
-                    "format": "uri",
-                    "nullable": true,
-                    "maxLength": 400,
-                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
-                  },
-                  "pref_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
-                  "pref_type": {
-                    "enum": [
-                      null,
-                      "boolean",
-                      "integer",
-                      "string",
-                      "json string"
-                    ],
-                    "nullable": true
-                  },
-                  "pref_value": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                }
-              }
-            },
-            "multipart/form-data": {
-              "schema": {
-                "properties": {
-                  "rollout_type": {
-                    "enum": [
-                      "pref",
-                      "addon"
-                    ]
-                  },
-                  "design": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "addon_release_url": {
-                    "type": "string",
-                    "format": "uri",
-                    "nullable": true,
-                    "maxLength": 400,
-                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
-                  },
-                  "pref_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
-                  "pref_type": {
-                    "enum": [
-                      null,
-                      "boolean",
-                      "integer",
-                      "string",
-                      "json string"
-                    ],
-                    "nullable": true
-                  },
-                  "pref_value": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "rollout_type": {
-                      "enum": [
-                        "pref",
-                        "addon"
-                      ]
-                    },
-                    "design": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "addon_release_url": {
-                      "type": "string",
-                      "format": "uri",
-                      "nullable": true,
-                      "maxLength": 400,
-                      "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
-                    },
-                    "pref_name": {
-                      "type": "string",
-                      "nullable": true,
-                      "maxLength": 255
-                    },
-                    "pref_type": {
-                      "enum": [
-                        null,
-                        "boolean",
-                        "integer",
-                        "string",
-                        "json string"
-                      ],
-                      "nullable": true
-                    },
-                    "pref_value": {
-                      "type": "string",
-                      "nullable": true
-                    }
-                  },
-                  "required": [
-                    "rollout_type"
                   ]
                 }
               }

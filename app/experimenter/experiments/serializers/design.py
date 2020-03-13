@@ -8,6 +8,7 @@ from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
     VariantPreferences,
+    RolloutPreference,
 )
 from experimenter.experiments.serializers.entities import ChangeLogSerializer
 from experimenter.experiments.changelog_utils import generate_change_log
@@ -33,7 +34,25 @@ class ChangelogSerializerMixin(object):
 
 class PrefValidationMixin(object):
 
-    def validate_pref(self, pref_type, pref_value, field_name):
+    def validate_pref_branch(self, pref_branch):
+        if pref_branch == "Firefox Pref Branch":
+            return {"pref_branch": "Please select a branch"}
+        return {}
+
+    def validate_multi_preference(self, pref):
+        pref_type = pref["pref_type"]
+        pref_value = pref["pref_value"]
+        field_name = "pref_value"
+        errors = {}
+        if pref_type == "Firefox Pref Type":
+            errors["pref_type"] = "Please select a pref type"
+
+        pref_value_error = self.validate_pref_value(pref_type, pref_value, field_name)
+        if pref_value_error:
+            errors[field_name] = pref_value_error
+        return errors
+
+    def validate_pref_value(self, pref_type, pref_value, field_name):
         if pref_type == "integer":
             try:
                 int(pref_value)
@@ -50,6 +69,13 @@ class PrefValidationMixin(object):
             except ValueError:
                 return {field_name: "The pref value must be valid JSON."}
         return {}
+
+    def is_pref_valid(self, preferences):
+        unique_names = len(
+            set([slugify(pref["pref_name"]) for pref in preferences])
+        ) == len(preferences)
+
+        return unique_names
 
 
 class VariantsListSerializer(serializers.ListSerializer):
@@ -112,12 +138,26 @@ class ExperimentDesignVariantPrefSerializer(ExperimentDesignVariantBaseSerialize
         model = ExperimentVariant
 
 
-class ExperimentDesignBranchVariantPreferencesSerializer(serializers.ModelSerializer):
+class PreferenceListSerializer(serializers.ListSerializer):
+
+    def to_representation(self, data):
+        data = super().to_representation(data)
+        if data == []:
+            return [{}]
+        return data
+
+
+class ExperimentDesignBasePreferenceSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     pref_name = serializers.CharField(max_length=255)
     pref_type = serializers.CharField(max_length=255)
     pref_branch = serializers.CharField(max_length=255)
     pref_value = serializers.CharField(max_length=255)
+
+
+class ExperimentDesignBranchVariantPreferencesSerializer(
+    ExperimentDesignBasePreferenceSerializer
+):
 
     class Meta:
         model = VariantPreferences
@@ -142,20 +182,13 @@ class ExperimentDesignBranchMultiPrefSerializer(
         self.validate_value_type_match(data)
         return data
 
-    def is_pref_valid(self, preferences):
-        unique_names = len(
-            set([slugify(pref["pref_name"]) for pref in preferences])
-        ) == len(preferences)
-
-        return unique_names
-
     def validate_value_type_match(self, preferences):
         error_list = []
         for pref in preferences:
-            pref_type = pref.get("pref_type", "")
-            pref_value = pref["pref_value"]
-            field_name = "pref_value"
-            error_list.append(self.validate_pref(pref_type, pref_value, field_name))
+            errors = {}
+            errors.update(self.validate_pref_branch(pref["pref_branch"]))
+            errors.update(self.validate_multi_preference(pref))
+            error_list.append(errors)
 
             if any(error_list):
                 raise serializers.ValidationError(error_list)
@@ -237,51 +270,79 @@ class ExperimentDesignBaseSerializer(
             raise serializers.ValidationError({"variants": error})
 
 
-class ExperimentDesignRolloutSerializer(
+class ExperimentDesignRolloutPreferenceSerializer(
+    ExperimentDesignBasePreferenceSerializer
+):
+
+    class Meta:
+        model = RolloutPreference
+        list_serializer_class = PreferenceListSerializer
+        fields = ["id", "pref_name", "pref_type", "pref_value"]
+
+
+class ExperimentDesignPrefRolloutSerializer(
     PrefValidationMixin, ExperimentDesignBaseSerializer
 ):
     rollout_type = serializers.ChoiceField(choices=Experiment.ROLLOUT_TYPE_CHOICES)
-    addon_release_url = serializers.URLField(
-        max_length=400, allow_null=True, required=False
-    )
-
-    ROLLOUT_TYPE_FIELDS = {
-        Experiment.TYPE_PREF: ("pref_name", "pref_type", "pref_value"),
-        Experiment.TYPE_ADDON: ("addon_release_url",),
-    }
+    preferences = ExperimentDesignRolloutPreferenceSerializer(many=True)
 
     class Meta:
         model = Experiment
-        fields = (
-            "rollout_type",
-            "design",
-            "addon_release_url",
-            "pref_name",
-            "pref_type",
-            "pref_value",
-        )
+        fields = ("rollout_type", "design", "preferences")
 
     def validate(self, data):
         data = super().validate(data)
-        rollout_type = data["rollout_type"]
 
-        errors = {}
-
-        for type_field in self.ROLLOUT_TYPE_FIELDS[rollout_type]:
-            if type_field not in data or not data[type_field]:
-                errors[type_field] = ["This field is required."]
-
-        if errors:
-            raise serializers.ValidationError(errors)
+        preferences = data["preferences"]
 
         if data["rollout_type"] == Experiment.TYPE_PREF:
-            pref_invalid = self.validate_pref(
-                data["pref_type"], data["pref_value"], "pref_value"
+            invalid_preferences = []
+            for preference in preferences:
+                pref_invalid = self.validate_multi_preference(preference)
+
+                invalid_preferences.append(pref_invalid)
+
+            if any(invalid_preferences):
+                raise serializers.ValidationError({"preferences": invalid_preferences})
+
+        if not self.is_pref_valid(preferences):
+            error_list = [{"pref_name": "Pref name needs to be unique"}] * len(
+                preferences
             )
-            if pref_invalid:
-                raise serializers.ValidationError(pref_invalid)
+            raise serializers.ValidationError({"preferences": error_list})
 
         return data
+
+    def update(self, instance, validated_data):
+        preferences_data = validated_data.pop("preferences", [])
+        instance = super().update(instance, validated_data)
+
+        if preferences_data:
+            existing_preference_ids = set(
+                instance.preferences.all().values_list("id", flat=True)
+            )
+            for preference_data in preferences_data:
+                preference_data["experiment"] = instance
+                RolloutPreference.objects.create(**preference_data)
+
+            submitted_preference_ids = set(
+                [p.get("id") for p in preferences_data if p.get("id")]
+            )
+            removed_ids = existing_preference_ids - submitted_preference_ids
+
+            if removed_ids:
+                RolloutPreference.objects.filter(id__in=removed_ids).delete()
+
+        return instance
+
+
+class ExperimentDesignAddonRolloutSerializer(ExperimentDesignBaseSerializer):
+    rollout_type = serializers.ChoiceField(choices=Experiment.ROLLOUT_TYPE_CHOICES)
+    addon_release_url = serializers.URLField(max_length=400, allow_null=True)
+
+    class Meta:
+        model = Experiment
+        fields = ("rollout_type", "design", "addon_release_url")
 
 
 class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
@@ -368,7 +429,9 @@ class ExperimentDesignPrefSerializer(PrefValidationMixin, ExperimentDesignBaseSe
         error_list = []
         pref_type = data.get("pref_type", "")
         for variant in variants:
-            error_list.append(self.validate_pref(pref_type, variant["value"], "value"))
+            error_list.append(
+                self.validate_pref_value(pref_type, variant["value"], "value")
+            )
 
         if any(error_list):
             raise serializers.ValidationError({"variants": error_list})
