@@ -6,6 +6,7 @@ from experimenter.experiments.models import (
     ExperimentChangeLog,
     VariantPreferences,
 )
+from experimenter.projects.models import Project
 
 
 class ExperimentVariantInlineAdmin(admin.StackedInline):
@@ -189,5 +190,12 @@ class ExperimentVariantAdmin(admin.ModelAdmin):
     list_display = ("name", "experiment", "ratio", "value")
 
 
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug")
+
+    prepopulated_fields = {"slug": ("name",)}
+
+
 admin.site.register(Experiment, ExperimentAdmin)
 admin.site.register(ExperimentVariant, ExperimentVariantAdmin)
+admin.site.register(Project, ProjectAdmin)

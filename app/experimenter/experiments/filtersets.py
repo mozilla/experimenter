@@ -11,6 +11,7 @@ import django_filters.widgets as widgets
 from experimenter.experiments.constants import ExperimentConstants
 
 from experimenter.experiments.models import Experiment
+from experimenter.projects.models import Project
 
 # the default widget has a dash character between the two date fields,
 # and what we want is the word "To", so we are making our own widget here
@@ -36,6 +37,11 @@ class ExperimentFilterset(filters.FilterSet):
         choices=Experiment.TYPE_CHOICES,
         conjoined=False,
         widget=forms.SelectMultiple(attrs={"class": "form-control"}),
+    )
+    projects = filters.ModelChoiceFilter(
+        empty_label="All Projects",
+        queryset=Project.objects.all(),
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
     status = filters.ChoiceFilter(
         empty_label="All Statuses",
@@ -125,6 +131,7 @@ class ExperimentFilterset(filters.FilterSet):
         fields = (
             "search",
             "type",
+            "projects",
             "status",
             "firefox_channel",
             "firefox_version",

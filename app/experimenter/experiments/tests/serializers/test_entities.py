@@ -6,6 +6,7 @@ from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     LocaleFactory,
     CountryFactory,
+    ProjectFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
     ExperimentChangeLogFactory,
@@ -177,7 +178,10 @@ class TestChangeLogSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         country1 = CountryFactory(code="CA", name="Canada")
         locale1 = LocaleFactory(code="da", name="Danish")
-        experiment = ExperimentFactory.create(locales=[locale1], countries=[country1])
+        project = ProjectFactory.create()
+        experiment = ExperimentFactory.create(
+            locales=[locale1], countries=[country1], projects=[project]
+        )
 
         related_exp = ExperimentFactory.create()
         experiment.related_to.add(related_exp)
@@ -211,6 +215,7 @@ class TestChangeLogSerializer(TestCase):
             "client_matching": experiment.client_matching,
             "locales": [{"code": "da", "name": "Danish"}],
             "countries": [{"code": "CA", "name": "Canada"}],
+            "projects": [{"name": project.name}],
             "platform": experiment.platform,
             "objectives": experiment.objectives,
             "analysis": experiment.analysis,
