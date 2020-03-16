@@ -75,17 +75,9 @@ An experiment has three parts:
 
         make test
 
-1.  Run database migrations
+1.  Setup the database
 
-        make migrate
-
-1.  Make a local user
-
-        make createuser
-
-1.  Load the initial data
-
-        make load_locales_countries
+        make refresh
 
 1.  Run a dev instance
 
@@ -164,11 +156,20 @@ WARNING: this will remove your database and all data. Use this to reset your dev
 
 ### refresh
 
-Will run kill, migrate, load_locales_countries load_dummy_experiments
+Run kill, migrate, load_locales_countries load_dummy_experiments
 
 ### up_all
 
-will start up a normandy and delivery console instance. Prereqs. Symlink normandy and delivery console eg. `ln -s ../normandy normandy`, ensure user is assigned superuser status
+Start up a normandy and delivery console instance. Prereqs. Symlink normandy and delivery console eg. `ln -s ../normandy normandy`, ensure user is assigned superuser status
+
+### integration_test
+
+Run the integration test suite inside a containerized instance of Firefox.  You must also be already running a `make up` dev instance in another shell to run the integration tests.
+
+### integration_vnc_up
+
+Start a linux VM container with VNC available over `vnc://localhost:5900` with password `secret`.  Right click on the desktop and select `Applications > Shell > Bash` and enter `tox -c tests/integration/` to run the integration tests and watch them run in a Firefox instance you can watch and interact with.
+
 
 ## API
 
