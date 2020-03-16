@@ -56,10 +56,13 @@ export class PrefRolloutFactory extends Factory {
     return {
       rollout_type: "pref",
       design: new Field(faker.lorem.paragraph),
-      addon_release_url: null,
-      pref_name: "browser.enabled",
-      pref_type: "bool",
-      pref_value: "true",
+      preferences: [
+        {
+          pref_name: "browser.enabled",
+          pref_type: "bool",
+          pref_value: "true",
+        },
+      ],
     };
   }
 }
@@ -201,5 +204,23 @@ export class MultiPrefDataFactory extends Factory {
     if (this.data.variants.length) {
       this.data.variants[0].is_control = true;
     }
+  }
+}
+
+export class TimelinePopDataFactory extends Factory {
+  getFields() {
+    return {
+      proposed_start_date: "2050-01-01",
+      proposed_duration: 50,
+      proposed_enrollment: 25,
+      population_percent: 25.0,
+      firefox_channel: "release",
+      firefox_min_version: "67.0",
+      firefox_max_version: "68.0",
+      locales: [{ value: "NP", label: "Nepali" }],
+      countries: [{ value: "US", label: "United States" }],
+      platform: "All Windows",
+      client_matching: "client matching data",
+    };
   }
 }
