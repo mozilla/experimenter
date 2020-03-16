@@ -29,6 +29,19 @@ def test_overview_engineering_owner_changes_correctly(base_url, selenium):
     assert new_owner in experiment.engineering_owner
 
 
+@pytest.mark.skip
+@pytest.mark.nondestructive
+def test_overview_owner_changes_correctly(base_url, selenium):
+    """Test changing experiment owner."""
+    selenium.get(base_url)
+    home = Home(selenium, base_url).wait_for_page_to_load()
+    experiment = home.create_experiment()
+    assert home.header.current_user in experiment.experiment_owner
+    owner = "admin"
+    experiment.experiment_owner = owner
+    assert owner in experiment.experiment_owner
+
+
 @pytest.mark.nondestructive
 def test_public_name_changes_correctly(base_url, selenium):
     """Test adding a public name."""
