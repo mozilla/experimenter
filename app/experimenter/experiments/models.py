@@ -132,16 +132,16 @@ class Experiment(ExperimentConstants, models.Model):
         max_digits=7, decimal_places=4, default=0.0, blank=True, null=True
     )
     firefox_min_version = models.CharField(
-        max_length=255, choices=ExperimentConstants.VERSION_CHOICES
+        max_length=255, choices=ExperimentConstants.VERSION_CHOICES, blank=True, null=True
     )
     firefox_max_version = models.CharField(
         max_length=255, choices=ExperimentConstants.VERSION_CHOICES, blank=True, null=True
     )
     firefox_channel = models.CharField(
-        max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES
+        max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES, blank=True, null=True
     )
     client_matching = models.TextField(
-        default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True
+        default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True, null=True
     )
     locales = models.ManyToManyField(Locale, blank=True)
     countries = models.ManyToManyField(Country, blank=True)
@@ -149,6 +149,7 @@ class Experiment(ExperimentConstants, models.Model):
         max_length=255,
         choices=ExperimentConstants.PLATFORM_CHOICES,
         default=ExperimentConstants.PLATFORM_ALL,
+        null=True,
     )
     design = models.TextField(
         default=ExperimentConstants.DESIGN_DEFAULT, blank=True, null=True
@@ -578,9 +579,8 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_pref_rollout(self):
-        return self.is_pref_rollout and all(
-            [self.pref_type, self.pref_name, self.pref_value]
-        )
+
+        return self.is_pref_rollout and self.preferences.count() > 0
 
     @property
     def completed_addon_rollout(self):
@@ -876,6 +876,9 @@ class Experiment(ExperimentConstants, models.Model):
 
         cloned.related_to.add(self)
 
+        cloned.countries.add(*self.countries.all())
+        cloned.locales.add(*self.locales.all())
+
         ExperimentChangeLog.objects.create(
             experiment=cloned,
             changed_by=get_user_model().objects.get(id=user.id),
@@ -918,14 +921,7 @@ class ExperimentVariant(models.Model):
             return "Treatment"
 
 
-class VariantPreferences(models.Model):
-    variant = models.ForeignKey(
-        ExperimentVariant,
-        blank=False,
-        null=False,
-        related_name="preferences",
-        on_delete=models.CASCADE,
-    )
+class Preference(models.Model):
     pref_name = models.CharField(max_length=255, blank=False, null=False)
     pref_type = models.CharField(
         max_length=255,
@@ -933,6 +929,17 @@ class VariantPreferences(models.Model):
         blank=False,
         null=False,
     )
+    pref_value = models.CharField(max_length=255, blank=False, null=False)
+
+    class Meta:
+        abstract = True
+
+    @property
+    def is_json_string_type(self):
+        return self.pref_type == ExperimentConstants.PREF_TYPE_JSON_STR
+
+
+class VariantPreferences(Preference):
     pref_branch = models.CharField(
         max_length=255,
         choices=ExperimentConstants.PREF_BRANCH_CHOICES,
@@ -940,14 +947,29 @@ class VariantPreferences(models.Model):
         null=False,
     )
 
-    pref_value = models.CharField(max_length=255, blank=False, null=False)
+    variant = models.ForeignKey(
+        ExperimentVariant,
+        blank=False,
+        null=False,
+        related_name="preferences",
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         unique_together = (("variant", "pref_name"),)
 
-    @property
-    def is_json_string_type(self):
-        return self.pref_type == ExperimentConstants.PREF_TYPE_JSON_STR
+
+class RolloutPreference(Preference):
+    experiment = models.ForeignKey(
+        Experiment,
+        blank=False,
+        null=False,
+        related_name="preferences",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        unique_together = (("experiment", "pref_name"),)
 
 
 class ExperimentChangeLogManager(models.Manager):

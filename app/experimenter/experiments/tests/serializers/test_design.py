@@ -1,5 +1,3 @@
-
-
 from django.test import TestCase
 from rest_framework import serializers
 
@@ -7,6 +5,7 @@ from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
     ExperimentChangeLog,
+    RolloutPreference,
 )
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
@@ -25,7 +24,8 @@ from experimenter.experiments.serializers.design import (
     ExperimentDesignGenericSerializer,
     ExperimentDesignMultiPrefSerializer,
     ExperimentDesignPrefSerializer,
-    ExperimentDesignRolloutSerializer,
+    ExperimentDesignPrefRolloutSerializer,
+    ExperimentDesignAddonRolloutSerializer,
     PrefValidationMixin,
 )
 
@@ -1107,8 +1107,6 @@ class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
             for variant in experiment.variants.all()
         ]
 
-        self.maxDiff = None
-
         self.assertEqual(serializer_data, {"is_branched_addon": True})
         self.assertCountEqual(variant_data, expected_variant_data)
 
@@ -1146,61 +1144,60 @@ class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
         self.assertEqual(experiment.changes.count(), 1)
 
 
-class TestExperimentDesignRolloutSerializer(MockRequestMixin, TestCase):
+class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
 
     def test_pref_fields_required_for_rollout_type_pref(self):
+
         experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
 
         data = {"rollout_type": Experiment.TYPE_PREF}
 
-        serializer = ExperimentDesignRolloutSerializer(
+        serializer = ExperimentDesignPrefRolloutSerializer(
             instance=experiment, data=data, context={"request": self.request}
         )
 
         self.assertFalse(serializer.is_valid())
-        self.assertIn("pref_name", serializer.errors)
-        self.assertIn("pref_type", serializer.errors)
-        self.assertIn("pref_value", serializer.errors)
+        self.assertIn("preferences", serializer.errors)
 
     def test_validates_pref_type_matches_value(self):
         experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
 
         data = {
             "rollout_type": Experiment.TYPE_PREF,
-            "pref_name": "browser.pref",
-            "pref_type": Experiment.PREF_TYPE_INT,
-            "pref_value": "abc",
+            "preferences": [
+                {
+                    "pref_name": "browser.pref",
+                    "pref_type": Experiment.PREF_TYPE_INT,
+                    "pref_value": "abc",
+                }
+            ],
         }
 
-        serializer = ExperimentDesignRolloutSerializer(
+        serializer = ExperimentDesignPrefRolloutSerializer(
             instance=experiment, data=data, context={"request": self.request}
         )
-
         self.assertFalse(serializer.is_valid())
-
-    def test_addon_fields_required_for_rollout_type_addon(self):
-        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
-
-        data = {"rollout_type": Experiment.TYPE_ADDON}
-
-        serializer = ExperimentDesignRolloutSerializer(
-            instance=experiment, data=data, context={"request": self.request}
-        )
-
-        self.assertFalse(serializer.is_valid())
-        self.assertIn("addon_release_url", serializer.errors)
 
     def test_saves_pref_rollout(self):
         experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
 
         data = {
             "rollout_type": Experiment.TYPE_PREF,
-            "pref_name": "browser.pref",
-            "pref_type": Experiment.PREF_TYPE_INT,
-            "pref_value": "1",
+            "preferences": [
+                {
+                    "pref_name": "browser.pref",
+                    "pref_type": Experiment.PREF_TYPE_INT,
+                    "pref_value": "1",
+                },
+                {
+                    "pref_name": "browser.pref2",
+                    "pref_type": Experiment.PREF_TYPE_STR,
+                    "pref_value": "A STRING!",
+                },
+            ],
         }
 
-        serializer = ExperimentDesignRolloutSerializer(
+        serializer = ExperimentDesignPrefRolloutSerializer(
             instance=experiment, data=data, context={"request": self.request}
         )
 
@@ -1209,9 +1206,137 @@ class TestExperimentDesignRolloutSerializer(MockRequestMixin, TestCase):
         experiment = serializer.save()
 
         self.assertEqual(experiment.rollout_type, data["rollout_type"])
-        self.assertEqual(experiment.pref_name, data["pref_name"])
-        self.assertEqual(experiment.pref_type, data["pref_type"])
-        self.assertEqual(experiment.pref_value, data["pref_value"])
+
+        self.assertEqual(experiment.preferences.count(), 2)
+        data_pref1 = data["preferences"][0]
+        pref1 = experiment.preferences.first()
+        data_pref2 = data["preferences"][1]
+        pref2 = experiment.preferences.last()
+        self.assertEqual(pref1.pref_name, data_pref1["pref_name"])
+        self.assertEqual(pref1.pref_type, data_pref1["pref_type"])
+        self.assertEqual(pref1.pref_value, data_pref1["pref_value"])
+
+        self.assertEqual(pref2.pref_name, data_pref2["pref_name"])
+        self.assertEqual(pref2.pref_type, data_pref2["pref_type"])
+        self.assertEqual(pref2.pref_value, data_pref2["pref_value"])
+
+    def test_pref_name_uniqueness_constraint(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        data = {
+            "rollout_type": Experiment.TYPE_PREF,
+            "preferences": [
+                {
+                    "pref_name": "browser.pref",
+                    "pref_type": Experiment.PREF_TYPE_INT,
+                    "pref_value": "1",
+                },
+                {
+                    "pref_name": "browser.pref",
+                    "pref_type": Experiment.PREF_TYPE_STR,
+                    "pref_value": "A STRING!",
+                },
+            ],
+        }
+
+        serializer = ExperimentDesignPrefRolloutSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn(
+            "Pref name needs to be unique",
+            serializer.errors["preferences"][0]["pref_name"],
+        )
+
+    def test_save_pref_rollout_with_existing_prefs(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        preference = RolloutPreference(
+            pref_type=Experiment.PREF_TYPE_INT,
+            pref_name="browser.pref",
+            pref_value="4",
+            experiment=experiment,
+        )
+        preference.save()
+
+        original_pref_id = experiment.preferences.first().id
+
+        data = {
+            "rollout_type": Experiment.TYPE_PREF,
+            "preferences": [
+                {
+                    "pref_name": "browser.pref2",
+                    "pref_type": Experiment.PREF_TYPE_STR,
+                    "pref_value": "A STRING!",
+                }
+            ],
+        }
+
+        serializer = ExperimentDesignPrefRolloutSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.rollout_type, data["rollout_type"])
+
+        self.assertEqual(experiment.preferences.count(), 1)
+        data_pref1 = data["preferences"][0]
+        pref1 = experiment.preferences.first()
+
+        self.assertNotEqual(original_pref_id, pref1.id)
+        self.assertEqual(pref1.pref_name, data_pref1["pref_name"])
+        self.assertEqual(pref1.pref_type, data_pref1["pref_type"])
+        self.assertEqual(pref1.pref_value, data_pref1["pref_value"])
+
+    def test_serializer_outputs_empty_pref_when_no_prefs(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        serializer = ExperimentDesignPrefRolloutSerializer(instance=experiment)
+
+        self.assertEqual(serializer.data["preferences"], [{}])
+
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        preference = RolloutPreference(
+            pref_type=Experiment.PREF_TYPE_INT,
+            pref_name="browser.pref",
+            pref_value="4",
+            experiment=experiment,
+        )
+        preference.save()
+
+        serializer = ExperimentDesignPrefRolloutSerializer(instance=experiment)
+
+        self.assertEqual(len(serializer.data["preferences"]), 1)
+        self.assertCountEqual(
+            serializer.data["preferences"],
+            [
+                {
+                    "id": experiment.preferences.first().id,
+                    "pref_name": "browser.pref",
+                    "pref_value": "4",
+                    "pref_type": Experiment.PREF_TYPE_INT,
+                }
+            ],
+        )
+
+
+class TestExperimentDesignAddonRolloutSerializer(MockRequestMixin, TestCase):
+
+    def test_addon_fields_required_for_rollout_type_addon(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+
+        data = {"rollout_type": Experiment.TYPE_ADDON}
+
+        serializer = ExperimentDesignAddonRolloutSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("addon_release_url", serializer.errors)
 
     def test_saves_addon_rollout(self):
         experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
@@ -1221,7 +1346,7 @@ class TestExperimentDesignRolloutSerializer(MockRequestMixin, TestCase):
             "addon_release_url": "https://www.example.com/addon.xpi",
         }
 
-        serializer = ExperimentDesignRolloutSerializer(
+        serializer = ExperimentDesignAddonRolloutSerializer(
             instance=experiment, data=data, context={"request": self.request}
         )
 
@@ -1344,7 +1469,7 @@ class TestPrefValidationMixin(TestCase):
         pref_value = "{}"
         key_value = "key_value"
         validator = PrefValidationMixin()
-        value = validator.validate_pref(pref_type, pref_value, key_value)
+        value = validator.validate_pref_value(pref_type, pref_value, key_value)
 
         self.assertEqual(value, {})
 
@@ -1353,16 +1478,16 @@ class TestPrefValidationMixin(TestCase):
         pref_value = "not a json string"
         key_value = "key_value"
         validator = PrefValidationMixin()
-        value = validator.validate_pref(pref_type, pref_value, key_value)
+        value = validator.validate_pref_value(pref_type, pref_value, key_value)
 
-        self.assertEqual(value, {key_value: "The pref value must be valid JSON."})
+        self.assertEqual(value, {"key_value": "The pref value must be valid JSON."})
 
     def test_matching_integer_type_value(self):
         pref_type = "integer"
         pref_value = "8"
         key_value = "key_value"
         validator = PrefValidationMixin()
-        value = validator.validate_pref(pref_type, pref_value, key_value)
+        value = validator.validate_pref_value(pref_type, pref_value, key_value)
 
         self.assertEqual(value, {})
 
@@ -1371,16 +1496,16 @@ class TestPrefValidationMixin(TestCase):
         pref_value = "not a integer"
         key_value = "key_value"
         validator = PrefValidationMixin()
-        value = validator.validate_pref(pref_type, pref_value, key_value)
+        value = validator.validate_pref_value(pref_type, pref_value, key_value)
 
-        self.assertEqual(value, {key_value: "The pref value must be an integer."})
+        self.assertEqual(value, {"key_value": "The pref value must be an integer."})
 
     def test_matching_boolean_type_value(self):
         pref_type = "boolean"
         pref_value = "true"
         key_value = "key_value"
         validator = PrefValidationMixin()
-        value = validator.validate_pref(pref_type, pref_value, key_value)
+        value = validator.validate_pref_value(pref_type, pref_value, key_value)
 
         self.assertEqual(value, {})
 
@@ -1389,6 +1514,18 @@ class TestPrefValidationMixin(TestCase):
         pref_value = "not a boolean"
         key_value = "key_value"
         validator = PrefValidationMixin()
-        value = validator.validate_pref(pref_type, pref_value, key_value)
+        value = validator.validate_pref_value(pref_type, pref_value, key_value)
 
-        self.assertEqual(value, {key_value: "The pref value must be a boolean."})
+        self.assertEqual(value, {"key_value": "The pref value must be a boolean."})
+
+    def test_validate_multi_preference_returns_correct_errors(self):
+        pref = {"pref_type": "Firefox Pref Type", "pref_value": "It's a value"}
+        validator = PrefValidationMixin()
+        value = validator.validate_multi_preference(pref)
+        self.assertEqual(value, {"pref_type": "Please select a pref type"})
+
+    def test_validate_missing_pref_type_returns_proper_errors(self):
+        pref_branch = "Firefox Pref Branch"
+        validator = PrefValidationMixin()
+        value = validator.validate_pref_branch(pref_branch)
+        self.assertEqual(value, {"pref_branch": "Please select a branch"})

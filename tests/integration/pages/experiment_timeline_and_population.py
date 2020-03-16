@@ -14,7 +14,6 @@ class TimelineAndPopulationPage(Base):
     _firefox_channel_locator = (By.CSS_SELECTOR, "#id_firefox_channel")
     _firefox_min_version_locator = (By.CSS_SELECTOR, "#id_firefox_min_version")
     _firefox_max_version_locator = (By.CSS_SELECTOR, "#id_firefox_max_version")
-    _locale_btn_locator = (By.CSS_SELECTOR, "button[data-id='id_locales']")
     _platform_locator = (By.CSS_SELECTOR, "#id_platform")
     _proposed_duration_locator = (By.CSS_SELECTOR, "#id_proposed_duration")
     _proposed_enrollment_locator = (By.CSS_SELECTOR, "#id_proposed_enrollment")
@@ -125,30 +124,6 @@ class TimelineAndPopulationPage(Base):
         for item in versions:
             if item.get_attribute("value") == version:
                 item.click()
-
-    @property
-    def locale(self):
-        element = self.find_element(*self._locale_btn_locator)
-        # scroll to element
-        self.selenium.execute_script("arguments[0].scrollIntoView(true);", element)
-        self.selenium.execute_script("arguments[0].click();", element)
-        locales = self.selenium.find_elements(By.CSS_SELECTOR, "div.show:nth-child(3) a")
-        for item in locales:
-            if item.get_attribute("aria-selected") == "true":
-                locale_text = item.find_element(By.CSS_SELECTOR, "span.text").text
-                self.selenium.execute_script("arguments[0].click();", element)
-                return locale_text
-
-    @locale.setter
-    def locale(self, locale=None):
-        element = self.find_element(*self._locale_btn_locator)
-        self.selenium.execute_script("arguments[0].click();", element)
-        locales = self.selenium.find_elements(By.CSS_SELECTOR, "div.show:nth-child(3) a")
-        for item in locales:
-            if locale in item.find_element(By.CSS_SELECTOR, "span.text").text:
-                self.selenium.execute_script("arguments[0].click();", item)
-                break
-        self.selenium.execute_script("arguments[0].click();", element)
 
     @property
     def platform(self):

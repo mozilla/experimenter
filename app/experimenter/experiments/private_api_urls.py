@@ -7,8 +7,10 @@ from experimenter.experiments.api_views import (
     ExperimentDesignGenericView,
     ExperimentDesignMultiPrefView,
     ExperimentDesignPrefView,
-    ExperimentDesignRolloutView,
+    ExperimentDesignPrefRolloutView,
+    ExperimentDesignAddonRolloutView,
     ExperimentSendIntentToShipEmailView,
+    ExperimentTimelinePopulationView,
 )
 
 
@@ -24,9 +26,19 @@ urlpatterns = [
         name="experiments-api-clone",
     ),
     url(
+        r"^(?P<slug>[\w-]+)/design-addon-rollout",
+        ExperimentDesignAddonRolloutView.as_view(),
+        name="experiments-design-pref-rollout",
+    ),
+    url(
         r"^(?P<slug>[\w-]+)/design-addon",
         ExperimentDesignAddonView.as_view(),
         name="experiments-design-addon",
+    ),
+    url(
+        r"^(?P<slug>[\w-]+)/design-pref-rollout",
+        ExperimentDesignPrefRolloutView.as_view(),
+        name="experiments-design-addon-rollout",
     ),
     url(
         r"^(?P<slug>[\w-]+)/design-pref",
@@ -49,8 +61,8 @@ urlpatterns = [
         name="experiments-design-branched-addon",
     ),
     url(
-        r"^(?P<slug>[\w-]+)/design-rollout",
-        ExperimentDesignRolloutView.as_view(),
-        name="experiments-design-rollout",
+        r"^(?P<slug>[\w-]+)/timeline-population",
+        ExperimentTimelinePopulationView.as_view(),
+        name="experiments-timeline-population",
     ),
 ]

@@ -19,16 +19,16 @@
     <div class="border-left-grey pl-3 mb-4">
       <h5>{{ variant.ratio }}% {{ variant.name }}</h5>
       {% if experiment.is_multi_pref %}
+        <p><strong>Prefs:</strong></p>
         {% for preference in variant.preferences.all %}
-
-          <div class="border-left-grey pl-3 ml-2">
-            <p><strong> Pref Type = <span class="text-info">{{ preference.pref_type }}</span></strong></p>
-            <p><strong> Pref Branch = <span class="text-info">{{ preference.pref_branch }}</span></strong></p>
-            {% if preference.is_json_string_type %}
-              <p><strong> {{ preference.pref_name }} = <pre class="text-info">{{ preference.pref_value|as_json }}</pre></strong></p>
-            {% else %}
-              <p><strong> {{ preference.pref_name }} = <span class="text-info">{{ preference.pref_value }}</span></strong></p>
-            {% endif %}
+          <div class="border-left-grey pl-3 ml-2 mb-3">
+           {% if preference.is_json_string_type %}
+            <p><strong> {{ preference.pref_name }} = <pre class="text-info">{{ preference.pref_value|as_json }}</pre></strong></p>
+           {% else %}
+            <p><strong> {{ preference.pref_name }} = <span class="text-info">{{ preference.pref_value }}</span></strong></p>
+           {% endif %}
+           <p>Pref Type: <span class="text-info">{{ preference.pref_type }}</span></p>
+           <p>Pref Branch: <span class="text-info">{{ preference.pref_branch }}</span></p>
           </div>
         {% endfor %}
       {% elif experiment.is_pref_experiment %}
