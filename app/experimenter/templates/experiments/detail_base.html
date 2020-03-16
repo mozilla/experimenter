@@ -284,6 +284,14 @@
                   </div>
                 </div>
               </div>
+            {% elif user_change.message == user_change.STATUS_CLONED %}
+              <p class="ml-4">
+                <a  href="{{experiment.parent.experiment_url}}">
+                  <span class="fas fa-info-circle"></span>
+                  {{user_change}}
+                </a>
+              </p>
+
             {% else %}
             <p class="ml-4 text-muted">{{ user_change }}</p>
             {% endif %}
