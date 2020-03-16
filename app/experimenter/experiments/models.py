@@ -884,6 +884,7 @@ class Experiment(ExperimentConstants, models.Model):
             changed_by=get_user_model().objects.get(id=user.id),
             old_status=None,
             new_status=ExperimentConstants.STATUS_DRAFT,
+            message=ExperimentChangeLog.STATUS_CLONED,
         )
 
         return cloned
@@ -990,6 +991,7 @@ class ExperimentChangeLog(models.Model):
     STATUS_ACCEPTED_LIVE = "Launched Delivery"
     STATUS_LIVE_COMPLETE = "Completed Delivery"
     STATUS_ADDED_RESULTS = "Added Results"
+    STATUS_CLONED = "Cloned Experiment"
 
     PRETTY_STATUS_LABELS = {
         None: {Experiment.STATUS_DRAFT: STATUS_NONE_DRAFT},
