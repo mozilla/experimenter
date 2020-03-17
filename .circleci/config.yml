@@ -60,8 +60,11 @@ jobs:
           name: Run integration tests
           command: |
             sudo chown -R ubuntu tests/
-            cp .env.integration .env
+            cp .env.sample .env
+            make refresh
+            make up_detached
             make integration_test
+            make kill
       - store_artifacts:
           path: tests/integration/integration-test.html
 
