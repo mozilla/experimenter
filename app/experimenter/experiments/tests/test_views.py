@@ -12,10 +12,13 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.forms import NormandyIdForm
 from experimenter.experiments.models import Experiment, Country, Locale
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.factories import (
+    ExperimentFactory,
+    CountryFactory,
+    LocaleFactory,
+)
 
 from experimenter.experiments.tests.mixins import MockTasksMixin
 from experimenter.openidc.tests.factories import UserFactory
