@@ -36,6 +36,7 @@ from experimenter.experiments.tests.factories import (
     UserFactory,
     CountryFactory,
     LocaleFactory,
+    ProjectFactory,
 )
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 from experimenter.experiments.tests.mixins import MockTasksMixin, MockRequestMixin
