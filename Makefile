@@ -21,7 +21,7 @@ COMPOSE_TEST = docker-compose -f docker-compose-test.yml
 COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml
 COMPOSE_FULL = docker-compose -f docker-compose.yml -f docker-compose-full.yml
 
-PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no
+PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no --ignore=tests/integration
 PYTHON_TEST_FAST = python manage.py test -v 3 --parallel
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 ESLINT = yarn lint
