@@ -11,6 +11,7 @@ from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
     VariantPreferences,
+    RolloutPreference,
     ExperimentChangeLog,
 )
 from experimenter.experiments.serializers.recipe import ExperimentRecipeSerializer
@@ -950,22 +951,28 @@ class TestExperimentModel(TestCase):
 
     def test_pref_rollout_completed(self):
         experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ROLLOUT,
-            rollout_type=Experiment.TYPE_PREF,
+            type=Experiment.TYPE_ROLLOUT, rollout_type=Experiment.TYPE_PREF
+        )
+        pref = RolloutPreference(
+            experiment=experiment,
             pref_type=Experiment.PREF_TYPE_STR,
             pref_name="abc",
             pref_value="abc",
         )
+        pref.save()
         self.assertTrue(experiment.completed_pref_rollout)
 
     def test_rollout_completed_for_pref(self):
         experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ROLLOUT,
-            rollout_type=Experiment.TYPE_PREF,
+            type=Experiment.TYPE_ROLLOUT, rollout_type=Experiment.TYPE_PREF
+        )
+        pref = RolloutPreference(
+            experiment=experiment,
             pref_type=Experiment.PREF_TYPE_STR,
             pref_name="abc",
             pref_value="abc",
         )
+        pref.save()
         self.assertTrue(experiment.completed_rollout)
 
     def test_is_pref_value_json_string_returns_true(self):
@@ -1480,6 +1487,10 @@ class TestExperimentModel(TestCase):
         self.assertEqual(
             cloned_experiment.firefox_min_version, Experiment.VERSION_CHOICES[1][0]
         )
+        self.assertCountEqual(
+            cloned_experiment.countries.all(), experiment.countries.all()
+        )
+        self.assertCountEqual(cloned_experiment.locales.all(), experiment.locales.all())
         self.assertFalse(cloned_experiment.bugzilla_id)
         self.assertFalse(cloned_experiment.archived)
         self.assertFalse(cloned_experiment.review_science)

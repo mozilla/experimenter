@@ -43,7 +43,9 @@ class DSIssueURLField(forms.URLField):
         cleaned_value = super().clean(value)
 
         if cleaned_value:
-            err_str = "Please Provide a Valid URL ex: {ds_url}DS-123 or {ds_url}DO-123"
+            err_str = (
+                "Please Provide a Valid URL ex: {ds_url}DS-12345 or {ds_url}DO-12345"
+            )
 
             ds = re.match(
                 re.escape(settings.DS_ISSUE_HOST) + r"(DS|DO)-(\w+.*)", cleaned_value

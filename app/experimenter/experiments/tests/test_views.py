@@ -2,6 +2,7 @@ import datetime
 import decimal
 import random
 import re
+import json
 from urllib.parse import urlencode
 
 import mock
@@ -11,10 +12,13 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.forms import NormandyIdForm
-from experimenter.experiments.models import Experiment
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.models import Experiment, Country, Locale
+from experimenter.experiments.tests.factories import (
+    ExperimentFactory,
+    CountryFactory,
+    LocaleFactory,
+)
 
 from experimenter.experiments.tests.mixins import MockTasksMixin
 from experimenter.openidc.tests.factories import UserFactory
@@ -366,6 +370,33 @@ class TestExperimentOverviewUpdateView(TestCase):
 
 
 class TestExperimentTimelinePopulationUpdateView(TestCase):
+
+    def test_get_view_returns_context(self):
+        user_email = "user@example.com"
+
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+
+        response = self.client.get(
+            reverse("experiments-timeline-pop-update", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        context = response.context[0]
+
+        countries = list(
+            Country.objects.extra(select={"label": "name", "value": "id"}).values(
+                "label", "value"
+            )
+        )
+
+        locales = list(
+            Locale.objects.extra(select={"label": "name", "value": "id"}).values(
+                "label", "value"
+            )
+        )
+
+        self.assertEqual(json.loads(context["countries"]), countries)
+        self.assertEqual(json.loads(context["locales"]), locales)
 
     def test_view_saves_experiment(self):
         user_email = "user@example.com"

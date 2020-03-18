@@ -1,23 +1,24 @@
 version: "3"
 
 services:
-  app:
-    env_file: .env.integration
-
-  yarn:
-    command: ""
-
-  worker:
-    env_file: .env.integration
-
-  beat:
-    env_file: .env.integration
-
-  nginx:
-    env_file: .env.integration
-
   firefox:
     image: b4handjr/selenium-firefox:python3-latest
+    env_file: .env
+    volumes:
+      - .:/code
+    links:
+      - nginx
+    expose:
+      - "4444"
+    shm_size: 2g
+    networks:
+      - private_nw
+      - public_nw
+  vnc:
+    image: b4handjr/selenium-firefox:python3-latest
+    env_file: .env
+    environment:
+      - DISABLE_HEADLESS=1
     volumes:
       - .:/code
     links:

@@ -31,9 +31,12 @@ from experimenter.experiments.forms import (
     ExperimentOrderingForm,
 )
 from experimenter.experiments.models import Experiment
-from experimenter.base.tests.factories import CountryFactory, LocaleFactory
-from experimenter.experiments.tests.factories import ProjectFactory
-from experimenter.experiments.tests.factories import ExperimentFactory, UserFactory
+from experimenter.experiments.tests.factories import (
+    ExperimentFactory,
+    UserFactory,
+    CountryFactory,
+    LocaleFactory,
+)
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 from experimenter.experiments.tests.mixins import MockTasksMixin, MockRequestMixin
 

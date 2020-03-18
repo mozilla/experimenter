@@ -1,3 +1,4 @@
+import json
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -20,7 +21,7 @@ from experimenter.experiments.forms import (
     NormandyIdForm,
     ExperimentOrderingForm,
 )
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import Experiment, Locale, Country
 
 
 class ExperimentListView(FilterView):
@@ -97,6 +98,25 @@ class ExperimentTimelinePopulationUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentTimelinePopulationForm
     next_view_name = "experiments-design-update"
     template_name = "experiments/edit_timeline_population.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["locales"] = json.dumps(
+            list(
+                Locale.objects.extra(select={"label": "name", "value": "id"}).values(
+                    "label", "value"
+                )
+            )
+        )
+        context["countries"] = json.dumps(
+            list(
+                Country.objects.extra(select={"label": "name", "value": "id"}).values(
+                    "label", "value"
+                )
+            )
+        )
+
+        return context
 
 
 class ExperimentDesignUpdateView(DetailView):

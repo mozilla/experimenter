@@ -1,24 +1,17 @@
 import PropTypes from "prop-types";
 import React from "react";
-import { Map } from "immutable";
+import { Map, List, fromJS } from "immutable";
 import { Row, Col } from "react-bootstrap";
 
 import DesignInput from "experimenter/components/DesignInput";
 import RadioButton from "experimenter/components/RadioButton";
 import {
   ADDON_RELEASE_URL_HELP,
-  ROLLOUT_PREF_BRANCH_HELP,
-  PREF_NAME_HELP,
-  PREF_TYPE_BOOL,
-  PREF_TYPE_HELP,
-  PREF_TYPE_INT,
-  PREF_TYPE_JSON_STR,
-  PREF_TYPE_STR,
-  PREF_VALUE_HELP,
   ROLLOUT_DESCRIPTION_HELP,
   TYPE_ADDON,
   TYPE_PREF,
 } from "experimenter/components/constants";
+import PrefManager from "./PrefManager";
 
 export default class RolloutForm extends React.PureComponent {
   static propTypes = {
@@ -26,6 +19,7 @@ export default class RolloutForm extends React.PureComponent {
     errors: PropTypes.instanceOf(Map),
     handleDataChange: PropTypes.func,
     handleErrorsChange: PropTypes.func,
+    handleReloadAPIState: PropTypes.func,
   };
 
   renderAddonFields() {
@@ -49,63 +43,20 @@ export default class RolloutForm extends React.PureComponent {
 
   renderPrefFields() {
     if (this.props.data.get("rollout_type") === TYPE_PREF) {
+      let blankPreference = fromJS([{ pref_name: "", pref_branch: "" }]);
+
       return (
         <React.Fragment>
-          <DesignInput
-            label="Pref Branch"
-            as="select"
-            helpContent={ROLLOUT_PREF_BRANCH_HELP}
-            note="*Note: Pref Rollouts always use the Default Pref Branch"
-            labelColumnWidth={2}
-          >
-            <option>Default Branch</option>
-            <option disabled>User Branch</option>
-          </DesignInput>
-
-          <DesignInput
-            id="id_pref_type"
-            label="Pref Type"
-            name="pref_type"
-            onChange={value => {
-              this.props.handleDataChange("pref_type", value);
+          <PrefManager
+            preferences={this.props.data.get("preferences", blankPreference)}
+            errors={this.props.errors.get("preferences", new List())}
+            onDataChange={value => {
+              this.props.handleDataChange("preferences", value);
             }}
-            value={this.props.data.get("pref_type")}
-            error={this.props.errors.get("pref_type", "")}
-            as="select"
-            helpContent={PREF_TYPE_HELP}
-            labelColumnWidth={2}
-          >
-            <option>Firefox Pref Type</option>
-            <option value={PREF_TYPE_BOOL}>boolean</option>
-            <option value={PREF_TYPE_INT}>integer</option>
-            <option value={PREF_TYPE_STR}>string</option>
-            <option value={PREF_TYPE_JSON_STR}>json string</option>
-          </DesignInput>
-
-          <DesignInput
-            id="id_pref_name"
-            label="Pref Name"
-            name="pref_name"
-            onChange={value => {
-              this.props.handleDataChange("pref_name", value);
+            onErrorChange={errors => {
+              this.props.handleErrorsChange("preferences", errors);
             }}
-            value={this.props.data.get("pref_name")}
-            error={this.props.errors.get("pref_name", "")}
-            helpContent={PREF_NAME_HELP}
-            labelColumnWidth={2}
-          />
-
-          <DesignInput
-            id="id_pref_value"
-            label="Pref Value"
-            name="pref_value"
-            onChange={value => {
-              this.props.handleDataChange("pref_value", value);
-            }}
-            value={this.props.data.get("pref_value")}
-            error={this.props.errors.get("pref_value", "")}
-            helpContent={PREF_VALUE_HELP}
-            labelColumnWidth={2}
+            rolloutType={this.props.data.get("rollout_type")}
           />
         </React.Fragment>
       );
@@ -125,7 +76,10 @@ export default class RolloutForm extends React.PureComponent {
               radioValue1={TYPE_PREF}
               radioValue2={TYPE_ADDON}
               onChange={event =>
-                this.props.handleDataChange("rollout_type", event.target.value)
+                this.props.handleReloadAPIState(
+                  "rollout_type",
+                  event.target.value,
+                )
               }
               value={this.props.data.get("rollout_type")}
             />

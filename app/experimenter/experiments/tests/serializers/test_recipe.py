@@ -1,8 +1,11 @@
-
 from decimal import Decimal
 from django.test import TestCase
 
-from experimenter.experiments.models import Experiment, ExperimentVariant
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentVariant,
+    RolloutPreference,
+)
 from experimenter.experiments.tests.factories import (
     LocaleFactory,
     CountryFactory,
@@ -200,21 +203,32 @@ class TestExperimentRecipeAddonRolloutArgumentsSerializer(TestCase):
 class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema_for_int(self):
+
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_ROLLOUT,
             normandy_slug="normandy-slug",
             rollout_type=Experiment.TYPE_PREF,
+        )
+
+        preference = RolloutPreference(
             pref_type=Experiment.PREF_TYPE_INT,
             pref_name="browser.pref",
             pref_value="4",
+            experiment=experiment,
         )
+
+        preference.save()
+
+        experiment = Experiment.objects.get(normandy_slug="normandy-slug")
         serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
-        self.assertDictEqual(
-            serializer.data,
-            {
-                "slug": "normandy-slug",
-                "preferences": [{"preferenceName": "browser.pref", "value": 4}],
-            },
+
+        serializer_data = serializer.data
+
+        self.assertEqual(serializer_data["slug"], "normandy-slug")
+
+        self.assertEqual(
+            dict(serializer_data["preferences"][0]),
+            {"preferenceName": "browser.pref", "value": 4},
         )
 
     def test_serializer_outputs_expected_schema_for_bool(self):
@@ -222,17 +236,25 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
             type=Experiment.TYPE_ROLLOUT,
             normandy_slug="normandy-slug",
             rollout_type=Experiment.TYPE_PREF,
+        )
+
+        preference = RolloutPreference(
             pref_type=Experiment.PREF_TYPE_BOOL,
             pref_name="browser.pref",
             pref_value="true",
+            experiment=experiment,
         )
+
+        preference.save()
         serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
-        self.assertDictEqual(
-            serializer.data,
-            {
-                "slug": "normandy-slug",
-                "preferences": [{"preferenceName": "browser.pref", "value": True}],
-            },
+
+        serializer_data = serializer.data
+
+        self.assertEqual(serializer_data["slug"], "normandy-slug")
+
+        self.assertEqual(
+            dict(serializer_data["preferences"][0]),
+            {"preferenceName": "browser.pref", "value": True},
         )
 
     def test_serializer_outputs_expected_schema_for_str(self):
@@ -240,17 +262,63 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
             type=Experiment.TYPE_ROLLOUT,
             normandy_slug="normandy-slug",
             rollout_type=Experiment.TYPE_PREF,
+        )
+
+        preference = RolloutPreference(
             pref_type=Experiment.PREF_TYPE_STR,
             pref_name="browser.pref",
             pref_value="a string",
+            experiment=experiment,
         )
+
+        preference.save()
         serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
-        self.assertDictEqual(
-            serializer.data,
-            {
-                "slug": "normandy-slug",
-                "preferences": [{"preferenceName": "browser.pref", "value": "a string"}],
-            },
+        serializer_data = serializer.data
+
+        self.assertEqual(serializer_data["slug"], "normandy-slug")
+
+        self.assertEqual(
+            dict(serializer_data["preferences"][0]),
+            {"preferenceName": "browser.pref", "value": "a string"},
+        )
+
+    def test_serializer_outputs_expected_schema_for_multi_pref(self):
+
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_ROLLOUT,
+            normandy_slug="normandy-slug",
+            rollout_type=Experiment.TYPE_PREF,
+        )
+
+        preference1 = RolloutPreference(
+            pref_type=Experiment.PREF_TYPE_INT,
+            pref_name="browser.pref",
+            pref_value="4",
+            experiment=experiment,
+        )
+
+        preference2 = RolloutPreference(
+            pref_type=Experiment.PREF_TYPE_STR,
+            pref_name="browser.pref1",
+            pref_value="a string",
+            experiment=experiment,
+        )
+
+        preference1.save()
+        preference2.save()
+
+        serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
+
+        serializer_data = serializer.data
+
+        self.assertEqual(serializer_data["slug"], "normandy-slug")
+
+        self.assertCountEqual(
+            serializer_data["preferences"],
+            [
+                {"preferenceName": "browser.pref", "value": 4},
+                {"preferenceName": "browser.pref1", "value": "a string"},
+            ],
         )
 
 
@@ -532,14 +600,19 @@ class TestExperimentRecipeSerializer(TestCase):
             normandy_slug="normandy-slug",
             platform=Experiment.PLATFORM_WINDOWS,
             population_percent=30.0,
-            pref_name="browser.pref",
-            pref_value="true",
             rollout_type=Experiment.TYPE_PREF,
-            pref_type=Experiment.PREF_TYPE_BOOL,
             slug="experimenter-slug",
             type=Experiment.TYPE_ROLLOUT,
         )
+        preference = RolloutPreference(
+            pref_name="browser.pref",
+            pref_value="true",
+            pref_type=Experiment.PREF_TYPE_BOOL,
+            experiment=experiment,
+        )
+        preference.save()
         serializer = ExperimentRecipeSerializer(experiment)
+
         self.assertDictEqual(
             serializer.data,
             {

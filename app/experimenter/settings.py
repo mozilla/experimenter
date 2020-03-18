@@ -38,7 +38,7 @@ HOSTNAME = config("HOSTNAME")
 ALLOWED_HOSTS = [HOSTNAME]
 
 if DEBUG:
-    ALLOWED_HOSTS += ["localhost"]  # pragma: no cover
+    ALLOWED_HOSTS += ["localhost", "nginx"]  # pragma: no cover
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
