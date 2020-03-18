@@ -353,7 +353,7 @@ class LocaleFactory(factory.django.DjangoModelFactory):
 
 
 class ProjectFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(lambda o: faker.word())
+    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: "{}_".format(slugify(o.name)))
 
     class Meta:

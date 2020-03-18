@@ -41,11 +41,12 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         exp1 = ExperimentFactory.create(projects=[project1])
         ExperimentFactory.create(projects=[project2])
 
-        data = {"projects": project1}
+        data = {"projects": project1.id}
         filter = ExperimentFilterset(data=data, queryset=Experiment.objects.all())
 
         self.assertTrue(filter.is_valid())
         self.assertCountEqual(filter.qs, [exp1])
+        self.assertEqual(filter.get_project_display_value(), project1)
 
     def test_filters_out_archived_by_default(self):
         for i in range(3):
