@@ -28,7 +28,7 @@ ESLINT = yarn lint
 ESLINT_FIX = yarn lint-fix
 JS_TEST = yarn test
 FLAKE8 = flake8 .
-BLACK_CHECK = black -l 90 --check .
+BLACK_CHECK = black -l 90 --check --diff .
 BLACK_FIX = black -l 90 .
 CHECK_DOCS = python manage.py generate-docs --check=true
 GENERATE_DOCS = python manage.py generate-docs
@@ -163,4 +163,7 @@ integration_vnc_up_detached: integration_build
 	$(COMPOSE_INTEGRATION) up -d vnc
 
 integration_test: integration_build
-	$(COMPOSE_INTEGRATION) run firefox tox -c tests/integration
+	$(COMPOSE_INTEGRATION) run firefox tox -c app/tests/integration
+
+integration_test_parallel: integration_build
+	$(COMPOSE_INTEGRATION) run firefox tox -c app/tests/integration -- -n 4

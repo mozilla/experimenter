@@ -16,14 +16,8 @@ class ExperimentOverview(Base):
     )
     _engineering_owner_locator = (By.CSS_SELECTOR, "#id_engineering_owner")
     _experiment_owner_locator = (By.CSS_SELECTOR, "#id_owner > option")
-    _analysis_owner_locator = (
-        By.CSS_SELECTOR,
-        "#id_analysis_owner > option",
-    )
-    _experiment_public_description_locator = (
-        By.CSS_SELECTOR,
-        "#id_public_description",
-    )
+    _analysis_owner_locator = (By.CSS_SELECTOR, "#id_analysis_owner > option")
+    _experiment_public_description_locator = (By.CSS_SELECTOR, "#id_public_description")
     _experiment_public_description_locator = (By.CSS_SELECTOR, "#id_public_description")
     _experiment_public_name_locator = (By.CSS_SELECTOR, "#id_public_name")
     _experiment_related_experiments_locator = (
@@ -36,10 +30,7 @@ class ExperimentOverview(Base):
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-edit-overview")
     _name_locator = (By.CSS_SELECTOR, "#id_name")
     _short_description_locator = (By.CSS_SELECTOR, "#id_short_description")
-    _ds_issue_url_locator = (
-        By.CSS_SELECTOR,
-        "#id_data_science_issue_url",
-    )
+    _ds_issue_url_locator = (By.CSS_SELECTOR, "#id_data_science_issue_url")
     _overview_name_locator = (By.CSS_SELECTOR, "#id_name")
     _overview_description_locator = (By.CSS_SELECTOR, "#id_short_description")
     _overview_ds_issue_url_locator = (By.CSS_SELECTOR, "#id_data_science_issue_url")

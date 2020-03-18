@@ -65,6 +65,4 @@ def test_survey_launch_instructions(base_url, selenium, fill_overview):
     launch_instructions = "PUSH THE BUTTON"
     analysis.survey_launch_instructions = launch_instructions
     detail_page = analysis.save_btn()
-    assert (
-        launch_instructions in detail_page.analysis_section.survey_launch_instructions
-    )
+    assert launch_instructions in detail_page.analysis_section.survey_launch_instructions

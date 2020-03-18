@@ -15,9 +15,7 @@ class Base(Page):
         )
 
     def wait_for_page_to_load(self):
-        self.wait.until(
-            EC.presence_of_element_located(self._page_wait_locator)
-        )
+        self.wait.until(EC.presence_of_element_located(self._page_wait_locator))
 
         return self
 
@@ -35,6 +33,7 @@ class Base(Page):
         from pages.experiment_detail import DetailPage
 
         return DetailPage(self.driver, self.base_url).wait_for_page_to_load()
+
 
 class Header(Region):
 
@@ -57,9 +56,7 @@ class Header(Region):
         self.find_element(*self._owned_experiments_link_locator).click()
         from pages.owned_experiments import OwnedExperiments
 
-        return OwnedExperiments(
-            self.driver, self.page.base_url
-        ).wait_for_page_to_load()
+        return OwnedExperiments(self.driver, self.page.base_url).wait_for_page_to_load()
 
     def click_subscribed_experiments(self):
         """Clicks subscribed experiments link."""

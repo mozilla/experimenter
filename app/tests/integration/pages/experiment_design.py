@@ -25,9 +25,8 @@ class DesignPage(Base):
 
     def wait_for_page_to_load(self):
         self.wait.until(
-            lambda _: self.find_element(
-                *self._firefox_pref_name_locator).is_displayed()
-            )
+            lambda _: self.find_element(*self._firefox_pref_name_locator).is_displayed()
+        )
         return self
 
     def create_new_branch(self):
@@ -70,6 +69,7 @@ class DesignPage(Base):
         return
 
     class BranchRegion(Region):
+
         def __init__(self, page, root=None, count=None, **kwargs):
             super().__init__(page=page, root=root, **kwargs)
             self.number = count
