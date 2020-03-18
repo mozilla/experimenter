@@ -290,7 +290,7 @@ class ExperimentFilterset(filters.FilterSet):
         project_id = self.data.get("projects")
 
         if project_id is not None:
-            return Project.objects.get(id=self.data.get("projects"))
+            return Project.objects.get(id=project_id)
 
     def get_owner_display_value(self):
         user_id = self.data.get("owner")

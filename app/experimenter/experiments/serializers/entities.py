@@ -45,7 +45,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ("name",)
+        fields = ("slug",)
 
 
 class ExperimentVariantSerializer(serializers.ModelSerializer):

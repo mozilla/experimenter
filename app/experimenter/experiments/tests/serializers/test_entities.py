@@ -215,7 +215,7 @@ class TestChangeLogSerializer(TestCase):
             "client_matching": experiment.client_matching,
             "locales": [{"code": "da", "name": "Danish"}],
             "countries": [{"code": "CA", "name": "Canada"}],
-            "projects": [{"name": project.name}],
+            "projects": [{"slug": project.slug}],
             "platform": experiment.platform,
             "objectives": experiment.objectives,
             "analysis": experiment.analysis,
