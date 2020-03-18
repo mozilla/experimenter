@@ -17,10 +17,7 @@ class DesignPage(Base):
     _firefox_pref_name_locator = (By.CSS_SELECTOR, "#id_pref_name")
     _firefox_pref_type_locator = (By.CSS_SELECTOR, "#id_pref_type")
     _firefox_pref_branch_locator = (By.CSS_SELECTOR, "#id_pref_branch")
-    _new_branch_locator = (
-        By.CSS_SELECTOR,
-        "#formset > div:nth-child(5) > div:nth-child(3) > div:nth-child(1) > h4:nth-child(1)",
-    )
+    _new_branch_locator = (By.CSS_SELECTOR, "#add-branch-button")
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-edit-variants")
 
     def wait_for_page_to_load(self):

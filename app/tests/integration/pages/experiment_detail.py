@@ -1,8 +1,5 @@
 """Representaion of the Experiment Detail Page."""
 
-import random
-import string
-
 from selenium.webdriver.common.by import By
 from pypom import Region
 

@@ -1,8 +1,5 @@
 import pytest
 
-from pages.base import Base
-from pages.home import Home
-
 
 @pytest.mark.nondestructive
 def test_edit_objectives_box(base_url, selenium, fill_overview):

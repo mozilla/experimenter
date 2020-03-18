@@ -398,7 +398,7 @@ function filter_table(elem) {
 }
 </script>
     <h1>integration-test.html</h1>
-    <p>Report generated on 18-Mar-2020 at 17:09:15 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a> v1.22.0</p>
+    <p>Report generated on 18-Mar-2020 at 17:35:33 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a> v1.22.0</p>
     <h2>Environment</h2>
     <table id="environment">
       <tr>
@@ -423,7 +423,7 @@ function filter_table(elem) {
         <td>Python</td>
         <td>3.6.9</td></tr></table>
     <h2>Summary</h2>
-    <p>25 tests ran in 59.86 seconds. </p>
+    <p>25 tests ran in 64.76 seconds. </p>
     <p class="filter" hidden="true">(Un)check the boxes to filter the results.</p><input checked="true" class="filter" data-test-result="passed" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="passed">25 passed</span>, <input checked="true" class="filter" data-test-result="skipped" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="skipped">1 skipped</span>, <input checked="true" class="filter" data-test-result="failed" disabled="true" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="failed">0 failed</span>, <input checked="true" class="filter" data-test-result="error" disabled="true" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="error">0 errors</span>, <input checked="true" class="filter" data-test-result="xfailed" disabled="true" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="xfailed">0 expected failures</span>, <input checked="true" class="filter" data-test-result="xpassed" disabled="true" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="xpassed">0 unexpected passes</span>
     <h2>Results</h2>
     <table id="results-table">
@@ -443,12 +443,12 @@ function filter_table(elem) {
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
-            <div class="log">[gw3] linux -- Python 3.6.9 /code/app/tests/integration/.tox/integration-test/bin/python3<br/>(&#x27;test_overview.py&#x27;, 31, &#x27;Skipped: unconditional skip&#x27;)<br/></div></td></tr></tbody>
+            <div class="log">[gw3] linux -- Python 3.6.9 /code/app/tests/integration/.tox/integration-test/bin/python3<br/>(&#x27;test_overview.py&#x27;, 29, &#x27;Skipped: unconditional skip&#x27;)<br/></div></td></tr></tbody>
       <tbody class="passed results-table-row">
         <tr>
           <td class="col-result">Passed</td>
           <td class="col-name">test_homepage.py::test_owned_experiments_page_loads</td>
-          <td class="col-duration">2.61</td>
+          <td class="col-duration">2.83</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
@@ -461,7 +461,7 @@ function filter_table(elem) {
         <tr>
           <td class="col-result">Passed</td>
           <td class="col-name">test_create_experiment.py::test_remove_branch</td>
-          <td class="col-duration">5.09</td>
+          <td class="col-duration">6.61</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
@@ -474,18 +474,7 @@ function filter_table(elem) {
         <tr>
           <td class="col-result">Passed</td>
           <td class="col-name">test_create_experiment.py::test_add_branch</td>
-          <td class="col-duration">5.18</td>
-          <td class="col-links"></td></tr>
-        <tr>
-          <td class="extra" colspan="4">
-            <div class="log">---------------------------- Captured stderr setup -----------------------------<br/>/code/app/tests/integration/.tox/integration-test/lib/python3.6/site-packages/urllib3/connectionpool.py:851: InsecureRequestWarning: Unverified HTTPS request is being made. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#ssl-warnings
-  InsecureRequestWarning)
-<br/></div></td></tr></tbody>
-      <tbody class="passed results-table-row">
-        <tr>
-          <td class="col-result">Passed</td>
-          <td class="col-name">test_create_experiment.py::test_duplicate_branch_name</td>
-          <td class="col-duration">6.50</td>
+          <td class="col-duration">6.40</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
@@ -497,8 +486,19 @@ function filter_table(elem) {
       <tbody class="passed results-table-row">
         <tr>
           <td class="col-result">Passed</td>
+          <td class="col-name">test_create_experiment.py::test_duplicate_branch_name</td>
+          <td class="col-duration">7.66</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">---------------------------- Captured stderr setup -----------------------------<br/>/code/app/tests/integration/.tox/integration-test/lib/python3.6/site-packages/urllib3/connectionpool.py:851: InsecureRequestWarning: Unverified HTTPS request is being made. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#ssl-warnings
+  InsecureRequestWarning)
+<br/></div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
           <td class="col-name">test_objective_and_analysis.py::test_survey_checkbox</td>
-          <td class="col-duration">1.41</td>
+          <td class="col-duration">1.42</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
@@ -507,7 +507,7 @@ function filter_table(elem) {
         <tr>
           <td class="col-result">Passed</td>
           <td class="col-name">test_homepage.py::test_subscribed_experiments_page_loads</td>
-          <td class="col-duration">1.76</td>
+          <td class="col-duration">2.12</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
@@ -516,7 +516,7 @@ function filter_table(elem) {
         <tr>
           <td class="col-result">Passed</td>
           <td class="col-name">test_objective_and_analysis.py::test_edit_objectives_box</td>
-          <td class="col-duration">1.63</td>
+          <td class="col-duration">1.68</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
@@ -533,8 +533,8 @@ function filter_table(elem) {
       <tbody class="passed results-table-row">
         <tr>
           <td class="col-result">Passed</td>
-          <td class="col-name">test_overview.py::test_overview_type_changes_correctly</td>
-          <td class="col-duration">1.76</td>
+          <td class="col-name">test_objective_and_analysis.py::test_survey_urls</td>
+          <td class="col-duration">2.28</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
@@ -542,7 +542,7 @@ function filter_table(elem) {
       <tbody class="passed results-table-row">
         <tr>
           <td class="col-result">Passed</td>
-          <td class="col-name">test_objective_and_analysis.py::test_survey_urls</td>
+          <td class="col-name">test_overview.py::test_overview_type_changes_correctly</td>
           <td class="col-duration">2.11</td>
           <td class="col-links"></td></tr>
         <tr>
@@ -552,51 +552,6 @@ function filter_table(elem) {
         <tr>
           <td class="col-result">Passed</td>
           <td class="col-name">test_overview.py::test_overview_engineering_owner_changes_correctly</td>
-          <td class="col-duration">1.41</td>
-          <td class="col-links"></td></tr>
-        <tr>
-          <td class="extra" colspan="4">
-            <div class="empty log">No log output captured.</div></td></tr></tbody>
-      <tbody class="passed results-table-row">
-        <tr>
-          <td class="col-result">Passed</td>
-          <td class="col-name">test_objective_and_analysis.py::test_survey_launch_instructions</td>
-          <td class="col-duration">2.01</td>
-          <td class="col-links"></td></tr>
-        <tr>
-          <td class="extra" colspan="4">
-            <div class="empty log">No log output captured.</div></td></tr></tbody>
-      <tbody class="passed results-table-row">
-        <tr>
-          <td class="col-result">Passed</td>
-          <td class="col-name">test_overview.py::test_related_work_url_changes_correctly</td>
-          <td class="col-duration">1.63</td>
-          <td class="col-links"></td></tr>
-        <tr>
-          <td class="extra" colspan="4">
-            <div class="empty log">No log output captured.</div></td></tr></tbody>
-      <tbody class="passed results-table-row">
-        <tr>
-          <td class="col-result">Passed</td>
-          <td class="col-name">test_overview.py::test_public_name_changes_correctly</td>
-          <td class="col-duration">1.74</td>
-          <td class="col-links"></td></tr>
-        <tr>
-          <td class="extra" colspan="4">
-            <div class="empty log">No log output captured.</div></td></tr></tbody>
-      <tbody class="passed results-table-row">
-        <tr>
-          <td class="col-result">Passed</td>
-          <td class="col-name">test_overview.py::test_feature_bugzilla_url_changes_correctly</td>
-          <td class="col-duration">1.77</td>
-          <td class="col-links"></td></tr>
-        <tr>
-          <td class="extra" colspan="4">
-            <div class="empty log">No log output captured.</div></td></tr></tbody>
-      <tbody class="passed results-table-row">
-        <tr>
-          <td class="col-result">Passed</td>
-          <td class="col-name">test_overview.py::test_public_description_changes_correctly</td>
           <td class="col-duration">1.68</td>
           <td class="col-links"></td></tr>
         <tr>
@@ -605,8 +560,53 @@ function filter_table(elem) {
       <tbody class="passed results-table-row">
         <tr>
           <td class="col-result">Passed</td>
+          <td class="col-name">test_objective_and_analysis.py::test_survey_launch_instructions</td>
+          <td class="col-duration">2.26</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">test_overview.py::test_related_work_url_changes_correctly</td>
+          <td class="col-duration">1.82</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">test_overview.py::test_feature_bugzilla_url_changes_correctly</td>
+          <td class="col-duration">2.07</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">test_overview.py::test_public_description_changes_correctly</td>
+          <td class="col-duration">1.97</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">test_overview.py::test_public_name_changes_correctly</td>
+          <td class="col-duration">1.85</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
           <td class="col-name">test_overview.py::test_related_experiments_updates_correctly</td>
-          <td class="col-duration">1.90</td>
+          <td class="col-duration">1.85</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
@@ -615,16 +615,7 @@ function filter_table(elem) {
         <tr>
           <td class="col-result">Passed</td>
           <td class="col-name">test_timeline_and_population.py::test_proposed_start_date_fills_correctly</td>
-          <td class="col-duration">0.93</td>
-          <td class="col-links"></td></tr>
-        <tr>
-          <td class="extra" colspan="4">
-            <div class="empty log">No log output captured.</div></td></tr></tbody>
-      <tbody class="passed results-table-row">
-        <tr>
-          <td class="col-result">Passed</td>
-          <td class="col-name">test_timeline_and_population.py::test_proposed_experiment_duration_updates_correctly</td>
-          <td class="col-duration">0.99</td>
+          <td class="col-duration">1.11</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
@@ -633,7 +624,16 @@ function filter_table(elem) {
         <tr>
           <td class="col-result">Passed</td>
           <td class="col-name">test_timeline_and_population.py::test_proposed_enrollment_duration_updates_correctly</td>
-          <td class="col-duration">1.01</td>
+          <td class="col-duration">1.40</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">test_timeline_and_population.py::test_proposed_experiment_duration_updates_correctly</td>
+          <td class="col-duration">0.98</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
@@ -642,7 +642,7 @@ function filter_table(elem) {
         <tr>
           <td class="col-result">Passed</td>
           <td class="col-name">test_timeline_and_population.py::test_population_precentage_updates_correctly</td>
-          <td class="col-duration">0.99</td>
+          <td class="col-duration">0.94</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
@@ -651,7 +651,7 @@ function filter_table(elem) {
         <tr>
           <td class="col-result">Passed</td>
           <td class="col-name">test_timeline_and_population.py::test_firefox_channel_updates_correctly</td>
-          <td class="col-duration">1.29</td>
+          <td class="col-duration">1.96</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
@@ -660,7 +660,7 @@ function filter_table(elem) {
         <tr>
           <td class="col-result">Passed</td>
           <td class="col-name">test_timeline_and_population.py::test_firefox_min_version_updates_correctly</td>
-          <td class="col-duration">1.80</td>
+          <td class="col-duration">1.51</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
@@ -669,7 +669,7 @@ function filter_table(elem) {
         <tr>
           <td class="col-result">Passed</td>
           <td class="col-name">test_timeline_and_population.py::test_firefox_max_version_updates_correctly</td>
-          <td class="col-duration">1.38</td>
+          <td class="col-duration">1.51</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
@@ -678,7 +678,7 @@ function filter_table(elem) {
         <tr>
           <td class="col-result">Passed</td>
           <td class="col-name">test_timeline_and_population.py::test_platform_selection_updates_correctly</td>
-          <td class="col-duration">0.99</td>
+          <td class="col-duration">1.07</td>
           <td class="col-links"></td></tr>
         <tr>
           <td class="extra" colspan="4">
