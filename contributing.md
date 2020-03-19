@@ -82,11 +82,11 @@ If the deployment succeeds but the change inadvertently breaks stage/production,
   1. If the original PR included any database migrations, they must be preserved and reverted by creating a new
   subsequent migration
 
-    1. `git checkout origin/master -- app/experimenter/experiments/migrations/XXXX_migration_file.py`
+    * `git checkout origin/master -- app/experimenter/experiments/migrations/XXXX_migration_file.py`
 
-    1. `make makemigrations`
-    
-    1. `git add .;git commit -m 'Reverted migration'`
+    * `make makemigrations`
+
+    * `git add .;git commit -m 'Reverted migration'`
 
   1. Push the branch and create a PR as normal following the above PR process
 
