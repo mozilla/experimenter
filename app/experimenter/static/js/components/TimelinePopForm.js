@@ -19,6 +19,7 @@ import {
   PLATFORM_HELP,
   CLIENT_MATCHING_HELP,
   COUNTRIES_LOCALES_HELP,
+  ROLLOUT_PLAYBOOK_HELP,
 } from "experimenter/components/constants";
 
 @boundClass
@@ -28,6 +29,7 @@ class TimelinePopForm extends React.PureComponent {
     shouldHavePopPercent: PropTypes.string,
     allCountries: PropTypes.array,
     allLocales: PropTypes.array,
+    experimentType: PropTypes.string,
   };
 
   constructor(props) {
@@ -89,6 +91,49 @@ class TimelinePopForm extends React.PureComponent {
           error={this.state.errors.get("population_percent", "")}
           helpContent={POPULATION_PERCENT_HELP}
           labelColumnWidth={2}
+        />
+      );
+    }
+  }
+
+  displayRolloutPlaybookOrEnrollment() {
+    if (this.props.experimentType === "rollout") {
+      return (
+        <DesignInput
+          as="select"
+          label="Rollout Playbook"
+          name="rollout_playbook"
+          id="id_rollout_playbook"
+          onChange={value => {
+            this.handleDataChange("rollout_playbook", value);
+          }}
+          value={this.state.data.get("rollout_playbook")}
+          error={this.state.errors.get("rollout_playbook", "")}
+          labelColumnWidth={2}
+          helpContent={ROLLOUT_PLAYBOOK_HELP}
+          helpIsExternalLink={true}
+        >
+          <option>Rollout Playbook</option>
+          <option>Low Risk Schedule</option>
+          <option>High Risk Schedule</option>
+          <option>Marketing Launch Schedule</option>
+          <option>Custom Schedule</option>
+        </DesignInput>
+      );
+    } else {
+      return (
+        <DesignInput
+          label="Proposed Enrollment Duration (days)"
+          name="proposed_enrollment"
+          id="id_proposed_enrollment"
+          onChange={value => {
+            this.handleDataChange("proposed_enrollment", value);
+          }}
+          value={this.state.data.get("proposed_enrollment")}
+          error={this.state.errors.get("proposed_enrollment", "")}
+          helpContent={PROPOSED_ENROLLMENT_HELP}
+          labelColumnWidth={2}
+          optional={true}
         />
       );
     }
@@ -186,19 +231,7 @@ class TimelinePopForm extends React.PureComponent {
               helpContent={PROPOSED_DURATION_HELP}
               labelColumnWidth={2}
             />
-            <DesignInput
-              label="Proposed Enrollment Duration (days)"
-              name="proposed_enrollment"
-              id="id_proposed_enrollment"
-              onChange={value => {
-                this.handleDataChange("proposed_enrollment", value);
-              }}
-              value={this.state.data.get("proposed_enrollment")}
-              error={this.state.errors.get("proposed_enrollment", "")}
-              helpContent={PROPOSED_ENROLLMENT_HELP}
-              labelColumnWidth={2}
-              optional={true}
-            />
+            {this.displayRolloutPlaybookOrEnrollment()}
             <hr className="heavy-line my-5" />
             <Row className="mb-3 mt-3">
               <h4 className="col-10 offset-2">Delivery Population</h4>

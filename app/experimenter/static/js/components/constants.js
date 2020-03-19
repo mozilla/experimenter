@@ -274,6 +274,9 @@ export const POPULATION_PERCENT_HELP = (
 export const VERSION_HELP =
   "https://wiki.mozilla.org/Release_Management/Calendar";
 
+export const ROLLOUT_PLAYBOOK_HELP =
+  "https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=90737068#StagedRollouts/GradualRollouts-Playbooks";
+
 export const PLATFORM_HELP = (
   <p>Select the target platform for this delivery.</p>
 );
