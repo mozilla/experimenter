@@ -1,8 +1,6 @@
 import pytest
 
-from pages.base import Base
 from pages.home import Home
-from pages.experiment_design import DesignPage
 
 
 @pytest.mark.nondestructive
@@ -23,7 +21,7 @@ def test_overview_engineering_owner_changes_correctly(base_url, selenium):
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
-    assert experiment.engineering_owner is ""
+    assert experiment.engineering_owner == ""
     new_owner = "uitester"
     experiment.engineering_owner = new_owner
     assert new_owner in experiment.engineering_owner
@@ -48,7 +46,7 @@ def test_public_name_changes_correctly(base_url, selenium):
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
-    assert experiment.public_name is ""
+    assert experiment.public_name == ""
     new_public_name = "uitested exp"
     experiment.public_name = new_public_name
     assert new_public_name in experiment.public_name
@@ -60,7 +58,7 @@ def test_public_description_changes_correctly(base_url, selenium):
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
-    assert experiment.public_description is ""
+    assert experiment.public_description == ""
     new_public_description = "THIS IS A LONG DESCRIPTION..!"
     experiment.public_description = new_public_description
     assert new_public_description in experiment.public_description
@@ -72,7 +70,7 @@ def test_feature_bugzilla_url_changes_correctly(base_url, selenium):
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
-    assert experiment.feature_bugzilla_url is ""
+    assert experiment.feature_bugzilla_url == ""
     new_url = "http://bugzilla.org/1234-new-url"
     experiment.feature_bugzilla_url = new_url
     assert new_url in experiment.feature_bugzilla_url
@@ -84,7 +82,7 @@ def test_related_work_url_changes_correctly(base_url, selenium):
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
-    assert experiment.related_work_urls is ""
+    assert experiment.related_work_urls == ""
     new_url = "http://someawesomeurl.com"
     experiment.related_work_urls = new_url
     assert new_url in experiment.related_work_urls

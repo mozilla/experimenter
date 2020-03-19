@@ -59,7 +59,7 @@ jobs:
       - run:
           name: Run integration tests
           command: |
-            sudo chown -R ubuntu tests/
+            sudo chown -R ubuntu app/tests/
             cp .env.sample .env
             make refresh
             make up_detached
