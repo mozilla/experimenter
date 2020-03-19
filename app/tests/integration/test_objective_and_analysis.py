@@ -1,8 +1,5 @@
 import pytest
 
-from pages.base import Base
-from pages.home import Home
-
 
 @pytest.mark.nondestructive
 def test_edit_objectives_box(base_url, selenium, fill_overview):
@@ -65,6 +62,4 @@ def test_survey_launch_instructions(base_url, selenium, fill_overview):
     launch_instructions = "PUSH THE BUTTON"
     analysis.survey_launch_instructions = launch_instructions
     detail_page = analysis.save_btn()
-    assert (
-        launch_instructions in detail_page.analysis_section.survey_launch_instructions
-    )
+    assert launch_instructions in detail_page.analysis_section.survey_launch_instructions
