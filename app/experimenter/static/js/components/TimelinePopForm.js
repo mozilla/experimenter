@@ -10,6 +10,7 @@ import LabeledMultiSelect from "experimenter/components/LabeledMultiSelect";
 import { makeApiRequest } from "experimenter/utils/api";
 import {
   VERSION_CHOICES,
+  PLAYBOOK_CHOICES,
   PROPOSED_START_DATE_HELP,
   PROPOSED_DURATION_HELP,
   PROPOSED_ENROLLMENT_HELP,
@@ -133,24 +134,20 @@ class TimelinePopForm extends React.PureComponent {
           helpContent={ROLLOUT_PLAYBOOK_HELP}
           helpIsExternalLink={true}
         >
-          <option>Rollout Playbook</option>
-          <option>Low Risk Schedule</option>
-          <option>High Risk Schedule</option>
-          <option>Marketing Launch Schedule</option>
-          <option>Custom Schedule</option>
+          {this.displayOptions(PLAYBOOK_CHOICES)}
         </DesignInput>
       );
     }
   }
 
-  displayVersionsOptions() {
-    let versionsJSX = [];
+  displayOptions(choices) {
+    let choicesJSX = [];
 
-    for (const version of VERSION_CHOICES) {
-      versionsJSX.push(<option value={version[0]}>{version[1]}</option>);
+    for (const choice of choices) {
+      choicesJSX.push(<option value={choice[0]}>{choice[1]}</option>);
     }
 
-    return versionsJSX;
+    return choicesJSX;
   }
 
   async handleSubmit(event, redirectUrl) {
@@ -277,7 +274,7 @@ class TimelinePopForm extends React.PureComponent {
                   labelColumnWidth={4}
                   helpIsExternalLink={true}
                 >
-                  {this.displayVersionsOptions()}
+                  {this.displayOptions(VERSION_CHOICES)}
                 </DesignInput>
               </Col>
               <Col md={6}>
@@ -294,7 +291,7 @@ class TimelinePopForm extends React.PureComponent {
                   labelColumnWidth={4}
                   noHelpLink={true}
                 >
-                  {this.displayVersionsOptions()}
+                  {this.displayOptions(VERSION_CHOICES)}
                 </DesignInput>
               </Col>
             </Row>

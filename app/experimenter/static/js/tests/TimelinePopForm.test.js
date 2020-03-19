@@ -175,12 +175,12 @@ describe("The TimelinePopForm component for experiments", () => {
     location.replace = () => {};
 
     fireEvent.change(rolloutPlaybookInput, {
-      target: { value: "Low Risk Schedule" },
+      target: { value: "low_risk" },
     });
     fireEvent.click(getByText("Save Draft"));
 
     const [url, { data }] = Api.makeApiRequest.mock.calls[1];
     expect(url).toBe("experiments/the-slug/timeline-population/");
-    expect(data.rollout_playbook).toBe("Low Risk Schedule");
+    expect(data.rollout_playbook).toBe("low_risk");
   });
 });
