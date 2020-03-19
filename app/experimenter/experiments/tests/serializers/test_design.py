@@ -1289,7 +1289,6 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
         )
 
         self.assertTrue(serializer.is_valid())
-
         experiment = serializer.save()
 
         self.assertEqual(experiment.rollout_type, data["rollout_type"])
