@@ -73,21 +73,23 @@ If the deployment fails at one of the stage/production steps, ops will automatic
 
 If the deployment succeeds but the change inadvertently breaks stage/production, there are two options:
 
-- Revert the change using a revert commit
+* Revert the change using a revert commit
   
   1. Create a branch from master called `revert-#123` where `#123` is the number of the issue, and then
-  revert the commit with `git revert <squashed commit hash>`
-
-    - Fix any potential conflicts or lint/test failures and finish the revert commit
+  revert the commit with `git revert <squashed commit hash>`. Fix any potential conflicts or lint/test 
+  failures and finish the revert commit.
 
   1. If the original PR included any database migrations, they must be preserved and reverted by creating a new
   subsequent migration
-    - `git checkout origin/master -- app/experimenter/experiments/migrations/XXXX_migration_file.py`
-    - `make makemigrations`
-    - `git add .;git commit -m 'Reverted migration'`
+
+    1. `git checkout origin/master -- app/experimenter/experiments/migrations/XXXX_migration_file.py`
+
+    1. `make makemigrations`
+    
+    1. `git add .;git commit -m 'Reverted migration'`
 
   1. Push the branch and create a PR as normal following the above PR process
 
-- Fix the change following the normal issue/PR processes above
+* Fix the change following the normal issue/PR processes above
 
 Because all changes will go to stage and prod automatically, you can use stage to validate your changes.
