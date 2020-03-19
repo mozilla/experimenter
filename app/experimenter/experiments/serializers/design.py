@@ -323,7 +323,7 @@ class ExperimentDesignPrefRolloutSerializer(
             )
             for preference_data in preferences_data:
                 preference_data["experiment"] = instance
-                RolloutPreference.objects.create(**preference_data)
+                RolloutPreference(**preference_data).save()
 
             submitted_preference_ids = set(
                 [p.get("id") for p in preferences_data if p.get("id")]
