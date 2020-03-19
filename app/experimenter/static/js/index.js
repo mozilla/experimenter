@@ -37,12 +37,14 @@ if (branchesDiv) {
 }
 
 if (timelinePopDiv) {
+  const experimentType = timelinePopDiv.dataset.experimentType;
   const slug = timelinePopDiv.dataset.experimentSlug;
   const shouldHavePopPercent = timelinePopDiv.dataset.shouldHavePopPercent;
   const allCountries = JSON.parse(timelinePopDiv.dataset.allCountries);
   const allLocales = JSON.parse(timelinePopDiv.dataset.allLocales);
   ReactDOM.render(
     <TimelinePopForm
+      experimentType={experimentType}
       slug={slug}
       shouldHavePopPercent={shouldHavePopPercent}
       allCountries={allCountries}

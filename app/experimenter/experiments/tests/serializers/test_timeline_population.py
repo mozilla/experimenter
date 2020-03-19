@@ -48,7 +48,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
             population_percent="30.0000",
         )
 
-    def test_serializer_outputs_expected_schema(self):
+    def test_serializer_outputs_expected_schema_pref(self):
 
         serializer = ExperimentTimelinePopSerializer(self.experiment)
 
@@ -58,6 +58,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
                 "proposed_start_date": self.experiment.proposed_start_date.strftime(
                     "%Y-%m-%d"
                 ),
+                "rollout_playbook": None,
                 "proposed_enrollment": self.experiment.proposed_enrollment,
                 "proposed_duration": self.experiment.proposed_duration,
                 "population_percent": self.experiment.population_percent,
@@ -152,3 +153,57 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertIn("proposed_enrollment", serializer.errors)
+
+    def test_serializer_outputs_expected_schema_rollout(self):
+        experiment = ExperimentFactory.create(
+            type=ExperimentConstants.TYPE_ROLLOUT,
+            rollout_playbook="Low Risk Schedule",
+            locales=[self.locale],
+            countries=[self.country],
+            population_percent="30.0000",
+            proposed_enrollment=None,
+        )
+
+        serializer = ExperimentTimelinePopSerializer(experiment)
+
+        self.assertEqual(
+            serializer.data,
+            {
+                "proposed_start_date": experiment.proposed_start_date.strftime(
+                    "%Y-%m-%d"
+                ),
+                "proposed_enrollment": experiment.proposed_enrollment,
+                "rollout_playbook": experiment.rollout_playbook,
+                "proposed_duration": experiment.proposed_duration,
+                "population_percent": experiment.population_percent,
+                "firefox_channel": experiment.firefox_channel,
+                "firefox_min_version": experiment.firefox_min_version,
+                "firefox_max_version": experiment.firefox_max_version,
+                "locales": [{"value": self.locale.id, "label": self.locale.name}],
+                "countries": [{"value": self.country.id, "label": self.country.name}],
+                "platform": experiment.platform,
+                "client_matching": experiment.client_matching,
+            },
+        )
+
+    def test_serializer_saves_rollout_playbook_field(self):
+        experiment = ExperimentFactory.create(
+            type=ExperimentConstants.TYPE_ROLLOUT,
+            rollout_playbook="Low Risk Schedule",
+            locales=[self.locale],
+            countries=[self.country],
+            population_percent="30.0000",
+            proposed_enrollment=None,
+        )
+
+        data = {"rollout_playbook": "High Risk Schedule", "countries": [], "locales": []}
+
+        serializer = ExperimentTimelinePopSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+
+        self.assertTrue(serializer.is_valid())
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.rollout_playbook, "High Risk Schedule")

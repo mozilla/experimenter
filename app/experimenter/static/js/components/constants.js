@@ -212,6 +212,14 @@ export const VERSION_CHOICES = [
   ["80.0", "Firefox 80.0"],
 ];
 
+export const PLAYBOOK_CHOICES = [
+  [null, "Rollout Playbook"],
+  ["low_risk", "Low Risk Schedule"],
+  ["high_risk", "High Risk Schedule"],
+  ["marketing", "Marketing Launch Schedule"],
+  ["custom", "Custom Schedule"],
+];
+
 export const PROPOSED_START_DATE_HELP = (
   <p>
     Choose the date you expect the delivery to be launched to users. This date
@@ -273,6 +281,9 @@ export const POPULATION_PERCENT_HELP = (
 
 export const VERSION_HELP =
   "https://wiki.mozilla.org/Release_Management/Calendar";
+
+export const ROLLOUT_PLAYBOOK_HELP =
+  "https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=90737068#StagedRollouts/GradualRollouts-Playbooks";
 
 export const PLATFORM_HELP = (
   <p>Select the target platform for this delivery.</p>
