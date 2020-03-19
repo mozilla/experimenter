@@ -10,6 +10,7 @@ from experimenter.experiments.models import (
     VariantPreferences,
     RolloutPreference,
 )
+from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.serializers.entities import ChangeLogSerializer
 from experimenter.experiments.changelog_utils import generate_change_log
 
@@ -150,8 +151,8 @@ class PreferenceListSerializer(serializers.ListSerializer):
 class ExperimentDesignBasePreferenceSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     pref_name = serializers.CharField(max_length=255)
-    pref_type = serializers.CharField(max_length=255)
-    pref_branch = serializers.CharField(max_length=255)
+    pref_type = serializers.ChoiceField(choices=ExperimentConstants.PREF_TYPE_CHOICES)
+    pref_branch = serializers.ChoiceField(choices=ExperimentConstants.PREF_BRANCH_CHOICES)
     pref_value = serializers.CharField(max_length=255)
 
 

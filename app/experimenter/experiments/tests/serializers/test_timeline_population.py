@@ -189,14 +189,14 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
     def test_serializer_saves_rollout_playbook_field(self):
         experiment = ExperimentFactory.create(
             type=ExperimentConstants.TYPE_ROLLOUT,
-            rollout_playbook="Low Risk Schedule",
+            rollout_playbook="low_risk",
             locales=[self.locale],
             countries=[self.country],
             population_percent="30.0000",
             proposed_enrollment=None,
         )
 
-        data = {"rollout_playbook": "High Risk Schedule", "countries": [], "locales": []}
+        data = {"rollout_playbook": "high_risk", "countries": [], "locales": []}
 
         serializer = ExperimentTimelinePopSerializer(
             instance=experiment, data=data, context={"request": self.request}
@@ -206,4 +206,4 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
 
         experiment = serializer.save()
 
-        self.assertEqual(experiment.rollout_playbook, "High Risk Schedule")
+        self.assertEqual(experiment.rollout_playbook, "high_risk")
