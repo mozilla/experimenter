@@ -1,10 +1,6 @@
 """Representaion of the Timeline & Population Page."""
 
-import random
-import string
-
 from selenium.webdriver.common.by import By
-from pypom import Region
 
 from pages.base import Base
 

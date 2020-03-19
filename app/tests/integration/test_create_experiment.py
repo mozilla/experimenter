@@ -1,6 +1,5 @@
 import pytest
 
-from pages.base import Base
 from pages.home import Home
 
 

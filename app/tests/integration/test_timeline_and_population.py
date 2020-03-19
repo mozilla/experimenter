@@ -3,9 +3,6 @@ import datetime
 from dateutil.parser import parse
 import pytest
 
-from pages.base import Base
-from pages.home import Home
-
 
 @pytest.mark.nondestructive
 def test_proposed_start_date_fills_correctly(selenium, base_url, fill_overview):

@@ -8,11 +8,7 @@ from pages.base import Base
 class OwnedExperiments(Base):
 
     _owned_text_locator = (By.CSS_SELECTOR, ".m-0")
-    _page_wait_locator = (
-        By.CSS_SELECTOR,
-        "body.page-list-view",
-    )
-
+    _page_wait_locator = (By.CSS_SELECTOR, "body.page-list-view")
 
     @property
     def count(self):

@@ -1,8 +1,5 @@
 """Representaion of the Experiment Detail Page."""
 
-import random
-import string
-
 from selenium.webdriver.common.by import By
 from pypom import Region
 
@@ -33,10 +30,7 @@ class DetailPage(Base):
     class ObjectivesRegion(Region):
 
         _edit_btn_locator = (By.CSS_SELECTOR, "#objectives-edit-btn")
-        _detail_locator = (
-            By.CSS_SELECTOR,
-            "#objectives-section-detail > p:nth-child(1)",
-        )
+        _detail_locator = (By.CSS_SELECTOR, "#objectives-section-detail > p:nth-child(1)")
 
         def click_edit(self):
             self.find_element(*self._edit_btn_locator).click()
