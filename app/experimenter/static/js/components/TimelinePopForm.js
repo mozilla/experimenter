@@ -96,7 +96,27 @@ class TimelinePopForm extends React.PureComponent {
     }
   }
 
-  displayRolloutPlaybookOrEnrollment() {
+  displayEnrollmentDuration() {
+    if (this.props.experimentType != "rollout") {
+      return (
+        <DesignInput
+          label="Proposed Enrollment Duration (days)"
+          name="proposed_enrollment"
+          id="id_proposed_enrollment"
+          onChange={value => {
+            this.handleDataChange("proposed_enrollment", value);
+          }}
+          value={this.state.data.get("proposed_enrollment")}
+          error={this.state.errors.get("proposed_enrollment", "")}
+          helpContent={PROPOSED_ENROLLMENT_HELP}
+          labelColumnWidth={2}
+          optional={true}
+        />
+      );
+    }
+  }
+
+  displayRolloutPlaybook() {
     if (this.props.experimentType === "rollout") {
       return (
         <DesignInput
@@ -119,22 +139,6 @@ class TimelinePopForm extends React.PureComponent {
           <option>Marketing Launch Schedule</option>
           <option>Custom Schedule</option>
         </DesignInput>
-      );
-    } else {
-      return (
-        <DesignInput
-          label="Proposed Enrollment Duration (days)"
-          name="proposed_enrollment"
-          id="id_proposed_enrollment"
-          onChange={value => {
-            this.handleDataChange("proposed_enrollment", value);
-          }}
-          value={this.state.data.get("proposed_enrollment")}
-          error={this.state.errors.get("proposed_enrollment", "")}
-          helpContent={PROPOSED_ENROLLMENT_HELP}
-          labelColumnWidth={2}
-          optional={true}
-        />
       );
     }
   }
@@ -231,7 +235,8 @@ class TimelinePopForm extends React.PureComponent {
               helpContent={PROPOSED_DURATION_HELP}
               labelColumnWidth={2}
             />
-            {this.displayRolloutPlaybookOrEnrollment()}
+            {this.displayEnrollmentDuration()}
+            {this.displayRolloutPlaybook()}
             <hr className="heavy-line my-5" />
             <Row className="mb-3 mt-3">
               <h4 className="col-10 offset-2">Delivery Population</h4>
