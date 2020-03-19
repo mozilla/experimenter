@@ -21,14 +21,14 @@ COMPOSE_TEST = docker-compose -f docker-compose-test.yml
 COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml
 COMPOSE_FULL = docker-compose -f docker-compose.yml -f docker-compose-full.yml
 
-PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no
+PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no --ignore=tests/integration
 PYTHON_TEST_FAST = python manage.py test -v 3 --parallel
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 ESLINT = yarn lint
 ESLINT_FIX = yarn lint-fix
 JS_TEST = yarn test
 FLAKE8 = flake8 .
-BLACK_CHECK = black -l 90 --check .
+BLACK_CHECK = black -l 90 --check --diff .
 BLACK_FIX = black -l 90 .
 CHECK_DOCS = python manage.py generate-docs --check=true
 GENERATE_DOCS = python manage.py generate-docs
@@ -163,4 +163,7 @@ integration_vnc_up_detached: integration_build
 	$(COMPOSE_INTEGRATION) up -d vnc
 
 integration_test: integration_build
-	$(COMPOSE_INTEGRATION) run firefox tox -c tests/integration
+	$(COMPOSE_INTEGRATION) run firefox tox -c app/tests/integration
+
+integration_test_parallel: integration_build
+	$(COMPOSE_INTEGRATION) run firefox tox -c app/tests/integration -- -n 4
