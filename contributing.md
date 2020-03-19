@@ -65,7 +65,7 @@ contains any additional descriptive information.
 1. Thank you for submitting changes to Experimenter :D
 
 
-## Deployment Process
+## Continuous Deployment Process
 When a PR is merged into master it will automatically be deployed to the stage instance and if that
 is successful then it will automatically be deployed to production.
 
