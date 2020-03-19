@@ -36,6 +36,9 @@ class ExperimentTimelinePopSerializer(
     proposed_enrollment = serializers.IntegerField(
         required=False, allow_null=True, default=None
     )
+    rollout_playbook = serializers.CharField(
+        required=False, allow_null=True, default=None
+    )
     population_percent = serializers.DecimalField(
         required=False,
         max_digits=7,
@@ -65,6 +68,7 @@ class ExperimentTimelinePopSerializer(
         fields = (
             "proposed_start_date",
             "proposed_enrollment",
+            "rollout_playbook",
             "proposed_duration",
             "population_percent",
             "firefox_channel",
