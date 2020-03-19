@@ -10,6 +10,7 @@ import LabeledMultiSelect from "experimenter/components/LabeledMultiSelect";
 import { makeApiRequest } from "experimenter/utils/api";
 import {
   VERSION_CHOICES,
+  PLAYBOOK_CHOICES,
   PROPOSED_START_DATE_HELP,
   PROPOSED_DURATION_HELP,
   PROPOSED_ENROLLMENT_HELP,
@@ -19,6 +20,7 @@ import {
   PLATFORM_HELP,
   CLIENT_MATCHING_HELP,
   COUNTRIES_LOCALES_HELP,
+  ROLLOUT_PLAYBOOK_HELP,
 } from "experimenter/components/constants";
 
 @boundClass
@@ -28,6 +30,7 @@ class TimelinePopForm extends React.PureComponent {
     shouldHavePopPercent: PropTypes.string,
     allCountries: PropTypes.array,
     allLocales: PropTypes.array,
+    experimentType: PropTypes.string,
   };
 
   constructor(props) {
@@ -94,14 +97,57 @@ class TimelinePopForm extends React.PureComponent {
     }
   }
 
-  displayVersionsOptions() {
-    let versionsJSX = [];
+  displayEnrollmentDuration() {
+    if (this.props.experimentType != "rollout") {
+      return (
+        <DesignInput
+          label="Proposed Enrollment Duration (days)"
+          name="proposed_enrollment"
+          id="id_proposed_enrollment"
+          onChange={value => {
+            this.handleDataChange("proposed_enrollment", value);
+          }}
+          value={this.state.data.get("proposed_enrollment")}
+          error={this.state.errors.get("proposed_enrollment", "")}
+          helpContent={PROPOSED_ENROLLMENT_HELP}
+          labelColumnWidth={2}
+          optional={true}
+        />
+      );
+    }
+  }
 
-    for (const version of VERSION_CHOICES) {
-      versionsJSX.push(<option value={version[0]}>{version[1]}</option>);
+  displayRolloutPlaybook() {
+    if (this.props.experimentType === "rollout") {
+      return (
+        <DesignInput
+          as="select"
+          label="Rollout Playbook"
+          name="rollout_playbook"
+          id="id_rollout_playbook"
+          onChange={value => {
+            this.handleDataChange("rollout_playbook", value);
+          }}
+          value={this.state.data.get("rollout_playbook")}
+          error={this.state.errors.get("rollout_playbook", "")}
+          labelColumnWidth={2}
+          helpContent={ROLLOUT_PLAYBOOK_HELP}
+          helpIsExternalLink={true}
+        >
+          {this.displayOptions(PLAYBOOK_CHOICES)}
+        </DesignInput>
+      );
+    }
+  }
+
+  displayOptions(choices) {
+    let choicesJSX = [];
+
+    for (const choice of choices) {
+      choicesJSX.push(<option value={choice[0]}>{choice[1]}</option>);
     }
 
-    return versionsJSX;
+    return choicesJSX;
   }
 
   async handleSubmit(event, redirectUrl) {
@@ -186,19 +232,8 @@ class TimelinePopForm extends React.PureComponent {
               helpContent={PROPOSED_DURATION_HELP}
               labelColumnWidth={2}
             />
-            <DesignInput
-              label="Proposed Enrollment Duration (days)"
-              name="proposed_enrollment"
-              id="id_proposed_enrollment"
-              onChange={value => {
-                this.handleDataChange("proposed_enrollment", value);
-              }}
-              value={this.state.data.get("proposed_enrollment")}
-              error={this.state.errors.get("proposed_enrollment", "")}
-              helpContent={PROPOSED_ENROLLMENT_HELP}
-              labelColumnWidth={2}
-              optional={true}
-            />
+            {this.displayEnrollmentDuration()}
+            {this.displayRolloutPlaybook()}
             <hr className="heavy-line my-5" />
             <Row className="mb-3 mt-3">
               <h4 className="col-10 offset-2">Delivery Population</h4>
@@ -239,7 +274,7 @@ class TimelinePopForm extends React.PureComponent {
                   labelColumnWidth={4}
                   helpIsExternalLink={true}
                 >
-                  {this.displayVersionsOptions()}
+                  {this.displayOptions(VERSION_CHOICES)}
                 </DesignInput>
               </Col>
               <Col md={6}>
@@ -256,7 +291,7 @@ class TimelinePopForm extends React.PureComponent {
                   labelColumnWidth={4}
                   noHelpLink={true}
                 >
-                  {this.displayVersionsOptions()}
+                  {this.displayOptions(VERSION_CHOICES)}
                 </DesignInput>
               </Col>
             </Row>
