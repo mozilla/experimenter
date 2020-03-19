@@ -321,14 +321,18 @@ class ExperimentDesignPrefRolloutSerializer(
             existing_preference_ids = set(
                 instance.preferences.all().values_list("id", flat=True)
             )
+
+            submitted_preference_ids = []
             for preference_data in preferences_data:
                 preference_data["experiment"] = instance
-                RolloutPreference.objects.create(**preference_data)
+                pref_id = preference_data.pop("id", None)
+                if pref_id:
+                    submitted_preference_ids.append(pref_id)
+                RolloutPreference.objects.update_or_create(
+                    id=pref_id, defaults=preference_data
+                )
 
-            submitted_preference_ids = set(
-                [p.get("id") for p in preferences_data if p.get("id")]
-            )
-            removed_ids = existing_preference_ids - submitted_preference_ids
+            removed_ids = existing_preference_ids - set(submitted_preference_ids)
 
             if removed_ids:
                 RolloutPreference.objects.filter(id__in=removed_ids).delete()

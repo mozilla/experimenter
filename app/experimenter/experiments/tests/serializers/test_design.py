@@ -1251,24 +1251,36 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
 
     def test_save_pref_rollout_with_existing_prefs(self):
         experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
-        preference = RolloutPreference(
+        preference1 = RolloutPreference(
             pref_type=Experiment.PREF_TYPE_INT,
             pref_name="browser.pref",
             pref_value="4",
             experiment=experiment,
         )
-        preference.save()
+        preference1.save()
+        original_pref1_id = experiment.preferences.first().id
 
-        original_pref_id = experiment.preferences.first().id
+        RolloutPreference(
+            pref_type=Experiment.PREF_TYPE_INT,
+            pref_name="browser.pref2",
+            pref_value="4",
+            experiment=experiment,
+        ).save()
 
         data = {
             "rollout_type": Experiment.TYPE_PREF,
             "preferences": [
                 {
-                    "pref_name": "browser.pref2",
+                    "id": original_pref1_id,
+                    "pref_name": "change.original.pref",
+                    "pref_type": Experiment.PREF_TYPE_STR,
+                    "pref_value": "change original pref",
+                },
+                {
+                    "pref_name": "browser.pref3",
                     "pref_type": Experiment.PREF_TYPE_STR,
                     "pref_value": "A STRING!",
-                }
+                },
             ],
         }
 
@@ -1277,19 +1289,23 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
         )
 
         self.assertTrue(serializer.is_valid())
-
         experiment = serializer.save()
 
         self.assertEqual(experiment.rollout_type, data["rollout_type"])
 
-        self.assertEqual(experiment.preferences.count(), 1)
+        self.assertEqual(experiment.preferences.count(), 2)
         data_pref1 = data["preferences"][0]
-        pref1 = experiment.preferences.first()
+        data_pref2 = data["preferences"][1]
+        pref1 = experiment.preferences.get(id=original_pref1_id)
+        pref2 = experiment.preferences.exclude(id=original_pref1_id)[0]
 
-        self.assertNotEqual(original_pref_id, pref1.id)
         self.assertEqual(pref1.pref_name, data_pref1["pref_name"])
         self.assertEqual(pref1.pref_type, data_pref1["pref_type"])
         self.assertEqual(pref1.pref_value, data_pref1["pref_value"])
+
+        self.assertEqual(pref2.pref_name, data_pref2["pref_name"])
+        self.assertEqual(pref2.pref_type, data_pref2["pref_type"])
+        self.assertEqual(pref2.pref_value, data_pref2["pref_value"])
 
     def test_serializer_outputs_empty_pref_when_no_prefs(self):
         experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
