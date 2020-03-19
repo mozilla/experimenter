@@ -97,7 +97,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "design",
                     "locales",
                     "countries",
-                    "platform",
+                    "platforms",
                     "client_matching",
                 )
             },

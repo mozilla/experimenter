@@ -67,6 +67,21 @@ class FilterObjectChannelSerializer(serializers.ModelSerializer):
         return [obj.firefox_channel.lower()]
 
 
+class FilterObjectPlatformSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    platforms = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Experiment
+        fields = ("type", "platforms")
+
+    def get_type(self, obj):
+        return "platform"
+
+    def get_platforms(self, obj):
+        return obj.platforms
+
+
 class FilterObjectVersionsSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     versions = serializers.SerializerMethodField()
@@ -336,6 +351,9 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
         if obj.countries.count():
             filter_objects.append(FilterObjectCountrySerializer(obj).data)
 
+        if len(obj.platforms) <= 2:
+            filter_objects.append(FilterObjectPlatformSerializer(obj).data)
+
         return filter_objects
 
     def get_arguments(self, obj):
@@ -353,4 +371,4 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return ExperimentRecipePrefRolloutArgumentsSerializer(obj).data
 
     def get_comment(self, obj):
-        return f"Platform: {obj.platform}\n{obj.client_matching}"
+        return f"{obj.client_matching}"
