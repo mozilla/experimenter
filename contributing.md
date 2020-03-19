@@ -27,7 +27,8 @@ milestone.
 
 1. Implement the code changes described by the issue.  All Python code changes should
 be accompanied by any relevant tests, either by modifying existing ones or adding new
-ones.  Front-end changes (HTML/CSS/JS), and infrastructure changes (Docker related things)
+ones.  Front-end changes (HTML/CSS/JS) that involve React code should create or update
+any relevant JS tests. Infrastructure changes (Docker related things)
 do not require tests.
 
 1. When all your changes are complete to your satisfaction:
@@ -46,7 +47,11 @@ information you'd like to the pull request body, including descriptions of chang
 of any UI changes, special instructions for testing, etc.
 
 1. Find a reviewer.  If you're not sure who should review, please contact us on #experimenter on
-[IRC](https://wiki.mozilla.org/IRC).
+the Mozilla Slack if you have access to it.  
+
+1. Any PRs that require changes to deployment infrastructure ie environment variable changes, 
+dependent services, etc also require a review by a member of the operations team.  Please include
+any relevant instructions about the changes in the PR.  File a [Bugzilla ticket](https://bugzilla.mozilla.org/enter_bug.cgi?product=Data+Platform+and+Tools&component=Operations) with a link to the PR so that operations can track the change.
 
 1. If you receive feedback that requires changes to your pull request, make the changes locally,
 run `make check` again to ensure all tests and linting are passing, and then create a new commit
@@ -58,3 +63,31 @@ squash all of the commits into a single one that refers to both the issue and th
 contains any additional descriptive information.
 
 1. Thank you for submitting changes to Experimenter :D
+
+
+## Deployment Process
+When a PR is merged into master it will automatically be deployed to the stage instance and if that
+is successful then it will automatically be deployed to production.
+
+If the deployment fails at one of the stage/production steps, ops will automatically be paged.
+
+If the deployment succeeds but the change inadvertently breaks stage/production, there are two options:
+
+- Revert the change using a revert commit
+  
+  1. Create a branch from master called `revert-#123` where `#123` is the number of the issue, and then
+  revert the commit with `git revert <squashed commit hash>`
+
+    - Fix any potential conflicts or lint/test failures and finish the revert commit
+
+  1. If the original PR included any database migrations, they must be preserved and reverted by creating a new
+  subsequent migration
+    - `git checkout origin/master -- app/experimenter/experiments/migrations/XXXX_migration_file.py`
+    - `make makemigrations`
+    - `git add .;git commit -m 'Reverted migration'`
+
+  1. Push the branch and create a PR as normal following the above PR process
+
+- Fix the change following the normal issue/PR processes above
+
+Because all changes will go to stage and prod automatically, you can use stage to validate your changes.
