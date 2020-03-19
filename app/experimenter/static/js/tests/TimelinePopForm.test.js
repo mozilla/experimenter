@@ -52,7 +52,11 @@ describe("The TimelinePopForm component for experiments", () => {
     const apiResponse = setup();
 
     const { getByLabelText, getByText, container } = await render(
-      <TimelinePopForm slug="the-slug" shouldHavePopPercent={"True"} />,
+      <TimelinePopForm
+        experimentType="pref"
+        slug="the-slug"
+        shouldHavePopPercent={"True"}
+      />,
     );
 
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
@@ -116,7 +120,7 @@ describe("The TimelinePopForm component for experiments", () => {
     window.HTMLElement.prototype.scrollIntoView = scrollIntoViewMock;
 
     const { getByLabelText, getByText, container } = await render(
-      <TimelinePopForm slug="the-slug" />,
+      <TimelinePopForm slug="the-slug" experimentType="pref" />,
     );
 
     await waitForFormToLoad(container);
@@ -149,5 +153,34 @@ describe("The TimelinePopForm component for experiments", () => {
 
     expect(Api.makeApiRequest).toHaveBeenCalled();
     expect(console.error).toHaveBeenCalled();
+  });
+
+  it("displays and edit rollout playbook on rollout delivery", async () => {
+    setup();
+
+    const { getByLabelText, getByText, container } = await render(
+      <TimelinePopForm
+        experimentType="rollout"
+        slug="the-slug"
+        shouldHavePopPercent={"True"}
+      />,
+    );
+
+    expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
+
+    await waitForFormToLoad(container);
+
+    const rolloutPlaybookInput = getByLabelText(/Rollout Playbook/);
+
+    location.replace = () => {};
+
+    fireEvent.change(rolloutPlaybookInput, {
+      target: { value: "low_risk" },
+    });
+    fireEvent.click(getByText("Save Draft"));
+
+    const [url, { data }] = Api.makeApiRequest.mock.calls[1];
+    expect(url).toBe("experiments/the-slug/timeline-population/");
+    expect(data.rollout_playbook).toBe("low_risk");
   });
 });
