@@ -8,6 +8,7 @@ from experimenter.experiments.models import (
     ExperimentChangeLog,
     VariantPreferences,
 )
+from experimenter.projects.models import Project
 from experimenter.experiments.serializers.geo import CountrySerializer, LocaleSerializer
 
 
@@ -40,6 +41,13 @@ class ExperimentPreferenceSerializer(serializers.ModelSerializer):
         fields = ("pref_name", "pref_type", "pref_branch", "pref_value")
 
 
+class ProjectSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Project
+        fields = ("slug",)
+
+
 class ExperimentVariantSerializer(serializers.ModelSerializer):
     preferences = ExperimentPreferenceSerializer(many=True, required=False)
 
@@ -61,6 +69,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
     variants = ExperimentVariantSerializer(many=True, required=False)
     locales = LocaleSerializer(many=True, required=False)
     countries = CountrySerializer(many=True, required=False)
+    projects = ProjectSerializer(many=True, required=False)
 
     class Meta:
         model = Experiment
@@ -89,6 +98,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "client_matching",
             "locales",
             "countries",
+            "projects",
             "platform",
             "objectives",
             "analysis",

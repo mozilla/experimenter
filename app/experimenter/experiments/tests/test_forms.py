@@ -36,6 +36,7 @@ from experimenter.experiments.tests.factories import (
     UserFactory,
     CountryFactory,
     LocaleFactory,
+    ProjectFactory,
 )
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 from experimenter.experiments.tests.mixins import MockTasksMixin, MockRequestMixin
@@ -266,6 +267,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         ds_url = "{base}DS-123".format(base=settings.DS_ISSUE_HOST)
         bug_url = "{base}show_bug.cgi?id=123".format(base=settings.BUGZILLA_HOST)
         self.related_exp = ExperimentFactory.create()
+        project = ProjectFactory.create()
 
         self.data = {
             "type": Experiment.TYPE_PREF,
@@ -280,6 +282,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "related_to": [self.related_exp],
             "feature_bugzilla_url": bug_url,
             "related_work": "Designs: https://www.example.com/myproject/",
+            "projects": [project],
         }
 
     def test_minimum_required_fields_for_experiment(self):
@@ -340,6 +343,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.slug, "a-new-experiment")
         self.assertEqual(experiment.short_description, self.data["short_description"])
         self.assertTrue(self.related_exp in experiment.related_to.all())
+        self.assertCountEqual(self.data["projects"], experiment.projects.all())
 
         self.assertEqual(experiment.changes.count(), 1)
         change = experiment.changes.get()

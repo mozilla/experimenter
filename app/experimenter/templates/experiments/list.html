@@ -30,6 +30,10 @@
 
     Deliver{{ paginator.count|pluralize:"y,ies" }}
 
+    {% if filter.form.projects.value %}
+      in {{filter.get_project_display_value}}
+    {% endif %}
+
     {% if filter.form.firefox_version.value %}
       including Firefox Version
       {{ filter.form.firefox_version.value }}
@@ -104,6 +108,9 @@
                   {{ experiment.owner }}
                 </strong>
               </p>
+              <p><strong> Projects:</strong> {% for project in experiment.projects.all %}
+                {{project}}{% if not forloop.last %},{% endif %}
+              {% endfor %}</p>
               {{ experiment.short_description|linebreaks }}
             </div>
             <div class="col-4 text-right">
