@@ -10,6 +10,7 @@ from django.utils import timezone
 from faker import Factory as FakerFactory
 
 from experimenter.base.models import Country, Locale
+from experimenter.projects.models import Project
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import (
     Experiment,
@@ -228,6 +229,22 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
         for country in extracted:
             self.countries.add(country)
 
+    @factory.post_generation
+    def projects(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted is None and Project.objects.all().count() == 0:
+            extracted = _generate_many_to_many_list(ProjectFactory)
+
+        elif extracted is None and Project.objects.all():
+            total = Project.objects.all().count()
+            rand_num = random.randint(0, total)
+            extracted = Project.objects.order_by("?")[:rand_num]
+
+        for project in extracted:
+            self.projects.add(project)
+
 
 def _generate_many_to_many_list(factory):
     """Helper function to help generate a list of related objects."""
@@ -345,3 +362,12 @@ class LocaleFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Locale
         django_get_or_create = ("code",)
+
+
+class ProjectFactory(factory.django.DjangoModelFactory):
+    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    slug = factory.LazyAttribute(lambda o: "{}_".format(slugify(o.name)))
+
+    class Meta:
+        model = Project
+        django_get_or_create = ("name",)
