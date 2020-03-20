@@ -1,7 +1,5 @@
 import pytest
 
-from pages.home import Home
-
 
 @pytest.mark.nondestructive
 def test_add_branch(base_url, selenium, ds_issue_host, fill_overview):

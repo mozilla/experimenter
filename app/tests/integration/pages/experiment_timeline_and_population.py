@@ -10,9 +10,15 @@ class TimelineAndPopulationPage(Base):
     _firefox_channel_locator = (By.CSS_SELECTOR, "#id_firefox_channel")
     _firefox_channel_option_locator = (By.CSS_SELECTOR, "#id_firefox_channel > option")
     _firefox_min_version_locator = (By.CSS_SELECTOR, "#id_firefox_min_version")
-    _firefox_min_version_option_locator = (By.CSS_SELECTOR, "#id_firefox_min_version > option")
+    _firefox_min_version_option_locator = (
+        By.CSS_SELECTOR,
+        "#id_firefox_min_version > option",
+    )
     _firefox_max_version_locator = (By.CSS_SELECTOR, "#id_firefox_max_version")
-    _firefox_max_version_option_locator = (By.CSS_SELECTOR, "#id_firefox_max_version > option")
+    _firefox_max_version_option_locator = (
+        By.CSS_SELECTOR,
+        "#id_firefox_max_version > option",
+    )
     _platform_locator = (By.CSS_SELECTOR, "#id_platform")
     _platform_option_locator = (By.CSS_SELECTOR, "#id_platform > option")
     _proposed_duration_locator = (By.CSS_SELECTOR, "#id_proposed_duration")
