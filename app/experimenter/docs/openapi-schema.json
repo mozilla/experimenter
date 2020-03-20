@@ -1744,8 +1744,13 @@
                             "maxLength": 255
                           },
                           "pref_type": {
-                            "type": "string",
-                            "maxLength": 255
+                            "enum": [
+                              null,
+                              "boolean",
+                              "integer",
+                              "string",
+                              "json string"
+                            ]
                           },
                           "pref_value": {
                             "type": "string",
@@ -1815,8 +1820,13 @@
                           "maxLength": 255
                         },
                         "pref_type": {
-                          "type": "string",
-                          "maxLength": 255
+                          "enum": [
+                            null,
+                            "boolean",
+                            "integer",
+                            "string",
+                            "json string"
+                          ]
                         },
                         "pref_value": {
                           "type": "string",
@@ -1862,8 +1872,13 @@
                           "maxLength": 255
                         },
                         "pref_type": {
-                          "type": "string",
-                          "maxLength": 255
+                          "enum": [
+                            null,
+                            "boolean",
+                            "integer",
+                            "string",
+                            "json string"
+                          ]
                         },
                         "pref_value": {
                           "type": "string",
@@ -1909,8 +1924,13 @@
                           "maxLength": 255
                         },
                         "pref_type": {
-                          "type": "string",
-                          "maxLength": 255
+                          "enum": [
+                            null,
+                            "boolean",
+                            "integer",
+                            "string",
+                            "json string"
+                          ]
                         },
                         "pref_value": {
                           "type": "string",
@@ -1961,8 +1981,13 @@
                             "maxLength": 255
                           },
                           "pref_type": {
-                            "type": "string",
-                            "maxLength": 255
+                            "enum": [
+                              null,
+                              "boolean",
+                              "integer",
+                              "string",
+                              "json string"
+                            ]
                           },
                           "pref_value": {
                             "type": "string",
@@ -2032,8 +2057,13 @@
                           "maxLength": 255
                         },
                         "pref_type": {
-                          "type": "string",
-                          "maxLength": 255
+                          "enum": [
+                            null,
+                            "boolean",
+                            "integer",
+                            "string",
+                            "json string"
+                          ]
                         },
                         "pref_value": {
                           "type": "string",
@@ -2075,8 +2105,13 @@
                           "maxLength": 255
                         },
                         "pref_type": {
-                          "type": "string",
-                          "maxLength": 255
+                          "enum": [
+                            null,
+                            "boolean",
+                            "integer",
+                            "string",
+                            "json string"
+                          ]
                         },
                         "pref_value": {
                           "type": "string",
@@ -2118,8 +2153,13 @@
                           "maxLength": 255
                         },
                         "pref_type": {
-                          "type": "string",
-                          "maxLength": 255
+                          "enum": [
+                            null,
+                            "boolean",
+                            "integer",
+                            "string",
+                            "json string"
+                          ]
                         },
                         "pref_value": {
                           "type": "string",
@@ -2166,8 +2206,13 @@
                             "maxLength": 255
                           },
                           "pref_type": {
-                            "type": "string",
-                            "maxLength": 255
+                            "enum": [
+                              null,
+                              "boolean",
+                              "integer",
+                              "string",
+                              "json string"
+                            ]
                           },
                           "pref_value": {
                             "type": "string",
@@ -2866,12 +2911,20 @@
                                   "maxLength": 255
                                 },
                                 "pref_type": {
-                                  "type": "string",
-                                  "maxLength": 255
+                                  "enum": [
+                                    null,
+                                    "boolean",
+                                    "integer",
+                                    "string",
+                                    "json string"
+                                  ]
                                 },
                                 "pref_branch": {
-                                  "type": "string",
-                                  "maxLength": 255
+                                  "enum": [
+                                    null,
+                                    "default",
+                                    "user"
+                                  ]
                                 },
                                 "pref_value": {
                                   "type": "string",
@@ -2965,12 +3018,20 @@
                                 "maxLength": 255
                               },
                               "pref_type": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "boolean",
+                                  "integer",
+                                  "string",
+                                  "json string"
+                                ]
                               },
                               "pref_branch": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "default",
+                                  "user"
+                                ]
                               },
                               "pref_value": {
                                 "type": "string",
@@ -3040,12 +3101,20 @@
                                 "maxLength": 255
                               },
                               "pref_type": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "boolean",
+                                  "integer",
+                                  "string",
+                                  "json string"
+                                ]
                               },
                               "pref_branch": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "default",
+                                  "user"
+                                ]
                               },
                               "pref_value": {
                                 "type": "string",
@@ -3115,12 +3184,20 @@
                                 "maxLength": 255
                               },
                               "pref_type": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "boolean",
+                                  "integer",
+                                  "string",
+                                  "json string"
+                                ]
                               },
                               "pref_branch": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "default",
+                                  "user"
+                                ]
                               },
                               "pref_value": {
                                 "type": "string",
@@ -3195,12 +3272,20 @@
                                   "maxLength": 255
                                 },
                                 "pref_type": {
-                                  "type": "string",
-                                  "maxLength": 255
+                                  "enum": [
+                                    null,
+                                    "boolean",
+                                    "integer",
+                                    "string",
+                                    "json string"
+                                  ]
                                 },
                                 "pref_branch": {
-                                  "type": "string",
-                                  "maxLength": 255
+                                  "enum": [
+                                    null,
+                                    "default",
+                                    "user"
+                                  ]
                                 },
                                 "pref_value": {
                                   "type": "string",
@@ -3294,12 +3379,20 @@
                                 "maxLength": 255
                               },
                               "pref_type": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "boolean",
+                                  "integer",
+                                  "string",
+                                  "json string"
+                                ]
                               },
                               "pref_branch": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "default",
+                                  "user"
+                                ]
                               },
                               "pref_value": {
                                 "type": "string",
@@ -3365,12 +3458,20 @@
                                 "maxLength": 255
                               },
                               "pref_type": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "boolean",
+                                  "integer",
+                                  "string",
+                                  "json string"
+                                ]
                               },
                               "pref_branch": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "default",
+                                  "user"
+                                ]
                               },
                               "pref_value": {
                                 "type": "string",
@@ -3436,12 +3537,20 @@
                                 "maxLength": 255
                               },
                               "pref_type": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "boolean",
+                                  "integer",
+                                  "string",
+                                  "json string"
+                                ]
                               },
                               "pref_branch": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "default",
+                                  "user"
+                                ]
                               },
                               "pref_value": {
                                 "type": "string",
@@ -3512,12 +3621,20 @@
                                   "maxLength": 255
                                 },
                                 "pref_type": {
-                                  "type": "string",
-                                  "maxLength": 255
+                                  "enum": [
+                                    null,
+                                    "boolean",
+                                    "integer",
+                                    "string",
+                                    "json string"
+                                  ]
                                 },
                                 "pref_branch": {
-                                  "type": "string",
-                                  "maxLength": 255
+                                  "enum": [
+                                    null,
+                                    "default",
+                                    "user"
+                                  ]
                                 },
                                 "pref_value": {
                                   "type": "string",
@@ -4557,7 +4674,13 @@
                       "nullable": true
                     },
                     "rollout_playbook": {
-                      "type": "string",
+                      "enum": [
+                        null,
+                        "low_risk",
+                        "high_risk",
+                        "marketing",
+                        "custom"
+                      ],
                       "nullable": true
                     },
                     "proposed_duration": {
@@ -4572,15 +4695,76 @@
                       "nullable": true
                     },
                     "firefox_channel": {
-                      "type": "string",
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ],
                       "nullable": true
                     },
                     "firefox_min_version": {
-                      "type": "string",
+                      "enum": [
+                        null,
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0"
+                      ],
                       "nullable": true
                     },
                     "firefox_max_version": {
-                      "type": "string",
+                      "enum": [
+                        null,
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0"
+                      ],
                       "nullable": true
                     },
                     "locales": {
@@ -4620,7 +4804,12 @@
                       "nullable": true
                     },
                     "platform": {
-                      "type": "string",
+                      "enum": [
+                        "All Platforms",
+                        "All Windows",
+                        "All Mac",
+                        "All Linux"
+                      ],
                       "nullable": true
                     },
                     "client_matching": {
@@ -4667,7 +4856,13 @@
                     "nullable": true
                   },
                   "rollout_playbook": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "low_risk",
+                      "high_risk",
+                      "marketing",
+                      "custom"
+                    ],
                     "nullable": true
                   },
                   "proposed_duration": {
@@ -4682,15 +4877,76 @@
                     "nullable": true
                   },
                   "firefox_channel": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ],
                     "nullable": true
                   },
                   "firefox_min_version": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0"
+                    ],
                     "nullable": true
                   },
                   "firefox_max_version": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0"
+                    ],
                     "nullable": true
                   },
                   "locales": {
@@ -4730,7 +4986,12 @@
                     "nullable": true
                   },
                   "platform": {
-                    "type": "string",
+                    "enum": [
+                      "All Platforms",
+                      "All Windows",
+                      "All Mac",
+                      "All Linux"
+                    ],
                     "nullable": true
                   },
                   "client_matching": {
@@ -4753,7 +5014,13 @@
                     "nullable": true
                   },
                   "rollout_playbook": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "low_risk",
+                      "high_risk",
+                      "marketing",
+                      "custom"
+                    ],
                     "nullable": true
                   },
                   "proposed_duration": {
@@ -4768,15 +5035,76 @@
                     "nullable": true
                   },
                   "firefox_channel": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ],
                     "nullable": true
                   },
                   "firefox_min_version": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0"
+                    ],
                     "nullable": true
                   },
                   "firefox_max_version": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0"
+                    ],
                     "nullable": true
                   },
                   "locales": {
@@ -4816,7 +5144,12 @@
                     "nullable": true
                   },
                   "platform": {
-                    "type": "string",
+                    "enum": [
+                      "All Platforms",
+                      "All Windows",
+                      "All Mac",
+                      "All Linux"
+                    ],
                     "nullable": true
                   },
                   "client_matching": {
@@ -4839,7 +5172,13 @@
                     "nullable": true
                   },
                   "rollout_playbook": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "low_risk",
+                      "high_risk",
+                      "marketing",
+                      "custom"
+                    ],
                     "nullable": true
                   },
                   "proposed_duration": {
@@ -4854,15 +5193,76 @@
                     "nullable": true
                   },
                   "firefox_channel": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ],
                     "nullable": true
                   },
                   "firefox_min_version": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0"
+                    ],
                     "nullable": true
                   },
                   "firefox_max_version": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0"
+                    ],
                     "nullable": true
                   },
                   "locales": {
@@ -4902,7 +5302,12 @@
                     "nullable": true
                   },
                   "platform": {
-                    "type": "string",
+                    "enum": [
+                      "All Platforms",
+                      "All Windows",
+                      "All Mac",
+                      "All Linux"
+                    ],
                     "nullable": true
                   },
                   "client_matching": {
@@ -4930,7 +5335,13 @@
                       "nullable": true
                     },
                     "rollout_playbook": {
-                      "type": "string",
+                      "enum": [
+                        null,
+                        "low_risk",
+                        "high_risk",
+                        "marketing",
+                        "custom"
+                      ],
                       "nullable": true
                     },
                     "proposed_duration": {
@@ -4945,15 +5356,76 @@
                       "nullable": true
                     },
                     "firefox_channel": {
-                      "type": "string",
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ],
                       "nullable": true
                     },
                     "firefox_min_version": {
-                      "type": "string",
+                      "enum": [
+                        null,
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0"
+                      ],
                       "nullable": true
                     },
                     "firefox_max_version": {
-                      "type": "string",
+                      "enum": [
+                        null,
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0"
+                      ],
                       "nullable": true
                     },
                     "locales": {
@@ -4993,7 +5465,12 @@
                       "nullable": true
                     },
                     "platform": {
-                      "type": "string",
+                      "enum": [
+                        "All Platforms",
+                        "All Windows",
+                        "All Mac",
+                        "All Linux"
+                      ],
                       "nullable": true
                     },
                     "client_matching": {
@@ -5040,7 +5517,13 @@
                     "nullable": true
                   },
                   "rollout_playbook": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "low_risk",
+                      "high_risk",
+                      "marketing",
+                      "custom"
+                    ],
                     "nullable": true
                   },
                   "proposed_duration": {
@@ -5055,15 +5538,76 @@
                     "nullable": true
                   },
                   "firefox_channel": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ],
                     "nullable": true
                   },
                   "firefox_min_version": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0"
+                    ],
                     "nullable": true
                   },
                   "firefox_max_version": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0"
+                    ],
                     "nullable": true
                   },
                   "locales": {
@@ -5103,7 +5647,12 @@
                     "nullable": true
                   },
                   "platform": {
-                    "type": "string",
+                    "enum": [
+                      "All Platforms",
+                      "All Windows",
+                      "All Mac",
+                      "All Linux"
+                    ],
                     "nullable": true
                   },
                   "client_matching": {
@@ -5126,7 +5675,13 @@
                     "nullable": true
                   },
                   "rollout_playbook": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "low_risk",
+                      "high_risk",
+                      "marketing",
+                      "custom"
+                    ],
                     "nullable": true
                   },
                   "proposed_duration": {
@@ -5141,15 +5696,76 @@
                     "nullable": true
                   },
                   "firefox_channel": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ],
                     "nullable": true
                   },
                   "firefox_min_version": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0"
+                    ],
                     "nullable": true
                   },
                   "firefox_max_version": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0"
+                    ],
                     "nullable": true
                   },
                   "locales": {
@@ -5189,7 +5805,12 @@
                     "nullable": true
                   },
                   "platform": {
-                    "type": "string",
+                    "enum": [
+                      "All Platforms",
+                      "All Windows",
+                      "All Mac",
+                      "All Linux"
+                    ],
                     "nullable": true
                   },
                   "client_matching": {
@@ -5212,7 +5833,13 @@
                     "nullable": true
                   },
                   "rollout_playbook": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "low_risk",
+                      "high_risk",
+                      "marketing",
+                      "custom"
+                    ],
                     "nullable": true
                   },
                   "proposed_duration": {
@@ -5227,15 +5854,76 @@
                     "nullable": true
                   },
                   "firefox_channel": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ],
                     "nullable": true
                   },
                   "firefox_min_version": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0"
+                    ],
                     "nullable": true
                   },
                   "firefox_max_version": {
-                    "type": "string",
+                    "enum": [
+                      null,
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0"
+                    ],
                     "nullable": true
                   },
                   "locales": {
@@ -5275,7 +5963,12 @@
                     "nullable": true
                   },
                   "platform": {
-                    "type": "string",
+                    "enum": [
+                      "All Platforms",
+                      "All Windows",
+                      "All Mac",
+                      "All Linux"
+                    ],
                     "nullable": true
                   },
                   "client_matching": {
@@ -5303,7 +5996,13 @@
                       "nullable": true
                     },
                     "rollout_playbook": {
-                      "type": "string",
+                      "enum": [
+                        null,
+                        "low_risk",
+                        "high_risk",
+                        "marketing",
+                        "custom"
+                      ],
                       "nullable": true
                     },
                     "proposed_duration": {
@@ -5318,15 +6017,76 @@
                       "nullable": true
                     },
                     "firefox_channel": {
-                      "type": "string",
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ],
                       "nullable": true
                     },
                     "firefox_min_version": {
-                      "type": "string",
+                      "enum": [
+                        null,
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0"
+                      ],
                       "nullable": true
                     },
                     "firefox_max_version": {
-                      "type": "string",
+                      "enum": [
+                        null,
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0"
+                      ],
                       "nullable": true
                     },
                     "locales": {
@@ -5366,7 +6126,12 @@
                       "nullable": true
                     },
                     "platform": {
-                      "type": "string",
+                      "enum": [
+                        "All Platforms",
+                        "All Windows",
+                        "All Mac",
+                        "All Linux"
+                      ],
                       "nullable": true
                     },
                     "client_matching": {
