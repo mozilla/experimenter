@@ -2,8 +2,7 @@ import React from "react";
 import {
   render,
   cleanup,
-  wait,
-  waitForDomChange,
+  waitFor,
   fireEvent,
   within,
 } from "@testing-library/react";
@@ -21,6 +20,12 @@ import {
 } from "experimenter/tests/DataFactory";
 
 describe("The `DesignForm` component for Addon", () => {
+  beforeAll(() => {
+    Object.defineProperty(window, "location", {
+      writable: true,
+      value: { replace: jest.fn() },
+    });
+  });
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();
@@ -74,7 +79,7 @@ describe("The `DesignForm` component for Addon", () => {
 
     expect(Api.makeApiRequest).toHaveBeenCalled();
 
-    await wait(() => {
+    await waitFor(() => {
       expect(queryByTestId("spinner")).not.toBeInTheDocument();
     });
 
@@ -96,7 +101,7 @@ describe("The `DesignForm` component for Addon", () => {
     setup();
     const designForm = await render(<DesignForm experimentType={"addon"} />);
     const { getAllByText, getByLabelText, queryByTestId } = designForm;
-    await wait(() => {
+    await waitFor(() => {
       expect(queryByTestId("spinner")).not.toBeInTheDocument();
     });
     expect(Api.makeApiRequest).toHaveBeenCalled();
@@ -153,43 +158,33 @@ describe("The `DesignForm` component for Addon", () => {
   });
 
   it("Saves and Redirects", async () => {
-    delete location.replace;
-    location.replace = jest.fn();
     setup();
     const { getByText, queryByTestId } = await render(
       <DesignForm experimentType={"addon"} />,
     );
-    await wait(() => {
+    await waitFor(() => {
       expect(queryByTestId("spinner")).not.toBeInTheDocument();
     });
     fireEvent.click(getByText("Save Draft and Continue"));
     expect(getByText("Save Draft and Continue")).toHaveAttribute("disabled");
 
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(2);
-    let button = getByText("Save Draft and Continue");
-    // wait for button to no longer be disabled
-    await waitForDomChange({ button });
-    expect(location.replace).toHaveBeenCalled();
+    await waitFor(() => expect(location.replace).toHaveBeenCalled());
   });
 
   it("Saves", async () => {
-    delete location.replace;
-    location.replace = jest.fn();
     setup();
     const { getByText, queryByTestId } = await render(
       <DesignForm experimentType={"addon"} />,
     );
-    await wait(() => {
+    await waitFor(() => {
       expect(queryByTestId("spinner")).not.toBeInTheDocument();
     });
     fireEvent.click(getByText("Save Draft"));
     expect(getByText("Save Draft")).toHaveAttribute("disabled");
 
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(2);
-    let button = getByText("Save Draft and Continue");
-    // wait for button to no longer be disabled
-    await waitForDomChange({ button });
-    expect(location.replace).toHaveBeenCalled();
+    await waitFor(() => expect(location.replace).toHaveBeenCalled());
   });
 
   it("Cancels and nothing is saved ", async () => {
@@ -197,7 +192,7 @@ describe("The `DesignForm` component for Addon", () => {
     const { getByText, queryByTestId } = await render(
       <DesignForm experimentType={"addon"} />,
     );
-    await wait(() => {
+    await waitFor(() => {
       expect(queryByTestId("spinner")).not.toBeInTheDocument();
     });
     fireEvent.click(getByText("Cancel Editing"));
@@ -211,7 +206,7 @@ describe("The `DesignForm` component for Addon", () => {
       <DesignForm experimentType={"addon"} />,
     );
 
-    await wait(() => {
+    await waitFor(() => {
       expect(queryByTestId("spinner")).not.toBeInTheDocument();
     });
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
@@ -295,7 +290,7 @@ describe("The `DesignForm` component for Addon", () => {
       <DesignForm experimentType={"addon"} />,
     );
 
-    await wait(() => {
+    await waitFor(() => {
       expect(queryByTestId("spinner")).not.toBeInTheDocument();
     });
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
@@ -320,11 +315,11 @@ describe("The `DesignForm` component for Addon", () => {
 
     expect(Api.makeApiRequest).toHaveBeenCalled();
 
-    await waitForDomChange(ratio0Input);
-
-    expect(
-      getByText("Branch sizes must be between 1 and 100."),
-    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(
+        getByText("Branch sizes must be between 1 and 100."),
+      ).toBeInTheDocument(),
+    );
   });
 });
 
@@ -358,6 +353,12 @@ describe("The `DesignForm` component for Branched Addons", () => {
       .mockReturnValueOnce(apiResponse)
       .mockRejectedValueOnce(rejectApiResponse);
   };
+  beforeAll(() => {
+    Object.defineProperty(window, "location", {
+      writable: true,
+      value: { replace: jest.fn() },
+    });
+  });
 
   afterEach(() => {
     Api.makeApiRequest.mockClear();
@@ -426,9 +427,9 @@ describe("The `DesignForm` component for Branched Addons", () => {
 
     expect(Api.makeApiRequest).toHaveBeenCalled();
 
-    await waitForDomChange(firstAddonUrlInput);
-
-    expect(getByText("This field is required.")).toBeInTheDocument();
+    await waitFor(() =>
+      expect(getByText("This field is required.")).toBeInTheDocument(),
+    );
   });
 
   it("adds a `branchedAddon` branch", async () => {

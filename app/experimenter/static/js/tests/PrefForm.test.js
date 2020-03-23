@@ -21,6 +21,12 @@ import {
 } from "experimenter/tests/helpers.js";
 
 describe("The `DesignForm` component for Pref Experiments", () => {
+  beforeAll(() => {
+    Object.defineProperty(window, "location", {
+      writable: true,
+      value: { replace: jest.fn() },
+    });
+  });
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();
@@ -134,7 +140,6 @@ describe("The `DesignForm` component for Pref Experiments", () => {
     );
 
     // Edit some fields
-    location.replace = () => {};
     fireEvent.change(prefNameInput, { target: { value: "the-new-pref-name" } });
     fireEvent.change(prefBranchInput, { target: { value: "user" } });
     fireEvent.change(prefTypeInput, { target: { value: "json string" } });
@@ -258,6 +263,12 @@ describe("The `DesignForm` component for Pref Experiments", () => {
 });
 
 describe("The `DesignForm` component for MultiPrefs", () => {
+  beforeAll(() => {
+    Object.defineProperty(window, "location", {
+      writable: true,
+      value: { replace: jest.fn() },
+    });
+  });
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();
@@ -315,7 +326,6 @@ describe("The `DesignForm` component for MultiPrefs", () => {
     );
 
     // Edit some fields
-    location.replace = () => {};
     fireEvent.change(prefNameInputs[0], {
       target: { value: "the-new-pref-name" },
     });

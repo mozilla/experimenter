@@ -12,6 +12,12 @@ import { waitForFormToLoad } from "experimenter/tests/helpers.js";
 import { AddonRolloutFactory } from "experimenter/tests/DataFactory";
 
 describe("The `DesignForm` component for Addon Rollouts", () => {
+  beforeAll(() => {
+    Object.defineProperty(window, "location", {
+      writable: true,
+      value: { replace: jest.fn() },
+    });
+  });
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();
@@ -72,8 +78,6 @@ describe("The `DesignForm` component for Addon Rollouts", () => {
   });
 
   it("Saves and Redirects", async () => {
-    delete location.replace;
-    location.replace = jest.fn();
     setup();
     const { getByText, container } = await render(
       <DesignForm experimentType={"rollout"} />,
