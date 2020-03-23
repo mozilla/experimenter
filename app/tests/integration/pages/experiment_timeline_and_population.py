@@ -8,9 +8,19 @@ from pages.base import Base
 class TimelineAndPopulationPage(Base):
 
     _firefox_channel_locator = (By.CSS_SELECTOR, "#id_firefox_channel")
+    _firefox_channel_option_locator = (By.CSS_SELECTOR, "#id_firefox_channel > option")
     _firefox_min_version_locator = (By.CSS_SELECTOR, "#id_firefox_min_version")
+    _firefox_min_version_option_locator = (
+        By.CSS_SELECTOR,
+        "#id_firefox_min_version > option",
+    )
     _firefox_max_version_locator = (By.CSS_SELECTOR, "#id_firefox_max_version")
+    _firefox_max_version_option_locator = (
+        By.CSS_SELECTOR,
+        "#id_firefox_max_version > option",
+    )
     _platform_locator = (By.CSS_SELECTOR, "#id_platform")
+    _platform_option_locator = (By.CSS_SELECTOR, "#id_platform > option")
     _proposed_duration_locator = (By.CSS_SELECTOR, "#id_proposed_duration")
     _proposed_enrollment_locator = (By.CSS_SELECTOR, "#id_proposed_enrollment")
     _proposed_start_date_locator = (By.CSS_SELECTOR, "#id_proposed_start_date")
@@ -68,7 +78,7 @@ class TimelineAndPopulationPage(Base):
     @property
     def firefox_channel(self):
         element = self.find_element(*self._firefox_channel_locator)
-        channels = element.find_elements(By.CSS_SELECTOR, "#id_firefox_channel > option")
+        channels = element.find_elements(*self._firefox_channel_option_locator)
         for item in channels:
             if item.get_attribute("selected"):
                 return item.get_attribute("value")
@@ -76,7 +86,7 @@ class TimelineAndPopulationPage(Base):
     @firefox_channel.setter
     def firefox_channel(self, channel=None):
         element = self.find_element(*self._firefox_channel_locator)
-        channels = element.find_elements(By.CSS_SELECTOR, "#id_firefox_channel > option")
+        channels = element.find_elements(*self._firefox_channel_option_locator)
         for item in channels:
             if item.get_attribute("value") == channel:
                 item.click()
@@ -84,9 +94,7 @@ class TimelineAndPopulationPage(Base):
     @property
     def firefox_min_version(self):
         element = self.find_element(*self._firefox_min_version_locator)
-        versions = element.find_elements(
-            By.CSS_SELECTOR, "#id_firefox_min_version > option"
-        )
+        versions = element.find_elements(*self._firefox_min_version_option_locator)
         for item in versions:
             if item.get_attribute("selected"):
                 return item.get_attribute("value")
@@ -94,9 +102,7 @@ class TimelineAndPopulationPage(Base):
     @firefox_min_version.setter
     def firefox_min_version(self, version=None):
         element = self.find_element(*self._firefox_min_version_locator)
-        versions = element.find_elements(
-            By.CSS_SELECTOR, "#id_firefox_min_version > option"
-        )
+        versions = element.find_elements(*self._firefox_min_version_option_locator)
         for item in versions:
             if item.get_attribute("value") == version:
                 item.click()
@@ -104,9 +110,7 @@ class TimelineAndPopulationPage(Base):
     @property
     def firefox_max_version(self):
         element = self.find_element(*self._firefox_max_version_locator)
-        versions = element.find_elements(
-            By.CSS_SELECTOR, "#id_firefox_max_version > option"
-        )
+        versions = element.find_elements(*self._firefox_max_version_option_locator)
         for item in versions:
             if item.get_attribute("selected"):
                 return item.get_attribute("value")
@@ -114,9 +118,7 @@ class TimelineAndPopulationPage(Base):
     @firefox_max_version.setter
     def firefox_max_version(self, version=None):
         element = self.find_element(*self._firefox_max_version_locator)
-        versions = element.find_elements(
-            By.CSS_SELECTOR, "#id_firefox_max_version > option"
-        )
+        versions = element.find_elements(*self._firefox_max_version_option_locator)
         for item in versions:
             if item.get_attribute("value") == version:
                 item.click()
@@ -124,7 +126,7 @@ class TimelineAndPopulationPage(Base):
     @property
     def platform(self):
         element = self.find_element(*self._platform_locator)
-        platforms = element.find_elements(By.CSS_SELECTOR, "#id_platform > option")
+        platforms = element.find_elements(*self._platform_option_locator)
         for item in platforms:
             if item.get_attribute("selected"):
                 return item.get_attribute("value")
@@ -132,7 +134,7 @@ class TimelineAndPopulationPage(Base):
     @platform.setter
     def platform(self, platform=None):
         element = self.find_element(*self._platform_locator)
-        platforms = element.find_elements(By.CSS_SELECTOR, "#id_platform > option")
+        platforms = element.find_elements(*self._platform_option_locator)
         for item in platforms:
             if item.get_attribute("value") == platform:
                 item.click()
