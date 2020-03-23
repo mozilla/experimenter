@@ -13,6 +13,7 @@ from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
 from experimenter.base.models import Country, Locale
+from experimenter.projects.models import Project
 from experimenter.bugzilla import get_bugzilla_id
 from experimenter.experiments import tasks
 from experimenter.experiments.changelog_utils import generate_change_log
@@ -170,6 +171,15 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         help_text="Is this related to a previously run delivery?",
         queryset=Experiment.objects.all(),
     )
+    projects = forms.ModelMultipleChoiceField(
+        required=False,
+        label="Related Projects",
+        help_text=(
+            """Is this delivery related to a specific project?
+         Ask #ask_experimenter if you need to add a new project"""
+        ),
+        queryset=Project.objects.all(),
+    )
 
     class Meta:
         model = Experiment
@@ -187,6 +197,7 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
             "feature_bugzilla_url",
             "related_work",
             "related_to",
+            "projects",
         ]
 
     related_to.widget.attrs.update({"data-live-search": "true"})

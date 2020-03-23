@@ -19,6 +19,7 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 from experimenter.base.models import Country, Locale
+from experimenter.projects.models import Project
 from experimenter.experiments.constants import ExperimentConstants
 
 
@@ -145,6 +146,7 @@ class Experiment(ExperimentConstants, models.Model):
     )
     locales = models.ManyToManyField(Locale, blank=True)
     countries = models.ManyToManyField(Country, blank=True)
+    projects = models.ManyToManyField(Project, blank=True)
     platform = models.CharField(
         max_length=255,
         choices=ExperimentConstants.PLATFORM_CHOICES,
@@ -873,6 +875,8 @@ class Experiment(ExperimentConstants, models.Model):
             variant.id = None
             variant.experiment = cloned
             variant.save()
+
+        cloned.projects.set(self.projects.all())
 
         cloned.related_to.add(self)
 

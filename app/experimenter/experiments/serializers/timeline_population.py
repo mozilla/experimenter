@@ -2,6 +2,7 @@ import datetime
 
 from rest_framework import serializers
 from experimenter.experiments.models import Experiment, Country, Locale
+from experimenter.experiments.constants import ExperimentConstants
 
 from experimenter.experiments.serializers.design import ChangelogSerializerMixin
 
@@ -36,8 +37,11 @@ class ExperimentTimelinePopSerializer(
     proposed_enrollment = serializers.IntegerField(
         required=False, allow_null=True, default=None
     )
-    rollout_playbook = serializers.CharField(
-        required=False, allow_null=True, default=None
+    rollout_playbook = serializers.ChoiceField(
+        choices=ExperimentConstants.ROLLOUT_PLAYBOOK_CHOICES,
+        required=False,
+        allow_null=True,
+        default=None,
     )
     population_percent = serializers.DecimalField(
         required=False,
@@ -48,12 +52,23 @@ class ExperimentTimelinePopSerializer(
         allow_null=True,
         default=None,
     )
-    firefox_channel = serializers.CharField(required=False, allow_null=True, default=None)
-    firefox_min_version = serializers.CharField(
-        required=False, allow_null=True, default=None
+    firefox_channel = serializers.ChoiceField(
+        choices=ExperimentConstants.CHANNEL_CHOICES,
+        required=False,
+        allow_null=True,
+        default=None,
     )
-    firefox_max_version = serializers.CharField(
-        required=False, allow_null=True, default=None
+    firefox_min_version = serializers.ChoiceField(
+        choices=ExperimentConstants.MIN_VERSION_CHOICES,
+        required=False,
+        allow_null=True,
+        default=None,
+    )
+    firefox_max_version = serializers.ChoiceField(
+        choices=ExperimentConstants.MAX_VERSION_CHOICES,
+        required=False,
+        allow_null=True,
+        default=None,
     )
     locales = LocaleSerializerMultiSelect(
         many=True, required=False, allow_null=True, default=None
@@ -61,7 +76,12 @@ class ExperimentTimelinePopSerializer(
     countries = CountrySerializerMultiSelect(
         many=True, required=False, allow_null=True, default=None
     )
-    platform = serializers.CharField(required=False, allow_null=True, default=None)
+    platform = serializers.ChoiceField(
+        choices=ExperimentConstants.PLATFORM_CHOICES,
+        required=False,
+        allow_null=True,
+        default=None,
+    )
     client_matching = serializers.CharField(required=False, allow_null=True, default=None)
 
     class Meta:
