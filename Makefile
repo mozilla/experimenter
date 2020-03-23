@@ -154,16 +154,16 @@ integration_build: compose_build
 	$(COMPOSE_INTEGRATION) build
 
 integration_shell: integration_build
-	$(COMPOSE_INTEGRATION) run firefox bash
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox bash
 
 integration_vnc_up: integration_build
-	$(COMPOSE_INTEGRATION) up vnc
+	$(COMPOSE_INTEGRATION) up firefox
 
 integration_vnc_up_detached: integration_build
-	$(COMPOSE_INTEGRATION) up -d vnc
+	$(COMPOSE_INTEGRATION) up -d firefox
 
 integration_test: integration_build
-	$(COMPOSE_INTEGRATION) run firefox tox -c app/tests/integration
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox tox -c app/tests/integration
 
 integration_test_parallel: integration_build
-	$(COMPOSE_INTEGRATION) run firefox tox -c app/tests/integration -- -n 4
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox tox -c app/tests/integration -- -n 4
