@@ -43,4 +43,13 @@ Overview
 
   {% endif %}
 
+  {% if experiment.projects.all %}
+    <p><strong> Projects</strong></p>
+    <p>
+      {% for project in experiment.projects.all %}
+      {{project}}{% if not forloop.last %},{% endif %}
+    {% endfor %}
+    </p>
+  {% endif %}
+
 {% endblock %}
