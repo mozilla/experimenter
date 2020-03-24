@@ -30,7 +30,7 @@ class TimelineAndPopulationPage(Base):
         self.wait.until(
             lambda _: self.find_element(
                 By.CSS_SELECTOR, "body.page-edit-timeline-and-population"
-            )
+            ).is_displayed()
         )
         return self
 
