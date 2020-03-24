@@ -309,10 +309,8 @@ class Experiment(ExperimentConstants, models.Model):
                 f"{self.firefox_max_version_integer}"
             )
 
-        slug_prefix = f"{self.type}-"
-        slug_postfix = (
-            f"-{self.firefox_channel}-{version_string}-" f"bug-{self.bugzilla_id}"
-        )
+        slug_prefix = f"bug-{self.bugzilla_id}-{self.type}-"
+        slug_postfix = f"-{self.firefox_channel}-{version_string}"
         remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(slug_prefix + slug_postfix)
         truncated_slug = slugify(self.name[:remaining_chars])
         return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
@@ -822,6 +820,15 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def is_pref_value_json_string(self):
         return self.pref_type == ExperimentConstants.PREF_TYPE_JSON_STR
+
+    @property
+    def is_shipped(self):
+        return self.status in (
+            Experiment.STATUS_SHIP,
+            Experiment.STATUS_ACCEPTED,
+            Experiment.STATUS_LIVE,
+            Experiment.STATUS_COMPLETE,
+        )
 
     def clone(self, name, user):
 

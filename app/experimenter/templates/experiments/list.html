@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load static %}
+{% load md2 %}
 
 {% load experiment_extras %}
 
@@ -111,7 +112,7 @@
               <p><strong> Projects:</strong> {% for project in experiment.projects.all %}
                 {{project}}{% if not forloop.last %},{% endif %}
               {% endfor %}</p>
-              {{ experiment.short_description|linebreaks }}
+              {{ experiment.short_description|markdown }}
             </div>
             <div class="col-4 text-right">
               <h5>{{ experiment.population }}</h5>

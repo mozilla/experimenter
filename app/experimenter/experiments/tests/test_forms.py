@@ -1181,7 +1181,7 @@ class TestExperimentStatusForm(
         experiment = form.save()
 
         self.assertEqual(
-            experiment.normandy_slug, "pref-experiment-name-nightly-57-bug-12345"
+            experiment.normandy_slug, "bug-12345-pref-experiment-name-nightly-57"
         )
         self.mock_tasks_update_experiment_bug.delay.assert_called_with(
             self.user.id, experiment.id
