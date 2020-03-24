@@ -821,6 +821,15 @@ class Experiment(ExperimentConstants, models.Model):
     def is_pref_value_json_string(self):
         return self.pref_type == ExperimentConstants.PREF_TYPE_JSON_STR
 
+    @property
+    def is_shipped(self):
+        return self.status in (
+            Experiment.STATUS_SHIP,
+            Experiment.STATUS_ACCEPTED,
+            Experiment.STATUS_LIVE,
+            Experiment.STATUS_COMPLETE,
+        )
+
     def clone(self, name, user):
 
         cloned = copy.copy(self)
