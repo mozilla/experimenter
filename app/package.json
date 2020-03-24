@@ -3,6 +3,9 @@
   "jest": {
     "automock": false,
     "verbose": true,
+    "setupFiles": [
+      "<rootDir>/experimenter/static/js/tests/setup.js"
+    ],
     "coverageReporters": [
       "text"
     ],

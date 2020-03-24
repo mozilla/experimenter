@@ -12,12 +12,6 @@ import { waitForFormToLoad } from "experimenter/tests/helpers.js";
 import { AddonRolloutFactory } from "experimenter/tests/DataFactory";
 
 describe("The `DesignForm` component for Addon Rollouts", () => {
-  beforeAll(() => {
-    Object.defineProperty(window, "location", {
-      writable: true,
-      value: { replace: jest.fn() },
-    });
-  });
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();

@@ -21,12 +21,6 @@ import {
 } from "experimenter/tests/helpers.js";
 
 describe("The `DesignForm` component for Pref Experiments", () => {
-  beforeAll(() => {
-    Object.defineProperty(window, "location", {
-      writable: true,
-      value: { replace: jest.fn() },
-    });
-  });
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();
@@ -263,12 +257,6 @@ describe("The `DesignForm` component for Pref Experiments", () => {
 });
 
 describe("The `DesignForm` component for MultiPrefs", () => {
-  beforeAll(() => {
-    Object.defineProperty(window, "location", {
-      writable: true,
-      value: { replace: jest.fn() },
-    });
-  });
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();

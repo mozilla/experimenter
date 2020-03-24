@@ -12,12 +12,6 @@ import { TimelinePopDataFactory } from "experimenter/tests/DataFactory";
 import { waitForFormToLoad } from "experimenter/tests/helpers.js";
 
 describe("The TimelinePopForm component for experiments", () => {
-  beforeAll(() => {
-    Object.defineProperty(window, "location", {
-      writable: true,
-      value: { replace: jest.fn() },
-    });
-  });
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();

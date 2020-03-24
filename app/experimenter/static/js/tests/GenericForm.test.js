@@ -17,12 +17,6 @@ import {
 import { GenericDataFactory } from "experimenter/tests/DataFactory";
 
 describe("The `DesignForm` component for generic", () => {
-  beforeAll(() => {
-    Object.defineProperty(window, "location", {
-      writable: true,
-      value: { replace: jest.fn() },
-    });
-  });
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();

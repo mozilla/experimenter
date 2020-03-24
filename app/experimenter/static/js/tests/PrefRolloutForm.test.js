@@ -15,12 +15,6 @@ import {
 import { PrefRolloutFactory } from "experimenter/tests/DataFactory";
 
 describe("The `DesignForm` component for Pref Rollouts", () => {
-  beforeAll(() => {
-    Object.defineProperty(window, "location", {
-      writable: true,
-      value: { replace: jest.fn() },
-    });
-  });
   afterEach(() => {
     Api.makeApiRequest.mockClear();
     cleanup();
