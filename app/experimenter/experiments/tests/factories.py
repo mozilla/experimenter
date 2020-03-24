@@ -172,12 +172,7 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
             now += datetime.timedelta(days=random.randint(5, 20))
 
         # set signoffs to true
-        if experiment.status in (
-            Experiment.STATUS_SHIP,
-            Experiment.STATUS_ACCEPTED,
-            Experiment.STATUS_LIVE,
-            Experiment.STATUS_COMPLETE,
-        ):
+        if experiment.is_shipped:
             review_fields = experiment.get_all_required_reviews()
             for review in review_fields:
                 setattr(experiment, review, True)
