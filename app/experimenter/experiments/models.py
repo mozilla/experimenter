@@ -309,10 +309,8 @@ class Experiment(ExperimentConstants, models.Model):
                 f"{self.firefox_max_version_integer}"
             )
 
-        slug_prefix = f"{self.type}-"
-        slug_postfix = (
-            f"-{self.firefox_channel}-{version_string}-" f"bug-{self.bugzilla_id}"
-        )
+        slug_prefix = f"bug-{self.bugzilla_id}-{self.type}-"
+        slug_postfix = f"-{self.firefox_channel}-{version_string}"
         remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(slug_prefix + slug_postfix)
         truncated_slug = slugify(self.name[:remaining_chars])
         return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
