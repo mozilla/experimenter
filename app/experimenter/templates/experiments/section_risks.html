@@ -1,4 +1,5 @@
 {% extends "experiments/section_base.html" %}
+{% load md2 %}
 
 {% block section_title %}
   Risks
@@ -107,11 +108,11 @@
 
   {% if experiment.risk_technical %}
     <h5>Technical Risk/Complexity</h5>
-    {{ experiment.risk_technical_description|urlize|linebreaks }}
+    {{ experiment.risk_technical_description|urlize|markdown }}
   {% endif %}
 
   {% if experiment.is_high_risk %}
     <h5>Risk Details</h5>
-    {{ experiment.risks|urlize|linebreaks }}
+    {{ experiment.risks|urlize|markdown }}
   {% endif %}
 {% endblock %}

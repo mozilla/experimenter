@@ -1,5 +1,6 @@
 {% extends "experiments/section_base.html" %}
 
+{% load md2 %}
 {% block section_title %}
 Results
 {% endblock %}
@@ -13,13 +14,13 @@ Results
   {% endif %}
   <p><strong>Initial Results: </strong></p>
   {% if experiment.results_initial %}
-    <p>{{ experiment.results_initial|urlize|linebreaks }}</p>
+    <p>{{ experiment.results_initial|urlize|markdown }}</p>
   {% else %}
     <p><em class="text-secondary">Not Complete.</em></p>
   {% endif %}
   <p><strong>Lessons Learned: </strong></p>
   {% if experiment.results_lessons_learned %}
-    <p>{{ experiment.results_lessons_learned|urlize|linebreaks }}</p>
+    <p>{{ experiment.results_lessons_learned|urlize|markdown }}</p>
   {% else %}
     <p><em class="text-secondary">Not Complete.</em></p>
   {% endif %}
