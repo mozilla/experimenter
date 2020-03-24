@@ -171,6 +171,13 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
             old_status = status_value
             now += datetime.timedelta(days=random.randint(5, 20))
 
+        # set signoffs to true
+        if experiment.is_shipped:
+            review_fields = experiment.get_all_required_reviews()
+            for review in review_fields:
+                setattr(experiment, review, True)
+            experiment.save()
+
         return experiment
 
     @factory.post_generation

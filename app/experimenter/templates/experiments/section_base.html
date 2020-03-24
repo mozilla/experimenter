@@ -1,3 +1,4 @@
+  {% load md2 %}
   <div class="row">
     <h4 id="{{ section_name }}" class="col section-title">
       {% if not section_complete %}
@@ -54,7 +55,7 @@
                 {{ comment.created_by }}
                 <span class="text-muted">{{ comment.created_on }}</span>
               </a>
-              {{ comment.text|urlize|linebreaks }}
+              {{ comment.text|urlize|markdown }}
             </div>
           </div>
         {% endfor %}
