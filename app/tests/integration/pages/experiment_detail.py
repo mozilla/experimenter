@@ -60,7 +60,7 @@ class DetailPage(Base):
         )
         _survey_launch_instructions_locator = (
             By.CSS_SELECTOR,
-            "#analysis-section-detail > p:nth-child(8)",
+            "#analysis-section-detail > p:nth-child(9)",
         )
 
         def click_edit(self):
