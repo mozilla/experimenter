@@ -1,5 +1,6 @@
 {% extends "experiments/section_base.html" %}
 
+{% load md2 %}
 {% block section_title %}
 Testing &amp; QA
 {% endblock %}
@@ -7,14 +8,14 @@ Testing &amp; QA
 {% block section_content %}
   {% if experiment.testing %}
     <strong>Test Instructions</strong>
-    {{ experiment.testing|urlize|linebreaks }}
+    {{ experiment.testing|urlize|markdown }}
   {% endif %}
 
   {% if experiment.test_builds %}
     <strong>Test Builds</strong>
-    {{ experiment.test_builds|urlize|linebreaks }}
+    {{ experiment.test_builds|urlize|markdown }}
   {% endif %}
 
   <strong>QA Status</strong>
-  {{ experiment.qa_status|urlize|linebreaks }}
+  {{ experiment.qa_status|urlize|markdown }}
 {% endblock %}
