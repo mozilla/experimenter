@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "experimenter.openidc",
     "experimenter.projects",
     "experimenter.normandy",
+    "django_markdown2",
 ]
 
 MIDDLEWARE = [
