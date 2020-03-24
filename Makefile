@@ -159,6 +159,9 @@ integration_shell: integration_build
 integration_vnc_up: integration_build
 	$(COMPOSE_INTEGRATION) up firefox
 
+integration_vnc_up_shell: integration_build
+	$(COMPOSE_INTEGRATION) run firefox bash
+
 integration_vnc_up_detached: integration_build
 	$(COMPOSE_INTEGRATION) up -d firefox
 
