@@ -18,11 +18,11 @@ class DesignPage(Base):
     _firefox_pref_type_locator = (By.CSS_SELECTOR, "#id_pref_type")
     _firefox_pref_branch_locator = (By.CSS_SELECTOR, "#id_pref_branch")
     _new_branch_locator = (By.CSS_SELECTOR, "#add-branch-button")
-    _page_wait_locator = (By.CSS_SELECTOR, "body.page-edit-variants")
+    _page_wait_locator = (By.CSS_SELECTOR, ".page-edit-design")
 
     def wait_for_page_to_load(self):
         self.wait.until(
-            lambda _: self.find_element(*self._firefox_pref_name_locator).is_displayed()
+            lambda _: self.find_element(*self._page_wait_locator).is_displayed()
         )
         return self
 
