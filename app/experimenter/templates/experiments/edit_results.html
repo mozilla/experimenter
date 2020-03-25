@@ -52,3 +52,22 @@ Edit <a href="{% url "experiments-detail" slug=object.slug %}">
   </div>
 
 {% endblock %}
+
+
+
+<div class="form-group row">
+  <div class="col text-right">
+    {% block edit_buttons %}
+      {% if object %}
+        <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-link">
+          <span class="fas fa-times"></span>
+          Cancel Editing
+        </a>
+      {% endif %}
+      <button id="save-btn" type="submit" name="action" value="save" class="btn btn-primary">
+        <span class="fas fa-save"></span>
+        Save Results
+      </button>
+    {% endblock %}
+  </div>
+</div>

@@ -15,7 +15,7 @@ Results
   </p>
   <p><strong>Primary Result URL: </strong></p>
   {% if experiment.results_url %}
-    <p>{{ experiment.results_url|urlize|linebreaks }}</p>
+    <p>{{ experiment.results_url|urlize|markdown }}</p>
   {% else %}
     <p><em class="text-secondary">Not Complete.</em></p>
   {% endif %}
@@ -45,7 +45,7 @@ Results
 
   {% if experiment.results_failures_notes %}
     <p><strong>Notes: </strong></p>
-    <p>{{ experiment.results_failures_notes|urlize|linebreaks }}</p>
+    <p>{{ experiment.results_failures_notes|urlize|markdown }}</p>
   {% endif %}
 
   <hr/>
@@ -59,10 +59,6 @@ Results
 
   {% if experiment.results_impact_notes %}
     <p><strong>Notes: </strong></p>
-    <p>{{ experiment.results_impact_notes|urlize|linebreaks }}</p>
+    <p>{{ experiment.results_impact_notes|urlize|markdown }}</p>
   {% endif %}
-
-
-
-
 {% endblock %}

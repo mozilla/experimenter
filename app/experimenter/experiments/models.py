@@ -647,11 +647,8 @@ class Experiment(ExperimentConstants, models.Model):
             "results_measure_impact",
             "results_impact_notes",
         )
-        for field in results_fields:
-            if getattr(self, field):
-                return True
 
-        return False
+        return any([getattr(self, field) for field in results_fields])
 
     @property
     def _risk_questions(self):

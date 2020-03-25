@@ -89,9 +89,6 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     objectives = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 5000)))
     analysis = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 5000)))
 
-    results_no_usable_data = False
-    results_confidence = False
-
     risk_partner_related = False
     risk_brand = False
     risk_fast_shipped = False

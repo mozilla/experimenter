@@ -829,7 +829,7 @@ class TestExperimentResultsForm(MockRequestMixin, TestCase):
 
     def test_form_saves_results(self):
         created_experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_COMPLETE
+            Experiment.STATUS_COMPLETE, results_early_end=False
         )
         self.assertEqual(created_experiment.changes.count(), 6)
 
