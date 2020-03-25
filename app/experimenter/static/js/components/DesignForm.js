@@ -189,7 +189,7 @@ class DesignForm extends React.PureComponent {
     }
 
     return (
-      <div>
+      <div className="page-edit-design">
         <Container>
           <form onSubmit={this.handleSubmit} id="design-form">
             <Form
