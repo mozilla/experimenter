@@ -75,8 +75,6 @@ describe("The `DesignForm` component for Pref Rollouts", () => {
   });
 
   it("Saves and Redirects", async () => {
-    delete location.replace;
-    location.replace = jest.fn();
     setup();
     const { getByText, container } = await render(
       <DesignForm experimentType={"rollout"} />,
