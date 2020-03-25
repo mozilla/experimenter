@@ -201,7 +201,7 @@ class TimelinePopForm extends React.PureComponent {
       );
     }
     return (
-      <div>
+      <div className="page-edit-timeline-and-population">
         <Container>
           <form onSubmit={this.handleSubmit}>
             <Row className="mb-3 mt-3">

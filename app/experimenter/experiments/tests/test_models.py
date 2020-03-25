@@ -280,7 +280,7 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(
             experiment.generate_normandy_slug(),
-            "pref-experiment-name-nightly-57-59-bug-12345",
+            "bug-12345-pref-experiment-name-nightly-57-59",
         )
 
     def test_generate_normandy_slug_returns_slug_with_min_version(self):
@@ -296,7 +296,7 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(
             experiment.generate_normandy_slug(),
-            "pref-experiment-name-nightly-57-bug-12345",
+            "bug-12345-pref-experiment-name-nightly-57",
         )
 
     def test_generate_normandy_slug_raises_valueerror_without_addon_info(self):
@@ -327,7 +327,7 @@ class TestExperimentModel(TestCase):
             firefox_channel=Experiment.CHANNEL_BETA,
         )
         self.assertEqual(
-            "addon-some-random-name-beta-70-71-bug-12345",
+            "bug-12345-addon-some-random-name-beta-70-71",
             experiment.generate_normandy_slug(),
         )
 

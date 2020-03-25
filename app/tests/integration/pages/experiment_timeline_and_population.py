@@ -25,12 +25,11 @@ class TimelineAndPopulationPage(Base):
     _proposed_enrollment_locator = (By.CSS_SELECTOR, "#id_proposed_enrollment")
     _proposed_start_date_locator = (By.CSS_SELECTOR, "#id_proposed_start_date")
     _population_precentage_locator = (By.CSS_SELECTOR, "#id_population_percent")
+    _page_wait_locator = (By.CSS_SELECTOR, ".page-edit-timeline-and-population")
 
     def wait_for_page_to_load(self):
         self.wait.until(
-            lambda _: self.find_element(
-                By.CSS_SELECTOR, "body.page-edit-timeline-and-population"
-            )
+            lambda _: self.find_element(*self._page_wait_locator).is_displayed()
         )
         return self
 
