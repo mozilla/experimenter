@@ -347,12 +347,6 @@ describe("The `DesignForm` component for Branched Addons", () => {
       .mockReturnValueOnce(apiResponse)
       .mockRejectedValueOnce(rejectApiResponse);
   };
-  beforeAll(() => {
-    Object.defineProperty(window, "location", {
-      writable: true,
-      value: { replace: jest.fn() },
-    });
-  });
 
   afterEach(() => {
     Api.makeApiRequest.mockClear();
