@@ -1,13 +1,13 @@
 import {
   getByText,
   getAllByText,
-  waitForElement,
+  waitFor,
   fireEvent,
   getByTestId,
 } from "@testing-library/react";
 
 export async function waitForFormToLoad(container) {
-  await waitForElement(() => getByText(container, "Save Draft"), { container });
+  await waitFor(() => getByText(container, "Save Draft"), { container });
 }
 
 export function addBranch(container) {

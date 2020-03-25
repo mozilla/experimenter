@@ -81,7 +81,6 @@ describe("The TimelinePopForm component for experiments", () => {
     expect(firefoxMaxVersionInput.value).toBe(apiResponse.firefox_max_version);
 
     //edit some Fields
-    location.replace = () => {};
 
     fireEvent.change(proposedStartDateInput, { target: { value: "" } });
     fireEvent.change(proposedEnrollmentInput, { target: { value: "50" } });
@@ -171,8 +170,6 @@ describe("The TimelinePopForm component for experiments", () => {
     await waitForFormToLoad(container);
 
     const rolloutPlaybookInput = getByLabelText(/Rollout Playbook/);
-
-    location.replace = () => {};
 
     fireEvent.change(rolloutPlaybookInput, {
       target: { value: "low_risk" },
