@@ -28,6 +28,7 @@ services:
       - /app/node_modules/
       - assets_volume:/app/experimenter/static/assets/
       - static_volume:/app/experimenter/served/
+      - /app/.cache
     command: bash -c "yarn watch"
 
   worker:
