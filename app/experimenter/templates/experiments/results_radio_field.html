@@ -1,0 +1,6 @@
+<p>
+  {{ label }}
+  <strong class="{% if field %}text-danger{% elif field is None %}text-muted{% endif %} ">
+    {{ field|yesno:"Yes,No,Not Answered" }}
+  </strong>
+</p>
