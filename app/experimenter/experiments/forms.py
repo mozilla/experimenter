@@ -531,6 +531,16 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
 
 
 class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
+    RADIO_OPTIONS = ((False, "No"), (True, "Yes"))
+
+    def coerce_truthy(value):
+        if type(value) == bool:
+            return value
+        if value.lower() == "true":
+            return True
+        elif value.lower() == "false":
+            return False
+
     results_url = forms.URLField(
         label="Primary Results URL",
         help_text=Experiment.RESULTS_URL_HELP_TEXT,
@@ -549,9 +559,129 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         required=False,
     )
 
+    results_fail_to_launch = forms.TypedChoiceField(
+        required=False,
+        label=Experiment.RESULTS_FAIL_TO_LAUNCH_LABEL,
+        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
+    )
+    results_recipe_errors = forms.TypedChoiceField(
+        required=False,
+        label=Experiment.RESULTS_RECIPE_ERRORS_LABEL,
+        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
+    )
+    results_restarts = forms.TypedChoiceField(
+        required=False,
+        label=Experiment.RESULTS_RESTARTS_LABEL,
+        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
+    )
+    results_low_enrollment = forms.TypedChoiceField(
+        required=False,
+        label=Experiment.RESULTS_LOW_ENROLLMENT_LABEL,
+        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
+    )
+    results_early_end = forms.TypedChoiceField(
+        required=False,
+        label=Experiment.RESULTS_EARLY_END_LABEL,
+        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
+    )
+    results_no_usable_data = forms.TypedChoiceField(
+        required=False,
+        label=Experiment.RESULTS_NO_USABLE_DATA_LABEL,
+        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
+    )
+    results_failures_notes = forms.CharField(
+        label=Experiment.RESULTS_NOTES_LABEL,
+        help_text="",
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
+        required=False,
+    )
+
+    results_changes_to_firefox = forms.TypedChoiceField(
+        required=False,
+        label=Experiment.RESULTS_CHANGES_TO_FIREFOX_LABEL,
+        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
+    )
+    results_data_for_hypothesis = forms.TypedChoiceField(
+        required=False,
+        label=Experiment.RESULTS_DATA_FOR_HYPOTHESIS_LABEL,
+        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
+    )
+    results_confidence = forms.TypedChoiceField(
+        required=False,
+        label=Experiment.RESULTS_CONFIDENCE_LABEL,
+        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
+    )
+    results_measure_impact = forms.TypedChoiceField(
+        required=False,
+        label=Experiment.RESULTS_MEASURE_IMPACT_LABEL,
+        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        choices=RADIO_OPTIONS,
+        widget=RadioWidget,
+        coerce=coerce_truthy,
+        empty_value=None,
+    )
+    results_impact_notes = forms.CharField(
+        label=Experiment.RESULTS_NOTES_LABEL,
+        help_text="",
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
+        required=False,
+    )
+
     class Meta:
         model = Experiment
-        fields = ("results_url", "results_initial", "results_lessons_learned")
+        fields = (
+            "results_url",
+            "results_initial",
+            "results_lessons_learned",
+            "results_fail_to_launch",
+            "results_recipe_errors",
+            "results_restarts",
+            "results_low_enrollment",
+            "results_early_end",
+            "results_no_usable_data",
+            "results_failures_notes",
+            "results_changes_to_firefox",
+            "results_data_for_hypothesis",
+            "results_confidence",
+            "results_measure_impact",
+            "results_impact_notes",
+        )
 
 
 class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):

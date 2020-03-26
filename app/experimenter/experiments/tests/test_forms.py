@@ -804,16 +804,39 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
 
 class TestExperimentResultsForm(MockRequestMixin, TestCase):
 
-    def test_form_saves_results(self):
-        experiment = ExperimentFactory.create()
-        self.assertEqual(experiment.changes.count(), 0)
-        data = {
-            "results_url": "https://example.com",
-            "results_initial": "Initially, all went well.",
-            "results_lessons_learned": "Lessons were learned.",
-        }
+    valid_data = {
+        "results_url": "https://example.com",
+        "results_initial": "Initially, all went well.",
+        "results_lessons_learned": "Lessons were learned.",
+        "results_fail_to_launch": False,
+        "results_recipe_errors": True,
+        "results_restarts": True,
+        "results_low_enrollment": False,
+        "results_early_end": True,
+        "results_no_usable_data": False,
+        "results_failures_notes": "Bad.",
+        "results_changes_to_firefox": True,
+        "results_data_for_hypothesis": False,
+        "results_confidence": True,
+        "results_measure_impact": False,
+        "results_impact_notes": "Good.",
+    }
 
-        form = ExperimentResultsForm(request=self.request, data=data, instance=experiment)
+    def test_no_fields_required(self):
+        experiment = ExperimentFactory.create()
+        form = ExperimentResultsForm(request=self.request, data={}, instance=experiment)
+        self.assertTrue(form.is_valid())
+
+    def test_form_saves_results(self):
+        created_experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_COMPLETE, results_early_end=False
+        )
+        self.assertEqual(created_experiment.changes.count(), 6)
+
+        data = self.valid_data.copy()
+        form = ExperimentResultsForm(
+            request=self.request, data=data, instance=created_experiment
+        )
 
         self.assertTrue(form.is_valid())
 
@@ -821,8 +844,19 @@ class TestExperimentResultsForm(MockRequestMixin, TestCase):
 
         self.assertEqual(experiment.results_url, "https://example.com")
         self.assertEqual(experiment.results_initial, "Initially, all went well.")
-
-        self.assertEqual(experiment.changes.count(), 1)
+        self.assertFalse(experiment.results_fail_to_launch)
+        self.assertTrue(experiment.results_recipe_errors)
+        self.assertTrue(experiment.results_restarts)
+        self.assertFalse(experiment.results_low_enrollment)
+        self.assertTrue(experiment.results_early_end)
+        self.assertFalse(experiment.results_no_usable_data)
+        self.assertEqual(experiment.results_failures_notes, "Bad.")
+        self.assertTrue(experiment.results_changes_to_firefox)
+        self.assertFalse(experiment.results_data_for_hypothesis)
+        self.assertTrue(experiment.results_confidence)
+        self.assertFalse(experiment.results_measure_impact)
+        self.assertEqual(experiment.results_impact_notes, "Good.")
+        self.assertEqual(experiment.changes.count(), 7)
 
 
 class TestExperimentReviewForm(

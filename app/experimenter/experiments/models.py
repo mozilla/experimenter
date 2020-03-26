@@ -230,6 +230,24 @@ class Experiment(ExperimentConstants, models.Model):
     results_initial = models.TextField(blank=True, null=True)
     results_lessons_learned = models.TextField(blank=True, null=True)
 
+    results_fail_to_launch = models.NullBooleanField(default=None, blank=True, null=True)
+    results_recipe_errors = models.NullBooleanField(default=None, blank=True, null=True)
+    results_restarts = models.NullBooleanField(default=None, blank=True, null=True)
+    results_low_enrollment = models.NullBooleanField(default=None, blank=True, null=True)
+    results_early_end = models.NullBooleanField(default=None, blank=True, null=True)
+    results_no_usable_data = models.NullBooleanField(default=None, blank=True, null=True)
+    results_failures_notes = models.TextField(blank=True, null=True)
+
+    results_changes_to_firefox = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    results_data_for_hypothesis = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    results_confidence = models.NullBooleanField(default=None, blank=True, null=True)
+    results_measure_impact = models.NullBooleanField(default=None, blank=True, null=True)
+    results_impact_notes = models.TextField(blank=True, null=True)
+
     objects = ExperimentManager()
 
     class Meta:
@@ -612,7 +630,25 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_results(self):
-        return self.results_url or self.results_initial or self.results_lessons_learned
+        results_fields = (
+            "results_url",
+            "results_initial",
+            "results_lessons_learned",
+            "results_fail_to_launch",
+            "results_recipe_errors",
+            "results_restarts",
+            "results_low_enrollment",
+            "results_early_end",
+            "results_no_usable_data",
+            "results_failures_notes",
+            "results_changes_to_firefox",
+            "results_data_for_hypothesis",
+            "results_confidence",
+            "results_measure_impact",
+            "results_impact_notes",
+        )
+
+        return any([getattr(self, field) for field in results_fields])
 
     @property
     def _risk_questions(self):

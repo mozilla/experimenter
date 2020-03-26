@@ -755,6 +755,42 @@ class ExperimentConstants(object):
         in order to continuously improve.
     """
 
+    RESULTS_FAIL_TO_LAUNCH_LABEL = (
+        "Did this delivery fail to launch at the expected time?"
+    )
+
+    RESULTS_RECIPE_ERRORS_LABEL = "Did this delivery have recipe errors?"
+
+    RESULTS_RESTARTS_LABEL = "Did this delivery require any restarts after it launched?"
+
+    RESULTS_LOW_ENROLLMENT_LABEL = "Did this delivery have low user enrollment issues?"
+
+    RESULTS_EARLY_END_LABEL = "Did this delivery end before it was expected to?"
+
+    RESULTS_NO_USABLE_DATA_LABEL = "Did this delivery fail to generate usable data?"
+
+    RESULTS_NOTES_LABEL = "Notes"
+
+    RESULTS_CHANGES_TO_FIREFOX_LABEL = """
+        Did changes (features, performance, UX, etc.) enter Firefox because
+        of this delivery?
+    """
+
+    RESULTS_DATA_FOR_HYPOTHESIS_LABEL = """Was the data required to prove or disprove your
+        hypothesis (which may include a null result) obtained?"""
+
+    RESULTS_CONFIDENCE_LABEL = (
+        "Did this delivery provide the confidence needed to more forward?"
+    )
+
+    RESULTS_MEASURE_IMPACT_LABEL = (
+        "Did this delivery help understand/measure the impact of this feature?"
+    )
+
+    RESULTS_QUESTIONS_HELP = """
+        https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-ResultsandFeedback
+    """
+
     # Sign-Offs
     REVIEW_BUGZILLA_HELP_TEXT = """
       <a target="_blank" rel="noreferrer noopener" href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Bugzillaupdated">Help</a>
