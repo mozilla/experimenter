@@ -42,6 +42,7 @@ class ExperimentTimelinePopSerializer(
         required=False,
         allow_null=True,
         default=None,
+        allow_blank=True,
     )
     population_percent = serializers.DecimalField(
         required=False,
@@ -57,18 +58,21 @@ class ExperimentTimelinePopSerializer(
         required=False,
         allow_null=True,
         default=None,
+        allow_blank=True,
     )
     firefox_min_version = serializers.ChoiceField(
         choices=ExperimentConstants.MIN_VERSION_CHOICES,
         required=False,
         allow_null=True,
         default=None,
+        allow_blank=True,
     )
     firefox_max_version = serializers.ChoiceField(
         choices=ExperimentConstants.MAX_VERSION_CHOICES,
         required=False,
         allow_null=True,
         default=None,
+        allow_blank=True,
     )
     locales = LocaleSerializerMultiSelect(
         many=True, required=False, allow_null=True, default=None
@@ -81,8 +85,11 @@ class ExperimentTimelinePopSerializer(
         required=False,
         allow_null=True,
         default=None,
+        allow_blank=True,
     )
-    client_matching = serializers.CharField(required=False, allow_null=True, default=None)
+    client_matching = serializers.CharField(
+        required=False, allow_null=True, default=None, allow_blank=True
+    )
 
     class Meta:
         fields = (
