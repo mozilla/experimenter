@@ -49,6 +49,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ExperimentVariantSerializer(serializers.ModelSerializer):
+
     preferences = ExperimentPreferenceSerializer(many=True, required=False)
 
     class Meta:
@@ -66,6 +67,7 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
 
 
 class ChangeLogSerializer(serializers.ModelSerializer):
+
     variants = ExperimentVariantSerializer(many=True, required=False)
     locales = LocaleSerializer(many=True, required=False)
     countries = CountrySerializer(many=True, required=False)
@@ -149,6 +151,18 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "results_url",
             "results_initial",
             "results_lessons_learned",
+            "results_fail_to_launch",
+            "results_recipe_errors",
+            "results_restarts",
+            "results_low_enrollment",
+            "results_early_end",
+            "results_no_usable_data",
+            "results_failures_notes",
+            "results_changes_to_firefox",
+            "results_data_for_hypothesis",
+            "results_confidence",
+            "results_measure_impact",
+            "results_impact_notes",
             "rollout_type",
             "rollout_playbook",
         )
