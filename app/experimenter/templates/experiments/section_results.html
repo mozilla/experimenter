@@ -6,13 +6,6 @@ Results
 {% endblock %}
 
 {% block section_content %}
-  <p>
-    <span class="fas fa-info-circle"></span> <em>We'd welcome your feedback via
-    <a target="_blank" rel="noreferrer noopener" href="https://qsurvey.mozilla.com/s3/Experimenter-Study-Feedback?origin=experimenter">this survey</a>
-    if you were engaged with this delivery from data science, product
-    management, program management,
-    product team engineering, experiment operations, or another capacity.</em>
-  </p>
   <p><strong>Primary Result URL: </strong></p>
   {% if experiment.results_url %}
     <p>{{ experiment.results_url|urlize|markdown }}</p>

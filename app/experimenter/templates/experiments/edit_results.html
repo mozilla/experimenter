@@ -35,22 +35,6 @@ Edit <a href="{% url "experiments-detail" slug=object.slug %}">
   {% include "experiments/radio_field_inline.html" with field=form.results_confidence %}
   {% include "experiments/radio_field_inline.html" with field=form.results_measure_impact %}
   {% include "experiments/field_inline.html" with field=form.results_impact_notes %}
-
-
-
-
-  <div class="row my-4">
-    <div class="col-10 offset-2">
-      <p>
-        We'd welcome your feedback via
-        <a target="_blank" rel="noreferrer noopener" href="https://qsurvey.mozilla.com/s3/Experimenter-Study-Feedback?origin=experimenter">this survey</a>
-        if you were engaged with this delivery from data science, product
-        management, program management,
-        product team engineering, experiment operations, or another capacity.
-      </p>
-    </div>
-  </div>
-
 {% endblock %}
 
 
