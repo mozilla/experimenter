@@ -22,7 +22,6 @@ def capabilities(capabilities):
 @pytest.fixture
 def firefox_options(firefox_options):
     """Set Firefox Options."""
-    firefox_options.headless = not bool(os.environ.get("DISABLE_HEADLESS"))
     firefox_options.log.level = "trace"
     return firefox_options
 

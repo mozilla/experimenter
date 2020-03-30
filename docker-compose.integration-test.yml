@@ -4,21 +4,8 @@ services:
   firefox:
     image: b4handjr/selenium-firefox:python3-latest
     env_file: .env
-    volumes:
-      - .:/code
-    links:
-      - nginx
-    expose:
-      - "4444"
-    shm_size: 2g
-    networks:
-      - private_nw
-      - public_nw
-  vnc:
-    image: b4handjr/selenium-firefox:python3-latest
-    env_file: .env
     environment:
-      - DISABLE_HEADLESS=1
+      - MOZ_HEADLESS
     volumes:
       - .:/code
     links:
