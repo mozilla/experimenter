@@ -49,7 +49,6 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ExperimentVariantSerializer(serializers.ModelSerializer):
-
     preferences = ExperimentPreferenceSerializer(many=True, required=False)
 
     class Meta:
@@ -67,7 +66,6 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
 
 
 class ChangeLogSerializer(serializers.ModelSerializer):
-
     variants = ExperimentVariantSerializer(many=True, required=False)
     locales = LocaleSerializer(many=True, required=False)
     countries = CountrySerializer(many=True, required=False)
