@@ -29,7 +29,9 @@ class TimelineAndPopulationPage(Base):
 
     def wait_for_page_to_load(self):
         self.wait.until(
-            lambda _: self.find_element(*self._page_wait_locator).is_displayed()
+            lambda _: self.find_element(
+                *self._page_wait_locator)
+            .is_displayed()
         )
         return self
 

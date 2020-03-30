@@ -12,6 +12,12 @@ class DetailPage(Base):
 
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-detail-view")
 
+    def wait_for_page_to_load(self):
+        self.wait.until(
+            lambda _: self.find_element(*self._page_wait_locator).is_displayed()
+        )
+        return self
+
     @property
     def objective_section(self):
         return self.ObjectivesRegion(self)

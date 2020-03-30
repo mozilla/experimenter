@@ -17,6 +17,12 @@ class ObjectiveAndAnalysisPage(Base):
 
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-edit-overview")
 
+    def wait_for_page_to_load(self):
+        self.wait.until(
+            lambda _: self.find_element(*self._page_wait_locator).is_displayed()
+        )
+        return self
+
     @property
     def objectives_text_box(self):
         element = self.find_element(*self._objectives_text_box_locator)

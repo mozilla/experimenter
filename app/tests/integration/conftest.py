@@ -14,6 +14,11 @@ def ds_issue_host():
 
 
 @pytest.fixture
+def sensitive_url():
+    pass
+
+
+@pytest.fixture
 def capabilities(capabilities):
     capabilities["acceptInsecureCerts"] = True
     return capabilities
