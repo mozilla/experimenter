@@ -85,7 +85,7 @@ class TimelinePopForm extends React.PureComponent {
           label="Population Percentage"
           name="population_percent"
           id="id_population_percent"
-          onChange={value => {
+          onChange={(value) => {
             this.handleDataChange("population_percent", value);
           }}
           value={this.state.data.get("population_percent")}
@@ -104,7 +104,7 @@ class TimelinePopForm extends React.PureComponent {
           label="Proposed Enrollment Duration (days)"
           name="proposed_enrollment"
           id="id_proposed_enrollment"
-          onChange={value => {
+          onChange={(value) => {
             this.handleDataChange("proposed_enrollment", value);
           }}
           value={this.state.data.get("proposed_enrollment")}
@@ -125,7 +125,7 @@ class TimelinePopForm extends React.PureComponent {
           label="Rollout Playbook"
           name="rollout_playbook"
           id="id_rollout_playbook"
-          onChange={value => {
+          onChange={(value) => {
             this.handleDataChange("rollout_playbook", value);
           }}
           value={this.state.data.get("rollout_playbook")}
@@ -163,7 +163,7 @@ class TimelinePopForm extends React.PureComponent {
       .then(() => {
         location.replace(redirectUrl);
       })
-      .catch(err => {
+      .catch((err) => {
         this.setState({
           errors: fromJS(err.data),
         });
@@ -212,7 +212,7 @@ class TimelinePopForm extends React.PureComponent {
               label="Proposed Start Date"
               name="proposed_start_date"
               id="id_proposed_start_date"
-              onChange={value => {
+              onChange={(value) => {
                 this.handleDataChange("proposed_start_date", value);
               }}
               value={this.state.data.get("proposed_start_date")}
@@ -224,7 +224,7 @@ class TimelinePopForm extends React.PureComponent {
               label="Proposed Total Duration (days)"
               name="proposed_duration"
               id="id_proposed_duration"
-              onChange={value => {
+              onChange={(value) => {
                 this.handleDataChange("proposed_duration", value);
               }}
               value={this.state.data.get("proposed_duration")}
@@ -244,7 +244,7 @@ class TimelinePopForm extends React.PureComponent {
               label="Firefox Channel"
               name="firefox_channel"
               id="id_firefox_channel"
-              onChange={value => {
+              onChange={(value) => {
                 this.handleDataChange("firefox_channel", value);
               }}
               value={this.state.data.get("firefox_channel")}
@@ -265,7 +265,7 @@ class TimelinePopForm extends React.PureComponent {
                   label="Firefox Min Version"
                   name="firefox_min_version"
                   id="id_firefox_min_version"
-                  onChange={value => {
+                  onChange={(value) => {
                     this.handleDataChange("firefox_min_version", value);
                   }}
                   value={this.state.data.get("firefox_min_version")}
@@ -283,7 +283,7 @@ class TimelinePopForm extends React.PureComponent {
                   label="Firefox Max Version"
                   name="firefox_max_version"
                   id="id_firefox_max_version"
-                  onChange={value => {
+                  onChange={(value) => {
                     this.handleDataChange("firefox_max_version", value);
                   }}
                   value={this.state.data.get("firefox_max_version")}
@@ -335,7 +335,7 @@ class TimelinePopForm extends React.PureComponent {
               label="Platform"
               name="platform"
               id="id_platform"
-              onChange={value => {
+              onChange={(value) => {
                 this.handleDataChange("platform", value);
               }}
               value={this.state.data.get("platform")}
@@ -353,7 +353,7 @@ class TimelinePopForm extends React.PureComponent {
               label="Population filtering"
               name="client_matching"
               id="id_client_matching"
-              onChange={value => {
+              onChange={(value) => {
                 this.handleDataChange("client_matching", value);
               }}
               value={this.state.data.get("client_matching")}

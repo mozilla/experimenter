@@ -131,7 +131,7 @@ class DesignForm extends React.PureComponent {
       .then(() => {
         location.replace(redirectUrl);
       })
-      .catch(err => {
+      .catch((err) => {
         this.setState({
           errors: fromJS(err.data),
         });

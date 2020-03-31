@@ -72,7 +72,7 @@ class Pref extends React.PureComponent {
         label="Pref Branch"
         name="pref_branch"
         id={`pref-branch-${this.props.variantIndex}-${this.props.index}`}
-        onChange={value => {
+        onChange={(value) => {
           this.handlePrefValueChange("pref_branch", value);
         }}
         value={
@@ -103,7 +103,7 @@ class Pref extends React.PureComponent {
               label="Pref Type"
               name="pref_type"
               id={`pref-type-${this.props.variantIndex}-${this.props.index}`}
-              onChange={value => {
+              onChange={(value) => {
                 this.handlePrefValueChange("pref_type", value);
               }}
               value={
@@ -130,7 +130,7 @@ class Pref extends React.PureComponent {
               label="Pref Name"
               name="pref_name"
               id={`pref-key-${this.props.variantIndex}-${this.props.index}`}
-              onChange={value => {
+              onChange={(value) => {
                 this.handlePrefValueChange("pref_name", value);
               }}
               value={
@@ -149,7 +149,7 @@ class Pref extends React.PureComponent {
               label="Pref Value"
               name="pref_value"
               id={`pref-value-${this.props.variantIndex}-${this.props.index}`}
-              onChange={value => {
+              onChange={(value) => {
                 this.handlePrefValueChange("pref_value", value);
               }}
               value={

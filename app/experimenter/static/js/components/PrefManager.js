@@ -47,7 +47,7 @@ class PrefManager extends React.PureComponent {
           preference={preference}
           errors={errors.get(index, new Map())}
           remove={this.removePref}
-          onChange={value => this.handlePrefChange(index, value)}
+          onChange={(value) => this.handlePrefChange(index, value)}
           variantIndex={this.props.variantIndex}
           rolloutType={this.props.rolloutType}
         />

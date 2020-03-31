@@ -85,7 +85,7 @@ describe("The `DesignForm` component for Addon", () => {
     for (let variant of successResponse.variants) {
       expect(getByDisplayValue(variant.name)).toBeInTheDocument();
       expect(getByDisplayValue(variant.description)).toBeInTheDocument();
-      getAllByDisplayValue(variant.ratio).map(e =>
+      getAllByDisplayValue(variant.ratio).map((e) =>
         expect(e).toBeInTheDocument(),
       );
     }

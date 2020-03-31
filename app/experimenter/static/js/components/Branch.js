@@ -43,7 +43,7 @@ class Branch extends React.PureComponent {
         name={`variants[${this.props.index}][${name}]`}
         id={`variants-${this.props.index}-${name}`}
         value={value}
-        onChange={value => {
+        onChange={(value) => {
           this.handleBranchFieldChange(name, value);
         }}
         error={error}

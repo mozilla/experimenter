@@ -89,7 +89,7 @@ class LabeledMultiSelect extends React.PureComponent {
             name={this.props.name}
             value={this.props.value}
             className={this.props.error ? "is-invalid" : ""}
-            onChange={selection => {
+            onChange={(selection) => {
               this.props.onChange(selection, this.props.name);
             }}
           />

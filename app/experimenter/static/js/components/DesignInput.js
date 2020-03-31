@@ -117,7 +117,7 @@ class DesignInput extends React.PureComponent {
             data-testid={this.props.dataTestId}
             type={this.props.type ? this.props.type : "text"}
             name={this.props.name}
-            onChange={event => {
+            onChange={(event) => {
               this.props.onChange(event.target.value);
             }}
             value={this.props.value}

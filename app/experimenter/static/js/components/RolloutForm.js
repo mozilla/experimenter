@@ -29,7 +29,7 @@ export default class RolloutForm extends React.PureComponent {
           id="id_addon_release_url"
           label="Signed Add-On URL"
           name="addon_release_url"
-          onChange={value => {
+          onChange={(value) => {
             this.props.handleDataChange("addon_release_url", value);
           }}
           value={this.props.data.get("addon_release_url")}
@@ -50,10 +50,10 @@ export default class RolloutForm extends React.PureComponent {
           <PrefManager
             preferences={this.props.data.get("preferences", blankPreference)}
             errors={this.props.errors.get("preferences", new List())}
-            onDataChange={value => {
+            onDataChange={(value) => {
               this.props.handleDataChange("preferences", value);
             }}
-            onErrorChange={errors => {
+            onErrorChange={(errors) => {
               this.props.handleErrorsChange("preferences", errors);
             }}
             rolloutType={this.props.data.get("rollout_type")}
@@ -75,7 +75,7 @@ export default class RolloutForm extends React.PureComponent {
               radioLabel2="Add-On Rollout"
               radioValue1={TYPE_PREF}
               radioValue2={TYPE_ADDON}
-              onChange={event =>
+              onChange={(event) =>
                 this.props.handleReloadAPIState(
                   "rollout_type",
                   event.target.value,
@@ -90,7 +90,7 @@ export default class RolloutForm extends React.PureComponent {
           id="id_design"
           label="Description"
           name="design"
-          onChange={value => {
+          onChange={(value) => {
             this.props.handleDataChange("design", value);
           }}
           value={this.props.data.get("design")}
