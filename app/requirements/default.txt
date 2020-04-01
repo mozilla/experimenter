@@ -147,3 +147,6 @@ django-markdown2==0.3.1 \
 markdown2==2.3.8 \
     --hash=sha256:7ff88e00b396c02c8e1ecd8d176cfa418fb01fe81234dcea77803e7ce4f05dbe \
     --hash=sha256:882d3607fc023cdea0ac2cd0e1147617fcb0361cb1133d3ff095417f995ff270
+tblib==1.6.0 \
+    --hash=sha256:229bee3754cb5d98b4837dd5c4405e80cfab57cb9f93220410ad367f8b352344 \
+    --hash=sha256:e222f44485d45ed13fada73b57775e2ff9bd8af62160120bbb6679f5ad80315b
