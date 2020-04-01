@@ -483,6 +483,7 @@ class TestExperimentObjectivesUpdateView(TestCase):
             data,
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
+
         self.assertEqual(response.status_code, 302)
 
         experiment = Experiment.objects.get()

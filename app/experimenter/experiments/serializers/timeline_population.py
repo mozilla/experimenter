@@ -134,7 +134,7 @@ class ExperimentTimelinePopSerializer(
                 )
 
         if data["firefox_min_version"] and data["firefox_max_version"]:
-            if data["firefox_min_version"] > data["firefox_max_version"]:
+            if float(data["firefox_min_version"]) > float(data["firefox_max_version"]):
                 raise serializers.ValidationError(
                     {
                         "firefox_max_version": (
