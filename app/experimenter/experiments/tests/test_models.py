@@ -1464,6 +1464,8 @@ class TestExperimentModel(TestCase):
             results_initial="Some great initial results.",
             results_lessons_learned="Lessons were learned.",
             results_url="http://www.example.com",
+            results_recipe_errors=True,
+            results_restarts=True,
         )
 
         experiment.clone("best experiment", user_2)
@@ -1500,6 +1502,8 @@ class TestExperimentModel(TestCase):
         self.assertFalse(cloned_experiment.results_lessons_learned)
         self.assertFalse(cloned_experiment.results_initial)
         self.assertFalse(cloned_experiment.results_url)
+        self.assertFalse(cloned_experiment.results_recipe_errors)
+        self.assertFalse(cloned_experiment.results_restarts)
 
         self.assertEqual(cloned_experiment.changes.count(), 1)
 
