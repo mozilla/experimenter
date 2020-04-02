@@ -135,14 +135,6 @@ class ExperimentConstants(object):
         ("100.0", "Firefox 100.0"),
     )
 
-    MIN_VERSION_CHOICES = ((None, "Firefox Min Version (Required)"),) + (
-        (VERSION_CHOICES)
-    )
-
-    MAX_VERSION_CHOICES = ((None, "Firefox Max Version (Required)"),) + (
-        (VERSION_CHOICES)
-    )
-
     VERSION_REGEX = re.compile(r"[\d]+")
 
     # Channel stuff
