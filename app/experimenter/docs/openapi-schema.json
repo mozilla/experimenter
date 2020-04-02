@@ -446,6 +446,10 @@
                         ]
                       }
                     },
+                    "results": {
+                      "type": "string",
+                      "readOnly": true
+                    },
                     "changes": {
                       "type": "array",
                       "items": {
@@ -891,6 +895,10 @@
                             "slug"
                           ]
                         }
+                      },
+                      "results": {
+                        "type": "string",
+                        "readOnly": true
                       },
                       "changes": {
                         "type": "array",
@@ -8186,6 +8194,10 @@
                         ]
                       }
                     },
+                    "results": {
+                      "type": "string",
+                      "readOnly": true
+                    },
                     "changes": {
                       "type": "array",
                       "items": {
@@ -9822,6 +9834,10 @@
                           "slug"
                         ]
                       }
+                    },
+                    "results": {
+                      "type": "string",
+                      "readOnly": true
                     },
                     "changes": {
                       "type": "array",
