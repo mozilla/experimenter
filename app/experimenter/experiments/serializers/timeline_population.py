@@ -61,14 +61,14 @@ class ExperimentTimelinePopSerializer(
         allow_blank=True,
     )
     firefox_min_version = serializers.ChoiceField(
-        choices=ExperimentConstants.MIN_VERSION_CHOICES,
+        choices=ExperimentConstants.VERSION_CHOICES,
         required=False,
         allow_null=True,
         default=None,
         allow_blank=True,
     )
     firefox_max_version = serializers.ChoiceField(
-        choices=ExperimentConstants.MAX_VERSION_CHOICES,
+        choices=ExperimentConstants.VERSION_CHOICES,
         required=False,
         allow_null=True,
         default=None,

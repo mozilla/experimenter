@@ -41,7 +41,8 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
         super().setUp()
         self.locale = LocaleFactory.create()
         self.country = CountryFactory.create()
-        self.experiment = ExperimentFactory.create(
+        self.experiment = ExperimentFactory.create_with_status(
+            ExperimentConstants.STATUS_DRAFT,
             type=ExperimentConstants.TYPE_PREF,
             locales=[self.locale],
             countries=[self.country],
@@ -49,7 +50,6 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
         )
 
     def test_serializer_outputs_expected_schema_pref(self):
-
         serializer = ExperimentTimelinePopSerializer(self.experiment)
 
         self.assertEqual(
@@ -74,9 +74,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
 
     def test_all_values_are_optional(self):
         data = {}
-
         serializer = ExperimentTimelinePopSerializer(instance=self.experiment, data=data)
-
         self.assertTrue(serializer.is_valid())
 
     def test_serializer_saves_values(self):
@@ -107,7 +105,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
 
         experiment = serializer.save()
 
-        self.assertEqual(experiment.changes.count(), 1)
+        self.assertEqual(experiment.changes.count(), 2)
         self.assertEqual(experiment.proposed_start_date, data["proposed_start_date"])
         self.assertEqual(experiment.proposed_duration, data["proposed_duration"])
         self.assertEqual(experiment.proposed_enrollment, data["proposed_enrollment"])
