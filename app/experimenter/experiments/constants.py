@@ -11,13 +11,21 @@ class ExperimentConstants(object):
     TYPE_ADDON = "addon"
     TYPE_GENERIC = "generic"
     TYPE_ROLLOUT = "rollout"
+    TYPE_MESSAGE = "message"
 
     TYPE_CHOICES = (
         (TYPE_PREF, "Pref-Flip Experiment"),
         (TYPE_ADDON, "Add-On Experiment"),
         (TYPE_GENERIC, "Generic Experiment"),
         (TYPE_ROLLOUT, "Staged Rollout"),
+        (TYPE_MESSAGE, "Message Router Content Experiment"),
     )
+
+    @classmethod
+    def FEATURE_TYPE_CHOICES(cls):  # pragma: no cover
+        if not settings.FEATURE_MESSAGE_TYPE:
+            return tuple(t for t in cls.TYPE_CHOICES if cls.TYPE_MESSAGE not in t)
+        return cls.TYPE_CHOICES
 
     # Rollout stuff
     ROLLOUT_TYPE_CHOICES = ((TYPE_PREF, "Pref Rollout"), (TYPE_ADDON, "Add-On Rollout"))

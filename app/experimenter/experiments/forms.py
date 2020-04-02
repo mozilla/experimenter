@@ -102,7 +102,9 @@ class ChangeLogMixin(object):
 class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
 
     type = forms.ChoiceField(
-        label="Type", choices=Experiment.TYPE_CHOICES, help_text=Experiment.TYPE_HELP_TEXT
+        label="Type",
+        choices=Experiment.FEATURE_TYPE_CHOICES(),
+        help_text=Experiment.TYPE_HELP_TEXT,
     )
     owner = forms.ModelChoiceField(
         required=True,
