@@ -4785,7 +4785,6 @@
                     },
                     "firefox_min_version": {
                       "enum": [
-                        null,
                         "55.0",
                         "56.0",
                         "57.0",
@@ -4837,7 +4836,6 @@
                     },
                     "firefox_max_version": {
                       "enum": [
-                        null,
                         "55.0",
                         "56.0",
                         "57.0",
@@ -5007,7 +5005,6 @@
                   },
                   "firefox_min_version": {
                     "enum": [
-                      null,
                       "55.0",
                       "56.0",
                       "57.0",
@@ -5059,7 +5056,6 @@
                   },
                   "firefox_max_version": {
                     "enum": [
-                      null,
                       "55.0",
                       "56.0",
                       "57.0",
@@ -5205,7 +5201,6 @@
                   },
                   "firefox_min_version": {
                     "enum": [
-                      null,
                       "55.0",
                       "56.0",
                       "57.0",
@@ -5257,7 +5252,6 @@
                   },
                   "firefox_max_version": {
                     "enum": [
-                      null,
                       "55.0",
                       "56.0",
                       "57.0",
@@ -5403,7 +5397,6 @@
                   },
                   "firefox_min_version": {
                     "enum": [
-                      null,
                       "55.0",
                       "56.0",
                       "57.0",
@@ -5455,7 +5448,6 @@
                   },
                   "firefox_max_version": {
                     "enum": [
-                      null,
                       "55.0",
                       "56.0",
                       "57.0",
@@ -5606,7 +5598,6 @@
                     },
                     "firefox_min_version": {
                       "enum": [
-                        null,
                         "55.0",
                         "56.0",
                         "57.0",
@@ -5658,7 +5649,6 @@
                     },
                     "firefox_max_version": {
                       "enum": [
-                        null,
                         "55.0",
                         "56.0",
                         "57.0",
@@ -5828,7 +5818,6 @@
                   },
                   "firefox_min_version": {
                     "enum": [
-                      null,
                       "55.0",
                       "56.0",
                       "57.0",
@@ -5880,7 +5869,6 @@
                   },
                   "firefox_max_version": {
                     "enum": [
-                      null,
                       "55.0",
                       "56.0",
                       "57.0",
@@ -6026,7 +6014,6 @@
                   },
                   "firefox_min_version": {
                     "enum": [
-                      null,
                       "55.0",
                       "56.0",
                       "57.0",
@@ -6078,7 +6065,6 @@
                   },
                   "firefox_max_version": {
                     "enum": [
-                      null,
                       "55.0",
                       "56.0",
                       "57.0",
@@ -6224,7 +6210,6 @@
                   },
                   "firefox_min_version": {
                     "enum": [
-                      null,
                       "55.0",
                       "56.0",
                       "57.0",
@@ -6276,7 +6261,6 @@
                   },
                   "firefox_max_version": {
                     "enum": [
-                      null,
                       "55.0",
                       "56.0",
                       "57.0",
@@ -6427,7 +6411,6 @@
                     },
                     "firefox_min_version": {
                       "enum": [
-                        null,
                         "55.0",
                         "56.0",
                         "57.0",
@@ -6479,7 +6462,6 @@
                     },
                     "firefox_max_version": {
                       "enum": [
-                        null,
                         "55.0",
                         "56.0",
                         "57.0",
