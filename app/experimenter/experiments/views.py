@@ -17,7 +17,6 @@ from experimenter.experiments.forms import (
     ExperimentRisksForm,
     ExperimentStatusForm,
     ExperimentSubscribedForm,
-    ExperimentTimelinePopulationForm,
     NormandyIdForm,
     ExperimentOrderingForm,
 )
@@ -94,9 +93,8 @@ class ExperimentOverviewUpdateView(ExperimentFormMixin, UpdateView):
     template_name = "experiments/edit_overview.html"
 
 
-class ExperimentTimelinePopulationUpdateView(ExperimentFormMixin, UpdateView):
-    form_class = ExperimentTimelinePopulationForm
-    next_view_name = "experiments-design-update"
+class ExperimentTimelinePopulationUpdateView(DetailView):
+    model = Experiment
     template_name = "experiments/edit_timeline_population.html"
 
     def get_context_data(self, **kwargs):
