@@ -13,6 +13,12 @@ Analysis
       </span>
     </strong>
   </p>
+  {% if experiment.total_enrolled_clients %}
+    <p>
+      <strong>Total Enrolled Clients:</strong> {{ experiment.total_enrolled_clients }}
+    </p>
+  {% endif %}
+
 
   {% if experiment.survey_required %}
     <p><strong>Survey URLs</strong></p>

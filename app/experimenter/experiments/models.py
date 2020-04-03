@@ -132,6 +132,7 @@ class Experiment(ExperimentConstants, models.Model):
     population_percent = models.DecimalField(
         max_digits=7, decimal_places=4, default=0.0, blank=True, null=True
     )
+    total_enrolled_clients = models.PositiveIntegerField(blank=True, null=True)
     firefox_min_version = models.CharField(
         max_length=255, choices=ExperimentConstants.VERSION_CHOICES, blank=True, null=True
     )
