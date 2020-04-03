@@ -431,6 +431,7 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
             "survey_required": True,
             "survey_urls": "example.com",
             "survey_instructions": "Here are the launch instructions.",
+            "total_enrolled_clients": 10000,
         }
 
         form = ExperimentObjectivesForm(
@@ -445,6 +446,9 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
         self.assertTrue(experiment.survey_required)
         self.assertEqual(experiment.survey_urls, data["survey_urls"])
         self.assertEqual(experiment.survey_instructions, data["survey_instructions"])
+        self.assertEqual(
+            experiment.total_enrolled_clients, data["total_enrolled_clients"]
+        )
 
         self.assertEqual(experiment.changes.count(), 2)
 

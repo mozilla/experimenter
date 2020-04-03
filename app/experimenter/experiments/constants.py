@@ -667,6 +667,10 @@ class ExperimentConstants(object):
       we will improve [retention/page views/performance/satisfaction]</p>
     """
 
+    TOTAL_ENROLLED_CLIENTS_HELP_TEXT = """
+        https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=FIREFOX&title=Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-PopulationSize
+    """
+
     ENGINEERING_OWNER_HELP_TEXT = """
       <p>
         The Engineering Owner is the person responsible for the engineering
