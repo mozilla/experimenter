@@ -1437,6 +1437,11 @@ class TestExperimentModel(TestCase):
             ],
         )
 
+    def test_should_have_total_enrolled_true(self):
+        experiment = ExperimentFactory(type=Experiment.TYPE_PREF)
+
+        self.assertTrue(experiment.should_have_total_enrolled)
+
     def test_clone(self):
         user_1 = UserFactory.create()
         user_2 = UserFactory.create()

@@ -573,6 +573,10 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
+    def should_have_total_enrolled(self):
+        return self.type not in (self.TYPE_GENERIC, self.TYPE_ROLLOUT)
+
+    @property
     def completed_overview(self):
         return self.pk is not None
 

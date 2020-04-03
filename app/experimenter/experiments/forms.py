@@ -292,7 +292,7 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
     total_enrolled_clients = forms.IntegerField(
         required=False,
         min_value=1,
-        label="Total Enrolled Clients",
+        label="Estimated Total Enrolled Clients",
         help_text=Experiment.TOTAL_ENROLLED_CLIENTS_HELP_TEXT,
     )
 
