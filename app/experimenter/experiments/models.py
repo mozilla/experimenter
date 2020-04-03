@@ -132,6 +132,7 @@ class Experiment(ExperimentConstants, models.Model):
     population_percent = models.DecimalField(
         max_digits=7, decimal_places=4, default=0.0, blank=True, null=True
     )
+    total_enrolled_clients = models.PositiveIntegerField(blank=True, null=True)
     firefox_min_version = models.CharField(
         max_length=255, choices=ExperimentConstants.VERSION_CHOICES, blank=True, null=True
     )
@@ -570,6 +571,10 @@ class Experiment(ExperimentConstants, models.Model):
         return (self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC)) or (
             self.is_rollout and self.is_begun
         )
+
+    @property
+    def should_have_total_enrolled(self):
+        return self.type not in (self.TYPE_GENERIC, self.TYPE_ROLLOUT)
 
     @property
     def completed_overview(self):

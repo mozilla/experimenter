@@ -12,6 +12,10 @@
   {% include "experiments/field_inline.html" with field=form.objectives marked_required=True %}
   {% include "experiments/field_inline.html" with field=form.analysis marked_required=True %}
 
+  {% if object.should_have_total_enrolled %}
+    {% include "experiments/field_inline_help_link.html" with field=form.total_enrolled_clients %}
+  {% endif %}
+
   {% if not object.is_rollout %}
     {% include "experiments/radio_field_label_inline.html" with field=form.survey_required %}
 

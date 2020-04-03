@@ -237,6 +237,7 @@ class TestChangeLogSerializer(TestCase):
             "projects": [{"slug": project.slug}],
             "platform": experiment.platform,
             "objectives": experiment.objectives,
+            "total_enrolled_clients": experiment.total_enrolled_clients,
             "analysis": experiment.analysis,
             "analysis_owner": experiment.analysis_owner.id,
             "survey_required": experiment.survey_required,

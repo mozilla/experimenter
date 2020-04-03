@@ -289,6 +289,13 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
 
+    total_enrolled_clients = forms.IntegerField(
+        required=False,
+        min_value=1,
+        label="Estimated Total Enrolled Clients",
+        help_text=Experiment.TOTAL_ENROLLED_CLIENTS_HELP_TEXT,
+    )
+
     analysis = forms.CharField(
         required=False,
         label="Analysis Plan",
@@ -321,6 +328,7 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
     class Meta:
         model = Experiment
         fields = (
+            "total_enrolled_clients",
             "objectives",
             "analysis",
             "survey_required",

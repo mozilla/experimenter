@@ -101,6 +101,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "projects",
             "platform",
             "objectives",
+            "total_enrolled_clients",
             "analysis",
             "analysis_owner",
             "survey_required",
