@@ -96,6 +96,8 @@ class TestExperimentSerializer(TestCase):
             normandy_slug="a-normandy-slug",
             normandy_id=123,
             other_normandy_ids=[],
+            results_fail_to_launch=False,
+            results_failures_notes="failure notes",
         )
 
         # ensure expected_data has "string" if pref_type is json string
@@ -141,6 +143,23 @@ class TestExperimentSerializer(TestCase):
                 ExperimentChangeLogSerializer(change).data
                 for change in experiment.changes.all()
             ],
+            "results": {
+                "results_url": None,
+                "results_initial": None,
+                "results_lessons_learned": None,
+                "results_fail_to_launch": False,
+                "results_recipe_errors": None,
+                "results_restarts": None,
+                "results_low_enrollment": None,
+                "results_early_end": None,
+                "results_no_usable_data": None,
+                "results_failures_notes": "failure notes",
+                "results_changes_to_firefox": None,
+                "results_data_for_hypothesis": None,
+                "results_confidence": None,
+                "results_measure_impact": None,
+                "results_impact_notes": None,
+            },
         }
 
         self.assertEqual(set(serializer.data.keys()), set(expected_data.keys()))
@@ -269,6 +288,18 @@ class TestChangeLogSerializer(TestCase):
             "results_url": experiment.results_url,
             "results_initial": experiment.results_initial,
             "results_lessons_learned": experiment.results_lessons_learned,
+            "results_fail_to_launch": experiment.results_fail_to_launch,
+            "results_recipe_errors": experiment.results_recipe_errors,
+            "results_restarts": experiment.results_restarts,
+            "results_low_enrollment": experiment.results_low_enrollment,
+            "results_early_end": experiment.results_early_end,
+            "results_no_usable_data": experiment.results_no_usable_data,
+            "results_failures_notes": experiment.results_failures_notes,
+            "results_changes_to_firefox": experiment.results_changes_to_firefox,
+            "results_data_for_hypothesis": experiment.results_data_for_hypothesis,
+            "results_confidence": experiment.results_confidence,
+            "results_measure_impact": experiment.results_measure_impact,
+            "results_impact_notes": experiment.results_impact_notes,
             "rollout_playbook": experiment.rollout_playbook,
             "rollout_type": experiment.rollout_type,
         }

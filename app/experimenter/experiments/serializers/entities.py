@@ -149,6 +149,18 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "results_url",
             "results_initial",
             "results_lessons_learned",
+            "results_fail_to_launch",
+            "results_recipe_errors",
+            "results_restarts",
+            "results_low_enrollment",
+            "results_early_end",
+            "results_no_usable_data",
+            "results_failures_notes",
+            "results_changes_to_firefox",
+            "results_data_for_hypothesis",
+            "results_confidence",
+            "results_measure_impact",
+            "results_impact_notes",
             "rollout_type",
             "rollout_playbook",
         )
@@ -161,6 +173,29 @@ class ExperimentChangeLogSerializer(serializers.ModelSerializer):
         fields = ("changed_on", "pretty_status", "new_status", "old_status")
 
 
+class ResultsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Experiment
+        fields = (
+            "results_url",
+            "results_initial",
+            "results_lessons_learned",
+            "results_fail_to_launch",
+            "results_recipe_errors",
+            "results_restarts",
+            "results_low_enrollment",
+            "results_early_end",
+            "results_no_usable_data",
+            "results_failures_notes",
+            "results_changes_to_firefox",
+            "results_data_for_hypothesis",
+            "results_confidence",
+            "results_measure_impact",
+            "results_impact_notes",
+        )
+
+
 class ExperimentSerializer(serializers.ModelSerializer):
     start_date = JSTimestampField()
     end_date = JSTimestampField()
@@ -170,6 +205,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
     countries = CountrySerializer(many=True)
     pref_type = PrefTypeField()
     changes = ExperimentChangeLogSerializer(many=True)
+    results = serializers.SerializerMethodField()
 
     class Meta:
         model = Experiment
@@ -204,5 +240,9 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "normandy_id",
             "other_normandy_ids",
             "variants",
+            "results",
             "changes",
         )
+
+    def get_results(self, obj):
+        return ResultsSerializer(obj).data

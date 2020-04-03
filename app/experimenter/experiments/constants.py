@@ -11,13 +11,25 @@ class ExperimentConstants(object):
     TYPE_ADDON = "addon"
     TYPE_GENERIC = "generic"
     TYPE_ROLLOUT = "rollout"
+    TYPE_MESSAGE = "message"
 
     TYPE_CHOICES = (
         (TYPE_PREF, "Pref-Flip Experiment"),
         (TYPE_ADDON, "Add-On Experiment"),
         (TYPE_GENERIC, "Generic Experiment"),
         (TYPE_ROLLOUT, "Staged Rollout"),
+        (TYPE_MESSAGE, "Message Router Content Experiment"),
     )
+
+    @classmethod
+    def FEATURE_TYPE_CHOICES(cls):  # pragma: no cover
+        if not settings.FEATURE_MESSAGE_TYPE:
+            return tuple(t for t in cls.TYPE_CHOICES if cls.TYPE_MESSAGE not in t)
+        return cls.TYPE_CHOICES
+
+    # Message stuff
+    MESSAGE_DEFAULT_LOCALES = ("en-AU", "en-GB", "en-CA", "en-NZ", "en-ZA", "en-US")
+    MESSAGE_DEFAULT_COUNTRIES = ("US", "CA", "GB", "DE", "FR")
 
     # Rollout stuff
     ROLLOUT_TYPE_CHOICES = ((TYPE_PREF, "Pref Rollout"), (TYPE_ADDON, "Add-On Rollout"))
@@ -113,14 +125,26 @@ class ExperimentConstants(object):
         ("78.0", "Firefox 78.0"),
         ("79.0", "Firefox 79.0"),
         ("80.0", "Firefox 80.0"),
-    )
-
-    MIN_VERSION_CHOICES = ((None, "Firefox Min Version (Required)"),) + (
-        (VERSION_CHOICES)
-    )
-
-    MAX_VERSION_CHOICES = ((None, "Firefox Max Version (Required)"),) + (
-        (VERSION_CHOICES)
+        ("81.0", "Firefox 81.0"),
+        ("82.0", "Firefox 82.0"),
+        ("83.0", "Firefox 83.0"),
+        ("84.0", "Firefox 84.0"),
+        ("85.0", "Firefox 85.0"),
+        ("86.0", "Firefox 86.0"),
+        ("87.0", "Firefox 87.0"),
+        ("88.0", "Firefox 88.0"),
+        ("89.0", "Firefox 89.0"),
+        ("90.0", "Firefox 90.0"),
+        ("91.0", "Firefox 91.0"),
+        ("92.0", "Firefox 92.0"),
+        ("93.0", "Firefox 93.0"),
+        ("94.0", "Firefox 94.0"),
+        ("95.0", "Firefox 95.0"),
+        ("96.0", "Firefox 96.0"),
+        ("97.0", "Firefox 97.0"),
+        ("98.0", "Firefox 98.0"),
+        ("99.0", "Firefox 99.0"),
+        ("100.0", "Firefox 100.0"),
     )
 
     VERSION_REGEX = re.compile(r"[\d]+")

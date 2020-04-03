@@ -26,7 +26,7 @@ export default class AddonForm extends React.PureComponent {
             label="Signed Add-On URL"
             name="addon_release_url"
             dataTestId="addonUrl"
-            onChange={value => {
+            onChange={(value) => {
               this.props.handleDataChange("addon_release_url", value);
             }}
             value={this.props.data.get("addon_release_url")}
@@ -51,7 +51,7 @@ export default class AddonForm extends React.PureComponent {
               radioLabel2="Multiple add-ons"
               radioValue1={false}
               radioValue2={true}
-              onChange={event =>
+              onChange={(event) =>
                 this.props.handleDataChange(
                   "is_branched_addon",
                   event.target.value === "true",

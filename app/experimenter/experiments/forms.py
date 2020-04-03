@@ -1,4 +1,3 @@
-import decimal
 import json
 import re
 
@@ -6,14 +5,11 @@ from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.forms.models import ModelChoiceIterator
-from django.utils import timezone
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
-from experimenter.base.models import Country, Locale
-from experimenter.projects.models import Project
+from experimenter.base.models import Locale, Country
 from experimenter.bugzilla import get_bugzilla_id
 from experimenter.experiments import tasks
 from experimenter.experiments.changelog_utils import generate_change_log
@@ -21,6 +17,7 @@ from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment, ExperimentComment
 from experimenter.experiments.serializers.entities import ChangeLogSerializer
 from experimenter.notifications.models import Notification
+from experimenter.projects.models import Project
 
 
 class JSONField(forms.CharField):
@@ -106,7 +103,9 @@ class ChangeLogMixin(object):
 class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
 
     type = forms.ChoiceField(
-        label="Type", choices=Experiment.TYPE_CHOICES, help_text=Experiment.TYPE_HELP_TEXT
+        label="Type",
+        choices=Experiment.FEATURE_TYPE_CHOICES(),
+        help_text=Experiment.TYPE_HELP_TEXT,
     )
     owner = forms.ModelChoiceField(
         required=True,
@@ -245,217 +244,17 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
 
         return cleaned_data
 
-
-class CustomModelChoiceIterator(ModelChoiceIterator):
-
-    def __iter__(self):
-        yield (CustomModelMultipleChoiceField.ALL_KEY, self.field.all_label)
-        for choice in super().__iter__():
-            yield choice
-
-
-class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
-    """Return a ModelMultipleChoiceField but with the exception that
-    there's one extra "All" choice inserted as the first choice.
-    And when submitted, if "All" was one of the choices, reset
-    it to chose nothing."""
-
-    ALL_KEY = "__all__"
-
-    def __init__(self, *args, **kwargs):
-        self.all_label = kwargs.pop("all_label")
-        super().__init__(*args, **kwargs)
-
-    def clean(self, value):
-        if value is not None:
-            if self.ALL_KEY in value:
-                value = []
-            return super().clean(value)
-
-    iterator = CustomModelChoiceIterator
-
-
-class ExperimentTimelinePopulationForm(ChangeLogMixin, forms.ModelForm):
-    proposed_start_date = forms.DateField(
-        required=False,
-        label="Proposed Start Date",
-        help_text=Experiment.PROPOSED_START_DATE_HELP_TEXT,
-        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
-    )
-    proposed_duration = forms.IntegerField(
-        required=False,
-        min_value=1,
-        label="Proposed Total Duration (days)",
-        help_text=Experiment.PROPOSED_DURATION_HELP_TEXT,
-        widget=forms.NumberInput(attrs={"class": "form-control"}),
-    )
-    proposed_enrollment = forms.IntegerField(
-        required=False,
-        min_value=1,
-        label="Proposed Enrollment Duration (days)",
-        help_text=Experiment.PROPOSED_ENROLLMENT_HELP_TEXT,
-        widget=forms.NumberInput(attrs={"class": "form-control"}),
-    )
-    rollout_playbook = forms.ChoiceField(
-        required=False,
-        label="Rollout Playbook",
-        choices=Experiment.ROLLOUT_PLAYBOOK_CHOICES,
-        widget=forms.Select(attrs={"class": "form-control"}),
-        help_text=Experiment.ROLLOUT_PLAYBOOK_HELP_TEXT,
-    )
-    population_percent = forms.DecimalField(
-        required=False,
-        label="Population Percentage",
-        help_text=Experiment.POPULATION_PERCENT_HELP_TEXT,
-        initial="0.00",
-        widget=forms.NumberInput(attrs={"class": "form-control"}),
-    )
-    firefox_min_version = forms.ChoiceField(
-        required=False,
-        choices=Experiment.MIN_VERSION_CHOICES,
-        widget=forms.Select(attrs={"class": "form-control"}),
-        help_text=Experiment.VERSION_HELP_TEXT,
-    )
-    firefox_max_version = forms.ChoiceField(
-        required=False,
-        choices=Experiment.MAX_VERSION_CHOICES,
-        widget=forms.Select(attrs={"class": "form-control"}),
-    )
-    firefox_channel = forms.ChoiceField(
-        required=False,
-        choices=Experiment.CHANNEL_CHOICES,
-        widget=forms.Select(attrs={"class": "form-control"}),
-        label="Firefox Channel",
-        help_text=Experiment.CHANNEL_HELP_TEXT,
-    )
-    locales = CustomModelMultipleChoiceField(
-        required=False,
-        label="Locales",
-        all_label="All locales",
-        help_text="Applicable only if you don't select All",
-        queryset=Locale.objects.all(),
-        to_field_name="code",
-    )
-    countries = CustomModelMultipleChoiceField(
-        required=False,
-        label="Countries",
-        all_label="All countries",
-        help_text="Applicable only if you don't select All",
-        queryset=Country.objects.all(),
-        to_field_name="code",
-    )
-    platform = forms.ChoiceField(
-        required=False,
-        label="Platform",
-        help_text=Experiment.PLATFORM_HELP_TEXT,
-        choices=Experiment.PLATFORM_CHOICES,
-        widget=forms.Select(attrs={"class": "form-control"}),
-    )
-    client_matching = forms.CharField(
-        required=False,
-        label="Population Filtering",
-        help_text=Experiment.CLIENT_MATCHING_HELP_TEXT,
-        widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
-    )
-    # See https://developer.snapappointments.com/bootstrap-select/examples/
-    # for more options that relate to the initial rendering of the HTML
-    # as a way to customize how it works.
-    locales.widget.attrs.update({"data-live-search": "true"})
-    countries.widget.attrs.update({"data-live-search": "true"})
-
-    class Meta:
-        model = Experiment
-        fields = [
-            "proposed_start_date",
-            "proposed_duration",
-            "proposed_enrollment",
-            "rollout_playbook",
-            "population_percent",
-            "firefox_min_version",
-            "firefox_max_version",
-            "firefox_channel",
-            "locales",
-            "countries",
-            "platform",
-            "client_matching",
-        ]
-
-    def __init__(self, *args, **kwargs):
-        data = kwargs.pop("data", None)
-        instance = kwargs.pop("instance", None)
-        if instance:
-            # The reason we must do this is because the form fields
-            # for locales and countries don't know about the instance
-            # not having anything set, and we want the "All" option to
-            # appear in the generated HTML widget.
-            kwargs.setdefault("initial", {})
-            if not instance.locales.all().exists():
-                kwargs["initial"]["locales"] = [CustomModelMultipleChoiceField.ALL_KEY]
-            if not instance.countries.all().exists():
-                kwargs["initial"]["countries"] = [CustomModelMultipleChoiceField.ALL_KEY]
-        super().__init__(data=data, instance=instance, *args, **kwargs)
-
-    def clean_population_percent(self):
-        population_percent = self.cleaned_data.get("population_percent")
-
-        if population_percent and not (0 < population_percent <= 100):
-            raise forms.ValidationError(
-                "The population size must be between 0 and 100 percent."
-            )
-
-        return population_percent
-
-    def clean_firefox_max_version(self):
-        firefox_min_version = self.cleaned_data.get("firefox_min_version")
-        firefox_max_version = self.cleaned_data.get("firefox_max_version")
-
-        if firefox_min_version and firefox_max_version:
-            if firefox_max_version < firefox_min_version:
-                raise forms.ValidationError(
-                    "The max version must be larger than or equal to the min version."
-                )
-
-            return firefox_max_version
-
-    def clean_proposed_start_date(self):
-        start_date = self.cleaned_data.get("proposed_start_date")
-
-        if start_date and start_date < timezone.now().date():
-            raise forms.ValidationError(
-                "The delivery start date must be no earlier than the current date."
-            )
-
-        return start_date
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        # enrollment may be None
-        enrollment = cleaned_data.get("proposed_enrollment")
-        duration = cleaned_data.get("proposed_duration")
-
-        if (enrollment and duration) and enrollment > duration:
-            msg = (
-                "Enrollment duration is optional, but if set, "
-                "must be lower than the delivery duration. "
-                "If enrollment duration is not specified - users "
-                "are enrolled for the entire delivery."
-            )
-            self._errors["proposed_enrollment"] = [msg]
-
-        return cleaned_data
-
     def save(self, *args, **kwargs):
+        created = not self.instance.id
         experiment = super().save(*args, **kwargs)
 
-        if self.instance.is_rollout:
-            rollout_size = self.instance.rollout_dates.get(
-                "first_increase"
-            ) or self.instance.rollout_dates.get("final_increase")
-
-            if rollout_size:
-                experiment.population_percent = decimal.Decimal(rollout_size["percent"])
-                experiment.save()
+        if created and experiment.is_message_experiment:
+            experiment.locales.add(
+                *Locale.objects.filter(code__in=experiment.MESSAGE_DEFAULT_LOCALES)
+            )
+            experiment.countries.add(
+                *Country.objects.filter(code__in=experiment.MESSAGE_DEFAULT_COUNTRIES)
+            )
 
         return experiment
 

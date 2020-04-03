@@ -1,5 +1,3 @@
-import datetime
-import decimal
 import random
 import re
 import json
@@ -10,7 +8,6 @@ import mock
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.utils import timezone
 
 from experimenter.experiments.forms import NormandyIdForm
 from experimenter.experiments.models import Experiment, Country, Locale
@@ -398,60 +395,6 @@ class TestExperimentTimelinePopulationUpdateView(TestCase):
         self.assertEqual(json.loads(context["countries"]), countries)
         self.assertEqual(json.loads(context["locales"]), locales)
 
-    def test_view_saves_experiment(self):
-        user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, proposed_enrollment=1, proposed_duration=2
-        )
-        locale = LocaleFactory()
-        country = CountryFactory()
-
-        new_start_date = timezone.now().date() + datetime.timedelta(
-            days=random.randint(1, 100)
-        )
-        new_enrollment = experiment.proposed_enrollment + 1
-        new_duration = experiment.proposed_duration + 1
-
-        data = {
-            "action": "continue",
-            "proposed_start_date": new_start_date,
-            "proposed_enrollment": new_enrollment,
-            "proposed_duration": new_duration,
-            "population_percent": "11",
-            "firefox_min_version": Experiment.VERSION_CHOICES[-2][0],
-            "firefox_max_version": Experiment.VERSION_CHOICES[-1][0],
-            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-            "client_matching": "New matching!",
-            "platform": Experiment.PLATFORM_WINDOWS,
-            "locales": [locale.code],
-            "countries": [country.code],
-        }
-
-        response = self.client.post(
-            reverse("experiments-timeline-pop-update", kwargs={"slug": experiment.slug}),
-            data,
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 302)
-
-        experiment = Experiment.objects.get()
-
-        self.assertEqual(experiment.proposed_start_date, new_start_date)
-        self.assertEqual(experiment.proposed_enrollment, new_enrollment)
-        self.assertEqual(experiment.proposed_duration, new_duration)
-        self.assertEqual(
-            experiment.population_percent, decimal.Decimal(data["population_percent"])
-        )
-        self.assertEqual(experiment.firefox_min_version, data["firefox_min_version"])
-        self.assertEqual(experiment.firefox_max_version, data["firefox_max_version"])
-
-        self.assertEqual(experiment.firefox_channel, data["firefox_channel"])
-        self.assertEqual(experiment.platform, data["platform"])
-
-        self.assertTrue(locale in experiment.locales.all())
-
-        self.assertTrue(country in experiment.countries.all())
-
 
 class TestExperimentDesignUpdateView(TestCase):
 
@@ -483,6 +426,7 @@ class TestExperimentObjectivesUpdateView(TestCase):
             data,
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
+
         self.assertEqual(response.status_code, 302)
 
         experiment = Experiment.objects.get()

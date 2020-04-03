@@ -57,14 +57,14 @@ class BranchManager extends React.PureComponent {
         index={index}
         branch={branch}
         branchFieldsComponent={branchFieldsComponent}
-        remove={index => {
+        remove={(index) => {
           this.removeBranch(index);
         }}
         errors={errors.get(index, new Map())}
-        onChange={value => {
+        onChange={(value) => {
           this.handleBranchChange(index, value);
         }}
-        onErrorChange={errors => {
+        onErrorChange={(errors) => {
           this.handleBranchErrorChange(index, errors);
         }}
       />

@@ -85,7 +85,7 @@ export class Factory {
 
     const fields = this.getFields();
 
-    Object.keys(fields).forEach(key => {
+    Object.keys(fields).forEach((key) => {
       if (defaults[key]) {
         this.data[key] = defaults[key];
       } else if (fields[key] instanceof Field) {
