@@ -27,6 +27,10 @@ class ExperimentConstants(object):
             return tuple(t for t in cls.TYPE_CHOICES if cls.TYPE_MESSAGE not in t)
         return cls.TYPE_CHOICES
 
+    # Message stuff
+    MESSAGE_DEFAULT_LOCALES = ("en-AU", "en-GB", "en-CA", "en-NZ", "en-ZA", "en-US")
+    MESSAGE_DEFAULT_COUNTRIES = ("US", "CA", "GB", "DE", "FR")
+
     # Rollout stuff
     ROLLOUT_TYPE_CHOICES = ((TYPE_PREF, "Pref Rollout"), (TYPE_ADDON, "Add-On Rollout"))
 

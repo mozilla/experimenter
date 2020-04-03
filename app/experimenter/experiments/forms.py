@@ -9,7 +9,7 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
-from experimenter.projects.models import Project
+from experimenter.base.models import Locale, Country
 from experimenter.bugzilla import get_bugzilla_id
 from experimenter.experiments import tasks
 from experimenter.experiments.changelog_utils import generate_change_log
@@ -17,6 +17,7 @@ from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment, ExperimentComment
 from experimenter.experiments.serializers.entities import ChangeLogSerializer
 from experimenter.notifications.models import Notification
+from experimenter.projects.models import Project
 
 
 class JSONField(forms.CharField):
@@ -242,6 +243,20 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
                     self._errors[required_field] = [required_msg]
 
         return cleaned_data
+
+    def save(self, *args, **kwargs):
+        created = not self.instance.id
+        experiment = super().save(*args, **kwargs)
+
+        if created and experiment.is_message_experiment:
+            experiment.locales.add(
+                *Locale.objects.filter(code__in=experiment.MESSAGE_DEFAULT_LOCALES)
+            )
+            experiment.countries.add(
+                *Country.objects.filter(code__in=experiment.MESSAGE_DEFAULT_COUNTRIES)
+            )
+
+        return experiment
 
 
 class RadioWidget(forms.widgets.RadioSelect):

@@ -27,9 +27,11 @@ from experimenter.experiments.forms import (
 )
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
+    CountryFactory,
     ExperimentFactory,
-    UserFactory,
+    LocaleFactory,
     ProjectFactory,
+    UserFactory,
 )
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 from experimenter.experiments.tests.mixins import MockTasksMixin, MockRequestMixin
@@ -356,6 +358,24 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertEqual(change.old_status, None)
         self.assertEqual(change.new_status, experiment.status)
         self.assertEqual(change.changed_by, self.request.user)
+
+    def test_message_experiment_sets_default_locales_countries(self):
+        [LocaleFactory.create(code=l) for l in Experiment.MESSAGE_DEFAULT_LOCALES]
+        [CountryFactory.create(code=c) for c in Experiment.MESSAGE_DEFAULT_COUNTRIES]
+
+        self.data["type"] = Experiment.TYPE_MESSAGE
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(
+            set(experiment.locales.values_list("code", flat=True)),
+            set(Experiment.MESSAGE_DEFAULT_LOCALES),
+        )
+        self.assertEqual(
+            set(experiment.countries.values_list("code", flat=True)),
+            set(Experiment.MESSAGE_DEFAULT_COUNTRIES),
+        )
 
     def test_empty_slug_raises_error(self):
         self.data["name"] = "#"

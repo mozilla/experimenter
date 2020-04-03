@@ -534,6 +534,10 @@ class Experiment(ExperimentConstants, models.Model):
         return self.type == self.TYPE_PREF
 
     @property
+    def is_message_experiment(self):
+        return self.type == self.TYPE_MESSAGE
+
+    @property
     def is_rollout(self):
         return self.type == self.TYPE_ROLLOUT
 
