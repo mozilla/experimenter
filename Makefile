@@ -21,8 +21,8 @@ COMPOSE_TEST = docker-compose -f docker-compose-test.yml
 COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml
 COMPOSE_FULL = docker-compose -f docker-compose.yml -f docker-compose-full.yml
 
-PARALLEL = parallel --halt now,fail=1 {} :::
-PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no --disable-warnings --ignore=tests/integration -n 4
+PARALLEL = parallel --halt now,fail=1 --jobs $$JOBS {} :::
+PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no --disable-warnings --ignore=tests/integration -n $$JOBS
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 ESLINT = yarn lint
 ESLINT_FIX = yarn lint-fix
@@ -61,7 +61,11 @@ check_docs: test_build
 	$(COMPOSE_TEST) run app sh -c "$(CHECK_DOCS)"
 
 check: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT)" "$(PYTHON_TEST)" "$(JS_TEST)"'
+	$(COMPOSE_TEST) run app sh -c 'JOBS=2;$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT)" "$(PYTHON_TEST)" "$(JS_TEST)"'
+
+check4: test_build
+	$(COMPOSE_TEST) run app sh -c 'JOBS=4;$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT)" "$(PYTHON_TEST)" "$(JS_TEST)"'
+
 
 compose_build: build ssl
 	$(COMPOSE)  build
