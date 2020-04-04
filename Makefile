@@ -30,8 +30,8 @@ JS_TEST = yarn test
 FLAKE8 = flake8 .
 BLACK_CHECK = black -l 90 --check --diff .
 BLACK_FIX = black -l 90 .
-CHECK_DOCS = python manage.py generate-docs --check=true
-GENERATE_DOCS = python manage.py generate-docs
+CHECK_DOCS = python manage.py generate_docs --check=true
+GENERATE_DOCS = python manage.py generate_docs
 
 test_build: build
 	$(COMPOSE_TEST) build
@@ -122,7 +122,7 @@ load_countries: compose_build
 load_locales_countries:load_locales load_countries
 
 load_dummy_experiments: compose_build
-	$(COMPOSE) run app python manage.py load-dummy-experiments
+	$(COMPOSE) run app python manage.py load_dummy_experiments
 
 shell: compose_build
 	$(COMPOSE) run app python manage.py shell
