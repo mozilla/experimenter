@@ -153,17 +153,16 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
         old_status = None
         for status_value, status_label in Experiment.STATUS_CHOICES:
             experiment.status = status_value
-            experiment.save()
 
-            change = ExperimentChangeLogFactory.create(
-                experiment=experiment, old_status=old_status, new_status=status_value
+            ExperimentChangeLogFactory.create(
+                experiment=experiment,
+                old_status=old_status,
+                new_status=status_value,
+                changed_on=now,
             )
-            change.changed_on = now
-            change.save()
 
             if status_value == Experiment.STATUS_SHIP:
                 experiment.normandy_slug = experiment.generate_normandy_slug()
-                experiment.save()
 
             if status_value == target_status:
                 break
@@ -176,7 +175,8 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
             review_fields = experiment.get_all_required_reviews()
             for review in review_fields:
                 setattr(experiment, review, True)
-            experiment.save()
+
+        experiment.save()
 
         return experiment
 
