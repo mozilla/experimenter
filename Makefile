@@ -14,15 +14,15 @@ secretkey:
 build:
 	./scripts/build.sh
 
-WAIT_FOR_DB = /app/bin/wait-for-it.sh db:5432 --
+WAIT_FOR_DB = /app/bin/wait-for-it.sh db:5432 &&
 
 COMPOSE = docker-compose -f docker-compose.yml
 COMPOSE_TEST = docker-compose -f docker-compose-test.yml
 COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml
 COMPOSE_FULL = docker-compose -f docker-compose.yml -f docker-compose-full.yml
 
-PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no --ignore=tests/integration
-PYTHON_TEST_FAST = python manage.py test -v 3 --parallel
+PARALLEL = parallel --halt now,fail=1 {} :::
+PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no --disable-warnings --ignore=tests/integration -n 4
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 ESLINT = yarn lint
 ESLINT_FIX = yarn lint-fix
@@ -37,10 +37,7 @@ test_build: build
 	$(COMPOSE_TEST) build
 
 test: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST)&&$(JS_TEST)"
-
-testfast: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST_FAST)"
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_TEST)" "$(JS_TEST)"'
 
 eslint: test_build
 	$(COMPOSE_TEST) run app sh -c "$(ESLINT)"
@@ -64,10 +61,7 @@ check_docs: test_build
 	$(COMPOSE_TEST) run app sh -c "$(CHECK_DOCS)"
 
 check: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)&&$(CHECK_DOCS)&&$(BLACK_CHECK)&&$(FLAKE8)&&$(ESLINT)&&$(PYTHON_TEST)&&$(JS_TEST)"
-
-checkfast: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)&&$(BLACK_CHECK)&&$(FLAKE8)&&$(ESLINT)&&$(PYTHON_TEST_FAST)"
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT)" "$(PYTHON_TEST)" "$(JS_TEST)"'
 
 compose_build: build ssl
 	$(COMPOSE)  build
