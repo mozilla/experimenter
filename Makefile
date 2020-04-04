@@ -41,13 +41,13 @@ test_build: build
 	$(COMPOSE_TEST) build
 
 test: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_TEST)" "$(JS_TEST)"'
+	$(COMPOSE_TEST) run app sh -c 'JOBS=4;$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_TEST)" "$(JS_TEST)"'
 
 eslint: test_build
 	$(COMPOSE_TEST) run app sh -c "$(ESLINT)"
 
 py_test: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST)"
+	$(COMPOSE_TEST) run app sh -c "JOBS=4;$(WAIT_FOR_DB) $(PYTHON_TEST)"
 
 js_test: test_build
 	$(COMPOSE_TEST) run app sh -c "$(JS_TEST)"
@@ -113,12 +113,6 @@ migrate: compose_build
 
 createuser: compose_build
 	$(COMPOSE) run app python manage.py createsuperuser
-
-load_locales_countries:  compose_build
-	$(COMPOSE) run app sh -c "$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)"
-
-load_dummy_experiments: compose_build
-	$(COMPOSE) run app sh -c "$(LOAD_DUMMY_EXPERIMENTS)"
 
 shell: compose_build
 	$(COMPOSE) run app python manage.py shell
