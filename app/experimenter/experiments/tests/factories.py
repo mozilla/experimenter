@@ -298,21 +298,9 @@ class ExperimentCommentFactory(factory.django.DjangoModelFactory):
         model = ExperimentComment
 
 
-def letter_code_sequence(n):
-    # faker.Sequence starts at 0, which would produce an empty string
-    n += 1
-    s = ""
-    while n > 0:
-        letter = n % 26
-        s += chr(letter + ord("a"))
-        n = n // 26
-
-    return s
-
-
 class CountryFactory(factory.django.DjangoModelFactory):
-    code = factory.Sequence(letter_code_sequence)
     name = factory.LazyAttribute(lambda o: faker.country())
+    code = factory.LazyAttribute(lambda o: o.name[:2])
 
     class Meta:
         model = Country
@@ -320,10 +308,8 @@ class CountryFactory(factory.django.DjangoModelFactory):
 
 
 class LocaleFactory(factory.django.DjangoModelFactory):
-    code = factory.Sequence(letter_code_sequence)
-    name = factory.LazyAttribute(
-        lambda o: faker.word()  # not technically correct, but sure
-    )
+    name = factory.LazyAttribute(lambda o: faker.country())
+    code = factory.LazyAttribute(lambda o: o.name[:2])
 
     class Meta:
         model = Locale
@@ -336,4 +322,4 @@ class ProjectFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Project
-        django_get_or_create = ("name",)
+        django_get_or_create = ("slug",)
