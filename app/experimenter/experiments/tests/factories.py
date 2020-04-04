@@ -186,8 +186,7 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
             return
 
         if extracted:
-            for user in extracted:
-                self.subscribers.add(user)
+            self.subscribers.add(*extracted)
 
     @factory.post_generation
     def locales(self, create, extracted, **kwargs):
@@ -195,63 +194,35 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
             # Simple build, do nothing.
             return
 
-        if extracted is None and Locale.objects.all().count() == 0:
-            extracted = _generate_many_to_many_list(LocaleFactory)
+        if extracted is None and Locale.objects.exists():
+            rand_num = random.randint(0, 10)
+            extracted = Locale.objects.all()[:rand_num]
 
-        elif extracted is None and Locale.objects.all():
-            total = Locale.objects.all().count()
-            rand_num = random.randint(0, total)
-            extracted = Locale.objects.order_by("?")[:rand_num]
-
-        for locale in extracted:
-            self.locales.add(locale)
+        if extracted:
+            self.locales.add(*extracted)
 
     @factory.post_generation
     def countries(self, create, extracted, **kwargs):
-
         if not create:
             # Simple build, do nothing.
             return
 
-        if extracted is None and Country.objects.all().count() == 0:
-            extracted = _generate_many_to_many_list(CountryFactory)
+        if extracted is None and Country.objects.exists():
+            rand_num = random.randint(0, 10)
+            extracted = Country.objects.all()[:rand_num]
 
-        elif extracted is None and Country.objects.all():
-            total = Country.objects.all().count()
-            rand_num = random.randint(0, total)
-            extracted = Country.objects.order_by("?")[:rand_num]
-
-        for country in extracted:
-            self.countries.add(country)
+        if extracted:
+            self.countries.add(*extracted)
 
     @factory.post_generation
     def projects(self, create, extracted, **kwargs):
         if not create:
             return
 
-        if extracted is None and Project.objects.all().count() == 0:
-            extracted = _generate_many_to_many_list(ProjectFactory)
+        if extracted is None:
+            extracted = [ProjectFactory.create() for i in range(random.randint(0, 3))]
 
-        elif extracted is None and Project.objects.all():
-            total = Project.objects.all().count()
-            rand_num = random.randint(0, total)
-            extracted = Project.objects.order_by("?")[:rand_num]
-
-        for project in extracted:
-            self.projects.add(project)
-
-
-def _generate_many_to_many_list(factory):
-    """Helper function to help generate a list of related objects."""
-    # Generate a list of elements with an emphasis on 0- and
-    # 1-length lists
-    length = random.randint(0, 2)
-    if length == 2:
-        length = random.randint(2, 30)
-
-    lst = [factory.create() for i in range(length)]
-
-    return lst
+        self.projects.add(*extracted)
 
 
 class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
