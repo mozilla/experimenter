@@ -32,11 +32,10 @@ BLACK_CHECK = black -l 90 --check --diff .
 BLACK_FIX = black -l 90 .
 CHECK_DOCS = python manage.py generate-docs --check=true
 GENERATE_DOCS = python manage.py generate-docs
-LOAD_LOCALES = python manage.py loaddata ./fixtures/locales.json
-LOAD_COUNTRIES = python manage.py load-countries
+LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json
+LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json
 LOAD_DUMMY_EXPERIMENTS = python manage.py load-dummy-experiments
 MIGRATE = python manage.py migrate
-
 
 test_build: build
 	$(COMPOSE_TEST) build
