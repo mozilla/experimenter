@@ -66,7 +66,6 @@ check: test_build
 check4: test_build
 	$(COMPOSE_TEST) run app sh -c 'JOBS=4;$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT)" "$(PYTHON_TEST)" "$(JS_TEST)"'
 
-
 compose_build: build ssl
 	$(COMPOSE)  build
 
