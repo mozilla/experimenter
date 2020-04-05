@@ -405,7 +405,7 @@ class TestExperimentObjectivesUpdateView(TestCase):
             "action": "continue",
             "objectives": "Some new objectives!",
             "analysis": "Some new analysis!",
-            "survey_required": False,
+            "survey_required": "0",
         }
 
         response = self.client.post(
@@ -436,19 +436,19 @@ class TestExperimentRisksUpdateView(TestCase):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
 
         data = {
-            "risk_partner_related": True,
-            "risk_brand": True,
-            "risk_fast_shipped": True,
-            "risk_confidential": True,
-            "risk_release_population": True,
-            "risk_revenue": True,
-            "risk_data_category": True,
-            "risk_external_team_impact": True,
-            "risk_telemetry_data": True,
-            "risk_ux": True,
-            "risk_security": True,
-            "risk_revision": True,
-            "risk_technical": True,
+            "risk_partner_related": "1",
+            "risk_brand": "1",
+            "risk_fast_shipped": "1",
+            "risk_confidential": "1",
+            "risk_release_population": "1",
+            "risk_revenue": "1",
+            "risk_data_category": "1",
+            "risk_external_team_impact": "1",
+            "risk_telemetry_data": "1",
+            "risk_ux": "1",
+            "risk_security": "1",
+            "risk_revision": "1",
+            "risk_technical": "1",
             "risk_technical_description": "It's complicated",
             "risks": "There are some risks",
             "testing": "Always be sure to test!",

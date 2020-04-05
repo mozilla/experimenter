@@ -14,15 +14,15 @@ secretkey:
 build:
 	./scripts/build.sh
 
-WAIT_FOR_DB = /app/bin/wait-for-it.sh db:5432 --
+WAIT_FOR_DB = /app/bin/wait-for-it.sh db:5432 &&
 
 COMPOSE = docker-compose -f docker-compose.yml
 COMPOSE_TEST = docker-compose -f docker-compose-test.yml
 COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml
 COMPOSE_FULL = docker-compose -f docker-compose.yml -f docker-compose-full.yml
 
-PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no --ignore=tests/integration
-PYTHON_TEST_FAST = python manage.py test -v 3 --parallel
+PARALLEL = parallel --halt now,fail=1 --jobs $$JOBS {} :::
+PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no --disable-warnings --ignore=tests/integration -n $$JOBS
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 ESLINT = yarn lint
 ESLINT_FIX = yarn lint-fix
@@ -32,21 +32,22 @@ BLACK_CHECK = black -l 90 --check --diff .
 BLACK_FIX = black -l 90 .
 CHECK_DOCS = python manage.py generate-docs --check=true
 GENERATE_DOCS = python manage.py generate-docs
+LOAD_LOCALES = python manage.py loaddata ./fixtures/locales.json
+LOAD_COUNTRIES = python manage.py load-countries
+LOAD_DUMMY_EXPERIMENTS = python manage.py load-dummy-experiments
+MIGRATE = python manage.py migrate
 
 test_build: build
 	$(COMPOSE_TEST) build
 
 test: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST)&&$(JS_TEST)"
-
-testfast: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST_FAST)"
+	$(COMPOSE_TEST) run app sh -c 'JOBS=4;$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_TEST)" "$(JS_TEST)"'
 
 eslint: test_build
 	$(COMPOSE_TEST) run app sh -c "$(ESLINT)"
 
 py_test: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST)"
+	$(COMPOSE_TEST) run app sh -c "JOBS=4;$(WAIT_FOR_DB) $(PYTHON_TEST)"
 
 js_test: test_build
 	$(COMPOSE_TEST) run app sh -c "$(JS_TEST)"
@@ -64,10 +65,10 @@ check_docs: test_build
 	$(COMPOSE_TEST) run app sh -c "$(CHECK_DOCS)"
 
 check: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)&&$(CHECK_DOCS)&&$(BLACK_CHECK)&&$(FLAKE8)&&$(ESLINT)&&$(PYTHON_TEST)&&$(JS_TEST)"
+	$(COMPOSE_TEST) run app sh -c 'JOBS=2;$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT)" "$(PYTHON_TEST)" "$(JS_TEST)"'
 
-checkfast: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)&&$(BLACK_CHECK)&&$(FLAKE8)&&$(ESLINT)&&$(PYTHON_TEST_FAST)"
+check4: test_build
+	$(COMPOSE_TEST) run app sh -c 'JOBS=4;$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT)" "$(PYTHON_TEST)" "$(JS_TEST)"'
 
 compose_build: build ssl
 	$(COMPOSE)  build
@@ -113,17 +114,6 @@ migrate: compose_build
 createuser: compose_build
 	$(COMPOSE) run app python manage.py createsuperuser
 
-load_locales: compose_build
-	$(COMPOSE) run app python manage.py loaddata ./fixtures/locales.json
-
-load_countries: compose_build
-	$(COMPOSE) run app python manage.py load-countries
-
-load_locales_countries:load_locales load_countries
-
-load_dummy_experiments: compose_build
-	$(COMPOSE) run app python manage.py load-dummy-experiments
-
 shell: compose_build
 	$(COMPOSE) run app python manage.py shell
 
@@ -133,7 +123,8 @@ dbshell: compose_build
 bash: compose_build
 	$(COMPOSE) run app bash
 
-refresh: kill migrate load_locales_countries load_dummy_experiments
+refresh: kill
+	$(COMPOSE) run app sh -c '$(WAIT_FOR_DB) $(MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 # experimenter + delivery console + normandy stack
 compose_build_all: build ssl
