@@ -9,7 +9,6 @@ from experimenter.openidc.middleware import OpenIDCAuthMiddleware
 
 
 class OpenIDCAuthMiddlewareTests(TestCase):
-
     def setUp(self):
         self.response = "Response"
         self.middleware = OpenIDCAuthMiddleware(lambda request: self.response)
