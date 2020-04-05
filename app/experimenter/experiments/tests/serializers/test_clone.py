@@ -1,4 +1,3 @@
-
 from django.test import TestCase
 
 from experimenter.experiments.tests.factories import ExperimentFactory
@@ -9,7 +8,6 @@ from experimenter.experiments.tests.mixins import MockRequestMixin
 
 
 class TestCloneSerializer(MockRequestMixin, TestCase):
-
     def test_clone_serializer_rejects_duplicate_slug(self):
         experiment_1 = ExperimentFactory.create(
             name="good experiment", slug="great-experiment"

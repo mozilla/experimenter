@@ -25,7 +25,6 @@ from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 
 
 class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
-
     def test_get_bugzilla_id_with_valid_bug_id(self):
         bug_url = "https://bugzilla.allizom.org/show_bug.cgi?id=1234"
         bug_id = get_bugzilla_id(bug_url)
@@ -156,7 +155,6 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
 
 
 class TestFormatBugBody(TestCase):
-
     def test_countries_locales_list_all_when_none_specified(self):
         experiment = ExperimentFactory.create(countries=[], locales=[])
         body = format_bug_body(experiment)
@@ -173,7 +171,6 @@ class TestFormatBugBody(TestCase):
 
 
 class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
-
     def test_update_bugzilla_pref_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
@@ -213,7 +210,6 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
 
 
 class TestUpdateBugzillaResolution(MockBugzillaMixin, TestCase):
-
     def test_bugzilla_resolution_with_archive_true(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
@@ -257,7 +253,6 @@ class TestUpdateBugzillaResolution(MockBugzillaMixin, TestCase):
 
 
 class TestAddExperimentComment(MockBugzillaMixin, TestCase):
-
     def test_add_bugzilla_comment_pref_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
@@ -301,7 +296,6 @@ class TestAddExperimentComment(MockBugzillaMixin, TestCase):
 
 
 class TestMakeBugzillaCall(MockBugzillaMixin, TestCase):
-
     def test_api_error_logs_message(self):
         mock_response_data = {"message": "Error creating Bugzilla Bug because of reasons"}
         mock_response = mock.Mock()
@@ -322,7 +316,6 @@ class TestMakeBugzillaCall(MockBugzillaMixin, TestCase):
 
 
 class TestMakePutBugzillaCall(MockBugzillaMixin, TestCase):
-
     def test_api_error_logs_message(self):
         mock_response_data = {"message": "Error: Something went wrong"}
         mock_response = mock.Mock()
