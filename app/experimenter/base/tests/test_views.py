@@ -4,7 +4,6 @@ from django.urls import reverse
 
 
 class TestContextProcessors(TestCase):
-
     def test_google_analytics_omitted_if_setting_false(self):
         with self.settings(USE_GOOGLE_ANALYTICS=False):
             headers = {settings.OPENIDC_EMAIL_HEADER: "user@example.com"}

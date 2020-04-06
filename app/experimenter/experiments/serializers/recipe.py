@@ -12,7 +12,6 @@ from experimenter.experiments.serializers.entities import PrefTypeField
 
 
 class PrefValueField(serializers.Field):
-
     def __init__(self, type_field, value_field, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.type_field = type_field
@@ -147,7 +146,6 @@ class SingularPreferenceRecipeValueSerializer(serializers.ModelSerializer):
 
 
 class VariantPreferenceRecipeListSerializer(serializers.ListSerializer):
-
     def to_representation(self, obj):
         experiment = obj.instance.experiment
 

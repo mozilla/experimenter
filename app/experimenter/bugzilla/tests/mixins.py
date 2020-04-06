@@ -4,7 +4,6 @@ from experimenter import bugzilla
 
 
 class MockBugzillaMixin(object):
-
     def setUp(self):
         super().setUp()
 
