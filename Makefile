@@ -21,8 +21,9 @@ COMPOSE_TEST = docker-compose -f docker-compose-test.yml
 COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml
 COMPOSE_FULL = docker-compose -f docker-compose.yml -f docker-compose-full.yml
 
-PARALLEL = parallel --halt now,fail=1 --jobs $$JOBS {} :::
-PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no --disable-warnings --ignore=tests/integration -n $$JOBS
+JOBS = 4
+PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
+PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no --disable-warnings --ignore=tests/integration -n ${JOBS}
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 ESLINT = yarn lint
 ESLINT_FIX = yarn lint-fix
@@ -30,8 +31,8 @@ JS_TEST = yarn test
 FLAKE8 = flake8 .
 BLACK_CHECK = black -l 90 --check --diff .
 BLACK_FIX = black -l 90 .
-CHECK_DOCS = python manage.py generate-docs --check=true
-GENERATE_DOCS = python manage.py generate-docs
+CHECK_DOCS = python manage.py generate_docs --check=true
+GENERATE_DOCS = python manage.py generate_docs
 LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json
 LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json
 LOAD_DUMMY_EXPERIMENTS = python manage.py load_dummy_experiments
@@ -41,13 +42,13 @@ test_build: build
 	$(COMPOSE_TEST) build
 
 test: test_build
-	$(COMPOSE_TEST) run app sh -c 'JOBS=4;$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_TEST)" "$(JS_TEST)"'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_TEST)" "$(JS_TEST)"'
 
 eslint: test_build
 	$(COMPOSE_TEST) run app sh -c "$(ESLINT)"
 
 py_test: test_build
-	$(COMPOSE_TEST) run app sh -c "JOBS=4;$(WAIT_FOR_DB) $(PYTHON_TEST)"
+	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST)"
 
 js_test: test_build
 	$(COMPOSE_TEST) run app sh -c "$(JS_TEST)"
@@ -65,7 +66,7 @@ check_docs: test_build
 	$(COMPOSE_TEST) run app sh -c "$(CHECK_DOCS)"
 
 check: test_build
-	$(COMPOSE_TEST) run app sh -c 'JOBS=4;$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT)" "$(PYTHON_TEST)" "$(JS_TEST)"'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT)" "$(PYTHON_TEST)" "$(JS_TEST)"'
 
 compose_build: build ssl
 	$(COMPOSE)  build
