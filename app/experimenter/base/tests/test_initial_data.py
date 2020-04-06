@@ -7,7 +7,6 @@ from experimenter.experiments.constants import ExperimentConstants
 
 
 class TestInitialData(TestCase):
-
     def test_load_locales_countries(self):
         self.assertTrue(not Country.objects.exists())
         self.assertTrue(not Locale.objects.exists())

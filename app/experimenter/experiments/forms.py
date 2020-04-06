@@ -21,7 +21,6 @@ from experimenter.projects.models import Project
 
 
 class JSONField(forms.CharField):
-
     def clean(self, value):
         cleaned_value = super().clean(value)
 
@@ -35,7 +34,6 @@ class JSONField(forms.CharField):
 
 
 class DSIssueURLField(forms.URLField):
-
     def clean(self, value):
         cleaned_value = super().clean(value)
 
@@ -55,7 +53,6 @@ class DSIssueURLField(forms.URLField):
 
 
 class BugzillaURLField(forms.URLField):
-
     def clean(self, value):
         cleaned_value = super().clean(value)
 
@@ -71,7 +68,6 @@ class BugzillaURLField(forms.URLField):
 
 
 class ChangeLogMixin(object):
-
     def __init__(self, request, *args, **kwargs):
         self.request = request
         super().__init__(*args, **kwargs)

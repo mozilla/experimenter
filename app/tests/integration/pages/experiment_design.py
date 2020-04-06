@@ -65,7 +65,6 @@ class DesignPage(Base):
         return
 
     class BranchRegion(Region):
-
         def __init__(self, page, root=None, count=None, **kwargs):
             super().__init__(page=page, root=root, **kwargs)
             self.number = count
