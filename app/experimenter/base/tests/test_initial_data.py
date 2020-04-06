@@ -8,12 +8,12 @@ from experimenter.experiments.constants import ExperimentConstants
 class TestInitialData(TestCase):
     def test_load_dummy_experiments(self):
         self.assertFalse(Experiment.objects.exists())
-        call_command("load-dummy-experiments")
+        call_command("load_dummy_experiments")
         self.assertTrue(Experiment.objects.exists())
 
     def test_load_dummy_experiments_with_specified_values(self):
         call_command(
-            "load-dummy-experiments",
+            "load_dummy_experiments",
             num_of_experiments=20,
             status=ExperimentConstants.STATUS_DRAFT,
         )

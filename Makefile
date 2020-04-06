@@ -34,7 +34,7 @@ CHECK_DOCS = python manage.py generate-docs --check=true
 GENERATE_DOCS = python manage.py generate-docs
 LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json
 LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json
-LOAD_DUMMY_EXPERIMENTS = python manage.py load-dummy-experiments
+LOAD_DUMMY_EXPERIMENTS = python manage.py load_dummy_experiments
 MIGRATE = python manage.py migrate
 
 test_build: build
@@ -115,7 +115,7 @@ load_locales_countries: compose_build
 	$(COMPOSE) run app sh -c "$(WAIT_FOR_DB) $(LOAD_LOCALES)&&$(LOAD_COUNTRIES)"
 
 load_dummy_experiments: compose_build
-	$(COMPOSE) run app python manage.py load-dummy-experiments
+	$(COMPOSE) run app python manage.py load_dummy_experiments
 
 shell: compose_build
 	$(COMPOSE) run app python manage.py shell
