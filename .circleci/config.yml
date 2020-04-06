@@ -7,14 +7,10 @@ jobs:
         default: true
     machine:
       docker_layer_caching: true
+      image: ubuntu-1604:201903-01 # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
+    resource_class: xlarge
     working_directory: ~/experimenter
     steps:
-      - run:
-          name: Install Docker Compose
-          command: |
-            set -x
-            sudo bash -c "curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose"
-            sudo chmod +x /usr/local/bin/docker-compose
       - run:
           name: Docker info
           command: docker -v
@@ -41,14 +37,10 @@ jobs:
   integration_test:
     machine:
       docker_layer_caching: true
+      image: ubuntu-1604:201903-01 # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
+    resource_class: xlarge
     working_directory: ~/experimenter
     steps:
-      - run:
-          name: Install Docker Compose
-          command: |
-            set -x
-            sudo bash -c "curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose"
-            sudo chmod +x /usr/local/bin/docker-compose
       - run:
           name: Docker info
           command: docker -v
