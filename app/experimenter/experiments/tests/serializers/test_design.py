@@ -35,7 +35,6 @@ from experimenter.experiments.tests.mixins import MockRequestMixin
 
 
 class TestExperimentDesignVariantBaseSerializer(TestCase):
-
     def test_serializer_rejects_too_long_names(self):
         data = {
             "name": "Terrific branch" * 100,
@@ -61,7 +60,6 @@ class TestExperimentDesignVariantBaseSerializer(TestCase):
 
 
 class TestExperimentDesignBranchVarianPreferenceSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         variant = ExperimentVariantFactory.create()
         vp = VariantPreferencesFactory.create(variant=variant)
@@ -80,7 +78,6 @@ class TestExperimentDesignBranchVarianPreferenceSerializer(TestCase):
 
 
 class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
-
     def setUp(self):
         super().setUp()
         self.pref1 = {
@@ -319,7 +316,6 @@ class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
 
 
 class TestExperimentDesignBranchMultiPrefSerializer(TestCase):
-
     def setUp(self):
         self.pref1 = {
             "pref_name": "pref1",
@@ -368,7 +364,6 @@ class TestExperimentDesignBranchMultiPrefSerializer(TestCase):
 
 
 class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
-
     def setUp(self):
         super().setUp()
         self.control_variant_data = {
@@ -637,7 +632,6 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
 
 
 class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
-
     def setUp(self):
         super().setUp()
 
@@ -916,7 +910,6 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
 
 
 class TestExperimentDesignAddonSerializer(MockRequestMixin, TestCase):
-
     def setUp(self):
         super().setUp()
         self.control_variant_data = {
@@ -1011,7 +1004,6 @@ class TestExperimentDesignAddonSerializer(MockRequestMixin, TestCase):
 
 
 class TestExperimentDesignGenericSerializer(MockRequestMixin, TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create_with_variants(
             type=ExperimentConstants.TYPE_GENERIC
@@ -1083,7 +1075,6 @@ class TestExperimentDesignGenericSerializer(MockRequestMixin, TestCase):
 
 
 class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create_with_variants(
             type=ExperimentConstants.TYPE_ADDON
@@ -1145,7 +1136,6 @@ class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
 
 
 class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
-
     def test_pref_fields_required_for_rollout_type_pref(self):
 
         experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
@@ -1341,7 +1331,6 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
 
 
 class TestExperimentDesignAddonRolloutSerializer(MockRequestMixin, TestCase):
-
     def test_addon_fields_required_for_rollout_type_addon(self):
         experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
 
@@ -1375,7 +1364,6 @@ class TestExperimentDesignAddonRolloutSerializer(MockRequestMixin, TestCase):
 
 
 class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
-
     def test_update_changelog_creates_no_log_when_no_change(self):
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_DRAFT, num_variants=0
@@ -1479,7 +1467,6 @@ class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
 
 
 class TestPrefValidationMixin(TestCase):
-
     def test_matching_json_string_type_value(self):
         pref_type = "json string"
         pref_value = "{}"

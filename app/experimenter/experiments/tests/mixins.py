@@ -4,7 +4,6 @@ from experimenter.openidc.tests.factories import UserFactory
 
 
 class MockRequestMixin(object):
-
     def setUp(self):
         super().setUp()
 
@@ -14,7 +13,6 @@ class MockRequestMixin(object):
 
 
 class MockTasksMixin(object):
-
     def setUp(self):
         super().setUp()
 
