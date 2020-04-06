@@ -13,7 +13,6 @@ from experimenter.normandy.tests.mixins import MockNormandyMixin
 
 
 class TestMakeNormandyCall(MockNormandyMixin, TestCase):
-
     def test_sucessful_call(self):
         mock_response_data = {"detail": "Not found."}
         mock_response = mock.Mock()

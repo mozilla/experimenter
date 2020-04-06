@@ -19,7 +19,6 @@ from experimenter.openidc.tests.factories import UserFactory
 
 
 class TestExperimentFilterset(MockRequestMixin, TestCase):
-
     def test_filters_by_multiple_types(self):
         pref = ExperimentFactory.create(type=Experiment.TYPE_PREF)
         addon = ExperimentFactory.create(type=Experiment.TYPE_ADDON)

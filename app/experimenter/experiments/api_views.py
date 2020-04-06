@@ -22,7 +22,7 @@ from experimenter.experiments.serializers.design import (
     ExperimentDesignAddonRolloutSerializer,
 )
 from experimenter.experiments.serializers.timeline_population import (
-    ExperimentTimelinePopSerializer
+    ExperimentTimelinePopSerializer,
 )
 from experimenter.experiments.serializers.recipe import ExperimentRecipeSerializer
 

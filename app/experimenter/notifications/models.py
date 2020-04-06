@@ -3,7 +3,6 @@ from django.db import models
 
 
 class NotificationManager(models.Manager):
-
     @property
     def has_unread(self):
         return self.filter(read=False).count() > 0

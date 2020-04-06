@@ -36,7 +36,6 @@ from experimenter.experiments.serializers.entities import PrefTypeField
 
 
 class TestPrefValueField(TestCase):
-
     def test_variant_pref_value_returns_int_when_type_is_int(self):
         experiment = ExperimentFactory.create(pref_type=Experiment.PREF_TYPE_INT)
         variant = ExperimentVariantFactory.create(experiment=experiment, value="8")
@@ -92,7 +91,6 @@ class TestPrefValueField(TestCase):
 
 
 class TestFilterObjectBucketSampleSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create(population_percent=Decimal("12.34"))
         serializer = FilterObjectBucketSampleSerializer(experiment)
@@ -109,7 +107,6 @@ class TestFilterObjectBucketSampleSerializer(TestCase):
 
 
 class TestFilterObjectChannelSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create(firefox_channel=Experiment.CHANNEL_NIGHTLY)
         serializer = FilterObjectChannelSerializer(experiment)
@@ -117,7 +114,6 @@ class TestFilterObjectChannelSerializer(TestCase):
 
 
 class TestFilterObjectVersionsSerializer(TestCase):
-
     def test_serializer_outputs_version_string_with_only_min(self):
         experiment = ExperimentFactory.create(
             firefox_min_version="68.0", firefox_max_version=""
@@ -134,7 +130,6 @@ class TestFilterObjectVersionsSerializer(TestCase):
 
 
 class TestFilterObjectLocaleSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         locale1 = LocaleFactory.create(code="ab")
         locale2 = LocaleFactory.create(code="cd")
@@ -145,7 +140,6 @@ class TestFilterObjectLocaleSerializer(TestCase):
 
 
 class TestFilterObjectCountrySerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         country1 = CountryFactory.create(code="ab")
         country2 = CountryFactory.create(code="cd")
@@ -156,7 +150,6 @@ class TestFilterObjectCountrySerializer(TestCase):
 
 
 class TestExperimentRecipeAddonVariantSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         variant = ExperimentVariant(slug="slug-value", ratio=25)
         serializer = ExperimentRecipeAddonVariantSerializer(variant)
@@ -166,7 +159,6 @@ class TestExperimentRecipeAddonVariantSerializer(TestCase):
 
 
 class TestExperimentRecipeAddonArgumentsSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_SHIP, type=Experiment.TYPE_ADDON
@@ -182,7 +174,6 @@ class TestExperimentRecipeAddonArgumentsSerializer(TestCase):
 
 
 class TestExperimentRecipeAddonRolloutArgumentsSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_SHIP,
@@ -201,7 +192,6 @@ class TestExperimentRecipeAddonRolloutArgumentsSerializer(TestCase):
 
 
 class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema_for_int(self):
 
         experiment = ExperimentFactory.create(
@@ -323,7 +313,6 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
 
 
 class TestExperimentRecipeSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema_for_pref_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_SHIP,
@@ -660,7 +649,6 @@ class TestExperimentRecipeSerializer(TestCase):
 
 
 class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema_non_multi_pref_format(self):
         experiment = ExperimentFactory.create(
             normandy_slug="normandy-slug",
@@ -757,7 +745,6 @@ class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
 
 
 class TestExperimentRecipeVariantSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_STR)
         variant = ExperimentVariantFactory.create(experiment=experiment)
@@ -769,7 +756,6 @@ class TestExperimentRecipeVariantSerializer(TestCase):
 
 
 class TestExperimentRecipePrefArgumentsSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_INT)
         serializer = ExperimentRecipePrefArgumentsSerializer(experiment)
