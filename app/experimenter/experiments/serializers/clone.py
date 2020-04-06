@@ -1,4 +1,3 @@
-
 from rest_framework import serializers
 from django.utils.text import slugify
 from django.urls import reverse

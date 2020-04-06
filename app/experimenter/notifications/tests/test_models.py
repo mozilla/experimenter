@@ -5,7 +5,6 @@ from experimenter.notifications.tests.factories import NotificationFactory
 
 
 class TestNotificationModel(TestCase):
-
     def test_has_unread_false_when_all_read(self):
         user = UserFactory.create()
 

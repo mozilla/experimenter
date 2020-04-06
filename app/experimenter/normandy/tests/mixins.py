@@ -2,7 +2,6 @@ import mock
 
 
 class MockNormandyMixin(object):
-
     def setUp(self):
         super().setUp()
 
@@ -73,7 +72,6 @@ class MockNormandyMixin(object):
         return mock_response
 
     def setUpMockNormandyFailWithSpecifiedID(self, normandy_id):
-
         def determine_response(url, verify=None):
             if normandy_id in url:
                 return self.buildMockFailedResponse()

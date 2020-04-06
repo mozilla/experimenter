@@ -12,7 +12,6 @@ from experimenter.experiments.changelog_utils import generate_change_log
 
 
 class TestChangeLogUtils(TestCase):
-
     def test_generate_change_log_gives_correct_output(self):
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_REVIEW,

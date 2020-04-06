@@ -14,7 +14,6 @@ from experimenter.experiments.constants import ExperimentConstants
 
 
 class TestIntentToShipEmail(TestCase):
-
     def test_send_intent_to_ship_email_with_risk_fields(self):
         experiment = ExperimentFactory.create(
             name="Experiment",
@@ -122,7 +121,6 @@ class TestIntentToShipEmail(TestCase):
 
 
 class TestStatusUpdateEmail(TestCase):
-
     def setUp(self):
         self.experiment = ExperimentFactory.create_with_variants(
             name="Greatest Experiment",
