@@ -19,7 +19,9 @@ from experimenter.experiments.serializers.entities import ChangeLogSerializer
 from experimenter.notifications.models import Notification
 from experimenter.projects.models import Project
 
-RADIO_OPTIONS = ((0, "No"), (1, "Yes"))
+RADIO_NO = "0"
+RADIO_YES = "1"
+RADIO_OPTIONS = ((RADIO_NO, "No"), (RADIO_YES, "Yes"))
 
 
 class JSONField(forms.CharField):

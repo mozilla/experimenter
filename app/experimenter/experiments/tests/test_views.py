@@ -9,7 +9,7 @@ from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from experimenter.experiments.forms import NormandyIdForm
+from experimenter.experiments.forms import NormandyIdForm, RADIO_NO, RADIO_YES
 from experimenter.experiments.models import Experiment, Country, Locale
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
@@ -405,7 +405,7 @@ class TestExperimentObjectivesUpdateView(TestCase):
             "action": "continue",
             "objectives": "Some new objectives!",
             "analysis": "Some new analysis!",
-            "survey_required": "0",
+            "survey_required": RADIO_NO,
         }
 
         response = self.client.post(
@@ -436,19 +436,19 @@ class TestExperimentRisksUpdateView(TestCase):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
 
         data = {
-            "risk_partner_related": "1",
-            "risk_brand": "1",
-            "risk_fast_shipped": "1",
-            "risk_confidential": "1",
-            "risk_release_population": "1",
-            "risk_revenue": "1",
-            "risk_data_category": "1",
-            "risk_external_team_impact": "1",
-            "risk_telemetry_data": "1",
-            "risk_ux": "1",
-            "risk_security": "1",
-            "risk_revision": "1",
-            "risk_technical": "1",
+            "risk_partner_related": RADIO_YES,
+            "risk_brand": RADIO_YES,
+            "risk_fast_shipped": RADIO_YES,
+            "risk_confidential": RADIO_YES,
+            "risk_release_population": RADIO_YES,
+            "risk_revenue": RADIO_YES,
+            "risk_data_category": RADIO_YES,
+            "risk_external_team_impact": RADIO_YES,
+            "risk_telemetry_data": RADIO_YES,
+            "risk_ux": RADIO_YES,
+            "risk_security": RADIO_YES,
+            "risk_revision": RADIO_YES,
+            "risk_technical": RADIO_YES,
             "risk_technical_description": "It's complicated",
             "risks": "There are some risks",
             "testing": "Always be sure to test!",
