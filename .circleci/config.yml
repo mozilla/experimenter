@@ -53,12 +53,13 @@ jobs:
       - checkout
       - run:
           name: Build docker images
-          command: make integration_build
+          command: |
+            cp .env.sample .env  
+            make integration_build
       - run:
           name: Run integration tests
           command: |
             sudo chown -R ubuntu app/tests/
-            cp .env.sample .env
             make refresh
             make up_detached
             make integration_test
