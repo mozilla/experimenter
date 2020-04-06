@@ -22,7 +22,6 @@ from experimenter.notifications.models import Notification
 
 
 class TestCreateBugTask(MockRequestMixin, MockBugzillaMixin, TestCase):
-
     def setUp(self):
         super().setUp()
 
@@ -124,7 +123,6 @@ class TestCreateBugTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 
 
 class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
-
     def setUp(self):
         super().setUp()
 
@@ -251,7 +249,6 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 
 
 class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
-
     def test_update_accepted_experiment_task(self):
         experiment = ExperimentFactory.create(
             status=Experiment.STATUS_ACCEPTED,
@@ -480,7 +477,6 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
 
 
 class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase):
-
     def test_update_status_task(self):
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED
@@ -597,7 +593,6 @@ class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase
 
 
 class TestUpdateResolutionTask(MockRequestMixin, MockBugzillaMixin, TestCase):
-
     def setUp(self):
         super().setUp()
 

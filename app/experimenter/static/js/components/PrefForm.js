@@ -93,10 +93,10 @@ export default class PrefForm extends React.PureComponent {
             <RadioButton
               elementLabel="How Many Prefs does this ship?"
               fieldName="is_multi_pref"
-              radioLabel1="One Pref for all branches"
-              radioLabel2="Different Prefs per branch"
-              radioValue1={false}
-              radioValue2={true}
+              choices={[
+                { value: false, label: "One Pref for all branches" },
+                { value: true, label: "Different Prefs per branch" },
+              ]}
               onChange={(event) => {
                 this.props.handleReloadAPIState(
                   "is_multi_pref",
