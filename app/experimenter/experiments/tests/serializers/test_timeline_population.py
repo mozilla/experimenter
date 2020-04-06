@@ -1,5 +1,4 @@
 from django.test import TestCase
-from rest_framework import serializers
 import datetime
 
 from experimenter.experiments.tests.factories import (
@@ -17,20 +16,18 @@ from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.tests.mixins import MockRequestMixin
 
 
-class TestLocaleSerializerMultiSelect(serializers.ModelSerializer):
+class TestLocaleSerializerMultiSelect(TestCase):
     def test_serializer_outputs_expected_schema(self):
         locale = LocaleFactory.create()
         serializer = LocaleSerializerMultiSelect(locale)
+        self.assertEqual(serializer.data, {"value": locale.id, "label": locale.name})
 
-        self.assertEqual(serializer.data, {"value": locale.code, "label": locale.name})
 
-
-class TestCountrySerializerMultiSelect(serializers.ModelSerializer):
+class TestCountrySerializerMultiSelect(TestCase):
     def test_serializer_outputs_expected_schema(self):
         country = CountryFactory.create()
         serializer = CountrySerializerMultiSelect(country)
-
-        self.assertEqual(serializer.data, {"value": country.code, "label": country.name})
+        self.assertEqual(serializer.data, {"value": country.id, "label": country.name})
 
 
 class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
