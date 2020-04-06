@@ -3,7 +3,6 @@ from django.test import RequestFactory, SimpleTestCase
 
 
 class TestPaginationUrl(SimpleTestCase):
-
     def test_it_works(self):
         context = Context({"request": RequestFactory().get("/")})
         template_to_render = Template(
@@ -46,7 +45,6 @@ class TestPaginationUrl(SimpleTestCase):
 
 
 class TestAsJson(SimpleTestCase):
-
     def test_formats_json(self):
         context = Context({"json_val": '{"key": "value"}'})
         template = Template(

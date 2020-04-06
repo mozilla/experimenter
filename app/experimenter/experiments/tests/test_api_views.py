@@ -19,7 +19,7 @@ from experimenter.experiments.serializers.design import (
 )
 
 from experimenter.experiments.serializers.timeline_population import (
-    ExperimentTimelinePopSerializer
+    ExperimentTimelinePopSerializer,
 )
 
 from experimenter.experiments.tests.factories import (
@@ -30,7 +30,6 @@ from experimenter.experiments.tests.factories import (
 
 
 class TestExperimentListView(TestCase):
-
     def test_list_view_serializes_experiments(self):
         experiments = []
 
@@ -78,7 +77,6 @@ class TestExperimentListView(TestCase):
 
 
 class TestExperimentDetailView(TestCase):
-
     def test_get_experiment_returns_experiment_info(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_variants()
@@ -95,7 +93,6 @@ class TestExperimentDetailView(TestCase):
 
 
 class TestExperimentRecipeView(TestCase):
-
     def test_get_experiment_recipe_returns_recipe_info(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_variants(
@@ -114,7 +111,6 @@ class TestExperimentRecipeView(TestCase):
 
 
 class TestExperimentSendIntentToShipEmailView(TestCase):
-
     def test_put_to_view_sends_email(self):
         user_email = "user@example.com"
 
@@ -154,7 +150,6 @@ class TestExperimentSendIntentToShipEmailView(TestCase):
 
 
 class TestExperimentCloneView(TestCase):
-
     def test_patch_to_view_returns_clone_name_and_url(self):
         experiment = ExperimentFactory.create(
             name="great experiment", slug="great-experiment"
@@ -176,7 +171,6 @@ class TestExperimentCloneView(TestCase):
 
 
 class TestExperimentDesignPrefView(TestCase):
-
     def test_get_design_pref_returns_design_info(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_variants(type="pref")
@@ -274,7 +268,6 @@ class TestExperimentDesignPrefView(TestCase):
 
 
 class TestExperimentDesignMultiPrefView(TestCase):
-
     def setUp(self):
         self.user_email = "user@example.com"
         self.experiment = ExperimentFactory.create(type="pref")
@@ -365,7 +358,6 @@ class TestExperimentDesignMultiPrefView(TestCase):
 
 
 class TestExperimentDesignAddonView(TestCase):
-
     def test_get_design_addon_returns_design_info(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_variants(
@@ -466,7 +458,6 @@ class TestExperimentDesignAddonView(TestCase):
 
 
 class TestExperimentDesignGenericView(TestCase):
-
     def test_get_design_addon_returns_design_info(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_variants(
@@ -558,7 +549,6 @@ class TestExperimentDesignGenericView(TestCase):
 
 
 class TestExperimentTimelinePopulationView(TestCase):
-
     def test_get_timeline_pop_returns_info(self):
         user_email = "user@example.com"
 
