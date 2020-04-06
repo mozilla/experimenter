@@ -24,7 +24,6 @@ from experimenter.experiments.tests.factories import (
 
 
 class TestExperimentManager(TestCase):
-
     def test_queryset_annotated_with_latest_change(self):
         now = timezone.now()
         experiment1 = ExperimentFactory.create_with_variants()
@@ -62,7 +61,6 @@ class TestExperimentManager(TestCase):
 
 
 class TestExperimentModel(TestCase):
-
     def test_get_absolute_url(self):
         experiment = ExperimentFactory.create(slug="experiment-slug")
         self.assertEqual(experiment.get_absolute_url(), "/experiments/experiment-slug/")
@@ -1519,7 +1517,6 @@ class TestExperimentModel(TestCase):
 
 
 class TestVariantPreferences(TestCase):
-
     def setUp(self):
         super().setUp()
         self.variant = ExperimentVariantFactory.create()
@@ -1575,7 +1572,6 @@ class TestVariantPreferences(TestCase):
 
 
 class TestExperimentChangeLog(TestCase):
-
     def test_latest_returns_most_recent_changelog(self):
         now = timezone.now()
         experiment = ExperimentFactory.create_with_variants()
@@ -1624,7 +1620,6 @@ class TestExperimentChangeLog(TestCase):
 
 
 class TestExperimentComments(TestCase):
-
     def test_manager_returns_sections(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
         risk_comment = ExperimentCommentFactory.create(

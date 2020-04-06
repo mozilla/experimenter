@@ -9,7 +9,6 @@ from experimenter.openidc.tests.factories import UserFactory
 
 
 class ExperimentAdminTest(TestCase):
-
     def test_no_actions(self):
         experiment_admin = ExperimentAdmin(mock.Mock(), mock.Mock())
         self.assertEqual(experiment_admin.get_actions(mock.Mock()), [])
