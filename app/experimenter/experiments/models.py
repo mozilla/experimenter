@@ -1056,7 +1056,7 @@ class ExperimentChangeLog(models.Model):
     STATUS_ACCEPTED_LIVE = "Launched Delivery"
     STATUS_LIVE_COMPLETE = "Completed Delivery"
     STATUS_ADDED_RESULTS = "Added Results"
-    STATUS_CLONED = "Cloned Experiment"
+    STATUS_CLONED = "Cloned Delivery"
 
     PRETTY_STATUS_LABELS = {
         None: {Experiment.STATUS_DRAFT: STATUS_NONE_DRAFT},
