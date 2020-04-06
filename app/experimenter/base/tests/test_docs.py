@@ -7,7 +7,6 @@ from django.core.management import call_command
 
 
 class TestDocs(TestCase):
-
     def test_generate_docs(self):
 
         docs_dir = os.path.join(settings.BASE_DIR, "docs")

@@ -18,7 +18,6 @@ from experimenter.experiments.tests.mixins import MockRequestMixin
 
 
 class TestLocaleSerializerMultiSelect(serializers.ModelSerializer):
-
     def test_serializer_outputs_expected_schema(self):
         locale = LocaleFactory.create()
         serializer = LocaleSerializerMultiSelect(locale)
@@ -27,7 +26,6 @@ class TestLocaleSerializerMultiSelect(serializers.ModelSerializer):
 
 
 class TestCountrySerializerMultiSelect(serializers.ModelSerializer):
-
     def test_serializer_outputs_expected_schema(self):
         country = CountryFactory.create()
         serializer = CountrySerializerMultiSelect(country)
@@ -36,7 +34,6 @@ class TestCountrySerializerMultiSelect(serializers.ModelSerializer):
 
 
 class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
-
     def setUp(self):
         super().setUp()
         self.locale = LocaleFactory.create()
