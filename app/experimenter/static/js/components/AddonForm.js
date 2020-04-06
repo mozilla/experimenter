@@ -47,10 +47,10 @@ export default class AddonForm extends React.PureComponent {
             <RadioButton
               elementLabel="How many add-ons does this experiment ship?"
               fieldName="is_branched_addon"
-              radioLabel1="A single add-on for all branches"
-              radioLabel2="Multiple add-ons"
-              radioValue1={false}
-              radioValue2={true}
+              choices={[
+                { value: false, label: "A single add-on for all branches" },
+                { value: true, label: "Multiple add-ons" },
+              ]}
               onChange={(event) =>
                 this.props.handleDataChange(
                   "is_branched_addon",
