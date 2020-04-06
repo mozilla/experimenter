@@ -32,8 +32,8 @@ BLACK_CHECK = black -l 90 --check --diff .
 BLACK_FIX = black -l 90 .
 CHECK_DOCS = python manage.py generate-docs --check=true
 GENERATE_DOCS = python manage.py generate-docs
-LOAD_LOCALES = python manage.py loaddata ./fixtures/locales.json
-LOAD_COUNTRIES = python manage.py load-countries
+LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json
+LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json
 LOAD_DUMMY_EXPERIMENTS = python manage.py load-dummy-experiments
 MIGRATE = python manage.py migrate
 
@@ -110,6 +110,12 @@ migrate: compose_build
 
 createuser: compose_build
 	$(COMPOSE) run app python manage.py createsuperuser
+
+load_locales_countries: compose_build
+	$(COMPOSE) run app sh -c "$(WAIT_FOR_DB) $(LOAD_LOCALES)&&$(LOAD_COUNTRIES)"
+
+load_dummy_experiments: compose_build
+	$(COMPOSE) run app python manage.py load-dummy-experiments
 
 shell: compose_build
 	$(COMPOSE) run app python manage.py shell
