@@ -43,7 +43,6 @@ faker = FakerFactory.create()
 
 
 class TestJSONField(TestCase):
-
     def test_jsonfield_accepts_valid_json(self):
         valid_json = json.dumps({"a": True, 2: ["b", 3, 4.0]})
         field = JSONField()
@@ -60,7 +59,6 @@ class TestJSONField(TestCase):
 
 @override_settings(BUGZILLA_HOST="https://bugzilla.example.com/")
 class TestBugzillaURLField(TestCase):
-
     def test_accepts_bugzilla_url(self):
         field = BugzillaURLField()
         bugzilla_url = "{base}/show_bug.cgi?id=123".format(base=settings.BUGZILLA_HOST)
@@ -83,7 +81,6 @@ class TestBugzillaURLField(TestCase):
 
 @override_settings(DS_ISSUE_HOST="https://jira.example.com/browse/")
 class TestDSIssueURLField(TestCase):
-
     def test_accepts_ds_url_field(self):
         field = DSIssueURLField()
         ds_url = "{base}DS-1234".format(base=settings.DS_ISSUE_HOST)
@@ -98,11 +95,8 @@ class TestDSIssueURLField(TestCase):
 
 
 class TestChangeLogMixin(MockRequestMixin, TestCase):
-
     def test_mixin_creates_change_log_with_request_user_on_save(self):
-
         class TestForm(ChangeLogMixin, forms.ModelForm):
-
             class Meta:
                 model = Experiment
                 fields = ("name",)
@@ -126,7 +120,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         self.assertEqual(experiment.changes.count(), 1)
 
         class TestForm(ChangeLogMixin, forms.ModelForm):
-
             class Meta:
                 model = Experiment
                 fields = ("status",)
@@ -153,7 +146,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         num_of_changes = experiment.changes.count()
 
         class TestForm(ChangeLogMixin, forms.ModelForm):
-
             class Meta:
                 model = Experiment
                 fields = ("name",)
@@ -269,7 +261,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
     DS_ISSUE_HOST="https://jira.example.com/browse/",
 )
 class TestExperimentOverviewForm(MockRequestMixin, TestCase):
-
     def setUp(self):
         super().setUp()
         ds_url = "{base}DS-123".format(base=settings.DS_ISSUE_HOST)
@@ -413,7 +404,6 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
 
 
 class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
-
     def test_no_fields_required(self):
         experiment = ExperimentFactory.create()
         form = ExperimentObjectivesForm(
@@ -570,7 +560,6 @@ class TestExperimentResultsForm(MockRequestMixin, TestCase):
 class TestExperimentReviewForm(
     MockRequestMixin, MockBugzillaMixin, MockTasksMixin, TestCase
 ):
-
     def test_form_saves_reviews(self):
         user = UserFactory.create()
         content_type = ContentType.objects.get_for_model(Experiment)
@@ -863,7 +852,6 @@ class TestExperimentReviewForm(
 class TestExperimentStatusForm(
     MockBugzillaMixin, MockRequestMixin, MockTasksMixin, TestCase
 ):
-
     def test_form_allows_valid_state_transition_and_creates_changelog(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
         form = ExperimentStatusForm(
@@ -931,7 +919,6 @@ class TestExperimentStatusForm(
 
 
 class TestExperimentCommentForm(MockRequestMixin, TestCase):
-
     def test_form_creates_comment(self):
         text = "hello"
         section = Experiment.SECTION_OVERVIEW
@@ -971,7 +958,6 @@ class TestExperimentCommentForm(MockRequestMixin, TestCase):
 
 
 class TestExperimentArchiveForm(MockRequestMixin, MockTasksMixin, TestCase):
-
     def test_form_flips_archive_bool(self):
 
         experiment = ExperimentFactory.create(archived=False)
@@ -1008,7 +994,6 @@ class TestExperimentArchiveForm(MockRequestMixin, MockTasksMixin, TestCase):
 
 
 class TestExperimentSubscribedForm(MockRequestMixin, TestCase):
-
     def test_form_adds_subscribers(self):
         experiment = ExperimentFactory.create()
 
@@ -1033,7 +1018,6 @@ class TestExperimentSubscribedForm(MockRequestMixin, TestCase):
 
 
 class TestNormandyIdForm(MockRequestMixin, TestCase):
-
     def test_form_not_valid_with_bad_main_id(self):
         experiment = ExperimentFactory.create()
 
@@ -1095,7 +1079,6 @@ class TestNormandyIdForm(MockRequestMixin, TestCase):
 
 
 class TestExperimentOrderingForm(TestCase):
-
     def test_accepts_valid_ordering(self):
         ordering = ExperimentOrderingForm.ORDERING_CHOICES[1][0]
         form = ExperimentOrderingForm({"ordering": ordering})

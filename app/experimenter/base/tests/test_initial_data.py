@@ -6,7 +6,6 @@ from experimenter.experiments.constants import ExperimentConstants
 
 
 class TestInitialData(TestCase):
-
     def test_load_dummy_experiments(self):
         self.assertFalse(Experiment.objects.exists())
         call_command("load-dummy-experiments")
