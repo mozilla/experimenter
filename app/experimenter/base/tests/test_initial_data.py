@@ -1,30 +1,11 @@
 from django.test import TestCase
 from django.core.management import call_command
 
-from experimenter.base.models import Country, Locale
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.constants import ExperimentConstants
 
 
 class TestInitialData(TestCase):
-    def test_load_locales_countries(self):
-        self.assertTrue(not Country.objects.exists())
-        self.assertTrue(not Locale.objects.exists())
-
-        call_command("load-countries")
-
-        self.assertTrue(Country.objects.exists())
-
-        # First mess with the installed data, so it tests the "corrections"
-        # that the managemeent does.
-        Country.objects.filter(code="SV").delete()
-        Country.objects.filter(code="FR").update(name="Frankies")
-
-        call_command("load-countries")
-
-        self.assertTrue(Country.objects.get(code="SV"))
-        self.assertEqual(Country.objects.get(code="FR").name, "France")
-
     def test_load_dummy_experiments(self):
         self.assertFalse(Experiment.objects.exists())
         call_command("load-dummy-experiments")
