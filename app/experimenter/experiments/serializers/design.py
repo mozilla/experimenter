@@ -16,7 +16,6 @@ from experimenter.experiments.changelog_utils import generate_change_log
 
 
 class ChangelogSerializerMixin(object):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.id:
@@ -34,7 +33,6 @@ class ChangelogSerializerMixin(object):
 
 
 class PrefValidationMixin(object):
-
     def validate_pref_branch(self, pref_branch):
         if pref_branch == "Firefox Pref Branch":
             return {"pref_branch": "Please select a branch"}
@@ -80,7 +78,6 @@ class PrefValidationMixin(object):
 
 
 class VariantsListSerializer(serializers.ListSerializer):
-
     def to_representation(self, data):
         data = super().to_representation(data)
         initial_fields = set(self.child.fields) - set(["id"])
@@ -140,7 +137,6 @@ class ExperimentDesignVariantPrefSerializer(ExperimentDesignVariantBaseSerialize
 
 
 class PreferenceListSerializer(serializers.ListSerializer):
-
     def to_representation(self, data):
         data = super().to_representation(data)
         if data == []:
@@ -159,7 +155,6 @@ class ExperimentDesignBasePreferenceSerializer(serializers.ModelSerializer):
 class ExperimentDesignBranchVariantPreferencesSerializer(
     ExperimentDesignBasePreferenceSerializer
 ):
-
     class Meta:
         model = VariantPreferences
         fields = ["id", "pref_name", "pref_type", "pref_branch", "pref_value"]
@@ -274,7 +269,6 @@ class ExperimentDesignBaseSerializer(
 class ExperimentDesignRolloutPreferenceSerializer(
     ExperimentDesignBasePreferenceSerializer
 ):
-
     class Meta:
         model = RolloutPreference
         list_serializer_class = PreferenceListSerializer
@@ -388,7 +382,6 @@ class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
 
 
 class ExperimentChangelogVariantSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = ExperimentVariant
         fields = ("id", "description", "is_control", "name", "ratio", "value")

@@ -25,7 +25,6 @@ from experimenter.experiments.serializers.recipe import ExperimentRecipeVariantS
 
 
 class TestJSTimestampField(TestCase):
-
     def test_field_serializes_to_js_time_format(self):
         field = JSTimestampField()
         example_datetime = datetime.datetime(2000, 1, 1, 1, 1, 1, 1)
@@ -37,7 +36,6 @@ class TestJSTimestampField(TestCase):
 
 
 class TestPrefTypeField(TestCase):
-
     def test_non_json_field(self):
         field = PrefTypeField()
         self.assertEqual(
@@ -53,7 +51,6 @@ class TestPrefTypeField(TestCase):
 
 
 class TestExperimentVariantSerializer(TestCase):
-
     def test_serializer_outputs_expected_bool(self):
         experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_BOOL)
         variant = ExperimentVariantFactory.create(experiment=experiment, value="true")
@@ -87,7 +84,6 @@ class TestExperimentVariantSerializer(TestCase):
 
 
 class TestExperimentSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_COMPLETE,
@@ -183,7 +179,6 @@ class TestExperimentSerializer(TestCase):
 
 
 class TestExperimentChangeLogSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         change_log = ExperimentChangeLogFactory.create(
             changed_on="2019-08-02T18:19:26.267960Z"
@@ -193,7 +188,6 @@ class TestExperimentChangeLogSerializer(TestCase):
 
 
 class TestChangeLogSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         country1 = CountryFactory(code="CA", name="Canada")
         locale1 = LocaleFactory(code="da", name="Danish")
