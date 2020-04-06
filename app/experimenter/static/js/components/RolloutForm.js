@@ -71,10 +71,10 @@ export default class RolloutForm extends React.PureComponent {
             <RadioButton
               elementLabel="What type of rollout is this?"
               fieldName="rollout_type"
-              radioLabel1="Pref Rollout"
-              radioLabel2="Add-On Rollout"
-              radioValue1={TYPE_PREF}
-              radioValue2={TYPE_ADDON}
+              choices={[
+                { value: TYPE_PREF, label: "Pref Rollout" },
+                { value: TYPE_ADDON, label: "Add-On Rollout" },
+              ]}
               onChange={(event) =>
                 this.props.handleReloadAPIState(
                   "rollout_type",
