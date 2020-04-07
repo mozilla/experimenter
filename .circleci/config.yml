@@ -1,10 +1,6 @@
 version: 2.1
 jobs:
   build:
-    parameters:
-      saveToWorkspace:
-        type: boolean
-        default: true
     machine:
       docker_layer_caching: true
       image: ubuntu-1604:201903-01 # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
@@ -24,18 +20,6 @@ jobs:
       - run:
           name: Run tests and linting
           command: make check
-      - when:
-          condition: << parameters.saveToWorkspace >>
-          steps:
-            - run:
-                name: Save Docker image
-                command: |
-                  mkdir ~/experimenter/caches
-                  docker save -o ~/experimenter/caches/app.tar app
-            - persist_to_workspace:
-                root: ~/experimenter/caches
-                paths:
-                  - app.tar
 
   integration_test:
     machine:
@@ -67,20 +51,16 @@ jobs:
       - store_artifacts:
           path: app/tests/integration/integration-test.html
 
-  deploy_latest:
+  deploy:
     working_directory: ~/experimenter
     docker:
       - image: docker:17.06.0-ce-git
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/experimenter/caches
       - setup_remote_docker
       - deploy:
           name: Deploy to latest
           command: |
-            docker load -i ~/experimenter/caches/app.tar
-            rm -rf ~/experimenter/caches
             ./scripts/build.sh
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker tag app:build ${DOCKERHUB_REPO}:latest
@@ -91,27 +71,16 @@ workflows:
   build:
     jobs:
       - build:
-          name: build-pr
-          saveToWorkspace: false
+          name: build
           filters:
-            branches:
-              ignore: master
-      - build:
-          name: build-save
-          saveToWorkspace: true
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              only: master
       - integration_test:
-          name: integration-pr
+          name: integration
           filters:
             branches:
               ignore: master
-      - deploy_latest:
+      - deploy:
           requires:
-            - build-save
+            - build
           filters:
             branches:
               only: master
