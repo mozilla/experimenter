@@ -19,6 +19,10 @@ from experimenter.experiments.serializers.entities import ChangeLogSerializer
 from experimenter.notifications.models import Notification
 from experimenter.projects.models import Project
 
+RADIO_NO = "0"
+RADIO_YES = "1"
+RADIO_OPTIONS = ((RADIO_NO, "No"), (RADIO_YES, "Yes"))
+
 
 class JSONField(forms.CharField):
     def clean(self, value):
@@ -269,14 +273,6 @@ class RadioWidgetCloser(forms.widgets.RadioSelect):
 
 
 class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
-    RADIO_OPTIONS = ((False, "No"), (True, "Yes"))
-
-    def coerce_truthy(value):
-        if type(value) == bool:
-            return value
-        if value.lower() == "true":
-            return True
-        return False
 
     objectives = forms.CharField(
         required=False,
@@ -305,7 +301,7 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.SURVEY_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidgetCloser,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     survey_urls = forms.CharField(
@@ -334,15 +330,6 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
 
 
 class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
-    RADIO_OPTIONS = ((False, "No"), (True, "Yes"))
-
-    def coerce_truthy(value):
-        if type(value) == bool:
-            return value
-        if value.lower() == "true":
-            return True
-        elif value.lower() == "false":
-            return False
 
     results_url = forms.URLField(
         label="Primary Results URL",
@@ -368,7 +355,7 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     results_recipe_errors = forms.TypedChoiceField(
@@ -377,7 +364,7 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     results_restarts = forms.TypedChoiceField(
@@ -386,7 +373,7 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     results_low_enrollment = forms.TypedChoiceField(
@@ -395,7 +382,7 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     results_early_end = forms.TypedChoiceField(
@@ -404,7 +391,7 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     results_no_usable_data = forms.TypedChoiceField(
@@ -413,7 +400,7 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     results_failures_notes = forms.CharField(
@@ -429,7 +416,7 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     results_data_for_hypothesis = forms.TypedChoiceField(
@@ -438,7 +425,7 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     results_confidence = forms.TypedChoiceField(
@@ -447,7 +434,7 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     results_measure_impact = forms.TypedChoiceField(
@@ -456,7 +443,7 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     results_impact_notes = forms.CharField(
@@ -488,15 +475,6 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
 
 
 class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
-    RADIO_OPTIONS = ((False, "No"), (True, "Yes"))
-
-    def coerce_truthy(value):
-        if type(value) == bool:
-            return value
-        if value.lower() == "true":
-            return True
-        elif value.lower() == "false":
-            return False
 
     # Radio Buttons
     risk_partner_related = forms.TypedChoiceField(
@@ -505,7 +483,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RISK_PARTNER_RELATED_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     risk_brand = forms.TypedChoiceField(
@@ -514,7 +492,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RISK_BRAND_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     risk_fast_shipped = forms.TypedChoiceField(
@@ -523,7 +501,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RISK_FAST_SHIPPED_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     risk_confidential = forms.TypedChoiceField(
@@ -532,7 +510,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RISK_CONFIDENTIAL_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     risk_release_population = forms.TypedChoiceField(
@@ -541,7 +519,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RISK_RELEASE_POPULATION_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     risk_revenue = forms.TypedChoiceField(
@@ -550,7 +528,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RISK_REVENUE_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     risk_data_category = forms.TypedChoiceField(
@@ -559,7 +537,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RISK_DATA_CATEGORY_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     risk_external_team_impact = forms.TypedChoiceField(
@@ -568,7 +546,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RISK_EXTERNAL_TEAM_IMPACT_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     risk_telemetry_data = forms.TypedChoiceField(
@@ -577,7 +555,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RISK_TELEMETRY_DATA_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     risk_ux = forms.TypedChoiceField(
@@ -586,7 +564,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RISK_UX_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     risk_security = forms.TypedChoiceField(
@@ -595,7 +573,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RISK_SECURITY_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     risk_revision = forms.TypedChoiceField(
@@ -604,7 +582,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RISK_REVISION_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     risk_technical = forms.TypedChoiceField(
@@ -613,7 +591,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RISK_TECHNICAL_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
     risk_higher_risk = forms.TypedChoiceField(
@@ -622,7 +600,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         help_text=Experiment.RISK_HIGHER_RISK_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=coerce_truthy,
+        coerce=int,
         empty_value=None,
     )
 
