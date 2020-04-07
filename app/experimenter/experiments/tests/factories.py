@@ -33,12 +33,8 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     public_name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: "{}_".format(slugify(o.name)))
     archived = False
-    short_description = factory.LazyAttribute(
-        lambda o: faker.text(random.randint(100, 500))
-    )
-    public_description = factory.LazyAttribute(
-        lambda o: faker.text(random.randint(100, 500))
-    )
+    short_description = factory.LazyAttribute(lambda o: faker.text(200))
+    public_description = factory.LazyAttribute(lambda o: faker.text(200))
     data_science_issue_url = "{base}DS-12345".format(base=settings.DS_ISSUE_HOST)
     feature_bugzilla_url = "{base}show_bug.cgi?id=12345".format(
         base=settings.BUGZILLA_HOST
@@ -63,9 +59,7 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     )
     design = factory.LazyAttribute(lambda o: faker.text(50))
     pref_name = factory.LazyAttribute(
-        lambda o: "browser.{pref}.enabled".format(
-            pref=faker.catch_phrase().replace(" ", ".").lower()
-        )
+        lambda o: "browser.{pref}.enabled".format(pref=faker.word())
     )
     pref_type = factory.LazyAttribute(
         lambda o: random.choice(Experiment.PREF_TYPE_CHOICES[1:])[0]
@@ -86,8 +80,8 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     addon_release_url = factory.LazyAttribute(
         lambda o: "https://www.example.com/{}-release.xpi".format(o.addon_experiment_id)
     )
-    objectives = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 5000)))
-    analysis = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 5000)))
+    objectives = factory.LazyAttribute(lambda o: faker.text(1000))
+    analysis = factory.LazyAttribute(lambda o: faker.text(1000))
 
     risk_partner_related = False
     risk_brand = False
@@ -104,13 +98,11 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     risk_technical = False
     risk_higher_risk = False
 
-    risk_technical_description = factory.LazyAttribute(
-        lambda o: faker.text(random.randint(500, 1000))
-    )
-    risks = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 1000)))
-    testing = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 1000)))
-    test_builds = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 1000)))
-    qa_status = factory.LazyAttribute(lambda o: faker.text(random.randint(500, 1000)))
+    risk_technical_description = factory.LazyAttribute(lambda o: faker.text(500))
+    risks = factory.LazyAttribute(lambda o: faker.text(500))
+    testing = factory.LazyAttribute(lambda o: faker.text(500))
+    test_builds = factory.LazyAttribute(lambda o: faker.text(500))
+    qa_status = factory.LazyAttribute(lambda o: faker.text(500))
 
     review_advisory = False
     review_science = False
@@ -153,17 +145,16 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
         old_status = None
         for status_value, status_label in Experiment.STATUS_CHOICES:
             experiment.status = status_value
-            experiment.save()
 
-            change = ExperimentChangeLogFactory.create(
-                experiment=experiment, old_status=old_status, new_status=status_value
+            ExperimentChangeLogFactory.create(
+                experiment=experiment,
+                old_status=old_status,
+                new_status=status_value,
+                changed_on=now,
             )
-            change.changed_on = now
-            change.save()
 
             if status_value == Experiment.STATUS_SHIP:
                 experiment.normandy_slug = experiment.generate_normandy_slug()
-                experiment.save()
 
             if status_value == target_status:
                 break
@@ -176,7 +167,8 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
             review_fields = experiment.get_all_required_reviews()
             for review in review_fields:
                 setattr(experiment, review, True)
-            experiment.save()
+
+        experiment.save()
 
         return experiment
 
@@ -186,8 +178,7 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
             return
 
         if extracted:
-            for user in extracted:
-                self.subscribers.add(user)
+            self.subscribers.add(*extracted)
 
     @factory.post_generation
     def locales(self, create, extracted, **kwargs):
@@ -195,63 +186,33 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
             # Simple build, do nothing.
             return
 
-        if extracted is None and Locale.objects.all().count() == 0:
-            extracted = _generate_many_to_many_list(LocaleFactory)
+        if extracted is None and Locale.objects.exists():
+            extracted = Locale.objects.all()[:3]
 
-        elif extracted is None and Locale.objects.all():
-            total = Locale.objects.all().count()
-            rand_num = random.randint(0, total)
-            extracted = Locale.objects.order_by("?")[:rand_num]
-
-        for locale in extracted:
-            self.locales.add(locale)
+        if extracted:
+            self.locales.add(*extracted)
 
     @factory.post_generation
     def countries(self, create, extracted, **kwargs):
-
         if not create:
             # Simple build, do nothing.
             return
 
-        if extracted is None and Country.objects.all().count() == 0:
-            extracted = _generate_many_to_many_list(CountryFactory)
+        if extracted is None and Country.objects.exists():
+            extracted = Country.objects.all()[:3]
 
-        elif extracted is None and Country.objects.all():
-            total = Country.objects.all().count()
-            rand_num = random.randint(0, total)
-            extracted = Country.objects.order_by("?")[:rand_num]
-
-        for country in extracted:
-            self.countries.add(country)
+        if extracted:
+            self.countries.add(*extracted)
 
     @factory.post_generation
     def projects(self, create, extracted, **kwargs):
         if not create:
             return
 
-        if extracted is None and Project.objects.all().count() == 0:
-            extracted = _generate_many_to_many_list(ProjectFactory)
+        if extracted is None:
+            extracted = [ProjectFactory.create() for i in range(3)]
 
-        elif extracted is None and Project.objects.all():
-            total = Project.objects.all().count()
-            rand_num = random.randint(0, total)
-            extracted = Project.objects.order_by("?")[:rand_num]
-
-        for project in extracted:
-            self.projects.add(project)
-
-
-def _generate_many_to_many_list(factory):
-    """Helper function to help generate a list of related objects."""
-    # Generate a list of elements with an emphasis on 0- and
-    # 1-length lists
-    length = random.randint(0, 2)
-    if length == 2:
-        length = random.randint(2, 30)
-
-    lst = [factory.create() for i in range(length)]
-
-    return lst
+        self.projects.add(*extracted)
 
 
 class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
@@ -270,13 +231,13 @@ class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
 
 class ExperimentVariantFactory(BaseExperimentVariantFactory):
     is_control = False
-    ratio = factory.LazyAttribute(lambda o: random.randint(1, 10))
+    ratio = 33
 
     @factory.lazy_attribute
     def value(self):
         value = self.is_control
         if self.experiment.pref_type == Experiment.PREF_TYPE_INT:
-            value = random.randint(1, 100)
+            value = 10
         elif self.experiment.pref_type == Experiment.PREF_TYPE_STR:
             value = slugify(faker.catch_phrase())
         return json.dumps(value)
@@ -327,21 +288,9 @@ class ExperimentCommentFactory(factory.django.DjangoModelFactory):
         model = ExperimentComment
 
 
-def letter_code_sequence(n):
-    # faker.Sequence starts at 0, which would produce an empty string
-    n += 1
-    s = ""
-    while n > 0:
-        letter = n % 26
-        s += chr(letter + ord("a"))
-        n = n // 26
-
-    return s
-
-
 class CountryFactory(factory.django.DjangoModelFactory):
-    code = factory.Sequence(letter_code_sequence)
     name = factory.LazyAttribute(lambda o: faker.country())
+    code = factory.LazyAttribute(lambda o: o.name[:2])
 
     class Meta:
         model = Country
@@ -349,10 +298,8 @@ class CountryFactory(factory.django.DjangoModelFactory):
 
 
 class LocaleFactory(factory.django.DjangoModelFactory):
-    code = factory.Sequence(letter_code_sequence)
-    name = factory.LazyAttribute(
-        lambda o: faker.word()  # not technically correct, but sure
-    )
+    name = factory.LazyAttribute(lambda o: faker.country())
+    code = factory.LazyAttribute(lambda o: o.name[:2])
 
     class Meta:
         model = Locale
@@ -365,4 +312,4 @@ class ProjectFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Project
-        django_get_or_create = ("name",)
+        django_get_or_create = ("slug",)
