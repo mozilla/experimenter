@@ -161,7 +161,4 @@ integration_vnc_up_detached: integration_build
 	$(COMPOSE_INTEGRATION) up -d firefox
 
 integration_test: integration_build
-	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox tox -c app/tests/integration
-
-integration_test_parallel: integration_build
 	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox tox -c app/tests/integration -- -n 4
