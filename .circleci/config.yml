@@ -19,6 +19,9 @@ jobs:
           command: docker-compose -v
       - checkout
       - run:
+          name: Build images
+          command: make test_build
+      - run:
           name: Run tests and linting
           command: make check
       - when:
@@ -49,10 +52,14 @@ jobs:
           command: docker-compose -v
       - checkout
       - run:
+          name: Build docker images
+          command: |
+            cp .env.sample .env  
+            make integration_build
+      - run:
           name: Run integration tests
           command: |
             sudo chown -R ubuntu app/tests/
-            cp .env.sample .env
             make refresh
             make up_detached
             make integration_test
