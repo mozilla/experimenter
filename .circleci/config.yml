@@ -21,7 +21,7 @@ jobs:
           name: Run tests and linting
           command: make check
 
-  integration_test:
+  integration:
     machine:
       docker_layer_caching: true
       image: ubuntu-1604:201903-01 # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
@@ -70,10 +70,8 @@ workflows:
   version: 2
   build:
     jobs:
-      - build:
-          name: build
-          filters:
-      - integration_test:
+      - build
+      - integration:
           name: integration
           filters:
             branches:
