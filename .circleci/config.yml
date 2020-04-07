@@ -8,7 +8,7 @@ jobs:
     machine:
       docker_layer_caching: true
       image: ubuntu-1604:201903-01 # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
-    resource_class: xlarge
+    resource_class: large
     working_directory: ~/experimenter
     steps:
       - run:
@@ -41,7 +41,7 @@ jobs:
     machine:
       docker_layer_caching: true
       image: ubuntu-1604:201903-01 # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
-    resource_class: xlarge
+    resource_class: large
     working_directory: ~/experimenter
     steps:
       - run:
@@ -86,25 +86,6 @@ jobs:
             docker tag app:build ${DOCKERHUB_REPO}:latest
             docker push ${DOCKERHUB_REPO}:latest
 
-  deploy_tagged:
-    working_directory: ~/experimenter
-    docker:
-      - image: docker:17.06.0-ce-git
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/experimenter/caches
-      - setup_remote_docker
-      - deploy:
-          name: Deploy to tag
-          command: |
-            docker load -i ~/experimenter/caches/app.tar
-            rm -rf ~/experimenter/caches
-            ./scripts/build.sh
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker tag app:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}
-            docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}
-
 workflows:
   version: 2
   build:
@@ -123,18 +104,14 @@ workflows:
               only: /.*/
             branches:
               only: master
+      - integration_test:
+          name: integration-pr
+          filters:
+            branches:
+              ignore: master
       - deploy_latest:
           requires:
             - build-save
           filters:
             branches:
               only: master
-      - deploy_tagged:
-          requires:
-            - build-save
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-      - integration_test
