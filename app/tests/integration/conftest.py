@@ -20,6 +20,11 @@ def capabilities(capabilities):
 
 
 @pytest.fixture
+def sensitive_url():
+    pass
+
+
+@pytest.fixture
 def firefox_options(firefox_options):
     """Set Firefox Options."""
     firefox_options.log.level = "trace"
