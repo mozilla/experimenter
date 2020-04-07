@@ -1,4 +1,3 @@
-
 import json
 from rest_framework import serializers
 
@@ -6,13 +5,13 @@ from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
     VariantPreferences,
+    RolloutPreference,
 )
 
 from experimenter.experiments.serializers.entities import PrefTypeField
 
 
 class PrefValueField(serializers.Field):
-
     def __init__(self, type_field, value_field, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.type_field = type_field
@@ -147,7 +146,6 @@ class SingularPreferenceRecipeValueSerializer(serializers.ModelSerializer):
 
 
 class VariantPreferenceRecipeListSerializer(serializers.ListSerializer):
-
     def to_representation(self, obj):
         experiment = obj.instance.experiment
 
@@ -275,25 +273,22 @@ class ExperimentRecipeAddonRolloutArgumentsSerializer(serializers.ModelSerialize
         return f"TODO: {obj.addon_release_url}"
 
 
-class RolloutPrefRecipeSerialzer(serializers.ModelSerializer):
+class RolloutPrefRecipeSerializer(serializers.ModelSerializer):
     preferenceName = serializers.ReadOnlyField(source="pref_name")
     value = PrefValueField(type_field="pref_type", value_field="pref_value", source="*")
 
     class Meta:
-        model = Experiment
+        model = RolloutPreference
         fields = ("preferenceName", "value")
 
 
 class ExperimentRecipePrefRolloutArgumentsSerializer(serializers.ModelSerializer):
     slug = serializers.ReadOnlyField(source="normandy_slug")
-    preferences = serializers.SerializerMethodField()
+    preferences = RolloutPrefRecipeSerializer(many=True)
 
     class Meta:
         model = Experiment
         fields = ("slug", "preferences")
-
-    def get_preferences(self, obj):
-        return [RolloutPrefRecipeSerialzer(obj).data]
 
 
 class ExperimentRecipeSerializer(serializers.ModelSerializer):

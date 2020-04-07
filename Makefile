@@ -14,37 +14,38 @@ secretkey:
 build:
 	./scripts/build.sh
 
-WAIT_FOR_DB = /app/bin/wait-for-it.sh db:5432 --
+WAIT_FOR_DB = /app/bin/wait-for-it.sh db:5432 &&
 
 COMPOSE = docker-compose -f docker-compose.yml
 COMPOSE_TEST = docker-compose -f docker-compose-test.yml
+COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml
+COMPOSE_FULL = docker-compose -f docker-compose.yml -f docker-compose-full.yml
 
-PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no
-PYTHON_TEST_FAST = python manage.py test -v 3 --parallel
+JOBS = 4
+PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
+PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no --disable-warnings --ignore=tests/integration -n ${JOBS}
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 ESLINT = yarn lint
 ESLINT_FIX = yarn lint-fix
 JS_TEST = yarn test
 FLAKE8 = flake8 .
-BLACK_CHECK = black -l 90 --check .
+BLACK_CHECK = black -l 90 --check --diff .
 BLACK_FIX = black -l 90 .
-CHECK_DOCS = python manage.py generate-docs --check=true
-GENERATE_DOCS = python manage.py generate-docs
+CHECK_DOCS = python manage.py generate_docs --check=true
+GENERATE_DOCS = python manage.py generate_docs
+LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json
+LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json
+LOAD_DUMMY_EXPERIMENTS = python manage.py load_dummy_experiments
+MIGRATE = python manage.py migrate
 
 test_build: build
 	$(COMPOSE_TEST) build
 
 test: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST)&&$(JS_TEST)"
-
-testfast: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST_FAST)"
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_TEST)" "$(JS_TEST)"'
 
 eslint: test_build
 	$(COMPOSE_TEST) run app sh -c "$(ESLINT)"
-
-eslint_fix: test_build
-	$(COMPOSE_TEST) run app sh -c "$(ESLINT_FIX)"
 
 py_test: test_build
 	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST)"
@@ -58,9 +59,6 @@ flake8: test_build
 black_check: test_build
 	$(COMPOSE_TEST) run app sh -c "$(BLACK_CHECK)"
 
-black_fix: test_build
-	$(COMPOSE_TEST) run app sh -c "$(BLACK_FIX)"
-
 check_migrations: test_build
 	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)"
 
@@ -68,31 +66,39 @@ check_docs: test_build
 	$(COMPOSE_TEST) run app sh -c "$(CHECK_DOCS)"
 
 check: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)&&$(CHECK_DOCS)&&$(BLACK_CHECK)&&$(FLAKE8)&&$(ESLINT)&&$(PYTHON_TEST)&&$(JS_TEST)"
-
-checkfast: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)&&$(BLACK_CHECK)&&$(FLAKE8)&&$(ESLINT)&&$(PYTHON_TEST_FAST)"
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT)" "$(PYTHON_TEST)" "$(JS_TEST)"'
 
 compose_build: build ssl
 	$(COMPOSE)  build
 
-compose_kill:
+compose_stop:
 	$(COMPOSE) kill
+	$(COMPOSE_INTEGRATION) kill
 
 compose_rm:
-	$(COMPOSE) rm -f
+	$(COMPOSE) rm -f -v
+	$(COMPOSE_INTEGRATION) rm -f -v
 
 volumes_rm:
-	docker volume ls -q | xargs docker volume rm
+	docker volume ls -q | xargs docker volume rm -f | echo
 
-kill: compose_kill compose_rm volumes_rm
+kill: compose_stop compose_rm volumes_rm
 	echo "All containers removed!"
 
-up: compose_kill compose_build
+up: compose_stop compose_build
 	$(COMPOSE) up
+
+up_detached: compose_stop compose_build
+	$(COMPOSE) up -d
 
 generate_docs: compose_build
 	$(COMPOSE) run app sh -c "$(GENERATE_DOCS)"
+
+eslint_fix: test_build
+	$(COMPOSE) run app sh -c "$(ESLINT_FIX)"
+
+black_fix: test_build
+	$(COMPOSE) run app sh -c "$(BLACK_FIX)"
 
 code_format: compose_build
 	$(COMPOSE) run app sh -c "$(BLACK_FIX)&&$(ESLINT_FIX)"
@@ -106,16 +112,11 @@ migrate: compose_build
 createuser: compose_build
 	$(COMPOSE) run app python manage.py createsuperuser
 
-load_locales: compose_build
-	$(COMPOSE) run app python manage.py loaddata ./fixtures/locales.json
-
-load_countries: compose_build
-	$(COMPOSE) run app python manage.py load-countries
-
-load_locales_countries:load_locales load_countries
+load_locales_countries: compose_build
+	$(COMPOSE) run app sh -c "$(WAIT_FOR_DB) $(LOAD_LOCALES)&&$(LOAD_COUNTRIES)"
 
 load_dummy_experiments: compose_build
-	$(COMPOSE) run app python manage.py load-dummy-experiments
+	$(COMPOSE) run app python manage.py load_dummy_experiments
 
 shell: compose_build
 	$(COMPOSE) run app python manage.py shell
@@ -126,9 +127,8 @@ dbshell: compose_build
 bash: compose_build
 	$(COMPOSE) run app bash
 
-refresh: kill migrate load_locales_countries load_dummy_experiments
-
-COMPOSE_FULL = docker-compose -f docker-compose.yml -f docker-compose-full.yml
+refresh: kill
+	$(COMPOSE) run app sh -c '$(WAIT_FOR_DB) $(MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 # experimenter + delivery console + normandy stack
 compose_build_all: build ssl
@@ -137,34 +137,28 @@ compose_build_all: build ssl
 up_all: compose_build_all
 	$(COMPOSE_FULL) up
 
+kill_all: kill
+	$(COMPOSE_FULL) kill
+	$(COMPOSE_FULL) -v rm
+
 normandy_shell: compose_build_all
 	$(COMPOSE_FULL) run normandy ./manage.py shell
 
-COMPOSE_INTEGRATION = docker-compose -p experimenter_integration -f docker-compose.yml -f docker-compose.integration-test.yml
-
 # integration tests
-integration_kill:
-	$(COMPOSE_INTEGRATION) kill
-	$(COMPOSE_INTEGRATION) rm -f
-
-integration_build: integration_kill ssl build
+integration_build: compose_build
 	$(COMPOSE_INTEGRATION) build
-	$(COMPOSE_INTEGRATION) run app sh -c "$(WAIT_FOR_DB) python manage.py migrate;python manage.py load-countries;python manage.py loaddata ./fixtures/locales.json;python manage.py createsuperuser --username admin --email admin@example.com --noinput"
 
 integration_shell: integration_build
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox bash
+
+integration_vnc_up: integration_build
+	$(COMPOSE_INTEGRATION) up firefox
+
+integration_vnc_up_shell: integration_build
 	$(COMPOSE_INTEGRATION) run firefox bash
 
-integration_up_shell:
-	$(COMPOSE_INTEGRATION) run firefox bash
+integration_vnc_up_detached: integration_build
+	$(COMPOSE_INTEGRATION) up -d firefox
 
-integration_up_detached: integration_build
-	$(COMPOSE_INTEGRATION) up -d
-
-integration_up: integration_build
-	$(COMPOSE_INTEGRATION) up
-
-integration_test_run: integration_build
-	$(COMPOSE_INTEGRATION) run firefox tox -c tests/integration
-
-integration_test: compose_kill integration_test_run integration_kill
-	echo "Firefox tests complete!"
+integration_test: integration_build
+	MOZ_HEADLESS=1 $(COMPOSE_INTEGRATION) run firefox tox -c app/tests/integration -- -n 4

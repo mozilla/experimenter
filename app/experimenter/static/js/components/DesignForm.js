@@ -22,6 +22,7 @@ class DesignForm extends React.PureComponent {
     experimentType: PropTypes.string,
     isBranchedAddon: PropTypes.bool,
     isMultiPref: PropTypes.bool,
+    rolloutType: PropTypes.string,
     slug: PropTypes.string,
   };
 
@@ -50,6 +51,10 @@ class DesignForm extends React.PureComponent {
     );
   }
 
+  getRolloutType() {
+    return this.state.data.get("rollout_type", this.props.rolloutType);
+  }
+
   getEndpointUrl() {
     if (this.isBranchedAddon()) {
       return `experiments/${this.props.slug}/design-branched-addon/`;
@@ -57,6 +62,12 @@ class DesignForm extends React.PureComponent {
     if (this.isMultiPref()) {
       return `experiments/${this.props.slug}/design-multi-pref/`;
     }
+
+    if (this.props.experimentType === TYPE_ROLLOUT) {
+      let rolloutType = this.getRolloutType();
+      return `experiments/${this.props.slug}/design-${rolloutType}-${this.props.experimentType}/`;
+    }
+
     return `experiments/${this.props.slug}/design-${this.props.experimentType}/`;
   }
 
@@ -120,7 +131,7 @@ class DesignForm extends React.PureComponent {
       .then(() => {
         location.replace(redirectUrl);
       })
-      .catch(err => {
+      .catch((err) => {
         this.setState({
           errors: fromJS(err.data),
         });
@@ -178,7 +189,7 @@ class DesignForm extends React.PureComponent {
     }
 
     return (
-      <div>
+      <div className="page-edit-design">
         <Container>
           <form onSubmit={this.handleSubmit} id="design-form">
             <Form

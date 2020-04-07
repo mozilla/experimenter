@@ -1,3 +1,4 @@
+import json
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -7,6 +8,7 @@ from django_filters.views import FilterView
 
 from experimenter.experiments.filtersets import ExperimentFilterset
 from experimenter.experiments.forms import (
+    RADIO_NO,
     ExperimentArchiveForm,
     ExperimentCommentForm,
     ExperimentObjectivesForm,
@@ -16,11 +18,10 @@ from experimenter.experiments.forms import (
     ExperimentRisksForm,
     ExperimentStatusForm,
     ExperimentSubscribedForm,
-    ExperimentTimelinePopulationForm,
     NormandyIdForm,
     ExperimentOrderingForm,
 )
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import Experiment, Locale, Country
 
 
 class ExperimentListView(FilterView):
@@ -93,10 +94,28 @@ class ExperimentOverviewUpdateView(ExperimentFormMixin, UpdateView):
     template_name = "experiments/edit_overview.html"
 
 
-class ExperimentTimelinePopulationUpdateView(ExperimentFormMixin, UpdateView):
-    form_class = ExperimentTimelinePopulationForm
-    next_view_name = "experiments-design-update"
+class ExperimentTimelinePopulationUpdateView(DetailView):
+    model = Experiment
     template_name = "experiments/edit_timeline_population.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["locales"] = json.dumps(
+            list(
+                Locale.objects.extra(select={"label": "name", "value": "id"}).values(
+                    "label", "value"
+                )
+            )
+        )
+        context["countries"] = json.dumps(
+            list(
+                Country.objects.extra(select={"label": "name", "value": "id"}).values(
+                    "label", "value"
+                )
+            )
+        )
+
+        return context
 
 
 class ExperimentDesignUpdateView(DetailView):
@@ -106,6 +125,7 @@ class ExperimentDesignUpdateView(DetailView):
 
 class ExperimentObjectivesUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentObjectivesForm
+    initial = {"survey_required": RADIO_NO}
     next_view_name = "experiments-risks-update"
     template_name = "experiments/edit_objectives.html"
 

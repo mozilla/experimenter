@@ -1,8 +1,5 @@
 """Representaion of the Experiment Detail Page."""
 
-import random
-import string
-
 from selenium.webdriver.common.by import By
 from pypom import Region
 
@@ -14,6 +11,12 @@ class DetailPage(Base):
     _edit_branches_btn_locator = (By.CSS_SELECTOR, "#branches-edit-btn")
 
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-detail-view")
+
+    def wait_for_page_to_load(self):
+        self.wait.until(
+            lambda _: self.find_element(*self._page_wait_locator).is_displayed()
+        )
+        return self
 
     @property
     def objective_section(self):
@@ -33,10 +36,7 @@ class DetailPage(Base):
     class ObjectivesRegion(Region):
 
         _edit_btn_locator = (By.CSS_SELECTOR, "#objectives-edit-btn")
-        _detail_locator = (
-            By.CSS_SELECTOR,
-            "#objectives-section-detail > p:nth-child(1)",
-        )
+        _detail_locator = (By.CSS_SELECTOR, "#objectives-section-detail > p:nth-child(1)")
 
         def click_edit(self):
             self.find_element(*self._edit_btn_locator).click()
@@ -66,7 +66,7 @@ class DetailPage(Base):
         )
         _survey_launch_instructions_locator = (
             By.CSS_SELECTOR,
-            "#analysis-section-detail > p:nth-child(8)",
+            "#analysis-section-detail > p:nth-child(9)",
         )
 
         def click_edit(self):

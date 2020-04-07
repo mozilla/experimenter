@@ -18,7 +18,11 @@ from experimenter.experiments.serializers.design import (
     ExperimentDesignGenericSerializer,
     ExperimentDesignMultiPrefSerializer,
     ExperimentDesignPrefSerializer,
-    ExperimentDesignRolloutSerializer,
+    ExperimentDesignPrefRolloutSerializer,
+    ExperimentDesignAddonRolloutSerializer,
+)
+from experimenter.experiments.serializers.timeline_population import (
+    ExperimentTimelinePopSerializer,
 )
 from experimenter.experiments.serializers.recipe import ExperimentRecipeSerializer
 
@@ -98,7 +102,19 @@ class ExperimentDesignBranchedAddonView(RetrieveUpdateAPIView):
     serializer_class = ExperimentDesignBranchedAddonSerializer
 
 
-class ExperimentDesignRolloutView(RetrieveUpdateAPIView):
+class ExperimentDesignPrefRolloutView(RetrieveUpdateAPIView):
     lookup_field = "slug"
     queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_ROLLOUT)
-    serializer_class = ExperimentDesignRolloutSerializer
+    serializer_class = ExperimentDesignPrefRolloutSerializer
+
+
+class ExperimentDesignAddonRolloutView(RetrieveUpdateAPIView):
+    lookup_field = "slug"
+    queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_ROLLOUT)
+    serializer_class = ExperimentDesignAddonRolloutSerializer
+
+
+class ExperimentTimelinePopulationView(RetrieveUpdateAPIView):
+    lookup_field = "slug"
+    queryset = Experiment.objects.all()
+    serializer_class = ExperimentTimelinePopSerializer

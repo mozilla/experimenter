@@ -6,6 +6,7 @@ from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     LocaleFactory,
     CountryFactory,
+    ProjectFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
     ExperimentChangeLogFactory,
@@ -24,7 +25,6 @@ from experimenter.experiments.serializers.recipe import ExperimentRecipeVariantS
 
 
 class TestJSTimestampField(TestCase):
-
     def test_field_serializes_to_js_time_format(self):
         field = JSTimestampField()
         example_datetime = datetime.datetime(2000, 1, 1, 1, 1, 1, 1)
@@ -36,7 +36,6 @@ class TestJSTimestampField(TestCase):
 
 
 class TestPrefTypeField(TestCase):
-
     def test_non_json_field(self):
         field = PrefTypeField()
         self.assertEqual(
@@ -52,7 +51,6 @@ class TestPrefTypeField(TestCase):
 
 
 class TestExperimentVariantSerializer(TestCase):
-
     def test_serializer_outputs_expected_bool(self):
         experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_BOOL)
         variant = ExperimentVariantFactory.create(experiment=experiment, value="true")
@@ -86,10 +84,16 @@ class TestExperimentVariantSerializer(TestCase):
 
 
 class TestExperimentSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_COMPLETE, countries=[], locales=[]
+            Experiment.STATUS_COMPLETE,
+            countries=[],
+            locales=[],
+            normandy_slug="a-normandy-slug",
+            normandy_id=123,
+            other_normandy_ids=[],
+            results_fail_to_launch=False,
+            results_failures_notes="failure notes",
         )
 
         # ensure expected_data has "string" if pref_type is json string
@@ -122,6 +126,9 @@ class TestExperimentSerializer(TestCase):
             "start_date": JSTimestampField().to_representation(experiment.start_date),
             "status": Experiment.STATUS_COMPLETE,
             "type": experiment.type,
+            "normandy_slug": experiment.normandy_slug,
+            "normandy_id": experiment.normandy_id,
+            "other_normandy_ids": experiment.other_normandy_ids,
             "variants": [
                 ExperimentVariantSerializer(variant).data
                 for variant in experiment.variants.all()
@@ -132,6 +139,23 @@ class TestExperimentSerializer(TestCase):
                 ExperimentChangeLogSerializer(change).data
                 for change in experiment.changes.all()
             ],
+            "results": {
+                "results_url": None,
+                "results_initial": None,
+                "results_lessons_learned": None,
+                "results_fail_to_launch": False,
+                "results_recipe_errors": None,
+                "results_restarts": None,
+                "results_low_enrollment": None,
+                "results_early_end": None,
+                "results_no_usable_data": None,
+                "results_failures_notes": "failure notes",
+                "results_changes_to_firefox": None,
+                "results_data_for_hypothesis": None,
+                "results_confidence": None,
+                "results_measure_impact": None,
+                "results_impact_notes": None,
+            },
         }
 
         self.assertEqual(set(serializer.data.keys()), set(expected_data.keys()))
@@ -155,7 +179,6 @@ class TestExperimentSerializer(TestCase):
 
 
 class TestExperimentChangeLogSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         change_log = ExperimentChangeLogFactory.create(
             changed_on="2019-08-02T18:19:26.267960Z"
@@ -165,11 +188,13 @@ class TestExperimentChangeLogSerializer(TestCase):
 
 
 class TestChangeLogSerializer(TestCase):
-
     def test_serializer_outputs_expected_schema(self):
         country1 = CountryFactory(code="CA", name="Canada")
         locale1 = LocaleFactory(code="da", name="Danish")
-        experiment = ExperimentFactory.create(locales=[locale1], countries=[country1])
+        project = ProjectFactory.create()
+        experiment = ExperimentFactory.create(
+            locales=[locale1], countries=[country1], projects=[project]
+        )
 
         related_exp = ExperimentFactory.create()
         experiment.related_to.add(related_exp)
@@ -177,8 +202,7 @@ class TestChangeLogSerializer(TestCase):
         serializer = ChangeLogSerializer(experiment)
 
         risk_tech_description = experiment.risk_technical_description
-        # ensure expected_data has "string" if pref_type is json string
-        pref_type = PrefTypeField().to_representation(experiment.pref_type)
+
         expected_data = {
             "type": experiment.type,
             "owner": experiment.owner.id,
@@ -193,7 +217,7 @@ class TestChangeLogSerializer(TestCase):
             "addon_experiment_id": experiment.addon_experiment_id,
             "addon_release_url": experiment.addon_release_url,
             "pref_name": experiment.pref_name,
-            "pref_type": pref_type,
+            "pref_type": experiment.pref_type,
             "pref_branch": experiment.pref_branch,
             "public_name": experiment.public_name,
             "public_description": experiment.public_description,
@@ -204,8 +228,10 @@ class TestChangeLogSerializer(TestCase):
             "client_matching": experiment.client_matching,
             "locales": [{"code": "da", "name": "Danish"}],
             "countries": [{"code": "CA", "name": "Canada"}],
+            "projects": [{"slug": project.slug}],
             "platform": experiment.platform,
             "objectives": experiment.objectives,
+            "total_enrolled_clients": experiment.total_enrolled_clients,
             "analysis": experiment.analysis,
             "analysis_owner": experiment.analysis_owner.id,
             "survey_required": experiment.survey_required,
@@ -215,7 +241,7 @@ class TestChangeLogSerializer(TestCase):
             "bugzilla_id": experiment.bugzilla_id,
             "normandy_slug": experiment.normandy_slug,
             "normandy_id": experiment.normandy_id,
-            "data_science_bugzilla_url": experiment.data_science_bugzilla_url,
+            "data_science_issue_url": experiment.data_science_issue_url,
             "feature_bugzilla_url": experiment.feature_bugzilla_url,
             "risk_partner_related": experiment.risk_partner_related,
             "risk_brand": experiment.risk_brand,
@@ -257,6 +283,18 @@ class TestChangeLogSerializer(TestCase):
             "results_url": experiment.results_url,
             "results_initial": experiment.results_initial,
             "results_lessons_learned": experiment.results_lessons_learned,
+            "results_fail_to_launch": experiment.results_fail_to_launch,
+            "results_recipe_errors": experiment.results_recipe_errors,
+            "results_restarts": experiment.results_restarts,
+            "results_low_enrollment": experiment.results_low_enrollment,
+            "results_early_end": experiment.results_early_end,
+            "results_no_usable_data": experiment.results_no_usable_data,
+            "results_failures_notes": experiment.results_failures_notes,
+            "results_changes_to_firefox": experiment.results_changes_to_firefox,
+            "results_data_for_hypothesis": experiment.results_data_for_hypothesis,
+            "results_confidence": experiment.results_confidence,
+            "results_measure_impact": experiment.results_measure_impact,
+            "results_impact_notes": experiment.results_impact_notes,
             "rollout_playbook": experiment.rollout_playbook,
             "rollout_type": experiment.rollout_type,
         }

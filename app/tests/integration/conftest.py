@@ -1,3 +1,5 @@
+import os
+
 import pytest
 import requests
 from requests.packages.urllib3.util.retry import Retry
@@ -7,16 +9,25 @@ from pages.home import Home
 
 
 @pytest.fixture
+def ds_issue_host():
+    return os.environ["DS_ISSUE_HOST"]
+
+
+@pytest.fixture
 def capabilities(capabilities):
     capabilities["acceptInsecureCerts"] = True
     return capabilities
 
 
 @pytest.fixture
+def sensitive_url():
+    pass
+
+
+@pytest.fixture
 def firefox_options(firefox_options):
     """Set Firefox Options."""
-    firefox_options.headless = True
-    firefox_options.log.level = 'trace'
+    firefox_options.log.level = "trace"
     return firefox_options
 
 
@@ -32,7 +43,7 @@ def _verify_url(request, base_url):
 
 
 @pytest.fixture
-def fill_overview(selenium, base_url):
+def fill_overview(selenium, base_url, ds_issue_host):
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
@@ -40,5 +51,5 @@ def fill_overview(selenium, base_url):
     experiment.short_description = "Testing in here"
     experiment.public_name = "Public Name"
     experiment.public_description = "Public Description"
-    experiment.bugzilla_url = "http://bugzilla.com/show_bug.cgi?id=1234"
+    experiment.ds_issue_url = f"{ds_issue_host}DS-12345"
     return experiment

@@ -19,11 +19,11 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 from experimenter.base.models import Country, Locale
+from experimenter.projects.models import Project
 from experimenter.experiments.constants import ExperimentConstants
 
 
 class ExperimentManager(models.Manager):
-
     def get_queryset(self):
         return super().get_queryset().annotate(latest_change=Max("changes__changed_on"))
 
@@ -131,24 +131,27 @@ class Experiment(ExperimentConstants, models.Model):
     population_percent = models.DecimalField(
         max_digits=7, decimal_places=4, default=0.0, blank=True, null=True
     )
+    total_enrolled_clients = models.PositiveIntegerField(blank=True, null=True)
     firefox_min_version = models.CharField(
-        max_length=255, choices=ExperimentConstants.VERSION_CHOICES
+        max_length=255, choices=ExperimentConstants.VERSION_CHOICES, blank=True, null=True
     )
     firefox_max_version = models.CharField(
         max_length=255, choices=ExperimentConstants.VERSION_CHOICES, blank=True, null=True
     )
     firefox_channel = models.CharField(
-        max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES
+        max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES, blank=True, null=True
     )
     client_matching = models.TextField(
-        default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True
+        default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True, null=True
     )
     locales = models.ManyToManyField(Locale, blank=True)
     countries = models.ManyToManyField(Country, blank=True)
+    projects = models.ManyToManyField(Project, blank=True)
     platform = models.CharField(
         max_length=255,
         choices=ExperimentConstants.PLATFORM_CHOICES,
         default=ExperimentConstants.PLATFORM_ALL,
+        null=True,
     )
     design = models.TextField(
         default=ExperimentConstants.DESIGN_DEFAULT, blank=True, null=True
@@ -171,7 +174,7 @@ class Experiment(ExperimentConstants, models.Model):
     normandy_id = models.PositiveIntegerField(blank=True, null=True)
     other_normandy_ids = ArrayField(models.IntegerField(), blank=True, null=True)
 
-    data_science_bugzilla_url = models.URLField(blank=True, null=True)
+    data_science_issue_url = models.URLField(blank=True, null=True)
     feature_bugzilla_url = models.URLField(blank=True, null=True)
 
     # Risk fields
@@ -227,6 +230,24 @@ class Experiment(ExperimentConstants, models.Model):
     results_initial = models.TextField(blank=True, null=True)
     results_lessons_learned = models.TextField(blank=True, null=True)
 
+    results_fail_to_launch = models.NullBooleanField(default=None, blank=True, null=True)
+    results_recipe_errors = models.NullBooleanField(default=None, blank=True, null=True)
+    results_restarts = models.NullBooleanField(default=None, blank=True, null=True)
+    results_low_enrollment = models.NullBooleanField(default=None, blank=True, null=True)
+    results_early_end = models.NullBooleanField(default=None, blank=True, null=True)
+    results_no_usable_data = models.NullBooleanField(default=None, blank=True, null=True)
+    results_failures_notes = models.TextField(blank=True, null=True)
+
+    results_changes_to_firefox = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    results_data_for_hypothesis = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    results_confidence = models.NullBooleanField(default=None, blank=True, null=True)
+    results_measure_impact = models.NullBooleanField(default=None, blank=True, null=True)
+    results_impact_notes = models.TextField(blank=True, null=True)
+
     objects = ExperimentManager()
 
     class Meta:
@@ -256,7 +277,6 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def monitoring_dashboard_url(self):
-
         def to_timestamp(date):
             return int(time.mktime(date.timetuple())) * 1000
 
@@ -306,10 +326,8 @@ class Experiment(ExperimentConstants, models.Model):
                 f"{self.firefox_max_version_integer}"
             )
 
-        slug_prefix = f"{self.type}-"
-        slug_postfix = (
-            f"-{self.firefox_channel}-{version_string}-" f"bug-{self.bugzilla_id}"
-        )
+        slug_prefix = f"bug-{self.bugzilla_id}-{self.type}-"
+        slug_postfix = f"-{self.firefox_channel}-{version_string}"
         remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(slug_prefix + slug_postfix)
         truncated_slug = slugify(self.name[:remaining_chars])
         return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
@@ -367,7 +385,7 @@ class Experiment(ExperimentConstants, models.Model):
         return (
             self.bugzilla_url
             or self.monitoring_dashboard_url
-            or self.data_science_bugzilla_url
+            or self.data_science_issue_url
             or self.feature_bugzilla_url
         )
 
@@ -515,6 +533,10 @@ class Experiment(ExperimentConstants, models.Model):
         return self.type == self.TYPE_PREF
 
     @property
+    def is_message_experiment(self):
+        return self.type == self.TYPE_MESSAGE
+
+    @property
     def is_rollout(self):
         return self.type == self.TYPE_ROLLOUT
 
@@ -549,6 +571,10 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
+    def should_have_total_enrolled(self):
+        return self.type not in (self.TYPE_GENERIC, self.TYPE_ROLLOUT)
+
+    @property
     def completed_overview(self):
         return self.pk is not None
 
@@ -578,9 +604,8 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_pref_rollout(self):
-        return self.is_pref_rollout and all(
-            [self.pref_type, self.pref_name, self.pref_value]
-        )
+
+        return self.is_pref_rollout and self.preferences.count() > 0
 
     @property
     def completed_addon_rollout(self):
@@ -612,7 +637,25 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def completed_results(self):
-        return self.results_url or self.results_initial or self.results_lessons_learned
+        results_fields = (
+            "results_url",
+            "results_initial",
+            "results_lessons_learned",
+            "results_fail_to_launch",
+            "results_recipe_errors",
+            "results_restarts",
+            "results_low_enrollment",
+            "results_early_end",
+            "results_no_usable_data",
+            "results_failures_notes",
+            "results_changes_to_firefox",
+            "results_data_for_hypothesis",
+            "results_confidence",
+            "results_measure_impact",
+            "results_impact_notes",
+        )
+
+        return any([getattr(self, field) for field in results_fields])
 
     @property
     def _risk_questions(self):
@@ -675,15 +718,20 @@ class Experiment(ExperimentConstants, models.Model):
 
     def _default_required_reviews(self):
         reviews = [
+            "review_science",
             "review_advisory",
+            "review_engineering",
             "review_qa_requested",
             "review_intent_to_ship",
+            "review_bugzilla",
             "review_qa",
             "review_relman",
         ]
 
-        if not self.is_rollout:
-            reviews += ["review_science", "review_bugzilla", "review_engineering"]
+        rollout_exclusions = ["review_science", "review_bugzilla", "review_engineering"]
+
+        if self.is_rollout:
+            return [review for review in reviews if review not in rollout_exclusions]
 
         return reviews
 
@@ -816,6 +864,15 @@ class Experiment(ExperimentConstants, models.Model):
     def is_pref_value_json_string(self):
         return self.pref_type == ExperimentConstants.PREF_TYPE_JSON_STR
 
+    @property
+    def is_shipped(self):
+        return self.status in (
+            Experiment.STATUS_SHIP,
+            Experiment.STATUS_ACCEPTED,
+            Experiment.STATUS_LIVE,
+            Experiment.STATUS_COMPLETE,
+        )
+
     def clone(self, name, user):
 
         cloned = copy.copy(self)
@@ -847,6 +904,18 @@ class Experiment(ExperimentConstants, models.Model):
             "results_url",
             "results_initial",
             "results_lessons_learned",
+            "results_fail_to_launch",
+            "results_recipe_errors",
+            "results_restarts",
+            "results_low_enrollment",
+            "results_early_end",
+            "results_no_usable_data",
+            "results_failures_notes",
+            "results_changes_to_firefox",
+            "results_data_for_hypothesis",
+            "results_confidence",
+            "results_measure_impact",
+            "results_impact_notes",
         ]
 
         cloned.id = None
@@ -869,13 +938,19 @@ class Experiment(ExperimentConstants, models.Model):
             variant.experiment = cloned
             variant.save()
 
+        cloned.projects.set(self.projects.all())
+
         cloned.related_to.add(self)
+
+        cloned.countries.add(*self.countries.all())
+        cloned.locales.add(*self.locales.all())
 
         ExperimentChangeLog.objects.create(
             experiment=cloned,
             changed_by=get_user_model().objects.get(id=user.id),
             old_status=None,
             new_status=ExperimentConstants.STATUS_DRAFT,
+            message=ExperimentChangeLog.STATUS_CLONED,
         )
 
         return cloned
@@ -913,14 +988,7 @@ class ExperimentVariant(models.Model):
             return "Treatment"
 
 
-class VariantPreferences(models.Model):
-    variant = models.ForeignKey(
-        ExperimentVariant,
-        blank=False,
-        null=False,
-        related_name="preferences",
-        on_delete=models.CASCADE,
-    )
+class Preference(models.Model):
     pref_name = models.CharField(max_length=255, blank=False, null=False)
     pref_type = models.CharField(
         max_length=255,
@@ -928,6 +996,17 @@ class VariantPreferences(models.Model):
         blank=False,
         null=False,
     )
+    pref_value = models.CharField(max_length=255, blank=False, null=False)
+
+    class Meta:
+        abstract = True
+
+    @property
+    def is_json_string_type(self):
+        return self.pref_type == ExperimentConstants.PREF_TYPE_JSON_STR
+
+
+class VariantPreferences(Preference):
     pref_branch = models.CharField(
         max_length=255,
         choices=ExperimentConstants.PREF_BRANCH_CHOICES,
@@ -935,18 +1014,32 @@ class VariantPreferences(models.Model):
         null=False,
     )
 
-    pref_value = models.CharField(max_length=255, blank=False, null=False)
+    variant = models.ForeignKey(
+        ExperimentVariant,
+        blank=False,
+        null=False,
+        related_name="preferences",
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         unique_together = (("variant", "pref_name"),)
 
-    @property
-    def is_json_string_type(self):
-        return self.pref_type == ExperimentConstants.PREF_TYPE_JSON_STR
+
+class RolloutPreference(Preference):
+    experiment = models.ForeignKey(
+        Experiment,
+        blank=False,
+        null=False,
+        related_name="preferences",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        unique_together = (("experiment", "pref_name"),)
 
 
 class ExperimentChangeLogManager(models.Manager):
-
     def latest(self):
         return self.all().order_by("-changed_on").first()
 
@@ -963,6 +1056,7 @@ class ExperimentChangeLog(models.Model):
     STATUS_ACCEPTED_LIVE = "Launched Delivery"
     STATUS_LIVE_COMPLETE = "Completed Delivery"
     STATUS_ADDED_RESULTS = "Added Results"
+    STATUS_CLONED = "Cloned Delivery"
 
     PRETTY_STATUS_LABELS = {
         None: {Experiment.STATUS_DRAFT: STATUS_NONE_DRAFT},
@@ -1027,7 +1121,6 @@ class ExperimentChangeLog(models.Model):
 
 
 class ExperimentCommentManager(models.Manager):
-
     @cached_property
     def sections(self):
         sections = defaultdict(list)

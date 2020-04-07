@@ -18,6 +18,9 @@ from experimenter.experiments.serializers.design import (
     ExperimentDesignGenericSerializer,
 )
 
+from experimenter.experiments.serializers.timeline_population import (
+    ExperimentTimelinePopSerializer,
+)
 
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
@@ -27,7 +30,6 @@ from experimenter.experiments.tests.factories import (
 
 
 class TestExperimentListView(TestCase):
-
     def test_list_view_serializes_experiments(self):
         experiments = []
 
@@ -75,7 +77,6 @@ class TestExperimentListView(TestCase):
 
 
 class TestExperimentDetailView(TestCase):
-
     def test_get_experiment_returns_experiment_info(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_variants()
@@ -92,7 +93,6 @@ class TestExperimentDetailView(TestCase):
 
 
 class TestExperimentRecipeView(TestCase):
-
     def test_get_experiment_recipe_returns_recipe_info(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_variants(
@@ -111,7 +111,6 @@ class TestExperimentRecipeView(TestCase):
 
 
 class TestExperimentSendIntentToShipEmailView(TestCase):
-
     def test_put_to_view_sends_email(self):
         user_email = "user@example.com"
 
@@ -151,7 +150,6 @@ class TestExperimentSendIntentToShipEmailView(TestCase):
 
 
 class TestExperimentCloneView(TestCase):
-
     def test_patch_to_view_returns_clone_name_and_url(self):
         experiment = ExperimentFactory.create(
             name="great experiment", slug="great-experiment"
@@ -173,7 +171,6 @@ class TestExperimentCloneView(TestCase):
 
 
 class TestExperimentDesignPrefView(TestCase):
-
     def test_get_design_pref_returns_design_info(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_variants(type="pref")
@@ -271,7 +268,6 @@ class TestExperimentDesignPrefView(TestCase):
 
 
 class TestExperimentDesignMultiPrefView(TestCase):
-
     def setUp(self):
         self.user_email = "user@example.com"
         self.experiment = ExperimentFactory.create(type="pref")
@@ -362,7 +358,6 @@ class TestExperimentDesignMultiPrefView(TestCase):
 
 
 class TestExperimentDesignAddonView(TestCase):
-
     def test_get_design_addon_returns_design_info(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_variants(
@@ -463,7 +458,6 @@ class TestExperimentDesignAddonView(TestCase):
 
 
 class TestExperimentDesignGenericView(TestCase):
-
     def test_get_design_addon_returns_design_info(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_variants(
@@ -546,6 +540,48 @@ class TestExperimentDesignGenericView(TestCase):
 
         response = self.client.put(
             reverse("experiments-design-generic", kwargs={"slug": experiment.slug}),
+            data,
+            content_type="application/json",
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+
+class TestExperimentTimelinePopulationView(TestCase):
+    def test_get_timeline_pop_returns_info(self):
+        user_email = "user@example.com"
+
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+
+        response = self.client.get(
+            reverse("experiments-timeline-population", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        json_data = json.loads(response.content)
+
+        serialized_experiment = ExperimentTimelinePopSerializer(experiment).data
+        self.assertEqual(serialized_experiment, json_data)
+
+    def test_put_to_view_timeline_pop_info(self):
+        user_email = "user@example.com"
+
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+
+        data = json.dumps(
+            {
+                "client_matching": "client match info",
+                "firefox_min_version": "67.0",
+                "countries": [],
+                "locales": [],
+            }
+        )
+
+        response = self.client.put(
+            reverse("experiments-timeline-population", kwargs={"slug": experiment.slug}),
             data,
             content_type="application/json",
             **{settings.OPENIDC_EMAIL_HEADER: user_email},

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load static %}
+{% load md2 %}
 
 {% load experiment_extras %}
 
@@ -29,6 +30,10 @@
     {% endif %}
 
     Deliver{{ paginator.count|pluralize:"y,ies" }}
+
+    {% if filter.form.projects.value %}
+      in {{filter.get_project_display_value}}
+    {% endif %}
 
     {% if filter.form.firefox_version.value %}
       including Firefox Version
@@ -104,7 +109,10 @@
                   {{ experiment.owner }}
                 </strong>
               </p>
-              {{ experiment.short_description|linebreaks }}
+              <p><strong> Projects:</strong> {% for project in experiment.projects.all %}
+                {{project}}{% if not forloop.last %},{% endif %}
+              {% endfor %}</p>
+              {{ experiment.short_description|markdown }}
             </div>
             <div class="col-4 text-right">
               <h5>{{ experiment.population }}</h5>
@@ -113,10 +121,10 @@
                 <p>Enrolling until {{ experiment.enrollment_end_date }}</p>
               {% endif %}
               {% if experiment.rollout_dates.first_increase %}
-                <p>First increase on {{ experiment.rollout_dates.first_increase.date }} to {{ experiment.rollout_dates.first_increase.percent }}</p>
+                <p>First increase on {{ experiment.rollout_dates.first_increase.date }} to {{ experiment.rollout_dates.first_increase.percent }}%</p>
               {% endif %}
               {% if experiment.rollout_dates.final_increase %}
-                <p>Final increase on {{ experiment.rollout_dates.final_increase.date }} to {{ experiment.rollout_dates.final_increase.percent }}</p>
+                <p>Final increase on {{ experiment.rollout_dates.final_increase.date }} to {{ experiment.rollout_dates.final_increase.percent }}%</p>
               {% endif %}
               {% if experiment.survey_required %}
                 <span class="badge badge-secondary mb-2">Includes Survey</span>

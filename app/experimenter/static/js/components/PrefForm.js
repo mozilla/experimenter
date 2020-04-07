@@ -32,7 +32,7 @@ export default class PrefForm extends React.PureComponent {
             label="Pref Name"
             name="pref_name"
             id="id_pref_name"
-            onChange={value => {
+            onChange={(value) => {
               this.props.handleDataChange("pref_name", value);
             }}
             value={this.props.data.get("pref_name")}
@@ -45,7 +45,7 @@ export default class PrefForm extends React.PureComponent {
             label="Pref Type"
             name="pref_type"
             id="id_pref_type"
-            onChange={value => {
+            onChange={(value) => {
               this.props.handleDataChange("pref_type", value);
             }}
             value={this.props.data.get("pref_type")}
@@ -65,7 +65,7 @@ export default class PrefForm extends React.PureComponent {
             label="Pref Branch"
             name="pref_branch"
             id="id_pref_branch"
-            onChange={value => {
+            onChange={(value) => {
               this.props.handleDataChange("pref_branch", value);
             }}
             value={this.props.data.get("pref_branch")}
@@ -93,11 +93,11 @@ export default class PrefForm extends React.PureComponent {
             <RadioButton
               elementLabel="How Many Prefs does this ship?"
               fieldName="is_multi_pref"
-              radioLabel1="One Pref for all branches"
-              radioLabel2="Different Prefs per branch"
-              radioValue1={false}
-              radioValue2={true}
-              onChange={event => {
+              choices={[
+                { value: false, label: "One Pref for all branches" },
+                { value: true, label: "Different Prefs per branch" },
+              ]}
+              onChange={(event) => {
                 this.props.handleReloadAPIState(
                   "is_multi_pref",
                   event.target.value === "true",

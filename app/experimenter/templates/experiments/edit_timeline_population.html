@@ -5,7 +5,7 @@
 {% block edit_title %}
   Edit <a href="{% url "experiments-detail" slug=object.slug %}">
     {{ object.name }}
-  </a> Branches
+  </a> Timeline and Population
 {% endblock %}
 
 
@@ -14,75 +14,17 @@
 {% endblock %}
 
 {% block edit_form %}
-
-  <div class="form-group row">
-    <h4 class="col-10 offset-2">Delivery Timeline</h4>
-  </div>
-
-  {% include "experiments/field_inline.html" with field=form.proposed_start_date marked_required=True %}
-
-  {% include "experiments/field_inline.html" with field=form.proposed_duration  marked_required=True %}
-
-  {% if object.is_rollout %}
-    {% include "experiments/field_inline.html" with field=form.rollout_playbook marked_required=True %}
-  {% else %}
-    {% include "experiments/field_inline.html" with field=form.proposed_enrollment %}
-  {% endif %}
-
-
-  <hr class="heavy-line my-5">
-
-  <div class="form-group row">
-    <h4 class="col-10 offset-2">Delivery Population</h4>
-  </div>
-
-  {% if object.should_have_population_percent %}
-    {% include "experiments/field_inline.html" with field=form.population_percent marked_required=True %}
-  {% endif %}
-
-  {% include "experiments/field_inline_help_link.html" with field=form.firefox_channel marked_required=True %}
-
-  <div class="form-group row">
-    <div class="col-2 text-right">
-      <label class="control-label">
-        <strong>Firefox Versions</strong>
-        <div class="text-danger">
-          Required
-        </div>
-      </label>
-      <br>
-      <a target="_blank" rel="noreferrer noopener" href="{{ form.firefox_min_version.help_text }}">Help</a>
-    </div>
-    <div class="col-10">
-      <div class="row">
-        <div class="col-5 pr-0">
-          {% include "experiments/field_input_inline.html" with field=form.firefox_min_version %}
-        </div>
-
-        <div class="col-2 text-center pt-2">
-          <strong>to</strong>
-        </div>
-
-        <div class="col-5 pl-0">
-          {% include "experiments/field_input_inline.html" with field=form.firefox_max_version %}
-          {% include "experiments/field_errors_inline.html" with field=form.firefox_max_version %}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {% include "experiments/field_inline.html" with field=form.locales %}
-
-  {% include "experiments/field_inline.html" with field=form.countries %}
-
-  {% include "experiments/field_inline.html" with field=form.platform %}
-
-  {% include "experiments/field_inline.html" with field=form.client_matching %}
-
+  <div
+    data-experiment-slug="{{ object.slug }}"
+    {% if  object.should_have_population_percent %}
+    data-should-have-pop-percent="{{ object.should_have_population_percent }}"
+    {% endif %}
+    data-all-countries="{{ countries }}"
+    data-all-locales="{{ locales }}"
+    id="react-timelinepop-form"
+    data-experiment-type="{{ object.type }}"
+  ></div>
 {% endblock %}
 
-{% block page_id %}page-edit-timeline-and-population{% endblock %}
-
-{% block extrascripts %}
-  <script src="{% static "js/scripts/bootstrap-select.js" %}"></script>
+{% block edit_buttons %}
 {% endblock %}

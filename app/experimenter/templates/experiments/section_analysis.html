@@ -1,11 +1,11 @@
 {% extends "experiments/section_base.html" %}
-
+{% load md2 %}
 {% block section_title %}
 Analysis
 {% endblock %}
 
 {% block section_content %}
-  {{ experiment.analysis|urlize|linebreaks }}
+  {{ experiment.analysis|urlize|markdown }}
     <strong>
       {{ experiment.SURVEY_REQUIRED_LABEL }}
       <span class="{% if experiment.survey_required %}text-danger{% endif %}">
@@ -13,6 +13,12 @@ Analysis
       </span>
     </strong>
   </p>
+  {% if experiment.total_enrolled_clients %}
+    <p>
+      <strong>Estimated Total Enrolled Clients:</strong> {{ experiment.total_enrolled_clients }}
+    </p>
+  {% endif %}
+
 
   {% if experiment.survey_required %}
     <p><strong>Survey URLs</strong></p>
@@ -22,7 +28,7 @@ Analysis
 
     <p><strong>Survey Launch Instructions</strong></p>
     <p>
-      {{ experiment.survey_instructions|urlize }}
+      {{ experiment.survey_instructions|urlize|markdown }}
     </p>
   {% endif %}
 

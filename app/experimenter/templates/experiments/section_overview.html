@@ -1,12 +1,12 @@
 {% extends "experiments/section_base.html" %}
-
+{% load md2 %}
 {% block section_title %}
 Overview
 {% endblock %}
 
 {% block section_content %}
   <p><strong>Description</strong></p>
-  {{ experiment.short_description|urlize|linebreaks }}
+  {{ experiment.short_description|urlize|markdown }}
 
   <p><strong>Delivery Owner</strong></p>
   <p>{{ experiment.owner }}</p>
@@ -41,6 +41,15 @@ Overview
         <p><a href="{{ experiment.get_absolute_url }}">{{ experiment }}</a></p>
       {% endfor %}
 
+  {% endif %}
+
+  {% if experiment.projects.all %}
+    <p><strong> Projects</strong></p>
+    <p>
+      {% for project in experiment.projects.all %}
+      {{project}}{% if not forloop.last %},{% endif %}
+    {% endfor %}
+    </p>
   {% endif %}
 
 {% endblock %}

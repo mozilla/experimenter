@@ -8,6 +8,7 @@ from experimenter.experiments.models import (
     ExperimentChangeLog,
     VariantPreferences,
 )
+from experimenter.projects.models import Project
 from experimenter.experiments.serializers.geo import CountrySerializer, LocaleSerializer
 
 
@@ -25,7 +26,6 @@ class JSTimestampField(serializers.Field):
 
 
 class PrefTypeField(serializers.Field):
-
     def to_representation(self, obj):
         if obj == Experiment.PREF_TYPE_JSON_STR:
             return Experiment.PREF_TYPE_STR
@@ -34,10 +34,15 @@ class PrefTypeField(serializers.Field):
 
 
 class ExperimentPreferenceSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = VariantPreferences
         fields = ("pref_name", "pref_type", "pref_branch", "pref_value")
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ("slug",)
 
 
 class ExperimentVariantSerializer(serializers.ModelSerializer):
@@ -61,7 +66,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
     variants = ExperimentVariantSerializer(many=True, required=False)
     locales = LocaleSerializer(many=True, required=False)
     countries = CountrySerializer(many=True, required=False)
-    pref_type = PrefTypeField()
+    projects = ProjectSerializer(many=True, required=False)
 
     class Meta:
         model = Experiment
@@ -90,8 +95,10 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "client_matching",
             "locales",
             "countries",
+            "projects",
             "platform",
             "objectives",
+            "total_enrolled_clients",
             "analysis",
             "analysis_owner",
             "survey_required",
@@ -101,7 +108,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "bugzilla_id",
             "normandy_slug",
             "normandy_id",
-            "data_science_bugzilla_url",
+            "data_science_issue_url",
             "feature_bugzilla_url",
             "risk_partner_related",
             "risk_brand",
@@ -140,16 +147,49 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "results_url",
             "results_initial",
             "results_lessons_learned",
+            "results_fail_to_launch",
+            "results_recipe_errors",
+            "results_restarts",
+            "results_low_enrollment",
+            "results_early_end",
+            "results_no_usable_data",
+            "results_failures_notes",
+            "results_changes_to_firefox",
+            "results_data_for_hypothesis",
+            "results_confidence",
+            "results_measure_impact",
+            "results_impact_notes",
             "rollout_type",
             "rollout_playbook",
         )
 
 
 class ExperimentChangeLogSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = ExperimentChangeLog
         fields = ("changed_on", "pretty_status", "new_status", "old_status")
+
+
+class ResultsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Experiment
+        fields = (
+            "results_url",
+            "results_initial",
+            "results_lessons_learned",
+            "results_fail_to_launch",
+            "results_recipe_errors",
+            "results_restarts",
+            "results_low_enrollment",
+            "results_early_end",
+            "results_no_usable_data",
+            "results_failures_notes",
+            "results_changes_to_firefox",
+            "results_data_for_hypothesis",
+            "results_confidence",
+            "results_measure_impact",
+            "results_impact_notes",
+        )
 
 
 class ExperimentSerializer(serializers.ModelSerializer):
@@ -161,6 +201,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
     countries = CountrySerializer(many=True)
     pref_type = PrefTypeField()
     changes = ExperimentChangeLogSerializer(many=True)
+    results = serializers.SerializerMethodField()
 
     class Meta:
         model = Experiment
@@ -191,6 +232,13 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "proposed_start_date",
             "proposed_enrollment",
             "proposed_duration",
+            "normandy_slug",
+            "normandy_id",
+            "other_normandy_ids",
             "variants",
+            "results",
             "changes",
         )
+
+    def get_results(self, obj):
+        return ResultsSerializer(obj).data

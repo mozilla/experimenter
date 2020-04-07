@@ -53,10 +53,10 @@ class MultiPrefBranchFields extends React.PureComponent {
         <PrefManager
           preferences={this.props.branch.get("preferences", new List())}
           errors={this.props.errors.get("preferences", new List())}
-          onDataChange={value => {
+          onDataChange={(value) => {
             this.props.onChange("preferences", value);
           }}
-          onErrorChange={errors => {
+          onErrorChange={(errors) => {
             this.props.onErrorChange("preferences", errors);
           }}
           variantIndex={this.props.index}

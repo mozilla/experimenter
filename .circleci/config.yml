@@ -1,20 +1,12 @@
 version: 2.1
 jobs:
   build:
-    parameters:
-      saveToWorkspace:
-        type: boolean
-        default: true
     machine:
       docker_layer_caching: true
+      image: ubuntu-1604:201903-01 # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
+    resource_class: large
     working_directory: ~/experimenter
     steps:
-      - run:
-          name: Install Docker Compose
-          command: |
-            set -x
-            sudo bash -c "curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose"
-            sudo chmod +x /usr/local/bin/docker-compose
       - run:
           name: Docker info
           command: docker -v
@@ -22,33 +14,20 @@ jobs:
           name: Docker compose info
           command: docker-compose -v
       - checkout
+      - run:
+          name: Build images
+          command: make test_build
       - run:
           name: Run tests and linting
           command: make check
-      - when:
-          condition: << parameters.saveToWorkspace >>
-          steps:
-            - run:
-                name: Save Docker image
-                command: |
-                  mkdir ~/experimenter/caches
-                  docker save -o ~/experimenter/caches/app.tar app
-            - persist_to_workspace:
-                root: ~/experimenter/caches
-                paths:
-                  - app.tar
 
-  integration_test:
+  integration:
     machine:
       docker_layer_caching: true
+      image: ubuntu-1604:201903-01 # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
+    resource_class: large
     working_directory: ~/experimenter
     steps:
-      - run:
-          name: Install Docker Compose
-          command: |
-            set -x
-            sudo bash -c "curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose"
-            sudo chmod +x /usr/local/bin/docker-compose
       - run:
           name: Docker info
           command: docker -v
@@ -57,82 +36,49 @@ jobs:
           command: docker-compose -v
       - checkout
       - run:
+          name: Build docker images
+          command: |
+            cp .env.sample .env  
+            make integration_build
+      - run:
           name: Run integration tests
           command: |
-            sudo chown -R ubuntu tests/
-            cp .env.integration .env
+            sudo chown -R ubuntu app/tests/
+            make refresh
+            make up_detached
             make integration_test
+            make kill
       - store_artifacts:
-          path: tests/integration/integration-test.html
+          path: app/tests/integration/integration-test.html
 
-  deploy_latest:
+  deploy:
     working_directory: ~/experimenter
     docker:
       - image: docker:17.06.0-ce-git
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/experimenter/caches
       - setup_remote_docker
       - deploy:
           name: Deploy to latest
           command: |
-            docker load -i ~/experimenter/caches/app.tar
-            rm -rf ~/experimenter/caches
             ./scripts/build.sh
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker tag app:build ${DOCKERHUB_REPO}:latest
             docker push ${DOCKERHUB_REPO}:latest
 
-  deploy_tagged:
-    working_directory: ~/experimenter
-    docker:
-      - image: docker:17.06.0-ce-git
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/experimenter/caches
-      - setup_remote_docker
-      - deploy:
-          name: Deploy to tag
-          command: |
-            docker load -i ~/experimenter/caches/app.tar
-            rm -rf ~/experimenter/caches
-            ./scripts/build.sh
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker tag app:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}
-            docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}
-
 workflows:
   version: 2
   build:
     jobs:
-      - build:
-          name: build-pr
-          saveToWorkspace: false
+      - build
+      - integration:
+          name: integration
           filters:
             branches:
               ignore: master
-      - build:
-          name: build-save
-          saveToWorkspace: true
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              only: master
-      - deploy_latest:
+      - deploy:
           requires:
-            - build-save
+            - build
           filters:
             branches:
               only: master
-      - deploy_tagged:
-          requires:
-            - build-save
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-      - integration_test

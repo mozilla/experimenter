@@ -1,3 +1,4 @@
+  {% load md2 %}
   <div class="row">
     <h4 id="{{ section_name }}" class="col section-title">
       {% if not section_complete %}
@@ -23,8 +24,7 @@
               {{ section_content|urlize|linebreaks }}
             {% endblock %}
           {% elif section_name == "results" and not section_complete %}
-            <p>Please <a href="{% url edit_url_name slug=experiment.slug %}">add results </a> to this delivery and take <a target="_blank" rel="noreferrer noopener" href="https://qsurvey.mozilla.com/s3/Experimenter-Study-Feedback?origin=experimenter">this survey</a> about your experience.</p>
-
+            <p>Please <a href="{% url edit_url_name slug=experiment.slug %}">add results </a> to this delivery.</p>
           {% else %}
             <p>You must <a href="{% url edit_url_name slug=experiment.slug %}">complete the {{ section_name }} form</a> before you can launch your delivery.</p>
           {% endif %}
@@ -54,7 +54,7 @@
                 {{ comment.created_by }}
                 <span class="text-muted">{{ comment.created_on }}</span>
               </a>
-              {{ comment.text|urlize|linebreaks }}
+              {{ comment.text|urlize|markdown }}
             </div>
           </div>
         {% endfor %}

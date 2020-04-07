@@ -11,6 +11,7 @@ from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
     VariantPreferences,
+    RolloutPreference,
     ExperimentChangeLog,
 )
 from experimenter.experiments.serializers.recipe import ExperimentRecipeSerializer
@@ -23,7 +24,6 @@ from experimenter.experiments.tests.factories import (
 
 
 class TestExperimentManager(TestCase):
-
     def test_queryset_annotated_with_latest_change(self):
         now = timezone.now()
         experiment1 = ExperimentFactory.create_with_variants()
@@ -61,7 +61,6 @@ class TestExperimentManager(TestCase):
 
 
 class TestExperimentModel(TestCase):
-
     def test_get_absolute_url(self):
         experiment = ExperimentFactory.create(slug="experiment-slug")
         self.assertEqual(experiment.get_absolute_url(), "/experiments/experiment-slug/")
@@ -184,13 +183,13 @@ class TestExperimentModel(TestCase):
 
     def test_has_external_urls_is_false_when_no_external_urls(self):
         experiment = ExperimentFactory.create(
-            bugzilla_id="", data_science_bugzilla_url="", feature_bugzilla_url=""
+            bugzilla_id="", data_science_issue_url="", feature_bugzilla_url=""
         )
         self.assertFalse(experiment.has_external_urls)
 
-    def test_has_external_urls_is_true_when_data_science_bugzilla_url_is_set(self):
+    def test_has_external_urls_is_true_when_data_science_issue_url_is_set(self):
         experiment = ExperimentFactory.create(
-            data_science_bugzilla_url="www.bugzilla.com/show_bug.cgi?id=123/"
+            data_science_issue_url="https://jira.example.com/browse/DS-123"
         )
         self.assertTrue(experiment.has_external_urls)
 
@@ -279,7 +278,7 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(
             experiment.generate_normandy_slug(),
-            "pref-experiment-name-nightly-57-59-bug-12345",
+            "bug-12345-pref-experiment-name-nightly-57-59",
         )
 
     def test_generate_normandy_slug_returns_slug_with_min_version(self):
@@ -295,7 +294,7 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(
             experiment.generate_normandy_slug(),
-            "pref-experiment-name-nightly-57-bug-12345",
+            "bug-12345-pref-experiment-name-nightly-57",
         )
 
     def test_generate_normandy_slug_raises_valueerror_without_addon_info(self):
@@ -326,7 +325,7 @@ class TestExperimentModel(TestCase):
             firefox_channel=Experiment.CHANNEL_BETA,
         )
         self.assertEqual(
-            "addon-some-random-name-beta-70-71-bug-12345",
+            "bug-12345-addon-some-random-name-beta-70-71",
             experiment.generate_normandy_slug(),
         )
 
@@ -910,7 +909,7 @@ class TestExperimentModel(TestCase):
         self.assertFalse(experiment.completed_addon)
 
     def test_completed_addon_complete_when_release_url_for_each_branch_set_for_branched(
-        self
+        self,
     ):
         experiment = ExperimentFactory.create_with_variants(
             type=Experiment.TYPE_ADDON, is_branched_addon=True
@@ -950,22 +949,28 @@ class TestExperimentModel(TestCase):
 
     def test_pref_rollout_completed(self):
         experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ROLLOUT,
-            rollout_type=Experiment.TYPE_PREF,
+            type=Experiment.TYPE_ROLLOUT, rollout_type=Experiment.TYPE_PREF
+        )
+        pref = RolloutPreference(
+            experiment=experiment,
             pref_type=Experiment.PREF_TYPE_STR,
             pref_name="abc",
             pref_value="abc",
         )
+        pref.save()
         self.assertTrue(experiment.completed_pref_rollout)
 
     def test_rollout_completed_for_pref(self):
         experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ROLLOUT,
-            rollout_type=Experiment.TYPE_PREF,
+            type=Experiment.TYPE_ROLLOUT, rollout_type=Experiment.TYPE_PREF
+        )
+        pref = RolloutPreference(
+            experiment=experiment,
             pref_type=Experiment.PREF_TYPE_STR,
             pref_name="abc",
             pref_value="abc",
         )
+        pref.save()
         self.assertTrue(experiment.completed_rollout)
 
     def test_is_pref_value_json_string_returns_true(self):
@@ -1260,6 +1265,33 @@ class TestExperimentModel(TestCase):
 
         self.assertFalse(experiment.is_ready_to_launch)
 
+    def test_review_order_is_correct_for_experiment(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_PREF)
+        expected_reviews = [
+            "review_science",
+            "review_advisory",
+            "review_engineering",
+            "review_qa_requested",
+            "review_intent_to_ship",
+            "review_bugzilla",
+            "review_qa",
+            "review_relman",
+        ]
+        reviews = experiment.get_all_required_reviews()
+        self.assertEqual(expected_reviews, reviews)
+
+    def test_review_order_is_correct_for_rollout(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        expected_reviews = [
+            "review_advisory",
+            "review_qa_requested",
+            "review_intent_to_ship",
+            "review_qa",
+            "review_relman",
+        ]
+        reviews = experiment.get_all_required_reviews()
+        self.assertEqual(expected_reviews, reviews)
+
     def test_completed_results_returns_true_if_any_results(self):
         experiment = ExperimentFactory.create(
             results_initial="The results here were great."
@@ -1327,7 +1359,7 @@ class TestExperimentModel(TestCase):
         self.assertEqual(experiment.firefox_min_version_integer, 57)
 
     def test_use_branched_addon_serializer_returns_true_for_addon_and_greater_version(
-        self
+        self,
     ):
         experiment = ExperimentFactory(
             type=Experiment.TYPE_ADDON, firefox_min_version="70.0"
@@ -1335,7 +1367,7 @@ class TestExperimentModel(TestCase):
         self.assertTrue(experiment.use_branched_addon_serializer)
 
     def test_use_branched_addon_serializer_returns_false_for_addon_and_lower_version(
-        self
+        self,
     ):
         experiment = ExperimentFactory(
             type=Experiment.TYPE_ADDON, firefox_min_version="66.0"
@@ -1403,6 +1435,11 @@ class TestExperimentModel(TestCase):
             ],
         )
 
+    def test_should_have_total_enrolled_true(self):
+        experiment = ExperimentFactory(type=Experiment.TYPE_PREF)
+
+        self.assertTrue(experiment.should_have_total_enrolled)
+
     def test_clone(self):
         user_1 = UserFactory.create()
         user_2 = UserFactory.create()
@@ -1418,8 +1455,8 @@ class TestExperimentModel(TestCase):
             owner=user_1,
             bugzilla_id="4455667",
             pref_type=Experiment.TYPE_ADDON,
-            data_science_bugzilla_url="https://bugzilla.mozilla.org/123/",
-            feature_bugzilla_url="https://bugzilla.mozilla.org/123/",
+            data_science_issue_url="https://jira.example.com/browse/",
+            feature_bugzilla_url="https://bugzilla.example.com/123/",
             addon_experiment_id="addon-id",
             addon_release_url="addon-url",
             archived=True,
@@ -1430,6 +1467,8 @@ class TestExperimentModel(TestCase):
             results_initial="Some great initial results.",
             results_lessons_learned="Lessons were learned.",
             results_url="http://www.example.com",
+            results_recipe_errors=True,
+            results_restarts=True,
         )
 
         experiment.clone("best experiment", user_2)
@@ -1453,6 +1492,10 @@ class TestExperimentModel(TestCase):
         self.assertEqual(
             cloned_experiment.firefox_min_version, Experiment.VERSION_CHOICES[1][0]
         )
+        self.assertCountEqual(
+            cloned_experiment.countries.all(), experiment.countries.all()
+        )
+        self.assertCountEqual(cloned_experiment.locales.all(), experiment.locales.all())
         self.assertFalse(cloned_experiment.bugzilla_id)
         self.assertFalse(cloned_experiment.archived)
         self.assertFalse(cloned_experiment.review_science)
@@ -1462,6 +1505,8 @@ class TestExperimentModel(TestCase):
         self.assertFalse(cloned_experiment.results_lessons_learned)
         self.assertFalse(cloned_experiment.results_initial)
         self.assertFalse(cloned_experiment.results_url)
+        self.assertFalse(cloned_experiment.results_recipe_errors)
+        self.assertFalse(cloned_experiment.results_restarts)
 
         self.assertEqual(cloned_experiment.changes.count(), 1)
 
@@ -1472,7 +1517,6 @@ class TestExperimentModel(TestCase):
 
 
 class TestVariantPreferences(TestCase):
-
     def setUp(self):
         super().setUp()
         self.variant = ExperimentVariantFactory.create()
@@ -1528,7 +1572,6 @@ class TestVariantPreferences(TestCase):
 
 
 class TestExperimentChangeLog(TestCase):
-
     def test_latest_returns_most_recent_changelog(self):
         now = timezone.now()
         experiment = ExperimentFactory.create_with_variants()
@@ -1577,7 +1620,6 @@ class TestExperimentChangeLog(TestCase):
 
 
 class TestExperimentComments(TestCase):
-
     def test_manager_returns_sections(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
         risk_comment = ExperimentCommentFactory.create(

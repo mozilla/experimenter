@@ -38,7 +38,7 @@ HOSTNAME = config("HOSTNAME")
 ALLOWED_HOSTS = [HOSTNAME]
 
 if DEBUG:
-    ALLOWED_HOSTS += ["localhost"]  # pragma: no cover
+    ALLOWED_HOSTS += ["localhost", "nginx"]  # pragma: no cover
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "experimenter.openidc",
     "experimenter.projects",
     "experimenter.normandy",
+    "django_markdown2",
 ]
 
 MIDDLEWARE = [
@@ -269,6 +270,9 @@ BUGZILLA_COMMENT_URL = "{path}?api_key={api_key}".format(
     path=urljoin(BUGZILLA_HOST, "/rest/bug/{id}/comment"), api_key=BUGZILLA_API_KEY
 )
 
+# DS Issue URL
+DS_ISSUE_HOST = config("DS_ISSUE_HOST")
+
 REDIS_HOST = config("REDIS_HOST")
 REDIS_PORT = config("REDIS_PORT")
 REDIS_DB = config("REDIS_DB")
@@ -335,3 +339,7 @@ SECURE_REFERRER_POLICY = config("SECURE_REFERRER_POLICY", default="origin")
 
 # Silenced ssl_redirect and sts checks
 SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004"]
+
+
+# Feature Flags
+FEATURE_MESSAGE_TYPE = config("FEATURE_MESSAGE_TYPE", default=False, cast=bool)

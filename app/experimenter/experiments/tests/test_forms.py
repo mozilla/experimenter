@@ -1,52 +1,39 @@
-import datetime
-import decimal
 import json
 
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
-from django.utils import timezone
-from django.utils.text import slugify
 from faker import Factory as FakerFactory
-from parameterized import parameterized_class
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 
 from experimenter.experiments.forms import (
     BugzillaURLField,
     ChangeLogMixin,
-    CustomModelMultipleChoiceField,
+    DSIssueURLField,
     ExperimentArchiveForm,
     ExperimentCommentForm,
     ExperimentObjectivesForm,
+    ExperimentOrderingForm,
     ExperimentOverviewForm,
+    ExperimentResultsForm,
     ExperimentReviewForm,
     ExperimentRisksForm,
     ExperimentStatusForm,
     ExperimentSubscribedForm,
-    ExperimentVariantGenericForm,
-    ExperimentVariantPrefForm,
-    ExperimentDesignGenericForm,
-    ExperimentDesignAddonForm,
-    ExperimentDesignPrefForm,
-    ExperimentResultsForm,
     JSONField,
     NormandyIdForm,
-    ExperimentTimelinePopulationForm,
-    ExperimentOrderingForm,
+    RADIO_NO,
+    RADIO_YES,
 )
-from experimenter.experiments.models import (
-    Experiment,
-    ExperimentVariant,
-    ExperimentChangeLog,
-)
-from experimenter.base.tests.factories import CountryFactory, LocaleFactory
+from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
+    CountryFactory,
     ExperimentFactory,
+    LocaleFactory,
+    ProjectFactory,
     UserFactory,
-    ExperimentVariantFactory,
-    VariantPreferencesFactory,
 )
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 from experimenter.experiments.tests.mixins import MockTasksMixin, MockRequestMixin
@@ -58,7 +45,6 @@ faker = FakerFactory.create()
 
 
 class TestJSONField(TestCase):
-
     def test_jsonfield_accepts_valid_json(self):
         valid_json = json.dumps({"a": True, 2: ["b", 3, 4.0]})
         field = JSONField()
@@ -73,9 +59,8 @@ class TestJSONField(TestCase):
             field.clean(invalid_json)
 
 
-@override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")
+@override_settings(BUGZILLA_HOST="https://bugzilla.example.com/")
 class TestBugzillaURLField(TestCase):
-
     def test_accepts_bugzilla_url(self):
         field = BugzillaURLField()
         bugzilla_url = "{base}/show_bug.cgi?id=123".format(base=settings.BUGZILLA_HOST)
@@ -96,100 +81,24 @@ class TestBugzillaURLField(TestCase):
             field.clean("www.example.com")
 
 
-class TestExperimentVariantGenericForm(TestCase):
+@override_settings(DS_ISSUE_HOST="https://jira.example.com/browse/")
+class TestDSIssueURLField(TestCase):
+    def test_accepts_ds_url_field(self):
+        field = DSIssueURLField()
+        ds_url = "{base}DS-1234".format(base=settings.DS_ISSUE_HOST)
+        cleaned = field.clean(ds_url)
+        self.assertEqual(cleaned, ds_url)
 
-    def setUp(self):
-        self.experiment = ExperimentFactory.create()
-        self.data = {
-            "description": "Its the control! So controlly.",
-            "experiment": self.experiment.id,
-            "is_control": True,
-            "name": "The Control Variant",
-            "ratio": 50,
-        }
-
-    def test_form_creates_variant(self):
-        form = ExperimentVariantGenericForm(self.data)
-
-        self.assertTrue(form.is_valid())
-
-        saved_variant = form.save()
-        variant = ExperimentVariant.objects.get(id=saved_variant.id)
-
-        self.assertEqual(variant.experiment.id, self.experiment.id)
-        self.assertTrue(variant.is_control)
-        self.assertEqual(variant.description, self.data["description"])
-        self.assertEqual(variant.name, self.data["name"])
-        self.assertEqual(variant.ratio, self.data["ratio"])
-        self.assertEqual(variant.slug, "the-control-variant")
-
-    def test_ratio_must_be_greater_than_0(self):
-        self.data["ratio"] = 0
-        form = ExperimentVariantGenericForm(self.data)
-
-        self.assertFalse(form.is_valid())
-        self.assertIn("ratio", form.errors)
-
-    def test_ratio_must_be_less_than_or_equal_to_100(self):
-        self.data["ratio"] = 101
-        form = ExperimentVariantGenericForm(self.data)
-
-        self.assertFalse(form.is_valid())
-        self.assertIn("ratio", form.errors)
-
-    def test_checks_empty_slug(self):
-        self.data["name"] = "!"
-        form = ExperimentVariantGenericForm(self.data)
-
-        self.assertFalse(form.is_valid())
-        self.assertIn("name", form.errors)
-
-    def test_updates_variant_slug(self):
-        variant = ExperimentVariantFactory.create(slug="the-treatment-variant")
-        form = ExperimentVariantGenericForm(self.data, instance=variant)
-
-        self.assertTrue(form.is_valid())
-
-        saved_variant = form.save()
-        self.assertEqual(saved_variant.slug, "the-control-variant")
-
-
-class TestExperimentVariantPrefForm(TestCase):
-
-    def test_form_creates_variant(self):
-        experiment = ExperimentFactory.create()
-
-        data = {
-            "description": "Its the control! So controlly.",
-            "experiment": experiment.id,
-            "is_control": True,
-            "name": "The Control Variant",
-            "ratio": 50,
-            "value": "true",
-        }
-
-        form = ExperimentVariantPrefForm(data)
-
-        self.assertTrue(form.is_valid())
-
-        saved_variant = form.save()
-        variant = ExperimentVariant.objects.get(id=saved_variant.id)
-
-        self.assertEqual(variant.experiment.id, experiment.id)
-        self.assertTrue(variant.is_control)
-        self.assertEqual(variant.description, data["description"])
-        self.assertEqual(variant.name, data["name"])
-        self.assertEqual(variant.ratio, data["ratio"])
-        self.assertEqual(variant.slug, "the-control-variant")
-        self.assertEqual(variant.value, "true")
+    def test_rejects_wrong_project_name(self):
+        field = DSIssueURLField()
+        ds_url = "{base}AA-1234".format(base=settings.DS_ISSUE_HOST)
+        with self.assertRaises(ValidationError):
+            field.clean(ds_url)
 
 
 class TestChangeLogMixin(MockRequestMixin, TestCase):
-
     def test_mixin_creates_change_log_with_request_user_on_save(self):
-
         class TestForm(ChangeLogMixin, forms.ModelForm):
-
             class Meta:
                 model = Experiment
                 fields = ("name",)
@@ -213,7 +122,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         self.assertEqual(experiment.changes.count(), 1)
 
         class TestForm(ChangeLogMixin, forms.ModelForm):
-
             class Meta:
                 model = Experiment
                 fields = ("status",)
@@ -240,7 +148,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         num_of_changes = experiment.changes.count()
 
         class TestForm(ChangeLogMixin, forms.ModelForm):
-
             class Meta:
                 model = Experiment
                 fields = ("name",)
@@ -257,25 +164,28 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         experiment = Experiment()
         experiment.save()
 
-        country1 = CountryFactory(code="CA", name="Canada")
-        country2 = CountryFactory(code="US", name="United States")
-        locale1 = LocaleFactory(code="da", name="Danish")
-        locale2 = LocaleFactory(code="de", name="German")
+        ds_url = "{base}DS-123".format(base=settings.DS_ISSUE_HOST)
+        bug_url = "{base}show_bug.cgi?id=123".format(base=settings.BUGZILLA_HOST)
+        related_exp = ExperimentFactory.create()
+        project = ProjectFactory.create()
 
         data = {
-            "proposed_start_date": timezone.now().date(),
-            "proposed_duration": 20,
-            "population_percent": "10",
-            "firefox_min_version": "56.0",
-            "firefox_max_version": "58.0",
-            "firefox_channel": Experiment.CHANNEL_BETA,
-            "client_matching": "en-us",
-            "platform": Experiment.PLATFORM_WINDOWS,
-            "locales": [locale1, locale2],
-            "countries": [country1, country2],
+            "type": Experiment.TYPE_PREF,
+            "name": "A new experiment!",
+            "short_description": "Let us learn new things",
+            "data_science_issue_url": ds_url,
+            "owner": self.user.id,
+            "analysis_owner": self.user.id,
+            "engineering_owner": "Lisa the Engineer",
+            "public_name": "A new public experiment!",
+            "public_description": "Let us learn new public things",
+            "related_to": [related_exp],
+            "feature_bugzilla_url": bug_url,
+            "related_work": "Designs: https://www.example.com/myproject/",
+            "projects": [project],
         }
 
-        form = ExperimentTimelinePopulationForm(
+        form = ExperimentOverviewForm(
             request=self.request, data=data, instance=experiment
         )
         self.assertTrue(form.is_valid())
@@ -283,218 +193,88 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         latest_changes = experiment.changes.latest()
 
         expected_data = {
-            "locales": {
-                "new_value": ["da", "de"],
+            "analysis_owner": {
+                "display_name": "Data Science Owner",
+                "new_value": experiment.analysis_owner.id,
                 "old_value": None,
-                "display_name": "Locales",
             },
-            "platform": {
-                "new_value": "All Windows",
+            "data_science_issue_url": {
+                "display_name": "Data Science Issue URL",
+                "new_value": "https://jira.example.com/browse/DS-123",
                 "old_value": None,
-                "display_name": "Platform",
             },
-            "countries": {
-                "new_value": ["CA", "US"],
+            "engineering_owner": {
+                "display_name": "Engineering Owner",
+                "new_value": "Lisa the Engineer",
                 "old_value": None,
-                "display_name": "Countries",
             },
-            "client_matching": {
-                "new_value": "en-us",
+            "feature_bugzilla_url": {
+                "display_name": "Feature Bugzilla URL",
+                "new_value": "https://bugzilla.allizom.org/show_bug.cgi?id=123",
                 "old_value": None,
-                "display_name": "Population Filtering",
             },
-            "firefox_channel": {
-                "new_value": "Beta",
+            "name": {
+                "display_name": "Name",
+                "new_value": "A new experiment!",
                 "old_value": None,
-                "display_name": "Firefox Channel",
             },
-            "proposed_duration": {
-                "new_value": 20,
+            "owner": {
+                "display_name": "Delivery Owner",
+                "new_value": experiment.owner.id,
                 "old_value": None,
-                "display_name": "Proposed Total Duration (days)",
             },
-            "population_percent": {
-                "new_value": "10.0000",
+            "projects": {
+                "display_name": "Related Projects",
+                "new_value": [{"slug": project.slug}],
                 "old_value": None,
-                "display_name": "Population Percentage",
             },
-            "firefox_min_version": {
-                "new_value": "56.0",
+            "public_description": {
+                "display_name": "Public Description",
+                "new_value": "Let us learn new public things",
                 "old_value": None,
-                "display_name": "Firefox Min Version",
             },
-            "firefox_max_version": {
-                "new_value": "58.0",
+            "public_name": {
+                "display_name": "Public Name",
+                "new_value": "A new public experiment!",
                 "old_value": None,
-                "display_name": "Firefox Max Version",
             },
-            "proposed_start_date": {
-                "new_value": timezone.now().date().strftime("%Y-%m-%d"),
+            "related_to": {
+                "display_name": "Related Deliveries",
+                "new_value": [related_exp.id],
                 "old_value": None,
-                "display_name": "Proposed Start Date",
+            },
+            "related_work": {
+                "display_name": "Related Work URLs",
+                "new_value": "Designs: https://www.example.com/myproject/",
+                "old_value": None,
+            },
+            "short_description": {
+                "display_name": "Description",
+                "new_value": "Let us learn new things",
+                "old_value": None,
             },
         }
-
+        self.maxDiff = None
         self.assertEqual(expected_data, latest_changes.changed_values)
 
-    def test_changelog_values_with_prev_log(self):
-        experiment = ExperimentFactory.create_with_variants(
-            type=Experiment.TYPE_PREF,
-            num_variants=0,
-            pref_type=Experiment.PREF_TYPE_INT,
-            pref_branch=Experiment.PREF_BRANCH_DEFAULT,
-        )
-        addon_url = "https://www.example.com/old-branch-1-name-release.xpi"
 
-        variant = ExperimentVariantFactory(
-            name="old branch 1 name",
-            slug="old-branch-1-name",
-            ratio=50,
-            value=8,
-            is_control=True,
-            description="old branch 1 desc",
-            experiment=experiment,
-            addon_release_url=addon_url,
-        )
-
-        VariantPreferencesFactory.create(
-            variant=variant,
-            pref_name="p1",
-            pref_type=Experiment.PREF_TYPE_INT,
-            pref_branch=Experiment.PREF_BRANCH_DEFAULT,
-            pref_value=5,
-        )
-
-        changed_variant_pref_value = {
-            "pref_name": "p1",
-            "pref_type": "integer",
-            "pref_branch": "default",
-            "pref_value": "5",
-        }
-        changed_values = {
-            "variants": {
-                "old_value": None,
-                "new_value": [
-                    {
-                        "name": "old branch 1 name",
-                        "slug": "old-branch-1-name",
-                        "ratio": 50,
-                        "value": "8",
-                        "is_control": True,
-                        "description": "old branch 1 desc",
-                        "addon_release_url": addon_url,
-                        "preferences": [changed_variant_pref_value],
-                    }
-                ],
-                "display_name": "Branches",
-            }
-        }
-
-        ExperimentChangeLog.objects.create(
-            experiment=experiment,
-            changed_by=self.request.user,
-            old_status=Experiment.STATUS_ACCEPTED,
-            new_status=Experiment.STATUS_DRAFT,
-            changed_values=changed_values,
-            message="",
-        )
-
-        data = {
-            "pref_name": experiment.pref_name,
-            "pref_type": Experiment.PREF_TYPE_INT,
-            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
-            "addon_experiment_id": experiment.addon_experiment_id,
-            "addon_release_url": experiment.addon_release_url,
-            "variants-TOTAL_FORMS": "2",
-            "variants-INITIAL_FORMS": "0",
-            "variants-MIN_NUM_FORMS": "0",
-            "variants-MAX_NUM_FORMS": "1000",
-            "variants-0-is_control": True,
-            "variants-0-ratio": "50",
-            "variants-0-name": "variant 0 name",
-            "variants-0-description": "variant 0 desc",
-            "variants-0-value": 5,
-            "variants-1-is_control": False,
-            "variants-1-ratio": "50",
-            "variants-1-name": "branch 1 name",
-            "variants-1-description": "branch 1 desc",
-            "variants-1-value": 8,
-        }
-
-        form = ExperimentDesignPrefForm(
-            request=self.request, data=data, instance=experiment
-        )
-        self.assertTrue(form.is_valid())
-        experiment = form.save()
-        latest_changes = experiment.changes.latest()
-
-        old_value = [
-            {
-                "description": "old branch 1 desc",
-                "is_control": True,
-                "name": "old branch 1 name",
-                "ratio": 50,
-                "slug": "old-branch-1-name",
-                "value": "8",
-                "addon_release_url": addon_url,
-                "preferences": [changed_variant_pref_value],
-            }
-        ]
-
-        new_value = [
-            {
-                "description": "branch 1 desc",
-                "is_control": False,
-                "name": "branch 1 name",
-                "ratio": 50,
-                "slug": "branch-1-name",
-                "value": "8",
-                "addon_release_url": None,
-                "preferences": [],
-            },
-            {
-                "description": "variant 0 desc",
-                "is_control": True,
-                "name": "variant 0 name",
-                "ratio": 50,
-                "slug": "variant-0-name",
-                "value": "5",
-                "addon_release_url": None,
-                "preferences": [],
-            },
-            {
-                "description": "old branch 1 desc",
-                "is_control": True,
-                "name": "old branch 1 name",
-                "ratio": 50,
-                "slug": "old-branch-1-name",
-                "value": "8",
-                "addon_release_url": addon_url,
-                "preferences": [changed_variant_pref_value],
-            },
-        ]
-
-        variant_changes = latest_changes.changed_values["variants"]
-
-        self.assertEqual(variant_changes["display_name"], "Branches")
-        self.assertEqual(variant_changes["old_value"], old_value)
-        self.assertCountEqual(variant_changes["new_value"], new_value)
-
-
-@override_settings(BUGZILLA_HOST="https://bugzilla.mozilla.org")
+@override_settings(
+    BUGZILLA_HOST="https://bugzilla.example.com/",
+    DS_ISSUE_HOST="https://jira.example.com/browse/",
+)
 class TestExperimentOverviewForm(MockRequestMixin, TestCase):
-
     def setUp(self):
         super().setUp()
-
-        bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
+        ds_url = "{base}DS-123".format(base=settings.DS_ISSUE_HOST)
+        bug_url = "{base}show_bug.cgi?id=123".format(base=settings.BUGZILLA_HOST)
         self.related_exp = ExperimentFactory.create()
+        project = ProjectFactory.create()
 
         self.data = {
             "type": Experiment.TYPE_PREF,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
-            "data_science_bugzilla_url": bug_url,
+            "data_science_issue_url": ds_url,
             "owner": self.user.id,
             "analysis_owner": self.user.id,
             "engineering_owner": "Lisa the Engineer",
@@ -503,21 +283,23 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "related_to": [self.related_exp],
             "feature_bugzilla_url": bug_url,
             "related_work": "Designs: https://www.example.com/myproject/",
+            "projects": [project],
         }
 
     def test_minimum_required_fields_for_experiment(self):
-        bug_url = "https://bugzilla.mozilla.org/show_bug.cgi?id=123"
+        bug_url = "https://jira.example.com/browse/DO-123"
 
         data = {
             "type": Experiment.TYPE_PREF,
             "owner": self.user.id,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
-            "data_science_bugzilla_url": bug_url,
+            "data_science_issue_url": bug_url,
             "public_name": "Public Name",
             "public_description": "Public Description",
         }
         form = ExperimentOverviewForm(request=self.request, data=data)
+
         self.assertTrue(form.is_valid())
 
         experiment = form.save()
@@ -562,12 +344,31 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.slug, "a-new-experiment")
         self.assertEqual(experiment.short_description, self.data["short_description"])
         self.assertTrue(self.related_exp in experiment.related_to.all())
+        self.assertCountEqual(self.data["projects"], experiment.projects.all())
 
         self.assertEqual(experiment.changes.count(), 1)
         change = experiment.changes.get()
         self.assertEqual(change.old_status, None)
         self.assertEqual(change.new_status, experiment.status)
         self.assertEqual(change.changed_by, self.request.user)
+
+    def test_message_experiment_sets_default_locales_countries(self):
+        [LocaleFactory.create(code=l) for l in Experiment.MESSAGE_DEFAULT_LOCALES]
+        [CountryFactory.create(code=c) for c in Experiment.MESSAGE_DEFAULT_COUNTRIES]
+
+        self.data["type"] = Experiment.TYPE_MESSAGE
+        form = ExperimentOverviewForm(request=self.request, data=self.data)
+        self.assertTrue(form.is_valid())
+        experiment = form.save()
+
+        self.assertEqual(
+            set(experiment.locales.values_list("code", flat=True)),
+            set(Experiment.MESSAGE_DEFAULT_LOCALES),
+        )
+        self.assertEqual(
+            set(experiment.countries.values_list("code", flat=True)),
+            set(Experiment.MESSAGE_DEFAULT_COUNTRIES),
+        )
 
     def test_empty_slug_raises_error(self):
         self.data["name"] = "#"
@@ -582,915 +383,29 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
 
-    def test_bugzilla_url_required_for_non_rollout(self):
+    def test_ds_issue_url_required_for_non_rollout(self):
         self.data["type"] = Experiment.TYPE_PREF
-        del self.data["data_science_bugzilla_url"]
+        del self.data["data_science_issue_url"]
 
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
 
     def test_bugzilla_url_optional_for_rollout(self):
         self.data["type"] = Experiment.TYPE_ROLLOUT
-        del self.data["data_science_bugzilla_url"]
+        del self.data["data_science_issue_url"]
 
         form = ExperimentOverviewForm(request=self.request, data=self.data)
+
         self.assertTrue(form.is_valid())
 
     def test_invalid_bugzilla_url(self):
-        self.data["data_science_bugzilla_url"] = "https://example.com/notbugzilla"
+        self.data["data_science_issue_url"] = "https://example.com/notbugzilla"
 
         form = ExperimentOverviewForm(request=self.request, data=self.data)
         self.assertFalse(form.is_valid())
 
 
-class TestExperimentTimelinePopulationForm(MockRequestMixin, TestCase):
-
-    def setUp(self):
-        super().setUp()
-
-        self.data = {
-            "proposed_start_date": timezone.now().date(),
-            "proposed_duration": 20,
-            "proposed_enrollment": 10,
-            "population_percent": "10.0",
-            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-            "firefox_min_version": "67.0",
-            "firefox_max_version": "69.0",
-            "locales": [],
-            "countries": [],
-            "platform": Experiment.PLATFORM_WINDOWS,
-            "client_matching": "en-us",
-        }
-
-    def test_no_fields_required(self):
-        experiment = ExperimentFactory.create()
-        data = {
-            "proposed_start_date": "",
-            "proposed_duration": "",
-            "proposed_enrollment": "",
-            "population_percent": "",
-            "firefox_channel": "",
-            "firefox_min_version": "",
-            "firefox_max_version": "",
-            "locales": [],
-            "countries": [],
-            "platform": "",
-            "client_matching": "",
-        }
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=data, instance=experiment
-        )
-        self.assertTrue(form.is_valid())
-        experiment = form.save()
-
-    def test_form_saves_experiment_timeline_population_data(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, countries=[], locales=[]
-        )
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-
-        self.assertEqual(experiment.changes.count(), 1)
-
-        experiment = form.save()
-
-        self.assertEqual(experiment.proposed_start_date, self.data["proposed_start_date"])
-        self.assertEqual(experiment.proposed_duration, self.data["proposed_duration"])
-        self.assertEqual(experiment.proposed_enrollment, self.data["proposed_enrollment"])
-        self.assertEqual(experiment.population_percent, decimal.Decimal("10.000"))
-        self.assertEqual(experiment.firefox_channel, self.data["firefox_channel"])
-        self.assertEqual(experiment.firefox_min_version, self.data["firefox_min_version"])
-        self.assertEqual(experiment.firefox_max_version, self.data["firefox_max_version"])
-        self.assertEqual(experiment.platform, self.data["platform"])
-        self.assertEqual(experiment.client_matching, self.data["client_matching"])
-
-        self.assertEqual(experiment.changes.count(), 2)
-
-    def test_form_saves_rollout_timeline_population_data(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
-            type=Experiment.TYPE_ROLLOUT,
-            countries=[],
-            locales=[],
-        )
-
-        data = {
-            "proposed_start_date": timezone.now().date(),
-            "proposed_duration": 20,
-            "rollout_playbook": Experiment.ROLLOUT_PLAYBOOK_LOW_RISK,
-            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-            "firefox_min_version": "67.0",
-            "firefox_max_version": "69.0",
-            "locales": [],
-            "countries": [],
-        }
-
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=data, instance=experiment
-        )
-
-        self.assertEqual(experiment.changes.count(), 1)
-
-        experiment = form.save()
-
-        self.assertEqual(experiment.proposed_start_date, data["proposed_start_date"])
-        self.assertEqual(experiment.firefox_min_version, data["firefox_min_version"])
-        self.assertEqual(experiment.firefox_max_version, data["firefox_max_version"])
-        self.assertEqual(experiment.firefox_channel, data["firefox_channel"])
-        self.assertEqual(experiment.population_percent, decimal.Decimal("25.000"))
-
-        self.assertEqual(experiment.changes.count(), 2)
-
-    def test_enrollment_must_be_less_or_equal_duration(self):
-        self.data["proposed_enrollment"] = 2
-        self.data["proposed_duration"] = 1
-
-        form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-
-    def test_large_duration_is_invalid(self):
-        self.data["proposed_duration"] = Experiment.MAX_DURATION + 1
-
-        form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-
-    def test_large_enrollment_duration_is_invalid(self):
-        self.data["proposed_enrollment"] = Experiment.MAX_DURATION + 1
-
-        form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-
-    def test_start_date_must_be_greater_or_equal_to_current_date(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
-        self.data["proposed_start_date"] = timezone.now().date() - datetime.timedelta(
-            days=1
-        )
-
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertFalse(form.is_valid())
-
-    def test_locales_choices(self):
-        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
-        locale2 = LocaleFactory(code="fr", name="French")
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, countries=[], locales=[]
-        )
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertEqual(
-            list(form.fields["locales"].choices),
-            [
-                (CustomModelMultipleChoiceField.ALL_KEY, "All locales"),
-                (locale2.code, str(locale2)),
-                (locale1.code, str(locale1)),
-            ],
-        )
-
-    def test_locales_initials(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, locales=[]
-        )
-        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
-        locale2 = LocaleFactory(code="fr", name="French")
-        experiment.locales.add(locale1)
-        experiment.locales.add(locale2)
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertEqual(form.initial["locales"], [locale2, locale1])
-
-    def test_locales_initials_all_locales(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, locales=[]
-        )
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertEqual(
-            form.initial["locales"], [CustomModelMultipleChoiceField.ALL_KEY]
-        )
-
-    def test_clean_locales(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
-        )
-        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
-        locale2 = LocaleFactory(code="fr", name="French")
-        self.data["locales"] = [locale2.code, locale1.code]
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertTrue(form.is_valid())
-        self.assertEqual(set(form.cleaned_data["locales"]), set([locale2, locale1]))
-
-    def test_clean_locales_all(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
-        )
-        locale1 = LocaleFactory(code="sv-SE", name="Swedish")
-        locale2 = LocaleFactory(code="fr", name="French")
-        self.data["locales"] = [
-            locale2.code,
-            CustomModelMultipleChoiceField.ALL_KEY,
-            locale1.code,
-        ]
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertTrue(form.is_valid())
-        self.assertEqual(list(form.cleaned_data["locales"]), [])
-
-    def test_clean_unrecognized_locales(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
-        self.data["locales"] = ["xxx"]
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertTrue(not form.is_valid())
-        self.assertTrue(form.errors["locales"])
-
-    def test_countries_choices(self):
-        country1 = CountryFactory(code="SV", name="Sweden")
-        country2 = CountryFactory(code="FR", name="France")
-
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, countries=[], locales=[]
-        )
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertEqual(
-            list(form.fields["countries"].choices),
-            [
-                (CustomModelMultipleChoiceField.ALL_KEY, "All countries"),
-                (country2.code, str(country2)),
-                (country1.code, str(country1)),
-            ],
-        )
-
-    def test_countries_initials(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, countries=[]
-        )
-        country1 = CountryFactory(code="SV", name="Sweden")
-        country2 = CountryFactory(code="FR", name="France")
-        experiment.countries.add(country1)
-        experiment.countries.add(country2)
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertEqual(form.initial["countries"], [country2, country1])
-
-    def test_countries_initials_all(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0, countries=[]
-        )
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertEqual(
-            form.initial["countries"], [CustomModelMultipleChoiceField.ALL_KEY]
-        )
-
-    def test_clean_countries(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
-        )
-        country1 = CountryFactory(code="SV", name="Sweden")
-        country2 = CountryFactory(code="FR", name="France")
-        self.data["countries"] = [country1.code, country2.code]
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertTrue(form.is_valid())
-        self.assertEqual(
-            # form.cleaned_data["countries"] is a QuerySet to exhaust it.
-            list(form.cleaned_data["countries"]),
-            [country2, country1],
-        )
-
-    def test_clean_countries_all(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
-        )
-        country1 = CountryFactory(code="SV", name="Sweden")
-        country2 = CountryFactory(code="FR", name="France")
-        self.data["countries"] = [
-            country1.code,
-            CustomModelMultipleChoiceField.ALL_KEY,
-            country2.code,
-        ]
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertTrue(form.is_valid())
-        self.assertEqual(list(form.cleaned_data["countries"]), [])
-
-    def test_clean_unrecognized_countries(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
-        self.data["countries"] = ["xxx"]
-        form = ExperimentTimelinePopulationForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-        self.assertTrue(not form.is_valid())
-        self.assertTrue(form.errors["countries"])
-
-    def test_form_is_invalid_if_population_percent_below_0(self):
-        self.data["population_percent"] = "-1"
-        form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("population_percent", form.errors)
-
-    def test_form_is_invalid_if_population_percent_above_100(self):
-        self.data["population_percent"] = "101"
-        form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("population_percent", form.errors)
-
-    def test_form_is_invalid_if_firefox_max_is_lower_than_min(self):
-        self.data["firefox_min_version"] = "66.0"
-        self.data["firefox_max_version"] = "64.0"
-        form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("firefox_max_version", form.errors)
-
-    def test_form_is_valid_if_firefox_max_is_equal_to_min(self):
-        self.data["firefox_min_version"] = "66.0"
-        self.data["firefox_max_version"] = "66.0"
-        form = ExperimentTimelinePopulationForm(request=self.request, data=self.data)
-        self.assertTrue(form.is_valid())
-
-
-@parameterized_class(
-    ["form_class"],
-    [
-        [ExperimentDesignGenericForm],
-        [ExperimentDesignAddonForm],
-        [ExperimentDesignPrefForm],
-    ],
-)
-class TestExperimentVariantFormSet(MockRequestMixin, TestCase):
-
-    def setUp(self):
-        super().setUp()
-
-        self.experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
-        )
-
-        self.data = get_design_form_data()
-
-    def test_formset_valid_if_sizes_sum_to_100(self):
-        self.data["variants-0-ratio"] = "34"
-        self.data["variants-1-ratio"] = "33"
-        self.data["variants-2-ratio"] = "33"
-        form = self.form_class(
-            request=self.request, data=self.data, instance=self.experiment
-        )
-        self.assertTrue(form.is_valid())
-
-    def test_formset_invalid_if_sizes_sum_to_less_than_100(self):
-        self.data["variants-0-ratio"] = "33"
-        self.data["variants-1-ratio"] = "33"
-        self.data["variants-2-ratio"] = "33"
-        form = self.form_class(
-            request=self.request, data=self.data, instance=self.experiment
-        )
-        self.assertFalse(form.is_valid())
-
-        for form in form.variants_formset.forms:
-            self.assertIn("ratio", form.errors)
-
-    def test_formset_invalid_if_sizes_sum_to_more_than_100(self):
-        self.data["variants-0-ratio"] = "35"
-        self.data["variants-1-ratio"] = "33"
-        self.data["variants-2-ratio"] = "33"
-        form = self.form_class(
-            request=self.request, data=self.data, instance=self.experiment
-        )
-        self.assertFalse(form.is_valid())
-
-        for form in form.variants_formset.forms:
-            self.assertIn("ratio", form.errors)
-
-    def test_formset_invalid_if_duplicate_names_appear(self):
-        self.data["variants-0-name"] = self.data["variants-1-name"]
-        form = self.form_class(
-            request=self.request, data=self.data, instance=self.experiment
-        )
-        self.assertFalse(form.is_valid())
-
-        for form in form.variants_formset.forms:
-            self.assertIn("name", form.errors)
-
-    def test_empty_branch_size_raises_validation_error(self):
-        del self.data["variants-0-ratio"]
-        form = self.form_class(
-            request=self.request, data=self.data, instance=self.experiment
-        )
-        self.assertFalse(form.is_valid())
-
-
-@parameterized_class(
-    ["form_class"],
-    [
-        [ExperimentDesignGenericForm],
-        [ExperimentDesignAddonForm],
-        [ExperimentDesignPrefForm],
-    ],
-)
-class TestExperimentDesignBaseForm(MockRequestMixin, TestCase):
-
-    def setUp(self):
-        super().setUp()
-
-        self.experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0, countries=[], locales=[]
-        )
-
-        self.data = get_design_form_data()
-
-    def test_formset_saves_new_variants(self):
-        form = self.form_class(
-            request=self.request, data=self.data, instance=self.experiment
-        )
-
-        self.assertTrue(form.is_valid())
-
-        self.assertEqual(self.experiment.variants.count(), 0)
-        experiment = form.save()
-
-        self.assertEqual(experiment.variants.count(), 3)
-
-        branch0 = experiment.variants.get(name=self.data["variants-0-name"])
-        self.assertTrue(branch0.is_control)
-        self.assertTrue(branch0.slug, "control-name")
-        self.assertEqual(branch0.ratio, 34)
-        self.assertEqual(branch0.description, self.data["variants-0-description"])
-
-        branch1 = experiment.variants.get(name=self.data["variants-1-name"])
-        self.assertFalse(branch1.is_control)
-        self.assertEqual(branch1.slug, "branch-1-name")
-        self.assertEqual(branch1.ratio, 33)
-        self.assertEqual(branch1.description, self.data["variants-1-description"])
-
-        branch2 = experiment.variants.get(name=self.data["variants-2-name"])
-        self.assertFalse(branch2.is_control)
-        self.assertEqual(branch2.slug, "branch-2-name")
-        self.assertEqual(branch2.ratio, 33)
-        self.assertEqual(branch2.description, self.data["variants-2-description"])
-
-    def test_formset_edits_existing_variants(self):
-        form = self.form_class(
-            request=self.request, data=self.data, instance=self.experiment
-        )
-
-        self.assertTrue(form.is_valid())
-
-        self.assertEqual(self.experiment.variants.count(), 0)
-
-        experiment = form.save()
-
-        self.assertEqual(experiment.variants.count(), 3)
-
-        self.data["variants-INITIAL_FORMS"] = 3
-
-        branch0 = experiment.variants.get(name=self.data["variants-0-name"])
-        self.data["variants-0-id"] = branch0.id
-        self.data["variants-0-DELETE"] = False
-        self.data["variants-0-name"] = "new branch 0 name"
-        self.data["variants-0-description"] = "new branch 0 description"
-
-        branch1 = experiment.variants.get(name=self.data["variants-1-name"])
-        self.data["variants-1-id"] = branch1.id
-        self.data["variants-1-DELETE"] = False
-        self.data["variants-1-name"] = "new branch 1 name"
-        self.data["variants-1-description"] = "new branch 1 description"
-
-        branch2 = experiment.variants.get(name=self.data["variants-2-name"])
-        self.data["variants-2-id"] = branch2.id
-        self.data["variants-2-DELETE"] = False
-        self.data["variants-2-name"] = "new branch 2 name"
-        self.data["variants-2-description"] = "new branch 2 description"
-
-        form = self.form_class(request=self.request, data=self.data, instance=experiment)
-
-        self.assertTrue(form.is_valid())
-
-        experiment = form.save()
-
-        self.assertEqual(experiment.variants.count(), 3)
-
-        branch0 = experiment.variants.get(name=self.data["variants-0-name"])
-        self.assertTrue(branch0.is_control)
-        self.assertEqual(branch0.ratio, 34)
-        self.assertEqual(branch0.description, self.data["variants-0-description"])
-
-        branch1 = experiment.variants.get(name=self.data["variants-1-name"])
-        self.assertFalse(branch1.is_control)
-        self.assertEqual(branch1.ratio, 33)
-        self.assertEqual(branch1.description, self.data["variants-1-description"])
-
-        branch2 = experiment.variants.get(name=self.data["variants-2-name"])
-        self.assertFalse(branch2.is_control)
-        self.assertEqual(branch2.ratio, 33)
-        self.assertEqual(branch2.description, self.data["variants-2-description"])
-
-    def test_formset_adds_new_variant(self):
-        form = self.form_class(
-            request=self.request, data=self.data, instance=self.experiment
-        )
-
-        self.assertTrue(form.is_valid())
-
-        self.assertEqual(self.experiment.variants.count(), 0)
-
-        experiment = form.save()
-
-        self.assertEqual(experiment.variants.count(), 3)
-
-        self.data["variants-INITIAL_FORMS"] = 3
-        self.data["variants-TOTAL_FORMS"] = 4
-
-        branch0 = experiment.variants.get(name=self.data["variants-0-name"])
-        self.data["variants-0-id"] = branch0.id
-        self.data["variants-0-ratio"] = 25
-
-        branch1 = experiment.variants.get(name=self.data["variants-1-name"])
-        self.data["variants-1-id"] = branch1.id
-        self.data["variants-1-ratio"] = 25
-
-        branch2 = experiment.variants.get(name=self.data["variants-2-name"])
-        self.data["variants-2-id"] = branch2.id
-        self.data["variants-2-ratio"] = 25
-
-        self.data["variants-3-DELETE"] = False
-        self.data["variants-3-name"] = "new branch 0 name"
-        self.data["variants-3-description"] = "new branch 0 description"
-        self.data["variants-3-ratio"] = 25
-        self.data["variants-3-value"] = '"new branch 3 value"'
-
-        form = self.form_class(request=self.request, data=self.data, instance=experiment)
-
-        self.assertTrue(form.is_valid())
-
-        experiment = form.save()
-
-        self.assertEqual(experiment.variants.count(), 4)
-
-        branch0 = experiment.variants.get(name=self.data["variants-0-name"])
-        self.assertEqual(branch0.ratio, 25)
-
-        branch1 = experiment.variants.get(name=self.data["variants-1-name"])
-        self.assertEqual(branch1.ratio, 25)
-
-        branch2 = experiment.variants.get(name=self.data["variants-2-name"])
-        self.assertEqual(branch2.ratio, 25)
-
-        branch3 = experiment.variants.get(name=self.data["variants-3-name"])
-        self.assertEqual(branch3.ratio, 25)
-        self.assertEqual(branch3.description, self.data["variants-3-description"])
-
-    def test_formset_removes_variant(self):
-        form = self.form_class(
-            request=self.request, data=self.data, instance=self.experiment
-        )
-
-        self.assertTrue(form.is_valid())
-
-        self.assertEqual(self.experiment.variants.count(), 0)
-
-        experiment = form.save()
-
-        self.assertEqual(experiment.variants.count(), 3)
-
-        self.data["variants-INITIAL_FORMS"] = 3
-        self.data["variants-TOTAL_FORMS"] = 3
-
-        branch0 = experiment.variants.get(name=self.data["variants-0-name"])
-        self.data["variants-0-id"] = branch0.id
-        self.data["variants-0-ratio"] = 50
-
-        branch1 = experiment.variants.get(name=self.data["variants-1-name"])
-        self.data["variants-1-id"] = branch1.id
-        self.data["variants-1-DELETE"] = True
-
-        branch2 = experiment.variants.get(name=self.data["variants-2-name"])
-        self.data["variants-2-id"] = branch2.id
-        self.data["variants-2-ratio"] = 50
-
-        form = self.form_class(request=self.request, data=self.data, instance=experiment)
-
-        self.assertTrue(form.is_valid())
-
-        experiment = form.save()
-
-        self.assertEqual(experiment.variants.count(), 2)
-
-        self.assertTrue(
-            experiment.variants.filter(name=self.data["variants-0-name"]).exists()
-        )
-        self.assertFalse(
-            experiment.variants.filter(name=self.data["variants-1-name"]).exists()
-        )
-        self.assertTrue(
-            experiment.variants.filter(name=self.data["variants-2-name"]).exists()
-        )
-
-    def test_formset_checks_uniqueness_for_single_experiment_not_all(self):
-        # We want to make sure that all the branches in a single
-        # experiment have unique names/slugs but not that they're
-        # unique across all experiments.  This behaviour was accidentally
-        # introduced in 30c210183cd1568850d54132633b0f23e3e56c98
-        # so I'm adding a test for it.
-        experiment1 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
-        )
-        self.data["addon_experiment_id"] = "addon-experiment-1"
-        form1 = self.form_class(
-            request=self.request, data=self.data, instance=experiment1
-        )
-        self.assertTrue(form1.is_valid())
-        experiment1 = form1.save()
-        self.assertEqual(experiment1.variants.count(), 3)
-
-        experiment2 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, num_variants=0
-        )
-        self.data["addon_experiment_id"] = "addon-experiment-2"
-        form2 = self.form_class(
-            request=self.request, data=self.data, instance=experiment2
-        )
-        self.assertTrue(form2.is_valid())
-        experiment2 = form2.save()
-        self.assertEqual(experiment2.variants.count(), 3)
-
-
-def get_variants_form_data():
-    return {
-        "variants-TOTAL_FORMS": "3",
-        "variants-INITIAL_FORMS": "0",
-        "variants-MIN_NUM_FORMS": "0",
-        "variants-MAX_NUM_FORMS": "1000",
-        "variants-0-is_control": True,
-        "variants-0-ratio": "34",
-        "variants-0-name": "control name",
-        "variants-0-description": "control desc",
-        "variants-0-value": '"control value"',
-        "variants-1-is_control": False,
-        "variants-1-ratio": "33",
-        "variants-1-name": "branch 1 name",
-        "variants-1-description": "branch 1 desc",
-        "variants-1-value": '"branch 1 value"',
-        "variants-2-is_control": False,
-        "variants-2-ratio": "33",
-        "variants-2-name": "branch 2 name",
-        "variants-2-description": "branch 2 desc",
-        "variants-2-value": '"branch 2 value"',
-    }
-
-
-def get_design_form_data():
-    data = get_variants_form_data()
-    data.update(
-        {
-            "pref_name": "browser.test.example",
-            "pref_type": Experiment.PREF_TYPE_STR,
-            "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
-            "addon_experiment_id": slugify(faker.catch_phrase()),
-            "addon_release_url": "https://www.example.com/release.xpi",
-            "design": "Design",
-        }
-    )
-    return data
-
-
-class TestExperimentDesignGenericForm(MockRequestMixin, TestCase):
-
-    def setUp(self):
-        super().setUp()
-        self.data = get_variants_form_data()
-        self.data.update({"design": "Design"})
-
-    def test_form_saves_design_information(self):
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_GENERIC, design=Experiment.DESIGN_DEFAULT
-        )
-
-        form = ExperimentDesignGenericForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-
-        self.assertTrue(form.is_valid())
-
-        experiment = form.save()
-
-        self.assertEqual(experiment.design, self.data["design"])
-
-
-class TestExperimentDesignAddonForm(MockRequestMixin, TestCase):
-
-    def setUp(self):
-        super().setUp()
-        self.data = get_variants_form_data()
-        self.data.update(
-            {
-                "addon_experiment_id": slugify(faker.catch_phrase()),
-                "addon_release_url": "https://www.example.com/release.xpi",
-            }
-        )
-
-    def test_minimum_required_fields(self):
-        experiment = ExperimentFactory.create(
-            addon_experiment_id=None, addon_release_url=None
-        )
-
-        data = get_variants_form_data()
-        data["addon_release_url"] = "https://www.example.com/release.xpi"
-
-        form = ExperimentDesignAddonForm(
-            request=self.request, data=data, instance=experiment
-        )
-
-        self.assertTrue(form.is_valid())
-
-        experiment = form.save()
-
-        self.assertEqual(experiment.addon_release_url, self.data["addon_release_url"])
-
-    def test_addon_experiment_id_is_unique(self):
-        experiment1 = ExperimentFactory.create(
-            addon_experiment_id=None, addon_release_url=None
-        )
-
-        form = ExperimentDesignAddonForm(
-            request=self.request, data=self.data, instance=experiment1
-        )
-        self.assertTrue(form.is_valid())
-        experiment1 = form.save()
-
-        self.assertEqual(
-            experiment1.addon_experiment_id, self.data["addon_experiment_id"]
-        )
-
-        experiment2 = ExperimentFactory.create(
-            addon_experiment_id=None, addon_release_url=None
-        )
-
-        form = ExperimentDesignAddonForm(
-            request=self.request, data=self.data, instance=experiment2
-        )
-        self.assertFalse(form.is_valid())
-        self.assertIn("addon_experiment_id", form.errors)
-
-    def test_addon_experiment_id_is_within_normandy_slug_max_len(self):
-        experiment = ExperimentFactory.create(
-            addon_experiment_id=None, addon_release_url=None
-        )
-
-        self.data["addon_experiment_id"] = "-" * (settings.NORMANDY_SLUG_MAX_LEN + 1)
-
-        form = ExperimentDesignAddonForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-
-        self.assertFalse(form.is_valid())
-        self.assertIn("addon_experiment_id", form.errors)
-
-    def test_addon_experiment_id_allows_duplicate_empty_values(self):
-        ExperimentFactory.create(addon_experiment_id="")
-        experiment = ExperimentFactory.create(addon_experiment_id=None)
-
-        self.data["addon_experiment_id"] = ""
-
-        form = ExperimentDesignAddonForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-
-        self.assertTrue(form.is_valid())
-
-
-class TestExperimentDesignPrefForm(MockRequestMixin, TestCase):
-
-    def setUp(self):
-        super().setUp()
-        self.data = get_variants_form_data()
-        self.data.update(
-            {
-                "pref_name": "browser.test.example",
-                "pref_type": Experiment.PREF_TYPE_STR,
-                "pref_branch": Experiment.PREF_BRANCH_DEFAULT,
-            }
-        )
-
-    def test_minimum_required_fields(self):
-        experiment = ExperimentFactory.create(
-            pref_name=None, pref_type=None, pref_branch=None
-        )
-
-        form = ExperimentDesignPrefForm(
-            request=self.request, data=self.data, instance=experiment
-        )
-
-        self.assertTrue(form.is_valid())
-
-        experiment = form.save()
-
-        self.assertEqual(experiment.pref_name, self.data["pref_name"])
-        self.assertEqual(experiment.pref_type, self.data["pref_type"])
-        self.assertEqual(experiment.pref_branch, self.data["pref_branch"])
-
-    def test_form_is_invalid_if_branches_have_duplicate_pref_values(self):
-        self.data["variants-0-value"] = self.data["variants-1-value"]
-        form = ExperimentDesignPrefForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("value", form.variants_formset.errors[0])
-        self.assertIn("value", form.variants_formset.errors[1])
-        self.assertNotIn("value", form.variants_formset.errors[2])
-
-    def test_form_is_invalid_if_pref_value_do_not_match_pref_type(self):
-        self.data["pref_type"] = Experiment.PREF_TYPE_INT
-        self.data["variants-0-value"] = "hello"  # str
-        self.data["variants-1-value"] = "true"  # bool
-        self.data["variants-2-value"] = "5"  # int
-        form = ExperimentDesignPrefForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("value", form.variants_formset.errors[0])
-        self.assertIn("value", form.variants_formset.errors[1])
-        self.assertNotIn("value", form.variants_formset.errors[2])
-
-    def test_form_is_valid_if_pref_type_is_string(self):
-        self.data["variants-0-value"] = "abc"
-        form = ExperimentDesignPrefForm(request=self.request, data=self.data)
-        self.assertTrue(form.is_valid())
-        self.assertNotIn("value", form.variants_formset.errors[0])
-        self.assertNotIn("value", form.variants_formset.errors[1])
-        self.assertNotIn("value", form.variants_formset.errors[2])
-
-    def test_form_is_valid_if_pref_type_is_bool(self):
-
-        self.data["pref_type"] = Experiment.PREF_TYPE_BOOL
-
-        # remove the extra variant for uniqueness bool constraint
-        self.data.pop("variants-2-value")
-        self.data.pop("variants-2-is_control")
-        self.data.pop("variants-2-ratio")
-        self.data.pop("variants-2-name")
-        self.data.pop("variants-2-description")
-
-        # modify remaining values to accomodate for only two variants
-        self.data["variants-TOTAL_FORMS"] = 2
-        self.data["variants-0-ratio"] = 40
-        self.data["variants-1-ratio"] = 60
-        self.data["variants-0-value"] = "true"
-        self.data["variants-1-value"] = "false"
-
-        form = ExperimentDesignPrefForm(request=self.request, data=self.data)
-
-        self.assertTrue(form.is_valid())
-        self.assertNotIn("value", form.variants_formset.errors[0])
-        self.assertNotIn("value", form.variants_formset.errors[1])
-
-    def test_form_is_valid_if_pref_type_is_int(self):
-        self.data["pref_type"] = Experiment.PREF_TYPE_INT
-        self.data["variants-0-value"] = "20"
-        self.data["variants-1-value"] = "55"
-        self.data["variants-2-value"] = "75"
-        form = ExperimentDesignPrefForm(request=self.request, data=self.data)
-        self.assertTrue(form.is_valid())
-        self.assertNotIn("value", form.variants_formset.errors[0])
-        self.assertNotIn("value", form.variants_formset.errors[1])
-        self.assertNotIn("value", form.variants_formset.errors[2])
-
-    def test_form_is_valid_if_pref_type_is_json_string(self):
-        self.data["pref_type"] = Experiment.PREF_TYPE_JSON_STR
-        self.data["variants-0-value"] = "{}"
-        self.data["variants-1-value"] = "[1,2,3,4]"
-        self.data["variants-2-value"] = '{"variant":[1,2,3,4]}'
-        form = ExperimentDesignPrefForm(request=self.request, data=self.data)
-        self.assertTrue(form.is_valid())
-        self.assertNotIn("value", form.variants_formset.errors[0])
-        self.assertNotIn("value", form.variants_formset.errors[1])
-        self.assertNotIn("value", form.variants_formset.errors[2])
-
-    def test_form_is_invalid_with_invalid_json(self):
-        self.data["pref_type"] = Experiment.PREF_TYPE_JSON_STR
-        self.data["variants-0-value"] = "{]"
-        self.data["variants-1-value"] = '{5: "something"}'
-        self.data["variants-2-value"] = "hi"
-        form = ExperimentDesignPrefForm(request=self.request, data=self.data)
-        self.assertFalse(form.is_valid())
-        self.assertIn("value", form.variants_formset.errors[0])
-        self.assertIn("value", form.variants_formset.errors[1])
-        self.assertIn("value", form.variants_formset.errors[2])
-
-
 class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
-
     def test_no_fields_required(self):
         experiment = ExperimentFactory.create()
         form = ExperimentObjectivesForm(
@@ -1505,9 +420,10 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
         data = {
             "objectives": "The objective is to experiment!",
             "analysis": "Lets analyze the results!",
-            "survey_required": True,
+            "survey_required": RADIO_YES,
             "survey_urls": "example.com",
             "survey_instructions": "Here are the launch instructions.",
+            "total_enrolled_clients": 10000,
         }
 
         form = ExperimentObjectivesForm(
@@ -1522,6 +438,9 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
         self.assertTrue(experiment.survey_required)
         self.assertEqual(experiment.survey_urls, data["survey_urls"])
         self.assertEqual(experiment.survey_instructions, data["survey_instructions"])
+        self.assertEqual(
+            experiment.total_enrolled_clients, data["total_enrolled_clients"]
+        )
 
         self.assertEqual(experiment.changes.count(), 2)
 
@@ -1529,19 +448,19 @@ class TestExperimentObjectivesForm(MockRequestMixin, TestCase):
 class TestExperimentRisksForm(MockRequestMixin, TestCase):
 
     valid_data = {
-        "risk_partner_related": False,
-        "risk_brand": True,
-        "risk_fast_shipped": True,
-        "risk_confidential": True,
-        "risk_release_population": True,
-        "risk_revenue": True,
-        "risk_data_category": True,
-        "risk_external_team_impact": True,
-        "risk_telemetry_data": True,
-        "risk_ux": True,
-        "risk_security": True,
-        "risk_revision": True,
-        "risk_technical": True,
+        "risk_partner_related": RADIO_NO,
+        "risk_brand": RADIO_YES,
+        "risk_fast_shipped": RADIO_YES,
+        "risk_confidential": RADIO_YES,
+        "risk_release_population": RADIO_YES,
+        "risk_revenue": RADIO_YES,
+        "risk_data_category": RADIO_YES,
+        "risk_external_team_impact": RADIO_YES,
+        "risk_telemetry_data": RADIO_YES,
+        "risk_ux": RADIO_YES,
+        "risk_security": RADIO_YES,
+        "risk_revision": RADIO_YES,
+        "risk_technical": RADIO_YES,
         "risk_technical_description": "It's complicated",
         "risks": "There are some risks",
         "testing": "Always be sure to test!",
@@ -1585,16 +504,39 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
 
 class TestExperimentResultsForm(MockRequestMixin, TestCase):
 
-    def test_form_saves_results(self):
-        experiment = ExperimentFactory.create()
-        self.assertEqual(experiment.changes.count(), 0)
-        data = {
-            "results_url": "https://example.com",
-            "results_initial": "Initially, all went well.",
-            "results_lessons_learned": "Lessons were learned.",
-        }
+    valid_data = {
+        "results_url": "https://example.com",
+        "results_initial": "Initially, all went well.",
+        "results_lessons_learned": "Lessons were learned.",
+        "results_fail_to_launch": RADIO_NO,
+        "results_recipe_errors": RADIO_YES,
+        "results_restarts": RADIO_YES,
+        "results_low_enrollment": RADIO_NO,
+        "results_early_end": RADIO_YES,
+        "results_no_usable_data": RADIO_NO,
+        "results_failures_notes": "Bad.",
+        "results_changes_to_firefox": RADIO_YES,
+        "results_data_for_hypothesis": RADIO_NO,
+        "results_confidence": RADIO_YES,
+        "results_measure_impact": RADIO_NO,
+        "results_impact_notes": "Good.",
+    }
 
-        form = ExperimentResultsForm(request=self.request, data=data, instance=experiment)
+    def test_no_fields_required(self):
+        experiment = ExperimentFactory.create()
+        form = ExperimentResultsForm(request=self.request, data={}, instance=experiment)
+        self.assertTrue(form.is_valid())
+
+    def test_form_saves_results(self):
+        created_experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_COMPLETE, results_early_end=False
+        )
+        self.assertEqual(created_experiment.changes.count(), 6)
+
+        data = self.valid_data.copy()
+        form = ExperimentResultsForm(
+            request=self.request, data=data, instance=created_experiment
+        )
 
         self.assertTrue(form.is_valid())
 
@@ -1602,14 +544,24 @@ class TestExperimentResultsForm(MockRequestMixin, TestCase):
 
         self.assertEqual(experiment.results_url, "https://example.com")
         self.assertEqual(experiment.results_initial, "Initially, all went well.")
-
-        self.assertEqual(experiment.changes.count(), 1)
+        self.assertFalse(experiment.results_fail_to_launch)
+        self.assertTrue(experiment.results_recipe_errors)
+        self.assertTrue(experiment.results_restarts)
+        self.assertFalse(experiment.results_low_enrollment)
+        self.assertTrue(experiment.results_early_end)
+        self.assertFalse(experiment.results_no_usable_data)
+        self.assertEqual(experiment.results_failures_notes, "Bad.")
+        self.assertTrue(experiment.results_changes_to_firefox)
+        self.assertFalse(experiment.results_data_for_hypothesis)
+        self.assertTrue(experiment.results_confidence)
+        self.assertFalse(experiment.results_measure_impact)
+        self.assertEqual(experiment.results_impact_notes, "Good.")
+        self.assertEqual(experiment.changes.count(), 7)
 
 
 class TestExperimentReviewForm(
     MockRequestMixin, MockBugzillaMixin, MockTasksMixin, TestCase
 ):
-
     def test_form_saves_reviews(self):
         user = UserFactory.create()
         content_type = ContentType.objects.get_for_model(Experiment)
@@ -1902,7 +854,6 @@ class TestExperimentReviewForm(
 class TestExperimentStatusForm(
     MockBugzillaMixin, MockRequestMixin, MockTasksMixin, TestCase
 ):
-
     def test_form_allows_valid_state_transition_and_creates_changelog(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
         form = ExperimentStatusForm(
@@ -1962,7 +913,7 @@ class TestExperimentStatusForm(
         experiment = form.save()
 
         self.assertEqual(
-            experiment.normandy_slug, "pref-experiment-name-nightly-57-bug-12345"
+            experiment.normandy_slug, "bug-12345-pref-experiment-name-nightly-57"
         )
         self.mock_tasks_update_experiment_bug.delay.assert_called_with(
             self.user.id, experiment.id
@@ -1970,7 +921,6 @@ class TestExperimentStatusForm(
 
 
 class TestExperimentCommentForm(MockRequestMixin, TestCase):
-
     def test_form_creates_comment(self):
         text = "hello"
         section = Experiment.SECTION_OVERVIEW
@@ -2010,7 +960,6 @@ class TestExperimentCommentForm(MockRequestMixin, TestCase):
 
 
 class TestExperimentArchiveForm(MockRequestMixin, MockTasksMixin, TestCase):
-
     def test_form_flips_archive_bool(self):
 
         experiment = ExperimentFactory.create(archived=False)
@@ -2047,7 +996,6 @@ class TestExperimentArchiveForm(MockRequestMixin, MockTasksMixin, TestCase):
 
 
 class TestExperimentSubscribedForm(MockRequestMixin, TestCase):
-
     def test_form_adds_subscribers(self):
         experiment = ExperimentFactory.create()
 
@@ -2072,7 +1020,6 @@ class TestExperimentSubscribedForm(MockRequestMixin, TestCase):
 
 
 class TestNormandyIdForm(MockRequestMixin, TestCase):
-
     def test_form_not_valid_with_bad_main_id(self):
         experiment = ExperimentFactory.create()
 
@@ -2134,7 +1081,6 @@ class TestNormandyIdForm(MockRequestMixin, TestCase):
 
 
 class TestExperimentOrderingForm(TestCase):
-
     def test_accepts_valid_ordering(self):
         ordering = ExperimentOrderingForm.ORDERING_CHOICES[1][0]
         form = ExperimentOrderingForm({"ordering": ordering})

@@ -17,6 +17,12 @@ class ObjectiveAndAnalysisPage(Base):
 
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-edit-overview")
 
+    def wait_for_page_to_load(self):
+        self.wait.until(
+            lambda _: self.find_element(*self._page_wait_locator).is_displayed()
+        )
+        return self
+
     @property
     def objectives_text_box(self):
         element = self.find_element(*self._objectives_text_box_locator)
@@ -47,10 +53,11 @@ class ObjectiveAndAnalysisPage(Base):
 
     @property
     def survey_required_checkbox(self):
-        element = self.find_element(*self._survey_checkbox_no_locator)
-        if element.get_attribute("checked"):
+        if self.find_element(*self._survey_checkbox_no_locator).get_attribute("checked"):
             return "No"
-        return "Yes"
+        if self.find_element(*self._survey_checkbox_yes_locator).get_attribute("checked"):
+            return "Yes"
+        raise ValueError("Unable to find survey value")
 
     @survey_required_checkbox.setter
     def survey_required_checkbox(self, text=None):

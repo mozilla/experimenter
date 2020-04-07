@@ -11,13 +11,25 @@ class ExperimentConstants(object):
     TYPE_ADDON = "addon"
     TYPE_GENERIC = "generic"
     TYPE_ROLLOUT = "rollout"
+    TYPE_MESSAGE = "message"
 
     TYPE_CHOICES = (
         (TYPE_PREF, "Pref-Flip Experiment"),
         (TYPE_ADDON, "Add-On Experiment"),
         (TYPE_GENERIC, "Generic Experiment"),
         (TYPE_ROLLOUT, "Staged Rollout"),
+        (TYPE_MESSAGE, "Message Router Content Experiment"),
     )
+
+    @classmethod
+    def FEATURE_TYPE_CHOICES(cls):  # pragma: no cover
+        if not settings.FEATURE_MESSAGE_TYPE:
+            return tuple(t for t in cls.TYPE_CHOICES if cls.TYPE_MESSAGE not in t)
+        return cls.TYPE_CHOICES
+
+    # Message stuff
+    MESSAGE_DEFAULT_LOCALES = ("en-AU", "en-GB", "en-CA", "en-NZ", "en-ZA", "en-US")
+    MESSAGE_DEFAULT_COUNTRIES = ("US", "CA", "GB", "DE", "FR")
 
     # Rollout stuff
     ROLLOUT_TYPE_CHOICES = ((TYPE_PREF, "Pref Rollout"), (TYPE_ADDON, "Add-On Rollout"))
@@ -113,14 +125,26 @@ class ExperimentConstants(object):
         ("78.0", "Firefox 78.0"),
         ("79.0", "Firefox 79.0"),
         ("80.0", "Firefox 80.0"),
-    )
-
-    MIN_VERSION_CHOICES = ((None, "Firefox Min Version (Required)"),) + (
-        (VERSION_CHOICES)
-    )
-
-    MAX_VERSION_CHOICES = ((None, "Firefox Max Version (Required)"),) + (
-        (VERSION_CHOICES)
+        ("81.0", "Firefox 81.0"),
+        ("82.0", "Firefox 82.0"),
+        ("83.0", "Firefox 83.0"),
+        ("84.0", "Firefox 84.0"),
+        ("85.0", "Firefox 85.0"),
+        ("86.0", "Firefox 86.0"),
+        ("87.0", "Firefox 87.0"),
+        ("88.0", "Firefox 88.0"),
+        ("89.0", "Firefox 89.0"),
+        ("90.0", "Firefox 90.0"),
+        ("91.0", "Firefox 91.0"),
+        ("92.0", "Firefox 92.0"),
+        ("93.0", "Firefox 93.0"),
+        ("94.0", "Firefox 94.0"),
+        ("95.0", "Firefox 95.0"),
+        ("96.0", "Firefox 96.0"),
+        ("97.0", "Firefox 97.0"),
+        ("98.0", "Firefox 98.0"),
+        ("99.0", "Firefox 99.0"),
+        ("100.0", "Firefox 100.0"),
     )
 
     VERSION_REGEX = re.compile(r"[\d]+")
@@ -350,9 +374,9 @@ class ExperimentConstants(object):
       </p>
     """
 
-    DATA_SCIENCE_BUGZILLA_HELP_TEXT = """
+    DATA_SCIENCE_ISSUE_HELP_TEXT = """
       <p>
-        Provide a link to the Bugzilla ticket that was filed with the Data
+        Provide a link to the ticket that was filed with the Data
         Science team that tracks this delivery.  If you have not already
         filed a ticket with Data Science, you can do that <a
         target="_blank" rel="noreferrer noopener"
@@ -360,14 +384,11 @@ class ExperimentConstants(object):
       </p>
       <p>
         <strong>Example:</strong>
-        {bugzilla_host}show_bug.cgi?id=12345
+        {ds_issue_host}DO-352
       </p>
     """.format(
-        url=(
-            "https://mana.mozilla.org/wiki/display/PM/Mozilla+Data+Science"
-            "#MozillaDataScience-dsflagshipprograms2019"
-        ),
-        bugzilla_host=settings.BUGZILLA_HOST,
+        url=("https://mana.mozilla.org/wiki/display/PM/Data+Science+Jira+documentation"),
+        ds_issue_host=settings.DS_ISSUE_HOST,
     )
 
     FEATURE_BUGZILLA_HELP_TEXT = """
@@ -646,6 +667,10 @@ class ExperimentConstants(object):
       we will improve [retention/page views/performance/satisfaction]</p>
     """
 
+    TOTAL_ENROLLED_CLIENTS_HELP_TEXT = """
+        https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=FIREFOX&title=Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-PopulationSize
+    """
+
     ENGINEERING_OWNER_HELP_TEXT = """
       <p>
         The Engineering Owner is the person responsible for the engineering
@@ -756,6 +781,42 @@ class ExperimentConstants(object):
         some details - that is beneficial for us to know.
         We are always trying to identify the most common issues
         in order to continuously improve.
+    """
+
+    RESULTS_FAIL_TO_LAUNCH_LABEL = (
+        "Did this delivery fail to launch at the expected time?"
+    )
+
+    RESULTS_RECIPE_ERRORS_LABEL = "Did this delivery have recipe errors?"
+
+    RESULTS_RESTARTS_LABEL = "Did this delivery require any restarts after it launched?"
+
+    RESULTS_LOW_ENROLLMENT_LABEL = "Did this delivery have low user enrollment issues?"
+
+    RESULTS_EARLY_END_LABEL = "Did this delivery end before it was expected to?"
+
+    RESULTS_NO_USABLE_DATA_LABEL = "Did this delivery fail to generate usable data?"
+
+    RESULTS_NOTES_LABEL = "Notes"
+
+    RESULTS_CHANGES_TO_FIREFOX_LABEL = """
+        Did changes (features, performance, UX, etc.) enter Firefox because
+        of this delivery?
+    """
+
+    RESULTS_DATA_FOR_HYPOTHESIS_LABEL = """Was the data required to prove or disprove your
+        hypothesis (which may include a null result) obtained?"""
+
+    RESULTS_CONFIDENCE_LABEL = (
+        "Did this delivery provide the confidence needed to more forward?"
+    )
+
+    RESULTS_MEASURE_IMPACT_LABEL = (
+        "Did this delivery help understand/measure the impact of this feature?"
+    )
+
+    RESULTS_QUESTIONS_HELP = """
+        https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-ResultsandFeedback
     """
 
     # Sign-Offs
@@ -872,8 +933,7 @@ Do you plan on surveying users at the end of the delivery? Yes/No.
 Strategy and Insights can help create surveys if needed
     """
 
-    RISKS_DEFAULT = (
-        """
+    RISKS_DEFAULT = """
 If you answered "Yes" to any of the question above - this box is the area to
 capture the details.
 
@@ -884,29 +944,22 @@ This information makes it easier to collaborate with supporting teams (ex: for
 sign-offs). Good details avoid assumptions or delays, while people locate the
 information necessary to make an informed decision.
     """.strip()
-    )
 
-    RISK_TECHNICAL_DEFAULT = (
-        """
+    RISK_TECHNICAL_DEFAULT = """
 If you answered “yes”, your delivery is considered Complex. QA and Release
 Management will need details. Please outline the technical risk factors
 or complexity factors that have been identified and any mitigations.
 This information will automatically be put in emails to QA.
     """.strip()
-    )
 
-    TESTING_DEFAULT = (
-        """
+    TESTING_DEFAULT = """
 If additional QA is required, provide a plan (or links to them) for testing
 each branch of this delivery.
     """.strip()
-    )
 
-    TEST_BUILDS_DEFAULT = (
-        """
+    TEST_BUILDS_DEFAULT = """
 If applicable, link to any relevant test builds / staging information
     """.strip()
-    )
 
     QA_STATUS_DEFAULT = "What is the QA status: Not started, Green, Yellow, Red"
 
@@ -935,6 +988,7 @@ If applicable, link to any relevant test builds / staging information
 
 Experimenter is the source of truth for details and delivery. Changes to Bugzilla are not reflected in Experimenter and will not change delivery configuration.
 
+Data Science Issue: {experiment.data_science_issue_url}
 More information: {experiment.experiment_url}
         """  # noqa
 

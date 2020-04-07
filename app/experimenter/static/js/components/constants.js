@@ -181,3 +181,167 @@ export const ROLLOUT_PREF_BRANCH_HELP = (
     </p>
   </div>
 );
+
+export const VERSION_CHOICES = [
+  [null, "Versions"],
+  ["55.0", "Firefox 55.0"],
+  ["56.0", "Firefox 56.0"],
+  ["57.0", "Firefox 57.0"],
+  ["58.0", "Firefox 58.0"],
+  ["59.0", "Firefox 59.0"],
+  ["60.0", "Firefox 60.0"],
+  ["61.0", "Firefox 61.0"],
+  ["62.0", "Firefox 62.0"],
+  ["63.0", "Firefox 63.0"],
+  ["64.0", "Firefox 64.0"],
+  ["65.0", "Firefox 65.0"],
+  ["66.0", "Firefox 66.0"],
+  ["67.0", "Firefox 67.0"],
+  ["68.0", "Firefox 68.0"],
+  ["69.0", "Firefox 69.0"],
+  ["70.0", "Firefox 70.0"],
+  ["71.0", "Firefox 71.0"],
+  ["72.0", "Firefox 72.0"],
+  ["73.0", "Firefox 73.0"],
+  ["74.0", "Firefox 74.0"],
+  ["75.0", "Firefox 75.0"],
+  ["76.0", "Firefox 76.0"],
+  ["77.0", "Firefox 77.0"],
+  ["78.0", "Firefox 78.0"],
+  ["79.0", "Firefox 79.0"],
+  ["80.0", "Firefox 80.0"],
+  ["81.0", "Firefox 81.0"],
+  ["82.0", "Firefox 82.0"],
+  ["83.0", "Firefox 83.0"],
+  ["84.0", "Firefox 84.0"],
+  ["85.0", "Firefox 85.0"],
+  ["86.0", "Firefox 86.0"],
+  ["87.0", "Firefox 87.0"],
+  ["88.0", "Firefox 88.0"],
+  ["89.0", "Firefox 89.0"],
+  ["90.0", "Firefox 90.0"],
+  ["91.0", "Firefox 91.0"],
+  ["92.0", "Firefox 92.0"],
+  ["93.0", "Firefox 93.0"],
+  ["94.0", "Firefox 94.0"],
+  ["95.0", "Firefox 95.0"],
+  ["96.0", "Firefox 96.0"],
+  ["97.0", "Firefox 97.0"],
+  ["98.0", "Firefox 98.0"],
+  ["99.0", "Firefox 99.0"],
+  ["100.0", "Firefox 100.0"],
+];
+
+export const PLAYBOOK_CHOICES = [
+  [null, "Rollout Playbook"],
+  ["low_risk", "Low Risk Schedule"],
+  ["high_risk", "High Risk Schedule"],
+  ["marketing", "Marketing Launch Schedule"],
+  ["custom", "Custom Schedule"],
+];
+
+export const PROPOSED_START_DATE_HELP = (
+  <p>
+    Choose the date you expect the delivery to be launched to users. This date
+    is for planning purposes only, the actual start date is subject to the sign
+    off and review processes. Please refer to the
+    <a
+      target="_blank"
+      rel="noreferrer noopener"
+      href="https://wiki.mozilla.org/RapidRelease/Calendar"
+    >
+      Firefox Release Calendar
+    </a>
+    to coordinate the timing of your delivery with the Firefox Version it will
+    be deployed to.
+  </p>
+);
+
+export const PROPOSED_DURATION_HELP = (
+  <div>
+    <p>
+      Specify the duration of the delivery in days. This determines the maximum
+      amount of time a user may be enrolled in the delivery. Once the delivery
+      is live, users will begin to enroll. They will remain enrolled until the
+      entire delivery duration has transpired. Once the delivery duration has
+      elapsed, users will be unenrolled.
+    </p>
+    <p>
+      <strong>Example:</strong> 30
+    </p>
+  </div>
+);
+
+export const PROPOSED_ENROLLMENT_HELP = (
+  <div>
+    <p>
+      Some deliveries may only wish to enroll users for a limited amount of
+      time. This period must be shorter than the entire delivery duration. If
+      you specify a limited enrollment period, then after that period has
+      expired, no additional users will be enrolled into the delivery. Users
+      that have been enrolled will remain enrolled until the delivery ends.
+    </p>
+    <p>
+      <strong>Example:</strong> 10
+    </p>
+  </div>
+);
+
+export const CHANNEL_HELP =
+  "https://wiki.mozilla.org/Release_Management/Release_Process#Channels.2FRepositories";
+
+export const POPULATION_PERCENT_HELP = (
+  <div>
+    <p>Describe the Firefox population that will receive this delivery.</p>
+    <p>
+      <strong>Example:</strong> 10 percent of Nightly Firefox 60.0
+    </p>
+  </div>
+);
+
+export const VERSION_HELP =
+  "https://wiki.mozilla.org/Release_Management/Calendar";
+
+export const ROLLOUT_PLAYBOOK_HELP =
+  "https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=90737068#StagedRollouts/GradualRollouts-Playbooks";
+
+export const PLATFORM_HELP = (
+  <p>Select the target platform for this delivery.</p>
+);
+
+export const CLIENT_MATCHING_HELP = (
+  <div>
+    <p>
+      Describe the criteria a client must meet to participate in the delivery in
+      addition to the version and channel filtering specified above. Explain in
+      natural language how you would like clients to be filtered and the Shield
+      team will implement the filtering for you, you do not need to express the
+      filter in code. Each filter may be inclusive or exclusive, ie "Please
+      include users from locales A, B, C and exclude those from X, Y, Z".
+    </p>
+    <ul>
+      <li>
+        <p>
+          <strong>Prefs</strong> Pref and value pairs to match against.
+        </p>
+        <p>
+          <strong>Example:</strong> browser.search.region=CA
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong>Experiments</strong>
+          Other Shield Experiments to match against.
+        </p>
+        <p>
+          <strong>Example:</strong>
+          Exclude clients in pref-flip-other-experiment
+        </p>
+      </li>
+    </ul>
+  </div>
+);
+
+export const COUNTRIES_LOCALES_HELP = (
+  <p>Applicable only if you don't select All</p>
+);

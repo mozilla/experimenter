@@ -11,7 +11,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.factories import ExperimentFactory, ProjectFactory
 from experimenter.experiments.filtersets import ExperimentFilterset
 
 from experimenter.experiments.tests.mixins import MockRequestMixin
@@ -19,7 +19,6 @@ from experimenter.openidc.tests.factories import UserFactory
 
 
 class TestExperimentFilterset(MockRequestMixin, TestCase):
-
     def test_filters_by_multiple_types(self):
         pref = ExperimentFactory.create(type=Experiment.TYPE_PREF)
         addon = ExperimentFactory.create(type=Experiment.TYPE_ADDON)
@@ -34,6 +33,19 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         self.assertTrue(filter.is_valid())
         self.assertEqual(set(filter.qs), set([pref, addon]))
         self.assertEqual(filter.get_type_display_value(), "Pref-Flip, Add-On")
+
+    def test_filters_by_project_type(self):
+        project1 = ProjectFactory.create()
+        project2 = ProjectFactory.create()
+        exp1 = ExperimentFactory.create(projects=[project1])
+        ExperimentFactory.create(projects=[project2])
+
+        data = {"projects": project1.id}
+        filter = ExperimentFilterset(data=data, queryset=Experiment.objects.all())
+
+        self.assertTrue(filter.is_valid())
+        self.assertCountEqual(filter.qs, [exp1])
+        self.assertEqual(filter.get_project_display_value(), project1)
 
     def test_filters_out_archived_by_default(self):
         for i in range(3):

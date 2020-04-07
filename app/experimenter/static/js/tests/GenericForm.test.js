@@ -70,7 +70,7 @@ describe("The `DesignForm` component for generic", () => {
     for (let variant of successResponse.variants) {
       expect(getByDisplayValue(variant.name)).toBeInTheDocument();
       expect(getByDisplayValue(variant.description)).toBeInTheDocument();
-      getAllByDisplayValue(variant.ratio).map(e =>
+      getAllByDisplayValue(variant.ratio).map((e) =>
         expect(e).toBeInTheDocument(),
       );
     }
@@ -112,8 +112,6 @@ describe("The `DesignForm` component for generic", () => {
   });
 
   it("Saves and Redirects", async () => {
-    delete location.replace;
-    location.replace = jest.fn();
     setup();
     const { getByText, container } = await render(
       <DesignForm experimentType={"generic"} />,

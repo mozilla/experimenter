@@ -30,6 +30,10 @@ class DesignInput extends React.PureComponent {
     onChange: PropTypes.func,
     rows: PropTypes.string,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    type: PropTypes.string,
+    optional: PropTypes.bool,
+    noHelpLink: PropTypes.bool,
+    helpIsExternalLink: PropTypes.bool,
   };
 
   constructor(props) {
@@ -49,16 +53,36 @@ class DesignInput extends React.PureComponent {
     return 12 - this.props.labelColumnWidth;
   }
 
-  render() {
-    return (
-      <Row className="mb-3">
-        <Col md={this.props.labelColumnWidth} className="text-right">
-          <FormLabel for={this.props.id}>
-            <strong>{this.props.label}</strong>
-            <div className="required-label required">
-              <div className="text-danger">Required</div>
-            </div>
-          </FormLabel>
+  displayRequiredOrOptional() {
+    if (this.props.optional) {
+      return (
+        <div className="required-label optional">
+          <div className="text-muted">Optional</div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="required-label required">
+          <div className="text-danger">Required</div>
+        </div>
+      );
+    }
+  }
+
+  showHelpLink() {
+    if (!this.props.noHelpLink) {
+      if (this.props.helpIsExternalLink) {
+        return (
+          <a
+            target="_blank"
+            rel="noreferrer noopener"
+            href={this.props.helpContent}
+          >
+            Help
+          </a>
+        );
+      } else {
+        return (
           <div>
             <a
               href="#"
@@ -69,6 +93,20 @@ class DesignInput extends React.PureComponent {
               Help
             </a>
           </div>
+        );
+      }
+    }
+  }
+
+  render() {
+    return (
+      <Row className="mb-3">
+        <Col md={this.props.labelColumnWidth} className="text-right">
+          <FormLabel for={this.props.id}>
+            <strong>{this.props.label}</strong>
+            {this.displayRequiredOrOptional()}
+          </FormLabel>
+          <div>{this.showHelpLink()}</div>
         </Col>
         <Col md={this.determineInputColumnWidth()}>
           <FormControl
@@ -77,9 +115,9 @@ class DesignInput extends React.PureComponent {
             data-index={this.props.index}
             id={this.props.id}
             data-testid={this.props.dataTestId}
-            type="text"
+            type={this.props.type ? this.props.type : "text"}
             name={this.props.name}
-            onChange={event => {
+            onChange={(event) => {
               this.props.onChange(event.target.value);
             }}
             value={this.props.value}

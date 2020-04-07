@@ -13,7 +13,7 @@
       const spec = {
   "openapi": "3.0.2",
   "info": {
-    "title": "",
+    "title": "Experimenter API",
     "version": ""
   },
   "paths": {
@@ -71,7 +71,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "public"
+        ]
       }
     },
     "/api/v1/experiments/{slug}/": {
@@ -104,7 +107,8 @@
                         "pref",
                         "addon",
                         "generic",
-                        "rollout"
+                        "rollout",
+                        "message"
                       ]
                     },
                     "name": {
@@ -136,7 +140,8 @@
                       ]
                     },
                     "client_matching": {
-                      "type": "string"
+                      "type": "string",
+                      "nullable": true
                     },
                     "locales": {
                       "type": "array",
@@ -182,7 +187,8 @@
                         "All Windows",
                         "All Mac",
                         "All Linux"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "start_date": {
                       "type": "string"
@@ -207,7 +213,8 @@
                         "Nightly",
                         "Beta",
                         "Release"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "firefox_min_version": {
                       "enum": [
@@ -236,8 +243,29 @@
                         "77.0",
                         "78.0",
                         "79.0",
-                        "80.0"
-                      ]
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
+                      ],
+                      "nullable": true
                     },
                     "firefox_max_version": {
                       "enum": [
@@ -266,7 +294,27 @@
                         "77.0",
                         "78.0",
                         "79.0",
-                        "80.0"
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
                       ],
                       "nullable": true
                     },
@@ -312,6 +360,24 @@
                       "maximum": 1000,
                       "nullable": true,
                       "minimum": 0
+                    },
+                    "normandy_slug": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "normandy_id": {
+                      "type": "integer",
+                      "maximum": 2147483647,
+                      "nullable": true,
+                      "minimum": 0
+                    },
+                    "other_normandy_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      },
+                      "nullable": true
                     },
                     "variants": {
                       "type": "array",
@@ -392,6 +458,10 @@
                         ]
                       }
                     },
+                    "results": {
+                      "type": "string",
+                      "readOnly": true
+                    },
                     "changes": {
                       "type": "array",
                       "items": {
@@ -439,8 +509,6 @@
                     "countries",
                     "start_date",
                     "end_date",
-                    "firefox_channel",
-                    "firefox_min_version",
                     "pref_type",
                     "proposed_start_date",
                     "variants",
@@ -451,7 +519,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "public"
+        ]
       }
     },
     "/api/v1/experiments/": {
@@ -486,7 +557,8 @@
                           "pref",
                           "addon",
                           "generic",
-                          "rollout"
+                          "rollout",
+                          "message"
                         ]
                       },
                       "name": {
@@ -518,7 +590,8 @@
                         ]
                       },
                       "client_matching": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                       },
                       "locales": {
                         "type": "array",
@@ -564,7 +637,8 @@
                           "All Windows",
                           "All Mac",
                           "All Linux"
-                        ]
+                        ],
+                        "nullable": true
                       },
                       "start_date": {
                         "type": "string"
@@ -589,7 +663,8 @@
                           "Nightly",
                           "Beta",
                           "Release"
-                        ]
+                        ],
+                        "nullable": true
                       },
                       "firefox_min_version": {
                         "enum": [
@@ -618,8 +693,29 @@
                           "77.0",
                           "78.0",
                           "79.0",
-                          "80.0"
-                        ]
+                          "80.0",
+                          "81.0",
+                          "82.0",
+                          "83.0",
+                          "84.0",
+                          "85.0",
+                          "86.0",
+                          "87.0",
+                          "88.0",
+                          "89.0",
+                          "90.0",
+                          "91.0",
+                          "92.0",
+                          "93.0",
+                          "94.0",
+                          "95.0",
+                          "96.0",
+                          "97.0",
+                          "98.0",
+                          "99.0",
+                          "100.0"
+                        ],
+                        "nullable": true
                       },
                       "firefox_max_version": {
                         "enum": [
@@ -648,7 +744,27 @@
                           "77.0",
                           "78.0",
                           "79.0",
-                          "80.0"
+                          "80.0",
+                          "81.0",
+                          "82.0",
+                          "83.0",
+                          "84.0",
+                          "85.0",
+                          "86.0",
+                          "87.0",
+                          "88.0",
+                          "89.0",
+                          "90.0",
+                          "91.0",
+                          "92.0",
+                          "93.0",
+                          "94.0",
+                          "95.0",
+                          "96.0",
+                          "97.0",
+                          "98.0",
+                          "99.0",
+                          "100.0"
                         ],
                         "nullable": true
                       },
@@ -694,6 +810,24 @@
                         "maximum": 1000,
                         "nullable": true,
                         "minimum": 0
+                      },
+                      "normandy_slug": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 255
+                      },
+                      "normandy_id": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "nullable": true,
+                        "minimum": 0
+                      },
+                      "other_normandy_ids": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer"
+                        },
+                        "nullable": true
                       },
                       "variants": {
                         "type": "array",
@@ -774,6 +908,10 @@
                           ]
                         }
                       },
+                      "results": {
+                        "type": "string",
+                        "readOnly": true
+                      },
                       "changes": {
                         "type": "array",
                         "items": {
@@ -821,8 +959,6 @@
                       "countries",
                       "start_date",
                       "end_date",
-                      "firefox_channel",
-                      "firefox_min_version",
                       "pref_type",
                       "proposed_start_date",
                       "variants",
@@ -834,10 +970,329 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "public"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/design-addon": {
+    "/api/v2/experiments/{slug}/design-addon-rollout": {
+      "get": {
+        "operationId": "RetrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "rollout_type": {
+                      "enum": [
+                        "pref",
+                        "addon"
+                      ]
+                    },
+                    "design": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "addon_release_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true,
+                      "maxLength": 400,
+                      "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                    }
+                  },
+                  "required": [
+                    "rollout_type",
+                    "addon_release_url"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
+      "put": {
+        "operationId": "UpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "addon_release_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "maxLength": 400,
+                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  }
+                },
+                "required": [
+                  "rollout_type",
+                  "addon_release_url"
+                ]
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "addon_release_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "maxLength": 400,
+                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  }
+                },
+                "required": [
+                  "rollout_type",
+                  "addon_release_url"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "addon_release_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "maxLength": 400,
+                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  }
+                },
+                "required": [
+                  "rollout_type",
+                  "addon_release_url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "rollout_type": {
+                      "enum": [
+                        "pref",
+                        "addon"
+                      ]
+                    },
+                    "design": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "addon_release_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true,
+                      "maxLength": 400,
+                      "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                    }
+                  },
+                  "required": [
+                    "rollout_type",
+                    "addon_release_url"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
+      "patch": {
+        "operationId": "PartialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "addon_release_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "maxLength": 400,
+                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "addon_release_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "maxLength": 400,
+                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "addon_release_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "maxLength": 400,
+                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "rollout_type": {
+                      "enum": [
+                        "pref",
+                        "addon"
+                      ]
+                    },
+                    "design": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "addon_release_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true,
+                      "maxLength": 400,
+                      "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                    }
+                  },
+                  "required": [
+                    "rollout_type",
+                    "addon_release_url"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      }
+    },
+    "/api/v2/experiments/{slug}/design-addon": {
       "get": {
         "operationId": "RetrieveExperiment",
         "description": "",
@@ -907,7 +1362,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "put": {
         "operationId": "UpdateExperiment",
@@ -1129,7 +1587,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -1336,10 +1797,554 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/design-pref": {
+    "/api/v2/experiments/{slug}/design-pref-rollout": {
+      "get": {
+        "operationId": "RetrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "rollout_type": {
+                      "enum": [
+                        "pref",
+                        "addon"
+                      ]
+                    },
+                    "design": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "preferences": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "pref_name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "pref_type": {
+                            "enum": [
+                              null,
+                              "boolean",
+                              "integer",
+                              "string",
+                              "json string"
+                            ]
+                          },
+                          "pref_value": {
+                            "type": "string",
+                            "maxLength": 255
+                          }
+                        },
+                        "required": [
+                          "pref_name",
+                          "pref_type",
+                          "pref_value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "rollout_type",
+                    "preferences"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
+      "put": {
+        "operationId": "UpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "preferences": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "pref_name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_type": {
+                          "enum": [
+                            null,
+                            "boolean",
+                            "integer",
+                            "string",
+                            "json string"
+                          ]
+                        },
+                        "pref_value": {
+                          "type": "string",
+                          "maxLength": 255
+                        }
+                      },
+                      "required": [
+                        "pref_name",
+                        "pref_type",
+                        "pref_value"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "rollout_type",
+                  "preferences"
+                ]
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "preferences": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "pref_name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_type": {
+                          "enum": [
+                            null,
+                            "boolean",
+                            "integer",
+                            "string",
+                            "json string"
+                          ]
+                        },
+                        "pref_value": {
+                          "type": "string",
+                          "maxLength": 255
+                        }
+                      },
+                      "required": [
+                        "pref_name",
+                        "pref_type",
+                        "pref_value"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "rollout_type",
+                  "preferences"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "preferences": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "pref_name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_type": {
+                          "enum": [
+                            null,
+                            "boolean",
+                            "integer",
+                            "string",
+                            "json string"
+                          ]
+                        },
+                        "pref_value": {
+                          "type": "string",
+                          "maxLength": 255
+                        }
+                      },
+                      "required": [
+                        "pref_name",
+                        "pref_type",
+                        "pref_value"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "rollout_type",
+                  "preferences"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "rollout_type": {
+                      "enum": [
+                        "pref",
+                        "addon"
+                      ]
+                    },
+                    "design": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "preferences": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "pref_name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "pref_type": {
+                            "enum": [
+                              null,
+                              "boolean",
+                              "integer",
+                              "string",
+                              "json string"
+                            ]
+                          },
+                          "pref_value": {
+                            "type": "string",
+                            "maxLength": 255
+                          }
+                        },
+                        "required": [
+                          "pref_name",
+                          "pref_type",
+                          "pref_value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "rollout_type",
+                    "preferences"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
+      "patch": {
+        "operationId": "PartialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "preferences": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "pref_name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_type": {
+                          "enum": [
+                            null,
+                            "boolean",
+                            "integer",
+                            "string",
+                            "json string"
+                          ]
+                        },
+                        "pref_value": {
+                          "type": "string",
+                          "maxLength": 255
+                        }
+                      },
+                      "required": [
+                        "pref_name",
+                        "pref_type",
+                        "pref_value"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "preferences": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "pref_name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_type": {
+                          "enum": [
+                            null,
+                            "boolean",
+                            "integer",
+                            "string",
+                            "json string"
+                          ]
+                        },
+                        "pref_value": {
+                          "type": "string",
+                          "maxLength": 255
+                        }
+                      },
+                      "required": [
+                        "pref_name",
+                        "pref_type",
+                        "pref_value"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "rollout_type": {
+                    "enum": [
+                      "pref",
+                      "addon"
+                    ]
+                  },
+                  "design": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "preferences": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "pref_name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "pref_type": {
+                          "enum": [
+                            null,
+                            "boolean",
+                            "integer",
+                            "string",
+                            "json string"
+                          ]
+                        },
+                        "pref_value": {
+                          "type": "string",
+                          "maxLength": 255
+                        }
+                      },
+                      "required": [
+                        "pref_name",
+                        "pref_type",
+                        "pref_value"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "rollout_type": {
+                      "enum": [
+                        "pref",
+                        "addon"
+                      ]
+                    },
+                    "design": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "preferences": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "pref_name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "pref_type": {
+                            "enum": [
+                              null,
+                              "boolean",
+                              "integer",
+                              "string",
+                              "json string"
+                            ]
+                          },
+                          "pref_value": {
+                            "type": "string",
+                            "maxLength": 255
+                          }
+                        },
+                        "required": [
+                          "pref_name",
+                          "pref_type",
+                          "pref_value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "rollout_type",
+                    "preferences"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      }
+    },
+    "/api/v2/experiments/{slug}/design-pref": {
       "get": {
         "operationId": "RetrieveExperiment",
         "description": "",
@@ -1421,7 +2426,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "put": {
         "operationId": "UpdateExperiment",
@@ -1691,7 +2699,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -1940,10 +2951,13 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/design-multi-pref": {
+    "/api/v2/experiments/{slug}/design-multi-pref": {
       "get": {
         "operationId": "RetrieveExperiment",
         "description": "",
@@ -1999,12 +3013,20 @@
                                   "maxLength": 255
                                 },
                                 "pref_type": {
-                                  "type": "string",
-                                  "maxLength": 255
+                                  "enum": [
+                                    null,
+                                    "boolean",
+                                    "integer",
+                                    "string",
+                                    "json string"
+                                  ]
                                 },
                                 "pref_branch": {
-                                  "type": "string",
-                                  "maxLength": 255
+                                  "enum": [
+                                    null,
+                                    "default",
+                                    "user"
+                                  ]
                                 },
                                 "pref_value": {
                                   "type": "string",
@@ -2039,7 +3061,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "put": {
         "operationId": "UpdateExperiment",
@@ -2095,12 +3120,20 @@
                                 "maxLength": 255
                               },
                               "pref_type": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "boolean",
+                                  "integer",
+                                  "string",
+                                  "json string"
+                                ]
                               },
                               "pref_branch": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "default",
+                                  "user"
+                                ]
                               },
                               "pref_value": {
                                 "type": "string",
@@ -2170,12 +3203,20 @@
                                 "maxLength": 255
                               },
                               "pref_type": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "boolean",
+                                  "integer",
+                                  "string",
+                                  "json string"
+                                ]
                               },
                               "pref_branch": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "default",
+                                  "user"
+                                ]
                               },
                               "pref_value": {
                                 "type": "string",
@@ -2245,12 +3286,20 @@
                                 "maxLength": 255
                               },
                               "pref_type": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "boolean",
+                                  "integer",
+                                  "string",
+                                  "json string"
+                                ]
                               },
                               "pref_branch": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "default",
+                                  "user"
+                                ]
                               },
                               "pref_value": {
                                 "type": "string",
@@ -2325,12 +3374,20 @@
                                   "maxLength": 255
                                 },
                                 "pref_type": {
-                                  "type": "string",
-                                  "maxLength": 255
+                                  "enum": [
+                                    null,
+                                    "boolean",
+                                    "integer",
+                                    "string",
+                                    "json string"
+                                  ]
                                 },
                                 "pref_branch": {
-                                  "type": "string",
-                                  "maxLength": 255
+                                  "enum": [
+                                    null,
+                                    "default",
+                                    "user"
+                                  ]
                                 },
                                 "pref_value": {
                                   "type": "string",
@@ -2365,7 +3422,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -2421,12 +3481,20 @@
                                 "maxLength": 255
                               },
                               "pref_type": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "boolean",
+                                  "integer",
+                                  "string",
+                                  "json string"
+                                ]
                               },
                               "pref_branch": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "default",
+                                  "user"
+                                ]
                               },
                               "pref_value": {
                                 "type": "string",
@@ -2492,12 +3560,20 @@
                                 "maxLength": 255
                               },
                               "pref_type": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "boolean",
+                                  "integer",
+                                  "string",
+                                  "json string"
+                                ]
                               },
                               "pref_branch": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "default",
+                                  "user"
+                                ]
                               },
                               "pref_value": {
                                 "type": "string",
@@ -2563,12 +3639,20 @@
                                 "maxLength": 255
                               },
                               "pref_type": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "boolean",
+                                  "integer",
+                                  "string",
+                                  "json string"
+                                ]
                               },
                               "pref_branch": {
-                                "type": "string",
-                                "maxLength": 255
+                                "enum": [
+                                  null,
+                                  "default",
+                                  "user"
+                                ]
                               },
                               "pref_value": {
                                 "type": "string",
@@ -2639,12 +3723,20 @@
                                   "maxLength": 255
                                 },
                                 "pref_type": {
-                                  "type": "string",
-                                  "maxLength": 255
+                                  "enum": [
+                                    null,
+                                    "boolean",
+                                    "integer",
+                                    "string",
+                                    "json string"
+                                  ]
                                 },
                                 "pref_branch": {
-                                  "type": "string",
-                                  "maxLength": 255
+                                  "enum": [
+                                    null,
+                                    "default",
+                                    "user"
+                                  ]
                                 },
                                 "pref_value": {
                                   "type": "string",
@@ -2679,10 +3771,13 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/design-generic": {
+    "/api/v2/experiments/{slug}/design-generic": {
       "get": {
         "operationId": "RetrieveExperiment",
         "description": "",
@@ -2745,7 +3840,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "put": {
         "operationId": "UpdateExperiment",
@@ -2939,7 +4037,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -3124,10 +4225,13 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/design-branched-addon": {
+    "/api/v2/experiments/{slug}/design-branched-addon": {
       "get": {
         "operationId": "RetrieveExperiment",
         "description": "",
@@ -3197,7 +4301,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "put": {
         "operationId": "UpdateExperiment",
@@ -3419,7 +4526,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -3629,10 +4739,13 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/design-rollout": {
+    "/api/v2/experiments/{slug}/timeline-population": {
       "get": {
         "operationId": "RetrieveExperiment",
         "description": "",
@@ -3653,52 +4766,206 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "rollout_type": {
-                      "enum": [
-                        "pref",
-                        "addon"
-                      ]
-                    },
-                    "design": {
+                    "proposed_start_date": {
                       "type": "string",
+                      "format": "date",
                       "nullable": true
                     },
-                    "addon_release_url": {
-                      "type": "string",
-                      "format": "uri",
-                      "nullable": true,
-                      "maxLength": 400,
-                      "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                    "proposed_enrollment": {
+                      "type": "integer",
+                      "nullable": true
                     },
-                    "pref_name": {
-                      "type": "string",
-                      "nullable": true,
-                      "maxLength": 255
-                    },
-                    "pref_type": {
+                    "rollout_playbook": {
                       "enum": [
                         null,
-                        "boolean",
-                        "integer",
-                        "string",
-                        "json string"
+                        "low_risk",
+                        "high_risk",
+                        "marketing",
+                        "custom"
                       ],
                       "nullable": true
                     },
-                    "pref_value": {
+                    "proposed_duration": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "population_percent": {
+                      "type": "number",
+                      "multipleOf": 0.0001,
+                      "maximum": 100.0,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "firefox_channel": {
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ],
+                      "nullable": true
+                    },
+                    "firefox_min_version": {
+                      "enum": [
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
+                      ],
+                      "nullable": true
+                    },
+                    "firefox_max_version": {
+                      "enum": [
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
+                      ],
+                      "nullable": true
+                    },
+                    "locales": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "value"
+                        ]
+                      },
+                      "nullable": true
+                    },
+                    "countries": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "value"
+                        ]
+                      },
+                      "nullable": true
+                    },
+                    "platform": {
+                      "enum": [
+                        "All Platforms",
+                        "All Windows",
+                        "All Mac",
+                        "All Linux"
+                      ],
+                      "nullable": true
+                    },
+                    "client_matching": {
                       "type": "string",
                       "nullable": true
                     }
-                  },
-                  "required": [
-                    "rollout_type"
-                  ]
+                  }
                 }
               }
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "put": {
         "operationId": "UpdateExperiment",
@@ -3719,136 +4986,589 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "rollout_type": {
-                    "enum": [
-                      "pref",
-                      "addon"
-                    ]
-                  },
-                  "design": {
+                  "proposed_start_date": {
                     "type": "string",
+                    "format": "date",
                     "nullable": true
                   },
-                  "addon_release_url": {
-                    "type": "string",
-                    "format": "uri",
-                    "nullable": true,
-                    "maxLength": 400,
-                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  "proposed_enrollment": {
+                    "type": "integer",
+                    "nullable": true
                   },
-                  "pref_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
-                  "pref_type": {
+                  "rollout_playbook": {
                     "enum": [
                       null,
-                      "boolean",
-                      "integer",
-                      "string",
-                      "json string"
+                      "low_risk",
+                      "high_risk",
+                      "marketing",
+                      "custom"
                     ],
                     "nullable": true
                   },
-                  "pref_value": {
+                  "proposed_duration": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "population_percent": {
+                    "type": "number",
+                    "multipleOf": 0.0001,
+                    "maximum": 100.0,
+                    "minimum": 0,
+                    "nullable": true
+                  },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ],
+                    "nullable": true
+                  },
+                  "firefox_min_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
+                  },
+                  "firefox_max_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
+                  },
+                  "locales": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "platform": {
+                    "enum": [
+                      "All Platforms",
+                      "All Windows",
+                      "All Mac",
+                      "All Linux"
+                    ],
+                    "nullable": true
+                  },
+                  "client_matching": {
                     "type": "string",
                     "nullable": true
                   }
-                },
-                "required": [
-                  "rollout_type"
-                ]
+                }
               }
             },
             "application/x-www-form-urlencoded": {
               "schema": {
                 "properties": {
-                  "rollout_type": {
-                    "enum": [
-                      "pref",
-                      "addon"
-                    ]
-                  },
-                  "design": {
+                  "proposed_start_date": {
                     "type": "string",
+                    "format": "date",
                     "nullable": true
                   },
-                  "addon_release_url": {
-                    "type": "string",
-                    "format": "uri",
-                    "nullable": true,
-                    "maxLength": 400,
-                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  "proposed_enrollment": {
+                    "type": "integer",
+                    "nullable": true
                   },
-                  "pref_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
-                  "pref_type": {
+                  "rollout_playbook": {
                     "enum": [
                       null,
-                      "boolean",
-                      "integer",
-                      "string",
-                      "json string"
+                      "low_risk",
+                      "high_risk",
+                      "marketing",
+                      "custom"
                     ],
                     "nullable": true
                   },
-                  "pref_value": {
+                  "proposed_duration": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "population_percent": {
+                    "type": "number",
+                    "multipleOf": 0.0001,
+                    "maximum": 100.0,
+                    "minimum": 0,
+                    "nullable": true
+                  },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ],
+                    "nullable": true
+                  },
+                  "firefox_min_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
+                  },
+                  "firefox_max_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
+                  },
+                  "locales": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "platform": {
+                    "enum": [
+                      "All Platforms",
+                      "All Windows",
+                      "All Mac",
+                      "All Linux"
+                    ],
+                    "nullable": true
+                  },
+                  "client_matching": {
                     "type": "string",
                     "nullable": true
                   }
-                },
-                "required": [
-                  "rollout_type"
-                ]
+                }
               }
             },
             "multipart/form-data": {
               "schema": {
                 "properties": {
-                  "rollout_type": {
-                    "enum": [
-                      "pref",
-                      "addon"
-                    ]
-                  },
-                  "design": {
+                  "proposed_start_date": {
                     "type": "string",
+                    "format": "date",
                     "nullable": true
                   },
-                  "addon_release_url": {
-                    "type": "string",
-                    "format": "uri",
-                    "nullable": true,
-                    "maxLength": 400,
-                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  "proposed_enrollment": {
+                    "type": "integer",
+                    "nullable": true
                   },
-                  "pref_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
-                  "pref_type": {
+                  "rollout_playbook": {
                     "enum": [
                       null,
-                      "boolean",
-                      "integer",
-                      "string",
-                      "json string"
+                      "low_risk",
+                      "high_risk",
+                      "marketing",
+                      "custom"
                     ],
                     "nullable": true
                   },
-                  "pref_value": {
+                  "proposed_duration": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "population_percent": {
+                    "type": "number",
+                    "multipleOf": 0.0001,
+                    "maximum": 100.0,
+                    "minimum": 0,
+                    "nullable": true
+                  },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ],
+                    "nullable": true
+                  },
+                  "firefox_min_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
+                  },
+                  "firefox_max_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
+                  },
+                  "locales": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "platform": {
+                    "enum": [
+                      "All Platforms",
+                      "All Windows",
+                      "All Mac",
+                      "All Linux"
+                    ],
+                    "nullable": true
+                  },
+                  "client_matching": {
                     "type": "string",
                     "nullable": true
                   }
-                },
-                "required": [
-                  "rollout_type"
-                ]
+                }
               }
             }
           }
@@ -3859,52 +5579,206 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "rollout_type": {
-                      "enum": [
-                        "pref",
-                        "addon"
-                      ]
-                    },
-                    "design": {
+                    "proposed_start_date": {
                       "type": "string",
+                      "format": "date",
                       "nullable": true
                     },
-                    "addon_release_url": {
-                      "type": "string",
-                      "format": "uri",
-                      "nullable": true,
-                      "maxLength": 400,
-                      "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                    "proposed_enrollment": {
+                      "type": "integer",
+                      "nullable": true
                     },
-                    "pref_name": {
-                      "type": "string",
-                      "nullable": true,
-                      "maxLength": 255
-                    },
-                    "pref_type": {
+                    "rollout_playbook": {
                       "enum": [
                         null,
-                        "boolean",
-                        "integer",
-                        "string",
-                        "json string"
+                        "low_risk",
+                        "high_risk",
+                        "marketing",
+                        "custom"
                       ],
                       "nullable": true
                     },
-                    "pref_value": {
+                    "proposed_duration": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "population_percent": {
+                      "type": "number",
+                      "multipleOf": 0.0001,
+                      "maximum": 100.0,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "firefox_channel": {
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ],
+                      "nullable": true
+                    },
+                    "firefox_min_version": {
+                      "enum": [
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
+                      ],
+                      "nullable": true
+                    },
+                    "firefox_max_version": {
+                      "enum": [
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
+                      ],
+                      "nullable": true
+                    },
+                    "locales": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "value"
+                        ]
+                      },
+                      "nullable": true
+                    },
+                    "countries": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "value"
+                        ]
+                      },
+                      "nullable": true
+                    },
+                    "platform": {
+                      "enum": [
+                        "All Platforms",
+                        "All Windows",
+                        "All Mac",
+                        "All Linux"
+                      ],
+                      "nullable": true
+                    },
+                    "client_matching": {
                       "type": "string",
                       "nullable": true
                     }
-                  },
-                  "required": [
-                    "rollout_type"
-                  ]
+                  }
                 }
               }
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -3925,39 +5799,193 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "rollout_type": {
-                    "enum": [
-                      "pref",
-                      "addon"
-                    ]
-                  },
-                  "design": {
+                  "proposed_start_date": {
                     "type": "string",
+                    "format": "date",
                     "nullable": true
                   },
-                  "addon_release_url": {
-                    "type": "string",
-                    "format": "uri",
-                    "nullable": true,
-                    "maxLength": 400,
-                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  "proposed_enrollment": {
+                    "type": "integer",
+                    "nullable": true
                   },
-                  "pref_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
-                  "pref_type": {
+                  "rollout_playbook": {
                     "enum": [
                       null,
-                      "boolean",
-                      "integer",
-                      "string",
-                      "json string"
+                      "low_risk",
+                      "high_risk",
+                      "marketing",
+                      "custom"
                     ],
                     "nullable": true
                   },
-                  "pref_value": {
+                  "proposed_duration": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "population_percent": {
+                    "type": "number",
+                    "multipleOf": 0.0001,
+                    "maximum": 100.0,
+                    "minimum": 0,
+                    "nullable": true
+                  },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ],
+                    "nullable": true
+                  },
+                  "firefox_min_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
+                  },
+                  "firefox_max_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
+                  },
+                  "locales": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "platform": {
+                    "enum": [
+                      "All Platforms",
+                      "All Windows",
+                      "All Mac",
+                      "All Linux"
+                    ],
+                    "nullable": true
+                  },
+                  "client_matching": {
                     "type": "string",
                     "nullable": true
                   }
@@ -3967,39 +5995,193 @@
             "application/x-www-form-urlencoded": {
               "schema": {
                 "properties": {
-                  "rollout_type": {
-                    "enum": [
-                      "pref",
-                      "addon"
-                    ]
-                  },
-                  "design": {
+                  "proposed_start_date": {
                     "type": "string",
+                    "format": "date",
                     "nullable": true
                   },
-                  "addon_release_url": {
-                    "type": "string",
-                    "format": "uri",
-                    "nullable": true,
-                    "maxLength": 400,
-                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  "proposed_enrollment": {
+                    "type": "integer",
+                    "nullable": true
                   },
-                  "pref_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
-                  "pref_type": {
+                  "rollout_playbook": {
                     "enum": [
                       null,
-                      "boolean",
-                      "integer",
-                      "string",
-                      "json string"
+                      "low_risk",
+                      "high_risk",
+                      "marketing",
+                      "custom"
                     ],
                     "nullable": true
                   },
-                  "pref_value": {
+                  "proposed_duration": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "population_percent": {
+                    "type": "number",
+                    "multipleOf": 0.0001,
+                    "maximum": 100.0,
+                    "minimum": 0,
+                    "nullable": true
+                  },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ],
+                    "nullable": true
+                  },
+                  "firefox_min_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
+                  },
+                  "firefox_max_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
+                  },
+                  "locales": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "platform": {
+                    "enum": [
+                      "All Platforms",
+                      "All Windows",
+                      "All Mac",
+                      "All Linux"
+                    ],
+                    "nullable": true
+                  },
+                  "client_matching": {
                     "type": "string",
                     "nullable": true
                   }
@@ -4009,39 +6191,193 @@
             "multipart/form-data": {
               "schema": {
                 "properties": {
-                  "rollout_type": {
-                    "enum": [
-                      "pref",
-                      "addon"
-                    ]
-                  },
-                  "design": {
+                  "proposed_start_date": {
                     "type": "string",
+                    "format": "date",
                     "nullable": true
                   },
-                  "addon_release_url": {
-                    "type": "string",
-                    "format": "uri",
-                    "nullable": true,
-                    "maxLength": 400,
-                    "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  "proposed_enrollment": {
+                    "type": "integer",
+                    "nullable": true
                   },
-                  "pref_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
-                  "pref_type": {
+                  "rollout_playbook": {
                     "enum": [
                       null,
-                      "boolean",
-                      "integer",
-                      "string",
-                      "json string"
+                      "low_risk",
+                      "high_risk",
+                      "marketing",
+                      "custom"
                     ],
                     "nullable": true
                   },
-                  "pref_value": {
+                  "proposed_duration": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "population_percent": {
+                    "type": "number",
+                    "multipleOf": 0.0001,
+                    "maximum": 100.0,
+                    "minimum": 0,
+                    "nullable": true
+                  },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ],
+                    "nullable": true
+                  },
+                  "firefox_min_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
+                  },
+                  "firefox_max_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
+                  },
+                  "locales": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "nullable": true
+                  },
+                  "platform": {
+                    "enum": [
+                      "All Platforms",
+                      "All Windows",
+                      "All Mac",
+                      "All Linux"
+                    ],
+                    "nullable": true
+                  },
+                  "client_matching": {
                     "type": "string",
                     "nullable": true
                   }
@@ -4056,55 +6392,209 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "rollout_type": {
-                      "enum": [
-                        "pref",
-                        "addon"
-                      ]
-                    },
-                    "design": {
+                    "proposed_start_date": {
                       "type": "string",
+                      "format": "date",
                       "nullable": true
                     },
-                    "addon_release_url": {
-                      "type": "string",
-                      "format": "uri",
-                      "nullable": true,
-                      "maxLength": 400,
-                      "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                    "proposed_enrollment": {
+                      "type": "integer",
+                      "nullable": true
                     },
-                    "pref_name": {
-                      "type": "string",
-                      "nullable": true,
-                      "maxLength": 255
-                    },
-                    "pref_type": {
+                    "rollout_playbook": {
                       "enum": [
                         null,
-                        "boolean",
-                        "integer",
-                        "string",
-                        "json string"
+                        "low_risk",
+                        "high_risk",
+                        "marketing",
+                        "custom"
                       ],
                       "nullable": true
                     },
-                    "pref_value": {
+                    "proposed_duration": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "population_percent": {
+                      "type": "number",
+                      "multipleOf": 0.0001,
+                      "maximum": 100.0,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "firefox_channel": {
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ],
+                      "nullable": true
+                    },
+                    "firefox_min_version": {
+                      "enum": [
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
+                      ],
+                      "nullable": true
+                    },
+                    "firefox_max_version": {
+                      "enum": [
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
+                      ],
+                      "nullable": true
+                    },
+                    "locales": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "value"
+                        ]
+                      },
+                      "nullable": true
+                    },
+                    "countries": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "value"
+                        ]
+                      },
+                      "nullable": true
+                    },
+                    "platform": {
+                      "enum": [
+                        "All Platforms",
+                        "All Windows",
+                        "All Mac",
+                        "All Linux"
+                      ],
+                      "nullable": true
+                    },
+                    "client_matching": {
                       "type": "string",
                       "nullable": true
                     }
-                  },
-                  "required": [
-                    "rollout_type"
-                  ]
+                  }
                 }
               }
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/intent-to-ship-email": {
+    "/api/v2/experiments/{slug}/intent-to-ship-email": {
       "put": {
         "operationId": "UpdateExperiment",
         "description": "",
@@ -4129,7 +6619,8 @@
                       "pref",
                       "addon",
                       "generic",
-                      "rollout"
+                      "rollout",
+                      "message"
                     ]
                   },
                   "name": {
@@ -4161,7 +6652,8 @@
                     ]
                   },
                   "client_matching": {
-                    "type": "string"
+                    "type": "string",
+                    "nullable": true
                   },
                   "locales": {
                     "type": "array",
@@ -4207,7 +6699,8 @@
                       "All Windows",
                       "All Mac",
                       "All Linux"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "start_date": {
                     "type": "string"
@@ -4228,7 +6721,8 @@
                       "Nightly",
                       "Beta",
                       "Release"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_min_version": {
                     "enum": [
@@ -4257,8 +6751,29 @@
                       "77.0",
                       "78.0",
                       "79.0",
-                      "80.0"
-                    ]
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
                   },
                   "firefox_max_version": {
                     "enum": [
@@ -4287,7 +6802,27 @@
                       "77.0",
                       "78.0",
                       "79.0",
-                      "80.0"
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
                     ],
                     "nullable": true
                   },
@@ -4333,6 +6868,24 @@
                     "maximum": 1000,
                     "nullable": true,
                     "minimum": 0
+                  },
+                  "normandy_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "normandy_id": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "nullable": true,
+                    "minimum": 0
+                  },
+                  "other_normandy_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "nullable": true
                   },
                   "variants": {
                     "type": "array",
@@ -4460,8 +7013,6 @@
                   "countries",
                   "start_date",
                   "end_date",
-                  "firefox_channel",
-                  "firefox_min_version",
                   "pref_type",
                   "proposed_start_date",
                   "variants",
@@ -4477,7 +7028,8 @@
                       "pref",
                       "addon",
                       "generic",
-                      "rollout"
+                      "rollout",
+                      "message"
                     ]
                   },
                   "name": {
@@ -4509,7 +7061,8 @@
                     ]
                   },
                   "client_matching": {
-                    "type": "string"
+                    "type": "string",
+                    "nullable": true
                   },
                   "locales": {
                     "type": "array",
@@ -4555,7 +7108,8 @@
                       "All Windows",
                       "All Mac",
                       "All Linux"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "start_date": {
                     "type": "string"
@@ -4576,7 +7130,8 @@
                       "Nightly",
                       "Beta",
                       "Release"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_min_version": {
                     "enum": [
@@ -4605,8 +7160,29 @@
                       "77.0",
                       "78.0",
                       "79.0",
-                      "80.0"
-                    ]
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
                   },
                   "firefox_max_version": {
                     "enum": [
@@ -4635,7 +7211,27 @@
                       "77.0",
                       "78.0",
                       "79.0",
-                      "80.0"
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
                     ],
                     "nullable": true
                   },
@@ -4681,6 +7277,24 @@
                     "maximum": 1000,
                     "nullable": true,
                     "minimum": 0
+                  },
+                  "normandy_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "normandy_id": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "nullable": true,
+                    "minimum": 0
+                  },
+                  "other_normandy_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "nullable": true
                   },
                   "variants": {
                     "type": "array",
@@ -4808,8 +7422,6 @@
                   "countries",
                   "start_date",
                   "end_date",
-                  "firefox_channel",
-                  "firefox_min_version",
                   "pref_type",
                   "proposed_start_date",
                   "variants",
@@ -4825,7 +7437,8 @@
                       "pref",
                       "addon",
                       "generic",
-                      "rollout"
+                      "rollout",
+                      "message"
                     ]
                   },
                   "name": {
@@ -4857,7 +7470,8 @@
                     ]
                   },
                   "client_matching": {
-                    "type": "string"
+                    "type": "string",
+                    "nullable": true
                   },
                   "locales": {
                     "type": "array",
@@ -4903,7 +7517,8 @@
                       "All Windows",
                       "All Mac",
                       "All Linux"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "start_date": {
                     "type": "string"
@@ -4924,7 +7539,8 @@
                       "Nightly",
                       "Beta",
                       "Release"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_min_version": {
                     "enum": [
@@ -4953,8 +7569,29 @@
                       "77.0",
                       "78.0",
                       "79.0",
-                      "80.0"
-                    ]
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
                   },
                   "firefox_max_version": {
                     "enum": [
@@ -4983,7 +7620,27 @@
                       "77.0",
                       "78.0",
                       "79.0",
-                      "80.0"
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
                     ],
                     "nullable": true
                   },
@@ -5029,6 +7686,24 @@
                     "maximum": 1000,
                     "nullable": true,
                     "minimum": 0
+                  },
+                  "normandy_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "normandy_id": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "nullable": true,
+                    "minimum": 0
+                  },
+                  "other_normandy_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "nullable": true
                   },
                   "variants": {
                     "type": "array",
@@ -5156,8 +7831,6 @@
                   "countries",
                   "start_date",
                   "end_date",
-                  "firefox_channel",
-                  "firefox_min_version",
                   "pref_type",
                   "proposed_start_date",
                   "variants",
@@ -5182,7 +7855,8 @@
                         "pref",
                         "addon",
                         "generic",
-                        "rollout"
+                        "rollout",
+                        "message"
                       ]
                     },
                     "name": {
@@ -5214,7 +7888,8 @@
                       ]
                     },
                     "client_matching": {
-                      "type": "string"
+                      "type": "string",
+                      "nullable": true
                     },
                     "locales": {
                       "type": "array",
@@ -5260,7 +7935,8 @@
                         "All Windows",
                         "All Mac",
                         "All Linux"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "start_date": {
                       "type": "string"
@@ -5285,7 +7961,8 @@
                         "Nightly",
                         "Beta",
                         "Release"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "firefox_min_version": {
                       "enum": [
@@ -5314,8 +7991,29 @@
                         "77.0",
                         "78.0",
                         "79.0",
-                        "80.0"
-                      ]
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
+                      ],
+                      "nullable": true
                     },
                     "firefox_max_version": {
                       "enum": [
@@ -5344,7 +8042,27 @@
                         "77.0",
                         "78.0",
                         "79.0",
-                        "80.0"
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
                       ],
                       "nullable": true
                     },
@@ -5390,6 +8108,24 @@
                       "maximum": 1000,
                       "nullable": true,
                       "minimum": 0
+                    },
+                    "normandy_slug": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "normandy_id": {
+                      "type": "integer",
+                      "maximum": 2147483647,
+                      "nullable": true,
+                      "minimum": 0
+                    },
+                    "other_normandy_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      },
+                      "nullable": true
                     },
                     "variants": {
                       "type": "array",
@@ -5470,6 +8206,10 @@
                         ]
                       }
                     },
+                    "results": {
+                      "type": "string",
+                      "readOnly": true
+                    },
                     "changes": {
                       "type": "array",
                       "items": {
@@ -5517,8 +8257,6 @@
                     "countries",
                     "start_date",
                     "end_date",
-                    "firefox_channel",
-                    "firefox_min_version",
                     "pref_type",
                     "proposed_start_date",
                     "variants",
@@ -5529,7 +8267,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -5555,7 +8296,8 @@
                       "pref",
                       "addon",
                       "generic",
-                      "rollout"
+                      "rollout",
+                      "message"
                     ]
                   },
                   "name": {
@@ -5587,7 +8329,8 @@
                     ]
                   },
                   "client_matching": {
-                    "type": "string"
+                    "type": "string",
+                    "nullable": true
                   },
                   "locales": {
                     "type": "array",
@@ -5633,7 +8376,8 @@
                       "All Windows",
                       "All Mac",
                       "All Linux"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "start_date": {
                     "type": "string"
@@ -5654,7 +8398,8 @@
                       "Nightly",
                       "Beta",
                       "Release"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_min_version": {
                     "enum": [
@@ -5683,8 +8428,29 @@
                       "77.0",
                       "78.0",
                       "79.0",
-                      "80.0"
-                    ]
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
                   },
                   "firefox_max_version": {
                     "enum": [
@@ -5713,7 +8479,27 @@
                       "77.0",
                       "78.0",
                       "79.0",
-                      "80.0"
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
                     ],
                     "nullable": true
                   },
@@ -5759,6 +8545,24 @@
                     "maximum": 1000,
                     "nullable": true,
                     "minimum": 0
+                  },
+                  "normandy_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "normandy_id": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "nullable": true,
+                    "minimum": 0
+                  },
+                  "other_normandy_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "nullable": true
                   },
                   "variants": {
                     "type": "array",
@@ -5889,7 +8693,8 @@
                       "pref",
                       "addon",
                       "generic",
-                      "rollout"
+                      "rollout",
+                      "message"
                     ]
                   },
                   "name": {
@@ -5921,7 +8726,8 @@
                     ]
                   },
                   "client_matching": {
-                    "type": "string"
+                    "type": "string",
+                    "nullable": true
                   },
                   "locales": {
                     "type": "array",
@@ -5967,7 +8773,8 @@
                       "All Windows",
                       "All Mac",
                       "All Linux"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "start_date": {
                     "type": "string"
@@ -5988,7 +8795,8 @@
                       "Nightly",
                       "Beta",
                       "Release"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_min_version": {
                     "enum": [
@@ -6017,8 +8825,29 @@
                       "77.0",
                       "78.0",
                       "79.0",
-                      "80.0"
-                    ]
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
                   },
                   "firefox_max_version": {
                     "enum": [
@@ -6047,7 +8876,27 @@
                       "77.0",
                       "78.0",
                       "79.0",
-                      "80.0"
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
                     ],
                     "nullable": true
                   },
@@ -6093,6 +8942,24 @@
                     "maximum": 1000,
                     "nullable": true,
                     "minimum": 0
+                  },
+                  "normandy_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "normandy_id": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "nullable": true,
+                    "minimum": 0
+                  },
+                  "other_normandy_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "nullable": true
                   },
                   "variants": {
                     "type": "array",
@@ -6223,7 +9090,8 @@
                       "pref",
                       "addon",
                       "generic",
-                      "rollout"
+                      "rollout",
+                      "message"
                     ]
                   },
                   "name": {
@@ -6255,7 +9123,8 @@
                     ]
                   },
                   "client_matching": {
-                    "type": "string"
+                    "type": "string",
+                    "nullable": true
                   },
                   "locales": {
                     "type": "array",
@@ -6301,7 +9170,8 @@
                       "All Windows",
                       "All Mac",
                       "All Linux"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "start_date": {
                     "type": "string"
@@ -6322,7 +9192,8 @@
                       "Nightly",
                       "Beta",
                       "Release"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "firefox_min_version": {
                     "enum": [
@@ -6351,8 +9222,29 @@
                       "77.0",
                       "78.0",
                       "79.0",
-                      "80.0"
-                    ]
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ],
+                    "nullable": true
                   },
                   "firefox_max_version": {
                     "enum": [
@@ -6381,7 +9273,27 @@
                       "77.0",
                       "78.0",
                       "79.0",
-                      "80.0"
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
                     ],
                     "nullable": true
                   },
@@ -6427,6 +9339,24 @@
                     "maximum": 1000,
                     "nullable": true,
                     "minimum": 0
+                  },
+                  "normandy_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "normandy_id": {
+                    "type": "integer",
+                    "maximum": 2147483647,
+                    "nullable": true,
+                    "minimum": 0
+                  },
+                  "other_normandy_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "nullable": true
                   },
                   "variants": {
                     "type": "array",
@@ -6566,7 +9496,8 @@
                         "pref",
                         "addon",
                         "generic",
-                        "rollout"
+                        "rollout",
+                        "message"
                       ]
                     },
                     "name": {
@@ -6598,7 +9529,8 @@
                       ]
                     },
                     "client_matching": {
-                      "type": "string"
+                      "type": "string",
+                      "nullable": true
                     },
                     "locales": {
                       "type": "array",
@@ -6644,7 +9576,8 @@
                         "All Windows",
                         "All Mac",
                         "All Linux"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "start_date": {
                       "type": "string"
@@ -6669,7 +9602,8 @@
                         "Nightly",
                         "Beta",
                         "Release"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "firefox_min_version": {
                       "enum": [
@@ -6698,8 +9632,29 @@
                         "77.0",
                         "78.0",
                         "79.0",
-                        "80.0"
-                      ]
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
+                      ],
+                      "nullable": true
                     },
                     "firefox_max_version": {
                       "enum": [
@@ -6728,7 +9683,27 @@
                         "77.0",
                         "78.0",
                         "79.0",
-                        "80.0"
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
                       ],
                       "nullable": true
                     },
@@ -6774,6 +9749,24 @@
                       "maximum": 1000,
                       "nullable": true,
                       "minimum": 0
+                    },
+                    "normandy_slug": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "normandy_id": {
+                      "type": "integer",
+                      "maximum": 2147483647,
+                      "nullable": true,
+                      "minimum": 0
+                    },
+                    "other_normandy_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      },
+                      "nullable": true
                     },
                     "variants": {
                       "type": "array",
@@ -6854,6 +9847,10 @@
                         ]
                       }
                     },
+                    "results": {
+                      "type": "string",
+                      "readOnly": true
+                    },
                     "changes": {
                       "type": "array",
                       "items": {
@@ -6901,8 +9898,6 @@
                     "countries",
                     "start_date",
                     "end_date",
-                    "firefox_channel",
-                    "firefox_min_version",
                     "pref_type",
                     "proposed_start_date",
                     "variants",
@@ -6913,10 +9908,13 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     },
-    "/api/v1/experiments/{slug}/clone": {
+    "/api/v2/experiments/{slug}/clone": {
       "put": {
         "operationId": "UpdateExperiment",
         "description": "",
@@ -6997,7 +9995,10 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       },
       "patch": {
         "operationId": "PartialUpdateExperiment",
@@ -7070,12 +10071,14 @@
             },
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "private"
+        ]
       }
     }
   }
-}
-;
+};
       const ui = SwaggerUIBundle({
         spec: spec,
         dom_id: "#swagger-ui",
