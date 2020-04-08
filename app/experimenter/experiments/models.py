@@ -24,11 +24,7 @@ from experimenter.experiments.constants import ExperimentConstants
 
 
 def default_all_platforms():
-    return [
-        ExperimentConstants.PLATFORM_MAC,
-        ExperimentConstants.PLATFORM_WINDOWS,
-        ExperimentConstants.PLATFORM_LINUX,
-    ]
+    return ExperimentConstants.PLATFORMS_LIST
 
 
 class ExperimentManager(models.Manager):
@@ -584,12 +580,8 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def display_platforms(self):
-        if {
-            ExperimentConstants.PLATFORM_MAC,
-            ExperimentConstants.PLATFORM_LINUX,
-            ExperimentConstants.PLATFORM_WINDOWS,
-        } == set(self.platforms):
-            return "All"
+        if set(ExperimentConstants.PLATFORMS_LIST) == set(self.platforms):
+            return ExperimentConstants.PLATFORM_ALL
 
         return ", ".join(self.platforms)
 

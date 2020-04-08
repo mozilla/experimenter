@@ -7,6 +7,7 @@ from experimenter.experiments.models import (
     VariantPreferences,
     RolloutPreference,
 )
+from experimenter.experiments.constants import ExperimentConstants
 
 from experimenter.experiments.serializers.entities import PrefTypeField
 
@@ -69,7 +70,6 @@ class FilterObjectChannelSerializer(serializers.ModelSerializer):
 
 class FilterObjectPlatformSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
-    platforms = serializers.SerializerMethodField()
 
     class Meta:
         model = Experiment
@@ -77,9 +77,6 @@ class FilterObjectPlatformSerializer(serializers.ModelSerializer):
 
     def get_type(self, obj):
         return "platform"
-
-    def get_platforms(self, obj):
-        return obj.platforms
 
 
 class FilterObjectVersionsSerializer(serializers.ModelSerializer):
@@ -351,7 +348,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
         if obj.countries.count():
             filter_objects.append(FilterObjectCountrySerializer(obj).data)
 
-        if len(obj.platforms) <= 2:
+        if len(obj.platforms) < len(ExperimentConstants.PLATFORMS_LIST):
             filter_objects.append(FilterObjectPlatformSerializer(obj).data)
 
         return filter_objects

@@ -1447,7 +1447,7 @@ class TestExperimentModel(TestCase):
         )
 
         self.assertEqual(experiment_1.display_platforms, "All Windows, All Mac")
-        self.assertEqual(experiment_2.display_platforms, "All")
+        self.assertEqual(experiment_2.display_platforms, "All Platforms")
 
     def test_clone(self):
         user_1 = UserFactory.create()
