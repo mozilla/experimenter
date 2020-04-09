@@ -240,6 +240,12 @@ export const PLAYBOOK_CHOICES = [
   ["custom", "Custom Schedule"],
 ];
 
+export const PLATFORM_CHOICES = [
+  { value: "All Mac", label: "All Mac" },
+  { value: "All Linux", label: "All Linux" },
+  { value: "All Windows", label: "All Windows" },
+];
+
 export const PROPOSED_START_DATE_HELP = (
   <p>
     Choose the date you expect the delivery to be launched to users. This date

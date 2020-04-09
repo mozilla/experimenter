@@ -41,6 +41,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
             locales=[self.locale],
             countries=[self.country],
             population_percent="30.0000",
+            platforms=[ExperimentConstants.PLATFORM_WINDOWS],
         )
 
     def test_serializer_outputs_expected_schema_pref(self):
@@ -61,7 +62,12 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
                 "firefox_max_version": self.experiment.firefox_max_version,
                 "locales": [{"value": self.locale.id, "label": self.locale.name}],
                 "countries": [{"value": self.country.id, "label": self.country.name}],
-                "platform": self.experiment.platform,
+                "platforms": [
+                    {
+                        "value": ExperimentConstants.PLATFORM_WINDOWS,
+                        "label": ExperimentConstants.PLATFORM_WINDOWS,
+                    }
+                ],
                 "client_matching": self.experiment.client_matching,
             },
         )
@@ -87,7 +93,12 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
             "firefox_max_version": "68.0",
             "countries": countries,
             "locales": locales,
-            "platform": "All Windows",
+            "platforms": [
+                {
+                    "value": ExperimentConstants.PLATFORM_WINDOWS,
+                    "label": ExperimentConstants.PLATFORM_WINDOWS,
+                }
+            ],
             "client_matching": "matching client.",
         }
 
@@ -109,7 +120,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
         self.assertEqual(experiment.firefox_max_version, data["firefox_max_version"])
         self.assertEqual(experiment.countries.get(), country)
         self.assertEqual(experiment.locales.get(), locale)
-        self.assertEqual(experiment.platform, data["platform"])
+        self.assertEqual(experiment.platforms, [ExperimentConstants.PLATFORM_WINDOWS])
         self.assertEqual(experiment.client_matching, data["client_matching"])
 
     def test_serializer_rejects_firefox_min_less_max(self):
@@ -146,6 +157,14 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("proposed_enrollment", serializer.errors)
 
+    def test_serializer_rejects_empty_platforms(self):
+        data = {"countries": [], "locales": [], "platforms": []}
+
+        serializer = ExperimentTimelinePopSerializer(instance=self.experiment, data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("platforms", serializer.errors)
+
     def test_serializer_outputs_expected_schema_rollout(self):
         experiment = ExperimentFactory.create(
             type=ExperimentConstants.TYPE_ROLLOUT,
@@ -154,6 +173,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
             countries=[self.country],
             population_percent="30.0000",
             proposed_enrollment=None,
+            platforms=[ExperimentConstants.PLATFORM_WINDOWS],
         )
 
         serializer = ExperimentTimelinePopSerializer(experiment)
@@ -173,7 +193,12 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
                 "firefox_max_version": experiment.firefox_max_version,
                 "locales": [{"value": self.locale.id, "label": self.locale.name}],
                 "countries": [{"value": self.country.id, "label": self.country.name}],
-                "platform": experiment.platform,
+                "platforms": [
+                    {
+                        "value": ExperimentConstants.PLATFORM_WINDOWS,
+                        "label": ExperimentConstants.PLATFORM_WINDOWS,
+                    }
+                ],
                 "client_matching": experiment.client_matching,
             },
         )
