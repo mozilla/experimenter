@@ -80,6 +80,7 @@ def test_firefox_max_version_updates_correctly(selenium, base_url, fill_overview
     assert timeline_pop_form.firefox_max_version == version
 
 
+@pytest.mark.skip
 @pytest.mark.nondestructive
 def test_platform_selection_updates_correctly(selenium, base_url, fill_overview):
     """Test platform selection updates."""

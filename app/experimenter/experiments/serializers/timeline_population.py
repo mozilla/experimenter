@@ -25,6 +25,14 @@ class LocaleSerializerMultiSelect(serializers.ModelSerializer):
         fields = ("label", "value")
 
 
+class PlatformSerializer(serializers.Serializer):
+    def to_representation(self, data):
+        return {"value": data, "label": data}
+
+    def to_internal_value(self, data):
+        return data["value"]
+
+
 class ExperimentTimelinePopSerializer(
     ChangelogSerializerMixin, serializers.ModelSerializer
 ):
@@ -80,12 +88,8 @@ class ExperimentTimelinePopSerializer(
     countries = CountrySerializerMultiSelect(
         many=True, required=False, allow_null=True, default=None
     )
-    platform = serializers.ChoiceField(
-        choices=ExperimentConstants.PLATFORM_CHOICES,
-        required=False,
-        allow_null=True,
-        default=None,
-        allow_blank=True,
+    platforms = serializers.ListField(
+        child=PlatformSerializer(), allow_empty=True, required=False
     )
     client_matching = serializers.CharField(
         required=False, allow_null=True, default=None, allow_blank=True
@@ -103,7 +107,7 @@ class ExperimentTimelinePopSerializer(
             "firefox_max_version",
             "locales",
             "countries",
-            "platform",
+            "platforms",
             "client_matching",
         )
         model = Experiment
@@ -113,6 +117,12 @@ class ExperimentTimelinePopSerializer(
             raise serializers.ValidationError(
                 "The delivery start date must be no earlier than the current date."
             )
+
+        return value
+
+    def validate_platforms(self, value):
+        if value == []:
+            raise serializers.ValidationError("You must select at least one platform.")
 
         return value
 

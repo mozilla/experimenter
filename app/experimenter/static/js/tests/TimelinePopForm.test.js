@@ -71,11 +71,10 @@ describe("The TimelinePopForm component for experiments", () => {
     const populationPercentInput = getByLabelText(/Population Percentage/);
     const firefoxMinVersionInput = getByLabelText(/Firefox Min Version/);
     const firefoxMaxVersionInput = getByLabelText(/Firefox Max Version/);
-    const platformInput = getByLabelText(/Platform/);
     const clientMatchingInput = getByLabelText(/Population filtering/);
     const channelInput = getByLabelText(/Firefox Channel/);
     const countriesInput = container.querySelector("#id_countries");
-
+    const platformsInput = container.querySelector("#id_platforms");
     expect(proposedStartDateInput.value).toBe(apiResponse.proposed_start_date);
     expect(firefoxMinVersionInput.value).toBe(apiResponse.firefox_min_version);
     expect(firefoxMaxVersionInput.value).toBe(apiResponse.firefox_max_version);
@@ -89,11 +88,12 @@ describe("The TimelinePopForm component for experiments", () => {
     fireEvent.change(firefoxMinVersionInput, { target: { value: "60.0" } });
     fireEvent.change(firefoxMaxVersionInput, { target: { value: "64.0" } });
     fireEvent.change(channelInput, { target: { value: "Nightly" } });
-    fireEvent.change(platformInput, { target: { value: "All Mac" } });
     fireEvent.change(clientMatchingInput, {
       target: { value: "different filtering" },
     });
     fireEvent.keyDown(countriesInput, { keyCode: 46 });
+    fireEvent.keyDown(platformsInput, { keyCode: 46 });
+
     fireEvent.click(getByText("Save Draft"));
 
     // Check that the correct data was sent to the server
@@ -106,7 +106,9 @@ describe("The TimelinePopForm component for experiments", () => {
     expect(data.population_percent).toBe("50.0000");
     expect(data.firefox_min_version).toBe("60.0");
     expect(data.firefox_max_version).toBe("64.0");
-    expect(data.platform).toBe("All Mac");
+    expect(data.platforms).toEqual([
+      { value: "All Windows", label: "All Windows" },
+    ]);
     expect(data.client_matching).toBe("different filtering");
     expect(data.countries).toEqual([]);
   });

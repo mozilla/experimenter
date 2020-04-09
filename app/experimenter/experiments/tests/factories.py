@@ -54,9 +54,6 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
         lambda o: decimal.Decimal(random.randint(1, 10) * 10)
     )
     client_matching = "Geos: US, CA, GB\n" 'Some "additional" filtering'
-    platform = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.PLATFORM_CHOICES)[0]
-    )
     design = factory.LazyAttribute(lambda o: faker.text(50))
     pref_name = factory.LazyAttribute(
         lambda o: "browser.{pref}.enabled".format(pref=faker.word())
