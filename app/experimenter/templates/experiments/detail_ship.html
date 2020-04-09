@@ -13,6 +13,8 @@
     </button>
   {% endif %}
 
+  <div id="ndt-export-button-injection-site" data-slug="{{ experiment.slug }}"></div>
+
   <form
     action="{% url "experiments-status-update" slug=experiment.slug %}"
     method="POST"
