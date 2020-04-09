@@ -1440,6 +1440,15 @@ class TestExperimentModel(TestCase):
 
         self.assertTrue(experiment.should_have_total_enrolled)
 
+    def test_display_platforms(self):
+        experiment_1 = ExperimentFactory(platforms=["All Windows", "All Mac"])
+        experiment_2 = ExperimentFactory(
+            platforms=["All Windows", "All Mac", "All Linux"]
+        )
+
+        self.assertEqual(experiment_1.display_platforms, "All Windows, All Mac")
+        self.assertEqual(experiment_2.display_platforms, "All Platforms")
+
     def test_clone(self):
         user_1 = UserFactory.create()
         user_2 = UserFactory.create()
