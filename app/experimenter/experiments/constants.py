@@ -180,6 +180,8 @@ class ExperimentConstants(object):
         (PLATFORM_LINUX, PLATFORM_LINUX),
     )
 
+    PLATFORMS_LIST = [PLATFORM_WINDOWS, PLATFORM_MAC, PLATFORM_LINUX]
+
     # Pref stuff
     PREF_TYPE_BOOL = "boolean"
     PREF_TYPE_INT = "integer"

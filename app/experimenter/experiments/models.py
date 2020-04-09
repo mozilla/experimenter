@@ -23,6 +23,10 @@ from experimenter.projects.models import Project
 from experimenter.experiments.constants import ExperimentConstants
 
 
+def default_all_platforms():
+    return ExperimentConstants.PLATFORMS_LIST
+
+
 class ExperimentManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().annotate(latest_change=Max("changes__changed_on"))
@@ -147,11 +151,11 @@ class Experiment(ExperimentConstants, models.Model):
     locales = models.ManyToManyField(Locale, blank=True)
     countries = models.ManyToManyField(Country, blank=True)
     projects = models.ManyToManyField(Project, blank=True)
-    platform = models.CharField(
-        max_length=255,
-        choices=ExperimentConstants.PLATFORM_CHOICES,
-        default=ExperimentConstants.PLATFORM_ALL,
+    platforms = ArrayField(
+        models.CharField(max_length=200),
+        blank=True,
         null=True,
+        default=default_all_platforms,
     )
     design = models.TextField(
         default=ExperimentConstants.DESIGN_DEFAULT, blank=True, null=True
@@ -573,6 +577,13 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def should_have_total_enrolled(self):
         return self.type not in (self.TYPE_GENERIC, self.TYPE_ROLLOUT)
+
+    @property
+    def display_platforms(self):
+        if set(ExperimentConstants.PLATFORMS_LIST) == set(self.platforms):
+            return ExperimentConstants.PLATFORM_ALL
+
+        return ", ".join(self.platforms)
 
     @property
     def completed_overview(self):

@@ -94,6 +94,7 @@ class TestExperimentSerializer(TestCase):
             other_normandy_ids=[],
             results_fail_to_launch=False,
             results_failures_notes="failure notes",
+            platforms=[Experiment.PLATFORM_LINUX],
         )
 
         # ensure expected_data has "string" if pref_type is json string
@@ -101,7 +102,7 @@ class TestExperimentSerializer(TestCase):
         serializer = ExperimentSerializer(experiment)
         expected_data = {
             "client_matching": experiment.client_matching,
-            "platform": experiment.platform,
+            "platforms": experiment.platforms,
             "end_date": JSTimestampField().to_representation(experiment.end_date),
             "experiment_url": experiment.experiment_url,
             "firefox_channel": experiment.firefox_channel,
@@ -229,7 +230,7 @@ class TestChangeLogSerializer(TestCase):
             "locales": [{"code": "da", "name": "Danish"}],
             "countries": [{"code": "CA", "name": "Canada"}],
             "projects": [{"slug": project.slug}],
-            "platform": experiment.platform,
+            "platforms": experiment.platforms,
             "objectives": experiment.objectives,
             "total_enrolled_clients": experiment.total_enrolled_clients,
             "analysis": experiment.analysis,

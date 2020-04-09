@@ -169,13 +169,11 @@
                         ]
                       }
                     },
-                    "platform": {
-                      "enum": [
-                        "All Platforms",
-                        "All Windows",
-                        "All Mac",
-                        "All Linux"
-                      ],
+                    "platforms": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
                       "nullable": true
                     },
                     "start_date": {
@@ -619,13 +617,11 @@
                           ]
                         }
                       },
-                      "platform": {
-                        "enum": [
-                          "All Platforms",
-                          "All Windows",
-                          "All Mac",
-                          "All Linux"
-                        ],
+                      "platforms": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
                         "nullable": true
                       },
                       "start_date": {
@@ -4931,14 +4927,11 @@
                       },
                       "nullable": true
                     },
-                    "platform": {
-                      "enum": [
-                        "All Platforms",
-                        "All Windows",
-                        "All Mac",
-                        "All Linux"
-                      ],
-                      "nullable": true
+                    "platforms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
                     },
                     "client_matching": {
                       "type": "string",
@@ -5151,14 +5144,11 @@
                     },
                     "nullable": true
                   },
-                  "platform": {
-                    "enum": [
-                      "All Platforms",
-                      "All Windows",
-                      "All Mac",
-                      "All Linux"
-                    ],
-                    "nullable": true
+                  "platforms": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
                   },
                   "client_matching": {
                     "type": "string",
@@ -5347,14 +5337,11 @@
                     },
                     "nullable": true
                   },
-                  "platform": {
-                    "enum": [
-                      "All Platforms",
-                      "All Windows",
-                      "All Mac",
-                      "All Linux"
-                    ],
-                    "nullable": true
+                  "platforms": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
                   },
                   "client_matching": {
                     "type": "string",
@@ -5543,14 +5530,11 @@
                     },
                     "nullable": true
                   },
-                  "platform": {
-                    "enum": [
-                      "All Platforms",
-                      "All Windows",
-                      "All Mac",
-                      "All Linux"
-                    ],
-                    "nullable": true
+                  "platforms": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
                   },
                   "client_matching": {
                     "type": "string",
@@ -5744,14 +5728,11 @@
                       },
                       "nullable": true
                     },
-                    "platform": {
-                      "enum": [
-                        "All Platforms",
-                        "All Windows",
-                        "All Mac",
-                        "All Linux"
-                      ],
-                      "nullable": true
+                    "platforms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
                     },
                     "client_matching": {
                       "type": "string",
@@ -5964,14 +5945,11 @@
                     },
                     "nullable": true
                   },
-                  "platform": {
-                    "enum": [
-                      "All Platforms",
-                      "All Windows",
-                      "All Mac",
-                      "All Linux"
-                    ],
-                    "nullable": true
+                  "platforms": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
                   },
                   "client_matching": {
                     "type": "string",
@@ -6160,14 +6138,11 @@
                     },
                     "nullable": true
                   },
-                  "platform": {
-                    "enum": [
-                      "All Platforms",
-                      "All Windows",
-                      "All Mac",
-                      "All Linux"
-                    ],
-                    "nullable": true
+                  "platforms": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
                   },
                   "client_matching": {
                     "type": "string",
@@ -6356,14 +6331,11 @@
                     },
                     "nullable": true
                   },
-                  "platform": {
-                    "enum": [
-                      "All Platforms",
-                      "All Windows",
-                      "All Mac",
-                      "All Linux"
-                    ],
-                    "nullable": true
+                  "platforms": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
                   },
                   "client_matching": {
                     "type": "string",
@@ -6557,14 +6529,11 @@
                       },
                       "nullable": true
                     },
-                    "platform": {
-                      "enum": [
-                        "All Platforms",
-                        "All Windows",
-                        "All Mac",
-                        "All Linux"
-                      ],
-                      "nullable": true
+                    "platforms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
                     },
                     "client_matching": {
                       "type": "string",
@@ -6681,13 +6650,11 @@
                       ]
                     }
                   },
-                  "platform": {
-                    "enum": [
-                      "All Platforms",
-                      "All Windows",
-                      "All Mac",
-                      "All Linux"
-                    ],
+                  "platforms": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
                     "nullable": true
                   },
                   "start_date": {
@@ -7090,13 +7057,11 @@
                       ]
                     }
                   },
-                  "platform": {
-                    "enum": [
-                      "All Platforms",
-                      "All Windows",
-                      "All Mac",
-                      "All Linux"
-                    ],
+                  "platforms": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
                     "nullable": true
                   },
                   "start_date": {
@@ -7499,13 +7464,11 @@
                       ]
                     }
                   },
-                  "platform": {
-                    "enum": [
-                      "All Platforms",
-                      "All Windows",
-                      "All Mac",
-                      "All Linux"
-                    ],
+                  "platforms": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
                     "nullable": true
                   },
                   "start_date": {
@@ -7917,13 +7880,11 @@
                         ]
                       }
                     },
-                    "platform": {
-                      "enum": [
-                        "All Platforms",
-                        "All Windows",
-                        "All Mac",
-                        "All Linux"
-                      ],
+                    "platforms": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
                       "nullable": true
                     },
                     "start_date": {
@@ -8358,13 +8319,11 @@
                       ]
                     }
                   },
-                  "platform": {
-                    "enum": [
-                      "All Platforms",
-                      "All Windows",
-                      "All Mac",
-                      "All Linux"
-                    ],
+                  "platforms": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
                     "nullable": true
                   },
                   "start_date": {
@@ -8755,13 +8714,11 @@
                       ]
                     }
                   },
-                  "platform": {
-                    "enum": [
-                      "All Platforms",
-                      "All Windows",
-                      "All Mac",
-                      "All Linux"
-                    ],
+                  "platforms": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
                     "nullable": true
                   },
                   "start_date": {
@@ -9152,13 +9109,11 @@
                       ]
                     }
                   },
-                  "platform": {
-                    "enum": [
-                      "All Platforms",
-                      "All Windows",
-                      "All Mac",
-                      "All Linux"
-                    ],
+                  "platforms": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
                     "nullable": true
                   },
                   "start_date": {
@@ -9558,13 +9513,11 @@
                         ]
                       }
                     },
-                    "platform": {
-                      "enum": [
-                        "All Platforms",
-                        "All Windows",
-                        "All Mac",
-                        "All Linux"
-                      ],
+                    "platforms": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
                       "nullable": true
                     },
                     "start_date": {

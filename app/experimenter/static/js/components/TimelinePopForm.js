@@ -11,6 +11,7 @@ import { makeApiRequest } from "experimenter/utils/api";
 import {
   VERSION_CHOICES,
   PLAYBOOK_CHOICES,
+  PLATFORM_CHOICES,
   PROPOSED_START_DATE_HELP,
   PROPOSED_DURATION_HELP,
   PROPOSED_ENROLLMENT_HELP,
@@ -51,6 +52,7 @@ class TimelinePopForm extends React.PureComponent {
   async componentDidMount() {
     try {
       const data = await makeApiRequest(this.getEndpointUrl());
+
       this.setState({
         loaded: true,
         data: fromJS(data),
@@ -329,26 +331,23 @@ class TimelinePopForm extends React.PureComponent {
               optional={true}
               placeholder="All Countries"
             />
-            <DesignInput
-              as="select"
-              multi
-              label="Platform"
-              name="platform"
-              id="id_platform"
-              onChange={(value) => {
-                this.handleDataChange("platform", value);
-              }}
-              value={this.state.data.get("platform")}
-              error={this.state.errors.get("platform", "")}
+            <LabeledMultiSelect
+              options={PLATFORM_CHOICES}
+              label="Platforms"
+              name="platforms"
+              id="id_platforms"
+              onChange={this.handleMultiSelectDataChange}
+              value={
+                this.state.data.get("platforms")
+                  ? this.state.data.get("platforms", []).toJS()
+                  : []
+              }
+              error={this.state.errors.get("platforms", "")}
               helpContent={PLATFORM_HELP}
               labelColumnWidth={2}
               optional={true}
-            >
-              <option>All Platforms</option>
-              <option>All Windows</option>
-              <option>All Mac</option>
-              <option>All Linux</option>
-            </DesignInput>
+              placeholder="All Platforms"
+            />
             <DesignInput
               label="Population filtering"
               name="client_matching"

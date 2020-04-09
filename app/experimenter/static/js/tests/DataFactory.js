@@ -219,7 +219,10 @@ export class TimelinePopDataFactory extends Factory {
       firefox_max_version: "68.0",
       locales: [{ value: "NP", label: "Nepali" }],
       countries: [{ value: "US", label: "United States" }],
-      platform: "All Windows",
+      platforms: [
+        { value: "All Windows", label: "All Windows" },
+        { value: "All Mac", label: "All Mac" },
+      ],
       client_matching: "client matching data",
     };
   }
