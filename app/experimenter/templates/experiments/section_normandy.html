@@ -18,9 +18,24 @@ Normandy Info
     {% for entry in experiment.format_dc_normandy_urls %}
       <p class="mb-3">
         <code>{{ entry.id }}</code> :
-        <a href="{{ entry.DC_url }}" target="blank" rel="noreferrer noopener">
-          Delivery Console Recipe
-        </a> |
+        <span data-ndt-add-class="d-none">
+          <a href="{{ entry.DC_url }}" target="blank" rel="noreferrer noopener">
+            Delivery Console Recipe
+          </a> |
+        </span>
+        <span
+          class="d-none"
+          data-ndt-remove-class="d-none"
+        >
+          <a
+            data-inject="recipe-details-link"
+            data-recipe-id="{{ entry.id }}"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            Normandy Devtools Recipe
+          </a> |
+        </span>
         <a href="{{ entry.normandy_url }}" target="blank" rel="noreferrer noopener">
           Normandy API Recipe
         </a>
