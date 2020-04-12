@@ -1,3 +1,6 @@
+.env:
+	cp .env.sample .env
+
 ssl: nginx/key.pem nginx/cert.pem
 
 nginx/key.pem:
@@ -68,14 +71,14 @@ check_docs: test_build
 check: test_build
 	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT)" "$(PYTHON_TEST)" "$(JS_TEST)"'
 
-compose_build: build ssl
+compose_build: build ssl .env
 	$(COMPOSE)  build
 
-compose_stop:
+compose_stop: .env
 	$(COMPOSE) kill
 	$(COMPOSE_INTEGRATION) kill
 
-compose_rm:
+compose_rm: .env
 	$(COMPOSE) rm -f -v
 	$(COMPOSE_INTEGRATION) rm -f -v
 
