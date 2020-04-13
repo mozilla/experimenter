@@ -12,6 +12,7 @@ import {
   VERSION_CHOICES,
   PLAYBOOK_CHOICES,
   PLATFORM_CHOICES,
+  WINDOWS_VERSIONS_CHOICES,
   PROPOSED_START_DATE_HELP,
   PROPOSED_DURATION_HELP,
   PROPOSED_ENROLLMENT_HELP,
@@ -19,6 +20,7 @@ import {
   POPULATION_PERCENT_HELP,
   VERSION_HELP,
   PLATFORM_HELP,
+  WINDOWS_VERSIONS_NOTE,
   CLIENT_MATCHING_HELP,
   COUNTRIES_LOCALES_HELP,
   ROLLOUT_PLAYBOOK_HELP,
@@ -72,6 +74,11 @@ class TimelinePopForm extends React.PureComponent {
   }
 
   handleMultiSelectDataChange(selectedOptions, name) {
+    if (name === "platforms") {
+      this.setState(({ data }) => ({
+        data: data.set("windows_versions", null),
+      }));
+    }
     if (selectedOptions == null) {
       selectedOptions = [];
     }
@@ -150,6 +157,11 @@ class TimelinePopForm extends React.PureComponent {
     }
 
     return choicesJSX;
+  }
+
+  isWindowsVersionEnabled() {
+    const platforms = this.state.data.get("platforms").toJS();
+    return platforms.length === 1 && platforms[0].value === "All Windows";
   }
 
   async handleSubmit(event, redirectUrl) {
@@ -347,6 +359,26 @@ class TimelinePopForm extends React.PureComponent {
               labelColumnWidth={2}
               optional={true}
               placeholder="All Platforms"
+            />
+            <LabeledMultiSelect
+              isDisabled={!this.isWindowsVersionEnabled()}
+              options={WINDOWS_VERSIONS_CHOICES}
+              label="Windows Versions"
+              name="windows_versions"
+              id="id_windows_versions"
+              onChange={this.handleMultiSelectDataChange}
+              value={
+                this.state.data.get("windows_versions")
+                  ? this.state.data.get("windows_versions", []).toJS()
+                  : []
+              }
+              error={this.state.errors.get("windows_versions", "")}
+              helpContent={PLATFORM_HELP}
+              labelColumnWidth={2}
+              optional={true}
+              placeholder="Windows Versions"
+              note={WINDOWS_VERSIONS_NOTE}
+              showNote={!this.isWindowsVersionEnabled()}
             />
             <DesignInput
               label="Population filtering"

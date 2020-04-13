@@ -241,9 +241,16 @@ export const PLAYBOOK_CHOICES = [
 ];
 
 export const PLATFORM_CHOICES = [
-  { value: "All Mac", label: "All Mac" },
-  { value: "All Linux", label: "All Linux" },
-  { value: "All Windows", label: "All Windows" },
+  { value: "All Mac", label: "Mac" },
+  { value: "All Linux", label: "Linux" },
+  { value: "All Windows", label: "Windows" },
+];
+
+export const WINDOWS_VERSIONS_CHOICES = [
+  { value: "Windows 7", label: "Windows 7" },
+  { value: "Windows 8", label: "Windows 8" },
+  { value: "Windows 8.1", label: "Windows 8.1" },
+  { value: "Windows 10+", label: "Windows 10+" },
 ];
 
 export const PROPOSED_START_DATE_HELP = (
@@ -313,6 +320,14 @@ export const ROLLOUT_PLAYBOOK_HELP =
 
 export const PLATFORM_HELP = (
   <p>Select the target platform for this delivery.</p>
+);
+
+export const WINDOWS_VERSIONS_NOTE = (
+  <p>
+    Note: If you want to target specific windows versions, you must have only
+    "Windows" selected in the above platforms field. Experiments cannot filter
+    on specific windows versions and other platforms at the same time.
+  </p>
 );
 
 export const CLIENT_MATCHING_HELP = (

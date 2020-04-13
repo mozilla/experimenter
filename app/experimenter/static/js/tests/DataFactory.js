@@ -220,8 +220,8 @@ export class TimelinePopDataFactory extends Factory {
       locales: [{ value: "NP", label: "Nepali" }],
       countries: [{ value: "US", label: "United States" }],
       platforms: [
-        { value: "All Windows", label: "All Windows" },
-        { value: "All Mac", label: "All Mac" },
+        { value: "All Windows", label: "Windows" },
+        { value: "All Mac", label: "Mac" },
       ],
       client_matching: "client matching data",
     };
