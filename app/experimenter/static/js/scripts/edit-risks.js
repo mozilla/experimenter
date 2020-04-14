@@ -4,7 +4,7 @@ jQuery(function ($) {
 
     // From the Django point of view, the description is optional. But we make it
     // mandatory when the technical risk radio is checked.
-    const hasTechnicalRisk = $('[type="radio"][name="risk_technical"][value="1"]:checked').length > 0;
+    const hasTechnicalRisk = $('[type="radio"][name="risk_technical"][value="True"]:checked').length > 0;
 
     // We hide the confusing "Optional" label manually here (#888)
     $('#risks_technical_description_field .text-muted').hide();
@@ -17,7 +17,7 @@ jQuery(function ($) {
   }
 
   function updateRisks() {
-    if ($('[type="radio"][value="1"]:checked').length > 0) {
+    if ($('[type="radio"][value="True"]:checked').length > 0) {
       $('#risks_field').show();
     } else {
       $('#risks_field').hide();
