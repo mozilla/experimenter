@@ -7,13 +7,23 @@
       class="col btn btn-danger mb-3"
       data-toggle="modal"
       data-target="#normandyModal"
+      data-ndt-add-class="d-none"
     >
       <span class="fas fa-file-import"></span>
       Send to Normandy
     </button>
-  {% endif %}
 
-  <div id="ndt-export-button-injection-site" data-slug="{{ experiment.slug }}"></div>
+    <a
+      class="d-none col btn btn-primary mb-3"
+      data-ndt-remove-class="d-none"
+      data-ndt-inject="import-link"
+      data-slug="{{ experiment.slug }}"
+      target="_blank"
+    >
+      <span class="fas fa-file-import"></span>
+      Send to Normandy
+    </a>
+  {% endif %}
 
   <form
     action="{% url "experiments-status-update" slug=experiment.slug %}"
