@@ -19,8 +19,8 @@ from experimenter.experiments.serializers.entities import ChangeLogSerializer
 from experimenter.notifications.models import Notification
 from experimenter.projects.models import Project
 
-RADIO_NO = "0"
-RADIO_YES = "1"
+RADIO_NO = False
+RADIO_YES = True
 RADIO_OPTIONS = ((RADIO_NO, "No"), (RADIO_YES, "Yes"))
 
 
@@ -263,7 +263,7 @@ class RadioWidget(forms.widgets.RadioSelect):
     template_name = "experiments/radio_widget.html"
 
 
-class RadioWidgetCloser(forms.widgets.RadioSelect):
+class RadioWidgetCloser(RadioWidget):
     """
         This radio widget is similar to the RadioWidget
         except for the No and Yes buttons are closer together.
@@ -295,14 +295,12 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
 
-    survey_required = forms.TypedChoiceField(
+    survey_required = forms.ChoiceField(
         required=False,
         label=Experiment.SURVEY_REQUIRED_LABEL,
         help_text=Experiment.SURVEY_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidgetCloser,
-        coerce=int,
-        empty_value=None,
     )
     survey_urls = forms.CharField(
         required=False,
@@ -349,59 +347,47 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         required=False,
     )
 
-    results_fail_to_launch = forms.TypedChoiceField(
+    results_fail_to_launch = forms.ChoiceField(
         required=False,
         label=Experiment.RESULTS_FAIL_TO_LAUNCH_LABEL,
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    results_recipe_errors = forms.TypedChoiceField(
+    results_recipe_errors = forms.ChoiceField(
         required=False,
         label=Experiment.RESULTS_RECIPE_ERRORS_LABEL,
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    results_restarts = forms.TypedChoiceField(
+    results_restarts = forms.ChoiceField(
         required=False,
         label=Experiment.RESULTS_RESTARTS_LABEL,
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    results_low_enrollment = forms.TypedChoiceField(
+    results_low_enrollment = forms.ChoiceField(
         required=False,
         label=Experiment.RESULTS_LOW_ENROLLMENT_LABEL,
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    results_early_end = forms.TypedChoiceField(
+    results_early_end = forms.ChoiceField(
         required=False,
         label=Experiment.RESULTS_EARLY_END_LABEL,
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    results_no_usable_data = forms.TypedChoiceField(
+    results_no_usable_data = forms.ChoiceField(
         required=False,
         label=Experiment.RESULTS_NO_USABLE_DATA_LABEL,
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
     results_failures_notes = forms.CharField(
         label=Experiment.RESULTS_NOTES_LABEL,
@@ -410,41 +396,33 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         required=False,
     )
 
-    results_changes_to_firefox = forms.TypedChoiceField(
+    results_changes_to_firefox = forms.ChoiceField(
         required=False,
         label=Experiment.RESULTS_CHANGES_TO_FIREFOX_LABEL,
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    results_data_for_hypothesis = forms.TypedChoiceField(
+    results_data_for_hypothesis = forms.ChoiceField(
         required=False,
         label=Experiment.RESULTS_DATA_FOR_HYPOTHESIS_LABEL,
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    results_confidence = forms.TypedChoiceField(
+    results_confidence = forms.ChoiceField(
         required=False,
         label=Experiment.RESULTS_CONFIDENCE_LABEL,
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    results_measure_impact = forms.TypedChoiceField(
+    results_measure_impact = forms.ChoiceField(
         required=False,
         label=Experiment.RESULTS_MEASURE_IMPACT_LABEL,
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
     results_impact_notes = forms.CharField(
         label=Experiment.RESULTS_NOTES_LABEL,
@@ -477,131 +455,103 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
 class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
 
     # Radio Buttons
-    risk_partner_related = forms.TypedChoiceField(
+    risk_partner_related = forms.ChoiceField(
         required=False,
         label=Experiment.RISK_PARTNER_RELATED_LABEL,
         help_text=Experiment.RISK_PARTNER_RELATED_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    risk_brand = forms.TypedChoiceField(
+    risk_brand = forms.ChoiceField(
         required=False,
         label=Experiment.RISK_BRAND_LABEL,
         help_text=Experiment.RISK_BRAND_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    risk_fast_shipped = forms.TypedChoiceField(
+    risk_fast_shipped = forms.ChoiceField(
         required=False,
         label=Experiment.RISK_FAST_SHIPPED_LABEL,
         help_text=Experiment.RISK_FAST_SHIPPED_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    risk_confidential = forms.TypedChoiceField(
+    risk_confidential = forms.ChoiceField(
         required=False,
         label=Experiment.RISK_CONFIDENTIAL_LABEL,
         help_text=Experiment.RISK_CONFIDENTIAL_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    risk_release_population = forms.TypedChoiceField(
+    risk_release_population = forms.ChoiceField(
         required=False,
         label=Experiment.RISK_RELEASE_POPULATION_LABEL,
         help_text=Experiment.RISK_RELEASE_POPULATION_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    risk_revenue = forms.TypedChoiceField(
+    risk_revenue = forms.ChoiceField(
         required=False,
         label=Experiment.RISK_REVENUE_LABEL,
         help_text=Experiment.RISK_REVENUE_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    risk_data_category = forms.TypedChoiceField(
+    risk_data_category = forms.ChoiceField(
         required=False,
         label=Experiment.RISK_DATA_CATEGORY_LABEL,
         help_text=Experiment.RISK_DATA_CATEGORY_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    risk_external_team_impact = forms.TypedChoiceField(
+    risk_external_team_impact = forms.ChoiceField(
         required=False,
         label=Experiment.RISK_EXTERNAL_TEAM_IMPACT_LABEL,
         help_text=Experiment.RISK_EXTERNAL_TEAM_IMPACT_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    risk_telemetry_data = forms.TypedChoiceField(
+    risk_telemetry_data = forms.ChoiceField(
         required=False,
         label=Experiment.RISK_TELEMETRY_DATA_LABEL,
         help_text=Experiment.RISK_TELEMETRY_DATA_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    risk_ux = forms.TypedChoiceField(
+    risk_ux = forms.ChoiceField(
         required=False,
         label=Experiment.RISK_UX_LABEL,
         help_text=Experiment.RISK_UX_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    risk_security = forms.TypedChoiceField(
+    risk_security = forms.ChoiceField(
         required=False,
         label=Experiment.RISK_SECURITY_LABEL,
         help_text=Experiment.RISK_SECURITY_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    risk_revision = forms.TypedChoiceField(
+    risk_revision = forms.ChoiceField(
         required=False,
         label=Experiment.RISK_REVISION_LABEL,
         help_text=Experiment.RISK_REVISION_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    risk_technical = forms.TypedChoiceField(
+    risk_technical = forms.ChoiceField(
         required=False,
         label=Experiment.RISK_TECHNICAL_LABEL,
         help_text=Experiment.RISK_TECHNICAL_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
-    risk_higher_risk = forms.TypedChoiceField(
+    risk_higher_risk = forms.ChoiceField(
         required=False,
         label=Experiment.RISK_HIGHER_RISK_LABEL,
         help_text=Experiment.RISK_HIGHER_RISK_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-        coerce=int,
-        empty_value=None,
     )
 
     # Optional Risk Descriptions
