@@ -1,5 +1,5 @@
 function updateSurvey() {
-  const survey_required = $('[type="radio"][name="survey_required"][value="1"]:checked').length > 0;
+  const survey_required = $('[type="radio"][name="survey_required"][value="True"]:checked').length > 0;
 
   if (survey_required) {
     $('#survey-url-and-instructions').show()
