@@ -6,7 +6,7 @@ export class VariantsFactory extends Factory {
     return {
       id: new AutoIncrementField(),
       description: new Field(faker.lorem.sentence),
-      name: new Field(faker.lorem.word),
+      name: new Field(faker.lorem.sentence),
       ratio: new Field(() =>
         faker.random.number({ min: 1, max: 100 }).toString(),
       ),
@@ -81,7 +81,7 @@ export class AddonDataFactory extends GenericDataFactory {
 export class PrefVariantsFactory extends VariantsFactory {
   getFields() {
     return {
-      value: new Field(faker.lorem.word),
+      value: new Field(faker.lorem.sentence),
       ...super.getFields(),
     };
   }
@@ -90,7 +90,7 @@ export class PrefVariantsFactory extends VariantsFactory {
 export class PrefDataFactory extends Factory {
   getFields() {
     return {
-      pref_name: new Field(faker.lorem.word),
+      pref_name: new Field(faker.lorem.sentence),
       pref_type: "string",
       pref_branch: "default",
       variants: [],
@@ -140,7 +140,7 @@ export class BranchedAddonVariantFactory extends Factory {
     return {
       id: new AutoIncrementField(),
       description: new Field(faker.lorem.sentence),
-      name: new Field(faker.lorem.word),
+      name: new Field(faker.lorem.sentence),
       ratio: new Field(faker.random.number, { min: 1, max: 100 }),
       is_control: false,
       addon_release_url: new Field(faker.internet.url),
@@ -148,15 +148,13 @@ export class BranchedAddonVariantFactory extends Factory {
   }
 }
 
-// *********************** Multipref factories **********************
-
 export class MultiPrefVariantDataFactory extends Factory {
   getFields() {
     return {
-      pref_name: new Field(faker.lorem.word),
+      pref_name: new Field(faker.lorem.sentence),
       pref_type: "string",
       pref_branch: "default",
-      pref_value: new Field(faker.lorem.word),
+      pref_value: new Field(faker.lorem.sentence),
       id: new AutoIncrementField(),
     };
   }
@@ -167,7 +165,7 @@ export class MainMultiPrefVariantDataFactory extends Factory {
     return {
       id: new AutoIncrementField(),
       description: new Field(faker.lorem.sentence),
-      name: new Field(faker.lorem.word),
+      name: new Field(faker.lorem.sentence),
       ratio: new Field(faker.random.number, { min: 1, max: 100 }),
       is_control: false,
       preferences: [],
@@ -198,6 +196,39 @@ export class MultiPrefDataFactory extends Factory {
       const variants = [];
       for (let i = 0; i < generateVariants; i++) {
         variants.push(MainMultiPrefVariantDataFactory.build());
+      }
+      this.data.variants = [...this.data.variants, ...variants];
+    }
+    if (this.data.variants.length) {
+      this.data.variants[0].is_control = true;
+    }
+  }
+}
+
+export class MessageVariantsFactory extends VariantsFactory {
+  getFields() {
+    return {
+      message_id: new Field(faker.lorem.sentence),
+      value: new Field(faker.lorem.paragraph),
+      ...super.getFields(),
+    };
+  }
+}
+
+export class MessageDataFactory extends Factory {
+  getFields() {
+    return {
+      message_type: "cfr",
+      variants: [],
+    };
+  }
+
+  postGeneration() {
+    const { generateVariants } = this.options;
+    if (generateVariants) {
+      const variants = [];
+      for (let i = 0; i < generateVariants; i++) {
+        variants.push(MessageVariantsFactory.build());
       }
       this.data.variants = [...this.data.variants, ...variants];
     }

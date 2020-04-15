@@ -4741,6 +4741,574 @@
         ]
       }
     },
+    "/api/v2/experiments/{slug}/design-message": {
+      "get": {
+        "operationId": "RetrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message_type": {
+                      "enum": [
+                        "cfr",
+                        "wnp",
+                        "moments"
+                      ]
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "is_control": {
+                            "type": "boolean"
+                          },
+                          "message_id": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "ratio": {
+                            "type": "integer"
+                          },
+                          "value": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "description",
+                          "is_control",
+                          "message_id",
+                          "name",
+                          "ratio"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "message_type",
+                    "variants"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
+      "put": {
+        "operationId": "UpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "wnp",
+                      "moments"
+                    ]
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_id": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "message_id",
+                        "name",
+                        "ratio"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "message_type",
+                  "variants"
+                ]
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "wnp",
+                      "moments"
+                    ]
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_id": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "message_id",
+                        "name",
+                        "ratio"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "message_type",
+                  "variants"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "wnp",
+                      "moments"
+                    ]
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_id": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "message_id",
+                        "name",
+                        "ratio"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "message_type",
+                  "variants"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message_type": {
+                      "enum": [
+                        "cfr",
+                        "wnp",
+                        "moments"
+                      ]
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "is_control": {
+                            "type": "boolean"
+                          },
+                          "message_id": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "ratio": {
+                            "type": "integer"
+                          },
+                          "value": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "description",
+                          "is_control",
+                          "message_id",
+                          "name",
+                          "ratio"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "message_type",
+                    "variants"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
+      "patch": {
+        "operationId": "PartialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "wnp",
+                      "moments"
+                    ]
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_id": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "message_id",
+                        "name",
+                        "ratio"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "wnp",
+                      "moments"
+                    ]
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_id": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "message_id",
+                        "name",
+                        "ratio"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "wnp",
+                      "moments"
+                    ]
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_id": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "message_id",
+                        "name",
+                        "ratio"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message_type": {
+                      "enum": [
+                        "cfr",
+                        "wnp",
+                        "moments"
+                      ]
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "is_control": {
+                            "type": "boolean"
+                          },
+                          "message_id": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "ratio": {
+                            "type": "integer"
+                          },
+                          "value": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "description",
+                          "is_control",
+                          "message_id",
+                          "name",
+                          "ratio"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "message_type",
+                    "variants"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      }
+    },
     "/api/v2/experiments/{slug}/timeline-population": {
       "get": {
         "operationId": "RetrieveExperiment",

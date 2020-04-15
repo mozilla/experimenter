@@ -15,6 +15,9 @@
   <strong>Pref Branch</strong> <p>{{ experiment.pref_branch }}</p>
   {% endif %}
 {% endif %}
+{% if experiment.message_type %}
+  <strong>Message Type</strong> <p>{{ experiment.get_message_type_display }}</p>
+{% endif %}
   {% for variant in experiment.variants.all %}
     <div class="border-left-grey pl-3 mb-4">
       <h5>{{ variant.ratio }}% {{ variant.name }}</h5>
@@ -43,6 +46,10 @@
         <p><strong>Addon Release URL: </strong></p>
         <p>{{ variant.addon_release_url|urlize }}</p>
       {% endif %}
+      {% if experiment.is_message_experiment %}
+        <strong>Message ID</strong> <p>{{ variant.message_id }}</p>
+        <strong>Content</strong> {{ variant.value|linebreaks }}
+      {% endif%}
     </div>
   {% endfor %}
 {% endblock %}

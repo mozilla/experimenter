@@ -15,17 +15,18 @@ from experimenter.experiments.tests.factories import (
 )
 
 from experimenter.experiments.serializers.design import (
-    ExperimentDesignVariantBaseSerializer,
+    ExperimentDesignAddonRolloutSerializer,
     ExperimentDesignAddonSerializer,
     ExperimentDesignBaseSerializer,
+    ExperimentDesignBranchedAddonSerializer,
     ExperimentDesignBranchMultiPrefSerializer,
     ExperimentDesignBranchVariantPreferencesSerializer,
-    ExperimentDesignBranchedAddonSerializer,
     ExperimentDesignGenericSerializer,
+    ExperimentDesignMessageSerializer,
     ExperimentDesignMultiPrefSerializer,
-    ExperimentDesignPrefSerializer,
     ExperimentDesignPrefRolloutSerializer,
-    ExperimentDesignAddonRolloutSerializer,
+    ExperimentDesignPrefSerializer,
+    ExperimentDesignVariantBaseSerializer,
     PrefValidationMixin,
 )
 
@@ -1532,3 +1533,101 @@ class TestPrefValidationMixin(TestCase):
         validator = PrefValidationMixin()
         value = validator.validate_pref_branch(pref_branch)
         self.assertEqual(value, {"pref_branch": "Please select a branch"})
+
+
+class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentFactory.create_with_variants(
+            type=ExperimentConstants.TYPE_MESSAGE
+        )
+
+        serializer = ExperimentDesignMessageSerializer(experiment)
+        serializer_data = serializer.data
+        variant_data = serializer_data.pop("variants")
+        variant_data = [dict(variant) for variant in variant_data]
+        expected_variant_data = [
+            {
+                "id": variant.id,
+                "description": variant.description,
+                "is_control": variant.is_control,
+                "name": variant.name,
+                "ratio": variant.ratio,
+                "message_id": variant.message_id,
+                "value": variant.value,
+            }
+            for variant in experiment.variants.all()
+        ]
+
+        self.assertEqual(serializer_data, {"message_type": experiment.message_type})
+        self.assertCountEqual(variant_data, expected_variant_data)
+
+    def test_serializer_saves_design_message_experiment(self):
+        experiment = ExperimentFactory.create(
+            type=ExperimentConstants.TYPE_MESSAGE,
+            message_type=Experiment.MESSAGE_TYPE_CFR,
+        )
+
+        variant_1 = {
+            "name": "Terrific branch",
+            "ratio": 50,
+            "description": "Very terrific branch.",
+            "is_control": True,
+            "message_id": "message-id-1",
+            "value": "Message 1",
+        }
+
+        variant_2 = {
+            "name": "Great branch",
+            "ratio": 50,
+            "description": "Very great branch.",
+            "is_control": False,
+            "message_id": "message-id-2",
+            "value": "Message 2",
+        }
+
+        data = {
+            "message_type": Experiment.MESSAGE_TYPE_MOMENTS,
+            "variants": [variant_1, variant_2],
+        }
+
+        serializer = ExperimentDesignMessageSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(experiment.changes.count(), 0)
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.message_type, Experiment.MESSAGE_TYPE_MOMENTS)
+        self.assertEqual(experiment.variants.count(), 2)
+        self.assertEqual(experiment.changes.count(), 1)
+
+    def test_serializer_outputs_dummy_variants_when_no_variants(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_MESSAGE)
+
+        serializer = ExperimentDesignMessageSerializer(experiment)
+
+        self.assertEqual(
+            serializer.data,
+            {
+                "message_type": experiment.message_type,
+                "variants": [
+                    {
+                        "description": None,
+                        "is_control": True,
+                        "name": None,
+                        "ratio": 50,
+                        "message_id": None,
+                        "value": None,
+                    },
+                    {
+                        "description": None,
+                        "is_control": False,
+                        "name": None,
+                        "ratio": 50,
+                        "message_id": None,
+                        "value": None,
+                    },
+                ],
+            },
+        )

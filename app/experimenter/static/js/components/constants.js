@@ -1,8 +1,9 @@
 import React from "react";
 
 export const TYPE_ADDON = "addon";
-export const TYPE_PREF = "pref";
 export const TYPE_GENERIC = "generic";
+export const TYPE_MESSAGE = "message";
+export const TYPE_PREF = "pref";
 export const TYPE_ROLLOUT = "rollout";
 
 export const PREF_TYPE_BOOL = "boolean";
@@ -182,6 +183,18 @@ export const ROLLOUT_PREF_BRANCH_HELP = (
   </div>
 );
 
+export const MESSAGE_ID_HELP = (
+  <div>
+    <p>Herp derp</p>
+  </div>
+);
+
+export const MESSAGE_CONTENT_HELP = (
+  <div>
+    <p>Herp derp</p>
+  </div>
+);
+
 export const VERSION_CHOICES = [
   [null, "Versions"],
   ["55.0", "Firefox 55.0"],
@@ -351,3 +364,13 @@ export const CLIENT_MATCHING_HELP = (
 export const COUNTRIES_LOCALES_HELP = (
   <p>Applicable only if you don't select All</p>
 );
+
+export const MESSAGE_TYPE_CFR = "cfr";
+export const MESSAGE_TYPE_WNP = "wnp";
+export const MESSAGE_TYPE_MOMENTS = "moments";
+
+export const MESSAGE_TYPE_CHOICES = [
+  [MESSAGE_TYPE_CFR, "CFR"],
+  [MESSAGE_TYPE_WNP, "What's New Panel"],
+  [MESSAGE_TYPE_MOMENTS, "Moments Pages"],
+];

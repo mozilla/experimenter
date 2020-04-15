@@ -35,9 +35,11 @@ class Branch extends React.PureComponent {
     return <h4>Branch {index}</h4>;
   }
 
-  renderField(name, label, value, error, help) {
+  renderField(name, label, value, error, help, as, rows) {
     return (
       <DesignInput
+        as={as || "input"}
+        rows={rows}
         label={label}
         dataTestId={label}
         name={`variants[${this.props.index}][${name}]`}
