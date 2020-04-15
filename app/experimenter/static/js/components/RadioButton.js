@@ -2,12 +2,15 @@ import PropTypes from "prop-types";
 import React from "react";
 import { Form } from "react-bootstrap";
 
+import Error from "experimenter/components/Error";
+
 export default class RadioButton extends React.PureComponent {
   static propTypes = {
+    choices: PropTypes.arrayOf(PropTypes.object),
     elementLabel: PropTypes.string,
+    error: PropTypes.string,
     fieldName: PropTypes.string,
     onChange: PropTypes.func,
-    choices: PropTypes.arrayOf(PropTypes.object),
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   };
 
@@ -33,6 +36,7 @@ export default class RadioButton extends React.PureComponent {
             value={value}
           />
         ))}
+        {this.props.error ? <Error error={this.props.error} /> : null}
       </Form.Group>
     );
   }
