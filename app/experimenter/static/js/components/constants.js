@@ -366,11 +366,9 @@ export const COUNTRIES_LOCALES_HELP = (
 );
 
 export const MESSAGE_TYPE_CFR = "cfr";
-export const MESSAGE_TYPE_WNP = "wnp";
-export const MESSAGE_TYPE_MOMENTS = "moments";
+export const MESSAGE_TYPE_WELCOME = "about:welcome";
 
 export const MESSAGE_TYPE_CHOICES = [
   [MESSAGE_TYPE_CFR, "CFR"],
-  [MESSAGE_TYPE_WNP, "What's New Panel"],
-  [MESSAGE_TYPE_MOMENTS, "Moments Pages"],
+  [MESSAGE_TYPE_WELCOME, "about:welcome"],
 ];

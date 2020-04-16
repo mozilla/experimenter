@@ -22,7 +22,7 @@ export default class MessageForm extends React.PureComponent {
         <Row>
           <Col md={{ span: 10, offset: 2 }}>
             <RadioButton
-              elementLabel="What message template does this experiment use?"
+              elementLabel="What message type does this experiment use?"
               fieldName="message_type"
               choices={MESSAGE_TYPE_CHOICES.map(([value, label]) => {
                 return { label, value };
