@@ -19,7 +19,7 @@
   <strong>Message Type</strong> <p>{{ experiment.get_message_type_display }}</p>
 {% endif %}
   {% for variant in experiment.variants.all %}
-    <div class="border-left-grey pl-3 mb-4">
+    <div class="border-left-grey pl-3 my-3">
       <h5>{{ variant.ratio }}% {{ variant.name }}</h5>
       {% if experiment.is_multi_pref %}
         <p><strong>Prefs:</strong></p>

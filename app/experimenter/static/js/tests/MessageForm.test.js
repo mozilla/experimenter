@@ -62,7 +62,7 @@ describe("The `DesignForm` component for message", () => {
 
     await waitForFormToLoad(container);
     expect(
-      getByText("What message template does this experiment use?"),
+      getByText("What message type does this experiment use?"),
     ).toBeInTheDocument();
     let num_of_variants = successResponse.variants.length;
     expect(getAllByText("Branch Size")).toHaveLength(num_of_variants);
@@ -151,7 +151,7 @@ describe("The `DesignForm` component for message", () => {
     await waitForFormToLoad(container);
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(getByLabelText("Moments Pages"));
+    fireEvent.click(getByLabelText("about:welcome"));
 
     const branch0ratio = "75";
     const branch0name = "branch0 name";
@@ -239,7 +239,7 @@ describe("The `DesignForm` component for message", () => {
     };
 
     data.variants = [editedControlBranch, newlyAddedBranch];
-    data.message_type = "moments";
+    data.message_type = "about:welcome";
     expect(Api.makeApiRequest).toBeCalledWith(expect.anything(), {
       data: data,
       method: "PUT",

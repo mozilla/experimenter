@@ -1586,7 +1586,7 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
         }
 
         data = {
-            "message_type": Experiment.MESSAGE_TYPE_MOMENTS,
+            "message_type": Experiment.MESSAGE_TYPE_WELCOME,
             "variants": [variant_1, variant_2],
         }
 
@@ -1598,7 +1598,7 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
 
         experiment = serializer.save()
 
-        self.assertEqual(experiment.message_type, Experiment.MESSAGE_TYPE_MOMENTS)
+        self.assertEqual(experiment.message_type, Experiment.MESSAGE_TYPE_WELCOME)
         self.assertEqual(experiment.variants.count(), 2)
         self.assertEqual(experiment.changes.count(), 1)
 

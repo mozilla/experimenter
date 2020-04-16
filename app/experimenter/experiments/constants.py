@@ -32,13 +32,11 @@ class ExperimentConstants(object):
     MESSAGE_DEFAULT_COUNTRIES = ("US", "CA", "GB", "DE", "FR")
 
     MESSAGE_TYPE_CFR = "cfr"
-    MESSAGE_TYPE_WNP = "wnp"
-    MESSAGE_TYPE_MOMENTS = "moments"
+    MESSAGE_TYPE_WELCOME = "about:welcome"
 
     MESSAGE_TYPE_CHOICES = (
         (MESSAGE_TYPE_CFR, "CFR"),
-        (MESSAGE_TYPE_WNP, "What's New Panel"),
-        (MESSAGE_TYPE_MOMENTS, "Moments Pages"),
+        (MESSAGE_TYPE_WELCOME, "about:welcome"),
     )
 
     # Rollout stuff
