@@ -13,7 +13,7 @@ class DesignPage(Base):
 
     _add_branch_btn_locator = (By.CSS_SELECTOR, "#add-branch-button")
     _branch_form_root_locator = (By.CSS_SELECTOR, "#control-branch-group")
-    _continue_btn_locator = (By.CSS_SELECTOR, "#save-continue")
+    _continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-btn")
     _firefox_pref_name_locator = (By.CSS_SELECTOR, "#id_pref_name")
     _firefox_pref_type_locator = (By.CSS_SELECTOR, "#id_pref_type")
     _firefox_pref_branch_locator = (By.CSS_SELECTOR, "#id_pref_branch")
