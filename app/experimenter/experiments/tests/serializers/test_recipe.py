@@ -29,7 +29,6 @@ from experimenter.experiments.serializers.recipe import (
     FilterObjectCountrySerializer,
     FilterObjectLocaleSerializer,
     FilterObjectVersionsSerializer,
-    FilterObjectPlatformSerializer,
     PrefValueField,
 )
 
@@ -326,7 +325,7 @@ class TestExperimentRecipeSerializer(TestCase):
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "preference-experiment")
         self.assertEqual(serializer.data["name"], experiment.name)
-        expected_comment = experiment.client_matching
+        expected_comment = "Platform: ['All Mac']\n{}".format(experiment.client_matching)
         self.assertEqual(serializer.data["comment"], expected_comment)
         self.assertEqual(
             serializer.data["filter_object"],
@@ -336,7 +335,6 @@ class TestExperimentRecipeSerializer(TestCase):
                 FilterObjectVersionsSerializer(experiment).data,
                 FilterObjectLocaleSerializer(experiment).data,
                 FilterObjectCountrySerializer(experiment).data,
-                FilterObjectPlatformSerializer(experiment).data,
             ],
         )
         self.assertEqual(
@@ -359,7 +357,9 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertEqual(serializer.data["action_name"], "opt-out-study")
         self.assertEqual(serializer.data["name"], experiment.name)
 
-        expected_comment = experiment.client_matching
+        expected_comment = "Platform: ['All Windows']\n{}".format(
+            experiment.client_matching
+        )
         self.assertEqual(serializer.data["comment"], expected_comment)
         self.assertEqual(
             serializer.data["filter_object"],
@@ -369,7 +369,6 @@ class TestExperimentRecipeSerializer(TestCase):
                 FilterObjectVersionsSerializer(experiment).data,
                 FilterObjectLocaleSerializer(experiment).data,
                 FilterObjectCountrySerializer(experiment).data,
-                FilterObjectPlatformSerializer(experiment).data,
             ],
         )
         self.assertEqual(
@@ -399,7 +398,9 @@ class TestExperimentRecipeSerializer(TestCase):
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "branched-addon-study")
         self.assertEqual(serializer.data["name"], experiment.name)
-        expected_comment = experiment.client_matching
+        expected_comment = "Platform: ['All Linux']\n{}".format(
+            experiment.client_matching
+        )
         self.assertEqual(serializer.data["comment"], expected_comment)
         self.assertEqual(
             serializer.data["filter_object"],
@@ -409,7 +410,6 @@ class TestExperimentRecipeSerializer(TestCase):
                 FilterObjectVersionsSerializer(experiment).data,
                 FilterObjectLocaleSerializer(experiment).data,
                 FilterObjectCountrySerializer(experiment).data,
-                FilterObjectPlatformSerializer(experiment).data,
             ],
         )
         self.assertEqual(
@@ -442,7 +442,9 @@ class TestExperimentRecipeSerializer(TestCase):
 
         variant.save()
 
-        expected_comment = experiment.client_matching
+        expected_comment = "Platform: ['All Windows']\n{}".format(
+            experiment.client_matching
+        )
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "multi-preference-experiment")
         self.assertEqual(serializer.data["name"], experiment.name)
@@ -455,7 +457,6 @@ class TestExperimentRecipeSerializer(TestCase):
                 FilterObjectVersionsSerializer(experiment).data,
                 FilterObjectLocaleSerializer(experiment).data,
                 FilterObjectCountrySerializer(experiment).data,
-                FilterObjectPlatformSerializer(experiment).data,
             ],
         )
         expected_data = {
@@ -501,7 +502,9 @@ class TestExperimentRecipeSerializer(TestCase):
 
         pref = VariantPreferencesFactory.create(variant=variant)
 
-        expected_comment = experiment.client_matching
+        expected_comment = "Platform: ['All Windows']\n{}".format(
+            experiment.client_matching
+        )
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "multi-preference-experiment")
         self.assertEqual(serializer.data["name"], experiment.name)
@@ -514,7 +517,6 @@ class TestExperimentRecipeSerializer(TestCase):
                 FilterObjectVersionsSerializer(experiment).data,
                 FilterObjectLocaleSerializer(experiment).data,
                 FilterObjectCountrySerializer(experiment).data,
-                FilterObjectPlatformSerializer(experiment).data,
             ],
         )
 
@@ -565,7 +567,9 @@ class TestExperimentRecipeSerializer(TestCase):
                     "extensionApiId": "TODO: https://www.example.com/addon.xpi",
                     "slug": "normandy-slug",
                 },
-                "comment": "Geos: US, CA, GB\n" 'Some "additional" filtering',
+                "comment": "Platform: ['All Windows']\n"
+                "Geos: US, CA, GB\n"
+                'Some "additional" filtering',
                 "experimenter_slug": "experimenter-slug",
                 "filter_object": [
                     {
@@ -577,7 +581,6 @@ class TestExperimentRecipeSerializer(TestCase):
                     },
                     {"channels": ["beta"], "type": "channel"},
                     {"type": "version", "versions": [70, 71]},
-                    {"type": "platform", "platforms": ["All Windows"]},
                 ],
                 "name": "Experimenter Name",
             },
@@ -615,7 +618,9 @@ class TestExperimentRecipeSerializer(TestCase):
                     "preferences": [{"preferenceName": "browser.pref", "value": True}],
                     "slug": "normandy-slug",
                 },
-                "comment": "Geos: US, CA, GB\n" 'Some "additional" filtering',
+                "comment": "Platform: ['All Windows']\n"
+                "Geos: US, CA, GB\n"
+                'Some "additional" filtering',
                 "experimenter_slug": "experimenter-slug",
                 "filter_object": [
                     {
@@ -627,7 +632,6 @@ class TestExperimentRecipeSerializer(TestCase):
                     },
                     {"type": "channel", "channels": ["beta"]},
                     {"type": "version", "versions": [70, 71]},
-                    {"type": "platform", "platforms": ["All Windows"]},
                 ],
                 "name": "Experimenter Name",
             },
