@@ -67,17 +67,6 @@ class FilterObjectChannelSerializer(serializers.ModelSerializer):
         return [obj.firefox_channel.lower()]
 
 
-# class FilterObjectPlatformSerializer(serializers.ModelSerializer):
-#     type = serializers.SerializerMethodField()
-#
-#     class Meta:
-#         model = Experiment
-#         fields = ("type", "platforms")
-#
-#     def get_type(self, obj):
-#         return "platform"
-
-
 class FilterObjectVersionsSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     versions = serializers.SerializerMethodField()
