@@ -34,7 +34,7 @@
     "@testing-library/dom": "latest",
     "autobind-decorator": "2.4.0",
     "bootstrap": "4.4.1",
-    "bootstrap-select": "1.13.12",
+    "bootstrap-select": "1.13.15",
     "immutable": "4.0.0-rc.12",
     "jquery": "3.4.1",
     "popper.js": "1.16.1",
