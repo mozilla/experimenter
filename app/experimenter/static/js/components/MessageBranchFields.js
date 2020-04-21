@@ -7,7 +7,6 @@ import {
   BRANCH_RATIO_HELP,
   BRANCH_NAME_HELP,
   BRANCH_DESCRIPTION_HELP,
-  MESSAGE_ID_HELP,
   MESSAGE_CONTENT_HELP,
 } from "experimenter/components/constants";
 
@@ -42,13 +41,6 @@ class MessageBranchFields extends React.PureComponent {
           this.props.branch.get("description"),
           this.props.errors.get("description"),
           BRANCH_DESCRIPTION_HELP,
-        )}
-        {this.props.renderField(
-          "message_id",
-          "Message ID",
-          this.props.branch.get("message_id"),
-          this.props.errors.get("message_id"),
-          MESSAGE_ID_HELP,
         )}
         {this.props.renderField(
           "value",

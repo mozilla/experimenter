@@ -208,7 +208,6 @@ export class MultiPrefDataFactory extends Factory {
 export class MessageVariantsFactory extends VariantsFactory {
   getFields() {
     return {
-      message_id: new Field(faker.lorem.sentence),
       value: new Field(faker.lorem.paragraph),
       ...super.getFields(),
     };

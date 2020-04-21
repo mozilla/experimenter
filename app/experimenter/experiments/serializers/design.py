@@ -478,15 +478,12 @@ class ExperimentDesignBranchedAddonSerializer(ExperimentDesignBaseSerializer):
 
 
 class ExperimentMessageVariantSerializer(ExperimentDesignVariantBaseSerializer):
-    message_id = serializers.CharField(max_length=255)
-
     class Meta(ExperimentDesignVariantBaseSerializer.Meta):
         model = ExperimentVariant
         fields = [
             "description",
             "id",
             "is_control",
-            "message_id",
             "name",
             "ratio",
             "value",
