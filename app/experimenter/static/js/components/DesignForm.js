@@ -211,6 +211,7 @@ class DesignForm extends React.PureComponent {
 
                 <Button
                   disabled={this.state.saving}
+                  id="save-btn"
                   variant="primary"
                   type="submit"
                   className="mr-1"
@@ -221,7 +222,7 @@ class DesignForm extends React.PureComponent {
 
                 <Button
                   disabled={this.state.saving}
-                  id="save-continue"
+                  id="save-and-continue-btn"
                   variant="primary"
                   type="submit"
                   onClick={this.handleSubmitContinue}
