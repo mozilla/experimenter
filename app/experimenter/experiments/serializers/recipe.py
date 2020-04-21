@@ -7,7 +7,6 @@ from experimenter.experiments.models import (
     VariantPreferences,
     RolloutPreference,
 )
-from experimenter.experiments.constants import ExperimentConstants
 
 from experimenter.experiments.serializers.entities import PrefTypeField
 
@@ -68,15 +67,15 @@ class FilterObjectChannelSerializer(serializers.ModelSerializer):
         return [obj.firefox_channel.lower()]
 
 
-class FilterObjectPlatformSerializer(serializers.ModelSerializer):
-    type = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Experiment
-        fields = ("type", "platforms")
-
-    def get_type(self, obj):
-        return "platform"
+# class FilterObjectPlatformSerializer(serializers.ModelSerializer):
+#     type = serializers.SerializerMethodField()
+#
+#     class Meta:
+#         model = Experiment
+#         fields = ("type", "platforms")
+#
+#     def get_type(self, obj):
+#         return "platform"
 
 
 class FilterObjectVersionsSerializer(serializers.ModelSerializer):
@@ -348,9 +347,6 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
         if obj.countries.count():
             filter_objects.append(FilterObjectCountrySerializer(obj).data)
 
-        if len(obj.platforms) < len(ExperimentConstants.PLATFORMS_LIST):
-            filter_objects.append(FilterObjectPlatformSerializer(obj).data)
-
         return filter_objects
 
     def get_arguments(self, obj):
@@ -368,4 +364,4 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return ExperimentRecipePrefRolloutArgumentsSerializer(obj).data
 
     def get_comment(self, obj):
-        return f"{obj.client_matching}"
+        return f"Platform: {obj.platforms}\n{obj.client_matching}"
