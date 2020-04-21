@@ -1552,7 +1552,6 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
                 "is_control": variant.is_control,
                 "name": variant.name,
                 "ratio": variant.ratio,
-                "message_id": variant.message_id,
                 "value": variant.value,
             }
             for variant in experiment.variants.all()
@@ -1572,7 +1571,6 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
             "ratio": 50,
             "description": "Very terrific branch.",
             "is_control": True,
-            "message_id": "message-id-1",
             "value": "Message 1",
         }
 
@@ -1581,7 +1579,6 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
             "ratio": 50,
             "description": "Very great branch.",
             "is_control": False,
-            "message_id": "message-id-2",
             "value": "Message 2",
         }
 
@@ -1617,7 +1614,6 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
                         "is_control": True,
                         "name": None,
                         "ratio": 50,
-                        "message_id": None,
                         "value": None,
                     },
                     {
@@ -1625,7 +1621,6 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
                         "is_control": False,
                         "name": None,
                         "ratio": 50,
-                        "message_id": None,
                         "value": None,
                     },
                 ],

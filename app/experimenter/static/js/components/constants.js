@@ -183,12 +183,6 @@ export const ROLLOUT_PREF_BRANCH_HELP = (
   </div>
 );
 
-export const MESSAGE_ID_HELP = (
-  <div>
-    <p>Herp derp</p>
-  </div>
-);
-
 export const MESSAGE_CONTENT_HELP = (
   <div>
     <p>Herp derp</p>

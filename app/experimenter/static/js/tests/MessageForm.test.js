@@ -72,7 +72,6 @@ describe("The `DesignForm` component for message", () => {
     for (let variant of successResponse.variants) {
       expect(getByDisplayValue(variant.name)).toBeInTheDocument();
       expect(getByDisplayValue(variant.description)).toBeInTheDocument();
-      expect(getByDisplayValue(variant.message_id)).toBeInTheDocument();
       expect(getByDisplayValue(variant.value)).toBeInTheDocument();
       getAllByDisplayValue(variant.ratio).map((e) =>
         expect(e).toBeInTheDocument(),
@@ -156,13 +155,11 @@ describe("The `DesignForm` component for message", () => {
     const branch0ratio = "75";
     const branch0name = "branch0 name";
     const branch0description = "branch0 description";
-    const branch0messageId = "cfr-message-0";
     const branch0messageContent = "some cfr content 0";
 
     const branch2ratio = "25";
     const branch2name = "branch2 name";
     const branch2description = "branch2 description";
-    const branch2messageId = "cfr-message-2";
     const branch2messageContent = "some cfr content 2";
 
     const controlBranch = getByTestId("branch0");
@@ -170,7 +167,6 @@ describe("The `DesignForm` component for message", () => {
     const ratio0Input = within(controlBranch).getByTestId("Branch Size");
     const name0Input = within(controlBranch).getByTestId("Name");
     const description0Input = within(controlBranch).getByTestId("Description");
-    const messageId0Input = within(controlBranch).getByTestId("Message ID");
     const messageContent0Input = within(controlBranch).getByTestId("Content");
 
     fireEvent.change(ratio0Input, { target: { value: branch0ratio } });
@@ -178,7 +174,6 @@ describe("The `DesignForm` component for message", () => {
     fireEvent.change(description0Input, {
       target: { value: branch0description },
     });
-    fireEvent.change(messageId0Input, { target: { value: branch0messageId } });
     fireEvent.change(messageContent0Input, {
       target: { value: branch0messageContent },
     });
@@ -190,7 +185,6 @@ describe("The `DesignForm` component for message", () => {
     const ratio2Input = within(branch2).getByTestId("Branch Size");
     const name2Input = within(branch2).getByTestId("Name");
     const description2Input = within(branch2).getByTestId("Description");
-    const messageId2Input = within(branch2).getByTestId("Message ID");
     const messageContent2Input = within(branch2).getByTestId("Content");
 
     fireEvent.change(ratio2Input, { target: { value: branch2ratio } });
@@ -198,7 +192,6 @@ describe("The `DesignForm` component for message", () => {
     fireEvent.change(description2Input, {
       target: { value: branch2description },
     });
-    fireEvent.change(messageId2Input, { target: { value: branch2messageId } });
     fireEvent.change(messageContent2Input, {
       target: { value: branch2messageContent },
     });
@@ -208,13 +201,11 @@ describe("The `DesignForm` component for message", () => {
     expect(ratio0Input.value).toBe(branch0ratio);
     expect(name0Input.value).toBe(branch0name);
     expect(description0Input.value).toBe(branch0description);
-    expect(messageId0Input.value).toBe(branch0messageId);
     expect(messageContent0Input.value).toBe(branch0messageContent);
 
     expect(ratio2Input.value).toBe(branch2ratio);
     expect(name2Input.value).toBe(branch2name);
     expect(description2Input.value).toBe(branch2description);
-    expect(messageId2Input.value).toBe(branch2messageId);
     expect(messageContent2Input.value).toBe(branch2messageContent);
 
     fireEvent.submit(getByText("Save Draft and Continue"));
@@ -224,7 +215,6 @@ describe("The `DesignForm` component for message", () => {
       is_control: false,
       name: branch2name,
       ratio: branch2ratio,
-      message_id: branch2messageId,
       value: branch2messageContent,
     };
 
@@ -234,7 +224,6 @@ describe("The `DesignForm` component for message", () => {
       is_control: true,
       name: branch0name,
       ratio: branch0ratio,
-      message_id: branch0messageId,
       value: branch0messageContent,
     };
 
