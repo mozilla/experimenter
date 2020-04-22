@@ -89,7 +89,7 @@ def fill_timeline(base_url, selenium, variables, ds_issue_host):
 
 
 @pytest.mark.nondestructive
-def test_single_pref_e2e(base_url, selenium, fill_timeline):
+def test_multi_pref_e2e(base_url, selenium, fill_timeline):
     url = urlparse(selenium.current_url)
     experiment_url = f"{url.scheme}://{url.netloc}/api/v1{url.path}recipe/"
     experiment_json = requests.get(f"{experiment_url}", verify=False).json()
@@ -132,7 +132,7 @@ def test_single_pref_e2e(base_url, selenium, fill_timeline):
     ]:  # Loop over each item in the Branches secion
         for num in range(
             len(experiment_json["arguments"]["branches"])
-        ):  # We want to check each branch so we need to do the check for as many branches exist
+        ):  # Check each branch so we need to do the check for as many branches exis
             if (
                 item["slug"]
                 == test_json["multi-pref-experiment"]["branches"][num]["branch_name"]
@@ -147,15 +147,15 @@ def test_single_pref_e2e(base_url, selenium, fill_timeline):
                     test_json["multi-pref-experiment"]["branches"][num][
                         "firefox_pref_type"
                     ]
-                    in f"{[value['preferenceType'] for value in item['preferences'].values()]}"
+                    in f"{[value['preferenceType'] for value in item['preferences'].values()]}"  # noqa: E501
                 )
                 assert (
                     test_json["multi-pref-experiment"]["branches"][num][
                         "firefox_pref_branch"
                     ]
-                    in f"{[value['preferenceBranchType'] for value in item['preferences'].values()]}"
+                    in f"{[value['preferenceBranchType'] for value in item['preferences'].values()]}"  # noqa: E501
                 )
                 assert (
                     test_json["multi-pref-experiment"]["branches"][num]["branch_value"]
-                    in f"{[value['preferenceValue'] for value in item['preferences'].values()]}".lower()
+                    in f"{[value['preferenceValue'] for value in item['preferences'].values()]}".lower()  # noqa: E501
                 )
