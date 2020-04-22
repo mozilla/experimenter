@@ -23,7 +23,7 @@ COMPOSE_FULL = docker-compose -f docker-compose.yml -f docker-compose-full.yml
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
-PYTHON_TEST = pytest -vvvv --cov --cov-report term-missing --show-capture=no --disable-warnings --ignore=tests/integration -n ${JOBS}
+PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 ESLINT = yarn lint
 ESLINT_FIX = yarn lint-fix
