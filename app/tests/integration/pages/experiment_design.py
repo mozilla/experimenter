@@ -53,10 +53,6 @@ class DesignPage(Base):
         element.send_keys(f"{text}-{random_chars}")
         return
 
-    @property
-    def firefox_pref_type(self):
-        element = self.find_element(*self._firefox_pref_type_locator)
-
     def select_firefox_pref_type(self, item):
         element = self.find_element(*self._firefox_pref_type_locator)
         selector = Select(element)
