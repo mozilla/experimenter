@@ -13,7 +13,8 @@ from pages.experiment_objective_and_analysis import ObjectiveAndAnalysisPage
 
 
 @pytest.fixture
-def fill_timeline(base_url, selenium, variables, ds_issue_host):
+def fill_experiment(base_url, selenium, variables, ds_issue_host):
+    # fills experiment and gets it ready to ship
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
@@ -89,7 +90,7 @@ def fill_timeline(base_url, selenium, variables, ds_issue_host):
 
 
 @pytest.mark.nondestructive
-def test_multi_pref_e2e(base_url, selenium, fill_timeline):
+def test_multi_pref_e2e(base_url, selenium, fill_experiment):
     url = urlparse(selenium.current_url)
     experiment_url = f"{url.scheme}://{url.netloc}/api/v1{url.path}recipe/"
     experiment_json = requests.get(f"{experiment_url}", verify=False).json()
