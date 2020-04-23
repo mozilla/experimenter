@@ -97,6 +97,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "countries",
             "projects",
             "platforms",
+            "windows_versions",
             "objectives",
             "total_enrolled_clients",
             "analysis",

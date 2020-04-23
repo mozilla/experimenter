@@ -25,9 +25,17 @@ class LocaleSerializerMultiSelect(serializers.ModelSerializer):
         fields = ("label", "value")
 
 
-class PlatformSerializer(serializers.Serializer):
+class GenericMultiSelectSerializer(serializers.Serializer):
     def to_representation(self, data):
         return {"value": data, "label": data}
+
+    def to_internal_value(self, data):
+        return data["value"]
+
+
+class PlatformsMultiSelectSerializer(serializers.Serializer):
+    def to_representation(self, data):
+        return {"value": data, "label": data[4:]}
 
     def to_internal_value(self, data):
         return data["value"]
@@ -89,7 +97,13 @@ class ExperimentTimelinePopSerializer(
         many=True, required=False, allow_null=True, default=None
     )
     platforms = serializers.ListField(
-        child=PlatformSerializer(), allow_empty=True, required=False
+        child=PlatformsMultiSelectSerializer(), allow_empty=True, required=False
+    )
+    windows_versions = serializers.ListField(
+        child=GenericMultiSelectSerializer(),
+        allow_null=True,
+        allow_empty=True,
+        required=False,
     )
     client_matching = serializers.CharField(
         required=False, allow_null=True, default=None, allow_blank=True
@@ -108,6 +122,7 @@ class ExperimentTimelinePopSerializer(
             "locales",
             "countries",
             "platforms",
+            "windows_versions",
             "client_matching",
         )
         model = Experiment
