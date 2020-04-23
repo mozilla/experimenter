@@ -10,9 +10,9 @@ class Base(Page):
     _save_btn_locator = (By.CSS_SELECTOR, "#save-btn")
     _save_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-btn")
 
-    def __init__(self, selenium, base_url, locale="en-US", **kwargs):
+    def __init__(self, selenium, base_url, **kwargs):
         super(Base, self).__init__(
-            selenium, base_url, locale=locale, timeout=30, **kwargs
+            selenium, base_url, timeout=30, **kwargs
         )
 
     def wait_for_page_to_load(self):

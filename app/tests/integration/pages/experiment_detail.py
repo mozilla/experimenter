@@ -8,6 +8,8 @@ from pages.base import Base
 
 class DetailPage(Base):
 
+    URL_TEMPLATE = "{experiment_url}"
+
     _begin_signoffs_btn_locator = (By.CSS_SELECTOR, ".proceed-status-color")
     _confirm_ship_btn_locator = (By.CSS_SELECTOR, ".proceed-status-color")
     _edit_branches_btn_locator = (By.CSS_SELECTOR, "#branches-edit-btn")
