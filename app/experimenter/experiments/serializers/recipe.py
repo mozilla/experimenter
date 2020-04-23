@@ -353,4 +353,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return ExperimentRecipePrefRolloutArgumentsSerializer(obj).data
 
     def get_comment(self, obj):
-        return f"Platform: {obj.platforms}\n{obj.client_matching}"
+        return (
+            f"Platform: {obj.platforms}\n"
+            f"Windows Versions: {obj.windows_versions}\n{obj.client_matching}"
+        )
