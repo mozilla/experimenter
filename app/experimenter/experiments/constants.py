@@ -39,6 +39,16 @@ class ExperimentConstants(object):
         (MESSAGE_TYPE_WELCOME, "about:welcome"),
     )
 
+    MESSAGE_TEMPLATE_DOOR = "cfr_doorhanger"
+    MESSAGE_TEMPLATE_URL = "cfr_urlbar_chiclet"
+    MESSAGE_TEMPLATE_MILESTONE = "milestone_message"
+
+    MESSAGE_TEMPLATE_CHOICES = (
+        (MESSAGE_TEMPLATE_DOOR, "CFR Doorhanger"),
+        (MESSAGE_TEMPLATE_URL, "CFR Urlbar Chiclet"),
+        (MESSAGE_TEMPLATE_MILESTONE, "Milestone Message"),
+    )
+
     # Rollout stuff
     ROLLOUT_TYPE_CHOICES = ((TYPE_PREF, "Pref Rollout"), (TYPE_ADDON, "Add-On Rollout"))
 
