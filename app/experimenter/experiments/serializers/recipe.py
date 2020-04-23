@@ -355,5 +355,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
     def get_comment(self, obj):
         return (
             f"Platform: {obj.platforms}\n"
-            f"Windows Versions: {obj.windows_versions}\n{obj.client_matching}"
+            f"Windows Versions: {obj.windows_versions}\n"
+            f"Profile Age: {obj.profile_age}\n"
+            f"{obj.client_matching}"
         )

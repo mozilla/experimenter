@@ -182,6 +182,13 @@ class Experiment(ExperimentConstants, models.Model):
     windows_versions = ArrayField(
         models.CharField(max_length=200), blank=True, null=True,
     )
+    profile_age = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.PROFILE_AGE_CHOICES,
+        blank=True,
+        null=True,
+        default=ExperimentConstants.PROFILES_ALL,
+    )
     design = models.TextField(
         default=ExperimentConstants.DESIGN_DEFAULT, blank=True, null=True
     )
