@@ -16,6 +16,7 @@ class Branch extends React.PureComponent {
     onChange: PropTypes.func,
     onErrorChange: PropTypes.func,
     remove: PropTypes.func,
+    options: PropTypes.object,
   };
 
   handleBranchFieldChange(key, value) {
@@ -96,6 +97,7 @@ class Branch extends React.PureComponent {
           onErrorChange={this.handleErrorBranchFieldChange}
           index={this.props.index}
           renderField={this.renderField}
+          options={this.props.options}
         />
 
         <hr className="heavy-line my-5" />

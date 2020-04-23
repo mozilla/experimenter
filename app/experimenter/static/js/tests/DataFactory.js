@@ -217,7 +217,6 @@ export class MessageVariantsFactory extends VariantsFactory {
 export class MessageDataFactory extends Factory {
   getFields() {
     return {
-      message_type: "cfr",
       variants: [],
     };
   }

@@ -183,12 +183,6 @@ export const ROLLOUT_PREF_BRANCH_HELP = (
   </div>
 );
 
-export const MESSAGE_CONTENT_HELP = (
-  <div>
-    <p>Herp derp</p>
-  </div>
-);
-
 export const VERSION_CHOICES = [
   [null, "Versions"],
   ["55.0", "Firefox 55.0"],
@@ -362,7 +356,34 @@ export const COUNTRIES_LOCALES_HELP = (
 export const MESSAGE_TYPE_CFR = "cfr";
 export const MESSAGE_TYPE_WELCOME = "about:welcome";
 
+export const MESSAGE_TYPE_CFR_LABEL = "CFR";
+export const MESSAGE_TYPE_WELCOME_LABEL = MESSAGE_TYPE_WELCOME;
+
 export const MESSAGE_TYPE_CHOICES = [
-  [MESSAGE_TYPE_CFR, "CFR"],
-  [MESSAGE_TYPE_WELCOME, "about:welcome"],
+  [MESSAGE_TYPE_CFR, MESSAGE_TYPE_CFR_LABEL],
+  [MESSAGE_TYPE_WELCOME, MESSAGE_TYPE_WELCOME_LABEL],
 ];
+
+export const MESSAGE_CONTENT_HELP = (
+  <div>
+    <p>Herp derp</p>
+  </div>
+);
+
+export const MESSAGE_TARGETING_HELP = (
+  <div>
+    <p>Herp derp</p>
+  </div>
+);
+
+export const MESSAGE_THRESHOLD_HELP = (
+  <div>
+    <p>Herp derp</p>
+  </div>
+);
+
+export const MESSAGE_TRIGGERS_HELP = (
+  <div>
+    <p>Herp derp</p>
+  </div>
+);

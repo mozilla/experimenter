@@ -4769,6 +4769,18 @@
                           "is_control": {
                             "type": "boolean"
                           },
+                          "message_targeting": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_threshold": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_triggers": {
+                            "type": "string",
+                            "nullable": true
+                          },
                           "name": {
                             "type": "string",
                             "maxLength": 255
@@ -4777,15 +4789,15 @@
                             "type": "integer"
                           },
                           "value": {
-                            "type": "string",
-                            "nullable": true
+                            "type": "string"
                           }
                         },
                         "required": [
                           "description",
                           "is_control",
                           "name",
-                          "ratio"
+                          "ratio",
+                          "value"
                         ]
                       }
                     }
@@ -4842,6 +4854,18 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
                         "name": {
                           "type": "string",
                           "maxLength": 255
@@ -4850,15 +4874,15 @@
                           "type": "integer"
                         },
                         "value": {
-                          "type": "string",
-                          "nullable": true
+                          "type": "string"
                         }
                       },
                       "required": [
                         "description",
                         "is_control",
                         "name",
-                        "ratio"
+                        "ratio",
+                        "value"
                       ]
                     }
                   }
@@ -4891,6 +4915,18 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
                         "name": {
                           "type": "string",
                           "maxLength": 255
@@ -4899,15 +4935,15 @@
                           "type": "integer"
                         },
                         "value": {
-                          "type": "string",
-                          "nullable": true
+                          "type": "string"
                         }
                       },
                       "required": [
                         "description",
                         "is_control",
                         "name",
-                        "ratio"
+                        "ratio",
+                        "value"
                       ]
                     }
                   }
@@ -4940,6 +4976,18 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
                         "name": {
                           "type": "string",
                           "maxLength": 255
@@ -4948,15 +4996,15 @@
                           "type": "integer"
                         },
                         "value": {
-                          "type": "string",
-                          "nullable": true
+                          "type": "string"
                         }
                       },
                       "required": [
                         "description",
                         "is_control",
                         "name",
-                        "ratio"
+                        "ratio",
+                        "value"
                       ]
                     }
                   }
@@ -4994,6 +5042,18 @@
                           "is_control": {
                             "type": "boolean"
                           },
+                          "message_targeting": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_threshold": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_triggers": {
+                            "type": "string",
+                            "nullable": true
+                          },
                           "name": {
                             "type": "string",
                             "maxLength": 255
@@ -5002,15 +5062,15 @@
                             "type": "integer"
                           },
                           "value": {
-                            "type": "string",
-                            "nullable": true
+                            "type": "string"
                           }
                         },
                         "required": [
                           "description",
                           "is_control",
                           "name",
-                          "ratio"
+                          "ratio",
+                          "value"
                         ]
                       }
                     }
@@ -5067,6 +5127,18 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
                         "name": {
                           "type": "string",
                           "maxLength": 255
@@ -5075,15 +5147,15 @@
                           "type": "integer"
                         },
                         "value": {
-                          "type": "string",
-                          "nullable": true
+                          "type": "string"
                         }
                       },
                       "required": [
                         "description",
                         "is_control",
                         "name",
-                        "ratio"
+                        "ratio",
+                        "value"
                       ]
                     }
                   }
@@ -5112,6 +5184,18 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
                         "name": {
                           "type": "string",
                           "maxLength": 255
@@ -5120,15 +5204,15 @@
                           "type": "integer"
                         },
                         "value": {
-                          "type": "string",
-                          "nullable": true
+                          "type": "string"
                         }
                       },
                       "required": [
                         "description",
                         "is_control",
                         "name",
-                        "ratio"
+                        "ratio",
+                        "value"
                       ]
                     }
                   }
@@ -5157,6 +5241,18 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
                         "name": {
                           "type": "string",
                           "maxLength": 255
@@ -5165,15 +5261,15 @@
                           "type": "integer"
                         },
                         "value": {
-                          "type": "string",
-                          "nullable": true
+                          "type": "string"
                         }
                       },
                       "required": [
                         "description",
                         "is_control",
                         "name",
-                        "ratio"
+                        "ratio",
+                        "value"
                       ]
                     }
                   }
@@ -5207,6 +5303,18 @@
                           "is_control": {
                             "type": "boolean"
                           },
+                          "message_targeting": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_threshold": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_triggers": {
+                            "type": "string",
+                            "nullable": true
+                          },
                           "name": {
                             "type": "string",
                             "maxLength": 255
@@ -5215,15 +5323,15 @@
                             "type": "integer"
                           },
                           "value": {
-                            "type": "string",
-                            "nullable": true
+                            "type": "string"
                           }
                         },
                         "required": [
                           "description",
                           "is_control",
                           "name",
-                          "ratio"
+                          "ratio",
+                          "value"
                         ]
                       }
                     }
