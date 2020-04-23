@@ -1636,7 +1636,7 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
         self.assertEqual(treatment_branch.value, "treatment content")
 
     def test_serializer_saves_design_welcome_message_experiment(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_MESSAGE,)
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_MESSAGE)
 
         variant_1 = {
             "is_control": True,

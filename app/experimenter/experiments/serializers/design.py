@@ -501,7 +501,9 @@ class ExperimentDesignMessageSerializer(ExperimentDesignBaseSerializer):
         choices=ExperimentConstants.MESSAGE_TYPE_CHOICES
     )
     message_template = serializers.ChoiceField(
-        choices=ExperimentConstants.MESSAGE_TEMPLATE_CHOICES, required=False,
+        choices=ExperimentConstants.MESSAGE_TEMPLATE_CHOICES,
+        required=False,
+        allow_null=True,
     )
 
     class Meta:
