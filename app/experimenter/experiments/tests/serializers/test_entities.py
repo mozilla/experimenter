@@ -231,6 +231,7 @@ class TestChangeLogSerializer(TestCase):
             "countries": [{"code": "CA", "name": "Canada"}],
             "projects": [{"slug": project.slug}],
             "platforms": experiment.platforms,
+            "windows_versions": experiment.windows_versions,
             "objectives": experiment.objectives,
             "total_enrolled_clients": experiment.total_enrolled_clients,
             "analysis": experiment.analysis,
