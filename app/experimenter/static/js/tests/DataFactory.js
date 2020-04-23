@@ -1,5 +1,11 @@
 import faker from "faker";
 import { AutoIncrementField, Factory, Field } from "experimenter/tests/factory";
+import {
+  PLATFORM_WINDOWS,
+  PLATFORM_WINDOWS_LABEL,
+  PLATFORM_MAC,
+  PLATFORM_MAC_LABEL,
+} from "experimenter/components/constants";
 
 export class VariantsFactory extends Factory {
   getFields() {
@@ -249,8 +255,8 @@ export class TimelinePopDataFactory extends Factory {
       locales: [{ value: "NP", label: "Nepali" }],
       countries: [{ value: "US", label: "United States" }],
       platforms: [
-        { value: "All Windows", label: "All Windows" },
-        { value: "All Mac", label: "All Mac" },
+        { value: PLATFORM_WINDOWS, label: PLATFORM_WINDOWS_LABEL },
+        { value: PLATFORM_MAC, label: PLATFORM_MAC_LABEL },
       ],
       client_matching: "client matching data",
     };

@@ -179,6 +179,9 @@ class Experiment(ExperimentConstants, models.Model):
         null=True,
         default=default_all_platforms,
     )
+    windows_versions = ArrayField(
+        models.CharField(max_length=200), blank=True, null=True,
+    )
     design = models.TextField(
         default=ExperimentConstants.DESIGN_DEFAULT, blank=True, null=True
     )
@@ -606,11 +609,14 @@ class Experiment(ExperimentConstants, models.Model):
         return self.type not in (self.TYPE_GENERIC, self.TYPE_ROLLOUT)
 
     @property
-    def display_platforms(self):
-        if set(ExperimentConstants.PLATFORMS_LIST) == set(self.platforms):
-            return ExperimentConstants.PLATFORM_ALL
+    def display_platforms_or_versions(self):
+        if self.windows_versions:
+            return ", ".join(self.windows_versions)
+        else:
+            if set(ExperimentConstants.PLATFORMS_LIST) == set(self.platforms):
+                return ExperimentConstants.PLATFORM_ALL
 
-        return ", ".join(self.platforms)
+            return ", ".join(self.platforms)
 
     @property
     def completed_overview(self):

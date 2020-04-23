@@ -200,6 +200,18 @@ class ExperimentConstants(object):
 
     PLATFORMS_LIST = [PLATFORM_WINDOWS, PLATFORM_MAC, PLATFORM_LINUX]
 
+    VERSION_WINDOWS_7 = "Windows 7"
+    VERSION_WINDOWS_8 = "Windows 8"
+    VERSION_WINDOWS_8_1 = "Windows 8.1"
+    VERSION_WINDOWS_10_PLUS = "Windows 10+"
+
+    WINDOWS_VERSION_LIST = [
+        VERSION_WINDOWS_7,
+        VERSION_WINDOWS_8,
+        VERSION_WINDOWS_8_1,
+        VERSION_WINDOWS_10_PLUS,
+    ]
+
     # Pref stuff
     PREF_TYPE_BOOL = "boolean"
     PREF_TYPE_INT = "integer"

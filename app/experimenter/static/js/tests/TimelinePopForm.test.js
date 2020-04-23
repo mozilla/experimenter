@@ -75,12 +75,18 @@ describe("The TimelinePopForm component for experiments", () => {
     const channelInput = getByLabelText(/Firefox Channel/);
     const countriesInput = container.querySelector("#id_countries");
     const platformsInput = container.querySelector("#id_platforms");
+    const windowsVersionsInput = container.querySelector(
+      "#id_windows_versions input",
+    );
     expect(proposedStartDateInput.value).toBe(apiResponse.proposed_start_date);
     expect(firefoxMinVersionInput.value).toBe(apiResponse.firefox_min_version);
     expect(firefoxMaxVersionInput.value).toBe(apiResponse.firefox_max_version);
 
-    //edit some Fields
+    // check that windows versions input isn't enabled because multiple
+    // platforms are selected.
+    expect(windowsVersionsInput).toBeDisabled();
 
+    //edit some Fields
     fireEvent.change(proposedStartDateInput, { target: { value: "" } });
     fireEvent.change(proposedEnrollmentInput, { target: { value: "50" } });
     fireEvent.change(proposedDurationInput, { target: { value: "" } });
@@ -91,8 +97,14 @@ describe("The TimelinePopForm component for experiments", () => {
     fireEvent.change(clientMatchingInput, {
       target: { value: "different filtering" },
     });
+
+    // delete option from multiselects
     fireEvent.keyDown(countriesInput, { keyCode: 46 });
     fireEvent.keyDown(platformsInput, { keyCode: 46 });
+
+    // check that windows versions is now enabled because only "windows"
+    // is selected for platforms.
+    expect(windowsVersionsInput).toBeEnabled();
 
     fireEvent.click(getByText("Save Draft"));
 
@@ -107,7 +119,7 @@ describe("The TimelinePopForm component for experiments", () => {
     expect(data.firefox_min_version).toBe("60.0");
     expect(data.firefox_max_version).toBe("64.0");
     expect(data.platforms).toEqual([
-      { value: "All Windows", label: "All Windows" },
+      { value: "All Windows", label: "Windows" },
     ]);
     expect(data.client_matching).toBe("different filtering");
     expect(data.countries).toEqual([]);
