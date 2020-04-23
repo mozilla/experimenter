@@ -7,7 +7,6 @@ import pytest
 import requests
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
-from selenium.webdriver.support import expected_conditions as EC
 
 from pages.home import Home
 from pages.experiment_timeline_and_population import TimelineAndPopulationPage
@@ -55,7 +54,7 @@ def fill_overview(selenium, base_url, ds_issue_host, request, variables):
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
-    if request.node.get_closest_marker('use_variables'):
+    if request.node.get_closest_marker("use_variables"):
         experiment.name = f"{variables['multi-pref-experiment']['name']}"
         experiment.short_description = "Testing in here"
         experiment.public_name = f"{variables['multi-pref-experiment']['userFacingName']}"
@@ -75,10 +74,12 @@ def fill_overview(selenium, base_url, ds_issue_host, request, variables):
     experiment.url = url.path
     return experiment
 
+
 @pytest.fixture
 def fill_timeline_page(selenium, base_url, request, variables, fill_overview):
     timeline = TimelineAndPopulationPage(
-        selenium, base_url, experiment_url=f"{fill_overview.url}").open()
+        selenium, base_url, experiment_url=f"{fill_overview.url}"
+    ).open()
     timeline.wait_for_page_to_load()
     date = f"{datetime.datetime.now()}"
     new_date = parse(date)
@@ -86,10 +87,14 @@ def fill_timeline_page(selenium, base_url, request, variables, fill_overview):
     timeline.proposed_start_date = today
     timeline.proposed_experiment_duration = "25"
     timeline.population_precentage = "100.0"
-    if request.node.get_closest_marker('use_variables'):
+    if request.node.get_closest_marker("use_variables"):
         timeline.firefox_channel = f"{variables['multi-pref-experiment']['channels']}"
-        timeline.firefox_min_version = f"{variables['multi-pref-experiment']['min_version']}"
-        timeline.firefox_max_version = f"{variables['multi-pref-experiment']['max_version']}"
+        timeline.firefox_min_version = (
+            f"{variables['multi-pref-experiment']['min_version']}"
+        )
+        timeline.firefox_max_version = (
+            f"{variables['multi-pref-experiment']['max_version']}"
+        )
     else:
         timeline.firefox_channel = "nightly"
         timeline.firefox_min_version = "75"
@@ -97,11 +102,12 @@ def fill_timeline_page(selenium, base_url, request, variables, fill_overview):
     timeline.save_btn()
     return timeline
 
+
 @pytest.fixture
 def fill_design_page(selenium, base_url, request, variables, fill_overview):
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
     design = design.wait_for_page_to_load()
-    if request.node.get_closest_marker('use_variables'):
+    if request.node.get_closest_marker("use_variables"):
         design.input_firefox_pref_name(
             f"{variables['multi-pref-experiment']['branches'][0]['firefox_pref_name']}"
         )
@@ -142,26 +148,33 @@ def fill_design_page(selenium, base_url, request, variables, fill_overview):
     design.save_btn()
     return design
 
+
 @pytest.fixture
 def fill_analysis_page(selenium, base_url, request, variables, fill_overview):
-    analysis_page = ObjectiveAndAnalysisPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
+    analysis_page = ObjectiveAndAnalysisPage(
+        selenium, base_url, experiment_url=f"{fill_overview.url}"
+    ).open()
     analysis_page.wait_for_page_to_load()
     analysis_page.objectives_text_box = " E2e Testing"
     analysis_page.analysis_text_box = " E2e testing"
     analysis_page.save_btn()
     return analysis_page
 
+
 @pytest.fixture
 def fill_risks_page(selenium, base_url, request, variables, fill_overview):
     from pages.experiment_risks_and_testing import RiskAndTestingPage
 
-    risks_page = RiskAndTestingPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
+    risks_page = RiskAndTestingPage(
+        selenium, base_url, experiment_url=f"{fill_overview.url}"
+    ).open()
     risks_page.wait_for_page_to_load()
     for risk in risks_page.risks:
         risk.select_no()
     risks_page.qa_status_box = "Green"
     risks_page.save_btn()
     return risks_page
+
 
 @pytest.fixture
 def fill_experiment(
@@ -173,11 +186,13 @@ def fill_experiment(
     fill_timeline_page,
     fill_design_page,
     fill_analysis_page,
-    fill_risks_page
+    fill_risks_page,
 ):
     # fills experiment and gets it ready to ship
     print(fill_overview.url)
-    detail_page = DetailPage(selenium, base_url, experiment_url=f"{fill_overview.url}").wait_for_page_to_load()
+    detail_page = DetailPage(
+        selenium, base_url, experiment_url=f"{fill_overview.url}"
+    ).wait_for_page_to_load()
     detail_page.begin_signoffs_button.click()
     for checkbox in detail_page.required_checklist_section:
         try:

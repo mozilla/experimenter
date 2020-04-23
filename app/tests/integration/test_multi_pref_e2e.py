@@ -1,7 +1,5 @@
-import datetime
-from dateutil.parser import parse
-from urllib.parse import urlparse
 import json
+from urllib.parse import urlparse
 
 import pytest
 import requests

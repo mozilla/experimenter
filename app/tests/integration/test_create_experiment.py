@@ -7,7 +7,8 @@ from pages.experiment_design import DesignPage
 def test_add_branch(base_url, selenium, ds_issue_host, fill_overview):
     """Test adding a new branch."""
     exp_design = DesignPage(
-        selenium, base_url, experiment_url=f"{fill_overview.url}").open()
+        selenium, base_url, experiment_url=f"{fill_overview.url}"
+    ).open()
     exp_design.input_firefox_pref_name("robot rock")
     exp_design.select_firefox_pref_type("boolean")
     exp_design.select_firefox_pref_branch("default")
@@ -19,7 +20,8 @@ def test_add_branch(base_url, selenium, ds_issue_host, fill_overview):
 def test_remove_branch(base_url, selenium, fill_overview):
     """Test removing a branch."""
     exp_design = DesignPage(
-        selenium, base_url, experiment_url=f"{fill_overview.url}").open()
+        selenium, base_url, experiment_url=f"{fill_overview.url}"
+    ).open()
     exp_design.input_firefox_pref_name("robot rock")
     exp_design.select_firefox_pref_type("boolean")
     exp_design.select_firefox_pref_branch("default")
@@ -34,7 +36,8 @@ def test_remove_branch(base_url, selenium, fill_overview):
 def test_duplicate_branch_name(base_url, selenium, ds_issue_host, fill_overview):
     """Test adding a branch with the same name as the control branch."""
     exp_design = DesignPage(
-        selenium, base_url, experiment_url=f"{fill_overview.url}").open()
+        selenium, base_url, experiment_url=f"{fill_overview.url}"
+    ).open()
     exp_design.input_firefox_pref_name("robot rock")
     exp_design.select_firefox_pref_type("boolean")
     exp_design.select_firefox_pref_branch("default")
