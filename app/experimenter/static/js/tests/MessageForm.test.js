@@ -16,6 +16,8 @@ import {
 } from "experimenter/tests/helpers.js";
 import { MessageDataFactory } from "experimenter/tests/DataFactory";
 import {
+  MESSAGE_TEMPLATE_DOOR_LABEL,
+  MESSAGE_TEMPLATE_DOOR,
   MESSAGE_TYPE_CFR_LABEL,
   MESSAGE_TYPE_CFR,
   MESSAGE_TYPE_WELCOME_LABEL,
@@ -115,6 +117,7 @@ describe("The `DesignForm` component for message", () => {
     expect(Api.makeApiRequest).toHaveBeenCalledTimes(1);
 
     fireEvent.click(getByLabelText(MESSAGE_TYPE_CFR_LABEL));
+    fireEvent.click(getByLabelText(MESSAGE_TEMPLATE_DOOR_LABEL));
 
     const branch0ratio = "75";
     const branch0name = "branch0 name";
@@ -249,6 +252,7 @@ describe("The `DesignForm` component for message", () => {
 
     data.variants = [editedControlBranch, newlyAddedBranch];
     data.message_type = MESSAGE_TYPE_CFR;
+    data.message_template = MESSAGE_TEMPLATE_DOOR;
     expect(Api.makeApiRequest).toBeCalledWith(expect.anything(), {
       data: data,
       method: "PUT",

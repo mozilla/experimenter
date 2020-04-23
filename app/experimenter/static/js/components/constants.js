@@ -364,6 +364,20 @@ export const MESSAGE_TYPE_CHOICES = [
   [MESSAGE_TYPE_WELCOME, MESSAGE_TYPE_WELCOME_LABEL],
 ];
 
+export const MESSAGE_TEMPLATE_DOOR = "cfr_doorhanger";
+export const MESSAGE_TEMPLATE_URL = "cfr_urlbar_chiclet";
+export const MESSAGE_TEMPLATE_MILESTONE = "milestone_message";
+
+export const MESSAGE_TEMPLATE_DOOR_LABEL = "CFR Doorhanger";
+export const MESSAGE_TEMPLATE_URL_LABEL = "CFR Urlbar Chiclet";
+export const MESSAGE_TEMPLATE_MILESTONE_LABEL = "Milestone Message";
+
+export const MESSAGE_TEMPLATE_CHOICES = [
+  [MESSAGE_TEMPLATE_DOOR, MESSAGE_TEMPLATE_DOOR_LABEL],
+  [MESSAGE_TEMPLATE_URL, MESSAGE_TEMPLATE_URL_LABEL],
+  [MESSAGE_TEMPLATE_MILESTONE, MESSAGE_TEMPLATE_MILESTONE_LABEL],
+];
+
 export const MESSAGE_CONTENT_HELP = (
   <div>
     <p>Herp derp</p>

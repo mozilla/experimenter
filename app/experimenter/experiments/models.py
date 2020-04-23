@@ -101,6 +101,12 @@ class Experiment(ExperimentConstants, models.Model):
         null=True,
         choices=ExperimentConstants.MESSAGE_TYPE_CHOICES,
     )
+    message_template = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=ExperimentConstants.MESSAGE_TEMPLATE_CHOICES,
+    )
 
     is_multi_pref = models.BooleanField(default=False)
     rollout_type = models.CharField(
