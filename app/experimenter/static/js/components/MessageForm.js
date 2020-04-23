@@ -3,7 +3,10 @@ import React from "react";
 import { List, Map } from "immutable";
 import { Row, Col } from "react-bootstrap";
 
-import { MESSAGE_TYPE_CHOICES } from "experimenter/components/constants";
+import {
+  MESSAGE_TYPE_CHOICES,
+  MESSAGE_TYPE_CFR,
+} from "experimenter/components/constants";
 import BranchManager from "experimenter/components/BranchManager";
 import MessageBranchFields from "experimenter/components/MessageBranchFields";
 import RadioButton from "experimenter/components/RadioButton";
@@ -17,6 +20,8 @@ export default class MessageForm extends React.PureComponent {
   };
 
   render() {
+    const isCfr = this.props.data.get("message_type") === MESSAGE_TYPE_CFR;
+
     return (
       <div>
         <Row>
@@ -44,6 +49,7 @@ export default class MessageForm extends React.PureComponent {
           errors={this.props.errors.get("variants", new List())}
           handleDataChange={this.props.handleDataChange}
           handleErrorsChange={this.props.handleErrorsChange}
+          options={{ isCfr }}
         />
       </div>
     );

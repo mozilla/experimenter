@@ -1003,6 +1003,9 @@ class ExperimentVariant(models.Model):
     ratio = models.PositiveIntegerField(default=1)
     addon_release_url = models.URLField(max_length=400, blank=True, null=True)
     value = models.TextField(blank=True, null=True)
+    message_targeting = models.TextField(blank=True, null=True)
+    message_threshold = models.TextField(blank=True, null=True)
+    message_triggers = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Experiment Variant"

@@ -47,8 +47,16 @@
         <p>{{ variant.addon_release_url|urlize }}</p>
       {% endif %}
       {% if experiment.is_message_experiment %}
-        <strong>Message ID</strong> <p>{{ variant.message_id }}</p>
-        <strong>Content</strong> {{ variant.value|linebreaks }}
+        {% if variant.message_targeting %}
+          <strong>Message Targeting</strong> {{ variant.message_targeting|linebreaks }}
+        {% endif %}
+        {% if variant.message_threshold %}
+          <strong>Message Threshold</strong> {{ variant.message_threshold|linebreaks }}
+        {% endif %}
+        {% if variant.message_triggers %}
+          <strong>Message Triggers</strong> {{ variant.message_triggers|linebreaks }}
+        {% endif %}
+        <strong>Message Content</strong> {{ variant.value|linebreaks }}
       {% endif%}
     </div>
   {% endfor %}

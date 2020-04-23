@@ -1553,6 +1553,9 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
                 "name": variant.name,
                 "ratio": variant.ratio,
                 "value": variant.value,
+                "message_targeting": variant.message_targeting,
+                "message_threshold": variant.message_threshold,
+                "message_triggers": variant.message_triggers,
             }
             for variant in experiment.variants.all()
         ]
@@ -1615,6 +1618,9 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
                         "name": None,
                         "ratio": 50,
                         "value": None,
+                        "message_targeting": None,
+                        "message_threshold": None,
+                        "message_triggers": None,
                     },
                     {
                         "description": None,
@@ -1622,6 +1628,9 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
                         "name": None,
                         "ratio": 50,
                         "value": None,
+                        "message_targeting": None,
+                        "message_threshold": None,
+                        "message_triggers": None,
                     },
                 ],
             },
