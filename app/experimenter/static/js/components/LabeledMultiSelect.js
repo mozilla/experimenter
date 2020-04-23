@@ -27,6 +27,8 @@ class LabeledMultiSelect extends React.PureComponent {
     optional: PropTypes.bool,
     options: PropTypes.array,
     placeholder: PropTypes.string,
+    isDisabled: PropTypes.bool,
+    showNote: PropTypes.bool,
   };
 
   constructor(props) {
@@ -83,6 +85,7 @@ class LabeledMultiSelect extends React.PureComponent {
         <Col md={this.determineInputColumnWidth()}>
           <Select
             isMulti
+            isDisabled={this.props.isDisabled}
             options={this.props.options}
             id={this.props.id}
             placeholder={this.props.placeholder}
@@ -93,7 +96,9 @@ class LabeledMultiSelect extends React.PureComponent {
               this.props.onChange(selection, this.props.name);
             }}
           />
-          {this.props.note ? <p className="py-1">{this.props.note}</p> : null}
+          {this.props.showNote ? (
+            <p className="py-1 text-muted">{this.props.note}</p>
+          ) : null}
           {this.props.error ? <Error error={this.props.error} /> : null}
           <HelpBox showing={this.state.help_showing}>
             {this.props.helpContent}

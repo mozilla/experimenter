@@ -27,8 +27,9 @@ Population
 
   <strong>Platforms</strong>
   <p>
-    {{ experiment.display_platforms }}
+    {{ experiment.display_platforms_or_versions }}
   </p>
+
 
   <strong>Additional Filtering</strong>
   {{ experiment.client_matching|urlize|linebreaks }}
