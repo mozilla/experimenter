@@ -240,17 +240,29 @@ export const PLAYBOOK_CHOICES = [
   ["custom", "Custom Schedule"],
 ];
 
+export const PLATFORM_WINDOWS = "All Windows";
+export const PLATFORM_WINDOWS_LABEL = "Windows";
+export const PLATFORM_MAC = "All Mac";
+export const PLATFORM_MAC_LABEL = "Mac";
+export const PLATFORM_LINUX = "All Linux";
+export const PLATFORM_LINUX_LABEL = "Linux";
+
 export const PLATFORM_CHOICES = [
-  { value: "All Mac", label: "Mac" },
-  { value: "All Linux", label: "Linux" },
-  { value: "All Windows", label: "Windows" },
+  { value: PLATFORM_MAC, label: PLATFORM_MAC_LABEL },
+  { value: PLATFORM_LINUX, label: PLATFORM_LINUX_LABEL },
+  { value: PLATFORM_WINDOWS, label: PLATFORM_WINDOWS_LABEL },
 ];
 
+export const VERSION_WINDOWS_7 = "Windows 7";
+export const VERSION_WINDOWS_8 = "Windows 8";
+export const VERSION_WINDOWS_8_1 = "Windows 8.1";
+export const VERSION_WINDOWS_10_PLUS = "Windows 10+";
+
 export const WINDOWS_VERSIONS_CHOICES = [
-  { value: "Windows 7", label: "Windows 7" },
-  { value: "Windows 8", label: "Windows 8" },
-  { value: "Windows 8.1", label: "Windows 8.1" },
-  { value: "Windows 10+", label: "Windows 10+" },
+  { value: VERSION_WINDOWS_7, label: VERSION_WINDOWS_7 },
+  { value: VERSION_WINDOWS_8, label: VERSION_WINDOWS_8 },
+  { value: VERSION_WINDOWS_8_1, label: VERSION_WINDOWS_8_1 },
+  { value: VERSION_WINDOWS_10_PLUS, label: VERSION_WINDOWS_10_PLUS },
 ];
 
 export const PROPOSED_START_DATE_HELP = (

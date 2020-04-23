@@ -24,6 +24,7 @@ import {
   CLIENT_MATCHING_HELP,
   COUNTRIES_LOCALES_HELP,
   ROLLOUT_PLAYBOOK_HELP,
+  PLATFORM_WINDOWS,
 } from "experimenter/components/constants";
 
 @boundClass
@@ -161,7 +162,7 @@ class TimelinePopForm extends React.PureComponent {
 
   isWindowsVersionEnabled() {
     const platforms = this.state.data.get("platforms").toJS();
-    return platforms.length === 1 && platforms[0].value === "All Windows";
+    return platforms.length === 1 && platforms[0].value === PLATFORM_WINDOWS;
   }
 
   async handleSubmit(event, redirectUrl) {
