@@ -1,94 +1,11 @@
-import datetime
-from dateutil.parser import parse
-from urllib.parse import urlparse
 import json
+from urllib.parse import urlparse
 
 import pytest
 import requests
 
-from pages.home import Home
-from pages.experiment_timeline_and_population import TimelineAndPopulationPage
-from pages.experiment_design import DesignPage
-from pages.experiment_objective_and_analysis import ObjectiveAndAnalysisPage
 
-
-@pytest.fixture
-def fill_experiment(base_url, selenium, variables, ds_issue_host):
-    # fills experiment and gets it ready to ship
-    selenium.get(base_url)
-    home = Home(selenium, base_url).wait_for_page_to_load()
-    experiment = home.create_experiment()
-    experiment.name = f"{variables['multi-pref-experiment']['name']}"
-    experiment.short_description = "Testing in here"
-    experiment.public_name = f"{variables['multi-pref-experiment']['userFacingName']}"
-    experiment.public_description = (
-        f"{variables['multi-pref-experiment']['userFacingDescription']}"
-    )
-    experiment.ds_issue_url = f"{ds_issue_host}DS-12345"
-    selenium.find_element_by_id("save-and-continue-btn").click()
-    # Fill timeline page
-    timeline = TimelineAndPopulationPage(selenium, base_url).wait_for_page_to_load()
-    date = f"{datetime.datetime.now()}"
-    new_date = parse(date)
-    today = f"{new_date.date()}"
-    timeline.proposed_start_date = today
-    timeline.proposed_experiment_duration = "25"
-    timeline.population_precentage = "100.0"
-    timeline.firefox_channel = f"{variables['multi-pref-experiment']['channels']}"
-    timeline.firefox_min_version = f"{variables['multi-pref-experiment']['min_version']}"
-    timeline.firefox_max_version = f"{variables['multi-pref-experiment']['max_version']}"
-    selenium.find_element_by_id("save-and-continue-btn").click()
-    # Fill design page
-    design = DesignPage(selenium, base_url).wait_for_page_to_load()
-    design.input_firefox_pref_name(
-        f"{variables['multi-pref-experiment']['branches'][0]['firefox_pref_name']}"
-    )
-    design.select_firefox_pref_type(
-        f"{variables['multi-pref-experiment']['branches'][0]['firefox_pref_type']}"
-    )
-    design.select_firefox_pref_branch(
-        f"{variables['multi-pref-experiment']['branches'][0]['firefox_pref_branch']}"
-    )
-    current_branchs = design.current_branches
-    control_branch = current_branchs[0]
-    control_branch.set_branch_name(
-        f"{variables['multi-pref-experiment']['branches'][0]['branch_name']}"
-    )
-    control_branch.set_branch_description("THIS IS A TEST")
-    control_branch.set_branch_value(
-        f"{variables['multi-pref-experiment']['branches'][0]['branch_value']}"
-    )
-    current_branchs[1].set_branch_name(
-        f"{variables['multi-pref-experiment']['branches'][1]['branch_name']}"
-    )
-    current_branchs[1].set_branch_description("THIS IS A TEST")
-    current_branchs[1].set_branch_value(
-        f"{variables['multi-pref-experiment']['branches'][1]['branch_value']}"
-    )
-    design.save_and_continue()
-    # selenium.find_element_by_css_selector("btn-primary").click()
-    analysis_page = ObjectiveAndAnalysisPage(selenium, base_url).wait_for_page_to_load()
-    analysis_page.objectives_text_box = " E2e Testing"
-    analysis_page.analysis_text_box = " E2e testing"
-    selenium.find_element_by_id("save-and-continue-btn").click()
-    # Fill Risks page
-    from pages.experiment_risks_and_testing import RiskAndTestingPage
-
-    risks_page = RiskAndTestingPage(selenium, base_url).wait_for_page_to_load()
-    for risk in risks_page.risks:
-        risk.select_no()
-    risks_page.qa_status_box = "Green"
-    detail_page = risks_page.save_btn()
-    detail_page.begin_signoffs_button.click()
-    for checkbox in detail_page.required_checklist_section:
-        try:
-            checkbox.checkbox.click()
-        except Exception:
-            continue
-    detail_page.save_sign_offs_button.click()
-    detail_page.ready_to_ship_button.click()
-
-
+@pytest.mark.use_variables
 @pytest.mark.nondestructive
 def test_multi_pref_e2e(base_url, selenium, fill_experiment):
     url = urlparse(selenium.current_url)

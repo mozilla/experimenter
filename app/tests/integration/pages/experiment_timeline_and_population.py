@@ -7,6 +7,8 @@ from pages.base import Base
 
 class TimelineAndPopulationPage(Base):
 
+    URL_TEMPLATE = "{experiment_url}edit-timeline-population"
+
     _firefox_channel_locator = (By.CSS_SELECTOR, "#id_firefox_channel")
     _firefox_channel_option_locator = (By.CSS_SELECTOR, "#id_firefox_channel > option")
     _firefox_min_version_locator = (By.CSS_SELECTOR, "#id_firefox_min_version")
@@ -25,6 +27,7 @@ class TimelineAndPopulationPage(Base):
     _proposed_enrollment_locator = (By.CSS_SELECTOR, "#id_proposed_enrollment")
     _proposed_start_date_locator = (By.CSS_SELECTOR, "#id_proposed_start_date")
     _population_precentage_locator = (By.CSS_SELECTOR, "#id_population_percent")
+    _save_btn_locator = (By.CSS_SELECTOR, "button.mr-1")
     _page_wait_locator = (By.CSS_SELECTOR, ".page-edit-timeline-and-population")
 
     def wait_for_page_to_load(self):
@@ -32,6 +35,9 @@ class TimelineAndPopulationPage(Base):
             lambda _: self.find_element(*self._page_wait_locator).is_displayed()
         )
         return self
+
+    def save_btn(self):
+        self.find_element(*self._save_btn_locator).click()
 
     @property
     def proposed_start_date(self):

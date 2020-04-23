@@ -6,6 +6,8 @@ from pages.base import Base
 
 class RiskAndTestingPage(Base):
 
+    URL_TEMPLATE = "{experiment_url}edit-risks"
+
     _risks_locator = (By.CSS_SELECTOR, ".form-group")
     _qa_status_box_locator = (By.CSS_SELECTOR, "#id_qa_status")
     _save_btn_locator = (By.CSS_SELECTOR, ".btn-primary")

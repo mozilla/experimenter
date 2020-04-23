@@ -8,6 +8,8 @@ from pages.base import Base
 
 class ObjectiveAndAnalysisPage(Base):
 
+    URL_TEMPLATE = "{experiment_url}edit-objectives"
+
     _objectives_text_box_locator = (By.CSS_SELECTOR, "#id_objectives")
     _analysis_plan_text_box_locator = (By.CSS_SELECTOR, "#id_analysis")
     _survey_checkbox_no_locator = (By.CSS_SELECTOR, "#id_survey_required_0")

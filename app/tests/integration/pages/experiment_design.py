@@ -12,6 +12,8 @@ from pages.base import Base
 
 class DesignPage(Base):
 
+    URL_TEMPLATE = "{experiment_url}edit-design"
+
     _add_branch_btn_locator = (By.CSS_SELECTOR, "#add-branch-button")
     _branch_form_root_locator = (By.CSS_SELECTOR, "#control-branch-group")
     _continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-btn")
