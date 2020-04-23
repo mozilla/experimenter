@@ -4761,7 +4761,8 @@
                         "cfr_doorhanger",
                         "cfr_urlbar_chiclet",
                         "milestone_message"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "variants": {
                       "type": "array",
@@ -4853,7 +4854,8 @@
                       "cfr_doorhanger",
                       "cfr_urlbar_chiclet",
                       "milestone_message"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "variants": {
                     "type": "array",
@@ -4921,7 +4923,8 @@
                       "cfr_doorhanger",
                       "cfr_urlbar_chiclet",
                       "milestone_message"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "variants": {
                     "type": "array",
@@ -4989,7 +4992,8 @@
                       "cfr_doorhanger",
                       "cfr_urlbar_chiclet",
                       "milestone_message"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "variants": {
                     "type": "array",
@@ -5062,7 +5066,8 @@
                         "cfr_doorhanger",
                         "cfr_urlbar_chiclet",
                         "milestone_message"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "variants": {
                       "type": "array",
@@ -5154,7 +5159,8 @@
                       "cfr_doorhanger",
                       "cfr_urlbar_chiclet",
                       "milestone_message"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "variants": {
                     "type": "array",
@@ -5218,7 +5224,8 @@
                       "cfr_doorhanger",
                       "cfr_urlbar_chiclet",
                       "milestone_message"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "variants": {
                     "type": "array",
@@ -5282,7 +5289,8 @@
                       "cfr_doorhanger",
                       "cfr_urlbar_chiclet",
                       "milestone_message"
-                    ]
+                    ],
+                    "nullable": true
                   },
                   "variants": {
                     "type": "array",
@@ -5351,7 +5359,8 @@
                         "cfr_doorhanger",
                         "cfr_urlbar_chiclet",
                         "milestone_message"
-                      ]
+                      ],
+                      "nullable": true
                     },
                     "variants": {
                       "type": "array",
