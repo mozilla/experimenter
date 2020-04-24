@@ -8,6 +8,8 @@ from pages.base import Base
 
 class ExperimentOverview(Base):
 
+    URL_TEMPLATE = "{experiment_url}edit"
+
     _root_locator = (By.CSS_SELECTOR, ".form-group")
 
     _experiment_feature_bugzilla_url_locator = (
