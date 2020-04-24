@@ -720,6 +720,19 @@ class Experiment(ExperimentConstants, models.Model):
         return self.completed_risks or self.is_begun
 
     @property
+    def should_have_test_instructions(self):
+        return self.type in [
+            self.TYPE_PREF,
+            self.TYPE_ADDON,
+            self.TYPE_GENERIC,
+            self.TYPE_MESSAGE,
+        ]
+
+    @property
+    def should_have_test_builds(self):
+        return self.type in [self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC]
+
+    @property
     def completed_testing(self):
         return self.qa_status
 
