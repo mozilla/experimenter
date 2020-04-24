@@ -565,7 +565,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def is_high_risk(self):
-        return any(self._risk_questions)
+        return any(self._risk_values)
 
     @property
     def should_have_variants(self):
@@ -675,8 +675,8 @@ class Experiment(ExperimentConstants, models.Model):
         return any([getattr(self, field) for field in results_fields])
 
     @property
-    def _risk_questions(self):
-        risk_questions = (
+    def risk_fields(self):
+        risk_fields = (
             "risk_partner_related",
             "risk_brand",
             "risk_fast_shipped",
@@ -694,11 +694,21 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
         exclusions = ExperimentConstants.RISK_EXCLUSIONS.get(self.type, [])
-        return [getattr(self, risk) for risk in risk_questions if risk not in exclusions]
+        return sorted(list(set(risk_fields) - set(exclusions)))
+
+    @property
+    def _risk_values(self):
+        return [getattr(self, risk) for risk in self.risk_fields]
+
+    @property
+    def risk_values_labels(self):
+        return [
+            (getattr(self, risk), self.RISK_LABELS[risk]) for risk in self.risk_fields
+        ]
 
     @property
     def completed_risks(self):
-        completed = None not in self._risk_questions
+        completed = None not in self._risk_values
 
         if self.risk_technical:
             completed = completed and self.risk_technical_description

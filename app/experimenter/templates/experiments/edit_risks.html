@@ -13,52 +13,25 @@
 {% endblock %}
 
 {% block edit_form %}
+  {% for risk_field in form.risk_fields %}
+    {% include "experiments/radio_field_inline.html" with field=risk_field %}
+  {% endfor %}
 
-    {% include "experiments/radio_field_inline.html" with field=form.risk_partner_related %}
+  <div id="risks_technical_description_field" class="collapse">
+    {% include "experiments/field_inline_help_link.html" with field=form.risk_technical_description marked_required=True %}
+  </div>
 
-    {% include "experiments/radio_field_inline.html" with field=form.risk_brand %}
+  <div id="risks_field" class="collapse">
+    {% include "experiments/field_inline.html" with field=form.risks %}
+  </div>
 
-    {% include "experiments/radio_field_inline.html" with field=form.risk_fast_shipped %}
+  {% if not object.is_rollout %}
+    {% include "experiments/field_inline.html" with field=form.testing %}
 
-    {% include "experiments/radio_field_inline.html" with field=form.risk_confidential %}
-    {% if not experiment.is_rollout %}
-      {% include "experiments/radio_field_inline.html" with field=form.risk_release_population %}
-    {% endif %}
+    {% include "experiments/field_inline.html" with field=form.test_builds %}
+  {% endif %}
 
-    {% include "experiments/radio_field_inline.html" with field=form.risk_revenue %}
-
-    {% include "experiments/radio_field_inline.html" with field=form.risk_data_category %}
-
-    {% include "experiments/radio_field_inline.html" with field=form.risk_external_team_impact %}
-
-    {% include "experiments/radio_field_inline.html" with field=form.risk_telemetry_data %}
-
-    {% include "experiments/radio_field_inline.html" with field=form.risk_ux %}
-
-    {% include "experiments/radio_field_inline.html" with field=form.risk_security %}
-
-    {% include "experiments/radio_field_inline.html" with field=form.risk_revision %}
-
-    {% include "experiments/radio_field_inline.html" with field=form.risk_technical %}
-
-    {% include "experiments/radio_field_inline.html" with field=form.risk_higher_risk %}
-
-
-    <div id="risks_technical_description_field" class="collapse">
-      {% include "experiments/field_inline_help_link.html" with field=form.risk_technical_description marked_required=True %}
-    </div>
-
-    <div id="risks_field" class="collapse">
-      {% include "experiments/field_inline.html" with field=form.risks %}
-    </div>
-
-    {% if not object.is_rollout %}
-      {% include "experiments/field_inline.html" with field=form.testing %}
-
-      {% include "experiments/field_inline.html" with field=form.test_builds %}
-    {% endif %}
-
-    {% include "experiments/field_inline.html" with field=form.qa_status marked_required=True %}
+  {% include "experiments/field_inline.html" with field=form.qa_status marked_required=True %}
 {% endblock %}
 
 {% block edit_buttons %}

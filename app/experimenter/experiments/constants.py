@@ -278,7 +278,42 @@ class ExperimentConstants(object):
     RISK_HIGHER_RISK_LABEL = """I have been advised that this delivery design creates a
         higher risk of errors due to complexity or timing requirements."""
 
-    RISK_EXCLUSIONS = {TYPE_ROLLOUT: ["risk_release_population"]}
+    RISK_EXCLUSIONS = {
+        TYPE_ROLLOUT: ["risk_release_population"],
+        TYPE_MESSAGE: [
+            "risk_partner_related",
+            "risk_fast_shipped",
+            "risk_confidential",
+            "risk_release_population",
+            "risk_revenue",
+            "risk_data_category",
+            "risk_external_team_impact",
+            "risk_telemetry_data",
+            "risk_ux",
+            "risk_security",
+            "risk_revision",
+            "risk_technical",
+            "risk_higher_risk",
+        ],
+    }
+
+    RISK_LABELS = {
+        "risk_partner_related": RISK_PARTNER_RELATED_LABEL,
+        "risk_brand": RISK_BRAND_LABEL,
+        "risk_fast_shipped": RISK_FAST_SHIPPED_LABEL,
+        "risk_confidential": RISK_CONFIDENTIAL_LABEL,
+        "risk_release_population": RISK_RELEASE_POPULATION_LABEL,
+        "risk_revenue": RISK_REVENUE_LABEL,
+        "risk_data_category": RISK_DATA_CATEGORY_LABEL,
+        "risk_external_team_impact": RISK_EXTERNAL_TEAM_IMPACT_LABEL,
+        "risk_telemetry_data": RISK_TELEMETRY_DATA_LABEL,
+        "risk_ux": RISK_UX_LABEL,
+        "risk_security": RISK_SECURITY_LABEL,
+        "risk_revision": RISK_REVISION_LABEL,
+        "risk_technical": RISK_TECHNICAL_LABEL,
+        "risk_higher_risk": RISK_HIGHER_RISK_LABEL,
+    }
+
     SURVEY_REQUIRED_LABEL = "Is a Survey Required?"
     SURVEY_INSTRUCTIONS_LABEL = "Survey Launch Instructions"
 
