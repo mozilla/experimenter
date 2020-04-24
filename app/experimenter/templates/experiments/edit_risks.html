@@ -25,9 +25,11 @@
     {% include "experiments/field_inline.html" with field=form.risks %}
   </div>
 
-  {% if not object.is_rollout %}
+  {% if experiment.should_have_test_instructions %}
     {% include "experiments/field_inline.html" with field=form.testing %}
+  {% endif %}
 
+  {% if experiment.should_have_test_builds %}
     {% include "experiments/field_inline.html" with field=form.test_builds %}
   {% endif %}
 
