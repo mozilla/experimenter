@@ -1406,8 +1406,15 @@ class TestExperimentModel(TestCase):
 
     def test_should_have_total_enrolled_true(self):
         experiment = ExperimentFactory(type=Experiment.TYPE_PREF)
-
         self.assertTrue(experiment.should_have_total_enrolled)
+
+    def test_should_have_test_instructions_true(self):
+        experiment = ExperimentFactory(type=Experiment.TYPE_PREF)
+        self.assertTrue(experiment.should_have_test_instructions)
+
+    def test_should_have_test_builds_true(self):
+        experiment = ExperimentFactory(type=Experiment.TYPE_PREF)
+        self.assertTrue(experiment.should_have_test_builds)
 
     def test_display_platforms(self):
         experiment_1 = ExperimentFactory(platforms=["All Windows", "All Mac"])
