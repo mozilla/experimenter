@@ -697,7 +697,9 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
         help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
     )
     review_ux = forms.BooleanField(
-        required=False, label="UX Review", help_text=Experiment.REVIEW_GENERAL_HELP_TEXT
+        required=False,
+        label="Copy/UX Review",
+        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
     )
     review_security = forms.BooleanField(
         required=False,
