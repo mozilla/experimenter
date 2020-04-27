@@ -16,6 +16,7 @@ class Branch extends React.PureComponent {
     onChange: PropTypes.func,
     onErrorChange: PropTypes.func,
     remove: PropTypes.func,
+    options: PropTypes.object,
   };
 
   handleBranchFieldChange(key, value) {
@@ -35,9 +36,11 @@ class Branch extends React.PureComponent {
     return <h4>Branch {index}</h4>;
   }
 
-  renderField(name, label, value, error, help) {
+  renderField(name, label, value, error, help, as, rows) {
     return (
       <DesignInput
+        as={as || "input"}
+        rows={rows}
         label={label}
         dataTestId={label}
         name={`variants[${this.props.index}][${name}]`}
@@ -94,6 +97,7 @@ class Branch extends React.PureComponent {
           onErrorChange={this.handleErrorBranchFieldChange}
           index={this.props.index}
           renderField={this.renderField}
+          options={this.props.options}
         />
 
         <hr className="heavy-line my-5" />

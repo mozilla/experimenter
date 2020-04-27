@@ -15,17 +15,18 @@ from experimenter.experiments.tests.factories import (
 )
 
 from experimenter.experiments.serializers.design import (
-    ExperimentDesignVariantBaseSerializer,
+    ExperimentDesignAddonRolloutSerializer,
     ExperimentDesignAddonSerializer,
     ExperimentDesignBaseSerializer,
+    ExperimentDesignBranchedAddonSerializer,
     ExperimentDesignBranchMultiPrefSerializer,
     ExperimentDesignBranchVariantPreferencesSerializer,
-    ExperimentDesignBranchedAddonSerializer,
     ExperimentDesignGenericSerializer,
+    ExperimentDesignMessageSerializer,
     ExperimentDesignMultiPrefSerializer,
-    ExperimentDesignPrefSerializer,
     ExperimentDesignPrefRolloutSerializer,
-    ExperimentDesignAddonRolloutSerializer,
+    ExperimentDesignPrefSerializer,
+    ExperimentDesignVariantBaseSerializer,
     PrefValidationMixin,
 )
 
@@ -1532,3 +1533,191 @@ class TestPrefValidationMixin(TestCase):
         validator = PrefValidationMixin()
         value = validator.validate_pref_branch(pref_branch)
         self.assertEqual(value, {"pref_branch": "Please select a branch"})
+
+
+class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentFactory.create_with_variants(
+            type=ExperimentConstants.TYPE_MESSAGE,
+            message_type=ExperimentConstants.MESSAGE_TYPE_CFR,
+            message_template=ExperimentConstants.MESSAGE_TEMPLATE_DOOR,
+        )
+
+        serializer = ExperimentDesignMessageSerializer(experiment)
+        serializer_data = serializer.data
+
+        variant_data = serializer_data.pop("variants")
+        variant_data = [dict(variant) for variant in variant_data]
+
+        expected_variant_data = [
+            {
+                "id": variant.id,
+                "description": variant.description,
+                "is_control": variant.is_control,
+                "name": variant.name,
+                "ratio": variant.ratio,
+                "value": variant.value,
+                "message_targeting": variant.message_targeting,
+                "message_threshold": variant.message_threshold,
+                "message_triggers": variant.message_triggers,
+            }
+            for variant in experiment.variants.all()
+        ]
+
+        self.assertEqual(
+            serializer_data,
+            {
+                "message_type": experiment.message_type,
+                "message_template": experiment.message_template,
+            },
+        )
+        self.assertCountEqual(variant_data, expected_variant_data)
+
+    def test_serializer_saves_design_cfr_message_experiment(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_MESSAGE,)
+
+        variant_1 = {
+            "is_control": True,
+            "ratio": 50,
+            "name": "control name",
+            "description": "control description",
+            "message_targeting": "control targeting",
+            "message_threshold": "control threshold",
+            "message_triggers": "control triggers",
+            "value": "control content",
+        }
+
+        variant_2 = {
+            "is_control": False,
+            "ratio": 50,
+            "name": "treatment name",
+            "description": "treatment description",
+            "message_targeting": "treatment targeting",
+            "message_threshold": "treatment threshold",
+            "message_triggers": "treatment triggers",
+            "value": "treatment content",
+        }
+
+        data = {
+            "message_type": Experiment.MESSAGE_TYPE_CFR,
+            "message_template": Experiment.MESSAGE_TEMPLATE_DOOR,
+            "variants": [variant_1, variant_2],
+        }
+
+        serializer = ExperimentDesignMessageSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(experiment.changes.count(), 0)
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.message_type, Experiment.MESSAGE_TYPE_CFR)
+        self.assertEqual(experiment.message_template, Experiment.MESSAGE_TEMPLATE_DOOR)
+        self.assertEqual(experiment.variants.count(), 2)
+        self.assertEqual(experiment.changes.count(), 1)
+
+        control_branch = experiment.variants.get(is_control=True)
+        self.assertEqual(control_branch.ratio, 50)
+        self.assertEqual(control_branch.name, "control name")
+        self.assertEqual(control_branch.description, "control description")
+        self.assertEqual(control_branch.message_targeting, "control targeting")
+        self.assertEqual(control_branch.message_threshold, "control threshold")
+        self.assertEqual(control_branch.message_triggers, "control triggers")
+        self.assertEqual(control_branch.value, "control content")
+
+        treatment_branch = experiment.variants.get(is_control=False)
+        self.assertEqual(treatment_branch.ratio, 50)
+        self.assertEqual(treatment_branch.name, "treatment name")
+        self.assertEqual(treatment_branch.description, "treatment description")
+        self.assertEqual(treatment_branch.message_targeting, "treatment targeting")
+        self.assertEqual(treatment_branch.message_threshold, "treatment threshold")
+        self.assertEqual(treatment_branch.message_triggers, "treatment triggers")
+        self.assertEqual(treatment_branch.value, "treatment content")
+
+    def test_serializer_saves_design_welcome_message_experiment(self):
+        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_MESSAGE)
+
+        variant_1 = {
+            "is_control": True,
+            "ratio": 50,
+            "name": "control name",
+            "description": "control description",
+            "value": "control content",
+        }
+
+        variant_2 = {
+            "is_control": False,
+            "ratio": 50,
+            "name": "treatment name",
+            "description": "treatment description",
+            "value": "treatment content",
+        }
+
+        data = {
+            "message_type": Experiment.MESSAGE_TYPE_WELCOME,
+            "variants": [variant_1, variant_2],
+        }
+
+        serializer = ExperimentDesignMessageSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(experiment.changes.count(), 0)
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.message_type, Experiment.MESSAGE_TYPE_WELCOME)
+        self.assertEqual(experiment.variants.count(), 2)
+        self.assertEqual(experiment.changes.count(), 1)
+
+        control_branch = experiment.variants.get(is_control=True)
+        self.assertEqual(control_branch.ratio, 50)
+        self.assertEqual(control_branch.name, "control name")
+        self.assertEqual(control_branch.description, "control description")
+        self.assertEqual(control_branch.value, "control content")
+
+        control_branch = experiment.variants.get(is_control=True)
+        self.assertEqual(control_branch.ratio, 50)
+        self.assertEqual(control_branch.name, "control name")
+        self.assertEqual(control_branch.description, "control description")
+        self.assertEqual(control_branch.value, "control content")
+
+    def test_serializer_outputs_dummy_variants_when_no_variants(self):
+        experiment = ExperimentFactory.create(
+            type=ExperimentConstants.TYPE_MESSAGE,
+            message_type=None,
+            message_template=None,
+        )
+
+        serializer = ExperimentDesignMessageSerializer(experiment)
+
+        self.assertEqual(
+            serializer.data,
+            {
+                "message_type": None,
+                "message_template": None,
+                "variants": [
+                    {
+                        "is_control": True,
+                        "ratio": 50,
+                        "name": None,
+                        "description": None,
+                        "message_targeting": None,
+                        "message_threshold": None,
+                        "message_triggers": None,
+                        "value": None,
+                    },
+                    {
+                        "is_control": False,
+                        "ratio": 50,
+                        "name": None,
+                        "description": None,
+                        "message_targeting": None,
+                        "message_threshold": None,
+                        "message_triggers": None,
+                        "value": None,
+                    },
+                ],
+            },
+        )
