@@ -95,6 +95,19 @@ class Experiment(ExperimentConstants, models.Model):
         validators=[MaxValueValidator(ExperimentConstants.MAX_DURATION)],
     )
 
+    message_type = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=ExperimentConstants.MESSAGE_TYPE_CHOICES,
+    )
+    message_template = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=ExperimentConstants.MESSAGE_TEMPLATE_CHOICES,
+    )
+
     is_multi_pref = models.BooleanField(default=False)
     rollout_type = models.CharField(
         max_length=255,
@@ -137,13 +150,22 @@ class Experiment(ExperimentConstants, models.Model):
     )
     total_enrolled_clients = models.PositiveIntegerField(blank=True, null=True)
     firefox_min_version = models.CharField(
-        max_length=255, choices=ExperimentConstants.VERSION_CHOICES, blank=True, null=True
+        max_length=255,
+        choices=ExperimentConstants.VERSION_CHOICES,
+        blank=True,
+        null=True,
     )
     firefox_max_version = models.CharField(
-        max_length=255, choices=ExperimentConstants.VERSION_CHOICES, blank=True, null=True
+        max_length=255,
+        choices=ExperimentConstants.VERSION_CHOICES,
+        blank=True,
+        null=True,
     )
     firefox_channel = models.CharField(
-        max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES, blank=True, null=True
+        max_length=255,
+        choices=ExperimentConstants.CHANNEL_CHOICES,
+        blank=True,
+        null=True,
     )
     client_matching = models.TextField(
         default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True, null=True
@@ -569,7 +591,12 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def should_have_variants(self):
-        return self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC)
+        return self.type in (
+            self.TYPE_PREF,
+            self.TYPE_ADDON,
+            self.TYPE_GENERIC,
+            self.TYPE_MESSAGE,
+        )
 
     @property
     def should_have_population_percent(self):
@@ -988,6 +1015,9 @@ class ExperimentVariant(models.Model):
     ratio = models.PositiveIntegerField(default=1)
     addon_release_url = models.URLField(max_length=400, blank=True, null=True)
     value = models.TextField(blank=True, null=True)
+    message_targeting = models.TextField(blank=True, null=True)
+    message_threshold = models.TextField(blank=True, null=True)
+    message_triggers = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Experiment Variant"

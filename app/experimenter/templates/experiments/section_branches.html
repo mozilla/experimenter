@@ -7,16 +7,24 @@
 {% endblock %}
 
 {% block section_content %}
-{% if not experiment.is_multi_pref %}
-  {% if experiment.pref_type %}
-  <strong>Pref Type</strong> <p>{{ experiment.pref_type }}</p>
+  {% if not experiment.is_multi_pref %}
+    {% if experiment.pref_type %}
+    <strong>Pref Type</strong> <p>{{ experiment.pref_type }}</p>
+    {% endif %}
+    {% if experiment.pref_branch %}
+    <strong>Pref Branch</strong> <p>{{ experiment.pref_branch }}</p>
+    {% endif %}
   {% endif %}
-  {% if experiment.pref_branch %}
-  <strong>Pref Branch</strong> <p>{{ experiment.pref_branch }}</p>
+  {% if experiment.is_message_experiment %}
+    {% if experiment.message_type %}
+      <strong>Message Type</strong> <p>{{ experiment.get_message_type_display }}</p>
+    {% endif %}
+    {% if experiment.message_template %}
+      <strong>Message Template</strong> <p>{{ experiment.message_template }}</p>
+    {% endif %}
   {% endif %}
-{% endif %}
   {% for variant in experiment.variants.all %}
-    <div class="border-left-grey pl-3 mb-4">
+    <div class="border-left-grey pl-3 my-3">
       <h5>{{ variant.ratio }}% {{ variant.name }}</h5>
       {% if experiment.is_multi_pref %}
         <p><strong>Prefs:</strong></p>
@@ -43,6 +51,18 @@
         <p><strong>Addon Release URL: </strong></p>
         <p>{{ variant.addon_release_url|urlize }}</p>
       {% endif %}
+      {% if experiment.is_message_experiment %}
+        {% if variant.message_targeting %}
+          <strong>Message Targeting</strong> {{ variant.message_targeting|linebreaks }}
+        {% endif %}
+        {% if variant.message_threshold %}
+          <strong>Message Threshold</strong> {{ variant.message_threshold|linebreaks }}
+        {% endif %}
+        {% if variant.message_triggers %}
+          <strong>Message Triggers</strong> {{ variant.message_triggers|linebreaks }}
+        {% endif %}
+        <strong>Message Content</strong> {{ variant.value|linebreaks }}
+      {% endif%}
     </div>
   {% endfor %}
 {% endblock %}
