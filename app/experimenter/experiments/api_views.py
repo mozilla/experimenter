@@ -13,13 +13,14 @@ from experimenter.experiments import email
 from experimenter.experiments.serializers.entities import ExperimentSerializer
 from experimenter.experiments.serializers.clone import ExperimentCloneSerializer
 from experimenter.experiments.serializers.design import (
+    ExperimentDesignAddonRolloutSerializer,
     ExperimentDesignAddonSerializer,
     ExperimentDesignBranchedAddonSerializer,
     ExperimentDesignGenericSerializer,
+    ExperimentDesignMessageSerializer,
     ExperimentDesignMultiPrefSerializer,
-    ExperimentDesignPrefSerializer,
     ExperimentDesignPrefRolloutSerializer,
-    ExperimentDesignAddonRolloutSerializer,
+    ExperimentDesignPrefSerializer,
 )
 from experimenter.experiments.serializers.timeline_population import (
     ExperimentTimelinePopSerializer,
@@ -112,6 +113,12 @@ class ExperimentDesignAddonRolloutView(RetrieveUpdateAPIView):
     lookup_field = "slug"
     queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_ROLLOUT)
     serializer_class = ExperimentDesignAddonRolloutSerializer
+
+
+class ExperimentDesignMessageView(RetrieveUpdateAPIView):
+    lookup_field = "slug"
+    queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_MESSAGE)
+    serializer_class = ExperimentDesignMessageSerializer
 
 
 class ExperimentTimelinePopulationView(RetrieveUpdateAPIView):
