@@ -774,16 +774,16 @@ class Experiment(ExperimentConstants, models.Model):
     def _conditional_required_reviews_mapping(self):
         return {
             "review_vp": any(
-                [
+                (
                     self.risk_partner_related,
                     self.risk_brand,
                     self.risk_fast_shipped,
                     self.risk_confidential,
                     self.risk_release_population,
                     self.risk_revenue,
-                ]
+                )
             ),
-            "review_legal": any([self.risk_partner_related, self.risk_data_category]),
+            "review_legal": any((self.risk_partner_related, self.risk_data_category)),
             "review_impacted_teams": self.risk_external_team_impact,
             "review_data_steward": self.risk_telemetry_data,
             "review_ux": self.risk_ux,
@@ -791,23 +791,7 @@ class Experiment(ExperimentConstants, models.Model):
         }
 
     def _default_required_reviews(self):
-        reviews = [
-            "review_science",
-            "review_advisory",
-            "review_engineering",
-            "review_qa_requested",
-            "review_intent_to_ship",
-            "review_bugzilla",
-            "review_qa",
-            "review_relman",
-        ]
-
-        rollout_exclusions = ["review_science", "review_bugzilla", "review_engineering"]
-
-        if self.is_rollout:
-            return [review for review in reviews if review not in rollout_exclusions]
-
-        return reviews
+        return list(self.SIGNOFF_TYPE_DEFAULTS.get(self.type, self.SIGNOFF_DEFAULTS))
 
     def get_all_required_reviews(self):
         required_reviews = self._default_required_reviews()
@@ -821,7 +805,7 @@ class Experiment(ExperimentConstants, models.Model):
     def completed_required_reviews(self):
         required_reviews = self.get_all_required_reviews()
 
-        if not self.is_rollout:
+        if not self.is_rollout and "review_advisory" in required_reviews:
             # review advisory is an exception that is not required
             required_reviews.remove("review_advisory")
 
