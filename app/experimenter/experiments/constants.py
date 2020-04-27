@@ -345,10 +345,10 @@ class ExperimentConstants(object):
         ),
         TYPE_MESSAGE: (
             "review_science",
-            "review_qa_requested",
             "review_intent_to_ship",
-            "review_qa",
+            "review_qa_requested",
             "review_ux",
+            "review_qa",
         ),
     }
 
