@@ -12,10 +12,11 @@ from experimenter.experiments.serializers.entities import ExperimentSerializer
 from experimenter.experiments.serializers.recipe import ExperimentRecipeSerializer
 
 from experimenter.experiments.serializers.design import (
-    ExperimentDesignPrefSerializer,
-    ExperimentDesignMultiPrefSerializer,
     ExperimentDesignAddonSerializer,
     ExperimentDesignGenericSerializer,
+    ExperimentDesignMessageSerializer,
+    ExperimentDesignMultiPrefSerializer,
+    ExperimentDesignPrefSerializer,
 )
 
 from experimenter.experiments.serializers.timeline_population import (
@@ -458,7 +459,7 @@ class TestExperimentDesignAddonView(TestCase):
 
 
 class TestExperimentDesignGenericView(TestCase):
-    def test_get_design_addon_returns_design_info(self):
+    def test_get_returns_design_info(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_variants(
             type=ExperimentConstants.TYPE_GENERIC
@@ -540,6 +541,111 @@ class TestExperimentDesignGenericView(TestCase):
 
         response = self.client.put(
             reverse("experiments-design-generic", kwargs={"slug": experiment.slug}),
+            data,
+            content_type="application/json",
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+
+class TestExperimentDesignMessageView(TestCase):
+    def test_get_returns_design_info(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_variants(
+            type=ExperimentConstants.TYPE_MESSAGE
+        )
+
+        response = self.client.get(
+            reverse("experiments-design-message", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        json_data = json.loads(response.content)
+
+        serialized_experiment = ExperimentDesignMessageSerializer(experiment).data
+        self.assertEqual(serialized_experiment, json_data)
+
+    def test_put_to_view_saves_cfr_info(self):
+        experiment = ExperimentFactory.create(
+            name="great experiment",
+            slug="great-experiment",
+            type=ExperimentConstants.TYPE_MESSAGE,
+        )
+        user_email = "user@example.com"
+
+        variant_1 = {
+            "is_control": True,
+            "ratio": 50,
+            "name": "control name",
+            "description": "control description",
+            "message_targeting": "control targeting",
+            "message_threshold": "control threshold",
+            "message_triggers": "control triggers",
+            "value": "control content",
+        }
+
+        variant_2 = {
+            "is_control": False,
+            "ratio": 50,
+            "name": "treatment name",
+            "description": "treatment description",
+            "message_targeting": "treatment targeting",
+            "message_threshold": "treatment threshold",
+            "message_triggers": "treatment triggers",
+            "value": "treatment content",
+        }
+
+        data = json.dumps(
+            {
+                "message_type": Experiment.MESSAGE_TYPE_CFR,
+                "message_template": Experiment.MESSAGE_TEMPLATE_DOOR,
+                "variants": [variant_1, variant_2],
+            }
+        )
+
+        response = self.client.put(
+            reverse("experiments-design-message", kwargs={"slug": experiment.slug}),
+            data,
+            content_type="application/json",
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_put_to_view_saves_about_welcome_info(self):
+        experiment = ExperimentFactory.create(
+            name="great experiment",
+            slug="great-experiment",
+            type=ExperimentConstants.TYPE_MESSAGE,
+        )
+        user_email = "user@example.com"
+        variant_1 = {
+            "is_control": True,
+            "ratio": 50,
+            "name": "control name",
+            "description": "control description",
+            "value": "control content",
+        }
+
+        variant_2 = {
+            "is_control": False,
+            "ratio": 50,
+            "name": "treatment name",
+            "description": "treatment description",
+            "value": "treatment content",
+        }
+
+        data = json.dumps(
+            {
+                "message_type": Experiment.MESSAGE_TYPE_WELCOME,
+                "variants": [variant_1, variant_2],
+            }
+        )
+
+        response = self.client.put(
+            reverse("experiments-design-message", kwargs={"slug": experiment.slug}),
             data,
             content_type="application/json",
             **{settings.OPENIDC_EMAIL_HEADER: user_email},

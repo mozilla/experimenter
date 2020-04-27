@@ -1,8 +1,9 @@
 import React from "react";
 
 export const TYPE_ADDON = "addon";
-export const TYPE_PREF = "pref";
 export const TYPE_GENERIC = "generic";
+export const TYPE_MESSAGE = "message";
+export const TYPE_PREF = "pref";
 export const TYPE_ROLLOUT = "rollout";
 
 export const PREF_TYPE_BOOL = "boolean";
@@ -377,4 +378,85 @@ export const CLIENT_MATCHING_HELP = (
 
 export const COUNTRIES_LOCALES_HELP = (
   <p>Applicable only if you don't select All</p>
+);
+
+export const MESSAGE_TYPE_CFR = "cfr";
+export const MESSAGE_TYPE_WELCOME = "about:welcome";
+
+export const MESSAGE_TYPE_CFR_LABEL = "CFR";
+export const MESSAGE_TYPE_WELCOME_LABEL = MESSAGE_TYPE_WELCOME;
+
+export const MESSAGE_TYPE_CHOICES = [
+  [MESSAGE_TYPE_CFR, MESSAGE_TYPE_CFR_LABEL],
+  [MESSAGE_TYPE_WELCOME, MESSAGE_TYPE_WELCOME_LABEL],
+];
+
+export const MESSAGE_TEMPLATE_DOOR = "cfr_doorhanger";
+export const MESSAGE_TEMPLATE_URL = "cfr_urlbar_chiclet";
+export const MESSAGE_TEMPLATE_MILESTONE = "milestone_message";
+
+export const MESSAGE_TEMPLATE_DOOR_LABEL = "CFR Doorhanger";
+export const MESSAGE_TEMPLATE_URL_LABEL = "CFR Urlbar Chiclet";
+export const MESSAGE_TEMPLATE_MILESTONE_LABEL = "Milestone Message";
+
+export const MESSAGE_TEMPLATE_CHOICES = [
+  [MESSAGE_TEMPLATE_DOOR, MESSAGE_TEMPLATE_DOOR_LABEL],
+  [MESSAGE_TEMPLATE_URL, MESSAGE_TEMPLATE_URL_LABEL],
+  [MESSAGE_TEMPLATE_MILESTONE, MESSAGE_TEMPLATE_MILESTONE_LABEL],
+];
+
+export const MESSAGE_CONTENT_HELP = (
+  <div>
+    <p>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://mana.mozilla.org/wiki/display/FIREFOX/Messages#Messages-RapidMessageExperiments"
+      >
+        See Message Experiment Documentation
+      </a>
+    </p>
+  </div>
+);
+
+export const MESSAGE_TARGETING_HELP = (
+  <div>
+    <p>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://mana.mozilla.org/wiki/display/FIREFOX/Messages#Messages-RapidMessageExperiments"
+      >
+        See Message Experiment Documentation
+      </a>
+    </p>
+  </div>
+);
+
+export const MESSAGE_THRESHOLD_HELP = (
+  <div>
+    <p>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://mana.mozilla.org/wiki/display/FIREFOX/Messages#Messages-RapidMessageExperiments"
+      >
+        See Message Experiment Documentation
+      </a>
+    </p>
+  </div>
+);
+
+export const MESSAGE_TRIGGERS_HELP = (
+  <div>
+    <p>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://mana.mozilla.org/wiki/display/FIREFOX/Messages#Messages-RapidMessageExperiments"
+      >
+        See Message Experiment Documentation
+      </a>
+    </p>
+  </div>
 );

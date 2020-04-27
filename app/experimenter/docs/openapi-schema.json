@@ -4729,6 +4729,700 @@
         ]
       }
     },
+    "/api/v2/experiments/{slug}/design-message": {
+      "get": {
+        "operationId": "RetrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message_type": {
+                      "enum": [
+                        "cfr",
+                        "about:welcome"
+                      ]
+                    },
+                    "message_template": {
+                      "enum": [
+                        "cfr_doorhanger",
+                        "cfr_urlbar_chiclet",
+                        "milestone_message"
+                      ],
+                      "nullable": true
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "is_control": {
+                            "type": "boolean"
+                          },
+                          "message_targeting": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_threshold": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_triggers": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "ratio": {
+                            "type": "integer"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "description",
+                          "is_control",
+                          "name",
+                          "ratio",
+                          "value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "message_type",
+                    "variants"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
+      "put": {
+        "operationId": "UpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "about:welcome"
+                    ]
+                  },
+                  "message_template": {
+                    "enum": [
+                      "cfr_doorhanger",
+                      "cfr_urlbar_chiclet",
+                      "milestone_message"
+                    ],
+                    "nullable": true
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio",
+                        "value"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "message_type",
+                  "variants"
+                ]
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "about:welcome"
+                    ]
+                  },
+                  "message_template": {
+                    "enum": [
+                      "cfr_doorhanger",
+                      "cfr_urlbar_chiclet",
+                      "milestone_message"
+                    ],
+                    "nullable": true
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio",
+                        "value"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "message_type",
+                  "variants"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "about:welcome"
+                    ]
+                  },
+                  "message_template": {
+                    "enum": [
+                      "cfr_doorhanger",
+                      "cfr_urlbar_chiclet",
+                      "milestone_message"
+                    ],
+                    "nullable": true
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio",
+                        "value"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "message_type",
+                  "variants"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message_type": {
+                      "enum": [
+                        "cfr",
+                        "about:welcome"
+                      ]
+                    },
+                    "message_template": {
+                      "enum": [
+                        "cfr_doorhanger",
+                        "cfr_urlbar_chiclet",
+                        "milestone_message"
+                      ],
+                      "nullable": true
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "is_control": {
+                            "type": "boolean"
+                          },
+                          "message_targeting": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_threshold": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_triggers": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "ratio": {
+                            "type": "integer"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "description",
+                          "is_control",
+                          "name",
+                          "ratio",
+                          "value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "message_type",
+                    "variants"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
+      "patch": {
+        "operationId": "PartialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "about:welcome"
+                    ]
+                  },
+                  "message_template": {
+                    "enum": [
+                      "cfr_doorhanger",
+                      "cfr_urlbar_chiclet",
+                      "milestone_message"
+                    ],
+                    "nullable": true
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio",
+                        "value"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "about:welcome"
+                    ]
+                  },
+                  "message_template": {
+                    "enum": [
+                      "cfr_doorhanger",
+                      "cfr_urlbar_chiclet",
+                      "milestone_message"
+                    ],
+                    "nullable": true
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio",
+                        "value"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "about:welcome"
+                    ]
+                  },
+                  "message_template": {
+                    "enum": [
+                      "cfr_doorhanger",
+                      "cfr_urlbar_chiclet",
+                      "milestone_message"
+                    ],
+                    "nullable": true
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio",
+                        "value"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message_type": {
+                      "enum": [
+                        "cfr",
+                        "about:welcome"
+                      ]
+                    },
+                    "message_template": {
+                      "enum": [
+                        "cfr_doorhanger",
+                        "cfr_urlbar_chiclet",
+                        "milestone_message"
+                      ],
+                      "nullable": true
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "is_control": {
+                            "type": "boolean"
+                          },
+                          "message_targeting": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_threshold": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_triggers": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "ratio": {
+                            "type": "integer"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "description",
+                          "is_control",
+                          "name",
+                          "ratio",
+                          "value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "message_type",
+                    "variants"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      }
+    },
     "/api/v2/experiments/{slug}/timeline-population": {
       "get": {
         "operationId": "RetrieveExperiment",
