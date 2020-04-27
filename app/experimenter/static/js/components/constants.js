@@ -407,24 +407,56 @@ export const MESSAGE_TEMPLATE_CHOICES = [
 
 export const MESSAGE_CONTENT_HELP = (
   <div>
-    <p>Herp derp</p>
+    <p>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://mana.mozilla.org/wiki/display/FIREFOX/Messages#Messages-RapidMessageExperiments"
+      >
+        See Message Experiment Documentation
+      </a>
+    </p>
   </div>
 );
 
 export const MESSAGE_TARGETING_HELP = (
   <div>
-    <p>Herp derp</p>
+    <p>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://mana.mozilla.org/wiki/display/FIREFOX/Messages#Messages-RapidMessageExperiments"
+      >
+        See Message Experiment Documentation
+      </a>
+    </p>
   </div>
 );
 
 export const MESSAGE_THRESHOLD_HELP = (
   <div>
-    <p>Herp derp</p>
+    <p>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://mana.mozilla.org/wiki/display/FIREFOX/Messages#Messages-RapidMessageExperiments"
+      >
+        See Message Experiment Documentation
+      </a>
+    </p>
   </div>
 );
 
 export const MESSAGE_TRIGGERS_HELP = (
   <div>
-    <p>Herp derp</p>
+    <p>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://mana.mozilla.org/wiki/display/FIREFOX/Messages#Messages-RapidMessageExperiments"
+      >
+        See Message Experiment Documentation
+      </a>
+    </p>
   </div>
 );
