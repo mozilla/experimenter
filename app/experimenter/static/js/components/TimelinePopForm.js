@@ -6,6 +6,7 @@ import { fromJS, Map } from "immutable";
 
 import DesignInput from "experimenter/components/DesignInput";
 import LabeledMultiSelect from "experimenter/components/LabeledMultiSelect";
+import RadioButtonInlineLabel from "experimenter/components/RadioButtonInlineLabel";
 
 import { makeApiRequest } from "experimenter/utils/api";
 import {
@@ -25,6 +26,8 @@ import {
   COUNTRIES_LOCALES_HELP,
   ROLLOUT_PLAYBOOK_HELP,
   PLATFORM_WINDOWS,
+  PROFILE_AGE_HELP,
+  PROFILE_CHOICES,
 } from "experimenter/components/constants";
 
 @boundClass
@@ -55,7 +58,6 @@ class TimelinePopForm extends React.PureComponent {
   async componentDidMount() {
     try {
       const data = await makeApiRequest(this.getEndpointUrl());
-
       this.setState({
         loaded: true,
         data: fromJS(data),
@@ -381,8 +383,20 @@ class TimelinePopForm extends React.PureComponent {
               note={WINDOWS_VERSIONS_NOTE}
               showNote={!this.isWindowsVersionEnabled()}
             />
+            <RadioButtonInlineLabel
+              elementLabel="Profile Filtering"
+              fieldName="profile_age"
+              value={this.state.data.get("profile_age")}
+              helpContent={PROFILE_AGE_HELP}
+              helpIsExternalLink={true}
+              choices={PROFILE_CHOICES}
+              onChange={(input) => {
+                this.handleDataChange("profile_age", input.target.value);
+              }}
+              optional={true}
+            />
             <DesignInput
-              label="Population filtering"
+              label="Population Filtering"
               name="client_matching"
               id="id_client_matching"
               onChange={(value) => {

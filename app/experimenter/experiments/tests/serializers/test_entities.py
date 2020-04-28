@@ -232,6 +232,7 @@ class TestChangeLogSerializer(TestCase):
             "projects": [{"slug": project.slug}],
             "platforms": experiment.platforms,
             "windows_versions": experiment.windows_versions,
+            "profile_age": experiment.profile_age,
             "objectives": experiment.objectives,
             "total_enrolled_clients": experiment.total_enrolled_clients,
             "analysis": experiment.analysis,

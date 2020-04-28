@@ -212,6 +212,15 @@ class ExperimentConstants(object):
         VERSION_WINDOWS_10_PLUS,
     ]
 
+    PROFILES_NEW = "New Profiles Only"
+    PROFILES_EXISTING = "Existing Profiles Only"
+    PROFILES_ALL = "All Profiles"
+
+    PROFILE_AGE_CHOICES = (
+        (PROFILES_ALL, PROFILES_ALL),
+        (PROFILES_NEW, PROFILES_NEW),
+        (PROFILES_EXISTING, PROFILES_EXISTING),
+    )
     # Pref stuff
     PREF_TYPE_BOOL = "boolean"
     PREF_TYPE_INT = "integer"
