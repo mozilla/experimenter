@@ -9,6 +9,7 @@ from experimenter.experiments.models import (
 )
 
 from experimenter.experiments.serializers.entities import PrefTypeField
+from experimenter.experiments.constants import ExperimentConstants
 
 
 class PrefValueField(serializers.Field):
@@ -353,9 +354,12 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return ExperimentRecipePrefRolloutArgumentsSerializer(obj).data
 
     def get_comment(self, obj):
-        return (
+        comment = (
             f"Platform: {obj.platforms}\n"
             f"Windows Versions: {obj.windows_versions}\n"
-            f"Profile Age: {obj.profile_age}\n"
-            f"{obj.client_matching}"
+            f"{obj.client_matching}\n"
         )
+        if obj.profile_age != ExperimentConstants.PROFILES_ALL:
+            comment += f"Profile Age: {obj.profile_age}"
+
+        return comment
