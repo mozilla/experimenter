@@ -71,13 +71,14 @@ describe("The TimelinePopForm component for experiments", () => {
     const populationPercentInput = getByLabelText(/Population Percentage/);
     const firefoxMinVersionInput = getByLabelText(/Firefox Min Version/);
     const firefoxMaxVersionInput = getByLabelText(/Firefox Max Version/);
-    const clientMatchingInput = getByLabelText(/Population filtering/);
+    const clientMatchingInput = getByLabelText(/Population Filtering/);
     const channelInput = getByLabelText(/Firefox Channel/);
     const countriesInput = container.querySelector("#id_countries");
     const platformsInput = container.querySelector("#id_platforms");
     const windowsVersionsInput = container.querySelector(
       "#id_windows_versions input",
     );
+    const newProfilesOnlyInput = getByLabelText(/New Profiles Only/);
     expect(proposedStartDateInput.value).toBe(apiResponse.proposed_start_date);
     expect(firefoxMinVersionInput.value).toBe(apiResponse.firefox_min_version);
     expect(firefoxMaxVersionInput.value).toBe(apiResponse.firefox_max_version);
@@ -97,6 +98,7 @@ describe("The TimelinePopForm component for experiments", () => {
     fireEvent.change(clientMatchingInput, {
       target: { value: "different filtering" },
     });
+    fireEvent.click(newProfilesOnlyInput);
 
     // delete option from multiselects
     fireEvent.keyDown(countriesInput, { keyCode: 46 });
@@ -123,6 +125,7 @@ describe("The TimelinePopForm component for experiments", () => {
     ]);
     expect(data.client_matching).toBe("different filtering");
     expect(data.countries).toEqual([]);
+    expect(data.profile_age).toBe("New Profiles Only");
   });
 
   it("displays errors on firefox version errors", async () => {
