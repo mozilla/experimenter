@@ -123,6 +123,7 @@ class ExperimentTimelinePopSerializer(
             "countries",
             "platforms",
             "windows_versions",
+            "profile_age",
             "client_matching",
         )
         model = Experiment

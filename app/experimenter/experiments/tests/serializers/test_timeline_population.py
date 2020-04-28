@@ -72,6 +72,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
                         "label": ExperimentConstants.VERSION_WINDOWS_8,
                     }
                 ],
+                "profile_age": self.experiment.profile_age,
                 "client_matching": self.experiment.client_matching,
             },
         )
@@ -213,6 +214,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
                         "label": ExperimentConstants.VERSION_WINDOWS_7,
                     }
                 ],
+                "profile_age": experiment.profile_age,
                 "client_matching": experiment.client_matching,
             },
         )

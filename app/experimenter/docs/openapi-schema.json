@@ -5634,6 +5634,14 @@
                       },
                       "nullable": true
                     },
+                    "profile_age": {
+                      "enum": [
+                        "All Profiles",
+                        "New Profiles Only",
+                        "Existing Profiles Only"
+                      ],
+                      "nullable": true
+                    },
                     "client_matching": {
                       "type": "string",
                       "nullable": true
@@ -5858,6 +5866,14 @@
                     },
                     "nullable": true
                   },
+                  "profile_age": {
+                    "enum": [
+                      "All Profiles",
+                      "New Profiles Only",
+                      "Existing Profiles Only"
+                    ],
+                    "nullable": true
+                  },
                   "client_matching": {
                     "type": "string",
                     "nullable": true
@@ -6058,6 +6074,14 @@
                     },
                     "nullable": true
                   },
+                  "profile_age": {
+                    "enum": [
+                      "All Profiles",
+                      "New Profiles Only",
+                      "Existing Profiles Only"
+                    ],
+                    "nullable": true
+                  },
                   "client_matching": {
                     "type": "string",
                     "nullable": true
@@ -6256,6 +6280,14 @@
                     "items": {
                       "type": "object"
                     },
+                    "nullable": true
+                  },
+                  "profile_age": {
+                    "enum": [
+                      "All Profiles",
+                      "New Profiles Only",
+                      "Existing Profiles Only"
+                    ],
                     "nullable": true
                   },
                   "client_matching": {
@@ -6461,6 +6493,14 @@
                       "items": {
                         "type": "object"
                       },
+                      "nullable": true
+                    },
+                    "profile_age": {
+                      "enum": [
+                        "All Profiles",
+                        "New Profiles Only",
+                        "Existing Profiles Only"
+                      ],
                       "nullable": true
                     },
                     "client_matching": {
@@ -6687,6 +6727,14 @@
                     },
                     "nullable": true
                   },
+                  "profile_age": {
+                    "enum": [
+                      "All Profiles",
+                      "New Profiles Only",
+                      "Existing Profiles Only"
+                    ],
+                    "nullable": true
+                  },
                   "client_matching": {
                     "type": "string",
                     "nullable": true
@@ -6887,6 +6935,14 @@
                     },
                     "nullable": true
                   },
+                  "profile_age": {
+                    "enum": [
+                      "All Profiles",
+                      "New Profiles Only",
+                      "Existing Profiles Only"
+                    ],
+                    "nullable": true
+                  },
                   "client_matching": {
                     "type": "string",
                     "nullable": true
@@ -7085,6 +7141,14 @@
                     "items": {
                       "type": "object"
                     },
+                    "nullable": true
+                  },
+                  "profile_age": {
+                    "enum": [
+                      "All Profiles",
+                      "New Profiles Only",
+                      "Existing Profiles Only"
+                    ],
                     "nullable": true
                   },
                   "client_matching": {
@@ -7290,6 +7354,14 @@
                       "items": {
                         "type": "object"
                       },
+                      "nullable": true
+                    },
+                    "profile_age": {
+                      "enum": [
+                        "All Profiles",
+                        "New Profiles Only",
+                        "Existing Profiles Only"
+                      ],
                       "nullable": true
                     },
                     "client_matching": {
