@@ -343,6 +343,18 @@ export const WINDOWS_VERSIONS_NOTE = (
   </p>
 );
 
+export const PROFILE_AGE_HELP =
+  "https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=FIREFOX&title=Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-PopulationFiltering";
+
+export const PROFILE_CHOICES = [
+  { value: "All Profiles", label: "All Profiles" },
+  {
+    value: "Existing Profiles Only",
+    label: "Existing Profiles Only",
+  },
+  { value: "New Profiles Only", label: "New Profiles Only" },
+];
+
 export const CLIENT_MATCHING_HELP = (
   <div>
     <p>
