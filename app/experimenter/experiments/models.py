@@ -331,7 +331,12 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def should_use_normandy(self):
-        return self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_ROLLOUT)
+        return self.type in (
+            self.TYPE_PREF,
+            self.TYPE_ADDON,
+            self.TYPE_ROLLOUT,
+            self.TYPE_MESSAGE,
+        )
 
     def generate_normandy_slug(self):
         if self.is_addon_experiment and not self.use_branched_addon_serializer:
@@ -607,9 +612,10 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def should_have_population_percent(self):
-        return (self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC)) or (
-            self.is_rollout and self.is_begun
-        )
+        return (
+            self.type
+            in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC, self.TYPE_MESSAGE)
+        ) or (self.is_rollout and self.is_begun)
 
     @property
     def should_have_total_enrolled(self):
