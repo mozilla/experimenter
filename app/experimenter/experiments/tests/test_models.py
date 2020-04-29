@@ -1092,6 +1092,7 @@ class TestExperimentModel(TestCase):
 
     def test_completed_required_reviews_true_when_reviews_complete(self):
         experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_PREF,
             review_science=True,
             review_engineering=True,
             review_qa_requested=True,
@@ -1125,6 +1126,17 @@ class TestExperimentModel(TestCase):
             review_intent_to_ship=True,
             review_qa=True,
             review_relman=True,
+        )
+        self.assertTrue(experiment.completed_required_reviews)
+
+    def test_required_reviews_for_message(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_MESSAGE,
+            review_science=True,
+            review_qa_requested=True,
+            review_intent_to_ship=True,
+            review_qa=True,
+            review_ux=True,
         )
         self.assertTrue(experiment.completed_required_reviews)
 
@@ -1193,6 +1205,7 @@ class TestExperimentModel(TestCase):
     def test_is_ready_to_launch_true_when_reviews_and_sections_complete(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,
+            type=Experiment.TYPE_PREF,
             review_science=True,
             review_engineering=True,
             review_qa_requested=True,

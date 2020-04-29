@@ -324,6 +324,34 @@ class ExperimentConstants(object):
         ],
     }
 
+    SIGNOFF_DEFAULTS = (
+        "review_science",
+        "review_advisory",
+        "review_engineering",
+        "review_qa_requested",
+        "review_intent_to_ship",
+        "review_bugzilla",
+        "review_qa",
+        "review_relman",
+    )
+
+    SIGNOFF_TYPE_DEFAULTS = {
+        TYPE_ROLLOUT: (
+            "review_advisory",
+            "review_qa_requested",
+            "review_intent_to_ship",
+            "review_qa",
+            "review_relman",
+        ),
+        TYPE_MESSAGE: (
+            "review_science",
+            "review_intent_to_ship",
+            "review_qa_requested",
+            "review_ux",
+            "review_qa",
+        ),
+    }
+
     RISK_LABELS = {
         "risk_partner_related": RISK_PARTNER_RELATED_LABEL,
         "risk_brand": RISK_BRAND_LABEL,
