@@ -642,6 +642,10 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
             "qa_status",
         )
 
+    @property
+    def risk_fields(self):
+        return [self[risk] for risk in self.instance.risk_fields]
+
 
 class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm):
     # Required
