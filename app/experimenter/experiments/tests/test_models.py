@@ -989,77 +989,46 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.completed_rollout)
 
-    def test_risk_questions_returns_a_tuple(self):
-        experiment = ExperimentFactory.create(
-            risk_partner_related=False,
-            risk_brand=True,
-            risk_fast_shipped=False,
-            risk_confidential=True,
-            risk_release_population=False,
-            risk_revenue=True,
-            risk_data_category=False,
-            risk_external_team_impact=True,
-            risk_telemetry_data=False,
-            risk_ux=True,
-            risk_security=False,
-            risk_revision=True,
-            risk_technical=False,
-            risk_higher_risk=True,
-        )
+    def test_risk_fields_returns_fields_for_pref(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_PREF)
         self.assertEqual(
-            experiment._risk_questions,
+            experiment.risk_fields,
             [
-                False,
-                True,
-                False,
-                True,
-                False,
-                True,
-                False,
-                True,
-                False,
-                True,
-                False,
-                True,
-                False,
-                True,
+                "risk_brand",
+                "risk_confidential",
+                "risk_data_category",
+                "risk_external_team_impact",
+                "risk_fast_shipped",
+                "risk_higher_risk",
+                "risk_partner_related",
+                "risk_release_population",
+                "risk_revenue",
+                "risk_revision",
+                "risk_security",
+                "risk_technical",
+                "risk_telemetry_data",
+                "risk_ux",
             ],
         )
 
-    def test_risk_questions_returns_a_tuple_rollout(self):
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ROLLOUT,
-            risk_partner_related=False,
-            risk_brand=True,
-            risk_fast_shipped=False,
-            risk_confidential=True,
-            risk_release_population=None,
-            risk_revenue=True,
-            risk_data_category=False,
-            risk_external_team_impact=True,
-            risk_telemetry_data=False,
-            risk_ux=True,
-            risk_security=False,
-            risk_revision=True,
-            risk_technical=False,
-            risk_higher_risk=True,
-        )
+    def test_risk_fields_returns_fields_minus_exclusions(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT,)
         self.assertEqual(
-            experiment._risk_questions,
+            experiment.risk_fields,
             [
-                False,
-                True,
-                False,
-                True,
-                True,
-                False,
-                True,
-                False,
-                True,
-                False,
-                True,
-                False,
-                True,
+                "risk_brand",
+                "risk_confidential",
+                "risk_data_category",
+                "risk_external_team_impact",
+                "risk_fast_shipped",
+                "risk_higher_risk",
+                "risk_partner_related",
+                "risk_revenue",
+                "risk_revision",
+                "risk_security",
+                "risk_technical",
+                "risk_telemetry_data",
+                "risk_ux",
             ],
         )
 
@@ -1437,8 +1406,15 @@ class TestExperimentModel(TestCase):
 
     def test_should_have_total_enrolled_true(self):
         experiment = ExperimentFactory(type=Experiment.TYPE_PREF)
-
         self.assertTrue(experiment.should_have_total_enrolled)
+
+    def test_should_have_test_instructions_true(self):
+        experiment = ExperimentFactory(type=Experiment.TYPE_PREF)
+        self.assertTrue(experiment.should_have_test_instructions)
+
+    def test_should_have_test_builds_true(self):
+        experiment = ExperimentFactory(type=Experiment.TYPE_PREF)
+        self.assertTrue(experiment.should_have_test_builds)
 
     def test_display_platforms(self):
         experiment_1 = ExperimentFactory(platforms=["All Windows", "All Mac"])
