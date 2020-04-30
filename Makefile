@@ -127,7 +127,7 @@ dbshell: compose_build
 bash: compose_build
 	$(COMPOSE) run app bash
 
-refresh: kill
+refresh: kill compose_build
 	$(COMPOSE) run app sh -c '$(WAIT_FOR_DB) $(MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 # experimenter + delivery console + normandy stack
