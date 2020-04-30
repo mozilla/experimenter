@@ -1202,50 +1202,19 @@ class TestExperimentModel(TestCase):
         )
         self.assertTrue(experiment.completed_all_sections)
 
-    def test_is_ready_to_launch_true_when_reviews_and_sections_complete(self):
+    def test_is_ready_to_launch_true_when_sections_complete(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,
             type=Experiment.TYPE_PREF,
-            review_science=True,
-            review_engineering=True,
-            review_qa_requested=True,
-            review_intent_to_ship=True,
-            review_bugzilla=True,
-            review_qa=True,
-            review_relman=True,
+            review_science=False,
+            review_engineering=False,
+            review_qa_requested=False,
+            review_intent_to_ship=False,
+            review_bugzilla=False,
+            review_qa=False,
+            review_relman=False,
         )
         self.assertTrue(experiment.is_ready_to_launch)
-
-    def test_is_ready_to_launch_true_with_conditional_review(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW,
-            review_science=True,
-            review_engineering=True,
-            review_qa_requested=True,
-            review_intent_to_ship=True,
-            review_bugzilla=True,
-            review_qa=True,
-            review_relman=True,
-            review_vp=True,
-            review_legal=True,
-            risk_partner_related=True,
-        )
-        self.assertTrue(experiment.is_ready_to_launch)
-
-    def test_is_ready_to_launch_is_false_without_conditional_review(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW,
-            review_science=True,
-            review_engineering=True,
-            review_qa_requested=True,
-            review_intent_to_ship=True,
-            review_bugzilla=True,
-            review_qa=True,
-            review_relman=True,
-            risk_partner_related=True,
-        )
-
-        self.assertFalse(experiment.is_ready_to_launch)
 
     def test_review_order_is_correct_for_experiment(self):
         experiment = ExperimentFactory.create(type=Experiment.TYPE_PREF)
