@@ -292,6 +292,39 @@ class ExperimentRecipePrefRolloutArgumentsSerializer(serializers.ModelSerializer
         fields = ("slug", "preferences")
 
 
+class ExperimentRecipeMessageVariantSerializer(serializers.ModelSerializer):
+    value = serializers.SerializerMethodField()
+    groups = serializers.ReadOnlyField(default=[])
+
+    class Meta:
+        model = ExperimentVariant
+        fields = ("ratio", "slug", "value", "groups")
+
+    def get_value(self, obj):
+        return {}
+
+
+class ExperimentRecipeMessageArgumentsSerializer(
+    ExperimentRecipeBranchedArgumentsSerializer
+):
+    slug = serializers.ReadOnlyField(source="normandy_slug")
+    branches = serializers.SerializerMethodField()
+    experimentDocumentUrl = serializers.ReadOnlyField(source="experiment_url")
+
+    class Meta:
+        model = Experiment
+        fields = (
+            "slug",
+            "userFacingName",
+            "userFacingDescription",
+            "branches",
+            "experimentDocumentUrl",
+        )
+
+    def get_branches(self, obj):
+        return ExperimentRecipeMessageVariantSerializer(obj.variants, many=True).data
+
+
 class ExperimentRecipeSerializer(serializers.ModelSerializer):
     action_name = serializers.SerializerMethodField()
     filter_object = serializers.SerializerMethodField()
@@ -323,6 +356,8 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return "addon-rollout"
         elif obj.is_pref_rollout:
             return "preference-rollout"
+        elif obj.is_message_experiment:
+            return "messaging-experiment"
 
     def get_filter_object(self, obj):
         filter_objects = [
@@ -352,6 +387,8 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return ExperimentRecipeAddonRolloutArgumentsSerializer(obj).data
         elif obj.is_pref_rollout:
             return ExperimentRecipePrefRolloutArgumentsSerializer(obj).data
+        elif obj.is_message_experiment:
+            return ExperimentRecipeMessageArgumentsSerializer(obj).data
 
     def get_comment(self, obj):
         comment = (

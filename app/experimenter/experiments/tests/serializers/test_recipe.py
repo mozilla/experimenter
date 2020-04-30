@@ -17,8 +17,10 @@ from experimenter.experiments.tests.factories import (
 
 from experimenter.experiments.serializers.recipe import (
     ExperimentRecipeAddonArgumentsSerializer,
-    ExperimentRecipeAddonVariantSerializer,
     ExperimentRecipeAddonRolloutArgumentsSerializer,
+    ExperimentRecipeAddonVariantSerializer,
+    ExperimentRecipeMessageArgumentsSerializer,
+    ExperimentRecipeMessageVariantSerializer,
     ExperimentRecipeMultiPrefVariantSerializer,
     ExperimentRecipePrefArgumentsSerializer,
     ExperimentRecipePrefRolloutArgumentsSerializer,
@@ -677,6 +679,55 @@ class TestExperimentRecipeSerializer(TestCase):
             },
         )
 
+    def test_serializer_outputs_expected_schema_for_message(self):
+
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_MESSAGE,
+            firefox_min_version="70.0",
+            locales=[LocaleFactory.create()],
+            countries=[CountryFactory.create()],
+            public_description="this is my public description!",
+            public_name="public name",
+            normandy_slug="some-random-slug",
+            platforms=[Experiment.PLATFORM_WINDOWS],
+        )
+
+        variant = ExperimentVariant(
+            slug="slug-value", ratio=25, experiment=experiment, is_control=True
+        )
+
+        variant.save()
+
+        expected_comment = expected_comment = (
+            f"Platform: ['All Windows']\n"
+            f"Windows Versions: None\n"
+            f"{experiment.client_matching}\n"
+        )
+        serializer = ExperimentRecipeSerializer(experiment)
+        self.assertEqual(serializer.data["action_name"], "messaging-experiment")
+        self.assertEqual(serializer.data["name"], experiment.name)
+        self.assertEqual(serializer.data["comment"], expected_comment)
+        self.assertEqual(
+            serializer.data["filter_object"],
+            [
+                FilterObjectBucketSampleSerializer(experiment).data,
+                FilterObjectChannelSerializer(experiment).data,
+                FilterObjectVersionsSerializer(experiment).data,
+                FilterObjectLocaleSerializer(experiment).data,
+                FilterObjectCountrySerializer(experiment).data,
+            ],
+        )
+
+        expected_data = {
+            "slug": "some-random-slug",
+            "experimentDocumentUrl": experiment.experiment_url,
+            "userFacingName": "public name",
+            "userFacingDescription": "this is my public description!",
+            "branches": [{"groups": [], "value": {}, "ratio": 25, "slug": "slug-value"}],
+        }
+
+        self.assertEqual(serializer.data["arguments"], expected_data)
+
     def test_serializer_excludes_locales_if_none_set(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_SHIP, type=Experiment.TYPE_ADDON
@@ -835,6 +886,36 @@ class TestExperimentRecipePrefArgumentsSerializer(TestCase):
                 "preferenceType": "string",
                 "branches": [
                     ExperimentRecipeVariantSerializer(variant).data
+                    for variant in experiment.variants.all()
+                ],
+            },
+        )
+
+
+class TestExperimentRecipeMessageVariantSerializer(TestCase):
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentFactory()
+        variant = ExperimentVariantFactory.create(experiment=experiment)
+        serializer = ExperimentRecipeMessageVariantSerializer(variant)
+        self.assertEqual(
+            serializer.data,
+            {"ratio": variant.ratio, "slug": variant.slug, "value": {}, "groups": []},
+        )
+
+
+class TestExperimentRecipeMessageArgumentsSerializer(TestCase):
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentFactory()
+        serializer = ExperimentRecipeMessageArgumentsSerializer(experiment)
+        self.assertEqual(
+            serializer.data,
+            {
+                "slug": experiment.normandy_slug,
+                "experimentDocumentUrl": experiment.experiment_url,
+                "userFacingName": experiment.public_name,
+                "userFacingDescription": experiment.public_description,
+                "branches": [
+                    ExperimentRecipeMessageVariantSerializer(variant).data
                     for variant in experiment.variants.all()
                 ],
             },
