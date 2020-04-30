@@ -42,7 +42,14 @@ class ExperimentDetailView(RetrieveAPIView):
 
 class ExperimentRecipeView(RetrieveAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.all()
+    queryset = Experiment.objects.filter(
+        status__in=(
+            ExperimentConstants.STATUS_SHIP,
+            ExperimentConstants.STATUS_ACCEPTED,
+            ExperimentConstants.STATUS_LIVE,
+            ExperimentConstants.STATUS_COMPLETE,
+        )
+    )
     serializer_class = ExperimentRecipeSerializer
 
 
