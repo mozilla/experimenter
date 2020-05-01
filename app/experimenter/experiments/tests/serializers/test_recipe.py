@@ -329,9 +329,9 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertEqual(serializer.data["action_name"], "preference-experiment")
         self.assertEqual(serializer.data["name"], experiment.name)
         expected_comment = (
+            f"{experiment.client_matching}\n"
             f"Platform: ['All Mac']\n"
-            f"Windows Versions: None\n"
-            f"{experiment.client_matching}\nProfile Age: Existing Profiles Only"
+            "Profile Age: Existing Profiles Only"
         )
         self.assertEqual(serializer.data["comment"], expected_comment)
         self.assertEqual(
@@ -389,9 +389,9 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertEqual(serializer.data["name"], experiment.name)
 
         expected_comment = (
+            f"{experiment.client_matching}\n"
             f"Platform: ['All Windows']\n"
             f"Windows Versions: ['Windows 8']\n"
-            f"{experiment.client_matching}\n"
         )
         self.assertEqual(serializer.data["comment"], expected_comment)
         self.assertEqual(
@@ -432,11 +432,7 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertEqual(serializer.data["action_name"], "branched-addon-study")
         self.assertEqual(serializer.data["name"], experiment.name)
 
-        expected_comment = (
-            f"Platform: ['All Linux']\n"
-            f"Windows Versions: None\n"
-            f"{experiment.client_matching}\n"
-        )
+        expected_comment = f"{experiment.client_matching}\n" f"Platform: ['All Linux']\n"
         self.assertEqual(serializer.data["comment"], expected_comment)
         self.assertEqual(
             serializer.data["filter_object"],
@@ -479,9 +475,7 @@ class TestExperimentRecipeSerializer(TestCase):
         variant.save()
 
         expected_comment = expected_comment = (
-            f"Platform: ['All Windows']\n"
-            f"Windows Versions: None\n"
-            f"{experiment.client_matching}\n"
+            f"{experiment.client_matching}\n" f"Platform: ['All Windows']\n"
         )
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "multi-preference-experiment")
@@ -528,7 +522,11 @@ class TestExperimentRecipeSerializer(TestCase):
             public_description="this is my public description!",
             public_name="public name",
             normandy_slug="some-random-slug",
-            platforms=[Experiment.PLATFORM_WINDOWS],
+            platforms=[
+                Experiment.PLATFORM_WINDOWS,
+                Experiment.PLATFORM_MAC,
+                Experiment.PLATFORM_LINUX,
+            ],
             is_multi_pref=True,
         )
 
@@ -540,11 +538,7 @@ class TestExperimentRecipeSerializer(TestCase):
 
         pref = VariantPreferencesFactory.create(variant=variant)
 
-        expected_comment = expected_comment = (
-            f"Platform: ['All Windows']\n"
-            f"Windows Versions: None\n"
-            f"{experiment.client_matching}\n"
-        )
+        expected_comment = expected_comment = f"{experiment.client_matching}\n"
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "multi-preference-experiment")
         self.assertEqual(serializer.data["name"], experiment.name)
@@ -607,10 +601,9 @@ class TestExperimentRecipeSerializer(TestCase):
                     "extensionApiId": "TODO: https://www.example.com/addon.xpi",
                     "slug": "normandy-slug",
                 },
-                "comment": "Platform: ['All Windows']\n"
-                "Windows Versions: None\n"
-                "Geos: US, CA, GB\n"
-                'Some "additional" filtering\n',
+                "comment": "Geos: US, CA, GB\n"
+                'Some "additional" filtering\n'
+                "Platform: ['All Windows']\n",
                 "experimenter_slug": "experimenter-slug",
                 "filter_object": [
                     {
@@ -659,10 +652,9 @@ class TestExperimentRecipeSerializer(TestCase):
                     "preferences": [{"preferenceName": "browser.pref", "value": True}],
                     "slug": "normandy-slug",
                 },
-                "comment": "Platform: ['All Windows']\n"
-                "Windows Versions: None\n"
-                "Geos: US, CA, GB\n"
-                'Some "additional" filtering\n',
+                "comment": "Geos: US, CA, GB\n"
+                'Some "additional" filtering\n'
+                "Platform: ['All Windows']\n",
                 "experimenter_slug": "experimenter-slug",
                 "filter_object": [
                     {
@@ -699,9 +691,7 @@ class TestExperimentRecipeSerializer(TestCase):
         variant.save()
 
         expected_comment = expected_comment = (
-            f"Platform: ['All Windows']\n"
-            f"Windows Versions: None\n"
-            f"{experiment.client_matching}\n"
+            f"{experiment.client_matching}\n" f"Platform: ['All Windows']\n"
         )
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "messaging-experiment")
