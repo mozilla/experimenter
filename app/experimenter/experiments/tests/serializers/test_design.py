@@ -1375,6 +1375,9 @@ class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
             experiment=experiment,
             value=None,
             addon_release_url=None,
+            message_targeting=None,
+            message_threshold=None,
+            message_triggers=None,
         )
 
         data = {
@@ -1385,6 +1388,9 @@ class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
                     "description": variant.description,
                     "name": variant.name,
                     "is_control": variant.is_control,
+                    "message_targeting": variant.message_targeting,
+                    "message_threshold": variant.message_threshold,
+                    "message_triggers": variant.message_triggers,
                 }
             ]
         }
