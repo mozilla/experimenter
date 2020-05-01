@@ -280,7 +280,27 @@ class TestChangeLogSerializer(TestCase):
             "review_comms": experiment.review_comms,
             "review_impacted_teams": experiment.review_impacted_teams,
             "variants": [
-                ExperimentVariantSerializer(variant).data
+                {
+                    "description": variant.description,
+                    "is_control": variant.is_control,
+                    "name": variant.name,
+                    "ratio": variant.ratio,
+                    "slug": variant.slug,
+                    "value": variant.value,
+                    "addon_release_url": variant.addon_release_url,
+                    "preferences": [
+                        {
+                            "pref_name": preference.pref_name,
+                            "pref_type": preference.pref_type,
+                            "pref_branch": preference.pref_branch,
+                            "pref_value": preference.pref_value,
+                        }
+                        for preference in variant.preferences.all()
+                    ],
+                    "message_targeting": variant.message_targeting,
+                    "message_threshold": variant.message_threshold,
+                    "message_triggers": variant.message_triggers,
+                }
                 for variant in experiment.variants.all()
             ],
             "results_url": experiment.results_url,
@@ -300,6 +320,8 @@ class TestChangeLogSerializer(TestCase):
             "results_impact_notes": experiment.results_impact_notes,
             "rollout_playbook": experiment.rollout_playbook,
             "rollout_type": experiment.rollout_type,
+            "message_type": experiment.message_type,
+            "message_template": experiment.message_template,
         }
 
         self.assertEqual(set(serializer.data.keys()), set(expected_data.keys()))

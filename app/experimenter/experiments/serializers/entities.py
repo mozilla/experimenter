@@ -59,6 +59,9 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
             "value",
             "addon_release_url",
             "preferences",
+            "message_targeting",
+            "message_threshold",
+            "message_triggers",
         )
 
 
@@ -163,6 +166,8 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "results_impact_notes",
             "rollout_type",
             "rollout_playbook",
+            "message_type",
+            "message_template",
         )
 
 
