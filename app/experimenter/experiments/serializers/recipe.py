@@ -391,11 +391,11 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return ExperimentRecipeMessageArgumentsSerializer(obj).data
 
     def get_comment(self, obj):
-        comment = (
-            f"Platform: {obj.platforms}\n"
-            f"Windows Versions: {obj.windows_versions}\n"
-            f"{obj.client_matching}\n"
-        )
+        comment = f"{obj.client_matching}\n"
+        if len(obj.platforms) < len(ExperimentConstants.PLATFORMS_LIST):
+            comment += f"Platform: {obj.platforms}\n"
+        if obj.windows_versions:
+            comment += f"Windows Versions: {obj.windows_versions}\n"
         if obj.profile_age != ExperimentConstants.PROFILES_ALL:
             comment += f"Profile Age: {obj.profile_age}"
 
