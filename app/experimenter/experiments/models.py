@@ -212,6 +212,10 @@ class Experiment(ExperimentConstants, models.Model):
 
     data_science_issue_url = models.URLField(blank=True, null=True)
     feature_bugzilla_url = models.URLField(blank=True, null=True)
+    telemetry_event_category = models.CharField(max_length=255, blank=True, null=True)
+    telemetry_event_method = models.CharField(max_length=255, blank=True, null=True)
+    telemetry_event_object = models.CharField(max_length=255, blank=True, null=True)
+    telemetry_event_value = models.CharField(max_length=255, blank=True, null=True)
 
     # Risk fields
     risk_partner_related = models.NullBooleanField(default=None, blank=True, null=True)
@@ -620,6 +624,10 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def should_have_total_enrolled(self):
         return self.type not in (self.TYPE_GENERIC, self.TYPE_ROLLOUT)
+
+    @property
+    def should_have_telemetry_event(self):
+        return self.type == self.TYPE_MESSAGE
 
     @property
     def display_platforms_or_versions(self):
