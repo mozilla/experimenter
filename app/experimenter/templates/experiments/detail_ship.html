@@ -109,6 +109,10 @@
   </div>
 {% endblock %}
 
+{% block main_sidebar_extra %}
+  {% include "experiments/signoff_form_inline.html" with experiment=experiment %}
+{% endblock %}
+
 {% block extrascripts %}
   {{ block.super }}
   <script>
