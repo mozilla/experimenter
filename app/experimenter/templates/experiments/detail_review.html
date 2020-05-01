@@ -45,52 +45,7 @@
 {% endblock %}
 
 {% block main_sidebar_extra %}
-  <div class="form-group row">
-    <div class="col pt-2">
-      <h5 class="mt-3">Required Checklist</h5>
-      <form action="{% url "experiments-review-update" slug=experiment.slug %}" method="POST">
-        {% csrf_token %}
-
-        {% for field in form.required_reviews %}
-          <div class="checkbox">
-            <label>
-              {{ field }}
-              {{ field.label }}
-            </label>
-            {{ field.help_text|safe }}
-          </div>
-          {% if field.name == 'review_intent_to_ship' and not experiment.review_intent_to_ship %}
-            <div class="checkbox mb-1 ml-3">
-              <button type="button" class="btn btn-link p-0 send-intent-to-ship"
-                data-toggle="modal" data-target="#send-intent-to-ship-modal"
-                data-url="{% url 'experiments-api-send-intent-to-ship-email' experiment.slug %}"
-              >
-                <strong>
-                  <span class="fas fa-envelope"></span> Send intent-to-ship email
-                </strong>
-              </button>
-            </div>
-          {% endif %}
-        {% endfor %}
-
-        <h5 class="mt-3">Optional Checklist</h5>
-
-        {% for field in form.optional_reviews %}
-            <div class="checkbox">
-              <label>
-                {{ field }}
-                {{ field.label }}
-              </label>
-              {{ field.help_text|safe }}
-            </div>
-        {% endfor %}
-
-        <button class="col btn btn-success mt-3">
-          <span class="fas fa-save"></span> Save Sign-Offs
-        </button>
-      </form>
-    </div>
-  </div>
+  {% include "experiments/signoff_form_inline.html" with experiment=experiment %}
 {% endblock %}
 
 {% block main_content %}

@@ -839,7 +839,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def is_ready_to_launch(self):
-        return self.completed_all_sections and self.completed_required_reviews
+        return self.completed_all_sections
 
     @property
     def format_firefox_versions(self):
