@@ -23,8 +23,6 @@ class ExperimentConstants(object):
 
     @classmethod
     def FEATURE_TYPE_CHOICES(cls):  # pragma: no cover
-        if not settings.FEATURE_MESSAGE_TYPE:
-            return tuple(t for t in cls.TYPE_CHOICES if cls.TYPE_MESSAGE not in t)
         return cls.TYPE_CHOICES
 
     # Message stuff
