@@ -106,6 +106,10 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "total_enrolled_clients",
             "analysis",
             "analysis_owner",
+            "telemetry_event_category",
+            "telemetry_event_method",
+            "telemetry_event_object",
+            "telemetry_event_value",
             "survey_required",
             "survey_urls",
             "survey_instructions",
@@ -245,6 +249,10 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "variants",
             "results",
             "changes",
+            "telemetry_event_category",
+            "telemetry_event_method",
+            "telemetry_event_object",
+            "telemetry_event_value",
         )
 
     def get_results(self, obj):

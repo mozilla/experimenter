@@ -157,6 +157,10 @@ class TestExperimentSerializer(TestCase):
                 "results_measure_impact": None,
                 "results_impact_notes": None,
             },
+            "telemetry_event_category": experiment.telemetry_event_category,
+            "telemetry_event_method": experiment.telemetry_event_method,
+            "telemetry_event_object": experiment.telemetry_event_object,
+            "telemetry_event_value": experiment.telemetry_event_value,
         }
 
         self.assertEqual(set(serializer.data.keys()), set(expected_data.keys()))
@@ -237,6 +241,10 @@ class TestChangeLogSerializer(TestCase):
             "total_enrolled_clients": experiment.total_enrolled_clients,
             "analysis": experiment.analysis,
             "analysis_owner": experiment.analysis_owner.id,
+            "telemetry_event_category": experiment.telemetry_event_category,
+            "telemetry_event_method": experiment.telemetry_event_method,
+            "telemetry_event_object": experiment.telemetry_event_object,
+            "telemetry_event_value": experiment.telemetry_event_value,
             "survey_required": experiment.survey_required,
             "survey_urls": experiment.survey_urls,
             "survey_instructions": experiment.survey_instructions,
