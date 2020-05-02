@@ -5,7 +5,9 @@ Analysis
 {% endblock %}
 
 {% block section_content %}
-  {{ experiment.analysis|urlize|markdown }}
+  <div id="analysis-content">
+    {{ experiment.analysis|urlize|markdown }}
+  </div>
 
   {% if experiment.total_enrolled_clients %}
     <p><strong>Estimated Total Enrolled Clients:</strong></p>
@@ -39,21 +41,22 @@ Analysis
   <p>
     <strong>
       {{ experiment.SURVEY_REQUIRED_LABEL }}
-      <span class="{% if experiment.survey_required %}text-danger{% endif %}">
+      <span id="analysis-survey-required" class="{% if experiment.survey_required %}text-danger{% endif %}">
         {{ experiment.survey_required|yesno:"Yes,No" }}
       </span>
     </strong>
   </p>
+
   {% if experiment.survey_required %}
     <p><strong>Survey URLs</strong></p>
-    <p>
+    <p id="analysis-survey-urls">
       {{ experiment.survey_urls|urlize }}
     </p>
 
     <p><strong>Survey Launch Instructions</strong></p>
-    <p>
+    <div id="analysis-survey-launch-instructions">
       {{ experiment.survey_instructions|urlize|markdown }}
-    </p>
+    </div>
   {% endif %}
 
 
