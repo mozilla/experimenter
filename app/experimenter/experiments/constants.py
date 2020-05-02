@@ -775,6 +775,19 @@ class ExperimentConstants(object):
         https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=FIREFOX&title=Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-PopulationSize
     """
 
+    TELEMETRY_EVENT_HELP_TEXT = """
+      <p>
+        The conversion event describes the outcome that you are attempting to drive with
+        the experiment. For example, if the experiment attempts to drive users to import
+        their bookmarks from a different browser, the bookmark import feature should
+        send a Firefox event telemetry event when the bookmarks are imported. This event
+        must be sent from clients in both the control and all treatment branches of the
+        experiment. This allows us to measure the success of the experiment at driving
+        the targeted interaction. An empty box will match any value for that event
+        parameter.
+      </p>
+    """
+
     ENGINEERING_OWNER_HELP_TEXT = """
       <p>
         The Engineering Owner is the person responsible for the engineering

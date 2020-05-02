@@ -5,6 +5,7 @@ from django.conf import settings
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.db.utils import IntegrityError
+from parameterized import parameterized
 
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.experiments.models import (
@@ -1397,6 +1398,19 @@ class TestExperimentModel(TestCase):
     def test_should_have_test_builds_true(self):
         experiment = ExperimentFactory(type=Experiment.TYPE_PREF)
         self.assertTrue(experiment.should_have_test_builds)
+
+    @parameterized.expand(
+        [
+            (False, Experiment.TYPE_ADDON),
+            (False, Experiment.TYPE_GENERIC),
+            (False, Experiment.TYPE_PREF),
+            (False, Experiment.TYPE_ROLLOUT),
+            (True, Experiment.TYPE_MESSAGE),
+        ]
+    )
+    def test_should_have_telemetry_event(self, expected, type):
+        experiment = ExperimentFactory(type=type)
+        self.assertEqual(experiment.should_have_telemetry_event, expected)
 
     def test_display_platforms(self):
         experiment_1 = ExperimentFactory(platforms=["All Windows", "All Mac"])
