@@ -87,18 +87,21 @@ class DetailPage(Base):
     class AnalysisRegion(Region):
 
         _edit_btn_locator = (By.CSS_SELECTOR, "#analysis-edit-btn")
-        _detail_locator = (By.CSS_SELECTOR, "#analysis-section-detail > p:nth-child(2)")
+        _detail_locator = (
+            By.CSS_SELECTOR,
+            "#analysis-section-detail > #analysis-content",
+        )
         _survey_checkbox_locator = (
             By.CSS_SELECTOR,
-            "#analysis-section-detail > strong > span",
+            "#analysis-section-detail > #analysis-survey-required",
         )
         _survey_urls_locator = (
             By.CSS_SELECTOR,
-            "#analysis-section-detail > p:nth-child(6)",
+            "#analysis-section-detail > #analysis-survey-urls",
         )
         _survey_launch_instructions_locator = (
             By.CSS_SELECTOR,
-            "#analysis-section-detail > p:nth-child(9)",
+            "#analysis-section-detail > #analysis-survey-launch-instructions",
         )
 
         def click_edit(self):
@@ -128,7 +131,7 @@ class DetailPage(Base):
         @property
         def survey_launch_instructions(self):
             element = self.find_element(*self._survey_launch_instructions_locator)
-            return element.text
+            return element.get_attribute("textContent")
 
     class RequiredChecklist(Region):
         _checkbox_locator = (By.CSS_SELECTOR, "input")

@@ -5,31 +5,58 @@ Analysis
 {% endblock %}
 
 {% block section_content %}
-  {{ experiment.analysis|urlize|markdown }}
+  <div id="analysis-content">
+    {{ experiment.analysis|urlize|markdown }}
+  </div>
+
+  {% if experiment.total_enrolled_clients %}
+    <p><strong>Estimated Total Enrolled Clients:</strong></p>
+    <p>{{ experiment.total_enrolled_clients }}</p>
+  {% endif %}
+
+  {% if experiment.should_have_telemetry_event %}
+    <p><strong>Telemetry Conversion Event</strong></p>
+    <table class="table">
+      <tbody>
+        <tr>
+          <th scope="row">Category</th>
+          <td>{{ experiment.telemetry_event_category }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Method</th>
+          <td>{{ experiment.telemetry_event_method }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Object</th>
+          <td>{{ experiment.telemetry_event_object }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Value</th>
+          <td>{{ experiment.telemetry_event_value }}</td>
+        </tr>
+      </tbody>
+    </table>
+  {% endif %}
+
+  <p>
     <strong>
       {{ experiment.SURVEY_REQUIRED_LABEL }}
-      <span class="{% if experiment.survey_required %}text-danger{% endif %}">
+      <span id="analysis-survey-required" class="{% if experiment.survey_required %}text-danger{% endif %}">
         {{ experiment.survey_required|yesno:"Yes,No" }}
       </span>
     </strong>
   </p>
-  {% if experiment.total_enrolled_clients %}
-    <p>
-      <strong>Estimated Total Enrolled Clients:</strong> {{ experiment.total_enrolled_clients }}
-    </p>
-  {% endif %}
-
 
   {% if experiment.survey_required %}
     <p><strong>Survey URLs</strong></p>
-    <p>
+    <p id="analysis-survey-urls">
       {{ experiment.survey_urls|urlize }}
     </p>
 
     <p><strong>Survey Launch Instructions</strong></p>
-    <p>
+    <div id="analysis-survey-launch-instructions">
       {{ experiment.survey_instructions|urlize|markdown }}
-    </p>
+    </div>
   {% endif %}
 
 
