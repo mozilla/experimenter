@@ -468,6 +468,29 @@ class TestExperimentRisksForm(MockRequestMixin, TestCase):
         "qa_status": "It ain't easy being green",
     }
 
+    def test_risk_fields_returns_filtered_fields(self):
+        self.maxDiff = None
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        form = ExperimentRisksForm(request=self.request, data={}, instance=experiment)
+        self.assertEqual(
+            [f.name for f in form.risk_fields],
+            [
+                "risk_brand",
+                "risk_confidential",
+                "risk_data_category",
+                "risk_external_team_impact",
+                "risk_fast_shipped",
+                "risk_higher_risk",
+                "risk_partner_related",
+                "risk_revenue",
+                "risk_revision",
+                "risk_security",
+                "risk_technical",
+                "risk_telemetry_data",
+                "risk_ux",
+            ],
+        )
+
     def test_no_fields_required(self):
         experiment = ExperimentFactory.create()
         form = ExperimentRisksForm(request=self.request, data={}, instance=experiment)

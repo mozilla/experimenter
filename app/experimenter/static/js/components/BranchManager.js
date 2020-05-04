@@ -14,6 +14,7 @@ class BranchManager extends React.PureComponent {
     errors: PropTypes.instanceOf(List),
     handleDataChange: PropTypes.func,
     handleErrorsChange: PropTypes.func,
+    options: PropTypes.object,
   };
 
   addBranch() {
@@ -67,6 +68,7 @@ class BranchManager extends React.PureComponent {
         onErrorChange={(errors) => {
           this.handleBranchErrorChange(index, errors);
         }}
+        options={this.props.options}
       />
     );
   }

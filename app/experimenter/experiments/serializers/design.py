@@ -458,7 +458,14 @@ class ExperimentBranchedAddonVariantSerializer(ExperimentDesignVariantBaseSerial
 
     class Meta(ExperimentDesignVariantBaseSerializer.Meta):
         model = ExperimentVariant
-        fields = ["addon_release_url", "id", "description", "is_control", "name", "ratio"]
+        fields = [
+            "addon_release_url",
+            "id",
+            "description",
+            "is_control",
+            "name",
+            "ratio",
+        ]
 
 
 class ExperimentDesignBranchedAddonSerializer(ExperimentDesignBaseSerializer):
@@ -468,3 +475,37 @@ class ExperimentDesignBranchedAddonSerializer(ExperimentDesignBaseSerializer):
     class Meta:
         model = Experiment
         fields = ("is_branched_addon", "variants")
+
+
+class ExperimentMessageVariantSerializer(ExperimentDesignVariantBaseSerializer):
+    value = serializers.CharField(allow_null=False, allow_blank=False, required=True)
+
+    class Meta(ExperimentDesignVariantBaseSerializer.Meta):
+        model = ExperimentVariant
+        fields = [
+            "description",
+            "id",
+            "is_control",
+            "message_targeting",
+            "message_threshold",
+            "message_triggers",
+            "name",
+            "ratio",
+            "value",
+        ]
+
+
+class ExperimentDesignMessageSerializer(ExperimentDesignBaseSerializer):
+    variants = ExperimentMessageVariantSerializer(many=True)
+    message_type = serializers.ChoiceField(
+        choices=ExperimentConstants.MESSAGE_TYPE_CHOICES
+    )
+    message_template = serializers.ChoiceField(
+        choices=ExperimentConstants.MESSAGE_TEMPLATE_CHOICES,
+        required=False,
+        allow_null=True,
+    )
+
+    class Meta:
+        model = Experiment
+        fields = ("message_type", "message_template", "variants")

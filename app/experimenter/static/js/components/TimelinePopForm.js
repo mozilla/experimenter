@@ -6,12 +6,14 @@ import { fromJS, Map } from "immutable";
 
 import DesignInput from "experimenter/components/DesignInput";
 import LabeledMultiSelect from "experimenter/components/LabeledMultiSelect";
+import RadioButtonInlineLabel from "experimenter/components/RadioButtonInlineLabel";
 
 import { makeApiRequest } from "experimenter/utils/api";
 import {
   VERSION_CHOICES,
   PLAYBOOK_CHOICES,
   PLATFORM_CHOICES,
+  WINDOWS_VERSIONS_CHOICES,
   PROPOSED_START_DATE_HELP,
   PROPOSED_DURATION_HELP,
   PROPOSED_ENROLLMENT_HELP,
@@ -19,9 +21,13 @@ import {
   POPULATION_PERCENT_HELP,
   VERSION_HELP,
   PLATFORM_HELP,
+  WINDOWS_VERSIONS_NOTE,
   CLIENT_MATCHING_HELP,
   COUNTRIES_LOCALES_HELP,
   ROLLOUT_PLAYBOOK_HELP,
+  PLATFORM_WINDOWS,
+  PROFILE_AGE_HELP,
+  PROFILE_CHOICES,
 } from "experimenter/components/constants";
 
 @boundClass
@@ -52,7 +58,6 @@ class TimelinePopForm extends React.PureComponent {
   async componentDidMount() {
     try {
       const data = await makeApiRequest(this.getEndpointUrl());
-
       this.setState({
         loaded: true,
         data: fromJS(data),
@@ -72,6 +77,11 @@ class TimelinePopForm extends React.PureComponent {
   }
 
   handleMultiSelectDataChange(selectedOptions, name) {
+    if (name === "platforms") {
+      this.setState(({ data }) => ({
+        data: data.set("windows_versions", null),
+      }));
+    }
     if (selectedOptions == null) {
       selectedOptions = [];
     }
@@ -150,6 +160,11 @@ class TimelinePopForm extends React.PureComponent {
     }
 
     return choicesJSX;
+  }
+
+  isWindowsVersionEnabled() {
+    const platforms = this.state.data.get("platforms").toJS();
+    return platforms.length === 1 && platforms[0].value === PLATFORM_WINDOWS;
   }
 
   async handleSubmit(event, redirectUrl) {
@@ -348,8 +363,40 @@ class TimelinePopForm extends React.PureComponent {
               optional={true}
               placeholder="All Platforms"
             />
+            <LabeledMultiSelect
+              isDisabled={!this.isWindowsVersionEnabled()}
+              options={WINDOWS_VERSIONS_CHOICES}
+              label="Windows Versions"
+              name="windows_versions"
+              id="id_windows_versions"
+              onChange={this.handleMultiSelectDataChange}
+              value={
+                this.state.data.get("windows_versions")
+                  ? this.state.data.get("windows_versions", []).toJS()
+                  : []
+              }
+              error={this.state.errors.get("windows_versions", "")}
+              helpContent={PLATFORM_HELP}
+              labelColumnWidth={2}
+              optional={true}
+              placeholder="Windows Versions"
+              note={WINDOWS_VERSIONS_NOTE}
+              showNote={!this.isWindowsVersionEnabled()}
+            />
+            <RadioButtonInlineLabel
+              elementLabel="Profile Filtering"
+              fieldName="profile_age"
+              value={this.state.data.get("profile_age")}
+              helpContent={PROFILE_AGE_HELP}
+              helpIsExternalLink={true}
+              choices={PROFILE_CHOICES}
+              onChange={(input) => {
+                this.handleDataChange("profile_age", input.target.value);
+              }}
+              optional={true}
+            />
             <DesignInput
-              label="Population filtering"
+              label="Population Filtering"
               name="client_matching"
               id="id_client_matching"
               onChange={(value) => {

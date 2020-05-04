@@ -1,12 +1,18 @@
 import faker from "faker";
 import { AutoIncrementField, Factory, Field } from "experimenter/tests/factory";
+import {
+  PLATFORM_WINDOWS,
+  PLATFORM_WINDOWS_LABEL,
+  PLATFORM_MAC,
+  PLATFORM_MAC_LABEL,
+} from "experimenter/components/constants";
 
 export class VariantsFactory extends Factory {
   getFields() {
     return {
       id: new AutoIncrementField(),
       description: new Field(faker.lorem.sentence),
-      name: new Field(faker.lorem.word),
+      name: new Field(faker.lorem.sentence),
       ratio: new Field(() =>
         faker.random.number({ min: 1, max: 100 }).toString(),
       ),
@@ -81,7 +87,7 @@ export class AddonDataFactory extends GenericDataFactory {
 export class PrefVariantsFactory extends VariantsFactory {
   getFields() {
     return {
-      value: new Field(faker.lorem.word),
+      value: new Field(faker.lorem.sentence),
       ...super.getFields(),
     };
   }
@@ -90,7 +96,7 @@ export class PrefVariantsFactory extends VariantsFactory {
 export class PrefDataFactory extends Factory {
   getFields() {
     return {
-      pref_name: new Field(faker.lorem.word),
+      pref_name: new Field(faker.lorem.sentence),
       pref_type: "string",
       pref_branch: "default",
       variants: [],
@@ -140,7 +146,7 @@ export class BranchedAddonVariantFactory extends Factory {
     return {
       id: new AutoIncrementField(),
       description: new Field(faker.lorem.sentence),
-      name: new Field(faker.lorem.word),
+      name: new Field(faker.lorem.sentence),
       ratio: new Field(faker.random.number, { min: 1, max: 100 }),
       is_control: false,
       addon_release_url: new Field(faker.internet.url),
@@ -148,15 +154,13 @@ export class BranchedAddonVariantFactory extends Factory {
   }
 }
 
-// *********************** Multipref factories **********************
-
 export class MultiPrefVariantDataFactory extends Factory {
   getFields() {
     return {
-      pref_name: new Field(faker.lorem.word),
+      pref_name: new Field(faker.lorem.sentence),
       pref_type: "string",
       pref_branch: "default",
-      pref_value: new Field(faker.lorem.word),
+      pref_value: new Field(faker.lorem.sentence),
       id: new AutoIncrementField(),
     };
   }
@@ -167,7 +171,7 @@ export class MainMultiPrefVariantDataFactory extends Factory {
     return {
       id: new AutoIncrementField(),
       description: new Field(faker.lorem.sentence),
-      name: new Field(faker.lorem.word),
+      name: new Field(faker.lorem.sentence),
       ratio: new Field(faker.random.number, { min: 1, max: 100 }),
       is_control: false,
       preferences: [],
@@ -207,6 +211,37 @@ export class MultiPrefDataFactory extends Factory {
   }
 }
 
+export class MessageVariantsFactory extends VariantsFactory {
+  getFields() {
+    return {
+      value: new Field(faker.lorem.paragraph),
+      ...super.getFields(),
+    };
+  }
+}
+
+export class MessageDataFactory extends Factory {
+  getFields() {
+    return {
+      variants: [],
+    };
+  }
+
+  postGeneration() {
+    const { generateVariants } = this.options;
+    if (generateVariants) {
+      const variants = [];
+      for (let i = 0; i < generateVariants; i++) {
+        variants.push(MessageVariantsFactory.build());
+      }
+      this.data.variants = [...this.data.variants, ...variants];
+    }
+    if (this.data.variants.length) {
+      this.data.variants[0].is_control = true;
+    }
+  }
+}
+
 export class TimelinePopDataFactory extends Factory {
   getFields() {
     return {
@@ -220,8 +255,8 @@ export class TimelinePopDataFactory extends Factory {
       locales: [{ value: "NP", label: "Nepali" }],
       countries: [{ value: "US", label: "United States" }],
       platforms: [
-        { value: "All Windows", label: "All Windows" },
-        { value: "All Mac", label: "All Mac" },
+        { value: PLATFORM_WINDOWS, label: PLATFORM_WINDOWS_LABEL },
+        { value: PLATFORM_MAC, label: PLATFORM_MAC_LABEL },
       ],
       client_matching: "client matching data",
     };

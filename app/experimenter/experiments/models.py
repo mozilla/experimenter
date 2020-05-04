@@ -95,6 +95,19 @@ class Experiment(ExperimentConstants, models.Model):
         validators=[MaxValueValidator(ExperimentConstants.MAX_DURATION)],
     )
 
+    message_type = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=ExperimentConstants.MESSAGE_TYPE_CHOICES,
+    )
+    message_template = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=ExperimentConstants.MESSAGE_TEMPLATE_CHOICES,
+    )
+
     is_multi_pref = models.BooleanField(default=False)
     rollout_type = models.CharField(
         max_length=255,
@@ -137,13 +150,22 @@ class Experiment(ExperimentConstants, models.Model):
     )
     total_enrolled_clients = models.PositiveIntegerField(blank=True, null=True)
     firefox_min_version = models.CharField(
-        max_length=255, choices=ExperimentConstants.VERSION_CHOICES, blank=True, null=True
+        max_length=255,
+        choices=ExperimentConstants.VERSION_CHOICES,
+        blank=True,
+        null=True,
     )
     firefox_max_version = models.CharField(
-        max_length=255, choices=ExperimentConstants.VERSION_CHOICES, blank=True, null=True
+        max_length=255,
+        choices=ExperimentConstants.VERSION_CHOICES,
+        blank=True,
+        null=True,
     )
     firefox_channel = models.CharField(
-        max_length=255, choices=ExperimentConstants.CHANNEL_CHOICES, blank=True, null=True
+        max_length=255,
+        choices=ExperimentConstants.CHANNEL_CHOICES,
+        blank=True,
+        null=True,
     )
     client_matching = models.TextField(
         default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True, null=True
@@ -156,6 +178,16 @@ class Experiment(ExperimentConstants, models.Model):
         blank=True,
         null=True,
         default=default_all_platforms,
+    )
+    windows_versions = ArrayField(
+        models.CharField(max_length=200), blank=True, null=True,
+    )
+    profile_age = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.PROFILE_AGE_CHOICES,
+        blank=True,
+        null=True,
+        default=ExperimentConstants.PROFILES_ALL,
     )
     design = models.TextField(
         default=ExperimentConstants.DESIGN_DEFAULT, blank=True, null=True
@@ -180,6 +212,10 @@ class Experiment(ExperimentConstants, models.Model):
 
     data_science_issue_url = models.URLField(blank=True, null=True)
     feature_bugzilla_url = models.URLField(blank=True, null=True)
+    telemetry_event_category = models.CharField(max_length=255, blank=True, null=True)
+    telemetry_event_method = models.CharField(max_length=255, blank=True, null=True)
+    telemetry_event_object = models.CharField(max_length=255, blank=True, null=True)
+    telemetry_event_value = models.CharField(max_length=255, blank=True, null=True)
 
     # Risk fields
     risk_partner_related = models.NullBooleanField(default=None, blank=True, null=True)
@@ -299,7 +335,12 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def should_use_normandy(self):
-        return self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_ROLLOUT)
+        return self.type in (
+            self.TYPE_PREF,
+            self.TYPE_ADDON,
+            self.TYPE_ROLLOUT,
+            self.TYPE_MESSAGE,
+        )
 
     def generate_normandy_slug(self):
         if self.is_addon_experiment and not self.use_branched_addon_serializer:
@@ -562,28 +603,41 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def is_high_risk(self):
-        return any(self._risk_questions)
+        return any(self._risk_values)
 
     @property
     def should_have_variants(self):
-        return self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC)
+        return self.type in (
+            self.TYPE_PREF,
+            self.TYPE_ADDON,
+            self.TYPE_GENERIC,
+            self.TYPE_MESSAGE,
+        )
 
     @property
     def should_have_population_percent(self):
-        return (self.type in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC)) or (
-            self.is_rollout and self.is_begun
-        )
+        return (
+            self.type
+            in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC, self.TYPE_MESSAGE)
+        ) or (self.is_rollout and self.is_begun)
 
     @property
     def should_have_total_enrolled(self):
         return self.type not in (self.TYPE_GENERIC, self.TYPE_ROLLOUT)
 
     @property
-    def display_platforms(self):
-        if set(ExperimentConstants.PLATFORMS_LIST) == set(self.platforms):
-            return ExperimentConstants.PLATFORM_ALL
+    def should_have_telemetry_event(self):
+        return self.type == self.TYPE_MESSAGE
 
-        return ", ".join(self.platforms)
+    @property
+    def display_platforms_or_versions(self):
+        if self.windows_versions:
+            return ", ".join(self.windows_versions)
+        else:
+            if set(ExperimentConstants.PLATFORMS_LIST) == set(self.platforms):
+                return ExperimentConstants.PLATFORM_ALL
+
+            return ", ".join(self.platforms)
 
     @property
     def completed_overview(self):
@@ -669,8 +723,8 @@ class Experiment(ExperimentConstants, models.Model):
         return any([getattr(self, field) for field in results_fields])
 
     @property
-    def _risk_questions(self):
-        risk_questions = (
+    def risk_fields(self):
+        risk_fields = (
             "risk_partner_related",
             "risk_brand",
             "risk_fast_shipped",
@@ -688,11 +742,21 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
         exclusions = ExperimentConstants.RISK_EXCLUSIONS.get(self.type, [])
-        return [getattr(self, risk) for risk in risk_questions if risk not in exclusions]
+        return sorted(list(set(risk_fields) - set(exclusions)))
+
+    @property
+    def _risk_values(self):
+        return [getattr(self, risk) for risk in self.risk_fields]
+
+    @property
+    def risk_values_labels(self):
+        return [
+            (getattr(self, risk), self.RISK_LABELS[risk]) for risk in self.risk_fields
+        ]
 
     @property
     def completed_risks(self):
-        completed = None not in self._risk_questions
+        completed = None not in self._risk_values
 
         if self.risk_technical:
             completed = completed and self.risk_technical_description
@@ -704,6 +768,19 @@ class Experiment(ExperimentConstants, models.Model):
         return self.completed_risks or self.is_begun
 
     @property
+    def should_have_test_instructions(self):
+        return self.type in [
+            self.TYPE_PREF,
+            self.TYPE_ADDON,
+            self.TYPE_GENERIC,
+            self.TYPE_MESSAGE,
+        ]
+
+    @property
+    def should_have_test_builds(self):
+        return self.type in [self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC]
+
+    @property
     def completed_testing(self):
         return self.qa_status
 
@@ -711,16 +788,16 @@ class Experiment(ExperimentConstants, models.Model):
     def _conditional_required_reviews_mapping(self):
         return {
             "review_vp": any(
-                [
+                (
                     self.risk_partner_related,
                     self.risk_brand,
                     self.risk_fast_shipped,
                     self.risk_confidential,
                     self.risk_release_population,
                     self.risk_revenue,
-                ]
+                )
             ),
-            "review_legal": any([self.risk_partner_related, self.risk_data_category]),
+            "review_legal": any((self.risk_partner_related, self.risk_data_category)),
             "review_impacted_teams": self.risk_external_team_impact,
             "review_data_steward": self.risk_telemetry_data,
             "review_ux": self.risk_ux,
@@ -728,23 +805,7 @@ class Experiment(ExperimentConstants, models.Model):
         }
 
     def _default_required_reviews(self):
-        reviews = [
-            "review_science",
-            "review_advisory",
-            "review_engineering",
-            "review_qa_requested",
-            "review_intent_to_ship",
-            "review_bugzilla",
-            "review_qa",
-            "review_relman",
-        ]
-
-        rollout_exclusions = ["review_science", "review_bugzilla", "review_engineering"]
-
-        if self.is_rollout:
-            return [review for review in reviews if review not in rollout_exclusions]
-
-        return reviews
+        return list(self.SIGNOFF_TYPE_DEFAULTS.get(self.type, self.SIGNOFF_DEFAULTS))
 
     def get_all_required_reviews(self):
         required_reviews = self._default_required_reviews()
@@ -758,7 +819,7 @@ class Experiment(ExperimentConstants, models.Model):
     def completed_required_reviews(self):
         required_reviews = self.get_all_required_reviews()
 
-        if not self.is_rollout:
+        if not self.is_rollout and "review_advisory" in required_reviews:
             # review advisory is an exception that is not required
             required_reviews.remove("review_advisory")
 
@@ -786,7 +847,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def is_ready_to_launch(self):
-        return self.completed_all_sections and self.completed_required_reviews
+        return self.completed_all_sections
 
     @property
     def format_firefox_versions(self):
@@ -982,6 +1043,9 @@ class ExperimentVariant(models.Model):
     ratio = models.PositiveIntegerField(default=1)
     addon_release_url = models.URLField(max_length=400, blank=True, null=True)
     value = models.TextField(blank=True, null=True)
+    message_targeting = models.TextField(blank=True, null=True)
+    message_threshold = models.TextField(blank=True, null=True)
+    message_triggers = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Experiment Variant"

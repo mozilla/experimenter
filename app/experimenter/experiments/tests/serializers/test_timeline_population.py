@@ -42,6 +42,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
             countries=[self.country],
             population_percent="30.0000",
             platforms=[ExperimentConstants.PLATFORM_WINDOWS],
+            windows_versions=[ExperimentConstants.VERSION_WINDOWS_8],
         )
 
     def test_serializer_outputs_expected_schema_pref(self):
@@ -63,11 +64,15 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
                 "locales": [{"value": self.locale.id, "label": self.locale.name}],
                 "countries": [{"value": self.country.id, "label": self.country.name}],
                 "platforms": [
+                    {"value": ExperimentConstants.PLATFORM_WINDOWS, "label": "Windows"}
+                ],
+                "windows_versions": [
                     {
-                        "value": ExperimentConstants.PLATFORM_WINDOWS,
-                        "label": ExperimentConstants.PLATFORM_WINDOWS,
+                        "value": ExperimentConstants.VERSION_WINDOWS_8,
+                        "label": ExperimentConstants.VERSION_WINDOWS_8,
                     }
                 ],
+                "profile_age": self.experiment.profile_age,
                 "client_matching": self.experiment.client_matching,
             },
         )
@@ -94,9 +99,12 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
             "countries": countries,
             "locales": locales,
             "platforms": [
+                {"value": ExperimentConstants.PLATFORM_WINDOWS, "label": "Windows"}
+            ],
+            "windows_versions": [
                 {
-                    "value": ExperimentConstants.PLATFORM_WINDOWS,
-                    "label": ExperimentConstants.PLATFORM_WINDOWS,
+                    "value": ExperimentConstants.VERSION_WINDOWS_8,
+                    "label": ExperimentConstants.VERSION_WINDOWS_8,
                 }
             ],
             "client_matching": "matching client.",
@@ -121,6 +129,9 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
         self.assertEqual(experiment.countries.get(), country)
         self.assertEqual(experiment.locales.get(), locale)
         self.assertEqual(experiment.platforms, [ExperimentConstants.PLATFORM_WINDOWS])
+        self.assertEqual(
+            experiment.windows_versions, [ExperimentConstants.VERSION_WINDOWS_8]
+        )
         self.assertEqual(experiment.client_matching, data["client_matching"])
 
     def test_serializer_rejects_firefox_min_less_max(self):
@@ -174,6 +185,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
             population_percent="30.0000",
             proposed_enrollment=None,
             platforms=[ExperimentConstants.PLATFORM_WINDOWS],
+            windows_versions=[ExperimentConstants.VERSION_WINDOWS_7],
         )
 
         serializer = ExperimentTimelinePopSerializer(experiment)
@@ -194,11 +206,15 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
                 "locales": [{"value": self.locale.id, "label": self.locale.name}],
                 "countries": [{"value": self.country.id, "label": self.country.name}],
                 "platforms": [
+                    {"value": ExperimentConstants.PLATFORM_WINDOWS, "label": "Windows"}
+                ],
+                "windows_versions": [
                     {
-                        "value": ExperimentConstants.PLATFORM_WINDOWS,
-                        "label": ExperimentConstants.PLATFORM_WINDOWS,
+                        "value": ExperimentConstants.VERSION_WINDOWS_7,
+                        "label": ExperimentConstants.VERSION_WINDOWS_7,
                     }
                 ],
+                "profile_age": experiment.profile_age,
                 "client_matching": experiment.client_matching,
             },
         )

@@ -448,6 +448,18 @@
                                 "pref_value"
                               ]
                             }
+                          },
+                          "message_targeting": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_threshold": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_triggers": {
+                            "type": "string",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -498,6 +510,26 @@
                           "new_status"
                         ]
                       }
+                    },
+                    "telemetry_event_category": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "telemetry_event_method": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "telemetry_event_object": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "telemetry_event_value": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
                     }
                   },
                   "required": [
@@ -896,6 +928,18 @@
                                   "pref_value"
                                 ]
                               }
+                            },
+                            "message_targeting": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "message_threshold": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "message_triggers": {
+                              "type": "string",
+                              "nullable": true
                             }
                           },
                           "required": [
@@ -946,6 +990,26 @@
                             "new_status"
                           ]
                         }
+                      },
+                      "telemetry_event_category": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 255
+                      },
+                      "telemetry_event_method": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 255
+                      },
+                      "telemetry_event_object": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 255
+                      },
+                      "telemetry_event_value": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 255
                       }
                     },
                     "required": [
@@ -4741,6 +4805,700 @@
         ]
       }
     },
+    "/api/v2/experiments/{slug}/design-message": {
+      "get": {
+        "operationId": "RetrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message_type": {
+                      "enum": [
+                        "cfr",
+                        "about:welcome"
+                      ]
+                    },
+                    "message_template": {
+                      "enum": [
+                        "cfr_doorhanger",
+                        "cfr_urlbar_chiclet",
+                        "milestone_message"
+                      ],
+                      "nullable": true
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "is_control": {
+                            "type": "boolean"
+                          },
+                          "message_targeting": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_threshold": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_triggers": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "ratio": {
+                            "type": "integer"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "description",
+                          "is_control",
+                          "name",
+                          "ratio",
+                          "value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "message_type",
+                    "variants"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
+      "put": {
+        "operationId": "UpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "about:welcome"
+                    ]
+                  },
+                  "message_template": {
+                    "enum": [
+                      "cfr_doorhanger",
+                      "cfr_urlbar_chiclet",
+                      "milestone_message"
+                    ],
+                    "nullable": true
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio",
+                        "value"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "message_type",
+                  "variants"
+                ]
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "about:welcome"
+                    ]
+                  },
+                  "message_template": {
+                    "enum": [
+                      "cfr_doorhanger",
+                      "cfr_urlbar_chiclet",
+                      "milestone_message"
+                    ],
+                    "nullable": true
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio",
+                        "value"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "message_type",
+                  "variants"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "about:welcome"
+                    ]
+                  },
+                  "message_template": {
+                    "enum": [
+                      "cfr_doorhanger",
+                      "cfr_urlbar_chiclet",
+                      "milestone_message"
+                    ],
+                    "nullable": true
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio",
+                        "value"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "message_type",
+                  "variants"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message_type": {
+                      "enum": [
+                        "cfr",
+                        "about:welcome"
+                      ]
+                    },
+                    "message_template": {
+                      "enum": [
+                        "cfr_doorhanger",
+                        "cfr_urlbar_chiclet",
+                        "milestone_message"
+                      ],
+                      "nullable": true
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "is_control": {
+                            "type": "boolean"
+                          },
+                          "message_targeting": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_threshold": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_triggers": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "ratio": {
+                            "type": "integer"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "description",
+                          "is_control",
+                          "name",
+                          "ratio",
+                          "value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "message_type",
+                    "variants"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      },
+      "patch": {
+        "operationId": "PartialUpdateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "about:welcome"
+                    ]
+                  },
+                  "message_template": {
+                    "enum": [
+                      "cfr_doorhanger",
+                      "cfr_urlbar_chiclet",
+                      "milestone_message"
+                    ],
+                    "nullable": true
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio",
+                        "value"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "about:welcome"
+                    ]
+                  },
+                  "message_template": {
+                    "enum": [
+                      "cfr_doorhanger",
+                      "cfr_urlbar_chiclet",
+                      "milestone_message"
+                    ],
+                    "nullable": true
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio",
+                        "value"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "message_type": {
+                    "enum": [
+                      "cfr",
+                      "about:welcome"
+                    ]
+                  },
+                  "message_template": {
+                    "enum": [
+                      "cfr_doorhanger",
+                      "cfr_urlbar_chiclet",
+                      "milestone_message"
+                    ],
+                    "nullable": true
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "ratio": {
+                          "type": "integer"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio",
+                        "value"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "message_type": {
+                      "enum": [
+                        "cfr",
+                        "about:welcome"
+                      ]
+                    },
+                    "message_template": {
+                      "enum": [
+                        "cfr_doorhanger",
+                        "cfr_urlbar_chiclet",
+                        "milestone_message"
+                      ],
+                      "nullable": true
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "is_control": {
+                            "type": "boolean"
+                          },
+                          "message_targeting": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_threshold": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_triggers": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "ratio": {
+                            "type": "integer"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "description",
+                          "is_control",
+                          "name",
+                          "ratio",
+                          "value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "message_type",
+                    "variants"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "private"
+        ]
+      }
+    },
     "/api/v2/experiments/{slug}/timeline-population": {
       "get": {
         "operationId": "RetrieveExperiment",
@@ -4944,6 +5702,21 @@
                       "items": {
                         "type": "object"
                       }
+                    },
+                    "windows_versions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "nullable": true
+                    },
+                    "profile_age": {
+                      "enum": [
+                        "All Profiles",
+                        "New Profiles Only",
+                        "Existing Profiles Only"
+                      ],
+                      "nullable": true
                     },
                     "client_matching": {
                       "type": "string",
@@ -5162,6 +5935,21 @@
                       "type": "object"
                     }
                   },
+                  "windows_versions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    },
+                    "nullable": true
+                  },
+                  "profile_age": {
+                    "enum": [
+                      "All Profiles",
+                      "New Profiles Only",
+                      "Existing Profiles Only"
+                    ],
+                    "nullable": true
+                  },
                   "client_matching": {
                     "type": "string",
                     "nullable": true
@@ -5355,6 +6143,21 @@
                       "type": "object"
                     }
                   },
+                  "windows_versions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    },
+                    "nullable": true
+                  },
+                  "profile_age": {
+                    "enum": [
+                      "All Profiles",
+                      "New Profiles Only",
+                      "Existing Profiles Only"
+                    ],
+                    "nullable": true
+                  },
                   "client_matching": {
                     "type": "string",
                     "nullable": true
@@ -5547,6 +6350,21 @@
                     "items": {
                       "type": "object"
                     }
+                  },
+                  "windows_versions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    },
+                    "nullable": true
+                  },
+                  "profile_age": {
+                    "enum": [
+                      "All Profiles",
+                      "New Profiles Only",
+                      "Existing Profiles Only"
+                    ],
+                    "nullable": true
                   },
                   "client_matching": {
                     "type": "string",
@@ -5745,6 +6563,21 @@
                       "items": {
                         "type": "object"
                       }
+                    },
+                    "windows_versions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "nullable": true
+                    },
+                    "profile_age": {
+                      "enum": [
+                        "All Profiles",
+                        "New Profiles Only",
+                        "Existing Profiles Only"
+                      ],
+                      "nullable": true
                     },
                     "client_matching": {
                       "type": "string",
@@ -5963,6 +6796,21 @@
                       "type": "object"
                     }
                   },
+                  "windows_versions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    },
+                    "nullable": true
+                  },
+                  "profile_age": {
+                    "enum": [
+                      "All Profiles",
+                      "New Profiles Only",
+                      "Existing Profiles Only"
+                    ],
+                    "nullable": true
+                  },
                   "client_matching": {
                     "type": "string",
                     "nullable": true
@@ -6156,6 +7004,21 @@
                       "type": "object"
                     }
                   },
+                  "windows_versions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    },
+                    "nullable": true
+                  },
+                  "profile_age": {
+                    "enum": [
+                      "All Profiles",
+                      "New Profiles Only",
+                      "Existing Profiles Only"
+                    ],
+                    "nullable": true
+                  },
                   "client_matching": {
                     "type": "string",
                     "nullable": true
@@ -6348,6 +7211,21 @@
                     "items": {
                       "type": "object"
                     }
+                  },
+                  "windows_versions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    },
+                    "nullable": true
+                  },
+                  "profile_age": {
+                    "enum": [
+                      "All Profiles",
+                      "New Profiles Only",
+                      "Existing Profiles Only"
+                    ],
+                    "nullable": true
                   },
                   "client_matching": {
                     "type": "string",
@@ -6546,6 +7424,21 @@
                       "items": {
                         "type": "object"
                       }
+                    },
+                    "windows_versions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "nullable": true
+                    },
+                    "profile_age": {
+                      "enum": [
+                        "All Profiles",
+                        "New Profiles Only",
+                        "Existing Profiles Only"
+                      ],
+                      "nullable": true
                     },
                     "client_matching": {
                       "type": "string",
@@ -6925,6 +7818,18 @@
                               "pref_value"
                             ]
                           }
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "required": [
@@ -6971,6 +7876,26 @@
                         "new_status"
                       ]
                     }
+                  },
+                  "telemetry_event_category": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_method": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_object": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_value": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -7332,6 +8257,18 @@
                               "pref_value"
                             ]
                           }
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "required": [
@@ -7378,6 +8315,26 @@
                         "new_status"
                       ]
                     }
+                  },
+                  "telemetry_event_category": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_method": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_object": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_value": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -7739,6 +8696,18 @@
                               "pref_value"
                             ]
                           }
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "required": [
@@ -7785,6 +8754,26 @@
                         "new_status"
                       ]
                     }
+                  },
+                  "telemetry_event_category": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_method": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_object": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_value": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -8159,6 +9148,18 @@
                                 "pref_value"
                               ]
                             }
+                          },
+                          "message_targeting": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_threshold": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_triggers": {
+                            "type": "string",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -8209,6 +9210,26 @@
                           "new_status"
                         ]
                       }
+                    },
+                    "telemetry_event_category": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "telemetry_event_method": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "telemetry_event_object": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "telemetry_event_value": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
                     }
                   },
                   "required": [
@@ -8594,6 +9615,18 @@
                               "pref_value"
                             ]
                           }
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "required": [
@@ -8640,6 +9673,26 @@
                         "new_status"
                       ]
                     }
+                  },
+                  "telemetry_event_category": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_method": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_object": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_value": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 }
               }
@@ -8989,6 +10042,18 @@
                               "pref_value"
                             ]
                           }
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "required": [
@@ -9035,6 +10100,26 @@
                         "new_status"
                       ]
                     }
+                  },
+                  "telemetry_event_category": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_method": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_object": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_value": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 }
               }
@@ -9384,6 +10469,18 @@
                               "pref_value"
                             ]
                           }
+                        },
+                        "message_targeting": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_threshold": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "message_triggers": {
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "required": [
@@ -9430,6 +10527,26 @@
                         "new_status"
                       ]
                     }
+                  },
+                  "telemetry_event_category": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_method": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_object": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  },
+                  "telemetry_event_value": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 }
               }
@@ -9792,6 +10909,18 @@
                                 "pref_value"
                               ]
                             }
+                          },
+                          "message_targeting": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_threshold": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "message_triggers": {
+                            "type": "string",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -9842,6 +10971,26 @@
                           "new_status"
                         ]
                       }
+                    },
+                    "telemetry_event_category": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "telemetry_event_method": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "telemetry_event_object": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "telemetry_event_value": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
                     }
                   },
                   "required": [

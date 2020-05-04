@@ -4,6 +4,7 @@ import random
 import string
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
 from pypom import Region
 
 from pages.base import Base
@@ -11,9 +12,11 @@ from pages.base import Base
 
 class DesignPage(Base):
 
+    URL_TEMPLATE = "{experiment_url}edit-design"
+
     _add_branch_btn_locator = (By.CSS_SELECTOR, "#add-branch-button")
     _branch_form_root_locator = (By.CSS_SELECTOR, "#control-branch-group")
-    _continue_btn_locator = (By.CSS_SELECTOR, "#save-continue")
+    _continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-btn")
     _firefox_pref_name_locator = (By.CSS_SELECTOR, "#id_pref_name")
     _firefox_pref_type_locator = (By.CSS_SELECTOR, "#id_pref_type")
     _firefox_pref_branch_locator = (By.CSS_SELECTOR, "#id_pref_branch")
@@ -52,12 +55,16 @@ class DesignPage(Base):
         element.send_keys(f"{text}-{random_chars}")
         return
 
-    def select_firefox_pref_type(self):
-        self.find_element(*self._firefox_pref_type_locator).click()
+    def select_firefox_pref_type(self, item):
+        element = self.find_element(*self._firefox_pref_type_locator)
+        selector = Select(element)
+        selector.select_by_visible_text(f"{item}")
         return
 
-    def select_firefox_pref_branch(self):
-        self.find_element(*self._firefox_pref_branch_locator).click()
+    def select_firefox_pref_branch(self, item):
+        element = self.find_element(*self._firefox_pref_branch_locator)
+        selector = Select(element)
+        selector.select_by_visible_text(f"{item}")
         return
 
     def click_continue(self):
@@ -86,6 +93,11 @@ class DesignPage(Base):
         @property
         def branch_number(self):
             return self.find_element(*self._new_branch_locator)
+
+        def set_branch_ratio(self, num=None):
+            locator = (By.ID, f"variants-{self.number}-ratio")
+            element = self.find_element(*locator)
+            element.send_keys(num)
 
         def set_branch_name(self, text=None):
             locator = (By.ID, f"variants-{self.number}-name")

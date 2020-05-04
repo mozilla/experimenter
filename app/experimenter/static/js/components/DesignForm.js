@@ -6,13 +6,15 @@ import { fromJS, Map } from "immutable";
 
 import AddonForm from "experimenter/components/AddonForm";
 import GenericForm from "experimenter/components/GenericForm";
+import MessageForm from "experimenter/components/MessageForm";
 import PrefForm from "experimenter/components/PrefForm";
 import RolloutForm from "experimenter/components/RolloutForm";
 import { makeApiRequest } from "experimenter/utils/api";
 import {
-  TYPE_PREF,
   TYPE_ADDON,
   TYPE_GENERIC,
+  TYPE_MESSAGE,
+  TYPE_PREF,
   TYPE_ROLLOUT,
 } from "experimenter/components/constants";
 
@@ -186,6 +188,9 @@ class DesignForm extends React.PureComponent {
       case TYPE_GENERIC:
         Form = GenericForm;
         break;
+      case TYPE_MESSAGE:
+        Form = MessageForm;
+        break;
     }
 
     return (
@@ -211,6 +216,7 @@ class DesignForm extends React.PureComponent {
 
                 <Button
                   disabled={this.state.saving}
+                  id="save-btn"
                   variant="primary"
                   type="submit"
                   className="mr-1"
@@ -221,7 +227,7 @@ class DesignForm extends React.PureComponent {
 
                 <Button
                   disabled={this.state.saving}
-                  id="save-continue"
+                  id="save-and-continue-btn"
                   variant="primary"
                   type="submit"
                   onClick={this.handleSubmitContinue}

@@ -59,6 +59,9 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
             "value",
             "addon_release_url",
             "preferences",
+            "message_targeting",
+            "message_threshold",
+            "message_triggers",
         )
 
 
@@ -97,10 +100,16 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "countries",
             "projects",
             "platforms",
+            "windows_versions",
+            "profile_age",
             "objectives",
             "total_enrolled_clients",
             "analysis",
             "analysis_owner",
+            "telemetry_event_category",
+            "telemetry_event_method",
+            "telemetry_event_object",
+            "telemetry_event_value",
             "survey_required",
             "survey_urls",
             "survey_instructions",
@@ -162,6 +171,8 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "results_impact_notes",
             "rollout_type",
             "rollout_playbook",
+            "message_type",
+            "message_template",
         )
 
 
@@ -239,6 +250,10 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "variants",
             "results",
             "changes",
+            "telemetry_event_category",
+            "telemetry_event_method",
+            "telemetry_event_object",
+            "telemetry_event_value",
         )
 
     def get_results(self, obj):

@@ -1,8 +1,9 @@
 import React from "react";
 
 export const TYPE_ADDON = "addon";
-export const TYPE_PREF = "pref";
 export const TYPE_GENERIC = "generic";
+export const TYPE_MESSAGE = "message";
+export const TYPE_PREF = "pref";
 export const TYPE_ROLLOUT = "rollout";
 
 export const PREF_TYPE_BOOL = "boolean";
@@ -240,10 +241,29 @@ export const PLAYBOOK_CHOICES = [
   ["custom", "Custom Schedule"],
 ];
 
+export const PLATFORM_WINDOWS = "All Windows";
+export const PLATFORM_WINDOWS_LABEL = "Windows";
+export const PLATFORM_MAC = "All Mac";
+export const PLATFORM_MAC_LABEL = "Mac";
+export const PLATFORM_LINUX = "All Linux";
+export const PLATFORM_LINUX_LABEL = "Linux";
+
 export const PLATFORM_CHOICES = [
-  { value: "All Mac", label: "All Mac" },
-  { value: "All Linux", label: "All Linux" },
-  { value: "All Windows", label: "All Windows" },
+  { value: PLATFORM_MAC, label: PLATFORM_MAC_LABEL },
+  { value: PLATFORM_LINUX, label: PLATFORM_LINUX_LABEL },
+  { value: PLATFORM_WINDOWS, label: PLATFORM_WINDOWS_LABEL },
+];
+
+export const VERSION_WINDOWS_7 = "Windows 7";
+export const VERSION_WINDOWS_8 = "Windows 8";
+export const VERSION_WINDOWS_8_1 = "Windows 8.1";
+export const VERSION_WINDOWS_10_PLUS = "Windows 10+";
+
+export const WINDOWS_VERSIONS_CHOICES = [
+  { value: VERSION_WINDOWS_7, label: VERSION_WINDOWS_7 },
+  { value: VERSION_WINDOWS_8, label: VERSION_WINDOWS_8 },
+  { value: VERSION_WINDOWS_8_1, label: VERSION_WINDOWS_8_1 },
+  { value: VERSION_WINDOWS_10_PLUS, label: VERSION_WINDOWS_10_PLUS },
 ];
 
 export const PROPOSED_START_DATE_HELP = (
@@ -315,6 +335,26 @@ export const PLATFORM_HELP = (
   <p>Select the target platform for this delivery.</p>
 );
 
+export const WINDOWS_VERSIONS_NOTE = (
+  <p>
+    Note: If you want to target specific windows versions, you must have only
+    "Windows" selected in the above platforms field. Experiments cannot filter
+    on specific windows versions and other platforms at the same time.
+  </p>
+);
+
+export const PROFILE_AGE_HELP =
+  "https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=FIREFOX&title=Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-PopulationFiltering";
+
+export const PROFILE_CHOICES = [
+  { value: "All Profiles", label: "All Profiles" },
+  {
+    value: "Existing Profiles Only",
+    label: "Existing Profiles Only",
+  },
+  { value: "New Profiles Only", label: "New Profiles Only" },
+];
+
 export const CLIENT_MATCHING_HELP = (
   <div>
     <p>
@@ -350,4 +390,85 @@ export const CLIENT_MATCHING_HELP = (
 
 export const COUNTRIES_LOCALES_HELP = (
   <p>Applicable only if you don't select All</p>
+);
+
+export const MESSAGE_TYPE_CFR = "cfr";
+export const MESSAGE_TYPE_WELCOME = "about:welcome";
+
+export const MESSAGE_TYPE_CFR_LABEL = "CFR";
+export const MESSAGE_TYPE_WELCOME_LABEL = MESSAGE_TYPE_WELCOME;
+
+export const MESSAGE_TYPE_CHOICES = [
+  [MESSAGE_TYPE_CFR, MESSAGE_TYPE_CFR_LABEL],
+  [MESSAGE_TYPE_WELCOME, MESSAGE_TYPE_WELCOME_LABEL],
+];
+
+export const MESSAGE_TEMPLATE_DOOR = "cfr_doorhanger";
+export const MESSAGE_TEMPLATE_URL = "cfr_urlbar_chiclet";
+export const MESSAGE_TEMPLATE_MILESTONE = "milestone_message";
+
+export const MESSAGE_TEMPLATE_DOOR_LABEL = "CFR Doorhanger";
+export const MESSAGE_TEMPLATE_URL_LABEL = "CFR Urlbar Chiclet";
+export const MESSAGE_TEMPLATE_MILESTONE_LABEL = "Milestone Message";
+
+export const MESSAGE_TEMPLATE_CHOICES = [
+  [MESSAGE_TEMPLATE_DOOR, MESSAGE_TEMPLATE_DOOR_LABEL],
+  [MESSAGE_TEMPLATE_URL, MESSAGE_TEMPLATE_URL_LABEL],
+  [MESSAGE_TEMPLATE_MILESTONE, MESSAGE_TEMPLATE_MILESTONE_LABEL],
+];
+
+export const MESSAGE_CONTENT_HELP = (
+  <div>
+    <p>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://mana.mozilla.org/wiki/display/FIREFOX/Messages#Messages-RapidMessageExperiments"
+      >
+        See Message Experiment Documentation
+      </a>
+    </p>
+  </div>
+);
+
+export const MESSAGE_TARGETING_HELP = (
+  <div>
+    <p>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://mana.mozilla.org/wiki/display/FIREFOX/Messages#Messages-RapidMessageExperiments"
+      >
+        See Message Experiment Documentation
+      </a>
+    </p>
+  </div>
+);
+
+export const MESSAGE_THRESHOLD_HELP = (
+  <div>
+    <p>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://mana.mozilla.org/wiki/display/FIREFOX/Messages#Messages-RapidMessageExperiments"
+      >
+        See Message Experiment Documentation
+      </a>
+    </p>
+  </div>
+);
+
+export const MESSAGE_TRIGGERS_HELP = (
+  <div>
+    <p>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://mana.mozilla.org/wiki/display/FIREFOX/Messages#Messages-RapidMessageExperiments"
+      >
+        See Message Experiment Documentation
+      </a>
+    </p>
+  </div>
 );

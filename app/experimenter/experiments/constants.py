@@ -23,13 +23,29 @@ class ExperimentConstants(object):
 
     @classmethod
     def FEATURE_TYPE_CHOICES(cls):  # pragma: no cover
-        if not settings.FEATURE_MESSAGE_TYPE:
-            return tuple(t for t in cls.TYPE_CHOICES if cls.TYPE_MESSAGE not in t)
         return cls.TYPE_CHOICES
 
     # Message stuff
     MESSAGE_DEFAULT_LOCALES = ("en-AU", "en-GB", "en-CA", "en-NZ", "en-ZA", "en-US")
     MESSAGE_DEFAULT_COUNTRIES = ("US", "CA", "GB", "DE", "FR")
+
+    MESSAGE_TYPE_CFR = "cfr"
+    MESSAGE_TYPE_WELCOME = "about:welcome"
+
+    MESSAGE_TYPE_CHOICES = (
+        (MESSAGE_TYPE_CFR, "CFR"),
+        (MESSAGE_TYPE_WELCOME, "about:welcome"),
+    )
+
+    MESSAGE_TEMPLATE_DOOR = "cfr_doorhanger"
+    MESSAGE_TEMPLATE_URL = "cfr_urlbar_chiclet"
+    MESSAGE_TEMPLATE_MILESTONE = "milestone_message"
+
+    MESSAGE_TEMPLATE_CHOICES = (
+        (MESSAGE_TEMPLATE_DOOR, "CFR Doorhanger"),
+        (MESSAGE_TEMPLATE_URL, "CFR Urlbar Chiclet"),
+        (MESSAGE_TEMPLATE_MILESTONE, "Milestone Message"),
+    )
 
     # Rollout stuff
     ROLLOUT_TYPE_CHOICES = ((TYPE_PREF, "Pref Rollout"), (TYPE_ADDON, "Add-On Rollout"))
@@ -182,6 +198,27 @@ class ExperimentConstants(object):
 
     PLATFORMS_LIST = [PLATFORM_WINDOWS, PLATFORM_MAC, PLATFORM_LINUX]
 
+    VERSION_WINDOWS_7 = "Windows 7"
+    VERSION_WINDOWS_8 = "Windows 8"
+    VERSION_WINDOWS_8_1 = "Windows 8.1"
+    VERSION_WINDOWS_10_PLUS = "Windows 10+"
+
+    WINDOWS_VERSION_LIST = [
+        VERSION_WINDOWS_7,
+        VERSION_WINDOWS_8,
+        VERSION_WINDOWS_8_1,
+        VERSION_WINDOWS_10_PLUS,
+    ]
+
+    PROFILES_NEW = "New Profiles Only"
+    PROFILES_EXISTING = "Existing Profiles Only"
+    PROFILES_ALL = "All Profiles"
+
+    PROFILE_AGE_CHOICES = (
+        (PROFILES_ALL, PROFILES_ALL),
+        (PROFILES_NEW, PROFILES_NEW),
+        (PROFILES_EXISTING, PROFILES_EXISTING),
+    )
     # Pref stuff
     PREF_TYPE_BOOL = "boolean"
     PREF_TYPE_INT = "integer"
@@ -266,7 +303,70 @@ class ExperimentConstants(object):
     RISK_HIGHER_RISK_LABEL = """I have been advised that this delivery design creates a
         higher risk of errors due to complexity or timing requirements."""
 
-    RISK_EXCLUSIONS = {TYPE_ROLLOUT: ["risk_release_population"]}
+    RISK_EXCLUSIONS = {
+        TYPE_ROLLOUT: ["risk_release_population"],
+        TYPE_MESSAGE: [
+            "risk_partner_related",
+            "risk_fast_shipped",
+            "risk_confidential",
+            "risk_release_population",
+            "risk_revenue",
+            "risk_data_category",
+            "risk_external_team_impact",
+            "risk_telemetry_data",
+            "risk_ux",
+            "risk_security",
+            "risk_revision",
+            "risk_technical",
+            "risk_higher_risk",
+        ],
+    }
+
+    SIGNOFF_DEFAULTS = (
+        "review_science",
+        "review_advisory",
+        "review_engineering",
+        "review_qa_requested",
+        "review_intent_to_ship",
+        "review_bugzilla",
+        "review_qa",
+        "review_relman",
+    )
+
+    SIGNOFF_TYPE_DEFAULTS = {
+        TYPE_ROLLOUT: (
+            "review_advisory",
+            "review_qa_requested",
+            "review_intent_to_ship",
+            "review_qa",
+            "review_relman",
+        ),
+        TYPE_MESSAGE: (
+            "review_science",
+            "review_intent_to_ship",
+            "review_qa_requested",
+            "review_ux",
+            "review_qa",
+        ),
+    }
+
+    RISK_LABELS = {
+        "risk_partner_related": RISK_PARTNER_RELATED_LABEL,
+        "risk_brand": RISK_BRAND_LABEL,
+        "risk_fast_shipped": RISK_FAST_SHIPPED_LABEL,
+        "risk_confidential": RISK_CONFIDENTIAL_LABEL,
+        "risk_release_population": RISK_RELEASE_POPULATION_LABEL,
+        "risk_revenue": RISK_REVENUE_LABEL,
+        "risk_data_category": RISK_DATA_CATEGORY_LABEL,
+        "risk_external_team_impact": RISK_EXTERNAL_TEAM_IMPACT_LABEL,
+        "risk_telemetry_data": RISK_TELEMETRY_DATA_LABEL,
+        "risk_ux": RISK_UX_LABEL,
+        "risk_security": RISK_SECURITY_LABEL,
+        "risk_revision": RISK_REVISION_LABEL,
+        "risk_technical": RISK_TECHNICAL_LABEL,
+        "risk_higher_risk": RISK_HIGHER_RISK_LABEL,
+    }
+
     SURVEY_REQUIRED_LABEL = "Is a Survey Required?"
     SURVEY_INSTRUCTIONS_LABEL = "Survey Launch Instructions"
 
@@ -671,6 +771,19 @@ class ExperimentConstants(object):
 
     TOTAL_ENROLLED_CLIENTS_HELP_TEXT = """
         https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=FIREFOX&title=Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-PopulationSize
+    """
+
+    TELEMETRY_EVENT_HELP_TEXT = """
+      <p>
+        The conversion event describes the outcome that you are attempting to drive with
+        the experiment. For example, if the experiment attempts to drive users to import
+        their bookmarks from a different browser, the bookmark import feature should
+        send a Firefox event telemetry event when the bookmarks are imported. This event
+        must be sent from clients in both the control and all treatment branches of the
+        experiment. This allows us to measure the success of the experiment at driving
+        the targeted interaction. An empty box will match any value for that event
+        parameter.
+      </p>
     """
 
     ENGINEERING_OWNER_HELP_TEXT = """

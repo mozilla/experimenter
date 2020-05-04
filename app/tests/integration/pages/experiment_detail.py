@@ -8,7 +8,14 @@ from pages.base import Base
 
 class DetailPage(Base):
 
+    URL_TEMPLATE = "{experiment_url}"
+
+    _begin_signoffs_btn_locator = (By.CSS_SELECTOR, ".proceed-status-color")
+    _confirm_ship_btn_locator = (By.CSS_SELECTOR, ".proceed-status-color")
     _edit_branches_btn_locator = (By.CSS_SELECTOR, "#branches-edit-btn")
+    _required_checklist_locator = (By.CSS_SELECTOR, ".checkbox")
+    _save_signoffs_btn_locator = (By.CSS_SELECTOR, ".btn-success")
+    _send_to_normandy_btn_locator = (By.CSS_SELECTOR, ".btn-danger")
 
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-detail-view")
 
@@ -25,6 +32,31 @@ class DetailPage(Base):
     @property
     def analysis_section(self):
         return self.AnalysisRegion(self)
+
+    @property
+    def required_checklist_section(self):
+        elements = self.find_elements(*self._required_checklist_locator)
+        return [self.RequiredChecklist(self, el) for el in elements]
+
+    @property
+    def begin_signoffs_button(self):
+        element = self.find_element(*self._begin_signoffs_btn_locator)
+        assert "Begin Sign-Offs" in element.text
+        return element
+
+    @property
+    def ready_to_ship_button(self):
+        element = self.find_element(*self._confirm_ship_btn_locator)
+        assert "Confirm Ready to Ship" in element.text
+        return element
+
+    @property
+    def send_to_normandy_button(self):
+        return self.find_element(*self._send_to_normandy_btn_locator)
+
+    @property
+    def save_sign_offs_button(self):
+        return self.find_element(*self._save_signoffs_btn_locator)
 
     def click_edit(self):
         self.find_element(*self._edit_branches_btn_locator).click()
@@ -55,18 +87,21 @@ class DetailPage(Base):
     class AnalysisRegion(Region):
 
         _edit_btn_locator = (By.CSS_SELECTOR, "#analysis-edit-btn")
-        _detail_locator = (By.CSS_SELECTOR, "#analysis-section-detail > p:nth-child(2)")
+        _detail_locator = (
+            By.CSS_SELECTOR,
+            "#analysis-section-detail > #analysis-content",
+        )
         _survey_checkbox_locator = (
             By.CSS_SELECTOR,
-            "#analysis-section-detail > strong > span",
+            "#analysis-section-detail > #analysis-survey-required",
         )
         _survey_urls_locator = (
             By.CSS_SELECTOR,
-            "#analysis-section-detail > p:nth-child(6)",
+            "#analysis-section-detail > #analysis-survey-urls",
         )
         _survey_launch_instructions_locator = (
             By.CSS_SELECTOR,
-            "#analysis-section-detail > p:nth-child(9)",
+            "#analysis-section-detail > #analysis-survey-launch-instructions",
         )
 
         def click_edit(self):
@@ -96,4 +131,16 @@ class DetailPage(Base):
         @property
         def survey_launch_instructions(self):
             element = self.find_element(*self._survey_launch_instructions_locator)
-            return element.text
+            return element.get_attribute("textContent")
+
+    class RequiredChecklist(Region):
+        _checkbox_locator = (By.CSS_SELECTOR, "input")
+        _checklist_item_label = (By.CSS_SELECTOR, "label")
+
+        @property
+        def label(self):
+            return self.find_element(*self._checklist_item_label).text
+
+        @property
+        def checkbox(self):
+            return self.find_element(*self._checkbox_locator)

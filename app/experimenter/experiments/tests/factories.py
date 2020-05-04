@@ -79,6 +79,10 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     )
     objectives = factory.LazyAttribute(lambda o: faker.text(1000))
     analysis = factory.LazyAttribute(lambda o: faker.text(1000))
+    telemetry_event_category = factory.LazyAttribute(lambda o: faker.word())
+    telemetry_event_method = factory.LazyAttribute(lambda o: faker.word())
+    telemetry_event_object = factory.LazyAttribute(lambda o: faker.word())
+    telemetry_event_value = factory.LazyAttribute(lambda o: faker.word())
 
     risk_partner_related = False
     risk_brand = False
@@ -117,6 +121,8 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
 
     bugzilla_id = "12345"
     normandy_id = None
+
+    message_type = ExperimentConstants.MESSAGE_TYPE_CFR
 
     class Meta:
         model = Experiment
@@ -217,6 +223,9 @@ class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
     experiment = factory.SubFactory(ExperimentFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: slugify(o.name))
+    message_targeting = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    message_threshold = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    message_triggers = factory.LazyAttribute(lambda o: faker.catch_phrase())
 
     @factory.lazy_attribute
     def addon_release_url(self):

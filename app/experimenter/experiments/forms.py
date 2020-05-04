@@ -175,7 +175,7 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         label="Related Projects",
         help_text=(
             """Is this delivery related to a specific project?
-         Ask #ask_experimenter if you need to add a new project"""
+         Ask in #ask-experimenter on Slack if you need to add a new project"""
         ),
         queryset=Project.objects.all(),
     )
@@ -295,6 +295,27 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
 
+    telemetry_event_category = forms.CharField(
+        required=False,
+        label="Telemetry Conversion Event Category",
+        help_text=Experiment.TELEMETRY_EVENT_HELP_TEXT,
+    )
+    telemetry_event_method = forms.CharField(
+        required=False,
+        label="Telemetry Conversion Event Method",
+        help_text=Experiment.TELEMETRY_EVENT_HELP_TEXT,
+    )
+    telemetry_event_object = forms.CharField(
+        required=False,
+        label="Telemetry Conversion Event Object",
+        help_text=Experiment.TELEMETRY_EVENT_HELP_TEXT,
+    )
+    telemetry_event_value = forms.CharField(
+        required=False,
+        label="Telemetry Conversion Event Value",
+        help_text=Experiment.TELEMETRY_EVENT_HELP_TEXT,
+    )
+
     survey_required = forms.ChoiceField(
         required=False,
         label=Experiment.SURVEY_REQUIRED_LABEL,
@@ -318,9 +339,13 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
     class Meta:
         model = Experiment
         fields = (
-            "total_enrolled_clients",
             "objectives",
             "analysis",
+            "total_enrolled_clients",
+            "telemetry_event_category",
+            "telemetry_event_object",
+            "telemetry_event_method",
+            "telemetry_event_value",
             "survey_required",
             "survey_urls",
             "survey_instructions",
@@ -642,6 +667,10 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
             "qa_status",
         )
 
+    @property
+    def risk_fields(self):
+        return [self[risk] for risk in self.instance.risk_fields]
+
 
 class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm):
     # Required
@@ -693,7 +722,9 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
         help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
     )
     review_ux = forms.BooleanField(
-        required=False, label="UX Review", help_text=Experiment.REVIEW_GENERAL_HELP_TEXT
+        required=False,
+        label="Copy/UX Review",
+        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
     )
     review_security = forms.BooleanField(
         required=False,

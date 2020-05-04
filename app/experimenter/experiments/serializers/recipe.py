@@ -7,9 +7,9 @@ from experimenter.experiments.models import (
     VariantPreferences,
     RolloutPreference,
 )
-from experimenter.experiments.constants import ExperimentConstants
 
 from experimenter.experiments.serializers.entities import PrefTypeField
+from experimenter.experiments.constants import ExperimentConstants
 
 
 class PrefValueField(serializers.Field):
@@ -66,17 +66,6 @@ class FilterObjectChannelSerializer(serializers.ModelSerializer):
 
     def get_channels(self, obj):
         return [obj.firefox_channel.lower()]
-
-
-class FilterObjectPlatformSerializer(serializers.ModelSerializer):
-    type = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Experiment
-        fields = ("type", "platforms")
-
-    def get_type(self, obj):
-        return "platform"
 
 
 class FilterObjectVersionsSerializer(serializers.ModelSerializer):
@@ -303,6 +292,39 @@ class ExperimentRecipePrefRolloutArgumentsSerializer(serializers.ModelSerializer
         fields = ("slug", "preferences")
 
 
+class ExperimentRecipeMessageVariantSerializer(serializers.ModelSerializer):
+    value = serializers.SerializerMethodField()
+    groups = serializers.ReadOnlyField(default=[])
+
+    class Meta:
+        model = ExperimentVariant
+        fields = ("ratio", "slug", "value", "groups")
+
+    def get_value(self, obj):
+        return {}
+
+
+class ExperimentRecipeMessageArgumentsSerializer(
+    ExperimentRecipeBranchedArgumentsSerializer
+):
+    slug = serializers.ReadOnlyField(source="normandy_slug")
+    branches = serializers.SerializerMethodField()
+    experimentDocumentUrl = serializers.ReadOnlyField(source="experiment_url")
+
+    class Meta:
+        model = Experiment
+        fields = (
+            "slug",
+            "userFacingName",
+            "userFacingDescription",
+            "branches",
+            "experimentDocumentUrl",
+        )
+
+    def get_branches(self, obj):
+        return ExperimentRecipeMessageVariantSerializer(obj.variants, many=True).data
+
+
 class ExperimentRecipeSerializer(serializers.ModelSerializer):
     action_name = serializers.SerializerMethodField()
     filter_object = serializers.SerializerMethodField()
@@ -334,6 +356,8 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return "addon-rollout"
         elif obj.is_pref_rollout:
             return "preference-rollout"
+        elif obj.is_message_experiment:
+            return "messaging-experiment"
 
     def get_filter_object(self, obj):
         filter_objects = [
@@ -347,9 +371,6 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
 
         if obj.countries.count():
             filter_objects.append(FilterObjectCountrySerializer(obj).data)
-
-        if len(obj.platforms) < len(ExperimentConstants.PLATFORMS_LIST):
-            filter_objects.append(FilterObjectPlatformSerializer(obj).data)
 
         return filter_objects
 
@@ -366,6 +387,16 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return ExperimentRecipeAddonRolloutArgumentsSerializer(obj).data
         elif obj.is_pref_rollout:
             return ExperimentRecipePrefRolloutArgumentsSerializer(obj).data
+        elif obj.is_message_experiment:
+            return ExperimentRecipeMessageArgumentsSerializer(obj).data
 
     def get_comment(self, obj):
-        return f"{obj.client_matching}"
+        comment = f"{obj.client_matching}\n"
+        if len(obj.platforms) < len(ExperimentConstants.PLATFORMS_LIST):
+            comment += f"Platform: {obj.platforms}\n"
+        if obj.windows_versions:
+            comment += f"Windows Versions: {obj.windows_versions}\n"
+        if obj.profile_age != ExperimentConstants.PROFILES_ALL:
+            comment += f"Profile Age: {obj.profile_age}"
+
+        return comment
