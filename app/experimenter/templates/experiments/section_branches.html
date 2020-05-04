@@ -24,21 +24,35 @@
     {% endif %}
   {% endif %}
   {% for variant in experiment.variants.all %}
-    <div class="border-left-grey pl-3 my-3">
+    <div class=" pl-3 my-3">
       <h5>{{ variant.ratio }}% {{ variant.name }}</h5>
       {% if experiment.is_multi_pref %}
         <p><strong>Prefs:</strong></p>
+        <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Value</th>
+            <th scope="col">Type</th>
+            <th scope="col">Branch</th>
+          </tr>
+        </thead>
+        <tbody>
         {% for preference in variant.preferences.all %}
-          <div class="border-left-grey pl-3 ml-2 mb-3">
-           {% if preference.is_json_string_type %}
-            <p><strong> {{ preference.pref_name }} = <pre class="text-info">{{ preference.pref_value|as_json }}</pre></strong></p>
-           {% else %}
-            <p><strong> {{ preference.pref_name }} = <span class="text-info">{{ preference.pref_value }}</span></strong></p>
-           {% endif %}
-           <p>Pref Type: <span class="text-info">{{ preference.pref_type }}</span></p>
-           <p>Pref Branch: <span class="text-info">{{ preference.pref_branch }}</span></p>
-          </div>
+          <tr>
+            <td>{{ preference.pref_name }}</td>
+            {% if preference.is_json_string_type %}
+            <td><pre class="text-info">{{ preference.pref_value|as_json }}</pre></td>
+              
+            {% else %}
+            <td><pref class="text-info">{{ preference.pref_value }}</pref></td>
+            {% endif %}
+            <td>{{ preference.pref_type }}</td>
+            <td>{{ preference.pref_branch }}</td>
+          </tr>
         {% endfor %}
+        </tbody>
+        </table>
       {% elif experiment.is_pref_experiment %}
         {% if experiment.is_pref_value_json_string %}
           <p><strong>{{ experiment.pref_name }} = <pre class="text-info">{{ variant.value|as_json }}</pre></strong></p>
