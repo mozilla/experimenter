@@ -24,10 +24,9 @@
     <tr>
       <td>{{ preference.pref_name }}</td>
       {% if preference.is_json_string_type %}
-      <td><pre class="text-info">{{ preference.pref_value|as_json }}</pre></td>
-        
+        <td><pre class="text-info">{{ preference.pref_value|as_json }}</pre></td>
       {% else %}
-      <td><pref class="text-info">{{ preference.pref_value }}</pref></td>
+        <td><pre class="text-info">{{ preference.pref_value }}</pre></td>
       {% endif %}
 
       <td>{{ preference.pref_type }}</td>

@@ -41,12 +41,13 @@
         {% for preference in variant.preferences.all %}
           <tr>
             <td>{{ preference.pref_name }}</td>
+            <td>
             {% if preference.is_json_string_type %}
-            <td><pre class="text-info">{{ preference.pref_value|as_json }}</pre></td>
-              
+              <pre class="text-info">{{ preference.pref_value|as_json }}</pre>     
             {% else %}
-            <td><pref class="text-info">{{ preference.pref_value }}</pref></td>
+              <pre class="text-info">{{ preference.pref_value }}</pre>
             {% endif %}
+            </td>
             <td>{{ preference.pref_type }}</td>
             <td>{{ preference.pref_branch }}</td>
           </tr>
