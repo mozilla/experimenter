@@ -249,6 +249,33 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 
 
 class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
+    def test_update_ready_to_ship_experiment(self):
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_SHIP
+        )
+        mock_response_data = {"results": [{"id": 1}, {"id": 10}, {"id": 100}]}
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status = mock.Mock()
+        mock_response.raise_for_status.side_effect = None
+        mock_response.status_code = 200
+
+        self.mock_normandy_requests_get.return_value = mock_response
+        tasks.update_experiment_info()
+
+        experiment = Experiment.objects.get(id=experiment.id)
+
+        self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
+        self.assertEqual(experiment.normandy_id, 1)
+        self.assertCountEqual(experiment.other_normandy_ids, [10, 100])
+
+        self.assertTrue(
+            experiment.changes.filter(
+                old_status=Experiment.STATUS_SHIP, new_status=Experiment.STATUS_ACCEPTED,
+            ).exists()
+        )
+
     def test_update_accepted_experiment_task(self):
         experiment = ExperimentFactory.create(
             status=Experiment.STATUS_ACCEPTED,
@@ -289,6 +316,31 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
 
         # No email was sent
         self.assertEqual(len(mail.outbox), 0)
+
+    def test_ship_experiment_not_updated(self):
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_SHIP
+        )
+        mock_response_data = {}
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status.side_effect = None
+        mock_response.status_code = 404
+
+        self.mock_normandy_requests_get.return_value = mock_response
+
+        tasks.update_experiment_info()
+
+        self.assertEqual(experiment.status, Experiment.STATUS_SHIP)
+        self.assertIsNone(experiment.normandy_id)
+        self.assertIsNone(experiment.other_normandy_ids)
+
+        self.assertFalse(
+            experiment.changes.filter(
+                old_status=Experiment.STATUS_SHIP, new_status=Experiment.STATUS_ACCEPTED,
+            ).exists()
+        )
 
     def test_update_live_experiment_not_updated(self):
         ExperimentFactory.create_with_status(

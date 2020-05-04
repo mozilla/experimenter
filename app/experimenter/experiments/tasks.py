@@ -11,8 +11,10 @@ from experimenter import normandy
 from experimenter.celery import app
 from experimenter.experiments import email
 from experimenter.experiments.constants import ExperimentConstants
+from experimenter.experiments.changelog_utils import generate_change_log
 from experimenter.experiments.models import Experiment, ExperimentEmail
 from experimenter.notifications.models import Notification
+from experimenter.experiments.serializers.entities import ChangeLogSerializer
 
 
 logger = get_task_logger(__name__)
@@ -123,8 +125,61 @@ def update_experiment_bug_task(user_id, experiment_id):
 @app.task
 @metrics.timer_decorator("update_experiment_info.timing")
 def update_experiment_info():
-    metrics.incr("update_experiment_info.started")
-    logger.info("Updating experiment info")
+    update_ready_to_ship_experiments()
+    update_launched_experiments()
+
+
+@app.task
+@metrics.timer_decorator("update_ready_to_ship_experiments.timing")
+def update_ready_to_ship_experiments():
+    metrics.incr("update_ready_to_ship_experiments.started")
+    logger.info("Updating ready to ship experiment")
+
+    ready_to_ship_experiments = Experiment.objects.filter(status=Experiment.STATUS_SHIP)
+    for experiment in ready_to_ship_experiments:
+        try:
+            logger.info("Updating Experiment: {}".format(experiment))
+            recipe_data = normandy.get_recipe_list(
+                params={"experimenter_slug": experiment.slug}
+            )
+
+            if len(recipe_data):
+                recipe_ids = [r["id"] for r in recipe_data]
+                # sort to get oldest id to be primary
+                recipe_ids.sort()
+                changed_data = {
+                    "normandy_id": recipe_ids[0],
+                    "other_normandy_ids": recipe_ids[1:],
+                    "status": Experiment.STATUS_ACCEPTED,
+                }
+
+                old_serialized_exp = ChangeLogSerializer(experiment).data
+                Experiment.objects.filter(id=experiment.id).update(**changed_data)
+                experiment = Experiment.objects.get(slug=experiment.slug)
+                new_serialized_exp = ChangeLogSerializer(experiment).data
+                normandy_user = settings.NORMANDY_DEFAULT_CHANGELOG_USER
+                default_user, _ = get_user_model().objects.get_or_create(
+                    email=normandy_user, username=normandy_user
+                )
+
+                generate_change_log(
+                    old_serialized_exp,
+                    new_serialized_exp,
+                    experiment,
+                    changed_data,
+                    default_user,
+                )
+
+        except (IntegrityError, KeyError, normandy.NormandyError) as e:
+            logger.info(f"Failed to update Experiment {experiment}: {e}")
+    metrics.incr("update_ready_to_experiments.completed")
+
+
+@app.task
+@metrics.timer_decorator("update_launched_experiments.timing")
+def update_launched_experiments():
+    metrics.incr("update_launched_experiments.started")
+    logger.info("Updating launched experiments info")
 
     launched_experiments = Experiment.objects.filter(
         status__in=[Experiment.STATUS_ACCEPTED, Experiment.STATUS_LIVE]
@@ -155,7 +210,7 @@ def update_experiment_info():
                 )
         except (IntegrityError, KeyError, normandy.NormandyError) as e:
             logger.info(f"Failed to update Experiment {experiment}: {e}")
-    metrics.incr("update_experiment_info.completed")
+    metrics.incr("update_launched_experiments.completed")
 
 
 @app.task
