@@ -175,7 +175,7 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         label="Related Projects",
         help_text=(
             """Is this delivery related to a specific project?
-         Ask #ask_experimenter if you need to add a new project"""
+         Ask in #ask-experimenter on Slack if you need to add a new project"""
         ),
         queryset=Project.objects.all(),
     )
