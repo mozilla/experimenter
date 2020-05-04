@@ -91,12 +91,8 @@ def fill_timeline_page(selenium, base_url, request, variables, fill_overview):
     timeline.population_precentage = "100.0"
     if request.node.get_closest_marker("use_variables"):
         timeline.firefox_channel = f"{variables[experiment_type]['channels']}"
-        timeline.firefox_min_version = (
-            f"{variables[experiment_type]['min_version']}"
-        )
-        timeline.firefox_max_version = (
-            f"{variables[experiment_type]['max_version']}"
-        )
+        timeline.firefox_min_version = f"{variables[experiment_type]['min_version']}"
+        timeline.firefox_max_version = f"{variables[experiment_type]['max_version']}"
     else:
         timeline.firefox_channel = "nightly"
         timeline.firefox_min_version = "75"
@@ -154,7 +150,6 @@ def fill_design_page(selenium, base_url, request, variables, fill_overview):
 
 @pytest.fixture
 def fill_analysis_page(selenium, base_url, request, variables, fill_overview):
-    experiment_type = getattr(request.module, "experiment_type", None)
     analysis_page = ObjectiveAndAnalysisPage(
         selenium, base_url, experiment_url=f"{fill_overview.url}"
     ).open()
@@ -169,7 +164,6 @@ def fill_analysis_page(selenium, base_url, request, variables, fill_overview):
 def fill_risks_page(selenium, base_url, request, variables, fill_overview):
     from pages.experiment_risks_and_testing import RiskAndTestingPage
 
-    experiment_type = getattr(request.module, "experiment_type", None)
     risks_page = RiskAndTestingPage(
         selenium, base_url, experiment_url=f"{fill_overview.url}"
     ).open()

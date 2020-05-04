@@ -4,8 +4,8 @@ from urllib.parse import urlparse
 import pytest
 import requests
 
-
 experiment_type = "single-pref-experiment"
+
 
 @pytest.mark.use_variables
 @pytest.mark.nondestructive
