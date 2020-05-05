@@ -54,12 +54,13 @@ def fill_overview(selenium, base_url, ds_issue_host, request, variables):
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
+    experiment_type = getattr(request.module, "experiment_type", None)
     if request.node.get_closest_marker("use_variables"):
-        experiment.name = f"{variables['multi-pref-experiment']['name']}"
+        experiment.name = f"{variables[experiment_type]['name']}"
         experiment.short_description = "Testing in here"
-        experiment.public_name = f"{variables['multi-pref-experiment']['userFacingName']}"
+        experiment.public_name = f"{variables[experiment_type]['userFacingName']}"
         experiment.public_description = (
-            f"{variables['multi-pref-experiment']['userFacingDescription']}"
+            f"{variables[experiment_type]['userFacingDescription']}"
         )
     else:
         experiment.name = "This is a test"
@@ -77,6 +78,7 @@ def fill_overview(selenium, base_url, ds_issue_host, request, variables):
 
 @pytest.fixture
 def fill_timeline_page(selenium, base_url, request, variables, fill_overview):
+    experiment_type = getattr(request.module, "experiment_type", None)
     timeline = TimelineAndPopulationPage(
         selenium, base_url, experiment_url=f"{fill_overview.url}"
     ).open()
@@ -88,13 +90,9 @@ def fill_timeline_page(selenium, base_url, request, variables, fill_overview):
     timeline.proposed_experiment_duration = "25"
     timeline.population_precentage = "100.0"
     if request.node.get_closest_marker("use_variables"):
-        timeline.firefox_channel = f"{variables['multi-pref-experiment']['channels']}"
-        timeline.firefox_min_version = (
-            f"{variables['multi-pref-experiment']['min_version']}"
-        )
-        timeline.firefox_max_version = (
-            f"{variables['multi-pref-experiment']['max_version']}"
-        )
+        timeline.firefox_channel = f"{variables[experiment_type]['channels']}"
+        timeline.firefox_min_version = f"{variables[experiment_type]['min_version']}"
+        timeline.firefox_max_version = f"{variables[experiment_type]['max_version']}"
     else:
         timeline.firefox_channel = "nightly"
         timeline.firefox_min_version = "75"
@@ -105,33 +103,34 @@ def fill_timeline_page(selenium, base_url, request, variables, fill_overview):
 
 @pytest.fixture
 def fill_design_page(selenium, base_url, request, variables, fill_overview):
+    experiment_type = getattr(request.module, "experiment_type", None)
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
     design = design.wait_for_page_to_load()
     if request.node.get_closest_marker("use_variables"):
         design.input_firefox_pref_name(
-            f"{variables['multi-pref-experiment']['branches'][0]['firefox_pref_name']}"
+            f"{variables[experiment_type]['branches'][0]['firefox_pref_name']}"
         )
         design.select_firefox_pref_type(
-            f"{variables['multi-pref-experiment']['branches'][0]['firefox_pref_type']}"
+            f"{variables[experiment_type]['branches'][0]['firefox_pref_type']}"
         )
         design.select_firefox_pref_branch(
-            f"{variables['multi-pref-experiment']['branches'][0]['firefox_pref_branch']}"
+            f"{variables[experiment_type]['branches'][0]['firefox_pref_branch']}"
         )
         current_branchs = design.current_branches
         control_branch = current_branchs[0]
         control_branch.set_branch_name(
-            f"{variables['multi-pref-experiment']['branches'][0]['branch_name']}"
+            f"{variables[experiment_type]['branches'][0]['branch_name']}"
         )
         control_branch.set_branch_description("THIS IS A TEST")
         control_branch.set_branch_value(
-            f"{variables['multi-pref-experiment']['branches'][0]['branch_value']}"
+            f"{variables[experiment_type]['branches'][0]['branch_value']}"
         )
         current_branchs[1].set_branch_name(
-            f"{variables['multi-pref-experiment']['branches'][1]['branch_name']}"
+            f"{variables[experiment_type]['branches'][1]['branch_name']}"
         )
         current_branchs[1].set_branch_description("THIS IS A TEST")
         current_branchs[1].set_branch_value(
-            f"{variables['multi-pref-experiment']['branches'][1]['branch_value']}"
+            f"{variables[experiment_type]['branches'][1]['branch_value']}"
         )
     else:
         design.input_firefox_pref_name("default_fixture")
