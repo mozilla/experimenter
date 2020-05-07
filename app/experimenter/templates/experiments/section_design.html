@@ -1,4 +1,5 @@
 {% extends "experiments/section_base.html" %}
+{% load md2 %}
 
 {% block section_title %}
 Design
@@ -6,6 +7,6 @@ Design
 
 {% block section_content %}
   <p>
-    {{ experiment.design }}
+    {{ experiment.design|urlize|markdown }}
   </p>
 {% endblock %}
