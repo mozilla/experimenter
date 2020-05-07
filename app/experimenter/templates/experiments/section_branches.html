@@ -18,7 +18,6 @@
   {% for variant in experiment.variants.all %}
     <div class=" pl-3 my-3">
       <h5>{{ variant.ratio }}% {{ variant.name }}</h5>
-      {% if experiment.is_multi_pref %}
         <p><strong>Prefs:</strong></p>
         <table class="table table-bordered">
         <thead>
@@ -30,6 +29,7 @@
           </tr>
         </thead>
         <tbody>
+      {% if experiment.is_multi_pref %}
         {% for preference in variant.preferences.all %}
           <tr>
             <td>{{ preference.pref_name }}</td>
@@ -49,24 +49,16 @@
         </tbody>
         </table>
       {% elif experiment.is_pref_experiment %}
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Value</th>
-            <th scope="col">Type</th>
-            <th scope="col">Branch</th>
-          </tr>
-        </thead>
-        <tbody>
           <tr>
             <td>{{ experiment.pref_name}}</td>
             <td>
+              <pre class="text-info"></pre>
               {% if experiment.is_pref_value_json_string %}
-              <pre class="text-info">{{ variant.value|as_json }}</pre></strong></p>
+              {{ variant.value|as_json }}
               {% else %}
                 {{ variant.value }}
               {% endif %}
+              </pre>
             </td>
             <td>{{ experiment.pref_type }}</td>
             <td>{{ experiment.pref_branch }}</td>
