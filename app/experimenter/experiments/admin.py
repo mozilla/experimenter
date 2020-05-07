@@ -58,6 +58,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "subscribers",
                     "related_to",
                     "parent",
+                    "projects",
                     "name",
                     "public_name",
                     "slug",
