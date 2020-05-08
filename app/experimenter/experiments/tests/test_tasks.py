@@ -348,7 +348,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
             target_status=Experiment.STATUS_LIVE, normandy_id=1234
         )
 
-        tasks.update_launched_experiments()
+        tasks.update_experiment_info()
 
         self.mock_tasks_add_start_date_comment.delay.assert_not_called()
         self.mock_tasks_comp_experiment_update_res.delay.assert_not_called()
