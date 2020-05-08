@@ -1,4 +1,24 @@
-from experimenter.experiments.models import ExperimentChangeLog
+from django.contrib.auth import get_user_model
+from django.conf import settings
+
+from experimenter.experiments.models import Experiment, ExperimentChangeLog
+from experimenter.experiments.serializers.entities import ChangeLogSerializer
+
+
+def update_experiment_with_change_log(experiment, changed_data):
+
+    old_serialized_exp = ChangeLogSerializer(experiment).data
+    Experiment.objects.filter(id=experiment.id).update(**changed_data)
+    experiment = Experiment.objects.get(slug=experiment.slug)
+    new_serialized_exp = ChangeLogSerializer(experiment).data
+    normandy_user = settings.NORMANDY_DEFAULT_CHANGELOG_USER
+    default_user, _ = get_user_model().objects.get_or_create(
+        email=normandy_user, username=normandy_user
+    )
+
+    generate_change_log(
+        old_serialized_exp, new_serialized_exp, experiment, changed_data, default_user,
+    )
 
 
 def generate_change_log(

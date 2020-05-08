@@ -3,7 +3,7 @@ import decimal
 
 from django.conf import settings
 from django.core import mail
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from markus.testing import MetricsMock
 from requests.exceptions import RequestException
 import markus
@@ -248,6 +248,7 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
         self.assertEqual(Notification.objects.count(), 0)
 
 
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
 class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
     def test_update_ready_to_ship_experiment(self):
         experiment = ExperimentFactory.create_with_status(
@@ -347,7 +348,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
             target_status=Experiment.STATUS_LIVE, normandy_id=1234
         )
 
-        tasks.update_experiment_info()
+        tasks.update_launched_experiments()
 
         self.mock_tasks_add_start_date_comment.delay.assert_not_called()
         self.mock_tasks_comp_experiment_update_res.delay.assert_not_called()

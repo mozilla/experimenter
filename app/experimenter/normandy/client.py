@@ -44,9 +44,11 @@ def get_recipe(recipe_id):
     return recipe_data["approved_revision"]
 
 
-def get_recipe_list(params={}):
+def get_recipe_list(experiment_slug):
     recipe_url = settings.NORMANDY_API_RECIPES_LIST_URL
-    recipe_data = make_normandy_call(recipe_url, params=params)
+    recipe_data = make_normandy_call(
+        recipe_url, params={"experimenter_slug": experiment_slug}
+    )
     return recipe_data["results"]
 
 
