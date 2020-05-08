@@ -284,7 +284,7 @@ CELERY_BROKER_URL = "redis://{host}:{port}/{db}".format(
 CELERY_BEAT_SCHEDULE = {
     "debug_task": {
         "task": "experimenter.experiments.tasks.update_experiment_info",
-        "schedule": 30,
+        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     }
 }
 
