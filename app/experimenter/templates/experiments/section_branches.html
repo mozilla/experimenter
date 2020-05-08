@@ -16,8 +16,9 @@
     {% endif %}
   {% endif %}
   {% for variant in experiment.variants.all %}
-    <div class=" pl-3 my-3">
+    <div class="pl-3 my-3 {% if not experiment.is_pref_experiment %} border-left-grey {% endif %}">
       <h5>{{ variant.ratio }}% {{ variant.name }}</h5>
+      {% if experiment.is_pref_experiment %}
         <p><strong>Prefs:</strong></p>
         <table class="table table-bordered">
         <thead>
@@ -29,6 +30,7 @@
           </tr>
         </thead>
         <tbody>
+      {% endif %}
       {% if experiment.is_multi_pref %}
         {% for preference in variant.preferences.all %}
           <tr>
