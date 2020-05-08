@@ -124,17 +124,19 @@ def update_experiment_bug_task(user_id, experiment_id):
 @app.task
 @metrics.timer_decorator("update_experiment_info.timing")
 def update_experiment_info():
-    update_ready_to_ship_experiments.delay()
+    update_recipe_ids_to_experiments.delay()
     update_launched_experiments.delay()
 
 
 @app.task
-@metrics.timer_decorator("update_ready_to_ship_experiments.timing")
-def update_ready_to_ship_experiments():
+@metrics.timer_decorator("update_recipe_ids_to_experiments.timing")
+def update_recipe_ids_to_experiments():
     metrics.incr("update_ready_to_ship_experiments.started")
-    logger.info("Updating ready to ship experiment")
+    logger.info("Update Recipes to Experiments")
 
-    ready_to_ship_experiments = Experiment.objects.filter(status=Experiment.STATUS_SHIP)
+    ready_to_ship_experiments = Experiment.objects.filter(
+        status__in=[Experiment.STATUS_SHIP, Experiment.STATUS_ACCEPTED]
+    )
     for experiment in ready_to_ship_experiments:
         try:
             logger.info("Updating Experiment: {}".format(experiment))

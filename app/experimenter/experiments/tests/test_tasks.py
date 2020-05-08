@@ -442,9 +442,6 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
 
     def test_experiment_without_normandy_ids(self):
         ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED, normandy_id=None
-        )
-        ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_LIVE, normandy_id=None
         )
         tasks.update_experiment_info()
