@@ -17,7 +17,11 @@ def update_experiment_with_change_log(old_experiment, changed_data):
     )
 
     generate_change_log(
-        old_serialized_exp, new_serialized_exp, new_experiment, changed_data, default_user,
+        old_serialized_exp,
+        new_serialized_exp,
+        new_experiment,
+        changed_data,
+        default_user,
     )
 
 
