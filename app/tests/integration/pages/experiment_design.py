@@ -20,6 +20,7 @@ class DesignPage(Base):
     _firefox_pref_name_locator = (By.CSS_SELECTOR, "#id_pref_name")
     _firefox_pref_type_locator = (By.CSS_SELECTOR, "#id_pref_type")
     _firefox_pref_branch_locator = (By.CSS_SELECTOR, "#id_pref_branch")
+    _multipref_radio_btn_locator = (By.CSS_SELECTOR, "#is_multi_pref-true")
     _new_branch_locator = (By.CSS_SELECTOR, "#add-branch-button")
 
     def wait_for_page_to_load(self):
@@ -27,6 +28,11 @@ class DesignPage(Base):
             lambda _: self.find_element(*self._add_branch_btn_locator).is_displayed()
         )
         return self
+
+    def enable_multipref(self):
+        element = self.find_element(*self._multipref_radio_btn_locator)
+        element.click()
+        return self.wait_for_page_to_load()
 
     def create_new_branch(self):
         """Creates a new branch."""
@@ -99,20 +105,71 @@ class DesignPage(Base):
             element = self.find_element(*locator)
             element.send_keys(num)
 
-        def set_branch_name(self, text=None):
+        @property
+        def branch_name(self):
+            locator = (By.ID, f"variants-{self.number}-name")
+            return self.find_element(*locator).text
+
+        @branch_name.setter
+        def branch_name(self, text=None):
             locator = (By.ID, f"variants-{self.number}-name")
             element = self.find_element(*locator)
             element.send_keys(text)
-            return
 
-        def set_branch_description(self, text=None):
+        @property
+        def branch_description(self):
+            locator = (By.ID, f"variants-{self.number}-description")
+            return self.find_element(*locator).text
+
+        @branch_description.setter
+        def branch_description(self, text=None):
             locator = (By.ID, f"variants-{self.number}-description")
             element = self.find_element(*locator)
             element.send_keys(text)
             return
 
-        def set_branch_value(self, text=None):
+        @property
+        def branch_value(self):
+            locator = (By.ID, f"variants-{self.number}-value")
+            return self.find_element(*locator).text
+
+        @branch_value.setter
+        def branch_value(self, text=None):
             locator = (By.ID, f"variants-{self.number}-value")
             element = self.find_element(*locator)
             element.send_keys(text)
             return
+
+        def set_pref_branch(self, item):
+            locator = (By.ID, f"pref-branch-{self.number}-0")
+            element = self.find_element(*locator)
+            selector = Select(element)
+            selector.select_by_visible_text(f"{item}")
+
+        def set_pref_type(self, item):
+            locator = (By.ID, f"pref-type-{self.number}-0")
+            element = self.find_element(*locator)
+            selector = Select(element)
+            selector.select_by_visible_text(f"{item}")
+
+        @property
+        def pref_name(self):
+            locator = (By.CSS_SELECTOR, f"#pref-key-{self.number}-0")
+            return self.find_element(*locator).text
+
+        @pref_name.setter
+        def pref_name(self, text=None):
+            locator = (By.CSS_SELECTOR, f"#pref-key-{self.number}-0")
+            element = self.find_element(*locator)
+            element.send_keys(text)
+
+        @property
+        def pref_value(self):
+            locator = (By.CSS_SELECTOR, f"#pref-value-{self.number}-0")
+            return self.find_element(*locator).text
+
+        @pref_value.setter
+        def pref_value(self, text=None):
+            locator = (By.CSS_SELECTOR, f"#pref-value-{self.number}-0")
+            element = self.find_element(*locator)
+            element.send_keys(text)

@@ -24,5 +24,33 @@
                 "firefox_pref_branch": "default"
             }
         ]
+    },
+    "multi-pref-experiment": {
+        "action_name": "multi-preference-experiment",
+        "name": "E2E experimenter multipref-test",
+        "type": "channel",
+        "channels": "Nightly",
+        "min_version": "80.0",
+        "max_version": "100.0",
+        "userFacingName": "e2e testing name",
+        "userFacingDescription": "e2e testing description",
+        "branches": [
+            {
+                "branch_description": "multipref-branch-description",
+                "branch_name": "e2e-multiepref-branch",
+                "firefox_pref_branch": "default",
+                "firefox_pref_name": "e2e-testing",
+                "firefox_pref_type": "boolean",
+                "firefox_pref_value": "true"
+            },
+            {
+                "branch_description": "multipref-branch-description-2",
+                "branch_name": "e2e-multiepref-branch-2",
+                "firefox_pref_branch": "default",
+                "firefox_pref_name": "e2e-testing",
+                "firefox_pref_type": "boolean",
+                "firefox_pref_value": "false"
+            }
+        ]
     }
 }
