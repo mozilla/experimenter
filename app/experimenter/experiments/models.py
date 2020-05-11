@@ -846,8 +846,17 @@ class Experiment(ExperimentConstants, models.Model):
         return completed
 
     @property
+    def should_have_signoffs_to_launch(self):
+        return self.type not in [self.TYPE_MESSAGE]
+
+    @property
     def is_ready_to_launch(self):
-        return self.completed_all_sections
+        ready_to_launch = self.completed_all_sections
+
+        if self.should_have_signoffs_to_launch:
+            ready_to_launch = ready_to_launch and self.completed_required_reviews
+
+        return ready_to_launch
 
     @property
     def format_firefox_versions(self):
