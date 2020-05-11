@@ -41,9 +41,14 @@
   </form>
 {% endblock %}
 
-{% block main_sidebar_extra %}
-  {% include "experiments/signoff_form_inline.html" with experiment=experiment %}
+{% block main_sidebar_signoffs %}
+  {% if not experiment.should_have_signoffs_to_launch %}
+    {% include "experiments/signoff_form_inline.html" with experiment=experiment %}
+  {% else %}
+    {{ block.super }}
+  {% endif %}
 {% endblock %}
+
 
 {% block extrascripts %}
   {{ block.super }}
