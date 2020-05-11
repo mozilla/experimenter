@@ -300,7 +300,8 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
 
         self.assertTrue(
             experiment.changes.filter(
-                old_status=Experiment.STATUS_ACCEPTED, new_status=Experiment.STATUS_ACCEPTED,
+                old_status=Experiment.STATUS_ACCEPTED,
+                new_status=Experiment.STATUS_ACCEPTED,
             ).exists()
         )
 
