@@ -277,6 +277,33 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
             ).exists()
         )
 
+    def test_update_ready_to_ship_experiment_with_pre_existing_recipe(self):
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED, normandy_id=2
+        )
+        mock_response_data = {"results": [{"id": 2}, {"id": 10}, {"id": 100}]}
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status = mock.Mock()
+        mock_response.raise_for_status.side_effect = None
+        mock_response.status_code = 200
+
+        self.mock_normandy_requests_get.return_value = mock_response
+        tasks.update_experiment_info()
+
+        experiment = Experiment.objects.get(id=experiment.id)
+
+        self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
+        self.assertEqual(experiment.normandy_id, 2)
+        self.assertCountEqual(experiment.other_normandy_ids, [10, 100])
+
+        self.assertTrue(
+            experiment.changes.filter(
+                old_status=Experiment.STATUS_ACCEPTED, new_status=Experiment.STATUS_ACCEPTED,
+            ).exists()
+        )
+
     def test_update_accepted_experiment_task(self):
         experiment = ExperimentFactory.create(
             status=Experiment.STATUS_ACCEPTED,
