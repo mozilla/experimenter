@@ -177,7 +177,7 @@
   {% block main_sidebar_extra %}
   {% endblock %}
 
-  {% if not experiment.is_editable %}
+  {% block main_sidebar_signoffs %}
     <div class="row">
       <h5 class="col mt-3">Sign-Offs</h5>
     </div>
@@ -197,7 +197,7 @@
         </div>
       {% endfor %}
     </div>
-  {% endif %}
+  {% endblock %}
 
   <div class="row">
     <h5 class="col mt-3">History</h5>
