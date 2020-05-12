@@ -11,6 +11,7 @@ from experimenter import normandy
 from experimenter.celery import app
 from experimenter.experiments import email
 from experimenter.experiments.constants import ExperimentConstants
+from experimenter.experiments.changelog_utils import update_experiment_with_change_log
 from experimenter.experiments.models import Experiment, ExperimentEmail
 from experimenter.notifications.models import Notification
 
@@ -123,8 +124,46 @@ def update_experiment_bug_task(user_id, experiment_id):
 @app.task
 @metrics.timer_decorator("update_experiment_info.timing")
 def update_experiment_info():
-    metrics.incr("update_experiment_info.started")
-    logger.info("Updating experiment info")
+    update_recipe_ids_to_experiments.delay()
+    update_launched_experiments.delay()
+
+
+@app.task
+@metrics.timer_decorator("update_recipe_ids_to_experiments.timing")
+def update_recipe_ids_to_experiments():
+    metrics.incr("update_ready_to_ship_experiments.started")
+    logger.info("Update Recipes to Experiments")
+
+    ready_to_ship_experiments = Experiment.objects.filter(
+        status__in=[Experiment.STATUS_SHIP, Experiment.STATUS_ACCEPTED]
+    )
+    for experiment in ready_to_ship_experiments:
+        try:
+            logger.info("Updating Experiment: {}".format(experiment))
+            recipe_data = normandy.get_recipe_list(experiment.slug)
+
+            if len(recipe_data):
+                recipe_ids = [r["id"] for r in recipe_data]
+                # sort to get oldest id to be primary
+                recipe_ids.sort()
+                changed_data = {
+                    "normandy_id": recipe_ids[0],
+                    "other_normandy_ids": recipe_ids[1:],
+                    "status": Experiment.STATUS_ACCEPTED,
+                }
+                update_experiment_with_change_log(experiment, changed_data)
+
+        except (IntegrityError, KeyError, normandy.NormandyError) as e:
+            logger.info(f"Failed to update Experiment {experiment}: {e}")
+            metrics.incr("update_ready_to_experiments.failed")
+    metrics.incr("update_ready_to_experiments.completed")
+
+
+@app.task
+@metrics.timer_decorator("update_launched_experiments.timing")
+def update_launched_experiments():
+    metrics.incr("update_launched_experiments.started")
+    logger.info("Updating launched experiments info")
 
     launched_experiments = Experiment.objects.filter(
         status__in=[Experiment.STATUS_ACCEPTED, Experiment.STATUS_LIVE]
@@ -155,7 +194,8 @@ def update_experiment_info():
                 )
         except (IntegrityError, KeyError, normandy.NormandyError) as e:
             logger.info(f"Failed to update Experiment {experiment}: {e}")
-    metrics.incr("update_experiment_info.completed")
+            metrics.incr("update_launched_experiments.failed")
+    metrics.incr("update_launched_experiments.completed")
 
 
 @app.task

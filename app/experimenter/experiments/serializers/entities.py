@@ -117,6 +117,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "bugzilla_id",
             "normandy_slug",
             "normandy_id",
+            "other_normandy_ids",
             "data_science_issue_url",
             "feature_bugzilla_url",
             "risk_partner_related",

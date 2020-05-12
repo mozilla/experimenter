@@ -72,7 +72,7 @@ class MockNormandyMixin(object):
         return mock_response
 
     def setUpMockNormandyFailWithSpecifiedID(self, normandy_id):
-        def determine_response(url, verify=None):
+        def determine_response(url, verify=None, params={}):
             if normandy_id in url:
                 return self.buildMockFailedResponse()
             else:

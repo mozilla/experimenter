@@ -1157,7 +1157,10 @@ class ExperimentChangeLog(models.Model):
             Experiment.STATUS_REVIEW: STATUS_SHIP_REVIEW,
             Experiment.STATUS_ACCEPTED: STATUS_SHIP_ACCEPTED,
         },
-        Experiment.STATUS_ACCEPTED: {Experiment.STATUS_LIVE: STATUS_ACCEPTED_LIVE},
+        Experiment.STATUS_ACCEPTED: {
+            Experiment.STATUS_ACCEPTED: STATUS_DRAFT_DRAFT,
+            Experiment.STATUS_LIVE: STATUS_ACCEPTED_LIVE,
+        },
         Experiment.STATUS_LIVE: {
             Experiment.STATUS_COMPLETE: STATUS_LIVE_COMPLETE,
             Experiment.STATUS_LIVE: STATUS_ADDED_RESULTS,
