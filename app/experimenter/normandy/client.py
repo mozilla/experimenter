@@ -20,9 +20,9 @@ class NormandyDecodeError(NormandyError):
     message = "Error parsing JSON Normandy Response"
 
 
-def make_normandy_call(url):
+def make_normandy_call(url, params={}):
     try:
-        response = requests.get(url, verify=(not settings.DEBUG))
+        response = requests.get(url, verify=(not settings.DEBUG), params=params)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.HTTPError as e:
@@ -42,6 +42,14 @@ def get_recipe(recipe_id):
     recipe_url = settings.NORMANDY_API_RECIPE_URL.format(id=recipe_id)
     recipe_data = make_normandy_call(recipe_url)
     return recipe_data["approved_revision"]
+
+
+def get_recipe_list(experiment_slug):
+    recipe_url = settings.NORMANDY_API_RECIPES_LIST_URL
+    recipe_data = make_normandy_call(
+        recipe_url, params={"experimenter_slug": experiment_slug}
+    )
+    return recipe_data["results"]
 
 
 def get_recipe_state_enabler(recipe_data):
