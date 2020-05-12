@@ -170,6 +170,21 @@ class ExperimentDesignBranchMultiPrefSerializer(
         model = ExperimentVariant
 
     def validate_preferences(self, data):
+        variant = None
+        error_list = [{}] * len(data)
+        for i, pref in enumerate(data):
+            id = pref.get("id")
+            if id and not variant:
+                variant = VariantPreferences.objects.get(id=id).variant
+            if (
+                variant
+                and variant.preferences.filter(pref_name=pref["pref_name"])
+                .exclude(id=pref.get("id"))
+                .exists()
+            ):
+                error_list[i] = {"pref_name": "This pref name already exists."}
+                raise serializers.ValidationError(error_list)
+
         if not self.is_pref_valid(data):
             error_list = [{"pref_name": "Pref name per Branch needs to be unique"}] * len(
                 data
