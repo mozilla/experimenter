@@ -58,27 +58,28 @@ def test_multi_pref_e2e(base_url, selenium, fill_experiment):
                 item["slug"]
                 == test_json["multi-pref-experiment"]["branches"][num]["branch_name"]
             ):  # Start by checking the name
-                assert (
-                    test_json["multi-pref-experiment"]["branches"][num][
-                        "firefox_pref_name"
-                    ]
-                    in f"{[key for key in item['preferences']]}"
-                )
-                assert (
-                    test_json["multi-pref-experiment"]["branches"][num][
-                        "firefox_pref_type"
-                    ]
-                    in f"{[value['preferenceType'] for value in item['preferences'].values()]}"  # noqa: E501
-                )
-                assert (
-                    test_json["multi-pref-experiment"]["branches"][num][
-                        "firefox_pref_branch"
-                    ]
-                    in f"{[value['preferenceBranchType'] for value in item['preferences'].values()]}"  # noqa: E501
-                )
-                assert (
-                    test_json["multi-pref-experiment"]["branches"][num][
-                        "firefox_pref_value"
-                    ]
-                    in f"{[value['preferenceValue'] for value in item['preferences'].values()]}".lower()  # noqa: E501
-                )
+                for pref_num in range(len(item["preferences"])):
+                    assert (
+                        test_json["multi-pref-experiment"]["branches"][num][
+                            "preferences"
+                        ][pref_num]["firefox_pref_name"]
+                        in f"{[key for key in item['preferences']]}"
+                    )
+                    assert (
+                        test_json["multi-pref-experiment"]["branches"][num][
+                            "preferences"
+                        ][pref_num]["firefox_pref_type"]
+                        in f"{[value['preferenceType'] for value in item['preferences'].values()]}"  # noqa: E501
+                    )
+                    assert (
+                        test_json["multi-pref-experiment"]["branches"][num][
+                            "preferences"
+                        ][pref_num]["firefox_pref_branch"]
+                        in f"{[value['preferenceBranchType'] for value in item['preferences'].values()]}"  # noqa: E501
+                    )
+                    assert (
+                        test_json["multi-pref-experiment"]["branches"][num][
+                            "preferences"
+                        ][pref_num]["firefox_pref_value"]
+                        in f"{[value['preferenceValue'] for value in item['preferences'].values()]}".lower()  # noqa: E501
+                    )

@@ -37,19 +37,39 @@
         "branches": [
             {
                 "branch_description": "multipref-branch-description",
-                "branch_name": "e2e-multiepref-branch",
-                "firefox_pref_branch": "default",
-                "firefox_pref_name": "e2e-testing",
-                "firefox_pref_type": "boolean",
-                "firefox_pref_value": "true"
+                "branch_name": "e2e-multipref-branch",
+                "preferences": [
+                    {
+                        "firefox_pref_branch": "default",
+                        "firefox_pref_name": "e2e-testing-branch-1",
+                        "firefox_pref_type": "boolean",
+                        "firefox_pref_value": "true"
+                    },
+                    {
+                        "firefox_pref_branch": "default",
+                        "firefox_pref_name": "e2e-testing-branch-1-1",
+                        "firefox_pref_type": "boolean",
+                        "firefox_pref_value": "false"
+                    }
+                ]
             },
             {
                 "branch_description": "multipref-branch-description-2",
-                "branch_name": "e2e-multiepref-branch-2",
-                "firefox_pref_branch": "default",
-                "firefox_pref_name": "e2e-testing",
-                "firefox_pref_type": "boolean",
-                "firefox_pref_value": "false"
+                "branch_name": "e2e-multipref-branch-2",
+                "preferences": [
+                    {
+                        "firefox_pref_branch": "default",
+                        "firefox_pref_name": "e2e-testing-branch-2",
+                        "firefox_pref_type": "boolean",
+                        "firefox_pref_value": "false"
+                    },
+                    {
+                        "firefox_pref_branch": "default",
+                        "firefox_pref_name": "e2e-testing-branch-2-1",
+                        "firefox_pref_type": "boolean",
+                        "firefox_pref_value": "true"
+                    }
+                ]
             }
         ]
     }

@@ -114,10 +114,21 @@ def fill_design_page(selenium, base_url, request, variables, fill_overview):
             for count, branch in enumerate(variables[experiment_type]["branches"]):
                 branches[count].branch_name = f"{branch['branch_name']}"
                 branches[count].branch_description = f"{branch['branch_description']}"
-                branches[count].set_pref_branch(f"{branch['firefox_pref_branch']}")
-                branches[count].set_pref_type(f"{branch['firefox_pref_type']}")
-                branches[count].pref_name = f"{branch['firefox_pref_name']}"
-                branches[count].pref_value = f"{branch['firefox_pref_value']}"
+                branches[count].add_pref_button.click()
+                prefs = branches[count].prefs(count)
+                for _ in range(0, len(branch["preferences"])):  # Fill in multi prefs
+                    prefs[
+                        _
+                    ].pref_branch = f"{branch['preferences'][_]['firefox_pref_branch']}"
+                    prefs[
+                        _
+                    ].pref_type = f"{branch['preferences'][_]['firefox_pref_type']}"
+                    prefs[
+                        _
+                    ].pref_name = f"{branch['preferences'][_]['firefox_pref_name']}"
+                    prefs[
+                        _
+                    ].pref_value = f"{branch['preferences'][_]['firefox_pref_value']}"
         else:
             design.input_firefox_pref_name(
                 f"{variables[experiment_type]['branches'][0]['firefox_pref_name']}"

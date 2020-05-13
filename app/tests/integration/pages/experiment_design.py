@@ -5,6 +5,7 @@ import string
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
+from selenium.webdriver.common.action_chains import ActionChains
 from pypom import Region
 
 from pages.base import Base
@@ -82,8 +83,10 @@ class DesignPage(Base):
             super().__init__(page=page, root=root, **kwargs)
             self.number = count
 
+        _add_pref_btn_locator = (By.CSS_SELECTOR, "#add-pref-button")
         _remove_branch_btn_locator = (By.CSS_SELECTOR, "#remove-branch-button")
         _new_branch_locator = (By.CSS_SELECTOR, "div > div > h4")
+        _pref_section_locator = (By.CSS_SELECTOR, "#control-branch-group-pref")
 
         @property
         def is_displayed(self):
@@ -91,6 +94,21 @@ class DesignPage(Base):
             if self.root.get_attribute("data-formset-form-deleted") is not None:
                 return False
             return True
+
+        @property
+        def add_pref_button(self):
+            return self.find_element(*self._add_pref_btn_locator)
+
+        def prefs(self, branch):
+            # Create PrefsRegion objects for each branch and each pref seen
+            els = self.find_elements(*self._pref_section_locator)
+
+            _prefs = []
+            for count, el in enumerate(els):
+                _prefs.append(
+                    self.PrefsRegion(self, root=el, count=count, branch_number=branch)
+                )
+            return _prefs
 
         def remove_branch(self):
             self.find_element(*self._remove_branch_btn_locator).click()
@@ -140,36 +158,74 @@ class DesignPage(Base):
             element.send_keys(text)
             return
 
-        def set_pref_branch(self, item):
-            locator = (By.ID, f"pref-branch-{self.number}-0")
-            element = self.find_element(*locator)
-            selector = Select(element)
-            selector.select_by_visible_text(f"{item}")
+        class PrefsRegion(Region):
+            def __init__(self, page, root=None, count=None, branch_number=None, **kwargs):
+                super().__init__(page=page, root=root, **kwargs)
+                self.pref_number = count
+                self.branch_number = branch_number
 
-        def set_pref_type(self, item):
-            locator = (By.ID, f"pref-type-{self.number}-0")
-            element = self.find_element(*locator)
-            selector = Select(element)
-            selector.select_by_visible_text(f"{item}")
+            @property
+            def pref_branch(self):
+                locator = (
+                    By.CSS_SELECTOR,
+                    f"#pref-branch-{self.branch_number}-{self.pref_number}",
+                )
+                return self.selenium.find_element(*locator).text
 
-        @property
-        def pref_name(self):
-            locator = (By.CSS_SELECTOR, f"#pref-key-{self.number}-0")
-            return self.find_element(*locator).text
+            @pref_branch.setter
+            def pref_branch(self, item):
+                locator = (
+                    By.CSS_SELECTOR,
+                    f"#pref-branch-{self.branch_number}-{self.pref_number}",
+                )
+                element = self.selenium.find_element(*locator)
+                selector = Select(element)
+                selector.select_by_visible_text(f"{item}")
 
-        @pref_name.setter
-        def pref_name(self, text=None):
-            locator = (By.CSS_SELECTOR, f"#pref-key-{self.number}-0")
-            element = self.find_element(*locator)
-            element.send_keys(text)
+            @property
+            def pref_type(self):
+                locator = (By.ID, f"pref-type-{self.branch_number}-{self.pref_number}")
+                return self.selenium.find_element(*locator).text
 
-        @property
-        def pref_value(self):
-            locator = (By.CSS_SELECTOR, f"#pref-value-{self.number}-0")
-            return self.find_element(*locator).text
+            @pref_type.setter
+            def pref_type(self, item):
+                locator = (By.ID, f"pref-type-{self.branch_number}-{self.pref_number}")
+                element = self.selenium.find_element(*locator)
+                selector = Select(element)
+                selector.select_by_visible_text(f"{item}")
 
-        @pref_value.setter
-        def pref_value(self, text=None):
-            locator = (By.CSS_SELECTOR, f"#pref-value-{self.number}-0")
-            element = self.find_element(*locator)
-            element.send_keys(text)
+            @property
+            def pref_name(self):
+                locator = (
+                    By.CSS_SELECTOR,
+                    f"#pref-key-{self.branch_number}-{self.pref_number}",
+                )
+                return self.selenium.find_element(*locator).text
+
+            @pref_name.setter
+            def pref_name(self, text=None):
+                locator = (
+                    By.CSS_SELECTOR,
+                    f"#pref-key-{self.branch_number}-{self.pref_number}",
+                )
+                element = self.selenium.find_element(*locator)
+                element.send_keys(text)
+
+            @property
+            def pref_value(self):
+                locator = (
+                    By.CSS_SELECTOR,
+                    f"#pref-value-{self.branch_number}-{self.pref_number}",
+                )
+                return self.selenium.find_element(*locator).text
+
+            @pref_value.setter
+            def pref_value(self, text=None):
+                locator = (
+                    By.CSS_SELECTOR,
+                    f"#pref-value-{self.branch_number}-{self.pref_number}",
+                )
+                element = self.selenium.find_element(*locator)
+                actions = ActionChains(self.selenium)
+                actions.double_click(element).perform()
+                element.send_keys(text)
