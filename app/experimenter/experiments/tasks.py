@@ -255,13 +255,16 @@ def update_status_task(experiment, recipe_data):
 @metrics.timer_decorator("set_is_paused_value")
 def set_is_paused_value_task(experiment_id, recipe_data):
     experiment = Experiment.objects.get(id=experiment_id)
+    metrics.incr("set_is_paused_value.started")
+    logger.info("Updating Enrollment Value")
     if recipe_data:
         paused_val = is_paused(recipe_data)
         if paused_val is not None and paused_val != experiment.is_paused:
             with transaction.atomic():
                 experiment.is_paused = paused_val
                 experiment.save()
-
+            metrics.incr("set_is_paused_value.updated")
+            logger.info("Enrollment Value Updated")
             message = (
                 "Enrollment Completed"
                 if experiment.is_paused
@@ -272,6 +275,7 @@ def set_is_paused_value_task(experiment_id, recipe_data):
                 email=normandy_user, username=normandy_user
             )
             experiment.changes.create(message=message, changed_by=default_user)
+    metrics.incr("set_is_paused_value.completed")
 
 
 def update_population_percent(experiment, recipe_data):
