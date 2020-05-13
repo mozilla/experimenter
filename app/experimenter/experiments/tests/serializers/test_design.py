@@ -317,27 +317,6 @@ class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
 
 
 class TestExperimentDesignBranchMultiPrefSerializer(TestCase):
-    def setUp(self):
-        self.pref1 = {
-            "pref_name": "pref1",
-            "pref_value": "pref 1 value",
-            "pref_branch": "default",
-            "pref_type": "string",
-        }
-        self.pref2 = {
-            "pref_name": "pref2",
-            "pref_value": "pref 2 value",
-            "pref_branch": "default",
-            "pref_type": "string",
-        }
-        self.variant = {
-            "ratio": 100,
-            "is_control": True,
-            "name": "control",
-            "description": "control description",
-            "preferences": [self.pref1, self.pref2],
-        }
-
     def test_serializer_outputs_expected_schema(self):
         variant = ExperimentVariantFactory.create()
         vp = VariantPreferencesFactory.create(variant=variant)
@@ -362,6 +341,38 @@ class TestExperimentDesignBranchMultiPrefSerializer(TestCase):
                 ],
             },
         )
+
+    def test_serializer_rejects_swapped_pref_names(self):
+        variant = ExperimentVariantFactory.create()
+        vp_1 = VariantPreferencesFactory.create(pref_name="one", variant=variant)
+        vp_2 = VariantPreferencesFactory.create(pref_name="two", variant=variant)
+
+        pref1 = {
+            "pref_name": "two",
+            "pref_value": "pref 1 value",
+            "pref_branch": "default",
+            "pref_type": "string",
+            "id": vp_1.id,
+        }
+        pref2 = {
+            "pref_name": "one",
+            "pref_value": "pref 2 value",
+            "pref_branch": "default",
+            "pref_type": "string",
+            "id": vp_2.id,
+        }
+        variant = {
+            "ratio": 100,
+            "is_control": True,
+            "name": "control",
+            "description": "control description",
+            "preferences": [pref1, pref2],
+        }
+
+        serializer = ExperimentDesignBranchMultiPrefSerializer(variant, data=variant)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("preferences", serializer.errors)
 
 
 class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
