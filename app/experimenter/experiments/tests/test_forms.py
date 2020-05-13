@@ -177,7 +177,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             "owner": self.user.id,
             "analysis_owner": self.user.id,
             "engineering_owner": "Lisa the Engineer",
-            "public_name": "A new public experiment!",
             "public_description": "Let us learn new public things",
             "related_to": [related_exp],
             "feature_bugzilla_url": bug_url,
@@ -214,7 +213,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "old_value": None,
             },
             "name": {
-                "display_name": "Name",
+                "display_name": "Public Name",
                 "new_value": "A new experiment!",
                 "old_value": None,
             },
@@ -233,11 +232,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "new_value": "Let us learn new public things",
                 "old_value": None,
             },
-            "public_name": {
-                "display_name": "Public Name",
-                "new_value": "A new public experiment!",
-                "old_value": None,
-            },
             "related_to": {
                 "display_name": "Related Deliveries",
                 "new_value": [related_exp.id],
@@ -249,7 +243,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "old_value": None,
             },
             "short_description": {
-                "display_name": "Description",
+                "display_name": "Internal Description",
                 "new_value": "Let us learn new things",
                 "old_value": None,
             },
@@ -278,7 +272,6 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "owner": self.user.id,
             "analysis_owner": self.user.id,
             "engineering_owner": "Lisa the Engineer",
-            "public_name": "A new public experiment!",
             "public_description": "Let us learn new public things",
             "related_to": [self.related_exp],
             "feature_bugzilla_url": bug_url,
@@ -295,7 +288,6 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
             "data_science_issue_url": bug_url,
-            "public_name": "Public Name",
             "public_description": "Public Description",
         }
         form = ExperimentOverviewForm(request=self.request, data=data)
@@ -309,7 +301,6 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertEqual(experiment.name, data["name"])
         self.assertEqual(experiment.slug, "a-new-experiment")
         self.assertEqual(experiment.short_description, data["short_description"])
-        self.assertEqual(experiment.public_name, data["public_name"])
         self.assertEqual(experiment.public_description, data["public_description"])
         self.assertEqual(experiment.changes.count(), 1)
 
@@ -319,6 +310,7 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "owner": self.user.id,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
+            "public_description": "Let us learn new things in the open",
         }
         form = ExperimentOverviewForm(request=self.request, data=data)
         self.assertTrue(form.is_valid())
