@@ -55,20 +55,19 @@ def fill_overview(selenium, base_url, ds_issue_host, request, variables):
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
     experiment_type = getattr(request.module, "experiment_type", None)
+
     if request.node.get_closest_marker("use_variables"):
-        experiment.name = f"{variables[experiment_type]['name']}"
-        experiment.short_description = "Testing in here"
         experiment.public_name = f"{variables[experiment_type]['userFacingName']}"
         experiment.public_description = (
             f"{variables[experiment_type]['userFacingDescription']}"
         )
     else:
-        experiment.name = "This is a test"
-        experiment.short_description = "Testing in here"
         experiment.public_name = "Public Name"
         experiment.public_description = "Public Description"
-        experiment.ds_issue_url = f"{ds_issue_host}DS-12345"
+
+    experiment.internal_description = "Testing in here"
     experiment.ds_issue_url = f"{ds_issue_host}DS-12345"
+
     experiment.save_btn()
     # Add url to object
     url = urlparse(selenium.current_url)

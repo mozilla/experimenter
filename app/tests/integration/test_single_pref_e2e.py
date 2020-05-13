@@ -38,7 +38,7 @@ def test_single_pref_e2e(base_url, selenium, fill_experiment):
     )
     assert (
         test_json["single-pref-experiment"]["userFacingName"]
-        == experiment_json["arguments"]["userFacingName"]
+        in experiment_json["arguments"]["userFacingName"]
     )
     assert (
         test_json["single-pref-experiment"]["userFacingDescription"]

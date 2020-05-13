@@ -80,6 +80,7 @@ class Experiment(ExperimentConstants, models.Model):
     archived = models.BooleanField(default=False)
     name = models.CharField(max_length=255, unique=True, blank=False, null=False)
     slug = models.SlugField(max_length=255, unique=True, blank=False, null=False)
+    public_description = models.TextField(blank=True, null=True)
     short_description = models.TextField(default="", blank=True, null=True)
     related_work = models.TextField(default="", blank=True, null=True)
 
@@ -142,9 +143,6 @@ class Experiment(ExperimentConstants, models.Model):
     )
     pref_value = models.TextField(blank=True, null=True)
 
-    public_name = models.CharField(max_length=255, blank=True, null=True)
-
-    public_description = models.TextField(blank=True, null=True)
     population_percent = models.DecimalField(
         max_digits=7, decimal_places=4, default=0.0, blank=True, null=True
     )

@@ -109,10 +109,13 @@
                   {{ experiment.owner }}
                 </strong>
               </p>
-              <p><strong> Projects:</strong> {% for project in experiment.projects.all %}
-                {{project}}{% if not forloop.last %},{% endif %}
-              {% endfor %}</p>
-              {{ experiment.short_description|markdown }}
+              <p>
+                <strong> Projects:</strong>
+                {% for project in experiment.projects.all %}
+                  {{project}}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+              </p>
+              {{ experiment.public_description|markdown }}
             </div>
             <div class="col-4 text-right">
               <h5>{{ experiment.population }}</h5>
