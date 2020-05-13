@@ -48,8 +48,8 @@
                     {
                         "firefox_pref_branch": "default",
                         "firefox_pref_name": "e2e-testing-branch-1-1",
-                        "firefox_pref_type": "boolean",
-                        "firefox_pref_value": "false"
+                        "firefox_pref_type": "integer",
+                        "firefox_pref_value": "10"
                     }
                 ]
             },
@@ -60,14 +60,14 @@
                     {
                         "firefox_pref_branch": "default",
                         "firefox_pref_name": "e2e-testing-branch-2",
-                        "firefox_pref_type": "boolean",
-                        "firefox_pref_value": "false"
+                        "firefox_pref_type": "string",
+                        "firefox_pref_value": "pref-string"
                     },
                     {
                         "firefox_pref_branch": "default",
                         "firefox_pref_name": "e2e-testing-branch-2-1",
-                        "firefox_pref_type": "boolean",
-                        "firefox_pref_value": "true"
+                        "firefox_pref_type": "string",
+                        "firefox_pref_value": "{\"object\": \"name\"}"
                     }
                 ]
             }
