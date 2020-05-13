@@ -1490,6 +1490,7 @@ class TestExperimentModel(TestCase):
             addon_experiment_id="addon-id",
             addon_release_url="addon-url",
             archived=True,
+            is_paused=True,
             review_science=True,
             review_ux=True,
             firefox_min_version=Experiment.VERSION_CHOICES[1][0],
@@ -1528,6 +1529,7 @@ class TestExperimentModel(TestCase):
         self.assertCountEqual(cloned_experiment.locales.all(), experiment.locales.all())
         self.assertFalse(cloned_experiment.bugzilla_id)
         self.assertFalse(cloned_experiment.archived)
+        self.assertFalse(cloned_experiment.is_paused)
         self.assertFalse(cloned_experiment.review_science)
         self.assertFalse(cloned_experiment.review_ux)
         self.assertFalse(cloned_experiment.addon_experiment_id)
