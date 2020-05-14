@@ -1004,6 +1004,7 @@ class Experiment(ExperimentConstants, models.Model):
         cloned.owner = user
         cloned.parent = self
         cloned.archived = False
+        cloned.is_paused = False
 
         for field in set_to_none_fields:
             setattr(cloned, field, None)
