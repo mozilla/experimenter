@@ -168,7 +168,7 @@ class Pref extends React.PureComponent {
   }
   render() {
     return (
-      <div key={this.props.index} id="control-branch-group">
+      <div key={this.props.index} id="control-branch-group-pref">
         <Row className="mb-3">
           <Col md={{ span: 5, offset: 1 }}>{this.renderTitle()}</Col>
           <Col md={6} className="text-right">
