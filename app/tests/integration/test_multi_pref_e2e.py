@@ -68,7 +68,7 @@ def test_multi_pref_e2e(base_url, selenium, fill_experiment):
                     assert (
                         test_json["multi-pref-experiment"]["branches"][num][
                             "preferences"
-                        ][pref_num]["firefox_pref_type"]
+                        ][pref_num]["firefox_pref_type"].replace("json ", "")
                         in f"{[value['preferenceType'] for value in item['preferences'].values()]}"  # noqa: E501
                     )
                     assert (

@@ -66,7 +66,7 @@
                     {
                         "firefox_pref_branch": "default",
                         "firefox_pref_name": "e2e-testing-branch-2-1",
-                        "firefox_pref_type": "string",
+                        "firefox_pref_type": "json string",
                         "firefox_pref_value": "{\"object\": \"name\"}"
                     }
                 ]
