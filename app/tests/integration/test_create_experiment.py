@@ -42,12 +42,12 @@ def test_duplicate_branch_name(base_url, selenium, ds_issue_host, fill_overview)
     exp_design.select_firefox_pref_type("boolean")
     exp_design.select_firefox_pref_branch("default")
     control_branch = exp_design.current_branches[0]
-    control_branch.set_branch_name("DUPLICATE BRANCH")
-    control_branch.set_branch_description("THIS IS A TEST")
-    control_branch.set_branch_value("false")
+    control_branch.branch_name = "DUPLICATE BRANCH"
+    control_branch.branch_description = "THIS IS A TEST"
+    control_branch.branch_value = "false"
     extra_branch = exp_design.current_branches[-1]
-    extra_branch.set_branch_name("DUPLICATE BRANCH")
-    extra_branch.set_branch_description("THIS IS A TEST")
-    extra_branch.set_branch_value("false")
+    extra_branch.branch_name = "DUPLICATE BRANCH"
+    extra_branch.branch_description = "THIS IS A TEST"
+    extra_branch.branch_value = "false"
     exp_design.save_and_continue()
     selenium.find_element_by_css_selector("#design-form .invalid-feedback")
