@@ -8,7 +8,6 @@ from django_filters.views import FilterView
 
 from experimenter.experiments.filtersets import ExperimentFilterset
 from experimenter.experiments.forms import (
-    RADIO_NO,
     ExperimentArchiveForm,
     ExperimentCommentForm,
     ExperimentObjectivesForm,
@@ -125,7 +124,6 @@ class ExperimentDesignUpdateView(DetailView):
 
 class ExperimentObjectivesUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentObjectivesForm
-    initial = {"survey_required": RADIO_NO}
     next_view_name = "experiments-risks-update"
     template_name = "experiments/edit_objectives.html"
 
