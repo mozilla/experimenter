@@ -39,7 +39,7 @@ def test_multi_pref_e2e(base_url, selenium, fill_experiment):
     )
     assert (
         test_json["multi-pref-experiment"]["userFacingName"]
-        == experiment_json["arguments"]["userFacingName"]
+        in experiment_json["arguments"]["userFacingName"]
     )
     assert (
         test_json["multi-pref-experiment"]["userFacingDescription"]
