@@ -8,6 +8,7 @@ experiment_type = "single-pref-experiment"
 
 
 @pytest.mark.use_variables
+@pytest.mark.single_pref
 @pytest.mark.nondestructive
 def test_single_pref_e2e(
     base_url,

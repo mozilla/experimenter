@@ -23,6 +23,7 @@ class DesignPage(Base):
     _firefox_pref_branch_locator = (By.CSS_SELECTOR, "#id_pref_branch")
     _multipref_radio_btn_locator = (By.CSS_SELECTOR, "#is_multi_pref-true")
     _new_branch_locator = (By.CSS_SELECTOR, "#add-branch-button")
+    _signed_addon_url_locator = (By.CSS_SELECTOR, "#signed-addon-url")
 
     def wait_for_page_to_load(self):
         self.wait.until(
@@ -73,6 +74,21 @@ class DesignPage(Base):
         selector = Select(element)
         selector.select_by_visible_text(f"{item}")
         return
+
+    @property
+    def signed_addon_url(self):
+        element = self.find_element(*self._signed_addon_url_locator)
+        return element.text
+
+    @signed_addon_url.setter
+    def signed_addon_url(self, text=None):
+        try:
+            assert self.signed_addon_url == '', "For field not empty"
+        except AssertionError:
+            continue
+        else:
+            element = self.find_element(*self._signed_addon_url_locator)
+            element.send_keys(text)
 
     def click_continue(self):
         self.find_element(*self._continue_btn_locator).click()

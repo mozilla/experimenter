@@ -72,5 +72,33 @@
                 ]
             }
         ]
+    },
+    "branched-addon-study": {
+        "action-name": "branched-addon-study",
+        "name":"E2E experimenter single-pref-addon-test",
+        "addon_url": "https://url.com/addon-url.xpi",
+        "type": "channel",
+        "channels": "Nightly",
+        "min_version": "80.0",
+        "max_version": "100.0",
+        "userFacingName": "e2e testing addon name",
+        "userFacingDescription": "e2e testing addon description",
+        "branches": [
+            {
+                "branch_value": "false",
+                "branch_name": "e2e-addon-branch",
+                "firefox_pref_name": "e2e-testing",
+                "firefox_pref_type": "boolean",
+                "firefox_pref_branch": "default"
+            },
+            {
+                "branch_value": "true",
+                "branch_name": "e2e-addon-branch-2",
+                "firefox_pref_name": "e2e-testing",
+                "firefox_pref_type": "boolean",
+                "firefox_pref_branch": "default"
+            }
+        ]
+
     }
 }
