@@ -6,7 +6,7 @@ Overview
 
 {% block section_content %}
   <p><strong>Description</strong></p>
-  {{ experiment.short_description|urlize|markdown }}
+  {{ experiment.short_description|markdown|urlize }}
 
   <p><strong>Delivery Owner</strong></p>
   <p>{{ experiment.owner }}</p>

@@ -12,11 +12,11 @@
 
   {% if experiment.risk_technical %}
     <h5>Technical Risk/Complexity</h5>
-    {{ experiment.risk_technical_description|urlize|markdown }}
+    {{ experiment.risk_technical_description|markdown|urlize }}
   {% endif %}
 
   {% if experiment.is_high_risk %}
     <h5>Risk Details</h5>
-    {{ experiment.risks|urlize|markdown }}
+    {{ experiment.risks|markdown|urlize }}
   {% endif %}
 {% endblock %}

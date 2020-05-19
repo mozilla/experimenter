@@ -8,19 +8,19 @@ Results
 {% block section_content %}
   <p><strong>Primary Result URL: </strong></p>
   {% if experiment.results_url %}
-    <p>{{ experiment.results_url|urlize|markdown }}</p>
+    <p>{{ experiment.results_url|markdown|urlize }}</p>
   {% else %}
     <p><em class="text-secondary">Not Complete.</em></p>
   {% endif %}
   <p><strong>Initial Results: </strong></p>
   {% if experiment.results_initial %}
-    <p>{{ experiment.results_initial|urlize|markdown }}</p>
+    <p>{{ experiment.results_initial|markdown|urlize }}</p>
   {% else %}
     <p><em class="text-secondary">Not Complete.</em></p>
   {% endif %}
   <p><strong>Lessons Learned: </strong></p>
   {% if experiment.results_lessons_learned %}
-    <p>{{ experiment.results_lessons_learned|urlize|markdown }}</p>
+    <p>{{ experiment.results_lessons_learned|markdown|urlize }}</p>
   {% else %}
     <p><em class="text-secondary">Not Complete.</em></p>
   {% endif %}
@@ -38,7 +38,7 @@ Results
 
   {% if experiment.results_failures_notes %}
     <p><strong>Notes: </strong></p>
-    <p>{{ experiment.results_failures_notes|urlize|markdown }}</p>
+    <p>{{ experiment.results_failures_notes|markdown|urlize }}</p>
   {% endif %}
 
   <hr/>
@@ -52,6 +52,6 @@ Results
 
   {% if experiment.results_impact_notes %}
     <p><strong>Notes: </strong></p>
-    <p>{{ experiment.results_impact_notes|urlize|markdown }}</p>
+    <p>{{ experiment.results_impact_notes|markdown|urlize }}</p>
   {% endif %}
 {% endblock %}

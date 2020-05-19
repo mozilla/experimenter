@@ -6,7 +6,7 @@ Analysis
 
 {% block section_content %}
   <div id="analysis-content">
-    {{ experiment.analysis|urlize|markdown }}
+    {{ experiment.analysis|markdown|urlize }}
   </div>
 
   {% if experiment.total_enrolled_clients %}
@@ -55,7 +55,7 @@ Analysis
 
     <p><strong>Survey Launch Instructions</strong></p>
     <div id="analysis-survey-launch-instructions">
-      {{ experiment.survey_instructions|urlize|markdown }}
+      {{ experiment.survey_instructions|markdown|urlize }}
     </div>
   {% endif %}
 

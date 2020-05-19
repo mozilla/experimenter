@@ -8,14 +8,14 @@ Testing &amp; QA
 {% block section_content %}
   {% if experiment.testing %}
     <strong>Test Instructions</strong>
-    {{ experiment.testing|urlize|markdown }}
+    {{ experiment.testing|markdown|urlize }}
   {% endif %}
 
   {% if experiment.test_builds %}
     <strong>Test Builds</strong>
-    {{ experiment.test_builds|urlize|markdown }}
+    {{ experiment.test_builds|markdown|urlize }}
   {% endif %}
 
   <strong>QA Status</strong>
-  {{ experiment.qa_status|urlize|markdown }}
+  {{ experiment.qa_status|markdown|urlize }}
 {% endblock %}

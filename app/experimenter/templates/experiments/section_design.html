@@ -7,6 +7,6 @@ Design
 
 {% block section_content %}
   <p>
-    {{ experiment.design|urlize|markdown }}
+    {{ experiment.design|markdown|urlize }}
   </p>
 {% endblock %}

@@ -54,7 +54,7 @@
                 {{ comment.created_by }}
                 <span class="text-muted">{{ comment.created_on }}</span>
               </a>
-              {{ comment.text|urlize|markdown }}
+              {{ comment.text|markdown|urlize }}
             </div>
           </div>
         {% endfor %}
