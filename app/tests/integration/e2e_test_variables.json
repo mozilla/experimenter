@@ -74,7 +74,7 @@
         ]
     },
     "branched-addon-study": {
-        "action-name": "branched-addon-study",
+        "action_name": "branched-addon-study",
         "name":"E2E experimenter single-pref-addon-test",
         "addon_url": "https://url.com/addon-url.xpi",
         "type": "channel",
@@ -85,18 +85,13 @@
         "userFacingDescription": "e2e testing addon description",
         "branches": [
             {
-                "branch_value": "false",
-                "branch_name": "e2e-addon-branch",
-                "firefox_pref_name": "e2e-testing",
-                "firefox_pref_type": "boolean",
-                "firefox_pref_branch": "default"
+                "branch_description": "e2e Branch Description",
+                "branch_name": "e2e-addon-branch"
+
             },
             {
-                "branch_value": "true",
-                "branch_name": "e2e-addon-branch-2",
-                "firefox_pref_name": "e2e-testing",
-                "firefox_pref_type": "boolean",
-                "firefox_pref_branch": "default"
+                "branch_description": "e2e Branch Description second branch",
+                "branch_name": "e2e-addon-branch-2"
             }
         ]
 

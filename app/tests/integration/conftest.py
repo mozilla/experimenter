@@ -56,6 +56,9 @@ def fill_overview(selenium, base_url, ds_issue_host, request, variables):
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
     experiment_type = getattr(request.module, "experiment_type", None)
+    experiment.experiment_type = getattr(
+        request.module, "experiment_type_name", "Pref-Flip Experiment"
+    )
     if request.node.get_closest_marker("use_variables"):
         experiment.name = f"{variables[experiment_type]['name']}"
         experiment.short_description = "Testing in here"
@@ -129,82 +132,92 @@ def fill_design_page_multi_prefs(selenium, base_url, request, variables, fill_ov
     experiment_type = getattr(request.module, "experiment_type", None)
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
     design = design.wait_for_page_to_load()
-    if request.node.get_closest_marker("use_variables"):
-        # If using multi prefs, check and fill appropriately
-        if request.node.get_closest_marker("multi_prefs"):
-            design.enable_multipref()
-            branches = design.current_branches
-            for count, branch in enumerate(variables[experiment_type]["branches"]):
-                branches[count].branch_name = f"{branch['branch_name']}"
-                branches[count].branch_description = f"{branch['branch_description']}"
-                branches[count].add_pref_button.click()
-                prefs = branches[count].prefs(count)
-                for pref_num in range(
-                    0, len(branch["preferences"])
-                ):  # Fill in multi prefs
-                    prefs[
-                        pref_num
-                    ].pref_branch = (
-                        f"{branch['preferences'][pref_num]['firefox_pref_branch']}"
-                    )
-                    prefs[
-                        pref_num
-                    ].pref_type = (
-                        f"{branch['preferences'][pref_num]['firefox_pref_type']}"
-                    )
-                    prefs[
-                        pref_num
-                    ].pref_name = (
-                        f"{branch['preferences'][pref_num]['firefox_pref_name']}"
-                    )
-                    prefs[
-                        pref_num
-                    ].pref_value = (
-                        f"{branch['preferences'][pref_num]['firefox_pref_value']}"
-                    )
-        elif request.node.get_closest_marker("single_pref"):
-            design.input_firefox_pref_name(
-                f"{variables[experiment_type]['branches'][0]['firefox_pref_name']}"
-            )
-            design.select_firefox_pref_type(
-                f"{variables[experiment_type]['branches'][0]['firefox_pref_type']}"
-            )
-            design.select_firefox_pref_branch(
-                f"{variables[experiment_type]['branches'][0]['firefox_pref_branch']}"
-            )
-            current_branchs = design.current_branches
-            control_branch = current_branchs[0]
-            control_branch.branch_name = (
-                f"{variables[experiment_type]['branches'][0]['branch_name']}"
-            )
+    design.enable_multipref()
+    branches = design.current_branches
+    for count, branch in enumerate(variables[experiment_type]["branches"]):
+        branches[count].branch_name = f"{branch['branch_name']}"
+        branches[count].branch_description = f"{branch['branch_description']}"
+        branches[count].add_pref_button.click()
+        prefs = branches[count].prefs(count)
+        for pref_num in range(0, len(branch["preferences"])):  # Fill in multi prefs
+            prefs[
+                pref_num
+            ].pref_branch = f"{branch['preferences'][pref_num]['firefox_pref_branch']}"
+            prefs[
+                pref_num
+            ].pref_type = f"{branch['preferences'][pref_num]['firefox_pref_type']}"
+            prefs[
+                pref_num
+            ].pref_name = f"{branch['preferences'][pref_num]['firefox_pref_name']}"
+            prefs[
+                pref_num
+            ].pref_value = f"{branch['preferences'][pref_num]['firefox_pref_value']}"
+    design.save_btn()
+    return design
 
-            control_branch.branch_description = "THIS IS A TEST"
-            control_branch.branch_value = (
-                f"{variables[experiment_type]['branches'][0]['branch_value']}"
-            )
-            current_branchs[
-                1
-            ].branch_name = f"{variables[experiment_type]['branches'][1]['branch_name']}"
-            current_branchs[1].branch_description = "THIS IS A TEST"
-            current_branchs[
-                1
-            ].branch_value = (
-                f"{variables[experiment_type]['branches'][1]['branch_value']}"
-            )
-        elif request.node.get_closest_marker("single_addon"):
-            
-    else:
-        design.input_firefox_pref_name("default_fixture")
-        design.select_firefox_pref_type("boolean")
-        design.select_firefox_pref_branch("default")
-        current_branchs = design.current_branches
-        control_branch = current_branchs[0]
-        control_branch.branch_name = "Fixture Branch"
-        control_branch.branch_description = "THIS IS A TEST"
-        control_branch.branch_value = "true"
-        current_branchs[1].branch_name = "Fixture Branch 2"
-        current_branchs[1].branch_description = "THIS IS A TEST"
-        current_branchs[1].branch_value = "false"
+
+@pytest.fixture
+def fill_design_page_single_pref(selenium, base_url, request, variables, fill_overview):
+    """Fills design page according to single pref requirements."""
+    experiment_type = getattr(request.module, "experiment_type", None)
+    design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
+    design = design.wait_for_page_to_load()
+    design.input_firefox_pref_name(
+        f"{variables[experiment_type]['branches'][0]['firefox_pref_name']}"
+    )
+    design.select_firefox_pref_type(
+        f"{variables[experiment_type]['branches'][0]['firefox_pref_type']}"
+    )
+    design.select_firefox_pref_branch(
+        f"{variables[experiment_type]['branches'][0]['firefox_pref_branch']}"
+    )
+    current_branchs = design.current_branches
+    control_branch = current_branchs[0]
+    control_branch.branch_name = (
+        f"{variables[experiment_type]['branches'][0]['branch_name']}"
+    )
+    control_branch.branch_description = "THIS IS A TEST"
+    control_branch.branch_value = (
+        f"{variables[experiment_type]['branches'][0]['branch_value']}"
+    )
+    current_branchs[
+        1
+    ].branch_name = f"{variables[experiment_type]['branches'][1]['branch_name']}"
+    current_branchs[1].branch_description = "THIS IS A TEST"
+    current_branchs[
+        1
+    ].branch_value = f"{variables[experiment_type]['branches'][1]['branch_value']}"
+    design.save_btn()
+    return design
+
+
+@pytest.fixture
+def fill_design_page_branched_single_addon(
+    selenium, base_url, request, variables, fill_overview
+):
+    """Fills design page according to branched single addon requirements."""
+    experiment_type = getattr(request.module, "experiment_type", None)
+    design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
+    design = design.wait_for_page_to_load()
+    design.signed_addon_url = f"{variables[experiment_type]['addon_url']}"
+    current_branchs = design.current_branches
+    control_branch = current_branchs[0]
+    control_branch.branch_name = (
+        f"{variables[experiment_type]['branches'][0]['branch_name']}"
+    )
+    control_branch.branch_description = "THIS IS A TEST"
+    control_branch.branch_description = (
+        f"{variables[experiment_type]['branches'][0]['branch_description']}"
+    )
+    current_branchs[
+        1
+    ].branch_name = f"{variables[experiment_type]['branches'][1]['branch_name']}"
+    current_branchs[1].branch_description = "THIS IS A TEST"
+    current_branchs[
+        1
+    ].branch_description = (
+        f"{variables[experiment_type]['branches'][1]['branch_description']}"
+    )
     design.save_btn()
     return design
 

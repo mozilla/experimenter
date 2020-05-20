@@ -83,9 +83,9 @@ class DesignPage(Base):
     @signed_addon_url.setter
     def signed_addon_url(self, text=None):
         try:
-            assert self.signed_addon_url == '', "Form field not empty"
+            assert self.signed_addon_url == "", "Form field not empty"
         except AssertionError:
-            continue
+            return
         else:
             element = self.find_element(*self._signed_addon_url_locator)
             element.send_keys(text)
