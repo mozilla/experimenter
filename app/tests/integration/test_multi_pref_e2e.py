@@ -10,7 +10,15 @@ experiment_type = "multi-pref-experiment"
 @pytest.mark.use_variables
 @pytest.mark.multi_prefs
 @pytest.mark.nondestructive
-def test_multi_pref_e2e(base_url, selenium, fill_experiment):
+def test_multi_pref_e2e(
+    base_url,
+    selenium,
+    fill_timeline_page,
+    fill_design_page_multi_prefs,
+    fill_analysis_page,
+    fill_risks_page,
+    signoff_and_ship,
+):
     url = urlparse(selenium.current_url)
     experiment_url = f"{url.scheme}://{url.netloc}/api/v1{url.path}recipe/"
     experiment_json = requests.get(f"{experiment_url}", verify=False).json()
