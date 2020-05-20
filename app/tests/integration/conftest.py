@@ -105,7 +105,7 @@ def fill_timeline_page(selenium, base_url, request, variables, fill_overview):
 
 @pytest.fixture
 def fill_design_page(selenium, base_url, request, variables, fill_overview):
-    """Fills design page according to default requirements."""
+    """Fills design page according to generic requirements."""
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
     design = design.wait_for_page_to_load()
     design.input_firefox_pref_name("default_fixture")
