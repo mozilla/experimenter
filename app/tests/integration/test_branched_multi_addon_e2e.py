@@ -4,17 +4,17 @@ from urllib.parse import urlparse
 import pytest
 import requests
 
-experiment_type = "branched-single-addon-study"
+experiment_type = "branched-multi-addon-study"
 experiment_type_name = "Add-On Experiment"
 
 
 @pytest.mark.use_variables
 @pytest.mark.nondestructive
-def test_branched_addon_e2e(
+def test_branched_multi_addon_e2e(
     base_url,
     selenium,
     fill_timeline_page,
-    fill_design_page_branched_single_addon,
+    fill_design_page_branched_multi_addon,
     fill_analysis_page,
     fill_risks_page,
     signoff_and_ship,
