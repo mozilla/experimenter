@@ -226,7 +226,7 @@ def fill_design_page_branched_single_addon(
 def fill_design_page_branched_multi_addon(
     selenium, base_url, request, variables, fill_overview
 ):
-    """Fills design page according to branched single addon requirements."""
+    """Fills design page according to branched multi addon requirements."""
     experiment_type = getattr(request.module, "experiment_type", None)
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
     design = design.wait_for_page_to_load()
