@@ -221,6 +221,45 @@ def fill_design_page_branched_single_addon(
     design.save_btn()
     return design
 
+@pytest.fixture
+def fill_design_page_branched_multi_addon(
+    selenium, base_url, request, variables, fill_overview
+):
+    """Fills design page according to branched single addon requirements."""
+    experiment_type = getattr(request.module, "experiment_type", None)
+    design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
+    design = design.wait_for_page_to_load()
+    design.enable_multi_addon()
+
+    current_branchs = design.current_branches
+    control_branch = current_branchs[0]
+    control_branch.branch_name = (
+        f"{variables[experiment_type]['branches'][0]['branch_name']}"
+    )
+    control_branch.branch_description = "THIS IS A TEST"
+    control_branch.branch_description = (
+        f"{variables[experiment_type]['branches'][0]['branch_description']}"
+    )
+    control_branch.signed_addon_url = (
+        f"{variables[experiment_type]['branches'][0]['addon_url']}"
+    )
+    current_branchs[
+        1
+    ].branch_name = f"{variables[experiment_type]['branches'][1]['branch_name']}"
+    current_branchs[1].branch_description = "THIS IS A TEST"
+    current_branchs[
+        1
+    ].branch_description = (
+        f"{variables[experiment_type]['branches'][1]['branch_description']}"
+    )
+    current_branchs[
+        1
+    ].signed_addon_url = (
+        f"{variables[experiment_type]['branches'][0]['addon_url']}"
+    )
+    design.save_btn()
+    return design
+
 
 @pytest.fixture
 def fill_analysis_page(selenium, base_url, request, variables, fill_overview):
