@@ -230,7 +230,6 @@ def fill_design_page_branched_multi_addon(
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
     design = design.wait_for_page_to_load()
     design.enable_multi_addon()
-
     current_branchs = design.current_branches
     control_branch = current_branchs[0]
     control_branch.branch_name = (
