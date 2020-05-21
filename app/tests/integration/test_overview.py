@@ -9,8 +9,8 @@ def test_overview_type_changes_correctly(base_url, selenium):
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
-    assert "pref" in experiment.experiment_type
-    exp_type = "addon"
+    assert "Pref-Flip Experiment" in experiment.experiment_type
+    exp_type = "Add-On Experiment"
     experiment.experiment_type = exp_type
     assert exp_type in experiment.experiment_type
 

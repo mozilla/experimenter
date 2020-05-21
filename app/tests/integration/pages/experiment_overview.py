@@ -2,6 +2,7 @@ import random
 import string
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
 
 from pages.base import Base
 
@@ -27,7 +28,7 @@ class ExperimentOverview(Base):
         ".filter-option-inner-inner",
     )
     _experiment_related_work_url_locator = (By.CSS_SELECTOR, "#id_related_work")
-    _experiment_type_locator = (By.CSS_SELECTOR, "#id_type > option")
+    _experiment_type_locator = (By.CSS_SELECTOR, "#id_type")
     _related_experiments_dropdown = (By.CSS_SELECTOR, "ul.dropdown-menu > li > a")
     _page_wait_locator = (By.CSS_SELECTOR, "body.page-edit-overview")
     _name_locator = (By.CSS_SELECTOR, "#id_name")
@@ -50,17 +51,17 @@ class ExperimentOverview(Base):
 
     @property
     def experiment_type(self):
-        options = self.find_elements(*self._experiment_type_locator)
+        options = self.find_element(*self._experiment_type_locator)
+        options = options.find_elements_by_css_selector("option")
         for item in options:
             if item.get_property("selected"):
-                return item.get_attribute("value")
+                return item.text
 
     @experiment_type.setter
     def experiment_type(self, exp_type=None):
-        types = self.find_elements(*self._experiment_type_locator)
-        for option in types:
-            if exp_type in option.text.replace("-", "").lower():
-                option.click()
+        types = self.find_element(*self._experiment_type_locator)
+        selector = Select(types)
+        selector.select_by_visible_text(f"{exp_type}")
 
     @property
     def name(self):
