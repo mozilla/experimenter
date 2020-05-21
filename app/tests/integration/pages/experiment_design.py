@@ -41,7 +41,7 @@ class DesignPage(Base):
     def enable_single_addon(self):
         element = self.find_element(*self._single_addon_button_locator)
         element.click()
-    
+
     def enable_multi_addon(self):
         element = self.find_element(*self._multi_addon_button_locator)
         element.click()
@@ -183,19 +183,18 @@ class DesignPage(Base):
             element = self.find_element(*locator)
             element.send_keys(text)
             return
-        
+
         @property
         def signed_addon_url(self):
             locator = (By.ID, f"variants-{self.number}-addon_release_url")
             return self.find_element(*locator).text
-        
+
         @signed_addon_url.setter
         def signed_addon_url(self, text=None):
             locator = (By.ID, f"variants-{self.number}-addon_release_url")
             element = self.find_element(*locator)
             element.send_keys(text)
             return
-            
 
         class PrefsRegion(Region):
             def __init__(self, page, root=None, count=None, branch_number=None, **kwargs):

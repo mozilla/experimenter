@@ -221,6 +221,7 @@ def fill_design_page_branched_single_addon(
     design.save_btn()
     return design
 
+
 @pytest.fixture
 def fill_design_page_branched_multi_addon(
     selenium, base_url, request, variables, fill_overview
@@ -253,9 +254,7 @@ def fill_design_page_branched_multi_addon(
     )
     current_branchs[
         1
-    ].signed_addon_url = (
-        f"{variables[experiment_type]['branches'][0]['addon_url']}"
-    )
+    ].signed_addon_url = f"{variables[experiment_type]['branches'][0]['addon_url']}"
     design.save_btn()
     return design
 
