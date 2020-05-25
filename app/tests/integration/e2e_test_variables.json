@@ -72,5 +72,51 @@
                 ]
             }
         ]
+    },
+    "branched-single-addon-study": {
+        "action_name": "branched-addon-study",
+        "name":"E2E experimenter single-pref-addon-test",
+        "addon_url": "https://url.com/addon-url.xpi",
+        "type": "channel",
+        "channels": "Nightly",
+        "min_version": "80.0",
+        "max_version": "100.0",
+        "userFacingName": "e2e testing addon name",
+        "userFacingDescription": "e2e testing addon description",
+        "branches": [
+            {
+                "branch_description": "e2e Branch Description",
+                "branch_name": "e2e-addon-branch"
+
+            },
+            {
+                "branch_description": "e2e Branch Description second branch",
+                "branch_name": "e2e-addon-branch-2"
+            }
+        ]
+
+    },
+    "branched-multi-addon-study": {
+        "action_name": "branched-addon-study",
+        "name": "e2e multi addon experiment",
+        "type": "channel",
+        "channels": "Nightly",
+        "min_version": "80.0",
+        "max_version": "100.0",
+        "userFacingName": "e2e testing multi addon name",
+        "userFacingDescription": "e2e testing addon description",
+        "branches": [
+            {
+                "branch_description": "e2e Branch Description",
+                "branch_name": "e2e-multi-addon-branch",
+                "addon_url": "https://url.com/addon-url.xpi"
+
+            },
+            {
+                "branch_description": "e2e Branch Description second branch",
+                "branch_name": "e2e-multi-addon-branch-2",
+                "addon_url": "https://url.com/addon-url.xpi"
+            }
+        ]
     }
 }
