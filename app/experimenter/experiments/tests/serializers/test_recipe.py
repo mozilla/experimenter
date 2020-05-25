@@ -100,7 +100,7 @@ class TestFilterObjectBucketSampleSerializer(TestCase):
             serializer.data,
             {
                 "type": "bucketSample",
-                "input": ["normandy.recipe.id", "normandy.userId"],
+                "input": ["normandy.userId"],
                 "start": 0,
                 "count": 1234,
                 "total": 10000,
@@ -608,7 +608,7 @@ class TestExperimentRecipeSerializer(TestCase):
                 "filter_object": [
                     {
                         "count": 3000,
-                        "input": ["normandy.recipe.id", "normandy.userId"],
+                        "input": ["normandy.userId"],
                         "start": 0,
                         "total": 10000,
                         "type": "bucketSample",
@@ -659,7 +659,7 @@ class TestExperimentRecipeSerializer(TestCase):
                 "filter_object": [
                     {
                         "count": 3000,
-                        "input": ["normandy.recipe.id", "normandy.userId"],
+                        "input": ["normandy.userId"],
                         "start": 0,
                         "total": 10000,
                         "type": "bucketSample",
