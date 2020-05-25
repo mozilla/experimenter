@@ -143,15 +143,20 @@ def update_recipe_ids_to_experiments():
             recipe_data = normandy.get_recipe_list(experiment.slug)
 
             if len(recipe_data):
-                recipe_ids = [r["id"] for r in recipe_data]
-                # sort to get oldest id to be primary
-                recipe_ids.sort()
+                sorted_recipe_data = sorted(recipe_data, key=lambda x: x.get("id"))
+                recipe_ids = [r["id"] for r in sorted_recipe_data]
                 changed_data = {
                     "normandy_id": recipe_ids[0],
                     "other_normandy_ids": recipe_ids[1:],
                     "status": Experiment.STATUS_ACCEPTED,
                 }
-                update_experiment_with_change_log(experiment, changed_data)
+                user_email = (
+                    sorted_recipe_data[0]
+                    .get("approved_revision", {})
+                    .get("creator", {})
+                    .get("email", "")
+                )
+                update_experiment_with_change_log(experiment, changed_data, user_email)
 
         except (IntegrityError, KeyError, normandy.NormandyError) as e:
             logger.info(f"Failed to update Experiment {experiment}: {e}")
