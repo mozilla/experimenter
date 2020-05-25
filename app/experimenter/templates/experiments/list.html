@@ -63,6 +63,7 @@
       <small class="text-muted">Page {{ page_obj.number }}</small>
     {% endif %}
   </h3>
+  <a href="{% url "experiments-api-csv" %}?{{ request.GET.urlencode }}"><i class="fas fa-file-csv"></i> Export as CSV</a>
 {% endblock %}
 
 {% block header_sidebar %}

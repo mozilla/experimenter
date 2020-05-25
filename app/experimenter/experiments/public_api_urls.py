@@ -1,6 +1,7 @@
 from django.conf.urls import url
 
 from experimenter.experiments.api_views import (
+    ExperimentCSVListView,
     ExperimentDetailView,
     ExperimentListView,
     ExperimentRecipeView,
@@ -8,6 +9,7 @@ from experimenter.experiments.api_views import (
 
 
 urlpatterns = [
+    url(r"^csv/$", ExperimentCSVListView.as_view(), name="experiments-api-csv",),
     url(
         r"^(?P<slug>[\w-]+)/recipe/$",
         ExperimentRecipeView.as_view(),

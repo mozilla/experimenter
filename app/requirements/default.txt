@@ -153,3 +153,7 @@ tblib==1.6.0 \
 pytest-xdist==1.31.0 \
     --hash=sha256:0f46020d3d9619e6d17a65b5b989c1ebbb58fc7b1da8fb126d70f4bac4dfeed1 \
     --hash=sha256:7dc0d027d258cd0defc618fb97055fbd1002735ca7a6d17037018cf870e24011
+djangorestframework-csv==2.1.0 \
+    --hash=sha256:2f008b20a44f2d3c37835ea5b5ddfe19f54394f07b9cb267c616a917a7f7e27c
+unicodecsv==0.14.1 \
+    --hash=sha256:018c08037d48649a0412063ff4eda26eaa81eff1546dbffa51fa5293276ff7fc
