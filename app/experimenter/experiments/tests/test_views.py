@@ -808,3 +808,12 @@ class TestExperimentNormandyUpdateView(TestCase):
             f"&other_normandy_ids={other_normandy_ids}",
             fetch_redirect_response=False,
         )
+
+
+class TestExperimentRapidView(TestCase):
+    def test_page_loads(self):
+        user_email = "user@example.com"
+        response = self.client.get(
+            reverse("experiments-rapid"), **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)

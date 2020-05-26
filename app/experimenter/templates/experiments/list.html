@@ -74,6 +74,17 @@
       </a>
     </div>
   </div>
+
+  {% if FEATURE_MESSAGE_TYPE %}
+    <div class="row mt-2">
+      <div class="col">
+        <a class="col btn btn-outline-primary" href="{% url "experiments-rapid" %}">
+          <span class="fas fa-shipping-fast"></span>
+          Create Rapid Experiment
+        </a>
+      </div>
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block main_content %}
