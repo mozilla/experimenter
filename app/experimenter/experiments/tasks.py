@@ -152,7 +152,7 @@ def update_recipe_ids_to_experiments():
                 }
                 user_email = (
                     sorted_recipe_data[0]
-                    .get("approved_revision", {})
+                    .get("latest_revision", {})
                     .get("creator", {})
                     .get("email", "")
                 )

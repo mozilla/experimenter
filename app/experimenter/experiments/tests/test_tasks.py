@@ -256,7 +256,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
         )
         mock_response_data = {
             "results": [
-                {"id": 1, "approved_revision": {"creator": {"email": "dev@example.com"}}},
+                {"id": 1, "latest_revision": {"creator": {"email": "dev@example.com"}}},
                 {"id": 10},
                 {"id": 100},
             ]
