@@ -140,12 +140,14 @@ class ExperimentTimelinePopulationView(RetrieveUpdateAPIView):
 
 
 class ExperimentCSVListView(ListAPIView):
-    queryset = Experiment.objects.all()
+    queryset = Experiment.objects.order_by("status", "name")
     serializer_class = ExperimentCSVSerializer
     renderer_classes = (CSVRenderer,)
 
     def get_queryset(self):
-        return ExperimentFilterset(self.request.GET, super().get_queryset()).qs
+        return ExperimentFilterset(
+            self.request.GET, super().get_queryset(), request=self.request
+        ).qs
 
     def get_renderer_context(self):
         # Pass the ordered list of fields in to specify the ordering of the headers
