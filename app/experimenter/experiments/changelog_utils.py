@@ -5,15 +5,17 @@ from experimenter.experiments.models import Experiment, ExperimentChangeLog
 from experimenter.experiments.serializers.entities import ChangeLogSerializer
 
 
-def update_experiment_with_change_log(old_experiment, changed_data):
+def update_experiment_with_change_log(old_experiment, changed_data, user_email):
 
     old_serialized_exp = ChangeLogSerializer(old_experiment).data
     Experiment.objects.filter(id=old_experiment.id).update(**changed_data)
     new_experiment = Experiment.objects.get(slug=old_experiment.slug)
     new_serialized_exp = ChangeLogSerializer(new_experiment).data
-    normandy_user = settings.NORMANDY_DEFAULT_CHANGELOG_USER
+
+    if not user_email:
+        user_email = settings.NORMANDY_DEFAULT_CHANGELOG_USER
     default_user, _ = get_user_model().objects.get_or_create(
-        email=normandy_user, username=normandy_user
+        email=user_email, username=user_email
     )
 
     generate_change_log(
