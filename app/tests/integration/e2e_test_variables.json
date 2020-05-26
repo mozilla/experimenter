@@ -1,5 +1,6 @@
 {
     "single-pref-experiment": {
+        "type_name": "Pref-Flip Experiment",
         "action_name": "multi-preference-experiment",
         "name": "E2E experimenter singlepref-test",
         "type": "channel",
@@ -26,6 +27,7 @@
         ]
     },
     "multi-pref-experiment": {
+        "type_name": "Pref-Flip Experiment",
         "action_name": "multi-preference-experiment",
         "name": "E2E experimenter multipref-test",
         "type": "channel",
@@ -74,6 +76,7 @@
         ]
     },
     "branched-single-addon-study": {
+        "type_name": "Add-On Experiment",
         "action_name": "branched-addon-study",
         "name":"E2E experimenter single-pref-addon-test",
         "addon_url": "https://url.com/addon-url.xpi",
@@ -97,6 +100,7 @@
 
     },
     "branched-multi-addon-study": {
+        "type_name": "Add-On Experiment",
         "action_name": "branched-addon-study",
         "name": "e2e multi addon experiment",
         "type": "channel",
