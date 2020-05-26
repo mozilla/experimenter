@@ -49,30 +49,46 @@ def _verify_url(request, base_url):
         session.get(base_url, verify=False)
 
 
+@pytest.fixture(name="experiment_type")
+def fixture_experiment_type():
+    """Empty fixture for overriding"""
+    return
+
+
+@pytest.fixture(name="experiment_overview_info")
+def fixture_experiment_info(variables, request, ds_issue_host, experiment_type):
+    if request.node.get_closest_marker("use_variables"):
+        return {
+            "type_name": variables[experiment_type]["type_name"],
+            "name": variables[experiment_type]["name"],
+            "short_description": "Testing in here",
+            "public_name": variables[experiment_type]["userFacingName"],
+            "public_description": variables[experiment_type]["userFacingDescription"],
+            "ds_issue_url": f"{ds_issue_host}DS-12345",
+        }
+
+    return {
+        "type_name": "Pref-Flip Experiment",
+        "name": "This is a test",
+        "short_description": "Testing in here",
+        "public_name": "Public Name",
+        "public_description": "Public Description",
+        "ds_issue_url": f"{ds_issue_host}DS-12345",
+    }
+
+
 @pytest.fixture
-def fill_overview(selenium, base_url, ds_issue_host, request, variables):
+def fill_overview(selenium, base_url, experiment_overview_info):
     """Fills overview page."""
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
-    experiment_type = getattr(request.module, "experiment_type", None)
-    experiment.experiment_type = getattr(
-        request.module, "experiment_type_name", "Pref-Flip Experiment"
-    )
-    if request.node.get_closest_marker("use_variables"):
-        experiment.name = f"{variables[experiment_type]['name']}"
-        experiment.short_description = "Testing in here"
-        experiment.public_name = f"{variables[experiment_type]['userFacingName']}"
-        experiment.public_description = (
-            f"{variables[experiment_type]['userFacingDescription']}"
-        )
-    else:
-        experiment.name = "This is a test"
-        experiment.short_description = "Testing in here"
-        experiment.public_name = "Public Name"
-        experiment.public_description = "Public Description"
-        experiment.ds_issue_url = f"{ds_issue_host}DS-12345"
-    experiment.ds_issue_url = f"{ds_issue_host}DS-12345"
+    experiment.experiment_type = experiment_overview_info["type_name"]
+    experiment.name = experiment_overview_info["name"]
+    experiment.short_description = experiment_overview_info["short_description"]
+    experiment.public_name = experiment_overview_info["public_name"]
+    experiment.public_description = experiment_overview_info["public_description"]
+    experiment.ds_issue_url = experiment_overview_info["ds_issue_url"]
     experiment.save_btn()
     # Add url to object
     url = urlparse(selenium.current_url)
@@ -81,9 +97,10 @@ def fill_overview(selenium, base_url, ds_issue_host, request, variables):
 
 
 @pytest.fixture
-def fill_timeline_page(selenium, base_url, request, variables, fill_overview):
+def fill_timeline_page(
+    selenium, base_url, request, variables, experiment_type, fill_overview
+):
     """Fills timeline page."""
-    experiment_type = getattr(request.module, "experiment_type", None)
     timeline = TimelineAndPopulationPage(
         selenium, base_url, experiment_url=f"{fill_overview.url}"
     ).open()
@@ -127,9 +144,10 @@ def fill_design_page(selenium, base_url, request, variables, fill_overview):
 
 
 @pytest.fixture
-def fill_design_page_multi_prefs(selenium, base_url, request, variables, fill_overview):
+def fill_design_page_multi_prefs(
+    selenium, base_url, request, variables, experiment_type, fill_overview
+):
     """Fills design page according to multi pref requirements."""
-    experiment_type = getattr(request.module, "experiment_type", None)
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
     design = design.wait_for_page_to_load()
     design.enable_multipref()
@@ -140,26 +158,20 @@ def fill_design_page_multi_prefs(selenium, base_url, request, variables, fill_ov
         branches[count].add_pref_button.click()
         prefs = branches[count].prefs(count)
         for pref_num in range(0, len(branch["preferences"])):  # Fill in multi prefs
-            prefs[
-                pref_num
-            ].pref_branch = f"{branch['preferences'][pref_num]['firefox_pref_branch']}"
-            prefs[
-                pref_num
-            ].pref_type = f"{branch['preferences'][pref_num]['firefox_pref_type']}"
-            prefs[
-                pref_num
-            ].pref_name = f"{branch['preferences'][pref_num]['firefox_pref_name']}"
-            prefs[
-                pref_num
-            ].pref_value = f"{branch['preferences'][pref_num]['firefox_pref_value']}"
+            preferences = branch["preferences"][pref_num]
+            prefs[pref_num].pref_branch = preferences["firefox_pref_branch"]
+            prefs[pref_num].pref_type = preferences["firefox_pref_type"]
+            prefs[pref_num].pref_name = preferences["firefox_pref_name"]
+            prefs[pref_num].pref_value = preferences["firefox_pref_value"]
     design.save_btn()
     return design
 
 
 @pytest.fixture
-def fill_design_page_single_pref(selenium, base_url, request, variables, fill_overview):
+def fill_design_page_single_pref(
+    selenium, base_url, request, variables, experiment_type, fill_overview
+):
     """Fills design page according to single pref requirements."""
-    experiment_type = getattr(request.module, "experiment_type", None)
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
     design = design.wait_for_page_to_load()
     design.input_firefox_pref_name(
@@ -193,10 +205,9 @@ def fill_design_page_single_pref(selenium, base_url, request, variables, fill_ov
 
 @pytest.fixture
 def fill_design_page_branched_single_addon(
-    selenium, base_url, request, variables, fill_overview
+    selenium, base_url, request, variables, experiment_type, fill_overview
 ):
     """Fills design page according to branched single addon requirements."""
-    experiment_type = getattr(request.module, "experiment_type", None)
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
     design = design.wait_for_page_to_load()
     design.signed_addon_url = f"{variables[experiment_type]['addon_url']}"
@@ -224,10 +235,9 @@ def fill_design_page_branched_single_addon(
 
 @pytest.fixture
 def fill_design_page_branched_multi_addon(
-    selenium, base_url, request, variables, fill_overview
+    selenium, base_url, request, variables, experiment_type, fill_overview
 ):
     """Fills design page according to branched multi addon requirements."""
-    experiment_type = getattr(request.module, "experiment_type", None)
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
     design = design.wait_for_page_to_load()
     design.enable_multi_addon()
