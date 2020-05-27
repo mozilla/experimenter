@@ -30,7 +30,7 @@ def test_branched_multi_addon_e2e(
     url = urlparse(selenium.current_url)
     experiment_url = f"{url.scheme}://{url.netloc}/api/v1{url.path}recipe/"
     experiment_json = requests.get(f"{experiment_url}", verify=False).json()
-    assert variables[experiment_type]["name"] in experiment_json["name"]
+    assert variables[experiment_type]["userFacingName"] in experiment_json["name"]
     assert variables[experiment_type]["action_name"] == experiment_json["action_name"]
     assert (
         variables[experiment_type]["type"] == experiment_json["filter_object"][1]["type"]
@@ -49,7 +49,7 @@ def test_branched_multi_addon_e2e(
     )
     assert (
         variables[experiment_type]["userFacingName"]
-        == experiment_json["arguments"]["userFacingName"]
+        in experiment_json["arguments"]["userFacingName"]
     )
     assert (
         variables[experiment_type]["userFacingDescription"]
