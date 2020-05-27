@@ -1,7 +1,7 @@
 import time
 from rest_framework import serializers
 
-
+from experimenter.base.serializers import CountrySerializer, LocaleSerializer
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
@@ -9,7 +9,6 @@ from experimenter.experiments.models import (
     VariantPreferences,
 )
 from experimenter.projects.models import Project
-from experimenter.experiments.serializers.geo import CountrySerializer, LocaleSerializer
 
 
 class JSTimestampField(serializers.Field):
