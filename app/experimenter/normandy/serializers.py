@@ -7,7 +7,6 @@ from experimenter.experiments.models import (
     VariantPreferences,
     RolloutPreference,
 )
-
 from experimenter.experiments.serializers.entities import PrefTypeField
 from experimenter.experiments.constants import ExperimentConstants
 
