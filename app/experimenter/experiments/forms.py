@@ -117,20 +117,21 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         # is nullable.
         empty_label=None,
     )
-    name = forms.CharField(label="Name", help_text=Experiment.NAME_HELP_TEXT)
+    name = forms.CharField(
+        required=True, label="Public Name", help_text=Experiment.PUBLIC_NAME_HELP_TEXT
+    )
     slug = forms.CharField(required=False, widget=forms.HiddenInput())
-    short_description = forms.CharField(
-        label="Description",
-        help_text=Experiment.SHORT_DESCRIPTION_HELP_TEXT,
-        widget=forms.Textarea(attrs={"rows": 3}),
-    )
-    public_name = forms.CharField(
-        required=False, label="Public Name", help_text=Experiment.PUBLIC_NAME_HELP_TEXT
-    )
     public_description = forms.CharField(
-        required=False,
+        required=True,
         label="Public Description",
         help_text=Experiment.PUBLIC_DESCRIPTION_HELP_TEXT,
+        max_length=1024,
+        widget=forms.Textarea(attrs={"rows": 3}),
+    )
+    short_description = forms.CharField(
+        required=True,
+        label="Internal Description",
+        help_text=Experiment.SHORT_DESCRIPTION_HELP_TEXT,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
     data_science_issue_url = DSIssueURLField(
@@ -187,9 +188,8 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
             "owner",
             "name",
             "slug",
-            "short_description",
-            "public_name",
             "public_description",
+            "short_description",
             "data_science_issue_url",
             "analysis_owner",
             "engineering_owner",
@@ -232,7 +232,6 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
             required_msg = "This field is required."
             required_fields = (
                 "data_science_issue_url",
-                "public_name",
                 "public_description",
             )
             for required_field in required_fields:

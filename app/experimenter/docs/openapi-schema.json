@@ -45,11 +45,6 @@
                         "type": "string",
                         "readOnly": true
                       },
-                      "public_name": {
-                        "type": "string",
-                        "nullable": true,
-                        "maxLength": 255
-                      },
                       "public_description": {
                         "type": "string",
                         "nullable": true
@@ -259,11 +254,6 @@
                       "type": "string",
                       "maxLength": 255,
                       "pattern": "^[-a-zA-Z0-9_]+$"
-                    },
-                    "public_name": {
-                      "type": "string",
-                      "nullable": true,
-                      "maxLength": 255
                     },
                     "public_description": {
                       "type": "string",
@@ -739,11 +729,6 @@
                         "type": "string",
                         "maxLength": 255,
                         "pattern": "^[-a-zA-Z0-9_]+$"
-                      },
-                      "public_name": {
-                        "type": "string",
-                        "nullable": true,
-                        "maxLength": 255
                       },
                       "public_description": {
                         "type": "string",
@@ -7634,11 +7619,6 @@
                     "maxLength": 255,
                     "pattern": "^[-a-zA-Z0-9_]+$"
                   },
-                  "public_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
                   "public_description": {
                     "type": "string",
                     "nullable": true
@@ -8073,11 +8053,6 @@
                     "maxLength": 255,
                     "pattern": "^[-a-zA-Z0-9_]+$"
                   },
-                  "public_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
                   "public_description": {
                     "type": "string",
                     "nullable": true
@@ -8511,11 +8486,6 @@
                     "type": "string",
                     "maxLength": 255,
                     "pattern": "^[-a-zA-Z0-9_]+$"
-                  },
-                  "public_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
                   },
                   "public_description": {
                     "type": "string",
@@ -8959,11 +8929,6 @@
                       "type": "string",
                       "maxLength": 255,
                       "pattern": "^[-a-zA-Z0-9_]+$"
-                    },
-                    "public_name": {
-                      "type": "string",
-                      "nullable": true,
-                      "maxLength": 255
                     },
                     "public_description": {
                       "type": "string",
@@ -9431,11 +9396,6 @@
                     "maxLength": 255,
                     "pattern": "^[-a-zA-Z0-9_]+$"
                   },
-                  "public_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
                   "public_description": {
                     "type": "string",
                     "nullable": true
@@ -9858,11 +9818,6 @@
                     "maxLength": 255,
                     "pattern": "^[-a-zA-Z0-9_]+$"
                   },
-                  "public_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
-                  },
                   "public_description": {
                     "type": "string",
                     "nullable": true
@@ -10284,11 +10239,6 @@
                     "type": "string",
                     "maxLength": 255,
                     "pattern": "^[-a-zA-Z0-9_]+$"
-                  },
-                  "public_name": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
                   },
                   "public_description": {
                     "type": "string",
@@ -10720,11 +10670,6 @@
                       "type": "string",
                       "maxLength": 255,
                       "pattern": "^[-a-zA-Z0-9_]+$"
-                    },
-                    "public_name": {
-                      "type": "string",
-                      "nullable": true,
-                      "maxLength": 255
                     },
                     "public_description": {
                       "type": "string",

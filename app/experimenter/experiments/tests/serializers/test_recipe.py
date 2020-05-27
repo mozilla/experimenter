@@ -96,7 +96,7 @@ class TestFilterObjectBucketSampleSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create(population_percent=Decimal("12.34"))
         serializer = FilterObjectBucketSampleSerializer(experiment)
-        self.assertEqual(
+        self.assertDictEqual(
             serializer.data,
             {
                 "type": "bucketSample",
@@ -112,7 +112,9 @@ class TestFilterObjectChannelSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create(firefox_channel=Experiment.CHANNEL_NIGHTLY)
         serializer = FilterObjectChannelSerializer(experiment)
-        self.assertEqual(serializer.data, {"type": "channel", "channels": ["nightly"]})
+        self.assertDictEqual(
+            serializer.data, {"type": "channel", "channels": ["nightly"]}
+        )
 
 
 class TestFilterObjectVersionsSerializer(TestCase):
@@ -121,14 +123,16 @@ class TestFilterObjectVersionsSerializer(TestCase):
             firefox_min_version="68.0", firefox_max_version=""
         )
         serializer = FilterObjectVersionsSerializer(experiment)
-        self.assertEqual(serializer.data, {"type": "version", "versions": [68]})
+        self.assertDictEqual(serializer.data, {"type": "version", "versions": [68]})
 
     def test_serializer_outputs_version_string_with_range(self):
         experiment = ExperimentFactory.create(
             firefox_min_version="68.0", firefox_max_version="70.0"
         )
         serializer = FilterObjectVersionsSerializer(experiment)
-        self.assertEqual(serializer.data, {"type": "version", "versions": [68, 69, 70]})
+        self.assertDictEqual(
+            serializer.data, {"type": "version", "versions": [68, 69, 70]}
+        )
 
 
 class TestFilterObjectLocaleSerializer(TestCase):
@@ -155,7 +159,7 @@ class TestExperimentRecipeAddonVariantSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         variant = ExperimentVariant(slug="slug-value", ratio=25)
         serializer = ExperimentRecipeAddonVariantSerializer(variant)
-        self.assertEqual(
+        self.assertDictEqual(
             {"ratio": 25, "slug": "slug-value", "extensionApiId": None}, serializer.data
         )
 
@@ -166,7 +170,7 @@ class TestExperimentRecipeAddonArgumentsSerializer(TestCase):
             Experiment.STATUS_SHIP, type=Experiment.TYPE_ADDON
         )
         serializer = ExperimentRecipeAddonArgumentsSerializer(experiment)
-        self.assertEqual(
+        self.assertDictEqual(
             serializer.data,
             {
                 "name": experiment.addon_experiment_id,
@@ -184,7 +188,7 @@ class TestExperimentRecipeAddonRolloutArgumentsSerializer(TestCase):
             addon_release_url="https://www.example.com/addon.xpi",
         )
         serializer = ExperimentRecipeAddonRolloutArgumentsSerializer(experiment)
-        self.assertEqual(
+        self.assertDictEqual(
             serializer.data,
             {
                 "slug": experiment.normandy_slug,
@@ -218,7 +222,7 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
 
         self.assertEqual(serializer_data["slug"], "normandy-slug")
 
-        self.assertEqual(
+        self.assertDictEqual(
             dict(serializer_data["preferences"][0]),
             {"preferenceName": "browser.pref", "value": 4},
         )
@@ -244,7 +248,7 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
 
         self.assertEqual(serializer_data["slug"], "normandy-slug")
 
-        self.assertEqual(
+        self.assertDictEqual(
             dict(serializer_data["preferences"][0]),
             {"preferenceName": "browser.pref", "value": True},
         )
@@ -269,7 +273,7 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
 
         self.assertEqual(serializer_data["slug"], "normandy-slug")
 
-        self.assertEqual(
+        self.assertDictEqual(
             dict(serializer_data["preferences"][0]),
             {"preferenceName": "browser.pref", "value": "a string"},
         )
@@ -315,6 +319,8 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
 
 
 class TestExperimentRecipeSerializer(TestCase):
+    maxDiff = None
+
     def test_serializer_outputs_expected_schema_for_pref_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_SHIP,
@@ -344,7 +350,7 @@ class TestExperimentRecipeSerializer(TestCase):
                 FilterObjectCountrySerializer(experiment).data,
             ],
         )
-        self.assertEqual(
+        self.assertDictEqual(
             serializer.data["arguments"],
             ExperimentRecipePrefArgumentsSerializer(experiment).data,
         )
@@ -404,7 +410,7 @@ class TestExperimentRecipeSerializer(TestCase):
                 FilterObjectCountrySerializer(experiment).data,
             ],
         )
-        self.assertEqual(
+        self.assertDictEqual(
             serializer.data["arguments"],
             ExperimentRecipeAddonArgumentsSerializer(experiment).data,
         )
@@ -412,16 +418,15 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertEqual(serializer.data["experimenter_slug"], experiment.slug)
 
     def test_serializer_outputs_expect_schema_for_branched_addon(self):
-
         experiment = ExperimentFactory.create(
-            firefox_min_version="70.0",
-            type=Experiment.TYPE_ADDON,
-            locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
-            public_description="this is my public description!",
-            public_name="public name",
+            firefox_min_version="70.0",
+            locales=[LocaleFactory.create()],
+            name="public name",
             normandy_slug="some-random-slug",
             platforms=[Experiment.PLATFORM_LINUX],
+            public_description="this is my public description!",
+            type=Experiment.TYPE_ADDON,
         )
 
         variant = ExperimentVariant(slug="slug-value", ratio=25, experiment=experiment)
@@ -444,26 +449,25 @@ class TestExperimentRecipeSerializer(TestCase):
                 FilterObjectCountrySerializer(experiment).data,
             ],
         )
-        self.assertEqual(
+        self.assertDictEqual(
             serializer.data["arguments"],
             {
-                "slug": "some-random-slug",
-                "userFacingName": "public name",
-                "userFacingDescription": "this is my public description!",
                 "branches": [{"ratio": 25, "slug": "slug-value", "extensionApiId": None}],
+                "slug": "some-random-slug",
+                "userFacingDescription": "this is my public description!",
+                "userFacingName": "public name",
             },
         )
 
     def test_serializer_outputs_expected_multipref_schema_for_singularpref(self):
-
         experiment = ExperimentFactory.create(
+            name="public name",
             pref_type=Experiment.PREF_TYPE_INT,
             pref_branch=Experiment.PREF_BRANCH_DEFAULT,
             firefox_min_version="70.0",
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
             public_description="this is my public description!",
-            public_name="public name",
             normandy_slug="some-random-slug",
             platforms=[Experiment.PLATFORM_WINDOWS],
         )
@@ -510,17 +514,15 @@ class TestExperimentRecipeSerializer(TestCase):
                 }
             ],
         }
-
-        self.assertEqual(serializer.data["arguments"], expected_data)
+        self.assertDictEqual(serializer.data["arguments"], expected_data)
 
     def test_serializer_outputs_expected_schema_for_multipref(self):
-
         experiment = ExperimentFactory.create(
+            name="public name",
             firefox_min_version="70.0",
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
             public_description="this is my public description!",
-            public_name="public name",
             normandy_slug="some-random-slug",
             platforms=[
                 Experiment.PLATFORM_WINDOWS,
@@ -573,8 +575,7 @@ class TestExperimentRecipeSerializer(TestCase):
                 }
             ],
         }
-
-        self.assertEqual(serializer.data["arguments"], expected_data)
+        self.assertDictEqual(serializer.data["arguments"], expected_data)
 
     def test_serializer_outputs_expected_schema_for_addon_rollout(self):
         experiment = ExperimentFactory.create(
@@ -672,14 +673,13 @@ class TestExperimentRecipeSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_schema_for_message(self):
-
         experiment = ExperimentFactory.create(
+            name="public name",
             type=Experiment.TYPE_MESSAGE,
             firefox_min_version="70.0",
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
             public_description="this is my public description!",
-            public_name="public name",
             normandy_slug="some-random-slug",
             platforms=[Experiment.PLATFORM_WINDOWS],
         )
@@ -716,7 +716,7 @@ class TestExperimentRecipeSerializer(TestCase):
             "branches": [{"groups": [], "value": {}, "ratio": 25, "slug": "slug-value"}],
         }
 
-        self.assertEqual(serializer.data["arguments"], expected_data)
+        self.assertDictEqual(serializer.data["arguments"], expected_data)
 
     def test_serializer_excludes_locales_if_none_set(self):
         experiment = ExperimentFactory.create_with_status(
@@ -762,7 +762,7 @@ class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
             "slug": "control",
         }
 
-        self.assertEqual(expected_data, serializer.data)
+        self.assertDictEqual(expected_data, serializer.data)
 
     def test_serializer_outputs_expected_schema_for_multi_pref_format(self):
         experiment = ExperimentFactory.create(
@@ -779,7 +779,7 @@ class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
         self.assertEqual(serializer.data["slug"], "control")
 
         serialized_preferences = serializer.data["preferences"]
-        self.assertEqual(
+        self.assertDictEqual(
             serialized_preferences[preference.pref_name],
             {
                 "preferenceBranchType": preference.pref_branch,
@@ -800,7 +800,7 @@ class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
         self.assertEqual(serializer.data["slug"], variant.slug)
 
         serialized_preferences = serializer.data["preferences"]
-        self.assertEqual(
+        self.assertDictEqual(
             serialized_preferences[experiment.pref_name],
             {
                 "preferenceBranchType": experiment.pref_branch,
@@ -821,7 +821,7 @@ class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
         self.assertEqual(serializer.data["slug"], variant.slug)
 
         serialized_preferences = serializer.data["preferences"]
-        self.assertEqual(
+        self.assertDictEqual(
             serialized_preferences[preference.pref_name],
             {
                 "preferenceBranchType": preference.pref_branch,
@@ -838,7 +838,7 @@ class TestExperimentRecipeVariantSerializer(TestCase):
         experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_STR)
         variant = ExperimentVariantFactory.create(experiment=experiment)
         serializer = ExperimentRecipeVariantSerializer(variant)
-        self.assertEqual(
+        self.assertDictEqual(
             serializer.data,
             {"ratio": variant.ratio, "slug": variant.slug, "value": variant.value},
         )
@@ -848,7 +848,7 @@ class TestExperimentRecipePrefArgumentsSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_INT)
         serializer = ExperimentRecipePrefArgumentsSerializer(experiment)
-        self.assertEqual(
+        self.assertDictEqual(
             serializer.data,
             {
                 "preferenceBranchType": experiment.pref_branch,
@@ -866,7 +866,7 @@ class TestExperimentRecipePrefArgumentsSerializer(TestCase):
     def test_serializer_outputs_expected_schema_with_json_str(self):
         experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_JSON_STR)
         serializer = ExperimentRecipePrefArgumentsSerializer(experiment)
-        self.assertEqual(
+        self.assertDictEqual(
             serializer.data,
             {
                 "preferenceBranchType": experiment.pref_branch,
@@ -887,7 +887,7 @@ class TestExperimentRecipeMessageVariantSerializer(TestCase):
         experiment = ExperimentFactory()
         variant = ExperimentVariantFactory.create(experiment=experiment)
         serializer = ExperimentRecipeMessageVariantSerializer(variant)
-        self.assertEqual(
+        self.assertDictEqual(
             serializer.data,
             {"ratio": variant.ratio, "slug": variant.slug, "value": {}, "groups": []},
         )
@@ -897,12 +897,12 @@ class TestExperimentRecipeMessageArgumentsSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory()
         serializer = ExperimentRecipeMessageArgumentsSerializer(experiment)
-        self.assertEqual(
+        self.assertDictEqual(
             serializer.data,
             {
                 "slug": experiment.normandy_slug,
                 "experimentDocumentUrl": experiment.experiment_url,
-                "userFacingName": experiment.public_name,
+                "userFacingName": experiment.name,
                 "userFacingDescription": experiment.public_description,
                 "branches": [
                     ExperimentRecipeMessageVariantSerializer(variant).data
