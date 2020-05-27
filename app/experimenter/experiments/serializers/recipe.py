@@ -37,7 +37,7 @@ class PrefValueField(serializers.Field):
 
 class FilterObjectBucketSampleSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
-    input = serializers.ReadOnlyField(default=["normandy.recipe.id", "normandy.userId"])
+    input = serializers.ReadOnlyField(default=["normandy.userId"])
     start = serializers.ReadOnlyField(default=0)
     count = serializers.SerializerMethodField()
     total = serializers.ReadOnlyField(default=10000)

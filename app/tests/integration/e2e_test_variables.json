@@ -1,13 +1,14 @@
 {
   "single-pref-experiment": {
+    "type_name": "Pref-Flip Experiment",
     "action_name": "multi-preference-experiment",
-    "name": "e2e public name",
+    "name": "E2E experimenter singlepref-test",
     "type": "channel",
     "channels": "Nightly",
     "min_version": "75.0",
     "max_version": "100.0",
-    "userFacingName": "e2e public name",
-    "userFacingDescription": "e2e public description",
+    "userFacingName": "e2e testing name",
+    "userFacingDescription": "e2e testing description",
     "branches": [
       {
         "branch_value": "false",
@@ -26,14 +27,15 @@
     ]
   },
   "multi-pref-experiment": {
+    "type_name": "Pref-Flip Experiment",
     "action_name": "multi-preference-experiment",
-    "name": "e2e public name",
+    "name": "E2E experimenter multipref-test",
     "type": "channel",
     "channels": "Nightly",
     "min_version": "80.0",
     "max_version": "100.0",
-    "userFacingName": "e2e public name",
-    "userFacingDescription": "e2e public description",
+    "userFacingName": "e2e testing name",
+    "userFacingDescription": "e2e testing description",
     "branches": [
       {
         "branch_description": "multipref-branch-description",
@@ -70,6 +72,51 @@
             "firefox_pref_value": "{\"object\": \"name\"}"
           }
         ]
+      }
+    ]
+  },
+  "branched-single-addon-study": {
+    "type_name": "Add-On Experiment",
+    "action_name": "branched-addon-study",
+    "name": "E2E experimenter single-pref-addon-test",
+    "addon_url": "https://url.com/addon-url.xpi",
+    "type": "channel",
+    "channels": "Nightly",
+    "min_version": "80.0",
+    "max_version": "100.0",
+    "userFacingName": "e2e testing addon name",
+    "userFacingDescription": "e2e testing addon description",
+    "branches": [
+      {
+        "branch_description": "e2e Branch Description",
+        "branch_name": "e2e-addon-branch"
+      },
+      {
+        "branch_description": "e2e Branch Description second branch",
+        "branch_name": "e2e-addon-branch-2"
+      }
+    ]
+  },
+  "branched-multi-addon-study": {
+    "type_name": "Add-On Experiment",
+    "action_name": "branched-addon-study",
+    "name": "e2e multi addon experiment",
+    "type": "channel",
+    "channels": "Nightly",
+    "min_version": "80.0",
+    "max_version": "100.0",
+    "userFacingName": "e2e testing multi addon name",
+    "userFacingDescription": "e2e testing addon description",
+    "branches": [
+      {
+        "branch_description": "e2e Branch Description",
+        "branch_name": "e2e-multi-addon-branch",
+        "addon_url": "https://url.com/addon-url.xpi"
+      },
+      {
+        "branch_description": "e2e Branch Description second branch",
+        "branch_name": "e2e-multi-addon-branch-2",
+        "addon_url": "https://url.com/addon-url.xpi"
       }
     ]
   }

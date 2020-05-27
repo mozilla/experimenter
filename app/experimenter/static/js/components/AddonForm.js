@@ -25,6 +25,7 @@ export default class AddonForm extends React.PureComponent {
           <DesignInput
             label="Signed Add-On URL"
             name="addon_release_url"
+            id="signed-addon-url"
             dataTestId="addonUrl"
             onChange={(value) => {
               this.props.handleDataChange("addon_release_url", value);

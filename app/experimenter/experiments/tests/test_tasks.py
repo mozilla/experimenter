@@ -254,7 +254,13 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_SHIP
         )
-        mock_response_data = {"results": [{"id": 1}, {"id": 10}, {"id": 100}]}
+        mock_response_data = {
+            "results": [
+                {"id": 1, "latest_revision": {"creator": {"email": "dev@example.com"}}},
+                {"id": 10},
+                {"id": 100},
+            ]
+        }
         mock_response = mock.Mock()
         mock_response.json = mock.Mock()
         mock_response.json.return_value = mock_response_data
@@ -273,7 +279,9 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
 
         self.assertTrue(
             experiment.changes.filter(
-                old_status=Experiment.STATUS_SHIP, new_status=Experiment.STATUS_ACCEPTED,
+                changed_by__email="dev@example.com",
+                old_status=Experiment.STATUS_SHIP,
+                new_status=Experiment.STATUS_ACCEPTED,
             ).exists()
         )
 

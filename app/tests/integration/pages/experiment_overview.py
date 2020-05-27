@@ -2,6 +2,7 @@ import random
 import string
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
 
 from pages.base import Base
 
@@ -38,11 +39,17 @@ class ExperimentOverview(Base):
         By.CSS_SELECTOR,
         ".filter-option-inner-inner",
     )
-    _experiment_related_experiments_dropdown = (
-        By.CSS_SELECTOR,
-        "ul.dropdown-menu > li > a",
-    )
-
+    _experiment_related_work_url_locator = (By.CSS_SELECTOR, "#id_related_work")
+    _experiment_type_locator = (By.CSS_SELECTOR, "#id_type")
+    _related_experiments_dropdown = (By.CSS_SELECTOR, "ul.dropdown-menu > li > a")
+    _page_wait_locator = (By.CSS_SELECTOR, "body.page-edit-overview")
+    _name_locator = (By.CSS_SELECTOR, "#id_name")
+    _short_description_locator = (By.CSS_SELECTOR, "#id_short_description")
+    _ds_issue_url_locator = (By.CSS_SELECTOR, "#id_data_science_issue_url")
+    _overview_name_locator = (By.CSS_SELECTOR, "#id_name")
+    _overview_description_locator = (By.CSS_SELECTOR, "#id_short_description")
+    _overview_ds_issue_url_locator = (By.CSS_SELECTOR, "#id_data_science_issue_url")
+    _overview_data_science_owner_locator = (By.CSS_SELECTOR, "#id_analysis_owner")
     _save_btn_locator = (By.CSS_SELECTOR, "#save-btn")
     _save_and_continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-btn")
 
@@ -54,17 +61,17 @@ class ExperimentOverview(Base):
 
     @property
     def experiment_type(self):
-        options = self.find_elements(*self._experiment_type_locator)
+        options = self.find_element(*self._experiment_type_locator)
+        options = options.find_elements_by_css_selector("option")
         for item in options:
             if item.get_property("selected"):
-                return item.get_attribute("value")
+                return item.text
 
     @experiment_type.setter
     def experiment_type(self, exp_type=None):
-        types = self.find_elements(*self._experiment_type_locator)
-        for option in types:
-            if exp_type in option.text.replace("-", "").lower():
-                option.click()
+        types = self.find_element(*self._experiment_type_locator)
+        selector = Select(types)
+        selector.select_by_visible_text(f"{exp_type}")
 
     @property
     def experiment_owner(self):

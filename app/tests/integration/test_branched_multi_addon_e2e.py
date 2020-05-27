@@ -6,22 +6,22 @@ import requests
 
 @pytest.fixture(name="experiment_type", scope="module")
 def fixture_experiment_type():
-    return "multi-pref-experiment"
+    return "branched-multi-addon-study"
 
 
 @pytest.fixture(name="experiment_name", scope="module")
 def fixture_experiment_name():
-    return "Pref-Flip Experiment"
+    return "Add-On Experiment"
 
 
 @pytest.mark.use_variables
 @pytest.mark.nondestructive
-def test_multi_pref_e2e(
+def test_branched_multi_addon_e2e(
     base_url,
     selenium,
     experiment_type,
     fill_timeline_page,
-    fill_design_page_multi_prefs,
+    fill_design_page_branched_multi_addon,
     fill_analysis_page,
     fill_risks_page,
     signoff_and_ship,
@@ -64,31 +64,10 @@ def test_multi_pref_e2e(
         for num in range(
             len(experiment_json["arguments"]["branches"])
         ):  # Check each branch so we need to do the check for as many branches exis
-            if (
-                item["slug"] == variables[experiment_type]["branches"][num]["branch_name"]
-            ):  # Start by checking the name
-                for pref_num in range(len(item["preferences"])):
-                    assert (
-                        variables[experiment_type]["branches"][num]["preferences"][
-                            pref_num
-                        ]["firefox_pref_name"]
-                        in f"{[key for key in item['preferences']]}"
-                    )
-                    assert (
-                        variables[experiment_type]["branches"][num]["preferences"][
-                            pref_num
-                        ]["firefox_pref_type"].replace("json ", "")
-                        in f"{[value['preferenceType'] for value in item['preferences'].values()]}"  # noqa: E501
-                    )
-                    assert (
-                        variables[experiment_type]["branches"][num]["preferences"][
-                            pref_num
-                        ]["firefox_pref_branch"]
-                        in f"{[value['preferenceBranchType'] for value in item['preferences'].values()]}"  # noqa: E501
-                    )
-                    assert (
-                        variables[experiment_type]["branches"][num]["preferences"][
-                            pref_num
-                        ]["firefox_pref_value"]
-                        in f"{[value['preferenceValue'] for value in item['preferences'].values()]}".lower()  # noqa: E501
-                    )
+            try:
+                assert (
+                    item["slug"]
+                    == variables[experiment_type]["branches"][num]["branch_name"]
+                )
+            except AssertionError:
+                continue
