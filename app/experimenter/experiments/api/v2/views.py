@@ -9,8 +9,8 @@ from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment
 from experimenter.experiments import email
 from experimenter.experiments.serializers.entities import ExperimentSerializer
-from experimenter.experiments.serializers.clone import ExperimentCloneSerializer
 from experimenter.experiments.api.v2.serializers import (
+    ExperimentCloneSerializer,
     ExperimentDesignAddonRolloutSerializer,
     ExperimentDesignAddonSerializer,
     ExperimentDesignBranchedAddonSerializer,
