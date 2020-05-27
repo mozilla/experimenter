@@ -110,3 +110,35 @@ class OpenIDCAuthMiddlewareTests(TestCase):
         self.assertEqual(request.user.email, dev_email)
         self.assertFalse(request.user.is_staff)
         self.assertFalse(request.user.is_superuser)
+
+    def test_dev_user_email_used_when_debug_true_and_no_openidc_header_passed(self):
+        dev_email = "dev@example.com"
+        request = mock.Mock()
+        request.META = {}
+        User = get_user_model()
+
+        with self.settings(
+            OPENIDC_AUTH_WHITELIST=[], DEBUG=True, DEV_USER_EMAIL=dev_email
+        ):
+            response = self.middleware(request)
+
+        self.assertEqual(response, self.response)
+        self.assertEqual(User.objects.all().count(), 1)
+
+        self.assertEqual(request.user.email, dev_email)
+        self.assertTrue(request.user.is_staff)
+        self.assertTrue(request.user.is_superuser)
+
+    def test_dev_user_email_not_used_when_debug_false_and_no_openidc_header_passed(self):
+        dev_email = "dev@example.com"
+        request = mock.Mock()
+        request.META = {}
+        User = get_user_model()
+
+        with self.settings(
+            OPENIDC_AUTH_WHITELIST=[], DEBUG=False, DEV_USER_EMAIL=dev_email
+        ):
+            response = self.middleware(request)
+
+        self.assertEqual(response.content, b"Please login using OpenID Connect")
+        self.assertEqual(User.objects.all().count(), 0)
