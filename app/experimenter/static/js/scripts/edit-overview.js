@@ -1,18 +1,9 @@
-jQuery(function($) {
+jQuery(function ($) {
   const rolloutType = "rollout";
 
   function updateHiddenFields() {
-    const fields = [
-      "analysis_owner",
-      "data_science_issue_url",
-      "public_name",
-      "public_description",
-    ];
-    const requiredFields = [
-      "data_science_issue_url",
-      "public_name",
-      "public_description",
-    ];
+    const fields = ["analysis_owner", "data_science_issue_url"];
+    const requiredFields = ["data_science_issue_url"];
 
     for (const field of fields) {
       const input = $(`#id_${field}`);
@@ -36,7 +27,7 @@ jQuery(function($) {
     }
   }
 
-  $("#id_type").change(function(e) {
+  $("#id_type").change(function (e) {
     updateHiddenFields();
   });
 
