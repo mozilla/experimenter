@@ -156,7 +156,6 @@ class ExperimentFilterset(filters.FilterSet):
             "related_work",
             "addon_experiment_id",
             "pref_name",
-            "public_name",
             "public_description",
             "objectives",
             "analysis",
