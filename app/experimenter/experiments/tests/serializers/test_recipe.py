@@ -1,14 +1,13 @@
 from decimal import Decimal
 from django.test import TestCase
 
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
     RolloutPreference,
 )
 from experimenter.experiments.tests.factories import (
-    LocaleFactory,
-    CountryFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
     VariantPreferencesFactory,

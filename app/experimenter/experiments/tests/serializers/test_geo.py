@@ -1,5 +1,5 @@
 from django.test import TestCase
-from experimenter.experiments.tests.factories import LocaleFactory, CountryFactory
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.serializers.geo import CountrySerializer, LocaleSerializer
 
 

@@ -2,10 +2,9 @@ import datetime
 
 from django.test import TestCase
 
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
-    LocaleFactory,
-    CountryFactory,
     ProjectFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
