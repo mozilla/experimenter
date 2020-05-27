@@ -31,13 +31,12 @@ from experimenter.experiments.forms import (
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
-    ProjectFactory,
     UserFactory,
 )
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 from experimenter.experiments.tests.mixins import MockTasksMixin, MockRequestMixin
-
 from experimenter.notifications.models import Notification
+from experimenter.projects.tests.factories import ProjectFactory
 
 
 faker = FakerFactory.create()
