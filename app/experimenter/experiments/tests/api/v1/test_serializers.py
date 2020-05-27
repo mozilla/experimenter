@@ -5,12 +5,10 @@ from django.test import TestCase
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
-    ProjectFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
     ExperimentChangeLogFactory,
 )
-from experimenter.experiments.changelog_utils import ChangeLogSerializer
 from experimenter.experiments.api.v1.serializers import (
     ExperimentChangeLogSerializer,
     JSTimestampField,
