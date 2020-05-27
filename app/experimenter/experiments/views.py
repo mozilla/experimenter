@@ -2,7 +2,7 @@ import json
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import CreateView, DetailView, UpdateView
+from django.views.generic import CreateView, DetailView, UpdateView, TemplateView
 from django.views.generic.edit import ModelFormMixin
 from django_filters.views import FilterView
 
@@ -227,3 +227,7 @@ class ExperimentCommentCreateView(ExperimentFormMixin, CreateView):
         return redirect(
             reverse("experiments-detail", kwargs={"slug": self.kwargs["slug"]})
         )
+
+
+class ExperimentRapidView(TemplateView):
+    template_name = "experiments/rapid.html"

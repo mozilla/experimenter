@@ -23,6 +23,9 @@ class DesignPage(Base):
     _firefox_pref_branch_locator = (By.CSS_SELECTOR, "#id_pref_branch")
     _multipref_radio_btn_locator = (By.CSS_SELECTOR, "#is_multi_pref-true")
     _new_branch_locator = (By.CSS_SELECTOR, "#add-branch-button")
+    _signed_addon_url_locator = (By.CSS_SELECTOR, "#signed-addon-url")
+    _single_addon_button_locator = (By.CSS_SELECTOR, "#is_branched_addon-false")
+    _multi_addon_button_locator = (By.CSS_SELECTOR, "#is_branched_addon-true")
 
     def wait_for_page_to_load(self):
         self.wait.until(
@@ -34,6 +37,14 @@ class DesignPage(Base):
         element = self.find_element(*self._multipref_radio_btn_locator)
         element.click()
         return self.wait_for_page_to_load()
+
+    def enable_single_addon(self):
+        element = self.find_element(*self._single_addon_button_locator)
+        element.click()
+
+    def enable_multi_addon(self):
+        element = self.find_element(*self._multi_addon_button_locator)
+        element.click()
 
     def create_new_branch(self):
         """Creates a new branch."""
@@ -73,6 +84,21 @@ class DesignPage(Base):
         selector = Select(element)
         selector.select_by_visible_text(f"{item}")
         return
+
+    @property
+    def signed_addon_url(self):
+        element = self.find_element(*self._signed_addon_url_locator)
+        return element.text
+
+    @signed_addon_url.setter
+    def signed_addon_url(self, text=None):
+        try:
+            assert self.signed_addon_url == "", "Form field not empty"
+        except AssertionError:
+            return
+        else:
+            element = self.find_element(*self._signed_addon_url_locator)
+            element.send_keys(text)
 
     def click_continue(self):
         self.find_element(*self._continue_btn_locator).click()
@@ -154,6 +180,18 @@ class DesignPage(Base):
         @branch_value.setter
         def branch_value(self, text=None):
             locator = (By.ID, f"variants-{self.number}-value")
+            element = self.find_element(*locator)
+            element.send_keys(text)
+            return
+
+        @property
+        def signed_addon_url(self):
+            locator = (By.ID, f"variants-{self.number}-addon_release_url")
+            return self.find_element(*locator).text
+
+        @signed_addon_url.setter
+        def signed_addon_url(self, text=None):
+            locator = (By.ID, f"variants-{self.number}-addon_release_url")
             element = self.find_element(*locator)
             element.send_keys(text)
             return
