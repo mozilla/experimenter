@@ -10,16 +10,14 @@ from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.serializers.entities import ExperimentSerializer
 from experimenter.normandy.serializers import ExperimentRecipeSerializer
-from experimenter.experiments.serializers.design import (
+from experimenter.experiments.api.v2.serializers import (
     ExperimentDesignAddonSerializer,
     ExperimentDesignGenericSerializer,
     ExperimentDesignMessageSerializer,
     ExperimentDesignMultiPrefSerializer,
     ExperimentDesignPrefSerializer,
 )
-from experimenter.experiments.serializers.timeline_population import (
-    ExperimentTimelinePopSerializer,
-)
+from experimenter.experiments.api.v2.serializers import ExperimentTimelinePopSerializer
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
