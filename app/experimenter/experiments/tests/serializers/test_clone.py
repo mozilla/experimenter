@@ -3,7 +3,7 @@ from django.test import TestCase
 from experimenter.experiments.tests.factories import ExperimentFactory
 
 
-from experimenter.experiments.serializers.clone import ExperimentCloneSerializer
+from experimenter.experiments.api.v2.serializers import ExperimentCloneSerializer
 from experimenter.experiments.tests.mixins import MockRequestMixin
 
 
