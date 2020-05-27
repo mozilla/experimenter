@@ -29,7 +29,6 @@
 </head>
 
 <body class="{% block page_id %}{% endblock %}" data-ndt="experimenter">
-
   <div class="bg-primary text-white">
     <div class="container">
       <div class="row py-3">
@@ -65,7 +64,6 @@
             <span class="fas fa-user"></span>
             {{ request.user }}
           </div>
-
           <div>
             <a class="nocolorstyle d-block" href="{% url "home" %}?owner={{ request.user.id }}&amp;archived=on">
               {{ request.user.owned_experiments.count }} Owned
