@@ -6,7 +6,7 @@ from rest_framework.generics import (
 
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.serializers.entities import ExperimentSerializer
+from experimenter.experiments.api.v1.serializers import ExperimentSerializer
 from experimenter.normandy.serializers import ExperimentRecipeSerializer
 
 

@@ -10,16 +10,14 @@ from experimenter.experiments.tests.factories import (
     ExperimentVariantFactory,
     ExperimentChangeLogFactory,
 )
-
-from experimenter.experiments.serializers.entities import (
-    ChangeLogSerializer,
+from experimenter.experiments.changelog_utils import ChangeLogSerializer
+from experimenter.experiments.api.v1.serializers import (
     ExperimentChangeLogSerializer,
     JSTimestampField,
     PrefTypeField,
     ExperimentVariantSerializer,
     ExperimentSerializer,
 )
-
 from experimenter.normandy.serializers import ExperimentRecipeVariantSerializer
 
 

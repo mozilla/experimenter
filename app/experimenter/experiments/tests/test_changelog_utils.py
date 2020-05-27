@@ -6,9 +6,10 @@ from experimenter.experiments.tests.factories import (
     UserFactory,
     VariantPreferencesFactory,
 )
-from experimenter.experiments.serializers.entities import ChangeLogSerializer
-
-from experimenter.experiments.changelog_utils import generate_change_log
+from experimenter.experiments.changelog_utils import (
+    generate_change_log,
+    ChangeLogSerializer,
+)
 
 
 class TestChangeLogUtils(TestCase):

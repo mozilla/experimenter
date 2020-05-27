@@ -30,7 +30,7 @@ from experimenter.experiments.api.v2.serializers import (
     PrefValidationMixin,
 )
 
-from experimenter.experiments.serializers.entities import ExperimentVariantSerializer
+from experimenter.experiments.api.v1.serializers import ExperimentVariantSerializer
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.tests.mixins import MockRequestMixin
 
