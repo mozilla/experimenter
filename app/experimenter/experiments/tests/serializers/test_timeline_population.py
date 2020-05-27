@@ -1,11 +1,8 @@
 from django.test import TestCase
 import datetime
 
-from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
-    LocaleFactory,
-    CountryFactory,
-)
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
+from experimenter.experiments.tests.factories import ExperimentFactory
 
 from experimenter.experiments.serializers.timeline_population import (
     ExperimentTimelinePopSerializer,
