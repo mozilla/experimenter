@@ -272,7 +272,6 @@ class ExperimentCSVSerializer(serializers.ModelSerializer):
             "type",
             "status",
             "experiment_url",
-            "public_name",
             "public_description",
             "owner",
             "analysis_owner",
