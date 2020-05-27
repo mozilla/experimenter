@@ -1,7 +1,5 @@
 from rest_framework.generics import (
-    ListAPIView,
     UpdateAPIView,
-    RetrieveAPIView,
     RetrieveUpdateAPIView,
 )
 from rest_framework.response import Response
@@ -12,7 +10,7 @@ from experimenter.experiments.models import Experiment
 from experimenter.experiments import email
 from experimenter.experiments.serializers.entities import ExperimentSerializer
 from experimenter.experiments.serializers.clone import ExperimentCloneSerializer
-from experimenter.experiments.serializers.design import (
+from experimenter.experiments.api.v2.serializers import (
     ExperimentDesignAddonRolloutSerializer,
     ExperimentDesignAddonSerializer,
     ExperimentDesignBranchedAddonSerializer,
@@ -22,10 +20,7 @@ from experimenter.experiments.serializers.design import (
     ExperimentDesignPrefRolloutSerializer,
     ExperimentDesignPrefSerializer,
 )
-from experimenter.experiments.serializers.timeline_population import (
-    ExperimentTimelinePopSerializer,
-)
-from experimenter.normandy.serializers import ExperimentRecipeSerializer
+from experimenter.experiments.api.v2.serializers import ExperimentTimelinePopSerializer
 
 
 class ExperimentSendIntentToShipEmailView(UpdateAPIView):

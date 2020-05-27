@@ -4,7 +4,7 @@ import datetime
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.tests.factories import ExperimentFactory
 
-from experimenter.experiments.serializers.timeline_population import (
+from experimenter.experiments.api.v2.serializers import (
     ExperimentTimelinePopSerializer,
     CountrySerializerMultiSelect,
     LocaleSerializerMultiSelect,

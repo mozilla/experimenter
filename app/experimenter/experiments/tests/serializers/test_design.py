@@ -14,7 +14,7 @@ from experimenter.experiments.tests.factories import (
     UserFactory,
 )
 
-from experimenter.experiments.serializers.design import (
+from experimenter.experiments.api.v2.serializers import (
     ExperimentDesignAddonRolloutSerializer,
     ExperimentDesignAddonSerializer,
     ExperimentDesignBaseSerializer,
