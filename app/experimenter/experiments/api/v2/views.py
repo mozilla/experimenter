@@ -8,7 +8,7 @@ from rest_framework import status
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment
 from experimenter.experiments import email
-from experimenter.experiments.serializers.entities import ExperimentSerializer
+from experimenter.experiments.api.v1.serializers import ExperimentSerializer
 from experimenter.experiments.api.v2.serializers import (
     ExperimentCloneSerializer,
     ExperimentDesignAddonRolloutSerializer,

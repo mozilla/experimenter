@@ -33,7 +33,7 @@ from experimenter.normandy.serializers import (
     PrefValueField,
 )
 
-from experimenter.experiments.serializers.entities import PrefTypeField
+from experimenter.experiments.api.v1.serializers import PrefTypeField
 
 
 class TestPrefValueField(TestCase):

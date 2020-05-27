@@ -15,8 +15,10 @@ from experimenter.experiments.models import (
     RolloutPreference,
 )
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.serializers.entities import ChangeLogSerializer
-from experimenter.experiments.changelog_utils import generate_change_log
+from experimenter.experiments.changelog_utils import (
+    ChangeLogSerializer,
+    generate_change_log,
+)
 
 
 class ChangelogSerializerMixin(object):

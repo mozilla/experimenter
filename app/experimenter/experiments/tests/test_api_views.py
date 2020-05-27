@@ -8,7 +8,7 @@ from parameterized import parameterized
 
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.serializers.entities import ExperimentSerializer
+from experimenter.experiments.api.v1.serializers import ExperimentSerializer
 from experimenter.normandy.serializers import ExperimentRecipeSerializer
 from experimenter.experiments.api.v2.serializers import (
     ExperimentDesignAddonSerializer,
