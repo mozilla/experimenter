@@ -15,7 +15,7 @@ from experimenter.experiments.models import (
     RolloutPreference,
     ExperimentChangeLog,
 )
-from experimenter.experiments.serializers.recipe import ExperimentRecipeSerializer
+from experimenter.normandy.serializers import ExperimentRecipeSerializer
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,

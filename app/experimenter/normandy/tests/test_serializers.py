@@ -14,7 +14,7 @@ from experimenter.experiments.tests.factories import (
 )
 
 
-from experimenter.experiments.serializers.recipe import (
+from experimenter.normandy.serializers import (
     ExperimentRecipeAddonArgumentsSerializer,
     ExperimentRecipeAddonRolloutArgumentsSerializer,
     ExperimentRecipeAddonVariantSerializer,

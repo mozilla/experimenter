@@ -20,7 +20,7 @@ from experimenter.experiments.serializers.entities import (
     ExperimentSerializer,
 )
 
-from experimenter.experiments.serializers.recipe import ExperimentRecipeVariantSerializer
+from experimenter.normandy.serializers import ExperimentRecipeVariantSerializer
 
 
 class TestJSTimestampField(TestCase):
