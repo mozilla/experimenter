@@ -359,7 +359,6 @@ class TestExperimentCSVSerializer(TestCase):
                 "type": experiment.type,
                 "status": experiment.status,
                 "experiment_url": experiment.experiment_url,
-                "public_name": experiment.public_name,
                 "public_description": experiment.public_description,
                 "owner": experiment.owner.email,
                 "analysis_owner": experiment.analysis_owner.email,
