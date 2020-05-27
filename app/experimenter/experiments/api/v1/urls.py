@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from experimenter.experiments.api_views import (
+from experimenter.experiments.api.v1.views import (
     ExperimentDetailView,
     ExperimentListView,
     ExperimentRecipeView,
