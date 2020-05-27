@@ -1099,7 +1099,7 @@ If applicable, link to any relevant test builds / staging information
     BUGZILLA_OVERVIEW_TEMPLATE = """
 {experiment.name}
 
-{experiment.short_description}
+{experiment.public_description}
 
 Experimenter is the source of truth for details and delivery. Changes to Bugzilla are not reflected in Experimenter and will not change delivery configuration.
 
