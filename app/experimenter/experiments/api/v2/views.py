@@ -19,8 +19,8 @@ from experimenter.experiments.api.v2.serializers import (
     ExperimentDesignMultiPrefSerializer,
     ExperimentDesignPrefRolloutSerializer,
     ExperimentDesignPrefSerializer,
+    ExperimentTimelinePopSerializer,
 )
-from experimenter.experiments.api.v2.serializers import ExperimentTimelinePopSerializer
 
 
 class ExperimentSendIntentToShipEmailView(UpdateAPIView):

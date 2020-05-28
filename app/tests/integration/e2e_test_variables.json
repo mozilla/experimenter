@@ -1,126 +1,119 @@
 {
-    "single-pref-experiment": {
-        "type_name": "Pref-Flip Experiment",
-        "action_name": "multi-preference-experiment",
-        "name": "E2E experimenter singlepref-test",
-        "type": "channel",
-        "channels": "Nightly",
-        "min_version": "75.0",
-        "max_version": "100.0",
-        "userFacingName": "e2e testing name",
-        "userFacingDescription": "e2e testing description",
-        "branches": [
-            {
-                "branch_value": "false",
-                "branch_name": "e2e-singlepref-branch",
-                "firefox_pref_name": "e2e-testing",
-                "firefox_pref_type": "boolean",
-                "firefox_pref_branch": "default"
-            },
-            {
-                "branch_value": "true",
-                "branch_name": "e2e-singlepref-branch-2",
-                "firefox_pref_name": "e2e-testing",
-                "firefox_pref_type": "boolean",
-                "firefox_pref_branch": "default"
-            }
+  "single-pref-experiment": {
+    "type_name": "Pref-Flip Experiment",
+    "action_name": "multi-preference-experiment",
+    "type": "channel",
+    "channels": "Nightly",
+    "min_version": "75.0",
+    "max_version": "100.0",
+    "userFacingName": "e2e testing name",
+    "userFacingDescription": "e2e testing description",
+    "branches": [
+      {
+        "branch_value": "false",
+        "branch_name": "e2e-singlepref-branch",
+        "firefox_pref_name": "e2e-testing",
+        "firefox_pref_type": "boolean",
+        "firefox_pref_branch": "default"
+      },
+      {
+        "branch_value": "true",
+        "branch_name": "e2e-singlepref-branch-2",
+        "firefox_pref_name": "e2e-testing",
+        "firefox_pref_type": "boolean",
+        "firefox_pref_branch": "default"
+      }
+    ]
+  },
+  "multi-pref-experiment": {
+    "type_name": "Pref-Flip Experiment",
+    "action_name": "multi-preference-experiment",
+    "type": "channel",
+    "channels": "Nightly",
+    "min_version": "80.0",
+    "max_version": "100.0",
+    "userFacingName": "e2e testing name",
+    "userFacingDescription": "e2e testing description",
+    "branches": [
+      {
+        "branch_description": "multipref-branch-description",
+        "branch_name": "e2e-multipref-branch",
+        "preferences": [
+          {
+            "firefox_pref_branch": "default",
+            "firefox_pref_name": "e2e-testing-branch-1",
+            "firefox_pref_type": "boolean",
+            "firefox_pref_value": "true"
+          },
+          {
+            "firefox_pref_branch": "default",
+            "firefox_pref_name": "e2e-testing-branch-1-1",
+            "firefox_pref_type": "integer",
+            "firefox_pref_value": "10"
+          }
         ]
-    },
-    "multi-pref-experiment": {
-        "type_name": "Pref-Flip Experiment",
-        "action_name": "multi-preference-experiment",
-        "name": "E2E experimenter multipref-test",
-        "type": "channel",
-        "channels": "Nightly",
-        "min_version": "80.0",
-        "max_version": "100.0",
-        "userFacingName": "e2e testing name",
-        "userFacingDescription": "e2e testing description",
-        "branches": [
-            {
-                "branch_description": "multipref-branch-description",
-                "branch_name": "e2e-multipref-branch",
-                "preferences": [
-                    {
-                        "firefox_pref_branch": "default",
-                        "firefox_pref_name": "e2e-testing-branch-1",
-                        "firefox_pref_type": "boolean",
-                        "firefox_pref_value": "true"
-                    },
-                    {
-                        "firefox_pref_branch": "default",
-                        "firefox_pref_name": "e2e-testing-branch-1-1",
-                        "firefox_pref_type": "integer",
-                        "firefox_pref_value": "10"
-                    }
-                ]
-            },
-            {
-                "branch_description": "multipref-branch-description-2",
-                "branch_name": "e2e-multipref-branch-2",
-                "preferences": [
-                    {
-                        "firefox_pref_branch": "default",
-                        "firefox_pref_name": "e2e-testing-branch-2",
-                        "firefox_pref_type": "string",
-                        "firefox_pref_value": "pref-string"
-                    },
-                    {
-                        "firefox_pref_branch": "default",
-                        "firefox_pref_name": "e2e-testing-branch-2-1",
-                        "firefox_pref_type": "json string",
-                        "firefox_pref_value": "{\"object\": \"name\"}"
-                    }
-                ]
-            }
+      },
+      {
+        "branch_description": "multipref-branch-description-2",
+        "branch_name": "e2e-multipref-branch-2",
+        "preferences": [
+          {
+            "firefox_pref_branch": "default",
+            "firefox_pref_name": "e2e-testing-branch-2",
+            "firefox_pref_type": "string",
+            "firefox_pref_value": "pref-string"
+          },
+          {
+            "firefox_pref_branch": "default",
+            "firefox_pref_name": "e2e-testing-branch-2-1",
+            "firefox_pref_type": "json string",
+            "firefox_pref_value": "{\"object\": \"name\"}"
+          }
         ]
-    },
-    "branched-single-addon-study": {
-        "type_name": "Add-On Experiment",
-        "action_name": "branched-addon-study",
-        "name":"E2E experimenter single-pref-addon-test",
-        "addon_url": "https://url.com/addon-url.xpi",
-        "type": "channel",
-        "channels": "Nightly",
-        "min_version": "80.0",
-        "max_version": "100.0",
-        "userFacingName": "e2e testing addon name",
-        "userFacingDescription": "e2e testing addon description",
-        "branches": [
-            {
-                "branch_description": "e2e Branch Description",
-                "branch_name": "e2e-addon-branch"
-
-            },
-            {
-                "branch_description": "e2e Branch Description second branch",
-                "branch_name": "e2e-addon-branch-2"
-            }
-        ]
-
-    },
-    "branched-multi-addon-study": {
-        "type_name": "Add-On Experiment",
-        "action_name": "branched-addon-study",
-        "name": "e2e multi addon experiment",
-        "type": "channel",
-        "channels": "Nightly",
-        "min_version": "80.0",
-        "max_version": "100.0",
-        "userFacingName": "e2e testing multi addon name",
-        "userFacingDescription": "e2e testing addon description",
-        "branches": [
-            {
-                "branch_description": "e2e Branch Description",
-                "branch_name": "e2e-multi-addon-branch",
-                "addon_url": "https://url.com/addon-url.xpi"
-
-            },
-            {
-                "branch_description": "e2e Branch Description second branch",
-                "branch_name": "e2e-multi-addon-branch-2",
-                "addon_url": "https://url.com/addon-url.xpi"
-            }
-        ]
-    }
+      }
+    ]
+  },
+  "branched-single-addon-study": {
+    "type_name": "Add-On Experiment",
+    "action_name": "branched-addon-study",
+    "addon_url": "https://url.com/addon-url.xpi",
+    "type": "channel",
+    "channels": "Nightly",
+    "min_version": "80.0",
+    "max_version": "100.0",
+    "userFacingName": "e2e testing addon name",
+    "userFacingDescription": "e2e testing addon description",
+    "branches": [
+      {
+        "branch_description": "e2e Branch Description",
+        "branch_name": "e2e-addon-branch"
+      },
+      {
+        "branch_description": "e2e Branch Description second branch",
+        "branch_name": "e2e-addon-branch-2"
+      }
+    ]
+  },
+  "branched-multi-addon-study": {
+    "type_name": "Add-On Experiment",
+    "action_name": "branched-addon-study",
+    "type": "channel",
+    "channels": "Nightly",
+    "min_version": "80.0",
+    "max_version": "100.0",
+    "userFacingName": "e2e testing multi addon name",
+    "userFacingDescription": "e2e testing addon description",
+    "branches": [
+      {
+        "branch_description": "e2e Branch Description",
+        "branch_name": "e2e-multi-addon-branch",
+        "addon_url": "https://url.com/addon-url.xpi"
+      },
+      {
+        "branch_description": "e2e Branch Description second branch",
+        "branch_name": "e2e-multi-addon-branch-2",
+        "addon_url": "https://url.com/addon-url.xpi"
+      }
+    ]
+  }
 }

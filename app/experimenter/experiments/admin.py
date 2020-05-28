@@ -60,7 +60,6 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "parent",
                     "projects",
                     "name",
-                    "public_name",
                     "slug",
                     "short_description",
                     "public_description",
