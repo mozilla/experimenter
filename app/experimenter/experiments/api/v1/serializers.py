@@ -110,7 +110,6 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "type",
             "name",
             "slug",
-            "public_name",
             "public_description",
             "status",
             "client_matching",
@@ -146,3 +145,44 @@ class ExperimentSerializer(serializers.ModelSerializer):
 
     def get_results(self, obj):
         return ResultsSerializer(obj).data
+
+
+class ExperimentCSVSerializer(serializers.ModelSerializer):
+    analysis_owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
+    owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
+    parent = serializers.SlugRelatedField(read_only=True, slug_field="experiment_url")
+    projects = serializers.SerializerMethodField()
+    related_to = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Experiment
+        fields = (
+            "name",
+            "type",
+            "status",
+            "experiment_url",
+            "public_description",
+            "owner",
+            "analysis_owner",
+            "engineering_owner",
+            "short_description",
+            "objectives",
+            "parent",
+            "projects",
+            "data_science_issue_url",
+            "feature_bugzilla_url",
+            "firefox_channel",
+            "normandy_slug",
+            "proposed_duration",
+            "proposed_start_date",
+            "related_to",
+            "related_work",
+            "results_initial",
+            "results_url",
+        )
+
+    def get_projects(self, obj):
+        return ", ".join([p.name for p in obj.projects.order_by("name")])
+
+    def get_related_to(self, obj):
+        return ", ".join([e.experiment_url for e in obj.related_to.order_by("slug")])

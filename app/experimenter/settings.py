@@ -92,6 +92,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "experimenter.base.context_processors.google_analytics",
+                "experimenter.base.context_processors.features",
             ],
             "debug": DEBUG,
         },
@@ -343,3 +344,6 @@ SECURE_REFERRER_POLICY = config("SECURE_REFERRER_POLICY", default="origin")
 
 # Silenced ssl_redirect and sts checks
 SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004"]
+
+# Feature Flags
+FEATURE_MESSAGE_TYPE = config("FEATURE_MESSAGE_TYPE", default=False, cast=bool)

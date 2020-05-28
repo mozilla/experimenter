@@ -66,6 +66,7 @@ target/
 
 # Environment file
 .env
+.envrc
 
 version.json
 

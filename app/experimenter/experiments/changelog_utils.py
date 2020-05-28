@@ -35,7 +35,6 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "pref_name",
             "pref_type",
             "pref_branch",
-            "public_name",
             "public_description",
             "population_percent",
             "firefox_min_version",

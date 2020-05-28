@@ -63,6 +63,7 @@
       <small class="text-muted">Page {{ page_obj.number }}</small>
     {% endif %}
   </h3>
+  <a href="{% url "experiments-api-csv" %}?{{ request.GET.urlencode }}"><i class="fas fa-file-csv"></i> Export as CSV</a>
 {% endblock %}
 
 {% block header_sidebar %}
@@ -74,6 +75,17 @@
       </a>
     </div>
   </div>
+
+  {% if FEATURE_MESSAGE_TYPE %}
+    <div class="row mt-2">
+      <div class="col">
+        <a class="col btn btn-outline-primary" href="{% url "experiments-rapid" %}">
+          <span class="fas fa-shipping-fast"></span>
+          Create Rapid Experiment
+        </a>
+      </div>
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block main_content %}
@@ -109,10 +121,13 @@
                   {{ experiment.owner }}
                 </strong>
               </p>
-              <p><strong> Projects:</strong> {% for project in experiment.projects.all %}
-                {{project}}{% if not forloop.last %},{% endif %}
-              {% endfor %}</p>
-              {{ experiment.short_description|markdown }}
+              <p>
+                <strong> Projects:</strong>
+                {% for project in experiment.projects.all %}
+                  {{project}}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+              </p>
+              {{ experiment.public_description|markdown }}
             </div>
             <div class="col-4 text-right">
               <h5>{{ experiment.population }}</h5>

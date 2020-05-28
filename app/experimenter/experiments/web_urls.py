@@ -4,21 +4,23 @@ from experimenter.experiments.views import (
     ExperimentArchiveUpdateView,
     ExperimentCommentCreateView,
     ExperimentCreateView,
+    ExperimentDesignUpdateView,
     ExperimentDetailView,
     ExperimentNormandyUpdateView,
     ExperimentObjectivesUpdateView,
     ExperimentOverviewUpdateView,
+    ExperimentRapidView,
+    ExperimentResultsUpdateView,
     ExperimentReviewUpdateView,
     ExperimentRisksUpdateView,
     ExperimentStatusUpdateView,
     ExperimentSubscribedUpdateView,
-    ExperimentDesignUpdateView,
-    ExperimentResultsUpdateView,
     ExperimentTimelinePopulationUpdateView,
 )
 
 
 urlpatterns = [
+    re_path(r"^rapid/$", ExperimentRapidView.as_view(), name="experiments-rapid"),
     re_path(r"^new/$", ExperimentCreateView.as_view(), name="experiments-create"),
     re_path(
         r"^(?P<slug>[\w-]+)/edit/$",

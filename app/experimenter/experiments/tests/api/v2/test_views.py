@@ -8,13 +8,13 @@ from django.urls import reverse
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.api.v2.serializers import (
+    ExperimentTimelinePopSerializer,
     ExperimentDesignAddonSerializer,
     ExperimentDesignGenericSerializer,
     ExperimentDesignMessageSerializer,
     ExperimentDesignMultiPrefSerializer,
     ExperimentDesignPrefSerializer,
 )
-from experimenter.experiments.api.v2.serializers import ExperimentTimelinePopSerializer
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,

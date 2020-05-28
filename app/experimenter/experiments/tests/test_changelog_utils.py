@@ -47,7 +47,6 @@ class TestChangeLogSerializer(TestCase):
             "pref_name": experiment.pref_name,
             "pref_type": experiment.pref_type,
             "pref_branch": experiment.pref_branch,
-            "public_name": experiment.public_name,
             "public_description": experiment.public_description,
             "population_percent": "{0:.4f}".format(experiment.population_percent),
             "firefox_min_version": experiment.firefox_min_version,

@@ -268,7 +268,6 @@ class TestExperimentCreateView(TestCase):
             "type": Experiment.TYPE_PREF,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
-            "public_name": "Public Name",
             "public_description": "Public Description",
             "data_science_issue_url": ds_issue_url,
             "feature_bugzilla_url": bugzilla_url,
@@ -322,7 +321,6 @@ class TestExperimentOverviewUpdateView(TestCase):
             "type": Experiment.TYPE_PREF,
             "name": "A new name!",
             "short_description": "A new description!",
-            "public_name": "Public Name",
             "public_description": "Public Description",
             "data_science_issue_url": ds_url,
             "feature_bugzilla_url": bug_url,
@@ -805,3 +803,12 @@ class TestExperimentNormandyUpdateView(TestCase):
             f"&other_normandy_ids={other_normandy_ids}",
             fetch_redirect_response=False,
         )
+
+
+class TestExperimentRapidView(TestCase):
+    def test_page_loads(self):
+        user_email = "user@example.com"
+        response = self.client.get(
+            reverse("experiments-rapid"), **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)

@@ -60,19 +60,17 @@ def fixture_experiment_info(variables, request, ds_issue_host, experiment_type):
     if request.node.get_closest_marker("use_variables"):
         return {
             "type_name": variables[experiment_type]["type_name"],
-            "name": variables[experiment_type]["name"],
-            "short_description": "Testing in here",
             "public_name": variables[experiment_type]["userFacingName"],
             "public_description": variables[experiment_type]["userFacingDescription"],
+            "short_description": "Testing in here",
             "ds_issue_url": f"{ds_issue_host}DS-12345",
         }
 
     return {
         "type_name": "Pref-Flip Experiment",
-        "name": "This is a test",
-        "short_description": "Testing in here",
         "public_name": "Public Name",
         "public_description": "Public Description",
+        "short_description": "Testing in here",
         "ds_issue_url": f"{ds_issue_host}DS-12345",
     }
 
@@ -84,10 +82,9 @@ def fill_overview(selenium, base_url, experiment_overview_info):
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
     experiment.experiment_type = experiment_overview_info["type_name"]
-    experiment.name = experiment_overview_info["name"]
-    experiment.short_description = experiment_overview_info["short_description"]
     experiment.public_name = experiment_overview_info["public_name"]
     experiment.public_description = experiment_overview_info["public_description"]
+    experiment.internal_description = experiment_overview_info["short_description"]
     experiment.ds_issue_url = experiment_overview_info["ds_issue_url"]
     experiment.save_btn()
     # Add url to object
