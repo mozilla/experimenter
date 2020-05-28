@@ -4,8 +4,6 @@ from django.db import migrations
 
 
 def update_public_description(apps, schema_editor):
-    # We can't import the Person model directly as it may be a newer
-    # version than this migration expects. We use the historical version.
     Experiment = apps.get_model("experiments", "Experiment")
     for experiment in Experiment.objects.all():
         if experiment.public_description is None:
