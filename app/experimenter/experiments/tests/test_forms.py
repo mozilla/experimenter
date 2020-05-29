@@ -8,6 +8,7 @@ from faker import Factory as FakerFactory
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.forms import (
     BugzillaURLField,
     ChangeLogMixin,
@@ -29,16 +30,13 @@ from experimenter.experiments.forms import (
 )
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
-    CountryFactory,
     ExperimentFactory,
-    LocaleFactory,
-    ProjectFactory,
     UserFactory,
 )
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 from experimenter.experiments.tests.mixins import MockTasksMixin, MockRequestMixin
-
 from experimenter.notifications.models import Notification
+from experimenter.projects.tests.factories import ProjectFactory
 
 
 faker = FakerFactory.create()
