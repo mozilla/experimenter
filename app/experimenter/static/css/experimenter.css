@@ -1,5 +1,5 @@
 :root {
-  --font-family-sans-serif: 'Fira Sans', sans-serif;
+  --font-family-sans-serif: "Fira Sans", sans-serif;
 }
 
 html {
@@ -7,9 +7,9 @@ html {
 }
 
 body {
-  background-color: #F8F8F8;
+  background-color: #f8f8f8;
   color: #212121;
-  font-family: 'Fira Sans', sans-serif;
+  font-family: "Fira Sans", sans-serif;
 }
 
 btn {
@@ -21,7 +21,7 @@ p {
 }
 
 a.nocolorstyle {
-	color: inherit;
+  color: inherit;
 }
 
 a.noanchorstyle {
@@ -68,11 +68,11 @@ select {
 }
 
 .card {
-  transition: box-shadow ease-in-out .1s;
+  transition: box-shadow ease-in-out 0.1s;
 }
 
 .hovershadow:hover > .card {
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 }
 
 .section-anchor-link {
@@ -85,7 +85,7 @@ select {
 }
 
 .heavy-line {
-   border: 0;
+  border: 0;
   height: 1px;
   background: #333;
   background-image: linear-gradient(to right, #ccc, #333, #ccc);
@@ -132,18 +132,18 @@ select {
   background-color: #e9433e;
 }
 
-.enrollment-complete-color{
+.enrollment-complete-color {
   color: white;
   background-color: #457b27;
 }
 
-.proceed-status-color{
+.proceed-status-color {
   color: white;
   background-color: #00cc00;
 }
 
-.back-status-color{
-  color:white;
+.back-status-color {
+  color: white;
   background-color: #ee9a49;
 }
 .subscribe-bell {
@@ -162,19 +162,19 @@ select {
 }
 
 .border-left-grey {
-	border-left: 3px solid #ccc;
+  border-left: 3px solid #ccc;
 }
 
 .border-bottom-grey {
-	border-bottom: 3px solid #ccc;
+  border-bottom: 3px solid #ccc;
 }
 
 .border-bottom-blue {
-	border-bottom: 3px solid #45a1ff;
+  border-bottom: 3px solid #45a1ff;
 }
 
 .border-bottom-green {
-	border-bottom: 3px solid #30e60b;
+  border-bottom: 3px solid #30e60b;
 }
 
 .border-bottom-teal {
@@ -183,31 +183,41 @@ select {
 
 .bubble {
   border-radius: 4px;
-	background-color: #F3F3F3;
+  background-color: #f3f3f3;
+}
+
+.pref-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.pref-value-cell {
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 pre.json {
-	overflow-x: auto;
-	white-space: pre-wrap;
-	white-space: -moz-pre-wrap;
-	white-space: -pre-wrap;
-	white-space: -o-pre-wrap;
-	word-wrap: break-word;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
   line-height: 2em;
   border: none !important;
 }
 
 .list-summary:before {
-  content:'';
-  width:100%;
-  height:100%;
-  position:absolute;
-  left:0;
-  top:0;
-  background:linear-gradient(transparent 12em, white);
+  content: "";
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: linear-gradient(transparent 12em, white);
 }
 
-.list-summary{
+.list-summary {
   overflow: hidden;
   max-height: 15em;
 }
