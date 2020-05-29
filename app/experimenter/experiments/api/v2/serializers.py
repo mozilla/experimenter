@@ -1,9 +1,13 @@
+import datetime
 import json
 
-from rest_framework import serializers
 from django.db import IntegrityError, transaction
+from django.db.models import Q
+from django.urls import reverse
 from django.utils.text import slugify
+from rest_framework import serializers
 
+from experimenter.base.models import Country, Locale
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
@@ -11,8 +15,10 @@ from experimenter.experiments.models import (
     RolloutPreference,
 )
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.serializers.entities import ChangeLogSerializer
-from experimenter.experiments.changelog_utils import generate_change_log
+from experimenter.experiments.changelog_utils import (
+    ChangeLogSerializer,
+    generate_change_log,
+)
 
 
 class ChangelogSerializerMixin(object):
@@ -523,3 +529,222 @@ class ExperimentDesignMessageSerializer(ExperimentDesignBaseSerializer):
     class Meta:
         model = Experiment
         fields = ("message_type", "message_template", "variants")
+
+
+class CountrySerializerMultiSelect(serializers.ModelSerializer):
+    value = serializers.IntegerField(source="id")
+    label = serializers.CharField(source="name")
+
+    class Meta:
+        model = Country
+        fields = ("label", "value")
+
+
+class LocaleSerializerMultiSelect(serializers.ModelSerializer):
+    value = serializers.IntegerField(source="id")
+    label = serializers.CharField(source="name")
+
+    class Meta:
+        model = Locale
+        fields = ("label", "value")
+
+
+class GenericMultiSelectSerializer(serializers.Serializer):
+    def to_representation(self, data):
+        return {"value": data, "label": data}
+
+    def to_internal_value(self, data):
+        return data["value"]
+
+
+class PlatformsMultiSelectSerializer(serializers.Serializer):
+    def to_representation(self, data):
+        return {"value": data, "label": data[4:]}
+
+    def to_internal_value(self, data):
+        return data["value"]
+
+
+class ExperimentTimelinePopSerializer(
+    ChangelogSerializerMixin, serializers.ModelSerializer
+):
+    proposed_start_date = serializers.DateField(
+        required=False, allow_null=True, default=None
+    )
+    proposed_duration = serializers.IntegerField(
+        required=False, allow_null=True, default=None
+    )
+    proposed_enrollment = serializers.IntegerField(
+        required=False, allow_null=True, default=None
+    )
+    rollout_playbook = serializers.ChoiceField(
+        choices=ExperimentConstants.ROLLOUT_PLAYBOOK_CHOICES,
+        required=False,
+        allow_null=True,
+        default=None,
+        allow_blank=True,
+    )
+    population_percent = serializers.DecimalField(
+        required=False,
+        max_digits=7,
+        decimal_places=4,
+        max_value=100.0000,
+        min_value=0,
+        allow_null=True,
+        default=None,
+    )
+    firefox_channel = serializers.ChoiceField(
+        choices=ExperimentConstants.CHANNEL_CHOICES,
+        required=False,
+        allow_null=True,
+        default=None,
+        allow_blank=True,
+    )
+    firefox_min_version = serializers.ChoiceField(
+        choices=ExperimentConstants.VERSION_CHOICES,
+        required=False,
+        allow_null=True,
+        default=None,
+        allow_blank=True,
+    )
+    firefox_max_version = serializers.ChoiceField(
+        choices=ExperimentConstants.VERSION_CHOICES,
+        required=False,
+        allow_null=True,
+        default=None,
+        allow_blank=True,
+    )
+    locales = LocaleSerializerMultiSelect(
+        many=True, required=False, allow_null=True, default=None
+    )
+    countries = CountrySerializerMultiSelect(
+        many=True, required=False, allow_null=True, default=None
+    )
+    platforms = serializers.ListField(
+        child=PlatformsMultiSelectSerializer(), allow_empty=True, required=False
+    )
+    windows_versions = serializers.ListField(
+        child=GenericMultiSelectSerializer(),
+        allow_null=True,
+        allow_empty=True,
+        required=False,
+    )
+    client_matching = serializers.CharField(
+        required=False, allow_null=True, default=None, allow_blank=True
+    )
+
+    class Meta:
+        fields = (
+            "proposed_start_date",
+            "proposed_enrollment",
+            "rollout_playbook",
+            "proposed_duration",
+            "population_percent",
+            "firefox_channel",
+            "firefox_min_version",
+            "firefox_max_version",
+            "locales",
+            "countries",
+            "platforms",
+            "windows_versions",
+            "profile_age",
+            "client_matching",
+        )
+        model = Experiment
+
+    def validate_proposed_start_date(self, value):
+        if value and value < datetime.date.today():
+            raise serializers.ValidationError(
+                "The delivery start date must be no earlier than the current date."
+            )
+
+        return value
+
+    def validate_platforms(self, value):
+        if value == []:
+            raise serializers.ValidationError("You must select at least one platform.")
+
+        return value
+
+    def validate(self, data):
+        data = super().validate(data)
+
+        if data["proposed_enrollment"] and data["proposed_duration"]:
+            if data["proposed_enrollment"] >= data["proposed_duration"]:
+                raise serializers.ValidationError(
+                    {
+                        "proposed_enrollment": (
+                            "Enrollment duration is optional,"
+                            " but if set, must be lower than the delivery "
+                            "duration. If enrollment duration is not "
+                            "specified - users are enrolled for the"
+                            "entire delivery."
+                        )
+                    }
+                )
+
+        if data["firefox_min_version"] and data["firefox_max_version"]:
+            if float(data["firefox_min_version"]) > float(data["firefox_max_version"]):
+                raise serializers.ValidationError(
+                    {
+                        "firefox_max_version": (
+                            "The max version must be larger "
+                            "than or equal to the min version."
+                        )
+                    }
+                )
+
+        return data
+
+    def update(self, instance, validated_data):
+        countries_data = validated_data.pop("countries")
+        locales_data = validated_data.pop("locales")
+
+        instance = super().update(instance, validated_data)
+
+        countries_list = []
+        if len(countries_data) > 0:
+            countries_list = [int(country["id"]) for country in countries_data]
+        instance.countries.set(countries_list)
+
+        locales_list = []
+        if len(locales_data) > 0:
+            locales_list = [int(locale["id"]) for locale in locales_data]
+        instance.locales.set(locales_list)
+
+        validated_data["countries"] = countries_list
+        validated_data["locales"] = locales_list
+
+        self.update_changelog(instance, validated_data)
+
+        return instance
+
+
+class ExperimentCloneSerializer(serializers.ModelSerializer):
+    clone_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Experiment
+        fields = ("name", "clone_url")
+
+    def validate_name(self, value):
+        existing_slug_or_name = Experiment.objects.filter(
+            Q(slug=slugify(value)) | Q(name=value)
+        )
+
+        if existing_slug_or_name:
+            raise serializers.ValidationError("This experiment name already exists.")
+
+        if slugify(value):
+            return value
+        else:
+            raise serializers.ValidationError("That's an invalid name.")
+
+    def get_clone_url(self, obj):
+        return reverse("experiments-detail", kwargs={"slug": obj.slug})
+
+    def update(self, instance, validated_data):
+        user = self.context["request"].user
+        name = validated_data.get("name")
+
+        return instance.clone(name, user)

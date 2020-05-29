@@ -3,6 +3,7 @@ import requests
 from django.test import TestCase
 from django.conf import settings
 
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.bugzilla import (
     add_experiment_comment,
     BugzillaError,
@@ -16,11 +17,7 @@ from experimenter.bugzilla import (
     update_experiment_bug,
 )
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.tests.factories import (
-    CountryFactory,
-    ExperimentFactory,
-    LocaleFactory,
-)
+from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 
 

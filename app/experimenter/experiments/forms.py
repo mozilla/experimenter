@@ -15,7 +15,7 @@ from experimenter.experiments import tasks
 from experimenter.experiments.changelog_utils import generate_change_log
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment, ExperimentComment
-from experimenter.experiments.serializers.entities import ChangeLogSerializer
+from experimenter.experiments.changelog_utils import ChangeLogSerializer
 from experimenter.notifications.models import Notification
 from experimenter.projects.models import Project
 

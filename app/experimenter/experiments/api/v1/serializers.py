@@ -1,7 +1,7 @@
 import time
 from rest_framework import serializers
 
-
+from experimenter.base.serializers import CountrySerializer, LocaleSerializer
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
@@ -9,7 +9,6 @@ from experimenter.experiments.models import (
     VariantPreferences,
 )
 from experimenter.projects.models import Project
-from experimenter.experiments.serializers.geo import CountrySerializer, LocaleSerializer
 
 
 class JSTimestampField(serializers.Field):
@@ -62,116 +61,6 @@ class ExperimentVariantSerializer(serializers.ModelSerializer):
             "message_targeting",
             "message_threshold",
             "message_triggers",
-        )
-
-
-class ChangeLogSerializer(serializers.ModelSerializer):
-    variants = ExperimentVariantSerializer(many=True, required=False)
-    locales = LocaleSerializer(many=True, required=False)
-    countries = CountrySerializer(many=True, required=False)
-    projects = ProjectSerializer(many=True, required=False)
-
-    class Meta:
-        model = Experiment
-        fields = (
-            "type",
-            "owner",
-            "name",
-            "short_description",
-            "related_work",
-            "related_to",
-            "proposed_start_date",
-            "proposed_duration",
-            "proposed_enrollment",
-            "design",
-            "addon_experiment_id",
-            "addon_release_url",
-            "pref_name",
-            "pref_type",
-            "pref_branch",
-            "public_description",
-            "population_percent",
-            "firefox_min_version",
-            "firefox_max_version",
-            "firefox_channel",
-            "client_matching",
-            "locales",
-            "countries",
-            "projects",
-            "platforms",
-            "windows_versions",
-            "profile_age",
-            "objectives",
-            "total_enrolled_clients",
-            "analysis",
-            "analysis_owner",
-            "telemetry_event_category",
-            "telemetry_event_method",
-            "telemetry_event_object",
-            "telemetry_event_value",
-            "survey_required",
-            "survey_urls",
-            "survey_instructions",
-            "engineering_owner",
-            "bugzilla_id",
-            "normandy_slug",
-            "normandy_id",
-            "other_normandy_ids",
-            "data_science_issue_url",
-            "feature_bugzilla_url",
-            "risk_partner_related",
-            "risk_brand",
-            "risk_fast_shipped",
-            "risk_confidential",
-            "risk_release_population",
-            "risk_revenue",
-            "risk_data_category",
-            "risk_external_team_impact",
-            "risk_telemetry_data",
-            "risk_ux",
-            "risk_security",
-            "risk_revision",
-            "risk_technical",
-            "risk_technical_description",
-            "risks",
-            "testing",
-            "test_builds",
-            "qa_status",
-            "review_science",
-            "review_engineering",
-            "review_qa_requested",
-            "review_intent_to_ship",
-            "review_bugzilla",
-            "review_qa",
-            "review_relman",
-            "review_advisory",
-            "review_legal",
-            "review_ux",
-            "review_security",
-            "review_vp",
-            "review_data_steward",
-            "review_comms",
-            "review_impacted_teams",
-            "variants",
-            "results_url",
-            "results_initial",
-            "results_lessons_learned",
-            "results_fail_to_launch",
-            "results_recipe_errors",
-            "results_restarts",
-            "results_low_enrollment",
-            "results_early_end",
-            "results_no_usable_data",
-            "results_failures_notes",
-            "results_changes_to_firefox",
-            "results_data_for_hypothesis",
-            "results_confidence",
-            "results_measure_impact",
-            "results_impact_notes",
-            "rollout_type",
-            "rollout_playbook",
-            "message_type",
-            "message_template",
         )
 
 

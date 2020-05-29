@@ -293,24 +293,6 @@ class ExperimentCommentFactory(factory.django.DjangoModelFactory):
         model = ExperimentComment
 
 
-class CountryFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(lambda o: faker.country())
-    code = factory.LazyAttribute(lambda o: o.name[:2])
-
-    class Meta:
-        model = Country
-        django_get_or_create = ("code",)
-
-
-class LocaleFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(lambda o: faker.country())
-    code = factory.LazyAttribute(lambda o: o.name[:2])
-
-    class Meta:
-        model = Locale
-        django_get_or_create = ("code",)
-
-
 class ProjectFactory(factory.django.DjangoModelFactory):
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: "{}_".format(slugify(o.name)))

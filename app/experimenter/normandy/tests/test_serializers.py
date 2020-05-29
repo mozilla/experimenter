@@ -1,21 +1,20 @@
 from decimal import Decimal
 from django.test import TestCase
 
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
     RolloutPreference,
 )
 from experimenter.experiments.tests.factories import (
-    LocaleFactory,
-    CountryFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
     VariantPreferencesFactory,
 )
 
 
-from experimenter.experiments.serializers.recipe import (
+from experimenter.normandy.serializers import (
     ExperimentRecipeAddonArgumentsSerializer,
     ExperimentRecipeAddonRolloutArgumentsSerializer,
     ExperimentRecipeAddonVariantSerializer,
@@ -34,7 +33,7 @@ from experimenter.experiments.serializers.recipe import (
     PrefValueField,
 )
 
-from experimenter.experiments.serializers.entities import PrefTypeField
+from experimenter.experiments.api.v1.serializers import PrefTypeField
 
 
 class TestPrefValueField(TestCase):
