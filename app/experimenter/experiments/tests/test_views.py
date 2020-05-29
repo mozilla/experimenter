@@ -9,13 +9,10 @@ from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.forms import NormandyIdForm, RADIO_NO, RADIO_YES
 from experimenter.experiments.models import Experiment, Country, Locale
-from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
-    CountryFactory,
-    LocaleFactory,
-)
+from experimenter.experiments.tests.factories import ExperimentFactory
 
 from experimenter.experiments.tests.mixins import MockTasksMixin
 from experimenter.openidc.tests.factories import UserFactory

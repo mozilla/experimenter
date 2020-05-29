@@ -1,22 +1,16 @@
 from rest_framework.generics import (
-    ListAPIView,
     UpdateAPIView,
-    RetrieveAPIView,
     RetrieveUpdateAPIView,
 )
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework_csv.renderers import CSVRenderer
 
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment
 from experimenter.experiments import email
-from experimenter.experiments.serializers.entities import (
-    ExperimentSerializer,
-    ExperimentCSVSerializer,
-)
-from experimenter.experiments.serializers.clone import ExperimentCloneSerializer
-from experimenter.experiments.serializers.design import (
+from experimenter.experiments.api.v1.serializers import ExperimentSerializer
+from experimenter.experiments.api.v2.serializers import (
+    ExperimentCloneSerializer,
     ExperimentDesignAddonRolloutSerializer,
     ExperimentDesignAddonSerializer,
     ExperimentDesignBranchedAddonSerializer,
@@ -25,37 +19,8 @@ from experimenter.experiments.serializers.design import (
     ExperimentDesignMultiPrefSerializer,
     ExperimentDesignPrefRolloutSerializer,
     ExperimentDesignPrefSerializer,
-)
-from experimenter.experiments.serializers.timeline_population import (
     ExperimentTimelinePopSerializer,
 )
-from experimenter.experiments.serializers.recipe import ExperimentRecipeSerializer
-from experimenter.experiments.filtersets import ExperimentFilterset
-
-
-class ExperimentListView(ListAPIView):
-    filter_fields = ("status",)
-    queryset = Experiment.objects.all()
-    serializer_class = ExperimentSerializer
-
-
-class ExperimentDetailView(RetrieveAPIView):
-    lookup_field = "slug"
-    queryset = Experiment.objects.all()
-    serializer_class = ExperimentSerializer
-
-
-class ExperimentRecipeView(RetrieveAPIView):
-    lookup_field = "slug"
-    queryset = Experiment.objects.filter(
-        status__in=(
-            ExperimentConstants.STATUS_SHIP,
-            ExperimentConstants.STATUS_ACCEPTED,
-            ExperimentConstants.STATUS_LIVE,
-            ExperimentConstants.STATUS_COMPLETE,
-        )
-    )
-    serializer_class = ExperimentRecipeSerializer
 
 
 class ExperimentSendIntentToShipEmailView(UpdateAPIView):
@@ -137,21 +102,3 @@ class ExperimentTimelinePopulationView(RetrieveUpdateAPIView):
     lookup_field = "slug"
     queryset = Experiment.objects.all()
     serializer_class = ExperimentTimelinePopSerializer
-
-
-class ExperimentCSVListView(ListAPIView):
-    queryset = Experiment.objects.order_by("status", "name")
-    serializer_class = ExperimentCSVSerializer
-    renderer_classes = (CSVRenderer,)
-
-    def get_queryset(self):
-        return ExperimentFilterset(
-            self.request.GET, super().get_queryset(), request=self.request
-        ).qs
-
-    def get_renderer_context(self):
-        # Pass the ordered list of fields in to specify the ordering of the headers
-        # otherwise it defaults to sorting them alphabetically
-        context = super().get_renderer_context()
-        context["header"] = self.serializer_class.Meta.fields
-        return context
