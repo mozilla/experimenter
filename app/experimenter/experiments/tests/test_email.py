@@ -47,7 +47,14 @@ class TestIntentToShipEmail(TestCase):
         self.assertEqual(sent_email.from_email, sender)
         self.assertEqual(
             set(sent_email.recipients()),
-            set([release_drivers, experiment.owner.email, "smith@example.com"]),
+            set(
+                [
+                    release_drivers,
+                    experiment.owner.email,
+                    experiment.analysis_owner,
+                    "smith@example.com",
+                ]
+            ),
         )
         self.assertTrue(
             experiment.emails.filter(
@@ -101,7 +108,14 @@ class TestIntentToShipEmail(TestCase):
         self.assertEqual(sent_email.from_email, sender)
         self.assertEqual(
             set(sent_email.recipients()),
-            set([release_drivers, experiment.owner.email, "smith@example.com"]),
+            set(
+                [
+                    release_drivers,
+                    experiment.owner.email,
+                    experiment.analysis_owner,
+                    "smith@example.com",
+                ]
+            ),
         )
 
     def format_locales(self, experiment):
@@ -154,7 +168,11 @@ class TestStatusUpdateEmail(TestCase):
         self.assertIn("May 1, 2019", sent_email.body)
         self.assertEqual(
             sent_email.recipients(),
-            [self.experiment.owner.email, self.subscribing_user.email],
+            [
+                self.experiment.owner.email,
+                self.experiment.analysis_owner,
+                self.subscribing_user.email,
+            ],
         )
 
     def test_send_experiment_ending_email(self):
@@ -174,7 +192,11 @@ class TestStatusUpdateEmail(TestCase):
         )
         self.assertEqual(
             sent_email.recipients(),
-            [self.experiment.owner.email, self.subscribing_user.email],
+            [
+                self.experiment.owner.email,
+                self.experiment.analysis_owner,
+                self.subscribing_user.email,
+            ],
         )
         self.assertIn("May 11, 2019", sent_email.body)
 
@@ -198,6 +220,10 @@ class TestStatusUpdateEmail(TestCase):
         )
         self.assertEqual(
             sent_email.recipients(),
-            [self.experiment.owner.email, self.subscribing_user.email],
+            [
+                self.experiment.owner.email,
+                self.experiment.analysis_owner,
+                self.subscribing_user.email,
+            ],
         )
         self.assertIn("May 6, 2019", sent_email.body)
