@@ -193,28 +193,29 @@ class ExperimentFilterset(filters.FilterSet):
 
     def date_range_filter(self, queryset, name, value):
         date_type = self.form.cleaned_data["experiment_date_field"]
+        if date_type:
+            experiment_date_field = {
+                Experiment.EXPERIMENT_STARTS: "start_date",
+                Experiment.EXPERIMENT_PAUSES: "enrollment_end_date",
+                Experiment.EXPERIMENT_ENDS: "end_date",
+            }[date_type]
 
-        experiment_date_field = {
-            Experiment.EXPERIMENT_STARTS: "start_date",
-            Experiment.EXPERIMENT_PAUSES: "enrollment_end_date",
-            Experiment.EXPERIMENT_ENDS: "end_date",
-        }[date_type]
+            results = []
 
-        results = []
+            for experiment in queryset.all():
+                date = getattr(experiment, experiment_date_field)
 
-        for experiment in queryset.all():
-            date = getattr(experiment, experiment_date_field)
+                # enrollment end dates are optional, so there won't always
+                # be a pause date for an experiment
+                if date:
+                    if value.start and date < value.start.date():
+                        continue
+                    if value.stop and date > value.stop.date():
+                        continue
+                    results.append(experiment.id)
 
-            # enrollment end dates are optional, so there won't always
-            # be a pause date for an experiment
-            if date:
-                if value.start and date < value.start.date():
-                    continue
-                if value.stop and date > value.stop.date():
-                    continue
-                results.append(experiment.id)
-
-        return queryset.filter(pk__in=results)
+            return queryset.filter(pk__in=results)
+        return queryset
 
     def in_qa_filter(self, queryset, name, value):
         if value:
