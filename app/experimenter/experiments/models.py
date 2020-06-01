@@ -109,6 +109,13 @@ class Experiment(ExperimentConstants, models.Model):
         choices=ExperimentConstants.MESSAGE_TEMPLATE_CHOICES,
     )
 
+    rapid_type = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=ExperimentConstants.RAPID_TYPE_CHOICES,
+    )
+
     is_multi_pref = models.BooleanField(default=False)
     rollout_type = models.CharField(
         max_length=255,
