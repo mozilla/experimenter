@@ -20,7 +20,7 @@
       <h5>{{ variant.ratio }}% {{ variant.name }}</h5>
       {% if experiment.is_pref_experiment %}
         <p><strong>Prefs:</strong></p>
-        <table class="table table-bordered">
+        <table class="table table-bordered pref-table">
         <thead>
           <tr>
             <th scope="col">Name</th>
@@ -39,7 +39,7 @@
             {% if preference.is_json_string_type %}
               <pre class="text-info">{{ preference.pref_value|as_json }}</pre>  
             {% else %}
-              <pre class="text-info">{{ preference.pref_value }}</pre>
+              <pre class="text-info pref-value-cell">{{ preference.pref_value }}</pre>
             {% endif %}
           </td>
             <td>{{ preference.pref_type }}</td>
@@ -56,7 +56,7 @@
               {% if experiment.is_pref_value_json_string %}
               <pre class="text-info">{{ variant.value|as_json }}</pre>
               {% else %}
-              <pre class="text-info">{{ variant.value }}</pre>
+              <pre class="text-info pref-value-cell">{{ variant.value }}</pre>
               {% endif %}
             </td>
             <td>{{ experiment.pref_type }}</td>
