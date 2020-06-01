@@ -333,7 +333,10 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
         self.mock_tasks_comp_experiment_update_res.delay.assert_not_called()
 
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].recipients(), [experiment.owner.email])
+        self.assertEqual(
+            mail.outbox[0].recipients(),
+            [experiment.owner.email, experiment.analysis_owner],
+        )
 
     def test_update_live_experiment_task(self):
 
@@ -530,7 +533,10 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
         experiment = Experiment.objects.get(normandy_id=1234)
 
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].recipients(), [experiment.owner.email])
+        self.assertEqual(
+            mail.outbox[0].recipients(),
+            [experiment.owner.email, experiment.analysis_owner],
+        )
 
     def test_live_rollout_updates_population_percent(self):
         experiment = ExperimentFactory.create(
