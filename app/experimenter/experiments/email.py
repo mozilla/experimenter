@@ -79,7 +79,7 @@ def format_and_send_html_email(
     version = experiment.format_firefox_versions
     channel = experiment.firefox_channel
 
-    recipients = [experiment.owner.email] + list(
+    recipients = [experiment.owner.email, experiment.analysis_owner] + list(
         experiment.subscribers.values_list("email", flat=True)
     )
 
