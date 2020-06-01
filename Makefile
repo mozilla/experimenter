@@ -25,9 +25,9 @@ JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
 PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
-ESLINT = yarn lint
-ESLINT_FIX = yarn lint-fix
-JS_TEST = yarn test
+ESLINT = yarn workspace @experimenter/core lint
+ESLINT_FIX = yarn workspace @experimenter/core lint-fix
+JS_TEST = yarn workspace @experimenter/core test
 FLAKE8 = flake8 .
 BLACK_CHECK = black -l 90 --check --diff .
 BLACK_FIX = black -l 90 .

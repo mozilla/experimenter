@@ -33,7 +33,7 @@ RUN yarn install
 
 # Build assets
 COPY ./experimenter/static/ /app/experimenter/static/
-RUN yarn build
+RUN yarn @workspace/core build
 
 # Copy source
 COPY . /app

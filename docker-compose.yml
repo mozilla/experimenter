@@ -30,7 +30,7 @@ services:
       - assets_volume:/app/experimenter/static/assets/
       - static_volume:/app/experimenter/served/
       - /app/.cache
-    command: bash -c "yarn watch"
+    command: bash -c "yarn workspace @experimenter/core watch"
 
   worker:
     image: app:build
