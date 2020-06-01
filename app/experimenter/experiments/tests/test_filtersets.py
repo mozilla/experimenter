@@ -409,3 +409,19 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         self.assertEqual(
             filter.get_display_start_date_info(), "starting before 2019-05-01"
         )
+
+    def test_list_shows_all_experiment_when_date_field_has_no_value(self):
+        self.set_up_date_tests()
+
+        filter = ExperimentFilterset(
+            data={
+                "experiment_date_field": "",
+                "date_range_after": self.start_range_date,
+                "date_range_before": self.end_range_date,
+            }
+        )
+
+        self.assertEqual(
+            set(filter.qs), set([self.exp_1, self.exp_2, self.exp_3, self.exp_4])
+        )
+
