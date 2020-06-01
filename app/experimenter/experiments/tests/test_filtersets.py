@@ -424,4 +424,3 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         self.assertEqual(
             set(filter.qs), set([self.exp_1, self.exp_2, self.exp_3, self.exp_4])
         )
-
