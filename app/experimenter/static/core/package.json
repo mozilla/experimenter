@@ -33,7 +33,7 @@
     "bootstrap": "4.4.1",
     "bootstrap-select": "1.13.16",
     "immutable": "4.0.0-rc.12",
-    "jquery": "3.4.1",
+    "jquery": "3.5.1",
     "popper.js": "1.16.1",
     "prettier": "2.0.5",
     "react": "16.13.1",
