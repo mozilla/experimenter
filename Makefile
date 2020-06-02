@@ -31,7 +31,7 @@ ESLINT_RAPID = yarn workspace @experimenter/rapid lint:eslint
 ESLINT_FIX_RAPID = yarn workspace @experimenter/rapid lint:eslint --fix
 TYPECHECK_RAPID = yarn workspace @experimenter/rapid lint:tsc
 JS_TEST_CORE = yarn workspace @experimenter/core test
-JS_TEST_RAPID = yarn workspace @experimenter/rapid rapid
+JS_TEST_RAPID = yarn workspace @experimenter/rapid test
 FLAKE8 = flake8 .
 BLACK_CHECK = black -l 90 --check --diff .
 BLACK_FIX = black -l 90 .
@@ -46,7 +46,7 @@ test_build: build
 	$(COMPOSE_TEST) build
 
 test: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_TEST)" "$(JS_TEST)"'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)"'
 
 lint: test_build
 	$(COMPOSE_TEST) run app sh -c '${PARALLEL} "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(TYPECHECK_RAPID)"'
@@ -70,7 +70,7 @@ check_docs: test_build
 	$(COMPOSE_TEST) run app sh -c "$(CHECK_DOCS)"
 
 check: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT)" "$(PYTHON_TEST)" "$(JS_TEST)"'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT)" "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)"'
 
 compose_build: build ssl
 	$(COMPOSE)  build
