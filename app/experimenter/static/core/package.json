@@ -1,5 +1,6 @@
 {
   "name": "@experimenter/core",
+  "license": "MPL-2.0",
   "jest": {
     "automock": false,
     "verbose": true,
