@@ -1,3 +1,5 @@
-@import 'bootstrap/dist/css/bootstrap.css';
-@import 'bootstrap-select/dist/css/bootstrap-select.css';
-@import './experimenter.css';
+@import "bootstrap/dist/css/bootstrap.css";
+@import "bootstrap-select/dist/css/bootstrap-select.css";
+@import "@fortawesome/fontawesome-free/css/all.css";
+@import "fontsource-fira-sans/index.css";
+@import "./experimenter.css";
