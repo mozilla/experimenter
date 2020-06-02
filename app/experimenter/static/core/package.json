@@ -1,0 +1,102 @@
+{
+  "name": "@experimenter/core",
+  "license": "MPL-2.0",
+  "jest": {
+    "automock": false,
+    "verbose": true,
+    "setupFiles": [
+      "<rootDir>/js/tests/setup.js"
+    ],
+    "coverageReporters": [
+      "text"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 100
+      }
+    },
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "moduleNameMapper": {
+      "^experimenter/(.*)$": "<rootDir>/js/$1"
+    },
+    "collectCoverageFrom": [
+      "<rootDir>/js/components/**"
+    ]
+  },
+  "version": "1.0.0",
+  "description": "a tool for managing experiments in Firefox",
+  "dependencies": {
+    "@testing-library/dom": "latest",
+    "autobind-decorator": "2.4.0",
+    "bootstrap": "4.4.1",
+    "bootstrap-select": "1.13.16",
+    "immutable": "4.0.0-rc.12",
+    "jquery": "3.4.1",
+    "popper.js": "1.16.1",
+    "prettier": "2.0.5",
+    "react": "16.13.1",
+    "react-bootstrap": "1.0.1",
+    "react-dom": "16.13.1",
+    "react-select": "3.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.9.0",
+    "@babel/plugin-proposal-class-properties": "7.8.3",
+    "@babel/plugin-proposal-decorators": "7.8.3",
+    "@babel/preset-env": "7.9.5",
+    "@babel/preset-react": "7.9.4",
+    "@testing-library/jest-dom": "5.5.0",
+    "@testing-library/react": "10.0.3",
+    "babel-eslint": "10.1.0",
+    "babel-jest": "25.4.0",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "6.11.0",
+    "eslint-config-standard": "14.1.1",
+    "eslint-plugin-import": "2.20.2",
+    "eslint-plugin-jest": "23.8.2",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-prettier": "3.1.3",
+    "eslint-plugin-promise": "4.2.1",
+    "eslint-plugin-react": "7.19.0",
+    "eslint-plugin-standard": "4.0.1",
+    "faker": "4.1.0",
+    "jest": "25.4.0",
+    "jest-dom": "4.0.0",
+    "parcel-bundler": "1.12.4"
+  },
+  "alias": {
+    "experimenter": "./js"
+  },
+  "scripts": {
+    "test": "jest --silent --coverage",
+    "build": "parcel build css/index.css js/index.js --out-dir ../assets --public-url /static/assets/",
+    "watch": "parcel watch css/index.css js/index.js --out-dir ../assets --public-url /static/assets/",
+    "lint": "eslint js/components/**/*.js js/tests/**/*.js js/index.js",
+    "lint-fix": "eslint --fix js/components/**/*.js js/tests/**/*.js js/index.js"
+  },
+  "browserslist": [
+    "last 1 firefox versions"
+  ],
+  "babel": {
+    "presets": [
+      "@babel/preset-react",
+      "@babel/preset-env"
+    ],
+    "plugins": [
+      [
+        "@babel/plugin-proposal-decorators",
+        {
+          "legacy": true
+        }
+      ],
+      [
+        "@babel/plugin-proposal-class-properties",
+        {
+          "loose": true
+        }
+      ]
+    ]
+  }
+}
