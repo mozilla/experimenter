@@ -70,7 +70,7 @@ check_docs: test_build
 	$(COMPOSE_TEST) run app sh -c "$(CHECK_DOCS)"
 
 check: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT)" "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)"'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(TYPECHECK_RAPID)" "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)"'
 
 compose_build: build ssl
 	$(COMPOSE)  build
