@@ -197,7 +197,7 @@ class TestStatusUpdateEmail(TestCase):
         self.assertIn("May 1, 2019", sent_email.body)
         self.assertCountEqual(
             sent_email.recipients(),
-            [self.experiment.owner.email, self.subscribing_user.email,],
+            [self.experiment.owner.email, self.subscribing_user.email],
         )
 
     def test_send_experiment_ending_email(self):
