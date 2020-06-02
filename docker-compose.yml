@@ -20,17 +20,31 @@ services:
       - private_nw
       - public_nw
 
-  yarn:
+  yarn-core:
     image: app:build
     env_file: .env
     tty: true
     volumes:
       - ./app:/app
       - /app/node_modules/
+      - /app/experimenter/static/core/node_modules/
       - assets_volume:/app/experimenter/static/assets/
       - static_volume:/app/experimenter/served/
       - /app/.cache
-    command: bash -c "yarn watch"
+    command: bash -c "yarn workspace @experimenter/core watch"
+
+  yarn-rapid:
+    image: app:build
+    env_file: .env
+    tty: true
+    volumes:
+      - ./app:/app
+      - /app/node_modules/
+      - /app/experimenter/static/rapid/node_modules/
+      - assets_volume:/app/experimenter/static/assets/
+      - static_volume:/app/experimenter/served/
+      - /app/.cache
+    command: bash -c "yarn workspace @experimenter/rapid watch"
 
   worker:
     image: app:build
