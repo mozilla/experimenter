@@ -147,6 +147,7 @@ class TestStatusUpdateEmail(TestCase):
             proposed_duration=10,
         )
 
+        self.experiment.analysis_owner = UserFactory.create()
         self.subscribing_user = UserFactory.create()
         self.experiment.subscribers.add(self.subscribing_user)
 
@@ -166,7 +167,7 @@ class TestStatusUpdateEmail(TestCase):
         )
         self.assertEqual(sent_email.content_subtype, "html")
         self.assertIn("May 1, 2019", sent_email.body)
-        self.assertEqual(
+        self.assertCountEqual(
             sent_email.recipients(),
             [
                 self.experiment.owner.email,
@@ -190,7 +191,7 @@ class TestStatusUpdateEmail(TestCase):
                 type=ExperimentConstants.EXPERIMENT_ENDS
             ).exists()
         )
-        self.assertEqual(
+        self.assertCountEqual(
             sent_email.recipients(),
             [
                 self.experiment.owner.email,
@@ -218,7 +219,7 @@ class TestStatusUpdateEmail(TestCase):
                 type=ExperimentConstants.EXPERIMENT_PAUSES
             ).exists()
         )
-        self.assertEqual(
+        self.assertCountEqual(
             sent_email.recipients(),
             [
                 self.experiment.owner.email,
