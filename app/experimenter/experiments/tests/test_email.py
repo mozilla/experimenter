@@ -176,6 +176,30 @@ class TestStatusUpdateEmail(TestCase):
             ],
         )
 
+    def test_send_experiment_launch_email_without_analysis_owner(self):
+        self.experiment.analysis_owner = None
+        self.experiment.save()
+
+        send_experiment_launch_email(self.experiment)
+
+        sent_email = mail.outbox[-1]
+
+        self.assertEqual(
+            sent_email.subject,
+            "Delivery launched: Greatest Experiment 68.0 to 69.0 Nightly",
+        )
+        self.assertTrue(
+            self.experiment.emails.filter(
+                type=ExperimentConstants.EXPERIMENT_STARTS
+            ).exists()
+        )
+        self.assertEqual(sent_email.content_subtype, "html")
+        self.assertIn("May 1, 2019", sent_email.body)
+        self.assertCountEqual(
+            sent_email.recipients(),
+            [self.experiment.owner.email, self.subscribing_user.email,],
+        )
+
     def test_send_experiment_ending_email(self):
         send_experiment_ending_email(self.experiment)
 
