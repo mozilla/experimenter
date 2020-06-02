@@ -25,9 +25,13 @@ JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
 PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
-ESLINT = yarn workspace @experimenter/core lint
-ESLINT_FIX = yarn workspace @experimenter/core lint-fix
-JS_TEST = yarn workspace @experimenter/core test
+ESLINT_CORE = yarn workspace @experimenter/core lint
+ESLINT_FIX_CORE = yarn workspace @experimenter/core lint-fix
+ESLINT_RAPID = yarn workspace @experimenter/rapid lint:eslint
+ESLINT_FIX_RAPID = yarn workspace @experimenter/rapid lint:eslint --fix
+TYPECHECK_RAPID = yarn workspace @experimenter/rapid lint:tsc
+JS_TEST_CORE = yarn workspace @experimenter/core test
+JS_TEST_RAPID = yarn workspace @experimenter/rapid rapid
 FLAKE8 = flake8 .
 BLACK_CHECK = black -l 90 --check --diff .
 BLACK_FIX = black -l 90 .
@@ -44,14 +48,14 @@ test_build: build
 test: test_build
 	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_TEST)" "$(JS_TEST)"'
 
-eslint: test_build
-	$(COMPOSE_TEST) run app sh -c "$(ESLINT)"
+lint: test_build
+	$(COMPOSE_TEST) run app sh -c '${PARALLEL} "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(TYPECHECK_RAPID)"'
 
 py_test: test_build
 	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST)"
 
 js_test: test_build
-	$(COMPOSE_TEST) run app sh -c "$(JS_TEST)"
+	$(COMPOSE_TEST) run app sh -c "$(JS_TEST_CORE)&&$(JS_TEST_RAPID)"
 
 flake8: test_build
 	$(COMPOSE_TEST) run app sh -c "$(FLAKE8)"
@@ -95,13 +99,13 @@ generate_docs: compose_build
 	$(COMPOSE) run app sh -c "$(GENERATE_DOCS)"
 
 eslint_fix: test_build
-	$(COMPOSE) run app sh -c "$(ESLINT_FIX)"
+	$(COMPOSE) run app sh -c '${PARALLEL} "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_RAPID)"'
 
 black_fix: test_build
 	$(COMPOSE) run app sh -c "$(BLACK_FIX)"
 
 code_format: compose_build
-	$(COMPOSE) run app sh -c "$(BLACK_FIX)&&$(ESLINT_FIX)"
+	$(COMPOSE) run app sh -c "$(BLACK_FIX)&&$(ESLINT_FIX_CORE)&&$(ESLINT_FIX_RAPID)"
 
 makemigrations: compose_build
 	$(COMPOSE) run app python manage.py makemigrations

@@ -17,7 +17,7 @@ services:
     build:
       context: ./delivery-console
       dockerfile: $PWD/delivery-console/Dockerfile
-    command: bash -c "REACT_APP_EXPERIMENTER_API_ROOT_URL=https://localhost/api/ REACT_APP_NORMANDY_ADMIN_API_ROOT_URL=https://localhost:8000/api/ yarn workspace @experimenter/core start"
+    command: bash -c "REACT_APP_EXPERIMENTER_API_ROOT_URL=https://localhost/api/ REACT_APP_NORMANDY_ADMIN_API_ROOT_URL=https://localhost:8000/api/ yarn start"
     links:
       - normandy
     ports:
