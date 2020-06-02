@@ -12,6 +12,7 @@ class ExperimentConstants(object):
     TYPE_GENERIC = "generic"
     TYPE_ROLLOUT = "rollout"
     TYPE_MESSAGE = "message"
+    TYPE_RAPID = "rapid"
 
     TYPE_CHOICES = (
         (TYPE_PREF, "Pref-Flip Experiment"),
@@ -19,11 +20,23 @@ class ExperimentConstants(object):
         (TYPE_GENERIC, "Generic Experiment"),
         (TYPE_ROLLOUT, "Staged Rollout"),
         (TYPE_MESSAGE, "Message Router Content Experiment"),
+        (TYPE_RAPID, "Rapid Experiment"),
     )
 
     @classmethod
     def FEATURE_TYPE_CHOICES(cls):  # pragma: no cover
-        return cls.TYPE_CHOICES
+        choices = (
+            (cls.TYPE_PREF, "Pref-Flip Experiment"),
+            (cls.TYPE_ADDON, "Add-On Experiment"),
+            (cls.TYPE_GENERIC, "Generic Experiment"),
+            (cls.TYPE_ROLLOUT, "Staged Rollout"),
+            (cls.TYPE_MESSAGE, "Message Router Content Experiment"),
+        )
+
+        if settings.FEATURE_MESSAGE_TYPE:
+            choices += ((cls.TYPE_RAPID, "Rapid Experiment"),)
+
+        return choices
 
     # Message stuff
     MESSAGE_DEFAULT_LOCALES = ("en-AU", "en-GB", "en-CA", "en-NZ", "en-ZA", "en-US")
@@ -46,6 +59,11 @@ class ExperimentConstants(object):
         (MESSAGE_TEMPLATE_URL, "CFR Urlbar Chiclet"),
         (MESSAGE_TEMPLATE_MILESTONE, "Milestone Message"),
     )
+
+    # Rapid stuff
+    RAPID_AA_CFR = "cfr a/a"
+
+    RAPID_TYPE_CHOICES = ((RAPID_AA_CFR, "Rapid CFR A/A Experiment"),)
 
     # Rollout stuff
     ROLLOUT_TYPE_CHOICES = ((TYPE_PREF, "Pref Rollout"), (TYPE_ADDON, "Add-On Rollout"))
