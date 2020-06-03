@@ -7584,159 +7584,6 @@
         ]
       }
     },
-    "/api/v3/experiments/": {
-      "get": {
-        "operationId": "listExperiments",
-        "description": "",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "properties": {
-                      "owner": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string",
-                        "maxLength": 255
-                      },
-                      "slug": {
-                        "type": "string",
-                        "maxLength": 255
-                      },
-                      "objectives": {
-                        "type": "string",
-                        "nullable": true
-                      }
-                    },
-                    "required": [
-                      "name"
-                    ]
-                  }
-                }
-              }
-            },
-            "description": ""
-          }
-        }
-      },
-      "post": {
-        "operationId": "createExperiment",
-        "description": "",
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "owner": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "slug": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                },
-                "required": [
-                  "name"
-                ]
-              }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "properties": {
-                  "owner": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "slug": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                },
-                "required": [
-                  "name"
-                ]
-              }
-            },
-            "multipart/form-data": {
-              "schema": {
-                "properties": {
-                  "owner": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "slug": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                },
-                "required": [
-                  "name"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "owner": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string",
-                      "maxLength": 255
-                    },
-                    "slug": {
-                      "type": "string",
-                      "maxLength": 255
-                    },
-                    "objectives": {
-                      "type": "string",
-                      "nullable": true
-                    }
-                  },
-                  "required": [
-                    "name"
-                  ]
-                }
-              }
-            },
-            "description": ""
-          }
-        }
-      }
-    },
     "/api/v3/experiments/{slug}/": {
       "get": {
         "operationId": "retrieveExperiment",
@@ -7905,21 +7752,13 @@
             "description": ""
           }
         }
-      },
-      "patch": {
-        "operationId": "partial_updateExperiment",
+      }
+    },
+    "/api/v3/experiments/": {
+      "post": {
+        "operationId": "createExperiment",
         "description": "",
-        "parameters": [
-          {
-            "name": "slug",
-            "in": "path",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "content": {
             "application/json": {
@@ -7940,7 +7779,10 @@
                     "type": "string",
                     "nullable": true
                   }
-                }
+                },
+                "required": [
+                  "name"
+                ]
               }
             },
             "application/x-www-form-urlencoded": {
@@ -7961,7 +7803,10 @@
                     "type": "string",
                     "nullable": true
                   }
-                }
+                },
+                "required": [
+                  "name"
+                ]
               }
             },
             "multipart/form-data": {
@@ -7982,7 +7827,10 @@
                     "type": "string",
                     "nullable": true
                   }
-                }
+                },
+                "required": [
+                  "name"
+                ]
               }
             }
           }
@@ -8015,26 +7863,6 @@
                 }
               }
             },
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "operationId": "destroyExperiment",
-        "description": "",
-        "parameters": [
-          {
-            "name": "slug",
-            "in": "path",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
             "description": ""
           }
         }

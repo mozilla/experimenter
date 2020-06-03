@@ -81,15 +81,6 @@ class TestExperimentRapidViewSet(TestCase):
         self.assertEqual(experiment.slug, "rapid-experiment")
         self.assertEqual(experiment.objectives, "new hypothesis")
 
-    def test_get_list_returns_405(self):
-        user_email = "user@example.com"
-
-        response = self.client.get(
-            reverse("experiments-rapid-list"),
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 405)
-
     def test_post_list_creates_rapid_experiment(self):
         user_email = "user@example.com"
 
@@ -108,15 +99,3 @@ class TestExperimentRapidViewSet(TestCase):
         self.assertEqual(experiment.name, "rapid experiment")
         self.assertEqual(experiment.slug, "rapid-experiment")
         self.assertEqual(experiment.objectives, "gotta go fast")
-
-    def test_delete_detail_returns_405(self):
-        user_email = "user@example.com"
-
-        experiment = ExperimentFactory.create(type=Experiment.TYPE_RAPID)
-
-        response = self.client.delete(
-            reverse("experiments-rapid-detail", kwargs={"slug": experiment.slug}),
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-
-        self.assertEqual(response.status_code, 405)
