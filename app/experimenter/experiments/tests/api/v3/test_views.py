@@ -44,7 +44,7 @@ class TestExperimentRapidViewSet(TestCase):
     def test_get_detail_returns_404_for_non_rapid_experiment(self, experiment_type):
         user_email = "user@example.com"
 
-        experiment = ExperimentFactory.create(type=experiment_type,)
+        experiment = ExperimentFactory.create(type=experiment_type)
 
         response = self.client.get(
             reverse("experiments-rapid-detail", kwargs={"slug": experiment.slug}),
@@ -108,3 +108,15 @@ class TestExperimentRapidViewSet(TestCase):
         self.assertEqual(experiment.name, "rapid experiment")
         self.assertEqual(experiment.slug, "rapid-experiment")
         self.assertEqual(experiment.objectives, "gotta go fast")
+
+    def test_delete_detail_returns_405(self):
+        user_email = "user@example.com"
+
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_RAPID)
+
+        response = self.client.delete(
+            reverse("experiments-rapid-detail", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 405)
