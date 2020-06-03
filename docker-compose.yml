@@ -12,6 +12,8 @@ services:
     volumes:
       - ./app:/app
       - /app/node_modules/
+      - /app/experimenter/static/core/node_modules/
+      - /app/experimenter/static/rapid/node_modules/
       - assets_volume:/app/experimenter/static/assets/
       - static_volume:/app/experimenter/served/
       - /app/.cache
