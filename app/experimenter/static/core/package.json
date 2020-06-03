@@ -44,28 +44,7 @@
     "react-select": "3.1.0"
   },
   "devDependencies": {
-    "@babel/core": "7.9.0",
-    "@babel/plugin-proposal-class-properties": "7.8.3",
-    "@babel/plugin-proposal-decorators": "7.8.3",
-    "@babel/preset-env": "7.9.5",
-    "@babel/preset-react": "7.9.4",
-    "@testing-library/jest-dom": "5.5.0",
-    "@testing-library/react": "10.0.3",
-    "babel-eslint": "10.1.0",
-    "babel-jest": "25.4.0",
-    "eslint": "6.8.0",
-    "eslint-config-prettier": "6.11.0",
-    "eslint-config-standard": "14.1.1",
-    "eslint-plugin-import": "2.20.2",
-    "eslint-plugin-jest": "23.8.2",
-    "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-prettier": "3.1.3",
-    "eslint-plugin-promise": "4.2.1",
-    "eslint-plugin-react": "7.19.0",
-    "eslint-plugin-standard": "4.0.1",
     "faker": "4.1.0",
-    "jest": "25.4.0",
-    "jest-dom": "4.0.0",
     "parcel-bundler": "1.12.4"
   },
   "alias": {
