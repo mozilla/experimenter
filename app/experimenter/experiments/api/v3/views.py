@@ -11,3 +11,6 @@ class ExperimentRapidViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         raise exceptions.MethodNotAllowed(request.method)
+
+    def destroy(self, request, slug=None):
+        raise exceptions.MethodNotAllowed(request.method)
