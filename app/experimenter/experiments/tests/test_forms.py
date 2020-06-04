@@ -343,8 +343,14 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
         self.assertEqual(change.changed_by, self.request.user)
 
     def test_message_experiment_sets_default_locales_countries(self):
-        [LocaleFactory.create(code=l) for l in Experiment.MESSAGE_DEFAULT_LOCALES]
-        [CountryFactory.create(code=c) for c in Experiment.MESSAGE_DEFAULT_COUNTRIES]
+        [
+            LocaleFactory.create(code=locale)
+            for locale in Experiment.MESSAGE_DEFAULT_LOCALES
+        ]
+        [
+            CountryFactory.create(code=country)
+            for country in Experiment.MESSAGE_DEFAULT_COUNTRIES
+        ]
 
         self.data["type"] = Experiment.TYPE_MESSAGE
         form = ExperimentOverviewForm(request=self.request, data=self.data)
