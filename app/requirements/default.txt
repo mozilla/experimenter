@@ -150,9 +150,9 @@ markdown2==2.3.9 \
 tblib==1.6.0 \
     --hash=sha256:229bee3754cb5d98b4837dd5c4405e80cfab57cb9f93220410ad367f8b352344 \
     --hash=sha256:e222f44485d45ed13fada73b57775e2ff9bd8af62160120bbb6679f5ad80315b
-pytest-xdist==1.31.0 \
-    --hash=sha256:0f46020d3d9619e6d17a65b5b989c1ebbb58fc7b1da8fb126d70f4bac4dfeed1 \
-    --hash=sha256:7dc0d027d258cd0defc618fb97055fbd1002735ca7a6d17037018cf870e24011
+pytest-xdist==1.32.0 \
+    --hash=sha256:ba5ec9fde3410bd9a116ff7e4f26c92e02fa3d27975ef3ad03f330b3d4b54e91 \
+    --hash=sha256:1d4166dcac69adb38eeaedb88c8fada8588348258a3492ab49ba9161f2971129
 djangorestframework-csv==2.1.0 \
     --hash=sha256:2f008b20a44f2d3c37835ea5b5ddfe19f54394f07b9cb267c616a917a7f7e27c
 unicodecsv==0.14.1 \
