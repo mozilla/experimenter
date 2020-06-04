@@ -1026,7 +1026,7 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
                 int(i.strip()) for i in self.cleaned_data["other_normandy_ids"].split(",")
             ]
         except ValueError:
-            raise forms.ValidationError(f"IDs must be numbers separated by commas.")
+            raise forms.ValidationError("IDs must be numbers separated by commas.")
 
     class Meta:
         model = Experiment
