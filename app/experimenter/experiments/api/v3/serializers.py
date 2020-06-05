@@ -22,9 +22,8 @@ class ExperimentRapidSerializer(serializers.ModelSerializer):
             "objectives",
         )
 
-    def validate(self, data):
-        if not self.instance:
-            data["slug"] = slugify(self.initial_data["name"])
-            data["owner"] = self.context["request"].user
-
-        return data
+    def create(self, validated_data):
+        experiment = super().create(validated_data)
+        experiment.slug = slugify(experiment.name)
+        experiment.owner = self.context["request"].user
+        return experiment
