@@ -8,10 +8,8 @@ from experimenter.experiments.models import Experiment
 class ExperimentRapidSerializer(serializers.ModelSerializer):
     type = serializers.HiddenField(default=Experiment.TYPE_RAPID)
     rapid_type = serializers.HiddenField(default=Experiment.RAPID_AA_CFR)
-    owner = serializers.SlugRelatedField(
-        slug_field="email", queryset=get_user_model().objects.all(), required=False
-    )
-    slug = serializers.CharField(max_length=255, required=False)
+    owner = serializers.ReadOnlyField(source="owner.email")
+    slug = serializers.ReadOnlyField()
 
     class Meta:
         model = Experiment
