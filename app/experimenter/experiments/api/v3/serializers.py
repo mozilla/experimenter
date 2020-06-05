@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 from rest_framework import serializers
 
@@ -26,4 +25,5 @@ class ExperimentRapidSerializer(serializers.ModelSerializer):
         experiment = super().create(validated_data)
         experiment.slug = slugify(experiment.name)
         experiment.owner = self.context["request"].user
+        experiment.save()
         return experiment
