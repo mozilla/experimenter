@@ -161,7 +161,7 @@
           }
         },
         "tags": [
-          "public"
+          "Core: Public"
         ]
       }
     },
@@ -221,7 +221,7 @@
           }
         },
         "tags": [
-          "public"
+          "Core: Public"
         ]
       }
     },
@@ -695,7 +695,7 @@
           }
         },
         "tags": [
-          "public"
+          "Core: Public"
         ]
       }
     },
@@ -1172,7 +1172,7 @@
           }
         },
         "tags": [
-          "public"
+          "Core: Public"
         ]
       }
     },
@@ -1226,7 +1226,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "put": {
@@ -1363,7 +1363,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "patch": {
@@ -1488,7 +1488,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       }
     },
@@ -1564,7 +1564,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "put": {
@@ -1789,7 +1789,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "patch": {
@@ -1999,7 +1999,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       }
     },
@@ -2078,7 +2078,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "put": {
@@ -2315,7 +2315,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "patch": {
@@ -2540,7 +2540,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       }
     },
@@ -2628,7 +2628,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "put": {
@@ -2901,7 +2901,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "patch": {
@@ -3153,7 +3153,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       }
     },
@@ -3263,7 +3263,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "put": {
@@ -3624,7 +3624,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "patch": {
@@ -3973,7 +3973,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       }
     },
@@ -4042,7 +4042,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "put": {
@@ -4239,7 +4239,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "patch": {
@@ -4427,7 +4427,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       }
     },
@@ -4503,7 +4503,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "put": {
@@ -4728,7 +4728,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "patch": {
@@ -4941,7 +4941,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       }
     },
@@ -5037,7 +5037,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "put": {
@@ -5342,7 +5342,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "patch": {
@@ -5635,7 +5635,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       }
     },
@@ -5870,7 +5870,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "put": {
@@ -6731,7 +6731,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "patch": {
@@ -7592,7 +7592,357 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
+        ]
+      }
+    },
+    "/api/v3/experiments/{slug}/": {
+      "get": {
+        "operationId": "retrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "slug": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "objectives": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Rapid: Private"
+        ]
+      },
+      "put": {
+        "operationId": "updateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "slug": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "objectives": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Rapid: Private"
+        ]
+      },
+      "patch": {
+        "operationId": "partial_updateExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "slug": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "objectives": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Rapid: Private"
+        ]
+      }
+    },
+    "/api/v3/experiments/": {
+      "post": {
+        "operationId": "createExperiment",
+        "description": "",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "slug": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "objectives": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Rapid: Private"
         ]
       }
     },
@@ -9375,7 +9725,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "patch": {
@@ -11120,7 +11470,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       }
     },
@@ -11207,7 +11557,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       },
       "patch": {
@@ -11283,7 +11633,7 @@
           }
         },
         "tags": [
-          "private"
+          "Core: Private"
         ]
       }
     }
