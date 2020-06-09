@@ -50,7 +50,7 @@
     "@babel/preset-env": "7.10.2",
     "@babel/preset-react": "7.10.1",
     "@testing-library/jest-dom": "5.9.0",
-    "@testing-library/react": "10.2.0",
+    "@testing-library/react": "10.2.1",
     "babel-eslint": "10.1.0",
     "babel-jest": "26.0.1",
     "eslint": "6.8.0",
