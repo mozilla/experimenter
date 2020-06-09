@@ -17,6 +17,7 @@ from experimenter.experiments.models import (
 )
 from experimenter.normandy.serializers import ExperimentRecipeSerializer
 from experimenter.experiments.tests.factories import (
+    UserFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
     ExperimentChangeLogFactory,
@@ -586,6 +587,42 @@ class TestExperimentModel(TestCase):
         self.assertEqual(
             experiment.observation_dates, "Jan 11, 2019 - Jan 21, 2019 (10 days)"
         )
+
+    def test_observation_duration_is_correct_when_experiment_complete(self):
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED
+        )
+        user = UserFactory.create()
+        today = datetime.date.today()
+        four_days_ago = today - datetime.timedelta(days=4)
+        three_days_ago = today - datetime.timedelta(days=3)
+        change_live = ExperimentChangeLog.objects.create(
+            experiment=experiment,
+            old_status=Experiment.STATUS_ACCEPTED,
+            new_status=Experiment.STATUS_LIVE,
+            changed_on=four_days_ago,
+            changed_by=user,
+        )
+        change_enroll_complete = ExperimentChangeLog.objects.create(
+            experiment=experiment,
+            old_status=Experiment.STATUS_LIVE,
+            new_status=Experiment.STATUS_LIVE,
+            message="Enrollment Complete",
+            changed_on=three_days_ago,
+            changed_by=user,
+        )
+        change_complete = ExperimentChangeLog.objects.create(
+            experiment=experiment,
+            old_status=Experiment.STATUS_LIVE,
+            new_status=Experiment.STATUS_COMPLETE,
+            changed_on=today,
+            changed_by=user,
+        )
+
+        self.assertEqual(experiment.total_duration, 4)
+        self.assertEqual(experiment.enrollment_complete_date, three_days_ago)
+        self.assertEqual(experiment.enrollment_duration,1)
+        self.assertEqual(experiment.observation_duration, 3)
 
     def test_rollout_dates_low_risk_playbook(self):
         experiment = ExperimentFactory.create(

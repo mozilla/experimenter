@@ -445,6 +445,12 @@ class Experiment(ExperimentConstants, models.Model):
                 return change.changed_on.date()
 
     @property
+    def enrollment_complete_date(self):
+        change = self.changes.filter(message="Enrollment Complete")
+        if change:
+            return change[0].changed_on.date()
+
+    @property
     def start_date(self):
         return (
             self._transition_date(self.STATUS_ACCEPTED, self.STATUS_LIVE)
@@ -462,6 +468,10 @@ class Experiment(ExperimentConstants, models.Model):
         ) or self._compute_end_date(self.proposed_duration)
 
     @property
+    def total_duration(self):
+        return (self.end_date - self.start_date).days
+
+    @property
     def enrollment_ending_soon(self):
         return (self.enrollment_end_date - datetime.date.today()) <= datetime.timedelta(
             days=5
@@ -473,10 +483,18 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def enrollment_end_date(self):
-        return self._compute_end_date(self.proposed_enrollment)
+        return self.enrollment_complete_date or self._compute_end_date(
+            self.proposed_enrollment
+        )
+
+    @property
+    def enrollment_duration(self):
+        return (self.enrollment_end_date - self.start_date).days
 
     @property
     def observation_duration(self):
+        if self.enrollment_complete_date:
+            return (self.end_date - self.enrollment_complete_date).days
         if self.proposed_enrollment:
             return self.proposed_duration - self.proposed_enrollment
         return 0
