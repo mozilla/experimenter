@@ -1,12 +1,13 @@
 import json
 
+import factory
 from django import forms
 from django.conf import settings
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from faker import Factory as FakerFactory
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.forms import (
@@ -101,7 +102,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 model = Experiment
                 fields = ("name",)
 
-        data = ExperimentFactory.attributes()
+        data = factory.build(dict, FACTORY_CLASS=ExperimentFactory)
         form = TestForm(request=self.request, data=data)
 
         self.assertTrue(form.is_valid())
