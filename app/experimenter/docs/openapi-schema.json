@@ -698,7 +698,15 @@
             "in": "query",
             "description": "status",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "Draft",
+                "Review",
+                "Ship",
+                "Accepted",
+                "Live",
+                "Complete"
+              ]
             }
           }
         ],
