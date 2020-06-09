@@ -17,7 +17,6 @@ from experimenter.experiments.models import (
 )
 from experimenter.normandy.serializers import ExperimentRecipeSerializer
 from experimenter.experiments.tests.factories import (
-    UserFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
     ExperimentChangeLogFactory,
@@ -596,14 +595,14 @@ class TestExperimentModel(TestCase):
         today = datetime.date.today()
         four_days_ago = today - datetime.timedelta(days=4)
         three_days_ago = today - datetime.timedelta(days=3)
-        change_live = ExperimentChangeLog.objects.create(
+        ExperimentChangeLog.objects.create(
             experiment=experiment,
             old_status=Experiment.STATUS_ACCEPTED,
             new_status=Experiment.STATUS_LIVE,
             changed_on=four_days_ago,
             changed_by=user,
         )
-        change_enroll_complete = ExperimentChangeLog.objects.create(
+        ExperimentChangeLog.objects.create(
             experiment=experiment,
             old_status=Experiment.STATUS_LIVE,
             new_status=Experiment.STATUS_LIVE,
@@ -611,7 +610,7 @@ class TestExperimentModel(TestCase):
             changed_on=three_days_ago,
             changed_by=user,
         )
-        change_complete = ExperimentChangeLog.objects.create(
+        ExperimentChangeLog.objects.create(
             experiment=experiment,
             old_status=Experiment.STATUS_LIVE,
             new_status=Experiment.STATUS_COMPLETE,
@@ -621,7 +620,7 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(experiment.total_duration, 4)
         self.assertEqual(experiment.enrollment_complete_date, three_days_ago)
-        self.assertEqual(experiment.enrollment_duration,1)
+        self.assertEqual(experiment.enrollment_duration, 1)
         self.assertEqual(experiment.observation_duration, 3)
 
     def test_rollout_dates_low_risk_playbook(self):
