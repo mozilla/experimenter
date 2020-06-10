@@ -132,8 +132,8 @@
             <div class="col-4 text-right">
               <h5>{{ experiment.population }}</h5>
               <p>{{ experiment.dates }}</p>
-              {% if experiment.enrollment_complete_date %}
-                <p>Enrolling until {{ experiment.enrollment_complete_date }}</p>
+              {% if experiment.enrollment_end_date %}
+                <p>Enrolling until {{ experiment.enrollment_end_date }}</p>
               {% endif %}
               {% if experiment.rollout_dates.first_increase %}
                 <p>First increase on {{ experiment.rollout_dates.first_increase.date }} to {{ experiment.rollout_dates.first_increase.percent }}%</p>

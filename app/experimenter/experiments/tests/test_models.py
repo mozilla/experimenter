@@ -619,7 +619,7 @@ class TestExperimentModel(TestCase):
         )
 
         self.assertEqual(experiment.total_duration, 4)
-        self.assertEqual(experiment.enrollment_complete_date, three_days_ago)
+        self.assertEqual(experiment.enrollment_end_date, three_days_ago)
         self.assertEqual(experiment.enrollment_duration, 1)
         self.assertEqual(experiment.observation_duration, 3)
 
