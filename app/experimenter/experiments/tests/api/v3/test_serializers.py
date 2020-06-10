@@ -81,3 +81,47 @@ class TestExperimentRapidSerializer(MockRequestMixin, TestCase):
                 changed_values=changed_values,
             ).exists()
         )
+
+    def test_serializer_creates_changelog_for_updates(self):
+        owner = UserFactory(email="owner@example.com")
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_DRAFT,
+            type=Experiment.TYPE_RAPID,
+            rapid_type=Experiment.RAPID_AA_CFR,
+            owner=owner,
+            name="rapid experiment",
+            slug="rapid-experiment",
+            objectives="gotta go fast",
+        )
+
+        self.assertEqual(experiment.changes.count(), 1)
+        data = {
+            "name": "changing the name",
+            "objectives": "changing objectives",
+        }
+        serializer = ExperimentRapidSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
+        self.assertEqual(experiment.changes.count(), 2)
+
+        changed_values = {
+            "name": {
+                "new_value": "changing the name",
+                "old_value": "rapid experiment",
+                "display_name": "Name",
+            },
+            "objectives": {
+                "new_value": "changing objectives",
+                "old_value": "gotta go fast",
+                "display_name": "Objectives",
+            },
+        }
+        self.assertTrue(
+            experiment.changes.filter(
+                old_status=Experiment.STATUS_DRAFT,
+                new_status=Experiment.STATUS_DRAFT,
+                changed_values=changed_values,
+            ).exists()
+        )

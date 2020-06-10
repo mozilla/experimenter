@@ -30,3 +30,8 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
 
         self.update_changelog(experiment, validated_data)
         return experiment
+
+    def update(self, instance, validated_data):
+        updated_instance = super().update(instance, validated_data)
+        self.update_changelog(updated_instance, validated_data)
+        return updated_instance
