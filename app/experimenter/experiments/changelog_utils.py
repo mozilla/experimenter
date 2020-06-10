@@ -11,6 +11,24 @@ from experimenter.experiments.api.v1.serializers import ExperimentVariantSeriali
 from experimenter.projects.serializers import ProjectSerializer
 
 
+class ChangelogSerializerMixin(object):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.old_serialized_vals = {}
+        if self.instance and self.instance.id:
+            self.old_serialized_vals = ChangeLogSerializer(self.instance).data
+
+    def update_changelog(self, instance, validated_data):
+        new_serialized_vals = ChangeLogSerializer(instance).data
+        user = self.context["request"].user
+        changed_data = validated_data.copy()
+        generate_change_log(
+            self.old_serialized_vals, new_serialized_vals, instance, changed_data, user
+        )
+
+        return instance
+
+
 class ChangeLogSerializer(serializers.ModelSerializer):
     variants = ExperimentVariantSerializer(many=True, required=False)
     locales = LocaleSerializer(many=True, required=False)

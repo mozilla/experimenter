@@ -20,22 +20,7 @@ from experimenter.experiments.changelog_utils import (
     generate_change_log,
 )
 
-
-class ChangelogSerializerMixin(object):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance and self.instance.id:
-            self.old_serialized_vals = ChangeLogSerializer(self.instance).data
-
-    def update_changelog(self, instance, validated_data):
-        new_serialized_vals = ChangeLogSerializer(instance).data
-        user = self.context["request"].user
-        changed_data = validated_data.copy()
-        generate_change_log(
-            self.old_serialized_vals, new_serialized_vals, instance, changed_data, user
-        )
-
-        return instance
+from experimenter.experiments.changelog_utils import ChangelogSerializerMixin
 
 
 class PrefValidationMixin(object):
