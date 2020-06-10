@@ -485,11 +485,6 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def enrollment_duration(self):
-        #if self.enrollment_end_date:
-        #    duration = (self.enrollment_end_date - self.start_date).days
-        #    if duration > 0 :
-        #        return duration
-        #return 0
         return (self.enrollment_end_date - self.start_date).days
 
     @property
