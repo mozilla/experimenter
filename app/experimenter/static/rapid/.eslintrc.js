@@ -52,6 +52,11 @@ const baseSettings = {
       },
     ],
   },
+  settings: {
+    react: {
+      version: "detect",
+    },
+  },
 };
 
 module.exports = {
