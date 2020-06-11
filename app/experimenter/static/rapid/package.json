@@ -46,7 +46,7 @@
     "build": "yarn clean; webpack --mode production --progress",
     "clean": "rimraf ../assets/rapid",
     "lint": "yarn lint:eslint; yarn lint:tsc",
-    "lint:eslint": "eslint --no-error-on-unmatched-pattern --color --max-warnings 0 ./**/*.js ./**/*.ts ./**/*.tsx",
+    "lint:eslint": "eslint --no-error-on-unmatched-pattern --color --max-warnings 0 ./*.ts ./*.tsx ./**/*.ts ./**/*.tsx ./**/*.js",
     "lint:tsc": "tsc --noEmit --project tsconfig.json",
     "test": "jest",
     "watch": "webpack --watch --mode development --progress"
