@@ -491,8 +491,7 @@ class Experiment(ExperimentConstants, models.Model):
     def observation_duration(self):
         if self.enrollment_end_date:
             duration = (self.end_date - self.enrollment_end_date).days
-            if duration > 0:
-                return duration
+            return duration
         return 0
 
     def _format_date(self, date):
