@@ -35,7 +35,7 @@ from experimenter.experiments.tests.factories import (
     UserFactory,
 )
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
-from experimenter.experiments.tests.mixins import MockTasksMixin, MockRequestMixin
+from experimenter.bugzilla.tests.mixins import MockTasksMixin, MockRequestMixin
 from experimenter.notifications.models import Notification
 from experimenter.projects.tests.factories import ProjectFactory
 
@@ -95,6 +95,10 @@ class TestDSIssueURLField(TestCase):
             field.clean(ds_url)
 
 
+@override_settings(
+    BUGZILLA_HOST="https://bugzilla.example.com/",
+    DS_ISSUE_HOST="https://jira.example.com/browse/",
+)
 class TestChangeLogMixin(MockRequestMixin, TestCase):
     def test_mixin_creates_change_log_with_request_user_on_save(self):
         class TestForm(ChangeLogMixin, forms.ModelForm):
@@ -208,7 +212,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             },
             "feature_bugzilla_url": {
                 "display_name": "Feature Bugzilla URL",
-                "new_value": "https://bugzilla.allizom.org/show_bug.cgi?id=123",
+                "new_value": "https://bugzilla.example.com/show_bug.cgi?id=123",
                 "old_value": None,
             },
             "name": {

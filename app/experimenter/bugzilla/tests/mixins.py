@@ -1,6 +1,7 @@
 import mock
 
 from experimenter import bugzilla
+from experimenter.openidc.tests.factories import UserFactory
 
 
 class MockBugzillaMixin(object):
@@ -74,3 +75,57 @@ class MockBugzillaMixin(object):
         mock_response.json.return_value = mock_response_data
         mock_response.status_code = 400
         self.mock_bugzilla_requests_post.return_value = mock_response
+
+
+class MockRequestMixin(object):
+    def setUp(self):
+        super().setUp()
+
+        self.user = UserFactory()
+        self.request = mock.Mock()
+        self.request.user = self.user
+
+
+class MockTasksMixin(object):
+    def setUp(self):
+        super().setUp()
+
+        mock_tasks_create_bug_patcher = mock.patch(
+            "experimenter.bugzilla.tasks.create_experiment_bug_task"
+        )
+        self.mock_tasks_create_bug = mock_tasks_create_bug_patcher.start()
+        self.addCleanup(mock_tasks_create_bug_patcher.stop)
+
+        mock_tasks_update_experiment_bug_patcher = mock.patch(
+            "experimenter.bugzilla.tasks.update_experiment_bug_task"
+        )
+        self.mock_tasks_update_experiment_bug = (
+            mock_tasks_update_experiment_bug_patcher.start()
+        )
+        self.addCleanup(mock_tasks_update_experiment_bug_patcher.stop)
+
+        mock_tasks_update_bug_resolution_patcher = mock.patch(
+            "experimenter.bugzilla.tasks.update_bug_resolution_task"
+        )
+        self.mock_tasks_update_bug_resolution = (
+            mock_tasks_update_bug_resolution_patcher.start()
+        )
+        self.addCleanup(mock_tasks_update_bug_resolution_patcher.stop)
+
+        mock_tasks_add_start_date_comment_patcher = mock.patch(
+            "experimenter.bugzilla.tasks.add_start_date_comment_task"
+        )
+        self.mock_tasks_add_start_date_comment = (
+            mock_tasks_add_start_date_comment_patcher.start()
+        )
+
+        self.addCleanup(mock_tasks_add_start_date_comment_patcher.stop)
+
+        mock_tasks_comp_experiment_update_res_patcher = mock.patch(
+            "experimenter.bugzilla.tasks.comp_experiment_update_res_task"
+        )
+        self.mock_tasks_comp_experiment_update_res = (
+            mock_tasks_comp_experiment_update_res_patcher.start()
+        )
+
+        self.addCleanup(mock_tasks_comp_experiment_update_res_patcher.stop)

@@ -14,7 +14,7 @@ from experimenter.experiments.forms import NormandyIdForm, RADIO_NO, RADIO_YES
 from experimenter.experiments.models import Experiment, Country, Locale
 from experimenter.experiments.tests.factories import ExperimentFactory
 
-from experimenter.experiments.tests.mixins import MockTasksMixin
+from experimenter.bugzilla.tests.mixins import MockTasksMixin
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.experiments.views import ExperimentFormMixin, ExperimentOrderingForm
 
