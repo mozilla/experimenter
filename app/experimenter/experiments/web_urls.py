@@ -20,7 +20,8 @@ from experimenter.experiments.views import (
 
 
 urlpatterns = [
-    re_path(r"^rapid/$", ExperimentRapidView.as_view(), name="experiments-rapid"),
+    re_path(r"^rapid/", ExperimentRapidView.as_view(), name="experiments-rapid"),
+    re_path(r"^rapid/new/", ExperimentRapidView.as_view(), name="experiments-rapid-create"),
     re_path(r"^new/$", ExperimentCreateView.as_view(), name="experiments-create"),
     re_path(
         r"^(?P<slug>[\w-]+)/edit/$",
