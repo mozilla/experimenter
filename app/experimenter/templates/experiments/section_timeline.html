@@ -56,7 +56,7 @@ Timeline
         <div class="row">
           <div class="col pr-0">
             <p class="border-bottom-teal">{{ experiment.start_date }}</p>
-            <strong>Total Duration: </strong>{{ experiment.proposed_duration }} Day{{ experiment.proposed_duration|pluralize }}
+            <strong>Total Duration: </strong>{{ experiment.total_duration}} Day{{ experiment.total_duration|pluralize }}
           </div>
           <div class="col pl-0 text-right">
             <p class="border-bottom-teal">{{ experiment.end_date }}</p>
@@ -70,7 +70,7 @@ Timeline
           <div class="row">
             <div class="col-6 pr-0">
               <p class="border-bottom-blue">{{ experiment.start_date }}</p>
-              <strong>Enrollment: </strong>{{ experiment.proposed_enrollment}} Day{{ experiment.proposed_enrollment|pluralize }}
+              <strong>Enrollment: </strong>{{ experiment.enrollment_duration}} Day{{ experiment.enrollment_duration|pluralize }}
             </div>
             <div class="col-6 pl-0 text-right">
               <p class="border-bottom-blue">{{ experiment.enrollment_end_date }}</p>
