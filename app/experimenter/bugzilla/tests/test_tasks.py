@@ -12,7 +12,6 @@ from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.bugzilla.tests.mixins import (
     MockBugzillaMixin,
     MockRequestMixin,
-    MockTasksMixin,
 )
 from experimenter.normandy.tests.mixins import MockNormandyMixin
 

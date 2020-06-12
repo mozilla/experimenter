@@ -11,15 +11,10 @@ from experimenter.experiments.constants import ExperimentConstants
 
 
 from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.normandy.tests.mixins import (
-    MockRequestMixin,
-    MockNormandyMixin,
-)
+from experimenter.normandy.tests.mixins import MockNormandyMixin, MockTasksMixin
 
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
-from experimenter.normandy.tests.mixins import MockTasksMixin
-import experimenter.normandy.tasks as tasks
-from experimenter.normandy import client as normandy
+from experimenter.normandy import tasks, client as normandy
 
 
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
