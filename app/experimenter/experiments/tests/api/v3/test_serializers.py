@@ -55,12 +55,12 @@ class TestExperimentRapidSerializer(MockRequestMixin, TestCase):
         changed_values = {
             "name": {
                 "display_name": "Name",
-                "new_value": "this experiment has logs",
+                "new_value": "rapid experiment",
                 "old_value": None,
             },
             "objectives": {
                 "display_name": "Objectives",
-                "new_value": "to see whether there are logs",
+                "new_value": "gotta go fast",
                 "old_value": None,
             },
             "owner": {
