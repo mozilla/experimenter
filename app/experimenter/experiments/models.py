@@ -462,6 +462,10 @@ class Experiment(ExperimentConstants, models.Model):
         ) or self._compute_end_date(self.proposed_duration)
 
     @property
+    def total_duration(self):
+        return (self.end_date - self.start_date).days
+
+    @property
     def enrollment_ending_soon(self):
         return (self.enrollment_end_date - datetime.date.today()) <= datetime.timedelta(
             days=5
@@ -473,12 +477,21 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def enrollment_end_date(self):
-        return self._compute_end_date(self.proposed_enrollment)
+        changes = self.changes.filter(message="Enrollment Complete")
+        if changes:
+            return changes[0].changed_on.date()
+        if self.proposed_enrollment:
+            return self._compute_end_date(self.proposed_enrollment)
+
+    @property
+    def enrollment_duration(self):
+        return (self.enrollment_end_date - self.start_date).days
 
     @property
     def observation_duration(self):
-        if self.proposed_enrollment:
-            return self.proposed_duration - self.proposed_enrollment
+        if self.enrollment_end_date:
+            duration = (self.end_date - self.enrollment_end_date).days
+            return duration
         return 0
 
     def _format_date(self, date):
