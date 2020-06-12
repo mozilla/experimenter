@@ -61,18 +61,24 @@ class TestExperimentRapidSerializer(MockRequestMixin, TestCase):
         self.assertTrue(serializer.is_valid())
         experiment = serializer.save()
         self.assertEqual(experiment.changes.count(), 1)
+
         changed_values = {
             "name": {
+                "display_name": "Name",
                 "new_value": "this experiment has logs",
                 "old_value": None,
-                "display_name": "Name",
             },
-            "type": {"new_value": "rapid", "old_value": None, "display_name": "Type"},
             "objectives": {
+                "display_name": "Objectives",
                 "new_value": "to see whether there are logs",
                 "old_value": None,
-                "display_name": "Objectives",
             },
+            "owner": {
+                "display_name": "Owner",
+                "new_value": self.user.id,
+                "old_value": None,
+            },
+            "type": {"display_name": "Type", "new_value": "rapid", "old_value": None},
         }
         self.assertTrue(
             experiment.changes.filter(

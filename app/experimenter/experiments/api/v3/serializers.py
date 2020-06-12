@@ -23,11 +23,13 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
         )
 
     def create(self, validated_data):
+        validated_data.update(
+            {
+                "slug": slugify(validated_data["name"]),
+                "owner": self.context["request"].user,
+            }
+        )
         experiment = super().create(validated_data)
-        experiment.slug = slugify(experiment.name)
-        experiment.owner = self.context["request"].user
-        experiment.save()
-
         self.update_changelog(experiment, validated_data)
         return experiment
 
