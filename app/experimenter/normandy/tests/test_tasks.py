@@ -11,14 +11,14 @@ from experimenter.experiments.constants import ExperimentConstants
 
 
 from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.normandy.tests.mixins import MockNormandyMixin, MockTasksMixin
+from experimenter.normandy.tests.mixins import MockNormandyMixin, MockNormandyTasksMixin
 
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 from experimenter.normandy import tasks, client as normandy
 
 
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
+class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCase):
     def test_update_ready_to_ship_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_SHIP

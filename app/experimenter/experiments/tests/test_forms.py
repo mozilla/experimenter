@@ -36,7 +36,7 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
-from experimenter.bugzilla.tests.mixins import MockTasksMixin
+from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 from experimenter.notifications.models import Notification
 from experimenter.projects.tests.factories import ProjectFactory
 
@@ -585,7 +585,7 @@ class TestExperimentResultsForm(MockRequestMixin, TestCase):
 
 
 class TestExperimentReviewForm(
-    MockRequestMixin, MockBugzillaMixin, MockTasksMixin, TestCase
+    MockRequestMixin, MockBugzillaMixin, MockBugzillaTasksMixin, TestCase
 ):
     def test_form_saves_reviews(self):
         user = UserFactory.create()
@@ -877,7 +877,7 @@ class TestExperimentReviewForm(
 
 
 class TestExperimentStatusForm(
-    MockBugzillaMixin, MockRequestMixin, MockTasksMixin, TestCase
+    MockBugzillaMixin, MockRequestMixin, MockBugzillaTasksMixin, TestCase
 ):
     def test_form_allows_valid_state_transition_and_creates_changelog(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
@@ -984,7 +984,7 @@ class TestExperimentCommentForm(MockRequestMixin, TestCase):
         self.assertIn("text", form.errors)
 
 
-class TestExperimentArchiveForm(MockRequestMixin, MockTasksMixin, TestCase):
+class TestExperimentArchiveForm(MockRequestMixin, MockBugzillaTasksMixin, TestCase):
     def test_form_flips_archive_bool(self):
 
         experiment = ExperimentFactory.create(archived=False)

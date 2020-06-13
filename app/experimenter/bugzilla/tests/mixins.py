@@ -77,18 +77,7 @@ class MockBugzillaMixin(object):
         self.mock_bugzilla_requests_post.return_value = mock_response
 
 
-"""
-class MockRequestMixin(object):
-    def setUp(self):
-        super().setUp()
-
-        self.user = UserFactory()
-        self.request = mock.Mock()
-        self.request.user = self.user
-"""
-
-
-class MockTasksMixin(object):
+class MockBugzillaTasksMixin(object):
     def setUp(self):
         super().setUp()
 

@@ -14,7 +14,7 @@ from experimenter.experiments.forms import NormandyIdForm, RADIO_NO, RADIO_YES
 from experimenter.experiments.models import Experiment, Country, Locale
 from experimenter.experiments.tests.factories import ExperimentFactory
 
-from experimenter.bugzilla.tests.mixins import MockTasksMixin
+from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.experiments.views import ExperimentFormMixin, ExperimentOrderingForm
 
@@ -568,7 +568,7 @@ class TestExperimentDetailView(TestCase):
         self.assertFalse(normandy_form.is_valid())
 
 
-class TestExperimentStatusUpdateView(MockTasksMixin, TestCase):
+class TestExperimentStatusUpdateView(MockBugzillaTasksMixin, TestCase):
     def test_view_updates_status_and_redirects(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
@@ -701,7 +701,7 @@ class TestExperimentCommentCreateView(TestCase):
         )
 
 
-class TestExperimentArchiveUpdateView(MockTasksMixin, TestCase):
+class TestExperimentArchiveUpdateView(MockBugzillaTasksMixin, TestCase):
     def test_view_flips_archive_bool_and_redirects(self):
         user_email = "user@example.com"
         experiment = ExperimentFactory.create(archived=False)
