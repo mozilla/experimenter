@@ -1,7 +1,6 @@
 import mock
 
 from experimenter import bugzilla
-from experimenter.openidc.tests.factories import UserFactory
 
 
 class MockBugzillaMixin(object):

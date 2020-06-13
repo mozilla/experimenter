@@ -1,7 +1,5 @@
 import mock
 
-from experimenter.openidc.tests.factories import UserFactory
-
 
 class MockNormandyMixin(object):
     def setUp(self):
@@ -81,7 +79,6 @@ class MockNormandyMixin(object):
                 return self.buildMockSuccessEnabledResponse()
 
         self.mock_normandy_requests_get.side_effect = determine_response
-
 
 
 class MockNormandyTasksMixin(object):
