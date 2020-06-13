@@ -34,8 +34,9 @@ from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     UserFactory,
 )
+from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
-from experimenter.bugzilla.tests.mixins import MockTasksMixin, MockRequestMixin
+from experimenter.bugzilla.tests.mixins import MockTasksMixin
 from experimenter.notifications.models import Notification
 from experimenter.projects.tests.factories import ProjectFactory
 

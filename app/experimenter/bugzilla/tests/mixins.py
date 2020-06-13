@@ -77,6 +77,7 @@ class MockBugzillaMixin(object):
         self.mock_bugzilla_requests_post.return_value = mock_response
 
 
+"""
 class MockRequestMixin(object):
     def setUp(self):
         super().setUp()
@@ -84,6 +85,7 @@ class MockRequestMixin(object):
         self.user = UserFactory()
         self.request = mock.Mock()
         self.request.user = self.user
+"""
 
 
 class MockTasksMixin(object):

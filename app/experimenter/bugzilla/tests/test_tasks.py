@@ -3,17 +3,15 @@ from django.conf import settings
 from django.test import TestCase
 from markus.testing import MetricsMock
 from requests import RequestException
-from experimenter.experiments.models import Experiment
 
+from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.bugzilla import tasks
 from experimenter.bugzilla import client as bugzilla
-from experimenter.notifications.models import Notification
+from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
+from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.bugzilla.tests.mixins import (
-    MockBugzillaMixin,
-    MockRequestMixin,
-)
 from experimenter.normandy.tests.mixins import MockNormandyMixin
+from experimenter.notifications.models import Notification
 
 
 class TestCreateBugTask(MockRequestMixin, MockBugzillaMixin, TestCase):

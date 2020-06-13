@@ -83,6 +83,7 @@ class MockNormandyMixin(object):
         self.mock_normandy_requests_get.side_effect = determine_response
 
 
+"""
 class MockRequestMixin(object):
     def setUp(self):
         super().setUp()
@@ -90,6 +91,7 @@ class MockRequestMixin(object):
         self.user = UserFactory()
         self.request = mock.Mock()
         self.request.user = self.user
+"""
 
 
 class MockTasksMixin(object):
