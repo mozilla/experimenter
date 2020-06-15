@@ -4,7 +4,7 @@ from experimenter.experiments.api.v3.serializers import ExperimentRapidSerialize
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.openidc.tests.factories import UserFactory
-from experimenter.experiments.tests.mixins import MockRequestMixin
+from experimenter.base.tests.mixins import MockRequestMixin
 
 
 class TestExperimentRapidSerializer(MockRequestMixin, TestCase):
