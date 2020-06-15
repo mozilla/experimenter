@@ -197,12 +197,12 @@ def fill_design_page_multi_prefs(
         branches[count].branch_description = branch.branch_description
         branches[count].add_pref_button.click()
         prefs = branches[count].prefs(count)
-        for pref_num in range(0, len(branch.preferences)):  # Fill in multi prefs
-            preferences = branch.preferences[pref_num]
-            prefs[pref_num].pref_branch = preferences.preference_branch_type
-            prefs[pref_num].pref_type = preferences.preference_type
-            prefs[pref_num].pref_name = preferences.preference_branch_name
-            prefs[pref_num].pref_value = preferences.preference_value
+        for pref_num, item in enumerate(branch.preferences):  # Fill in multi prefs
+            # preferences = branch.preferences[pref_num]
+            prefs[pref_num].pref_branch = item.preference_branch_type
+            prefs[pref_num].pref_type = item.preference_type
+            prefs[pref_num].pref_name = item.preference_branch_name
+            prefs[pref_num].pref_value = item.preference_value
     design.save_btn()
     return design
 

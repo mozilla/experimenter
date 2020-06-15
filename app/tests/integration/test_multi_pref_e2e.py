@@ -119,8 +119,8 @@ def test_multi_pref_e2e(
     default_branches = {branch.branch_name: branch for branch in default_data.branches}
     for api_branch in sorted(api_json.arguments.branches, key=lambda x: x.slug):
         assert api_branch.slug in default_branches
-        default_branch = default_branches[api_branch.slug].preferences
-        for item in default_branch:
+        default_branch = default_branches[api_branch.slug]
+        for item in default_branch.preferences:
             pref_data = api_branch.preferences.get(item.preference_branch_name)
             assert pref_data.preferenceType in item.preference_type
             assert pref_data.preferenceBranchType == item.preference_branch_type
