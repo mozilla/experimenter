@@ -1099,7 +1099,7 @@ class Preference(models.Model):
         blank=False,
         null=False,
     )
-    pref_value = models.CharField(max_length=255, blank=False, null=False)
+    pref_value = models.CharField(max_length=4096, blank=False, null=False)
 
     class Meta:
         abstract = True
