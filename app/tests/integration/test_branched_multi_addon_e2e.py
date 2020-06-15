@@ -4,7 +4,7 @@ import pytest
 import requests
 
 from models.validation_json import JsonData
-from models.base_json import BasePreferencesClass, BaseBranchData, BaseJsonData
+from models.base_json import BaseBranchData, BaseJsonData
 
 
 @pytest.fixture(name="experiment_type", scope="module")
