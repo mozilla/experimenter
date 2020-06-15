@@ -8,6 +8,7 @@ import requests
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 
+from models.base_json import BasePreferencesClass, BaseBranchData, BaseJsonData
 from pages.home import Home
 from pages.experiment_timeline_and_population import TimelineAndPopulationPage
 from pages.experiment_design import DesignPage
@@ -55,6 +56,47 @@ def fixture_experiment_type():
     return
 
 
+@pytest.fixture(name="default_data", scope="module")
+def fixture_default_data():
+    branches = []
+    preferences = []
+
+    preferences.append(
+        BasePreferencesClass(
+            preference_branch_name="e2e-testing",
+            preference_branch_type="default",
+            preference_type="boolean",
+            preference_value="true",
+        )
+    )
+
+    preferences.append(
+        BasePreferencesClass(
+            preference_branch_name="e2e-testing",
+            preference_branch_type="default",
+            preference_type="boolean",
+            preference_value="false",
+        )
+    )
+
+    for count, item in enumerate(preferences):
+        branches.append(
+            BaseBranchData(branch_name=f"e2e-default-branch-{count}", preferences=item)
+        )
+
+    return BaseJsonData(
+        type_name="Pref-Flip Experiment",
+        action_name="multi-preference-experiment",
+        experiment_type="channel",
+        channels="Nightly",
+        min_version=99,
+        max_version=100,
+        user_facing_name="e2e testing name",
+        user_facing_description="e2e testing description",
+        branches=sorted(branches, key=lambda x: x.branch_name),
+    )
+
+
 @pytest.fixture(name="experiment_overview_info")
 def fixture_experiment_info(variables, request, ds_issue_host, experiment_type):
     if request.node.get_closest_marker("use_variables"):
@@ -76,16 +118,16 @@ def fixture_experiment_info(variables, request, ds_issue_host, experiment_type):
 
 
 @pytest.fixture
-def fill_overview(selenium, base_url, experiment_overview_info):
+def fill_overview(selenium, base_url, ds_issue_host, default_data):
     """Fills overview page."""
     selenium.get(base_url)
     home = Home(selenium, base_url).wait_for_page_to_load()
     experiment = home.create_experiment()
-    experiment.experiment_type = experiment_overview_info["type_name"]
-    experiment.public_name = experiment_overview_info["public_name"]
-    experiment.public_description = experiment_overview_info["public_description"]
-    experiment.internal_description = experiment_overview_info["short_description"]
-    experiment.ds_issue_url = experiment_overview_info["ds_issue_url"]
+    experiment.experiment_type = default_data.type_name
+    experiment.public_name = default_data.user_facing_name
+    experiment.public_description = default_data.user_facing_description
+    experiment.internal_description = "Testing in here"
+    experiment.ds_issue_url = f"{ds_issue_host}DS-12345"
     experiment.save_btn()
     # Add url to object
     url = urlparse(selenium.current_url)
@@ -95,7 +137,7 @@ def fill_overview(selenium, base_url, experiment_overview_info):
 
 @pytest.fixture
 def fill_timeline_page(
-    selenium, base_url, request, variables, experiment_type, fill_overview
+    selenium, base_url, request, default_data, experiment_type, fill_overview
 ):
     """Fills timeline page."""
     timeline = TimelineAndPopulationPage(
@@ -108,20 +150,15 @@ def fill_timeline_page(
     timeline.proposed_start_date = today
     timeline.proposed_experiment_duration = "25"
     timeline.population_precentage = "100.0"
-    if request.node.get_closest_marker("use_variables"):
-        timeline.firefox_channel = f"{variables[experiment_type]['channels']}"
-        timeline.firefox_min_version = f"{variables[experiment_type]['min_version']}"
-        timeline.firefox_max_version = f"{variables[experiment_type]['max_version']}"
-    else:
-        timeline.firefox_channel = "nightly"
-        timeline.firefox_min_version = "75"
-        timeline.firefox_max_version = "100"
+    timeline.firefox_channel = default_data.channels
+    timeline.firefox_min_version = f"{default_data.min_version}.0"
+    timeline.firefox_max_version = f"{default_data.max_version}.0"
     timeline.save_btn()
     return timeline
 
 
 @pytest.fixture
-def fill_design_page(selenium, base_url, request, variables, fill_overview):
+def fill_design_page(selenium, base_url, request, fill_overview):
     """Fills design page according to generic requirements."""
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
     design = design.wait_for_page_to_load()
@@ -142,97 +179,79 @@ def fill_design_page(selenium, base_url, request, variables, fill_overview):
 
 @pytest.fixture
 def fill_design_page_multi_prefs(
-    selenium, base_url, request, variables, experiment_type, fill_overview
+    selenium, base_url, request, default_data, experiment_type, fill_overview
 ):
     """Fills design page according to multi pref requirements."""
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
     design = design.wait_for_page_to_load()
     design.enable_multipref()
     branches = design.current_branches
-    for count, branch in enumerate(variables[experiment_type]["branches"]):
-        branches[count].branch_name = f"{branch['branch_name']}"
-        branches[count].branch_description = f"{branch['branch_description']}"
+    for count, branch in enumerate(default_data.branches):
+        branches[count].branch_name = branch.branch_name
+        branches[count].branch_description = branch.branch_description
         branches[count].add_pref_button.click()
         prefs = branches[count].prefs(count)
-        for pref_num in range(0, len(branch["preferences"])):  # Fill in multi prefs
-            preferences = branch["preferences"][pref_num]
-            prefs[pref_num].pref_branch = preferences["firefox_pref_branch"]
-            prefs[pref_num].pref_type = preferences["firefox_pref_type"]
-            prefs[pref_num].pref_name = preferences["firefox_pref_name"]
-            prefs[pref_num].pref_value = preferences["firefox_pref_value"]
+        for pref_num in range(0, len(branch.preferences)):  # Fill in multi prefs
+            preferences = branch.preferences[pref_num]
+            prefs[pref_num].pref_branch = preferences.preference_branch_type
+            prefs[pref_num].pref_type = preferences.preference_type
+            prefs[pref_num].pref_name = preferences.preference_branch_name
+            prefs[pref_num].pref_value = preferences.preference_value
     design.save_btn()
     return design
 
 
 @pytest.fixture
 def fill_design_page_single_pref(
-    selenium, base_url, request, variables, experiment_type, fill_overview
+    selenium, base_url, request, default_data, experiment_type, fill_overview
 ):
     """Fills design page according to single pref requirements."""
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
     design = design.wait_for_page_to_load()
     design.input_firefox_pref_name(
-        f"{variables[experiment_type]['branches'][0]['firefox_pref_name']}"
+        default_data.branches[0].preferences.preference_branch_name
     )
-    design.select_firefox_pref_type(
-        f"{variables[experiment_type]['branches'][0]['firefox_pref_type']}"
-    )
+    design.select_firefox_pref_type(default_data.branches[0].preferences.preference_type)
     design.select_firefox_pref_branch(
-        f"{variables[experiment_type]['branches'][0]['firefox_pref_branch']}"
+        default_data.branches[0].preferences.preference_branch_type
     )
     current_branchs = design.current_branches
     control_branch = current_branchs[0]
-    control_branch.branch_name = (
-        f"{variables[experiment_type]['branches'][0]['branch_name']}"
-    )
+    control_branch.branch_name = default_data.branches[0].branch_name
     control_branch.branch_description = "THIS IS A TEST"
-    control_branch.branch_value = (
-        f"{variables[experiment_type]['branches'][0]['branch_value']}"
-    )
-    current_branchs[
-        1
-    ].branch_name = f"{variables[experiment_type]['branches'][1]['branch_name']}"
+    control_branch.branch_value = default_data.branches[0].preferences.preference_value
+    current_branchs[1].branch_name = default_data.branches[1].branch_name
     current_branchs[1].branch_description = "THIS IS A TEST"
-    current_branchs[
+    current_branchs[1].branch_value = default_data.branches[
         1
-    ].branch_value = f"{variables[experiment_type]['branches'][1]['branch_value']}"
+    ].preferences.preference_value
     design.save_btn()
     return design
 
 
 @pytest.fixture
 def fill_design_page_branched_single_addon(
-    selenium, base_url, request, variables, experiment_type, fill_overview
+    selenium, base_url, request, default_data, experiment_type, fill_overview
 ):
     """Fills design page according to branched single addon requirements."""
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
     design = design.wait_for_page_to_load()
-    design.signed_addon_url = f"{variables[experiment_type]['addon_url']}"
+    design.signed_addon_url = default_data.addon_url
     current_branchs = design.current_branches
     control_branch = current_branchs[0]
-    control_branch.branch_name = (
-        f"{variables[experiment_type]['branches'][0]['branch_name']}"
-    )
+    control_branch.branch_name = default_data.branches[0].branch_name
     control_branch.branch_description = "THIS IS A TEST"
-    control_branch.branch_description = (
-        f"{variables[experiment_type]['branches'][0]['branch_description']}"
-    )
-    current_branchs[
-        1
-    ].branch_name = f"{variables[experiment_type]['branches'][1]['branch_name']}"
+    control_branch.branch_description = default_data.branches[0].branch_description
+    current_branchs[1].branch_name = default_data.branches[1].branch_name
     current_branchs[1].branch_description = "THIS IS A TEST"
-    current_branchs[
-        1
-    ].branch_description = (
-        f"{variables[experiment_type]['branches'][1]['branch_description']}"
-    )
+    current_branchs[1].branch_description = default_data.branches[1].branch_description
     design.save_btn()
     return design
 
 
 @pytest.fixture
 def fill_design_page_branched_multi_addon(
-    selenium, base_url, request, variables, experiment_type, fill_overview
+    selenium, base_url, request, default_data, experiment_type, fill_overview
 ):
     """Fills design page according to branched multi addon requirements."""
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
@@ -240,34 +259,20 @@ def fill_design_page_branched_multi_addon(
     design.enable_multi_addon()
     current_branchs = design.current_branches
     control_branch = current_branchs[0]
-    control_branch.branch_name = (
-        f"{variables[experiment_type]['branches'][0]['branch_name']}"
-    )
+    control_branch.branch_name = default_data.branches[0].branch_name
     control_branch.branch_description = "THIS IS A TEST"
-    control_branch.branch_description = (
-        f"{variables[experiment_type]['branches'][0]['branch_description']}"
-    )
-    control_branch.signed_addon_url = (
-        f"{variables[experiment_type]['branches'][0]['addon_url']}"
-    )
-    current_branchs[
-        1
-    ].branch_name = f"{variables[experiment_type]['branches'][1]['branch_name']}"
+    control_branch.branch_description = default_data.branches[0].branch_description
+    control_branch.signed_addon_url = default_data.branches[0].addon_url
+    current_branchs[1].branch_name = default_data.branches[1].branch_name
     current_branchs[1].branch_description = "THIS IS A TEST"
-    current_branchs[
-        1
-    ].branch_description = (
-        f"{variables[experiment_type]['branches'][1]['branch_description']}"
-    )
-    current_branchs[
-        1
-    ].signed_addon_url = f"{variables[experiment_type]['branches'][0]['addon_url']}"
+    current_branchs[1].branch_description = default_data.branches[1].branch_description
+    current_branchs[1].signed_addon_url = default_data.branches[1].addon_url
     design.save_btn()
     return design
 
 
 @pytest.fixture
-def fill_analysis_page(selenium, base_url, request, variables, fill_overview):
+def fill_analysis_page(selenium, base_url, request, fill_overview):
     """Fills analysis page."""
     analysis_page = ObjectiveAndAnalysisPage(
         selenium, base_url, experiment_url=f"{fill_overview.url}"
@@ -280,7 +285,7 @@ def fill_analysis_page(selenium, base_url, request, variables, fill_overview):
 
 
 @pytest.fixture
-def fill_risks_page(selenium, base_url, request, variables, fill_overview):
+def fill_risks_page(selenium, base_url, request, fill_overview):
     """Fills risks page."""
     from pages.experiment_risks_and_testing import RiskAndTestingPage
 
