@@ -34,8 +34,9 @@ from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     UserFactory,
 )
+from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
-from experimenter.experiments.tests.mixins import MockTasksMixin, MockRequestMixin
+from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 from experimenter.notifications.models import Notification
 from experimenter.projects.tests.factories import ProjectFactory
 
@@ -95,6 +96,10 @@ class TestDSIssueURLField(TestCase):
             field.clean(ds_url)
 
 
+@override_settings(
+    BUGZILLA_HOST="https://bugzilla.example.com/",
+    DS_ISSUE_HOST="https://jira.example.com/browse/",
+)
 class TestChangeLogMixin(MockRequestMixin, TestCase):
     def test_mixin_creates_change_log_with_request_user_on_save(self):
         class TestForm(ChangeLogMixin, forms.ModelForm):
@@ -208,7 +213,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             },
             "feature_bugzilla_url": {
                 "display_name": "Feature Bugzilla URL",
-                "new_value": "https://bugzilla.allizom.org/show_bug.cgi?id=123",
+                "new_value": "https://bugzilla.example.com/show_bug.cgi?id=123",
                 "old_value": None,
             },
             "name": {
@@ -580,7 +585,7 @@ class TestExperimentResultsForm(MockRequestMixin, TestCase):
 
 
 class TestExperimentReviewForm(
-    MockRequestMixin, MockBugzillaMixin, MockTasksMixin, TestCase
+    MockRequestMixin, MockBugzillaMixin, MockBugzillaTasksMixin, TestCase
 ):
     def test_form_saves_reviews(self):
         user = UserFactory.create()
@@ -872,7 +877,7 @@ class TestExperimentReviewForm(
 
 
 class TestExperimentStatusForm(
-    MockBugzillaMixin, MockRequestMixin, MockTasksMixin, TestCase
+    MockBugzillaMixin, MockRequestMixin, MockBugzillaTasksMixin, TestCase
 ):
     def test_form_allows_valid_state_transition_and_creates_changelog(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
@@ -979,7 +984,7 @@ class TestExperimentCommentForm(MockRequestMixin, TestCase):
         self.assertIn("text", form.errors)
 
 
-class TestExperimentArchiveForm(MockRequestMixin, MockTasksMixin, TestCase):
+class TestExperimentArchiveForm(MockRequestMixin, MockBugzillaTasksMixin, TestCase):
     def test_form_flips_archive_bool(self):
 
         experiment = ExperimentFactory.create(archived=False)

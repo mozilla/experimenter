@@ -1,255 +1,24 @@
-from datetime import date
 import decimal
+from datetime import date
 
+import mock
 from django.conf import settings
 from django.core import mail
-from django.test import TestCase, override_settings
-from markus.testing import MetricsMock
-from requests.exceptions import RequestException
-import markus
-import mock
+from django.test import override_settings, TestCase
 
-from experimenter import bugzilla
-from experimenter import normandy
-from experimenter.experiments import tasks
-from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment, ExperimentEmail
+from experimenter.experiments.constants import ExperimentConstants
+
+
 from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.normandy.tests.mixins import MockNormandyMixin, MockNormandyTasksMixin
+
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
-from experimenter.experiments.tests.mixins import MockRequestMixin, MockTasksMixin
-from experimenter.normandy.tests.mixins import MockNormandyMixin
-from experimenter.notifications.models import Notification
-
-
-class TestCreateBugTask(MockRequestMixin, MockBugzillaMixin, TestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, bugzilla_id=None
-        )
-
-    def test_experiment_bug_successfully_created(self):
-        self.assertEqual(Notification.objects.count(), 0)
-
-        with MetricsMock() as mm:
-            tasks.create_experiment_bug_task(self.user.id, self.experiment.id)
-
-            self.assertTrue(
-                mm.has_record(
-                    markus.INCR,
-                    "experiments.tasks.create_experiment_bug.started",
-                    value=1,
-                )
-            )
-            self.assertTrue(
-                mm.has_record(
-                    markus.INCR,
-                    "experiments.tasks.create_experiment_bug.completed",
-                    value=1,
-                )
-            )
-            self.assertTrue(
-                mm.has_record(
-                    markus.TIMING, "experiments.tasks.create_experiment_bug.timing"
-                )
-            )
-            # Failed metric should not be sent.
-            self.assertFalse(
-                mm.has_record(
-                    markus.INCR, "experiments.tasks.create_experiment_bug.failed"
-                )
-            )
-
-        self.mock_bugzilla_requests_post.assert_called()
-
-        experiment = Experiment.objects.get(id=self.experiment.id)
-        self.assertEqual(experiment.bugzilla_id, self.bugzilla_id)
-
-        notification = Notification.objects.get()
-        self.assertEqual(notification.user, self.user)
-        self.assertEqual(
-            notification.message,
-            tasks.NOTIFICATION_MESSAGE_CREATE_BUG.format(bug_url=experiment.bugzilla_url),
-        )
-
-    def test_bugzilla_error_creates_error_notification(self):
-        self.assertEqual(Notification.objects.count(), 0)
-
-        self.mock_bugzilla_requests_post.side_effect = RequestException()
-
-        with self.assertRaises(bugzilla.BugzillaError):
-            with MetricsMock() as mm:
-                tasks.create_experiment_bug_task(self.user.id, self.experiment.id)
-
-                self.assertTrue(
-                    mm.has_record(
-                        markus.INCR,
-                        "experiments.tasks.create_experiment_bug.started",
-                        value=1,
-                    )
-                )
-                self.assertTrue(
-                    mm.has_record(
-                        markus.INCR,
-                        "experiments.tasks.create_experiment_bug.failed",
-                        value=1,
-                    )
-                )
-                # Failures should abort timing metrics.
-                self.assertFalse(
-                    mm.has_record(
-                        markus.TIMING, "experiments.tasks.create_experiment_bug.timing"
-                    )
-                )
-                # Completed metric should not be sent.
-                self.assertFalse(
-                    mm.has_record(
-                        markus.INCR, "experiments.tasks.create_experiment_bug.completed"
-                    )
-                )
-
-        self.mock_bugzilla_requests_post.assert_called()
-        self.assertEqual(Notification.objects.count(), 1)
-
-        experiment = Experiment.objects.get(id=self.experiment.id)
-        self.assertEqual(experiment.bugzilla_id, None)
-
-        notification = Notification.objects.get()
-        self.assertEqual(notification.user, self.user)
-        self.assertEqual(
-            notification.message, tasks.NOTIFICATION_MESSAGE_CREATE_BUG_FAILED
-        )
-
-
-class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
-        self.experiment.bugzilla_id = self.bugzilla_id
-        self.experiment.save()
-
-    def test_experiment_bug_successfully_updated(self):
-        self.assertEqual(Notification.objects.count(), 0)
-
-        with MetricsMock() as mm:
-            tasks.update_experiment_bug_task(self.user.id, self.experiment.id)
-
-            self.assertTrue(
-                mm.has_record(
-                    markus.INCR,
-                    "experiments.tasks.update_experiment_bug.started",
-                    value=1,
-                )
-            )
-            self.assertTrue(
-                mm.has_record(
-                    markus.INCR,
-                    "experiments.tasks.update_experiment_bug.completed",
-                    value=1,
-                )
-            )
-            self.assertTrue(
-                mm.has_record(
-                    markus.TIMING, "experiments.tasks.update_experiment_bug.timing"
-                )
-            )
-            # Failed metric should not be sent.
-            self.assertFalse(
-                mm.has_record(
-                    markus.INCR, "experiments.tasks.update_experiment_bug.failed"
-                )
-            )
-
-        self.mock_bugzilla_requests_put.assert_called()
-
-        notification = Notification.objects.get()
-        self.assertEqual(notification.user, self.user)
-        self.assertEqual(
-            notification.message,
-            tasks.NOTIFICATION_MESSAGE_UPDATE_BUG.format(
-                bug_url=self.experiment.bugzilla_url
-            ),
-        )
-
-    def test_bugzilla_error_creates_notifications(self):
-        self.assertEqual(Notification.objects.count(), 0)
-
-        self.mock_bugzilla_requests_put.side_effect = RequestException()
-
-        with self.assertRaises(bugzilla.BugzillaError):
-            with MetricsMock() as mm:
-                tasks.update_experiment_bug_task(self.user.id, self.experiment.id)
-
-                self.assertTrue(
-                    mm.has_record(
-                        markus.INCR,
-                        "experiments.tasks.update_experiment_bug.started",
-                        value=1,
-                    )
-                )
-                # Failures should abort timing metrics.
-                self.assertFalse(
-                    mm.has_record(
-                        markus.INCR, "experiments.tasks.update_experiment_bug.timing"
-                    )
-                )
-                # Completed metric should not be sent.
-                self.assertFalse(
-                    mm.has_record(
-                        markus.INCR, "experiments.tasks.update_experiment_bug.completed"
-                    )
-                )
-
-        self.mock_bugzilla_requests_put.assert_called()
-        self.assertEqual(Notification.objects.count(), 1)
-
-        notification = Notification.objects.get()
-        self.assertEqual(notification.user, self.user)
-        self.assertEqual(
-            notification.message, tasks.NOTIFICATION_MESSAGE_UPDATE_BUG_FAILED
-        )
-
-    def test_confidential_only_does_not_update_bugzilla(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP, risk_confidential=True
-        )
-
-        with MetricsMock() as mm:
-            tasks.update_experiment_bug_task(self.user.id, experiment.id)
-
-            self.assertTrue(
-                mm.has_record(
-                    markus.INCR,
-                    "experiments.tasks.update_experiment_bug.started",
-                    value=1,
-                )
-            )
-            self.assertFalse(
-                mm.has_record(
-                    markus.INCR, "experiements.tasks.update_experiment_bug.completed"
-                )
-            )
-            self.assertTrue(
-                mm.has_record(
-                    markus.TIMING, "experiments.tasks.update_experiment_bug.timing"
-                )
-            )
-
-            self.assertFalse(
-                mm.has_record(
-                    markus.INCR, "experiments.tasks.update_experiement_bug.failed"
-                )
-            )
-
-        self.mock_bugzilla_requests_put.assert_not_called()
-
-        self.assertEqual(Notification.objects.count(), 0)
+from experimenter.normandy import tasks, client as normandy
 
 
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
+class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCase):
     def test_update_ready_to_ship_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_SHIP
@@ -269,7 +38,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
         mock_response.status_code = 200
 
         self.mock_normandy_requests_get.return_value = mock_response
-        tasks.update_experiment_info()
+        tasks.update_recipe_ids_to_experiments()
 
         experiment = Experiment.objects.get(id=experiment.id)
 
@@ -298,7 +67,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
         mock_response.status_code = 200
 
         self.mock_normandy_requests_get.return_value = mock_response
-        tasks.update_experiment_info()
+        tasks.update_recipe_ids_to_experiments()
 
         experiment = Experiment.objects.get(id=experiment.id)
 
@@ -321,7 +90,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
             proposed_duration=60,
         )
 
-        tasks.update_experiment_info()
+        tasks.update_launched_experiments()
 
         recipe = self.buildMockSuccessEnabledResponse().json()["approved_revision"]
 
@@ -347,7 +116,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
         self.mock_normandy_requests_get.return_value = (
             self.buildMockSuccessDisabledResponse()
         )
-        tasks.update_experiment_info()
+        tasks.update_launched_experiments()
 
         self.mock_tasks_comp_experiment_update_res.delay.assert_called_with(experiment.id)
 
@@ -370,7 +139,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
 
         self.mock_normandy_requests_get.return_value = mock_response
 
-        tasks.update_experiment_info()
+        tasks.update_recipe_ids_to_experiments()
 
         self.assertEqual(experiment.status, Experiment.STATUS_SHIP)
         self.assertIsNone(experiment.normandy_id)
@@ -387,7 +156,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
             target_status=Experiment.STATUS_LIVE, normandy_id=1234
         )
 
-        tasks.update_experiment_info()
+        tasks.update_launched_experiments()
 
         self.mock_tasks_add_start_date_comment.delay.assert_not_called()
         self.mock_tasks_comp_experiment_update_res.delay.assert_not_called()
@@ -407,7 +176,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
         mock_response.status_code = 200
 
         self.mock_normandy_requests_get.return_value = mock_response
-        tasks.update_experiment_info()
+        tasks.update_launched_experiments()
 
         experiment = Experiment.objects.get(normandy_id=1234)
 
@@ -437,7 +206,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
 
         self.mock_normandy_requests_get.return_value = mock_response
 
-        tasks.update_experiment_info()
+        tasks.update_launched_experiments()
         experiment = Experiment.objects.get(normandy_id=1234)
 
         self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
@@ -459,7 +228,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
             target_status=Experiment.STATUS_ACCEPTED, normandy_id=1235
         )
 
-        tasks.update_experiment_info()
+        tasks.update_launched_experiments()
         updated_experiment = Experiment.objects.get(normandy_id=1234)
         updated_experiment2 = Experiment.objects.get(normandy_id=1235)
         self.assertEqual(updated_experiment.status, Experiment.STATUS_ACCEPTED)
@@ -483,7 +252,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
         ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_LIVE, normandy_id=None
         )
-        tasks.update_experiment_info()
+        tasks.update_launched_experiments()
         self.mock_normandy_requests_get.assert_not_called()
 
     def test_send_experiment_ending_email(self):
@@ -513,7 +282,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
             experiment=exp_3, type=ExperimentConstants.EXPERIMENT_ENDS
         )
 
-        tasks.update_experiment_info()
+        tasks.update_launched_experiments()
 
         self.assertEqual(len(mail.outbox), 1)
 
@@ -529,7 +298,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
         experiment.status = Experiment.STATUS_LIVE
         experiment.save()
 
-        tasks.update_experiment_info()
+        tasks.update_launched_experiments()
         experiment = Experiment.objects.get(normandy_id=1234)
 
         self.assertEqual(len(mail.outbox), 1)
@@ -563,7 +332,7 @@ class TestUpdateExperimentTask(MockTasksMixin, MockNormandyMixin, TestCase):
 
         self.mock_normandy_requests_get.return_value = mock_response
 
-        tasks.update_experiment_info()
+        tasks.update_launched_experiments()
         experiment = Experiment.objects.get(normandy_id=1234)
         self.assertEqual(experiment.population_percent, decimal.Decimal("50.000"))
 
@@ -585,49 +354,6 @@ class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase
                 new_status=Experiment.STATUS_LIVE,
             ).exists()
         )
-
-    def test_add_start_date_comment_task(self):
-        experiment = ExperimentFactory.create(normandy_id=12345)
-        comment = "Start Date: {} End Date: {}".format(
-            experiment.start_date, experiment.end_date
-        )
-        expected_call_data = {"comment": comment}
-
-        tasks.add_start_date_comment_task(experiment.id)
-
-        self.mock_bugzilla_requests_post.assert_called_with(
-            settings.BUGZILLA_COMMENT_URL.format(id=12345), expected_call_data
-        )
-
-    def test_add_start_date_comment_task_failure(self):
-        experiment = ExperimentFactory.create(normandy_id=12345)
-
-        self.mock_bugzilla_requests_post.side_effect = RequestException
-        with self.assertRaises(bugzilla.BugzillaError):
-            tasks.add_start_date_comment_task(experiment.id)
-
-    def test_comp_experiment_update_res_task(self):
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_COMPLETE, normandy_id=12345
-        )
-
-        expected_call_data = {"status": "RESOLVED", "resolution": "FIXED"}
-
-        tasks.comp_experiment_update_res_task(experiment.id)
-
-        self.mock_bugzilla_requests_put.assert_called_with(
-            settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
-            expected_call_data,
-        )
-
-    def test_comp_experiment_update_res_task_with_bug_error(self):
-        self.mock_bugzilla_requests_put.side_effect = RequestException()
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_COMPLETE, normandy_id=12345
-        )
-
-        with self.assertRaises(bugzilla.BugzillaError):
-            tasks.comp_experiment_update_res_task(experiment.id)
 
     def test_set_is_paused_value_task(self):
 
@@ -682,58 +408,3 @@ class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase
                 message="Enrollment Completed",
             ).exists()
         )
-
-
-class TestUpdateResolutionTask(MockRequestMixin, MockBugzillaMixin, TestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
-        self.experiment.bugzilla_id = self.bugzilla_id
-        self.experiment.save()
-
-    def test_experiment_bug_resolution_successfully_updated(self):
-        self.assertEqual(Notification.objects.count(), 0)
-
-        tasks.update_bug_resolution_task(self.user.id, self.experiment.id)
-
-        self.mock_bugzilla_requests_put.assert_called()
-
-        notification = Notification.objects.get()
-        self.assertEqual(notification.user, self.user)
-        self.assertEqual(
-            notification.message,
-            tasks.NOTIFICATION_MESSAGE_ARCHIVE_COMMENT.format(
-                bug_url=self.experiment.bugzilla_url
-            ),
-        )
-
-    def test_no_request_call_when_no_bug_id(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP, risk_confidential=True
-        )
-        experiment.bugzilla_id = None
-        experiment.save()
-
-        tasks.update_bug_resolution_task(self.user.id, experiment.id)
-
-        self.mock_bugzilla_requests_put.assert_not_called()
-
-        self.assertEqual(Notification.objects.count(), 0)
-
-    def test_bugzilla_error_create_notifications(self):
-        self.assertEqual(Notification.objects.count(), 0)
-
-        self.mock_bugzilla_requests_put.side_effect = RequestException()
-
-        with self.assertRaises(bugzilla.BugzillaError):
-
-            tasks.update_bug_resolution_task(self.user.id, self.experiment.id)
-
-            self.mock_bugzilla_requests_put.side_effect = RequestException()
-            self.mock_bugzilla_requests_put.assert_called()
-            self.assertEqual(Notification.objects.count(), 1)
-            message = tasks.NOTIFICATION_MESSAGE_ARCHIVE_ERROR_MESSAGE.format(
-                bug_url=self.experiment.bugzilla_url
-            )
-            self.assertEqual(Notification.objects.filters(message=message).exists())
