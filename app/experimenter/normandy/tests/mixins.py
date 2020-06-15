@@ -79,3 +79,34 @@ class MockNormandyMixin(object):
                 return self.buildMockSuccessEnabledResponse()
 
         self.mock_normandy_requests_get.side_effect = determine_response
+
+
+class MockNormandyTasksMixin(object):
+    def setUp(self):
+        super().setUp()
+
+        mock_tasks_set_is_paused_value_patcher = mock.patch(
+            "experimenter.normandy.tasks.set_is_paused_value_task"
+        )
+        self.mock_tasks_set_is_paused_value = (
+            mock_tasks_set_is_paused_value_patcher.start()
+        )
+        self.addCleanup(mock_tasks_set_is_paused_value_patcher.stop)
+
+        mock_tasks_add_start_date_comment_patcher = mock.patch(
+            "experimenter.normandy.tasks.add_start_date_comment_task"
+        )
+        self.mock_tasks_add_start_date_comment = (
+            mock_tasks_add_start_date_comment_patcher.start()
+        )
+
+        self.addCleanup(mock_tasks_add_start_date_comment_patcher.stop)
+
+        mock_tasks_comp_experiment_update_res_patcher = mock.patch(
+            "experimenter.normandy.tasks.comp_experiment_update_res_task"
+        )
+        self.mock_tasks_comp_experiment_update_res = (
+            mock_tasks_comp_experiment_update_res_patcher.start()
+        )
+
+        self.addCleanup(mock_tasks_comp_experiment_update_res_patcher.stop)
