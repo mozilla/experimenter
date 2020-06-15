@@ -2051,7 +2051,8 @@
                             ]
                           },
                           "pref_value": {
-                            "type": "string"
+                            "type": "string",
+                            "maxLength": 4096
                           }
                         },
                         "required": [
@@ -2126,7 +2127,8 @@
                           ]
                         },
                         "pref_value": {
-                          "type": "string"
+                          "type": "string",
+                          "maxLength": 4096
                         }
                       },
                       "required": [
@@ -2177,7 +2179,8 @@
                           ]
                         },
                         "pref_value": {
-                          "type": "string"
+                          "type": "string",
+                          "maxLength": 4096
                         }
                       },
                       "required": [
@@ -2228,7 +2231,8 @@
                           ]
                         },
                         "pref_value": {
-                          "type": "string"
+                          "type": "string",
+                          "maxLength": 4096
                         }
                       },
                       "required": [
@@ -2284,7 +2288,8 @@
                             ]
                           },
                           "pref_value": {
-                            "type": "string"
+                            "type": "string",
+                            "maxLength": 4096
                           }
                         },
                         "required": [
@@ -2359,7 +2364,8 @@
                           ]
                         },
                         "pref_value": {
-                          "type": "string"
+                          "type": "string",
+                          "maxLength": 4096
                         }
                       },
                       "required": [
@@ -2406,7 +2412,8 @@
                           ]
                         },
                         "pref_value": {
-                          "type": "string"
+                          "type": "string",
+                          "maxLength": 4096
                         }
                       },
                       "required": [
@@ -2453,7 +2460,8 @@
                           ]
                         },
                         "pref_value": {
-                          "type": "string"
+                          "type": "string",
+                          "maxLength": 4096
                         }
                       },
                       "required": [
@@ -2505,7 +2513,8 @@
                             ]
                           },
                           "pref_value": {
-                            "type": "string"
+                            "type": "string",
+                            "maxLength": 4096
                           }
                         },
                         "required": [
@@ -3216,7 +3225,8 @@
                                   ]
                                 },
                                 "pref_value": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "maxLength": 4096
                                 }
                               },
                               "required": [
@@ -3322,7 +3332,8 @@
                                 ]
                               },
                               "pref_value": {
-                                "type": "string"
+                                "type": "string",
+                                "maxLength": 4096
                               }
                             },
                             "required": [
@@ -3404,7 +3415,8 @@
                                 ]
                               },
                               "pref_value": {
-                                "type": "string"
+                                "type": "string",
+                                "maxLength": 4096
                               }
                             },
                             "required": [
@@ -3486,7 +3498,8 @@
                                 ]
                               },
                               "pref_value": {
-                                "type": "string"
+                                "type": "string",
+                                "maxLength": 4096
                               }
                             },
                             "required": [
@@ -3573,7 +3586,8 @@
                                   ]
                                 },
                                 "pref_value": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "maxLength": 4096
                                 }
                               },
                               "required": [
@@ -3679,7 +3693,8 @@
                                 ]
                               },
                               "pref_value": {
-                                "type": "string"
+                                "type": "string",
+                                "maxLength": 4096
                               }
                             },
                             "required": [
@@ -3757,7 +3772,8 @@
                                 ]
                               },
                               "pref_value": {
-                                "type": "string"
+                                "type": "string",
+                                "maxLength": 4096
                               }
                             },
                             "required": [
@@ -3835,7 +3851,8 @@
                                 ]
                               },
                               "pref_value": {
-                                "type": "string"
+                                "type": "string",
+                                "maxLength": 4096
                               }
                             },
                             "required": [
@@ -3918,7 +3935,8 @@
                                   ]
                                 },
                                 "pref_value": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "maxLength": 4096
                                 }
                               },
                               "required": [
