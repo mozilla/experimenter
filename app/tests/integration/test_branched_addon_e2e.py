@@ -73,7 +73,6 @@ def test_branched_addon_e2e(
         default_data.user_facing_description in api_json.arguments.userFacingDescription
     )
     assert len(default_data.branches) == len(api_json.arguments.branches)
-    api_branches = sorted(api_json.arguments.branches, key=lambda x: x.slug)
     default_branches = {branch.branch_name: branch for branch in default_data.branches}
     for api_branch in sorted(api_json.arguments.branches, key=lambda x: x.slug):
         assert api_branch.slug in default_branches
