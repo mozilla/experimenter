@@ -6,7 +6,7 @@ from rest_framework import serializers
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.api.v1.serializers import ExperimentVariantSerializer
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.tests.mixins import MockRequestMixin
+from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
