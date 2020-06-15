@@ -112,9 +112,9 @@ whitenoise==5.1.0 \
 parameterized==0.7.4 \
     --hash=sha256:59ab908e31c01505a987a2be78854e19cb1630c047bbab7848169c371d614d56 \
     --hash=sha256:190f8cc7230eee0b56b30d7f074fd4d165f7c45e6077582d0813c8557e738490
-pytest-cov==2.9.0 \
-    --hash=sha256:c87dfd8465d865655a8213859f1b4749b43448b5fae465cb981e16d52a811424 \
-    --hash=sha256:b6a814b8ed6247bd81ff47f038511b57fe1ce7f4cc25b9106f1a4b106f1d9322
+pytest-cov==2.10.0 \
+    --hash=sha256:6e6d18092dce6fad667cd7020deed816f858ad3b49d5b5e2b1cc1c97a4dba65c \
+    --hash=sha256:1a629dc9f48e53512fcbfda6b07de490c374b0c83c55ff7a1720b3fccff0ac87
 django-mozilla-product-details==0.14.1 \
     --hash=sha256:5fa2a8c3f2b9489aeb39b42c3612a43b0be5e778ffab07a5a2cf23b1eced4d64 \
     --hash=sha256:b7428e2dae653c4b0e35fa15363dd26b74dba821bf384c5cd835da0f1566b841
