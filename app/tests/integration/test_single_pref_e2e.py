@@ -4,7 +4,11 @@ import pytest
 import requests
 
 from models.validation_dataclass import APIDataClass
-from models.base_dataclass import BasePreferencesDataClass, BaseBranchDataClass, BaseDataClass
+from models.base_dataclass import (
+    BasePreferencesDataClass,
+    BaseBranchDataClass,
+    BaseDataClass,
+)
 
 
 @pytest.fixture(name="experiment_type", scope="module")
@@ -42,7 +46,9 @@ def fixture_default_data():
 
     for count, item in enumerate(preferences):
         branches.append(
-            BaseBranchDataClass(branch_name=f"e2e-singlepref-branch-{count}", preferences=item)
+            BaseBranchDataClass(
+                branch_name=f"e2e-singlepref-branch-{count}", preferences=item
+            )
         )
 
     return BaseDataClass(

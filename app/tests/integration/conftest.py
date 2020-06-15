@@ -8,7 +8,11 @@ import requests
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 
-from models.base_dataclass import BasePreferencesDataClass, BaseBranchDataClass, BaseDataClass
+from models.base_dataclass import (
+    BasePreferencesDataClass,
+    BaseBranchDataClass,
+    BaseDataClass,
+)
 from pages.home import Home
 from pages.experiment_timeline_and_population import TimelineAndPopulationPage
 from pages.experiment_design import DesignPage
@@ -81,7 +85,9 @@ def fixture_default_data():
 
     for count, item in enumerate(preferences):
         branches.append(
-            BaseBranchDataClass(branch_name=f"e2e-default-branch-{count}", preferences=item)
+            BaseBranchDataClass(
+                branch_name=f"e2e-default-branch-{count}", preferences=item
+            )
         )
 
     return BaseDataClass(

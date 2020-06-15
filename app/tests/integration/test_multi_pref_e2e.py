@@ -4,7 +4,11 @@ import pytest
 import requests
 
 from models.validation_dataclass import APIDataClass
-from models.base_dataclass import BasePreferencesDataClass, BaseBranchDataClass, BaseDataClass
+from models.base_dataclass import (
+    BasePreferencesDataClass,
+    BaseBranchDataClass,
+    BaseDataClass,
+)
 
 
 @pytest.fixture(name="experiment_type", scope="module")
