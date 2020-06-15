@@ -10,7 +10,7 @@ from django.urls import reverse
 from experimenter.experiments.filtersets import ExperimentFilterset
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.experiments.tests.mixins import MockRequestMixin
+from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 

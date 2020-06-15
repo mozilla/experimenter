@@ -1,3 +1,4 @@
+import logging
 from django.conf import settings
 from django.core.mail.message import EmailMessage
 from django.template.loader import render_to_string
@@ -98,3 +99,23 @@ def format_and_send_html_email(
     email.send(fail_silently=False)
 
     ExperimentEmail.objects.create(experiment=experiment, type=email_type)
+
+
+def send_period_ending_emails_task(experiment):
+    # send experiment ending soon emails if end date is 5 days out
+    if experiment.ending_soon:
+        if not ExperimentEmail.objects.filter(
+            experiment=experiment, type=ExperimentConstants.EXPERIMENT_ENDS
+        ).exists():
+            send_experiment_ending_email(experiment)
+            logging.info("Sent ending email for Experiment: {}".format(experiment))
+    # send enrollment ending emails if enrollment end
+    # date is 5 days out
+    if experiment.enrollment_end_date and experiment.enrollment_ending_soon:
+        if not ExperimentEmail.objects.filter(
+            experiment=experiment, type=ExperimentConstants.EXPERIMENT_PAUSES
+        ).exists():
+            send_enrollment_pause_email(experiment)
+            logging.info(
+                "Sent enrollment pause email for Experiment: {}".format(experiment)
+            )
