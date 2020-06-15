@@ -135,7 +135,7 @@ class ExperimentDesignBasePreferenceSerializer(serializers.ModelSerializer):
     pref_name = serializers.CharField(max_length=255)
     pref_type = serializers.ChoiceField(choices=ExperimentConstants.PREF_TYPE_CHOICES)
     pref_branch = serializers.ChoiceField(choices=ExperimentConstants.PREF_BRANCH_CHOICES)
-    pref_value = serializers.CharField(max_length=255)
+    pref_value = serializers.CharField(max_length=4096)
 
 
 class ExperimentDesignBranchVariantPreferencesSerializer(
