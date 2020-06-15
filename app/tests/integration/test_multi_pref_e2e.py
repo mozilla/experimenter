@@ -3,8 +3,8 @@ from urllib.parse import urlparse
 import pytest
 import requests
 
-from models.validation_json import JsonData
-from models.base_json import BasePreferencesClass, BaseBranchData, BaseJsonData
+from models.validation_dataclass import APIDataClass
+from models.base_dataclass import BasePreferencesDataClass, BaseBranchDataClass, BaseDataClass
 
 
 @pytest.fixture(name="experiment_type", scope="module")
@@ -23,7 +23,7 @@ def fixture_default_data():
     preferences = []
 
     preferences.append(
-        BasePreferencesClass(
+        BasePreferencesDataClass(
             preference_branch_name="e2e-testing-branch-1",
             preference_branch_type="default",
             preference_type="boolean",
@@ -31,7 +31,7 @@ def fixture_default_data():
         )
     )
     preferences.append(
-        BasePreferencesClass(
+        BasePreferencesDataClass(
             preference_branch_name="e2e-testing-branch-1-1",
             preference_branch_type="default",
             preference_type="integer",
@@ -39,7 +39,7 @@ def fixture_default_data():
         )
     )
     preferences.append(
-        BasePreferencesClass(
+        BasePreferencesDataClass(
             preference_branch_name="e2e-testing-branch-2",
             preference_branch_type="default",
             preference_type="string",
@@ -47,7 +47,7 @@ def fixture_default_data():
         )
     )
     preferences.append(
-        BasePreferencesClass(
+        BasePreferencesDataClass(
             preference_branch_name="e2e-testing-branch-2-1",
             preference_branch_type="default",
             preference_type="json string",
@@ -56,7 +56,7 @@ def fixture_default_data():
     )
 
     branches.append(
-        BaseBranchData(
+        BaseBranchDataClass(
             branch_name="e2e-singlepref-branch",
             branch_description="multipref-branch-description",
             preferences=sorted(preferences[:-2], key=lambda x: x.preference_branch_name),
@@ -64,14 +64,14 @@ def fixture_default_data():
     )
 
     branches.append(
-        BaseBranchData(
+        BaseBranchDataClass(
             branch_name="e2e-singlepref-branch-2",
             branch_description="multipref-branch-description",
             preferences=sorted(preferences[-2:], key=lambda x: x.preference_branch_name),
         )
     )
 
-    return BaseJsonData(
+    return BaseDataClass(
         type_name="Pref-Flip Experiment",
         action_name="multi-preference-experiment",
         experiment_type="channel",
@@ -101,7 +101,7 @@ def test_multi_pref_e2e(
     url = urlparse(selenium.current_url)
     experiment_url = f"{url.scheme}://{url.netloc}/api/v1{url.path}recipe/"
     experiment_json = requests.get(f"{experiment_url}", verify=False).json()
-    api_json = JsonData(**experiment_json)
+    api_json = APIDataClass(**experiment_json)
     assert default_data.user_facing_name in api_json.name
     assert default_data.action_name == api_json.action_name
     assert default_data.experiment_type == api_json.filter_object[1].type

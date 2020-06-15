@@ -14,7 +14,7 @@ class PreferencesDataClass(BaseModel):
     preferenceValue: Any
 
 
-class JsonBranchData(BaseModel):
+class BranchDataClass(BaseModel):
     slug: str
     ratio: Optional[str]
     addon_url: str = Field(default=None)
@@ -24,10 +24,10 @@ class JsonBranchData(BaseModel):
 class ArgumentsDataClass(BaseModel):
     userFacingName: str
     userFacingDescription: str
-    branches: List[JsonBranchData]
+    branches: List[BranchDataClass]
 
 
-class JsonData(BaseModel):
+class APIDataClass(BaseModel):
     action_name: str
     name: str
     comment: Optional[str]

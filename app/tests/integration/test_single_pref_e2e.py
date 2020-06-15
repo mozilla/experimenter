@@ -3,8 +3,8 @@ from urllib.parse import urlparse
 import pytest
 import requests
 
-from models.validation_json import JsonData
-from models.base_json import BasePreferencesClass, BaseBranchData, BaseJsonData
+from models.validation_dataclass import APIDataClass
+from models.base_dataclass import BasePreferencesDataClass, BaseBranchDataClass, BaseDataClass
 
 
 @pytest.fixture(name="experiment_type", scope="module")
@@ -23,7 +23,7 @@ def fixture_default_data():
     preferences = []
 
     preferences.append(
-        BasePreferencesClass(
+        BasePreferencesDataClass(
             preference_branch_name="e2e-testing",
             preference_branch_type="default",
             preference_type="boolean",
@@ -32,7 +32,7 @@ def fixture_default_data():
     )
 
     preferences.append(
-        BasePreferencesClass(
+        BasePreferencesDataClass(
             preference_branch_name="e2e-testing",
             preference_branch_type="default",
             preference_type="boolean",
@@ -42,10 +42,10 @@ def fixture_default_data():
 
     for count, item in enumerate(preferences):
         branches.append(
-            BaseBranchData(branch_name=f"e2e-singlepref-branch-{count}", preferences=item)
+            BaseBranchDataClass(branch_name=f"e2e-singlepref-branch-{count}", preferences=item)
         )
 
-    return BaseJsonData(
+    return BaseDataClass(
         type_name="Pref-Flip Experiment",
         action_name="multi-preference-experiment",
         experiment_type="channel",
@@ -75,7 +75,7 @@ def test_single_pref_e2e(
     url = urlparse(selenium.current_url)
     experiment_url = f"{url.scheme}://{url.netloc}/api/v1{url.path}recipe/"
     experiment_json = requests.get(f"{experiment_url}", verify=False).json()
-    api_json = JsonData(**experiment_json)
+    api_json = APIDataClass(**experiment_json)
     assert default_data.action_name == api_json.action_name
     assert default_data.experiment_type == api_json.filter_object[1].type
     assert default_data.channels.lower() in api_json.filter_object[1].channels
