@@ -40,5 +40,9 @@ module.exports = (env, argv = {}) => {
     module: {
       rules,
     },
+    watchOptions: {
+      poll: 1000,
+      aggregateTimeout: 1000,
+    },
   };
 };
