@@ -24,7 +24,9 @@ const ExperimentForm: React.FC = () => {
     name: "",
     objectives: "",
   });
-  const [errors, setErrors] = React.useState({});
+  const [errors, setErrors] = React.useState<{ [name: string]: Array<string> }>(
+    {},
+  );
   const history = useHistory();
 
   const handleChange = (ev) => {
@@ -67,10 +69,10 @@ const ExperimentForm: React.FC = () => {
           id="field-name"
           name="name"
           type="text"
-          value={formData["name"]}
+          value={formData.name}
           onChange={handleChange}
         />
-        <ErrorList errors={errors["name"]} />
+        <ErrorList errors={errors.name} />
       </div>
 
       <div className="mb-4">
@@ -86,10 +88,10 @@ const ExperimentForm: React.FC = () => {
           id="field-objectives"
           name="objectives"
           rows={5}
-          value={formData["objectives"]}
+          value={formData.objectives}
           onChange={handleChange}
         />
-        <ErrorList errors={errors["objectives"]} />
+        <ErrorList errors={errors.objectives} />
       </div>
 
       <div className="mb-4">
@@ -105,7 +107,7 @@ const ExperimentForm: React.FC = () => {
           id="field-feature"
           name="feature"
         />
-        <ErrorList errors={errors["feature"]} />
+        <ErrorList errors={errors.feature} />
       </div>
 
       <div className="mb-4">
@@ -121,7 +123,7 @@ const ExperimentForm: React.FC = () => {
           id="field-audience"
           name="audience"
         />
-        <ErrorList errors={errors["audience"]} />
+        <ErrorList errors={errors.audience} />
       </div>
 
       <div className="mb-4">
@@ -137,7 +139,7 @@ const ExperimentForm: React.FC = () => {
           id="field-trigger"
           name="trigger"
         />
-        <ErrorList errors={errors["trigger"]} />
+        <ErrorList errors={errors.trigger} />
       </div>
 
       <div className="mb-4">
@@ -153,7 +155,7 @@ const ExperimentForm: React.FC = () => {
           id="field-version"
           name="version"
         />
-        <ErrorList errors={errors["version"]} />
+        <ErrorList errors={errors.version} />
       </div>
 
       <button
