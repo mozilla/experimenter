@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, List
 
 
 @dataclass
@@ -7,15 +7,16 @@ class BasePreferencesDataClass:
     preference_type: Optional[str]
     preference_branch_type: Optional[str]
     preference_value: Optional[str]
-    preference_branch_name: Optional[str] =None
+    preference_branch_name: Optional[str] = None
 
 
-@dataclass
+@dataclass(order=True)
 class BaseBranchDataClass:
     branch_name: str
-    preferences: BasePreferencesDataClass
+    preferences: List[BasePreferencesDataClass]
     addon_url: Optional[str] = None
     branch_description: Optional[str] = None
+    ratio: Optional[int] = None
     ratio: Optional[int] = None
 
 
@@ -30,4 +31,4 @@ class BaseDataClass:
     user_facing_name: str
     user_facing_description: str
     branches: List[BaseBranchDataClass]
-    addon_url: Optional[str] = None
+    addon_url: str = field(default=None)

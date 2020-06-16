@@ -17,8 +17,8 @@ class PreferencesDataClass(BaseModel):
 class BranchDataClass(BaseModel):
     slug: str
     ratio: Optional[str]
-    addon_url: Optional[str] = Field(default=None)
-    preferences: Optional[Dict[str, PreferencesDataClass]] = Field(default=None)
+    addon_url: Optional[str] = None
+    preferences: Optional[Dict[Optional[str], PreferencesDataClass]] = Field(default=None)
 
 
 class ArgumentsDataClass(BaseModel):
