@@ -10,6 +10,7 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
     rapid_type = serializers.HiddenField(default=Experiment.RAPID_AA_CFR)
     owner = serializers.ReadOnlyField(source="owner.email")
     slug = serializers.ReadOnlyField()
+    objectives = serializers.CharField(required=True)
 
     class Meta:
         model = Experiment
