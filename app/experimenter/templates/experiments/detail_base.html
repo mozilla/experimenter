@@ -36,14 +36,14 @@
     <div class="col py-2">
       {% if experiment.bugzilla_url %}
         <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.bugzilla_url }}">
-          <img class="link-icon" src="{% static "imgs/bugzilla.png" %}" alt="bugzilla">
+          <i class="fas fa-bug"></i>
           Delivery Bugzilla Ticket
         </a>
       {% endif %}
       {% if experiment.data_science_issue_url %}
 
         <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.data_science_issue_url }}">
-          <img class="link-icon" src="{% static "imgs/bugzilla.png" %}" alt="bugzilla">
+          <i class="fas fa-bug"></i>
           Data Science Issue Ticket
         </a>
       {% endif %}
@@ -51,18 +51,18 @@
 
       {% if experiment.feature_bugzilla_url %}
         <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.feature_bugzilla_url }}">
-          <img class="link-icon" src="{% static "imgs/bugzilla.png" %}" alt="bugzilla">
+          <i class="fas fa-bug"></i>
           Feature Bugzilla Ticket
         </a>
       {% endif %}
 
       {% if experiment.is_shipped %}
-        <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.api_recipe_url }}" > 
-          <span class="fas fa-scroll"></span> 
+        <a class="alert-link mr-4" target="_blank" rel="noreferrer noopener" href="{{ experiment.api_recipe_url }}" >
+          <span class="fas fa-scroll"></span>
            Preview Recipe JSON
         </a>
       {% endif %}
-      
+
       {% if experiment.monitoring_dashboard_url %}
         <a class="alert-link" target="_blank" rel="noreferrer noopener" href="{{ experiment.monitoring_dashboard_url }}">
           <span class="fas fa-chart-bar"></span>
