@@ -51,21 +51,18 @@ def fixture_default_data():
         ),
     ]
 
-    branches.append(
+    branches = [
         BaseBranchDataClass(
             branch_name="e2e-singlepref-branch",
             branch_description="multipref-branch-description",
             preferences=sorted(preferences[:-2], key=lambda x: x.preference_branch_name),
-        )
-    )
-
-    branches.append(
+        ),
         BaseBranchDataClass(
             branch_name="e2e-singlepref-branch-2",
             branch_description="multipref-branch-description",
             preferences=sorted(preferences[-2:], key=lambda x: x.preference_branch_name),
         )
-    )
+    ]
 
     return BaseDataClass(
         type_name="Pref-Flip Experiment",
