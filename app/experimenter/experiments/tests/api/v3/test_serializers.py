@@ -31,6 +31,12 @@ class TestExperimentRapidSerializer(MockRequestMixin, TestCase):
             },
         )
 
+    def test_serializer_required_fields(self):
+        serializer = ExperimentRapidSerializer(data={}, context={"request": self.request})
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("name", serializer.errors)
+        self.assertIn("objectives", serializer.errors)
+
     def test_serializer_creates_experiment_and_sets_slug_and_changelog(self):
         data = {
             "name": "rapid experiment",
