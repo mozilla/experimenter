@@ -3,6 +3,13 @@ from urllib.parse import urlparse
 import pytest
 import requests
 
+from models.validation_dataclass import APIDataClass
+from models.base_dataclass import (
+    BasePreferencesDataClass,
+    BaseBranchDataClass,
+    BaseDataClass,
+)
+
 
 @pytest.fixture(name="experiment_type", scope="module")
 def fixture_experiment_type():
@@ -12,6 +19,44 @@ def fixture_experiment_type():
 @pytest.fixture(name="experiment_name", scope="module")
 def fixture_experiment_name():
     return "Pref-Flip Experiment"
+
+
+@pytest.fixture(name="default_data", scope="module")
+def fixture_default_data():
+    branches = []
+    preferences = [
+        BasePreferencesDataClass(
+            preference_branch_name="e2e-testing",
+            preference_branch_type="default",
+            preference_type="boolean",
+            preference_value="true",
+        ),
+        BasePreferencesDataClass(
+            preference_branch_name="e2e-testing",
+            preference_branch_type="default",
+            preference_type="boolean",
+            preference_value="false",
+        ),
+    ]
+
+    for count, item in enumerate(preferences):
+        branches.append(
+            BaseBranchDataClass(
+                branch_name=f"e2e-singlepref-branch-{count}", preferences=item
+            )
+        )
+
+    return BaseDataClass(
+        type_name="Pref-Flip Experiment",
+        action_name="multi-preference-experiment",
+        experiment_type="channel",
+        channels="Nightly",
+        min_version=99,
+        max_version=100,
+        user_facing_name="e2e testing name",
+        user_facing_description="e2e testing description",
+        branches=sorted(branches, key=lambda x: x.branch_name),
+    )
 
 
 @pytest.mark.use_variables
@@ -26,54 +71,32 @@ def test_single_pref_e2e(
     fill_risks_page,
     signoff_and_ship,
     variables,
+    default_data,
 ):
     url = urlparse(selenium.current_url)
     experiment_url = f"{url.scheme}://{url.netloc}/api/v1{url.path}recipe/"
     experiment_json = requests.get(f"{experiment_url}", verify=False).json()
-    assert variables[experiment_type]["userFacingName"] in experiment_json["name"]
-    assert variables[experiment_type]["action_name"] == experiment_json["action_name"]
+    api_json = APIDataClass(**experiment_json)
+    assert default_data.action_name == api_json.action_name
+    assert default_data.experiment_type == api_json.filter_object[1].type
+    assert default_data.channels.lower() in api_json.filter_object[1].channels
+    assert default_data.min_version == api_json.filter_object[2].versions[0]
+    assert default_data.max_version == api_json.filter_object[2].versions[-1]
+    assert default_data.user_facing_name in api_json.arguments.userFacingName
     assert (
-        variables[experiment_type]["type"] == experiment_json["filter_object"][1]["type"]
+        default_data.user_facing_description in api_json.arguments.userFacingDescription
     )
-    assert (
-        variables[experiment_type]["channels"].lower()
-        == experiment_json["filter_object"][1]["channels"][0]
-    )
-    assert (
-        variables[experiment_type]["min_version"]
-        == f"{[item for item in experiment_json['filter_object'][2]['versions']][0]}.0"
-    )
-    assert (
-        variables[experiment_type]["max_version"]
-        == f"{[item for item in experiment_json['filter_object'][2]['versions']][-1]}.0"
-    )
-    assert (
-        variables[experiment_type]["userFacingName"]
-        in experiment_json["arguments"]["userFacingName"]
-    )
-    assert (
-        variables[experiment_type]["userFacingDescription"]
-        == experiment_json["arguments"]["userFacingDescription"]
-    )
-    assert len(variables[experiment_type]["branches"]) == len(
-        experiment_json["arguments"]["branches"]
-    )
-    for item in experiment_json["arguments"]["branches"]:
-        for num in range(len(experiment_json["arguments"]["branches"])):
-            if item["slug"] == variables[experiment_type]["branches"][num]["branch_name"]:
-                assert (
-                    variables[experiment_type]["branches"][num]["firefox_pref_name"]
-                    in f"{[key for key in item['preferences']]}"
-                )
-                assert (
-                    variables[experiment_type]["branches"][num]["firefox_pref_type"]
-                    in f"{[value['preferenceType'] for value in item['preferences'].values()]}"  # noqa: E501
-                )
-                assert (
-                    variables[experiment_type]["branches"][num]["firefox_pref_branch"]
-                    in f"{[value['preferenceBranchType'] for value in item['preferences'].values()]}"  # noqa: E501
-                )
-                assert (
-                    variables[experiment_type]["branches"][num]["branch_value"]
-                    in f"{[value['preferenceValue'] for value in item['preferences'].values()]}".lower()  # noqa: E501
-                )
+    assert len(default_data.branches) == len(api_json.arguments.branches)
+    for count, data in enumerate(default_data.branches):
+        api_branches = sorted(api_json.arguments.branches, key=lambda x: x.slug)
+        branch_name, api_preferences = list(api_branches[count].preferences.items())[-1]
+        assert data.preferences.preference_branch_name in branch_name
+        assert data.preferences.preference_type == api_preferences.preferenceType
+        assert (
+            data.preferences.preference_branch_type
+            == api_preferences.preferenceBranchType
+        )
+        assert (
+            data.preferences.preference_value
+            in str(api_preferences.preferenceValue).lower()
+        )
