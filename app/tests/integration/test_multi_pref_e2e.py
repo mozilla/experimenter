@@ -61,7 +61,7 @@ def fixture_default_data():
             branch_name="e2e-singlepref-branch-2",
             branch_description="multipref-branch-description",
             preferences=sorted(preferences[-2:], key=lambda x: x.preference_branch_name),
-        )
+        ),
     ]
 
     return BaseDataClass(
