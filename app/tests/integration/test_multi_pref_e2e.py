@@ -24,40 +24,32 @@ def fixture_experiment_name():
 @pytest.fixture(name="default_data", scope="module")
 def fixture_default_data():
     branches = []
-    preferences = []
-
-    preferences.append(
+    preferences = [
         BasePreferencesDataClass(
             preference_branch_name="e2e-testing-branch-1",
             preference_branch_type="default",
             preference_type="boolean",
             preference_value="true",
-        )
-    )
-    preferences.append(
+        ),
         BasePreferencesDataClass(
             preference_branch_name="e2e-testing-branch-1-1",
             preference_branch_type="default",
             preference_type="integer",
             preference_value="10",
-        )
-    )
-    preferences.append(
+        ),
         BasePreferencesDataClass(
             preference_branch_name="e2e-testing-branch-2",
             preference_branch_type="default",
             preference_type="string",
             preference_value="pref-string",
-        )
-    )
-    preferences.append(
+        ),
         BasePreferencesDataClass(
             preference_branch_name="e2e-testing-branch-2-1",
             preference_branch_type="default",
             preference_type="json string",
             preference_value='{"object": "name"}',
-        )
-    )
+        ),
+    ]
 
     branches.append(
         BaseBranchDataClass(

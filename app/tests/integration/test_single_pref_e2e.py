@@ -24,25 +24,20 @@ def fixture_experiment_name():
 @pytest.fixture(name="default_data", scope="module")
 def fixture_default_data():
     branches = []
-    preferences = []
-
-    preferences.append(
+    preferences = [
         BasePreferencesDataClass(
             preference_branch_name="e2e-testing",
             preference_branch_type="default",
             preference_type="boolean",
             preference_value="true",
-        )
-    )
-
-    preferences.append(
+        ),
         BasePreferencesDataClass(
             preference_branch_name="e2e-testing",
             preference_branch_type="default",
             preference_type="boolean",
             preference_value="false",
-        )
-    )
+        ),
+    ]
 
     for count, item in enumerate(preferences):
         branches.append(
