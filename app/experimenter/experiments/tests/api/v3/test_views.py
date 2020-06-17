@@ -1,5 +1,4 @@
 import json
-import mock
 
 from django.conf import settings
 from django.test import TestCase
@@ -10,9 +9,10 @@ from experimenter.experiments.api.v3.serializers import ExperimentRapidSerialize
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
 
-class TestExperimentRapidViewSet(TestCase):
+class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
     def test_get_detail_returns_data_for_rapid_experiment(self):
         user_email = "user@example.com"
 
@@ -83,11 +83,6 @@ class TestExperimentRapidViewSet(TestCase):
         self.assertEqual(experiment.objectives, "new hypothesis")
 
     def test_post_list_creates_rapid_experiment(self):
-        mock_tasks_create_bug_patcher = mock.patch(
-            "experimenter.experiments.api.v3.serializers.create_experiment_bug_task"
-        )
-        self.mock_tasks_create_bug = mock_tasks_create_bug_patcher.start()
-        self.addCleanup(mock_tasks_create_bug_patcher.stop)
 
         user_email = "user@example.com"
 

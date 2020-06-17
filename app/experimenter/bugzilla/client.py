@@ -167,7 +167,7 @@ def format_summary(experiment):
 
 
 def create_experiment_bug(experiment):
-    if experiment.type == experiment.TYPE_RAPID:
+    if experiment.is_rapid_experiment:
         bug_data = format_rapid_experiment_request(experiment)
     else:
         bug_data = format_normandy_experiment_request(experiment)
