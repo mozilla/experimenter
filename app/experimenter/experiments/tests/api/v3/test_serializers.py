@@ -1,5 +1,5 @@
 import mock
-from django.test import TestCase
+from django.test import override_settings, TestCase
 
 from experimenter.experiments.api.v3.serializers import ExperimentRapidSerializer
 from experimenter.experiments.models import Experiment
@@ -8,6 +8,7 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.base.tests.mixins import MockRequestMixin
 
 
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
 class TestExperimentRapidSerializer(MockRequestMixin, TestCase):
     def test_serializer_outputs_expected_schema(self):
         owner = UserFactory(email="owner@example.com")
