@@ -1,6 +1,7 @@
 from django.utils.text import slugify
 from rest_framework import serializers
 
+from experimenter.bugzilla.tasks import create_experiment_bug_task
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.changelog_utils import ChangelogSerializerMixin
 
@@ -32,6 +33,7 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
         )
         experiment = super().create(validated_data)
         self.update_changelog(experiment, validated_data)
+        create_experiment_bug_task.delay(experiment.owner.id, experiment.id)
         return experiment
 
     def update(self, instance, validated_data):
