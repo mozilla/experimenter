@@ -83,7 +83,6 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         self.assertEqual(experiment.objectives, "new hypothesis")
 
     def test_post_list_creates_rapid_experiment(self):
-
         user_email = "user@example.com"
 
         data = json.dumps({"name": "rapid experiment", "objectives": "gotta go fast"})
