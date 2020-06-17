@@ -1,15 +1,29 @@
 import React from "react";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { Switch, Link, Route } from "react-router-dom";
+
+import ExperimentFormPage from "experimenter-rapid/components/pages/ExperimentFormPage";
 
 const App: React.FC = () => {
+  React.useEffect(() => {
+    const subHeader = document.getElementById("sub-header");
+    /* istanbul ignore if */
+    if (subHeader) {
+      subHeader.classList.add("d-none");
+    }
+  }, []);
+
   return (
-    <BrowserRouter>
-      <Switch>
-        <Route path="/">
-          <div>Rapid Experiments</div>
-        </Route>
-      </Switch>
-    </BrowserRouter>
+    <Switch>
+      <Route exact path="/">
+        <Link to="/new/">Create a new experiment</Link>
+      </Route>
+      <Route exact path="/new/">
+        <ExperimentFormPage />
+      </Route>
+      <Route>
+        <div>404</div>
+      </Route>
+    </Switch>
   );
 };
 
