@@ -8,6 +8,7 @@ module.exports = {
     "^experimenter-rapid/(.*)$": "<rootDir>/$1",
     "\\.(less|css)$": "identity-obj-proxy",
   },
+  setupFiles: ["<rootDir>/jest.setup.js"],
   setupFilesAfterEnv: ["<rootDir>/jest-env.setup.js"],
   verbose: true,
   collectCoverage: true,
