@@ -604,6 +604,10 @@ class Experiment(ExperimentConstants, models.Model):
         return self.type == self.TYPE_ROLLOUT
 
     @property
+    def is_rapid_experiment(self):
+        return self.type == self.TYPE_RAPID
+
+    @property
     def is_pref_rollout(self):
         return self.is_rollout and self.rollout_type == self.TYPE_PREF
 
