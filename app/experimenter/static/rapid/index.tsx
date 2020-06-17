@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { BrowserRouter } from "react-router-dom";
 
 import App from "experimenter-rapid/components/App";
 
@@ -8,5 +9,10 @@ const applicationRoot = document.querySelector(
 );
 
 if (applicationRoot) {
-  ReactDOM.render(<App />, applicationRoot);
+  ReactDOM.render(
+    <BrowserRouter basename="/experiments/rapid">
+      <App />
+    </BrowserRouter>,
+    applicationRoot,
+  );
 }

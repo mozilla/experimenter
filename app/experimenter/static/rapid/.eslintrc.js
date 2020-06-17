@@ -51,6 +51,7 @@ const baseSettings = {
         next: "*",
       },
     ],
+    "react/prop-types": [0],
   },
   settings: {
     react: {
