@@ -167,6 +167,21 @@ def format_summary(experiment):
 
 
 def create_experiment_bug(experiment):
+    if experiment.type == experiment.TYPE_RAPID:
+        bug_data = format_rapid_experiment_request(experiment)
+    else:
+        bug_data = format_normandy_experiment_request(experiment)
+
+    response_data = make_bugzilla_call(
+        settings.BUGZILLA_CREATE_URL, requests.post, data=bug_data
+    )
+
+    if "id" not in response_data:
+        raise BugzillaError(response_data["message"])
+    return response_data["id"]
+
+
+def format_normandy_experiment_request(experiment):
     assigned_to, blocks = None, None
 
     if user_exists(experiment.owner.email):
@@ -177,13 +192,26 @@ def create_experiment_bug(experiment):
     extra_fields = {"assigned_to": assigned_to, "blocks": blocks}
 
     bug_data = format_creation_bug_body(experiment, extra_fields)
-    response_data = make_bugzilla_call(
-        settings.BUGZILLA_CREATE_URL, requests.post, data=bug_data
-    )
 
-    if "id" not in response_data:
-        raise BugzillaError(response_data["message"])
-    return response_data["id"]
+    return bug_data
+
+
+def format_rapid_experiment_request(experiment):
+
+    summary = format_summary(experiment)
+    bug_data = {
+        "product": "Shield",
+        "component": "Shield Study",
+        "version": "unspecified",
+        "type": "task",
+        "summary": summary,
+        "description": experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
+    }
+
+    if user_exists(experiment.owner.email):
+        bug_data["assigned_to"] = experiment.owner.email
+
+    return bug_data
 
 
 def get_bugzilla_id(bug_url):

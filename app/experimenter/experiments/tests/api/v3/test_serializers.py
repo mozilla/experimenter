@@ -1,3 +1,4 @@
+import mock
 from django.test import TestCase
 
 from experimenter.experiments.api.v3.serializers import ExperimentRapidSerializer
@@ -38,6 +39,12 @@ class TestExperimentRapidSerializer(MockRequestMixin, TestCase):
         self.assertIn("objectives", serializer.errors)
 
     def test_serializer_creates_experiment_and_sets_slug_and_changelog(self):
+        mock_tasks_create_bug_patcher = mock.patch(
+            "experimenter.experiments.api.v3.serializers.create_experiment_bug_task"
+        )
+        self.mock_tasks_create_bug = mock_tasks_create_bug_patcher.start()
+        self.addCleanup(mock_tasks_create_bug_patcher.stop)
+
         data = {
             "name": "rapid experiment",
             "objectives": "gotta go fast",
@@ -55,6 +62,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, TestCase):
         self.assertEqual(experiment.name, "rapid experiment")
         self.assertEqual(experiment.slug, "rapid-experiment")
         self.assertEqual(experiment.objectives, "gotta go fast")
+
+        self.mock_tasks_create_bug.delay.assert_called()
 
         self.assertEqual(experiment.changes.count(), 1)
 
