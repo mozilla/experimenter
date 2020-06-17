@@ -5,9 +5,10 @@ from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.base.tests.mixins import MockRequestMixin
+from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
 
-class TestExperimentRapidSerializer(MockRequestMixin, TestCase):
+class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, TestCase):
     def test_serializer_outputs_expected_schema(self):
         owner = UserFactory(email="owner@example.com")
         experiment = ExperimentFactory.create(
@@ -38,6 +39,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, TestCase):
         self.assertIn("objectives", serializer.errors)
 
     def test_serializer_creates_experiment_and_sets_slug_and_changelog(self):
+
         data = {
             "name": "rapid experiment",
             "objectives": "gotta go fast",
@@ -55,6 +57,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, TestCase):
         self.assertEqual(experiment.name, "rapid experiment")
         self.assertEqual(experiment.slug, "rapid-experiment")
         self.assertEqual(experiment.objectives, "gotta go fast")
+
+        self.mock_tasks_serializer_create_bug.delay.assert_called()
 
         self.assertEqual(experiment.changes.count(), 1)
 
