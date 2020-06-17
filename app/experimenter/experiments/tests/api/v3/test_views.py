@@ -1,4 +1,5 @@
 import json
+import mock
 
 from django.conf import settings
 from django.test import TestCase
@@ -82,6 +83,12 @@ class TestExperimentRapidViewSet(TestCase):
         self.assertEqual(experiment.objectives, "new hypothesis")
 
     def test_post_list_creates_rapid_experiment(self):
+        mock_tasks_create_bug_patcher = mock.patch(
+            "experimenter.experiments.api.v3.serializers.create_experiment_bug_task"
+        )
+        self.mock_tasks_create_bug = mock_tasks_create_bug_patcher.start()
+        self.addCleanup(mock_tasks_create_bug_patcher.stop)
+
         user_email = "user@example.com"
 
         data = json.dumps({"name": "rapid experiment", "objectives": "gotta go fast"})
