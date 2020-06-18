@@ -11,6 +11,7 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
     rapid_type = serializers.HiddenField(default=Experiment.RAPID_AA_CFR)
     owner = serializers.ReadOnlyField(source="owner.email")
     slug = serializers.ReadOnlyField()
+    public_description = serializers.ReadOnlyField()
     objectives = serializers.CharField(required=True)
 
     class Meta:
@@ -22,6 +23,7 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
             "name",
             "slug",
             "objectives",
+            "public_description",
         )
 
     def create(self, validated_data):
@@ -29,6 +31,7 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
             {
                 "slug": slugify(validated_data["name"]),
                 "owner": self.context["request"].user,
+                "public_description": Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
             }
         )
         experiment = super().create(validated_data)

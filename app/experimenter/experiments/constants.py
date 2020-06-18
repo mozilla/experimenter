@@ -1231,9 +1231,5 @@ Locales: {locales}
 
 {experiment.experiment_url}
         """
-    BUGZILLA_RAPID_EXPERIMENT_TEMPLATE = """ This is an empty CFR A/A experiment.
-     The A/A experiment is being run to test the automation, effectiveness,
-     and accuracy of the rapid experiments platform.
-     The experiment is an internal test,
-     and Firefox users will not see any noticeable change
-     and there will be no user impact."""
+    BUGZILLA_RAPID_EXPERIMENT_TEMPLATE = """ This is an empty CFR A/A experiment.The A/A experiment is being run to test the automation, effectiveness, and accuracy of the rapid experiments platform.
+    The experiment is an internal test, and Firefox users will not see any noticeable change and there will be no user impact."""  # noqa
