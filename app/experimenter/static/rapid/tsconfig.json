@@ -12,7 +12,13 @@
     "jsx": "react",
     "downlevelIteration": true,
     "noEmit": true,
+    "strict": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
     "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
     "isolatedModules": true,
     "typeRoots": ["./node_modules/@types", "./types"]
   },

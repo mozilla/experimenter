@@ -1,11 +1,13 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 
-interface ErrorListProperties {
-  errors: Array<string> | undefined;
+type Errors = Array<string> | undefined;
+
+interface ErrorMap {
+  [name: string]: Errors;
 }
 
-const ErrorList: React.FC<ErrorListProperties> = ({ errors }) => {
+const ErrorList: React.FC<{ errors: Errors }> = ({ errors }) => {
   if (!errors) {
     return null;
   }
@@ -24,16 +26,16 @@ const ExperimentForm: React.FC = () => {
     name: "",
     objectives: "",
   });
-  const [errors, setErrors] = React.useState<{ [name: string]: Array<string> }>(
-    {},
-  );
+  const [errors, setErrors] = React.useState<ErrorMap>({});
   const history = useHistory();
 
-  const handleChange = (ev) => {
+  const handleChange = (
+    ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const field = ev.target;
     setFormData({
       ...formData,
-      [field.getAttribute("name")]: field.value,
+      [field.getAttribute("name") as string]: field.value,
     });
   };
 
@@ -47,7 +49,7 @@ const ExperimentForm: React.FC = () => {
     });
     const responseData = await response.json();
     if (!response.ok) {
-      setErrors(responseData);
+      setErrors(responseData as ErrorMap);
     } else {
       setErrors({});
       history.push(`/${responseData.slug}/`);
