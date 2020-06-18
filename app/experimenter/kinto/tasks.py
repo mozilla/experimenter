@@ -25,5 +25,5 @@ def push_experiment_to_kinto(experiment_id):
         metrics.incr("push_experiment_to_kinto.completed")
     except Exception as e:
         metrics.incr("push_experiment_to_kinto.failed")
-        logger.info("Pushing {")
+        logger.info(f"Pushing {experiment} to Kinto failed: {e}")
         raise e
