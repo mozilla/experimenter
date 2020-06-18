@@ -7627,10 +7627,6 @@
                     },
                     "objectives": {
                       "type": "string"
-                    },
-                    "public_description": {
-                      "type": "string",
-                      "readOnly": true
                     }
                   },
                   "required": [
@@ -7736,10 +7732,6 @@
                     },
                     "objectives": {
                       "type": "string"
-                    },
-                    "public_description": {
-                      "type": "string",
-                      "readOnly": true
                     }
                   },
                   "required": [
@@ -7833,10 +7825,6 @@
                     },
                     "objectives": {
                       "type": "string"
-                    },
-                    "public_description": {
-                      "type": "string",
-                      "readOnly": true
                     }
                   },
                   "required": [
@@ -7934,10 +7922,6 @@
                     },
                     "objectives": {
                       "type": "string"
-                    },
-                    "public_description": {
-                      "type": "string",
-                      "readOnly": true
                     }
                   },
                   "required": [
