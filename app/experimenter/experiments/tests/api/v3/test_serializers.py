@@ -57,6 +57,9 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertEqual(experiment.name, "rapid experiment")
         self.assertEqual(experiment.slug, "rapid-experiment")
         self.assertEqual(experiment.objectives, "gotta go fast")
+        self.assertEqual(
+            experiment.public_description, Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
+        )
 
         self.mock_tasks_serializer_create_bug.delay.assert_called()
 
@@ -79,6 +82,11 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "old_value": None,
             },
             "type": {"display_name": "Type", "new_value": "rapid", "old_value": None},
+            "public_description": {
+                "display_name": "Public Description",
+                "new_value": Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
+                "old_value": None,
+            },
         }
         self.assertTrue(
             experiment.changes.filter(
@@ -98,6 +106,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             name="rapid experiment",
             slug="rapid-experiment",
             objectives="gotta go fast",
+            public_description=Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
         )
 
         self.assertEqual(experiment.changes.count(), 1)
