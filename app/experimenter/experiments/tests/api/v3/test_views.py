@@ -9,9 +9,10 @@ from experimenter.experiments.api.v3.serializers import ExperimentRapidSerialize
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
 
-class TestExperimentRapidViewSet(TestCase):
+class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
     def test_get_detail_returns_data_for_rapid_experiment(self):
         user_email = "user@example.com"
 
