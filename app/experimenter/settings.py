@@ -45,24 +45,28 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Application definition
 
 INSTALLED_APPS = [
+    # Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    "django.contrib.sessions",
     "django.contrib.messages",
+    "django.contrib.sessions",
     "django.contrib.staticfiles",
     "django.forms",
+    # Libraries
     "corsheaders",
+    "django_markdown2",
     "raven.contrib.django.raven_compat",
     "rest_framework",
     "widget_tweaks",
+    # Experimenter
     "experimenter.base",
     "experimenter.experiments",
+    "experimenter.kinto",
+    "experimenter.normandy",
     "experimenter.notifications",
     "experimenter.openidc",
     "experimenter.projects",
-    "experimenter.normandy",
-    "django_markdown2",
 ]
 
 MIDDLEWARE = [
@@ -351,3 +355,10 @@ SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004"]
 
 # Feature Flags
 FEATURE_MESSAGE_TYPE = config("FEATURE_MESSAGE_TYPE", default=False, cast=bool)
+
+# Kinto settings
+KINTO_HOST = config("KINTO_HOST")
+KINTO_USER = config("KINTO_USER")
+KINTO_PASS = config("KINTO_PASS")
+KINTO_BUCKET = config("KINTO_BUCKET")
+KINTO_COLLECTION = config("KINTO_COLLECTION")
