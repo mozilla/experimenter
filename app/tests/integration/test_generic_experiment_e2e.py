@@ -75,7 +75,7 @@ def test_generic_experiment_e2e(
 ):
     url = urlparse(selenium.current_url)
     experiment_url = f"{url.scheme}://{url.netloc}/api/v1{url.path}recipe/"
-    experiment_json = requests.get(f"{experiment_url}", verify=False).json()
+    experiment_json = requests.get(experiment_url, verify=False).json()
     api_json = APIDataClass(**experiment_json)
     assert default_data.action_name == api_json.action_name
     assert default_data.experiment_type == api_json.filter_object[1].type

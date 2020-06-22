@@ -189,13 +189,13 @@ def fill_design_page_generic_experiment(
 ):
     """Fills design page according to single pref requirements."""
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
-    current_branchs = design.current_branches
+    current_branches = design.current_branches
     design.design_details = "THE DESIGN IS FANCY"
-    control_branch = current_branchs[0]
+    control_branch = current_branches[0]
     control_branch.branch_name = default_data.branches[0].branch_name
     control_branch.branch_description = "THIS IS A TEST"
-    current_branchs[1].branch_name = default_data.branches[1].branch_name
-    current_branchs[1].branch_description = "THIS IS A TEST"
+    current_branches[1].branch_name = default_data.branches[1].branch_name
+    current_branches[1].branch_description = "THIS IS A TEST"
     design.save_btn()
     return design
 
