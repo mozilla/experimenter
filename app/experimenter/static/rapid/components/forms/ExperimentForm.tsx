@@ -1,6 +1,10 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 
+import { Audience, audiences } from "./Audiences";
+import { Feature, features } from "./Features";
+import { XSelect } from "./XSelect";
+
 type Errors = Array<string> | undefined;
 
 interface ErrorMap {
@@ -21,10 +25,21 @@ const ErrorList: React.FC<{ errors: Errors }> = ({ errors }) => {
   );
 };
 
+interface ExperimentFormState {
+  name: string;
+  objectives: string;
+  audienceOption: Audience | null;
+  featureOptions: Array<Feature>;
+  version: "";
+}
+
 const ExperimentForm: React.FC = () => {
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = React.useState<ExperimentFormState>({
     name: "",
     objectives: "",
+    audienceOption: null,
+    featureOptions: [],
+    version: "",
   });
   const [errors, setErrors] = React.useState<ErrorMap>({});
   const history = useHistory();
@@ -104,10 +119,17 @@ const ExperimentForm: React.FC = () => {
           Select the user action or feature that you&apos;d be measuring with
           this experiment.
         </p>
-        <select
-          className="form-control w-100"
+        <XSelect<Feature>
+          isMulti
           id="field-feature"
           name="feature"
+          options={features}
+          onOptionChange={(options) => {
+            setFormData({
+              ...formData,
+              featureOptions: options,
+            });
+          }}
         />
         <ErrorList errors={errors.feature} />
       </div>
@@ -120,28 +142,19 @@ const ExperimentForm: React.FC = () => {
           Select the user action or feature that you&apos;d be measuring with
           this experiment.
         </p>
-        <select
-          className="form-control w-100"
+        <XSelect<Audience>
           id="field-audience"
           name="audience"
+          options={audiences}
+          value={formData.audienceOption}
+          onOptionChange={([option]) => {
+            setFormData({
+              ...formData,
+              audienceOption: option,
+            });
+          }}
         />
         <ErrorList errors={errors.audience} />
-      </div>
-
-      <div className="mb-4">
-        <label className="font-weight-bold" htmlFor="field-trigger">
-          Trigger
-        </label>
-        <p>
-          Select the user action or feature that you&apos;d be measuring with
-          this experiment.
-        </p>
-        <select
-          className="form-control w-100"
-          id="field-trigger"
-          name="trigger"
-        />
-        <ErrorList errors={errors.trigger} />
       </div>
 
       <div className="mb-4">
@@ -152,10 +165,13 @@ const ExperimentForm: React.FC = () => {
           Optional: Is there a minimum Firefox Release version this experiment
           should be run on?
         </p>
-        <select
+        <input
           className="form-control w-100"
-          id="field-version"
+          id="field-name"
           name="version"
+          type="text"
+          value={formData.version}
+          onChange={handleChange}
         />
         <ErrorList errors={errors.version} />
       </div>
