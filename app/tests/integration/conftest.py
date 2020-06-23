@@ -184,6 +184,23 @@ def fill_design_page(selenium, base_url, request, fill_overview):
 
 
 @pytest.fixture
+def fill_design_page_generic_experiment(
+    selenium, base_url, request, default_data, experiment_type, fill_overview
+):
+    """Fills design page according to single pref requirements."""
+    design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
+    current_branches = design.current_branches
+    design.design_details = "THE DESIGN IS FANCY"
+    control_branch = current_branches[0]
+    control_branch.branch_name = default_data.branches[0].branch_name
+    control_branch.branch_description = "THIS IS A TEST"
+    current_branches[1].branch_name = default_data.branches[1].branch_name
+    current_branches[1].branch_description = "THIS IS A TEST"
+    design.save_btn()
+    return design
+
+
+@pytest.fixture
 def fill_design_page_multi_prefs(
     selenium, base_url, request, default_data, experiment_type, fill_overview
 ):
