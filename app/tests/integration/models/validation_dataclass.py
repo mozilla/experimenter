@@ -28,9 +28,9 @@ class ArgumentsDataClass(BaseModel):
 
 
 class APIDataClass(BaseModel):
-    action_name: str
     name: str
     comment: Optional[str]
     filter_object: List[FilterObjectDataClass]
-    arguments: ArgumentsDataClass
     experimenter_slug: Optional[str]
+    action_name: Optional[str] = None
+    arguments: Optional[ArgumentsDataClass] = None
