@@ -114,10 +114,7 @@ const ExperimentForm: React.FC = () => {
         <label className="font-weight-bold" htmlFor="field-audience">
           Audience
         </label>
-        <p>
-          Select the user action or feature that you&apos;d be measuring with
-          this experiment.
-        </p>
+        <p>Description of audience.</p>
         <select
           className="form-control w-100"
           id="field-audience"
@@ -131,8 +128,8 @@ const ExperimentForm: React.FC = () => {
           Trigger
         </label>
         <p>
-          Select the user action or feature that you&apos;d be measuring with
-          this experiment.
+          Select user actions that should be used to trigger the CFR messages
+          for the users.
         </p>
         <select
           className="form-control w-100"
@@ -147,8 +144,8 @@ const ExperimentForm: React.FC = () => {
           Firefox Version
         </label>
         <p>
-          Optional: Is there a minimum Firefox Release version this experiment
-          should be run on?
+          Is there a minimum Firefox Release version this experiment should be
+          run on?
         </p>
         <select
           className="form-control w-100"
