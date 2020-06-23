@@ -17,22 +17,6 @@
   },
   {
     "model": "base.locale",
-    "pk": 3,
-    "fields": {
-      "code": "ak",
-      "name": "Akan"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 4,
-    "fields": {
-      "code": "am-et",
-      "name": "Amharic"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 5,
     "fields": {
       "code": "an",
@@ -45,14 +29,6 @@
     "fields": {
       "code": "ar",
       "name": "Arabic"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 7,
-    "fields": {
-      "code": "as",
-      "name": "Assamese"
     }
   },
   {
@@ -73,14 +49,6 @@
   },
   {
     "model": "base.locale",
-    "pk": 10,
-    "fields": {
-      "code": "azz",
-      "name": "Highland Puebla Nahuatl"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 11,
     "fields": {
       "code": "be",
@@ -97,34 +65,10 @@
   },
   {
     "model": "base.locale",
-    "pk": 13,
-    "fields": {
-      "code": "bm",
-      "name": "Bambara"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 14,
     "fields": {
       "code": "bn",
       "name": "Bengali"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 15,
-    "fields": {
-      "code": "bn-BD",
-      "name": "Bengali (Bangladesh)"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 16,
-    "fields": {
-      "code": "bn-IN",
-      "name": "Bengali (India)"
     }
   },
   {
@@ -177,26 +121,10 @@
   },
   {
     "model": "base.locale",
-    "pk": 23,
-    "fields": {
-      "code": "crh",
-      "name": "Crimean Tatar"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 24,
     "fields": {
       "code": "cs",
       "name": "Czech"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 25,
-    "fields": {
-      "code": "csb",
-      "name": "Kashubian"
     }
   },
   {
@@ -217,42 +145,10 @@
   },
   {
     "model": "base.locale",
-    "pk": 28,
-    "fields": {
-      "code": "dbg",
-      "name": "Debug Robot"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 29,
     "fields": {
       "code": "de",
       "name": "German"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 30,
-    "fields": {
-      "code": "de-AT",
-      "name": "German (Austria)"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 31,
-    "fields": {
-      "code": "de-CH",
-      "name": "German (Switzerland)"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 32,
-    "fields": {
-      "code": "de-DE",
-      "name": "German (Germany)"
     }
   },
   {
@@ -265,26 +161,10 @@
   },
   {
     "model": "base.locale",
-    "pk": 34,
-    "fields": {
-      "code": "ee",
-      "name": "Ewe"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 35,
     "fields": {
       "code": "el",
       "name": "Greek"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 36,
-    "fields": {
-      "code": "en-AU",
-      "name": "English (Australian)"
     }
   },
   {
@@ -305,14 +185,6 @@
   },
   {
     "model": "base.locale",
-    "pk": 39,
-    "fields": {
-      "code": "en-NZ",
-      "name": "English (New Zealand)"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 40,
     "fields": {
       "code": "en-US",
@@ -321,26 +193,10 @@
   },
   {
     "model": "base.locale",
-    "pk": 41,
-    "fields": {
-      "code": "en-ZA",
-      "name": "English (South African)"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 42,
     "fields": {
       "code": "eo",
       "name": "Esperanto"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 43,
-    "fields": {
-      "code": "es",
-      "name": "Spanish"
     }
   },
   {
@@ -417,14 +273,6 @@
   },
   {
     "model": "base.locale",
-    "pk": 53,
-    "fields": {
-      "code": "fj-FJ",
-      "name": "Fijian"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 54,
     "fields": {
       "code": "fr",
@@ -433,26 +281,10 @@
   },
   {
     "model": "base.locale",
-    "pk": 55,
-    "fields": {
-      "code": "fur-IT",
-      "name": "Friulian"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 56,
     "fields": {
       "code": "fy-NL",
       "name": "Frisian"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 57,
-    "fields": {
-      "code": "ga",
-      "name": "Irish"
     }
   },
   {
@@ -489,14 +321,6 @@
   },
   {
     "model": "base.locale",
-    "pk": 62,
-    "fields": {
-      "code": "gu",
-      "name": "Gujarati"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 63,
     "fields": {
       "code": "gu-IN",
@@ -505,26 +329,10 @@
   },
   {
     "model": "base.locale",
-    "pk": 64,
-    "fields": {
-      "code": "ha",
-      "name": "Hausa"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 65,
     "fields": {
       "code": "he",
       "name": "Hebrew"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 66,
-    "fields": {
-      "code": "hi",
-      "name": "Hindi"
     }
   },
   {
@@ -581,14 +389,6 @@
     "fields": {
       "code": "id",
       "name": "Indonesian"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 74,
-    "fields": {
-      "code": "ig",
-      "name": "Igbo"
     }
   },
   {
@@ -673,58 +473,10 @@
   },
   {
     "model": "base.locale",
-    "pk": 85,
-    "fields": {
-      "code": "kok",
-      "name": "Konkani"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 86,
-    "fields": {
-      "code": "ks",
-      "name": "Kashmiri"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 87,
-    "fields": {
-      "code": "ku",
-      "name": "Kurdish"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 88,
-    "fields": {
-      "code": "la",
-      "name": "Latin"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 89,
-    "fields": {
-      "code": "lg",
-      "name": "Luganda"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 90,
     "fields": {
       "code": "lij",
       "name": "Ligurian"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 91,
-    "fields": {
-      "code": "ln",
-      "name": "Lingala"
     }
   },
   {
@@ -761,50 +513,10 @@
   },
   {
     "model": "base.locale",
-    "pk": 96,
-    "fields": {
-      "code": "mai",
-      "name": "Maithili"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 97,
-    "fields": {
-      "code": "mg",
-      "name": "Malagasy"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 98,
-    "fields": {
-      "code": "mi",
-      "name": "Maori (Aotearoa)"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 99,
     "fields": {
       "code": "mk",
       "name": "Macedonian"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 100,
-    "fields": {
-      "code": "ml",
-      "name": "Malayalam"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 101,
-    "fields": {
-      "code": "mn",
-      "name": "Mongolian"
     }
   },
   {
@@ -865,42 +577,10 @@
   },
   {
     "model": "base.locale",
-    "pk": 109,
-    "fields": {
-      "code": "nr",
-      "name": "Ndebele, South"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 110,
-    "fields": {
-      "code": "nso",
-      "name": "Northern Sotho"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 111,
     "fields": {
       "code": "oc",
       "name": "Occitan (Lengadocian)"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 112,
-    "fields": {
-      "code": "or",
-      "name": "Odia"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 113,
-    "fields": {
-      "code": "pa",
-      "name": "Punjabi"
     }
   },
   {
@@ -961,38 +641,6 @@
   },
   {
     "model": "base.locale",
-    "pk": 121,
-    "fields": {
-      "code": "rw",
-      "name": "Kinyarwanda"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 122,
-    "fields": {
-      "code": "sa",
-      "name": "Sanskrit"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 123,
-    "fields": {
-      "code": "sah",
-      "name": "Sakha"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 124,
-    "fields": {
-      "code": "sat",
-      "name": "Santali"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 125,
     "fields": {
       "code": "si",
@@ -1041,38 +689,6 @@
   },
   {
     "model": "base.locale",
-    "pk": 131,
-    "fields": {
-      "code": "sr-Cyrl",
-      "name": "Serbian"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 132,
-    "fields": {
-      "code": "sr-Latn",
-      "name": "Serbian"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 133,
-    "fields": {
-      "code": "ss",
-      "name": "Siswati"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 134,
-    "fields": {
-      "code": "st",
-      "name": "Southern Sotho"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 135,
     "fields": {
       "code": "sv-SE",
@@ -1081,34 +697,10 @@
   },
   {
     "model": "base.locale",
-    "pk": 136,
-    "fields": {
-      "code": "sw",
-      "name": "Swahili"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 137,
     "fields": {
       "code": "ta",
       "name": "Tamil"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 138,
-    "fields": {
-      "code": "ta-IN",
-      "name": "Tamil (India)"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 139,
-    "fields": {
-      "code": "ta-LK",
-      "name": "Tamil (Sri Lanka)"
     }
   },
   {
@@ -1137,14 +729,6 @@
   },
   {
     "model": "base.locale",
-    "pk": 143,
-    "fields": {
-      "code": "tn",
-      "name": "Tswana"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 144,
     "fields": {
       "code": "tr",
@@ -1157,30 +741,6 @@
     "fields": {
       "code": "trs",
       "name": "Triqui"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 146,
-    "fields": {
-      "code": "ts",
-      "name": "Tsonga"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 147,
-    "fields": {
-      "code": "tsz",
-      "name": "Purépecha"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 148,
-    "fields": {
-      "code": "tt-RU",
-      "name": "Tatar"
     }
   },
   {
@@ -1209,14 +769,6 @@
   },
   {
     "model": "base.locale",
-    "pk": 152,
-    "fields": {
-      "code": "ve",
-      "name": "Venda"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 153,
     "fields": {
       "code": "vi",
@@ -1233,26 +785,10 @@
   },
   {
     "model": "base.locale",
-    "pk": 155,
-    "fields": {
-      "code": "x-testing",
-      "name": "Testing"
-    }
-  },
-  {
-    "model": "base.locale",
     "pk": 156,
     "fields": {
       "code": "xh",
       "name": "Xhosa"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 157,
-    "fields": {
-      "code": "yo",
-      "name": "Yoruba"
     }
   },
   {
@@ -1269,14 +805,6 @@
     "fields": {
       "code": "zh-TW",
       "name": "Chinese (Traditional)"
-    }
-  },
-  {
-    "model": "base.locale",
-    "pk": 160,
-    "fields": {
-      "code": "zu",
-      "name": "Zulu"
     }
   }
 ]
