@@ -26,6 +26,9 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
             "slug",
             "objectives",
             "public_description",
+            "feature",
+            "audience",
+            "triggers",
         )
 
     def create(self, validated_data):

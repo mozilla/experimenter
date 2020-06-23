@@ -18,6 +18,9 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             name="rapid experiment",
             slug="rapid-experiment",
             objectives="gotta go fast",
+            audience=["AUDIENCE 1"],
+            feature="FEATURE 1",
+            triggers=["https://example.com"],
         )
 
         serializer = ExperimentRapidSerializer(experiment)
@@ -29,6 +32,9 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "name": "rapid experiment",
                 "slug": "rapid-experiment",
                 "objectives": "gotta go fast",
+                "audience": ["AUDIENCE 1"],
+                "feature": "FEATURE 1",
+                "triggers": ["https://example.com"],
             },
         )
 
@@ -43,6 +49,9 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         data = {
             "name": "rapid experiment",
             "objectives": "gotta go fast",
+            "audience": ["AUDIENCE 1", "AUDIENCE 2"],
+            "feature": "FEATURE 2",
+            "triggers": ["https://example.com"],
         }
 
         serializer = ExperimentRapidSerializer(
