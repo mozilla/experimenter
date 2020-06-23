@@ -18,6 +18,7 @@ class DesignPage(Base):
     _add_branch_btn_locator = (By.CSS_SELECTOR, "#add-branch-button")
     _branch_form_root_locator = (By.CSS_SELECTOR, "#control-branch-group")
     _continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-btn")
+    _design_textarea_locator = (By.CSS_SELECTOR, "#generic-design-text-box")
     _firefox_pref_name_locator = (By.CSS_SELECTOR, "#id_pref_name")
     _firefox_pref_type_locator = (By.CSS_SELECTOR, "#id_pref_type")
     _firefox_pref_branch_locator = (By.CSS_SELECTOR, "#id_pref_branch")
@@ -72,6 +73,16 @@ class DesignPage(Base):
         )
         element.send_keys(f"{text}-{random_chars}")
         return
+
+    @property
+    def design_details(self):
+        element = self.find_element(*self._design_textarea_locator)
+        return element.text
+
+    @design_details.setter
+    def design_details(self, text=None):
+        element = self.find_element(*self._design_textarea_locator)
+        element.send_keys(text)
 
     def select_firefox_pref_type(self, item):
         element = self.find_element(*self._firefox_pref_type_locator)
