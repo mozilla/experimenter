@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional, List
 
 
@@ -17,13 +17,11 @@ class BaseBranchDataClass:
     addon_url: Optional[str] = None
     branch_description: Optional[str] = None
     ratio: Optional[int] = None
-    ratio: Optional[int] = None
 
 
 @dataclass
 class BaseDataClass:
     type_name: str
-    action_name: str
     experiment_type: str
     channels: str
     min_version: int
@@ -31,4 +29,5 @@ class BaseDataClass:
     user_facing_name: str
     user_facing_description: str
     branches: List[BaseBranchDataClass]
-    addon_url: str = field(default=None)
+    action_name: Optional[str] = None
+    addon_url: Optional[str] = None
