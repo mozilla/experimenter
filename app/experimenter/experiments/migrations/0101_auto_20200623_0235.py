@@ -7,23 +7,39 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('experiments', '0100_auto_20200615_1923'),
+        ("experiments", "0100_auto_20200615_1923"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='experiment',
-            name='audience',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(blank=True, choices=[('AUDIENCE 1', 'AUDIENCE1'), ('AUDIENCE 2', 'AUDIENCE 2')], max_length=255, null=True), default=list, size=None),
+            model_name="experiment",
+            name="audience",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(
+                    blank=True,
+                    choices=[("AUDIENCE 1", "AUDIENCE1"), ("AUDIENCE 2", "AUDIENCE 2")],
+                    max_length=255,
+                    null=True,
+                ),
+                default=list,
+                size=None,
+            ),
         ),
         migrations.AddField(
-            model_name='experiment',
-            name='feature',
-            field=models.CharField(blank=True, choices=[('FEATURE 1', 'FEATURE 1'), ('FEATURE 2', 'FEATURE 2')], max_length=255, null=True),
+            model_name="experiment",
+            name="feature",
+            field=models.CharField(
+                blank=True,
+                choices=[("FEATURE 1", "FEATURE 1"), ("FEATURE 2", "FEATURE 2")],
+                max_length=255,
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='experiment',
-            name='triggers',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.URLField(blank=True, null=True), default=list, size=None),
+            model_name="experiment",
+            name="triggers",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.URLField(blank=True, null=True), default=list, size=None
+            ),
         ),
     ]
