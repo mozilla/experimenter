@@ -28,7 +28,7 @@
   "version": "1.0.0",
   "description": "a tool for managing experiments in Firefox",
   "dependencies": {
-    "@fortawesome/fontawesome-free": "5.13.0",
+    "@fortawesome/fontawesome-free": "5.13.1",
     "@testing-library/dom": "latest",
     "autobind-decorator": "2.4.0",
     "bootstrap": "4.5.0",
