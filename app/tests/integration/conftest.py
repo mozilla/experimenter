@@ -224,6 +224,21 @@ def fill_design_page_pref_rollout(
 
 
 @pytest.fixture
+def fill_design_page_addon_rollout(
+    selenium, base_url, request, default_data, experiment_type, fill_overview
+):
+    """Fills design page according to addon rollout requirements."""
+    design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
+    design = design.wait_for_page_to_load()
+    design.design_details = "THE DESIGN IS FANCY"
+    design.enable_addon_rollout()
+    prefs = design.rollout_prefs
+    prefs.addon_url = default_data.branches[0].addon_url
+    design.save_btn()
+    return design
+
+
+@pytest.fixture
 def fill_design_page_generic_experiment(
     selenium, base_url, request, default_data, experiment_type, fill_overview
 ):
