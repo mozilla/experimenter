@@ -116,22 +116,22 @@ class Experiment(ExperimentConstants, models.Model):
         choices=ExperimentConstants.RAPID_TYPE_CHOICES,
     )
 
-    feature = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=ExperimentConstants.RAPID_FEATURE_CHOICES,
-    )
-    audience = ArrayField(
+    features = ArrayField(
         models.CharField(
             max_length=255,
             blank=True,
             null=True,
-            choices=ExperimentConstants.RAPID_AUDIENCE_CHOICES,
+            choices=ExperimentConstants.RAPID_FEATURE_CHOICES,
         ),
         default=list,
     )
-    triggers = ArrayField(models.URLField(blank=True, null=True), default=list)
+    audience = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=ExperimentConstants.RAPID_AUDIENCE_CHOICES,
+    )
+
     is_multi_pref = models.BooleanField(default=False)
     rollout_type = models.CharField(
         max_length=255,

@@ -18,9 +18,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             name="rapid experiment",
             slug="rapid-experiment",
             objectives="gotta go fast",
-            audience=["AUDIENCE 1"],
-            feature="FEATURE 1",
-            triggers=["https://example.com"],
+            audience="AUDIENCE 1",
+            features=["FEATURE 1"],
         )
 
         serializer = ExperimentRapidSerializer(experiment)
@@ -32,9 +31,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "name": "rapid experiment",
                 "slug": "rapid-experiment",
                 "objectives": "gotta go fast",
-                "audience": ["AUDIENCE 1"],
-                "feature": "FEATURE 1",
-                "triggers": ["https://example.com"],
+                "audience": "AUDIENCE 1",
+                "features": ["FEATURE 1"],
             },
         )
 
@@ -49,9 +47,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         data = {
             "name": "rapid experiment",
             "objectives": "gotta go fast",
-            "audience": ["AUDIENCE 1", "AUDIENCE 2"],
-            "feature": "FEATURE 2",
-            "triggers": ["https://example.com"],
+            "audience": "AUDIENCE 1",
+            "features": ["FEATURE 1", "FEATURE 2"],
         }
 
         serializer = ExperimentRapidSerializer(
@@ -94,6 +91,16 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "public_description": {
                 "display_name": "Public Description",
                 "new_value": Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
+                "old_value": None,
+            },
+            "audience": {
+                "display_name": "Audience",
+                "new_value": "AUDIENCE 1",
+                "old_value": None,
+            },
+            "features": {
+                "display_name": "Features",
+                "new_value": ["FEATURE 1", "FEATURE 2"],
                 "old_value": None,
             },
         }
