@@ -7,7 +7,6 @@ import pytest
 import requests
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
-from selenium.common.exceptions import ElementNotInteractableException
 
 from models.base_dataclass import (
     BasePreferencesDataClass,
