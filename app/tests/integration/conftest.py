@@ -7,6 +7,7 @@ import pytest
 import requests
 from requests.packages.urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
+from selenium.common.exceptions import ElementNotInteractableException
 
 from models.base_dataclass import (
     BasePreferencesDataClass,
@@ -133,7 +134,11 @@ def fill_overview(selenium, base_url, ds_issue_host, default_data):
     experiment.public_name = default_data.user_facing_name
     experiment.public_description = default_data.user_facing_description
     experiment.internal_description = "Testing in here"
-    experiment.ds_issue_url = f"{ds_issue_host}DS-12345"
+    # ds issue url is not always needed
+    try:
+        experiment.ds_issue_url = f"{ds_issue_host}DS-12345"
+    except ElementNotInteractableException:
+        pass
     experiment.save_btn()
     # Add url to object
     url = urlparse(selenium.current_url)
@@ -164,6 +169,28 @@ def fill_timeline_page(
 
 
 @pytest.fixture
+def fill_timeline_page_pref_rollout(
+    selenium, base_url, request, default_data, experiment_type, fill_overview
+):
+    """Fills timeline page according to pref rollout requirements."""
+    timeline = TimelineAndPopulationPage(
+        selenium, base_url, experiment_url=f"{fill_overview.url}"
+    ).open()
+    timeline.wait_for_page_to_load()
+    date = f"{datetime.datetime.now()}"
+    new_date = parse(date)
+    today = f"{new_date.date()}"
+    timeline.proposed_start_date = today
+    timeline.proposed_experiment_duration = "25"
+    timeline.rollout_playbook = "Low Risk Schedule"
+    timeline.firefox_channel = default_data.channels
+    timeline.firefox_min_version = f"{default_data.min_version}.0"
+    timeline.firefox_max_version = f"{default_data.max_version}.0"
+    timeline.save_btn()
+    return timeline
+
+
+@pytest.fixture
 def fill_design_page(selenium, base_url, request, fill_overview):
     """Fills design page according to generic requirements."""
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
@@ -179,6 +206,24 @@ def fill_design_page(selenium, base_url, request, fill_overview):
     current_branchs[1].branch_name = "Fixture Branch 2"
     current_branchs[1].branch_description = "THIS IS A TEST"
     current_branchs[1].branch_value = "false"
+    design.save_btn()
+    return design
+
+
+@pytest.fixture
+def fill_design_page_pref_rollout(
+    selenium, base_url, request, default_data, experiment_type, fill_overview
+):
+    """Fills design page according to pref rollout requirements."""
+    design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
+    design = design.wait_for_page_to_load()
+    design.design_details = "THE DESIGN IS FANCY"
+    prefs = design.rollout_prefs
+    pref_data = default_data.branches[0].preferences
+    prefs.pref_branch = pref_data.preference_branch_type
+    prefs.pref_type = pref_data.preference_type
+    prefs.pref_name = pref_data.preference_branch_name
+    prefs.pref_value = pref_data.preference_value
     design.save_btn()
     return design
 

@@ -1,6 +1,7 @@
 """Representaion of the Timeline & Population Page."""
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
 
 from pages.base import Base
 
@@ -9,6 +10,7 @@ class TimelineAndPopulationPage(Base):
 
     URL_TEMPLATE = "{experiment_url}edit-timeline-population"
 
+    _rollout_playbook_locator = (By.CSS_SELECTOR, "#id_rollout_playbook")
     _firefox_channel_locator = (By.CSS_SELECTOR, "#id_firefox_channel")
     _firefox_channel_option_locator = (By.CSS_SELECTOR, "#id_firefox_channel > option")
     _firefox_min_version_locator = (By.CSS_SELECTOR, "#id_firefox_min_version")
@@ -79,6 +81,16 @@ class TimelineAndPopulationPage(Base):
         element = self.find_element(*self._population_precentage_locator)
         element.clear()
         element.send_keys(text)
+
+    @property
+    def rollout_playbook(self):
+        self.selenium.find_element(*self._rollout_playbook_locator).text
+
+    @rollout_playbook.setter
+    def rollout_playbook(self, item=None):
+        element = self.selenium.find_element(*self._rollout_playbook_locator)
+        selector = Select(element)
+        selector.select_by_visible_text(f"{item}")
 
     @property
     def firefox_channel(self):

@@ -26,8 +26,8 @@ class BaseDataClass:
     channels: str
     min_version: int
     max_version: int
-    user_facing_name: str
-    user_facing_description: str
-    branches: List[BaseBranchDataClass]
+    user_facing_name: Optional[str] = None
+    user_facing_description: Optional[str] = None
+    branches: Optional[List[BaseBranchDataClass]] = None
     action_name: Optional[str] = None
     addon_url: Optional[str] = None
