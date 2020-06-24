@@ -66,6 +66,8 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "windows_versions",
             "profile_age",
             "objectives",
+            "audience",
+            "features",
             "total_enrolled_clients",
             "analysis",
             "analysis_owner",
