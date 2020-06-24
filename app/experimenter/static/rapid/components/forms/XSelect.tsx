@@ -18,15 +18,13 @@ export interface XSelectOption extends OptionTypeBase {
   value: string;
 }
 
-interface OptionWithDescriptionProps extends OptionProps<XSelectOption> {
-  data: XSelectOption;
-}
-
 /**
  * Custom component for each option display that shows an optional small description
  * below the label if it is defined.
  */
-const OptionWithDescription: React.FC<OptionWithDescriptionProps> = (props) => {
+const OptionWithDescription = <T,>(
+  props: OptionProps<T>,
+): ReturnType<React.FC> => {
   const { children, data } = props;
   return (
     <div>
@@ -55,7 +53,7 @@ const customStyles: Partial<Styles> = {
 interface XSelectCustomProps<OptionType> {
   /**
    * This is an alternative to onChange that is called with array of options as the first parameter.
-   * Single selects will return a single item, multis will return the array of all options selected
+   * Single selects will return a single item, multis will return the array of options
    */
   onOptionChange?: (
     option: Array<OptionType>,
@@ -65,9 +63,9 @@ interface XSelectCustomProps<OptionType> {
 
 // To debug the menu dropdown, add menuIsOpen={true}
 export function XSelect<OptionType extends XSelectOption = XSelectOption>(
-  props: Props & XSelectCustomProps<OptionType>,
+  props: Props<OptionType> & XSelectCustomProps<OptionType>,
 ): ReturnType<React.FC> {
-  const renderProps: Props = { ...props };
+  const renderProps: Props<OptionType> = { ...props };
   if (props.onOptionChange) {
     renderProps.onChange = (
       value: ValueType<XSelectOption>,
@@ -85,7 +83,7 @@ export function XSelect<OptionType extends XSelectOption = XSelectOption>(
   }
 
   return (
-    <Select<XSelectOption>
+    <Select
       components={{ Option: OptionWithDescription }}
       styles={customStyles}
       {...renderProps}

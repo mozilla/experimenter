@@ -1,11 +1,11 @@
-import { cleanup, render, fireEvent, find } from "@testing-library/react";
+import { cleanup, render, fireEvent } from "@testing-library/react";
 import React from "react";
 
 import { XSelect } from "experimenter-rapid/components/forms/XSelect";
 
 const FAKE_OPTIONS = [
-  { label: "Foo", value: "foo", description: "A really nice foo" },
-  { label: "Bar", value: "bar", description: "A really nice bar" },
+  { label: "Foo", value: "foo", description: "A really nice foo", extra: 1 },
+  { label: "Bar", value: "bar", description: "A really nice bar", extra: 2 },
 ];
 
 afterEach(async () => {
