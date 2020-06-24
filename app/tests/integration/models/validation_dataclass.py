@@ -19,15 +19,16 @@ class PreferencesDataClass(BaseModel):
 class BranchDataClass(BaseModel):
     slug: str
     ratio: Optional[str]
-    addon_url: Optional[str] = None
     preferences: Optional[Dict[Optional[str], PreferencesDataClass]] = Field(default=None)
 
 
 class ArgumentsDataClass(BaseModel):
+    extensionApiId: Optional[str] = None
     userFacingName: Optional[str] = None
     userFacingDescription: Optional[str] = None
     branches: Optional[List[BranchDataClass]] = None
     preferences: Optional[List[PreferencesDataClass]] = None
+    slug: Optional[str] = None
 
 
 class APIDataClass(BaseModel):
