@@ -134,11 +134,7 @@ def fill_overview(selenium, base_url, ds_issue_host, default_data):
     experiment.public_name = default_data.user_facing_name
     experiment.public_description = default_data.user_facing_description
     experiment.internal_description = "Testing in here"
-    # ds issue url is not always needed
-    try:
-        experiment.ds_issue_url = f"{ds_issue_host}DS-12345"
-    except ElementNotInteractableException:
-        pass
+    experiment.ds_issue_url = f"{ds_issue_host}DS-12345"
     experiment.save_btn()
     # Add url to object
     url = urlparse(selenium.current_url)
