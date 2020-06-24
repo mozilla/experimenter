@@ -21,7 +21,7 @@ export default class GenericForm extends React.PureComponent {
         <DesignInput
           label="Design"
           name="design"
-          id="generic-design-text-box"
+          id="id_design"
           dataTestId="design"
           onChange={(value) => {
             this.props.handleDataChange("design", value);

@@ -9,9 +9,11 @@ class FilterObjectDataClass(BaseModel):
 
 
 class PreferencesDataClass(BaseModel):
-    preferenceBranchType: str
-    preferenceType: str
-    preferenceValue: Any
+    preferenceBranchType: Optional[str] = None
+    preferenceType: Optional[str] = None
+    preferenceValue: Optional[Any] = None
+    preferenceName: Optional[str] = None
+    value: Optional[bool] = None
 
 
 class BranchDataClass(BaseModel):
@@ -22,9 +24,10 @@ class BranchDataClass(BaseModel):
 
 
 class ArgumentsDataClass(BaseModel):
-    userFacingName: str
-    userFacingDescription: str
-    branches: List[BranchDataClass]
+    userFacingName: Optional[str] = None
+    userFacingDescription: Optional[str] = None
+    branches: Optional[List[BranchDataClass]] = None
+    preferences: Optional[List[PreferencesDataClass]] = None
 
 
 class APIDataClass(BaseModel):
