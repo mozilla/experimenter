@@ -7627,6 +7627,19 @@
                     },
                     "objectives": {
                       "type": "string"
+                    },
+                    "features": {
+                      "type": "array",
+                      "items": {
+                        "type": null
+                      }
+                    },
+                    "audience": {
+                      "enum": [
+                        "AUDIENCE 1",
+                        "AUDIENCE 2"
+                      ],
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -7668,6 +7681,19 @@
                   },
                   "objectives": {
                     "type": "string"
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ],
+                    "nullable": true
                   }
                 },
                 "required": [
@@ -7685,6 +7711,19 @@
                   },
                   "objectives": {
                     "type": "string"
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ],
+                    "nullable": true
                   }
                 },
                 "required": [
@@ -7702,6 +7741,19 @@
                   },
                   "objectives": {
                     "type": "string"
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ],
+                    "nullable": true
                   }
                 },
                 "required": [
@@ -7732,6 +7784,19 @@
                     },
                     "objectives": {
                       "type": "string"
+                    },
+                    "features": {
+                      "type": "array",
+                      "items": {
+                        "type": null
+                      }
+                    },
+                    "audience": {
+                      "enum": [
+                        "AUDIENCE 1",
+                        "AUDIENCE 2"
+                      ],
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -7773,6 +7838,19 @@
                   },
                   "objectives": {
                     "type": "string"
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ],
+                    "nullable": true
                   }
                 }
               }
@@ -7786,6 +7864,19 @@
                   },
                   "objectives": {
                     "type": "string"
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ],
+                    "nullable": true
                   }
                 }
               }
@@ -7799,6 +7890,19 @@
                   },
                   "objectives": {
                     "type": "string"
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ],
+                    "nullable": true
                   }
                 }
               }
@@ -7825,6 +7929,19 @@
                     },
                     "objectives": {
                       "type": "string"
+                    },
+                    "features": {
+                      "type": "array",
+                      "items": {
+                        "type": null
+                      }
+                    },
+                    "audience": {
+                      "enum": [
+                        "AUDIENCE 1",
+                        "AUDIENCE 2"
+                      ],
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -7858,6 +7975,19 @@
                   },
                   "objectives": {
                     "type": "string"
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ],
+                    "nullable": true
                   }
                 },
                 "required": [
@@ -7875,6 +8005,19 @@
                   },
                   "objectives": {
                     "type": "string"
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ],
+                    "nullable": true
                   }
                 },
                 "required": [
@@ -7892,6 +8035,19 @@
                   },
                   "objectives": {
                     "type": "string"
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ],
+                    "nullable": true
                   }
                 },
                 "required": [
@@ -7922,6 +8078,19 @@
                     },
                     "objectives": {
                       "type": "string"
+                    },
+                    "features": {
+                      "type": "array",
+                      "items": {
+                        "type": null
+                      }
+                    },
+                    "audience": {
+                      "enum": [
+                        "AUDIENCE 1",
+                        "AUDIENCE 2"
+                      ],
+                      "nullable": true
                     }
                   },
                   "required": [
