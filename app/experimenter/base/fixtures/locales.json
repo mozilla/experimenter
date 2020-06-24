@@ -1,1 +1,810 @@
-[{"model": "base.locale", "pk": 1, "fields": {"code": "ach", "name": "Acholi"}}, {"model": "base.locale", "pk": 2, "fields": {"code": "af", "name": "Afrikaans"}}, {"model": "base.locale", "pk": 3, "fields": {"code": "ak", "name": "Akan"}}, {"model": "base.locale", "pk": 4, "fields": {"code": "am-et", "name": "Amharic"}}, {"model": "base.locale", "pk": 5, "fields": {"code": "an", "name": "Aragonese"}}, {"model": "base.locale", "pk": 6, "fields": {"code": "ar", "name": "Arabic"}}, {"model": "base.locale", "pk": 7, "fields": {"code": "as", "name": "Assamese"}}, {"model": "base.locale", "pk": 8, "fields": {"code": "ast", "name": "Asturian"}}, {"model": "base.locale", "pk": 9, "fields": {"code": "az", "name": "Azerbaijani"}}, {"model": "base.locale", "pk": 10, "fields": {"code": "azz", "name": "Highland Puebla Nahuatl"}}, {"model": "base.locale", "pk": 11, "fields": {"code": "be", "name": "Belarusian"}}, {"model": "base.locale", "pk": 12, "fields": {"code": "bg", "name": "Bulgarian"}}, {"model": "base.locale", "pk": 13, "fields": {"code": "bm", "name": "Bambara"}}, {"model": "base.locale", "pk": 14, "fields": {"code": "bn", "name": "Bengali"}}, {"model": "base.locale", "pk": 15, "fields": {"code": "bn-BD", "name": "Bengali (Bangladesh)"}}, {"model": "base.locale", "pk": 16, "fields": {"code": "bn-IN", "name": "Bengali (India)"}}, {"model": "base.locale", "pk": 17, "fields": {"code": "br", "name": "Breton"}}, {"model": "base.locale", "pk": 18, "fields": {"code": "brx", "name": "Bodo"}}, {"model": "base.locale", "pk": 19, "fields": {"code": "bs", "name": "Bosnian"}}, {"model": "base.locale", "pk": 20, "fields": {"code": "ca", "name": "Catalan"}}, {"model": "base.locale", "pk": 21, "fields": {"code": "ca-valencia", "name": "Catalan (Valencian)"}}, {"model": "base.locale", "pk": 22, "fields": {"code": "cak", "name": "Kaqchikel"}}, {"model": "base.locale", "pk": 23, "fields": {"code": "crh", "name": "Crimean Tatar"}}, {"model": "base.locale", "pk": 24, "fields": {"code": "cs", "name": "Czech"}}, {"model": "base.locale", "pk": 25, "fields": {"code": "csb", "name": "Kashubian"}}, {"model": "base.locale", "pk": 26, "fields": {"code": "cy", "name": "Welsh"}}, {"model": "base.locale", "pk": 27, "fields": {"code": "da", "name": "Danish"}}, {"model": "base.locale", "pk": 28, "fields": {"code": "dbg", "name": "Debug Robot"}}, {"model": "base.locale", "pk": 29, "fields": {"code": "de", "name": "German"}}, {"model": "base.locale", "pk": 30, "fields": {"code": "de-AT", "name": "German (Austria)"}}, {"model": "base.locale", "pk": 31, "fields": {"code": "de-CH", "name": "German (Switzerland)"}}, {"model": "base.locale", "pk": 32, "fields": {"code": "de-DE", "name": "German (Germany)"}}, {"model": "base.locale", "pk": 33, "fields": {"code": "dsb", "name": "Lower Sorbian"}}, {"model": "base.locale", "pk": 34, "fields": {"code": "ee", "name": "Ewe"}}, {"model": "base.locale", "pk": 35, "fields": {"code": "el", "name": "Greek"}}, {"model": "base.locale", "pk": 36, "fields": {"code": "en-AU", "name": "English (Australian)"}}, {"model": "base.locale", "pk": 37, "fields": {"code": "en-CA", "name": "English (Canadian)"}}, {"model": "base.locale", "pk": 38, "fields": {"code": "en-GB", "name": "English (British)"}}, {"model": "base.locale", "pk": 39, "fields": {"code": "en-NZ", "name": "English (New Zealand)"}}, {"model": "base.locale", "pk": 40, "fields": {"code": "en-US", "name": "English (US)"}}, {"model": "base.locale", "pk": 41, "fields": {"code": "en-ZA", "name": "English (South African)"}}, {"model": "base.locale", "pk": 42, "fields": {"code": "eo", "name": "Esperanto"}}, {"model": "base.locale", "pk": 43, "fields": {"code": "es", "name": "Spanish"}}, {"model": "base.locale", "pk": 44, "fields": {"code": "es-AR", "name": "Spanish (Argentina)"}}, {"model": "base.locale", "pk": 45, "fields": {"code": "es-CL", "name": "Spanish (Chile)"}}, {"model": "base.locale", "pk": 46, "fields": {"code": "es-ES", "name": "Spanish (Spain)"}}, {"model": "base.locale", "pk": 47, "fields": {"code": "es-MX", "name": "Spanish (Mexico)"}}, {"model": "base.locale", "pk": 48, "fields": {"code": "et", "name": "Estonian"}}, {"model": "base.locale", "pk": 49, "fields": {"code": "eu", "name": "Basque"}}, {"model": "base.locale", "pk": 50, "fields": {"code": "fa", "name": "Persian"}}, {"model": "base.locale", "pk": 51, "fields": {"code": "ff", "name": "Fulah"}}, {"model": "base.locale", "pk": 52, "fields": {"code": "fi", "name": "Finnish"}}, {"model": "base.locale", "pk": 53, "fields": {"code": "fj-FJ", "name": "Fijian"}}, {"model": "base.locale", "pk": 54, "fields": {"code": "fr", "name": "French"}}, {"model": "base.locale", "pk": 55, "fields": {"code": "fur-IT", "name": "Friulian"}}, {"model": "base.locale", "pk": 56, "fields": {"code": "fy-NL", "name": "Frisian"}}, {"model": "base.locale", "pk": 57, "fields": {"code": "ga", "name": "Irish"}}, {"model": "base.locale", "pk": 58, "fields": {"code": "ga-IE", "name": "Irish"}}, {"model": "base.locale", "pk": 59, "fields": {"code": "gd", "name": "Gaelic (Scotland)"}}, {"model": "base.locale", "pk": 60, "fields": {"code": "gl", "name": "Galician"}}, {"model": "base.locale", "pk": 61, "fields": {"code": "gn", "name": "Guarani"}}, {"model": "base.locale", "pk": 62, "fields": {"code": "gu", "name": "Gujarati"}}, {"model": "base.locale", "pk": 63, "fields": {"code": "gu-IN", "name": "Gujarati (India)"}}, {"model": "base.locale", "pk": 64, "fields": {"code": "ha", "name": "Hausa"}}, {"model": "base.locale", "pk": 65, "fields": {"code": "he", "name": "Hebrew"}}, {"model": "base.locale", "pk": 66, "fields": {"code": "hi", "name": "Hindi"}}, {"model": "base.locale", "pk": 67, "fields": {"code": "hi-IN", "name": "Hindi (India)"}}, {"model": "base.locale", "pk": 68, "fields": {"code": "hr", "name": "Croatian"}}, {"model": "base.locale", "pk": 69, "fields": {"code": "hsb", "name": "Upper Sorbian"}}, {"model": "base.locale", "pk": 70, "fields": {"code": "hu", "name": "Hungarian"}}, {"model": "base.locale", "pk": 71, "fields": {"code": "hy-AM", "name": "Armenian"}}, {"model": "base.locale", "pk": 72, "fields": {"code": "ia", "name": "Interlingua"}}, {"model": "base.locale", "pk": 73, "fields": {"code": "id", "name": "Indonesian"}}, {"model": "base.locale", "pk": 74, "fields": {"code": "ig", "name": "Igbo"}}, {"model": "base.locale", "pk": 75, "fields": {"code": "is", "name": "Icelandic"}}, {"model": "base.locale", "pk": 76, "fields": {"code": "it", "name": "Italian"}}, {"model": "base.locale", "pk": 77, "fields": {"code": "ja", "name": "Japanese"}}, {"model": "base.locale", "pk": 78, "fields": {"code": "ja-JP-mac", "name": "Japanese"}}, {"model": "base.locale", "pk": 79, "fields": {"code": "ka", "name": "Georgian"}}, {"model": "base.locale", "pk": 80, "fields": {"code": "kab", "name": "Kabyle"}}, {"model": "base.locale", "pk": 81, "fields": {"code": "kk", "name": "Kazakh"}}, {"model": "base.locale", "pk": 82, "fields": {"code": "km", "name": "Khmer"}}, {"model": "base.locale", "pk": 83, "fields": {"code": "kn", "name": "Kannada"}}, {"model": "base.locale", "pk": 84, "fields": {"code": "ko", "name": "Korean"}}, {"model": "base.locale", "pk": 85, "fields": {"code": "kok", "name": "Konkani"}}, {"model": "base.locale", "pk": 86, "fields": {"code": "ks", "name": "Kashmiri"}}, {"model": "base.locale", "pk": 87, "fields": {"code": "ku", "name": "Kurdish"}}, {"model": "base.locale", "pk": 88, "fields": {"code": "la", "name": "Latin"}}, {"model": "base.locale", "pk": 89, "fields": {"code": "lg", "name": "Luganda"}}, {"model": "base.locale", "pk": 90, "fields": {"code": "lij", "name": "Ligurian"}}, {"model": "base.locale", "pk": 91, "fields": {"code": "ln", "name": "Lingala"}}, {"model": "base.locale", "pk": 92, "fields": {"code": "lo", "name": "Lao"}}, {"model": "base.locale", "pk": 93, "fields": {"code": "lt", "name": "Lithuanian"}}, {"model": "base.locale", "pk": 94, "fields": {"code": "ltg", "name": "Latgalian"}}, {"model": "base.locale", "pk": 95, "fields": {"code": "lv", "name": "Latvian"}}, {"model": "base.locale", "pk": 96, "fields": {"code": "mai", "name": "Maithili"}}, {"model": "base.locale", "pk": 97, "fields": {"code": "mg", "name": "Malagasy"}}, {"model": "base.locale", "pk": 98, "fields": {"code": "mi", "name": "Maori (Aotearoa)"}}, {"model": "base.locale", "pk": 99, "fields": {"code": "mk", "name": "Macedonian"}}, {"model": "base.locale", "pk": 100, "fields": {"code": "ml", "name": "Malayalam"}}, {"model": "base.locale", "pk": 101, "fields": {"code": "mn", "name": "Mongolian"}}, {"model": "base.locale", "pk": 102, "fields": {"code": "mr", "name": "Marathi"}}, {"model": "base.locale", "pk": 103, "fields": {"code": "ms", "name": "Malay"}}, {"model": "base.locale", "pk": 104, "fields": {"code": "my", "name": "Burmese"}}, {"model": "base.locale", "pk": 105, "fields": {"code": "nb-NO", "name": "Norwegian (Bokm\u00e5l)"}}, {"model": "base.locale", "pk": 106, "fields": {"code": "ne-NP", "name": "Nepali"}}, {"model": "base.locale", "pk": 107, "fields": {"code": "nl", "name": "Dutch"}}, {"model": "base.locale", "pk": 108, "fields": {"code": "nn-NO", "name": "Norwegian (Nynorsk)"}}, {"model": "base.locale", "pk": 109, "fields": {"code": "nr", "name": "Ndebele, South"}}, {"model": "base.locale", "pk": 110, "fields": {"code": "nso", "name": "Northern Sotho"}}, {"model": "base.locale", "pk": 111, "fields": {"code": "oc", "name": "Occitan (Lengadocian)"}}, {"model": "base.locale", "pk": 112, "fields": {"code": "or", "name": "Odia"}}, {"model": "base.locale", "pk": 113, "fields": {"code": "pa", "name": "Punjabi"}}, {"model": "base.locale", "pk": 114, "fields": {"code": "pa-IN", "name": "Punjabi (India)"}}, {"model": "base.locale", "pk": 115, "fields": {"code": "pl", "name": "Polish"}}, {"model": "base.locale", "pk": 116, "fields": {"code": "pt-BR", "name": "Portuguese (Brazilian)"}}, {"model": "base.locale", "pk": 117, "fields": {"code": "pt-PT", "name": "Portuguese (Portugal)"}}, {"model": "base.locale", "pk": 118, "fields": {"code": "rm", "name": "Romansh"}}, {"model": "base.locale", "pk": 119, "fields": {"code": "ro", "name": "Romanian"}}, {"model": "base.locale", "pk": 120, "fields": {"code": "ru", "name": "Russian"}}, {"model": "base.locale", "pk": 121, "fields": {"code": "rw", "name": "Kinyarwanda"}}, {"model": "base.locale", "pk": 122, "fields": {"code": "sa", "name": "Sanskrit"}}, {"model": "base.locale", "pk": 123, "fields": {"code": "sah", "name": "Sakha"}}, {"model": "base.locale", "pk": 124, "fields": {"code": "sat", "name": "Santali"}}, {"model": "base.locale", "pk": 125, "fields": {"code": "si", "name": "Sinhala"}}, {"model": "base.locale", "pk": 126, "fields": {"code": "sk", "name": "Slovak"}}, {"model": "base.locale", "pk": 127, "fields": {"code": "sl", "name": "Slovenian"}}, {"model": "base.locale", "pk": 128, "fields": {"code": "son", "name": "Songhai"}}, {"model": "base.locale", "pk": 129, "fields": {"code": "sq", "name": "Albanian"}}, {"model": "base.locale", "pk": 130, "fields": {"code": "sr", "name": "Serbian"}}, {"model": "base.locale", "pk": 131, "fields": {"code": "sr-Cyrl", "name": "Serbian"}}, {"model": "base.locale", "pk": 132, "fields": {"code": "sr-Latn", "name": "Serbian"}}, {"model": "base.locale", "pk": 133, "fields": {"code": "ss", "name": "Siswati"}}, {"model": "base.locale", "pk": 134, "fields": {"code": "st", "name": "Southern Sotho"}}, {"model": "base.locale", "pk": 135, "fields": {"code": "sv-SE", "name": "Swedish"}}, {"model": "base.locale", "pk": 136, "fields": {"code": "sw", "name": "Swahili"}}, {"model": "base.locale", "pk": 137, "fields": {"code": "ta", "name": "Tamil"}}, {"model": "base.locale", "pk": 138, "fields": {"code": "ta-IN", "name": "Tamil (India)"}}, {"model": "base.locale", "pk": 139, "fields": {"code": "ta-LK", "name": "Tamil (Sri Lanka)"}}, {"model": "base.locale", "pk": 140, "fields": {"code": "te", "name": "Telugu"}}, {"model": "base.locale", "pk": 141, "fields": {"code": "th", "name": "Thai"}}, {"model": "base.locale", "pk": 142, "fields": {"code": "tl", "name": "Tagalog"}}, {"model": "base.locale", "pk": 143, "fields": {"code": "tn", "name": "Tswana"}}, {"model": "base.locale", "pk": 144, "fields": {"code": "tr", "name": "Turkish"}}, {"model": "base.locale", "pk": 145, "fields": {"code": "trs", "name": "Triqui"}}, {"model": "base.locale", "pk": 146, "fields": {"code": "ts", "name": "Tsonga"}}, {"model": "base.locale", "pk": 147, "fields": {"code": "tsz", "name": "Pur\u00e9pecha"}}, {"model": "base.locale", "pk": 148, "fields": {"code": "tt-RU", "name": "Tatar"}}, {"model": "base.locale", "pk": 149, "fields": {"code": "uk", "name": "Ukrainian"}}, {"model": "base.locale", "pk": 150, "fields": {"code": "ur", "name": "Urdu"}}, {"model": "base.locale", "pk": 151, "fields": {"code": "uz", "name": "Uzbek"}}, {"model": "base.locale", "pk": 152, "fields": {"code": "ve", "name": "Venda"}}, {"model": "base.locale", "pk": 153, "fields": {"code": "vi", "name": "Vietnamese"}}, {"model": "base.locale", "pk": 154, "fields": {"code": "wo", "name": "Wolof"}}, {"model": "base.locale", "pk": 155, "fields": {"code": "x-testing", "name": "Testing"}}, {"model": "base.locale", "pk": 156, "fields": {"code": "xh", "name": "Xhosa"}}, {"model": "base.locale", "pk": 157, "fields": {"code": "yo", "name": "Yoruba"}}, {"model": "base.locale", "pk": 158, "fields": {"code": "zh-CN", "name": "Chinese (Simplified)"}}, {"model": "base.locale", "pk": 159, "fields": {"code": "zh-TW", "name": "Chinese (Traditional)"}}, {"model": "base.locale", "pk": 160, "fields": {"code": "zu", "name": "Zulu"}}]
+[
+  {
+    "model": "base.locale",
+    "pk": 1,
+    "fields": {
+      "code": "ach",
+      "name": "Acholi"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 2,
+    "fields": {
+      "code": "af",
+      "name": "Afrikaans"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 5,
+    "fields": {
+      "code": "an",
+      "name": "Aragonese"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 6,
+    "fields": {
+      "code": "ar",
+      "name": "Arabic"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 8,
+    "fields": {
+      "code": "ast",
+      "name": "Asturian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 9,
+    "fields": {
+      "code": "az",
+      "name": "Azerbaijani"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 11,
+    "fields": {
+      "code": "be",
+      "name": "Belarusian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 12,
+    "fields": {
+      "code": "bg",
+      "name": "Bulgarian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 14,
+    "fields": {
+      "code": "bn",
+      "name": "Bengali"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 17,
+    "fields": {
+      "code": "br",
+      "name": "Breton"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 18,
+    "fields": {
+      "code": "brx",
+      "name": "Bodo"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 19,
+    "fields": {
+      "code": "bs",
+      "name": "Bosnian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 20,
+    "fields": {
+      "code": "ca",
+      "name": "Catalan"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 21,
+    "fields": {
+      "code": "ca-valencia",
+      "name": "Catalan (Valencian)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 22,
+    "fields": {
+      "code": "cak",
+      "name": "Kaqchikel"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 24,
+    "fields": {
+      "code": "cs",
+      "name": "Czech"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 26,
+    "fields": {
+      "code": "cy",
+      "name": "Welsh"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 27,
+    "fields": {
+      "code": "da",
+      "name": "Danish"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 29,
+    "fields": {
+      "code": "de",
+      "name": "German"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 33,
+    "fields": {
+      "code": "dsb",
+      "name": "Lower Sorbian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 35,
+    "fields": {
+      "code": "el",
+      "name": "Greek"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 37,
+    "fields": {
+      "code": "en-CA",
+      "name": "English (Canadian)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 38,
+    "fields": {
+      "code": "en-GB",
+      "name": "English (British)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 40,
+    "fields": {
+      "code": "en-US",
+      "name": "English (US)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 42,
+    "fields": {
+      "code": "eo",
+      "name": "Esperanto"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 44,
+    "fields": {
+      "code": "es-AR",
+      "name": "Spanish (Argentina)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 45,
+    "fields": {
+      "code": "es-CL",
+      "name": "Spanish (Chile)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 46,
+    "fields": {
+      "code": "es-ES",
+      "name": "Spanish (Spain)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 47,
+    "fields": {
+      "code": "es-MX",
+      "name": "Spanish (Mexico)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 48,
+    "fields": {
+      "code": "et",
+      "name": "Estonian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 49,
+    "fields": {
+      "code": "eu",
+      "name": "Basque"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 50,
+    "fields": {
+      "code": "fa",
+      "name": "Persian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 51,
+    "fields": {
+      "code": "ff",
+      "name": "Fulah"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 52,
+    "fields": {
+      "code": "fi",
+      "name": "Finnish"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 54,
+    "fields": {
+      "code": "fr",
+      "name": "French"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 56,
+    "fields": {
+      "code": "fy-NL",
+      "name": "Frisian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 58,
+    "fields": {
+      "code": "ga-IE",
+      "name": "Irish"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 59,
+    "fields": {
+      "code": "gd",
+      "name": "Gaelic (Scotland)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 60,
+    "fields": {
+      "code": "gl",
+      "name": "Galician"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 61,
+    "fields": {
+      "code": "gn",
+      "name": "Guarani"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 63,
+    "fields": {
+      "code": "gu-IN",
+      "name": "Gujarati (India)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 65,
+    "fields": {
+      "code": "he",
+      "name": "Hebrew"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 67,
+    "fields": {
+      "code": "hi-IN",
+      "name": "Hindi (India)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 68,
+    "fields": {
+      "code": "hr",
+      "name": "Croatian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 69,
+    "fields": {
+      "code": "hsb",
+      "name": "Upper Sorbian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 70,
+    "fields": {
+      "code": "hu",
+      "name": "Hungarian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 71,
+    "fields": {
+      "code": "hy-AM",
+      "name": "Armenian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 72,
+    "fields": {
+      "code": "ia",
+      "name": "Interlingua"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 73,
+    "fields": {
+      "code": "id",
+      "name": "Indonesian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 75,
+    "fields": {
+      "code": "is",
+      "name": "Icelandic"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 76,
+    "fields": {
+      "code": "it",
+      "name": "Italian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 77,
+    "fields": {
+      "code": "ja",
+      "name": "Japanese"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 78,
+    "fields": {
+      "code": "ja-JP-mac",
+      "name": "Japanese"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 79,
+    "fields": {
+      "code": "ka",
+      "name": "Georgian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 80,
+    "fields": {
+      "code": "kab",
+      "name": "Kabyle"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 81,
+    "fields": {
+      "code": "kk",
+      "name": "Kazakh"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 82,
+    "fields": {
+      "code": "km",
+      "name": "Khmer"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 83,
+    "fields": {
+      "code": "kn",
+      "name": "Kannada"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 84,
+    "fields": {
+      "code": "ko",
+      "name": "Korean"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 90,
+    "fields": {
+      "code": "lij",
+      "name": "Ligurian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 92,
+    "fields": {
+      "code": "lo",
+      "name": "Lao"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 93,
+    "fields": {
+      "code": "lt",
+      "name": "Lithuanian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 94,
+    "fields": {
+      "code": "ltg",
+      "name": "Latgalian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 95,
+    "fields": {
+      "code": "lv",
+      "name": "Latvian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 99,
+    "fields": {
+      "code": "mk",
+      "name": "Macedonian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 102,
+    "fields": {
+      "code": "mr",
+      "name": "Marathi"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 103,
+    "fields": {
+      "code": "ms",
+      "name": "Malay"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 104,
+    "fields": {
+      "code": "my",
+      "name": "Burmese"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 105,
+    "fields": {
+      "code": "nb-NO",
+      "name": "Norwegian (Bokmål)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 106,
+    "fields": {
+      "code": "ne-NP",
+      "name": "Nepali"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 107,
+    "fields": {
+      "code": "nl",
+      "name": "Dutch"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 108,
+    "fields": {
+      "code": "nn-NO",
+      "name": "Norwegian (Nynorsk)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 111,
+    "fields": {
+      "code": "oc",
+      "name": "Occitan (Lengadocian)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 114,
+    "fields": {
+      "code": "pa-IN",
+      "name": "Punjabi (India)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 115,
+    "fields": {
+      "code": "pl",
+      "name": "Polish"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 116,
+    "fields": {
+      "code": "pt-BR",
+      "name": "Portuguese (Brazilian)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 117,
+    "fields": {
+      "code": "pt-PT",
+      "name": "Portuguese (Portugal)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 118,
+    "fields": {
+      "code": "rm",
+      "name": "Romansh"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 119,
+    "fields": {
+      "code": "ro",
+      "name": "Romanian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 120,
+    "fields": {
+      "code": "ru",
+      "name": "Russian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 125,
+    "fields": {
+      "code": "si",
+      "name": "Sinhala"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 126,
+    "fields": {
+      "code": "sk",
+      "name": "Slovak"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 127,
+    "fields": {
+      "code": "sl",
+      "name": "Slovenian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 128,
+    "fields": {
+      "code": "son",
+      "name": "Songhai"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 129,
+    "fields": {
+      "code": "sq",
+      "name": "Albanian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 130,
+    "fields": {
+      "code": "sr",
+      "name": "Serbian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 135,
+    "fields": {
+      "code": "sv-SE",
+      "name": "Swedish"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 137,
+    "fields": {
+      "code": "ta",
+      "name": "Tamil"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 140,
+    "fields": {
+      "code": "te",
+      "name": "Telugu"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 141,
+    "fields": {
+      "code": "th",
+      "name": "Thai"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 142,
+    "fields": {
+      "code": "tl",
+      "name": "Tagalog"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 144,
+    "fields": {
+      "code": "tr",
+      "name": "Turkish"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 145,
+    "fields": {
+      "code": "trs",
+      "name": "Triqui"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 149,
+    "fields": {
+      "code": "uk",
+      "name": "Ukrainian"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 150,
+    "fields": {
+      "code": "ur",
+      "name": "Urdu"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 151,
+    "fields": {
+      "code": "uz",
+      "name": "Uzbek"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 153,
+    "fields": {
+      "code": "vi",
+      "name": "Vietnamese"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 154,
+    "fields": {
+      "code": "wo",
+      "name": "Wolof"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 156,
+    "fields": {
+      "code": "xh",
+      "name": "Xhosa"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 158,
+    "fields": {
+      "code": "zh-CN",
+      "name": "Chinese (Simplified)"
+    }
+  },
+  {
+    "model": "base.locale",
+    "pk": 159,
+    "fields": {
+      "code": "zh-TW",
+      "name": "Chinese (Traditional)"
+    }
+  }
+]
