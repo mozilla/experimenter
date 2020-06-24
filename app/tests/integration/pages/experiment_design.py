@@ -17,6 +17,7 @@ class DesignPage(Base):
     _page_wait_locator = (By.CSS_SELECTOR, ".page-edit-design")
 
     _add_branch_btn_locator = (By.CSS_SELECTOR, "#add-branch-button")
+    _addon_rollout_button_locator = (By.CSS_SELECTOR, "#rollout_type-addon")
     _branch_form_root_locator = (By.CSS_SELECTOR, "#control-branch-group")
     _continue_btn_locator = (By.CSS_SELECTOR, "#save-and-continue-btn")
     _design_textarea_locator = (By.CSS_SELECTOR, "#id_design")
@@ -46,6 +47,10 @@ class DesignPage(Base):
 
     def enable_multi_addon(self):
         element = self.find_element(*self._multi_addon_button_locator)
+        element.click()
+
+    def enable_addon_rollout(self):
+        element = self.find_element(*self._addon_rollout_button_locator)
         element.click()
 
     def create_new_branch(self):
@@ -121,6 +126,7 @@ class DesignPage(Base):
         return self.RolloutPrefs(self)
 
     class RolloutPrefs(Region):
+        _addon_url_locator = (By.CSS_SELECTOR, "#id_addon_release_url")
         _pref_branch_locator = (By.CSS_SELECTOR, "#pref-branch-undefined-0")
         _pref_type_locator = (By.CSS_SELECTOR, "#pref-type-undefined-0")
         _pref_name_locator = (By.CSS_SELECTOR, "#pref-key-undefined-0")
@@ -162,6 +168,15 @@ class DesignPage(Base):
         @pref_value.setter
         def pref_value(self, text=None):
             element = self.selenium.find_element(*self._pref_value_locator)
+            element.send_keys(text)
+
+        @property
+        def addon_url(self):
+            return self.selenium.find_element(*self._addon_url_locator).text
+
+        @addon_url.setter
+        def addon_url(self, text=None):
+            element = self.selenium.find_element(*self._addon_url_locator)
             element.send_keys(text)
 
     class BranchRegion(Region):
