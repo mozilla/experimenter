@@ -1,6 +1,7 @@
 import random
 import string
 
+from selenium.common.exceptions import ElementNotInteractableException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 
@@ -126,10 +127,15 @@ class ExperimentOverview(Base):
 
     @ds_issue_url.setter
     def ds_issue_url(self, text=None):
-        element = self.find_element(*self._experiment_ds_issue_url_locator)
-        random_digits = get_random_digits()
-        element.send_keys(f"{text}{random_digits}")
-        return
+        # sometimes the ds_issue_url doesn't exist
+        try:
+            element = self.find_element(*self._experiment_ds_issue_url_locator)
+            random_digits = get_random_digits()
+            element.send_keys(f"{text}{random_digits}")
+        except ElementNotInteractableException:
+            return
+        else:
+            return
 
     @property
     def analysis_owner(self):
