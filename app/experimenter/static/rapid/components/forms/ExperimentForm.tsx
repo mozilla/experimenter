@@ -1,6 +1,8 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 
+import { XSelect } from "./XSelect";
+
 interface ErrorListProperties {
   errors: Array<string> | undefined;
 }
@@ -102,10 +104,11 @@ const ExperimentForm: React.FC = () => {
           Select the user action or feature that you&apos;d be measuring with
           this experiment.
         </p>
-        <select
-          className="form-control w-100"
+        <XSelect
+          className="w-100"
           id="field-feature"
           name="feature"
+          options={[]}
         />
         <ErrorList errors={errors.feature} />
       </div>
@@ -115,10 +118,11 @@ const ExperimentForm: React.FC = () => {
           Audience
         </label>
         <p>Description of audience.</p>
-        <select
-          className="form-control w-100"
+        <XSelect
+          className="w-100"
           id="field-audience"
           name="audience"
+          options={[]}
         />
         <ErrorList errors={errors.audience} />
       </div>
