@@ -70,6 +70,8 @@ target/
 
 version.json
 
+.vscode/
+
 .psql_history
 
 # Hosted assets
@@ -86,3 +88,4 @@ app/experimenter/static/assets/
 .tmontmp
 app/coverage_html_report/
 node_modules
+
