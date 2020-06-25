@@ -1,5 +1,5 @@
 .vscode
-.cache
+**/.cache/
 .git
 .gitignore
 LICENSE
