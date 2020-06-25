@@ -45,6 +45,8 @@ describe("<ExperimentForm />", () => {
     expect(formData).toEqual({
       name: "test name",
       objectives: "test objective",
+      audience: null,
+      features: [],
     });
   });
 
@@ -66,6 +68,11 @@ describe("<ExperimentForm />", () => {
     await waitFor(() =>
       expect(getByText("an error occurred")).toBeInTheDocument(),
     );
-    expect(formData).toEqual({ name: "", objectives: "" });
+    expect(formData).toEqual({
+      name: "",
+      objectives: "",
+      audience: null,
+      features: [],
+    });
   });
 });

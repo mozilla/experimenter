@@ -90,3 +90,20 @@ export function XSelect<OptionType extends XSelectOption = XSelectOption>(
     />
   );
 }
+
+interface OptionDefinition<T> {
+  [value: string]: Omit<T, "value">;
+}
+
+/**
+ * A utility for defining options (for use in X-Select) with unique values / identifiers,
+ * where <T> is an option type that extends XSelectOption
+ */
+export function defineOptionsByValue<T extends XSelectOption>(
+  /** An object of all option properties (except value), where the 'value' is the key. */
+  optionsById: OptionDefinition<T>,
+): Array<T> {
+  return Object.entries(optionsById).map(
+    ([value, props]) => ({ value, ...props } as T),
+  );
+}

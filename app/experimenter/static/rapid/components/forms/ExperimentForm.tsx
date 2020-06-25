@@ -1,6 +1,9 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 
+import { audiences, AudienceOption } from "../../data/Audiences";
+import { features, FeatureOption } from "../../data/Features";
+
 import { XSelect } from "./XSelect";
 
 interface ErrorListProperties {
@@ -21,10 +24,26 @@ const ErrorList: React.FC<ErrorListProperties> = ({ errors }) => {
   );
 };
 
+interface FormDataUIState {
+  name: string;
+  objectives: string;
+  audience: AudienceOption | null;
+  features: Array<FeatureOption>;
+}
+
+interface FormDataSubmitState {
+  name: string;
+  objectives: string;
+  audience: string | null;
+  features: Array<string>;
+}
+
 const ExperimentForm: React.FC = () => {
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = React.useState<FormDataUIState>({
     name: "",
     objectives: "",
+    audience: null,
+    features: [],
   });
   const [errors, setErrors] = React.useState<{ [name: string]: Array<string> }>(
     {},
@@ -39,13 +58,27 @@ const ExperimentForm: React.FC = () => {
     });
   };
 
+  function transformFormData({
+    name,
+    objectives,
+    audience,
+    features,
+  }: FormDataUIState): FormDataSubmitState {
+    return {
+      name,
+      objectives,
+      audience: audience ? audience.value : null,
+      features: features.map(({ value }) => value),
+    };
+  }
+
   const handleClickSave = async () => {
     const response = await fetch("/api/v3/experiments/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(transformFormData(formData)),
     });
     const responseData = await response.json();
     if (!response.ok) {
@@ -105,10 +138,13 @@ const ExperimentForm: React.FC = () => {
           this experiment.
         </p>
         <XSelect
+          isMulti
           className="w-100"
           id="field-feature"
           name="feature"
-          options={[]}
+          options={features}
+          value={formData.features}
+          onOptionChange={(features) => setFormData({ ...formData, features })}
         />
         <ErrorList errors={errors.feature} />
       </div>
@@ -117,30 +153,19 @@ const ExperimentForm: React.FC = () => {
         <label className="font-weight-bold" htmlFor="field-audience">
           Audience
         </label>
-        <p>Description of audience.</p>
-        <XSelect
+        <p>Choose the set of users who will see the experiment.</p>
+        <XSelect<AudienceOption>
           className="w-100"
           id="field-audience"
+          isClearable={true}
           name="audience"
-          options={[]}
+          options={audiences}
+          placeholder="Everyone"
+          onOptionChange={([audience]) =>
+            setFormData({ ...formData, audience })
+          }
         />
         <ErrorList errors={errors.audience} />
-      </div>
-
-      <div className="mb-4">
-        <label className="font-weight-bold" htmlFor="field-trigger">
-          Trigger
-        </label>
-        <p>
-          Select user actions that should be used to trigger the CFR messages
-          for the users.
-        </p>
-        <select
-          className="form-control w-100"
-          id="field-trigger"
-          name="trigger"
-        />
-        <ErrorList errors={errors.trigger} />
       </div>
 
       <div className="mb-4">
@@ -151,10 +176,11 @@ const ExperimentForm: React.FC = () => {
           Is there a minimum Firefox Release version this experiment should be
           run on?
         </p>
-        <select
+        <input
           className="form-control w-100"
           id="field-version"
           name="version"
+          placeholder="No minimum version"
         />
         <ErrorList errors={errors.version} />
       </div>
