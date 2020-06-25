@@ -13,7 +13,7 @@ from models.base_dataclass import (
 
 @pytest.fixture(name="experiment_type", scope="module")
 def fixture_experiment_type():
-    return "multi-pref-experiment"
+    return "multi-preference-experiment"
 
 
 @pytest.fixture(name="experiment_name", scope="module")
@@ -22,7 +22,7 @@ def fixture_experiment_name():
 
 
 @pytest.fixture(name="default_data", scope="module")
-def fixture_default_data():
+def fixture_default_data(experiment_name, experiment_type):
     branches = []
     preferences = [
         BasePreferencesDataClass(
@@ -65,8 +65,8 @@ def fixture_default_data():
     ]
 
     return BaseDataClass(
-        type_name="Pref-Flip Experiment",
-        action_name="multi-preference-experiment",
+        type_name=experiment_name,
+        action_name=experiment_type,
         experiment_type="channel",
         channels="Nightly",
         min_version=99,

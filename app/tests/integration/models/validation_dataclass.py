@@ -9,22 +9,26 @@ class FilterObjectDataClass(BaseModel):
 
 
 class PreferencesDataClass(BaseModel):
-    preferenceBranchType: str
-    preferenceType: str
-    preferenceValue: Any
+    preferenceBranchType: Optional[str] = None
+    preferenceType: Optional[str] = None
+    preferenceValue: Optional[Any] = None
+    preferenceName: Optional[str] = None
+    value: Optional[bool] = None
 
 
 class BranchDataClass(BaseModel):
     slug: str
     ratio: Optional[str]
-    addon_url: Optional[str] = None
     preferences: Optional[Dict[Optional[str], PreferencesDataClass]] = Field(default=None)
 
 
 class ArgumentsDataClass(BaseModel):
-    userFacingName: str
-    userFacingDescription: str
-    branches: List[BranchDataClass]
+    extensionApiId: Optional[str] = None
+    userFacingName: Optional[str] = None
+    userFacingDescription: Optional[str] = None
+    branches: Optional[List[BranchDataClass]] = None
+    preferences: Optional[List[PreferencesDataClass]] = None
+    slug: Optional[str] = None
 
 
 class APIDataClass(BaseModel):

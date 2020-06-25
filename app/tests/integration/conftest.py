@@ -54,35 +54,34 @@ def _verify_url(request, base_url):
         session.get(base_url, verify=False)
 
 
-@pytest.fixture(name="experiment_type")
+@pytest.fixture(name="experiment_type", scope="module")
 def fixture_experiment_type():
-    """Empty fixture for overriding"""
-    return
+    return "multi-preference-experiment"
+
+
+@pytest.fixture(name="experiment_name", scope="module")
+def fixture_experiment_name():
+    return "Pref-Flip Experiment"
 
 
 @pytest.fixture(name="default_data", scope="module")
-def fixture_default_data():
+def fixture_default_data(experiment_name, experiment_type):
+    """Default data needed to create an experiment."""
     branches = []
-    preferences = []
-
-    preferences.append(
+    preferences = [
         BasePreferencesDataClass(
             preference_branch_name="e2e-testing",
             preference_branch_type="default",
             preference_type="boolean",
             preference_value="true",
-        )
-    )
-
-    preferences.append(
+        ),
         BasePreferencesDataClass(
             preference_branch_name="e2e-testing",
             preference_branch_type="default",
             preference_type="boolean",
             preference_value="false",
-        )
-    )
-
+        ),
+    ]
     for count, item in enumerate(preferences):
         branches.append(
             BaseBranchDataClass(
@@ -91,8 +90,8 @@ def fixture_default_data():
         )
 
     return BaseDataClass(
-        type_name="Pref-Flip Experiment",
-        action_name="multi-preference-experiment",
+        type_name=experiment_name,
+        action_name=experiment_type,
         experiment_type="channel",
         channels="Nightly",
         min_version=99,
@@ -101,26 +100,6 @@ def fixture_default_data():
         user_facing_description="e2e testing description",
         branches=sorted(branches, key=lambda x: x.branch_name),
     )
-
-
-@pytest.fixture(name="experiment_overview_info")
-def fixture_experiment_info(variables, request, ds_issue_host, experiment_type):
-    if request.node.get_closest_marker("use_variables"):
-        return {
-            "type_name": variables[experiment_type]["type_name"],
-            "public_name": variables[experiment_type]["userFacingName"],
-            "public_description": variables[experiment_type]["userFacingDescription"],
-            "short_description": "Testing in here",
-            "ds_issue_url": f"{ds_issue_host}DS-12345",
-        }
-
-    return {
-        "type_name": "Pref-Flip Experiment",
-        "public_name": "Public Name",
-        "public_description": "Public Description",
-        "short_description": "Testing in here",
-        "ds_issue_url": f"{ds_issue_host}DS-12345",
-    }
 
 
 @pytest.fixture
@@ -164,6 +143,28 @@ def fill_timeline_page(
 
 
 @pytest.fixture
+def fill_timeline_page_pref_rollout(
+    selenium, base_url, request, default_data, experiment_type, fill_overview
+):
+    """Fills timeline page according to pref rollout requirements."""
+    timeline = TimelineAndPopulationPage(
+        selenium, base_url, experiment_url=f"{fill_overview.url}"
+    ).open()
+    timeline.wait_for_page_to_load()
+    date = f"{datetime.datetime.now()}"
+    new_date = parse(date)
+    today = f"{new_date.date()}"
+    timeline.proposed_start_date = today
+    timeline.proposed_experiment_duration = "25"
+    timeline.rollout_playbook = "Low Risk Schedule"
+    timeline.firefox_channel = default_data.channels
+    timeline.firefox_min_version = f"{default_data.min_version}.0"
+    timeline.firefox_max_version = f"{default_data.max_version}.0"
+    timeline.save_btn()
+    return timeline
+
+
+@pytest.fixture
 def fill_design_page(selenium, base_url, request, fill_overview):
     """Fills design page according to generic requirements."""
     design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
@@ -179,6 +180,39 @@ def fill_design_page(selenium, base_url, request, fill_overview):
     current_branchs[1].branch_name = "Fixture Branch 2"
     current_branchs[1].branch_description = "THIS IS A TEST"
     current_branchs[1].branch_value = "false"
+    design.save_btn()
+    return design
+
+
+@pytest.fixture
+def fill_design_page_pref_rollout(
+    selenium, base_url, request, default_data, experiment_type, fill_overview
+):
+    """Fills design page according to pref rollout requirements."""
+    design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
+    design = design.wait_for_page_to_load()
+    design.design_details = "THE DESIGN IS FANCY"
+    prefs = design.rollout_prefs
+    pref_data = default_data.branches[0].preferences
+    prefs.pref_branch = pref_data.preference_branch_type
+    prefs.pref_type = pref_data.preference_type
+    prefs.pref_name = pref_data.preference_branch_name
+    prefs.pref_value = pref_data.preference_value
+    design.save_btn()
+    return design
+
+
+@pytest.fixture
+def fill_design_page_addon_rollout(
+    selenium, base_url, request, default_data, experiment_type, fill_overview
+):
+    """Fills design page according to addon rollout requirements."""
+    design = DesignPage(selenium, base_url, experiment_url=f"{fill_overview.url}").open()
+    design = design.wait_for_page_to_load()
+    design.design_details = "THE DESIGN IS FANCY"
+    design.enable_addon_rollout()
+    prefs = design.rollout_prefs
+    prefs.addon_url = default_data.branches[0].addon_url
     design.save_btn()
     return design
 
