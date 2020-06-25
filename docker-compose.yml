@@ -17,7 +17,6 @@ services:
       - /app/experimenter/static/rapid/node_modules/
       - assets_volume:/app/experimenter/static/assets/
       - static_volume:/app/experimenter/served/
-      - /app/.cache
     command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py collectstatic --noinput;python /app/manage.py runserver 0:7001"
     networks:
       - private_nw
@@ -33,7 +32,6 @@ services:
       - /app/experimenter/static/core/node_modules/
       - assets_volume:/app/experimenter/static/assets/
       - static_volume:/app/experimenter/served/
-      - /app/.cache
     command: bash -c "yarn workspace @experimenter/core watch"
 
   yarn-rapid:
@@ -46,7 +44,6 @@ services:
       - /app/experimenter/static/rapid/node_modules/
       - assets_volume:/app/experimenter/static/assets/
       - static_volume:/app/experimenter/served/
-      - /app/.cache
     command: bash -c "yarn workspace @experimenter/rapid watch"
 
   worker:
