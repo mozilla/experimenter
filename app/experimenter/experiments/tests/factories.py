@@ -305,7 +305,7 @@ class ProjectFactory(factory.django.DjangoModelFactory):
 
 
 class ExperimentBucketNamespaceFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(lambda o: "{}_".format(faker.catch_phrase()))
+    name = factory.LazyAttribute(lambda o: slugify(faker.catch_phrase()))
     instance = factory.Sequence(lambda n: n)
 
     class Meta:
