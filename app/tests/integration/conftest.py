@@ -80,7 +80,7 @@ def fixture_default_data(experiment_name, experiment_type):
             preference_branch_type="default",
             preference_type="boolean",
             preference_value="false",
-        )
+        ),
     ]
     for count, item in enumerate(preferences):
         branches.append(
