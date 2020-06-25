@@ -10,17 +10,20 @@ from parameterized import parameterized
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.experiments.models import (
     Experiment,
-    ExperimentVariant,
-    VariantPreferences,
-    RolloutPreference,
+    ExperimentBucketNamespace,
     ExperimentChangeLog,
+    ExperimentVariant,
+    RolloutPreference,
+    VariantPreferences,
 )
 from experimenter.normandy.serializers import ExperimentRecipeSerializer
 from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
-    ExperimentVariantFactory,
+    ExperimentBucketFactory,
+    ExperimentBucketNamespaceFactory,
     ExperimentChangeLogFactory,
     ExperimentCommentFactory,
+    ExperimentFactory,
+    ExperimentVariantFactory,
 )
 
 
@@ -1708,3 +1711,60 @@ class TestExperimentComments(TestCase):
         self.assertNotIn(
             testing_comment, experiment.comments.sections[experiment.SECTION_RISKS]
         )
+
+
+class TestExperimentBucketNamespace(TestCase):
+    def test_empty_namespace_creates_namespace_and_buckets(self):
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
+        name = "cfr"
+        bucket = ExperimentBucketNamespace.request_namespace_buckets(
+            name, experiment, 100
+        )
+        self.assertEqual(bucket.start, 0)
+        self.assertEqual(bucket.end, 99)
+        self.assertEqual(bucket.count, 100)
+        self.assertEqual(bucket.namespace.name, name)
+        self.assertEqual(bucket.namespace.instance, 1)
+        self.assertEqual(bucket.namespace.total, Experiment.BUCKET_TOTAL)
+        self.assertEqual(
+            bucket.namespace.randomization_unit, Experiment.BUCKET_RANDOMIZATION_UNIT
+        )
+
+    def test_existing_namespace_adds_bucket(self):
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
+        name = "cfr"
+        namespace = ExperimentBucketNamespaceFactory.create(name=name)
+        bucket = ExperimentBucketNamespace.request_namespace_buckets(
+            name, experiment, 100
+        )
+        self.assertEqual(bucket.start, 0)
+        self.assertEqual(bucket.end, 99)
+        self.assertEqual(bucket.count, 100)
+        self.assertEqual(bucket.namespace, namespace)
+
+    def test_existing_namespace_with_buckets_adds_next_bucket(self):
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
+        name = "cfr"
+        namespace = ExperimentBucketNamespaceFactory.create(name=name)
+        ExperimentBucketFactory.create(namespace=namespace, start=0, count=100)
+        bucket = ExperimentBucketNamespace.request_namespace_buckets(
+            name, experiment, 100
+        )
+        self.assertEqual(bucket.start, 100)
+        self.assertEqual(bucket.end, 199)
+        self.assertEqual(bucket.count, 100)
+        self.assertEqual(bucket.namespace, namespace)
+
+    def test_full_namespace_creates_next_namespace_instance_and_adds_bucket(self):
+        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
+        name = "cfr"
+        namespace = ExperimentBucketNamespaceFactory.create(name=name, total=100)
+        ExperimentBucketFactory(namespace=namespace, count=100)
+        bucket = ExperimentBucketNamespace.request_namespace_buckets(
+            name, experiment, 100
+        )
+        self.assertEqual(bucket.start, 0)
+        self.assertEqual(bucket.end, 99)
+        self.assertEqual(bucket.count, 100)
+        self.assertEqual(bucket.namespace.name, namespace.name)
+        self.assertEqual(bucket.namespace.instance, namespace.instance + 1)
