@@ -9,7 +9,7 @@ from models.base_dataclass import BaseBranchDataClass, BaseDataClass
 
 @pytest.fixture(name="experiment_type", scope="module")
 def fixture_experiment_type():
-    return "branched-single-addon-study"
+    return "branched-addon-study"
 
 
 @pytest.fixture(name="experiment_name", scope="module")
@@ -18,7 +18,7 @@ def fixture_experiment_name():
 
 
 @pytest.fixture(name="default_data", scope="module")
-def fixture_default_data():
+def fixture_default_data(experiment_name, experiment_type):
     branches = []
     preferences = [None, None]
 
@@ -32,8 +32,8 @@ def fixture_default_data():
         )
 
     return BaseDataClass(
-        type_name="Add-On Experiment",
-        action_name="branched-addon-study",
+        type_name=experiment_name,
+        action_name=experiment_type,
         addon_url="https://url.com/addon-url.xpi",
         experiment_type="channel",
         channels="Nightly",

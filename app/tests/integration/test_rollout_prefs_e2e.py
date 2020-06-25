@@ -22,7 +22,7 @@ def fixture_experiment_name():
 
 
 @pytest.fixture(name="default_data", scope="module")
-def fixture_default_data():
+def fixture_default_data(experiment_name, experiment_type):
     branches = []
     preferences = [
         BasePreferencesDataClass(
@@ -41,8 +41,8 @@ def fixture_default_data():
         )
 
     return BaseDataClass(
-        type_name="Staged Rollout",
-        action_name="preference-rollout",
+        type_name=experiment_name,
+        action_name=experiment_type,
         experiment_type="channel",
         channels="Nightly",
         min_version=99,
