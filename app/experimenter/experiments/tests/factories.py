@@ -14,6 +14,8 @@ from experimenter.projects.models import Project
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import (
     Experiment,
+    ExperimentBucket,
+    ExperimentBucketNamespace,
     ExperimentChangeLog,
     ExperimentComment,
     ExperimentVariant,
@@ -300,3 +302,21 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Project
         django_get_or_create = ("slug",)
+
+
+class ExperimentBucketNamespaceFactory(factory.django.DjangoModelFactory):
+    name = factory.LazyAttribute(lambda o: "{}_".format(faker.catch_phrase()))
+    instance = factory.Sequence(lambda n: n)
+
+    class Meta:
+        model = ExperimentBucketNamespace
+
+
+class ExperimentBucketFactory(factory.django.DjangoModelFactory):
+    experiment = factory.SubFactory(ExperimentFactory)
+    namespace = factory.SubFactory(ExperimentBucketNamespaceFactory)
+    start = factory.Sequence(lambda n: n * 100)
+    count = 100
+
+    class Meta:
+        model = ExperimentBucket
