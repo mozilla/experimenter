@@ -54,35 +54,34 @@ def _verify_url(request, base_url):
         session.get(base_url, verify=False)
 
 
-@pytest.fixture(name="experiment_type")
+@pytest.fixture(name="experiment_type", scope="module")
 def fixture_experiment_type():
-    """Empty fixture for overriding"""
-    return
+    return "multi-preference-experiment"
+
+
+@pytest.fixture(name="experiment_name", scope="module")
+def fixture_experiment_name():
+    return "Pref-Flip Experiment"
 
 
 @pytest.fixture(name="default_data", scope="module")
-def fixture_default_data():
+def fixture_default_data(experiment_name, experiment_type):
+    """Default data needed to create an experiment."""
     branches = []
-    preferences = []
-
-    preferences.append(
+    preferences = [
         BasePreferencesDataClass(
             preference_branch_name="e2e-testing",
             preference_branch_type="default",
             preference_type="boolean",
             preference_value="true",
-        )
-    )
-
-    preferences.append(
+        ),
         BasePreferencesDataClass(
             preference_branch_name="e2e-testing",
             preference_branch_type="default",
             preference_type="boolean",
             preference_value="false",
-        )
-    )
-
+        ),
+    ]
     for count, item in enumerate(preferences):
         branches.append(
             BaseBranchDataClass(
@@ -91,8 +90,8 @@ def fixture_default_data():
         )
 
     return BaseDataClass(
-        type_name="Pref-Flip Experiment",
-        action_name="multi-preference-experiment",
+        type_name=experiment_name,
+        action_name=experiment_type,
         experiment_type="channel",
         channels="Nightly",
         min_version=99,
@@ -101,26 +100,6 @@ def fixture_default_data():
         user_facing_description="e2e testing description",
         branches=sorted(branches, key=lambda x: x.branch_name),
     )
-
-
-@pytest.fixture(name="experiment_overview_info")
-def fixture_experiment_info(variables, request, ds_issue_host, experiment_type):
-    if request.node.get_closest_marker("use_variables"):
-        return {
-            "type_name": variables[experiment_type]["type_name"],
-            "public_name": variables[experiment_type]["userFacingName"],
-            "public_description": variables[experiment_type]["userFacingDescription"],
-            "short_description": "Testing in here",
-            "ds_issue_url": f"{ds_issue_host}DS-12345",
-        }
-
-    return {
-        "type_name": "Pref-Flip Experiment",
-        "public_name": "Public Name",
-        "public_description": "Public Description",
-        "short_description": "Testing in here",
-        "ds_issue_url": f"{ds_issue_host}DS-12345",
-    }
 
 
 @pytest.fixture

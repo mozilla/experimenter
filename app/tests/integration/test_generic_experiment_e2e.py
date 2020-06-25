@@ -22,7 +22,7 @@ def fixture_experiment_name():
 
 
 @pytest.fixture(name="default_data", scope="module")
-def fixture_default_data():
+def fixture_default_data(experiment_name):
     branches = []
     preferences = [
         BasePreferencesDataClass(
@@ -47,7 +47,7 @@ def fixture_default_data():
         )
 
     return BaseDataClass(
-        type_name="Generic Experiment",
+        type_name=experiment_name,
         action_name=None,
         experiment_type="channel",
         channels="Nightly",
