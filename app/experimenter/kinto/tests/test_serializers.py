@@ -36,8 +36,8 @@ class TestExperimentRapidSerializer(TestCase):
 
         fn = os.path.join(os.path.dirname(__file__), "experimentRecipe.json")
 
-        with open(fn) as f:
-            json_schema = json.loads(f.read())
+        with open(fn, "r") as f:
+            json_schema = json.load(f)
         self.assertIsNone(validate(instance=data, schema=json_schema))
 
         arguments = data.pop("arguments")
@@ -77,7 +77,7 @@ class TestExperimentRapidSerializer(TestCase):
         self.assertEqual(
             converted_branches,
             [
-                {"ratio": 33, "slug": "variant-2", "value": {}},
-                {"ratio": 33, "slug": "control", "value": {}},
+                {"ratio": 33, "slug": "variant-2", "value": None},
+                {"ratio": 33, "slug": "control", "value": None},
             ],
         )

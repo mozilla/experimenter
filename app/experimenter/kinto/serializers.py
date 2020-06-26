@@ -13,7 +13,7 @@ class ExperimentRapidBranchesSerializer(serializers.ModelSerializer):
 
     def get_value(self, obj):
         # placeholder value
-        return {}
+        return None
 
 
 class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
@@ -61,7 +61,7 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
 
     def get_startDate(self, obj):
         # placeholder value
-        return datetime.today().replace(microsecond=0).isoformat()
+        return datetime.today().isoformat()
 
 
 class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):
