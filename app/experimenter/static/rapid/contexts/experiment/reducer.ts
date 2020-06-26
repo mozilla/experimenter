@@ -1,4 +1,4 @@
-import produce from "immer";
+import produce, { Draft } from "immer";
 
 import {
   ExperimentData,
@@ -7,7 +7,7 @@ import {
 } from "experimenter-types/experiment";
 
 const reducer = produce(
-  (draft: ExperimentData, action: ExperimentReducerAction) => {
+  (draft: Draft<ExperimentData>, action: ExperimentReducerAction) => {
     switch (action.type) {
       case ExperimentReducerActionType.UPDATE_STATE: {
         return action.state;

@@ -1,9 +1,10 @@
 import React from "react";
 import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
 
 import { useExperimentState } from "experimenter-rapid/contexts/experiment/hooks";
 
-const LabelledRow: React.FC<{ label: string; value?: string | undefined }> = ({
+const LabelledRow: React.FC<{ label: string; value?: string }> = ({
   children,
   label,
   value,
@@ -23,10 +24,6 @@ const ExperimentDetails: React.FC = () => {
   const data = useExperimentState();
   const history = useHistory();
 
-  const handleClickBack = () => {
-    history.push(`/${data.slug}/edit/`);
-  };
-
   const handleClickRequestApproval = () => {
     // No-op
   };
@@ -35,7 +32,7 @@ const ExperimentDetails: React.FC = () => {
     <>
       <LabelledRow label="Experiment Owner" value={data.owner} />
       <LabelledRow label="Public Name" value={data.name}>
-        <div className="my-1">
+        <div className="my-2">
           Bugzilla ticket can be found <a href="#">here</a>.
         </div>
       </LabelledRow>
@@ -56,13 +53,9 @@ const ExperimentDetails: React.FC = () => {
 
       <div className="d-flex mt-4">
         <span>
-          <button
-            className="btn btn-secondary"
-            type="button"
-            onClick={handleClickBack}
-          >
+          <Link className="btn btn-secondary" to={`/${data.slug}/edit/`}>
             Back
-          </button>
+          </Link>
         </span>
 
         <span className="flex-grow-1 text-right">

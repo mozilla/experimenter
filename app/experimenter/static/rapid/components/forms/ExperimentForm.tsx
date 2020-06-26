@@ -61,6 +61,7 @@ const ExperimentForm: React.FC = () => {
     });
     const responseData = await response.json();
     if (!response.ok) {
+      console.log("whoops!");
       setErrors(responseData);
     } else {
       setErrors({});
@@ -110,7 +111,7 @@ const ExperimentForm: React.FC = () => {
 
       <div className="mb-4">
         <label className="font-weight-bold" htmlFor="field-feature">
-          Feature
+          Features
         </label>
         <p>
           Select the user action or feature that you&apos;d be measuring with
@@ -119,10 +120,10 @@ const ExperimentForm: React.FC = () => {
         <XSelect
           className="w-100"
           id="field-feature"
-          name="feature"
+          name="features"
           options={[]}
         />
-        <ErrorList errors={errors.feature} />
+        <ErrorList errors={errors.features} />
       </div>
 
       <div className="mb-4">
