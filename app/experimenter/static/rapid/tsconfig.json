@@ -7,14 +7,15 @@
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
-      "experimenter-rapid/*": ["./*"]
+      "experimenter-rapid/*": ["./*"],
+      "experimenter-types/*": ["./types/*"]
     },
     "jsx": "react",
     "downlevelIteration": true,
     "noEmit": true,
     "strictNullChecks": true,
     "isolatedModules": true,
-    "typeRoots": ["./node_modules/@types", "./types"]
+    "typeRoots": ["../../../node_modules/@types", "./node_modules/@types", "./types"]
   },
   "include": ["./**/*.ts", "./**/*.tsx"],
   "exclude": ["../../../node_modules", "./node_modules"]

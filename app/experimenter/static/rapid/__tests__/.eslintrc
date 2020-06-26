@@ -4,6 +4,7 @@
   },
   "globals": {
     "fetchMock": "writable",
-    "renderWithRouter": "writable"
+    "renderWithRouter": "writable",
+    "wrapInExperimentProvider": "writeable"
   }
 }
