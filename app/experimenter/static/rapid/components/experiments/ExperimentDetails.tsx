@@ -1,5 +1,4 @@
 import React from "react";
-import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 
 import { useExperimentState } from "experimenter-rapid/contexts/experiment/hooks";
@@ -22,7 +21,6 @@ const LabelledRow: React.FC<{ label: string; value?: string }> = ({
 
 const ExperimentDetails: React.FC = () => {
   const data = useExperimentState();
-  const history = useHistory();
 
   const handleClickRequestApproval = () => {
     // No-op
