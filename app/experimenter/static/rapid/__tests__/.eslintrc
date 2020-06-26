@@ -1,10 +1,5 @@
 {
   "env": {
     "jest": true
-  },
-  "globals": {
-    "fetchMock": "writable",
-    "renderWithRouter": "writable",
-    "wrapInExperimentProvider": "writeable"
   }
 }
