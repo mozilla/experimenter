@@ -160,7 +160,7 @@ describe("<ExperimentForm />", () => {
         const { getByText } = renderWithRouter(
           wrapInExperimentProvider(<ExperimentForm />),
         );
-        fetchMock.mockOnce(async (req) => {
+        fetchMock.mockOnce(async () => {
           return {
             status: 400,
             body: JSON.stringify({ [fieldName]: ["an error occurred"] }),

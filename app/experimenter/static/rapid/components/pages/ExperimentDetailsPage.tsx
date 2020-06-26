@@ -1,7 +1,6 @@
 import React from "react";
 
 import ExperimentDetails from "experimenter-rapid/components/experiments/ExperimentDetails";
-import { useExperimentState } from "experimenter-rapid/contexts/experiment/hooks";
 import ExperimentProvider from "experimenter-rapid/contexts/experiment/provider";
 
 const ExperimentDetailsPage: React.FC = () => {

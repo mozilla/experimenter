@@ -3,7 +3,6 @@ import { createMemoryHistory, MemoryHistory } from "history";
 import React from "react";
 import { Route, Router, Switch } from "react-router-dom";
 
-import { INITIAL_CONTEXT } from "experimenter-rapid/contexts/experiment/context";
 import ExperimentProvider from "experimenter-rapid/contexts/experiment/provider";
 import { ExperimentData } from "experimenter-types/experiment";
 

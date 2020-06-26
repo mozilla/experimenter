@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation, useParams } from "react-router";
+import { useParams } from "react-router";
 
 import context, {
   INITIAL_CONTEXT,
