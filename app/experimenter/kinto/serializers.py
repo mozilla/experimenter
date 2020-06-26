@@ -1,10 +1,10 @@
-from time import time
+from datetime import datetime
 from rest_framework import serializers
 
 from experimenter.experiments.models import Experiment, ExperimentVariant
 
 
-class ExperimentRapidBranchesSeraizlier(serializers.ModelSerializer):
+class ExperimentRapidBranchesSerializer(serializers.ModelSerializer):
     value = serializers.SerializerMethodField()
 
     class Meta:
@@ -26,7 +26,7 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
     bucketConfig = serializers.SerializerMethodField()
     startDate = serializers.SerializerMethodField()
     endDate = serializers.ReadOnlyField(default=None)
-    branches = ExperimentRapidBranchesSeraizlier(many=True, source="variants")
+    branches = ExperimentRapidBranchesSerializer(many=True, source="variants")
     referenceBranch = serializers.SerializerMethodField()
 
     class Meta:
@@ -61,14 +61,14 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
 
     def get_startDate(self, obj):
         # placeholder value
-        return int(time())
+        return datetime.today().replace(microsecond=0).isoformat()
 
 
 class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source="normandy_slug")
     arguments = ExperimentRapidArgumentSerializer(source="*")
     filter_expression = serializers.ReadOnlyField(source="audience")
-    enabled = serializers.ReadOnlyField(default="true")
+    enabled = serializers.ReadOnlyField(default=True)
 
     class Meta:
         model = Experiment

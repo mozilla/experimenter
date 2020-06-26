@@ -1,4 +1,7 @@
-from time import time
+import os
+import json
+from datetime import datetime
+from jsonschema import validate
 from django.test import TestCase
 
 from experimenter.experiments.models import Experiment
@@ -12,7 +15,7 @@ from experimenter.kinto.serializers import ExperimentRapidRecipeSerializer
 class TestExperimentRapidSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         audience = Experiment.RAPID_AUDIENCE_CHOICES[0][1]
-        features = ["FEATURE 1", "FEATURE 2"]
+        features = [feature[0] for feature in Experiment.RAPID_FEATURE_CHOICES]
         normandy_slug = "experimenter-normandy-slug"
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_RAPID,
@@ -20,6 +23,7 @@ class TestExperimentRapidSerializer(TestCase):
             audience=audience,
             features=features,
             normandy_slug=normandy_slug,
+            proposed_enrollment=9,
         )
 
         ExperimentVariantFactory.create(
@@ -29,12 +33,24 @@ class TestExperimentRapidSerializer(TestCase):
 
         serializer = ExperimentRapidRecipeSerializer(experiment)
         data = serializer.data
+
+        fn = os.path.join(os.path.dirname(__file__), "experimentRecipe.json")
+
+        with open(fn) as f:
+            json_schema = json.loads(f.read())
+        self.assertIsNone(validate(instance=data, schema=json_schema))
+
         arguments = data.pop("arguments")
         branches = arguments.pop("branches")
+        start_date = arguments.pop("startDate")
 
+        self.maxDiff = None
         self.assertDictEqual(
             data,
-            {"id": normandy_slug, "filter_expression": "AUDIENCE1", "enabled": "true"},
+            {"id": normandy_slug, "filter_expression": "AUDIENCE1", "enabled": True},
+        )
+        self.assertEqual(
+            datetime.fromisoformat(start_date).day, datetime.today().day,
         )
         self.assertDictEqual(
             dict(arguments),
@@ -45,9 +61,8 @@ class TestExperimentRapidSerializer(TestCase):
                 "active": True,
                 "isEnrollmentPaused": False,
                 "endDate": None,
-                "startDate": int(time()),
                 "proposedEnrollment": experiment.proposed_enrollment,
-                "features": experiment.features,
+                "features": features,
                 "referenceBranch": "control",
                 "bucketConfig": {
                     "count": 0,
