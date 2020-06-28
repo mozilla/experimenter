@@ -278,7 +278,7 @@ class TestExperimentRapidSerializer(TestCase):
             data,
             {"id": normandy_slug, "filter_expression": "AUDIENCE1", "enabled": True},
         )
-        self.maxDiff = None
+
         self.assertDictEqual(
             dict(arguments),
             {
