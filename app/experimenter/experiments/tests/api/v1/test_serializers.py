@@ -2,7 +2,6 @@ import datetime
 import json
 import os
 from jsonschema import validate
-import datetime
 
 from django.test import TestCase
 
@@ -24,7 +23,6 @@ from experimenter.experiments.api.v1.serializers import (
 )
 from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.normandy.serializers import ExperimentRecipeVariantSerializer
-from jsonschema import validate
 
 
 class TestJSTimestampField(TestCase):
