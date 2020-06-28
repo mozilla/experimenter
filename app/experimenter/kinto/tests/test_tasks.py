@@ -1,5 +1,5 @@
 import mock
-from datetime import datetime
+import datetime
 from django.conf import settings
 from django.test import TestCase
 
@@ -7,26 +7,17 @@ from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
 from experimenter.kinto import tasks
-from experimenter.kinto.serializers import ExperimentRapidRecipeSerializer
+from experimenter.experiments.api.v1.serializers import ExperimentRapidRecipeSerializer
 
 
 class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
     def setUp(self):
         super().setUp()
-        self.experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        self.experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, proposed_start_date=datetime.date(2020, 1, 20)
+        )
 
     def test_push_experiment_to_kinto_sends_experiment_data(self):
-        today = datetime.today().isoformat()
-        mock_module = "experimenter.kinto.serializers"
-
-        mock_method = "{}.ExperimentRapidArgumentSerializer.get_startDate".format(
-            mock_module
-        )
-        mock_serialize_start_date_patcher = mock.patch(mock_method)
-        mock_serialize_start_date = mock_serialize_start_date_patcher.start()
-        mock_serialize_start_date = mock.Mock()
-        mock_serialize_start_date.return_value = today
-        self.addCleanup(mock_serialize_start_date_patcher.stop)
         tasks.push_experiment_to_kinto(self.experiment.id)
 
         data = ExperimentRapidRecipeSerializer(self.experiment).data

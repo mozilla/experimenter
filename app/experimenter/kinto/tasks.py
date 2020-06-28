@@ -4,7 +4,7 @@ from celery.utils.log import get_task_logger
 from experimenter.celery import app
 from experimenter.experiments.models import Experiment
 from experimenter.kinto import client
-from experimenter.kinto.serializers import ExperimentRapidRecipeSerializer
+from experimenter.experiments.api.v1.serializers import ExperimentRapidRecipeSerializer
 
 
 logger = get_task_logger(__name__)
