@@ -10,7 +10,9 @@ const LabelledRow: React.FC<{ label: string; value?: string }> = ({
 }) => {
   return (
     <div className="row my-3">
-      <strong className="col-2 d-inline-block pt-2">{label}</strong>
+      <label className="col-2 d-inline-block pt-2 font-weight-bold">
+        {label}
+      </label>
       <span className="col-10">
         <input readOnly className="w-100" type="text" value={value || ""} />
         {children}

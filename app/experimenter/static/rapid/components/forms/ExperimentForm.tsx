@@ -61,7 +61,6 @@ const ExperimentForm: React.FC = () => {
     });
     const responseData = await response.json();
     if (!response.ok) {
-      console.log("whoops!");
       setErrors(responseData);
     } else {
       setErrors({});
