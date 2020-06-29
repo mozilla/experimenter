@@ -1,0 +1,163 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/ExperimentRecipe",
+  "definitions": {
+    "ExperimentRecipe": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "A unique identifier for the Recipe"
+        },
+        "filter_expression": {
+          "type": "string",
+          "description": "JEXL expression defined in an Audience"
+        },
+        "targeting": {
+          "type": "string",
+          "description": "JEXL expression using messaging system environment"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Is the experiment enabled?"
+        },
+        "arguments": {
+          "$ref": "#/definitions/Experiment",
+          "description": "Experiment definition"
+        }
+      },
+      "required": ["id", "filter_expression", "enabled", "arguments"],
+      "additionalProperties": false,
+      "description": "The experiment definition accessible to Firefox via Remote Settings.\nIt is compatible with ExperimentManager."
+    },
+    "Experiment": {
+      "type": "object",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "Unique identifier for the experiment"
+        },
+        "userFacingName": {
+          "type": "string",
+          "description": "Publically-accesible name of the experiment"
+        },
+        "userFacingDescription": {
+          "type": "string",
+          "description": "Short public description of the experiment"
+        },
+        "active": {
+          "type": "boolean",
+          "description": "Is the experiment currently live in production? i.e., published to remote settings?"
+        },
+        "isEnrollmentPaused": {
+          "type": "boolean",
+          "description": "Are we continuing to enroll new users into the experiment?"
+        },
+        "bucketConfig": {
+          "type": "object",
+          "properties": {
+            "randomizationUnit": {
+              "type": "string",
+              "enum": ["client_id", "normandy_id"],
+              "description": "The randomization unit. Note that client_id is not yet implemented.",
+              "default": "normandy_id"
+            },
+            "namespace": {
+              "type": "string",
+              "description": "Additional inputs to the hashing function"
+            },
+            "start": {
+              "type": "number",
+              "description": "Index of start of the range of buckets"
+            },
+            "count": {
+              "type": "number",
+              "description": "Number of buckets to check"
+            },
+            "total": {
+              "type": "number",
+              "description": "Total number of buckets",
+              "default": 10000
+            }
+          },
+          "required": [
+            "randomizationUnit",
+            "namespace",
+            "start",
+            "count",
+            "total"
+          ],
+          "additionalProperties": false,
+          "description": "Bucketing configuration"
+        },
+        "features": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "A list of features relevant to the experiment analysis"
+        },
+        "branches": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "slug": {
+                "type": "string",
+                "description": "Identifier for the branch"
+              },
+              "ratio": {
+                "type": "number",
+                "description": "Relative ratio of population for the branch (e.g. if branch A=1 and branch B=3,\nbranch A would get 25% of the population)",
+                "default": 1
+              },
+              "group": {
+                "type": "array",
+                "items": { "type": "string", "enum": ["cfr", "aboutwelcome"] },
+                "description": "Used to indicate a type of branch value"
+              },
+              "value": {
+                "anyOf": [{ "type": "object" }, { "type": "null" }],
+                "description": "The variant payload. TODO: This will be more strictly validated."
+              }
+            },
+            "required": ["slug", "ratio", "value"],
+            "additionalProperties": false
+          },
+          "description": "Branch configuration for the experiment"
+        },
+        "startDate": {
+          "type": "string",
+          "description": "Actual publish date of the experiment",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": ["string", "null"],
+          "description": "Actual end date of the experiment",
+          "format": "date-time"
+        },
+        "proposedEnrollment": {
+          "type": "number",
+          "description": "Duration of enrollment from the start date in days"
+        },
+        "referenceBranch": {
+          "type": ["string", "null"],
+          "description": "The slug of the reference branch"
+        }
+      },
+      "required": [
+        "slug",
+        "userFacingName",
+        "userFacingDescription",
+        "active",
+        "isEnrollmentPaused",
+        "bucketConfig",
+        "features",
+        "branches",
+        "startDate",
+        "endDate",
+        "proposedEnrollment",
+        "referenceBranch"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
