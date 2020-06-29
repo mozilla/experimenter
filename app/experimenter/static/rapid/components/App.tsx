@@ -1,6 +1,7 @@
 import React from "react";
 import { Switch, Link, Route } from "react-router-dom";
 
+import ExperimentDetailsPage from "experimenter-rapid/components/pages/ExperimentDetailsPage";
 import ExperimentFormPage from "experimenter-rapid/components/pages/ExperimentFormPage";
 
 const App: React.FC = () => {
@@ -19,6 +20,12 @@ const App: React.FC = () => {
       </Route>
       <Route exact path="/new/">
         <ExperimentFormPage />
+      </Route>
+      <Route exact path="/:experimentSlug/edit/">
+        <ExperimentFormPage />
+      </Route>
+      <Route exact path="/:experimentSlug/">
+        <ExperimentDetailsPage />
       </Route>
       <Route>
         <div>404</div>
