@@ -31,7 +31,7 @@ COPY ./package.json /app/package.json
 COPY ./yarn.lock /app/yarn.lock
 COPY ./experimenter/static/core/package.json /app/experimenter/static/core/package.json
 COPY ./experimenter/static/rapid/package.json /app/experimenter/static/rapid/package.json
-RUN yarn install
+RUN yarn install --frozen-lockfile
 
 # Build assets
 COPY ./experimenter/static/ /app/experimenter/static/
