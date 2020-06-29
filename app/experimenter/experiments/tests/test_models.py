@@ -18,7 +18,7 @@ from experimenter.experiments.models import (
 )
 from experimenter.normandy.serializers import ExperimentRecipeSerializer
 from experimenter.experiments.tests.factories import (
-    ExperimentBucketFactory,
+    ExperimentBucketRangeFactory,
     ExperimentBucketNamespaceFactory,
     ExperimentChangeLogFactory,
     ExperimentCommentFactory,
@@ -1746,7 +1746,7 @@ class TestExperimentBucketNamespace(TestCase):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         name = "cfr"
         namespace = ExperimentBucketNamespaceFactory.create(name=name)
-        ExperimentBucketFactory.create(namespace=namespace, start=0, count=100)
+        ExperimentBucketRangeFactory.create(namespace=namespace, start=0, count=100)
         bucket = ExperimentBucketNamespace.request_namespace_buckets(
             name, experiment, 100
         )
@@ -1759,7 +1759,7 @@ class TestExperimentBucketNamespace(TestCase):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         name = "cfr"
         namespace = ExperimentBucketNamespaceFactory.create(name=name, total=100)
-        ExperimentBucketFactory(namespace=namespace, count=100)
+        ExperimentBucketRangeFactory(namespace=namespace, count=100)
         bucket = ExperimentBucketNamespace.request_namespace_buckets(
             name, experiment, 100
         )
