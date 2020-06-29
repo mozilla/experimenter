@@ -21,6 +21,10 @@ const baseSettings = {
             pattern: "experimenter-rapid/**",
             group: "parent",
           },
+          {
+            pattern: "experimenter-types/**",
+            group: "parent",
+          },
         ],
         pathGroupsExcludedImportTypes: ["builtin"],
         alphabetize: {

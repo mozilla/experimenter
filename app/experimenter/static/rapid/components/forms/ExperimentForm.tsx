@@ -1,5 +1,11 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
+
+import {
+  useExperimentDispatch,
+  useExperimentState,
+} from "experimenter-rapid/contexts/experiment/hooks";
+import { ExperimentReducerActionType } from "experimenter-types/experiment";
 
 import { XSelect } from "./XSelect";
 
@@ -22,10 +28,10 @@ const ErrorList: React.FC<ErrorListProperties> = ({ errors }) => {
 };
 
 const ExperimentForm: React.FC = () => {
-  const [formData, setFormData] = React.useState({
-    name: "",
-    objectives: "",
-  });
+  const formData = useExperimentState();
+  const dispatch = useExperimentDispatch();
+  const { experimentSlug } = useParams();
+
   const [errors, setErrors] = React.useState<{ [name: string]: Array<string> }>(
     {},
   );
@@ -33,15 +39,21 @@ const ExperimentForm: React.FC = () => {
 
   const handleChange = (ev) => {
     const field = ev.target;
-    setFormData({
-      ...formData,
-      [field.getAttribute("name")]: field.value,
+    dispatch({
+      type: ExperimentReducerActionType.UPDATE_STATE,
+      state: {
+        ...formData,
+        [field.getAttribute("name")]: field.value,
+      },
     });
   };
 
   const handleClickSave = async () => {
-    const response = await fetch("/api/v3/experiments/", {
-      method: "POST",
+    const url = experimentSlug
+      ? `/api/v3/experiments/${experimentSlug}/`
+      : "/api/v3/experiments/";
+    const response = await fetch(url, {
+      method: experimentSlug ? "PUT" : "POST",
       headers: {
         "Content-Type": "application/json",
       },
@@ -98,7 +110,7 @@ const ExperimentForm: React.FC = () => {
 
       <div className="mb-4">
         <label className="font-weight-bold" htmlFor="field-feature">
-          Feature
+          Features
         </label>
         <p>
           Select the user action or feature that you&apos;d be measuring with
@@ -107,10 +119,10 @@ const ExperimentForm: React.FC = () => {
         <XSelect
           className="w-100"
           id="field-feature"
-          name="feature"
+          name="features"
           options={[]}
         />
-        <ErrorList errors={errors.feature} />
+        <ErrorList errors={errors.features} />
       </div>
 
       <div className="mb-4">

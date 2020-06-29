@@ -33,6 +33,7 @@ module.exports = (env, argv = {}) => {
     resolve: {
       alias: {
         "experimenter-rapid": path.resolve(__dirname),
+        "experimenter-types": path.resolve(__dirname, "types"),
       },
       extensions: [".tsx", ".ts", ".js"],
     },
