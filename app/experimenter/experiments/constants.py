@@ -297,6 +297,11 @@ class ExperimentConstants(object):
     # Branched Addon Stuff
     FX_MIN_MULTI_BRANCHED_VERSION = 68
 
+    # Bucket stuff
+    BUCKET_TOTAL = 10000
+    BUCKET_AA_COUNT = 100
+    BUCKET_RANDOMIZATION_UNIT = "normandy_id"
+
     # Labels
     RISK_PARTNER_RELATED_LABEL = "Is this delivery partner related?"
     RISK_BRAND_LABEL = "Does this have a high risk to the brand?"
