@@ -160,3 +160,6 @@ unicodecsv==0.14.1 \
 kinto-http==10.7.0 \
     --hash=sha256:ab5b5d5f81ac546509246db04540d9893153f42679bf519f8e1100963c587de5 \
     --hash=sha256:fe5a1b794695be6d63019be6bb4cd0d7dbb13b6572e4ed4225f97246261f86fe
+jsonschema==3.2.0 \
+    --hash=sha256:4e5b3cf8216f577bee9ce139cbe72eca3ea4f292ec60928ff24758ce626cd163 \
+    --hash=sha256:c8a85b28d377cc7737e46e2d9f2b4f44ee3c0e1deac6bf46ddefc7187d30797a
