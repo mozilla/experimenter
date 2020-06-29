@@ -1330,12 +1330,12 @@ class ExperimentBucketNamespace(models.Model):
             else:
                 start = highest_bucket.end + 1
 
-        return ExperimentBucket.objects.create(
+        return ExperimentBucketRange.objects.create(
             experiment=experiment, namespace=namespace, start=start, count=count
         )
 
 
-class ExperimentBucket(models.Model):
+class ExperimentBucketRange(models.Model):
     experiment = models.OneToOneField(
         Experiment, related_name="bucket", on_delete=models.CASCADE
     )

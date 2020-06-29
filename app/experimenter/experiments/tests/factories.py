@@ -14,7 +14,7 @@ from experimenter.projects.models import Project
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import (
     Experiment,
-    ExperimentBucket,
+    ExperimentBucketRange,
     ExperimentBucketNamespace,
     ExperimentChangeLog,
     ExperimentComment,
@@ -312,11 +312,11 @@ class ExperimentBucketNamespaceFactory(factory.django.DjangoModelFactory):
         model = ExperimentBucketNamespace
 
 
-class ExperimentBucketFactory(factory.django.DjangoModelFactory):
+class ExperimentBucketRangeFactory(factory.django.DjangoModelFactory):
     experiment = factory.SubFactory(ExperimentFactory)
     namespace = factory.SubFactory(ExperimentBucketNamespaceFactory)
     start = factory.Sequence(lambda n: n * 100)
     count = 100
 
     class Meta:
-        model = ExperimentBucket
+        model = ExperimentBucketRange
