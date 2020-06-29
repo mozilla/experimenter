@@ -4,6 +4,7 @@ from celery.utils.log import get_task_logger
 from experimenter.celery import app
 from experimenter.experiments.models import Experiment
 from experimenter.kinto import client
+from experimenter.experiments.api.v1.serializers import ExperimentRapidRecipeSerializer
 
 
 logger = get_task_logger(__name__)
@@ -16,10 +17,11 @@ def push_experiment_to_kinto(experiment_id):
     metrics.incr("push_experiment_to_kinto.started")
 
     experiment = Experiment.objects.get(id=experiment_id)
+    data = ExperimentRapidRecipeSerializer(experiment).data
     logger.info(f"Pushing {experiment} to Kinto")
 
     try:
-        client.push_to_kinto({"slug": experiment.slug})
+        client.push_to_kinto(data)
 
         logger.info(f"{experiment} pushed to Kinto")
         metrics.incr("push_experiment_to_kinto.completed")
