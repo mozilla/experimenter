@@ -1714,7 +1714,7 @@ class TestExperimentComments(TestCase):
 
 
 class TestExperimentBucketNamespace(TestCase):
-    def test_empty_namespace_creates_namespace_and_buckets(self):
+    def test_empty_namespace_creates_namespace_and_bucket_range(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         name = "cfr"
         bucket = ExperimentBucketNamespace.request_namespace_buckets(
@@ -1730,7 +1730,7 @@ class TestExperimentBucketNamespace(TestCase):
             bucket.namespace.randomization_unit, Experiment.BUCKET_RANDOMIZATION_UNIT
         )
 
-    def test_existing_namespace_adds_bucket(self):
+    def test_existing_namespace_adds_bucket_range(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         name = "cfr"
         namespace = ExperimentBucketNamespaceFactory.create(name=name)
@@ -1742,7 +1742,7 @@ class TestExperimentBucketNamespace(TestCase):
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.namespace, namespace)
 
-    def test_existing_namespace_with_buckets_adds_next_bucket(self):
+    def test_existing_namespace_with_buckets_adds_next_bucket_range(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         name = "cfr"
         namespace = ExperimentBucketNamespaceFactory.create(name=name)
@@ -1755,7 +1755,7 @@ class TestExperimentBucketNamespace(TestCase):
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.namespace, namespace)
 
-    def test_full_namespace_creates_next_namespace_instance_and_adds_bucket(self):
+    def test_full_namespace_creates_next_namespace_instance_and_adds_bucket_range(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
         name = "cfr"
         namespace = ExperimentBucketNamespaceFactory.create(name=name, total=100)
