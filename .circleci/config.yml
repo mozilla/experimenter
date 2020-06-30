@@ -38,7 +38,7 @@ jobs:
       - run:
           name: Build docker images
           command: |
-            cp .env.sample .env  
+            cp .env.sample .env
             make integration_build
       - run:
           name: Run integration tests
@@ -75,10 +75,10 @@ workflows:
           name: integration
           filters:
             branches:
-              ignore: master
+              ignore: main
       - deploy:
           requires:
             - build
           filters:
             branches:
-              only: master
+              only: main
