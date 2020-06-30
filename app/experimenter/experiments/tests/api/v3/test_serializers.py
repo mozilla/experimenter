@@ -122,6 +122,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             name="rapid experiment",
             slug="rapid-experiment",
             objectives="gotta go fast",
+            audience="AUDIENCE 1",
+            features=["FEATURE 1"],
             public_description=Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
         )
 
@@ -129,6 +131,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         data = {
             "name": "changing the name",
             "objectives": "changing objectives",
+            "audience": "AUDIENCE 1",
+            "features": ["FEATURE 1"],
         }
         serializer = ExperimentRapidSerializer(
             instance=experiment, data=data, context={"request": self.request}

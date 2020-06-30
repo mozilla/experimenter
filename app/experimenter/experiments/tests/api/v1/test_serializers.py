@@ -274,7 +274,7 @@ class TestExperimentRapidSerializer(TestCase):
 
         self.assertDictEqual(
             data,
-            {"id": normandy_slug, "filter_expression": "AUDIENCE1", "enabled": True},
+            {"id": normandy_slug, "filter_expression": "AUDIENCE 1", "enabled": True},
         )
 
         self.assertDictEqual(
