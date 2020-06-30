@@ -11,5 +11,5 @@ For more information on how to report violations of the CPG, please read our '[H
 ## Contributions
 
 For all other questions about contribution see our
-[contributing.md](https://github.com/mozilla/experimenter/blob/master/contributing.md)
+[contributing.md](https://github.com/mozilla/experimenter/blob/main/contributing.md)
 document.

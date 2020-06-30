@@ -42,21 +42,21 @@ the commit with a brief description of the change and `fixes #123` where `#123` 
 You can add any additional descriptive information to the message body of the commit, but the issue
 number must be present in the first line of the commit.  Example: `Add new dashboard link fixes #123`
 
-1. Push your branch up to your fork and submit a pull request on to master.  Add any additional
+1. Push your branch up to your fork and submit a pull request on to main.  Add any additional
 information you'd like to the pull request body, including descriptions of changes, screenshots
 of any UI changes, special instructions for testing, etc.
 
 1. Find a reviewer.  If you're not sure who should review, please contact us on #experimenter on
-the Mozilla Slack if you have access to it.  
+the Mozilla Slack if you have access to it.
 
-1. Any PRs that require changes to deployment infrastructure ie environment variable changes, 
+1. Any PRs that require changes to deployment infrastructure ie environment variable changes,
 dependent services, etc also require a review by a member of the operations team.  Please include
 any relevant instructions about the changes in the PR.  File a [Bugzilla ticket](https://bugzilla.mozilla.org/enter_bug.cgi?product=Data+Platform+and+Tools&component=Operations) with a link to the PR so that operations can track the change.
 
 1. If you receive feedback that requires changes to your pull request, make the changes locally,
 run `make check` again to ensure all tests and linting are passing, and then create a new commit
 that describes what feedback was addressed.  This commit can be formatted however you like, it will
-be squashed before it is merged into master.
+be squashed before it is merged into main.
 
 1. When your pull request is approved, it can be closed by using the 'Squash and Merge' button to
 squash all of the commits into a single one that refers to both the issue and the pull request and
@@ -66,7 +66,7 @@ contains any additional descriptive information.
 
 
 ## Continuous Deployment Process
-When a PR is merged into master it will automatically be deployed to the stage instance and if that
+When a PR is merged into main it will automatically be deployed to the stage instance and if that
 is successful then it will automatically be deployed to production.
 
 If the deployment fails at one of the stage/production steps, ops will automatically be paged.
@@ -74,15 +74,15 @@ If the deployment fails at one of the stage/production steps, ops will automatic
 If the deployment succeeds but the change inadvertently breaks stage/production, there are two options:
 
 * Revert the change using a revert commit
-  
-  1. Create a branch from master called `revert-#123` where `#123` is the number of the issue, and then
-  revert the commit with `git revert <squashed commit hash>`. Fix any potential conflicts or lint/test 
+
+  1. Create a branch from main called `revert-#123` where `#123` is the number of the issue, and then
+  revert the commit with `git revert <squashed commit hash>`. Fix any potential conflicts or lint/test
   failures and finish the revert commit.
 
   1. If the original PR included any database migrations, they must be preserved and reverted by creating a new
   subsequent migration
 
-    * `git checkout origin/master -- app/experimenter/experiments/migrations/XXXX_migration_file.py`
+    * `git checkout origin/main -- app/experimenter/experiments/migrations/XXXX_migration_file.py`
 
     * `make makemigrations`
 
