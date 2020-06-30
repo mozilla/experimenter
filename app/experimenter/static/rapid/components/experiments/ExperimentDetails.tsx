@@ -37,8 +37,8 @@ const ExperimentDetails: React.FC = () => {
         </div>
       </LabelledRow>
       <LabelledRow label="Hypothesis" value={data.objectives} />
-      <LabelledRow label="Feature" />
-      <LabelledRow label="Audience" />
+      <LabelledRow label="Feature" value={data.features.toString()} />
+      <LabelledRow label="Audience" value={data.audience} />
       <LabelledRow label="Trigger" />
       <LabelledRow label="Firefox Version" />
 

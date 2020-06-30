@@ -37,6 +37,37 @@ const ExperimentForm: React.FC = () => {
   );
   const history = useHistory();
 
+  const featureOptions = [
+    { value: "FEATURE 1", label: "FEATURE 1" },
+    { value: "FEATURE 2", label: "FEATURE 2" },
+  ];
+
+  const audienceOptions = [
+    { value: "AUDIENCE 1", label: "AUDIENCE 1" },
+    { value: "AUDIENCE 2", label: "AUDIENCE 2" },
+  ];
+
+  const handlefeatureChange = (featureValues) => {
+    const formattedFeatures = featureValues.map((feature) => feature.value);
+    dispatch({
+      type: ExperimentReducerActionType.UPDATE_STATE,
+      state: {
+        ...formData,
+        features: formattedFeatures,
+      },
+    });
+  };
+
+  const handleAudienceChange = (audienceValue) => {
+    dispatch({
+      type: ExperimentReducerActionType.UPDATE_STATE,
+      state: {
+        ...formData,
+        audience: audienceValue.value,
+      },
+    });
+  };
+
   const handleChange = (ev) => {
     const field = ev.target;
     dispatch({
@@ -117,10 +148,19 @@ const ExperimentForm: React.FC = () => {
           this experiment.
         </p>
         <XSelect
+          isMulti
           className="w-100"
           id="field-feature"
           name="features"
-          options={[]}
+          options={featureOptions}
+          value={
+            formData.features
+              ? featureOptions.filter((option) =>
+                  formData.features.includes(option.value),
+                )
+              : null
+          }
+          onOptionChange={handlefeatureChange}
         />
         <ErrorList errors={errors.features} />
       </div>
@@ -134,7 +174,11 @@ const ExperimentForm: React.FC = () => {
           className="w-100"
           id="field-audience"
           name="audience"
-          options={[]}
+          options={audienceOptions}
+          value={audienceOptions.filter(
+            (option) => option.value === formData.audience,
+          )}
+          onChange={handleAudienceChange}
         />
         <ErrorList errors={errors.audience} />
       </div>
