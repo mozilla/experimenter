@@ -1,20 +1,18 @@
 version: 2
+target_branch: dependencies
 updates:
 - package-ecosystem: npm
   directory: "/app/experimenter/static/rapid"
   schedule:
     interval: weekly
   open-pull-requests-limit: 99
-  target_branch: dependencies
 - package-ecosystem: npm
   directory: "/app/experimenter/static/core"
   schedule:
     interval: weekly
   open-pull-requests-limit: 99
-  target_branch: dependencies
 - package-ecosystem: pip
   directory: "/app/requirements"
   schedule:
     interval: weekly
   open-pull-requests-limit: 99
-  target_branch: dependencies
