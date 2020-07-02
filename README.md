@@ -97,11 +97,11 @@ The following helpful commands have been provided via a Makefile:
 
 ### build
 
-Build the application container by executing the [build script](https://github.com/mozilla/experimenter/blob/master/scripts/build.sh)
+Build the application container by executing the [build script](https://github.com/mozilla/experimenter/blob/main/scripts/build.sh)
 
 ### compose_build
 
-Build the supporting services (nginx, postgresql) defined in the [compose file](https://github.com/mozilla/experimenter/blob/master/docker-compose.yml)
+Build the supporting services (nginx, postgresql) defined in the [compose file](https://github.com/mozilla/experimenter/blob/main/docker-compose.yml)
 
 ### up
 
@@ -173,11 +173,11 @@ Start a linux VM container with VNC available over `vnc://localhost:5900` with p
 
 ## API
 
-API documentation can be found [here](https://htmlpreview.github.io/?https://github.com/mozilla/experimenter/blob/master/app/experimenter/docs/swagger-ui.html)
+API documentation can be found [here](https://htmlpreview.github.io/?https://github.com/mozilla/experimenter/blob/main/app/experimenter/docs/swagger-ui.html)
 
 ## Contributing
 
-Please see our [Contributing Guidelines](https://github.com/mozilla/experimenter/blob/master/contributing.md)
+Please see our [Contributing Guidelines](https://github.com/mozilla/experimenter/blob/main/contributing.md)
 
 ## License
 
