@@ -171,6 +171,5 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         )
         self.assertFalse(serializer.is_valid())
         self.assertIn(
-            "Name needs to contains alphanumeric characters", serializer.errors["name"]
+            "Name needs to contain alphanumeric characters", serializer.errors["name"]
         )
-

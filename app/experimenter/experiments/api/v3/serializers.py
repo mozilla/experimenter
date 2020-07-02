@@ -32,10 +32,11 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
 
     def validate_name(self, name):
         slug = slugify(name)
+
         if slug:
             return name
         raise serializers.ValidationError(
-            ["Name needs to contains alphanumeric characters"]
+            ["Name needs to contain alphanumeric characters"]
         )
 
     def create(self, validated_data):
