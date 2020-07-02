@@ -156,3 +156,21 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 changed_values=changed_values,
             ).exists()
         )
+
+    def test_serializer_returns_errors_for_non_alpha_numeric_name(self):
+
+        data = {
+            "name": "!!!!!!!!!!!!!!!",
+            "objectives": "gotta go fast",
+            "audience": "AUDIENCE 1",
+            "features": ["FEATURE 1", "FEATURE 2"],
+        }
+
+        serializer = ExperimentRapidSerializer(
+            data=data, context={"request": self.request}
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn(
+            "Name needs to contains alphanumeric characters", serializer.errors["name"]
+        )
+
