@@ -16,7 +16,9 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
     )
     objectives = serializers.CharField(required=True)
     features = serializers.ListField(
-        required=True, child=serializers.CharField(), allow_empty=False
+        required=True,
+        child=serializers.ChoiceField(choices=Experiment.RAPID_FEATURE_CHOICES),
+        allow_empty=False,
     )
     audience = serializers.ChoiceField(
         required=True, choices=Experiment.RAPID_AUDIENCE_CHOICES

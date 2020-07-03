@@ -1,6 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+import {
+  featureOptions,
+  audienceOptions,
+} from "../forms/ExperimentFormOptions";
+import { XSelect } from "experimenter-rapid/components/forms/XSelect";
 import { useExperimentState } from "experimenter-rapid/contexts/experiment/hooks";
 
 const LabelledRow: React.FC<{ label: string; value?: string }> = ({
@@ -14,11 +19,21 @@ const LabelledRow: React.FC<{ label: string; value?: string }> = ({
         {label}
       </label>
       <span className="col-10">
-        <input readOnly className="w-100" type="text" value={value || ""} />
+        <input
+          readOnly
+          className="w-100"
+          hidden={value ? false : true}
+          type="text"
+          value={value || ""}
+        />
         {children}
       </span>
     </div>
   );
+};
+
+const convertOptionValueToLabel = (values, options) => {
+  return options.filter((element) => values.includes(element.value));
 };
 
 const ExperimentDetails: React.FC = () => {
@@ -37,8 +52,29 @@ const ExperimentDetails: React.FC = () => {
         </div>
       </LabelledRow>
       <LabelledRow label="Hypothesis" value={data.objectives} />
-      <LabelledRow label="Feature" value={data.features.toString()} />
-      <LabelledRow label="Audience" value={data.audience} />
+      <LabelledRow label="Feature">
+        <XSelect
+          isMulti
+          isDisabled={true}
+          options={featureOptions}
+          value={
+            data.features
+              ? convertOptionValueToLabel(data.features, featureOptions)
+              : null
+          }
+        />
+      </LabelledRow>
+      <LabelledRow label="Audience">
+        <XSelect
+          isDisabled={true}
+          options={audienceOptions}
+          value={
+            data.audience
+              ? convertOptionValueToLabel(data.audience, audienceOptions)
+              : null
+          }
+        />
+      </LabelledRow>
       <LabelledRow label="Trigger" />
       <LabelledRow label="Firefox Version" />
 

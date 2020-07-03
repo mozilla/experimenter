@@ -41,6 +41,34 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertFalse(serializer.is_valid())
         self.assertIn("name", serializer.errors)
         self.assertIn("objectives", serializer.errors)
+        self.assertIn("audience", serializer.errors)
+        self.assertIn("features", serializer.errors)
+
+    def test_serializer_bad_audience_value(self):
+        data = {
+            "name": "rapid experiment",
+            "objectives": "gotta go fast",
+            "audience": " WRONG AUDIENCE CHOICE",
+            "features": ["FEATURE 1", "FEATURE 2"],
+        }
+        serializer = ExperimentRapidSerializer(
+            data=data, context={"request": self.request}
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("audience", serializer.errors)
+
+    def test_serializer_bad_feature_value(self):
+        data = {
+            "name": "rapid experiment",
+            "objectives": "gotta go fast",
+            "audience": "AUDIENCE 1",
+            "features": ["WRONG FEATURE 1", "WRONG FEATURE 2"],
+        }
+        serializer = ExperimentRapidSerializer(
+            data=data, context={"request": self.request}
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("features", serializer.errors)
 
     def test_serializer_creates_experiment_and_sets_slug_and_changelog(self):
 

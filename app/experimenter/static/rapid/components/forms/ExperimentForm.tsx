@@ -7,6 +7,7 @@ import {
 } from "experimenter-rapid/contexts/experiment/hooks";
 import { ExperimentReducerActionType } from "experimenter-types/experiment";
 
+import { featureOptions, audienceOptions } from "./ExperimentFormOptions";
 import { XSelect } from "./XSelect";
 
 interface ErrorListProperties {
@@ -37,17 +38,7 @@ const ExperimentForm: React.FC = () => {
   );
   const history = useHistory();
 
-  const featureOptions = [
-    { value: "FEATURE 1", label: "FEATURE 1" },
-    { value: "FEATURE 2", label: "FEATURE 2" },
-  ];
-
-  const audienceOptions = [
-    { value: "AUDIENCE 1", label: "AUDIENCE 1" },
-    { value: "AUDIENCE 2", label: "AUDIENCE 2" },
-  ];
-
-  const handlefeatureChange = (featureValues) => {
+  const handleFeatureChange = (featureValues) => {
     const formattedFeatures = featureValues.map((feature) => feature.value);
     dispatch({
       type: ExperimentReducerActionType.UPDATE_STATE,
@@ -160,7 +151,7 @@ const ExperimentForm: React.FC = () => {
                 )
               : null
           }
-          onOptionChange={handlefeatureChange}
+          onOptionChange={handleFeatureChange}
         />
         <ErrorList errors={errors.features} />
       </div>
