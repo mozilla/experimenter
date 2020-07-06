@@ -146,10 +146,11 @@ const ExperimentForm: React.FC = () => {
           Is there a minimum Firefox Release version this experiment should be
           run on?
         </p>
-        <select
-          className="form-control w-100"
+        <XSelect
+          className="w-100"
           id="field-version"
           name="version"
+          options={[]}
         />
         <ErrorList errors={errors.version} />
       </div>
