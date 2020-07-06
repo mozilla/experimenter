@@ -138,23 +138,6 @@ const ExperimentForm: React.FC = () => {
         />
         <ErrorList errors={errors.audience} />
       </div>
-
-      <div className="mb-4">
-        <label className="font-weight-bold" htmlFor="field-trigger">
-          Trigger
-        </label>
-        <p>
-          Select user actions that should be used to trigger the CFR messages
-          for the users.
-        </p>
-        <select
-          className="form-control w-100"
-          id="field-trigger"
-          name="trigger"
-        />
-        <ErrorList errors={errors.trigger} />
-      </div>
-
       <div className="mb-4">
         <label className="font-weight-bold" htmlFor="field-version">
           Firefox Version

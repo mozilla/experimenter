@@ -39,7 +39,6 @@ const ExperimentDetails: React.FC = () => {
       <LabelledRow label="Hypothesis" value={data.objectives} />
       <LabelledRow label="Feature" />
       <LabelledRow label="Audience" />
-      <LabelledRow label="Trigger" />
       <LabelledRow label="Firefox Version" />
 
       <h3 className="my-4">Results</h3>

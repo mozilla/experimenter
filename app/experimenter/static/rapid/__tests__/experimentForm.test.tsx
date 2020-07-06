@@ -154,7 +154,7 @@ describe("<ExperimentForm />", () => {
     });
   });
 
-  ["name", "objectives", "features", "audience", "trigger", "version"].forEach(
+  ["name", "objectives", "features", "audience", "version"].forEach(
     (fieldName) => {
       it(`shows the appropriate error message for '${fieldName}' on save`, async () => {
         const { getByText } = renderWithRouter(
