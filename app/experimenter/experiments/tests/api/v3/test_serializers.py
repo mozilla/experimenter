@@ -173,3 +173,23 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertIn(
             "Name needs to contain alphanumeric characters", serializer.errors["name"]
         )
+
+    def test_serializer_returns_error_for_non_unique_slug(self):
+
+        ExperimentFactory.create(name="non unique slug", slug="non-unique-slug")
+
+        data = {
+            "name": "non. unique slug",
+            "objectives": "gotta go fast",
+            "audience": "AUDIENCE 1",
+            "features": ["FEATURE 1", "FEATURE 2"],
+        }
+
+        serializer = ExperimentRapidSerializer(
+            data=data, context={"request": self.request}
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn(
+            "Name maps to a pre-existing slug, please choose another name",
+            serializer.errors["name"],
+        )
