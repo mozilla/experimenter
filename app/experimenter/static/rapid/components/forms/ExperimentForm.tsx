@@ -38,25 +38,16 @@ const ExperimentForm: React.FC = () => {
   );
   const history = useHistory();
 
-  const handleFeatureChange = (featureValues) => {
-    const formattedFeatures = featureValues.map((feature) => feature.value);
-    dispatch({
-      type: ExperimentReducerActionType.UPDATE_STATE,
-      state: {
-        ...formData,
-        features: formattedFeatures,
-      },
-    });
-  };
-
-  const handleAudienceChange = (audienceValue) => {
-    dispatch({
-      type: ExperimentReducerActionType.UPDATE_STATE,
-      state: {
-        ...formData,
-        audience: audienceValue.value,
-      },
-    });
+  const handleSelectChange = (name) => {
+    return (value) => {
+      dispatch({
+        type: ExperimentReducerActionType.UPDATE_STATE,
+        state: {
+          ...formData,
+          [name]: value,
+        },
+      });
+    };
   };
 
   const handleChange = (ev) => {
@@ -144,14 +135,8 @@ const ExperimentForm: React.FC = () => {
           id="field-feature"
           name="features"
           options={featureOptions}
-          value={
-            formData.features
-              ? featureOptions.filter((option) =>
-                  formData.features.includes(option.value),
-                )
-              : null
-          }
-          onOptionChange={handleFeatureChange}
+          selectValue={formData.features}
+          onOptionChange={handleSelectChange("features")}
         />
         <ErrorList errors={errors.features} />
       </div>
@@ -166,10 +151,8 @@ const ExperimentForm: React.FC = () => {
           id="field-audience"
           name="audience"
           options={audienceOptions}
-          value={audienceOptions.filter(
-            (option) => option.value === formData.audience,
-          )}
-          onChange={handleAudienceChange}
+          selectValue={formData.audience}
+          onOptionChange={handleSelectChange("audience")}
         />
         <ErrorList errors={errors.audience} />
       </div>
