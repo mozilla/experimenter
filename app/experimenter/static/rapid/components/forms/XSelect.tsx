@@ -1,6 +1,7 @@
 import React from "react";
 import Select, {
   components,
+  // ActionMeta,
   Props,
   OptionTypeBase,
   OptionProps,
@@ -55,34 +56,33 @@ interface XSelectCustomProps<OptionType> {
    * Single selects will return a single item, multis will return the array of options
    */
   onOptionChange?: (value: Array<string> | string) => void;
-  selectValue: string[] | string;
+  selectValue: string[] | string | null | void;
 }
 
 // To debug the menu dropdown, add menuIsOpen={true}
 export function XSelect<OptionType extends XSelectOption = XSelectOption>(
   props: Props<OptionType> & XSelectCustomProps<OptionType>,
 ): ReturnType<React.FC> {
-  const { selectValue, value, onOptionChange, ...renderProps } = props;
+  const { selectValue, onOptionChange, ...renderProps } = props;
 
   // convert options to values only
   if (onOptionChange) {
-    renderProps.onChange = (value: ValueType<XSelectOption>) => {
+    renderProps.onChange = (value: ValueType<OptionType>) => {
       if (value) {
         let singularValue;
         if (props.isMulti) {
           singularValue = value.map((element) => element.value);
         } else {
-          singularValue = value.value;
+          singularValue = value["value"];
         }
 
         onOptionChange(singularValue);
+        renderProps.value = value;
       }
-
-      renderProps.value = value;
     };
   }
 
-  // convert values to options options
+  // convert values to options
   if (selectValue && props.options) {
     if (Array.isArray(props.options)) {
       let optionValue;
@@ -95,6 +95,7 @@ export function XSelect<OptionType extends XSelectOption = XSelectOption>(
           (element) => element.value === selectValue,
         );
       }
+
       renderProps.value = optionValue;
     }
   }
