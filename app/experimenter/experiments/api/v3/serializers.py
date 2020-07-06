@@ -32,12 +32,17 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
 
     def validate_name(self, name):
         slug = slugify(name)
+        existing_slugs = Experiment.objects.values_list("slug", flat=True)
 
-        if slug:
-            return name
-        raise serializers.ValidationError(
-            ["Name needs to contain alphanumeric characters"]
-        )
+        if not slug:
+            raise serializers.ValidationError(
+                ["Name needs to contain alphanumeric characters"]
+            )
+        if slug in existing_slugs:
+            raise serializers.ValidationError(
+                ["Name maps to a pre-existing slug, please choose another name"]
+            )
+        return name
 
     def create(self, validated_data):
         validated_data.update(
