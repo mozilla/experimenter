@@ -1,7 +1,6 @@
 import React from "react";
 import Select, {
   components,
-  // ActionMeta,
   Props,
   OptionTypeBase,
   OptionProps,

@@ -1,6 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+import {
+  featureOptions,
+  audienceOptions,
+} from "experimenter-rapid/components/forms/ExperimentFormOptions";
 import { useExperimentState } from "experimenter-rapid/contexts/experiment/hooks";
 
 const LabelledRow: React.FC<{ label: string; value?: string }> = ({
@@ -21,6 +25,22 @@ const LabelledRow: React.FC<{ label: string; value?: string }> = ({
   );
 };
 
+const displaySelectOptionLabels = (options, values) => {
+  let selectedValue = values;
+  if (!Array.isArray(values)) {
+    selectedValue = [values];
+  }
+
+  const selectedOption = options.reduce((filtered, element) => {
+    if (selectedValue.includes(element.value)) {
+      filtered.push(element.label);
+    }
+
+    return filtered;
+  }, []);
+  return selectedOption.join(", ");
+};
+
 const ExperimentDetails: React.FC = () => {
   const data = useExperimentState();
 
@@ -37,8 +57,14 @@ const ExperimentDetails: React.FC = () => {
         </div>
       </LabelledRow>
       <LabelledRow label="Hypothesis" value={data.objectives} />
-      <LabelledRow label="Feature" value={data.features.join(", ")} />
-      <LabelledRow label="Audience" value={data.audience} />
+      <LabelledRow
+        label="Feature"
+        value={displaySelectOptionLabels(featureOptions, data.features)}
+      />
+      <LabelledRow
+        label="Audience"
+        value={displaySelectOptionLabels(audienceOptions, data.audience)}
+      />
       <LabelledRow label="Trigger" />
       <LabelledRow label="Firefox Version" />
 
