@@ -1,6 +1,8 @@
 export interface ExperimentData {
   name: string;
   objectives: string;
+  features: Array<string>;
+  audience: string;
   owner?: string;
   slug?: string;
 }

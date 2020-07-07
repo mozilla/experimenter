@@ -22,6 +22,8 @@ describe("<ExperimentDetails />", () => {
           name: "Test Name",
           objectives: "Test objectives",
           owner: "test@owner.com",
+          features: ["FEATURE 1", "FEATURE 2"],
+          audience: "AUDIENCE 1",
         },
       }),
     );
@@ -42,6 +44,8 @@ describe("<ExperimentDetails />", () => {
           name: "Test Name",
           objectives: "Test objectives",
           owner: "test@owner.com",
+          features: ["FEATURE 1", "FEATURE 2"],
+          audience: "AUDIENCE 1",
         },
       }),
     );

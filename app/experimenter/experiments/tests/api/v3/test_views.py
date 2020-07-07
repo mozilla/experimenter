@@ -56,6 +56,8 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
 
     def test_post_detail_edits_rapid_experiment(self):
         user_email = "user@example.com"
+        audience = Experiment.RAPID_AUDIENCE_CHOICES[0][1]
+        features = [feature[0] for feature in Experiment.RAPID_FEATURE_CHOICES]
 
         owner = UserFactory(email=user_email)
         experiment = ExperimentFactory.create(
@@ -64,9 +66,18 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
             name="rapid experiment",
             slug="rapid-experiment",
             objectives="gotta go fast",
+            audience=audience,
+            features=features,
         )
 
-        data = json.dumps({"name": "new name", "objectives": "new hypothesis"})
+        data = json.dumps(
+            {
+                "name": "new name",
+                "objectives": "new hypothesis",
+                "audience": audience,
+                "features": features,
+            }
+        )
 
         response = self.client.put(
             reverse("experiments-rapid-detail", kwargs={"slug": experiment.slug}),
@@ -84,8 +95,17 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
 
     def test_post_list_creates_rapid_experiment(self):
         user_email = "user@example.com"
+        audience = Experiment.RAPID_AUDIENCE_CHOICES[0][1]
+        features = [feature[0] for feature in Experiment.RAPID_FEATURE_CHOICES]
 
-        data = json.dumps({"name": "rapid experiment", "objectives": "gotta go fast"})
+        data = json.dumps(
+            {
+                "name": "rapid experiment",
+                "objectives": "gotta go fast",
+                "audience": audience,
+                "features": features,
+            }
+        )
 
         response = self.client.post(
             reverse("experiments-rapid-list"),
