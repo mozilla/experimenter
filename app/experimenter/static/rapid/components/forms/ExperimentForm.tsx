@@ -169,6 +169,7 @@ const ExperimentForm: React.FC = () => {
           id="field-version"
           name="version"
           options={[]}
+          selectValue={null}
         />
         <ErrorList errors={errors.version} />
       </div>
