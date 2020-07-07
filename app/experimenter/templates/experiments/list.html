@@ -90,7 +90,11 @@
 
 {% block main_content %}
   {% for experiment in experiments %}
+  {% if experiment.is_rapid_experiment %}
+    <a class="noanchorstyle hovershadow" href="{% url "experiments-rapid" slug=experiment.slug %}">
+  {% else %}
     <a class="noanchorstyle hovershadow" href="{% url "experiments-detail" slug=experiment.slug %}">
+  {% endif %}
       <div class="row">
         <div class="col">
           <h5>
