@@ -65,7 +65,6 @@ const ExperimentDetails: React.FC = () => {
         label="Audience"
         value={displaySelectOptionLabels(audienceOptions, data.audience)}
       />
-      <LabelledRow label="Trigger" />
       <LabelledRow label="Firefox Version" />
 
       <h3 className="my-4">Results</h3>
