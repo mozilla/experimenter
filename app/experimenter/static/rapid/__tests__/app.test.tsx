@@ -25,7 +25,7 @@ describe("<App />", () => {
     const { getByText } = renderWithRouter(<App />, {
       route: "/new/",
     });
-    expect(getByText("Create a New A/A Experiment")).toBeInTheDocument();
+    expect(getByText(/Create a New A\/A Experiment/)).toBeInTheDocument();
   });
 
   it("includes the experiment form page at `/:experimentSlug/edit/`", async () => {

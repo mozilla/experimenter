@@ -1,13 +1,10 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
-
 import { useExperimentState } from "experimenter-rapid/contexts/experiment/hooks";
 
 const ExperimentFormPage: React.FC = () => {
-  const { location } = useHistory();
-  let pageHeading = "Create a New A/A Experiment";
-  if (location.pathname.includes("edit")) {
-    const experimentData = useExperimentState();
+  const experimentData = useExperimentState();
+  let pageHeading = `Create a New A/A Experiment: ${experimentData.name}`;
+  if (experimentData.slug) {
     pageHeading = `Edit Experiment: ${experimentData.name}`;
   }
 
