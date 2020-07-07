@@ -41,7 +41,11 @@ describe("<App />", () => {
     const { getByText, getByLabelText } = renderWithRouter(<App />, {
       route: "/test-slug/edit/",
     });
-    expect(getByText("Create a New A/A Experiment")).toBeInTheDocument();
+    await waitFor(() => {
+      return expect(
+        getByText("Edit Experiment: Test Name"),
+      ).toBeInTheDocument();
+    });
 
     const nameField = getByLabelText("Public Name") as HTMLInputElement;
     await waitFor(() => {
