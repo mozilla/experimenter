@@ -7638,13 +7638,14 @@
                       "enum": [
                         "AUDIENCE 1",
                         "AUDIENCE 2"
-                      ],
-                      "nullable": true
+                      ]
                     }
                   },
                   "required": [
                     "name",
-                    "objectives"
+                    "objectives",
+                    "features",
+                    "audience"
                   ]
                 }
               }
@@ -7692,13 +7693,14 @@
                     "enum": [
                       "AUDIENCE 1",
                       "AUDIENCE 2"
-                    ],
-                    "nullable": true
+                    ]
                   }
                 },
                 "required": [
                   "name",
-                  "objectives"
+                  "objectives",
+                  "features",
+                  "audience"
                 ]
               }
             },
@@ -7722,13 +7724,14 @@
                     "enum": [
                       "AUDIENCE 1",
                       "AUDIENCE 2"
-                    ],
-                    "nullable": true
+                    ]
                   }
                 },
                 "required": [
                   "name",
-                  "objectives"
+                  "objectives",
+                  "features",
+                  "audience"
                 ]
               }
             },
@@ -7752,13 +7755,14 @@
                     "enum": [
                       "AUDIENCE 1",
                       "AUDIENCE 2"
-                    ],
-                    "nullable": true
+                    ]
                   }
                 },
                 "required": [
                   "name",
-                  "objectives"
+                  "objectives",
+                  "features",
+                  "audience"
                 ]
               }
             }
@@ -7795,13 +7799,14 @@
                       "enum": [
                         "AUDIENCE 1",
                         "AUDIENCE 2"
-                      ],
-                      "nullable": true
+                      ]
                     }
                   },
                   "required": [
                     "name",
-                    "objectives"
+                    "objectives",
+                    "features",
+                    "audience"
                   ]
                 }
               }
@@ -7849,8 +7854,7 @@
                     "enum": [
                       "AUDIENCE 1",
                       "AUDIENCE 2"
-                    ],
-                    "nullable": true
+                    ]
                   }
                 }
               }
@@ -7875,8 +7879,7 @@
                     "enum": [
                       "AUDIENCE 1",
                       "AUDIENCE 2"
-                    ],
-                    "nullable": true
+                    ]
                   }
                 }
               }
@@ -7901,8 +7904,7 @@
                     "enum": [
                       "AUDIENCE 1",
                       "AUDIENCE 2"
-                    ],
-                    "nullable": true
+                    ]
                   }
                 }
               }
@@ -7940,13 +7942,14 @@
                       "enum": [
                         "AUDIENCE 1",
                         "AUDIENCE 2"
-                      ],
-                      "nullable": true
+                      ]
                     }
                   },
                   "required": [
                     "name",
-                    "objectives"
+                    "objectives",
+                    "features",
+                    "audience"
                   ]
                 }
               }
@@ -7986,13 +7989,14 @@
                     "enum": [
                       "AUDIENCE 1",
                       "AUDIENCE 2"
-                    ],
-                    "nullable": true
+                    ]
                   }
                 },
                 "required": [
                   "name",
-                  "objectives"
+                  "objectives",
+                  "features",
+                  "audience"
                 ]
               }
             },
@@ -8016,13 +8020,14 @@
                     "enum": [
                       "AUDIENCE 1",
                       "AUDIENCE 2"
-                    ],
-                    "nullable": true
+                    ]
                   }
                 },
                 "required": [
                   "name",
-                  "objectives"
+                  "objectives",
+                  "features",
+                  "audience"
                 ]
               }
             },
@@ -8046,13 +8051,14 @@
                     "enum": [
                       "AUDIENCE 1",
                       "AUDIENCE 2"
-                    ],
-                    "nullable": true
+                    ]
                   }
                 },
                 "required": [
                   "name",
-                  "objectives"
+                  "objectives",
+                  "features",
+                  "audience"
                 ]
               }
             }
@@ -8089,13 +8095,14 @@
                       "enum": [
                         "AUDIENCE 1",
                         "AUDIENCE 2"
-                      ],
-                      "nullable": true
+                      ]
                     }
                   },
                   "required": [
                     "name",
-                    "objectives"
+                    "objectives",
+                    "features",
+                    "audience"
                   ]
                 }
               }

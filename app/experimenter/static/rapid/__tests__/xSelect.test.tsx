@@ -18,6 +18,7 @@ function renderSelect(props = {}) {
       id="test-xselect"
       options={FAKE_OPTIONS}
       placeholder="Choose something"
+      selectValue={null}
       {...props}
     />,
   );
@@ -59,9 +60,9 @@ describe("<XSelect />", () => {
       fireEvent.click(getByText("Foo"));
 
       expect(onOptionChange).toHaveBeenCalled();
-      expect(onOptionChange.mock.calls[0][0]).toEqual([FAKE_OPTIONS[0]]);
+      expect(onOptionChange.mock.calls[0][0]).toEqual("foo");
     });
-    it("should call onOptionChange with multi-value select", () => {
+    it("should call onOptionChange with multi-value select", async () => {
       const onOptionChange = jest.fn();
 
       const { container, getByText } = renderSelect({
@@ -74,7 +75,7 @@ describe("<XSelect />", () => {
       openSelect(container);
       fireEvent.click(getByText("Bar"));
 
-      expect(onOptionChange.mock.calls[1][0]).toEqual(FAKE_OPTIONS);
+      expect(onOptionChange.mock.calls[1][0]).toEqual(["foo", "bar"]);
     });
   });
 });
