@@ -41,6 +41,34 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertFalse(serializer.is_valid())
         self.assertIn("name", serializer.errors)
         self.assertIn("objectives", serializer.errors)
+        self.assertIn("audience", serializer.errors)
+        self.assertIn("features", serializer.errors)
+
+    def test_serializer_bad_audience_value(self):
+        data = {
+            "name": "rapid experiment",
+            "objectives": "gotta go fast",
+            "audience": " WRONG AUDIENCE CHOICE",
+            "features": ["FEATURE 1", "FEATURE 2"],
+        }
+        serializer = ExperimentRapidSerializer(
+            data=data, context={"request": self.request}
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("audience", serializer.errors)
+
+    def test_serializer_bad_feature_value(self):
+        data = {
+            "name": "rapid experiment",
+            "objectives": "gotta go fast",
+            "audience": "AUDIENCE 1",
+            "features": ["WRONG FEATURE 1", "WRONG FEATURE 2"],
+        }
+        serializer = ExperimentRapidSerializer(
+            data=data, context={"request": self.request}
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("features", serializer.errors)
 
     def test_serializer_creates_experiment_and_sets_slug_and_changelog(self):
 
@@ -122,6 +150,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             name="rapid experiment",
             slug="rapid-experiment",
             objectives="gotta go fast",
+            audience="AUDIENCE 1",
+            features=["FEATURE 1"],
             public_description=Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
         )
 
@@ -129,6 +159,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         data = {
             "name": "changing the name",
             "objectives": "changing objectives",
+            "audience": "AUDIENCE 1",
+            "features": ["FEATURE 1"],
         }
         serializer = ExperimentRapidSerializer(
             instance=experiment, data=data, context={"request": self.request}

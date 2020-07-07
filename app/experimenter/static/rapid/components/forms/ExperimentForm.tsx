@@ -7,6 +7,7 @@ import {
 } from "experimenter-rapid/contexts/experiment/hooks";
 import { ExperimentReducerActionType } from "experimenter-types/experiment";
 
+import { featureOptions, audienceOptions } from "./ExperimentFormOptions";
 import { XSelect } from "./XSelect";
 
 interface ErrorListProperties {
@@ -36,6 +37,18 @@ const ExperimentForm: React.FC = () => {
     {},
   );
   const history = useHistory();
+
+  const handleSelectChange = (name) => {
+    return (value) => {
+      dispatch({
+        type: ExperimentReducerActionType.UPDATE_STATE,
+        state: {
+          ...formData,
+          [name]: value,
+        },
+      });
+    };
+  };
 
   const handleChange = (ev) => {
     const field = ev.target;
@@ -117,10 +130,13 @@ const ExperimentForm: React.FC = () => {
           this experiment.
         </p>
         <XSelect
+          isMulti
           className="w-100"
           id="field-feature"
           name="features"
-          options={[]}
+          options={featureOptions}
+          selectValue={formData.features}
+          onOptionChange={handleSelectChange("features")}
         />
         <ErrorList errors={errors.features} />
       </div>
@@ -134,7 +150,9 @@ const ExperimentForm: React.FC = () => {
           className="w-100"
           id="field-audience"
           name="audience"
-          options={[]}
+          options={audienceOptions}
+          selectValue={formData.audience}
+          onOptionChange={handleSelectChange("audience")}
         />
         <ErrorList errors={errors.audience} />
       </div>

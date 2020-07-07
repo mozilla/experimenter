@@ -67,7 +67,7 @@ class ExperimentConstants(object):
 
     RAPID_FEATURE_CHOICES = (("FEATURE 1", "FEATURE 1"), ("FEATURE 2", "FEATURE 2"))
 
-    RAPID_AUDIENCE_CHOICES = (("AUDIENCE 1", "AUDIENCE1"), ("AUDIENCE 2", "AUDIENCE 2"))
+    RAPID_AUDIENCE_CHOICES = (("AUDIENCE 1", "AUDIENCE 1"), ("AUDIENCE 2", "AUDIENCE 2"))
 
     # Rollout stuff
     ROLLOUT_TYPE_CHOICES = ((TYPE_PREF, "Pref Rollout"), (TYPE_ADDON, "Add-On Rollout"))
