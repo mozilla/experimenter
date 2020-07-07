@@ -6,7 +6,6 @@ import Select, {
   OptionProps,
   Styles,
   ValueType,
-  ActionMeta,
 } from "react-select";
 
 export interface XSelectOption extends OptionTypeBase {
@@ -55,31 +54,49 @@ interface XSelectCustomProps<OptionType> {
    * This is an alternative to onChange that is called with array of options as the first parameter.
    * Single selects will return a single item, multis will return the array of options
    */
-  onOptionChange?: (
-    option: Array<OptionType>,
-    action: ActionMeta<XSelectOption>,
-  ) => void;
+  onOptionChange?: (value: Array<string> | string) => void;
+  selectValue: string[] | string | null | void;
 }
 
 // To debug the menu dropdown, add menuIsOpen={true}
 export function XSelect<OptionType extends XSelectOption = XSelectOption>(
   props: Props<OptionType> & XSelectCustomProps<OptionType>,
 ): ReturnType<React.FC> {
-  const renderProps: Props<OptionType> = { ...props };
-  if (props.onOptionChange) {
-    renderProps.onChange = (
-      value: ValueType<XSelectOption>,
-      action: ActionMeta<XSelectOption>,
-    ) => {
-      const options: Array<OptionType> = Array.isArray(value)
-        ? value
-        : value
-        ? [value]
-        : [];
-      if (props.onOptionChange) {
-        props.onOptionChange(options, action);
+  const { selectValue, onOptionChange, ...renderProps } = props;
+
+  // convert options to values only
+  if (onOptionChange) {
+    renderProps.onChange = (value: ValueType<OptionType>) => {
+      if (value) {
+        let singularValue;
+        if (props.isMulti) {
+          singularValue = value.map((element) => element.value);
+        } else {
+          singularValue = value["value"];
+        }
+
+        onOptionChange(singularValue);
+        renderProps.value = value;
       }
     };
+  }
+
+  // convert values to options
+  if (selectValue && props.options) {
+    if (Array.isArray(props.options)) {
+      let optionValue;
+      if (props.isMulti) {
+        optionValue = props.options.filter((element) =>
+          selectValue.includes(element.value),
+        );
+      } else {
+        optionValue = props.options.filter(
+          (element) => element.value === selectValue,
+        );
+      }
+
+      renderProps.value = optionValue;
+    }
   }
 
   return (

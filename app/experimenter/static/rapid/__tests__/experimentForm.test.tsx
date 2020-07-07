@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, waitFor } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React from "react";
+import selectEvent from "react-select-event";
 
 import {
   renderWithRouter,
@@ -79,6 +80,14 @@ describe("<ExperimentForm />", () => {
     const objectivesField = getByLabelText("Hypothesis");
     fireEvent.change(objectivesField, { target: { value: "test objective" } });
 
+    // Update the features field
+    const featuresField = getByLabelText("Features");
+    await selectEvent.select(featuresField, ["FEATURE 1", "FEATURE 2"]);
+
+    // Update the audience field
+    const audienceField = getByLabelText("Audience");
+    await selectEvent.select(audienceField, "AUDIENCE 2");
+
     // Click the save button
     fireEvent.click(getByText("Save"));
 
@@ -93,6 +102,8 @@ describe("<ExperimentForm />", () => {
     expect(formData).toEqual({
       name: "test name",
       objectives: "test objective",
+      audience: "AUDIENCE 2",
+      features: ["FEATURE 1", "FEATURE 2"],
     });
   });
 

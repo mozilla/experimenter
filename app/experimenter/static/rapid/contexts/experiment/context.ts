@@ -6,6 +6,8 @@ export const INITIAL_CONTEXT: ExperimentContext = {
   state: {
     name: "",
     objectives: "",
+    features: [],
+    audience: "",
   },
   dispatch(action) {
     /* istanbul ignore next */

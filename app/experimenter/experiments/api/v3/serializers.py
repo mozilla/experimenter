@@ -15,6 +15,14 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
         default=Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
     )
     objectives = serializers.CharField(required=True)
+    features = serializers.ListField(
+        required=True,
+        child=serializers.ChoiceField(choices=Experiment.RAPID_FEATURE_CHOICES),
+        allow_empty=False,
+    )
+    audience = serializers.ChoiceField(
+        required=True, choices=Experiment.RAPID_AUDIENCE_CHOICES
+    )
 
     class Meta:
         model = Experiment
