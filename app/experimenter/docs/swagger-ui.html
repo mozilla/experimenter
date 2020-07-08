@@ -7625,20 +7625,11 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "owner": {
-                      "type": "string",
-                      "readOnly": true
-                    },
-                    "name": {
-                      "type": "string",
-                      "maxLength": 255
-                    },
-                    "slug": {
-                      "type": "string",
-                      "readOnly": true
-                    },
-                    "objectives": {
-                      "type": "string"
+                    "audience": {
+                      "enum": [
+                        "AUDIENCE 1",
+                        "AUDIENCE 2"
+                      ]
                     },
                     "features": {
                       "type": "array",
@@ -7646,18 +7637,37 @@
                         "type": null
                       }
                     },
-                    "audience": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "objectives": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "slug": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "status": {
                       "enum": [
-                        "AUDIENCE 1",
-                        "AUDIENCE 2"
+                        "Draft",
+                        "Review",
+                        "Ship",
+                        "Accepted",
+                        "Live",
+                        "Complete"
                       ]
                     }
                   },
                   "required": [
-                    "name",
-                    "objectives",
+                    "audience",
                     "features",
-                    "audience"
+                    "name",
+                    "objectives"
                   ]
                 }
               }
@@ -7688,12 +7698,11 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -7701,30 +7710,40 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 },
                 "required": [
-                  "name",
-                  "objectives",
+                  "audience",
                   "features",
-                  "audience"
+                  "name",
+                  "objectives"
                 ]
               }
             },
             "application/x-www-form-urlencoded": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -7732,30 +7751,40 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 },
                 "required": [
-                  "name",
-                  "objectives",
+                  "audience",
                   "features",
-                  "audience"
+                  "name",
+                  "objectives"
                 ]
               }
             },
             "multipart/form-data": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -7763,18 +7792,29 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 },
                 "required": [
-                  "name",
-                  "objectives",
+                  "audience",
                   "features",
-                  "audience"
+                  "name",
+                  "objectives"
                 ]
               }
             }
@@ -7786,20 +7826,11 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "owner": {
-                      "type": "string",
-                      "readOnly": true
-                    },
-                    "name": {
-                      "type": "string",
-                      "maxLength": 255
-                    },
-                    "slug": {
-                      "type": "string",
-                      "readOnly": true
-                    },
-                    "objectives": {
-                      "type": "string"
+                    "audience": {
+                      "enum": [
+                        "AUDIENCE 1",
+                        "AUDIENCE 2"
+                      ]
                     },
                     "features": {
                       "type": "array",
@@ -7807,18 +7838,37 @@
                         "type": null
                       }
                     },
-                    "audience": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "objectives": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "slug": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "status": {
                       "enum": [
-                        "AUDIENCE 1",
-                        "AUDIENCE 2"
+                        "Draft",
+                        "Review",
+                        "Ship",
+                        "Accepted",
+                        "Live",
+                        "Complete"
                       ]
                     }
                   },
                   "required": [
-                    "name",
-                    "objectives",
+                    "audience",
                     "features",
-                    "audience"
+                    "name",
+                    "objectives"
                   ]
                 }
               }
@@ -7849,12 +7899,11 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -7862,10 +7911,21 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 }
@@ -7874,12 +7934,11 @@
             "application/x-www-form-urlencoded": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -7887,10 +7946,21 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 }
@@ -7899,12 +7969,11 @@
             "multipart/form-data": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -7912,10 +7981,21 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 }
@@ -7929,20 +8009,11 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "owner": {
-                      "type": "string",
-                      "readOnly": true
-                    },
-                    "name": {
-                      "type": "string",
-                      "maxLength": 255
-                    },
-                    "slug": {
-                      "type": "string",
-                      "readOnly": true
-                    },
-                    "objectives": {
-                      "type": "string"
+                    "audience": {
+                      "enum": [
+                        "AUDIENCE 1",
+                        "AUDIENCE 2"
+                      ]
                     },
                     "features": {
                       "type": "array",
@@ -7950,18 +8021,37 @@
                         "type": null
                       }
                     },
-                    "audience": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "objectives": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "slug": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "status": {
                       "enum": [
-                        "AUDIENCE 1",
-                        "AUDIENCE 2"
+                        "Draft",
+                        "Review",
+                        "Ship",
+                        "Accepted",
+                        "Live",
+                        "Complete"
                       ]
                     }
                   },
                   "required": [
-                    "name",
-                    "objectives",
+                    "audience",
                     "features",
-                    "audience"
+                    "name",
+                    "objectives"
                   ]
                 }
               }
@@ -7984,12 +8074,11 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -7997,30 +8086,40 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 },
                 "required": [
-                  "name",
-                  "objectives",
+                  "audience",
                   "features",
-                  "audience"
+                  "name",
+                  "objectives"
                 ]
               }
             },
             "application/x-www-form-urlencoded": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -8028,30 +8127,40 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 },
                 "required": [
-                  "name",
-                  "objectives",
+                  "audience",
                   "features",
-                  "audience"
+                  "name",
+                  "objectives"
                 ]
               }
             },
             "multipart/form-data": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -8059,18 +8168,29 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 },
                 "required": [
-                  "name",
-                  "objectives",
+                  "audience",
                   "features",
-                  "audience"
+                  "name",
+                  "objectives"
                 ]
               }
             }
@@ -8082,20 +8202,11 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "owner": {
-                      "type": "string",
-                      "readOnly": true
-                    },
-                    "name": {
-                      "type": "string",
-                      "maxLength": 255
-                    },
-                    "slug": {
-                      "type": "string",
-                      "readOnly": true
-                    },
-                    "objectives": {
-                      "type": "string"
+                    "audience": {
+                      "enum": [
+                        "AUDIENCE 1",
+                        "AUDIENCE 2"
+                      ]
                     },
                     "features": {
                       "type": "array",
@@ -8103,18 +8214,240 @@
                         "type": null
                       }
                     },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "objectives": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "slug": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "status": {
+                      "enum": [
+                        "Draft",
+                        "Review",
+                        "Ship",
+                        "Accepted",
+                        "Live",
+                        "Complete"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "audience",
+                    "features",
+                    "name",
+                    "objectives"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Rapid: Private"
+        ]
+      }
+    },
+    "/api/v3/experiments/{slug}/request_review/": {
+      "post": {
+        "operationId": "request_reviewExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
+                    ]
+                  }
+                },
+                "required": [
+                  "audience",
+                  "features",
+                  "name",
+                  "objectives"
+                ]
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
+                    ]
+                  }
+                },
+                "required": [
+                  "audience",
+                  "features",
+                  "name",
+                  "objectives"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
+                    ]
+                  }
+                },
+                "required": [
+                  "audience",
+                  "features",
+                  "name",
+                  "objectives"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
                     "audience": {
                       "enum": [
                         "AUDIENCE 1",
                         "AUDIENCE 2"
                       ]
+                    },
+                    "features": {
+                      "type": "array",
+                      "items": {
+                        "type": null
+                      }
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "objectives": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "slug": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "status": {
+                      "enum": [
+                        "Draft",
+                        "Review",
+                        "Ship",
+                        "Accepted",
+                        "Live",
+                        "Complete"
+                      ]
                     }
                   },
                   "required": [
-                    "name",
-                    "objectives",
+                    "audience",
                     "features",
-                    "audience"
+                    "name",
+                    "objectives"
                   ]
                 }
               }

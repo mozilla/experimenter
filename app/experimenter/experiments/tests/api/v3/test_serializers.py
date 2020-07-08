@@ -1,6 +1,9 @@
 from django.test import TestCase
 
-from experimenter.experiments.api.v3.serializers import ExperimentRapidSerializer
+from experimenter.experiments.api.v3.serializers import (
+    ExperimentRapidSerializer,
+    ExperimentRapidStatusSerializer,
+)
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.openidc.tests.factories import UserFactory
@@ -14,6 +17,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_RAPID,
             rapid_type=Experiment.RAPID_AA_CFR,
+            status=Experiment.STATUS_DRAFT,
             owner=owner,
             name="rapid experiment",
             slug="rapid-experiment",
@@ -27,6 +31,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertDictEqual(
             serializer.data,
             {
+                "status": Experiment.STATUS_DRAFT,
                 "owner": "owner@example.com",
                 "name": "rapid experiment",
                 "slug": "rapid-experiment",
@@ -94,6 +99,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertEqual(
             experiment.public_description, Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
         )
+        self.assertEqual(experiment.firefox_min_version, Experiment.VERSION_CHOICES[0][0])
+        self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
 
         self.mock_tasks_serializer_create_bug.delay.assert_called()
 
@@ -129,6 +136,16 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "features": {
                 "display_name": "Features",
                 "new_value": ["FEATURE 1", "FEATURE 2"],
+                "old_value": None,
+            },
+            "firefox_min_version": {
+                "display_name": "Firefox Min Version",
+                "new_value": Experiment.VERSION_CHOICES[0][0],
+                "old_value": None,
+            },
+            "firefox_channel": {
+                "display_name": "Firefox Channel",
+                "new_value": Experiment.CHANNEL_RELEASE,
                 "old_value": None,
             },
         }
@@ -243,3 +260,41 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             data=data, context={"request": self.request}, instance=experiment
         )
         self.assertTrue(serializer.is_valid())
+
+
+class TestExperimentRapidStatusSerializer(MockRequestMixin, TestCase):
+    def test_serializer_updates_status(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT, type=Experiment.TYPE_RAPID
+        )
+
+        data = {
+            "status": Experiment.STATUS_REVIEW,
+        }
+
+        serializer = ExperimentRapidStatusSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(experiment.changes.count(), 1)
+
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.status, Experiment.STATUS_REVIEW)
+        self.assertEqual(experiment.changes.count(), 2)
+
+    def test_serializer_rejects_invalid_state_transition(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW, type=Experiment.TYPE_RAPID
+        )
+
+        data = {
+            "status": Experiment.STATUS_DRAFT,
+        }
+
+        serializer = ExperimentRapidStatusSerializer(
+            instance=experiment, data=data, context={"request": self.request}
+        )
+
+        self.assertFalse(serializer.is_valid())

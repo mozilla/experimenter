@@ -38,7 +38,8 @@ def update_recipe_ids_to_experiments():
 
     ready_to_ship_experiments = Experiment.objects.filter(
         status__in=[Experiment.STATUS_SHIP, Experiment.STATUS_ACCEPTED]
-    )
+    ).exclude(type=Experiment.TYPE_RAPID)
+
     for experiment in ready_to_ship_experiments:
         try:
             logger.info("Updating Experiment: {}".format(experiment))
