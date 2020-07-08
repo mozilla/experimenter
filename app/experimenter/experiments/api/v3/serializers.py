@@ -42,7 +42,6 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
         validated_data = super().validate(data)
         if validated_data.get("slug") is None:
             slug = slugify(data.get("name"))
-            existing_slugs = Experiment.objects.values_list("slug", flat=True)
 
             if not slug:
                 raise serializers.ValidationError(
