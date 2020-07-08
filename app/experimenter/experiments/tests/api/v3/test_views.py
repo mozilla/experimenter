@@ -120,3 +120,24 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         self.assertEqual(experiment.name, "rapid experiment")
         self.assertEqual(experiment.slug, "rapid-experiment")
         self.assertEqual(experiment.objectives, "gotta go fast")
+
+    def test_request_review_updates_status_creates_changelog(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            type=Experiment.TYPE_RAPID,
+            name="rapid experiment",
+            slug="rapid-experiment",
+            objectives="gotta go fast",
+        )
+        self.assertEqual(experiment.changes.count(), 1)
+
+        response = self.client.post(
+            reverse("experiments-rapid-request-review", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        experiment = Experiment.objects.get()
+        self.assertEqual(experiment.status, Experiment.STATUS_REVIEW)
+        self.assertEqual(experiment.changes.count(), 2)

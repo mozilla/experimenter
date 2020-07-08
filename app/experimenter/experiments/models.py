@@ -1078,6 +1078,12 @@ class Experiment(ExperimentConstants, models.Model):
 
         return cloned
 
+    def prepare_rapid_experiment_for_publish(self):
+        self.status = Experiment.STATUS_ACCEPTED
+        self.proposed_start_date = datetime.date.today()
+        self.normandy_slug = self.generate_normandy_slug()
+        self.save()
+
 
 class ExperimentVariant(models.Model):
     experiment = models.ForeignKey(

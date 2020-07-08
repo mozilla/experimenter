@@ -44,8 +44,10 @@ const displaySelectOptionLabels = (options, values) => {
 const ExperimentDetails: React.FC = () => {
   const data = useExperimentState();
 
-  const handleClickRequestApproval = () => {
-    // No-op
+  const handleClickRequestApproval = async () => {
+    await fetch(`/api/v3/experiments/${data.slug}/request_review/`, {
+      method: "POST",
+    });
   };
 
   return (

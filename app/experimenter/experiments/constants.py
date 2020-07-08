@@ -125,6 +125,10 @@ class ExperimentConstants(object):
         STATUS_COMPLETE: [],
     }
 
+    RAPID_STATUS_TRANSITIONS = {
+        STATUS_DRAFT: [STATUS_REVIEW],
+    }
+
     STATUS_PROCEED_REVIEW = "Begin Sign-Offs"
     STATUS_PROCEED_SHIP = "Confirm Ready to Ship"
 
