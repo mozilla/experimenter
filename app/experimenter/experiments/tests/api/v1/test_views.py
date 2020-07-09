@@ -32,7 +32,7 @@ class TestExperimentListView(TestCase):
         json_data = json.loads(response.content)
 
         serialized_experiments = ExperimentSerializer(
-            Experiment.objects.all(), many=True
+            Experiment.objects.get_prefetched(), many=True
         ).data
 
         self.assertEqual(serialized_experiments, json_data)
@@ -59,7 +59,8 @@ class TestExperimentListView(TestCase):
         json_data = json.loads(response.content)
 
         serialized_experiments = ExperimentSerializer(
-            Experiment.objects.filter(status=Experiment.STATUS_REVIEW), many=True
+            Experiment.objects.get_prefetched().filter(status=Experiment.STATUS_REVIEW),
+            many=True,
         ).data
 
         self.assertEqual(serialized_experiments, json_data)
