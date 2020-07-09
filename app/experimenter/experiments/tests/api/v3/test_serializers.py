@@ -225,3 +225,21 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "Name maps to a pre-existing slug, please choose another name",
             serializer.errors["name"],
         )
+
+    def test_serializer_update_experiment_does_not_throw_slug_err(self):
+
+        experiment = ExperimentFactory.create(
+            name="non unique slug", slug="non-unique-slug"
+        )
+
+        data = {
+            "name": "non unique slug",
+            "objectives": "gotta go fast",
+            "audience": "AUDIENCE 1",
+            "features": ["FEATURE 1", "FEATURE 2"],
+        }
+
+        serializer = ExperimentRapidSerializer(
+            data=data, context={"request": self.request}, instance=experiment
+        )
+        self.assertTrue(serializer.is_valid())
