@@ -16,19 +16,19 @@ from experimenter.normandy.serializers import ExperimentRecipeSerializer
 
 class ExperimentListView(ListAPIView):
     filter_fields = ("status",)
-    queryset = Experiment.objects.all()
+    queryset = Experiment.objects.get_prefetched()
     serializer_class = ExperimentSerializer
 
 
 class ExperimentDetailView(RetrieveAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.all()
+    queryset = Experiment.objects.get_prefetched()
     serializer_class = ExperimentSerializer
 
 
 class ExperimentRecipeView(RetrieveAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.filter(
+    queryset = Experiment.objects.get_prefetched().filter(
         status__in=(
             ExperimentConstants.STATUS_SHIP,
             ExperimentConstants.STATUS_ACCEPTED,
@@ -40,7 +40,7 @@ class ExperimentRecipeView(RetrieveAPIView):
 
 
 class ExperimentCSVListView(ListAPIView):
-    queryset = Experiment.objects.order_by("status", "name")
+    queryset = Experiment.objects.get_prefetched().order_by("status", "name")
     serializer_class = ExperimentCSVSerializer
     renderer_classes = (CSVRenderer,)
 

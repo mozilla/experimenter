@@ -33,13 +33,16 @@ class ExperimentManager(models.Manager):
 
     def get_prefetched(self):
         return self.get_queryset().prefetch_related(
-            "changes",
             "changes__changed_by",
-            "owner",
-            "comments",
+            "changes",
             "comments__created_by",
-            "locales",
+            "comments",
             "countries",
+            "locales",
+            "owner",
+            "preferences",
+            "variants__preferences",
+            "variants",
         )
 
 
