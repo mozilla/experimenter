@@ -70,11 +70,11 @@ workflows:
   version: 2
   build:
     jobs:
-      - build
-        name: build
-        filters:
-          branches:
-            ignore: dependencies
+      - build:
+          name: build
+          filters:
+            branches:
+              ignore: dependencies
       - integration:
           name: integration
           filters:
