@@ -71,11 +71,17 @@ workflows:
   build:
     jobs:
       - build
+        name: build
+        filters:
+          branches:
+            ignore: dependencies
       - integration:
           name: integration
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - dependencies
       - deploy:
           requires:
             - build
