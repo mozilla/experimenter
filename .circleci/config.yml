@@ -74,14 +74,14 @@ workflows:
           name: build
           filters:
             branches:
-              ignore: dependencies
+              ignore: /dependabot.*/
       - integration:
           name: integration
           filters:
             branches:
               ignore:
                 - main
-                - dependencies
+                - /dependabot.*/
       - deploy:
           requires:
             - build
