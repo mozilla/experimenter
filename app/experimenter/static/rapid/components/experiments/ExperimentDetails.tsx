@@ -57,6 +57,7 @@ const ExperimentDetails: React.FC = () => {
       </div>
     );
   }
+
   return (
     <>
       <LabelledRow label="Experiment Owner" value={data.owner} />
