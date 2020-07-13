@@ -36,7 +36,7 @@ describe("<ExperimentDetails />", () => {
     expect(getByDisplayValue("Test objectives")).toBeInTheDocument();
   });
 
-  it("renders without bugzilla info when data provided", async () => {
+  it("renders with bugzilla info when data provided", async () => {
     const { getByText } = renderWithRouter(
       wrapInExperimentProvider(<ExperimentDetails />, {
         initialState: {
@@ -54,6 +54,27 @@ describe("<ExperimentDetails />", () => {
     await waitFor(() => {
       return expect(getByText(/Bugzilla ticket/)).toBeInTheDocument();
     });
+  });
+
+  it("renders without bugzilla info when data missing", async () => {
+    const { getByDisplayValue, queryByText } = renderWithRouter(
+      wrapInExperimentProvider(<ExperimentDetails />, {
+        initialState: {
+          slug: "test-slug",
+          name: "Test Name",
+          objectives: "Test objectives",
+          owner: "test@owner.com",
+          features: ["FEATURE 1", "FEATURE 2"],
+          audience: "AUDIENCE 1",
+        },
+      }),
+    );
+
+    await waitFor(() => {
+      return expect(getByDisplayValue("test@owner.com")).toBeInTheDocument();
+    });
+
+    expect(queryByText(/Bugzilla ticket/)).toBe(null);
   });
 
   it("sends you to the edit page when the 'Back' button is clicked", async () => {

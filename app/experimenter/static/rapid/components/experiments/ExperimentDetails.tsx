@@ -52,7 +52,10 @@ const ExperimentDetails: React.FC = () => {
   if (data.bugzilla_url) {
     bugzilla_url = (
       <div className="my-2">
-        Bugzilla ticket can be found <a href={data.bugzilla_url}>here</a>.
+        Bugzilla ticket can be found{" "}
+        <a target="_blank" rel="noopener noreferrer" href={data.bugzilla_url}>
+          here
+        </a>
       </div>
     );
   }
