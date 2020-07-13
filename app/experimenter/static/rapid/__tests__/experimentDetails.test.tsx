@@ -36,6 +36,26 @@ describe("<ExperimentDetails />", () => {
     expect(getByDisplayValue("Test objectives")).toBeInTheDocument();
   });
 
+  it("renders without bugzilla info when data provided", async () => {
+    const { getByText } = renderWithRouter(
+      wrapInExperimentProvider(<ExperimentDetails />, {
+        initialState: {
+          slug: "test-slug",
+          name: "Test Name",
+          objectives: "Test objectives",
+          owner: "test@owner.com",
+          features: ["FEATURE 1", "FEATURE 2"],
+          audience: "AUDIENCE 1",
+          bugzilla_url: "https://example.com",
+        },
+      }),
+    );
+
+    await waitFor(() => {
+      return expect(getByText(/Bugzilla ticket/)).toBeInTheDocument();
+    });
+  });
+
   it("sends you to the edit page when the 'Back' button is clicked", async () => {
     const { getByText, history } = renderWithRouter(
       wrapInExperimentProvider(<ExperimentDetails />, {
