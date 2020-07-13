@@ -48,14 +48,20 @@ const ExperimentDetails: React.FC = () => {
     // No-op
   };
 
+  let bugzilla_url;
+  if (data.bugzilla_url) {
+    bugzilla_url = (
+      <div className="my-2">
+        Bugzilla ticket can be found{" "}
+        <a href={data.bugzilla_url ? data.bugzilla_url : "#"}>here</a>.
+      </div>
+    );
+  }
   return (
     <>
       <LabelledRow label="Experiment Owner" value={data.owner} />
       <LabelledRow label="Public Name" value={data.name}>
-        <div className="my-2">
-          Bugzilla ticket can be found{" "}
-          <a href={data.bugzilla_url ? data.bugzilla_url : "#"}>here</a>.
-        </div>
+        {bugzilla_url}
       </LabelledRow>
       <LabelledRow label="Hypothesis" value={data.objectives} />
       <LabelledRow
