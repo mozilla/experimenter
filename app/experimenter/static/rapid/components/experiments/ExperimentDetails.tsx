@@ -53,7 +53,8 @@ const ExperimentDetails: React.FC = () => {
       <LabelledRow label="Experiment Owner" value={data.owner} />
       <LabelledRow label="Public Name" value={data.name}>
         <div className="my-2">
-          Bugzilla ticket can be found <a href="#">here</a>.
+          Bugzilla ticket can be found{" "}
+          <a href={data.bugzilla_url ? data.bugzilla_url : "#"}>here</a>.
         </div>
       </LabelledRow>
       <LabelledRow label="Hypothesis" value={data.objectives} />
