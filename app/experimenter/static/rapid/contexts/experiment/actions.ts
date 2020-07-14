@@ -1,7 +1,6 @@
 import {
   ExperimentReducerActionType,
   ExperimentData,
-  ExperimentErrors,
 } from "experimenter-types/experiment";
 import { ExperimentReducerAction } from "experimenter-types/experiment";
 
