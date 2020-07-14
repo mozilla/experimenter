@@ -23,6 +23,7 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
     audience = serializers.ChoiceField(
         required=True, choices=Experiment.RAPID_AUDIENCE_CHOICES
     )
+    bugzilla_url = serializers.ReadOnlyField()
 
     class Meta:
         model = Experiment
@@ -36,6 +37,7 @@ class ExperimentRapidSerializer(ChangelogSerializerMixin, serializers.ModelSeria
             "public_description",
             "features",
             "audience",
+            "bugzilla_url",
         )
 
     def validate(self, data):
