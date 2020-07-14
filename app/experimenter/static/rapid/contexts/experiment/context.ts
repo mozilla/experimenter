@@ -1,15 +1,18 @@
 import React from "react";
 
-import { ExperimentContext } from "experimenter-types/experiment";
+import { Action, ExperimentData } from "experimenter-types/experiment";
 
-export const INITIAL_CONTEXT: ExperimentContext = {
+export const INITIAL_CONTEXT: {
+  state: ExperimentData;
+  dispatch: (action: Action) => void;
+} = {
   state: {
     name: "",
     objectives: "",
     features: [],
     audience: "",
   },
-  dispatch(action) {
+  dispatch: (action: Action) => {
     /* istanbul ignore next */
     console.log(action);
   },
