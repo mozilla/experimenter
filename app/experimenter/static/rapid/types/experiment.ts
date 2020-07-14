@@ -16,7 +16,15 @@ export interface ExperimentReducerAction {
   state: ExperimentData;
 }
 
-export interface ExperimentContext {
+/*export interface ExperimentContext {
   state: ExperimentData;
   dispatch: React.Dispatch<ExperimentReducerAction>;
 }
+*/
+
+export type Action = (
+  experimentData: ExperimentData,
+  dispatch: React.Dispatch<ExperimentReducerAction>,
+) => void;
+
+export type Dispatch = (action: Action) => void;
