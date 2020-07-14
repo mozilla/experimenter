@@ -58,7 +58,8 @@ def update_recipe_ids_to_experiments():
                     .get("latest_revision", {})
                     .get("creator", {})
                     .get("email", "")
-                )
+                ) or settings.NORMANDY_DEFAULT_CHANGELOG_USER
+
                 update_experiment_with_change_log(experiment, changed_data, user_email)
 
         except (IntegrityError, KeyError, normandy.NormandyError) as e:

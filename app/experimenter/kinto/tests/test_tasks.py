@@ -80,13 +80,23 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
     def test_check_with_rapid_review_and_no_kinto_pending_pushes_experiment(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,
-            type=Experiment.TYPE_RAPID,
             bugzilla_id="12345",
-            name="test",
-            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
-            firefox_max_version=None,
             firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_max_version=None,
+            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            name="test",
+            type=Experiment.TYPE_RAPID,
         )
+        self.assertEqual(experiment.changes.count(), 2)
+
         self.setup_kinto_no_pending_review()
         tasks.check_kinto_push_queue()
         self.mock_push_task.assert_called_with(experiment.id)
+
+        experiment = Experiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.changes.count(), 3)
+        self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
+        self.assertEqual(experiment.proposed_start_date, datetime.date.today())
+        self.assertEqual(experiment.firefox_min_version, Experiment.VERSION_CHOICES[0][0])
+        self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
+        self.assertEqual(experiment.normandy_slug, "bug-12345-rapid-test-release-55")

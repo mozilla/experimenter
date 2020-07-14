@@ -1586,25 +1586,6 @@ class TestExperimentModel(TestCase):
         self.assertEqual(change.old_status, None)
         self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
 
-    def test_prepare_rapid_experiment_for_publish(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
-            type=Experiment.TYPE_RAPID,
-            bugzilla_id="12345",
-            name="test",
-            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
-            firefox_max_version=None,
-            firefox_channel=Experiment.CHANNEL_RELEASE,
-        )
-
-        experiment.prepare_rapid_experiment_for_publish()
-
-        self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
-        self.assertEqual(experiment.proposed_start_date, datetime.date.today())
-        self.assertEqual(experiment.firefox_min_version, Experiment.VERSION_CHOICES[0][0])
-        self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
-        self.assertEqual(experiment.normandy_slug, "bug-12345-rapid-test-release-55")
-
 
 class TestVariantPreferences(TestCase):
     def setUp(self):
