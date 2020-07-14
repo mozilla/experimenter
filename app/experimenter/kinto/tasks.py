@@ -1,10 +1,14 @@
+import datetime
+
 import markus
 from celery.utils.log import get_task_logger
+from django.conf import settings
 
 from experimenter.celery import app
+from experimenter.experiments.api.v1.serializers import ExperimentRapidRecipeSerializer
+from experimenter.experiments.changelog_utils import update_experiment_with_change_log
 from experimenter.experiments.models import Experiment
 from experimenter.kinto import client
-from experimenter.experiments.api.v1.serializers import ExperimentRapidRecipeSerializer
 
 
 logger = get_task_logger(__name__)
@@ -46,7 +50,17 @@ def check_kinto_push_queue():
             return
 
         next_experiment = queued_experiments.first()
-        next_experiment.prepare_rapid_experiment_for_publish()
+
+        update_experiment_with_change_log(
+            next_experiment,
+            {
+                "status": Experiment.STATUS_ACCEPTED,
+                "proposed_start_date": datetime.date.today(),
+                "normandy_slug": next_experiment.generate_normandy_slug(),
+            },
+            settings.KINTO_DEFAULT_CHANGELOG_USER,
+        )
+
         push_experiment_to_kinto.delay(next_experiment.id)
         metrics.incr("check_kinto_push_queue.queued_experiment_selected")
     else:
