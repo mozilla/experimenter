@@ -7619,6 +7619,10 @@
                         "AUDIENCE 2"
                       ]
                     },
+                    "bugzilla_url": {
+                      "type": "string",
+                      "readOnly": true
+                    },
                     "features": {
                       "type": "array",
                       "items": {
@@ -7820,6 +7824,10 @@
                         "AUDIENCE 2"
                       ]
                     },
+                    "bugzilla_url": {
+                      "type": "string",
+                      "readOnly": true
+                    },
                     "features": {
                       "type": "array",
                       "items": {
@@ -8002,6 +8010,10 @@
                         "AUDIENCE 1",
                         "AUDIENCE 2"
                       ]
+                    },
+                    "bugzilla_url": {
+                      "type": "string",
+                      "readOnly": true
                     },
                     "features": {
                       "type": "array",
@@ -8195,6 +8207,10 @@
                         "AUDIENCE 1",
                         "AUDIENCE 2"
                       ]
+                    },
+                    "bugzilla_url": {
+                      "type": "string",
+                      "readOnly": true
                     },
                     "features": {
                       "type": "array",
@@ -8398,6 +8414,10 @@
                         "AUDIENCE 1",
                         "AUDIENCE 2"
                       ]
+                    },
+                    "bugzilla_url": {
+                      "type": "string",
+                      "readOnly": true
                     },
                     "features": {
                       "type": "array",

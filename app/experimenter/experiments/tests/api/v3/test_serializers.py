@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.conf import settings
 
 from experimenter.experiments.api.v3.serializers import (
     ExperimentRapidSerializer,
@@ -38,6 +39,9 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "objectives": "gotta go fast",
                 "audience": "AUDIENCE 1",
                 "features": ["FEATURE 1"],
+                "bugzilla_url": "{bug_host}show_bug.cgi?id={bug_id}".format(
+                    bug_host=settings.BUGZILLA_HOST, bug_id=experiment.bugzilla_id
+                ),
             },
         )
 

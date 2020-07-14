@@ -37,11 +37,14 @@ class ExperimentRapidSerializer(
     audience = serializers.ChoiceField(
         required=True, choices=Experiment.RAPID_AUDIENCE_CHOICES
     )
+    bugzilla_url = serializers.ReadOnlyField()
 
     class Meta:
         model = Experiment
         fields = (
             "audience",
+            "bugzilla_url",
+            "features",
             "features",
             "name",
             "objectives",
