@@ -2,10 +2,13 @@ import React from "react";
 import { useHistory, useParams } from "react-router-dom";
 
 import {
+  saveExperiment,
+  updateExperiment,
+} from "experimenter-rapid/contexts/experiment/actions";
+import {
   useExperimentDispatch,
   useExperimentState,
 } from "experimenter-rapid/contexts/experiment/hooks";
-import { ExperimentReducerActionType } from "experimenter-types/experiment";
 
 import { featureOptions, audienceOptions } from "./ExperimentFormOptions";
 import { XSelect } from "./XSelect";
@@ -40,38 +43,18 @@ const ExperimentForm: React.FC = () => {
 
   const handleSelectChange = (name) => {
     return (value) => {
-      dispatch({
-        type: ExperimentReducerActionType.UPDATE_STATE,
-        state: {
-          ...formData,
-          [name]: value,
-        },
-      });
+      dispatch(updateExperiment(name, value));
     };
   };
 
   const handleChange = (ev) => {
     const field = ev.target;
-    dispatch({
-      type: ExperimentReducerActionType.UPDATE_STATE,
-      state: {
-        ...formData,
-        [field.getAttribute("name")]: field.value,
-      },
-    });
+    dispatch(updateExperiment(field.getAttribute("name"), field.value));
   };
 
   const handleClickSave = async () => {
-    const url = experimentSlug
-      ? `/api/v3/experiments/${experimentSlug}/`
-      : "/api/v3/experiments/";
-    const response = await fetch(url, {
-      method: experimentSlug ? "PUT" : "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
+    const response = await saveExperiment(experimentSlug, formData);
+
     const responseData = await response.json();
     if (!response.ok) {
       setErrors(responseData);
