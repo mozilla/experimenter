@@ -5,6 +5,7 @@ export interface ExperimentData {
   audience: string;
   owner?: string;
   slug?: string;
+  bugzilla_url?: string;
 }
 
 export enum ExperimentReducerActionType {

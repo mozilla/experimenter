@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.conf import settings
 
 from experimenter.experiments.api.v3.serializers import ExperimentRapidSerializer
 from experimenter.experiments.models import Experiment
@@ -33,6 +34,9 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "objectives": "gotta go fast",
                 "audience": "AUDIENCE 1",
                 "features": ["FEATURE 1"],
+                "bugzilla_url": "{bug_host}show_bug.cgi?id={bug_id}".format(
+                    bug_host=settings.BUGZILLA_HOST, bug_id=experiment.bugzilla_id
+                ),
             },
         )
 
@@ -225,3 +229,21 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "Name maps to a pre-existing slug, please choose another name",
             serializer.errors["name"],
         )
+
+    def test_serializer_update_experiment_does_not_throw_slug_err(self):
+
+        experiment = ExperimentFactory.create(
+            name="non unique slug", slug="non-unique-slug"
+        )
+
+        data = {
+            "name": "non unique slug",
+            "objectives": "gotta go fast",
+            "audience": "AUDIENCE 1",
+            "features": ["FEATURE 1", "FEATURE 2"],
+        }
+
+        serializer = ExperimentRapidSerializer(
+            data=data, context={"request": self.request}, instance=experiment
+        )
+        self.assertTrue(serializer.is_valid())

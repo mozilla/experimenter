@@ -25,7 +25,7 @@ describe("<App />", () => {
     const { getByText } = renderWithRouter(<App />, {
       route: "/new/",
     });
-    expect(getByText("Create a New A/A Experiment")).toBeInTheDocument();
+    expect(getByText(/Create a New A\/A Experiment/)).toBeInTheDocument();
   });
 
   it("includes the experiment form page at `/:experimentSlug/edit/`", async () => {
@@ -41,7 +41,11 @@ describe("<App />", () => {
     const { getByText, getByLabelText } = renderWithRouter(<App />, {
       route: "/test-slug/edit/",
     });
-    expect(getByText("Create a New A/A Experiment")).toBeInTheDocument();
+    await waitFor(() => {
+      return expect(
+        getByText("Edit Experiment: Test Name"),
+      ).toBeInTheDocument();
+    });
 
     const nameField = getByLabelText("Public Name") as HTMLInputElement;
     await waitFor(() => {
