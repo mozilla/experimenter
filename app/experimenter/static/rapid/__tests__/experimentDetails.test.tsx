@@ -100,4 +100,35 @@ describe("<ExperimentDetails />", () => {
     const lastEntry = history.entries.pop() || { pathname: "" };
     expect(lastEntry.pathname).toBe("/test-slug/edit/");
   });
+
+  it("sends POST to request_review API endpoint when 'Request Approval' button is clicked", async () => {
+    const { getByText } = renderWithRouter(
+      wrapInExperimentProvider(<ExperimentDetails />, {
+        initialState: {
+          slug: "test-slug",
+          name: "Test Name",
+          objectives: "Test objectives",
+          owner: "test@owner.com",
+          features: ["FEATURE 1", "FEATURE 2"],
+          audience: "AUDIENCE 1",
+        },
+      }),
+    );
+
+    let submitUrl;
+    let requestMethod;
+    fetchMock.mockOnce(async (req) => {
+      requestMethod = req.method;
+      submitUrl = req.url;
+
+      return JSON.stringify({ status: "Review" });
+    });
+
+    // Click the review button
+    fireEvent.click(getByText("Request Approval"));
+
+    // Check the correct data was submitted
+    expect(submitUrl).toEqual("/api/v3/experiments/test-slug/request_review/");
+    expect(requestMethod).toEqual("POST");
+  });
 });

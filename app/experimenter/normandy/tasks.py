@@ -38,7 +38,8 @@ def update_recipe_ids_to_experiments():
 
     ready_to_ship_experiments = Experiment.objects.filter(
         status__in=[Experiment.STATUS_SHIP, Experiment.STATUS_ACCEPTED]
-    )
+    ).exclude(type=Experiment.TYPE_RAPID)
+
     for experiment in ready_to_ship_experiments:
         try:
             logger.info("Updating Experiment: {}".format(experiment))
@@ -57,7 +58,8 @@ def update_recipe_ids_to_experiments():
                     .get("latest_revision", {})
                     .get("creator", {})
                     .get("email", "")
-                )
+                ) or settings.NORMANDY_DEFAULT_CHANGELOG_USER
+
                 update_experiment_with_change_log(experiment, changed_data, user_email)
 
         except (IntegrityError, KeyError, normandy.NormandyError) as e:
@@ -74,7 +76,8 @@ def update_launched_experiments():
 
     launched_experiments = Experiment.objects.filter(
         status__in=[Experiment.STATUS_ACCEPTED, Experiment.STATUS_LIVE]
-    )
+    ).exclude(type=Experiment.TYPE_RAPID)
+
     for experiment in launched_experiments:
         try:
             logger.info("Updating Experiment: {}".format(experiment))

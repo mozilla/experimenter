@@ -26,3 +26,13 @@ class TestPushToKinto(MockKintoClientMixin, TestCase):
             data={"status": "to-review"},
             bucket=settings.KINTO_BUCKET,
         )
+
+
+class TestHasPendingReview(MockKintoClientMixin, TestCase):
+    def test_returns_true_for_pending_review(self):
+        self.setup_kinto_pending_review()
+        self.assertTrue(client.has_pending_review())
+
+    def test_returns_false_for_no_pending_review(self):
+        self.setup_kinto_no_pending_review()
+        self.assertFalse(client.has_pending_review())
