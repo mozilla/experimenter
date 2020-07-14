@@ -1,6 +1,7 @@
 import {
   ExperimentReducerActionType,
   ExperimentData,
+  ExperimentErrors,
 } from "experimenter-types/experiment";
 import { ExperimentReducerAction } from "experimenter-types/experiment";
 
@@ -25,7 +26,7 @@ export const fetchExperiment = (experimentSlug: string) => async (
 export const saveExperiment = async (
   experimentSlug: string,
   formData: ExperimentData,
-): Promise<any> => {
+): Promise<Response> => {
   const url = experimentSlug
     ? `/api/v3/experiments/${experimentSlug}/`
     : "/api/v3/experiments/";

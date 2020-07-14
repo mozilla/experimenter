@@ -7,6 +7,13 @@ export interface ExperimentData {
   slug?: string;
 }
 
+export interface ExperimentErrors {
+  name?: string[];
+  objectives?: string[];
+  features?: string[];
+  audience?: string[];
+}
+
 export enum ExperimentReducerActionType {
   UPDATE_STATE = "UPDATE_STATE",
 }
