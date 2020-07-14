@@ -54,18 +54,6 @@ const ExperimentForm: React.FC = () => {
 
   const handleClickSave = async () => {
     let response = await saveExperiment(experimentSlug, formData);
-    /*
-        const url = experimentSlug
-          ? `/api/v3/experiments/${experimentSlug}/`git 
-          : "/api/v3/experiments/";
-        const response = await fetch(url, {
-          method: experimentSlug ? "PUT" : "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        });
-        */
 
     const responseData = await response.json();
     if (!response.ok) {

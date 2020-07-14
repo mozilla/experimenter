@@ -5,11 +5,7 @@ import context, {
   INITIAL_CONTEXT,
 } from "experimenter-rapid/contexts/experiment/context";
 import reducer from "experimenter-rapid/contexts/experiment/reducer";
-import {
-  Action,
-  ExperimentData,
-  ExperimentReducerActionType,
-} from "experimenter-types/experiment";
+import { Action, ExperimentData } from "experimenter-types/experiment";
 import { fetchExperiment } from "experimenter-rapid/contexts/experiment/actions";
 
 const ExperimentProvider: React.FC<{ initialState?: ExperimentData }> = ({
@@ -25,23 +21,6 @@ const ExperimentProvider: React.FC<{ initialState?: ExperimentData }> = ({
     if (!experimentSlug) {
       return;
     }
-    /*
-    const fetchData = async () => {
-      const response = await fetch(`/api/v3/experiments/${experimentSlug}/`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const data = await response.json();
-      dispatch({
-        type: ExperimentReducerActionType.UPDATE_STATE,
-        state: data,
-      });
-    };
-
- */
 
     dispatch(fetchExperiment(experimentSlug));
   }, [experimentSlug]);
