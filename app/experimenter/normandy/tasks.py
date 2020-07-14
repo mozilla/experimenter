@@ -76,7 +76,8 @@ def update_launched_experiments():
 
     launched_experiments = Experiment.objects.filter(
         status__in=[Experiment.STATUS_ACCEPTED, Experiment.STATUS_LIVE]
-    )
+    ).exclude(type=Experiment.TYPE_RAPID)
+
     for experiment in launched_experiments:
         try:
             logger.info("Updating Experiment: {}".format(experiment))
