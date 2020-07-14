@@ -24,6 +24,7 @@ describe("<ExperimentDetails />", () => {
           owner: "test@owner.com",
           features: ["FEATURE 1", "FEATURE 2"],
           audience: "AUDIENCE 1",
+          firefox_min_version: "78.0",
         },
       }),
     );
@@ -46,6 +47,7 @@ describe("<ExperimentDetails />", () => {
           owner: "test@owner.com",
           features: ["FEATURE 1", "FEATURE 2"],
           audience: "AUDIENCE 1",
+          firefox_min_version: "78.0",
           bugzilla_url: "https://example.com",
         },
       }),
@@ -66,6 +68,7 @@ describe("<ExperimentDetails />", () => {
           owner: "test@owner.com",
           features: ["FEATURE 1", "FEATURE 2"],
           audience: "AUDIENCE 1",
+          firefox_min_version: "78.0",
         },
       }),
     );
@@ -87,6 +90,7 @@ describe("<ExperimentDetails />", () => {
           owner: "test@owner.com",
           features: ["FEATURE 1", "FEATURE 2"],
           audience: "AUDIENCE 1",
+          firefox_min_version: "78.0",
         },
       }),
     );
@@ -111,6 +115,7 @@ describe("<ExperimentDetails />", () => {
           owner: "test@owner.com",
           features: ["FEATURE 1", "FEATURE 2"],
           audience: "AUDIENCE 1",
+          firefox_min_version: "78.0",
         },
       }),
     );
