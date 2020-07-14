@@ -15,11 +15,11 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 ### Staging
 
-[https://stage.experimenter.nonprod.dataops.mozgcp.net/](https://stage.experimenter.nonprod.dataops.mozgcp.net/)
+<https://stage.experimenter.nonprod.dataops.mozgcp.net/>
 
 ### Production
 
-[https://experimenter.services.mozilla.com/](https://experimenter.services.mozilla.com/)
+<https://experimenter.services.mozilla.com/>
 
 ## What is an experiment?
 
