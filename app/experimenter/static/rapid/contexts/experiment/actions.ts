@@ -1,9 +1,13 @@
-import { ExperimentReducerActionType } from "experimenter-types/experiment";
+import {
+  ExperimentReducerActionType,
+  ExperimentData,
+} from "experimenter-types/experiment";
+import { ExperimentReducerAction } from "experimenter-types/experiment";
 
-export const fetchExperiment = (experimentSlug) => async (
-  experimentData,
-  dispatch,
-) => {
+export const fetchExperiment = (experimentSlug: string) => async (
+  experimentData: ExperimentData,
+  dispatch: React.Dispatch<ExperimentReducerAction>,
+): Promise<void> => {
   const response = await fetch(`/api/v3/experiments/${experimentSlug}/`, {
     method: "GET",
     headers: {
@@ -18,7 +22,10 @@ export const fetchExperiment = (experimentSlug) => async (
   });
 };
 
-export const saveExperiment = async (experimentSlug, formData) => {
+export const saveExperiment = async (
+  experimentSlug: string,
+  formData: ExperimentData,
+): Promise<any> => {
   const url = experimentSlug
     ? `/api/v3/experiments/${experimentSlug}/`
     : "/api/v3/experiments/";
@@ -31,7 +38,10 @@ export const saveExperiment = async (experimentSlug, formData) => {
   });
 };
 
-export const updateExperiment = (name, value) => (experimentData, dispatch) => {
+export const updateExperiment = (name: string, value: string | string[]) => (
+  experimentData: ExperimentData,
+  dispatch: React.Dispatch<ExperimentReducerAction>,
+): void => {
   dispatch({
     type: ExperimentReducerActionType.UPDATE_STATE,
     state: {

@@ -1,12 +1,12 @@
 import React from "react";
 import { useParams } from "react-router";
 
+import { fetchExperiment } from "experimenter-rapid/contexts/experiment/actions";
 import context, {
   INITIAL_CONTEXT,
 } from "experimenter-rapid/contexts/experiment/context";
 import reducer from "experimenter-rapid/contexts/experiment/reducer";
 import { Action, ExperimentData } from "experimenter-types/experiment";
-import { fetchExperiment } from "experimenter-rapid/contexts/experiment/actions";
 
 const ExperimentProvider: React.FC<{ initialState?: ExperimentData }> = ({
   children,

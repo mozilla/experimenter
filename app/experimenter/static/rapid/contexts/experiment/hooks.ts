@@ -1,11 +1,7 @@
 import React from "react";
 
 import context from "experimenter-rapid/contexts/experiment/context";
-import {
-  Dispatch,
-  ExperimentData,
-  ExperimentReducerAction,
-} from "experimenter-types/experiment";
+import { Dispatch, ExperimentData } from "experimenter-types/experiment";
 
 export function useExperimentState(): ExperimentData {
   const { state } = React.useContext(context);

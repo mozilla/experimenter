@@ -2,17 +2,16 @@ import React from "react";
 import { useHistory, useParams } from "react-router-dom";
 
 import {
+  saveExperiment,
+  updateExperiment,
+} from "experimenter-rapid/contexts/experiment/actions";
+import {
   useExperimentDispatch,
   useExperimentState,
 } from "experimenter-rapid/contexts/experiment/hooks";
 
 import { featureOptions, audienceOptions } from "./ExperimentFormOptions";
 import { XSelect } from "./XSelect";
-import {
-  saveExperiment,
-  updateExperiment,
-  fetchExperiment,
-} from "experimenter-rapid/contexts/experiment/actions";
 
 interface ErrorListProperties {
   errors: Array<string> | undefined;
@@ -47,13 +46,14 @@ const ExperimentForm: React.FC = () => {
       dispatch(updateExperiment(name, value));
     };
   };
+
   const handleChange = (ev) => {
     const field = ev.target;
     dispatch(updateExperiment(field.getAttribute("name"), field.value));
   };
 
   const handleClickSave = async () => {
-    let response = await saveExperiment(experimentSlug, formData);
+    const response = await saveExperiment(experimentSlug, formData);
 
     const responseData = await response.json();
     if (!response.ok) {
