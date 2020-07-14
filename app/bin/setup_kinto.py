@@ -63,6 +63,7 @@ print(
         id=os.environ["KINTO_COLLECTION"],
         bucket=os.environ["KINTO_BUCKET"],
         permissions={
+            "read": ["system.Everyone"],
             "write": [
                 (
                     f"/buckets/{os.environ['KINTO_BUCKET']}/groups/"
@@ -72,7 +73,7 @@ print(
                     f"/buckets/{os.environ['KINTO_BUCKET']}/groups/"
                     f"{os.environ['KINTO_COLLECTION']}-reviewers"
                 ),
-            ]
+            ],
         },
         if_not_exists=True,
     )
