@@ -30,6 +30,8 @@ DEV_USER_EMAIL = "dev@example.com"
 
 NORMANDY_DEFAULT_CHANGELOG_USER = "unknown-user@normandy.mozilla.com"
 
+KINTO_DEFAULT_CHANGELOG_USER = "experimenter@experimenter.services.mozilla.com"
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
 
@@ -296,6 +298,10 @@ CELERY_BEAT_SCHEDULE = {
     },
     "experiment_status_launched_task": {
         "task": "experimenter.normandy.tasks.update_launched_experiments",
+        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
+    },
+    "check_kinto_push_queue_task": {
+        "task": "experimenter.kinto.tasks.check_kinto_push_queue",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
 }

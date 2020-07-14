@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.conf import settings
 from rest_framework import serializers
 
 from experimenter.base.serializers import CountrySerializer, LocaleSerializer
@@ -142,14 +141,11 @@ class ChangeLogSerializer(serializers.ModelSerializer):
 
 
 def update_experiment_with_change_log(old_experiment, changed_data, user_email):
-
     old_serialized_exp = ChangeLogSerializer(old_experiment).data
     Experiment.objects.filter(id=old_experiment.id).update(**changed_data)
     new_experiment = Experiment.objects.get(slug=old_experiment.slug)
     new_serialized_exp = ChangeLogSerializer(new_experiment).data
 
-    if not user_email:
-        user_email = settings.NORMANDY_DEFAULT_CHANGELOG_USER
     default_user, _ = get_user_model().objects.get_or_create(
         email=user_email, username=user_email
     )
