@@ -14,14 +14,12 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.experiments.api.v1.serializers import (
     ExperimentChangeLogSerializer,
-    ExperimentCSVSerializer,
     ExperimentRapidRecipeSerializer,
     ExperimentSerializer,
     ExperimentVariantSerializer,
     JSTimestampField,
     PrefTypeField,
 )
-from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.normandy.serializers import ExperimentRecipeVariantSerializer
 
 
@@ -190,53 +188,6 @@ class TestExperimentChangeLogSerializer(TestCase):
         )
         serializer = ExperimentChangeLogSerializer(change_log)
         self.assertEqual(serializer.data["changed_on"], change_log.changed_on)
-
-
-class TestExperimentCSVSerializer(TestCase):
-    def test_serializer_outputs_expected_schema(self):
-        project1 = ProjectFactory.create(name="a")
-        project2 = ProjectFactory.create(name="b")
-        parent = ExperimentFactory.create()
-        related_experiment1 = ExperimentFactory.create(slug="a")
-        related_experiment2 = ExperimentFactory.create(slug="b")
-        experiment = ExperimentFactory.create(
-            proposed_start_date=datetime.date(2020, 1, 1),
-            parent=parent,
-            projects=[project1, project2],
-        )
-        experiment.related_to.add(related_experiment1, related_experiment2)
-
-        serializer = ExperimentCSVSerializer(experiment)
-        self.assertDictEqual(
-            serializer.data,
-            {
-                "name": experiment.name,
-                "type": experiment.type,
-                "status": experiment.status,
-                "experiment_url": experiment.experiment_url,
-                "public_description": experiment.public_description,
-                "owner": experiment.owner.email,
-                "analysis_owner": experiment.analysis_owner.email,
-                "engineering_owner": experiment.engineering_owner,
-                "short_description": experiment.short_description,
-                "objectives": experiment.objectives,
-                "parent": experiment.parent.experiment_url,
-                "projects": f"{project1.name}, {project2.name}",
-                "data_science_issue_url": experiment.data_science_issue_url,
-                "feature_bugzilla_url": experiment.feature_bugzilla_url,
-                "firefox_channel": experiment.firefox_channel,
-                "normandy_slug": experiment.normandy_slug,
-                "proposed_duration": experiment.proposed_duration,
-                "proposed_start_date": "2020-01-01",
-                "related_to": (
-                    f"{related_experiment1.experiment_url}, "
-                    f"{related_experiment2.experiment_url}"
-                ),
-                "related_work": experiment.related_work,
-                "results_initial": experiment.results_initial,
-                "results_url": experiment.results_url,
-            },
-        )
 
 
 class TestExperimentRapidSerializer(TestCase):
