@@ -1,13 +1,17 @@
 from rest_framework.generics import (
     UpdateAPIView,
     RetrieveUpdateAPIView,
+    ListAPIView,
 )
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_csv.renderers import CSVRenderer
+
 
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment
 from experimenter.experiments import email
+from experimenter.experiments.filtersets import ExperimentFilterset
 from experimenter.experiments.api.v1.serializers import ExperimentSerializer
 from experimenter.experiments.api.v2.serializers import (
     ExperimentCloneSerializer,
@@ -20,6 +24,7 @@ from experimenter.experiments.api.v2.serializers import (
     ExperimentDesignPrefRolloutSerializer,
     ExperimentDesignPrefSerializer,
     ExperimentTimelinePopSerializer,
+    ExperimentCSVSerializer,
 )
 
 
@@ -102,3 +107,21 @@ class ExperimentTimelinePopulationView(RetrieveUpdateAPIView):
     lookup_field = "slug"
     queryset = Experiment.objects.all()
     serializer_class = ExperimentTimelinePopSerializer
+
+
+class ExperimentCSVListView(ListAPIView):
+    queryset = Experiment.objects.get_prefetched().order_by("status", "name")
+    serializer_class = ExperimentCSVSerializer
+    renderer_classes = (CSVRenderer,)
+
+    def get_queryset(self):
+        return ExperimentFilterset(
+            self.request.GET, super().get_queryset(), request=self.request
+        ).qs
+
+    def get_renderer_context(self):
+        # Pass the ordered list of fields in to specify the ordering of the headers
+        # otherwise it defaults to sorting them alphabetically
+        context = super().get_renderer_context()
+        context["header"] = self.serializer_class.Meta.fields
+        return context
