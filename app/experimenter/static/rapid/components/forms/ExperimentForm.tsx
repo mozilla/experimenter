@@ -10,7 +10,11 @@ import {
   useExperimentState,
 } from "experimenter-rapid/contexts/experiment/hooks";
 
-import { featureOptions, audienceOptions } from "./ExperimentFormOptions";
+import {
+  featureOptions,
+  audienceOptions,
+  firefoxVersionOptions,
+} from "./ExperimentFormOptions";
 import { XSelect } from "./XSelect";
 
 interface ErrorListProperties {
@@ -140,8 +144,8 @@ const ExperimentForm: React.FC = () => {
         <ErrorList errors={errors.audience} />
       </div>
       <div className="mb-4">
-        <label className="font-weight-bold" htmlFor="field-version">
-          Firefox Version
+        <label className="font-weight-bold" htmlFor="field-firefox-min-version">
+          Firefox Minimum Version
         </label>
         <p>
           Is there a minimum Firefox Release version this experiment should be
@@ -149,12 +153,13 @@ const ExperimentForm: React.FC = () => {
         </p>
         <XSelect
           className="w-100"
-          id="field-version"
-          name="version"
-          options={[]}
-          selectValue={null}
+          id="field-firefox-min-version"
+          name="firefox_min_version"
+          options={firefoxVersionOptions}
+          selectValue={formData.firefox_min_version}
+          onOptionChange={handleSelectChange("firefox_min_version")}
         />
-        <ErrorList errors={errors.version} />
+        <ErrorList errors={errors.firefox_min_version} />
       </div>
 
       <button

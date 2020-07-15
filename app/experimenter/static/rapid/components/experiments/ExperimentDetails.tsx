@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import {
   featureOptions,
   audienceOptions,
+  firefoxVersionOptions,
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
 import { useExperimentState } from "experimenter-rapid/contexts/experiment/hooks";
 
@@ -77,7 +78,13 @@ const ExperimentDetails: React.FC = () => {
         label="Audience"
         value={displaySelectOptionLabels(audienceOptions, data.audience)}
       />
-      <LabelledRow label="Firefox Version" />
+      <LabelledRow
+        label="Firefox Minimum Version"
+        value={displaySelectOptionLabels(
+          firefoxVersionOptions,
+          data.firefox_min_version,
+        )}
+      />
 
       <h3 className="my-4">Results</h3>
       <p>

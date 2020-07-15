@@ -11,6 +11,7 @@ export const INITIAL_CONTEXT: {
     objectives: "",
     features: [],
     audience: "",
+    firefox_min_version: "",
   },
   dispatch: (action: Action) => {
     /* istanbul ignore next */
