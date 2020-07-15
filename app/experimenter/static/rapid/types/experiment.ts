@@ -3,6 +3,7 @@ export interface ExperimentData {
   objectives: string;
   features: Array<string>;
   audience: string;
+  firefox_min_version: string;
   owner?: string;
   slug?: string;
   bugzilla_url?: string;

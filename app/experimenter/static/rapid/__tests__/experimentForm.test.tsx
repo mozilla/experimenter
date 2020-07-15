@@ -88,6 +88,10 @@ describe("<ExperimentForm />", () => {
     const audienceField = getByLabelText("Audience");
     await selectEvent.select(audienceField, "AUDIENCE 2");
 
+    // Update the firefox version field
+    const firefoxVersionField = getByLabelText("Firefox Minimum Version");
+    await selectEvent.select(firefoxVersionField, "Firefox 78.0");
+
     // Click the save button
     fireEvent.click(getByText("Save"));
 
@@ -104,6 +108,7 @@ describe("<ExperimentForm />", () => {
       objectives: "test objective",
       audience: "AUDIENCE 2",
       features: ["FEATURE 1", "FEATURE 2"],
+      firefox_min_version: "78.0",
     });
   });
 
@@ -165,7 +170,7 @@ describe("<ExperimentForm />", () => {
     });
   });
 
-  ["name", "objectives", "features", "audience", "version"].forEach(
+  ["name", "objectives", "features", "audience", "firefox_min_version"].forEach(
     (fieldName) => {
       it(`shows the appropriate error message for '${fieldName}' on save`, async () => {
         const { getByText } = renderWithRouter(
