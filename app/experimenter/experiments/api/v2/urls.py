@@ -2,6 +2,7 @@ from django.conf.urls import url
 
 from experimenter.experiments.api.v2.views import (
     ExperimentCloneView,
+    ExperimentCSVListView,
     ExperimentDesignAddonRolloutView,
     ExperimentDesignAddonView,
     ExperimentDesignBranchedAddonView,
@@ -16,6 +17,7 @@ from experimenter.experiments.api.v2.views import (
 
 
 urlpatterns = [
+    url(r"^csv/$", ExperimentCSVListView.as_view(), name="experiments-api-csv",),
     url(
         r"^(?P<slug>[\w-]+)/intent-to-ship-email$",
         ExperimentSendIntentToShipEmailView.as_view(),
