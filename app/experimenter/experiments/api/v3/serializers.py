@@ -38,6 +38,9 @@ class ExperimentRapidSerializer(
         required=True, choices=Experiment.RAPID_AUDIENCE_CHOICES
     )
     bugzilla_url = serializers.ReadOnlyField()
+    firefox_min_version = serializers.ChoiceField(
+        required=True, choices=Experiment.VERSION_CHOICES,
+    )
 
     class Meta:
         model = Experiment
@@ -45,7 +48,7 @@ class ExperimentRapidSerializer(
             "audience",
             "bugzilla_url",
             "features",
-            "features",
+            "firefox_min_version",
             "name",
             "objectives",
             "owner",
