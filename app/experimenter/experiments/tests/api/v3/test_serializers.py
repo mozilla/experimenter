@@ -1,3 +1,5 @@
+import random
+
 from django.test import TestCase
 from django.conf import settings
 
@@ -12,7 +14,7 @@ from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
 
-FIREFOX_VERSION = Experiment.VERSION_CHOICES[0][0]
+FIREFOX_VERSION = random.choice(Experiment.VERSION_CHOICES)[0]
 
 
 class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, TestCase):
@@ -127,7 +129,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertEqual(
             experiment.public_description, Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
         )
-        self.assertEqual(experiment.firefox_min_version, Experiment.VERSION_CHOICES[0][0])
+        self.assertEqual(experiment.firefox_min_version, FIREFOX_VERSION)
         self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
 
         self.mock_tasks_serializer_create_bug.delay.assert_called()
