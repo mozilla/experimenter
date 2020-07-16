@@ -87,7 +87,6 @@ class ExperimentRapidSerializer(
             {
                 "slug": slugify(validated_data["name"]),
                 "owner": self.context["request"].user,
-                "firefox_min_version": Experiment.VERSION_CHOICES[0][0],
                 "firefox_channel": Experiment.CHANNEL_RELEASE,
             }
         )
