@@ -8,6 +8,7 @@ import {
   wrapInExperimentProvider,
 } from "experimenter-rapid/__tests__/utils";
 import ExperimentForm from "experimenter-rapid/components/forms/ExperimentForm";
+import { ExperimentStatus } from "experimenter-rapid/types/experiment";
 
 afterEach(async () => {
   await cleanup();
@@ -104,6 +105,7 @@ describe("<ExperimentForm />", () => {
     expect(submitUrl).toEqual("/api/v3/experiments/");
     expect(requestMethod).toEqual("POST");
     expect(formData).toEqual({
+      status: ExperimentStatus.DRAFT,
       name: "test name",
       objectives: "test objective",
       audience: "AUDIENCE 2",
