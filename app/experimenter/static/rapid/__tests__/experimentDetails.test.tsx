@@ -7,6 +7,7 @@ import {
   wrapInExperimentProvider,
 } from "experimenter-rapid/__tests__/utils";
 import ExperimentDetails from "experimenter-rapid/components/experiments/ExperimentDetails";
+import { ExperimentStatus } from "experimenter-types/experiment";
 
 afterEach(async () => {
   await cleanup();
@@ -18,6 +19,7 @@ describe("<ExperimentDetails />", () => {
     const { getByDisplayValue } = renderWithRouter(
       wrapInExperimentProvider(<ExperimentDetails />, {
         initialState: {
+          status: ExperimentStatus.DRAFT,
           slug: "test-slug",
           name: "Test Name",
           objectives: "Test objectives",
@@ -41,6 +43,7 @@ describe("<ExperimentDetails />", () => {
     const { getByText } = renderWithRouter(
       wrapInExperimentProvider(<ExperimentDetails />, {
         initialState: {
+          status: ExperimentStatus.DRAFT,
           slug: "test-slug",
           name: "Test Name",
           objectives: "Test objectives",
@@ -62,6 +65,7 @@ describe("<ExperimentDetails />", () => {
     const { getByDisplayValue, queryByText } = renderWithRouter(
       wrapInExperimentProvider(<ExperimentDetails />, {
         initialState: {
+          status: ExperimentStatus.DRAFT,
           slug: "test-slug",
           name: "Test Name",
           objectives: "Test objectives",
@@ -84,6 +88,7 @@ describe("<ExperimentDetails />", () => {
     const { getByText, history } = renderWithRouter(
       wrapInExperimentProvider(<ExperimentDetails />, {
         initialState: {
+          status: ExperimentStatus.DRAFT,
           slug: "test-slug",
           name: "Test Name",
           objectives: "Test objectives",
@@ -109,6 +114,7 @@ describe("<ExperimentDetails />", () => {
     const { getByText } = renderWithRouter(
       wrapInExperimentProvider(<ExperimentDetails />, {
         initialState: {
+          status: ExperimentStatus.DRAFT,
           slug: "test-slug",
           name: "Test Name",
           objectives: "Test objectives",
