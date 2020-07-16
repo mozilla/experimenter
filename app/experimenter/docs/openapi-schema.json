@@ -8121,8 +8121,8 @@
                         "nullable": true
                       },
                       "owner": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": "string",
+                        "readOnly": true
                       },
                       "public_description": {
                         "type": "string",
@@ -8176,7 +8176,108 @@
         ]
       }
     },
-    "/api/v4/{slug}/recipe/": {
+    "/api/v4/experiments/{slug}": {
+      "get": {
+        "operationId": "RetrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "audience": {
+                      "enum": [
+                        "AUDIENCE 1",
+                        "AUDIENCE 2"
+                      ],
+                      "nullable": true
+                    },
+                    "bugzilla_url": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "features": {
+                      "type": "array",
+                      "items": {
+                        "type": null
+                      }
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "objectives": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "public_description": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "rapid_type": {
+                      "enum": [
+                        "cfr a/a"
+                      ],
+                      "nullable": true
+                    },
+                    "slug": {
+                      "type": "string",
+                      "maxLength": 255,
+                      "pattern": "^[-a-zA-Z0-9_]+$"
+                    },
+                    "status": {
+                      "enum": [
+                        "Draft",
+                        "Review",
+                        "Ship",
+                        "Accepted",
+                        "Live",
+                        "Complete"
+                      ]
+                    },
+                    "type": {
+                      "enum": [
+                        "pref",
+                        "addon",
+                        "generic",
+                        "rollout",
+                        "message",
+                        "rapid"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "slug"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Rapid: Public"
+        ]
+      }
+    },
+    "/api/v4/experiments/{slug}/recipe/": {
       "get": {
         "operationId": "RetrieveExperiment",
         "description": "",
