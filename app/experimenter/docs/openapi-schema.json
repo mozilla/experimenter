@@ -8064,29 +8064,11 @@
         ]
       }
     },
-    "/api/v4/experiments": {
+    "/api/v4/experiments/": {
       "get": {
         "operationId": "listExperiments",
         "description": "",
-        "parameters": [
-          {
-            "name": "status",
-            "required": false,
-            "in": "query",
-            "description": "status",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "Draft",
-                "Review",
-                "Ship",
-                "Accepted",
-                "Live",
-                "Complete"
-              ]
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "content": {
@@ -8095,74 +8077,101 @@
                   "type": "array",
                   "items": {
                     "properties": {
-                      "audience": {
-                        "enum": [
-                          "AUDIENCE 1",
-                          "AUDIENCE 2"
-                        ],
-                        "nullable": true
-                      },
-                      "bugzilla_url": {
+                      "id": {
                         "type": "string",
                         "readOnly": true
                       },
-                      "features": {
-                        "type": "array",
-                        "items": {
-                          "type": null
-                        }
+                      "arguments": {
+                        "properties": {
+                          "slug": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "userFacingName": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "userFacingDescription": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "active": {
+                            "type": "string",
+                            "readOnly": true,
+                            "default": true
+                          },
+                          "isEnrollmentPaused": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "features": {
+                            "type": "array",
+                            "items": {
+                              "type": null
+                            }
+                          },
+                          "proposedEnrollment": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "bucketConfig": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "startDate": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "endDate": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "branches": {
+                            "type": "array",
+                            "items": {
+                              "properties": {
+                                "slug": {
+                                  "type": "string",
+                                  "maxLength": 255,
+                                  "pattern": "^[-a-zA-Z0-9_]+$"
+                                },
+                                "ratio": {
+                                  "type": "integer",
+                                  "maximum": 2147483647,
+                                  "minimum": 0
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "readOnly": true
+                                }
+                              },
+                              "required": [
+                                "slug"
+                              ]
+                            }
+                          },
+                          "referenceBranch": {
+                            "type": "string",
+                            "readOnly": true
+                          }
+                        },
+                        "required": [
+                          "branches"
+                        ],
+                        "type": "object"
                       },
-                      "name": {
-                        "type": "string",
-                        "maxLength": 255
-                      },
-                      "objectives": {
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "owner": {
+                      "filter_expression": {
                         "type": "string",
                         "readOnly": true
                       },
-                      "public_description": {
+                      "enabled": {
                         "type": "string",
-                        "nullable": true
-                      },
-                      "rapid_type": {
-                        "enum": [
-                          "cfr a/a"
-                        ],
-                        "nullable": true
-                      },
-                      "slug": {
-                        "type": "string",
-                        "maxLength": 255,
-                        "pattern": "^[-a-zA-Z0-9_]+$"
-                      },
-                      "status": {
-                        "enum": [
-                          "Draft",
-                          "Review",
-                          "Ship",
-                          "Accepted",
-                          "Live",
-                          "Complete"
-                        ]
-                      },
-                      "type": {
-                        "enum": [
-                          "pref",
-                          "addon",
-                          "generic",
-                          "rollout",
-                          "message",
-                          "rapid"
-                        ]
+                        "readOnly": true,
+                        "default": true
                       }
                     },
                     "required": [
-                      "name",
-                      "slug"
+                      "arguments"
                     ]
                   }
                 }
@@ -8176,110 +8185,9 @@
         ]
       }
     },
-    "/api/v4/experiments/{slug}": {
+    "/api/v4/experiments/{slug}/": {
       "get": {
-        "operationId": "RetrieveExperiment",
-        "description": "",
-        "parameters": [
-          {
-            "name": "slug",
-            "in": "path",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "audience": {
-                      "enum": [
-                        "AUDIENCE 1",
-                        "AUDIENCE 2"
-                      ],
-                      "nullable": true
-                    },
-                    "bugzilla_url": {
-                      "type": "string",
-                      "readOnly": true
-                    },
-                    "features": {
-                      "type": "array",
-                      "items": {
-                        "type": null
-                      }
-                    },
-                    "name": {
-                      "type": "string",
-                      "maxLength": 255
-                    },
-                    "objectives": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "owner": {
-                      "type": "string",
-                      "readOnly": true
-                    },
-                    "public_description": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "rapid_type": {
-                      "enum": [
-                        "cfr a/a"
-                      ],
-                      "nullable": true
-                    },
-                    "slug": {
-                      "type": "string",
-                      "maxLength": 255,
-                      "pattern": "^[-a-zA-Z0-9_]+$"
-                    },
-                    "status": {
-                      "enum": [
-                        "Draft",
-                        "Review",
-                        "Ship",
-                        "Accepted",
-                        "Live",
-                        "Complete"
-                      ]
-                    },
-                    "type": {
-                      "enum": [
-                        "pref",
-                        "addon",
-                        "generic",
-                        "rollout",
-                        "message",
-                        "rapid"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "name",
-                    "slug"
-                  ]
-                }
-              }
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "Rapid: Public"
-        ]
-      }
-    },
-    "/api/v4/experiments/{slug}/recipe/": {
-      "get": {
-        "operationId": "RetrieveExperiment",
+        "operationId": "retrieveExperiment",
         "description": "",
         "parameters": [
           {
