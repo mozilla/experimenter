@@ -6,26 +6,6 @@ from experimenter.experiments.models import (
 )
 
 
-class ExperimentRapidSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source="owner.email")
-
-    class Meta:
-        model = Experiment
-        fields = (
-            "audience",
-            "bugzilla_url",
-            "features",
-            "name",
-            "objectives",
-            "owner",
-            "public_description",
-            "rapid_type",
-            "slug",
-            "status",
-            "type",
-        )
-
-
 class ExperimentRapidBranchesSerializer(serializers.ModelSerializer):
     value = serializers.SerializerMethodField()
 
@@ -78,12 +58,14 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
         }
 
     def get_referenceBranch(self, obj):
-        control_branch = obj.variants.get(is_control=True)
-        return control_branch.slug
+        if obj.variants.count():
+            control_branch = obj.variants.get(is_control=True)
+            return control_branch.slug
 
     def get_startDate(self, obj):
         # placeholder value
-        return obj.start_date.isoformat()
+        if obj.start_date:
+            return obj.start_date.isoformat()
 
 
 class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):
