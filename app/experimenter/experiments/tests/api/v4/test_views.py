@@ -3,7 +3,6 @@ import json
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
-from parameterized import parameterized
 
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.constants import ExperimentConstants

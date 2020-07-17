@@ -4,7 +4,6 @@ import os
 from jsonschema import validate
 
 from django.test import TestCase
-from django.conf import settings
 
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
@@ -12,7 +11,6 @@ from experimenter.experiments.tests.factories import (
     ExperimentVariantFactory,
 )
 from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
-from experimenter.openidc.tests.factories import UserFactory
 
 
 class TestExperimentRapidRecipeSerializer(TestCase):
