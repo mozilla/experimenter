@@ -13,7 +13,9 @@ const ExperimentFormPage: React.FC = () => {
     <div className="mb-4">
       <div className="d-flex align-items-center">
         <h3 className="mr-3">{pageHeading}</h3>
-        <span className="badge badge-secondary mb-1">Draft</span>
+        <span className="badge badge-secondary mb-1">
+          {experimentData.status}
+        </span>
       </div>
       <p>
         Create and automatically launch an A/A CFR experiment. A/A experiments

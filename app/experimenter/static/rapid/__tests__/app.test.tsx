@@ -62,6 +62,7 @@ describe("<App />", () => {
         owner: "test@owner.com",
         features: ["FEATURE 1", "FEATURE 2"],
         audience: "AUDIENCE 1",
+        firefox_min_version: "78.0",
       });
     });
 

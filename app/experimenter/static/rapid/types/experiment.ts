@@ -1,11 +1,22 @@
+export enum ExperimentStatus {
+  DRAFT = "Draft",
+  REVIEW = "Review",
+  ACCEPTED = "Accepted",
+  LIVE = "Live",
+  COMPLETE = "Complete",
+  REJECTED = "Rejected",
+}
+
 export interface ExperimentData {
+  audience: string;
+  bugzilla_url?: string;
+  features: Array<string>;
+  firefox_min_version: string;
   name: string;
   objectives: string;
-  features: Array<string>;
-  audience: string;
   owner?: string;
   slug?: string;
-  bugzilla_url?: string;
+  status: ExperimentStatus;
 }
 
 export enum ExperimentReducerActionType {
