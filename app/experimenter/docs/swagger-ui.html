@@ -8532,6 +8532,255 @@
         ]
       }
     },
+    "/api/v4/experiments/": {
+      "get": {
+        "operationId": "listExperiments",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "arguments": {
+                        "properties": {
+                          "slug": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "userFacingName": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "userFacingDescription": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "active": {
+                            "type": "string",
+                            "readOnly": true,
+                            "default": true
+                          },
+                          "isEnrollmentPaused": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "features": {
+                            "type": "array",
+                            "items": {
+                              "type": null
+                            }
+                          },
+                          "proposedEnrollment": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "bucketConfig": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "startDate": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "endDate": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "branches": {
+                            "type": "array",
+                            "items": {
+                              "properties": {
+                                "slug": {
+                                  "type": "string",
+                                  "maxLength": 255,
+                                  "pattern": "^[-a-zA-Z0-9_]+$"
+                                },
+                                "ratio": {
+                                  "type": "integer",
+                                  "maximum": 2147483647,
+                                  "minimum": 0
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "readOnly": true
+                                }
+                              },
+                              "required": [
+                                "slug"
+                              ]
+                            }
+                          },
+                          "referenceBranch": {
+                            "type": "string",
+                            "readOnly": true
+                          }
+                        },
+                        "required": [
+                          "branches"
+                        ],
+                        "type": "object"
+                      },
+                      "filter_expression": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "enabled": {
+                        "type": "string",
+                        "readOnly": true,
+                        "default": true
+                      }
+                    },
+                    "required": [
+                      "arguments"
+                    ]
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Rapid: Public"
+        ]
+      }
+    },
+    "/api/v4/experiments/{slug}/": {
+      "get": {
+        "operationId": "retrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "arguments": {
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "userFacingName": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "userFacingDescription": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "active": {
+                          "type": "string",
+                          "readOnly": true,
+                          "default": true
+                        },
+                        "isEnrollmentPaused": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "features": {
+                          "type": "array",
+                          "items": {
+                            "type": null
+                          }
+                        },
+                        "proposedEnrollment": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "bucketConfig": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "startDate": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "endDate": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "branches": {
+                          "type": "array",
+                          "items": {
+                            "properties": {
+                              "slug": {
+                                "type": "string",
+                                "maxLength": 255,
+                                "pattern": "^[-a-zA-Z0-9_]+$"
+                              },
+                              "ratio": {
+                                "type": "integer",
+                                "maximum": 2147483647,
+                                "minimum": 0
+                              },
+                              "value": {
+                                "type": "string",
+                                "readOnly": true
+                              }
+                            },
+                            "required": [
+                              "slug"
+                            ]
+                          }
+                        },
+                        "referenceBranch": {
+                          "type": "string",
+                          "readOnly": true
+                        }
+                      },
+                      "required": [
+                        "branches"
+                      ],
+                      "type": "object"
+                    },
+                    "filter_expression": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "enabled": {
+                      "type": "string",
+                      "readOnly": true,
+                      "default": true
+                    }
+                  },
+                  "required": [
+                    "arguments"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Rapid: Public"
+        ]
+      }
+    },
     "/api/v3/experiments/": {
       "post": {
         "operationId": "createExperiment",

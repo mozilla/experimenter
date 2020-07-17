@@ -8,7 +8,7 @@ from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
 from experimenter.kinto import tasks
-from experimenter.experiments.api.v1.serializers import ExperimentRapidRecipeSerializer
+from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
 
 
 class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
