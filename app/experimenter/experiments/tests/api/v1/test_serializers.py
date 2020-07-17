@@ -184,4 +184,3 @@ class TestExperimentChangeLogSerializer(TestCase):
         )
         serializer = ExperimentChangeLogSerializer(change_log)
         self.assertEqual(serializer.data["changed_on"], change_log.changed_on)
-
