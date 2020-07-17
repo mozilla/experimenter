@@ -4,7 +4,7 @@ from experimenter.experiments.models import Experiment
 from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
 
 
-class ExperimentRapidDetailsView(
+class ExperimentRapidViewSet(
     mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet,
 ):
     lookup_field = "slug"
