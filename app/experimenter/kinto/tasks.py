@@ -5,7 +5,7 @@ from celery.utils.log import get_task_logger
 from django.conf import settings
 
 from experimenter.celery import app
-from experimenter.experiments.api.v1.serializers import ExperimentRapidRecipeSerializer
+from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
 from experimenter.experiments.changelog_utils import update_experiment_with_change_log
 from experimenter.experiments.models import Experiment
 from experimenter.kinto import client

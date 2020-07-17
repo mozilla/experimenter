@@ -36,6 +36,10 @@ class Command(BaseCommand):
             elif "/api/v3/" in path:
                 for method in paths[path]:
                     paths[path][method]["tags"] = ["Rapid: Private"]
+            elif "/api/v4/" in path:
+                for method in paths[path]:
+                    paths[path][method]["tags"] = ["Rapid: Public"]
+
         return json.dumps(schema, indent=2)
 
     @staticmethod
