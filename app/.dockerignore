@@ -10,3 +10,4 @@ Makefile
 docker-compose.yml
 docs
 node_modules
+.mypy_cache
