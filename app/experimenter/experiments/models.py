@@ -1061,6 +1061,13 @@ class Experiment(ExperimentConstants, models.Model):
             variant.experiment = cloned
             variant.save()
 
+            if self.is_multi_pref:
+                original_variant = self.variants.get(slug=variant.slug)
+                for preference in original_variant.preferences.all():
+                    preference.variant = variant
+                    preference.id = None
+                    preference.save()
+
         cloned.projects.set(self.projects.all())
 
         cloned.related_to.add(self)
