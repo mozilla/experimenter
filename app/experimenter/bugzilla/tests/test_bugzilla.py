@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.conf import settings
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
-from experimenter.bugzilla import (
+from experimenter.bugzilla.client import (
     add_experiment_comment,
     BugzillaError,
     create_experiment_bug,

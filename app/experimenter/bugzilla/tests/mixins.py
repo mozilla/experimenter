@@ -1,6 +1,6 @@
 import mock
 
-from experimenter import bugzilla
+from experimenter.bugzilla.client import INVALID_USER_ERROR_CODE
 
 
 class MockBugzillaMixin(object):
@@ -60,7 +60,7 @@ class MockBugzillaMixin(object):
         return mock_response
 
     def buildMockFailureResponse(self):
-        mock_response_data = {"code": bugzilla.INVALID_USER_ERROR_CODE}
+        mock_response_data = {"code": INVALID_USER_ERROR_CODE}
         mock_response = mock.Mock()
         mock_response.json = mock.Mock()
         mock_response.json.return_value = mock_response_data

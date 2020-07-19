@@ -2,7 +2,7 @@ import markus
 from celery.utils.log import get_task_logger
 
 from experimenter.celery import app
-from experimenter.bugzilla import client as bugzilla
+from experimenter.bugzilla import client
 from experimenter.experiments.models import Experiment
 from experimenter.notifications.models import Notification
 
@@ -49,7 +49,7 @@ def create_experiment_bug_task(user_id, experiment_id):
 
     logger.info("Creating Bugzilla ticket")
     try:
-        bugzilla_id = bugzilla.create_experiment_bug(experiment)
+        bugzilla_id = client.create_experiment_bug(experiment)
         logger.info("Bugzilla ticket created")
         experiment.bugzilla_id = bugzilla_id
         experiment.save()
@@ -62,7 +62,7 @@ def create_experiment_bug_task(user_id, experiment_id):
         )
         metrics.incr("create_experiment_bug.completed")
         logger.info("Bugzilla ticket notification sent")
-    except bugzilla.BugzillaError as e:
+    except client.BugzillaError as e:
         metrics.incr("create_experiment_bug.failed")
         logger.info("Bugzilla ticket creation failed")
 
@@ -87,7 +87,7 @@ def update_experiment_bug_task(user_id, experiment_id):
     logger.info("Updating Bugzilla Ticket")
 
     try:
-        bugzilla.update_experiment_bug(experiment)
+        client.update_experiment_bug(experiment)
         logger.info("Bugzilla Ticket updated")
         Notification.objects.create(
             user_id=user_id,
@@ -97,7 +97,7 @@ def update_experiment_bug_task(user_id, experiment_id):
         )
         metrics.incr("update_experiment_bug.completed")
         logger.info("Bugzilla Update notification sent")
-    except bugzilla.BugzillaError as e:
+    except client.BugzillaError as e:
         Notification.objects.create(
             user_id=user_id, message=NOTIFICATION_MESSAGE_UPDATE_BUG_FAILED
         )
@@ -113,10 +113,10 @@ def comp_experiment_update_res_task(experiment_id):
     metrics.incr("comp_experiment_update_res_task.started")
     logger.info("Updating Bugzilla Resolution")
     try:
-        bugzilla.update_bug_resolution(experiment)
+        client.update_bug_resolution(experiment)
         logger.info("Bugzilla Resolution Updated")
         metrics.incr("comp_experiment_update_res_task.completed")
-    except bugzilla.BugzillaError as e:
+    except client.BugzillaError as e:
         metrics.incr("comp_experiment_update_res_task.failed")
         logger.info("update bug resolution failed")
         raise e
@@ -133,10 +133,10 @@ def add_start_date_comment_task(experiment_id):
     )
     try:
         bugzilla_id = experiment.bugzilla_id
-        bugzilla.add_experiment_comment(bugzilla_id, comment)
+        client.add_experiment_comment(bugzilla_id, comment)
         logger.info("Bugzilla Comment Added")
         metrics.incr("add_start_date_comment.completed")
-    except bugzilla.BugzillaError as e:
+    except client.BugzillaError as e:
         logger.info("Comment start date failed to be added")
         metrics.incr("add_start_date_comment.failed")
         raise e
@@ -155,7 +155,7 @@ def update_bug_resolution_task(user_id, experiment_id):
     logger.info("Updating Bugzilla Resolution")
 
     try:
-        bugzilla.update_bug_resolution(experiment)
+        client.update_bug_resolution(experiment)
         logger.info("Bugzilla resolution updated")
         Notification.objects.create(
             user_id=user_id,
@@ -165,7 +165,7 @@ def update_bug_resolution_task(user_id, experiment_id):
         )
         metrics.incr("update_bug_resolution.completed")
         logger.info("Bugzilla resolution update sent")
-    except bugzilla.BugzillaError as e:
+    except client.BugzillaError as e:
         metrics.incr("update_bug_resolution.failed")
         logger.info("Failed to update resolution of bugzilla ticket")
         Notification.objects.create(

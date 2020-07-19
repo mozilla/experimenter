@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import mock
 from django.conf import settings
 from django.urls import reverse
@@ -11,7 +13,7 @@ from experimenter.openidc.tests.factories import UserFactory
 class ExperimentAdminTest(TestCase):
     def test_no_actions(self):
         experiment_admin = ExperimentAdmin(mock.Mock(), mock.Mock())
-        self.assertEqual(experiment_admin.get_actions(mock.Mock()), [])
+        self.assertEqual(experiment_admin.get_actions(mock.Mock()), OrderedDict())
 
     def test_no_delete_permission(self):
         experiment_admin = ExperimentAdmin(mock.Mock(), mock.Mock())

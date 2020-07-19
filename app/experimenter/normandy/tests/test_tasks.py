@@ -104,7 +104,7 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(
             mail.outbox[0].recipients(),
-            [experiment.owner.email, experiment.analysis_owner],
+            [experiment.owner.email, experiment.analysis_owner.email],
         )
 
     def test_update_live_experiment_task(self):
@@ -304,7 +304,7 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(
             mail.outbox[0].recipients(),
-            [experiment.owner.email, experiment.analysis_owner],
+            [experiment.owner.email, experiment.analysis_owner.email],
         )
 
     def test_live_rollout_updates_population_percent(self):

@@ -7,5 +7,5 @@ import markus
 class ExperimentsConfig(AppConfig):
     name = "experimenter.experiments"
 
-    def ready(self):
+    def ready(self) -> None:
         markus.configure(settings.MARKUS_BACKEND)

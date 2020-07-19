@@ -27,9 +27,7 @@ class TestIntentToShipEmail(TestCase):
         )
         sender = "sender@example.com"
         release_drivers = "drivers@example.com"
-
         user = UserFactory.create(email="smith@example.com")
-
         experiment.subscribers.add(user)
 
         with self.settings(EMAIL_SENDER=sender, EMAIL_RELEASE_DRIVERS=release_drivers):
@@ -51,7 +49,7 @@ class TestIntentToShipEmail(TestCase):
                 [
                     release_drivers,
                     experiment.owner.email,
-                    experiment.analysis_owner,
+                    experiment.analysis_owner.email,
                     "smith@example.com",
                 ]
             ),
@@ -112,7 +110,7 @@ class TestIntentToShipEmail(TestCase):
                 [
                     release_drivers,
                     experiment.owner.email,
-                    experiment.analysis_owner,
+                    experiment.analysis_owner.email,
                     "smith@example.com",
                 ]
             ),
@@ -171,7 +169,7 @@ class TestStatusUpdateEmail(TestCase):
             sent_email.recipients(),
             [
                 self.experiment.owner.email,
-                self.experiment.analysis_owner,
+                self.experiment.analysis_owner.email,
                 self.subscribing_user.email,
             ],
         )
@@ -181,7 +179,6 @@ class TestStatusUpdateEmail(TestCase):
         self.experiment.save()
 
         send_experiment_launch_email(self.experiment)
-
         sent_email = mail.outbox[-1]
 
         self.assertEqual(
@@ -219,7 +216,7 @@ class TestStatusUpdateEmail(TestCase):
             sent_email.recipients(),
             [
                 self.experiment.owner.email,
-                self.experiment.analysis_owner,
+                self.experiment.analysis_owner.email,
                 self.subscribing_user.email,
             ],
         )
@@ -227,7 +224,6 @@ class TestStatusUpdateEmail(TestCase):
 
     def test_send_experiment_pausing_email(self):
         send_enrollment_pause_email(self.experiment)
-
         sent_email = mail.outbox[-1]
 
         self.assertEqual(
@@ -247,7 +243,7 @@ class TestStatusUpdateEmail(TestCase):
             sent_email.recipients(),
             [
                 self.experiment.owner.email,
-                self.experiment.analysis_owner,
+                self.experiment.analysis_owner.email,
                 self.subscribing_user.email,
             ],
         )

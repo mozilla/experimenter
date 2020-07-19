@@ -1,5 +1,9 @@
+from typing import Any, Dict, List, Optional, Union
+
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from rest_framework import serializers
+from rest_framework.utils.serializer_helpers import ReturnDict
 
 from experimenter.base.serializers import CountrySerializer, LocaleSerializer
 from experimenter.experiments.models import (
@@ -8,16 +12,22 @@ from experimenter.experiments.models import (
 )
 from experimenter.experiments.api.v1.serializers import ExperimentVariantSerializer
 from experimenter.projects.serializers import ProjectSerializer
+from datetime import date
 
 
-class ChangelogSerializerMixin(object):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class ChangelogSerializerMixin:
+    instance: Optional[Experiment]
+    context: Dict[str, Any]
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)  # type: ignore
         self.old_serialized_vals = {}
         if self.instance and self.instance.id:
             self.old_serialized_vals = ChangeLogSerializer(self.instance).data
 
-    def update_changelog(self, instance, validated_data):
+    def update_changelog(
+        self, instance: Experiment, validated_data: Dict[str, Any]
+    ) -> Experiment:
         new_serialized_vals = ChangeLogSerializer(instance).data
         user = self.context["request"].user
         changed_data = validated_data.copy()
@@ -140,7 +150,11 @@ class ChangeLogSerializer(serializers.ModelSerializer):
         )
 
 
-def update_experiment_with_change_log(old_experiment, changed_data, user_email):
+def update_experiment_with_change_log(
+    old_experiment: Experiment,
+    changed_data: Dict[str, Union[int, List[int], str, date]],
+    user_email: str,
+) -> None:
     old_serialized_exp = ChangeLogSerializer(old_experiment).data
     Experiment.objects.filter(id=old_experiment.id).update(**changed_data)
     new_experiment = Experiment.objects.get(slug=old_experiment.slug)
@@ -160,14 +174,14 @@ def update_experiment_with_change_log(old_experiment, changed_data, user_email):
 
 
 def generate_change_log(
-    old_serialized_vals,
-    new_serialized_vals,
-    instance,
-    changed_data,
-    user,
-    message=None,
-    form_fields=None,
-):
+    old_serialized_vals: ReturnDict,
+    new_serialized_vals: ReturnDict,
+    instance: Experiment,
+    changed_data: Any,
+    user: User,
+    message: Optional[str] = None,
+    form_fields: Optional[Any] = None,
+) -> None:
 
     changed_values = {}
     old_status = None
@@ -257,11 +271,16 @@ def generate_change_log(
         )
 
 
-def _has_changed(old_status, changed_values, experiment, message):
-    return changed_values or message or old_status != experiment.status
+def _has_changed(
+    old_status: Optional[str],
+    changed_values: Dict[str, Any],
+    experiment: Experiment,
+    message: Optional[str],
+) -> bool:
+    return bool(changed_values or message or old_status != experiment.status)
 
 
-def _get_display_name(field, form_fields):
+def _get_display_name(field: str, form_fields: Any) -> str:
     if form_fields and form_fields[field].label:
         return form_fields[field].label
     return field.replace("_", " ").title()

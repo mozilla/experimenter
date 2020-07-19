@@ -1,15 +1,14 @@
-import django_filters as filters
 from django import forms
-
 from django.contrib.auth import get_user_model
-from django.db.models import Q, F, IntegerField
-from django.db.models.functions import Cast
-from django.db.models.expressions import Func, Value
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+from django.db.models import Q, F, IntegerField
+from django.db.models.expressions import Func, Value
+from django.db.models.functions import Cast
+from django.db.models.query import QuerySet
+import django_filters as filters
 import django_filters.widgets as widgets
 
 from experimenter.experiments.constants import ExperimentConstants
-
 from experimenter.experiments.models import Experiment
 from experimenter.projects.models import Project
 
@@ -26,7 +25,6 @@ class SearchWidget(forms.widgets.TextInput):
 
 
 class ExperimentFilterset(filters.FilterSet):
-
     search = filters.CharFilter(
         method="filter_search",
         widget=SearchWidget(
@@ -146,7 +144,7 @@ class ExperimentFilterset(filters.FilterSet):
             "completed_results",
         )
 
-    def filter_search(self, queryset, name, value):
+    def filter_search(self, queryset: QuerySet, name: str, value: str) -> QuerySet:
         vector = SearchVector(
             "name",
             "short_description",
@@ -174,24 +172,26 @@ class ExperimentFilterset(filters.FilterSet):
             .order_by("-rank")
         )
 
-    def archived_filter(self, queryset, name, value):
+    def archived_filter(self, queryset: QuerySet, name: str, value: bool) -> QuerySet:
         if not value:
             return queryset.exclude(archived=True)
         return queryset
 
-    def experiment_date_field_filter(self, queryset, name, value):
+    def experiment_date_field_filter(
+        self, queryset: QuerySet, name: str, value: str
+    ) -> QuerySet:
         # this custom method isn't doing anything. There has to
         # be a custom method to be able to display the select
         # filter that controls which date range we show
         return queryset
 
-    def version_filter(self, queryset, name, value):
+    def version_filter(self, queryset: QuerySet, name: str, value: str) -> QuerySet:
         return queryset.filter(
             Q(firefox_min_version__lte=value, firefox_max_version__gte=value)
             | Q(firefox_min_version=value)
         )
 
-    def date_range_filter(self, queryset, name, value):
+    def date_range_filter(self, queryset: QuerySet, name: str, value: slice) -> QuerySet:
         date_type = self.form.cleaned_data["experiment_date_field"]
         if date_type:
             experiment_date_field = {
@@ -217,25 +217,25 @@ class ExperimentFilterset(filters.FilterSet):
             return queryset.filter(pk__in=results)
         return queryset
 
-    def in_qa_filter(self, queryset, name, value):
+    def in_qa_filter(self, queryset: QuerySet, name: str, value: bool) -> QuerySet:
         if value:
             return queryset.filter(review_qa_requested=True, review_qa=False)
 
         return queryset
 
-    def surveys_filter(self, queryset, name, value):
+    def surveys_filter(self, queryset: QuerySet, name: str, value: bool) -> QuerySet:
         if value:
             return queryset.filter(survey_required=True)
 
         return queryset
 
-    def subscribed_filter(self, queryset, name, value):
+    def subscribed_filter(self, queryset: QuerySet, name: str, value: bool) -> QuerySet:
         if value:
             return queryset.filter(subscribers__in=[self.request.user.id])
 
         return queryset
 
-    def longrunning_filter(self, queryset, name, value):
+    def longrunning_filter(self, queryset: QuerySet, name: str, value: bool) -> QuerySet:
         if value:
             return (
                 queryset.exclude(firefox_max_version__exact="")
@@ -263,13 +263,15 @@ class ExperimentFilterset(filters.FilterSet):
 
         return queryset
 
-    def is_paused_filter(self, queryset, name, value):
+    def is_paused_filter(self, queryset: QuerySet, name: str, value: bool) -> QuerySet:
         if value:
             return queryset.filter(is_paused=True, status=Experiment.STATUS_LIVE)
 
         return queryset
 
-    def completed_results_filter(self, queryset, name, value):
+    def completed_results_filter(
+        self, queryset: QuerySet, name: str, value: bool
+    ) -> QuerySet:
         if value:
             return queryset.exclude(
                 Q(results_url="") | Q(results_url=None),
@@ -278,7 +280,7 @@ class ExperimentFilterset(filters.FilterSet):
             )
         return queryset
 
-    def get_type_display_value(self):
+    def get_type_display_value(self) -> str:
         return ", ".join(
             [
                 dict(Experiment.TYPE_CHOICES)[type].replace(" Experiment", "")
@@ -286,19 +288,19 @@ class ExperimentFilterset(filters.FilterSet):
             ]
         )
 
-    def get_project_display_value(self):
+    def get_project_display_value(self) -> str:
         project_id = self.data.get("projects")
-
         if project_id is not None:
-            return Project.objects.get(id=project_id)
+            return str(Project.objects.get(id=project_id))
+        return ""
 
-    def get_owner_display_value(self):
+    def get_owner_display_value(self) -> str:
         user_id = self.data.get("owner")
-
         if user_id is not None:
             return str(get_user_model().objects.get(id=user_id))
+        return ""
 
-    def get_display_start_date_info(self):
+    def get_display_start_date_info(self) -> str:
         experiment_date_field = self.data.get("experiment_date_field")
         date_after = self.data.get("date_range_after")
         date_before = self.data.get("date_range_before")

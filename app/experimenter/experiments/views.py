@@ -1,11 +1,25 @@
+from typing import cast, Any, Dict, List, Union, Optional, Type
 import json
+
+from django_filters.views import FilterView
 from django.conf import settings
+from django.core.handlers.wsgi import WSGIRequest
+from django.db.models import Model
+from django.db.models.query import QuerySet
+from django.forms import BaseForm
+from django.http import HttpRequest
+from django.http.request import QueryDict
+from django.http.response import (
+    HttpResponse,
+    HttpResponseRedirect,
+    HttpResponsePermanentRedirect,
+)
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, UpdateView, TemplateView
 from django.views.generic.edit import ModelFormMixin
-from django_filters.views import FilterView
 
+from experimenter.base.models import Locale, Country
 from experimenter.experiments.filtersets import ExperimentFilterset
 from experimenter.experiments.forms import (
     ExperimentArchiveForm,
@@ -20,7 +34,7 @@ from experimenter.experiments.forms import (
     NormandyIdForm,
     ExperimentOrderingForm,
 )
-from experimenter.experiments.models import Experiment, Locale, Country
+from experimenter.experiments.models import Experiment
 
 
 class ExperimentListView(FilterView):
@@ -31,11 +45,13 @@ class ExperimentListView(FilterView):
     paginate_by = settings.EXPERIMENTS_PAGINATE_BY
     queryset = Experiment.objects.get_prefetched()
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.ordering_form = None
+        self.ordering_form: Optional[ExperimentOrderingForm] = None
 
-    def get_filterset_kwargs(self, *args, **kwargs):
+    def get_filterset_kwargs(
+        self, *args, **kwargs
+    ) -> Dict[str, Union[QueryDict, WSGIRequest, QuerySet]]:
         kwargs = super().get_filterset_kwargs(*args, **kwargs)
 
         # Always pass in request.GET otherwise the
@@ -44,12 +60,12 @@ class ExperimentListView(FilterView):
         kwargs["data"] = self.request.GET
         return kwargs
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         qs = super().get_queryset()
         qs = qs.annotate(firefox_channel_sort=Experiment.firefox_channel_sort())
         return qs
 
-    def get_ordering(self):
+    def get_ordering(self) -> str:
         self.ordering_form = ExperimentOrderingForm(self.request.GET)
 
         if self.ordering_form.is_valid():
@@ -57,20 +73,23 @@ class ExperimentListView(FilterView):
 
         return self.ordering_form.ORDERING_CHOICES[0][0]
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
         return super().get_context_data(ordering_form=self.ordering_form, *args, **kwargs)
 
 
-class ExperimentFormMixin(object):
-    model = Experiment
+class ExperimentFormMixin:
+    model: Type[Model] = Experiment
+    request: HttpRequest
+    next_view_name: str
+    object: Experiment
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        kwargs = super().get_form_kwargs()  # type: ignore
         kwargs["request"] = self.request
         return kwargs
 
-    def get_success_url(self):
-        if "action" in self.request.POST and self.request.POST["action"] == "continue":
+    def get_success_url(self) -> str:
+        if self.request.POST.get("action") == "continue":
             return reverse(self.next_view_name, kwargs={"slug": self.object.slug})
 
         return reverse("experiments-detail", kwargs={"slug": self.object.slug})
@@ -81,7 +100,7 @@ class ExperimentCreateView(ExperimentFormMixin, CreateView):
     next_view_name = "experiments-timeline-pop-update"
     template_name = "experiments/edit_overview.html"
 
-    def get_initial(self):
+    def get_initial(self) -> Dict[str, int]:
         initial = super().get_initial()
         initial["owner"] = self.request.user.id
         return initial
@@ -97,7 +116,7 @@ class ExperimentTimelinePopulationUpdateView(DetailView):
     model = Experiment
     template_name = "experiments/edit_timeline_population.html"
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["locales"] = json.dumps(
             list(
@@ -145,7 +164,7 @@ class ExperimentDetailView(ExperimentFormMixin, ModelFormMixin, DetailView):
     form_class = ExperimentReviewForm
     queryset = Experiment.objects.get_prefetched()
 
-    def get_template_names(self):
+    def get_template_names(self) -> List[str]:
         return [
             "experiments/detail_{status}.html".format(
                 status=self.object.status.lower()  # OSX is case insensitive
@@ -153,7 +172,7 @@ class ExperimentDetailView(ExperimentFormMixin, ModelFormMixin, DetailView):
             "experiments/detail_base.html",
         ]
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
         if "normandy_id" in self.request.GET:
             normandy_id_form = NormandyIdForm(
                 request=self.request, data=self.request.GET, instance=self.object
@@ -170,7 +189,9 @@ class ExperimentStatusUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentStatusForm
     model = Experiment
 
-    def form_invalid(self, form):
+    def form_invalid(
+        self, form: BaseForm
+    ) -> Union[HttpResponseRedirect, HttpResponsePermanentRedirect]:
         return redirect(reverse("experiments-detail", kwargs={"slug": self.object.slug}))
 
 
@@ -193,7 +214,7 @@ class ExperimentNormandyUpdateView(ExperimentFormMixin, UpdateView):
     form_class = NormandyIdForm
     model = Experiment
 
-    def form_valid(self, form):
+    def form_valid(self, form: BaseForm) -> HttpResponse:
         response = super().form_valid(form)
         status_form = ExperimentStatusForm(
             request=self.request,
@@ -203,19 +224,22 @@ class ExperimentNormandyUpdateView(ExperimentFormMixin, UpdateView):
         status_form.save()
         return response
 
-    def form_invalid(self, form):
+    def form_invalid(
+        self, form: BaseForm
+    ) -> Union[HttpResponseRedirect, HttpResponsePermanentRedirect]:
         url = reverse("experiments-detail", kwargs={"slug": self.kwargs["slug"]})
-        query_parameters = form.data.copy()
+        query_parameters = cast(QueryDict, form.data.copy())
         query_parameters.pop("csrfmiddlewaretoken", None)
-
         return redirect(f"{url}?{query_parameters.urlencode()}")
 
 
 class ExperimentCommentCreateView(ExperimentFormMixin, CreateView):
     form_class = ExperimentCommentForm
 
-    def form_valid(self, form):
-        comment = form.save()
+    def form_valid(
+        self, form: BaseForm
+    ) -> Union[HttpResponseRedirect, HttpResponsePermanentRedirect]:
+        comment = cast(ExperimentCommentForm, form).save()
         return redirect(
             "{url}#{section}-comments".format(
                 url=reverse("experiments-detail", kwargs={"slug": self.kwargs["slug"]}),
@@ -223,7 +247,9 @@ class ExperimentCommentCreateView(ExperimentFormMixin, CreateView):
             )
         )
 
-    def form_invalid(self, form):
+    def form_invalid(
+        self, form: BaseForm
+    ) -> Union[HttpResponseRedirect, HttpResponsePermanentRedirect]:
         return redirect(
             reverse("experiments-detail", kwargs={"slug": self.kwargs["slug"]})
         )

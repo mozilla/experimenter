@@ -1,4 +1,6 @@
+from typing import Dict, List, Optional, Union
 import logging
+
 from django.conf import settings
 from django.core.mail.message import EmailMessage
 from django.template.loader import render_to_string
@@ -7,13 +9,14 @@ from experimenter.experiments.models import Experiment, ExperimentEmail
 from experimenter.experiments.constants import ExperimentConstants
 
 
-def send_intent_to_ship_email(experiment_id):
+def send_intent_to_ship_email(experiment_id: int) -> None:
     experiment = Experiment.objects.get(id=experiment_id)
-
     bug_url = settings.BUGZILLA_DETAIL_URL.format(id=experiment.bugzilla_id)
 
     # Because that's how it's done in Experiment.population (property)
-    percent_of_population = f"{float(experiment.population_percent):g}%"
+    percent_of_population = "0.00"
+    if experiment.population_percent:
+        f"{float(experiment.population_percent):g}%"
 
     format_and_send_html_email(
         experiment,
@@ -22,8 +25,10 @@ def send_intent_to_ship_email(experiment_id):
             "experiment": experiment,
             "bug_url": bug_url,
             "percent_of_population": percent_of_population,
-            "locales": [str(locale) for locale in experiment.locales.all()],
-            "countries": [str(country) for country in experiment.countries.all()],
+            "locales": ", ".join([str(locale) for locale in experiment.locales.all()]),
+            "countries": ", ".join(
+                [str(country) for country in experiment.countries.all()]
+            ),
         },
         Experiment.INTENT_TO_SHIP_EMAIL_SUBJECT,
         Experiment.INTENT_TO_SHIP_EMAIL_LABEL,
@@ -31,7 +36,7 @@ def send_intent_to_ship_email(experiment_id):
     )
 
 
-def send_experiment_launch_email(experiment):
+def send_experiment_launch_email(experiment: Experiment) -> None:
     format_and_send_html_email(
         experiment,
         "experiments/emails/launch_experiment_email.html",
@@ -44,8 +49,7 @@ def send_experiment_launch_email(experiment):
     )
 
 
-def send_experiment_ending_email(experiment):
-
+def send_experiment_ending_email(experiment: Experiment) -> None:
     format_and_send_html_email(
         experiment,
         "experiments/emails/experiment_ending_email.html",
@@ -58,8 +62,7 @@ def send_experiment_ending_email(experiment):
     )
 
 
-def send_enrollment_pause_email(experiment):
-
+def send_enrollment_pause_email(experiment: Experiment) -> None:
     format_and_send_html_email(
         experiment,
         "experiments/emails/enrollment_pause_email.html",
@@ -73,19 +76,23 @@ def send_enrollment_pause_email(experiment):
 
 
 def format_and_send_html_email(
-    experiment, file_string, template_vars, subject, email_type, cc_recipients=None
-):
+    experiment: Experiment,
+    file_string: str,
+    template_vars: Dict[str, Union[str, Experiment]],
+    subject: str,
+    email_type: str,
+    cc_recipients: Optional[List[str]] = None,
+) -> None:
     content = render_to_string(file_string, template_vars)
-
     version = experiment.format_firefox_versions
     channel = experiment.firefox_channel
+    recipients = [s.email for s in experiment.subscribers.all() if s.email]
 
-    recipients = [experiment.owner.email] + list(
-        experiment.subscribers.values_list("email", flat=True)
-    )
+    if experiment.owner:
+        recipients.append(experiment.owner.email)
 
     if experiment.analysis_owner:
-        recipients.append(experiment.analysis_owner)
+        recipients.append(experiment.analysis_owner.email)
 
     email = EmailMessage(
         subject.format(name=experiment.name, version=version, channel=channel),
@@ -95,13 +102,11 @@ def format_and_send_html_email(
         cc=cc_recipients,
     )
     email.content_subtype = "html"
-
     email.send(fail_silently=False)
-
     ExperimentEmail.objects.create(experiment=experiment, type=email_type)
 
 
-def send_period_ending_emails_task(experiment):
+def send_period_ending_emails_task(experiment: Experiment) -> None:
     # send experiment ending soon emails if end date is 5 days out
     if experiment.ending_soon:
         if not ExperimentEmail.objects.filter(
@@ -109,6 +114,7 @@ def send_period_ending_emails_task(experiment):
         ).exists():
             send_experiment_ending_email(experiment)
             logging.info("Sent ending email for Experiment: {}".format(experiment))
+
     # send enrollment ending emails if enrollment end
     # date is 5 days out
     if experiment.enrollment_end_date and experiment.enrollment_ending_soon:
