@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+from django.utils import timezone
 import experimenter.experiments.models
 
 
@@ -24,8 +25,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="experimentchangelog",
             name="changed_on",
-            field=models.DateTimeField(
-                default=experimenter.experiments.models.ExperimentChangeLog.current_datetime
-            ),
+            field=models.DateTimeField(default=timezone.now),
         ),
     ]
