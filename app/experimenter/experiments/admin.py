@@ -1,4 +1,9 @@
+from collections import OrderedDict
+from typing import Optional
+
 from django.contrib import admin
+from django.db.models import Model
+from django.http import HttpRequest
 
 from experimenter.experiments.models import (
     Experiment,
@@ -170,10 +175,12 @@ class ExperimentAdmin(admin.ModelAdmin):
 
     prepopulated_fields = {"slug": ("name",)}
 
-    def get_actions(self, request):
-        return []
+    def get_actions(self, request: HttpRequest) -> OrderedDict:
+        return OrderedDict()
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(
+        self, request: HttpRequest, obj: Optional[Model] = None
+    ) -> bool:
         return False
 
 
@@ -192,7 +199,6 @@ class ExperimentVariantAdmin(admin.ModelAdmin):
 
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ("name", "slug")
-
     prepopulated_fields = {"slug": ("name",)}
 
 

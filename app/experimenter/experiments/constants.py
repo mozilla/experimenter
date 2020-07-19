@@ -1,5 +1,7 @@
-from django.conf import settings
+from typing import Tuple, List
 import re
+
+from django.conf import settings
 
 
 class ExperimentConstants(object):
@@ -24,17 +26,17 @@ class ExperimentConstants(object):
     )
 
     @classmethod
-    def FEATURE_TYPE_CHOICES(cls):  # pragma: no cover
-        choices = (
+    def FEATURE_TYPE_CHOICES(cls,) -> List[Tuple[str, str]]:  # pragma: no cover
+        choices = [
             (cls.TYPE_PREF, "Pref-Flip Experiment"),
             (cls.TYPE_ADDON, "Add-On Experiment"),
             (cls.TYPE_GENERIC, "Generic Experiment"),
             (cls.TYPE_ROLLOUT, "Staged Rollout"),
             (cls.TYPE_MESSAGE, "Message Router Content Experiment"),
-        )
+        ]
 
         if settings.FEATURE_MESSAGE_TYPE:
-            choices += ((cls.TYPE_RAPID, "Rapid Experiment"),)
+            choices.append((cls.TYPE_RAPID, "Rapid Experiment"),)
 
         return choices
 

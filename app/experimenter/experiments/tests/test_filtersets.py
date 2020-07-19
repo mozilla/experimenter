@@ -42,7 +42,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
 
         self.assertTrue(filter.is_valid())
         self.assertCountEqual(filter.qs, [exp1])
-        self.assertEqual(filter.get_project_display_value(), project1)
+        self.assertEqual(filter.get_project_display_value(), str(project1))
 
     def test_filters_out_archived_by_default(self):
         for i in range(3):

@@ -1,3 +1,4 @@
+from typing import Any, Dict, List, Optional, Union
 import json
 import re
 
@@ -5,19 +6,28 @@ from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
+from django.http import HttpRequest
+from django.db.models.query import QuerySet
+from django.forms.boundfield import BoundField
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
 from experimenter.base.models import Locale, Country
-from experimenter.bugzilla import get_bugzilla_id
-from experimenter.bugzilla import tasks
+from experimenter.bugzilla.client import get_bugzilla_id
+from experimenter.bugzilla.tasks import (
+    create_experiment_bug_task,
+    update_experiment_bug_task,
+    update_bug_resolution_task,
+)
+from experimenter.experiments.changelog_utils import ChangeLogSerializer
 from experimenter.experiments.changelog_utils import generate_change_log
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment, ExperimentComment
-from experimenter.experiments.changelog_utils import ChangeLogSerializer
 from experimenter.notifications.models import Notification
 from experimenter.projects.models import Project
+
 
 RADIO_NO = False
 RADIO_YES = True
@@ -25,7 +35,7 @@ RADIO_OPTIONS = ((RADIO_NO, "No"), (RADIO_YES, "Yes"))
 
 
 class JSONField(forms.CharField):
-    def clean(self, value):
+    def clean(self, value: str) -> str:
         cleaned_value = super().clean(value)
 
         if cleaned_value:
@@ -38,7 +48,7 @@ class JSONField(forms.CharField):
 
 
 class DSIssueURLField(forms.URLField):
-    def clean(self, value):
+    def clean(self, value: Optional[str]) -> str:
         cleaned_value = super().clean(value)
 
         if cleaned_value:
@@ -57,7 +67,7 @@ class DSIssueURLField(forms.URLField):
 
 
 class BugzillaURLField(forms.URLField):
-    def clean(self, value):
+    def clean(self, value: Optional[str]) -> str:
         cleaned_value = super().clean(value)
 
         if cleaned_value:
@@ -71,21 +81,23 @@ class BugzillaURLField(forms.URLField):
         return cleaned_value
 
 
-class ChangeLogMixin(object):
-    def __init__(self, request, *args, **kwargs):
+class ChangeLogMixin:
+    instance: Experiment
+    changed_data: List[str]
+    fields: Dict[str, Any]
+
+    def __init__(self, request: HttpRequest, *args, **kwargs) -> None:
         self.request = request
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)  # type: ignore
+        self.old_serialized_vals = None
         if self.instance.id:
             self.old_serialized_vals = ChangeLogSerializer(self.instance).data
-        else:
-            self.old_serialized_vals = None
 
-    def get_changelog_message(self):
+    def get_changelog_message(self) -> str:
         return ""
 
-    def save(self, *args, **kwargs):
-
-        experiment = super().save(*args, **kwargs)
+    def save(self, *args, **kwargs) -> Experiment:
+        experiment = super().save(*args, **kwargs)  # type: ignore
         new_serialized_vals = ChangeLogSerializer(self.instance).data
         message = self.get_changelog_message()
         generate_change_log(
@@ -101,7 +113,6 @@ class ChangeLogMixin(object):
 
 
 class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
-
     type = forms.ChoiceField(
         label="Type",
         choices=Experiment.FEATURE_TYPE_CHOICES(),
@@ -201,7 +212,7 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
 
     related_to.widget.attrs.update({"data-live-search": "true"})
 
-    def clean_name(self):
+    def clean_name(self) -> str:
         name = self.cleaned_data["name"]
         slug = slugify(name)
 
@@ -219,14 +230,15 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
 
         return name
 
-    def clean(self):
+    def clean(self) -> Dict[str, Optional[Union[str, User, QuerySet]]]:
         cleaned_data = super().clean()
 
         if self.instance.slug:
             del cleaned_data["slug"]
         else:
             name = cleaned_data.get("name")
-            cleaned_data["slug"] = slugify(name)
+            if name:
+                cleaned_data["slug"] = slugify(name)
 
         if cleaned_data["type"] != ExperimentConstants.TYPE_ROLLOUT:
             required_msg = "This field is required."
@@ -237,13 +249,13 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
             for required_field in required_fields:
                 if (
                     not cleaned_data.get(required_field)
-                    and required_field not in self._errors
+                    and required_field not in self.errors
                 ):
-                    self._errors[required_field] = [required_msg]
+                    self.errors[required_field] = [required_msg]
 
         return cleaned_data
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> Experiment:
         created = not self.instance.id
         experiment = super().save(*args, **kwargs)
 
@@ -667,7 +679,7 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
         )
 
     @property
-    def risk_fields(self):
+    def risk_fields(self) -> List[BoundField]:
         return [self[risk] for risk in self.instance.risk_fields]
 
 
@@ -772,11 +784,11 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
         )
 
     @property
-    def required_reviews(self):
+    def required_reviews(self) -> List[BoundField]:
         return [self[r] for r in self.instance.get_all_required_reviews()]
 
     @property
-    def optional_reviews(self):
+    def optional_reviews(self) -> List[BoundField]:
         reviews = set(self.fields) - set(self.instance.get_all_required_reviews())
 
         if self.instance.is_rollout:
@@ -785,7 +797,7 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
         return [self[r] for r in sorted(reviews)]
 
     @property
-    def added_reviews(self):
+    def added_reviews(self) -> List[str]:
         return [
             strip_tags(self.fields[field_name].label)
             for field_name in self.changed_data
@@ -793,14 +805,14 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
         ]
 
     @property
-    def removed_reviews(self):
+    def removed_reviews(self) -> List[str]:
         return [
             strip_tags(self.fields[field_name].label)
             for field_name in self.changed_data
             if not self.cleaned_data[field_name]
         ]
 
-    def get_changelog_message(self):
+    def get_changelog_message(self) -> str:
         message = ""
 
         if self.added_reviews:
@@ -815,7 +827,7 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
 
         return message
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> Experiment:
         experiment = super().save(*args, **kwargs)
 
         if self.changed_data:
@@ -825,7 +837,7 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
 
         return experiment
 
-    def clean(self):
+    def clean(self) -> Dict[str, bool]:
 
         super(ExperimentReviewForm, self).clean()
 
@@ -856,23 +868,24 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
 
 
 class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm):
-
     attention = forms.CharField(required=False)
 
     class Meta:
         model = Experiment
         fields = ("status", "attention")
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.old_status = self.instance.status
 
     @property
-    def new_status(self):
+    def new_status(self) -> str:
         return self.cleaned_data["status"]
 
-    def clean_status(self):
-        expected_status = self.new_status in self.STATUS_TRANSITIONS[self.old_status]
+    def clean_status(self) -> str:
+        expected_status = self.new_status in self.STATUS_TRANSITIONS.get(
+            self.old_status, []
+        )  # type: ignore
 
         if self.old_status != self.new_status and not expected_status:
             raise forms.ValidationError(
@@ -884,7 +897,7 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
 
         return self.new_status
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> Experiment:
         experiment = super().save(*args, **kwargs)
 
         if (
@@ -892,8 +905,7 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
             and self.new_status == Experiment.STATUS_REVIEW
             and not experiment.bugzilla_id
         ):
-
-            tasks.create_experiment_bug_task.delay(self.request.user.id, experiment.id)
+            create_experiment_bug_task.delay(self.request.user.id, experiment.id)
 
         if (
             self.old_status == Experiment.STATUS_REVIEW
@@ -904,29 +916,28 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
             experiment.normandy_slug = experiment.generate_normandy_slug()
             experiment.save()
 
-            tasks.update_experiment_bug_task.delay(self.request.user.id, experiment.id)
+            update_experiment_bug_task.delay(self.request.user.id, experiment.id)
 
         return experiment
 
 
 class ExperimentArchiveForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm):
-
     archived = forms.BooleanField(required=False)
 
     class Meta:
         model = Experiment
         fields = ("archived",)
 
-    def clean_archived(self):
+    def clean_archived(self) -> bool:
         return not self.instance.archived
 
-    def get_changelog_message(self):
+    def get_changelog_message(self) -> str:
         message = "Archived Delivery"
         if not self.instance.archived:
             message = "Unarchived Delivery"
         return message
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> Experiment:
         experiment = Experiment.objects.get(id=self.instance.id)
 
         if not experiment.is_archivable:
@@ -935,7 +946,7 @@ class ExperimentArchiveForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm
             return experiment
 
         experiment = super().save(*args, **kwargs)
-        tasks.update_bug_resolution_task.delay(self.request.user.id, experiment.id)
+        update_bug_resolution_task.delay(self.request.user.id, experiment.id)
         return experiment
 
 
@@ -947,17 +958,17 @@ class ExperimentSubscribedForm(ExperimentConstants, forms.ModelForm):
         model = Experiment
         fields = ()
 
-    def __init__(self, request, *args, **kwargs):
+    def __init__(self, request: HttpRequest, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.request = request
         self.initial["subscribed"] = self.instance.subscribers.filter(
             id=self.request.user.id
         ).exists()
 
-    def clean_subscribed(self):
+    def clean_subscribed(self) -> bool:
         return self.instance.subscribers.filter(id=self.request.user.id).exists()
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> Experiment:
         experiment = super().save(*args, **kwargs)
 
         if self.cleaned_data["subscribed"]:
@@ -977,11 +988,11 @@ class ExperimentCommentForm(forms.ModelForm):
         model = ExperimentComment
         fields = ("experiment", "section", "created_by", "text")
 
-    def __init__(self, request, *args, **kwargs):
+    def __init__(self, request: HttpRequest, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.request = request
 
-    def clean_created_by(self):
+    def clean_created_by(self) -> User:
         return self.request.user
 
 
@@ -1004,10 +1015,10 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
         required=False,
     )
 
-    def get_changelog_message(self):
+    def get_changelog_message(self) -> str:
         return self.IDS_ADDED_MESSAGE
 
-    def clean(self):
+    def clean(self) -> Dict[str, Union[int, List[int], List[Any]]]:
         cleaned_data = super().clean()
 
         if cleaned_data.get("normandy_id") in cleaned_data.get("other_normandy_ids", []):
@@ -1017,7 +1028,7 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
 
         return cleaned_data
 
-    def clean_other_normandy_ids(self):
+    def clean_other_normandy_ids(self) -> List[int]:
         if not self.cleaned_data["other_normandy_ids"].strip():
             return []
 

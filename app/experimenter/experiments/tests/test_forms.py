@@ -1,5 +1,6 @@
 import json
 
+import mock
 import factory
 from django import forms
 from django.conf import settings
@@ -35,8 +36,7 @@ from experimenter.experiments.tests.factories import (
     UserFactory,
 )
 from experimenter.base.tests.mixins import MockRequestMixin
-from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
-from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
+from experimenter.bugzilla.tests.mixins import MockBugzillaMixin, MockBugzillaTasksMixin
 from experimenter.notifications.models import Notification
 from experimenter.projects.tests.factories import ProjectFactory
 
@@ -876,9 +876,23 @@ class TestExperimentReviewForm(
         self.assertTrue(experiment.review_qa)
 
 
-class TestExperimentStatusForm(
-    MockBugzillaMixin, MockRequestMixin, MockBugzillaTasksMixin, TestCase
-):
+class TestExperimentStatusForm(MockRequestMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        mock_tasks_update_experiment_bug_patcher = mock.patch(
+            "experimenter.experiments.forms.update_experiment_bug_task"
+        )
+        self.mock_tasks_update_experiment_bug = (
+            mock_tasks_update_experiment_bug_patcher.start()
+        )
+        self.addCleanup(mock_tasks_update_experiment_bug_patcher.stop)
+
+        mock_tasks_create_bug_patcher = mock.patch(
+            "experimenter.experiments.forms.create_experiment_bug_task"
+        )
+        self.mock_tasks_create_bug = mock_tasks_create_bug_patcher.start()
+        self.addCleanup(mock_tasks_create_bug_patcher.stop)
+
     def test_form_allows_valid_state_transition_and_creates_changelog(self):
         experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
         form = ExperimentStatusForm(
@@ -984,9 +998,19 @@ class TestExperimentCommentForm(MockRequestMixin, TestCase):
         self.assertIn("text", form.errors)
 
 
-class TestExperimentArchiveForm(MockRequestMixin, MockBugzillaTasksMixin, TestCase):
-    def test_form_flips_archive_bool(self):
+class TestExperimentArchiveForm(MockRequestMixin, TestCase):
+    def setUp(self):
+        super().setUp()
 
+        mock_tasks_update_bug_resolution_patcher = mock.patch(
+            "experimenter.experiments.forms.update_bug_resolution_task"
+        )
+        self.mock_tasks_update_bug_resolution = (
+            mock_tasks_update_bug_resolution_patcher.start()
+        )
+        self.addCleanup(mock_tasks_update_bug_resolution_patcher.stop)
+
+    def test_form_flips_archive_bool(self):
         experiment = ExperimentFactory.create(archived=False)
 
         form = ExperimentArchiveForm(self.request, instance=experiment, data={})
