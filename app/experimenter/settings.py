@@ -128,7 +128,9 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -197,19 +199,24 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": False,
         },
-        "django.request": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
+        "django.request": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
     },
     "root": {"handlers": ["console"], "level": "DEBUG"},
 }
 
 
 # Sentry configuration
-RAVEN_CONFIG = {
-    "dsn": config("SENTRY_DSN"),
-    # If you are using git, you can also automatically configure the
-    # release based on the git info.
-    # 'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
-}
+if not DEBUG:
+    RAVEN_CONFIG = {
+        "dsn": config("SENTRY_DSN"),
+        # If you are using git, you can also automatically configure the
+        # release based on the git info.
+        # 'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
+    }
 
 
 # Django Rest Framework Configuration
@@ -348,7 +355,8 @@ NORMANDY_API_RECIPES_LIST_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/")
 
 # Jira URL
 JIRA_URL = config(
-    "JIRA_URL", default="https://moz-pi-test.atlassian.net/servicedesk/customer/portal/9"
+    "JIRA_URL",
+    default="https://moz-pi-test.atlassian.net/servicedesk/customer/portal/9",
 )
 
 

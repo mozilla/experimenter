@@ -1,18 +1,23 @@
+from __future__ import annotations
 from collections import defaultdict
+from datetime import date, timedelta
+from typing import DefaultDict, Dict, List, Optional, Set, Tuple, Union
 from urllib.parse import urljoin
 import copy
-import datetime
 import json
 import time
 
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import Case, Max, Value, When
+from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -23,15 +28,15 @@ from experimenter.projects.models import Project
 from experimenter.experiments.constants import ExperimentConstants
 
 
-def default_all_platforms():
+def default_all_platforms() -> List[str]:
     return ExperimentConstants.PLATFORMS_LIST
 
 
 class ExperimentManager(models.Manager):
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         return super().get_queryset().annotate(latest_change=Max("changes__changed_on"))
 
-    def get_prefetched(self):
+    def get_prefetched(self) -> QuerySet:
         return self.get_queryset().prefetch_related(
             "changes__changed_by",
             "changes",
@@ -246,7 +251,9 @@ class Experiment(ExperimentConstants, models.Model):
     risk_brand = models.NullBooleanField(default=None, blank=True, null=True)
     risk_fast_shipped = models.NullBooleanField(default=None, blank=True, null=True)
     risk_confidential = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_release_population = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_release_population = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     risk_revenue = models.NullBooleanField(default=None, blank=True, null=True)
     risk_data_category = models.NullBooleanField(default=None, blank=True, null=True)
     risk_external_team_impact = models.NullBooleanField(
@@ -294,12 +301,18 @@ class Experiment(ExperimentConstants, models.Model):
     results_initial = models.TextField(blank=True, null=True)
     results_lessons_learned = models.TextField(blank=True, null=True)
 
-    results_fail_to_launch = models.NullBooleanField(default=None, blank=True, null=True)
+    results_fail_to_launch = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     results_recipe_errors = models.NullBooleanField(default=None, blank=True, null=True)
     results_restarts = models.NullBooleanField(default=None, blank=True, null=True)
-    results_low_enrollment = models.NullBooleanField(default=None, blank=True, null=True)
+    results_low_enrollment = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     results_early_end = models.NullBooleanField(default=None, blank=True, null=True)
-    results_no_usable_data = models.NullBooleanField(default=None, blank=True, null=True)
+    results_no_usable_data = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     results_failures_notes = models.TextField(blank=True, null=True)
 
     results_changes_to_firefox = models.NullBooleanField(
@@ -309,7 +322,9 @@ class Experiment(ExperimentConstants, models.Model):
         default=None, blank=True, null=True
     )
     results_confidence = models.NullBooleanField(default=None, blank=True, null=True)
-    results_measure_impact = models.NullBooleanField(default=None, blank=True, null=True)
+    results_measure_impact = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
     results_impact_notes = models.TextField(blank=True, null=True)
 
     objects = ExperimentManager()
@@ -318,47 +333,50 @@ class Experiment(ExperimentConstants, models.Model):
         verbose_name = "Experiment"
         verbose_name_plural = "Experiments"
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse("experiments-detail", kwargs={"slug": self.slug})
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.full_name
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         return "{type}: {name}".format(type=self.get_type_display(), name=self.name)
 
     @property
-    def experiment_url(self):
+    def experiment_url(self) -> str:
         return urljoin(
             "https://{host}".format(host=settings.HOSTNAME), self.get_absolute_url()
         )
 
     @property
-    def bugzilla_url(self):
+    def bugzilla_url(self) -> Optional[str]:
         if self.bugzilla_id:
             return settings.BUGZILLA_DETAIL_URL.format(id=self.bugzilla_id)
+        return None
 
     @property
-    def monitoring_dashboard_url(self):
-        def to_timestamp(date):
-            return int(time.mktime(date.timetuple())) * 1000
+    def monitoring_dashboard_url(self) -> Optional[str]:
+        def to_timestamp(input_date: date) -> int:
+            return int(time.mktime(input_date.timetuple())) * 1000
 
         start_date = ""
         end_date = ""
 
-        if self.is_begun and self.normandy_slug:
-            start_date = to_timestamp(self.start_date - datetime.timedelta(days=1))
+        if self.is_begun and self.normandy_slug and self.start_date:
+            start_date = str(to_timestamp(self.start_date - timedelta(days=1)))
 
-            if self.status == self.STATUS_COMPLETE:
-                end_date = to_timestamp(self.end_date + datetime.timedelta(days=2))
+            if self.status == self.STATUS_COMPLETE and self.end_date:
+                end_date = str(to_timestamp(self.end_date + timedelta(days=2)))
 
             return settings.MONITORING_URL.format(
                 slug=self.normandy_slug, from_date=start_date, to_date=end_date
             )
 
+        return None
+
     @property
-    def should_use_normandy(self):
+    def should_use_normandy(self) -> bool:
         return self.type in (
             self.TYPE_PREF,
             self.TYPE_ADDON,
@@ -366,7 +384,7 @@ class Experiment(ExperimentConstants, models.Model):
             self.TYPE_MESSAGE,
         )
 
-    def generate_normandy_slug(self):
+    def generate_normandy_slug(self) -> str:
         if self.is_addon_experiment and not self.use_branched_addon_serializer:
             if not self.addon_experiment_id:
                 raise ValueError(
@@ -388,7 +406,7 @@ class Experiment(ExperimentConstants, models.Model):
         if not self.bugzilla_id:
             raise ValueError(error_msg.format(field="Bugzilla ID"))
 
-        version_string = self.firefox_min_version_integer
+        version_string = str(self.firefox_min_version_integer)
         if self.firefox_max_version:
             version_string = (
                 f"{self.firefox_min_version_integer}-"
@@ -397,22 +415,28 @@ class Experiment(ExperimentConstants, models.Model):
 
         slug_prefix = f"bug-{self.bugzilla_id}-{self.type}-"
         slug_postfix = f"-{self.firefox_channel}-{version_string}"
-        remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(slug_prefix + slug_postfix)
+        remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(
+            slug_prefix + slug_postfix
+        )
         truncated_slug = slugify(self.name[:remaining_chars])
         return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
 
     @property
-    def normandy_recipe_json(self):
+    def normandy_recipe_json(self) -> str:
         from experimenter.normandy.serializers import ExperimentRecipeSerializer
 
         return json.dumps(ExperimentRecipeSerializer(self).data, indent=2)
 
     @property
-    def has_normandy_info(self):
-        return self.normandy_slug or self.normandy_id
+    def has_normandy_info(self) -> bool:
+        return bool(self.normandy_slug or self.normandy_id)
 
     @property
-    def format_dc_normandy_urls(self):
+    def format_dc_normandy_urls(
+        self,
+    ) -> Union[
+        List[Union[Dict[str, str], Dict[str, Union[int, str]]]], List[Dict[str, str]]
+    ]:
         # returns a list of dictionaries containing D.C. and Normandy
         # urls for the main normandy id and other normandy ids if they exist
         normandy_recipe_url = settings.NORMANDY_API_RECIPE_URL
@@ -442,81 +466,91 @@ class Experiment(ExperimentConstants, models.Model):
         return urls
 
     @property
-    def delivery_console_experiment_import_url(self):
+    def delivery_console_experiment_import_url(self) -> str:
         return settings.DELIVERY_CONSOLE_EXPERIMENT_IMPORT_URL.format(slug=self.slug)
 
     @property
-    def api_recipe_url(self):
+    def api_recipe_url(self) -> str:
         return reverse("experiments-api-recipe", kwargs={"slug": self.slug})
 
     @property
-    def has_external_urls(self):
-        return (
+    def has_external_urls(self) -> bool:
+        return bool(
             self.bugzilla_url
             or self.monitoring_dashboard_url
             or self.data_science_issue_url
             or self.feature_bugzilla_url
         )
 
-    def _transition_date(self, old_status, new_status):
+    def _transition_date(self, old_status: str, new_status: str) -> Optional[date]:
         for change in self.changes.all():
             if change.old_status == old_status and change.new_status == new_status:
                 return change.changed_on.date()
+        return None
 
     @property
-    def start_date(self):
+    def start_date(self) -> Optional[date]:
         return (
             self._transition_date(self.STATUS_ACCEPTED, self.STATUS_LIVE)
             or self.proposed_start_date
         )
 
-    def _compute_end_date(self, duration):
+    def _compute_end_date(self, duration: Optional[int]) -> Optional[date]:
         if self.start_date and duration and 0 <= duration <= self.MAX_DURATION:
-            return self.start_date + datetime.timedelta(days=duration)
+            return self.start_date + timedelta(days=duration)
+        return None
 
     @property
-    def end_date(self):
+    def end_date(self) -> Optional[date]:
         return self._transition_date(
             self.STATUS_LIVE, self.STATUS_COMPLETE
         ) or self._compute_end_date(self.proposed_duration)
 
     @property
-    def total_duration(self):
-        return (self.end_date - self.start_date).days
+    def total_duration(self) -> Optional[int]:
+        if self.start_date and self.end_date:
+            return (self.end_date - self.start_date).days
+        return None
 
     @property
-    def enrollment_ending_soon(self):
-        return (self.enrollment_end_date - datetime.date.today()) <= datetime.timedelta(
-            days=5
-        )
+    def enrollment_ending_soon(self) -> bool:
+        if self.enrollment_end_date:
+            return (self.enrollment_end_date - date.today()) <= timedelta(days=5)
+        return False
 
     @property
-    def ending_soon(self):
-        return (self.end_date - datetime.date.today()) <= datetime.timedelta(days=5)
+    def ending_soon(self) -> bool:
+        if self.end_date:
+            return (self.end_date - date.today()) <= timedelta(days=5)
+        return False
 
     @property
-    def enrollment_end_date(self):
+    def enrollment_end_date(self) -> Optional[date]:
         changes = self.changes.filter(message="Enrollment Complete")
         if changes:
             return changes[0].changed_on.date()
         if self.proposed_enrollment:
             return self._compute_end_date(self.proposed_enrollment)
+        return None
 
     @property
-    def enrollment_duration(self):
-        return (self.enrollment_end_date - self.start_date).days
+    def enrollment_duration(self) -> Optional[int]:
+        if self.start_date and self.enrollment_end_date:
+            return (self.enrollment_end_date - self.start_date).days
+        return None
 
     @property
-    def observation_duration(self):
-        if self.enrollment_end_date:
-            duration = (self.end_date - self.enrollment_end_date).days
-            return duration
+    def observation_duration(self) -> int:
+        if self.end_date and self.enrollment_end_date:
+            return (self.end_date - self.enrollment_end_date).days
         return 0
 
-    def _format_date(self, date):
-        return date.strftime("%b %d, %Y")
+    def _format_date(self, input_date: date) -> str:
+        return input_date.strftime("%b %d, %Y")
 
-    def _format_date_string(self, start_date, end_date):
+    def _format_date_string(
+        self, start_date: Optional[date], end_date: Optional[date]
+    ) -> str:
         start_text = "Unknown"
         if start_date:
             start_text = self._format_date(start_date)
@@ -539,29 +573,25 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
-    def dates(self):
+    def dates(self) -> str:
         return self._format_date_string(self.start_date, self.end_date)
 
     @property
-    def enrollment_dates(self):
+    def enrollment_dates(self) -> str:
         return self._format_date_string(self.start_date, self.enrollment_end_date)
 
     @property
-    def observation_dates(self):
+    def observation_dates(self) -> str:
         return self._format_date_string(self.enrollment_end_date, self.end_date)
 
     @property
-    def rollout_dates(self):
-        if self.start_date and self.end_date:
-            dates = {}
+    def rollout_dates(self) -> Dict[str, Dict[str, str]]:
+        dates = {}
 
+        if self.start_date and self.end_date:
             start_date = self._format_date(self.start_date)
-            first_increase = self._format_date(
-                self.start_date + datetime.timedelta(days=7)
-            )
-            final_increase = self._format_date(
-                self.start_date + datetime.timedelta(days=21)
-            )
+            first_increase = self._format_date(self.start_date + timedelta(days=7))
+            final_increase = self._format_date(self.start_date + timedelta(days=21))
 
             if self.rollout_playbook == self.ROLLOUT_PLAYBOOK_LOW_RISK:
                 dates["first_increase"] = {"date": start_date, "percent": "25"}
@@ -574,15 +604,19 @@ class Experiment(ExperimentConstants, models.Model):
             elif self.rollout_playbook == self.ROLLOUT_PLAYBOOK_MARKETING:
                 dates["final_increase"] = {"date": start_date, "percent": "100"}
 
-            return dates
+        return dates
 
     @cached_property
-    def control(self):
+    def control(self) -> "ExperimentVariant":
         return self.variants.get(is_control=True)
 
     @property
-    def grouped_changes(self):
-        grouped_changes = defaultdict(lambda: defaultdict(set))
+    def grouped_changes(
+        self,
+    ) -> DefaultDict[date, DefaultDict[User, Set["ExperimentChangeLog"]]]:
+        grouped_changes: DefaultDict[
+            date, DefaultDict[User, Set["ExperimentChangeLog"]]
+        ] = defaultdict(lambda: defaultdict(set))
 
         for change in self.changes.all():
             grouped_changes[change.changed_on.date()][change.changed_by].add(change)
@@ -590,64 +624,66 @@ class Experiment(ExperimentConstants, models.Model):
         return grouped_changes
 
     @property
-    def ordered_changes(self):
+    def ordered_changes(
+        self,
+    ) -> List[Tuple[date, List[Tuple[User, Set["ExperimentChangeLog"]]]]]:
         date_ordered_changes = []
-        for date, users in sorted(self.grouped_changes.items(), reverse=True):
+        for change_date, users in sorted(self.grouped_changes.items(), reverse=True):
 
             date_changes = []
             for user, user_changes in users.items():
                 date_changes.append((user, set([c for c in list(user_changes)])))
 
-            date_ordered_changes.append((date, date_changes))
+            date_ordered_changes.append((change_date, date_changes))
 
         return date_ordered_changes
 
     @property
-    def is_generic_experiment(self):
+    def is_generic_experiment(self) -> bool:
         return self.type == self.TYPE_GENERIC
 
     @property
-    def is_addon_experiment(self):
+    def is_addon_experiment(self) -> bool:
         return self.type == self.TYPE_ADDON
 
     @property
-    def is_pref_experiment(self):
+    def is_pref_experiment(self) -> bool:
         return self.type == self.TYPE_PREF
 
     @property
-    def is_message_experiment(self):
+    def is_message_experiment(self) -> bool:
         return self.type == self.TYPE_MESSAGE
 
     @property
-    def is_rollout(self):
+    def is_rollout(self) -> bool:
         return self.type == self.TYPE_ROLLOUT
 
     @property
-    def is_rapid_experiment(self):
+    def is_rapid_experiment(self) -> bool:
         return self.type == self.TYPE_RAPID
 
     @property
-    def is_pref_rollout(self):
+    def is_pref_rollout(self) -> bool:
         return self.is_rollout and self.rollout_type == self.TYPE_PREF
 
     @property
-    def is_addon_rollout(self):
+    def is_addon_rollout(self) -> bool:
         return self.is_rollout and self.rollout_type == self.TYPE_ADDON
 
     @property
-    def is_editable(self):
+    def is_editable(self) -> bool:
         return self.status in (self.STATUS_DRAFT, self.STATUS_REVIEW)
 
     @property
-    def is_begun(self):
+    def is_begun(self) -> bool:
         return self.status in (self.STATUS_LIVE, self.STATUS_COMPLETE)
 
     @property
-    def is_high_risk(self):
+    def is_high_risk(self) -> bool:
         return any(self._risk_values)
 
     @property
-    def should_have_variants(self):
+    def should_have_variants(self) -> bool:
         return self.type in (
             self.TYPE_PREF,
             self.TYPE_ADDON,
@@ -656,85 +692,85 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
-    def should_have_population_percent(self):
+    def should_have_population_percent(self) -> bool:
         return (
             self.type
             in (self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC, self.TYPE_MESSAGE)
         ) or (self.is_rollout and self.is_begun)
 
     @property
-    def should_have_total_enrolled(self):
+    def should_have_total_enrolled(self) -> bool:
         return self.type not in (self.TYPE_GENERIC, self.TYPE_ROLLOUT)
 
     @property
-    def should_have_telemetry_event(self):
+    def should_have_telemetry_event(self) -> bool:
         return self.type == self.TYPE_MESSAGE
 
     @property
-    def display_platforms_or_versions(self):
+    def display_platforms_or_versions(self) -> str:
         if self.windows_versions:
             return ", ".join(self.windows_versions)
-        else:
+        elif self.platforms:
             if set(ExperimentConstants.PLATFORMS_LIST) == set(self.platforms):
                 return ExperimentConstants.PLATFORM_ALL
-
             return ", ".join(self.platforms)
+        return ""
 
     @property
-    def completed_overview(self):
+    def completed_overview(self) -> bool:
         return self.pk is not None
 
     @property
-    def completed_timeline(self):
-        completed = self.proposed_start_date and self.proposed_duration
+    def completed_timeline(self) -> bool:
+        completed = bool(self.proposed_start_date and self.proposed_duration)
 
         if self.is_rollout:
-            completed = completed and self.rollout_playbook
+            completed = bool(completed and self.rollout_playbook)
 
         return completed
 
     @property
-    def completed_population(self):
-        completed = (
-            self.firefox_min_version and self.firefox_max_version and self.firefox_channel
+    def completed_population(self) -> bool:
+        completed = bool(
+            self.firefox_min_version
+            and self.firefox_max_version
+            and self.firefox_channel
         )
 
         if self.should_have_population_percent:
-            completed = completed and self.population_percent
+            completed = bool(completed and self.population_percent)
 
         return completed
 
     @property
-    def completed_design(self):
-        return self.design and self.design != self.DESIGN_DEFAULT
+    def completed_design(self) -> bool:
+        return bool(self.design and self.design != self.DESIGN_DEFAULT)
 
     @property
-    def completed_pref_rollout(self):
-
-        return self.is_pref_rollout and self.preferences.count() > 0
-
-    @property
-    def completed_addon_rollout(self):
-        return self.is_addon_rollout and self.addon_release_url
+    def completed_pref_rollout(self) -> bool:
+        return bool(self.is_pref_rollout and self.preferences.count() > 0)
 
     @property
-    def completed_rollout(self):
-        return self.completed_pref_rollout or self.completed_addon_rollout
+    def completed_addon_rollout(self) -> bool:
+        return bool(self.is_addon_rollout and self.addon_release_url)
 
     @property
-    def completed_addon(self):
+    def completed_rollout(self) -> bool:
+        return bool(self.completed_pref_rollout or self.completed_addon_rollout)
+
+    @property
+    def completed_addon(self) -> bool:
         if self.is_branched_addon:
             return all([v.addon_release_url for v in self.variants.all()])
-        else:
-            return self.addon_release_url
+        return bool(self.addon_release_url)
 
     @property
-    def completed_variants(self):
+    def completed_variants(self) -> bool:
         return self.should_have_variants and self.variants.exists()
 
     @property
-    def completed_objectives(self):
-        return (
+    def completed_objectives(self) -> bool:
+        return bool(
             self.objectives
             and self.objectives != self.OBJECTIVES_DEFAULT
             and self.analysis
@@ -742,7 +778,7 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
-    def completed_results(self):
+    def completed_results(self) -> bool:
         results_fields = (
             "results_url",
             "results_initial",
@@ -764,7 +800,7 @@ class Experiment(ExperimentConstants, models.Model):
         return any([getattr(self, field) for field in results_fields])
 
     @property
-    def risk_fields(self):
+    def risk_fields(self) -> List[str]:
         risk_fields = (
             "risk_partner_related",
             "risk_brand",
@@ -786,30 +822,30 @@ class Experiment(ExperimentConstants, models.Model):
         return sorted(list(set(risk_fields) - set(exclusions)))
 
     @property
-    def _risk_values(self):
+    def _risk_values(self) -> Union[List[Optional[bool]], List[bool]]:
         return [getattr(self, risk) for risk in self.risk_fields]
 
     @property
-    def risk_values_labels(self):
+    def risk_values_labels(self) -> List[Tuple[bool, str]]:
         return [
             (getattr(self, risk), self.RISK_LABELS[risk]) for risk in self.risk_fields
         ]
 
     @property
-    def completed_risks(self):
+    def completed_risks(self) -> bool:
         completed = None not in self._risk_values
 
         if self.risk_technical:
-            completed = completed and self.risk_technical_description
+            completed = bool(completed and self.risk_technical_description)
 
         return completed
 
     @property
-    def should_show_risks(self):
+    def should_show_risks(self) -> bool:
         return self.completed_risks or self.is_begun
 
     @property
-    def should_have_test_instructions(self):
+    def should_have_test_instructions(self) -> bool:
         return self.type in [
             self.TYPE_PREF,
             self.TYPE_ADDON,
@@ -818,15 +854,15 @@ class Experiment(ExperimentConstants, models.Model):
         ]
 
     @property
-    def should_have_test_builds(self):
+    def should_have_test_builds(self) -> bool:
         return self.type in [self.TYPE_PREF, self.TYPE_ADDON, self.TYPE_GENERIC]
 
     @property
-    def completed_testing(self):
-        return self.qa_status
+    def completed_testing(self) -> bool:
+        return bool(self.qa_status)
 
     @property
-    def _conditional_required_reviews_mapping(self):
+    def _conditional_required_reviews_mapping(self) -> Dict[str, bool]:
         return {
             "review_vp": any(
                 (
@@ -839,16 +875,16 @@ class Experiment(ExperimentConstants, models.Model):
                 )
             ),
             "review_legal": any((self.risk_partner_related, self.risk_data_category)),
-            "review_impacted_teams": self.risk_external_team_impact,
-            "review_data_steward": self.risk_telemetry_data,
-            "review_ux": self.risk_ux,
-            "review_security": self.risk_security,
+            "review_impacted_teams": bool(self.risk_external_team_impact),
+            "review_data_steward": bool(self.risk_telemetry_data),
+            "review_ux": bool(self.risk_ux),
+            "review_security": bool(self.risk_security),
         }
 
-    def _default_required_reviews(self):
+    def _default_required_reviews(self) -> List[str]:
         return list(self.SIGNOFF_TYPE_DEFAULTS.get(self.type, self.SIGNOFF_DEFAULTS))
 
-    def get_all_required_reviews(self):
+    def get_all_required_reviews(self) -> List[str]:
         required_reviews = self._default_required_reviews()
         for review, risk in self._conditional_required_reviews_mapping.items():
             if risk:
@@ -857,7 +893,7 @@ class Experiment(ExperimentConstants, models.Model):
         return required_reviews
 
     @property
-    def completed_required_reviews(self):
+    def completed_required_reviews(self) -> bool:
         required_reviews = self.get_all_required_reviews()
 
         if not self.is_rollout and "review_advisory" in required_reviews:
@@ -867,7 +903,7 @@ class Experiment(ExperimentConstants, models.Model):
         return all([getattr(self, r) for r in required_reviews])
 
     @property
-    def completed_all_sections(self):
+    def completed_all_sections(self) -> bool:
         completed = (
             self.completed_timeline
             and self.completed_population
@@ -887,66 +923,78 @@ class Experiment(ExperimentConstants, models.Model):
         return completed
 
     @property
-    def should_have_signoffs_to_launch(self):
+    def should_have_signoffs_to_launch(self) -> bool:
         return self.type not in [self.TYPE_MESSAGE]
 
     @property
-    def is_ready_to_launch(self):
+    def is_ready_to_launch(self) -> bool:
         ready_to_launch = self.completed_all_sections
 
         if self.should_have_signoffs_to_launch:
-            ready_to_launch = ready_to_launch and self.completed_required_reviews
+            ready_to_launch = bool(ready_to_launch and self.completed_required_reviews)
 
         return ready_to_launch
 
     @property
-    def format_firefox_versions(self):
+    def format_firefox_versions(self) -> Optional[str]:
         if self.firefox_max_version:
             return f"{self.firefox_min_version} to {self.firefox_max_version}"
-        else:
+        elif self.firefox_min_version:
             return self.firefox_min_version
+        return None
 
     @property
-    def firefox_max_version_integer(self):
+    def firefox_max_version_integer(self) -> Optional[int]:
         if self.firefox_max_version:
-            return int(
-                ExperimentConstants.VERSION_REGEX.match(self.firefox_max_version).group(0)
+            matches = ExperimentConstants.VERSION_REGEX.match(self.firefox_max_version)
+            if matches:
+                return int(matches.group(0))
+        return None
+
+    @property
+    def firefox_min_version_integer(self) -> Optional[int]:
+        if self.firefox_min_version:
+            matches = ExperimentConstants.VERSION_REGEX.match(self.firefox_min_version)
+            if matches:
+                return int(matches.group(0))
+        return None
+
+    @property
+    def use_branched_addon_serializer(self) -> bool:
+        if self.firefox_min_version_integer:
+            return (
+                self.is_addon_experiment
+                and self.firefox_min_version_integer
+                >= ExperimentConstants.FX_MIN_MULTI_BRANCHED_VERSION
             )
+        return False
 
     @property
-    def firefox_min_version_integer(self):
-        return int(
-            ExperimentConstants.VERSION_REGEX.match(self.firefox_min_version).group(0)
-        )
+    def use_multi_pref_serializer(self) -> bool:
+        if self.firefox_min_version_integer:
+            return (
+                self.is_pref_experiment
+                and self.firefox_min_version_integer
+                >= ExperimentConstants.FX_MIN_MULTI_BRANCHED_VERSION
+            ) or self.is_multi_pref
+        return False
 
     @property
-    def use_branched_addon_serializer(self):
-        return (
-            self.is_addon_experiment
-            and self.firefox_min_version_integer
-            >= ExperimentConstants.FX_MIN_MULTI_BRANCHED_VERSION
-        )
+    def versions_integer_list(self) -> Optional[List[int]]:
+        if self.firefox_min_version_integer:
+            max = self.firefox_min_version_integer
+            if self.firefox_max_version_integer:
+                max = self.firefox_max_version_integer
+            return list(range(self.firefox_min_version_integer, max + 1))
+        return None
 
     @property
-    def use_multi_pref_serializer(self):
-        return (
-            self.is_pref_experiment
-            and self.firefox_min_version_integer
-            >= ExperimentConstants.FX_MIN_MULTI_BRANCHED_VERSION
-        ) or self.is_multi_pref
-
-    @property
-    def versions_integer_list(self):
-        max = self.firefox_max_version_integer or self.firefox_min_version_integer
-        return list(range(self.firefox_min_version_integer, max + 1))
-
-    @property
-    def population(self):
+    def population(self) -> str:
         population = "{channel} Firefox {firefox_version}".format(
             firefox_version=self.format_firefox_versions, channel=self.firefox_channel
         )
 
-        if self.should_have_population_percent:
+        if self.should_have_population_percent and self.population_percent:
             population = "{percent:g}% of {population}".format(
                 population=population, percent=float(self.population_percent)
             )
@@ -954,7 +1002,7 @@ class Experiment(ExperimentConstants, models.Model):
         return population
 
     @staticmethod
-    def firefox_channel_sort():
+    def firefox_channel_sort() -> Case:
         """A Case that can be added to an Experiment QuerySet to sort."""
         return Case(
             When(
@@ -974,20 +1022,20 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     @property
-    def is_archivable(self):
+    def is_archivable(self) -> bool:
         not_archivable = (self.STATUS_LIVE, self.STATUS_ACCEPTED)
         return self.status not in not_archivable
 
     @property
-    def is_enrollment_complete(self):
+    def is_enrollment_complete(self) -> bool:
         return self.is_paused and self.status == self.STATUS_LIVE
 
     @property
-    def is_pref_value_json_string(self):
+    def is_pref_value_json_string(self) -> bool:
         return self.pref_type == ExperimentConstants.PREF_TYPE_JSON_STR
 
     @property
-    def is_shipped(self):
+    def is_shipped(self) -> bool:
         return self.status in (
             Experiment.STATUS_SHIP,
             Experiment.STATUS_ACCEPTED,
@@ -995,8 +1043,7 @@ class Experiment(ExperimentConstants, models.Model):
             Experiment.STATUS_COMPLETE,
         )
 
-    def clone(self, name, user):
-
+    def clone(self, name: str, user: User) -> "Experiment":
         cloned = copy.copy(self)
         variants = ExperimentVariant.objects.filter(experiment=self)
 
@@ -1040,7 +1087,7 @@ class Experiment(ExperimentConstants, models.Model):
             "results_impact_notes",
         ]
 
-        cloned.id = None
+        cloned.id = None  # type: ignore
         cloned.name = name
         cloned.slug = slugify(cloned.name)
         cloned.status = ExperimentConstants.STATUS_DRAFT
@@ -1057,7 +1104,7 @@ class Experiment(ExperimentConstants, models.Model):
         # for the variants on the old experiment, duplicate each
         # with id=none, set the experiment foreignkey to the new clone
         for variant in variants:
-            variant.id = None
+            variant.id = None  # type: ignore
             variant.experiment = cloned
             variant.save()
 
@@ -1103,11 +1150,11 @@ class ExperimentVariant(models.Model):
         verbose_name_plural = "Experiment Variants"
         unique_together = (("slug", "experiment"),)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     @property
-    def type(self):
+    def type(self) -> str:
         if self.is_control:
             return "Control"
         else:
@@ -1128,7 +1175,7 @@ class Preference(models.Model):
         abstract = True
 
     @property
-    def is_json_string_type(self):
+    def is_json_string_type(self) -> bool:
         return self.pref_type == ExperimentConstants.PREF_TYPE_JSON_STR
 
 
@@ -1210,9 +1257,6 @@ class ExperimentChangeLog(models.Model):
         Experiment.STATUS_COMPLETE: {Experiment.STATUS_COMPLETE: STATUS_ADDED_RESULTS},
     }
 
-    def current_datetime():
-        return timezone.now()
-
     experiment = models.ForeignKey(
         Experiment,
         blank=False,
@@ -1220,7 +1264,7 @@ class ExperimentChangeLog(models.Model):
         related_name="changes",
         on_delete=models.CASCADE,
     )
-    changed_on = models.DateTimeField(default=current_datetime)
+    changed_on = models.DateTimeField(default=timezone.now)
     changed_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     old_status = models.CharField(
         max_length=255, blank=True, null=True, choices=Experiment.STATUS_CHOICES
@@ -1238,15 +1282,27 @@ class ExperimentChangeLog(models.Model):
         verbose_name_plural = "Experiment Change Logs"
         ordering = ("changed_on",)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.message:
             return self.message
         else:
             return self.pretty_status
 
     @property
-    def pretty_status(self):
-        return self.PRETTY_STATUS_LABELS.get(self.old_status, {}).get(self.new_status, "")
+    def pretty_status(self) -> str:
+        return self.PRETTY_STATUS_LABELS.get(self.old_status, {}).get(
+            self.new_status, ""
+        )
+
+
+class ExperimentEmail(ExperimentConstants, models.Model):
+    experiment = models.ForeignKey(
+        Experiment, related_name="emails", on_delete=models.CASCADE
+    )
+    type = models.CharField(
+        max_length=255, blank=False, null=False, choices=Experiment.EMAIL_CHOICES
+    )
+    sent_on = models.DateTimeField(auto_now_add=True)
 
 
 class ExperimentCommentManager(models.Manager):
@@ -1258,16 +1314,6 @@ class ExperimentCommentManager(models.Manager):
             sections[comment.section].append(comment)
 
         return sections
-
-
-class ExperimentEmail(ExperimentConstants, models.Model):
-    experiment = models.ForeignKey(
-        Experiment, related_name="emails", on_delete=models.CASCADE
-    )
-    type = models.CharField(
-        max_length=255, blank=False, null=False, choices=Experiment.EMAIL_CHOICES
-    )
-    sent_on = models.DateTimeField(auto_now_add=True)
 
 
 class ExperimentComment(ExperimentConstants, models.Model):
@@ -1312,26 +1358,31 @@ class ExperimentBucketNamespace(models.Model):
         return f"{self.name}-{self.instance}"
 
     @classmethod
-    def request_namespace_buckets(cls, name, experiment, count):
+    def request_namespace_buckets(
+        cls, name: str, experiment: Experiment, count: int
+    ) -> "ExperimentBucketRange":
         if cls.objects.filter(name=name).exists():
             namespace = cls.objects.filter(name=name).order_by("-instance").first()
-        else:
-            namespace = cls.objects.create(name=name)
+            if namespace:
+                return namespace.request_buckets(experiment, count)
 
-        return namespace.request_buckets(experiment, count)
+        return cls.objects.create(name=name).request_buckets(experiment, count)
 
-    def request_buckets(self, experiment, count):
+    def request_buckets(
+        self, experiment: Experiment, count: int
+    ) -> "ExperimentBucketRange":
         namespace = self
         start = 0
 
         if self.buckets.exists():
             highest_bucket = self.buckets.all().order_by("-start").first()
-            if highest_bucket.end + count > self.total:
-                namespace = ExperimentBucketNamespace.objects.create(
-                    name=self.name, instance=self.instance + 1
-                )
-            else:
-                start = highest_bucket.end + 1
+            if highest_bucket:
+                if highest_bucket.end + count > self.total:
+                    namespace = ExperimentBucketNamespace.objects.create(
+                        name=self.name, instance=self.instance + 1
+                    )
+                else:
+                    start = highest_bucket.end + 1
 
         return ExperimentBucketRange.objects.create(
             experiment=experiment, namespace=namespace, start=start, count=count
@@ -1356,5 +1407,5 @@ class ExperimentBucketRange(models.Model):
         return f"{self.namespace}: {self.start}-{self.end}/{self.namespace.total}"
 
     @property
-    def end(self):
+    def end(self) -> int:
         return self.start + self.count - 1
