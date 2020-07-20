@@ -24,6 +24,7 @@ from experimenter.experiments.tests.factories import (
     ExperimentCommentFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
+    VariantPreferencesFactory,
 )
 
 
@@ -1585,6 +1586,28 @@ class TestExperimentModel(TestCase):
 
         self.assertEqual(change.old_status, None)
         self.assertEqual(change.new_status, experiment.STATUS_DRAFT)
+
+    def test_variantPreferences_are_included_in_clone(self):
+        user = UserFactory.create()
+        experiment = ExperimentFactory.create(is_multi_pref=True)
+        variant = ExperimentVariantFactory.create(experiment=experiment)
+        preference = VariantPreferencesFactory.create(variant=variant)
+
+        experiment.clone("cloned experiment", user)
+
+        cloned_experiment = Experiment.objects.get(name="cloned experiment")
+
+        cloned_variant = cloned_experiment.variants.get(name=variant.name)
+
+        self.assertEqual(cloned_variant.preferences.count(), 1)
+        self.assertTrue(
+            cloned_variant.preferences.filter(
+                pref_name=preference.pref_name,
+                pref_branch=preference.pref_branch,
+                pref_type=preference.pref_type,
+                pref_value=preference.pref_value,
+            ).exists()
+        )
 
 
 class TestVariantPreferences(TestCase):
