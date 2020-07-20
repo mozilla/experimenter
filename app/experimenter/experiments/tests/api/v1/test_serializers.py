@@ -1,7 +1,4 @@
 import datetime
-import json
-import os
-from jsonschema import validate
 
 from django.test import TestCase
 
@@ -14,14 +11,11 @@ from experimenter.experiments.tests.factories import (
 )
 from experimenter.experiments.api.v1.serializers import (
     ExperimentChangeLogSerializer,
-    ExperimentCSVSerializer,
-    ExperimentRapidRecipeSerializer,
     ExperimentSerializer,
     ExperimentVariantSerializer,
     JSTimestampField,
     PrefTypeField,
 )
-from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.normandy.serializers import ExperimentRecipeVariantSerializer
 
 
@@ -190,120 +184,3 @@ class TestExperimentChangeLogSerializer(TestCase):
         )
         serializer = ExperimentChangeLogSerializer(change_log)
         self.assertEqual(serializer.data["changed_on"], change_log.changed_on)
-
-
-class TestExperimentCSVSerializer(TestCase):
-    def test_serializer_outputs_expected_schema(self):
-        project1 = ProjectFactory.create(name="a")
-        project2 = ProjectFactory.create(name="b")
-        parent = ExperimentFactory.create()
-        related_experiment1 = ExperimentFactory.create(slug="a")
-        related_experiment2 = ExperimentFactory.create(slug="b")
-        experiment = ExperimentFactory.create(
-            proposed_start_date=datetime.date(2020, 1, 1),
-            parent=parent,
-            projects=[project1, project2],
-        )
-        experiment.related_to.add(related_experiment1, related_experiment2)
-
-        serializer = ExperimentCSVSerializer(experiment)
-        self.assertDictEqual(
-            serializer.data,
-            {
-                "name": experiment.name,
-                "type": experiment.type,
-                "status": experiment.status,
-                "experiment_url": experiment.experiment_url,
-                "public_description": experiment.public_description,
-                "owner": experiment.owner.email,
-                "analysis_owner": experiment.analysis_owner.email,
-                "engineering_owner": experiment.engineering_owner,
-                "short_description": experiment.short_description,
-                "objectives": experiment.objectives,
-                "parent": experiment.parent.experiment_url,
-                "projects": f"{project1.name}, {project2.name}",
-                "data_science_issue_url": experiment.data_science_issue_url,
-                "feature_bugzilla_url": experiment.feature_bugzilla_url,
-                "firefox_channel": experiment.firefox_channel,
-                "normandy_slug": experiment.normandy_slug,
-                "proposed_duration": experiment.proposed_duration,
-                "proposed_start_date": "2020-01-01",
-                "related_to": (
-                    f"{related_experiment1.experiment_url}, "
-                    f"{related_experiment2.experiment_url}"
-                ),
-                "related_work": experiment.related_work,
-                "results_initial": experiment.results_initial,
-                "results_url": experiment.results_url,
-            },
-        )
-
-
-class TestExperimentRapidSerializer(TestCase):
-    def test_serializer_outputs_expected_schema(self):
-        audience = Experiment.RAPID_AUDIENCE_CHOICES[0][1]
-        features = [feature[0] for feature in Experiment.RAPID_FEATURE_CHOICES]
-        normandy_slug = "experimenter-normandy-slug"
-        today = datetime.datetime.today()
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA_CFR,
-            audience=audience,
-            features=features,
-            normandy_slug=normandy_slug,
-            proposed_enrollment=9,
-            proposed_start_date=today,
-        )
-
-        ExperimentVariantFactory.create(
-            experiment=experiment, slug="control", is_control=True
-        )
-        ExperimentVariantFactory.create(experiment=experiment, slug="variant-2")
-
-        serializer = ExperimentRapidRecipeSerializer(experiment)
-        data = serializer.data
-
-        fn = os.path.join(os.path.dirname(__file__), "experimentRecipe.json")
-
-        with open(fn, "r") as f:
-            json_schema = json.load(f)
-        self.assertIsNone(validate(instance=data, schema=json_schema))
-
-        arguments = data.pop("arguments")
-        branches = arguments.pop("branches")
-
-        self.assertDictEqual(
-            data,
-            {"id": normandy_slug, "filter_expression": "AUDIENCE 1", "enabled": True},
-        )
-
-        self.assertDictEqual(
-            dict(arguments),
-            {
-                "userFacingName": experiment.name,
-                "userFacingDescription": experiment.public_description,
-                "slug": normandy_slug,
-                "active": True,
-                "isEnrollmentPaused": False,
-                "endDate": None,
-                "proposedEnrollment": experiment.proposed_enrollment,
-                "features": features,
-                "referenceBranch": "control",
-                "startDate": today.isoformat(),
-                "bucketConfig": {
-                    "count": 0,
-                    "namespace": "",
-                    "randomizationUnit": "normandy_id",
-                    "start": 0,
-                    "total": 10000,
-                },
-            },
-        )
-        converted_branches = [dict(branch) for branch in branches]
-        self.assertEqual(
-            converted_branches,
-            [
-                {"ratio": 33, "slug": "variant-2", "value": None},
-                {"ratio": 33, "slug": "control", "value": None},
-            ],
-        )

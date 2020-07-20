@@ -1,10 +1,22 @@
+export enum ExperimentStatus {
+  DRAFT = "Draft",
+  REVIEW = "Review",
+  ACCEPTED = "Accepted",
+  LIVE = "Live",
+  COMPLETE = "Complete",
+  REJECTED = "Rejected",
+}
+
 export interface ExperimentData {
+  audience: string;
+  bugzilla_url?: string;
+  features: Array<string>;
+  firefox_min_version: string;
   name: string;
   objectives: string;
-  features: Array<string>;
-  audience: string;
   owner?: string;
   slug?: string;
+  status: ExperimentStatus;
 }
 
 export enum ExperimentReducerActionType {
@@ -16,7 +28,9 @@ export interface ExperimentReducerAction {
   state: ExperimentData;
 }
 
-export interface ExperimentContext {
-  state: ExperimentData;
-  dispatch: React.Dispatch<ExperimentReducerAction>;
-}
+export type Action = (
+  experimentData: ExperimentData,
+  dispatch: React.Dispatch<ExperimentReducerAction>,
+) => void;
+
+export type Dispatch = (action: Action) => void;

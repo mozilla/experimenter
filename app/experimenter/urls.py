@@ -10,8 +10,9 @@ urlpatterns = [
     re_path(r"^api/v1/experiments/", include("experimenter.experiments.api.v1.urls")),
     re_path(r"^api/v2/experiments/", include("experimenter.experiments.api.v2.urls")),
     re_path(r"^api/v3/", include("experimenter.experiments.api.v3.urls")),
+    re_path(r"^api/v4/", include("experimenter.experiments.api.v4.urls")),
     re_path(r"^admin/", admin.site.urls),
-    re_path(r"^experiments/", include("experimenter.experiments.web_urls")),
+    re_path(r"^experiments/", include("experimenter.experiments.urls")),
     re_path(r"^$", ExperimentListView.as_view(), name="home"),
 ]
 

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import {
   featureOptions,
   audienceOptions,
+  firefoxVersionOptions,
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
 import { useExperimentState } from "experimenter-rapid/contexts/experiment/hooks";
 
@@ -42,58 +43,97 @@ const displaySelectOptionLabels = (options, values) => {
 };
 
 const ExperimentDetails: React.FC = () => {
-  const data = useExperimentState();
+  const experimentData = useExperimentState();
 
-  const handleClickRequestApproval = () => {
-    // No-op
+  const handleClickRequestApproval = async () => {
+    await fetch(`/api/v3/experiments/${experimentData.slug}/request_review/`, {
+      method: "POST",
+    });
   };
 
-  return (
-    <>
-      <LabelledRow label="Experiment Owner" value={data.owner} />
-      <LabelledRow label="Public Name" value={data.name}>
-        <div className="my-2">
-          Bugzilla ticket can be found <a href="#">here</a>.
-        </div>
-      </LabelledRow>
-      <LabelledRow label="Hypothesis" value={data.objectives} />
-      <LabelledRow
-        label="Feature"
-        value={displaySelectOptionLabels(featureOptions, data.features)}
-      />
-      <LabelledRow
-        label="Audience"
-        value={displaySelectOptionLabels(audienceOptions, data.audience)}
-      />
-      <LabelledRow label="Firefox Version" />
-
-      <h3 className="my-4">Results</h3>
-      <p>
-        The results will be available 7 days after the experiment is launched.
-        An email will be sent to you once we start recording data.
-      </p>
-      <p>
-        The results can be found here: <a href="#">(link here)</a>
-      </p>
-
-      <div className="d-flex mt-4">
-        <span>
-          <Link className="btn btn-secondary" to={`/${data.slug}/edit/`}>
-            Back
-          </Link>
-        </span>
-
-        <span className="flex-grow-1 text-right">
-          <button
-            className="btn btn-primary"
-            type="button"
-            onClick={handleClickRequestApproval}
-          >
-            Request Approval
-          </button>
-        </span>
+  let bugzilla_url;
+  if (experimentData.bugzilla_url) {
+    bugzilla_url = (
+      <div className="my-2">
+        Bugzilla ticket can be found{" "}
+        <a
+          href={experimentData.bugzilla_url}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          here
+        </a>
       </div>
-    </>
+    );
+  }
+
+  return (
+    <div className="col pt-3">
+      <div className="mb-4">
+        <div className="d-flex align-items-center">
+          <h3 className="mr-3">Experiment Summary</h3>
+          <span className="badge badge-secondary mb-1">
+            {experimentData.status}
+          </span>
+        </div>
+        <LabelledRow label="Experiment Owner" value={experimentData.owner} />
+        <LabelledRow label="Public Name" value={experimentData.name}>
+          {bugzilla_url}
+        </LabelledRow>
+        <LabelledRow label="Hypothesis" value={experimentData.objectives} />
+        <LabelledRow
+          label="Feature"
+          value={displaySelectOptionLabels(
+            featureOptions,
+            experimentData.features,
+          )}
+        />
+        <LabelledRow
+          label="Audience"
+          value={displaySelectOptionLabels(
+            audienceOptions,
+            experimentData.audience,
+          )}
+        />
+        <LabelledRow
+          label="Firefox Minimum Version"
+          value={displaySelectOptionLabels(
+            firefoxVersionOptions,
+            experimentData.firefox_min_version,
+          )}
+        />
+
+        <h3 className="my-4">Results</h3>
+        <p>
+          The results will be available 7 days after the experiment is launched.
+          An email will be sent to you once we start recording data.
+        </p>
+        <p>
+          The results can be found here: <a href="#">(link here)</a>
+        </p>
+
+        <div className="d-flex mt-4">
+          <span>
+            <Link
+              className="btn btn-secondary"
+              to={`/${experimentData.slug}/edit/`}
+            >
+              Back
+            </Link>
+          </span>
+
+          <span className="flex-grow-1 text-right">
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={handleClickRequestApproval}
+            >
+              Request Approval
+            </button>
+          </span>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -5,154 +5,6 @@
     "version": ""
   },
   "paths": {
-    "/api/v1/experiments/csv/": {
-      "get": {
-        "operationId": "listExperiments",
-        "description": "",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "text/csv": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "properties": {
-                      "name": {
-                        "type": "string",
-                        "maxLength": 255
-                      },
-                      "type": {
-                        "enum": [
-                          "pref",
-                          "addon",
-                          "generic",
-                          "rollout",
-                          "message",
-                          "rapid"
-                        ]
-                      },
-                      "status": {
-                        "enum": [
-                          "Draft",
-                          "Review",
-                          "Ship",
-                          "Accepted",
-                          "Live",
-                          "Complete"
-                        ]
-                      },
-                      "experiment_url": {
-                        "type": "string",
-                        "readOnly": true
-                      },
-                      "public_description": {
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "owner": {
-                        "type": "string",
-                        "readOnly": true
-                      },
-                      "analysis_owner": {
-                        "type": "string",
-                        "readOnly": true
-                      },
-                      "engineering_owner": {
-                        "type": "string",
-                        "nullable": true,
-                        "maxLength": 255
-                      },
-                      "short_description": {
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "objectives": {
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "parent": {
-                        "type": "string",
-                        "readOnly": true
-                      },
-                      "projects": {
-                        "type": "string",
-                        "readOnly": true
-                      },
-                      "data_science_issue_url": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "maxLength": 200,
-                        "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
-                      },
-                      "feature_bugzilla_url": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "maxLength": 200,
-                        "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
-                      },
-                      "firefox_channel": {
-                        "enum": [
-                          null,
-                          "Nightly",
-                          "Beta",
-                          "Release"
-                        ],
-                        "nullable": true
-                      },
-                      "normandy_slug": {
-                        "type": "string",
-                        "nullable": true,
-                        "maxLength": 255
-                      },
-                      "proposed_duration": {
-                        "type": "integer",
-                        "maximum": 1000,
-                        "nullable": true,
-                        "minimum": 0
-                      },
-                      "proposed_start_date": {
-                        "type": "string",
-                        "format": "date",
-                        "nullable": true
-                      },
-                      "related_to": {
-                        "type": "string",
-                        "readOnly": true
-                      },
-                      "related_work": {
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "results_initial": {
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "results_url": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "maxLength": 200,
-                        "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
-                      }
-                    },
-                    "required": [
-                      "name"
-                    ]
-                  }
-                }
-              }
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "Core: Public"
-        ]
-      }
-    },
     "/api/v1/experiments/{slug}/recipe/": {
       "get": {
         "operationId": "RetrieveExperiment",
@@ -1169,6 +1021,154 @@
         },
         "tags": [
           "Core: Public"
+        ]
+      }
+    },
+    "/api/v2/experiments/csv/": {
+      "get": {
+        "operationId": "listExperiments",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 255
+                      },
+                      "type": {
+                        "enum": [
+                          "pref",
+                          "addon",
+                          "generic",
+                          "rollout",
+                          "message",
+                          "rapid"
+                        ]
+                      },
+                      "status": {
+                        "enum": [
+                          "Draft",
+                          "Review",
+                          "Ship",
+                          "Accepted",
+                          "Live",
+                          "Complete"
+                        ]
+                      },
+                      "experiment_url": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "public_description": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "owner": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "analysis_owner": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "engineering_owner": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 255
+                      },
+                      "short_description": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "objectives": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "parent": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "projects": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "data_science_issue_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "maxLength": 200,
+                        "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                      },
+                      "feature_bugzilla_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "maxLength": 200,
+                        "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                      },
+                      "firefox_channel": {
+                        "enum": [
+                          null,
+                          "Nightly",
+                          "Beta",
+                          "Release"
+                        ],
+                        "nullable": true
+                      },
+                      "normandy_slug": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 255
+                      },
+                      "proposed_duration": {
+                        "type": "integer",
+                        "maximum": 1000,
+                        "nullable": true,
+                        "minimum": 0
+                      },
+                      "proposed_start_date": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                      },
+                      "related_to": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "related_work": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "results_initial": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "results_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "maxLength": 200,
+                        "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                      }
+                    },
+                    "required": [
+                      "name"
+                    ]
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Core: Private"
         ]
       }
     },
@@ -7613,20 +7613,15 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "owner": {
+                    "audience": {
+                      "enum": [
+                        "AUDIENCE 1",
+                        "AUDIENCE 2"
+                      ]
+                    },
+                    "bugzilla_url": {
                       "type": "string",
                       "readOnly": true
-                    },
-                    "name": {
-                      "type": "string",
-                      "maxLength": 255
-                    },
-                    "slug": {
-                      "type": "string",
-                      "readOnly": true
-                    },
-                    "objectives": {
-                      "type": "string"
                     },
                     "features": {
                       "type": "array",
@@ -7634,18 +7629,88 @@
                         "type": null
                       }
                     },
-                    "audience": {
+                    "firefox_min_version": {
                       "enum": [
-                        "AUDIENCE 1",
-                        "AUDIENCE 2"
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
+                      ]
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "objectives": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "slug": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "status": {
+                      "enum": [
+                        "Draft",
+                        "Review",
+                        "Ship",
+                        "Accepted",
+                        "Live",
+                        "Complete"
                       ]
                     }
                   },
                   "required": [
-                    "name",
-                    "objectives",
+                    "audience",
                     "features",
-                    "audience"
+                    "firefox_min_version",
+                    "name",
+                    "objectives"
                   ]
                 }
               }
@@ -7676,12 +7741,11 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -7689,30 +7753,91 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "firefox_min_version": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 },
                 "required": [
-                  "name",
-                  "objectives",
+                  "audience",
                   "features",
-                  "audience"
+                  "firefox_min_version",
+                  "name",
+                  "objectives"
                 ]
               }
             },
             "application/x-www-form-urlencoded": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -7720,30 +7845,91 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "firefox_min_version": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 },
                 "required": [
-                  "name",
-                  "objectives",
+                  "audience",
                   "features",
-                  "audience"
+                  "firefox_min_version",
+                  "name",
+                  "objectives"
                 ]
               }
             },
             "multipart/form-data": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -7751,18 +7937,80 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "firefox_min_version": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 },
                 "required": [
-                  "name",
-                  "objectives",
+                  "audience",
                   "features",
-                  "audience"
+                  "firefox_min_version",
+                  "name",
+                  "objectives"
                 ]
               }
             }
@@ -7774,20 +8022,15 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "owner": {
+                    "audience": {
+                      "enum": [
+                        "AUDIENCE 1",
+                        "AUDIENCE 2"
+                      ]
+                    },
+                    "bugzilla_url": {
                       "type": "string",
                       "readOnly": true
-                    },
-                    "name": {
-                      "type": "string",
-                      "maxLength": 255
-                    },
-                    "slug": {
-                      "type": "string",
-                      "readOnly": true
-                    },
-                    "objectives": {
-                      "type": "string"
                     },
                     "features": {
                       "type": "array",
@@ -7795,18 +8038,88 @@
                         "type": null
                       }
                     },
-                    "audience": {
+                    "firefox_min_version": {
                       "enum": [
-                        "AUDIENCE 1",
-                        "AUDIENCE 2"
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
+                      ]
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "objectives": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "slug": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "status": {
+                      "enum": [
+                        "Draft",
+                        "Review",
+                        "Ship",
+                        "Accepted",
+                        "Live",
+                        "Complete"
                       ]
                     }
                   },
                   "required": [
-                    "name",
-                    "objectives",
+                    "audience",
                     "features",
-                    "audience"
+                    "firefox_min_version",
+                    "name",
+                    "objectives"
                   ]
                 }
               }
@@ -7837,12 +8150,11 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -7850,10 +8162,71 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "firefox_min_version": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 }
@@ -7862,12 +8235,11 @@
             "application/x-www-form-urlencoded": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -7875,10 +8247,71 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "firefox_min_version": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 }
@@ -7887,12 +8320,11 @@
             "multipart/form-data": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -7900,10 +8332,71 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "firefox_min_version": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 }
@@ -7917,20 +8410,15 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "owner": {
+                    "audience": {
+                      "enum": [
+                        "AUDIENCE 1",
+                        "AUDIENCE 2"
+                      ]
+                    },
+                    "bugzilla_url": {
                       "type": "string",
                       "readOnly": true
-                    },
-                    "name": {
-                      "type": "string",
-                      "maxLength": 255
-                    },
-                    "slug": {
-                      "type": "string",
-                      "readOnly": true
-                    },
-                    "objectives": {
-                      "type": "string"
                     },
                     "features": {
                       "type": "array",
@@ -7938,18 +8426,88 @@
                         "type": null
                       }
                     },
-                    "audience": {
+                    "firefox_min_version": {
                       "enum": [
-                        "AUDIENCE 1",
-                        "AUDIENCE 2"
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
+                      ]
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "objectives": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "slug": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "status": {
+                      "enum": [
+                        "Draft",
+                        "Review",
+                        "Ship",
+                        "Accepted",
+                        "Live",
+                        "Complete"
                       ]
                     }
                   },
                   "required": [
-                    "name",
-                    "objectives",
+                    "audience",
                     "features",
-                    "audience"
+                    "firefox_min_version",
+                    "name",
+                    "objectives"
                   ]
                 }
               }
@@ -7959,6 +8517,255 @@
         },
         "tags": [
           "Rapid: Private"
+        ]
+      }
+    },
+    "/api/v4/experiments/": {
+      "get": {
+        "operationId": "listExperiments",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "arguments": {
+                        "properties": {
+                          "slug": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "userFacingName": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "userFacingDescription": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "active": {
+                            "type": "string",
+                            "readOnly": true,
+                            "default": true
+                          },
+                          "isEnrollmentPaused": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "features": {
+                            "type": "array",
+                            "items": {
+                              "type": null
+                            }
+                          },
+                          "proposedEnrollment": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "bucketConfig": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "startDate": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "endDate": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "branches": {
+                            "type": "array",
+                            "items": {
+                              "properties": {
+                                "slug": {
+                                  "type": "string",
+                                  "maxLength": 255,
+                                  "pattern": "^[-a-zA-Z0-9_]+$"
+                                },
+                                "ratio": {
+                                  "type": "integer",
+                                  "maximum": 2147483647,
+                                  "minimum": 0
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "readOnly": true
+                                }
+                              },
+                              "required": [
+                                "slug"
+                              ]
+                            }
+                          },
+                          "referenceBranch": {
+                            "type": "string",
+                            "readOnly": true
+                          }
+                        },
+                        "required": [
+                          "branches"
+                        ],
+                        "type": "object"
+                      },
+                      "filter_expression": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "enabled": {
+                        "type": "string",
+                        "readOnly": true,
+                        "default": true
+                      }
+                    },
+                    "required": [
+                      "arguments"
+                    ]
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Rapid: Public"
+        ]
+      }
+    },
+    "/api/v4/experiments/{slug}/": {
+      "get": {
+        "operationId": "retrieveExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "arguments": {
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "userFacingName": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "userFacingDescription": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "active": {
+                          "type": "string",
+                          "readOnly": true,
+                          "default": true
+                        },
+                        "isEnrollmentPaused": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "features": {
+                          "type": "array",
+                          "items": {
+                            "type": null
+                          }
+                        },
+                        "proposedEnrollment": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "bucketConfig": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "startDate": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "endDate": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "branches": {
+                          "type": "array",
+                          "items": {
+                            "properties": {
+                              "slug": {
+                                "type": "string",
+                                "maxLength": 255,
+                                "pattern": "^[-a-zA-Z0-9_]+$"
+                              },
+                              "ratio": {
+                                "type": "integer",
+                                "maximum": 2147483647,
+                                "minimum": 0
+                              },
+                              "value": {
+                                "type": "string",
+                                "readOnly": true
+                              }
+                            },
+                            "required": [
+                              "slug"
+                            ]
+                          }
+                        },
+                        "referenceBranch": {
+                          "type": "string",
+                          "readOnly": true
+                        }
+                      },
+                      "required": [
+                        "branches"
+                      ],
+                      "type": "object"
+                    },
+                    "filter_expression": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "enabled": {
+                      "type": "string",
+                      "readOnly": true,
+                      "default": true
+                    }
+                  },
+                  "required": [
+                    "arguments"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Rapid: Public"
         ]
       }
     },
@@ -7972,12 +8779,11 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -7985,30 +8791,91 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "firefox_min_version": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 },
                 "required": [
-                  "name",
-                  "objectives",
+                  "audience",
                   "features",
-                  "audience"
+                  "firefox_min_version",
+                  "name",
+                  "objectives"
                 ]
               }
             },
             "application/x-www-form-urlencoded": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -8016,30 +8883,91 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "firefox_min_version": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 },
                 "required": [
-                  "name",
-                  "objectives",
+                  "audience",
                   "features",
-                  "audience"
+                  "firefox_min_version",
+                  "name",
+                  "objectives"
                 ]
               }
             },
             "multipart/form-data": {
               "schema": {
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "maxLength": 255
-                  },
-                  "objectives": {
-                    "type": "string"
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
                   },
                   "features": {
                     "type": "array",
@@ -8047,18 +8975,80 @@
                       "type": null
                     }
                   },
-                  "audience": {
+                  "firefox_min_version": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
                     ]
                   }
                 },
                 "required": [
-                  "name",
-                  "objectives",
+                  "audience",
                   "features",
-                  "audience"
+                  "firefox_min_version",
+                  "name",
+                  "objectives"
                 ]
               }
             }
@@ -8070,20 +9060,15 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "owner": {
+                    "audience": {
+                      "enum": [
+                        "AUDIENCE 1",
+                        "AUDIENCE 2"
+                      ]
+                    },
+                    "bugzilla_url": {
                       "type": "string",
                       "readOnly": true
-                    },
-                    "name": {
-                      "type": "string",
-                      "maxLength": 255
-                    },
-                    "slug": {
-                      "type": "string",
-                      "readOnly": true
-                    },
-                    "objectives": {
-                      "type": "string"
                     },
                     "features": {
                       "type": "array",
@@ -8091,18 +9076,499 @@
                         "type": null
                       }
                     },
+                    "firefox_min_version": {
+                      "enum": [
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
+                      ]
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "objectives": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "slug": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "status": {
+                      "enum": [
+                        "Draft",
+                        "Review",
+                        "Ship",
+                        "Accepted",
+                        "Live",
+                        "Complete"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "audience",
+                    "features",
+                    "firefox_min_version",
+                    "name",
+                    "objectives"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Rapid: Private"
+        ]
+      }
+    },
+    "/api/v3/experiments/{slug}/request_review/": {
+      "post": {
+        "operationId": "request_reviewExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "firefox_min_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
+                    ]
+                  }
+                },
+                "required": [
+                  "audience",
+                  "features",
+                  "firefox_min_version",
+                  "name",
+                  "objectives"
+                ]
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "firefox_min_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
+                    ]
+                  }
+                },
+                "required": [
+                  "audience",
+                  "features",
+                  "firefox_min_version",
+                  "name",
+                  "objectives"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "audience": {
+                    "enum": [
+                      "AUDIENCE 1",
+                      "AUDIENCE 2"
+                    ]
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": null
+                    }
+                  },
+                  "firefox_min_version": {
+                    "enum": [
+                      "55.0",
+                      "56.0",
+                      "57.0",
+                      "58.0",
+                      "59.0",
+                      "60.0",
+                      "61.0",
+                      "62.0",
+                      "63.0",
+                      "64.0",
+                      "65.0",
+                      "66.0",
+                      "67.0",
+                      "68.0",
+                      "69.0",
+                      "70.0",
+                      "71.0",
+                      "72.0",
+                      "73.0",
+                      "74.0",
+                      "75.0",
+                      "76.0",
+                      "77.0",
+                      "78.0",
+                      "79.0",
+                      "80.0",
+                      "81.0",
+                      "82.0",
+                      "83.0",
+                      "84.0",
+                      "85.0",
+                      "86.0",
+                      "87.0",
+                      "88.0",
+                      "89.0",
+                      "90.0",
+                      "91.0",
+                      "92.0",
+                      "93.0",
+                      "94.0",
+                      "95.0",
+                      "96.0",
+                      "97.0",
+                      "98.0",
+                      "99.0",
+                      "100.0"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255
+                  },
+                  "objectives": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "Draft",
+                      "Review",
+                      "Ship",
+                      "Accepted",
+                      "Live",
+                      "Complete"
+                    ]
+                  }
+                },
+                "required": [
+                  "audience",
+                  "features",
+                  "firefox_min_version",
+                  "name",
+                  "objectives"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
                     "audience": {
                       "enum": [
                         "AUDIENCE 1",
                         "AUDIENCE 2"
                       ]
+                    },
+                    "bugzilla_url": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "features": {
+                      "type": "array",
+                      "items": {
+                        "type": null
+                      }
+                    },
+                    "firefox_min_version": {
+                      "enum": [
+                        "55.0",
+                        "56.0",
+                        "57.0",
+                        "58.0",
+                        "59.0",
+                        "60.0",
+                        "61.0",
+                        "62.0",
+                        "63.0",
+                        "64.0",
+                        "65.0",
+                        "66.0",
+                        "67.0",
+                        "68.0",
+                        "69.0",
+                        "70.0",
+                        "71.0",
+                        "72.0",
+                        "73.0",
+                        "74.0",
+                        "75.0",
+                        "76.0",
+                        "77.0",
+                        "78.0",
+                        "79.0",
+                        "80.0",
+                        "81.0",
+                        "82.0",
+                        "83.0",
+                        "84.0",
+                        "85.0",
+                        "86.0",
+                        "87.0",
+                        "88.0",
+                        "89.0",
+                        "90.0",
+                        "91.0",
+                        "92.0",
+                        "93.0",
+                        "94.0",
+                        "95.0",
+                        "96.0",
+                        "97.0",
+                        "98.0",
+                        "99.0",
+                        "100.0"
+                      ]
+                    },
+                    "name": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "objectives": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "slug": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "status": {
+                      "enum": [
+                        "Draft",
+                        "Review",
+                        "Ship",
+                        "Accepted",
+                        "Live",
+                        "Complete"
+                      ]
                     }
                   },
                   "required": [
-                    "name",
-                    "objectives",
+                    "audience",
                     "features",
-                    "audience"
+                    "firefox_min_version",
+                    "name",
+                    "objectives"
                   ]
                 }
               }

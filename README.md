@@ -13,17 +13,13 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 ## Deployments
 
-### Shared Dev
-
-[https://experimenter-app.dev.mozaws.net/](https://experimenter-app.dev.mozaws.net/)
-
 ### Staging
 
-[https://experimenter.stage.mozaws.net/](https://experimenter.stage.mozaws.net/)
+<https://stage.experimenter.nonprod.dataops.mozgcp.net/>
 
 ### Production
 
-[https://experimenter.services.mozilla.com/](https://experimenter.services.mozilla.com/)
+<https://experimenter.services.mozilla.com/>
 
 ## What is an experiment?
 
@@ -164,12 +160,11 @@ Start up a normandy and delivery console instance. Prereqs. Symlink normandy and
 
 ### integration_test
 
-Run the integration test suite inside a containerized instance of Firefox.  You must also be already running a `make up` dev instance in another shell to run the integration tests.
+Run the integration test suite inside a containerized instance of Firefox. You must also be already running a `make up` dev instance in another shell to run the integration tests.
 
 ### integration_vnc_up
 
-Start a linux VM container with VNC available over `vnc://localhost:5900` with password `secret`.  Right click on the desktop and select `Applications > Shell > Bash` and enter `tox -c tests/integration/` to run the integration tests and watch them run in a Firefox instance you can watch and interact with.
-
+Start a linux VM container with VNC available over `vnc://localhost:5900` with password `secret`. Right click on the desktop and select `Applications > Shell > Bash` and enter `tox -c tests/integration/` to run the integration tests and watch them run in a Firefox instance you can watch and interact with.
 
 ## API
 

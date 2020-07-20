@@ -2,12 +2,19 @@ import React from "react";
 import { useHistory, useParams } from "react-router-dom";
 
 import {
+  saveExperiment,
+  updateExperiment,
+} from "experimenter-rapid/contexts/experiment/actions";
+import {
   useExperimentDispatch,
   useExperimentState,
 } from "experimenter-rapid/contexts/experiment/hooks";
-import { ExperimentReducerActionType } from "experimenter-types/experiment";
 
-import { featureOptions, audienceOptions } from "./ExperimentFormOptions";
+import {
+  featureOptions,
+  audienceOptions,
+  firefoxVersionOptions,
+} from "./ExperimentFormOptions";
 import { XSelect } from "./XSelect";
 
 interface ErrorListProperties {
@@ -40,38 +47,18 @@ const ExperimentForm: React.FC = () => {
 
   const handleSelectChange = (name) => {
     return (value) => {
-      dispatch({
-        type: ExperimentReducerActionType.UPDATE_STATE,
-        state: {
-          ...formData,
-          [name]: value,
-        },
-      });
+      dispatch(updateExperiment(name, value));
     };
   };
 
   const handleChange = (ev) => {
     const field = ev.target;
-    dispatch({
-      type: ExperimentReducerActionType.UPDATE_STATE,
-      state: {
-        ...formData,
-        [field.getAttribute("name")]: field.value,
-      },
-    });
+    dispatch(updateExperiment(field.getAttribute("name"), field.value));
   };
 
   const handleClickSave = async () => {
-    const url = experimentSlug
-      ? `/api/v3/experiments/${experimentSlug}/`
-      : "/api/v3/experiments/";
-    const response = await fetch(url, {
-      method: experimentSlug ? "PUT" : "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
+    const response = await saveExperiment(experimentSlug, formData);
+
     const responseData = await response.json();
     if (!response.ok) {
       setErrors(responseData);
@@ -157,8 +144,8 @@ const ExperimentForm: React.FC = () => {
         <ErrorList errors={errors.audience} />
       </div>
       <div className="mb-4">
-        <label className="font-weight-bold" htmlFor="field-version">
-          Firefox Version
+        <label className="font-weight-bold" htmlFor="field-firefox-min-version">
+          Firefox Minimum Version
         </label>
         <p>
           Is there a minimum Firefox Release version this experiment should be
@@ -166,12 +153,13 @@ const ExperimentForm: React.FC = () => {
         </p>
         <XSelect
           className="w-100"
-          id="field-version"
-          name="version"
-          options={[]}
-          selectValue={null}
+          id="field-firefox-min-version"
+          name="firefox_min_version"
+          options={firefoxVersionOptions}
+          selectValue={formData.firefox_min_version}
+          onOptionChange={handleSelectChange("firefox_min_version")}
         />
-        <ErrorList errors={errors.version} />
+        <ErrorList errors={errors.firefox_min_version} />
       </div>
 
       <button

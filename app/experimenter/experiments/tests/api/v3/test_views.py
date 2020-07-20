@@ -58,6 +58,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         user_email = "user@example.com"
         audience = Experiment.RAPID_AUDIENCE_CHOICES[0][1]
         features = [feature[0] for feature in Experiment.RAPID_FEATURE_CHOICES]
+        firefox_min_version = Experiment.VERSION_CHOICES[0][0]
 
         owner = UserFactory(email=user_email)
         experiment = ExperimentFactory.create(
@@ -76,6 +77,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
                 "objectives": "new hypothesis",
                 "audience": audience,
                 "features": features,
+                "firefox_min_version": firefox_min_version,
             }
         )
 
@@ -92,11 +94,15 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         self.assertEqual(experiment.name, "new name")
         self.assertEqual(experiment.slug, "rapid-experiment")
         self.assertEqual(experiment.objectives, "new hypothesis")
+        self.assertEqual(experiment.audience, audience)
+        self.assertEqual(experiment.features, features)
+        self.assertEqual(experiment.firefox_min_version, firefox_min_version)
 
     def test_post_list_creates_rapid_experiment(self):
         user_email = "user@example.com"
         audience = Experiment.RAPID_AUDIENCE_CHOICES[0][1]
         features = [feature[0] for feature in Experiment.RAPID_FEATURE_CHOICES]
+        firefox_min_version = Experiment.VERSION_CHOICES[0][0]
 
         data = json.dumps(
             {
@@ -104,6 +110,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
                 "objectives": "gotta go fast",
                 "audience": audience,
                 "features": features,
+                "firefox_min_version": firefox_min_version,
             }
         )
 
@@ -120,3 +127,27 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         self.assertEqual(experiment.name, "rapid experiment")
         self.assertEqual(experiment.slug, "rapid-experiment")
         self.assertEqual(experiment.objectives, "gotta go fast")
+        self.assertEqual(experiment.audience, audience)
+        self.assertEqual(experiment.features, features)
+        self.assertEqual(experiment.firefox_min_version, firefox_min_version)
+
+    def test_request_review_updates_status_creates_changelog(self):
+        user_email = "user@example.com"
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            type=Experiment.TYPE_RAPID,
+            name="rapid experiment",
+            slug="rapid-experiment",
+            objectives="gotta go fast",
+        )
+        self.assertEqual(experiment.changes.count(), 1)
+
+        response = self.client.post(
+            reverse("experiments-rapid-request-review", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        experiment = Experiment.objects.get()
+        self.assertEqual(experiment.status, Experiment.STATUS_REVIEW)
+        self.assertEqual(experiment.changes.count(), 2)

@@ -8,6 +8,7 @@ import {
   wrapInExperimentProvider,
 } from "experimenter-rapid/__tests__/utils";
 import ExperimentForm from "experimenter-rapid/components/forms/ExperimentForm";
+import { ExperimentStatus } from "experimenter-rapid/types/experiment";
 
 afterEach(async () => {
   await cleanup();
@@ -88,6 +89,10 @@ describe("<ExperimentForm />", () => {
     const audienceField = getByLabelText("Audience");
     await selectEvent.select(audienceField, "AUDIENCE 2");
 
+    // Update the firefox version field
+    const firefoxVersionField = getByLabelText("Firefox Minimum Version");
+    await selectEvent.select(firefoxVersionField, "Firefox 78.0");
+
     // Click the save button
     fireEvent.click(getByText("Save"));
 
@@ -100,10 +105,12 @@ describe("<ExperimentForm />", () => {
     expect(submitUrl).toEqual("/api/v3/experiments/");
     expect(requestMethod).toEqual("POST");
     expect(formData).toEqual({
+      status: ExperimentStatus.DRAFT,
       name: "test name",
       objectives: "test objective",
       audience: "AUDIENCE 2",
       features: ["FEATURE 1", "FEATURE 2"],
+      firefox_min_version: "78.0",
     });
   });
 
@@ -165,7 +172,7 @@ describe("<ExperimentForm />", () => {
     });
   });
 
-  ["name", "objectives", "features", "audience", "version"].forEach(
+  ["name", "objectives", "features", "audience", "firefox_min_version"].forEach(
     (fieldName) => {
       it(`shows the appropriate error message for '${fieldName}' on save`, async () => {
         const { getByText } = renderWithRouter(
