@@ -1073,6 +1073,12 @@ class TestExperimentModel(TestCase):
             ],
         )
 
+    def test_risk_fields_returns_fields_minus_exclusions_message_type(self):
+        experiment = ExperimentFactory.create(type=Experiment.TYPE_MESSAGE,)
+        self.assertEqual(
+            experiment.risk_fields, ["risk_partner_related",],
+        )
+
     def test_risk_not_completed_when_risk_questions_not_answered(self):
         experiment = ExperimentFactory.create(
             risk_partner_related=None,

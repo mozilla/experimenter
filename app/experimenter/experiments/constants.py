@@ -337,7 +337,7 @@ class ExperimentConstants(object):
     RISK_EXCLUSIONS = {
         TYPE_ROLLOUT: ["risk_release_population"],
         TYPE_MESSAGE: [
-            "risk_partner_related",
+            "risk_brand",
             "risk_fast_shipped",
             "risk_confidential",
             "risk_release_population",
