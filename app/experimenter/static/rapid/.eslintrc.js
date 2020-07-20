@@ -4,7 +4,7 @@ const baseSettings = {
     browser: true,
     es6: true,
   },
-  parser: "babel-eslint",
+  parser: "@typescript-eslint/parser",
   plugins: ["import"],
   extends: [
     "eslint:recommended",
