@@ -10,10 +10,7 @@ class Locale(models.Model):
         verbose_name = "Locale"
         verbose_name_plural = "Locales"
 
-    def __repr__(self):  # pragma: no cover
-        return f"<{self.__class__.__name__} {self.code}>"
-
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} ({self.code})"
 
 
@@ -26,8 +23,5 @@ class Country(models.Model):
         verbose_name = "Country"
         verbose_name_plural = "Countries"
 
-    def __repr__(self):  # pragma: no cover
-        return f"<{self.__class__.__name__} {self.code}>"
-
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} ({self.code})"
