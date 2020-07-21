@@ -1,11 +1,11 @@
+from typing import Dict, Optional, Union
 import os
 import logging
 import json
 
 from django.conf import settings
 from django.template.loader import render_to_string
-from django.core.management.base import BaseCommand
-
+from django.core.management.base import CommandParser, BaseCommand
 from rest_framework.schemas.openapi import SchemaGenerator
 
 
@@ -15,14 +15,14 @@ logger = logging.getLogger()
 class Command(BaseCommand):
     help = "Generates API docs"
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument("--check", default=False, type=bool)
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options) -> None:
         self.generate_docs(options)
 
     @staticmethod
-    def generateSchema():
+    def generateSchema() -> str:
         generator = SchemaGenerator(title="Experimenter API")
         schema = generator.get_schema()
         paths = schema["paths"]
@@ -43,7 +43,7 @@ class Command(BaseCommand):
         return json.dumps(schema, indent=2)
 
     @staticmethod
-    def generate_docs(options):
+    def generate_docs(options: Dict[str, Optional[Union[bool, int]]]) -> None:
         api_json = Command.generateSchema()
         docs_dir = os.path.join(settings.BASE_DIR, "docs")
         schema_json_path = os.path.join(docs_dir, "openapi-schema.json")
