@@ -1,10 +1,13 @@
+from typing import Dict, Union
+
 import kinto_http
 from django.conf import settings
+from rest_framework.utils.serializer_helpers import ReturnDict
 
 KINTO_REVIEW_STATUS = "to-review"
 
 
-def push_to_kinto(data):
+def push_to_kinto(data: Union[ReturnDict, Dict[str, str]]) -> None:
     client = kinto_http.Client(
         server_url=settings.KINTO_HOST, auth=(settings.KINTO_USER, settings.KINTO_PASS),
     )
@@ -21,7 +24,7 @@ def push_to_kinto(data):
     )
 
 
-def has_pending_review():
+def has_pending_review() -> bool:
     client = kinto_http.Client(
         server_url=settings.KINTO_HOST, auth=(settings.KINTO_USER, settings.KINTO_PASS),
     )

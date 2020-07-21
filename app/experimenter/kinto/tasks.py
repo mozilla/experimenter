@@ -17,7 +17,7 @@ metrics = markus.get_metrics("kinto.tasks")
 
 @app.task
 @metrics.timer_decorator("push_experiment_to_kinto.timing")
-def push_experiment_to_kinto(experiment_id):
+def push_experiment_to_kinto(experiment_id: int) -> None:
     metrics.incr("push_experiment_to_kinto.started")
 
     experiment = Experiment.objects.get(id=experiment_id)
@@ -37,7 +37,7 @@ def push_experiment_to_kinto(experiment_id):
 
 @app.task
 @metrics.timer_decorator("check_kinto_push_queue")
-def check_kinto_push_queue():
+def check_kinto_push_queue() -> None:
     metrics.incr("check_kinto_push_queue.started")
 
     queued_experiments = Experiment.objects.filter(
@@ -51,18 +51,19 @@ def check_kinto_push_queue():
 
         next_experiment = queued_experiments.first()
 
-        update_experiment_with_change_log(
-            next_experiment,
-            {
-                "status": Experiment.STATUS_ACCEPTED,
-                "proposed_start_date": datetime.date.today(),
-                "normandy_slug": next_experiment.generate_normandy_slug(),
-            },
-            settings.KINTO_DEFAULT_CHANGELOG_USER,
-        )
+        if next_experiment:
+            update_experiment_with_change_log(
+                next_experiment,
+                {
+                    "status": Experiment.STATUS_ACCEPTED,
+                    "proposed_start_date": datetime.date.today(),
+                    "normandy_slug": next_experiment.generate_normandy_slug(),
+                },
+                settings.KINTO_DEFAULT_CHANGELOG_USER,
+            )
 
-        push_experiment_to_kinto.delay(next_experiment.id)
-        metrics.incr("check_kinto_push_queue.queued_experiment_selected")
+            push_experiment_to_kinto.delay(next_experiment.id)
+            metrics.incr("check_kinto_push_queue.queued_experiment_selected")
     else:
         metrics.incr("check_kinto_push_queue.no_experiments_queued")
 
