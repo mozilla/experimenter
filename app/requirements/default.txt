@@ -184,3 +184,6 @@ mypy==0.770 \
 django-stubs==1.5.0 \
     --hash=sha256:4a03df70e062f4133085efc461148d0934f36ccfd60a2b6d7bc35821f62008b6 \
     --hash=sha256:b4c9042f2c2fcb89dc0fb37df070cce0f9bf93b39ae193847b6e5a392b13c430
+djangorestframework-stubs==1.2.0 \
+    --hash=sha256:5df991dcdf28b2b761645282dfcae53f41d58200291ff7d5c0d028925fd9f215 \
+    --hash=sha256:cd98afa2a7a718689c8aafe162120074976c996f755b0c03d106b6c6c73b95f7
