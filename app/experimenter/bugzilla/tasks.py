@@ -42,7 +42,7 @@ NOTIFICATION_MESSAGE_ARCHIVE_ERROR_MESSAGE = (
 
 @app.task
 @metrics.timer_decorator("create_experiment_bug.timing")
-def create_experiment_bug_task(user_id, experiment_id):
+def create_experiment_bug_task(user_id: int, experiment_id: int) -> None:
     metrics.incr("create_experiment_bug.started")
 
     experiment = Experiment.objects.get(id=experiment_id)
@@ -75,7 +75,7 @@ def create_experiment_bug_task(user_id, experiment_id):
 
 @app.task
 @metrics.timer_decorator("update_experiment_bug.timing")
-def update_experiment_bug_task(user_id, experiment_id):
+def update_experiment_bug_task(user_id: int, experiment_id: int) -> None:
     metrics.incr("update_experiment_bug.started")
 
     experiment = Experiment.objects.get(id=experiment_id)
@@ -108,7 +108,7 @@ def update_experiment_bug_task(user_id, experiment_id):
 
 @app.task
 @metrics.timer_decorator("comp_experiment_update_res_task.timing")
-def comp_experiment_update_res_task(experiment_id):
+def comp_experiment_update_res_task(experiment_id: int) -> None:
     experiment = Experiment.objects.get(id=experiment_id)
     metrics.incr("comp_experiment_update_res_task.started")
     logger.info("Updating Bugzilla Resolution")
@@ -124,7 +124,7 @@ def comp_experiment_update_res_task(experiment_id):
 
 @app.task
 @metrics.timer_decorator("add_start_date_comment.timing")
-def add_start_date_comment_task(experiment_id):
+def add_start_date_comment_task(experiment_id: int) -> None:
     experiment = Experiment.objects.get(id=experiment_id)
     metrics.incr("add_start_data_comment.started")
     logger.info("Adding Bugzilla Start Date Comment")
@@ -132,10 +132,10 @@ def add_start_date_comment_task(experiment_id):
         experiment.start_date, experiment.end_date
     )
     try:
-        bugzilla_id = experiment.bugzilla_id
-        client.add_experiment_comment(bugzilla_id, comment)
-        logger.info("Bugzilla Comment Added")
-        metrics.incr("add_start_date_comment.completed")
+        if experiment.bugzilla_id:
+            client.add_experiment_comment(experiment.bugzilla_id, comment)
+            logger.info("Bugzilla Comment Added")
+            metrics.incr("add_start_date_comment.completed")
     except client.BugzillaError as e:
         logger.info("Comment start date failed to be added")
         metrics.incr("add_start_date_comment.failed")
@@ -144,7 +144,7 @@ def add_start_date_comment_task(experiment_id):
 
 @app.task
 @metrics.timer_decorator("update_bug_resolution.timing")
-def update_bug_resolution_task(user_id, experiment_id):
+def update_bug_resolution_task(user_id: int, experiment_id: int) -> None:
     metrics.incr("update_bug_resolution.started")
     experiment = Experiment.objects.get(id=experiment_id)
 

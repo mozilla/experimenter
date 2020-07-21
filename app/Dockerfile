@@ -21,6 +21,7 @@ RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgre
 # Python packages
 COPY ./requirements /app/requirements
 RUN pip install -r requirements/default.txt --no-cache-dir --disable-pip-version-check
+RUN pip install "https://github.com/matangover/mypyls/archive/master.zip#egg=mypyls[default-mypy]"
 
 # If any package is installed, that is incompatible by version, this command
 # will exit non-zero and print what is usually just a warning in `pip install`
