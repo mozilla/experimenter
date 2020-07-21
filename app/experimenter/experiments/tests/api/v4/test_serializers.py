@@ -15,8 +15,8 @@ from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSer
 
 class TestExperimentRapidRecipeSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
-        audience = Experiment.RAPID_AUDIENCE_CHOICES[0][1]
-        features = [feature[0] for feature in Experiment.RAPID_FEATURE_CHOICES]
+        audience = "us_only"
+        features = ["pinned_tabs", "picture_in_picture"]
         normandy_slug = "experimenter-normandy-slug"
         today = datetime.datetime.today()
         experiment = ExperimentFactory.create(
@@ -48,7 +48,12 @@ class TestExperimentRapidRecipeSerializer(TestCase):
 
         self.assertDictEqual(
             data,
-            {"id": normandy_slug, "filter_expression": "AUDIENCE 1", "enabled": True},
+            {
+                "id": normandy_slug,
+                "filter_expression": "us_only",
+                "targeting": "localeLanguageCode == 'en' && region == 'US' && browserSettings.update.channel == 'release'",
+                "enabled": True,
+            },
         )
 
         self.assertDictEqual(

@@ -2324,6 +2324,13 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
+"@mozilla/nimbus-shared@0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@mozilla/nimbus-shared/-/nimbus-shared-0.0.6.tgz#cc9df77552e998cc067ffc33989feb58c7dea366"
+  integrity sha512-qfPE54sRHdpR0lDR5S4WczM9KS5pskAiY91PyphTlsfBEi9Avclg/QjgCtZrauW7eWtiBXPP9ly3hRGUNCyigQ==
+  dependencies:
+    ajv "^6.12.2"
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"

@@ -19,8 +19,8 @@ class TestExperimentListView(TestCase):
             experiment = ExperimentFactory.create_with_variants(
                 type=ExperimentConstants.TYPE_RAPID,
                 objectives="gotta go fast",
-                audience="AUDIENCE 1",
-                features=["FEATURE 1"],
+                audience="us_only",
+                features=["pinned_tabs"],
             )
             experiments.append(experiment)
 
@@ -42,7 +42,9 @@ class TestExperimentListView(TestCase):
 class TestExperimentRapidRecipeView(TestCase):
     def test_get_rapid_experiment_recipe_returns_recipe_info_for_experiment(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_RAPID)
+        experiment = ExperimentFactory.create(
+            type=ExperimentConstants.TYPE_RAPID, audience="us_only"
+        )
 
         response = self.client.get(
             reverse("experiment-rapid-recipe-detail", kwargs={"slug": experiment.slug}),
