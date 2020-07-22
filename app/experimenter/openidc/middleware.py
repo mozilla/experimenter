@@ -21,7 +21,7 @@ class OpenIDCAuthMiddleware(AuthenticationMiddleware):
     experimenters group.
     """
 
-    def __init__(self, get_response: Callable) -> None:
+    def __init__(self, get_response: Optional[Callable] = None) -> None:
         self.get_response = get_response
         self.User = get_user_model()
 
@@ -58,6 +58,7 @@ class OpenIDCAuthMiddleware(AuthenticationMiddleware):
 
         if self.get_response:
             return self.get_response(request)
+
         return fail_response
 
 

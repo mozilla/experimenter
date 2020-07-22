@@ -142,3 +142,23 @@ class OpenIDCAuthMiddlewareTests(TestCase):
 
         self.assertEqual(response.content, b"Please login using OpenID Connect")
         self.assertEqual(User.objects.all().count(), 0)
+
+    def test_missing_response_callback_returns_failure(self):
+        user_email = "user@example.com"
+
+        request = mock.Mock()
+        request.META = {settings.OPENIDC_EMAIL_HEADER: user_email}
+
+        User = get_user_model()
+
+        self.assertEqual(User.objects.all().count(), 0)
+
+        middleware = OpenIDCAuthMiddleware()
+        with self.settings(OPENIDC_AUTH_WHITELIST=[]):
+            response = middleware(request)
+
+        self.assertEqual(response.content, b"Please login using OpenID Connect")
+        self.assertEqual(User.objects.all().count(), 1)
+
+        self.assertEqual(request.user.email, user_email)
+        self.assertFalse(request.user.is_staff)
