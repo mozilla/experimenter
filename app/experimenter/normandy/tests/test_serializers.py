@@ -106,6 +106,20 @@ class TestFilterObjectBucketSampleSerializer(TestCase):
             },
         )
 
+    def test_serializer_outputs_for_missing_population_percent(self):
+        experiment = ExperimentFactory.create(population_percent=None)
+        serializer = FilterObjectBucketSampleSerializer(experiment)
+        self.assertDictEqual(
+            serializer.data,
+            {
+                "type": "bucketSample",
+                "input": ["normandy.userId"],
+                "start": 0,
+                "count": 0,
+                "total": 10000,
+            },
+        )
+
 
 class TestFilterObjectChannelSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):

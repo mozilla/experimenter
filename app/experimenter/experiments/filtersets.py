@@ -289,16 +289,18 @@ class ExperimentFilterset(filters.FilterSet):
         )
 
     def get_project_display_value(self) -> str:
+        project_display = "No Project Found"
         project_id = self.data.get("projects")
         if project_id is not None:
-            return str(Project.objects.get(id=project_id))
-        return ""
+            project_display = str(Project.objects.get(id=project_id))
+        return project_display
 
     def get_owner_display_value(self) -> str:
+        owner_display = "No Owner Found"
         user_id = self.data.get("owner")
         if user_id is not None:
-            return str(get_user_model().objects.get(id=user_id))
-        return ""
+            owner_display = str(get_user_model().objects.get(id=user_id))
+        return owner_display
 
     def get_display_start_date_info(self) -> str:
         experiment_date_field = self.data.get("experiment_date_field")

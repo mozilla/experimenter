@@ -1,4 +1,4 @@
-from typing import cast, List, Union, Optional, Mapping
+from typing import cast, List, Union, Mapping
 import json
 
 from rest_framework import serializers
@@ -53,10 +53,10 @@ class FilterObjectBucketSampleSerializer(serializers.ModelSerializer):
     def get_type(self, obj: Experiment) -> str:
         return "bucketSample"
 
-    def get_count(self, obj: Experiment) -> Optional[int]:
+    def get_count(self, obj: Experiment) -> int:
         if obj.population_percent:
             return int(obj.population_percent * 100)
-        return None
+        return 0
 
 
 class FilterObjectChannelSerializer(serializers.ModelSerializer):
@@ -70,10 +70,11 @@ class FilterObjectChannelSerializer(serializers.ModelSerializer):
     def get_type(self, obj: Experiment) -> str:
         return "channel"
 
-    def get_channels(self, obj: Experiment) -> Optional[List[str]]:
+    def get_channels(self, obj: Experiment) -> List[str]:
+        channels = []
         if obj.firefox_channel:
-            return [obj.firefox_channel.lower()]
-        return None
+            channels.append(obj.firefox_channel.lower())
+        return channels
 
 
 class FilterObjectVersionsSerializer(serializers.ModelSerializer):
@@ -376,7 +377,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
         elif obj.is_message_experiment:
             return "messaging-experiment"
         else:
-            return ""
+            return ""  # pragma: no cover
 
     def get_filter_object(self, obj: Experiment) -> List[ReturnDict]:
         filter_objects = [
@@ -409,7 +410,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
         elif obj.is_message_experiment:
             return ExperimentRecipeMessageArgumentsSerializer(obj).data
         else:
-            return {}
+            return {}  # pragma: no cover
 
     def get_comment(self, obj: Experiment) -> str:
         comment = f"{obj.client_matching}\n"

@@ -72,7 +72,7 @@ INSTALLED_APPS = [
 
 SENTRY_DSN = config("SENTRY_DSN", default=None)
 
-if SENTRY_DSN:
+if SENTRY_DSN:  # pragma: no cover
     INSTALLED_APPS.append("raven.contrib.django.raven_compat")
 
     # Sentry configuration

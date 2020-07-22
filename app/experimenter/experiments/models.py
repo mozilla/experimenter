@@ -496,42 +496,48 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def total_duration(self) -> Optional[int]:
+        duration = None
         if self.start_date and self.end_date:
-            return (self.end_date - self.start_date).days
-        return None
+            duration = (self.end_date - self.start_date).days
+        return duration
 
     @property
     def enrollment_ending_soon(self) -> bool:
+        ending = False
         if self.enrollment_end_date:
-            return (self.enrollment_end_date - date.today()) <= timedelta(days=5)
-        return False
+            ending = (self.enrollment_end_date - date.today()) <= timedelta(days=5)
+        return ending
 
     @property
     def ending_soon(self) -> bool:
+        ending = False
         if self.end_date:
-            return (self.end_date - date.today()) <= timedelta(days=5)
-        return False
+            ending = (self.end_date - date.today()) <= timedelta(days=5)
+        return ending
 
     @property
     def enrollment_end_date(self) -> Optional[date]:
+        end_date = None
         changes = self.changes.filter(message="Enrollment Complete")
         if changes:
-            return changes[0].changed_on.date()
-        if self.proposed_enrollment:
-            return self._compute_end_date(self.proposed_enrollment)
-        return None
+            end_date = changes[0].changed_on.date()
+        elif self.proposed_enrollment:
+            end_date = self._compute_end_date(self.proposed_enrollment)
+        return end_date
 
     @property
-    def enrollment_duration(self) -> Optional[int]:
+    def enrollment_duration(self) -> int:
+        duration = 0
         if self.start_date and self.enrollment_end_date:
-            return (self.enrollment_end_date - self.start_date).days
-        return None
+            duration = (self.enrollment_end_date - self.start_date).days
+        return duration
 
     @property
     def observation_duration(self) -> int:
+        duration = 0
         if self.end_date and self.enrollment_end_date:
-            return (self.end_date - self.enrollment_end_date).days
-        return 0
+            duration = (self.end_date - self.enrollment_end_date).days
+        return duration
 
     def _format_date(self, input_date: date) -> str:
         return input_date.strftime("%b %d, %Y")
@@ -696,13 +702,15 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def display_platforms_or_versions(self) -> str:
+        display = ""
         if self.windows_versions:
-            return ", ".join(self.windows_versions)
+            display = ", ".join(self.windows_versions)
         elif self.platforms:
             if set(ExperimentConstants.PLATFORMS_LIST) == set(self.platforms):
-                return ExperimentConstants.PLATFORM_ALL
-            return ", ".join(self.platforms)
-        return ""
+                display = ExperimentConstants.PLATFORM_ALL
+            else:
+                display = ", ".join(self.platforms)
+        return display
 
     @property
     def completed_overview(self) -> bool:
@@ -922,57 +930,63 @@ class Experiment(ExperimentConstants, models.Model):
         return ready_to_launch
 
     @property
-    def format_firefox_versions(self) -> Optional[str]:
+    def format_firefox_versions(self) -> str:
+        versions = "No Firefox Versions Selected"
         if self.firefox_max_version:
-            return f"{self.firefox_min_version} to {self.firefox_max_version}"
+            versions = f"{self.firefox_min_version} to {self.firefox_max_version}"
         elif self.firefox_min_version:
-            return self.firefox_min_version
-        return None
+            versions = self.firefox_min_version
+        return versions
 
     @property
     def firefox_max_version_integer(self) -> Optional[int]:
+        version = None
         if self.firefox_max_version:
             matches = ExperimentConstants.VERSION_REGEX.match(self.firefox_max_version)
             if matches:
-                return int(matches.group(0))
-        return None
+                version = int(matches.group(0))
+        return version
 
     @property
     def firefox_min_version_integer(self) -> Optional[int]:
+        version = None
         if self.firefox_min_version:
             matches = ExperimentConstants.VERSION_REGEX.match(self.firefox_min_version)
             if matches:
-                return int(matches.group(0))
-        return None
+                version = int(matches.group(0))
+        return version
 
     @property
     def use_branched_addon_serializer(self) -> bool:
+        use_branched_addon = False
         if self.firefox_min_version_integer:
-            return (
+            use_branched_addon = (
                 self.is_addon_experiment
                 and self.firefox_min_version_integer
                 >= ExperimentConstants.FX_MIN_MULTI_BRANCHED_VERSION
             )
-        return False
+        return use_branched_addon
 
     @property
     def use_multi_pref_serializer(self) -> bool:
+        use_multi_pref = False
         if self.firefox_min_version_integer:
-            return (
+            use_multi_pref = (
                 self.is_pref_experiment
                 and self.firefox_min_version_integer
                 >= ExperimentConstants.FX_MIN_MULTI_BRANCHED_VERSION
             ) or self.is_multi_pref
-        return False
+        return use_multi_pref
 
     @property
-    def versions_integer_list(self) -> Optional[List[int]]:
+    def versions_integer_list(self) -> List[int]:
+        versions = []
         if self.firefox_min_version_integer:
-            max = self.firefox_min_version_integer
+            max_version = self.firefox_min_version_integer
             if self.firefox_max_version_integer:
-                max = self.firefox_max_version_integer
-            return list(range(self.firefox_min_version_integer, max + 1))
-        return None
+                max_version = self.firefox_max_version_integer
+            versions = list(range(self.firefox_min_version_integer, max_version + 1))
+        return versions
 
     @property
     def population(self) -> str:
