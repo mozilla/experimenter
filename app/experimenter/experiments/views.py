@@ -3,7 +3,6 @@ import json
 
 from django_filters.views import FilterView
 from django.conf import settings
-from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import Model
 from django.db.models.query import QuerySet
 from django.forms import BaseForm
@@ -51,7 +50,7 @@ class ExperimentListView(FilterView):
 
     def get_filterset_kwargs(
         self, *args, **kwargs
-    ) -> Dict[str, Union[QueryDict, WSGIRequest, QuerySet]]:
+    ) -> Dict[str, Union[QueryDict, HttpRequest, QuerySet]]:
         kwargs = super().get_filterset_kwargs(*args, **kwargs)
 
         # Always pass in request.GET otherwise the
