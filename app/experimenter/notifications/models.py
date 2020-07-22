@@ -1,22 +1,21 @@
+from typing import List
+
 from django.contrib.auth import get_user_model
 from django.db import models
 
 
 class NotificationManager(models.Manager):
     @property
-    def has_unread(self):
+    def has_unread(self) -> bool:
         return self.filter(read=False).count() > 0
 
-    def get_unread(self):
+    def get_unread(self) -> List["Notification"]:
         unread = list(self.filter(read=False))
-
         self.update(read=True)
-
         return unread
 
 
 class Notification(models.Model):
-
     user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, related_name="notifications"
     )
@@ -31,5 +30,5 @@ class Notification(models.Model):
         verbose_name_plural = "Notifications"
         ordering = ("created_on",)
 
-    def __str__(self):  # pragma: no cover
+    def __str__(self) -> str:  # pragma: no cover
         return self.message

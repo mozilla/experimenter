@@ -10,5 +10,5 @@ class Project(models.Model):
         verbose_name = "Project"
         verbose_name_plural = "Projects"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
