@@ -2,7 +2,7 @@ import mock
 from requests.exceptions import RequestException, HTTPError
 from django.test import TestCase
 
-from experimenter.normandy import (
+from experimenter.normandy.client import (
     APINormandyError,
     NonsuccessfulNormandyCall,
     NormandyDecodeError,

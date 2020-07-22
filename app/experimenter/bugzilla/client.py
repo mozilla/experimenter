@@ -33,7 +33,7 @@ class BugzillaAPIData(TypedDict, total=False):
     summary: str
     type: str
     url: str
-    users: str
+    users: List[str]
     version: str
 
 

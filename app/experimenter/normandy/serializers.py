@@ -1,5 +1,8 @@
+from typing import cast, List, Union, Optional, Mapping
 import json
+
 from rest_framework import serializers
+from rest_framework.utils.serializer_helpers import ReturnDict
 
 from experimenter.experiments.models import (
     Experiment,
@@ -12,12 +15,14 @@ from experimenter.experiments.constants import ExperimentConstants
 
 
 class PrefValueField(serializers.Field):
-    def __init__(self, type_field, value_field, *args, **kwargs):
+    def __init__(self, type_field: str, value_field: str, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.type_field = type_field
         self.value_field = value_field
 
-    def to_representation(self, obj):
+    def to_representation(
+        self, obj: Union[VariantPreferences, ExperimentVariant, RolloutPreference]
+    ) -> Union[bool, str, int]:
         model_fields = (
             type(obj)
             .objects.filter(id=obj.id)
@@ -45,11 +50,13 @@ class FilterObjectBucketSampleSerializer(serializers.ModelSerializer):
         model = Experiment
         fields = ("type", "input", "start", "count", "total")
 
-    def get_type(self, obj):
+    def get_type(self, obj: Experiment) -> str:
         return "bucketSample"
 
-    def get_count(self, obj):
-        return int(obj.population_percent * 100)
+    def get_count(self, obj: Experiment) -> Optional[int]:
+        if obj.population_percent:
+            return int(obj.population_percent * 100)
+        return None
 
 
 class FilterObjectChannelSerializer(serializers.ModelSerializer):
@@ -60,11 +67,13 @@ class FilterObjectChannelSerializer(serializers.ModelSerializer):
         model = Experiment
         fields = ("type", "channels")
 
-    def get_type(self, obj):
+    def get_type(self, obj: Experiment) -> str:
         return "channel"
 
-    def get_channels(self, obj):
-        return [obj.firefox_channel.lower()]
+    def get_channels(self, obj: Experiment) -> Optional[List[str]]:
+        if obj.firefox_channel:
+            return [obj.firefox_channel.lower()]
+        return None
 
 
 class FilterObjectVersionsSerializer(serializers.ModelSerializer):
@@ -75,11 +84,13 @@ class FilterObjectVersionsSerializer(serializers.ModelSerializer):
         model = Experiment
         fields = ("type", "versions")
 
-    def get_type(self, obj):
+    def get_type(self, obj: Experiment) -> str:
         return "version"
 
-    def get_versions(self, obj):
-        return obj.versions_integer_list
+    def get_versions(self, obj: Experiment) -> List[int]:
+        if obj.versions_integer_list:
+            return obj.versions_integer_list
+        return []
 
 
 class FilterObjectLocaleSerializer(serializers.ModelSerializer):
@@ -90,10 +101,10 @@ class FilterObjectLocaleSerializer(serializers.ModelSerializer):
         model = Experiment
         fields = ("type", "locales")
 
-    def get_type(self, obj):
+    def get_type(self, obj: Experiment) -> str:
         return "locale"
 
-    def get_locales(self, obj):
+    def get_locales(self, obj: Experiment) -> List[str]:
         return list(obj.locales.all().values_list("code", flat=True))
 
 
@@ -105,10 +116,10 @@ class FilterObjectCountrySerializer(serializers.ModelSerializer):
         model = Experiment
         fields = ("type", "countries")
 
-    def get_type(self, obj):
+    def get_type(self, obj: Experiment) -> str:
         return "country"
 
-    def get_countries(self, obj):
+    def get_countries(self, obj: Experiment) -> List[str]:
         return list(obj.countries.all().values_list("code", flat=True))
 
 
@@ -129,7 +140,7 @@ class ExperimentRecipeAddonVariantSerializer(serializers.ModelSerializer):
         model = ExperimentVariant
         fields = ("ratio", "slug", "extensionApiId")
 
-    def get_extensionApiId(self, obj):
+    def get_extensionApiId(self, obj: ExperimentVariant) -> None:
         return None
 
 
@@ -225,8 +236,11 @@ class ExperimentRecipeBranchedAddonArgumentsSerializer(
         model = Experiment
         fields = ("slug", "userFacingName", "userFacingDescription", "branches")
 
-    def get_branches(self, obj):
-        return ExperimentRecipeAddonVariantSerializer(obj.variants, many=True).data
+    def get_branches(self, obj: Experiment) -> List[ReturnDict]:
+        return cast(
+            List[ReturnDict],
+            ExperimentRecipeAddonVariantSerializer(obj.variants, many=True).data,
+        )
 
 
 class ExperimentRecipeMultiPrefArgumentsSerializer(
@@ -246,8 +260,11 @@ class ExperimentRecipeMultiPrefArgumentsSerializer(
             "experimentDocumentUrl",
         )
 
-    def get_branches(self, obj):
-        return ExperimentRecipeMultiPrefVariantSerializer(obj.variants, many=True).data
+    def get_branches(self, obj: Experiment) -> List[ReturnDict]:
+        return cast(
+            List[ReturnDict],
+            ExperimentRecipeMultiPrefVariantSerializer(obj.variants, many=True).data,
+        )
 
 
 class ExperimentRecipeAddonArgumentsSerializer(serializers.ModelSerializer):
@@ -267,7 +284,7 @@ class ExperimentRecipeAddonRolloutArgumentsSerializer(serializers.ModelSerialize
         model = Experiment
         fields = ("slug", "extensionApiId")
 
-    def get_extensionApiId(self, obj):
+    def get_extensionApiId(self, obj: Experiment) -> str:
         return f"TODO: {obj.addon_release_url}"
 
 
@@ -297,7 +314,7 @@ class ExperimentRecipeMessageVariantSerializer(serializers.ModelSerializer):
         model = ExperimentVariant
         fields = ("ratio", "slug", "value", "groups")
 
-    def get_value(self, obj):
+    def get_value(self, obj: ExperimentVariant) -> Mapping:
         return {}
 
 
@@ -318,8 +335,11 @@ class ExperimentRecipeMessageArgumentsSerializer(
             "experimentDocumentUrl",
         )
 
-    def get_branches(self, obj):
-        return ExperimentRecipeMessageVariantSerializer(obj.variants, many=True).data
+    def get_branches(self, obj: Experiment) -> List[ReturnDict]:
+        return cast(
+            List[ReturnDict],
+            ExperimentRecipeMessageVariantSerializer(obj.variants, many=True).data,
+        )
 
 
 class ExperimentRecipeSerializer(serializers.ModelSerializer):
@@ -340,7 +360,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             "experimenter_slug",
         )
 
-    def get_action_name(self, obj):
+    def get_action_name(self, obj: Experiment) -> str:
         if obj.use_multi_pref_serializer:
             return "multi-preference-experiment"
         if obj.is_pref_experiment:
@@ -355,8 +375,10 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return "preference-rollout"
         elif obj.is_message_experiment:
             return "messaging-experiment"
+        else:
+            return ""
 
-    def get_filter_object(self, obj):
+    def get_filter_object(self, obj: Experiment) -> List[ReturnDict]:
         filter_objects = [
             FilterObjectBucketSampleSerializer(obj).data,
             FilterObjectChannelSerializer(obj).data,
@@ -371,7 +393,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
 
         return filter_objects
 
-    def get_arguments(self, obj):
+    def get_arguments(self, obj: Experiment) -> Mapping:
         if obj.use_multi_pref_serializer:
             return ExperimentRecipeMultiPrefArgumentsSerializer(obj).data
         elif obj.is_pref_experiment:
@@ -386,10 +408,12 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
             return ExperimentRecipePrefRolloutArgumentsSerializer(obj).data
         elif obj.is_message_experiment:
             return ExperimentRecipeMessageArgumentsSerializer(obj).data
+        else:
+            return {}
 
-    def get_comment(self, obj):
+    def get_comment(self, obj: Experiment) -> str:
         comment = f"{obj.client_matching}\n"
-        if len(obj.platforms) < len(ExperimentConstants.PLATFORMS_LIST):
+        if obj.platforms and len(obj.platforms) < len(ExperimentConstants.PLATFORMS_LIST):
             comment += f"Platform: {obj.platforms}\n"
         if obj.windows_versions:
             comment += f"Windows Versions: {obj.windows_versions}\n"
