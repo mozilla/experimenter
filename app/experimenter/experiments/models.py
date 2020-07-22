@@ -1,4 +1,3 @@
-from __future__ import annotations
 from collections import defaultdict
 from datetime import date, timedelta
 from typing import DefaultDict, Dict, List, Optional, Set, Tuple, Union
@@ -33,10 +32,10 @@ def default_all_platforms() -> List[str]:
 
 
 class ExperimentManager(models.Manager):
-    def get_queryset(self) -> QuerySet:
+    def get_queryset(self) -> "QuerySet[Experiment]":
         return super().get_queryset().annotate(latest_change=Max("changes__changed_on"))
 
-    def get_prefetched(self) -> QuerySet:
+    def get_prefetched(self) -> "QuerySet[Experiment]":
         return self.get_queryset().prefetch_related(
             "changes__changed_by",
             "changes",
@@ -1217,7 +1216,7 @@ class ExperimentChangeLogManager(models.Manager):
         return self.all().order_by("-changed_on").first()
 
 
-class ExperimentChangeLog(models.Model):
+class ExperimentChangeLog(models.Model):  # type: ignore
     STATUS_NONE_DRAFT = "Created Delivery"
     STATUS_DRAFT_DRAFT = "Edited Delivery"
     STATUS_DRAFT_REVIEW = "Ready for Sign-Off"
@@ -1293,7 +1292,7 @@ class ExperimentChangeLog(models.Model):
         return self.PRETTY_STATUS_LABELS.get(self.old_status, {}).get(self.new_status, "")
 
 
-class ExperimentEmail(ExperimentConstants, models.Model):
+class ExperimentEmail(ExperimentConstants, models.Model):  # type: ignore
     experiment = models.ForeignKey(
         Experiment, related_name="emails", on_delete=models.CASCADE
     )
@@ -1314,7 +1313,7 @@ class ExperimentCommentManager(models.Manager):
         return sections
 
 
-class ExperimentComment(ExperimentConstants, models.Model):
+class ExperimentComment(ExperimentConstants, models.Model):  # type: ignore
     experiment = models.ForeignKey(
         Experiment, related_name="comments", on_delete=models.CASCADE
     )

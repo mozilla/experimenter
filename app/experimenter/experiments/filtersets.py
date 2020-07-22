@@ -144,7 +144,9 @@ class ExperimentFilterset(filters.FilterSet):
             "completed_results",
         )
 
-    def filter_search(self, queryset: QuerySet, name: str, value: str) -> QuerySet:
+    def filter_search(
+        self, queryset: "QuerySet[Experiment]", name: str, value: str
+    ) -> "QuerySet[Experiment]":
         vector = SearchVector(
             "name",
             "short_description",
@@ -167,31 +169,39 @@ class ExperimentFilterset(filters.FilterSet):
         query = SearchQuery(value)
 
         return (
-            queryset.annotate(rank=SearchRank(vector, query), search=vector)
+            queryset.annotate(
+                rank=SearchRank(vector, query), search=vector
+            )  # type: ignore
             .filter(search=value)
             .order_by("-rank")
         )
 
-    def archived_filter(self, queryset: QuerySet, name: str, value: bool) -> QuerySet:
+    def archived_filter(
+        self, queryset: "QuerySet[Experiment]", name: str, value: bool
+    ) -> "QuerySet[Experiment]":
         if not value:
             return queryset.exclude(archived=True)
         return queryset
 
     def experiment_date_field_filter(
-        self, queryset: QuerySet, name: str, value: str
-    ) -> QuerySet:
+        self, queryset: "QuerySet[Experiment]", name: str, value: str
+    ) -> "QuerySet[Experiment]":
         # this custom method isn't doing anything. There has to
         # be a custom method to be able to display the select
         # filter that controls which date range we show
         return queryset
 
-    def version_filter(self, queryset: QuerySet, name: str, value: str) -> QuerySet:
+    def version_filter(
+        self, queryset: "QuerySet[Experiment]", name: str, value: str
+    ) -> "QuerySet[Experiment]":
         return queryset.filter(
             Q(firefox_min_version__lte=value, firefox_max_version__gte=value)
             | Q(firefox_min_version=value)
         )
 
-    def date_range_filter(self, queryset: QuerySet, name: str, value: slice) -> QuerySet:
+    def date_range_filter(
+        self, queryset: "QuerySet[Experiment]", name: str, value: slice
+    ) -> "QuerySet[Experiment]":
         date_type = self.form.cleaned_data["experiment_date_field"]
         if date_type:
             experiment_date_field = {
@@ -217,28 +227,36 @@ class ExperimentFilterset(filters.FilterSet):
             return queryset.filter(pk__in=results)
         return queryset
 
-    def in_qa_filter(self, queryset: QuerySet, name: str, value: bool) -> QuerySet:
+    def in_qa_filter(
+        self, queryset: "QuerySet[Experiment]", name: str, value: bool
+    ) -> "QuerySet[Experiment]":
         if value:
             return queryset.filter(review_qa_requested=True, review_qa=False)
 
         return queryset
 
-    def surveys_filter(self, queryset: QuerySet, name: str, value: bool) -> QuerySet:
+    def surveys_filter(
+        self, queryset: "QuerySet[Experiment]", name: str, value: bool
+    ) -> "QuerySet[Experiment]":
         if value:
             return queryset.filter(survey_required=True)
 
         return queryset
 
-    def subscribed_filter(self, queryset: QuerySet, name: str, value: bool) -> QuerySet:
+    def subscribed_filter(
+        self, queryset: "QuerySet[Experiment]", name: str, value: bool
+    ) -> "QuerySet[Experiment]":
         if value:
             return queryset.filter(subscribers__in=[self.request.user.id])
 
         return queryset
 
-    def longrunning_filter(self, queryset: QuerySet, name: str, value: bool) -> QuerySet:
+    def longrunning_filter(
+        self, queryset: "QuerySet[Experiment]", name: str, value: bool
+    ) -> "QuerySet[Experiment]":
         if value:
             return (
-                queryset.exclude(firefox_max_version__exact="")
+                queryset.exclude(firefox_max_version__exact="")  # type: ignore
                 .annotate(
                     firefox_min_int=Cast(
                         Func(
@@ -263,15 +281,17 @@ class ExperimentFilterset(filters.FilterSet):
 
         return queryset
 
-    def is_paused_filter(self, queryset: QuerySet, name: str, value: bool) -> QuerySet:
+    def is_paused_filter(
+        self, queryset: "QuerySet[Experiment]", name: str, value: bool
+    ) -> "QuerySet[Experiment]":
         if value:
             return queryset.filter(is_paused=True, status=Experiment.STATUS_LIVE)
 
         return queryset
 
     def completed_results_filter(
-        self, queryset: QuerySet, name: str, value: bool
-    ) -> QuerySet:
+        self, queryset: "QuerySet[Experiment]", name: str, value: bool
+    ) -> "QuerySet[Experiment]":
         if value:
             return queryset.exclude(
                 Q(results_url="") | Q(results_url=None),

@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 import json
 import re
 
@@ -7,7 +7,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from django.db.models.query import QuerySet
 from django.forms import Field
 from django.forms.boundfield import BoundField
 from django.http import HttpRequest
@@ -231,7 +230,7 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
 
         return name
 
-    def clean(self) -> Dict[str, Optional[Union[str, User, QuerySet]]]:
+    def clean(self) -> Dict:
         cleaned_data = super().clean()
 
         if self.instance.slug:
