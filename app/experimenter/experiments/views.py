@@ -1,4 +1,4 @@
-from typing import cast, Any, Dict, List, Union, Optional, Type
+from typing import cast, Dict, List, Union, Optional, Type
 import json
 
 from django_filters.views import FilterView
@@ -73,7 +73,7 @@ class ExperimentListView(FilterView):
 
         return self.ordering_form.ORDERING_CHOICES[0][0]
 
-    def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, *args, **kwargs) -> Dict:
         return super().get_context_data(ordering_form=self.ordering_form, *args, **kwargs)
 
 
@@ -83,7 +83,7 @@ class ExperimentFormMixin:
     next_view_name: str
     object: Experiment
 
-    def get_form_kwargs(self) -> Dict[str, Any]:
+    def get_form_kwargs(self) -> Dict:
         kwargs = super().get_form_kwargs()  # type: ignore
         kwargs["request"] = self.request
         return kwargs
@@ -116,7 +116,7 @@ class ExperimentTimelinePopulationUpdateView(DetailView):
     model = Experiment
     template_name = "experiments/edit_timeline_population.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> Dict:
         context = super().get_context_data(**kwargs)
         context["locales"] = json.dumps(
             list(
@@ -172,7 +172,7 @@ class ExperimentDetailView(ExperimentFormMixin, ModelFormMixin, DetailView):
             "experiments/detail_base.html",
         ]
 
-    def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, *args, **kwargs) -> Dict:
         if "normandy_id" in self.request.GET:
             normandy_id_form = NormandyIdForm(
                 request=self.request, data=self.request.GET, instance=self.object
