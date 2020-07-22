@@ -1,8 +1,9 @@
 import { data } from "@mozilla/nimbus-shared";
+
 import { XSelectOption } from "./XSelect";
 
-const generateOptions = (data: object) => {
-  let options: Array<XSelectOption> = [];
+const generateOptions = (data) => {
+  const options: Array<XSelectOption> = [];
   Object.keys(data).forEach((element) => {
     const option = {
       value: element,

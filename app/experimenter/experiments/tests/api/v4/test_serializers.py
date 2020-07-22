@@ -51,7 +51,8 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             {
                 "id": normandy_slug,
                 "filter_expression": "us_only",
-                "targeting": "localeLanguageCode == 'en' && region == 'US' && browserSettings.update.channel == 'release'",
+                "targeting": "localeLanguageCode == 'en' && region == 'US'"
+                " && browserSettings.update.channel == 'release'",
                 "enabled": True,
             },
         )
