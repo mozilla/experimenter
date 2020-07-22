@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, TypedDict, Mapping
+from typing import List, Dict, Optional, TypedDict
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
@@ -153,7 +153,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
 
 
 def update_experiment_with_change_log(
-    old_experiment: Experiment, changed_data: Mapping, user_email: str,
+    old_experiment: Experiment, changed_data: Dict, user_email: str,
 ) -> None:
     old_serialized_exp = ChangeLogSerializer(old_experiment).data
     Experiment.objects.filter(id=old_experiment.id).update(**changed_data)
@@ -174,13 +174,13 @@ def update_experiment_with_change_log(
 
 
 def generate_change_log(
-    old_serialized_vals: Mapping,
-    new_serialized_vals: Mapping,
+    old_serialized_vals: Dict,
+    new_serialized_vals: Dict,
     instance: Experiment,
     changed_fields: List[str],
     user: User,
     message: Optional[str] = None,
-    form_fields: Optional[Mapping[str, Field]] = None,
+    form_fields: Optional[Dict[str, Field]] = None,
 ) -> None:
     changed_values = {}
     old_status = None
@@ -271,14 +271,14 @@ def generate_change_log(
 
 def _has_changed(
     old_status: Optional[str],
-    changed_values: Mapping,
+    changed_values: Dict,
     experiment: Experiment,
     message: Optional[str],
 ) -> bool:
     return bool(changed_values or message or old_status != experiment.status)
 
 
-def _get_display_name(field: str, form_fields: Optional[Mapping[str, Field]]) -> str:
+def _get_display_name(field: str, form_fields: Optional[Dict[str, Field]]) -> str:
     display_name = field.replace("_", " ").title()
     if form_fields:
         label = form_fields[field].label

@@ -1,4 +1,4 @@
-from typing import List, Mapping, TypedDict, Optional
+from typing import List, Dict, TypedDict, Optional
 
 import requests
 import logging
@@ -40,7 +40,7 @@ class RecipeRevision(TypedDict, total=False):
     creator: Creator
     enabled_states: List[EnabledStates]
     enabled: bool
-    filter_object: Mapping
+    filter_object: Dict
 
 
 class Recipe(TypedDict, total=False):
@@ -53,7 +53,7 @@ class Results(TypedDict, total=False):
     results: List[Recipe]
 
 
-def make_normandy_call(url: str, params: Optional[Mapping[str, str]] = None) -> Mapping:
+def make_normandy_call(url: str, params: Optional[Dict[str, str]] = None) -> Dict:
     try:
         response = requests.get(url, verify=(not settings.DEBUG), params=params)
         response.raise_for_status()
