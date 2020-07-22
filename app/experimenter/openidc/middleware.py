@@ -1,9 +1,14 @@
-from django.urls import resolve, Resolver404
+from typing import Callable, Optional, Tuple
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.http import HttpResponse
-from rest_framework.authentication import SessionAuthentication
 from django.contrib.auth.middleware import AuthenticationMiddleware
+from django.contrib.auth.models import User
+from django.http import HttpRequest
+from django.http.response import HttpResponse
+from django.urls import resolve, Resolver404
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.request import Request
 
 
 class OpenIDCAuthMiddleware(AuthenticationMiddleware):
@@ -16,17 +21,19 @@ class OpenIDCAuthMiddleware(AuthenticationMiddleware):
     experimenters group.
     """
 
-    def __init__(self, get_response):
+    def __init__(self, get_response: Callable) -> None:
         self.get_response = get_response
         self.User = get_user_model()
 
-    def __call__(self, request):
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        fail_response = HttpResponse("Please login using OpenID Connect", status=401)
         try:
             resolved = resolve(request.path)
             if resolved.url_name in settings.OPENIDC_AUTH_WHITELIST:
                 # If the requested path is in our auth whitelist,
                 # skip authentication entirely
-                return self.get_response(request)
+                if self.get_response:
+                    return self.get_response(request)
         except Resolver404:
             pass
 
@@ -36,7 +43,7 @@ class OpenIDCAuthMiddleware(AuthenticationMiddleware):
         if openidc_email is None:
             # If a user has bypassed the OpenIDC flow entirely and no header
             # is set then we reject the request entirely
-            return HttpResponse("Please login using OpenID Connect", status=401)
+            return fail_response
 
         try:
             user = self.User.objects.get(username=openidc_email)
@@ -49,11 +56,13 @@ class OpenIDCAuthMiddleware(AuthenticationMiddleware):
 
         request.user = user
 
-        return self.get_response(request)
+        if self.get_response:
+            return self.get_response(request)
+        return fail_response
 
 
 class OpenIDCRestFrameworkAuthenticator(SessionAuthentication):
-    def authenticate(self, request):
+    def authenticate(self, request: Request) -> Optional[Tuple[User, None]]:
         authenticated_user = getattr(request._request, "user", None)
 
         if authenticated_user:
