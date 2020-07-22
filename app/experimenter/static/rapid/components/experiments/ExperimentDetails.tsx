@@ -7,6 +7,7 @@ import {
   firefoxVersionOptions,
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
 import { useExperimentState } from "experimenter-rapid/contexts/experiment/hooks";
+import { ExperimentStatus } from "experimenter-rapid/types/experiment";
 
 const LabelledRow: React.FC<{ label: string; value?: string }> = ({
   children,
@@ -67,6 +68,33 @@ const ExperimentDetails: React.FC = () => {
     );
   }
 
+  const launched_statuses = [ExperimentStatus.LIVE, ExperimentStatus.COMPLETE];
+  let changeStatusButtons;
+  if (!launched_statuses.includes(experimentData.status)) {
+    changeStatusButtons = (
+      <div className="d-flex mt-4">
+        <span>
+          <Link
+            className="btn btn-secondary"
+            to={`/${experimentData.slug}/edit/`}
+          >
+            Back
+          </Link>
+        </span>
+
+        <span className="flex-grow-1 text-right">
+          <button
+            className="btn btn-primary"
+            type="button"
+            onClick={handleClickRequestApproval}
+          >
+            Request Approval
+          </button>
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div className="col pt-3">
       <div className="mb-4">
@@ -111,27 +139,7 @@ const ExperimentDetails: React.FC = () => {
         <p>
           The results can be found here: <a href="#">(link here)</a>
         </p>
-
-        <div className="d-flex mt-4">
-          <span>
-            <Link
-              className="btn btn-secondary"
-              to={`/${experimentData.slug}/edit/`}
-            >
-              Back
-            </Link>
-          </span>
-
-          <span className="flex-grow-1 text-right">
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={handleClickRequestApproval}
-            >
-              Request Approval
-            </button>
-          </span>
-        </div>
+        {changeStatusButtons}
       </div>
     </div>
   );

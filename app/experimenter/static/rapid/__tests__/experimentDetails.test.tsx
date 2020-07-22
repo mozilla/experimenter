@@ -39,6 +39,30 @@ describe("<ExperimentDetails />", () => {
     expect(getByDisplayValue("Test objectives")).toBeInTheDocument();
   });
 
+  it("renders without progression buttons post launched experiments", async () => {
+    const { getByDisplayValue, queryByText } = renderWithRouter(
+      wrapInExperimentProvider(<ExperimentDetails />, {
+        initialState: {
+          status: ExperimentStatus.LIVE,
+          slug: "test-slug",
+          name: "Test Name",
+          objectives: "Test objectives",
+          owner: "test@owner.com",
+          features: ["picture_in_picture", "pinned_tabs"],
+          audience: "us_only",
+          firefox_min_version: "78.0",
+        },
+      }),
+    );
+
+    await waitFor(() => {
+      return expect(getByDisplayValue("test@owner.com")).toBeInTheDocument();
+    });
+
+    expect(queryByText("Back")).toBe(null);
+    expect(queryByText("Request Approval")).toBe(null);
+  });
+
   it("renders with bugzilla info when data provided", async () => {
     const { getByText } = renderWithRouter(
       wrapInExperimentProvider(<ExperimentDetails />, {
