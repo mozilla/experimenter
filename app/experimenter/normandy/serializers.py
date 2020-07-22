@@ -1,4 +1,4 @@
-from typing import cast, List, Union, Mapping
+from typing import cast, List, Union, Dict
 import json
 
 from rest_framework import serializers
@@ -315,7 +315,7 @@ class ExperimentRecipeMessageVariantSerializer(serializers.ModelSerializer):
         model = ExperimentVariant
         fields = ("ratio", "slug", "value", "groups")
 
-    def get_value(self, obj: ExperimentVariant) -> Mapping:
+    def get_value(self, obj: ExperimentVariant) -> Dict:
         return {}
 
 
@@ -394,7 +394,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
 
         return filter_objects
 
-    def get_arguments(self, obj: Experiment) -> Mapping:
+    def get_arguments(self, obj: Experiment) -> Dict:
         if obj.use_multi_pref_serializer:
             return ExperimentRecipeMultiPrefArgumentsSerializer(obj).data
         elif obj.is_pref_experiment:
