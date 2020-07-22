@@ -150,11 +150,7 @@ class TestExperimentSerializer(TestCase):
                 "results_confidence": None,
                 "results_measure_impact": None,
                 "results_impact_notes": None,
-            },
-            "telemetry_event_category": experiment.telemetry_event_category,
-            "telemetry_event_method": experiment.telemetry_event_method,
-            "telemetry_event_object": experiment.telemetry_event_object,
-            "telemetry_event_value": experiment.telemetry_event_value,
+            }
         }
 
         self.assertEqual(set(serializer.data.keys()), set(expected_data.keys()))
