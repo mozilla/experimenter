@@ -251,9 +251,7 @@ class Experiment(ExperimentConstants, models.Model):
     risk_brand = models.NullBooleanField(default=None, blank=True, null=True)
     risk_fast_shipped = models.NullBooleanField(default=None, blank=True, null=True)
     risk_confidential = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_release_population = models.NullBooleanField(
-        default=None, blank=True, null=True
-    )
+    risk_release_population = models.NullBooleanField(default=None, blank=True, null=True)
     risk_revenue = models.NullBooleanField(default=None, blank=True, null=True)
     risk_data_category = models.NullBooleanField(default=None, blank=True, null=True)
     risk_external_team_impact = models.NullBooleanField(
@@ -301,18 +299,12 @@ class Experiment(ExperimentConstants, models.Model):
     results_initial = models.TextField(blank=True, null=True)
     results_lessons_learned = models.TextField(blank=True, null=True)
 
-    results_fail_to_launch = models.NullBooleanField(
-        default=None, blank=True, null=True
-    )
+    results_fail_to_launch = models.NullBooleanField(default=None, blank=True, null=True)
     results_recipe_errors = models.NullBooleanField(default=None, blank=True, null=True)
     results_restarts = models.NullBooleanField(default=None, blank=True, null=True)
-    results_low_enrollment = models.NullBooleanField(
-        default=None, blank=True, null=True
-    )
+    results_low_enrollment = models.NullBooleanField(default=None, blank=True, null=True)
     results_early_end = models.NullBooleanField(default=None, blank=True, null=True)
-    results_no_usable_data = models.NullBooleanField(
-        default=None, blank=True, null=True
-    )
+    results_no_usable_data = models.NullBooleanField(default=None, blank=True, null=True)
     results_failures_notes = models.TextField(blank=True, null=True)
 
     results_changes_to_firefox = models.NullBooleanField(
@@ -322,9 +314,7 @@ class Experiment(ExperimentConstants, models.Model):
         default=None, blank=True, null=True
     )
     results_confidence = models.NullBooleanField(default=None, blank=True, null=True)
-    results_measure_impact = models.NullBooleanField(
-        default=None, blank=True, null=True
-    )
+    results_measure_impact = models.NullBooleanField(default=None, blank=True, null=True)
     results_impact_notes = models.TextField(blank=True, null=True)
 
     objects = ExperimentManager()
@@ -415,9 +405,7 @@ class Experiment(ExperimentConstants, models.Model):
 
         slug_prefix = f"bug-{self.bugzilla_id}-{self.type}-"
         slug_postfix = f"-{self.firefox_channel}-{version_string}"
-        remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(
-            slug_prefix + slug_postfix
-        )
+        remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(slug_prefix + slug_postfix)
         truncated_slug = slugify(self.name[:remaining_chars])
         return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
 
@@ -732,9 +720,7 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def completed_population(self) -> bool:
         completed = bool(
-            self.firefox_min_version
-            and self.firefox_max_version
-            and self.firefox_channel
+            self.firefox_min_version and self.firefox_max_version and self.firefox_channel
         )
 
         if self.should_have_population_percent:
@@ -1290,9 +1276,7 @@ class ExperimentChangeLog(models.Model):
 
     @property
     def pretty_status(self) -> str:
-        return self.PRETTY_STATUS_LABELS.get(self.old_status, {}).get(
-            self.new_status, ""
-        )
+        return self.PRETTY_STATUS_LABELS.get(self.old_status, {}).get(self.new_status, "")
 
 
 class ExperimentEmail(ExperimentConstants, models.Model):
