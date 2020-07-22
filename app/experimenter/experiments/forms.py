@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 import json
 import re
 
@@ -7,9 +7,10 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from django.http import HttpRequest
 from django.db.models.query import QuerySet
+from django.forms import Field
 from django.forms.boundfield import BoundField
+from django.http import HttpRequest
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
@@ -84,7 +85,7 @@ class BugzillaURLField(forms.URLField):
 class ChangeLogMixin:
     instance: Experiment
     changed_data: List[str]
-    fields: Dict[str, Any]
+    fields: Dict[str, Field]
 
     def __init__(self, request: HttpRequest, *args, **kwargs) -> None:
         self.request = request
@@ -798,19 +799,21 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
 
     @property
     def added_reviews(self) -> List[str]:
-        return [
-            strip_tags(self.fields[field_name].label)
-            for field_name in self.changed_data
-            if self.cleaned_data[field_name]
-        ]
+        reviews = []
+        for field_name in self.changed_data:
+            label = self.fields[field_name].label
+            if label and self.cleaned_data[field_name]:
+                reviews.append(strip_tags(label))
+        return reviews
 
     @property
     def removed_reviews(self) -> List[str]:
-        return [
-            strip_tags(self.fields[field_name].label)
-            for field_name in self.changed_data
-            if not self.cleaned_data[field_name]
-        ]
+        reviews = []
+        for field_name in self.changed_data:
+            label = self.fields[field_name].label
+            if label and not self.cleaned_data[field_name]:
+                reviews.append(strip_tags(label))
+        return reviews
 
     def get_changelog_message(self) -> str:
         message = ""
@@ -997,7 +1000,6 @@ class ExperimentCommentForm(forms.ModelForm):
 
 
 class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
-
     IDS_ADDED_MESSAGE = "Recipe ID(s) Added"
 
     normandy_id = forms.IntegerField(
@@ -1006,7 +1008,6 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
             attrs={"class": "form-control", "placeholder": "Primary Recipe ID"}
         ),
     )
-
     other_normandy_ids = forms.CharField(
         label="Other Recipe IDs",
         widget=forms.TextInput(
@@ -1018,7 +1019,7 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
     def get_changelog_message(self) -> str:
         return self.IDS_ADDED_MESSAGE
 
-    def clean(self) -> Dict[str, Union[int, List[int], List[Any]]]:
+    def clean(self) -> Dict:
         cleaned_data = super().clean()
 
         if cleaned_data.get("normandy_id") in cleaned_data.get("other_normandy_ids", []):
