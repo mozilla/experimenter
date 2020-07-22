@@ -1,9 +1,10 @@
-from typing import Any, Dict, Optional, TypedDict, Mapping
+from typing import List, Dict, Optional, TypedDict, Mapping
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 from rest_framework import serializers
+from django.forms import Field
 
 from experimenter.base.serializers import CountrySerializer, LocaleSerializer
 from experimenter.experiments.models import (
@@ -28,12 +29,10 @@ class ChangelogSerializerMixin:
         if self.instance and self.instance.id:
             self.old_serialized_vals = dict(ChangeLogSerializer(self.instance).data)
 
-    def update_changelog(
-        self, instance: Experiment, validated_data: Dict[str, Any]
-    ) -> Experiment:
+    def update_changelog(self, instance: Experiment, validated_data: Dict) -> Experiment:
         new_serialized_vals = ChangeLogSerializer(instance).data
         user = self.context["request"].user
-        changed_data = validated_data.copy()
+        changed_data = list(validated_data.keys())
         generate_change_log(
             self.old_serialized_vals, new_serialized_vals, instance, changed_data, user
         )
@@ -169,7 +168,7 @@ def update_experiment_with_change_log(
         old_serialized_exp,
         new_serialized_exp,
         new_experiment,
-        changed_data,
+        list(changed_data.keys()),
         default_user,
     )
 
@@ -178,15 +177,13 @@ def generate_change_log(
     old_serialized_vals: Mapping,
     new_serialized_vals: Mapping,
     instance: Experiment,
-    changed_data: Any,
+    changed_fields: List[str],
     user: User,
     message: Optional[str] = None,
-    form_fields: Optional[Any] = None,
+    form_fields: Optional[Mapping[str, Field]] = None,
 ) -> None:
-
     changed_values = {}
     old_status = None
-
     latest_change = instance.changes.latest()
 
     # account for changes in variant values
@@ -212,11 +209,11 @@ def generate_change_log(
             "display_name": display_name,
         }
 
-    if changed_data:
+    if changed_fields:
         if latest_change:
             old_status = latest_change.new_status
 
-            for field in changed_data:
+            for field in changed_fields:
                 old_val = None
                 new_val = None
 
@@ -245,7 +242,7 @@ def generate_change_log(
                     }
 
         else:
-            for field in changed_data:
+            for field in changed_fields:
                 old_val = None
                 new_val = None
                 if field in new_serialized_vals:
@@ -274,14 +271,17 @@ def generate_change_log(
 
 def _has_changed(
     old_status: Optional[str],
-    changed_values: Dict[str, Any],
+    changed_values: Mapping,
     experiment: Experiment,
     message: Optional[str],
 ) -> bool:
     return bool(changed_values or message or old_status != experiment.status)
 
 
-def _get_display_name(field: str, form_fields: Any) -> str:
-    if form_fields and form_fields[field].label:
-        return form_fields[field].label
-    return field.replace("_", " ").title()
+def _get_display_name(field: str, form_fields: Optional[Mapping[str, Field]]) -> str:
+    display_name = field.replace("_", " ").title()
+    if form_fields:
+        label = form_fields[field].label
+        if label:
+            display_name = label
+    return display_name
