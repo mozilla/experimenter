@@ -28,8 +28,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             name="rapid experiment",
             slug="rapid-experiment",
             objectives="gotta go fast",
-            audience="AUDIENCE 1",
-            features=["FEATURE 1"],
+            audience="all_english",
+            features=["picture_in_picture"],
             firefox_min_version=FIREFOX_VERSION,
         )
 
@@ -43,8 +43,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "name": "rapid experiment",
                 "slug": "rapid-experiment",
                 "objectives": "gotta go fast",
-                "audience": "AUDIENCE 1",
-                "features": ["FEATURE 1"],
+                "audience": "all_english",
+                "features": ["picture_in_picture"],
                 "bugzilla_url": "{bug_host}show_bug.cgi?id={bug_id}".format(
                     bug_host=settings.BUGZILLA_HOST, bug_id=experiment.bugzilla_id
                 ),
@@ -64,8 +64,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         data = {
             "name": "rapid experiment",
             "objectives": "gotta go fast",
-            "audience": " WRONG AUDIENCE CHOICE",
-            "features": ["FEATURE 1", "FEATURE 2"],
+            "audience": "WRONG AUDIENCE CHOICE",
+            "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
         }
         serializer = ExperimentRapidSerializer(
@@ -78,7 +78,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         data = {
             "name": "rapid experiment",
             "objectives": "gotta go fast",
-            "audience": "AUDIENCE 1",
+            "audience": "all_english",
             "features": ["WRONG FEATURE 1", "WRONG FEATURE 2"],
             "firefox_min_version": FIREFOX_VERSION,
         }
@@ -92,8 +92,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         data = {
             "name": "rapid experiment",
             "objectives": "gotta go fast",
-            "audience": "AUDIENCE 1",
-            "features": ["FEATURE 1", "FEATURE 2"],
+            "audience": "all_english",
+            "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": "invalid version",
         }
         serializer = ExperimentRapidSerializer(
@@ -106,8 +106,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         data = {
             "name": "rapid experiment",
             "objectives": "gotta go fast",
-            "audience": "AUDIENCE 1",
-            "features": ["FEATURE 1", "FEATURE 2"],
+            "audience": "all_english",
+            "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
         }
 
@@ -123,8 +123,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertEqual(experiment.name, "rapid experiment")
         self.assertEqual(experiment.slug, "rapid-experiment")
         self.assertEqual(experiment.objectives, "gotta go fast")
-        self.assertEqual(experiment.audience, "AUDIENCE 1")
-        self.assertEqual(experiment.features, ["FEATURE 1", "FEATURE 2"])
+        self.assertEqual(experiment.audience, "all_english")
+        self.assertEqual(experiment.features, ["picture_in_picture", "pinned_tabs"])
         self.assertEqual(experiment.firefox_min_version, FIREFOX_VERSION)
         self.assertEqual(
             experiment.public_description, Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
@@ -160,12 +160,12 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             },
             "audience": {
                 "display_name": "Audience",
-                "new_value": "AUDIENCE 1",
+                "new_value": "all_english",
                 "old_value": None,
             },
             "features": {
                 "display_name": "Features",
-                "new_value": ["FEATURE 1", "FEATURE 2"],
+                "new_value": ["picture_in_picture", "pinned_tabs"],
                 "old_value": None,
             },
             "firefox_min_version": {
@@ -197,8 +197,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             name="rapid experiment",
             slug="rapid-experiment",
             objectives="gotta go fast",
-            audience="AUDIENCE 1",
-            features=["FEATURE 1"],
+            audience="us_only",
+            features=["picture_in_picture", "pinned_tabs"],
             firefox_min_version=FIREFOX_VERSION,
             public_description=Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
         )
@@ -207,8 +207,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         data = {
             "name": "changing the name",
             "objectives": "changing objectives",
-            "audience": "AUDIENCE 2",
-            "features": ["FEATURE 2"],
+            "audience": "all_english",
+            "features": ["pinned_tabs"],
             "firefox_min_version": Experiment.VERSION_CHOICES[1][0],
         }
         serializer = ExperimentRapidSerializer(
@@ -231,13 +231,13 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             },
             "audience": {
                 "display_name": "Audience",
-                "new_value": "AUDIENCE 2",
-                "old_value": "AUDIENCE 1",
+                "new_value": "all_english",
+                "old_value": "us_only",
             },
             "features": {
                 "display_name": "Features",
-                "new_value": ["FEATURE 2"],
-                "old_value": ["FEATURE 1"],
+                "new_value": ["pinned_tabs"],
+                "old_value": ["picture_in_picture", "pinned_tabs"],
             },
             "firefox_min_version": {
                 "display_name": "Firefox Min Version",
@@ -257,8 +257,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         data = {
             "name": "!!!!!!!!!!!!!!!",
             "objectives": "gotta go fast",
-            "audience": "AUDIENCE 1",
-            "features": ["FEATURE 1", "FEATURE 2"],
+            "audience": "all_english",
+            "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
         }
 
@@ -276,8 +276,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         data = {
             "name": "non. unique slug",
             "objectives": "gotta go fast",
-            "audience": "AUDIENCE 1",
-            "features": ["FEATURE 1", "FEATURE 2"],
+            "audience": "all_english",
+            "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
         }
 
@@ -285,6 +285,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             data=data, context={"request": self.request}
         )
         self.assertFalse(serializer.is_valid())
+
         self.assertIn(
             "Name maps to a pre-existing slug, please choose another name",
             serializer.errors["name"],
@@ -298,8 +299,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         data = {
             "name": "non unique slug",
             "objectives": "gotta go fast",
-            "audience": "AUDIENCE 1",
-            "features": ["FEATURE 1", "FEATURE 2"],
+            "audience": "all_english",
+            "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
         }
 
