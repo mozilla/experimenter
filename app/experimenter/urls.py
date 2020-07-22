@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import re_path, include
+from django.conf.urls import re_path, include  # type: ignore
 from django.conf.urls.static import static
 from django.contrib import admin
 
