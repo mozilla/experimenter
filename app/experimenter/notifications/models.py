@@ -15,7 +15,7 @@ class NotificationManager(models.Manager):
         return unread
 
 
-class Notification(models.Model):
+class Notification(models.Model):  # type: ignore
     user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, related_name="notifications"
     )

@@ -48,21 +48,20 @@ class ExperimentListView(FilterView):
         super().__init__(*args, **kwargs)
         self.ordering_form: Optional[ExperimentOrderingForm] = None
 
-    def get_filterset_kwargs(
-        self, *args, **kwargs
-    ) -> Dict[str, Union[QueryDict, HttpRequest, QuerySet]]:
+    def get_filterset_kwargs(self, *args, **kwargs) -> Dict:
         kwargs = super().get_filterset_kwargs(*args, **kwargs)
-
         # Always pass in request.GET otherwise the
         # filterset form will be unbound and our custom
         # validation won't kick in
         kwargs["data"] = self.request.GET
         return kwargs
 
-    def get_queryset(self) -> QuerySet:
-        qs = super().get_queryset()
-        qs = qs.annotate(firefox_channel_sort=Experiment.firefox_channel_sort())
-        return qs
+    def get_queryset(self) -> "QuerySet[Experiment]":
+        return (
+            super()
+            .get_queryset()
+            .annotate(firefox_channel_sort=Experiment.firefox_channel_sort())
+        )
 
     def get_ordering(self) -> str:
         self.ordering_form = ExperimentOrderingForm(self.request.GET)
