@@ -1,21 +1,20 @@
+from typing import Optional
 import decimal
-import markus
-from celery.utils.log import get_task_logger
 
+from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
+import markus
 
 from experimenter.celery import app
 from experimenter.experiments.changelog_utils import update_experiment_with_change_log
-
 from experimenter.experiments.models import Experiment
 from experimenter.bugzilla.tasks import (
     add_start_date_comment_task,
     comp_experiment_update_res_task,
 )
 from experimenter.normandy import client as normandy
-
 from experimenter.experiments.email import (
     send_experiment_launch_email,
     send_period_ending_emails_task,
@@ -32,7 +31,7 @@ metrics = markus.get_metrics("experiments.tasks")
 
 @app.task
 @metrics.timer_decorator("update_recipe_ids_to_experiments.timing")
-def update_recipe_ids_to_experiments():
+def update_recipe_ids_to_experiments() -> None:
     metrics.incr("update_ready_to_ship_experiments.started")
     logger.info("Update Recipes to Experiments")
 
@@ -46,7 +45,7 @@ def update_recipe_ids_to_experiments():
             recipe_data = normandy.get_recipe_list(experiment.slug)
 
             if len(recipe_data):
-                sorted_recipe_data = sorted(recipe_data, key=lambda x: x.get("id"))
+                sorted_recipe_data = sorted(recipe_data, key=lambda r: r["id"])
                 recipe_ids = [r["id"] for r in sorted_recipe_data]
                 changed_data = {
                     "normandy_id": recipe_ids[0],
@@ -70,7 +69,7 @@ def update_recipe_ids_to_experiments():
 
 @app.task
 @metrics.timer_decorator("update_launched_experiments.timing")
-def update_launched_experiments():
+def update_launched_experiments() -> None:
     metrics.incr("update_launched_experiments.started")
     logger.info("Updating launched experiments info")
 
@@ -108,7 +107,9 @@ def update_launched_experiments():
     metrics.incr("update_launched_experiments.completed")
 
 
-def update_status_task(experiment, recipe_data):
+def update_status_task(
+    experiment: Experiment, recipe_data: normandy.RecipeRevision
+) -> Experiment:
     logger.info("Updating Experiment Status")
     enabler = normandy.get_recipe_state_enabler(recipe_data)
     old_status = experiment.status
@@ -127,7 +128,9 @@ def update_status_task(experiment, recipe_data):
 
 @app.task
 @metrics.timer_decorator("set_is_paused_value")
-def set_is_paused_value_task(experiment_id, recipe_data):
+def set_is_paused_value_task(
+    experiment_id: int, recipe_data: normandy.RecipeRevision
+) -> None:
     experiment = Experiment.objects.get(id=experiment_id)
     metrics.incr("set_is_paused_value.started")
     logger.info("Updating Enrollment Value")
@@ -152,7 +155,9 @@ def set_is_paused_value_task(experiment_id, recipe_data):
     metrics.incr("set_is_paused_value.completed")
 
 
-def update_population_percent(experiment, recipe_data):
+def update_population_percent(
+    experiment: Experiment, recipe_data: normandy.RecipeRevision
+) -> None:
     if recipe_data and "filter_object" in recipe_data:
         filter_objects = {f["type"]: f for f in recipe_data["filter_object"]}
         if "bucketSample" in filter_objects:
@@ -163,7 +168,9 @@ def update_population_percent(experiment, recipe_data):
             experiment.save()
 
 
-def needs_to_be_updated(recipe_data, status):
+def needs_to_be_updated(
+    recipe_data: Optional[normandy.RecipeRevision], status: str,
+) -> bool:
     if recipe_data is None:
         return False
 
@@ -173,6 +180,6 @@ def needs_to_be_updated(recipe_data, status):
     return accepted_update or live_update
 
 
-def is_paused(recipe_data):
+def is_paused(recipe_data: normandy.RecipeRevision) -> Optional[bool]:
     arguments = recipe_data.get("arguments", {})
     return arguments.get("isEnrollmentPaused")
