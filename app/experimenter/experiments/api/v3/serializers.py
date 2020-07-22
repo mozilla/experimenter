@@ -1,6 +1,8 @@
 from django.utils.text import slugify
 from rest_framework import serializers
 
+from mozilla_nimbus_shared import get_data
+
 from experimenter.bugzilla.tasks import create_experiment_bug_task
 from experimenter.experiments.models import Experiment, ExperimentVariant
 from experimenter.experiments.changelog_utils import ChangelogSerializerMixin
@@ -21,6 +23,10 @@ class ExperimentRapidChangelogSerializerMixin(ChangelogSerializerMixin):
 class ExperimentRapidSerializer(
     ExperimentRapidChangelogSerializerMixin, serializers.ModelSerializer
 ):
+    NIMBUS_DATA = get_data()
+    FEATURES_CHOICES = list(NIMBUS_DATA["features"].keys())
+    AUDIENCE_CHOICES = list(NIMBUS_DATA["Audiences"].keys())
+
     type = serializers.HiddenField(default=Experiment.TYPE_RAPID)
     rapid_type = serializers.HiddenField(default=Experiment.RAPID_AA_CFR)
     owner = serializers.ReadOnlyField(source="owner.email")
@@ -31,12 +37,10 @@ class ExperimentRapidSerializer(
     objectives = serializers.CharField(required=True)
     features = serializers.ListField(
         required=True,
-        child=serializers.ChoiceField(choices=Experiment.RAPID_FEATURE_CHOICES),
+        child=serializers.ChoiceField(choices=FEATURES_CHOICES),
         allow_empty=False,
     )
-    audience = serializers.ChoiceField(
-        required=True, choices=Experiment.RAPID_AUDIENCE_CHOICES
-    )
+    audience = serializers.ChoiceField(required=True, choices=AUDIENCE_CHOICES)
     bugzilla_url = serializers.ReadOnlyField()
     firefox_min_version = serializers.ChoiceField(
         required=True, choices=Experiment.VERSION_CHOICES,
