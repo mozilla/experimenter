@@ -2324,10 +2324,10 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@mozilla/nimbus-shared@0.0.6":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@mozilla/nimbus-shared/-/nimbus-shared-0.0.6.tgz#cc9df77552e998cc067ffc33989feb58c7dea366"
-  integrity sha512-qfPE54sRHdpR0lDR5S4WczM9KS5pskAiY91PyphTlsfBEi9Avclg/QjgCtZrauW7eWtiBXPP9ly3hRGUNCyigQ==
+"@mozilla/nimbus-shared@0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@mozilla/nimbus-shared/-/nimbus-shared-0.0.7.tgz#a7a8bbe9b642aa715699898d0e93376c389145bf"
+  integrity sha512-ws1xGG/QkdX3ZGeIYNpUiDPVqLcMg79TKH0J9JVELE3FHWwchsZfxm/1iOVF+tMYk9seOQt7Oab5mkYopfCR/A==
   dependencies:
     ajv "^6.12.2"
 
@@ -2694,7 +2694,7 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@^16.9.11", "@types/react@^16.9.35", "@types/react@^16.9.43":
+"@types/react@*", "@types/react@16.9.43", "@types/react@^16.9.11", "@types/react@^16.9.35", "@types/react@^16.9.43":
   version "16.9.43"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-16.9.43.tgz#c287f23f6189666ee3bebc2eb8d0f84bcb6cdb6b"
   integrity sha512-PxshAFcnJqIWYpJbLPriClH53Z2WlJcVZE+NP2etUtWQs2s7yIMj3/LDKZT/5CHJ/F62iyjVCDu2H3jHEXIxSg==
