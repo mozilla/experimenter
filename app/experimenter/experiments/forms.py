@@ -89,9 +89,9 @@ class ChangeLogMixin:
     def __init__(self, request: HttpRequest, *args, **kwargs) -> None:
         self.request = request
         super().__init__(*args, **kwargs)  # type: ignore
-        self.old_serialized_vals = None
+        self.old_serialized_vals = {}
         if self.instance.id:
-            self.old_serialized_vals = ChangeLogSerializer(self.instance).data
+            self.old_serialized_vals = dict(ChangeLogSerializer(self.instance).data)
 
     def get_changelog_message(self) -> str:
         return ""

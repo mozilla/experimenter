@@ -1,9 +1,9 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, TypedDict, Mapping
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.http import HttpRequest
 from rest_framework import serializers
-from rest_framework.utils.serializer_helpers import ReturnDict
 
 from experimenter.base.serializers import CountrySerializer, LocaleSerializer
 from experimenter.experiments.models import (
@@ -12,18 +12,21 @@ from experimenter.experiments.models import (
 )
 from experimenter.experiments.api.v1.serializers import ExperimentVariantSerializer
 from experimenter.projects.serializers import ProjectSerializer
-from datetime import date
+
+
+class ChangelogSerializerContext(TypedDict):
+    request: HttpRequest
 
 
 class ChangelogSerializerMixin:
     instance: Optional[Experiment]
-    context: Dict[str, Any]
+    context: ChangelogSerializerContext
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)  # type: ignore
         self.old_serialized_vals = {}
         if self.instance and self.instance.id:
-            self.old_serialized_vals = ChangeLogSerializer(self.instance).data
+            self.old_serialized_vals = dict(ChangeLogSerializer(self.instance).data)
 
     def update_changelog(
         self, instance: Experiment, validated_data: Dict[str, Any]
@@ -151,9 +154,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
 
 
 def update_experiment_with_change_log(
-    old_experiment: Experiment,
-    changed_data: Dict[str, Union[int, List[int], str, date]],
-    user_email: str,
+    old_experiment: Experiment, changed_data: Mapping, user_email: str,
 ) -> None:
     old_serialized_exp = ChangeLogSerializer(old_experiment).data
     Experiment.objects.filter(id=old_experiment.id).update(**changed_data)
@@ -174,8 +175,8 @@ def update_experiment_with_change_log(
 
 
 def generate_change_log(
-    old_serialized_vals: ReturnDict,
-    new_serialized_vals: ReturnDict,
+    old_serialized_vals: Mapping,
+    new_serialized_vals: Mapping,
     instance: Experiment,
     changed_data: Any,
     user: User,
