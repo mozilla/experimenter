@@ -83,11 +83,14 @@ describe("<ExperimentForm />", () => {
 
     // Update the features field
     const featuresField = getByLabelText("Features");
-    await selectEvent.select(featuresField, ["FEATURE 1", "FEATURE 2"]);
+    await selectEvent.select(featuresField, [
+      "Picture-in-Picture",
+      "Pinned tabs",
+    ]);
 
     // Update the audience field
     const audienceField = getByLabelText("Audience");
-    await selectEvent.select(audienceField, "AUDIENCE 2");
+    await selectEvent.select(audienceField, "US users (en; release)");
 
     // Update the firefox version field
     const firefoxVersionField = getByLabelText("Firefox Minimum Version");
@@ -108,8 +111,8 @@ describe("<ExperimentForm />", () => {
       status: ExperimentStatus.DRAFT,
       name: "test name",
       objectives: "test objective",
-      audience: "AUDIENCE 2",
-      features: ["FEATURE 1", "FEATURE 2"],
+      features: ["picture_in_picture", "pinned_tabs"],
+      audience: "us_only",
       firefox_min_version: "78.0",
     });
   });

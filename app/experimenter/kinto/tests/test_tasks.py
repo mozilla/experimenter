@@ -15,7 +15,9 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
     def setUp(self):
         super().setUp()
         self.experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, proposed_start_date=datetime.date(2020, 1, 20)
+            Experiment.STATUS_DRAFT,
+            proposed_start_date=datetime.date(2020, 1, 20),
+            audience="us_only",
         )
 
     def test_push_experiment_to_kinto_sends_experiment_data(self):
