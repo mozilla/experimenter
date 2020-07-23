@@ -6,7 +6,11 @@ import {
   audienceOptions,
   firefoxVersionOptions,
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
-import { useExperimentState } from "experimenter-rapid/contexts/experiment/hooks";
+import { requestReview } from "experimenter-rapid/contexts/experiment/actions";
+import {
+  useExperimentState,
+  useExperimentDispatch,
+} from "experimenter-rapid/contexts/experiment/hooks";
 import { ExperimentStatus } from "experimenter-rapid/types/experiment";
 
 const LabelledRow: React.FC<{ label: string; value?: string }> = ({
@@ -45,12 +49,9 @@ const displaySelectOptionLabels = (options, values) => {
 
 const ExperimentDetails: React.FC = () => {
   const experimentData = useExperimentState();
+  const dispatch = useExperimentDispatch();
 
-  const handleClickRequestApproval = async () => {
-    await fetch(`/api/v3/experiments/${experimentData.slug}/request_review/`, {
-      method: "POST",
-    });
-  };
+  const handleClickRequestApproval = async () => dispatch(requestReview());
 
   let bugzilla_url;
   if (experimentData.bugzilla_url) {
@@ -68,31 +69,54 @@ const ExperimentDetails: React.FC = () => {
     );
   }
 
-  const launched_statuses = [ExperimentStatus.LIVE, ExperimentStatus.COMPLETE];
-  let changeStatusButtons;
-  if (!launched_statuses.includes(experimentData.status)) {
-    changeStatusButtons = (
-      <div className="d-flex mt-4">
-        <span>
-          <Link
-            className="btn btn-secondary"
-            to={`/${experimentData.slug}/edit/`}
-          >
-            Back
-          </Link>
-        </span>
+  const buttonsDisabled = experimentData.status !== ExperimentStatus.DRAFT;
+  const buttonsShown = ![
+    ExperimentStatus.LIVE,
+    ExperimentStatus.COMPLETE,
+  ].includes(experimentData.status);
 
-        <span className="flex-grow-1 text-right">
-          <button
-            className="btn btn-primary"
-            type="button"
-            onClick={handleClickRequestApproval}
-          >
-            Request Approval
-          </button>
-        </span>
-      </div>
-    );
+  let changeStatusButtons;
+  if (buttonsShown) {
+    if (buttonsDisabled) {
+      changeStatusButtons = (
+        <div className="d-flex mt-4">
+          <span>
+            <button disabled className="btn btn-secondary">
+              Back
+            </button>
+          </span>
+
+          <span className="flex-grow-1 text-right">
+            <button disabled className="btn btn-secondary" type="button">
+              Request Approval
+            </button>
+          </span>
+        </div>
+      );
+    } else {
+      changeStatusButtons = (
+        <div className="d-flex mt-4">
+          <span>
+            <Link
+              className="btn btn-primary"
+              to={`/${experimentData.slug}/edit/`}
+            >
+              Back
+            </Link>
+          </span>
+
+          <span className="flex-grow-1 text-right">
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={handleClickRequestApproval}
+            >
+              Request Approval
+            </button>
+          </span>
+        </div>
+      );
+    }
   }
 
   return (
