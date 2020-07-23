@@ -1,7 +1,8 @@
 import random
 
-from django.test import TestCase
 from django.conf import settings
+from django.test import TestCase
+from mozilla_nimbus_shared import get_data
 
 from experimenter.experiments.api.v3.serializers import (
     ExperimentRapidSerializer,
@@ -13,7 +14,7 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
-
+NIMBUS_DATA = get_data()
 FIREFOX_VERSION = random.choice(Experiment.VERSION_CHOICES)[0]
 
 
@@ -117,6 +118,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertTrue(serializer.is_valid())
         experiment = serializer.save()
 
+        # User input data
         self.assertEqual(experiment.type, Experiment.TYPE_RAPID)
         self.assertEqual(experiment.rapid_type, Experiment.RAPID_AA_CFR)
         self.assertEqual(experiment.owner, self.user)
@@ -129,8 +131,18 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertEqual(
             experiment.public_description, Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
         )
-        self.assertEqual(experiment.firefox_min_version, FIREFOX_VERSION)
-        self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
+
+        # Preset data
+        preset_data = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
+            "arguments"
+        ]
+        audience_data = NIMBUS_DATA["Audiences"]["all_english"]
+
+        self.assertEqual(experiment.firefox_channel, audience_data["firefox_channel"])
+        self.assertEqual(experiment.proposed_duration, preset_data["proposedDuration"])
+        self.assertEqual(
+            experiment.proposed_enrollment, preset_data["proposedEnrollment"]
+        )
 
         self.mock_tasks_serializer_create_bug.delay.assert_called()
 
@@ -178,14 +190,22 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "new_value": Experiment.CHANNEL_RELEASE,
                 "old_value": None,
             },
+            "proposed_duration": {
+                "display_name": "Proposed Duration",
+                "new_value": 28,
+                "old_value": None,
+            },
+            "proposed_enrollment": {
+                "display_name": "Proposed Enrollment",
+                "new_value": 7,
+                "old_value": None,
+            },
         }
-        self.assertTrue(
-            experiment.changes.filter(
-                old_status=None,
-                new_status=Experiment.STATUS_DRAFT,
-                changed_values=changed_values,
-            ).exists()
+        changelog = experiment.changes.get(
+            old_status=None, new_status=Experiment.STATUS_DRAFT
         )
+        self.maxDiff = None
+        self.assertEqual(changelog.changed_values, changed_values)
 
     def test_serializer_creates_changelog_for_updates(self):
         owner = UserFactory(email="owner@example.com")
