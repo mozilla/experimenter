@@ -25,6 +25,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             audience=audience,
             features=features,
             normandy_slug=normandy_slug,
+            firefox_min_version="80.0",
             proposed_enrollment=9,
             proposed_start_date=today,
         )
@@ -50,7 +51,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             data,
             {
                 "id": normandy_slug,
-                "filter_expression": "us_only",
+                "filter_expression": "env.version|versionCompare('80.0') >= 0",
                 "targeting": "localeLanguageCode == 'en' && region == 'US'"
                 " && browserSettings.update.channel == 'release'",
                 "enabled": True,
