@@ -43,7 +43,7 @@ jobs:
       - run:
           name: Run integration tests
           command: |
-            sudo chown -R ubuntu app/tests/
+            sudo chmod -R a+rwx app/tests/
             make refresh
             make up_detached
             make integration_test
