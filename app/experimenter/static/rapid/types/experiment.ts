@@ -12,6 +12,7 @@ export interface ExperimentData {
   bugzilla_url?: string;
   features: Array<string>;
   firefox_min_version: string;
+  monitoring_dashboard_url?: string;
   name: string;
   objectives: string;
   owner?: string;
