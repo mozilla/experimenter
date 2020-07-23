@@ -69,6 +69,26 @@ const ExperimentDetails: React.FC = () => {
     );
   }
 
+  let monitoring_url;
+  if (experimentData.monitoring_dashboard_url) {
+    monitoring_url = (
+      <>
+        <h3 className="my-4">Monitoring</h3>
+        <p>
+          The live monitoring dashboard can be found here:
+          <a
+            href={experimentData.monitoring_dashboard_url}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {" "}
+            (link here)
+          </a>
+        </p>
+      </>
+    );
+  }
+
   const buttonsDisabled = experimentData.status !== ExperimentStatus.DRAFT;
   let buttonsClass = "btn btn-primary";
   if (buttonsDisabled) {
@@ -143,6 +163,8 @@ const ExperimentDetails: React.FC = () => {
           )}
         />
 
+        {monitoring_url}
+
         <h3 className="my-4">Results</h3>
         <p>
           The results will be available 7 days after the experiment is launched.
@@ -151,6 +173,7 @@ const ExperimentDetails: React.FC = () => {
         <p>
           The results can be found here: <a href="#">(link here)</a>
         </p>
+
         {changeStatusButtons}
       </div>
     </div>
