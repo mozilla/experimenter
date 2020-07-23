@@ -15,7 +15,7 @@ export const fetchExperiment = (experimentSlug: string) => async (
     },
   });
 
-  const data = await response.json();
+  const data: ExperimentData = await response.json();
   dispatch({
     type: ExperimentReducerActionType.UPDATE_STATE,
     state: data,
@@ -49,4 +49,16 @@ export const updateExperiment = (name: string, value: string | string[]) => (
       [name]: value,
     },
   });
+};
+
+export const requestReview = () => async (
+  experimentData: ExperimentData,
+  dispatch: React.Dispatch<ExperimentReducerAction>,
+): Promise<void> => {
+  await fetch(`/api/v3/experiments/${experimentData.slug}/request_review/`, {
+    method: "POST",
+  });
+  if (experimentData.slug) {
+    fetchExperiment(experimentData.slug)(experimentData, dispatch);
+  }
 };
