@@ -70,6 +70,11 @@ const ExperimentDetails: React.FC = () => {
   }
 
   const buttonsDisabled = experimentData.status !== ExperimentStatus.DRAFT;
+  let buttonsClass = "btn btn-primary";
+  if (buttonsDisabled) {
+    buttonsClass = "btn btn-secondary";
+  }
+
   const buttonsShown = ![
     ExperimentStatus.LIVE,
     ExperimentStatus.COMPLETE,
@@ -77,46 +82,29 @@ const ExperimentDetails: React.FC = () => {
 
   let changeStatusButtons;
   if (buttonsShown) {
-    if (buttonsDisabled) {
-      changeStatusButtons = (
-        <div className="d-flex mt-4">
-          <span>
-            <button disabled className="btn btn-secondary">
-              Back
-            </button>
-          </span>
+    changeStatusButtons = (
+      <div className="d-flex mt-4">
+        <span>
+          <Link
+            className={buttonsClass}
+            to={buttonsDisabled ? "#" : `/${experimentData.slug}/edit/`}
+          >
+            Back
+          </Link>
+        </span>
 
-          <span className="flex-grow-1 text-right">
-            <button disabled className="btn btn-secondary" type="button">
-              Request Approval
-            </button>
-          </span>
-        </div>
-      );
-    } else {
-      changeStatusButtons = (
-        <div className="d-flex mt-4">
-          <span>
-            <Link
-              className="btn btn-primary"
-              to={`/${experimentData.slug}/edit/`}
-            >
-              Back
-            </Link>
-          </span>
-
-          <span className="flex-grow-1 text-right">
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={handleClickRequestApproval}
-            >
-              Request Approval
-            </button>
-          </span>
-        </div>
-      );
-    }
+        <span className="flex-grow-1 text-right">
+          <button
+            className={buttonsClass}
+            disabled={buttonsDisabled}
+            type="button"
+            onClick={handleClickRequestApproval}
+          >
+            Request Approval
+          </button>
+        </span>
+      </div>
+    );
   }
 
   return (
