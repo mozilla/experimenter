@@ -19,7 +19,7 @@ FIREFOX_VERSION = random.choice(Experiment.VERSION_CHOICES)[0]
 
 
 class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, TestCase):
-    def test_serializer_outputs_expected_schema(self):
+    def test_serializer_outputs_expected_schema_for_draft_experiment(self):
         owner = UserFactory(email="owner@example.com")
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_RAPID,
@@ -39,17 +39,56 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertDictEqual(
             serializer.data,
             {
-                "status": Experiment.STATUS_DRAFT,
-                "owner": "owner@example.com",
-                "name": "rapid experiment",
-                "slug": "rapid-experiment",
-                "objectives": "gotta go fast",
                 "audience": "all_english",
-                "features": ["picture_in_picture"],
                 "bugzilla_url": "{bug_host}show_bug.cgi?id={bug_id}".format(
                     bug_host=settings.BUGZILLA_HOST, bug_id=experiment.bugzilla_id
                 ),
+                "features": ["picture_in_picture"],
                 "firefox_min_version": FIREFOX_VERSION,
+                "monitoring_dashboard_url": None,
+                "name": "rapid experiment",
+                "objectives": "gotta go fast",
+                "owner": "owner@example.com",
+                "slug": "rapid-experiment",
+                "status": Experiment.STATUS_DRAFT,
+            },
+        )
+
+    def test_serializer_outputs_expected_schema_for_live_experiment(self):
+        owner = UserFactory(email="owner@example.com")
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_LIVE,
+            type=Experiment.TYPE_RAPID,
+            rapid_type=Experiment.RAPID_AA_CFR,
+            owner=owner,
+            name="rapid experiment",
+            slug="rapid-experiment",
+            objectives="gotta go fast",
+            audience="all_english",
+            features=["picture_in_picture"],
+            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_min_version=FIREFOX_VERSION,
+            firefox_max_version=None,
+        )
+
+        serializer = ExperimentRapidSerializer(experiment)
+
+        self.maxDiff = None
+        self.assertDictEqual(
+            serializer.data,
+            {
+                "audience": "all_english",
+                "bugzilla_url": "{bug_host}show_bug.cgi?id={bug_id}".format(
+                    bug_host=settings.BUGZILLA_HOST, bug_id=experiment.bugzilla_id
+                ),
+                "features": ["picture_in_picture"],
+                "firefox_min_version": FIREFOX_VERSION,
+                "monitoring_dashboard_url": experiment.monitoring_dashboard_url,
+                "name": "rapid experiment",
+                "objectives": "gotta go fast",
+                "owner": "owner@example.com",
+                "slug": "rapid-experiment",
+                "status": Experiment.STATUS_LIVE,
             },
         )
 
