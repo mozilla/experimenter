@@ -7680,6 +7680,10 @@
                         "100.0"
                       ]
                     },
+                    "monitoring_dashboard_url": {
+                      "type": "string",
+                      "readOnly": true
+                    },
                     "name": {
                       "type": "string",
                       "maxLength": 255
@@ -8093,6 +8097,10 @@
                         "100.0"
                       ]
                     },
+                    "monitoring_dashboard_url": {
+                      "type": "string",
+                      "readOnly": true
+                    },
                     "name": {
                       "type": "string",
                       "maxLength": 255
@@ -8484,6 +8492,10 @@
                         "99.0",
                         "100.0"
                       ]
+                    },
+                    "monitoring_dashboard_url": {
+                      "type": "string",
+                      "readOnly": true
                     },
                     "name": {
                       "type": "string",
@@ -9147,6 +9159,10 @@
                         "100.0"
                       ]
                     },
+                    "monitoring_dashboard_url": {
+                      "type": "string",
+                      "readOnly": true
+                    },
                     "name": {
                       "type": "string",
                       "maxLength": 255
@@ -9561,6 +9577,10 @@
                         "99.0",
                         "100.0"
                       ]
+                    },
+                    "monitoring_dashboard_url": {
+                      "type": "string",
+                      "readOnly": true
                     },
                     "name": {
                       "type": "string",

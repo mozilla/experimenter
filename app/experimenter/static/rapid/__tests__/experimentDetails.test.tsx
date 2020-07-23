@@ -85,7 +85,7 @@ describe("<ExperimentDetails />", () => {
   });
 
   it("renders without bugzilla info when data missing", async () => {
-    const { getByDisplayValue, queryByText } = renderWithRouter(
+    const { queryByText } = renderWithRouter(
       wrapInExperimentProvider(<ExperimentDetails />, {
         initialState: {
           status: ExperimentStatus.DRAFT,
@@ -100,11 +100,49 @@ describe("<ExperimentDetails />", () => {
       }),
     );
 
-    await waitFor(() => {
-      return expect(getByDisplayValue("test@owner.com")).toBeInTheDocument();
-    });
-
     expect(queryByText(/Bugzilla ticket/)).toBe(null);
+  });
+
+  it("renders with monitoring link when data provided", async () => {
+    const { getByText } = renderWithRouter(
+      wrapInExperimentProvider(<ExperimentDetails />, {
+        initialState: {
+          audience: "us_only",
+          bugzilla_url: "https://example.com",
+          features: ["picture_in_picture", "pinned_tabs"],
+          firefox_min_version: "78.0",
+          monitoring_dashboard_url: "https://example.com/dashboard",
+          name: "Test Name",
+          objectives: "Test objectives",
+          owner: "test@owner.com",
+          slug: "test-slug",
+          status: ExperimentStatus.DRAFT,
+        },
+      }),
+    );
+
+    await waitFor(() => {
+      return expect(getByText(/monitoring dashboard/)).toBeInTheDocument();
+    });
+  });
+
+  it("renders without monitoring link when data missing", async () => {
+    const { queryByText } = renderWithRouter(
+      wrapInExperimentProvider(<ExperimentDetails />, {
+        initialState: {
+          status: ExperimentStatus.DRAFT,
+          slug: "test-slug",
+          name: "Test Name",
+          objectives: "Test objectives",
+          owner: "test@owner.com",
+          features: ["pinned_tabs", "picture_in_picture"],
+          audience: "all_english",
+          firefox_min_version: "78.0",
+        },
+      }),
+    );
+
+    expect(queryByText(/monitoring dashboard/)).toBe(null);
   });
 
   it("sends you to the edit page when the 'Back' button is clicked", async () => {
