@@ -1,5 +1,4 @@
 import { cleanup, fireEvent, waitFor } from "@testing-library/react";
-import fetchMock from "jest-fetch-mock";
 import React from "react";
 
 import {
@@ -150,20 +149,20 @@ describe("<ExperimentDetails />", () => {
       }),
     );
 
-    let submitUrl;
-    let requestMethod;
-    fetchMock.mockOnce(async (req) => {
-      requestMethod = req.method;
-      submitUrl = req.url;
-
-      return JSON.stringify({ status: "Review" });
-    });
+    fetchMock.mockResponse(async () =>
+      JSON.stringify({
+        status: ExperimentStatus.REVIEW,
+      }),
+    );
 
     // Click the review button
     fireEvent.click(getByText("Request Approval"));
 
-    // Check the correct data was submitted
-    expect(submitUrl).toEqual("/api/v3/experiments/test-slug/request_review/");
-    expect(requestMethod).toEqual("POST");
+    expect(fetch).toBeCalledWith(
+      "/api/v3/experiments/test-slug/request_review/",
+      {
+        method: "POST",
+      },
+    );
   });
 });
