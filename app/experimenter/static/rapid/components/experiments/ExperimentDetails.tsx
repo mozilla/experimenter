@@ -6,7 +6,11 @@ import {
   audienceOptions,
   firefoxVersionOptions,
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
-import { useExperimentState } from "experimenter-rapid/contexts/experiment/hooks";
+import { requestReview } from "experimenter-rapid/contexts/experiment/actions";
+import {
+  useExperimentState,
+  useExperimentDispatch,
+} from "experimenter-rapid/contexts/experiment/hooks";
 import { ExperimentStatus } from "experimenter-rapid/types/experiment";
 
 const LabelledRow: React.FC<{ label: string; value?: string }> = ({
@@ -45,12 +49,9 @@ const displaySelectOptionLabels = (options, values) => {
 
 const ExperimentDetails: React.FC = () => {
   const experimentData = useExperimentState();
+  const dispatch = useExperimentDispatch();
 
-  const handleClickRequestApproval = async () => {
-    await fetch(`/api/v3/experiments/${experimentData.slug}/request_review/`, {
-      method: "POST",
-    });
-  };
+  const handleClickRequestApproval = async () => dispatch(requestReview());
 
   let bugzilla_url;
   if (experimentData.bugzilla_url) {
@@ -68,15 +69,25 @@ const ExperimentDetails: React.FC = () => {
     );
   }
 
-  const launched_statuses = [ExperimentStatus.LIVE, ExperimentStatus.COMPLETE];
+  const buttonsDisabled = experimentData.status !== ExperimentStatus.DRAFT;
+  let buttonsClass = "btn btn-primary";
+  if (buttonsDisabled) {
+    buttonsClass = "btn btn-secondary";
+  }
+
+  const buttonsShown = ![
+    ExperimentStatus.LIVE,
+    ExperimentStatus.COMPLETE,
+  ].includes(experimentData.status);
+
   let changeStatusButtons;
-  if (!launched_statuses.includes(experimentData.status)) {
+  if (buttonsShown) {
     changeStatusButtons = (
       <div className="d-flex mt-4">
         <span>
           <Link
-            className="btn btn-secondary"
-            to={`/${experimentData.slug}/edit/`}
+            className={buttonsClass}
+            to={buttonsDisabled ? "#" : `/${experimentData.slug}/edit/`}
           >
             Back
           </Link>
@@ -84,7 +95,8 @@ const ExperimentDetails: React.FC = () => {
 
         <span className="flex-grow-1 text-right">
           <button
-            className="btn btn-primary"
+            className={buttonsClass}
+            disabled={buttonsDisabled}
             type="button"
             onClick={handleClickRequestApproval}
           >
