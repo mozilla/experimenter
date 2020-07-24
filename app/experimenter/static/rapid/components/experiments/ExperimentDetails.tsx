@@ -1,17 +1,23 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+import useInterval from "experimenter-rapid/components/experiments/useInterval";
 import {
   featureOptions,
   audienceOptions,
   firefoxVersionOptions,
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
-import { requestReview } from "experimenter-rapid/contexts/experiment/actions";
+import {
+  requestReview,
+  fetchExperiment,
+} from "experimenter-rapid/contexts/experiment/actions";
 import {
   useExperimentState,
   useExperimentDispatch,
 } from "experimenter-rapid/contexts/experiment/hooks";
 import { ExperimentStatus } from "experimenter-rapid/types/experiment";
+
+export const POLL_TIMEOUT = 30000;
 
 const LabelledRow: React.FC<{ label: string; value?: string }> = ({
   children,
@@ -52,6 +58,12 @@ const ExperimentDetails: React.FC = () => {
   const dispatch = useExperimentDispatch();
 
   const handleClickRequestApproval = async () => dispatch(requestReview());
+
+  useInterval(() => {
+    if (experimentData.slug) {
+      dispatch(fetchExperiment(experimentData.slug));
+    }
+  }, POLL_TIMEOUT);
 
   let bugzilla_url;
   if (experimentData.bugzilla_url) {
