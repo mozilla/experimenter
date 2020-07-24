@@ -147,4 +147,3 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
                 new_status=Experiment.STATUS_LIVE,
             ).exists()
         )
-

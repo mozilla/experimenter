@@ -38,4 +38,3 @@ def get_main_records():
     return client.get_records(
         bucket=settings.KINTO_BUCKET_MAIN, collection=settings.KINTO_COLLECTION
     )
-
