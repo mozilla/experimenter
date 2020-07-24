@@ -115,11 +115,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
         ExperimentVariantFactory.create(experiment=experiment, slug="variant-2")
 
         ExperimentBucketNamespace.request_namespace_buckets(
-            experiment.normandy_slug,
-            experiment,
-            NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"]["arguments"][
-                "bucketConfig"
-            ]["count"],
+            experiment.normandy_slug, experiment, 100
         )
 
         serializer = ExperimentRapidRecipeSerializer(experiment)
