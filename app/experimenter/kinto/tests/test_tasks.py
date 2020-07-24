@@ -4,11 +4,15 @@ import mock
 from django.conf import settings
 from django.test import TestCase
 
+from mozilla_nimbus_shared import get_data
+
 from experimenter.experiments.models import Experiment, ExperimentBucketRange
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
 from experimenter.kinto import tasks
 from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
+
+NIMBUS_DATA = get_data()
 
 
 class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
@@ -26,15 +30,23 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
 
         data = ExperimentRapidRecipeSerializer(self.experiment).data
 
+        self.assertTrue(
+            ExperimentBucketRange.objects.filter(experiment=self.experiment).exists()
+        )
+
+        bucketConfig = data["arguments"]["bucketConfig"]["count"]
+
+        designPreset = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
+            "arguments"
+        ]["bucketConfig"]["count"]
+
+        self.assertEqual(bucketConfig, designPreset)
+
         self.mock_kinto_client.create_record.assert_called_with(
             data=data,
             collection=settings.KINTO_COLLECTION,
             bucket=settings.KINTO_BUCKET,
             if_not_exists=True,
-        )
-
-        self.assertTrue(
-            ExperimentBucketRange.objects.filter(experiment=self.experiment).exists()
         )
 
     def test_push_experiment_to_kinto_reraises_exception(self):

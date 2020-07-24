@@ -16,7 +16,6 @@ from experimenter.kinto import client
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("kinto.tasks")
 
-BUCKET_COUNT = 100
 NIMBUS_DATA = get_data()
 
 
