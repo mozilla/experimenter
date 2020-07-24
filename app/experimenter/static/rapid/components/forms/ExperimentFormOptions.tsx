@@ -1,28 +1,23 @@
-export const audienceOptions = [
-  {
-    label: "AUDIENCE 1",
-    value: "AUDIENCE 1",
-    description: "some random description about audience 1",
-  },
-  {
-    label: "AUDIENCE 2",
-    value: "AUDIENCE 2",
-    description: "some other random description about audience 2",
-  },
-];
+import { data } from "@mozilla/nimbus-shared";
 
-export const featureOptions = [
-  {
-    label: "FEATURE 1",
-    value: "FEATURE 1",
-    description: "feature 1's description",
-  },
-  {
-    label: "FEATURE 2",
-    value: "FEATURE 2",
-    description: "feature 2's description",
-  },
-];
+import { XSelectOption } from "./XSelect";
+
+const generateOptions = (data) => {
+  const options: Array<XSelectOption> = [];
+  Object.keys(data).forEach((element) => {
+    const option = {
+      value: element,
+      label: data[element].name,
+      ...data[element],
+    };
+    options.push(option);
+  });
+  return options;
+};
+
+export const audienceOptions = generateOptions(data.Audiences);
+
+export const featureOptions = generateOptions(data.features);
 
 export const firefoxVersionOptions = [
   { label: "Firefox 77.0", value: "77.0", description: "Firefox 77.0" },

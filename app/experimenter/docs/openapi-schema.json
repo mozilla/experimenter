@@ -7575,8 +7575,9 @@
                   "properties": {
                     "audience": {
                       "enum": [
-                        "AUDIENCE 1",
-                        "AUDIENCE 2"
+                        "all_english",
+                        "us_only",
+                        "first_run"
                       ]
                     },
                     "bugzilla_url": {
@@ -7638,6 +7639,10 @@
                         "99.0",
                         "100.0"
                       ]
+                    },
+                    "monitoring_dashboard_url": {
+                      "type": "string",
+                      "readOnly": true
                     },
                     "name": {
                       "type": "string",
@@ -7703,8 +7708,9 @@
                 "properties": {
                   "audience": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "all_english",
+                      "us_only",
+                      "first_run"
                     ]
                   },
                   "features": {
@@ -7795,8 +7801,9 @@
                 "properties": {
                   "audience": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "all_english",
+                      "us_only",
+                      "first_run"
                     ]
                   },
                   "features": {
@@ -7887,8 +7894,9 @@
                 "properties": {
                   "audience": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "all_english",
+                      "us_only",
+                      "first_run"
                     ]
                   },
                   "features": {
@@ -7984,8 +7992,9 @@
                   "properties": {
                     "audience": {
                       "enum": [
-                        "AUDIENCE 1",
-                        "AUDIENCE 2"
+                        "all_english",
+                        "us_only",
+                        "first_run"
                       ]
                     },
                     "bugzilla_url": {
@@ -8047,6 +8056,10 @@
                         "99.0",
                         "100.0"
                       ]
+                    },
+                    "monitoring_dashboard_url": {
+                      "type": "string",
+                      "readOnly": true
                     },
                     "name": {
                       "type": "string",
@@ -8112,8 +8125,9 @@
                 "properties": {
                   "audience": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "all_english",
+                      "us_only",
+                      "first_run"
                     ]
                   },
                   "features": {
@@ -8197,8 +8211,9 @@
                 "properties": {
                   "audience": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "all_english",
+                      "us_only",
+                      "first_run"
                     ]
                   },
                   "features": {
@@ -8282,8 +8297,9 @@
                 "properties": {
                   "audience": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "all_english",
+                      "us_only",
+                      "first_run"
                     ]
                   },
                   "features": {
@@ -8372,8 +8388,9 @@
                   "properties": {
                     "audience": {
                       "enum": [
-                        "AUDIENCE 1",
-                        "AUDIENCE 2"
+                        "all_english",
+                        "us_only",
+                        "first_run"
                       ]
                     },
                     "bugzilla_url": {
@@ -8435,6 +8452,10 @@
                         "99.0",
                         "100.0"
                       ]
+                    },
+                    "monitoring_dashboard_url": {
+                      "type": "string",
+                      "readOnly": true
                     },
                     "name": {
                       "type": "string",
@@ -8584,6 +8605,10 @@
                         "type": "string",
                         "readOnly": true,
                         "default": true
+                      },
+                      "targeting": {
+                        "type": "string",
+                        "readOnly": true
                       }
                     },
                     "required": [
@@ -8713,6 +8738,10 @@
                       "type": "string",
                       "readOnly": true,
                       "default": true
+                    },
+                    "targeting": {
+                      "type": "string",
+                      "readOnly": true
                     }
                   },
                   "required": [
@@ -8741,8 +8770,9 @@
                 "properties": {
                   "audience": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "all_english",
+                      "us_only",
+                      "first_run"
                     ]
                   },
                   "features": {
@@ -8833,8 +8863,9 @@
                 "properties": {
                   "audience": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "all_english",
+                      "us_only",
+                      "first_run"
                     ]
                   },
                   "features": {
@@ -8925,8 +8956,9 @@
                 "properties": {
                   "audience": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "all_english",
+                      "us_only",
+                      "first_run"
                     ]
                   },
                   "features": {
@@ -9022,8 +9054,9 @@
                   "properties": {
                     "audience": {
                       "enum": [
-                        "AUDIENCE 1",
-                        "AUDIENCE 2"
+                        "all_english",
+                        "us_only",
+                        "first_run"
                       ]
                     },
                     "bugzilla_url": {
@@ -9085,6 +9118,10 @@
                         "99.0",
                         "100.0"
                       ]
+                    },
+                    "monitoring_dashboard_url": {
+                      "type": "string",
+                      "readOnly": true
                     },
                     "name": {
                       "type": "string",
@@ -9152,8 +9189,9 @@
                 "properties": {
                   "audience": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "all_english",
+                      "us_only",
+                      "first_run"
                     ]
                   },
                   "features": {
@@ -9244,8 +9282,9 @@
                 "properties": {
                   "audience": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "all_english",
+                      "us_only",
+                      "first_run"
                     ]
                   },
                   "features": {
@@ -9336,8 +9375,9 @@
                 "properties": {
                   "audience": {
                     "enum": [
-                      "AUDIENCE 1",
-                      "AUDIENCE 2"
+                      "all_english",
+                      "us_only",
+                      "first_run"
                     ]
                   },
                   "features": {
@@ -9433,8 +9473,9 @@
                   "properties": {
                     "audience": {
                       "enum": [
-                        "AUDIENCE 1",
-                        "AUDIENCE 2"
+                        "all_english",
+                        "us_only",
+                        "first_run"
                       ]
                     },
                     "bugzilla_url": {
@@ -9496,6 +9537,10 @@
                         "99.0",
                         "100.0"
                       ]
+                    },
+                    "monitoring_dashboard_url": {
+                      "type": "string",
+                      "readOnly": true
                     },
                     "name": {
                       "type": "string",
