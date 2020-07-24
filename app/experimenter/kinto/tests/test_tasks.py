@@ -4,7 +4,7 @@ import mock
 from django.conf import settings
 from django.test import TestCase
 
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import Experiment, ExperimentBucketRange
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
 from experimenter.kinto import tasks
@@ -17,6 +17,7 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         self.experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             proposed_start_date=datetime.date(2020, 1, 20),
+            normandy_slug="normandy-slug",
             audience="us_only",
         )
 
@@ -30,6 +31,10 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
             collection=settings.KINTO_COLLECTION,
             bucket=settings.KINTO_BUCKET,
             if_not_exists=True,
+        )
+
+        self.assertTrue(
+            ExperimentBucketRange.objects.filter(experiment=self.experiment).exists()
         )
 
     def test_push_experiment_to_kinto_reraises_exception(self):
