@@ -29,3 +29,13 @@ def has_pending_review():
         id=settings.KINTO_COLLECTION, bucket=settings.KINTO_BUCKET
     )
     return collection["data"]["status"] == KINTO_REVIEW_STATUS
+
+
+def get_main_records():
+    client = kinto_http.Client(
+        server_url=settings.KINTO_HOST, auth=(settings.KINTO_USER, settings.KINTO_PASS),
+    )
+    return client.get_records(
+        bucket=settings.KINTO_BUCKET_MAIN, collection=settings.KINTO_COLLECTION
+    )
+
