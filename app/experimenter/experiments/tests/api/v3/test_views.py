@@ -56,8 +56,8 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
 
     def test_post_detail_edits_rapid_experiment(self):
         user_email = "user@example.com"
-        audience = Experiment.RAPID_AUDIENCE_CHOICES[0][1]
-        features = [feature[0] for feature in Experiment.RAPID_FEATURE_CHOICES]
+        audience = "us_only"
+        features = ["picture_in_picture", "pinned_tabs"]
         firefox_min_version = Experiment.VERSION_CHOICES[0][0]
 
         owner = UserFactory(email=user_email)
@@ -100,8 +100,8 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
 
     def test_post_list_creates_rapid_experiment(self):
         user_email = "user@example.com"
-        audience = Experiment.RAPID_AUDIENCE_CHOICES[0][1]
-        features = [feature[0] for feature in Experiment.RAPID_FEATURE_CHOICES]
+        audience = "us_only"
+        features = ["picture_in_picture", "pinned_tabs"]
         firefox_min_version = Experiment.VERSION_CHOICES[0][0]
 
         data = json.dumps(

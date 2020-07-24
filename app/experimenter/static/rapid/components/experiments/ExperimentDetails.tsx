@@ -1,12 +1,23 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+import useInterval from "experimenter-rapid/components/experiments/useInterval";
 import {
   featureOptions,
   audienceOptions,
   firefoxVersionOptions,
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
-import { useExperimentState } from "experimenter-rapid/contexts/experiment/hooks";
+import {
+  requestReview,
+  fetchExperiment,
+} from "experimenter-rapid/contexts/experiment/actions";
+import {
+  useExperimentState,
+  useExperimentDispatch,
+} from "experimenter-rapid/contexts/experiment/hooks";
+import { ExperimentStatus } from "experimenter-rapid/types/experiment";
+
+export const POLL_TIMEOUT = 30000;
 
 const LabelledRow: React.FC<{ label: string; value?: string }> = ({
   children,
@@ -44,12 +55,15 @@ const displaySelectOptionLabels = (options, values) => {
 
 const ExperimentDetails: React.FC = () => {
   const experimentData = useExperimentState();
+  const dispatch = useExperimentDispatch();
 
-  const handleClickRequestApproval = async () => {
-    await fetch(`/api/v3/experiments/${experimentData.slug}/request_review/`, {
-      method: "POST",
-    });
-  };
+  const handleClickRequestApproval = async () => dispatch(requestReview());
+
+  useInterval(() => {
+    if (experimentData.slug) {
+      dispatch(fetchExperiment(experimentData.slug));
+    }
+  }, POLL_TIMEOUT);
 
   let bugzilla_url;
   if (experimentData.bugzilla_url) {
@@ -63,6 +77,64 @@ const ExperimentDetails: React.FC = () => {
         >
           here
         </a>
+      </div>
+    );
+  }
+
+  let monitoring_url;
+  if (experimentData.monitoring_dashboard_url) {
+    monitoring_url = (
+      <>
+        <h3 className="my-4">Monitoring</h3>
+        <p>
+          The live monitoring dashboard can be found here:
+          <a
+            href={experimentData.monitoring_dashboard_url}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {" "}
+            (link here)
+          </a>
+        </p>
+      </>
+    );
+  }
+
+  const buttonsDisabled = experimentData.status !== ExperimentStatus.DRAFT;
+  let buttonsClass = "btn btn-primary";
+  if (buttonsDisabled) {
+    buttonsClass = "btn btn-secondary";
+  }
+
+  const buttonsShown = ![
+    ExperimentStatus.LIVE,
+    ExperimentStatus.COMPLETE,
+  ].includes(experimentData.status);
+
+  let changeStatusButtons;
+  if (buttonsShown) {
+    changeStatusButtons = (
+      <div className="d-flex mt-4">
+        <span>
+          <Link
+            className={buttonsClass}
+            to={buttonsDisabled ? "#" : `/${experimentData.slug}/edit/`}
+          >
+            Back
+          </Link>
+        </span>
+
+        <span className="flex-grow-1 text-right">
+          <button
+            className={buttonsClass}
+            disabled={buttonsDisabled}
+            type="button"
+            onClick={handleClickRequestApproval}
+          >
+            Request Approval
+          </button>
+        </span>
       </div>
     );
   }
@@ -103,6 +175,8 @@ const ExperimentDetails: React.FC = () => {
           )}
         />
 
+        {monitoring_url}
+
         <h3 className="my-4">Results</h3>
         <p>
           The results will be available 7 days after the experiment is launched.
@@ -112,26 +186,7 @@ const ExperimentDetails: React.FC = () => {
           The results can be found here: <a href="#">(link here)</a>
         </p>
 
-        <div className="d-flex mt-4">
-          <span>
-            <Link
-              className="btn btn-secondary"
-              to={`/${experimentData.slug}/edit/`}
-            >
-              Back
-            </Link>
-          </span>
-
-          <span className="flex-grow-1 text-right">
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={handleClickRequestApproval}
-            >
-              Request Approval
-            </button>
-          </span>
-        </div>
+        {changeStatusButtons}
       </div>
     </div>
   );

@@ -1,9 +1,14 @@
 from django.utils.text import slugify
 from rest_framework import serializers
 
+from mozilla_nimbus_shared import get_data
+
 from experimenter.bugzilla.tasks import create_experiment_bug_task
 from experimenter.experiments.models import Experiment, ExperimentVariant
 from experimenter.experiments.changelog_utils import ChangelogSerializerMixin
+
+
+NIMBUS_DATA = get_data()
 
 
 class ExperimentRapidChangelogSerializerMixin(ChangelogSerializerMixin):
@@ -21,6 +26,9 @@ class ExperimentRapidChangelogSerializerMixin(ChangelogSerializerMixin):
 class ExperimentRapidSerializer(
     ExperimentRapidChangelogSerializerMixin, serializers.ModelSerializer
 ):
+    FEATURES_CHOICES = list(NIMBUS_DATA["features"].keys())
+    AUDIENCE_CHOICES = list(NIMBUS_DATA["Audiences"].keys())
+
     type = serializers.HiddenField(default=Experiment.TYPE_RAPID)
     rapid_type = serializers.HiddenField(default=Experiment.RAPID_AA_CFR)
     owner = serializers.ReadOnlyField(source="owner.email")
@@ -31,16 +39,15 @@ class ExperimentRapidSerializer(
     objectives = serializers.CharField(required=True)
     features = serializers.ListField(
         required=True,
-        child=serializers.ChoiceField(choices=Experiment.RAPID_FEATURE_CHOICES),
+        child=serializers.ChoiceField(choices=FEATURES_CHOICES),
         allow_empty=False,
     )
-    audience = serializers.ChoiceField(
-        required=True, choices=Experiment.RAPID_AUDIENCE_CHOICES
-    )
+    audience = serializers.ChoiceField(required=True, choices=AUDIENCE_CHOICES)
     bugzilla_url = serializers.ReadOnlyField()
     firefox_min_version = serializers.ChoiceField(
         required=True, choices=Experiment.VERSION_CHOICES,
     )
+    monitoring_dashboard_url = serializers.ReadOnlyField()
 
     class Meta:
         model = Experiment
@@ -49,6 +56,7 @@ class ExperimentRapidSerializer(
             "bugzilla_url",
             "features",
             "firefox_min_version",
+            "monitoring_dashboard_url",
             "name",
             "objectives",
             "owner",
@@ -83,25 +91,30 @@ class ExperimentRapidSerializer(
         return validated_data
 
     def create(self, validated_data):
+        preset_data = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
+            "arguments"
+        ].copy()
+        audience_data = NIMBUS_DATA["Audiences"][validated_data["audience"]]
+
         validated_data.update(
             {
                 "slug": slugify(validated_data["name"]),
                 "owner": self.context["request"].user,
-                "firefox_channel": Experiment.CHANNEL_RELEASE,
+                "firefox_channel": audience_data["firefox_channel"],
+                "proposed_duration": preset_data["proposedDuration"],
+                "proposed_enrollment": preset_data["proposedEnrollment"],
             }
         )
         experiment = super().create(validated_data)
 
-        ExperimentVariant.objects.create(
-            experiment=experiment,
-            name="control",
-            slug="control",
-            ratio=1,
-            is_control=True,
-        )
-        ExperimentVariant.objects.create(
-            experiment=experiment, name="treatment", slug="treatment", ratio=1,
-        )
+        for branch_data in preset_data["branches"]:
+            ExperimentVariant.objects.create(
+                experiment=experiment,
+                name=branch_data["slug"],
+                slug=branch_data["slug"],
+                ratio=branch_data["ratio"],
+                is_control="control" in branch_data["slug"],
+            )
 
         create_experiment_bug_task.delay(experiment.owner.id, experiment.id)
         return experiment

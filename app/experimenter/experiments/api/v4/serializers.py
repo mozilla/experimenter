@@ -1,9 +1,13 @@
 from rest_framework import serializers
 
+from mozilla_nimbus_shared import get_data
+
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
 )
+
+NIMBUS_DATA = get_data()
 
 
 class ExperimentRapidBranchesSerializer(serializers.ModelSerializer):
@@ -71,9 +75,18 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
 class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source="normandy_slug")
     arguments = ExperimentRapidArgumentSerializer(source="*")
-    filter_expression = serializers.ReadOnlyField(source="audience")
     enabled = serializers.ReadOnlyField(default=True)
+    filter_expression = serializers.SerializerMethodField()
+    targeting = serializers.SerializerMethodField()
 
     class Meta:
         model = Experiment
-        fields = ("id", "arguments", "filter_expression", "enabled")
+        fields = ("id", "arguments", "filter_expression", "enabled", "targeting")
+
+    def get_filter_expression(self, obj):
+        return NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
+            "filter_expression"
+        ].format(minFirefoxVersion=obj.firefox_min_version)
+
+    def get_targeting(self, obj):
+        return NIMBUS_DATA["Audiences"][obj.audience]["targeting"]
