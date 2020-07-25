@@ -6,24 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('experiments', '0103_auto_20200630_1759'),
+        ("experiments", "0103_auto_20200630_1759"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='experiment',
-            name='telemetry_event_category',
-        ),
-        migrations.RemoveField(
-            model_name='experiment',
-            name='telemetry_event_method',
-        ),
-        migrations.RemoveField(
-            model_name='experiment',
-            name='telemetry_event_object',
-        ),
-        migrations.RemoveField(
-            model_name='experiment',
-            name='telemetry_event_value',
-        ),
+        migrations.RemoveField(model_name="experiment", name="telemetry_event_category",),
+        migrations.RemoveField(model_name="experiment", name="telemetry_event_method",),
+        migrations.RemoveField(model_name="experiment", name="telemetry_event_object",),
+        migrations.RemoveField(model_name="experiment", name="telemetry_event_value",),
     ]

@@ -150,7 +150,7 @@ class TestExperimentSerializer(TestCase):
                 "results_confidence": None,
                 "results_measure_impact": None,
                 "results_impact_notes": None,
-            }
+            },
         }
 
         self.assertEqual(set(serializer.data.keys()), set(expected_data.keys()))
