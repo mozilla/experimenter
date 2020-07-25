@@ -1,11 +1,7 @@
 import datetime
 import json
-import os
-from jsonschema import validate
 
 from django.test import TestCase
-
-from mozilla_nimbus_shared import check_schema
 
 from experimenter.experiments.models import Experiment, ExperimentBucketNamespace
 from experimenter.experiments.tests.factories import (
