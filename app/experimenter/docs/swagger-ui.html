@@ -8609,11 +8609,11 @@
                           },
                           "startDate": {
                             "type": "string",
-                            "readOnly": true
+                            "format": "date"
                           },
                           "endDate": {
                             "type": "string",
-                            "readOnly": true
+                            "format": "date"
                           },
                           "branches": {
                             "type": "array",
@@ -8645,6 +8645,8 @@
                           }
                         },
                         "required": [
+                          "startDate",
+                          "endDate",
                           "branches"
                         ],
                         "type": "object"
@@ -8742,11 +8744,11 @@
                         },
                         "startDate": {
                           "type": "string",
-                          "readOnly": true
+                          "format": "date"
                         },
                         "endDate": {
                           "type": "string",
-                          "readOnly": true
+                          "format": "date"
                         },
                         "branches": {
                           "type": "array",
@@ -8778,6 +8780,8 @@
                         }
                       },
                       "required": [
+                        "startDate",
+                        "endDate",
                         "branches"
                       ],
                       "type": "object"
