@@ -53,8 +53,6 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
     endDate = serializers.ReadOnlyField(default=None)
     branches = ExperimentRapidBranchesSerializer(many=True, source="variants")
     referenceBranch = serializers.SerializerMethodField()
-    proposedEnrollment = serializers.SerializerMethodField()
-    proposedDuration = serializers.SerializerMethodField()
 
     class Meta:
         model = Experiment
@@ -66,7 +64,6 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
             "isEnrollmentPaused",
             "features",
             "proposedEnrollment",
-            "proposedDuration",
             "bucketConfig",
             "startDate",
             "endDate",
@@ -95,16 +92,6 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
         # placeholder value
         if obj.start_date:
             return obj.start_date.isoformat()
-
-    def get_proposedEnrollment(self, obj):
-        return NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"]["arguments"][
-            "proposedEnrollment"
-        ]
-
-    def get_proposedDuration(self, obj):
-        return NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"]["arguments"][
-            "proposedDuration"
-        ]
 
 
 class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):

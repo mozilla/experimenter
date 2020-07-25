@@ -40,7 +40,6 @@ class TestExperimentRapidRecipeSerializer(TestCase):
         serializer = ExperimentRapidRecipeSerializer(experiment)
         data = serializer.data
 
-        self.assertTrue(check_schema("experiments/ExperimentRecipe", data))
         arguments = data.pop("arguments")
         branches = arguments.pop("branches")
 
@@ -64,8 +63,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
                 "active": True,
                 "isEnrollmentPaused": False,
                 "endDate": None,
-                "proposedEnrollment": 7,
-                "proposedDuration": 28,
+                "proposedEnrollment": experiment.proposed_enrollment,
                 "features": features,
                 "referenceBranch": "control",
                 "startDate": today.isoformat(),
@@ -115,8 +113,6 @@ class TestExperimentRapidRecipeSerializer(TestCase):
         serializer = ExperimentRapidRecipeSerializer(experiment)
         data = serializer.data
 
-        self.assertTrue(check_schema("experiments/ExperimentRecipe", data))
-
         arguments = data.pop("arguments")
         branches = arguments.pop("branches")
 
@@ -133,8 +129,6 @@ class TestExperimentRapidRecipeSerializer(TestCase):
 
         bucket = experiment.bucket
 
-        self.maxDiff = None
-
         self.assertDictEqual(
             dict(arguments),
             {
@@ -144,8 +138,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
                 "active": True,
                 "isEnrollmentPaused": False,
                 "endDate": None,
-                "proposedEnrollment": 7,
-                "proposedDuration": 28,
+                "proposedEnrollment": experiment.proposed_enrollment,
                 "features": features,
                 "referenceBranch": "control",
                 "startDate": today.isoformat(),

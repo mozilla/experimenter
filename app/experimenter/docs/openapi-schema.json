@@ -8591,10 +8591,6 @@
                             "type": "string",
                             "readOnly": true
                           },
-                          "proposedDuration": {
-                            "type": "string",
-                            "readOnly": true
-                          },
                           "bucketConfig": {
                             "type": "string",
                             "readOnly": true
@@ -8725,10 +8721,6 @@
                           }
                         },
                         "proposedEnrollment": {
-                          "type": "string",
-                          "readOnly": true
-                        },
-                        "proposedDuration": {
                           "type": "string",
                           "readOnly": true
                         },
