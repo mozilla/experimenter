@@ -1,6 +1,5 @@
 import json
 
-from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
@@ -13,7 +12,6 @@ from experimenter.experiments.tests.factories import ExperimentFactory
 class TestExperimentListView(TestCase):
     def test_list_view_serializes_experiments(self):
         experiments = []
-        user_email = "user@example.com"
 
         for i in range(3):
             experiment = ExperimentFactory.create_with_variants(
@@ -24,10 +22,7 @@ class TestExperimentListView(TestCase):
             )
             experiments.append(experiment)
 
-        response = self.client.get(
-            reverse("experiment-rapid-recipe-list"),
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
+        response = self.client.get(reverse("experiment-rapid-recipe-list"),)
         self.assertEqual(response.status_code, 200)
 
         json_data = json.loads(response.content)
@@ -41,14 +36,12 @@ class TestExperimentListView(TestCase):
 
 class TestExperimentRapidRecipeView(TestCase):
     def test_get_rapid_experiment_recipe_returns_recipe_info_for_experiment(self):
-        user_email = "user@example.com"
         experiment = ExperimentFactory.create(
             type=ExperimentConstants.TYPE_RAPID, audience="us_only"
         )
 
         response = self.client.get(
             reverse("experiment-rapid-recipe-detail", kwargs={"slug": experiment.slug}),
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
         self.assertEqual(response.status_code, 200)

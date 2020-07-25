@@ -139,6 +139,8 @@ OPENIDC_AUTH_WHITELIST = (
     "experiments-api-list",
     "experiments-api-recipe",
     "experiments-api-detail",
+    "experiment-rapid-recipe-list",
+    "experiment-rapid-recipe-detail",
 )
 
 # Internationalization
