@@ -34,11 +34,13 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
             ExperimentBucketRange.objects.filter(experiment=self.experiment).exists()
         )
 
-        bucketConfig = data["arguments"]["bucketConfig"]["count"]
+        bucketConfig = data["arguments"]["bucketConfig"].copy()
+        bucketConfig.pop("start")
+        bucketConfig.pop("namespace")
 
         designPreset = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
             "arguments"
-        ]["bucketConfig"]["count"]
+        ]["bucketConfig"]
 
         self.assertEqual(bucketConfig, designPreset)
 

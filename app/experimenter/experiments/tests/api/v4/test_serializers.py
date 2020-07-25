@@ -5,7 +5,7 @@ from jsonschema import validate
 
 from django.test import TestCase
 
-from mozilla_nimbus_shared import get_data
+from mozilla_nimbus_shared import check_schema
 
 from experimenter.experiments.models import Experiment, ExperimentBucketNamespace
 from experimenter.experiments.tests.factories import (
@@ -13,8 +13,6 @@ from experimenter.experiments.tests.factories import (
     ExperimentVariantFactory,
 )
 from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
-
-NIMBUS_DATA = get_data()
 
 
 class TestExperimentRapidRecipeSerializer(TestCase):
@@ -42,12 +40,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
         serializer = ExperimentRapidRecipeSerializer(experiment)
         data = serializer.data
 
-        fn = os.path.join(os.path.dirname(__file__), "experimentRecipe.json")
-
-        with open(fn, "r") as f:
-            json_schema = json.load(f)
-        self.assertIsNone(validate(instance=data, schema=json_schema))
-
+        self.assertTrue(check_schema("experiments/ExperimentRecipe", data))
         arguments = data.pop("arguments")
         branches = arguments.pop("branches")
 
@@ -71,7 +64,8 @@ class TestExperimentRapidRecipeSerializer(TestCase):
                 "active": True,
                 "isEnrollmentPaused": False,
                 "endDate": None,
-                "proposedEnrollment": experiment.proposed_enrollment,
+                "proposedEnrollment": 7,
+                "proposedDuration": 28,
                 "features": features,
                 "referenceBranch": "control",
                 "startDate": today.isoformat(),
@@ -121,10 +115,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
         serializer = ExperimentRapidRecipeSerializer(experiment)
         data = serializer.data
 
-        fn = os.path.join(os.path.dirname(__file__), "experimentRecipe.json")
-        with open(fn, "r") as f:
-            json_schema = json.load(f)
-        self.assertIsNone(validate(instance=data, schema=json_schema))
+        self.assertTrue(check_schema("experiments/ExperimentRecipe", data))
 
         arguments = data.pop("arguments")
         branches = arguments.pop("branches")
@@ -142,6 +133,8 @@ class TestExperimentRapidRecipeSerializer(TestCase):
 
         bucket = experiment.bucket
 
+        self.maxDiff = None
+
         self.assertDictEqual(
             dict(arguments),
             {
@@ -151,14 +144,15 @@ class TestExperimentRapidRecipeSerializer(TestCase):
                 "active": True,
                 "isEnrollmentPaused": False,
                 "endDate": None,
-                "proposedEnrollment": experiment.proposed_enrollment,
+                "proposedEnrollment": 7,
+                "proposedDuration": 28,
                 "features": features,
                 "referenceBranch": "control",
                 "startDate": today.isoformat(),
                 "bucketConfig": {
                     "count": bucket.count,
                     "namespace": bucket.namespace.name,
-                    "randomizationUnit": bucket.namespace.randomization_unit,
+                    "randomizationUnit": "userId",
                     "start": bucket.start,
                     "total": bucket.namespace.total,
                 },

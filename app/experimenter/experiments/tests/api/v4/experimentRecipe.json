@@ -58,7 +58,7 @@
           "properties": {
             "randomizationUnit": {
               "type": "string",
-              "enum": ["client_id", "normandy_id"],
+              "enum": ["client_id", "normandy_id", "user_id"],
               "description": "The randomization unit. Note that client_id is not yet implemented.",
               "default": "normandy_id"
             },
