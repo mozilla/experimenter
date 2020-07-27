@@ -294,27 +294,6 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
 
-    telemetry_event_category = forms.CharField(
-        required=False,
-        label="Telemetry Conversion Event Category",
-        help_text=Experiment.TELEMETRY_EVENT_HELP_TEXT,
-    )
-    telemetry_event_method = forms.CharField(
-        required=False,
-        label="Telemetry Conversion Event Method",
-        help_text=Experiment.TELEMETRY_EVENT_HELP_TEXT,
-    )
-    telemetry_event_object = forms.CharField(
-        required=False,
-        label="Telemetry Conversion Event Object",
-        help_text=Experiment.TELEMETRY_EVENT_HELP_TEXT,
-    )
-    telemetry_event_value = forms.CharField(
-        required=False,
-        label="Telemetry Conversion Event Value",
-        help_text=Experiment.TELEMETRY_EVENT_HELP_TEXT,
-    )
-
     survey_required = forms.ChoiceField(
         required=False,
         label=Experiment.SURVEY_REQUIRED_LABEL,
@@ -341,10 +320,6 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
             "objectives",
             "analysis",
             "total_enrolled_clients",
-            "telemetry_event_category",
-            "telemetry_event_object",
-            "telemetry_event_method",
-            "telemetry_event_value",
             "survey_required",
             "survey_urls",
             "survey_instructions",

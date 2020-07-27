@@ -80,10 +80,6 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     )
     objectives = factory.LazyAttribute(lambda o: faker.text(1000))
     analysis = factory.LazyAttribute(lambda o: faker.text(1000))
-    telemetry_event_category = factory.LazyAttribute(lambda o: faker.word())
-    telemetry_event_method = factory.LazyAttribute(lambda o: faker.word())
-    telemetry_event_object = factory.LazyAttribute(lambda o: faker.word())
-    telemetry_event_value = factory.LazyAttribute(lambda o: faker.word())
 
     risk_partner_related = False
     risk_brand = False

@@ -14,30 +14,6 @@ Analysis
     <p>{{ experiment.total_enrolled_clients }}</p>
   {% endif %}
 
-  {% if experiment.should_have_telemetry_event %}
-    <p><strong>Telemetry Conversion Event</strong></p>
-    <table class="table">
-      <tbody>
-        <tr>
-          <th scope="row">Category</th>
-          <td>{{ experiment.telemetry_event_category }}</td>
-        </tr>
-        <tr>
-          <th scope="row">Method</th>
-          <td>{{ experiment.telemetry_event_method }}</td>
-        </tr>
-        <tr>
-          <th scope="row">Object</th>
-          <td>{{ experiment.telemetry_event_object }}</td>
-        </tr>
-        <tr>
-          <th scope="row">Value</th>
-          <td>{{ experiment.telemetry_event_value }}</td>
-        </tr>
-      </tbody>
-    </table>
-  {% endif %}
-
   <p>
     <strong>
       {{ experiment.SURVEY_REQUIRED_LABEL }}
