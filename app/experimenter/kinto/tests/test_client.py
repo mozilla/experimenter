@@ -36,3 +36,13 @@ class TestHasPendingReview(MockKintoClientMixin, TestCase):
     def test_returns_false_for_no_pending_review(self):
         self.setup_kinto_no_pending_review()
         self.assertFalse(client.has_pending_review())
+
+
+class TestGetMainRecords(MockKintoClientMixin, TestCase):
+    def test_returns_records(self):
+        self.setup_kinto_get_main_records()
+        self.assertEqual(len(client.get_main_records()), 1)
+
+    def test_returns_no_records(self):
+        self.setup_kinto_no_main_records()
+        self.assertEqual(client.get_main_records(), [])
