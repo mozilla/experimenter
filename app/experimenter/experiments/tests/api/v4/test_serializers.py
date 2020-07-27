@@ -115,8 +115,10 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             {
                 "id": normandy_slug,
                 "filter_expression": "env.version|versionCompare('80.0') >= 0",
-                "targeting": '[userId, "experimenter-normandy-slug"]|bucketSample(0, 100, 10000) '
-                "&& localeLanguageCode == 'en' && region == 'US' && browserSettings.update.channel == 'release'",
+                "targeting": '[userId, "experimenter-normandy-slug"]'
+                "|bucketSample(0, 100, 10000) "
+                "&& localeLanguageCode == 'en' && region == 'US' "
+                "&& browserSettings.update.channel == 'release'",
                 "enabled": True,
             },
         )
