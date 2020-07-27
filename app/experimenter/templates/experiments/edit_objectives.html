@@ -16,14 +16,6 @@
     {% include "experiments/field_inline_help_link.html" with field=form.total_enrolled_clients %}
   {% endif %}
 
-  {% if object.should_have_telemetry_event %}
-    {% include "experiments/field_inline.html" with field=form.telemetry_event_category marked_required=False %}
-    {% include "experiments/field_inline.html" with field=form.telemetry_event_method marked_required=False %}
-    {% include "experiments/field_inline.html" with field=form.telemetry_event_object marked_required=False %}
-    {% include "experiments/field_inline.html" with field=form.telemetry_event_value marked_required=False %}
-
-  {% endif %}
-
   {% if not object.is_rollout %}
     {% include "experiments/radio_field_label_inline.html" with field=form.survey_required %}
 
