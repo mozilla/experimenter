@@ -15,6 +15,7 @@ class TestExperimentListView(TestCase):
 
         for i in range(3):
             experiment = ExperimentFactory.create_with_variants(
+                status=Experiment.STATUS_DRAFT,
                 type=ExperimentConstants.TYPE_RAPID,
                 objectives="gotta go fast",
                 audience="us_only",
@@ -31,13 +32,18 @@ class TestExperimentListView(TestCase):
             Experiment.objects.get_prefetched(), many=True
         ).data
 
+        self.maxDiff = None
         self.assertEqual(serialized_experiments, json_data)
 
 
 class TestExperimentRapidRecipeView(TestCase):
     def test_get_rapid_experiment_recipe_returns_recipe_info_for_experiment(self):
-        experiment = ExperimentFactory.create(
-            type=ExperimentConstants.TYPE_RAPID, audience="us_only"
+        experiment = ExperimentFactory.create_with_variants(
+            status=Experiment.STATUS_DRAFT,
+            type=ExperimentConstants.TYPE_RAPID,
+            objectives="gotta go fast",
+            audience="us_only",
+            features=["pinned_tabs"],
         )
 
         response = self.client.get(
@@ -47,4 +53,6 @@ class TestExperimentRapidRecipeView(TestCase):
         self.assertEqual(response.status_code, 200)
         json_data = json.loads(response.content)
         serialized_experiment = ExperimentRapidRecipeSerializer(experiment).data
+
+        self.maxDiff = None
         self.assertEqual(serialized_experiment, json_data)
