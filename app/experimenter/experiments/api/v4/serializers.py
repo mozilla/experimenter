@@ -5,6 +5,7 @@ from mozilla_nimbus_shared import get_data
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
+    ExperimentBucketRange,
 )
 
 NIMBUS_DATA = get_data()
@@ -20,6 +21,24 @@ class ExperimentRapidBranchesSerializer(serializers.ModelSerializer):
     def get_value(self, obj):
         # placeholder value
         return None
+
+
+class ExperimentBucketRangeSerializer(serializers.ModelSerializer):
+    namespace = serializers.SlugRelatedField(read_only=True, slug_field="name")
+    randomizationUnit = serializers.SerializerMethodField()
+    total = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ExperimentBucketRange
+        fields = ("randomizationUnit", "namespace", "start", "count", "total")
+
+    def get_randomizationUnit(self, obj):
+        return NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"]["arguments"][
+            "bucketConfig"
+        ]["randomizationUnit"]
+
+    def get_total(self, obj):
+        return obj.namespace.total
 
 
 class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
@@ -53,6 +72,9 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
         )
 
     def get_bucketConfig(self, obj):
+
+        if hasattr(obj, "bucket"):
+            return ExperimentBucketRangeSerializer(obj.bucket).data
         return {
             "randomizationUnit": "normandy_id",
             "namespace": "",

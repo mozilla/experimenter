@@ -24,3 +24,11 @@ class MockKintoClientMixin(object):
         self.mock_kinto_client.get_collection.return_value = {
             "data": {"status": "anything"}
         }
+
+    def setup_kinto_get_main_records(self):
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": "bug-12345-rapid-test-release-55"}
+        ]
+
+    def setup_kinto_no_main_records(self):
+        self.mock_kinto_client.get_records.return_value = []
