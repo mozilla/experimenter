@@ -138,10 +138,6 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "variants",
             "results",
             "changes",
-            "telemetry_event_category",
-            "telemetry_event_method",
-            "telemetry_event_object",
-            "telemetry_event_value",
         )
 
     def get_results(self, obj):

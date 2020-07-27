@@ -236,10 +236,6 @@ class Experiment(ExperimentConstants, models.Model):
 
     data_science_issue_url = models.URLField(blank=True, null=True)
     feature_bugzilla_url = models.URLField(blank=True, null=True)
-    telemetry_event_category = models.CharField(max_length=255, blank=True, null=True)
-    telemetry_event_method = models.CharField(max_length=255, blank=True, null=True)
-    telemetry_event_object = models.CharField(max_length=255, blank=True, null=True)
-    telemetry_event_value = models.CharField(max_length=255, blank=True, null=True)
 
     # Risk fields
     risk_partner_related = models.NullBooleanField(default=None, blank=True, null=True)
