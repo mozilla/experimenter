@@ -88,8 +88,6 @@ def check_experiment_is_live():
                     experiment=experiment
                 )
             )
-            experiment.status = Experiment.STATUS_LIVE
-            experiment.save()
             update_experiment_with_change_log(
                 experiment,
                 {"status": Experiment.STATUS_LIVE},

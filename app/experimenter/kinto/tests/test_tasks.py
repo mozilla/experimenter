@@ -126,11 +126,24 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
             type=Experiment.TYPE_RAPID,
         )
 
+        experiment3 = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            bugzilla_id="54321",
+            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_max_version=None,
+            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            name="test2",
+            type=Experiment.TYPE_RAPID,
+        )
+
         self.assertEqual(experiment1.changes.count(), 4)
         self.assertEqual(experiment2.changes.count(), 4)
+        self.assertEqual(experiment3.changes.count(), 1)
 
         self.setup_kinto_get_main_records()
         tasks.check_experiment_is_live()
+
+        self.assertEqual(experiment3.changes.count(), 1)
 
         self.assertTrue(
             experiment1.changes.filter(
