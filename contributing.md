@@ -74,18 +74,39 @@ or branch protections and so each of those PRs can be merged immediately by addi
 each PR:
         @dependabot squash and merge
 1. The dependencies branch can now be merged into `main` by [creating a PR using the GitHub web interface](https://github.com/mozilla/experimenter/compare/main...dependencies)
+
 1. Tag a reviewer for the Dependencies PR and when it is approved, merge it.
+
 1. Check out the `main` branch on your local repo:
-        git checkout main
+
+```
+git checkout main
+```
+
 1. Make sure it's up to date with the Mozilla remote
-        git pull <mozilla> main
+
+```
+git pull <mozilla> main
+```
+
 1. Delete your local dependencies branch
-        git branch -D dependencies
+
+```
+git branch -D dependencies
+```
+
 1. Recreate the dependencies branch from your up to date main
-        git checkout -B dependencies
+
+```
+git checkout -B dependencies
+```
+
 1. Force push that on to the Mozilla repo
-        git push <mozilla> dependencies -f
-  
+
+```
+git push <mozilla> dependencies -f
+```  
+
 All done!
 
 
