@@ -306,6 +306,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.kinto.tasks.check_kinto_push_queue",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
+    "check_experiment_is_live": {
+        "task": "experimenter.kinto.tasks.check_experiment_is_live",
+        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
+    },
 }
 
 # Normandy Configuration
@@ -369,4 +373,5 @@ KINTO_HOST = config("KINTO_HOST")
 KINTO_USER = config("KINTO_USER")
 KINTO_PASS = config("KINTO_PASS")
 KINTO_BUCKET = config("KINTO_BUCKET")
+KINTO_BUCKET_MAIN = config("KINTO_BUCKET_MAIN")
 KINTO_COLLECTION = config("KINTO_COLLECTION")

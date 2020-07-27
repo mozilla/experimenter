@@ -80,3 +80,33 @@ def check_kinto_push_queue():
         metrics.incr("check_kinto_push_queue.no_experiments_queued")
 
     metrics.incr("check_kinto_push_queue.completed")
+
+
+@app.task
+@metrics.timer_decorator("check_experiment_is_live")
+def check_experiment_is_live():
+    metrics.incr("check_experiment_is_live.started")
+
+    accepted_experiments = Experiment.objects.filter(
+        type=Experiment.TYPE_RAPID, status=Experiment.STATUS_ACCEPTED
+    )
+
+    records = client.get_main_records()
+    record_ids = [r.get("id") for r in records]
+
+    for experiment in accepted_experiments:
+        if experiment.normandy_slug in record_ids:
+            logger.info(
+                "{experiment} status is being updated to live".format(
+                    experiment=experiment
+                )
+            )
+            update_experiment_with_change_log(
+                experiment,
+                {"status": Experiment.STATUS_LIVE},
+                settings.KINTO_DEFAULT_CHANGELOG_USER,
+            )
+
+            logger.info("Experiment Status is set to Live")
+
+    metrics.incr("check_experiment_is_live.completed")
