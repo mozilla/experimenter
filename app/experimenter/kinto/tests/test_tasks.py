@@ -4,11 +4,15 @@ import mock
 from django.conf import settings
 from django.test import TestCase
 
-from experimenter.experiments.models import Experiment
+from mozilla_nimbus_shared import get_data
+
+from experimenter.experiments.models import Experiment, ExperimentBucketRange
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
 from experimenter.kinto import tasks
 from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
+
+NIMBUS_DATA = get_data()
 
 
 class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
@@ -17,6 +21,7 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         self.experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             proposed_start_date=datetime.date(2020, 1, 20),
+            normandy_slug="normandy-slug",
             audience="us_only",
         )
 
@@ -24,6 +29,20 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         tasks.push_experiment_to_kinto(self.experiment.id)
 
         data = ExperimentRapidRecipeSerializer(self.experiment).data
+
+        self.assertTrue(
+            ExperimentBucketRange.objects.filter(experiment=self.experiment).exists()
+        )
+
+        bucketConfig = data["arguments"]["bucketConfig"].copy()
+        bucketConfig.pop("start")
+        bucketConfig.pop("namespace")
+
+        designPreset = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
+            "arguments"
+        ]["bucketConfig"]
+
+        self.assertEqual(bucketConfig, designPreset)
 
         self.mock_kinto_client.create_record.assert_called_with(
             data=data,

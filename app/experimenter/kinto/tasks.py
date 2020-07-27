@@ -4,15 +4,19 @@ import markus
 from celery.utils.log import get_task_logger
 from django.conf import settings
 
+from mozilla_nimbus_shared import get_data
+
 from experimenter.celery import app
 from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
 from experimenter.experiments.changelog_utils import update_experiment_with_change_log
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import Experiment, ExperimentBucketNamespace
 from experimenter.kinto import client
 
 
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("kinto.tasks")
+
+NIMBUS_DATA = get_data()
 
 
 @app.task
@@ -21,7 +25,16 @@ def push_experiment_to_kinto(experiment_id):
     metrics.incr("push_experiment_to_kinto.started")
 
     experiment = Experiment.objects.get(id=experiment_id)
+    ExperimentBucketNamespace.request_namespace_buckets(
+        experiment.normandy_slug,
+        experiment,
+        NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"]["arguments"][
+            "bucketConfig"
+        ]["count"],
+    )
+
     data = ExperimentRapidRecipeSerializer(experiment).data
+
     logger.info(f"Pushing {experiment} to Kinto")
 
     try:
