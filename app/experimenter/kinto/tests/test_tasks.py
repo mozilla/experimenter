@@ -98,7 +98,25 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         tasks.check_kinto_push_queue()
         self.mock_push_task.assert_not_called()
 
-    def test_check_with_rapid_review_and_no_kinto_pending_pushes_experiment(self):
+    def test_check_with_rapid_review_and_no_bugzilla_and_no_kinto_pending_pushes_nothing(
+        self,
+    ):
+        ExperimentFactory.create_with_status(
+            Experiment.STATUS_REVIEW,
+            bugzilla_id=None,
+            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_max_version=None,
+            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            name="test",
+            type=Experiment.TYPE_RAPID,
+        )
+        self.setup_kinto_no_pending_review()
+        tasks.check_kinto_push_queue()
+        self.mock_push_task.assert_not_called()
+
+    def test_check_with_rapid_review_and_bugzilla_and_no_kinto_pending_pushes_experiment(
+        self,
+    ):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_REVIEW,
             bugzilla_id="12345",
