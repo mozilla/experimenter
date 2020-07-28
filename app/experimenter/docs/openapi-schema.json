@@ -7640,6 +7640,14 @@
                         "100.0"
                       ]
                     },
+                    "firefox_channel": {
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -7674,6 +7682,7 @@
                     "audience",
                     "features",
                     "firefox_min_version",
+                    "firefox_channel",
                     "name",
                     "objectives"
                   ]
@@ -7769,6 +7778,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -7791,6 +7808,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -7862,6 +7880,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -7884,6 +7910,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -7955,6 +7982,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -7977,6 +8012,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -8057,6 +8093,14 @@
                         "100.0"
                       ]
                     },
+                    "firefox_channel": {
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -8091,6 +8135,7 @@
                     "audience",
                     "features",
                     "firefox_min_version",
+                    "firefox_channel",
                     "name",
                     "objectives"
                   ]
@@ -8186,6 +8231,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -8272,6 +8325,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -8356,6 +8417,14 @@
                       "98.0",
                       "99.0",
                       "100.0"
+                    ]
+                  },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
                     ]
                   },
                   "name": {
@@ -8453,6 +8522,14 @@
                         "100.0"
                       ]
                     },
+                    "firefox_channel": {
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -8487,6 +8564,7 @@
                     "audience",
                     "features",
                     "firefox_min_version",
+                    "firefox_channel",
                     "name",
                     "objectives"
                   ]
@@ -8831,6 +8909,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -8853,6 +8939,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -8924,6 +9011,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -8946,6 +9041,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -9017,6 +9113,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -9039,6 +9143,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -9119,6 +9224,14 @@
                         "100.0"
                       ]
                     },
+                    "firefox_channel": {
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -9153,6 +9266,7 @@
                     "audience",
                     "features",
                     "firefox_min_version",
+                    "firefox_channel",
                     "name",
                     "objectives"
                   ]
@@ -9250,6 +9364,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -9272,6 +9394,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -9343,6 +9466,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -9365,6 +9496,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -9436,6 +9568,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -9458,6 +9598,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -9538,6 +9679,14 @@
                         "100.0"
                       ]
                     },
+                    "firefox_channel": {
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -9572,6 +9721,7 @@
                     "audience",
                     "features",
                     "firefox_min_version",
+                    "firefox_channel",
                     "name",
                     "objectives"
                   ]
