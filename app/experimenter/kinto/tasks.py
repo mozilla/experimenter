@@ -55,7 +55,7 @@ def check_kinto_push_queue():
 
     queued_experiments = Experiment.objects.filter(
         type=Experiment.TYPE_RAPID, status=Experiment.STATUS_REVIEW
-    )
+    ).exclude(bugzilla_id=None)
 
     if queued_experiments.exists():
         if client.has_pending_review():
