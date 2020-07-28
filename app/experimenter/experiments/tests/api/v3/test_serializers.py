@@ -1,7 +1,8 @@
 import random
 
-from django.test import TestCase
 from django.conf import settings
+from django.test import TestCase
+from mozilla_nimbus_shared import get_data
 
 from experimenter.experiments.api.v3.serializers import (
     ExperimentRapidSerializer,
@@ -13,12 +14,12 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
-
+NIMBUS_DATA = get_data()
 FIREFOX_VERSION = random.choice(Experiment.VERSION_CHOICES)[0]
 
 
 class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, TestCase):
-    def test_serializer_outputs_expected_schema(self):
+    def test_serializer_outputs_expected_schema_for_draft_experiment(self):
         owner = UserFactory(email="owner@example.com")
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_RAPID,
@@ -38,17 +39,56 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertDictEqual(
             serializer.data,
             {
-                "status": Experiment.STATUS_DRAFT,
-                "owner": "owner@example.com",
-                "name": "rapid experiment",
-                "slug": "rapid-experiment",
-                "objectives": "gotta go fast",
                 "audience": "all_english",
-                "features": ["picture_in_picture"],
                 "bugzilla_url": "{bug_host}show_bug.cgi?id={bug_id}".format(
                     bug_host=settings.BUGZILLA_HOST, bug_id=experiment.bugzilla_id
                 ),
+                "features": ["picture_in_picture"],
                 "firefox_min_version": FIREFOX_VERSION,
+                "monitoring_dashboard_url": None,
+                "name": "rapid experiment",
+                "objectives": "gotta go fast",
+                "owner": "owner@example.com",
+                "slug": "rapid-experiment",
+                "status": Experiment.STATUS_DRAFT,
+            },
+        )
+
+    def test_serializer_outputs_expected_schema_for_live_experiment(self):
+        owner = UserFactory(email="owner@example.com")
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_LIVE,
+            type=Experiment.TYPE_RAPID,
+            rapid_type=Experiment.RAPID_AA_CFR,
+            owner=owner,
+            name="rapid experiment",
+            slug="rapid-experiment",
+            objectives="gotta go fast",
+            audience="all_english",
+            features=["picture_in_picture"],
+            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_min_version=FIREFOX_VERSION,
+            firefox_max_version=None,
+        )
+
+        serializer = ExperimentRapidSerializer(experiment)
+
+        self.maxDiff = None
+        self.assertDictEqual(
+            serializer.data,
+            {
+                "audience": "all_english",
+                "bugzilla_url": "{bug_host}show_bug.cgi?id={bug_id}".format(
+                    bug_host=settings.BUGZILLA_HOST, bug_id=experiment.bugzilla_id
+                ),
+                "features": ["picture_in_picture"],
+                "firefox_min_version": FIREFOX_VERSION,
+                "monitoring_dashboard_url": experiment.monitoring_dashboard_url,
+                "name": "rapid experiment",
+                "objectives": "gotta go fast",
+                "owner": "owner@example.com",
+                "slug": "rapid-experiment",
+                "status": Experiment.STATUS_LIVE,
             },
         )
 
@@ -117,6 +157,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertTrue(serializer.is_valid())
         experiment = serializer.save()
 
+        # User input data
         self.assertEqual(experiment.type, Experiment.TYPE_RAPID)
         self.assertEqual(experiment.rapid_type, Experiment.RAPID_AA_CFR)
         self.assertEqual(experiment.owner, self.user)
@@ -129,8 +170,18 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertEqual(
             experiment.public_description, Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
         )
-        self.assertEqual(experiment.firefox_min_version, FIREFOX_VERSION)
-        self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
+
+        # Preset data
+        preset_data = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
+            "arguments"
+        ]
+        audience_data = NIMBUS_DATA["Audiences"]["all_english"]
+
+        self.assertEqual(experiment.firefox_channel, audience_data["firefox_channel"])
+        self.assertEqual(experiment.proposed_duration, preset_data["proposedDuration"])
+        self.assertEqual(
+            experiment.proposed_enrollment, preset_data["proposedEnrollment"]
+        )
 
         self.mock_tasks_serializer_create_bug.delay.assert_called()
 
@@ -178,14 +229,22 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "new_value": Experiment.CHANNEL_RELEASE,
                 "old_value": None,
             },
+            "proposed_duration": {
+                "display_name": "Proposed Duration",
+                "new_value": 28,
+                "old_value": None,
+            },
+            "proposed_enrollment": {
+                "display_name": "Proposed Enrollment",
+                "new_value": 7,
+                "old_value": None,
+            },
         }
-        self.assertTrue(
-            experiment.changes.filter(
-                old_status=None,
-                new_status=Experiment.STATUS_DRAFT,
-                changed_values=changed_values,
-            ).exists()
+        changelog = experiment.changes.get(
+            old_status=None, new_status=Experiment.STATUS_DRAFT
         )
+        self.maxDiff = None
+        self.assertEqual(changelog.changed_values, changed_values)
 
     def test_serializer_creates_changelog_for_updates(self):
         owner = UserFactory(email="owner@example.com")

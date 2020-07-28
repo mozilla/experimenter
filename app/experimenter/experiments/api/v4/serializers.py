@@ -5,7 +5,10 @@ from mozilla_nimbus_shared import get_data
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
+    ExperimentBucketRange,
 )
+
+NIMBUS_DATA = get_data()
 
 
 class ExperimentRapidBranchesSerializer(serializers.ModelSerializer):
@@ -18,6 +21,24 @@ class ExperimentRapidBranchesSerializer(serializers.ModelSerializer):
     def get_value(self, obj):
         # placeholder value
         return None
+
+
+class ExperimentBucketRangeSerializer(serializers.ModelSerializer):
+    namespace = serializers.SlugRelatedField(read_only=True, slug_field="name")
+    randomizationUnit = serializers.SerializerMethodField()
+    total = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ExperimentBucketRange
+        fields = ("randomizationUnit", "namespace", "start", "count", "total")
+
+    def get_randomizationUnit(self, obj):
+        return NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"]["arguments"][
+            "bucketConfig"
+        ]["randomizationUnit"]
+
+    def get_total(self, obj):
+        return obj.namespace.total
 
 
 class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
@@ -51,6 +72,9 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
         )
 
     def get_bucketConfig(self, obj):
+
+        if hasattr(obj, "bucket"):
+            return ExperimentBucketRangeSerializer(obj.bucket).data
         return {
             "randomizationUnit": "normandy_id",
             "namespace": "",
@@ -73,17 +97,43 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
 class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source="normandy_slug")
     arguments = ExperimentRapidArgumentSerializer(source="*")
-    filter_expression = serializers.ReadOnlyField(source="audience")
     enabled = serializers.ReadOnlyField(default=True)
+    filter_expression = serializers.SerializerMethodField()
     targeting = serializers.SerializerMethodField()
 
     class Meta:
         model = Experiment
         fields = ("id", "arguments", "filter_expression", "enabled", "targeting")
 
-    def get_targeting(self, obj):
-        nimbus_data = get_data()
-        audiences = nimbus_data["Audiences"]
-        exp_audience_data = audiences[obj.audience]
+    def get_filter_expression(self, obj):
+        return NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
+            "filter_expression"
+        ].format(minFirefoxVersion=obj.firefox_min_version)
 
-        return exp_audience_data["targeting"]
+    def get_targeting(self, obj):
+        if ExperimentBucketRange.objects.filter(experiment=obj).exists():
+            bucket_range = ExperimentBucketRange.objects.get(experiment=obj)
+            bucket_namespace = bucket_range.namespace.name
+            bucket_start = bucket_range.start
+
+            bucket_config = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
+                "arguments"
+            ]["bucketConfig"]
+
+            randomization_unit = bucket_config["randomizationUnit"]
+            bucket_count = bucket_config["count"]
+            bucket_total = bucket_config["total"]
+            audience_targeting = NIMBUS_DATA["Audiences"][obj.audience]["targeting"]
+
+            targeting_string = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"][
+                "preset"
+            ]["targeting"]
+
+            return targeting_string.format(
+                bucketNamespace=bucket_namespace,
+                bucketStart=bucket_start,
+                randomizationUnit=randomization_unit,
+                bucketCount=bucket_count,
+                bucketTotal=bucket_total,
+                audienceTargeting=audience_targeting,
+            )
