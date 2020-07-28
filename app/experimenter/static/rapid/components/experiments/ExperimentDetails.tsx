@@ -120,6 +120,8 @@ const ExperimentDetails: React.FC = () => {
           The results can be found{" "}
           <a
             href={`https://metrics.mozilla.com/protected/experiments/${slug_underscored}.html`}
+            rel="noopener noreferrer"
+            target="_blank"
           >
             here
           </a>
