@@ -206,6 +206,48 @@ describe("<ExperimentDetails />", () => {
     });
   });
 
+  it("renders with analysis report when live", async () => {
+    await act(async () => {
+      const { getByText } = renderWithRouter(
+        wrapInExperimentProvider(<ExperimentDetails />, {
+          initialState: {
+            status: ExperimentStatus.LIVE,
+            slug: "test-slug",
+            name: "Test Name",
+            objectives: "Test objectives",
+            owner: "test@owner.com",
+            features: ["pinned_tabs", "picture_in_picture"],
+            audience: "all_english",
+            firefox_min_version: "78.0",
+          },
+        }),
+      );
+
+      expect(getByText(/The results can be found/)).toBeInTheDocument();
+    });
+  });
+
+  it("renders without analysis report when not live", async () => {
+    await act(async () => {
+      const { queryByText } = renderWithRouter(
+        wrapInExperimentProvider(<ExperimentDetails />, {
+          initialState: {
+            status: ExperimentStatus.DRAFT,
+            slug: "test-slug",
+            name: "Test Name",
+            objectives: "Test objectives",
+            owner: "test@owner.com",
+            features: ["pinned_tabs", "picture_in_picture"],
+            audience: "all_english",
+            firefox_min_version: "78.0",
+          },
+        }),
+      );
+
+      expect(queryByText(/The results can be found/)).toBe(null);
+    });
+  });
+
   it("sends you to the edit page when the 'Back' button is clicked", async () => {
     await act(async () => {
       const { getByText, history } = renderWithRouter(
