@@ -197,3 +197,61 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
                 new_status=Experiment.STATUS_LIVE,
             ).exists()
         )
+
+
+class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
+    def test_experiment_updates_when_recipe_is_not_in_main(self):
+        experiment1 = ExperimentFactory.create_with_status(
+            Experiment.STATUS_LIVE,
+            bugzilla_id="12345",
+            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_max_version=None,
+            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            name="test",
+            type=Experiment.TYPE_RAPID,
+        )
+
+        experiment2 = ExperimentFactory.create_with_status(
+            Experiment.STATUS_LIVE,
+            bugzilla_id="99999",
+            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_max_version=None,
+            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            name="test1",
+            type=Experiment.TYPE_RAPID,
+        )
+
+        experiment3 = ExperimentFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
+            bugzilla_id="54321",
+            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_max_version=None,
+            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            name="test2",
+            type=Experiment.TYPE_RAPID,
+        )
+
+        self.assertEqual(experiment1.changes.count(), 5)
+        self.assertEqual(experiment2.changes.count(), 5)
+        self.assertEqual(experiment3.changes.count(), 1)
+
+        self.setup_kinto_get_main_records()
+        tasks.check_experiment_is_complete()
+
+        self.assertEqual(experiment3.changes.count(), 1)
+
+        self.assertFalse(
+            experiment1.changes.filter(
+                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+                old_status=Experiment.STATUS_LIVE,
+                new_status=Experiment.STATUS_COMPLETE,
+            ).exists()
+        )
+
+        self.assertTrue(
+            experiment2.changes.filter(
+                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+                old_status=Experiment.STATUS_LIVE,
+                new_status=Experiment.STATUS_COMPLETE,
+            ).exists()
+        )
