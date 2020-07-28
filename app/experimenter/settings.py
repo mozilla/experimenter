@@ -109,6 +109,8 @@ FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 WSGI_APPLICATION = "experimenter.wsgi.application"
 
+APPEND_SLASH = False
+
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
