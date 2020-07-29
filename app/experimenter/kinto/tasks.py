@@ -48,6 +48,17 @@ def push_experiment_to_kinto(experiment_id):
         raise e
 
 
+def update_rejected_record(record_id, rejected_data):
+    experiment = Experiment.objects.get(normandy_slug=record_id)
+    update_experiment_with_change_log(
+        experiment,
+        {"status": Experiment.STATUS_REJECTED,},
+        settings.KINTO_DEFAULT_CHANGELOG_USER,
+        message=rejected_data["last_reviewer_comment"],
+    )
+    client.delete_rejected_record(record_id)
+
+
 @app.task
 @metrics.timer_decorator("check_kinto_push_queue")
 def check_kinto_push_queue():
@@ -56,6 +67,11 @@ def check_kinto_push_queue():
     queued_experiments = Experiment.objects.filter(
         type=Experiment.TYPE_RAPID, status=Experiment.STATUS_REVIEW
     ).exclude(bugzilla_id=None)
+
+    if client.get_rejected_collection_data() and client.get_rejected_record():
+        rejected_collection_data = client.get_rejected_collection_data()
+        reject_recipe_id = client.get_rejected_record()[0]
+        update_rejected_record(reject_recipe_id, rejected_collection_data)
 
     if queued_experiments.exists():
         if client.has_pending_review():
