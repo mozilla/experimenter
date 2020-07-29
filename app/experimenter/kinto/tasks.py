@@ -55,7 +55,7 @@ def check_kinto_push_queue():
 
     queued_experiments = Experiment.objects.filter(
         type=Experiment.TYPE_RAPID, status=Experiment.STATUS_REVIEW
-    )
+    ).exclude(bugzilla_id=None)
 
     if queued_experiments.exists():
         if client.has_pending_review():
@@ -110,3 +110,33 @@ def check_experiment_is_live():
             logger.info("Experiment Status is set to Live")
 
     metrics.incr("check_experiment_is_live.completed")
+
+
+@app.task
+@metrics.timer_decorator("check_experiment_is_complete")
+def check_experiment_is_complete():
+    metrics.incr("check_experiment_is_complete.started")
+
+    live_experiments = Experiment.objects.filter(
+        type=Experiment.TYPE_RAPID, status=Experiment.STATUS_LIVE
+    )
+
+    records = client.get_main_records()
+    record_ids = [r.get("id") for r in records]
+
+    for experiment in live_experiments:
+        if experiment.normandy_slug not in record_ids:
+            logger.info(
+                "{experiment} status is being updated to complete".format(
+                    experiment=experiment
+                )
+            )
+            update_experiment_with_change_log(
+                experiment,
+                {"status": Experiment.STATUS_COMPLETE},
+                settings.KINTO_DEFAULT_CHANGELOG_USER,
+            )
+
+            logger.info("Experiment Status is set to complete")
+
+    metrics.incr("check_experiment_is_complete.completed")

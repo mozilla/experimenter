@@ -9,7 +9,10 @@ import {
 import ExperimentDetails, {
   POLL_TIMEOUT,
 } from "experimenter-rapid/components/experiments/ExperimentDetails";
-import { ExperimentStatus } from "experimenter-types/experiment";
+import {
+  ExperimentStatus,
+  FirefoxChannel,
+} from "experimenter-rapid/types/experiment";
 
 describe("<ExperimentDetails />", () => {
   beforeEach(() => {
@@ -34,6 +37,7 @@ describe("<ExperimentDetails />", () => {
             features: ["picture_in_picture", "pinned_tabs"],
             audience: "us_only",
             firefox_min_version: "78.0",
+            firefox_channel: FirefoxChannel.NIGHTLY,
           },
         }),
       );
@@ -72,6 +76,7 @@ describe("<ExperimentDetails />", () => {
             owner: "test@owner.com",
             features: ["picture_in_picture", "pinned_tabs"],
             audience: "us_only",
+            firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
           },
         }),
@@ -101,6 +106,7 @@ describe("<ExperimentDetails />", () => {
             owner: "test@owner.com",
             features: ["picture_in_picture", "pinned_tabs"],
             audience: "us_only",
+            firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
           },
         }),
@@ -128,6 +134,7 @@ describe("<ExperimentDetails />", () => {
             features: ["picture_in_picture", "pinned_tabs"],
             audience: "us_only",
             firefox_min_version: "78.0",
+            firefox_channel: FirefoxChannel.RELEASE,
             bugzilla_url: "https://example.com",
           },
         }),
@@ -151,6 +158,7 @@ describe("<ExperimentDetails />", () => {
             owner: "test@owner.com",
             features: ["pinned_tabs", "picture_in_picture"],
             audience: "all_english",
+            firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
           },
         }),
@@ -174,6 +182,7 @@ describe("<ExperimentDetails />", () => {
             objectives: "Test objectives",
             owner: "test@owner.com",
             slug: "test-slug",
+            firefox_channel: FirefoxChannel.RELEASE,
             status: ExperimentStatus.DRAFT,
           },
         }),
@@ -197,12 +206,57 @@ describe("<ExperimentDetails />", () => {
             owner: "test@owner.com",
             features: ["pinned_tabs", "picture_in_picture"],
             audience: "all_english",
+            firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
           },
         }),
       );
 
       expect(queryByText(/monitoring dashboard/)).toBe(null);
+    });
+  });
+
+  it("renders with analysis report when live", async () => {
+    await act(async () => {
+      const { getByText } = renderWithRouter(
+        wrapInExperimentProvider(<ExperimentDetails />, {
+          initialState: {
+            status: ExperimentStatus.LIVE,
+            slug: "test-slug",
+            name: "Test Name",
+            objectives: "Test objectives",
+            owner: "test@owner.com",
+            features: ["pinned_tabs", "picture_in_picture"],
+            audience: "all_english",
+            firefox_channel: FirefoxChannel.RELEASE,
+            firefox_min_version: "78.0",
+          },
+        }),
+      );
+
+      expect(getByText(/The results can be found/)).toBeInTheDocument();
+    });
+  });
+
+  it("renders without analysis report when not live", async () => {
+    await act(async () => {
+      const { queryByText } = renderWithRouter(
+        wrapInExperimentProvider(<ExperimentDetails />, {
+          initialState: {
+            status: ExperimentStatus.DRAFT,
+            slug: "test-slug",
+            name: "Test Name",
+            objectives: "Test objectives",
+            owner: "test@owner.com",
+            features: ["pinned_tabs", "picture_in_picture"],
+            audience: "all_english",
+            firefox_channel: FirefoxChannel.RELEASE,
+            firefox_min_version: "78.0",
+          },
+        }),
+      );
+
+      expect(queryByText(/The results can be found/)).toBe(null);
     });
   });
 
@@ -218,6 +272,7 @@ describe("<ExperimentDetails />", () => {
             owner: "test@owner.com",
             features: ["picture_in_picture", "pinned_tabs"],
             audience: "us_only",
+            firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
           },
         }),
@@ -246,6 +301,7 @@ describe("<ExperimentDetails />", () => {
             owner: "test@owner.com",
             features: ["picture_in_picture", "pinned_tabs"],
             audience: "us_only",
+            firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
           },
         }),

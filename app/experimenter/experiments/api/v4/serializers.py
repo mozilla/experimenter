@@ -111,4 +111,31 @@ class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):
         ].format(minFirefoxVersion=obj.firefox_min_version)
 
     def get_targeting(self, obj):
-        return NIMBUS_DATA["Audiences"][obj.audience]["targeting"]
+        if ExperimentBucketRange.objects.filter(experiment=obj).exists():
+            bucket_range = ExperimentBucketRange.objects.get(experiment=obj)
+            bucket_namespace = bucket_range.namespace.name
+            bucket_start = bucket_range.start
+
+            bucket_config = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
+                "arguments"
+            ]["bucketConfig"]
+
+            randomization_unit = bucket_config["randomizationUnit"]
+            bucket_count = bucket_config["count"]
+            bucket_total = bucket_config["total"]
+            audience_targeting = NIMBUS_DATA["Audiences"][obj.audience][
+                "targeting"
+            ].format(slug=obj.normandy_slug, firefox_channel=obj.firefox_channel.lower(),)
+
+            targeting_string = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"][
+                "preset"
+            ]["targeting"]
+
+            return targeting_string.format(
+                bucketNamespace=bucket_namespace,
+                bucketStart=bucket_start,
+                randomizationUnit=randomization_unit,
+                bucketCount=bucket_count,
+                bucketTotal=bucket_total,
+                audienceTargeting=audience_targeting,
+            )
