@@ -99,6 +99,7 @@ class ExperimentConstants(object):
     STATUS_ACCEPTED = "Accepted"
     STATUS_LIVE = "Live"
     STATUS_COMPLETE = "Complete"
+    STATUS_REJECTED = "Rejected"
 
     STATUS_DRAFT_LABEL = "Draft"
     STATUS_REVIEW_LABEL = "Ready for Sign-Off"
@@ -106,6 +107,7 @@ class ExperimentConstants(object):
     STATUS_ACCEPTED_LABEL = "Accepted by Normandy"
     STATUS_LIVE_LABEL = "Live"
     STATUS_COMPLETE_LABEL = "Complete"
+    STATUS_REJECTED = "Rejected"
 
     STATUS_CHOICES = (
         (STATUS_DRAFT, STATUS_DRAFT_LABEL),
@@ -114,6 +116,7 @@ class ExperimentConstants(object):
         (STATUS_ACCEPTED, STATUS_ACCEPTED_LABEL),
         (STATUS_LIVE, STATUS_LIVE_LABEL),
         (STATUS_COMPLETE, STATUS_COMPLETE_LABEL),
+        (STATUS_REJECTED, STATUS_REJECTED),
     )
 
     STATUS_TRANSITIONS = {
@@ -127,6 +130,7 @@ class ExperimentConstants(object):
 
     RAPID_STATUS_TRANSITIONS = {
         STATUS_DRAFT: [STATUS_REVIEW],
+        STATUS_ACCEPTED: [STATUS_REJECTED],
     }
 
     STATUS_PROCEED_REVIEW = "Begin Sign-Offs"
