@@ -43,8 +43,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             {
                 "id": normandy_slug,
                 "filter_expression": "env.version|versionCompare('80.0') >= 0",
-                "targeting": "localeLanguageCode == 'en' && region == 'US'"
-                " && browserSettings.update.channel == 'release'",
+                "targeting": None,
                 "enabled": True,
             },
         )
@@ -92,6 +91,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             features=features,
             normandy_slug=normandy_slug,
             firefox_min_version="80.0",
+            firefox_channel=Experiment.CHANNEL_RELEASE,
             proposed_enrollment=9,
             proposed_start_date=today,
         )
@@ -116,8 +116,10 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             {
                 "id": normandy_slug,
                 "filter_expression": "env.version|versionCompare('80.0') >= 0",
-                "targeting": "localeLanguageCode == 'en' && region == 'US'"
-                " && browserSettings.update.channel == 'release'",
+                "targeting": '[userId, "experimenter-normandy-slug"]'
+                "|bucketSample(0, 100, 10000) "
+                "&& localeLanguageCode == 'en' && region == 'US' "
+                "&& browserSettings.update.channel == 'release'",
                 "enabled": True,
             },
         )

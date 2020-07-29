@@ -6,6 +6,7 @@ import {
   featureOptions,
   audienceOptions,
   firefoxVersionOptions,
+  firefoxChannelOptions,
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
 import {
   requestReview,
@@ -101,6 +102,35 @@ const ExperimentDetails: React.FC = () => {
     );
   }
 
+  let analysis_report;
+  if (
+    [ExperimentStatus.LIVE, ExperimentStatus.COMPLETE].includes(
+      experimentData.status,
+    ) &&
+    experimentData.slug
+  ) {
+    const slug_underscored = experimentData.slug.split("-").join("_");
+    analysis_report = (
+      <>
+        <h3 className="my-4">Results</h3>
+        <p>
+          The results will be available 7 days after the experiment is launched.
+          An email will be sent to you once we start recording data.
+        </p>
+        <p>
+          The results can be found{" "}
+          <a
+            href={`https://metrics.mozilla.com/protected/experiments/${slug_underscored}.html`}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            here
+          </a>
+        </p>
+      </>
+    );
+  }
+
   const buttonsDisabled = experimentData.status !== ExperimentStatus.DRAFT;
   let buttonsClass = "btn btn-primary";
   if (buttonsDisabled) {
@@ -175,16 +205,17 @@ const ExperimentDetails: React.FC = () => {
           )}
         />
 
+        <LabelledRow
+          label="Firefox Channel"
+          value={displaySelectOptionLabels(
+            firefoxChannelOptions,
+            experimentData.firefox_channel,
+          )}
+        />
+
         {monitoring_url}
 
-        <h3 className="my-4">Results</h3>
-        <p>
-          The results will be available 7 days after the experiment is launched.
-          An email will be sent to you once we start recording data.
-        </p>
-        <p>
-          The results can be found here: <a href="#">(link here)</a>
-        </p>
+        {analysis_report}
 
         {changeStatusButtons}
       </div>
