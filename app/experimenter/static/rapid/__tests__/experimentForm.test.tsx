@@ -171,6 +171,7 @@ describe("<ExperimentForm />", () => {
     expect(requestMethod).toEqual("PUT");
     expect(formData).toEqual({
       name: "foo",
+      status: ExperimentStatus.DRAFT,
       objectives: "Test objectives",
     });
   });

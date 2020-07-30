@@ -115,6 +115,39 @@ describe("<ExperimentDetails />", () => {
     });
   });
 
+  it("renders rejected feedback when status is Rejected", async () => {
+    await act(async () => {
+      const { getByDisplayValue, getByText } = renderWithRouter(
+        wrapInExperimentProvider(<ExperimentDetails />, {
+          initialState: {
+            status: ExperimentStatus.REJECTED,
+            slug: "test-slug",
+            name: "Test Name",
+            objectives: "Test objectives",
+            owner: "test@owner.com",
+            features: ["picture_in_picture", "pinned_tabs"],
+            audience: "us_only",
+            firefox_min_version: "78.0",
+            reject_feedback: {
+              changed_on: "2020-07-30T05:37:22.540985Z",
+              message: "It's no good",
+            },
+          },
+        }),
+      );
+
+      await waitFor(() => {
+        return expect(getByDisplayValue("test@owner.com")).toBeInTheDocument();
+      });
+
+      expect(getByText("Review Feedback")).toBeInTheDocument();
+      expect(getByText("Reject reason: It's no good")).toBeInTheDocument();
+
+      expect(getByText("Back")).not.toHaveAttribute("disabled");
+      expect(getByText("Request Approval")).toHaveAttribute("disabled");
+    });
+  });
+
   it("renders with bugzilla info when data provided", async () => {
     await act(async () => {
       const { getByText } = renderWithRouter(
