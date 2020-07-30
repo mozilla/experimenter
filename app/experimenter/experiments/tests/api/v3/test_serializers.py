@@ -8,7 +8,7 @@ from experimenter.experiments.api.v3.serializers import (
     ExperimentRapidSerializer,
     ExperimentRapidStatusSerializer,
 )
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import Experiment, ExperimentChangeLog
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.base.tests.mixins import MockRequestMixin
@@ -53,6 +53,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "owner": "owner@example.com",
                 "slug": "rapid-experiment",
                 "status": Experiment.STATUS_DRAFT,
+                "reject_feedback": None,
             },
         )
 
@@ -92,6 +93,61 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "owner": "owner@example.com",
                 "slug": "rapid-experiment",
                 "status": Experiment.STATUS_LIVE,
+                "reject_feedback": None,
+            },
+        )
+
+    def test_serializer_outputs_expected_schema_for_rejected_experiment(self):
+        owner = UserFactory(email="owner@example.com")
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_ACCEPTED,
+            type=Experiment.TYPE_RAPID,
+            rapid_type=Experiment.RAPID_AA_CFR,
+            owner=owner,
+            name="rapid experiment",
+            slug="rapid-experiment",
+            objectives="gotta go fast",
+            audience="all_english",
+            features=["picture_in_picture"],
+            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_min_version=FIREFOX_VERSION,
+            firefox_max_version=None,
+        )
+
+        ExperimentChangeLog.objects.create(
+            old_status=Experiment.STATUS_ACCEPTED,
+            new_status=Experiment.STATUS_REJECTED,
+            message="It's no good",
+            experiment=experiment,
+            changed_by=owner,
+            changed_on="2020-07-30T05:37:22.540985Z",
+        )
+
+        experiment.status = Experiment.STATUS_REJECTED
+        experiment.save()
+
+        serializer = ExperimentRapidSerializer(experiment)
+
+        self.maxDiff = None
+        self.assertDictEqual(
+            serializer.data,
+            {
+                "audience": "all_english",
+                "bugzilla_url": "{bug_host}show_bug.cgi?id={bug_id}".format(
+                    bug_host=settings.BUGZILLA_HOST, bug_id=experiment.bugzilla_id
+                ),
+                "features": ["picture_in_picture"],
+                "firefox_min_version": FIREFOX_VERSION,
+                "monitoring_dashboard_url": experiment.monitoring_dashboard_url,
+                "name": "rapid experiment",
+                "objectives": "gotta go fast",
+                "owner": "owner@example.com",
+                "slug": "rapid-experiment",
+                "status": Experiment.STATUS_REJECTED,
+                "reject_feedback": {
+                    "changed_on": "2020-07-30T05:37:22.540985Z",
+                    "message": "It's no good",
+                },
             },
         )
 

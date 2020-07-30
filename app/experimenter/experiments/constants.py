@@ -131,6 +131,7 @@ class ExperimentConstants(object):
     RAPID_STATUS_TRANSITIONS = {
         STATUS_DRAFT: [STATUS_REVIEW],
         STATUS_ACCEPTED: [STATUS_REJECTED],
+        STATUS_REJECTED: [STATUS_DRAFT],
     }
 
     STATUS_PROCEED_REVIEW = "Begin Sign-Offs"
