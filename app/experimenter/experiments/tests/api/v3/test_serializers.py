@@ -128,7 +128,6 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
 
         serializer = ExperimentRapidSerializer(experiment)
 
-        self.maxDiff = None
         self.assertDictEqual(
             serializer.data,
             {
@@ -137,6 +136,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                     bug_host=settings.BUGZILLA_HOST, bug_id=experiment.bugzilla_id
                 ),
                 "features": ["picture_in_picture"],
+                "firefox_channel": "Release",
                 "firefox_min_version": FIREFOX_VERSION,
                 "monitoring_dashboard_url": experiment.monitoring_dashboard_url,
                 "name": "rapid experiment",
