@@ -9,7 +9,11 @@ from mozilla_nimbus_shared import get_data
 from experimenter.celery import app
 from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
 from experimenter.experiments.changelog_utils import update_experiment_with_change_log
-from experimenter.experiments.models import Experiment, ExperimentBucketNamespace
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentBucketNamespace,
+    ExperimentBucketRange,
+)
 from experimenter.kinto import client
 
 
@@ -25,13 +29,14 @@ def push_experiment_to_kinto(experiment_id):
     metrics.incr("push_experiment_to_kinto.started")
 
     experiment = Experiment.objects.get(id=experiment_id)
-    ExperimentBucketNamespace.request_namespace_buckets(
-        experiment.normandy_slug,
-        experiment,
-        NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"]["arguments"][
-            "bucketConfig"
-        ]["count"],
-    )
+    if not ExperimentBucketRange.objects.filter(experiment=experiment).exists():
+        ExperimentBucketNamespace.request_namespace_buckets(
+            experiment.normandy_slug,
+            experiment,
+            NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"]["arguments"][
+                "bucketConfig"
+            ]["count"],
+        )
 
     data = ExperimentRapidRecipeSerializer(experiment).data
 
@@ -68,10 +73,11 @@ def check_kinto_push_queue():
         type=Experiment.TYPE_RAPID, status=Experiment.STATUS_REVIEW
     ).exclude(bugzilla_id=None)
 
-    if client.get_rejected_collection_data() and client.get_rejected_record():
-        rejected_collection_data = client.get_rejected_collection_data()
-        reject_recipe_id = client.get_rejected_record()[0]
-        update_rejected_record(reject_recipe_id, rejected_collection_data)
+    if (rejected_collection_data := client.get_rejected_collection_data()) and (
+        reject_recipe_id := client.get_rejected_record()
+    ):
+
+        update_rejected_record(reject_recipe_id[0], rejected_collection_data)
 
     if queued_experiments.exists():
         if client.has_pending_review():
