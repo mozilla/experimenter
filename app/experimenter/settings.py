@@ -294,6 +294,14 @@ CELERY_BROKER_URL = "redis://{host}:{port}/{db}".format(
     host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB
 )
 CELERY_BEAT_SCHEDULE = {
+    "experiment_status_ready_to_ship_task": {
+        "task": "experimenter.normandy.tasks.update_recipe_ids_to_experiments",
+        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
+    },
+    "experiment_status_launched_task": {
+        "task": "experimenter.normandy.tasks.update_launched_experiments",
+        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
+    },
     "check_kinto_push_queue_task": {
         "task": "experimenter.kinto.tasks.check_kinto_push_queue",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
