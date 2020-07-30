@@ -134,6 +134,7 @@ describe("<ExperimentDetails />", () => {
             features: ["picture_in_picture", "pinned_tabs"],
             audience: "us_only",
             firefox_min_version: "78.0",
+            firefox_channel: FirefoxChannel.RELEASE,
             reject_feedback: {
               changed_on: "2020-07-30T05:37:22.540985Z",
               message: "It's no good",
