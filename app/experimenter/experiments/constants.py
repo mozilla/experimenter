@@ -107,7 +107,7 @@ class ExperimentConstants(object):
     STATUS_ACCEPTED_LABEL = "Accepted by Normandy"
     STATUS_LIVE_LABEL = "Live"
     STATUS_COMPLETE_LABEL = "Complete"
-    STATUS_REJECTED = "Rejected"
+    STATUS_REJECTED_LABEL = "Rejected"
 
     STATUS_CHOICES = (
         (STATUS_DRAFT, STATUS_DRAFT_LABEL),
@@ -116,7 +116,7 @@ class ExperimentConstants(object):
         (STATUS_ACCEPTED, STATUS_ACCEPTED_LABEL),
         (STATUS_LIVE, STATUS_LIVE_LABEL),
         (STATUS_COMPLETE, STATUS_COMPLETE_LABEL),
-        (STATUS_REJECTED, STATUS_REJECTED),
+        (STATUS_REJECTED, STATUS_REJECTED_LABEL),
     )
 
     STATUS_TRANSITIONS = {
