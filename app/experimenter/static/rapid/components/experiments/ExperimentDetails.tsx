@@ -131,12 +131,26 @@ const ExperimentDetails: React.FC = () => {
     );
   }
 
-  const approveButtonDisabled =
-    experimentData.status !== ExperimentStatus.DRAFT;
   const backButtonDisabled = ![
     ExperimentStatus.DRAFT,
     ExperimentStatus.REJECTED,
   ].includes(experimentData.status);
+
+  let backButton = (
+    <Link to={`/${experimentData.slug}/edit/`}>
+      <button className="btn btn-primary">Back</button>
+    </Link>
+  );
+  if (backButtonDisabled) {
+    backButton = (
+      <button disabled className="btn btn-secondary">
+        Back
+      </button>
+    );
+  }
+
+  const requestButtonDisabled =
+    experimentData.status !== ExperimentStatus.DRAFT;
 
   const buttonsShown = ![
     ExperimentStatus.LIVE,
@@ -144,22 +158,17 @@ const ExperimentDetails: React.FC = () => {
   ].includes(experimentData.status);
 
   let changeStatusButtons;
-
   if (buttonsShown) {
     changeStatusButtons = (
       <div className="d-flex mt-4">
-        <span>
-          <Link to={`/${experimentData.slug}/edit/`}>
-            <button className="btn btn-primary" disabled={backButtonDisabled}>
-              Back
-            </button>
-          </Link>
-        </span>
+        <span>{backButton}</span>
 
         <span className="flex-grow-1 text-right">
           <button
-            className="btn btn-primary"
-            disabled={approveButtonDisabled}
+            className={
+              requestButtonDisabled ? "btn btn-secondary" : "btn btn-primary"
+            }
+            disabled={requestButtonDisabled}
             type="button"
             onClick={handleClickRequestApproval}
           >
