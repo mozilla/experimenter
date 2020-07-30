@@ -269,7 +269,7 @@ class ExperimentChangeLogFactory(factory.django.DjangoModelFactory):
     experiment = factory.SubFactory(ExperimentFactory)
     changed_by = factory.SubFactory(UserFactory)
     old_status = factory.LazyAttribute(
-        lambda o: random.choice(NORMANDY_STATUS_CHOICES[0])
+        lambda o: random.choice(NORMANDY_STATUS_CHOICES)[0]
     )
     new_status = factory.LazyAttribute(
         lambda o: random.choice(
@@ -284,7 +284,7 @@ class ExperimentChangeLogFactory(factory.django.DjangoModelFactory):
 class ExperimentCommentFactory(factory.django.DjangoModelFactory):
     experiment = factory.SubFactory(ExperimentFactory)
     section = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.SECTION_CHOICES[0])
+        lambda o: random.choice(Experiment.SECTION_CHOICES)[0]
     )
     created_by = factory.SubFactory(UserFactory)
     text = factory.LazyAttribute(lambda o: faker.text())
