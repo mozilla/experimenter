@@ -10,7 +10,7 @@ from experimenter.experiments.models import Experiment, ExperimentBucketRange
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
 from experimenter.kinto import tasks
-from experimenter.kinto.client import KINTO_REVIEW_STATUS, KINTO_REJECTED_STATUS
+from experimenter.kinto.client import KINTO_REVIEW_STATUS
 from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
 
 NIMBUS_DATA = get_data()
