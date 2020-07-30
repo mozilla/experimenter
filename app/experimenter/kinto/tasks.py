@@ -9,7 +9,11 @@ from mozilla_nimbus_shared import get_data
 from experimenter.celery import app
 from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
 from experimenter.experiments.changelog_utils import update_experiment_with_change_log
-from experimenter.experiments.models import Experiment, ExperimentBucketNamespace
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentBucketNamespace,
+    ExperimentBucketRange,
+)
 from experimenter.kinto import client
 
 
@@ -25,13 +29,14 @@ def push_experiment_to_kinto(experiment_id):
     metrics.incr("push_experiment_to_kinto.started")
 
     experiment = Experiment.objects.get(id=experiment_id)
-    ExperimentBucketNamespace.request_namespace_buckets(
-        experiment.normandy_slug,
-        experiment,
-        NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"]["arguments"][
-            "bucketConfig"
-        ]["count"],
-    )
+    if not ExperimentBucketRange.objects.filter(experiment=experiment).exists():
+        ExperimentBucketNamespace.request_namespace_buckets(
+            experiment.normandy_slug,
+            experiment,
+            NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"]["arguments"][
+                "bucketConfig"
+            ]["count"],
+        )
 
     data = ExperimentRapidRecipeSerializer(experiment).data
 
@@ -48,6 +53,17 @@ def push_experiment_to_kinto(experiment_id):
         raise e
 
 
+def update_rejected_record(record_id, rejected_data):
+    experiment = Experiment.objects.get(normandy_slug=record_id)
+    update_experiment_with_change_log(
+        experiment,
+        {"status": Experiment.STATUS_REJECTED},
+        settings.KINTO_DEFAULT_CHANGELOG_USER,
+        message=rejected_data["last_reviewer_comment"],
+    )
+    client.delete_rejected_record(record_id)
+
+
 @app.task
 @metrics.timer_decorator("check_kinto_push_queue")
 def check_kinto_push_queue():
@@ -56,6 +72,12 @@ def check_kinto_push_queue():
     queued_experiments = Experiment.objects.filter(
         type=Experiment.TYPE_RAPID, status=Experiment.STATUS_REVIEW
     ).exclude(bugzilla_id=None)
+
+    if (rejected_collection_data := client.get_rejected_collection_data()) and (
+        reject_recipe_id := client.get_rejected_record()
+    ):
+
+        update_rejected_record(reject_recipe_id[0], rejected_collection_data)
 
     if queued_experiments.exists():
         if client.has_pending_review():
