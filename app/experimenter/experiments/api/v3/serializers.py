@@ -4,11 +4,21 @@ from rest_framework import serializers
 from mozilla_nimbus_shared import get_data
 
 from experimenter.bugzilla.tasks import create_experiment_bug_task
-from experimenter.experiments.models import Experiment, ExperimentVariant
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentVariant,
+    ExperimentChangeLog,
+)
 from experimenter.experiments.changelog_utils import ChangelogSerializerMixin
 
 
 NIMBUS_DATA = get_data()
+
+
+class ExperimentRapidRejectChangeLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExperimentChangeLog
+        fields = ("message", "changed_on")
 
 
 class ExperimentRapidChangelogSerializerMixin(ChangelogSerializerMixin):
@@ -48,6 +58,7 @@ class ExperimentRapidSerializer(
         required=True, choices=Experiment.VERSION_CHOICES,
     )
     monitoring_dashboard_url = serializers.ReadOnlyField()
+    reject_feedback = serializers.SerializerMethodField()
 
     class Meta:
         model = Experiment
@@ -65,7 +76,12 @@ class ExperimentRapidSerializer(
             "slug",
             "status",
             "type",
+            "reject_feedback",
         )
+
+    def get_reject_feedback(self, obj):
+        if obj.status == Experiment.STATUS_REJECTED:
+            return ExperimentRapidRejectChangeLogSerializer(obj.changes.latest()).data
 
     def validate(self, data):
         validated_data = super().validate(data)

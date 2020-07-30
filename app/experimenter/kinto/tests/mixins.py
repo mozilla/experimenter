@@ -1,6 +1,6 @@
 import mock
 
-from experimenter.kinto.client import KINTO_REVIEW_STATUS
+from experimenter.kinto.client import KINTO_REVIEW_STATUS, KINTO_REJECTED_STATUS
 
 
 class MockKintoClientMixin(object):
@@ -25,10 +25,25 @@ class MockKintoClientMixin(object):
             "data": {"status": "anything"}
         }
 
+    def setup_kinto_rejected_review(self):
+        self.mock_kinto_client.get_collection.return_value = {
+            "data": {
+                "status": KINTO_REJECTED_STATUS,
+                "last_reviewer_comment": "it's no good",
+            }
+        }
+
     def setup_kinto_get_main_records(self):
         self.mock_kinto_client.get_records.return_value = [
             {"id": "bug-12345-rapid-test-release-55"}
         ]
 
+    def setup_kinto_get_workspace_records(self):
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": "bug-12345-rapid-test-release-55"},
+            {"id": "bug-99999-rapid-test-release-55"},
+        ]
+
     def setup_kinto_no_main_records(self):
         self.mock_kinto_client.get_records.return_value = []
+
