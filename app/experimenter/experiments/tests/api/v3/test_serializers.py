@@ -142,12 +142,12 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "name": "rapid experiment",
                 "objectives": "gotta go fast",
                 "owner": "owner@example.com",
-                "slug": "rapid-experiment",
-                "status": Experiment.STATUS_REJECTED,
                 "reject_feedback": {
                     "changed_on": "2020-07-30T05:37:22.540985Z",
                     "message": "It's no good",
                 },
+                "slug": "rapid-experiment",
+                "status": Experiment.STATUS_REJECTED,
             },
         )
 
