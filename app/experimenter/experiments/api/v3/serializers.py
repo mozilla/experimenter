@@ -57,6 +57,9 @@ class ExperimentRapidSerializer(
     firefox_min_version = serializers.ChoiceField(
         required=True, choices=Experiment.VERSION_CHOICES,
     )
+    firefox_channel = serializers.ChoiceField(
+        required=True, choices=Experiment.CHANNEL_CHOICES
+    )
     monitoring_dashboard_url = serializers.ReadOnlyField()
     reject_feedback = serializers.SerializerMethodField()
 
@@ -67,6 +70,7 @@ class ExperimentRapidSerializer(
             "bugzilla_url",
             "features",
             "firefox_min_version",
+            "firefox_channel",
             "monitoring_dashboard_url",
             "name",
             "objectives",
@@ -110,13 +114,11 @@ class ExperimentRapidSerializer(
         preset_data = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
             "arguments"
         ].copy()
-        audience_data = NIMBUS_DATA["Audiences"][validated_data["audience"]]
 
         validated_data.update(
             {
                 "slug": slugify(validated_data["name"]),
                 "owner": self.context["request"].user,
-                "firefox_channel": audience_data["firefox_channel"],
                 "proposed_duration": preset_data["proposedDuration"],
                 "proposed_enrollment": preset_data["proposedEnrollment"],
             }

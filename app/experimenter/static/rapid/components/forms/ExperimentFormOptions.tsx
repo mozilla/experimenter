@@ -1,5 +1,7 @@
 import { data } from "@mozilla/nimbus-shared";
 
+import { FirefoxChannel } from "experimenter-rapid/types/experiment";
+
 import { XSelectOption } from "./XSelect";
 
 const generateOptions = (data) => {
@@ -18,6 +20,12 @@ const generateOptions = (data) => {
 export const audienceOptions = generateOptions(data.Audiences);
 
 export const featureOptions = generateOptions(data.features);
+
+export const firefoxChannelOptions = [
+  { label: "Firefox Nightly", value: FirefoxChannel.NIGHTLY },
+  { label: "Firefox Beta", value: FirefoxChannel.BETA },
+  { label: "Firefox Release", value: FirefoxChannel.RELEASE },
+];
 
 export const firefoxVersionOptions = [
   { label: "Firefox 77.0", value: "77.0", description: "Firefox 77.0" },

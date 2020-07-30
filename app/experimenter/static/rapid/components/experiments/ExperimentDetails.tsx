@@ -6,6 +6,7 @@ import {
   featureOptions,
   audienceOptions,
   firefoxVersionOptions,
+  firefoxChannelOptions,
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
 import {
   requestReview,
@@ -217,6 +218,14 @@ const ExperimentDetails: React.FC = () => {
           value={displaySelectOptionLabels(
             firefoxVersionOptions,
             experimentData.firefox_min_version,
+          )}
+        />
+
+        <LabelledRow
+          label="Firefox Channel"
+          value={displaySelectOptionLabels(
+            firefoxChannelOptions,
+            experimentData.firefox_channel,
           )}
         />
 

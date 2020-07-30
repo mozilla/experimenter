@@ -7,11 +7,18 @@ export enum ExperimentStatus {
   REJECTED = "Rejected",
 }
 
+export enum FirefoxChannel {
+  NIGHTLY = "Nightly",
+  BETA = "Beta",
+  RELEASE = "Release",
+}
+
 export interface ExperimentData {
   audience: string;
   bugzilla_url?: string;
   features: Array<string>;
   firefox_min_version: string;
+  firefox_channel: FirefoxChannel;
   monitoring_dashboard_url?: string;
   name: string;
   objectives: string;

@@ -4,6 +4,7 @@ import {
   Action,
   ExperimentStatus,
   ExperimentData,
+  FirefoxChannel,
 } from "experimenter-types/experiment";
 
 export const INITIAL_CONTEXT: {
@@ -16,6 +17,7 @@ export const INITIAL_CONTEXT: {
     objectives: "",
     features: [],
     audience: "",
+    firefox_channel: FirefoxChannel.RELEASE,
     firefox_min_version: "",
   },
   dispatch: (action: Action) => {
