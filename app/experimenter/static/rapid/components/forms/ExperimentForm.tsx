@@ -38,10 +38,11 @@ const ErrorList: React.FC<ErrorListProperties> = ({ errors }) => {
 };
 
 const ExperimentForm: React.FC = () => {
-  // eslint-disable-next-line
-  const { status, ...experimentData } = useExperimentState();
+  const formData = {
+    ...useExperimentState(),
+    ...{ status: ExperimentStatus.DRAFT },
+  };
 
-  const formData = { status: ExperimentStatus.DRAFT, ...experimentData };
   const dispatch = useExperimentDispatch();
   const { experimentSlug } = useParams();
 
