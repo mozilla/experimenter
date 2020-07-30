@@ -57,7 +57,7 @@ def update_rejected_record(record_id, rejected_data):
     experiment = Experiment.objects.get(normandy_slug=record_id)
     update_experiment_with_change_log(
         experiment,
-        {"status": Experiment.STATUS_REJECTED,},
+        {"status": Experiment.STATUS_REJECTED},
         settings.KINTO_DEFAULT_CHANGELOG_USER,
         message=rejected_data["last_reviewer_comment"],
     )
