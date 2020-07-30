@@ -50,10 +50,10 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "monitoring_dashboard_url": None,
                 "name": "rapid experiment",
                 "objectives": "gotta go fast",
+                "reject_feedback": None,
                 "owner": "owner@example.com",
                 "slug": "rapid-experiment",
                 "status": Experiment.STATUS_DRAFT,
-                "reject_feedback": None,
             },
         )
 
@@ -91,9 +91,9 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "name": "rapid experiment",
                 "objectives": "gotta go fast",
                 "owner": "owner@example.com",
+                "reject_feedback": None,
                 "slug": "rapid-experiment",
                 "status": Experiment.STATUS_LIVE,
-                "reject_feedback": None,
             },
         )
 
