@@ -64,6 +64,51 @@ contains any additional descriptive information.
 
 1. Thank you for submitting changes to Experimenter :D
 
+## Dependency Management
+Dependencies are automatically updated by [Dependabot](https://dependabot.com/) which is now integrated
+directly into GitHub.  Each week Dependabot will create a large number of individual PRs that update
+each dependency.  To merge those into main, use the following process:
+
+1. Dependabot will create many individual PRs against the `dependencies` branch, which has no CI tasks
+or branch protections and so each of those PRs can be merged immediately by adding the following comment to
+each PR:
+        @dependabot squash and merge
+1. The dependencies branch can now be merged into `main` by [creating a PR using the GitHub web interface](https://github.com/mozilla/experimenter/compare/main...dependencies)
+
+1. Tag a reviewer for the Dependencies PR and when it is approved, merge it.
+
+1. Check out the `main` branch on your local repo:
+
+```
+git checkout main
+```
+
+1. Make sure it's up to date with the Mozilla remote
+
+```
+git pull <mozilla> main
+```
+
+1. Delete your local dependencies branch
+
+```
+git branch -D dependencies
+```
+
+1. Recreate the dependencies branch from your up to date main
+
+```
+git checkout -B dependencies
+```
+
+1. Force push that on to the Mozilla repo
+
+```
+git push <mozilla> dependencies -f
+```  
+
+All done!
+
 
 ## Continuous Deployment Process
 When a PR is merged into main it will automatically be deployed to the stage instance and if that

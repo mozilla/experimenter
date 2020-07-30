@@ -91,6 +91,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             features=features,
             normandy_slug=normandy_slug,
             firefox_min_version="80.0",
+            firefox_channel=Experiment.CHANNEL_RELEASE,
             proposed_enrollment=9,
             proposed_start_date=today,
         )

@@ -78,6 +78,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
                 "audience": audience,
                 "features": features,
                 "firefox_min_version": firefox_min_version,
+                "firefox_channel": Experiment.CHANNEL_RELEASE,
             }
         )
 
@@ -97,6 +98,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         self.assertEqual(experiment.audience, audience)
         self.assertEqual(experiment.features, features)
         self.assertEqual(experiment.firefox_min_version, firefox_min_version)
+        self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
 
     def test_post_list_creates_rapid_experiment(self):
         user_email = "user@example.com"
@@ -111,6 +113,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
                 "audience": audience,
                 "features": features,
                 "firefox_min_version": firefox_min_version,
+                "firefox_channel": Experiment.CHANNEL_RELEASE,
             }
         )
 
@@ -130,6 +133,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         self.assertEqual(experiment.audience, audience)
         self.assertEqual(experiment.features, features)
         self.assertEqual(experiment.firefox_min_version, firefox_min_version)
+        self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
 
     def test_request_review_updates_status_creates_changelog(self):
         user_email = "user@example.com"
