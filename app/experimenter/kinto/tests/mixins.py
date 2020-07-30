@@ -46,4 +46,3 @@ class MockKintoClientMixin(object):
 
     def setup_kinto_no_main_records(self):
         self.mock_kinto_client.get_records.return_value = []
-
