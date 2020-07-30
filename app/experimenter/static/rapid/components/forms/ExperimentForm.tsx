@@ -9,6 +9,7 @@ import {
   useExperimentDispatch,
   useExperimentState,
 } from "experimenter-rapid/contexts/experiment/hooks";
+import { ExperimentStatus } from "experimenter-rapid/types/experiment";
 
 import {
   featureOptions,
@@ -37,7 +38,11 @@ const ErrorList: React.FC<ErrorListProperties> = ({ errors }) => {
 };
 
 const ExperimentForm: React.FC = () => {
-  const formData = useExperimentState();
+  const formData = {
+    ...useExperimentState(),
+    ...{ status: ExperimentStatus.DRAFT },
+  };
+
   const dispatch = useExperimentDispatch();
   const { experimentSlug } = useParams();
 

@@ -46,3 +46,25 @@ class TestGetMainRecords(MockKintoClientMixin, TestCase):
     def test_returns_no_records(self):
         self.setup_kinto_no_main_records()
         self.assertEqual(client.get_main_records(), [])
+
+
+class TestGetRejectedCollectionData(MockKintoClientMixin, TestCase):
+    def test_returns_nothing_when_not_rejects(self):
+        self.setup_kinto_no_pending_review()
+        self.assertIsNone(client.get_rejected_collection_data())
+
+    def test_returns_rejected_data(self):
+        self.setup_kinto_rejected_review()
+        self.assertTrue(client.get_rejected_collection_data())
+
+
+class TestGetRejectedRecords(MockKintoClientMixin, TestCase):
+    def test_returns_rejected_record(self):
+        self.mock_kinto_client.get_records.side_effect = [
+            [{"id": "bug-12345-rapid-test-release-55"}],
+            [
+                {"id": "bug-12345-rapid-test-release-55"},
+                {"id": "bug-9999-rapid-test-release-55"},
+            ],
+        ]
+        self.assertEqual(client.get_rejected_record(), ["bug-9999-rapid-test-release-55"])
