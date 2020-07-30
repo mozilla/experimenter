@@ -24,7 +24,7 @@ describe("<ExperimentDetails />", () => {
     fetchMock.resetMocks();
   });
 
-  it("renders without issues", async () => {
+  it("renders in DRAFT state", async () => {
     await act(async () => {
       const { getByDisplayValue } = renderWithRouter(
         wrapInExperimentProvider(<ExperimentDetails />, {
@@ -51,50 +51,7 @@ describe("<ExperimentDetails />", () => {
     });
   });
 
-  it("polls fetchExperiment after timeout", async () => {
-    await act(async () => {
-      fetchMock.mockOnce(async () => {
-        return JSON.stringify({
-          status: ExperimentStatus.REVIEW,
-          slug: "test-slug",
-          name: "Test Name",
-          objectives: "Test objectives",
-          owner: "test@owner.com",
-          features: ["FEATURE 1", "FEATURE 2"],
-          audience: "AUDIENCE 1",
-          firefox_min_version: "78.0",
-        });
-      });
-
-      const { getByText } = renderWithRouter(
-        wrapInExperimentProvider(<ExperimentDetails />, {
-          initialState: {
-            status: ExperimentStatus.DRAFT,
-            slug: "test-slug",
-            name: "Test Name",
-            objectives: "Test objectives",
-            owner: "test@owner.com",
-            features: ["picture_in_picture", "pinned_tabs"],
-            audience: "us_only",
-            firefox_channel: FirefoxChannel.RELEASE,
-            firefox_min_version: "78.0",
-          },
-        }),
-      );
-
-      await waitFor(() => {
-        return expect(getByText(ExperimentStatus.DRAFT)).toBeInTheDocument();
-      });
-
-      jest.advanceTimersByTime(POLL_TIMEOUT);
-
-      await waitFor(() => {
-        return expect(getByText(ExperimentStatus.REVIEW)).toBeInTheDocument();
-      });
-    });
-  });
-
-  it("renders without progression buttons post launched experiments", async () => {
+  it("renders in LIVE state", async () => {
     await act(async () => {
       const { getByDisplayValue, queryByText } = renderWithRouter(
         wrapInExperimentProvider(<ExperimentDetails />, {
@@ -121,7 +78,7 @@ describe("<ExperimentDetails />", () => {
     });
   });
 
-  it("renders rejected feedback when status is Rejected", async () => {
+  it("renders in REJECTED state", async () => {
     await act(async () => {
       const { getByDisplayValue, getByText } = renderWithRouter(
         wrapInExperimentProvider(<ExperimentDetails />, {
@@ -356,6 +313,49 @@ describe("<ExperimentDetails />", () => {
           method: "POST",
         },
       );
+    });
+  });
+
+  it("polls fetchExperiment after timeout", async () => {
+    await act(async () => {
+      fetchMock.mockOnce(async () => {
+        return JSON.stringify({
+          status: ExperimentStatus.REVIEW,
+          slug: "test-slug",
+          name: "Test Name",
+          objectives: "Test objectives",
+          owner: "test@owner.com",
+          features: ["FEATURE 1", "FEATURE 2"],
+          audience: "AUDIENCE 1",
+          firefox_min_version: "78.0",
+        });
+      });
+
+      const { getByText } = renderWithRouter(
+        wrapInExperimentProvider(<ExperimentDetails />, {
+          initialState: {
+            status: ExperimentStatus.DRAFT,
+            slug: "test-slug",
+            name: "Test Name",
+            objectives: "Test objectives",
+            owner: "test@owner.com",
+            features: ["picture_in_picture", "pinned_tabs"],
+            audience: "us_only",
+            firefox_channel: FirefoxChannel.RELEASE,
+            firefox_min_version: "78.0",
+          },
+        }),
+      );
+
+      await waitFor(() => {
+        return expect(getByText(ExperimentStatus.DRAFT)).toBeInTheDocument();
+      });
+
+      jest.advanceTimersByTime(POLL_TIMEOUT);
+
+      await waitFor(() => {
+        return expect(getByText(ExperimentStatus.REVIEW)).toBeInTheDocument();
+      });
     });
   });
 });
