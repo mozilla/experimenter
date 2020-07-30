@@ -17,6 +17,7 @@ export interface ExperimentData {
   objectives: string;
   owner?: string;
   slug?: string;
+  reject_feedback?: RejectFeedback;
   status: ExperimentStatus;
 }
 
@@ -24,6 +25,10 @@ export enum ExperimentReducerActionType {
   UPDATE_STATE = "UPDATE_STATE",
 }
 
+interface RejectFeedback {
+  message: string;
+  changed_on: string;
+}
 export interface ExperimentReducerAction {
   type: ExperimentReducerActionType.UPDATE_STATE;
   state: ExperimentData;

@@ -9,6 +9,7 @@ import {
   useExperimentDispatch,
   useExperimentState,
 } from "experimenter-rapid/contexts/experiment/hooks";
+import { ExperimentStatus } from "experimenter-rapid/types/experiment";
 
 import {
   featureOptions,
@@ -36,7 +37,10 @@ const ErrorList: React.FC<ErrorListProperties> = ({ errors }) => {
 };
 
 const ExperimentForm: React.FC = () => {
-  const formData = useExperimentState();
+  // eslint-disable-next-line
+  const { status, ...experimentData } = useExperimentState();
+
+  const formData = { status: ExperimentStatus.DRAFT, ...experimentData };
   const dispatch = useExperimentDispatch();
   const { experimentSlug } = useParams();
 

@@ -130,11 +130,12 @@ const ExperimentDetails: React.FC = () => {
     );
   }
 
-  const buttonsDisabled = experimentData.status !== ExperimentStatus.DRAFT;
-  let buttonsClass = "btn btn-primary";
-  if (buttonsDisabled) {
-    buttonsClass = "btn btn-secondary";
-  }
+  const approveButtonDisabled =
+    experimentData.status !== ExperimentStatus.DRAFT;
+  const backButtonDisabled = ![
+    ExperimentStatus.DRAFT,
+    ExperimentStatus.REJECTED,
+  ].includes(experimentData.status);
 
   const buttonsShown = ![
     ExperimentStatus.LIVE,
@@ -142,22 +143,22 @@ const ExperimentDetails: React.FC = () => {
   ].includes(experimentData.status);
 
   let changeStatusButtons;
+
   if (buttonsShown) {
     changeStatusButtons = (
       <div className="d-flex mt-4">
         <span>
-          <Link
-            className={buttonsClass}
-            to={buttonsDisabled ? "#" : `/${experimentData.slug}/edit/`}
-          >
-            Back
+          <Link to={`/${experimentData.slug}/edit/`}>
+            <button className="btn btn-primary" disabled={backButtonDisabled}>
+              Back
+            </button>
           </Link>
         </span>
 
         <span className="flex-grow-1 text-right">
           <button
-            className={buttonsClass}
-            disabled={buttonsDisabled}
+            className="btn btn-primary"
+            disabled={approveButtonDisabled}
             type="button"
             onClick={handleClickRequestApproval}
           >
@@ -165,6 +166,21 @@ const ExperimentDetails: React.FC = () => {
           </button>
         </span>
       </div>
+    );
+  }
+
+  let rejectFeedback;
+
+  if (experimentData.reject_feedback) {
+    const messageDate = new Date(experimentData.reject_feedback.changed_on);
+    rejectFeedback = (
+      <>
+        <h3 className="my-4">Review Feedback</h3>
+        <div className="alert alert-secondary" role="alert">
+          <p className="font-weight-bold"> {messageDate.toDateString()}</p>
+          <p>Reject reason: {experimentData.reject_feedback.message}</p>
+        </div>
+      </>
     );
   }
 
@@ -208,6 +224,7 @@ const ExperimentDetails: React.FC = () => {
 
         {analysis_report}
 
+        {rejectFeedback}
         {changeStatusButtons}
       </div>
     </div>
