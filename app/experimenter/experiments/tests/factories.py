@@ -24,6 +24,7 @@ from experimenter.experiments.models import (
 from experimenter.openidc.tests.factories import UserFactory
 
 faker = FakerFactory.create()
+NORMANDY_STATUS_CHOICES = Experiment.STATUS_CHOICES[:-1]
 
 
 class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
@@ -264,10 +265,11 @@ class VariantPreferencesFactory(factory.django.DjangoModelFactory):
 
 
 class ExperimentChangeLogFactory(factory.django.DjangoModelFactory):
+
     experiment = factory.SubFactory(ExperimentFactory)
     changed_by = factory.SubFactory(UserFactory)
     old_status = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.STATUS_CHOICES)[0]
+        lambda o: random.choice(NORMANDY_STATUS_CHOICES)[0]
     )
     new_status = factory.LazyAttribute(
         lambda o: random.choice(
