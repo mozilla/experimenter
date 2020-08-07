@@ -111,26 +111,22 @@ class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):
         # with text on it (like 80.0a1) is less than a version without text on
         # it (like 80.0).
         #
-        # To account for this, we replace the ".0" in "80.0" with "!", which is
-        # the character that has the smallest ASCII value of all printable,
-        # non-whitespace characters. This will ensure that it is less than all
+        # To account for this, we use a version like "80.!". Since "!" is the
+        # character that has the smallest ASCII value of all non-whitespace,
+        # printable characters. This will ensure that it is less than all valid
         # 80-series version numbers.
         #
         # It isn't used now, but if a max version comparison is needed in the
         # future the equivalent modification would be "80.*". This is because
-        # "*" is treated specially as the largest possible version in it's
-        # slot. That would allow anything that is in the 80-series, and nothing
-        # in the 81-series.
+        # "*" is treated specially as the largest possible version in its slot.
+        # That would allow anything that is in the 80-series, and nothing in
+        # the 81-series.
         #
         # To summarize, 80.! < 80.0a1 < 80.0 < 80.1 < 80.* < 81.0
 
-        firefox_min_version = obj.firefox_min_version
-        assert firefox_min_version.endswith(".0")
-        firefox_min_version = firefox_min_version[:-1] + "!"
-
         return NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
             "filter_expression"
-        ].format(minFirefoxVersion=firefox_min_version)
+        ].format(minFirefoxVersion=f"{obj.firefox_min_version_integer}.!")
 
     def get_targeting(self, obj):
         if ExperimentBucketRange.objects.filter(experiment=obj).exists():
