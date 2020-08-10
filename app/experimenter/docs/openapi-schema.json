@@ -8733,13 +8733,13 @@
         ]
       }
     },
-    "/api/v4/experiments/{slug}/": {
+    "/api/v4/experiments/{normandy_slug}/": {
       "get": {
         "operationId": "retrieveExperiment",
         "description": "",
         "parameters": [
           {
-            "name": "slug",
+            "name": "normandy_slug",
             "in": "path",
             "required": true,
             "description": "",
