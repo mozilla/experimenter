@@ -41,10 +41,14 @@ class TestExperimentRapidRecipeView(TestCase):
             objectives="gotta go fast",
             audience="us_only",
             features=["pinned_tabs"],
+            normandy_slug="normandy-slug",
         )
 
         response = self.client.get(
-            reverse("experiment-rapid-recipe-detail", kwargs={"slug": experiment.slug}),
+            reverse(
+                "experiment-rapid-recipe-detail",
+                kwargs={"normandy_slug": experiment.normandy_slug},
+            ),
         )
 
         self.assertEqual(response.status_code, 200)
@@ -60,7 +64,10 @@ class TestExperimentRapidRecipeView(TestCase):
         )
 
         response = self.client.get(
-            reverse("experiment-rapid-recipe-detail", kwargs={"slug": experiment.slug}),
+            reverse(
+                "experiment-rapid-recipe-detail",
+                kwargs={"normandy_slug": experiment.normandy_slug},
+            ),
         )
 
         self.assertEqual(response.status_code, 404)
