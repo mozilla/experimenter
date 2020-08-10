@@ -190,7 +190,7 @@ class TestExperimentRecipeAddonRolloutArgumentsSerializer(TestCase):
         self.assertDictEqual(
             serializer.data,
             {
-                "slug": experiment.normandy_slug,
+                "slug": experiment.recipe_slug,
                 "extensionApiId": "TODO: https://www.example.com/addon.xpi",
             },
         )
@@ -201,7 +201,7 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
 
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_ROLLOUT,
-            normandy_slug="normandy-slug",
+            recipe_slug="normandy-slug",
             rollout_type=Experiment.TYPE_PREF,
         )
 
@@ -214,7 +214,7 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
 
         preference.save()
 
-        experiment = Experiment.objects.get(normandy_slug="normandy-slug")
+        experiment = Experiment.objects.get(recipe_slug="normandy-slug")
         serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
 
         serializer_data = serializer.data
@@ -229,7 +229,7 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
     def test_serializer_outputs_expected_schema_for_bool(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_ROLLOUT,
-            normandy_slug="normandy-slug",
+            recipe_slug="normandy-slug",
             rollout_type=Experiment.TYPE_PREF,
         )
 
@@ -255,7 +255,7 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
     def test_serializer_outputs_expected_schema_for_str(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_ROLLOUT,
-            normandy_slug="normandy-slug",
+            recipe_slug="normandy-slug",
             rollout_type=Experiment.TYPE_PREF,
         )
 
@@ -281,7 +281,7 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
 
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_ROLLOUT,
-            normandy_slug="normandy-slug",
+            recipe_slug="normandy-slug",
             rollout_type=Experiment.TYPE_PREF,
         )
 
@@ -422,7 +422,7 @@ class TestExperimentRecipeSerializer(TestCase):
             firefox_min_version="70.0",
             locales=[LocaleFactory.create()],
             name="public name",
-            normandy_slug="some-random-slug",
+            recipe_slug="some-random-slug",
             platforms=[Experiment.PLATFORM_LINUX],
             public_description="this is my public description!",
             type=Experiment.TYPE_ADDON,
@@ -467,7 +467,7 @@ class TestExperimentRecipeSerializer(TestCase):
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
             public_description="this is my public description!",
-            normandy_slug="some-random-slug",
+            recipe_slug="some-random-slug",
             platforms=[Experiment.PLATFORM_WINDOWS],
         )
 
@@ -522,7 +522,7 @@ class TestExperimentRecipeSerializer(TestCase):
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
             public_description="this is my public description!",
-            normandy_slug="some-random-slug",
+            recipe_slug="some-random-slug",
             platforms=[
                 Experiment.PLATFORM_WINDOWS,
                 Experiment.PLATFORM_MAC,
@@ -585,7 +585,7 @@ class TestExperimentRecipeSerializer(TestCase):
             firefox_min_version="70",
             locales=[],
             name="Experimenter Name",
-            normandy_slug="normandy-slug",
+            recipe_slug="normandy-slug",
             platforms=[Experiment.PLATFORM_WINDOWS],
             population_percent=30.0,
             rollout_type=Experiment.TYPE_ADDON,
@@ -628,7 +628,7 @@ class TestExperimentRecipeSerializer(TestCase):
             firefox_min_version="70",
             locales=[],
             name="Experimenter Name",
-            normandy_slug="normandy-slug",
+            recipe_slug="normandy-slug",
             platforms=[Experiment.PLATFORM_WINDOWS],
             population_percent=30.0,
             rollout_type=Experiment.TYPE_PREF,
@@ -679,7 +679,7 @@ class TestExperimentRecipeSerializer(TestCase):
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
             public_description="this is my public description!",
-            normandy_slug="some-random-slug",
+            recipe_slug="some-random-slug",
             platforms=[Experiment.PLATFORM_WINDOWS],
         )
 
@@ -739,7 +739,7 @@ class TestExperimentRecipeSerializer(TestCase):
 class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
     def test_serializer_outputs_expected_schema_non_multi_pref_format(self):
         experiment = ExperimentFactory.create(
-            normandy_slug="normandy-slug",
+            recipe_slug="normandy-slug",
             pref_branch=Experiment.PREF_BRANCH_DEFAULT,
             pref_type=Experiment.PREF_TYPE_JSON_STR,
             pref_name="browser.pref",
@@ -765,7 +765,7 @@ class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema_for_multi_pref_format(self):
         experiment = ExperimentFactory.create(
-            normandy_slug="normandy-slug", firefox_min_version="55.0", is_multi_pref=True
+            recipe_slug="normandy-slug", firefox_min_version="55.0", is_multi_pref=True
         )
         variant = ExperimentVariantFactory.create(
             slug="control", ratio=25, experiment=experiment
@@ -851,7 +851,7 @@ class TestExperimentRecipePrefArgumentsSerializer(TestCase):
             serializer.data,
             {
                 "preferenceBranchType": experiment.pref_branch,
-                "slug": experiment.normandy_slug,
+                "slug": experiment.recipe_slug,
                 "experimentDocumentUrl": experiment.experiment_url,
                 "preferenceName": experiment.pref_name,
                 "preferenceType": experiment.pref_type,
@@ -869,7 +869,7 @@ class TestExperimentRecipePrefArgumentsSerializer(TestCase):
             serializer.data,
             {
                 "preferenceBranchType": experiment.pref_branch,
-                "slug": experiment.normandy_slug,
+                "slug": experiment.recipe_slug,
                 "experimentDocumentUrl": experiment.experiment_url,
                 "preferenceName": experiment.pref_name,
                 "preferenceType": "string",
@@ -899,7 +899,7 @@ class TestExperimentRecipeMessageArgumentsSerializer(TestCase):
         self.assertDictEqual(
             serializer.data,
             {
-                "slug": experiment.normandy_slug,
+                "slug": experiment.recipe_slug,
                 "experimentDocumentUrl": experiment.experiment_url,
                 "userFacingName": experiment.name,
                 "userFacingDescription": experiment.public_description,

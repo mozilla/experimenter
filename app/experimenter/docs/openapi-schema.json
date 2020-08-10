@@ -344,7 +344,7 @@
                       "nullable": true,
                       "minimum": 0
                     },
-                    "normandy_slug": {
+                    "recipe_slug": {
                       "type": "string",
                       "nullable": true,
                       "maxLength": 255
@@ -812,7 +812,7 @@
                         "nullable": true,
                         "minimum": 0
                       },
-                      "normandy_slug": {
+                      "recipe_slug": {
                         "type": "string",
                         "nullable": true,
                         "maxLength": 255
@@ -1089,7 +1089,7 @@
                         ],
                         "nullable": true
                       },
-                      "normandy_slug": {
+                      "recipe_slug": {
                         "type": "string",
                         "nullable": true,
                         "maxLength": 255
@@ -8733,13 +8733,13 @@
         ]
       }
     },
-    "/api/v4/experiments/{normandy_slug}/": {
+    "/api/v4/experiments/{recipe_slug}/": {
       "get": {
         "operationId": "retrieveExperiment",
         "description": "",
         "parameters": [
           {
-            "name": "normandy_slug",
+            "name": "recipe_slug",
             "in": "path",
             "required": true,
             "description": "",
@@ -10051,7 +10051,7 @@
                     "nullable": true,
                     "minimum": 0
                   },
-                  "normandy_slug": {
+                  "recipe_slug": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -10469,7 +10469,7 @@
                     "nullable": true,
                     "minimum": 0
                   },
-                  "normandy_slug": {
+                  "recipe_slug": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -10887,7 +10887,7 @@
                     "nullable": true,
                     "minimum": 0
                   },
-                  "normandy_slug": {
+                  "recipe_slug": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -11318,7 +11318,7 @@
                       "nullable": true,
                       "minimum": 0
                     },
-                    "normandy_slug": {
+                    "recipe_slug": {
                       "type": "string",
                       "nullable": true,
                       "maxLength": 255
@@ -11764,7 +11764,7 @@
                     "nullable": true,
                     "minimum": 0
                   },
-                  "normandy_slug": {
+                  "recipe_slug": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -12170,7 +12170,7 @@
                     "nullable": true,
                     "minimum": 0
                   },
-                  "normandy_slug": {
+                  "recipe_slug": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -12576,7 +12576,7 @@
                     "nullable": true,
                     "minimum": 0
                   },
-                  "normandy_slug": {
+                  "recipe_slug": {
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
@@ -12995,7 +12995,7 @@
                       "nullable": true,
                       "minimum": 0
                     },
-                    "normandy_slug": {
+                    "recipe_slug": {
                       "type": "string",
                       "nullable": true,
                       "maxLength": 255

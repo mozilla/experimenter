@@ -70,7 +70,7 @@ class TestChangeLogSerializer(TestCase):
             "survey_instructions": experiment.survey_instructions,
             "engineering_owner": experiment.engineering_owner,
             "bugzilla_id": experiment.bugzilla_id,
-            "normandy_slug": experiment.normandy_slug,
+            "recipe_slug": experiment.recipe_slug,
             "normandy_id": experiment.normandy_id,
             "other_normandy_ids": experiment.other_normandy_ids,
             "data_science_issue_url": experiment.data_science_issue_url,

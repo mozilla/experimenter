@@ -22,7 +22,7 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         self.experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             proposed_start_date=datetime.date(2020, 1, 20),
-            normandy_slug="normandy-slug",
+            recipe_slug="recipe-slug",
             audience="us_only",
         )
 
@@ -142,7 +142,7 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         self.assertEqual(experiment.proposed_start_date, datetime.date.today())
         self.assertEqual(experiment.firefox_min_version, Experiment.VERSION_CHOICES[0][0])
         self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
-        self.assertEqual(experiment.normandy_slug, "bug-12345-rapid-test-release-55")
+        self.assertEqual(experiment.recipe_slug, "bug-12345-rapid-test-release-55")
 
     def test_check_with_reject_rapid_review(self):
         experiment = ExperimentFactory.create_with_status(
@@ -153,7 +153,7 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             firefox_min_version=Experiment.VERSION_CHOICES[0][0],
             name="test",
             type=Experiment.TYPE_RAPID,
-            normandy_slug="bug-12345-rapid-test-release-55",
+            recipe_slug="bug-12345-rapid-test-release-55",
         )
 
         self.mock_kinto_client.delete_record.return_value = {}
