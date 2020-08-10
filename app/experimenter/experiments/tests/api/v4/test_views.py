@@ -14,23 +14,28 @@ class TestExperimentListView(TestCase):
         experiments = []
 
         for status, _ in Experiment.STATUS_CHOICES:
-            experiment = ExperimentFactory.create_with_variants(
-                status=status,
+            experiment = ExperimentFactory.create_with_status(
+                target_status=status,
                 type=ExperimentConstants.TYPE_RAPID,
                 objectives="gotta go fast",
                 audience="us_only",
                 features=["pinned_tabs"],
             )
 
-            if status != Experiment.STATUS_DRAFT:
+            if status not in [Experiment.STATUS_DRAFT, Experiment.STATUS_REVIEW]:
                 experiments.append(experiment)
 
         response = self.client.get(reverse("experiment-rapid-recipe-list"),)
         self.assertEqual(response.status_code, 200)
+
         json_data = json.loads(response.content)
         json_slugs = set([d["id"] for d in json_data])
         expected_slugs = set(e.normandy_slug for e in experiments)
         self.assertEqual(json_slugs, expected_slugs)
+
+        json_data_names = set([d["arguments"]["userFacingName"] for d in json_data])
+        expected_names = set(e.name for e in experiments)
+        self.assertEqual(json_data_names, expected_names)
 
 
 class TestExperimentRapidRecipeView(TestCase):
