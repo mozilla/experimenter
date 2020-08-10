@@ -94,9 +94,7 @@ class TestExperimentModel(TestCase):
 
     def test_monitoring_dashboard_url_is_none_when_experiment_not_begun(self):
         experiment = ExperimentFactory.create(
-            slug="experiment",
-            status=Experiment.STATUS_DRAFT,
-            recipe_slug="recipe-slug",
+            slug="experiment", status=Experiment.STATUS_DRAFT, recipe_slug="recipe-slug",
         )
         self.assertIsNone(experiment.monitoring_dashboard_url)
 
@@ -216,9 +214,7 @@ class TestExperimentModel(TestCase):
 
     def test_has_external_urls_is_true_when_bugzilla_and_monitoring_set(self):
         experiment = ExperimentFactory.create(
-            status=Experiment.STATUS_LIVE,
-            bugzilla_id="1234",
-            recipe_slug="recipe-slug",
+            status=Experiment.STATUS_LIVE, bugzilla_id="1234", recipe_slug="recipe-slug",
         )
         self.assertTrue(experiment.has_external_urls)
 
