@@ -26,7 +26,7 @@ describe("<ExperimentDetails />", () => {
 
   it("renders in DRAFT state", async () => {
     await act(async () => {
-      const { getByDisplayValue } = renderWithRouter(
+      const { getByText, getAllByText } = renderWithRouter(
         wrapInExperimentProvider(<ExperimentDetails />, {
           initialState: {
             status: ExperimentStatus.DRAFT,
@@ -43,21 +43,22 @@ describe("<ExperimentDetails />", () => {
       );
 
       await waitFor(() => {
-        return expect(getByDisplayValue("test@owner.com")).toBeInTheDocument();
+        return expect(getByText("test@owner.com")).toBeInTheDocument();
       });
 
-      expect(getByDisplayValue("Test Name")).toBeInTheDocument();
-      expect(getByDisplayValue("Test objectives")).toBeInTheDocument();
+      expect(getAllByText("Test Name")).toHaveLength(2);
+      expect(getByText("Test objectives")).toBeInTheDocument();
     });
   });
 
   it("renders in LIVE state", async () => {
     await act(async () => {
-      const { getByDisplayValue, queryByText } = renderWithRouter(
+      const { getByText, queryByText } = renderWithRouter(
         wrapInExperimentProvider(<ExperimentDetails />, {
           initialState: {
             status: ExperimentStatus.LIVE,
             slug: "test-slug",
+            recipe_slug: "bug-123-test-slug",
             name: "Test Name",
             objectives: "Test objectives",
             owner: "test@owner.com",
@@ -70,9 +71,10 @@ describe("<ExperimentDetails />", () => {
       );
 
       await waitFor(() => {
-        return expect(getByDisplayValue("test@owner.com")).toBeInTheDocument();
+        return expect(getByText("test@owner.com")).toBeInTheDocument();
       });
 
+      expect(getByText("bug-123-test-slug")).toBeInTheDocument();
       expect(queryByText("Back")).toBe(null);
       expect(queryByText("Request Approval")).toBe(null);
     });
@@ -80,7 +82,7 @@ describe("<ExperimentDetails />", () => {
 
   it("renders in REJECTED state", async () => {
     await act(async () => {
-      const { getByDisplayValue, getByText } = renderWithRouter(
+      const { getByText } = renderWithRouter(
         wrapInExperimentProvider(<ExperimentDetails />, {
           initialState: {
             status: ExperimentStatus.REJECTED,
@@ -101,7 +103,7 @@ describe("<ExperimentDetails />", () => {
       );
 
       await waitFor(() => {
-        return expect(getByDisplayValue("test@owner.com")).toBeInTheDocument();
+        return expect(getByText("test@owner.com")).toBeInTheDocument();
       });
 
       expect(getByText("Review Feedback")).toBeInTheDocument();
@@ -156,6 +158,28 @@ describe("<ExperimentDetails />", () => {
       );
 
       expect(queryByText(/Bugzilla ticket/)).toBe(null);
+    });
+  });
+
+  it("renders without recipe_slug when data missing", async () => {
+    await act(async () => {
+      const { queryByText } = renderWithRouter(
+        wrapInExperimentProvider(<ExperimentDetails />, {
+          initialState: {
+            status: ExperimentStatus.DRAFT,
+            slug: "test-slug",
+            name: "Test Name",
+            objectives: "Test objectives",
+            owner: "test@owner.com",
+            features: ["pinned_tabs", "picture_in_picture"],
+            audience: "all_english",
+            firefox_channel: FirefoxChannel.RELEASE,
+            firefox_min_version: "78.0",
+          },
+        }),
+      );
+
+      expect(queryByText(/Experiment slug/)).toBe(null);
     });
   });
 
