@@ -66,13 +66,13 @@ describe("<App />", () => {
       });
     });
 
-    const { getByText, getByDisplayValue } = renderWithRouter(<App />, {
+    const { getByText } = renderWithRouter(<App />, {
       route: "/test-slug/",
     });
     expect(getByText("Experiment Summary")).toBeInTheDocument();
 
     await waitFor(() => {
-      return expect(getByDisplayValue("test@owner.com")).toBeInTheDocument();
+      return expect(getByText("test@owner.com")).toBeInTheDocument();
     });
   });
 });

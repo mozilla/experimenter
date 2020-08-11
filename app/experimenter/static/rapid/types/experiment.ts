@@ -24,6 +24,7 @@ export interface ExperimentData {
   objectives: string;
   owner?: string;
   slug?: string;
+  recipe_slug?: string;
   reject_feedback?: RejectFeedback;
   status: ExperimentStatus;
 }

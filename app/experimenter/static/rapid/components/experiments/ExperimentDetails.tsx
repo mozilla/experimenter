@@ -26,15 +26,13 @@ const LabelledRow: React.FC<{ label: string; value?: string }> = ({
   value,
 }) => {
   return (
-    <div className="row my-3">
-      <label className="col-2 d-inline-block pt-2 font-weight-bold">
-        {label}
-      </label>
-      <span className="col-10">
-        <input readOnly className="w-100" type="text" value={value || ""} />
+    <tr>
+      <th style={{ whiteSpace: "nowrap", width: "1%" }}>{label}</th>
+      <td>
+        {value}
         {children}
-      </span>
-    </div>
+      </td>
+    </tr>
   );
 };
 
@@ -69,15 +67,17 @@ const ExperimentDetails: React.FC = () => {
   let bugzilla_url;
   if (experimentData.bugzilla_url) {
     bugzilla_url = (
-      <div className="my-2">
-        Bugzilla ticket can be found{" "}
-        <a
-          href={experimentData.bugzilla_url}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          here
-        </a>
+      <div>
+        <small>
+          Bugzilla ticket can be found{" "}
+          <a
+            href={experimentData.bugzilla_url}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            here
+          </a>
+        </small>
       </div>
     );
   }
@@ -197,46 +197,61 @@ const ExperimentDetails: React.FC = () => {
   return (
     <div className="col pt-3">
       <div className="mb-4">
-        <div className="d-flex align-items-center">
-          <h3 className="mr-3">Experiment Summary</h3>
-          <span className="badge badge-secondary mb-1">
-            {experimentData.status}
-          </span>
+        <div className="mb-4">
+          <h3 className="mb-0">
+            {experimentData.name}{" "}
+            <span className="badge badge-pill badge-small badge-secondary">
+              {experimentData.status}
+            </span>
+          </h3>
+          {experimentData.recipe_slug && (
+            <p>
+              <code>{experimentData.recipe_slug}</code>
+            </p>
+          )}
         </div>
-        <LabelledRow label="Experiment Owner" value={experimentData.owner} />
-        <LabelledRow label="Public Name" value={experimentData.name}>
-          {bugzilla_url}
-        </LabelledRow>
-        <LabelledRow label="Hypothesis" value={experimentData.objectives} />
-        <LabelledRow
-          label="Feature"
-          value={displaySelectOptionLabels(
-            featureOptions,
-            experimentData.features,
-          )}
-        />
-        <LabelledRow
-          label="Audience"
-          value={displaySelectOptionLabels(
-            audienceOptions,
-            experimentData.audience,
-          )}
-        />
-        <LabelledRow
-          label="Firefox Minimum Version"
-          value={displaySelectOptionLabels(
-            firefoxVersionOptions,
-            experimentData.firefox_min_version,
-          )}
-        />
 
-        <LabelledRow
-          label="Firefox Channel"
-          value={displaySelectOptionLabels(
-            firefoxChannelOptions,
-            experimentData.firefox_channel,
-          )}
-        />
+        <table className="table table-bordered">
+          <tbody>
+            <LabelledRow
+              label="Experiment Owner"
+              value={experimentData.owner}
+            />
+            <LabelledRow label="Public Name" value={experimentData.name}>
+              {bugzilla_url}
+            </LabelledRow>
+            <LabelledRow label="Hypothesis" value={experimentData.objectives} />
+            <LabelledRow
+              label="Feature"
+              value={displaySelectOptionLabels(
+                featureOptions,
+                experimentData.features,
+              )}
+            />
+            <LabelledRow
+              label="Audience"
+              value={displaySelectOptionLabels(
+                audienceOptions,
+                experimentData.audience,
+              )}
+            />
+            <LabelledRow
+              label="Firefox Minimum Version"
+              value={displaySelectOptionLabels(
+                firefoxVersionOptions,
+                experimentData.firefox_min_version,
+              )}
+            />
+
+            <LabelledRow
+              label="Firefox Channel"
+              value={displaySelectOptionLabels(
+                firefoxChannelOptions,
+                experimentData.firefox_channel,
+              )}
+            />
+          </tbody>
+        </table>
 
         {monitoring_url}
 
