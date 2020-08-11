@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Button } from "react-bootstrap";
 
 import useInterval from "experimenter-rapid/components/experiments/useInterval";
 import {
@@ -138,14 +139,14 @@ const ExperimentDetails: React.FC = () => {
 
   let backButton = (
     <Link to={`/${experimentData.slug}/edit/`}>
-      <button className="btn btn-primary">Back</button>
+      <Button>Back</Button>
     </Link>
   );
   if (backButtonDisabled) {
     backButton = (
-      <button disabled className="btn btn-secondary">
+      <Button disabled variant="secondary">
         Back
-      </button>
+      </Button>
     );
   }
 
@@ -164,16 +165,13 @@ const ExperimentDetails: React.FC = () => {
         <span>{backButton}</span>
 
         <span className="flex-grow-1 text-right">
-          <button
-            className={
-              requestButtonDisabled ? "btn btn-secondary" : "btn btn-primary"
-            }
+          <Button
+            variant={requestButtonDisabled ? "secondary" : "primary"}
             disabled={requestButtonDisabled}
-            type="button"
             onClick={handleClickRequestApproval}
           >
             Request Approval
-          </button>
+          </Button>
         </span>
       </div>
     );

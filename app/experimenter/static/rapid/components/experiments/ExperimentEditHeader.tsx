@@ -1,4 +1,5 @@
 import React from "react";
+import { Badge } from "react-bootstrap";
 
 import { useExperimentState } from "experimenter-rapid/contexts/experiment/hooks";
 
@@ -13,9 +14,7 @@ const ExperimentFormPage: React.FC = () => {
     <div className="mb-4">
       <div className="d-flex align-items-center">
         <h3 className="mr-3">{pageHeading}</h3>
-        <span className="badge badge-secondary mb-1">
-          {experimentData.status}
-        </span>
+        <Badge variant="secondary">{experimentData.status}</Badge>
       </div>
       <p>
         Create and automatically launch an A/A CFR experiment. A/A experiments

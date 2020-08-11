@@ -1,5 +1,6 @@
 import React from "react";
 import { useHistory, useParams } from "react-router-dom";
+import { Button } from "react-bootstrap";
 
 import {
   saveExperiment,
@@ -184,13 +185,7 @@ const ExperimentForm: React.FC = () => {
         <ErrorList errors={errors.firefox_channel} />
       </div>
 
-      <button
-        className="btn btn-primary"
-        type="button"
-        onClick={handleClickSave}
-      >
-        Save
-      </button>
+      <Button onClick={handleClickSave}>Save</Button>
     </form>
   );
 };
