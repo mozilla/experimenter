@@ -86,7 +86,7 @@ const ExperimentDetails: React.FC = () => {
   if (experimentData.monitoring_dashboard_url) {
     monitoring_url = (
       <>
-        <h3 className="my-4">Monitoring</h3>
+        <h4 className="my-4">Monitoring</h4>
         <p>
           The live monitoring dashboard can be found here:
           <a
@@ -112,7 +112,7 @@ const ExperimentDetails: React.FC = () => {
     const slug_underscored = experimentData.slug.split("-").join("_");
     analysis_report = (
       <>
-        <h3 className="my-4">Results</h3>
+        <h4 className="my-4">Results</h4>
         <p>
           The results will be available 7 days after the experiment is launched.
           An email will be sent to you once we start recording data.
