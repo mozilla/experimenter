@@ -1,6 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 import useInterval from "experimenter-rapid/components/experiments/useInterval";
 import {
@@ -166,8 +166,8 @@ const ExperimentDetails: React.FC = () => {
 
         <span className="flex-grow-1 text-right">
           <Button
-            variant={requestButtonDisabled ? "secondary" : "primary"}
             disabled={requestButtonDisabled}
+            variant={requestButtonDisabled ? "secondary" : "primary"}
             onClick={handleClickRequestApproval}
           >
             Request Approval
