@@ -26,7 +26,7 @@ describe("<ExperimentDetails />", () => {
 
   it("renders in DRAFT state", async () => {
     await act(async () => {
-      const { getByText } = renderWithRouter(
+      const { getByText, getAllByText } = renderWithRouter(
         wrapInExperimentProvider(<ExperimentDetails />, {
           initialState: {
             status: ExperimentStatus.DRAFT,
@@ -46,7 +46,7 @@ describe("<ExperimentDetails />", () => {
         return expect(getByText("test@owner.com")).toBeInTheDocument();
       });
 
-      expect(getByText("Test Name")).toBeInTheDocument();
+      expect(getAllByText("Test Name")).toHaveLength(2);
       expect(getByText("Test objectives")).toBeInTheDocument();
     });
   });
