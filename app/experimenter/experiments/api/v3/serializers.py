@@ -43,6 +43,7 @@ class ExperimentRapidSerializer(
     rapid_type = serializers.HiddenField(default=Experiment.RAPID_AA_CFR)
     owner = serializers.ReadOnlyField(source="owner.email")
     slug = serializers.ReadOnlyField()
+    recipe_slug = serializers.ReadOnlyField(source="normandy_slug")
     public_description = serializers.HiddenField(
         default=Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
     )
@@ -81,6 +82,7 @@ class ExperimentRapidSerializer(
             "status",
             "type",
             "reject_feedback",
+            "recipe_slug",
         )
 
     def get_reject_feedback(self, obj):

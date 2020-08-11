@@ -66,13 +66,15 @@ describe("<App />", () => {
       });
     });
 
-    const { getByText, getByDisplayValue } = renderWithRouter(<App />, {
+    const { getByText, getAllByText } = renderWithRouter(<App />, {
       route: "/test-slug/",
     });
-    expect(getByText("Experiment Summary")).toBeInTheDocument();
 
     await waitFor(() => {
-      return expect(getByDisplayValue("test@owner.com")).toBeInTheDocument();
+      return expect(getAllByText("Test Name")).toHaveLength(2);
+    });
+    await waitFor(() => {
+      return expect(getByText("test@owner.com")).toBeInTheDocument();
     });
   });
 });
