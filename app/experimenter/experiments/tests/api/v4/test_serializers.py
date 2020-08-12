@@ -42,7 +42,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             data,
             {
                 "id": recipe_slug,
-                "filter_expression": "env.version|versionCompare('80.0') >= 0",
+                "filter_expression": "env.version|versionCompare('80.!') >= 0",
                 "targeting": None,
                 "enabled": True,
             },
@@ -115,7 +115,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             data,
             {
                 "id": recipe_slug,
-                "filter_expression": "env.version|versionCompare('80.0') >= 0",
+                "filter_expression": "env.version|versionCompare('80.!') >= 0",
                 "targeting": '[userId, "experimenter-recipe-slug"]'
                 "|bucketSample(0, 100, 10000) "
                 "&& localeLanguageCode == 'en' && region == 'US' "
