@@ -31,7 +31,7 @@ def push_experiment_to_kinto(experiment_id):
     experiment = Experiment.objects.get(id=experiment_id)
     if not ExperimentBucketRange.objects.filter(experiment=experiment).exists():
         ExperimentBucketNamespace.request_namespace_buckets(
-            experiment.normandy_slug,
+            experiment.recipe_slug,
             experiment,
             NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"]["arguments"][
                 "bucketConfig"
@@ -54,7 +54,7 @@ def push_experiment_to_kinto(experiment_id):
 
 
 def update_rejected_record(record_id, rejected_data):
-    experiment = Experiment.objects.get(normandy_slug=record_id)
+    experiment = Experiment.objects.get(recipe_slug=record_id)
     update_experiment_with_change_log(
         experiment,
         {"status": Experiment.STATUS_REJECTED},
@@ -91,7 +91,7 @@ def check_kinto_push_queue():
             {
                 "status": Experiment.STATUS_ACCEPTED,
                 "proposed_start_date": datetime.date.today(),
-                "normandy_slug": next_experiment.generate_normandy_slug(),
+                "recipe_slug": next_experiment.generate_recipe_slug(),
             },
             settings.KINTO_DEFAULT_CHANGELOG_USER,
         )
@@ -117,7 +117,7 @@ def check_experiment_is_live():
     record_ids = [r.get("id") for r in records]
 
     for experiment in accepted_experiments:
-        if experiment.normandy_slug in record_ids:
+        if experiment.recipe_slug in record_ids:
             logger.info(
                 "{experiment} status is being updated to live".format(
                     experiment=experiment
@@ -147,7 +147,7 @@ def check_experiment_is_complete():
     record_ids = [r.get("id") for r in records]
 
     for experiment in live_experiments:
-        if experiment.normandy_slug not in record_ids:
+        if experiment.recipe_slug not in record_ids:
             logger.info(
                 "{experiment} status is being updated to complete".format(
                     experiment=experiment

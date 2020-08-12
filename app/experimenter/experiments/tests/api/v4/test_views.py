@@ -30,7 +30,7 @@ class TestExperimentListView(TestCase):
 
         json_data = json.loads(response.content)
         json_slugs = set([d["id"] for d in json_data])
-        expected_slugs = set(e.normandy_slug for e in experiments)
+        expected_slugs = set(e.recipe_slug for e in experiments)
         self.assertEqual(json_slugs, expected_slugs)
 
         json_data_names = set([d["arguments"]["userFacingName"] for d in json_data])
@@ -46,13 +46,13 @@ class TestExperimentRapidRecipeView(TestCase):
             objectives="gotta go fast",
             audience="us_only",
             features=["pinned_tabs"],
-            normandy_slug="normandy-slug",
+            recipe_slug="recipe-slug",
         )
 
         response = self.client.get(
             reverse(
                 "experiment-rapid-recipe-detail",
-                kwargs={"normandy_slug": experiment.normandy_slug},
+                kwargs={"recipe_slug": experiment.recipe_slug},
             ),
         )
 
@@ -71,7 +71,7 @@ class TestExperimentRapidRecipeView(TestCase):
         response = self.client.get(
             reverse(
                 "experiment-rapid-recipe-detail",
-                kwargs={"normandy_slug": experiment.normandy_slug},
+                kwargs={"recipe_slug": experiment.recipe_slug},
             ),
         )
 

@@ -755,7 +755,7 @@ class ExperimentCSVSerializer(serializers.ModelSerializer):
             "data_science_issue_url",
             "feature_bugzilla_url",
             "firefox_channel",
-            "normandy_slug",
+            "recipe_slug",
             "proposed_duration",
             "proposed_start_date",
             "related_to",
