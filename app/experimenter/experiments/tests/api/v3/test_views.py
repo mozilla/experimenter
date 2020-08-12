@@ -12,6 +12,24 @@ from experimenter.openidc.tests.factories import UserFactory
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
 
+FAKE_VARIANTS = [
+    {
+        "slug": "control",
+        "name": "control",
+        "ratio": 50,
+        "description": "a variant",
+        "is_control": True,
+    },
+    {
+        "slug": "variant",
+        "name": "variant",
+        "ratio": 50,
+        "description": "a variant",
+        "is_control": False,
+    },
+]
+
+
 class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
     def test_get_detail_returns_data_for_rapid_experiment(self):
         user_email = "user@example.com"
@@ -79,6 +97,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
                 "features": features,
                 "firefox_min_version": firefox_min_version,
                 "firefox_channel": Experiment.CHANNEL_RELEASE,
+                "variants": FAKE_VARIANTS,
             }
         )
 
@@ -114,6 +133,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
                 "features": features,
                 "firefox_min_version": firefox_min_version,
                 "firefox_channel": Experiment.CHANNEL_RELEASE,
+                "variants": FAKE_VARIANTS,
             }
         )
 
