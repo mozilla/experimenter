@@ -2,7 +2,11 @@
 {% load static%}
 
 
+{% load static %}
+
 {% block main %}
+  <link rel="stylesheet" href="{% static "assets/pibal/bundle.css" %}" />
+  <script src="{% static "assets/pibal/bundle.js" %}"></script>
   <div class="w-100" data-react-dom-render="rapid"></div>
 {% endblock %}
 

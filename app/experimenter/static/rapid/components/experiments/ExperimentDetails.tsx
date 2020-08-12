@@ -58,6 +58,15 @@ const ExperimentDetails: React.FC = () => {
 
   const handleClickRequestApproval = async () => dispatch(requestReview());
 
+  React.useEffect(() => {
+    const pibalRoot = document.getElementById("pibal-root");
+    if (!pibalRoot) {
+      return;
+    }
+
+    window.initSvelte(pibalRoot);
+  });
+
   useInterval(() => {
     if (experimentData.slug) {
       dispatch(fetchExperiment(experimentData.slug));
@@ -127,6 +136,7 @@ const ExperimentDetails: React.FC = () => {
             here
           </a>
         </p>
+        <div id="pibal-root"></div>
       </>
     );
   }
