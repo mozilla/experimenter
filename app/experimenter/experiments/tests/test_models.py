@@ -94,9 +94,7 @@ class TestExperimentModel(TestCase):
 
     def test_monitoring_dashboard_url_is_none_when_experiment_not_begun(self):
         experiment = ExperimentFactory.create(
-            slug="experiment",
-            status=Experiment.STATUS_DRAFT,
-            normandy_slug="normandy-slug",
+            slug="experiment", status=Experiment.STATUS_DRAFT, recipe_slug="recipe-slug",
         )
         self.assertIsNone(experiment.monitoring_dashboard_url)
 
@@ -105,7 +103,7 @@ class TestExperimentModel(TestCase):
             type=Experiment.TYPE_PREF,
             slug="experiment",
             status=Experiment.STATUS_LIVE,
-            normandy_slug="normandy-slug",
+            recipe_slug="recipe-slug",
         )
 
         ExperimentChangeLogFactory.create(
@@ -120,7 +118,7 @@ class TestExperimentModel(TestCase):
         self.assertEqual(
             experiment.monitoring_dashboard_url,
             settings.MONITORING_URL.format(
-                slug=experiment.normandy_slug,
+                slug=experiment.recipe_slug,
                 from_date=changed_on_in_milliseconds,
                 to_date="",
             ),
@@ -131,7 +129,7 @@ class TestExperimentModel(TestCase):
             type=Experiment.TYPE_PREF,
             slug="experiment",
             status=Experiment.STATUS_COMPLETE,
-            normandy_slug="normandy-slug",
+            recipe_slug="recipe-slug",
         )
 
         ExperimentChangeLogFactory.create(
@@ -154,7 +152,7 @@ class TestExperimentModel(TestCase):
         self.assertEqual(
             experiment.monitoring_dashboard_url,
             settings.MONITORING_URL.format(
-                slug=experiment.normandy_slug,
+                slug=experiment.recipe_slug,
                 from_date=started_on_in_milliseconds,
                 to_date=completed_on_in_milliseconds,
             ),
@@ -165,7 +163,7 @@ class TestExperimentModel(TestCase):
             type=Experiment.TYPE_ADDON,
             slug="experiment",
             status=Experiment.STATUS_LIVE,
-            normandy_slug="normandy-slug",
+            recipe_slug="recipe-slug",
         )
 
         ExperimentChangeLogFactory.create(
@@ -180,7 +178,7 @@ class TestExperimentModel(TestCase):
         self.assertEqual(
             experiment.monitoring_dashboard_url,
             settings.MONITORING_URL.format(
-                slug=experiment.normandy_slug,
+                slug=experiment.recipe_slug,
                 from_date=changed_on_in_milliseconds,
                 to_date="",
             ),
@@ -210,15 +208,13 @@ class TestExperimentModel(TestCase):
 
     def test_has_external_urls_is_true_when_monitoring_dashboard_url_is_set(self):
         experiment = ExperimentFactory.create(
-            status=Experiment.STATUS_LIVE, normandy_slug="normandy-slug"
+            status=Experiment.STATUS_LIVE, recipe_slug="recipe-slug"
         )
         self.assertTrue(experiment.has_external_urls)
 
     def test_has_external_urls_is_true_when_bugzilla_and_monitoring_set(self):
         experiment = ExperimentFactory.create(
-            status=Experiment.STATUS_LIVE,
-            bugzilla_id="1234",
-            normandy_slug="normandy-slug",
+            status=Experiment.STATUS_LIVE, bugzilla_id="1234", recipe_slug="recipe-slug",
         )
         self.assertTrue(experiment.has_external_urls)
 
@@ -234,7 +230,7 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create(type=Experiment.TYPE_ADDON)
         self.assertTrue(experiment.should_use_normandy)
 
-    def test_generate_normandy_slug_raises_valueerror_without_version(self):
+    def test_generate_recipe_slug_raises_valueerror_without_version(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
             slug="experiment-slug",
@@ -244,9 +240,9 @@ class TestExperimentModel(TestCase):
         )
 
         with self.assertRaises(ValueError):
-            experiment.generate_normandy_slug()
+            experiment.generate_recipe_slug()
 
-    def test_generate_normandy_slug_raises_valueerror_without_channel(self):
+    def test_generate_recipe_slug_raises_valueerror_without_channel(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
             slug="experiment-slug",
@@ -256,9 +252,9 @@ class TestExperimentModel(TestCase):
         )
 
         with self.assertRaises(ValueError):
-            experiment.generate_normandy_slug()
+            experiment.generate_recipe_slug()
 
-    def test_generate_normandy_slug_raises_valueerror_without_bugzilla(self):
+    def test_generate_recipe_slug_raises_valueerror_without_bugzilla(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
             slug="experiment-slug",
@@ -268,9 +264,9 @@ class TestExperimentModel(TestCase):
         )
 
         with self.assertRaises(ValueError):
-            experiment.generate_normandy_slug()
+            experiment.generate_recipe_slug()
 
-    def test_generate_normandy_slug_returns_slug_with_min_max_version(self):
+    def test_generate_recipe_slug_returns_slug_with_min_max_version(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
             name="Experiment Name",
@@ -282,11 +278,11 @@ class TestExperimentModel(TestCase):
         )
 
         self.assertEqual(
-            experiment.generate_normandy_slug(),
+            experiment.generate_recipe_slug(),
             "bug-12345-pref-experiment-name-nightly-57-59",
         )
 
-    def test_generate_normandy_slug_returns_slug_with_min_version(self):
+    def test_generate_recipe_slug_returns_slug_with_min_version(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
             name="Experiment Name",
@@ -298,11 +294,11 @@ class TestExperimentModel(TestCase):
         )
 
         self.assertEqual(
-            experiment.generate_normandy_slug(),
+            experiment.generate_recipe_slug(),
             "bug-12345-pref-experiment-name-nightly-57",
         )
 
-    def test_generate_normandy_slug_raises_valueerror_without_addon_info(self):
+    def test_generate_recipe_slug_raises_valueerror_without_addon_info(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_ADDON,
             addon_experiment_id=None,
@@ -310,18 +306,18 @@ class TestExperimentModel(TestCase):
         )
 
         with self.assertRaises(ValueError):
-            experiment.generate_normandy_slug()
+            experiment.generate_recipe_slug()
 
-    def test_generate_normandy_slug_uses_addon_info_for_addon_experiment(self):
+    def test_generate_recipe_slug_uses_addon_info_for_addon_experiment(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_ADDON,
             addon_experiment_id="addon_experiment_id",
             firefox_min_version="60.0",
         )
 
-        self.assertEqual(experiment.generate_normandy_slug(), "addon_experiment_id")
+        self.assertEqual(experiment.generate_recipe_slug(), "addon_experiment_id")
 
-    def test_generate_normandy_slug_uses_addon_info_for_branched_addon_experiment(self):
+    def test_generate_recipe_slug_uses_addon_info_for_branched_addon_experiment(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_ADDON,
             name="some random name",
@@ -331,24 +327,24 @@ class TestExperimentModel(TestCase):
         )
         self.assertEqual(
             "bug-12345-addon-some-random-name-beta-70-71",
-            experiment.generate_normandy_slug(),
+            experiment.generate_recipe_slug(),
         )
 
-    def test_generate_normandy_slug_is_shorter_than_max_normandy_len(self):
+    def test_generate_recipe_slug_is_shorter_than_max_normandy_len(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
-            name="a" * (settings.NORMANDY_SLUG_MAX_LEN + 1),
+            name="a" * (settings.RECIPE_SLUG_MAX_LEN + 1),
             firefox_min_version="57.0",
             firefox_max_version="59.0",
             firefox_channel="Nightly",
             bugzilla_id="12345",
         )
 
-        self.assertGreater(len(experiment.name), settings.NORMANDY_SLUG_MAX_LEN)
+        self.assertGreater(len(experiment.name), settings.RECIPE_SLUG_MAX_LEN)
 
-        normandy_slug = experiment.generate_normandy_slug()
+        recipe_slug = experiment.generate_recipe_slug()
 
-        self.assertEqual(len(normandy_slug), settings.NORMANDY_SLUG_MAX_LEN)
+        self.assertEqual(len(recipe_slug), settings.RECIPE_SLUG_MAX_LEN)
 
     def test_is_rollout_false_for_not_type_rollout(self):
         experiment = ExperimentFactory.create(type=Experiment.TYPE_PREF)
@@ -376,15 +372,15 @@ class TestExperimentModel(TestCase):
         self.assertEqual(recipe_json, ExperimentRecipeSerializer(experiment).data)
 
     def test_has_normandy_info_not_true_if_missing_normandy_info(self):
-        experiment = ExperimentFactory.create(normandy_id=None, normandy_slug=None)
+        experiment = ExperimentFactory.create(normandy_id=None, recipe_slug=None)
         self.assertFalse(experiment.has_normandy_info)
 
-    def test_has_normandy_info_true_with_normandy_slug(self):
-        experiment = ExperimentFactory.create(normandy_id=None, normandy_slug="abc")
+    def test_has_normandy_info_true_with_recipe_slug(self):
+        experiment = ExperimentFactory.create(normandy_id=None, recipe_slug="abc")
         self.assertTrue(experiment.has_normandy_info)
 
     def test_has_normandy_info_true_with_normandy_id(self):
-        experiment = ExperimentFactory.create(normandy_id="123", normandy_slug=None)
+        experiment = ExperimentFactory.create(normandy_id="123", recipe_slug=None)
         self.assertTrue(experiment.has_normandy_info)
 
     def test_format_dc_normandy_urls_returns_empty_list_without_normandy_id(self):

@@ -67,7 +67,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "proposed_enrollment",
                     "proposed_duration",
                     "bugzilla_id",
-                    "normandy_slug",
+                    "recipe_slug",
                     "normandy_id",
                     "other_normandy_ids",
                     "data_science_issue_url",

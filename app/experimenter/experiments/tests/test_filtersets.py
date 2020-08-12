@@ -150,7 +150,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             analysis="",
             engineering_owner="",
             bugzilla_id="4",
-            normandy_slug="",
+            recipe_slug="",
         )
 
         exp_2 = ExperimentFactory.create_with_status(
@@ -166,7 +166,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             analysis="",
             engineering_owner="",
             bugzilla_id="5",
-            normandy_slug="",
+            recipe_slug="",
         )
 
         exp_3 = ExperimentFactory.create_with_status(
@@ -182,7 +182,7 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
             analysis="",
             engineering_owner="",
             bugzilla_id="6",
-            normandy_slug="",
+            recipe_slug="",
         )
 
         first_response_context = self.client.get(

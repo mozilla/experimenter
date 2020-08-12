@@ -155,7 +155,7 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
             )
 
             if status_value == Experiment.STATUS_SHIP:
-                experiment.normandy_slug = experiment.generate_normandy_slug()
+                experiment.recipe_slug = experiment.generate_recipe_slug()
 
             if status_value == target_status:
                 break

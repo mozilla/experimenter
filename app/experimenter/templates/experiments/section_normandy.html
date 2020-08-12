@@ -1,56 +1,44 @@
-{% extends "experiments/section_base.html" %}
+{% extends "experiments/section_base.html" %} {% block section_title %} Normandy
+Info {% endblock %} {% block section_content %} {% if experiment.recipe_slug %}
+<p>
+  <strong class="mr-2">Normandy Recipe Slug: </strong>
+</p>
+<p><code>{{ experiment.recipe_slug }}</code></p>
+{% endif %} {% if experiment.normandy_id %}
+<p><strong>Normandy Recipe IDs:</strong></p>
 
-{% block section_title %}
-Normandy Info
-{% endblock %}
-
-{% block section_content %}
-  {% if experiment.normandy_slug %}
-    <p>
-      <strong class="mr-2">Normandy Recipe Slug: </strong>
-    </p>
-    <p><code>{{ experiment.normandy_slug }}</code></p>
+{% for entry in experiment.format_dc_normandy_urls %}
+<p class="mb-3">
+  <code>{{ entry.id }}</code> :
+  <span data-ndt-add-class="d-none">
+    <a href="{{ entry.DC_url }}" target="blank" rel="noreferrer noopener">
+      Delivery Console Recipe
+    </a>
+    |
+  </span>
+  <span class="d-none" data-ndt-remove-class="d-none">
+    <a
+      data-ndt-inject="recipe-details-link"
+      data-recipe-id="{{ entry.id }}"
+      target="_blank"
+      rel="noreferrer noopener"
+    >
+      Normandy Devtools Recipe
+    </a>
+    |
+  </span>
+  <a href="{{ entry.normandy_url }}" target="blank" rel="noreferrer noopener">
+    Normandy API Recipe
+  </a>
+  {% if experiment.normandy_id == entry.id %}
+  <span class="badge badge-secondary">Primary</span>
   {% endif %}
-
-  {% if experiment.normandy_id  %}
-    <p><strong>Normandy Recipe IDs:</strong></p>
-
-    {% for entry in experiment.format_dc_normandy_urls %}
-      <p class="mb-3">
-        <code>{{ entry.id }}</code> :
-        <span data-ndt-add-class="d-none">
-          <a href="{{ entry.DC_url }}" target="blank" rel="noreferrer noopener">
-            Delivery Console Recipe
-          </a> |
-        </span>
-        <span
-          class="d-none"
-          data-ndt-remove-class="d-none"
-        >
-          <a
-            data-ndt-inject="recipe-details-link"
-            data-recipe-id="{{ entry.id }}"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            Normandy Devtools Recipe
-          </a> |
-        </span>
-        <a href="{{ entry.normandy_url }}" target="blank" rel="noreferrer noopener">
-          Normandy API Recipe
-        </a>
-        {% if experiment.normandy_id == entry.id %}
-          <span class="badge badge-secondary">Primary</span>
-        {% endif %}
-      </p>
-    {% endfor %}
-  {% elif experiment.is_ready_to_launch %}
-    <p>
-      <strong class="mr-2">Normandy Recipe Data: </strong>
-    </p>
-    <p>
-      <a href="{{ experiment.api_recipe_url }}" target="_blank">Preview</a>
-    </p>
-  {% endif %}
-
-{% endblock %}
+</p>
+{% endfor %} {% elif experiment.is_ready_to_launch %}
+<p>
+  <strong class="mr-2">Normandy Recipe Data: </strong>
+</p>
+<p>
+  <a href="{{ experiment.api_recipe_url }}" target="_blank">Preview</a>
+</p>
+{% endif %} {% endblock %}

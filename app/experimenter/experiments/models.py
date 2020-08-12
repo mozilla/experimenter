@@ -230,7 +230,7 @@ class Experiment(ExperimentConstants, models.Model):
     engineering_owner = models.CharField(max_length=255, blank=True, null=True)
 
     bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
-    normandy_slug = models.CharField(max_length=255, blank=True, null=True)
+    recipe_slug = models.CharField(max_length=255, blank=True, null=True)
     normandy_id = models.PositiveIntegerField(blank=True, null=True)
     other_normandy_ids = ArrayField(models.IntegerField(), blank=True, null=True)
 
@@ -343,14 +343,14 @@ class Experiment(ExperimentConstants, models.Model):
         start_date = ""
         end_date = ""
 
-        if self.is_begun and self.normandy_slug:
+        if self.is_begun and self.recipe_slug:
             start_date = to_timestamp(self.start_date - datetime.timedelta(days=1))
 
             if self.status == self.STATUS_COMPLETE:
                 end_date = to_timestamp(self.end_date + datetime.timedelta(days=2))
 
             return settings.MONITORING_URL.format(
-                slug=self.normandy_slug, from_date=start_date, to_date=end_date
+                slug=self.recipe_slug, from_date=start_date, to_date=end_date
             )
 
     @property
@@ -362,7 +362,7 @@ class Experiment(ExperimentConstants, models.Model):
             self.TYPE_MESSAGE,
         )
 
-    def generate_normandy_slug(self):
+    def generate_recipe_slug(self):
         if self.is_addon_experiment and not self.use_branched_addon_serializer:
             if not self.addon_experiment_id:
                 raise ValueError(
@@ -393,7 +393,7 @@ class Experiment(ExperimentConstants, models.Model):
 
         slug_prefix = f"bug-{self.bugzilla_id}-{self.type}-"
         slug_postfix = f"-{self.firefox_channel}-{version_string}"
-        remaining_chars = settings.NORMANDY_SLUG_MAX_LEN - len(slug_prefix + slug_postfix)
+        remaining_chars = settings.RECIPE_SLUG_MAX_LEN - len(slug_prefix + slug_postfix)
         truncated_slug = slugify(self.name[:remaining_chars])
         return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
 
@@ -405,7 +405,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def has_normandy_info(self):
-        return self.normandy_slug or self.normandy_id
+        return self.recipe_slug or self.normandy_id
 
     @property
     def format_dc_normandy_urls(self):
@@ -999,7 +999,7 @@ class Experiment(ExperimentConstants, models.Model):
         set_to_none_fields = [
             "addon_experiment_id",
             "addon_release_url",
-            "normandy_slug",
+            "recipe_slug",
             "normandy_id",
             "other_normandy_ids",
             "bugzilla_id",
