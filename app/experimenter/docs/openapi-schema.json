@@ -7692,7 +7692,8 @@
                     },
                     "recipe_slug": {
                       "type": "string",
-                      "readOnly": true
+                      "nullable": true,
+                      "maxLength": 255
                     }
                   },
                   "required": [
@@ -7820,6 +7821,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -7923,6 +7929,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -8026,6 +8037,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -8157,7 +8173,8 @@
                     },
                     "recipe_slug": {
                       "type": "string",
-                      "readOnly": true
+                      "nullable": true,
+                      "maxLength": 255
                     }
                   },
                   "required": [
@@ -8285,6 +8302,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 }
               }
@@ -8380,6 +8402,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 }
               }
@@ -8475,6 +8502,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 }
               }
@@ -8598,7 +8630,8 @@
                     },
                     "recipe_slug": {
                       "type": "string",
-                      "readOnly": true
+                      "nullable": true,
+                      "maxLength": 255
                     }
                   },
                   "required": [
@@ -8975,6 +9008,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -9078,6 +9116,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -9181,6 +9224,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -9312,7 +9360,8 @@
                     },
                     "recipe_slug": {
                       "type": "string",
-                      "readOnly": true
+                      "nullable": true,
+                      "maxLength": 255
                     }
                   },
                   "required": [
@@ -9442,6 +9491,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -9545,6 +9599,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -9648,6 +9707,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -9779,7 +9843,8 @@
                     },
                     "recipe_slug": {
                       "type": "string",
-                      "readOnly": true
+                      "nullable": true,
+                      "maxLength": 255
                     }
                   },
                   "required": [
