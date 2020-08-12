@@ -16,15 +16,15 @@ const App: React.FC = () => {
   return (
     <Switch>
       <Route exact path="/">
-        <Link to="/new/">Create a new experiment</Link>
+        <Link to="/new">Create a new experiment</Link>
       </Route>
-      <Route exact path="/new/">
+      <Route path="/new">
         <ExperimentFormPage />
       </Route>
-      <Route exact path="/:experimentSlug/edit/">
+      <Route path="/:experimentSlug/edit">
         <ExperimentFormPage />
       </Route>
-      <Route exact path="/:experimentSlug/">
+      <Route exact path="/:experimentSlug">
         <ExperimentDetailsPage />
       </Route>
       <Route>
