@@ -15,6 +15,7 @@ services:
       - /app/node_modules/
       - /app/experimenter/static/core/node_modules/
       - /app/experimenter/static/rapid/node_modules/
+      - /app/experimenter/static/pibal/node_modules/
       - assets_volume:/app/experimenter/static/assets/
       - static_volume:/app/experimenter/served/
     command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py collectstatic --noinput;python /app/manage.py runserver 0:7001"
@@ -45,6 +46,18 @@ services:
       - assets_volume:/app/experimenter/static/assets/
       - static_volume:/app/experimenter/served/
     command: bash -c "yarn workspace @experimenter/rapid watch"
+
+  yarn-pibal:
+    image: app:build
+    env_file: .env
+    tty: true
+    volumes:
+      - ./app:/app
+      - /app/node_modules/
+      - /app/experimenter/static/pibal/node_modules/
+      - assets_volume:/app/experimenter/static/assets/
+      - static_volume:/app/experimenter/served/
+    command: bash -c "yarn workspace @experimenter/pibal watch"
 
   worker:
     image: app:build
