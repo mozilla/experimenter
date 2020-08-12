@@ -53,7 +53,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "reject_feedback": None,
                 "owner": "owner@example.com",
                 "slug": "rapid-experiment",
-                "recipe_slug": experiment.normandy_slug,
+                "recipe_slug": experiment.recipe_slug,
                 "status": Experiment.STATUS_DRAFT,
             },
         )
@@ -94,7 +94,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "owner": "owner@example.com",
                 "reject_feedback": None,
                 "slug": "rapid-experiment",
-                "recipe_slug": experiment.normandy_slug,
+                "recipe_slug": experiment.recipe_slug,
                 "status": Experiment.STATUS_LIVE,
             },
         )
@@ -149,7 +149,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                     "message": "It's no good",
                 },
                 "slug": "rapid-experiment",
-                "recipe_slug": experiment.normandy_slug,
+                "recipe_slug": experiment.recipe_slug,
                 "status": Experiment.STATUS_REJECTED,
             },
         )

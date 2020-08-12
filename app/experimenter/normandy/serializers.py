@@ -186,7 +186,7 @@ class ExperimentRecipeMultiPrefVariantSerializer(serializers.ModelSerializer):
 
 class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
     preferenceBranchType = serializers.ReadOnlyField(source="pref_branch")
-    slug = serializers.ReadOnlyField(source="normandy_slug")
+    slug = serializers.ReadOnlyField(source="recipe_slug")
     experimentDocumentUrl = serializers.ReadOnlyField(source="experiment_url")
     preferenceName = serializers.ReadOnlyField(source="pref_name")
     preferenceType = PrefTypeField(source="pref_type")
@@ -205,7 +205,7 @@ class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
 
 
 class ExperimentRecipeBranchedArgumentsSerializer(serializers.ModelSerializer):
-    slug = serializers.ReadOnlyField(source="normandy_slug")
+    slug = serializers.ReadOnlyField(source="recipe_slug")
     userFacingName = userFacingDescription = serializers.ReadOnlyField(source="name")
     userFacingDescription = serializers.ReadOnlyField(source="public_description")
     branches = serializers.SerializerMethodField()
@@ -218,7 +218,7 @@ class ExperimentRecipeBranchedArgumentsSerializer(serializers.ModelSerializer):
 class ExperimentRecipeBranchedAddonArgumentsSerializer(
     ExperimentRecipeBranchedArgumentsSerializer
 ):
-    slug = serializers.ReadOnlyField(source="normandy_slug")
+    slug = serializers.ReadOnlyField(source="recipe_slug")
     branches = serializers.SerializerMethodField()
 
     class Meta:
@@ -232,7 +232,7 @@ class ExperimentRecipeBranchedAddonArgumentsSerializer(
 class ExperimentRecipeMultiPrefArgumentsSerializer(
     ExperimentRecipeBranchedArgumentsSerializer
 ):
-    slug = serializers.ReadOnlyField(source="normandy_slug")
+    slug = serializers.ReadOnlyField(source="recipe_slug")
     branches = serializers.SerializerMethodField()
     experimentDocumentUrl = serializers.ReadOnlyField(source="experiment_url")
 
@@ -260,7 +260,7 @@ class ExperimentRecipeAddonArgumentsSerializer(serializers.ModelSerializer):
 
 
 class ExperimentRecipeAddonRolloutArgumentsSerializer(serializers.ModelSerializer):
-    slug = serializers.ReadOnlyField(source="normandy_slug")
+    slug = serializers.ReadOnlyField(source="recipe_slug")
     extensionApiId = serializers.SerializerMethodField()
 
     class Meta:
@@ -281,7 +281,7 @@ class RolloutPrefRecipeSerializer(serializers.ModelSerializer):
 
 
 class ExperimentRecipePrefRolloutArgumentsSerializer(serializers.ModelSerializer):
-    slug = serializers.ReadOnlyField(source="normandy_slug")
+    slug = serializers.ReadOnlyField(source="recipe_slug")
     preferences = RolloutPrefRecipeSerializer(many=True)
 
     class Meta:
@@ -304,7 +304,7 @@ class ExperimentRecipeMessageVariantSerializer(serializers.ModelSerializer):
 class ExperimentRecipeMessageArgumentsSerializer(
     ExperimentRecipeBranchedArgumentsSerializer
 ):
-    slug = serializers.ReadOnlyField(source="normandy_slug")
+    slug = serializers.ReadOnlyField(source="recipe_slug")
     branches = serializers.SerializerMethodField()
     experimentDocumentUrl = serializers.ReadOnlyField(source="experiment_url")
 

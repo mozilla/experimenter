@@ -42,7 +42,7 @@ class ExperimentBucketRangeSerializer(serializers.ModelSerializer):
 
 
 class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
-    slug = serializers.ReadOnlyField(source="normandy_slug")
+    slug = serializers.ReadOnlyField(source="recipe_slug")
     userFacingName = serializers.ReadOnlyField(source="name")
     userFacingDescription = serializers.ReadOnlyField(source="public_description")
     active = serializers.ReadOnlyField(default=True)
@@ -95,7 +95,7 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
 
 
 class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(source="normandy_slug")
+    id = serializers.ReadOnlyField(source="recipe_slug")
     arguments = ExperimentRapidArgumentSerializer(source="*")
     enabled = serializers.ReadOnlyField(default=True)
     filter_expression = serializers.SerializerMethodField()
@@ -143,7 +143,7 @@ class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):
             bucket_total = bucket_config["total"]
             audience_targeting = NIMBUS_DATA["Audiences"][obj.audience][
                 "targeting"
-            ].format(slug=obj.normandy_slug, firefox_channel=obj.firefox_channel.lower(),)
+            ].format(slug=obj.recipe_slug, firefox_channel=obj.firefox_channel.lower(),)
 
             targeting_string = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"][
                 "preset"

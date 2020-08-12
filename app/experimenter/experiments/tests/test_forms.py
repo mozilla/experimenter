@@ -915,7 +915,7 @@ class TestExperimentStatusForm(
         experiment = form.save()
         self.mock_tasks_create_bug.delay.assert_called_with(self.user.id, experiment.id)
 
-    def test_adds_bugzilla_comment_and_normandy_slug_when_becomes_ship(self):
+    def test_adds_bugzilla_comment_and_recipe_slug_when_becomes_ship(self):
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_REVIEW,
             type=Experiment.TYPE_PREF,
@@ -926,7 +926,7 @@ class TestExperimentStatusForm(
             firefox_channel=Experiment.CHANNEL_NIGHTLY,
             bugzilla_id="12345",
         )
-        self.assertEqual(experiment.normandy_slug, None)
+        self.assertEqual(experiment.recipe_slug, None)
 
         form = ExperimentStatusForm(
             request=self.request,
@@ -938,7 +938,7 @@ class TestExperimentStatusForm(
         experiment = form.save()
 
         self.assertEqual(
-            experiment.normandy_slug, "bug-12345-pref-experiment-name-nightly-57"
+            experiment.recipe_slug, "bug-12345-pref-experiment-name-nightly-57"
         )
         self.mock_tasks_update_experiment_bug.delay.assert_called_with(
             self.user.id, experiment.id

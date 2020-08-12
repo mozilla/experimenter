@@ -2057,7 +2057,7 @@ class TestExperimentCSVSerializer(TestCase):
                 "data_science_issue_url": experiment.data_science_issue_url,
                 "feature_bugzilla_url": experiment.feature_bugzilla_url,
                 "firefox_channel": experiment.firefox_channel,
-                "normandy_slug": experiment.normandy_slug,
+                "recipe_slug": experiment.recipe_slug,
                 "proposed_duration": experiment.proposed_duration,
                 "proposed_start_date": "2020-01-01",
                 "related_to": (
