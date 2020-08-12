@@ -132,7 +132,8 @@
                         "Ship",
                         "Accepted",
                         "Live",
-                        "Complete"
+                        "Complete",
+                        "Rejected"
                       ]
                     },
                     "client_matching": {
@@ -487,7 +488,8 @@
                               "Ship",
                               "Accepted",
                               "Live",
-                              "Complete"
+                              "Complete",
+                              "Rejected"
                             ]
                           },
                           "old_status": {
@@ -497,7 +499,8 @@
                               "Ship",
                               "Accepted",
                               "Live",
-                              "Complete"
+                              "Complete",
+                              "Rejected"
                             ],
                             "nullable": true
                           }
@@ -549,7 +552,8 @@
                 "Ship",
                 "Accepted",
                 "Live",
-                "Complete"
+                "Complete",
+                "Rejected"
               ]
             }
           }
@@ -596,7 +600,8 @@
                           "Ship",
                           "Accepted",
                           "Live",
-                          "Complete"
+                          "Complete",
+                          "Rejected"
                         ]
                       },
                       "client_matching": {
@@ -951,7 +956,8 @@
                                 "Ship",
                                 "Accepted",
                                 "Live",
-                                "Complete"
+                                "Complete",
+                                "Rejected"
                               ]
                             },
                             "old_status": {
@@ -961,7 +967,8 @@
                                 "Ship",
                                 "Accepted",
                                 "Live",
-                                "Complete"
+                                "Complete",
+                                "Rejected"
                               ],
                               "nullable": true
                             }
@@ -1030,7 +1037,8 @@
                           "Ship",
                           "Accepted",
                           "Live",
-                          "Complete"
+                          "Complete",
+                          "Rejected"
                         ]
                       },
                       "experiment_url": {
@@ -7652,6 +7660,14 @@
                         "100.0"
                       ]
                     },
+                    "firefox_channel": {
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -7678,14 +7694,24 @@
                         "Ship",
                         "Accepted",
                         "Live",
-                        "Complete"
+                        "Complete",
+                        "Rejected"
                       ]
+                    },
+                    "reject_feedback": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "recipe_slug": {
+                      "type": "string",
+                      "readOnly": true
                     }
                   },
                   "required": [
                     "audience",
                     "features",
                     "firefox_min_version",
+                    "firefox_channel",
                     "name",
                     "objectives"
                   ]
@@ -7781,6 +7807,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -7795,7 +7829,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   }
                 },
@@ -7803,6 +7838,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -7874,6 +7910,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -7888,7 +7932,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   }
                 },
@@ -7896,6 +7941,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -7967,6 +8013,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -7981,7 +8035,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   }
                 },
@@ -7989,6 +8044,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -8069,6 +8125,14 @@
                         "100.0"
                       ]
                     },
+                    "firefox_channel": {
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -8095,14 +8159,24 @@
                         "Ship",
                         "Accepted",
                         "Live",
-                        "Complete"
+                        "Complete",
+                        "Rejected"
                       ]
+                    },
+                    "reject_feedback": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "recipe_slug": {
+                      "type": "string",
+                      "readOnly": true
                     }
                   },
                   "required": [
                     "audience",
                     "features",
                     "firefox_min_version",
+                    "firefox_channel",
                     "name",
                     "objectives"
                   ]
@@ -8198,6 +8272,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -8212,7 +8294,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   }
                 }
@@ -8284,6 +8367,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -8298,7 +8389,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   }
                 }
@@ -8370,6 +8462,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -8384,7 +8484,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   }
                 }
@@ -8465,6 +8566,14 @@
                         "100.0"
                       ]
                     },
+                    "firefox_channel": {
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -8491,14 +8600,24 @@
                         "Ship",
                         "Accepted",
                         "Live",
-                        "Complete"
+                        "Complete",
+                        "Rejected"
                       ]
+                    },
+                    "reject_feedback": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "recipe_slug": {
+                      "type": "string",
+                      "readOnly": true
                     }
                   },
                   "required": [
                     "audience",
                     "features",
                     "firefox_min_version",
+                    "firefox_channel",
                     "name",
                     "objectives"
                   ]
@@ -8638,13 +8757,13 @@
         ]
       }
     },
-    "/api/v4/experiments/{slug}/": {
+    "/api/v4/experiments/{normandy_slug}/": {
       "get": {
         "operationId": "retrieveExperiment",
         "description": "",
         "parameters": [
           {
-            "name": "slug",
+            "name": "normandy_slug",
             "in": "path",
             "required": true,
             "description": "",
@@ -8843,6 +8962,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -8857,7 +8984,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   }
                 },
@@ -8865,6 +8993,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -8936,6 +9065,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -8950,7 +9087,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   }
                 },
@@ -8958,6 +9096,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -9029,6 +9168,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -9043,7 +9190,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   }
                 },
@@ -9051,6 +9199,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -9131,6 +9280,14 @@
                         "100.0"
                       ]
                     },
+                    "firefox_channel": {
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -9157,14 +9314,24 @@
                         "Ship",
                         "Accepted",
                         "Live",
-                        "Complete"
+                        "Complete",
+                        "Rejected"
                       ]
+                    },
+                    "reject_feedback": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "recipe_slug": {
+                      "type": "string",
+                      "readOnly": true
                     }
                   },
                   "required": [
                     "audience",
                     "features",
                     "firefox_min_version",
+                    "firefox_channel",
                     "name",
                     "objectives"
                   ]
@@ -9262,6 +9429,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -9276,7 +9451,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   }
                 },
@@ -9284,6 +9460,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -9355,6 +9532,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -9369,7 +9554,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   }
                 },
@@ -9377,6 +9563,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -9448,6 +9635,14 @@
                       "100.0"
                     ]
                   },
+                  "firefox_channel": {
+                    "enum": [
+                      null,
+                      "Nightly",
+                      "Beta",
+                      "Release"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -9462,7 +9657,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   }
                 },
@@ -9470,6 +9666,7 @@
                   "audience",
                   "features",
                   "firefox_min_version",
+                  "firefox_channel",
                   "name",
                   "objectives"
                 ]
@@ -9550,6 +9747,14 @@
                         "100.0"
                       ]
                     },
+                    "firefox_channel": {
+                      "enum": [
+                        null,
+                        "Nightly",
+                        "Beta",
+                        "Release"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -9576,14 +9781,24 @@
                         "Ship",
                         "Accepted",
                         "Live",
-                        "Complete"
+                        "Complete",
+                        "Rejected"
                       ]
+                    },
+                    "reject_feedback": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "recipe_slug": {
+                      "type": "string",
+                      "readOnly": true
                     }
                   },
                   "required": [
                     "audience",
                     "features",
                     "firefox_min_version",
+                    "firefox_channel",
                     "name",
                     "objectives"
                   ]
@@ -9648,7 +9863,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   },
                   "client_matching": {
@@ -9995,7 +10211,8 @@
                             "Ship",
                             "Accepted",
                             "Live",
-                            "Complete"
+                            "Complete",
+                            "Rejected"
                           ]
                         },
                         "old_status": {
@@ -10005,7 +10222,8 @@
                             "Ship",
                             "Accepted",
                             "Live",
-                            "Complete"
+                            "Complete",
+                            "Rejected"
                           ],
                           "nullable": true
                         }
@@ -10063,7 +10281,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   },
                   "client_matching": {
@@ -10410,7 +10629,8 @@
                             "Ship",
                             "Accepted",
                             "Live",
-                            "Complete"
+                            "Complete",
+                            "Rejected"
                           ]
                         },
                         "old_status": {
@@ -10420,7 +10640,8 @@
                             "Ship",
                             "Accepted",
                             "Live",
-                            "Complete"
+                            "Complete",
+                            "Rejected"
                           ],
                           "nullable": true
                         }
@@ -10478,7 +10699,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   },
                   "client_matching": {
@@ -10825,7 +11047,8 @@
                             "Ship",
                             "Accepted",
                             "Live",
-                            "Complete"
+                            "Complete",
+                            "Rejected"
                           ]
                         },
                         "old_status": {
@@ -10835,7 +11058,8 @@
                             "Ship",
                             "Accepted",
                             "Live",
-                            "Complete"
+                            "Complete",
+                            "Rejected"
                           ],
                           "nullable": true
                         }
@@ -10902,7 +11126,8 @@
                         "Ship",
                         "Accepted",
                         "Live",
-                        "Complete"
+                        "Complete",
+                        "Rejected"
                       ]
                     },
                     "client_matching": {
@@ -11257,7 +11482,8 @@
                               "Ship",
                               "Accepted",
                               "Live",
-                              "Complete"
+                              "Complete",
+                              "Rejected"
                             ]
                           },
                           "old_status": {
@@ -11267,7 +11493,8 @@
                               "Ship",
                               "Accepted",
                               "Live",
-                              "Complete"
+                              "Complete",
+                              "Rejected"
                             ],
                             "nullable": true
                           }
@@ -11349,7 +11576,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   },
                   "client_matching": {
@@ -11696,7 +11924,8 @@
                             "Ship",
                             "Accepted",
                             "Live",
-                            "Complete"
+                            "Complete",
+                            "Rejected"
                           ]
                         },
                         "old_status": {
@@ -11706,7 +11935,8 @@
                             "Ship",
                             "Accepted",
                             "Live",
-                            "Complete"
+                            "Complete",
+                            "Rejected"
                           ],
                           "nullable": true
                         }
@@ -11752,7 +11982,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   },
                   "client_matching": {
@@ -12099,7 +12330,8 @@
                             "Ship",
                             "Accepted",
                             "Live",
-                            "Complete"
+                            "Complete",
+                            "Rejected"
                           ]
                         },
                         "old_status": {
@@ -12109,7 +12341,8 @@
                             "Ship",
                             "Accepted",
                             "Live",
-                            "Complete"
+                            "Complete",
+                            "Rejected"
                           ],
                           "nullable": true
                         }
@@ -12155,7 +12388,8 @@
                       "Ship",
                       "Accepted",
                       "Live",
-                      "Complete"
+                      "Complete",
+                      "Rejected"
                     ]
                   },
                   "client_matching": {
@@ -12502,7 +12736,8 @@
                             "Ship",
                             "Accepted",
                             "Live",
-                            "Complete"
+                            "Complete",
+                            "Rejected"
                           ]
                         },
                         "old_status": {
@@ -12512,7 +12747,8 @@
                             "Ship",
                             "Accepted",
                             "Live",
-                            "Complete"
+                            "Complete",
+                            "Rejected"
                           ],
                           "nullable": true
                         }
@@ -12567,7 +12803,8 @@
                         "Ship",
                         "Accepted",
                         "Live",
-                        "Complete"
+                        "Complete",
+                        "Rejected"
                       ]
                     },
                     "client_matching": {
@@ -12922,7 +13159,8 @@
                               "Ship",
                               "Accepted",
                               "Live",
-                              "Complete"
+                              "Complete",
+                              "Rejected"
                             ]
                           },
                           "old_status": {
@@ -12932,7 +13170,8 @@
                               "Ship",
                               "Accepted",
                               "Live",
-                              "Complete"
+                              "Complete",
+                              "Rejected"
                             ],
                             "nullable": true
                           }

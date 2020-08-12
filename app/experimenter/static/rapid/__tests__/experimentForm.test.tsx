@@ -8,7 +8,10 @@ import {
   wrapInExperimentProvider,
 } from "experimenter-rapid/__tests__/utils";
 import ExperimentForm from "experimenter-rapid/components/forms/ExperimentForm";
-import { ExperimentStatus } from "experimenter-rapid/types/experiment";
+import {
+  ExperimentStatus,
+  FirefoxChannel,
+} from "experimenter-rapid/types/experiment";
 
 afterEach(async () => {
   await cleanup();
@@ -96,6 +99,10 @@ describe("<ExperimentForm />", () => {
     const firefoxVersionField = getByLabelText("Firefox Minimum Version");
     await selectEvent.select(firefoxVersionField, "Firefox 78.0");
 
+    // Update the firefox channel field
+    const firefoxChannelField = getByLabelText("Firefox Channel");
+    await selectEvent.select(firefoxChannelField, "Firefox Nightly");
+
     // Click the save button
     fireEvent.click(getByText("Save"));
 
@@ -114,6 +121,7 @@ describe("<ExperimentForm />", () => {
       features: ["picture_in_picture", "pinned_tabs"],
       audience: "us_only",
       firefox_min_version: "78.0",
+      firefox_channel: FirefoxChannel.NIGHTLY,
     });
   });
 
@@ -171,31 +179,37 @@ describe("<ExperimentForm />", () => {
     expect(requestMethod).toEqual("PUT");
     expect(formData).toEqual({
       name: "foo",
+      status: ExperimentStatus.DRAFT,
       objectives: "Test objectives",
     });
   });
 
-  ["name", "objectives", "features", "audience", "firefox_min_version"].forEach(
-    (fieldName) => {
-      it(`shows the appropriate error message for '${fieldName}' on save`, async () => {
-        const { getByText } = renderWithRouter(
-          wrapInExperimentProvider(<ExperimentForm />),
-        );
-        fetchMock.mockOnce(async () => {
-          return {
-            status: 400,
-            body: JSON.stringify({ [fieldName]: ["an error occurred"] }),
-          };
-        });
-
-        // Click the save button
-        fireEvent.click(getByText("Save"));
-
-        // Ensure the error message is shown
-        await waitFor(() =>
-          expect(getByText("an error occurred")).toBeInTheDocument(),
-        );
+  [
+    "name",
+    "objectives",
+    "features",
+    "audience",
+    "firefox_min_version",
+    "firefox_channel",
+  ].forEach((fieldName) => {
+    it(`shows the appropriate error message for '${fieldName}' on save`, async () => {
+      const { getByText } = renderWithRouter(
+        wrapInExperimentProvider(<ExperimentForm />),
+      );
+      fetchMock.mockOnce(async () => {
+        return {
+          status: 400,
+          body: JSON.stringify({ [fieldName]: ["an error occurred"] }),
+        };
       });
-    },
-  );
+
+      // Click the save button
+      fireEvent.click(getByText("Save"));
+
+      // Ensure the error message is shown
+      await waitFor(() =>
+        expect(getByText("an error occurred")).toBeInTheDocument(),
+      );
+    });
+  });
 });

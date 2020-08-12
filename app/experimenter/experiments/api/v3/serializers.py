@@ -4,11 +4,21 @@ from rest_framework import serializers
 from mozilla_nimbus_shared import get_data
 
 from experimenter.bugzilla.tasks import create_experiment_bug_task
-from experimenter.experiments.models import Experiment, ExperimentVariant
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentVariant,
+    ExperimentChangeLog,
+)
 from experimenter.experiments.changelog_utils import ChangelogSerializerMixin
 
 
 NIMBUS_DATA = get_data()
+
+
+class ExperimentRapidRejectChangeLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExperimentChangeLog
+        fields = ("message", "changed_on")
 
 
 class ExperimentRapidChangelogSerializerMixin(ChangelogSerializerMixin):
@@ -33,6 +43,7 @@ class ExperimentRapidSerializer(
     rapid_type = serializers.HiddenField(default=Experiment.RAPID_AA_CFR)
     owner = serializers.ReadOnlyField(source="owner.email")
     slug = serializers.ReadOnlyField()
+    recipe_slug = serializers.ReadOnlyField(source="normandy_slug")
     public_description = serializers.HiddenField(
         default=Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
     )
@@ -47,7 +58,11 @@ class ExperimentRapidSerializer(
     firefox_min_version = serializers.ChoiceField(
         required=True, choices=Experiment.VERSION_CHOICES,
     )
+    firefox_channel = serializers.ChoiceField(
+        required=True, choices=Experiment.CHANNEL_CHOICES
+    )
     monitoring_dashboard_url = serializers.ReadOnlyField()
+    reject_feedback = serializers.SerializerMethodField()
 
     class Meta:
         model = Experiment
@@ -56,6 +71,7 @@ class ExperimentRapidSerializer(
             "bugzilla_url",
             "features",
             "firefox_min_version",
+            "firefox_channel",
             "monitoring_dashboard_url",
             "name",
             "objectives",
@@ -65,7 +81,13 @@ class ExperimentRapidSerializer(
             "slug",
             "status",
             "type",
+            "reject_feedback",
+            "recipe_slug",
         )
+
+    def get_reject_feedback(self, obj):
+        if obj.status == Experiment.STATUS_REJECTED:
+            return ExperimentRapidRejectChangeLogSerializer(obj.changes.latest()).data
 
     def validate(self, data):
         validated_data = super().validate(data)
@@ -94,13 +116,11 @@ class ExperimentRapidSerializer(
         preset_data = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
             "arguments"
         ].copy()
-        audience_data = NIMBUS_DATA["Audiences"][validated_data["audience"]]
 
         validated_data.update(
             {
                 "slug": slugify(validated_data["name"]),
                 "owner": self.context["request"].user,
-                "firefox_channel": audience_data["firefox_channel"],
                 "proposed_duration": preset_data["proposedDuration"],
                 "proposed_enrollment": preset_data["proposedEnrollment"],
             }

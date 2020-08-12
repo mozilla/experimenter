@@ -9,7 +9,10 @@ import {
 import ExperimentDetails, {
   POLL_TIMEOUT,
 } from "experimenter-rapid/components/experiments/ExperimentDetails";
-import { ExperimentStatus } from "experimenter-types/experiment";
+import {
+  ExperimentStatus,
+  FirefoxChannel,
+} from "experimenter-rapid/types/experiment";
 
 describe("<ExperimentDetails />", () => {
   beforeEach(() => {
@@ -21,9 +24,9 @@ describe("<ExperimentDetails />", () => {
     fetchMock.resetMocks();
   });
 
-  it("renders without issues", async () => {
+  it("renders in DRAFT state", async () => {
     await act(async () => {
-      const { getByDisplayValue } = renderWithRouter(
+      const { getByText, getAllByText } = renderWithRouter(
         wrapInExperimentProvider(<ExperimentDetails />, {
           initialState: {
             status: ExperimentStatus.DRAFT,
@@ -34,84 +37,80 @@ describe("<ExperimentDetails />", () => {
             features: ["picture_in_picture", "pinned_tabs"],
             audience: "us_only",
             firefox_min_version: "78.0",
+            firefox_channel: FirefoxChannel.NIGHTLY,
           },
         }),
       );
 
       await waitFor(() => {
-        return expect(getByDisplayValue("test@owner.com")).toBeInTheDocument();
+        return expect(getByText("test@owner.com")).toBeInTheDocument();
       });
 
-      expect(getByDisplayValue("Test Name")).toBeInTheDocument();
-      expect(getByDisplayValue("Test objectives")).toBeInTheDocument();
+      expect(getAllByText("Test Name")).toHaveLength(2);
+      expect(getByText("Test objectives")).toBeInTheDocument();
     });
   });
 
-  it("polls fetchExperiment after timeout", async () => {
+  it("renders in LIVE state", async () => {
     await act(async () => {
-      fetchMock.mockOnce(async () => {
-        return JSON.stringify({
-          status: ExperimentStatus.REVIEW,
-          slug: "test-slug",
-          name: "Test Name",
-          objectives: "Test objectives",
-          owner: "test@owner.com",
-          features: ["FEATURE 1", "FEATURE 2"],
-          audience: "AUDIENCE 1",
-          firefox_min_version: "78.0",
-        });
-      });
-
-      const { getByText } = renderWithRouter(
-        wrapInExperimentProvider(<ExperimentDetails />, {
-          initialState: {
-            status: ExperimentStatus.DRAFT,
-            slug: "test-slug",
-            name: "Test Name",
-            objectives: "Test objectives",
-            owner: "test@owner.com",
-            features: ["picture_in_picture", "pinned_tabs"],
-            audience: "us_only",
-            firefox_min_version: "78.0",
-          },
-        }),
-      );
-
-      await waitFor(() => {
-        return expect(getByText(ExperimentStatus.DRAFT)).toBeInTheDocument();
-      });
-
-      jest.advanceTimersByTime(POLL_TIMEOUT);
-
-      await waitFor(() => {
-        return expect(getByText(ExperimentStatus.REVIEW)).toBeInTheDocument();
-      });
-    });
-  });
-
-  it("renders without progression buttons post launched experiments", async () => {
-    await act(async () => {
-      const { getByDisplayValue, queryByText } = renderWithRouter(
+      const { getByText, queryByText } = renderWithRouter(
         wrapInExperimentProvider(<ExperimentDetails />, {
           initialState: {
             status: ExperimentStatus.LIVE,
             slug: "test-slug",
+            recipe_slug: "bug-123-test-slug",
             name: "Test Name",
             objectives: "Test objectives",
             owner: "test@owner.com",
             features: ["picture_in_picture", "pinned_tabs"],
             audience: "us_only",
+            firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
           },
         }),
       );
 
       await waitFor(() => {
-        return expect(getByDisplayValue("test@owner.com")).toBeInTheDocument();
+        return expect(getByText("test@owner.com")).toBeInTheDocument();
       });
 
+      expect(getByText("bug-123-test-slug")).toBeInTheDocument();
       expect(queryByText("Back")).toBe(null);
       expect(queryByText("Request Approval")).toBe(null);
+    });
+  });
+
+  it("renders in REJECTED state", async () => {
+    await act(async () => {
+      const { getByText } = renderWithRouter(
+        wrapInExperimentProvider(<ExperimentDetails />, {
+          initialState: {
+            status: ExperimentStatus.REJECTED,
+            slug: "test-slug",
+            name: "Test Name",
+            objectives: "Test objectives",
+            owner: "test@owner.com",
+            features: ["picture_in_picture", "pinned_tabs"],
+            audience: "us_only",
+            firefox_min_version: "78.0",
+            firefox_channel: FirefoxChannel.RELEASE,
+            reject_feedback: {
+              changed_on: "2020-07-30T05:37:22.540985Z",
+              message: "It's no good",
+            },
+          },
+        }),
+      );
+
+      await waitFor(() => {
+        return expect(getByText("test@owner.com")).toBeInTheDocument();
+      });
+
+      expect(getByText("Review Feedback")).toBeInTheDocument();
+      expect(getByText("Reject reason: It's no good")).toBeInTheDocument();
+
+      expect(getByText("Back")).not.toHaveAttribute("disabled");
+      expect(getByText("Request Approval")).toHaveAttribute("disabled");
     });
   });
 
@@ -128,6 +127,7 @@ describe("<ExperimentDetails />", () => {
             features: ["picture_in_picture", "pinned_tabs"],
             audience: "us_only",
             firefox_min_version: "78.0",
+            firefox_channel: FirefoxChannel.RELEASE,
             bugzilla_url: "https://example.com",
           },
         }),
@@ -151,12 +151,35 @@ describe("<ExperimentDetails />", () => {
             owner: "test@owner.com",
             features: ["pinned_tabs", "picture_in_picture"],
             audience: "all_english",
+            firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
           },
         }),
       );
 
       expect(queryByText(/Bugzilla ticket/)).toBe(null);
+    });
+  });
+
+  it("renders without recipe_slug when data missing", async () => {
+    await act(async () => {
+      const { queryByText } = renderWithRouter(
+        wrapInExperimentProvider(<ExperimentDetails />, {
+          initialState: {
+            status: ExperimentStatus.DRAFT,
+            slug: "test-slug",
+            name: "Test Name",
+            objectives: "Test objectives",
+            owner: "test@owner.com",
+            features: ["pinned_tabs", "picture_in_picture"],
+            audience: "all_english",
+            firefox_channel: FirefoxChannel.RELEASE,
+            firefox_min_version: "78.0",
+          },
+        }),
+      );
+
+      expect(queryByText(/Experiment slug/)).toBe(null);
     });
   });
 
@@ -174,6 +197,7 @@ describe("<ExperimentDetails />", () => {
             objectives: "Test objectives",
             owner: "test@owner.com",
             slug: "test-slug",
+            firefox_channel: FirefoxChannel.RELEASE,
             status: ExperimentStatus.DRAFT,
           },
         }),
@@ -197,6 +221,7 @@ describe("<ExperimentDetails />", () => {
             owner: "test@owner.com",
             features: ["pinned_tabs", "picture_in_picture"],
             audience: "all_english",
+            firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
           },
         }),
@@ -218,6 +243,7 @@ describe("<ExperimentDetails />", () => {
             owner: "test@owner.com",
             features: ["pinned_tabs", "picture_in_picture"],
             audience: "all_english",
+            firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
           },
         }),
@@ -239,6 +265,7 @@ describe("<ExperimentDetails />", () => {
             owner: "test@owner.com",
             features: ["pinned_tabs", "picture_in_picture"],
             audience: "all_english",
+            firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
           },
         }),
@@ -260,6 +287,7 @@ describe("<ExperimentDetails />", () => {
             owner: "test@owner.com",
             features: ["picture_in_picture", "pinned_tabs"],
             audience: "us_only",
+            firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
           },
         }),
@@ -288,6 +316,7 @@ describe("<ExperimentDetails />", () => {
             owner: "test@owner.com",
             features: ["picture_in_picture", "pinned_tabs"],
             audience: "us_only",
+            firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
           },
         }),
@@ -308,6 +337,49 @@ describe("<ExperimentDetails />", () => {
           method: "POST",
         },
       );
+    });
+  });
+
+  it("polls fetchExperiment after timeout", async () => {
+    await act(async () => {
+      fetchMock.mockOnce(async () => {
+        return JSON.stringify({
+          status: ExperimentStatus.REVIEW,
+          slug: "test-slug",
+          name: "Test Name",
+          objectives: "Test objectives",
+          owner: "test@owner.com",
+          features: ["FEATURE 1", "FEATURE 2"],
+          audience: "AUDIENCE 1",
+          firefox_min_version: "78.0",
+        });
+      });
+
+      const { getByText } = renderWithRouter(
+        wrapInExperimentProvider(<ExperimentDetails />, {
+          initialState: {
+            status: ExperimentStatus.DRAFT,
+            slug: "test-slug",
+            name: "Test Name",
+            objectives: "Test objectives",
+            owner: "test@owner.com",
+            features: ["picture_in_picture", "pinned_tabs"],
+            audience: "us_only",
+            firefox_channel: FirefoxChannel.RELEASE,
+            firefox_min_version: "78.0",
+          },
+        }),
+      );
+
+      await waitFor(() => {
+        return expect(getByText(ExperimentStatus.DRAFT)).toBeInTheDocument();
+      });
+
+      jest.advanceTimersByTime(POLL_TIMEOUT);
+
+      await waitFor(() => {
+        return expect(getByText(ExperimentStatus.REVIEW)).toBeInTheDocument();
+      });
     });
   });
 });

@@ -7,6 +7,10 @@ from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSer
 class ExperimentRapidViewSet(
     mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet,
 ):
-    lookup_field = "slug"
-    queryset = Experiment.objects.get_prefetched().filter(type=Experiment.TYPE_RAPID)
+    lookup_field = "normandy_slug"
+    queryset = (
+        Experiment.objects.get_prefetched()
+        .filter(type=Experiment.TYPE_RAPID)
+        .exclude(status__in=[Experiment.STATUS_DRAFT, Experiment.STATUS_REVIEW])
+    )
     serializer_class = ExperimentRapidRecipeSerializer

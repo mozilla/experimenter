@@ -106,9 +106,27 @@ class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):
         fields = ("id", "arguments", "filter_expression", "enabled", "targeting")
 
     def get_filter_expression(self, obj):
+        # This needs to handle Release version numbers (80.0), Beta (80.0b1)
+        # and Nightly (80.0a1). For the algorithm used in Nimbus, any version
+        # with text on it (like 80.0a1) is less than a version without text on
+        # it (like 80.0).
+        #
+        # To account for this, we use a version like "80.!". Since "!" is the
+        # character that has the smallest ASCII value of all non-whitespace,
+        # printable characters. This will ensure that it is less than all valid
+        # 80-series version numbers.
+        #
+        # It isn't used now, but if a max version comparison is needed in the
+        # future the equivalent modification would be "80.*". This is because
+        # "*" is treated specially as the largest possible version in its slot.
+        # That would allow anything that is in the 80-series, and nothing in
+        # the 81-series.
+        #
+        # To summarize, 80.! < 80.0a1 < 80.0 < 80.1 < 80.* < 81.0
+
         return NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
             "filter_expression"
-        ].format(minFirefoxVersion=obj.firefox_min_version)
+        ].format(minFirefoxVersion=f"{obj.firefox_min_version_integer}.!")
 
     def get_targeting(self, obj):
         if ExperimentBucketRange.objects.filter(experiment=obj).exists():
@@ -123,7 +141,9 @@ class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):
             randomization_unit = bucket_config["randomizationUnit"]
             bucket_count = bucket_config["count"]
             bucket_total = bucket_config["total"]
-            audience_targeting = NIMBUS_DATA["Audiences"][obj.audience]["targeting"]
+            audience_targeting = NIMBUS_DATA["Audiences"][obj.audience][
+                "targeting"
+            ].format(slug=obj.normandy_slug, firefox_channel=obj.firefox_channel.lower(),)
 
             targeting_string = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"][
                 "preset"

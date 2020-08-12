@@ -9,10 +9,12 @@ import {
   useExperimentDispatch,
   useExperimentState,
 } from "experimenter-rapid/contexts/experiment/hooks";
+import { ExperimentStatus } from "experimenter-rapid/types/experiment";
 
 import {
   featureOptions,
   audienceOptions,
+  firefoxChannelOptions,
   firefoxVersionOptions,
 } from "./ExperimentFormOptions";
 import { XSelect } from "./XSelect";
@@ -36,7 +38,11 @@ const ErrorList: React.FC<ErrorListProperties> = ({ errors }) => {
 };
 
 const ExperimentForm: React.FC = () => {
-  const formData = useExperimentState();
+  const formData = {
+    ...useExperimentState(),
+    ...{ status: ExperimentStatus.DRAFT },
+  };
+
   const dispatch = useExperimentDispatch();
   const { experimentSlug } = useParams();
 
@@ -160,6 +166,22 @@ const ExperimentForm: React.FC = () => {
           onOptionChange={handleSelectChange("firefox_min_version")}
         />
         <ErrorList errors={errors.firefox_min_version} />
+      </div>
+
+      <div className="mb-4">
+        <label className="font-weight-bold" htmlFor="field-firefox-channel">
+          Firefox Channel
+        </label>
+        <p>What channel do you want to run this experiment on?</p>
+        <XSelect
+          className="w-100"
+          id="field-firefox-channel"
+          name="firefox_channel"
+          options={firefoxChannelOptions}
+          selectValue={formData.firefox_channel}
+          onOptionChange={handleSelectChange("firefox_channel")}
+        />
+        <ErrorList errors={errors.firefox_channel} />
       </div>
 
       <button
