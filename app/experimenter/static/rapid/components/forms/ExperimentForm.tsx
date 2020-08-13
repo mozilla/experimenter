@@ -17,6 +17,7 @@ import {
   firefoxChannelOptions,
   firefoxVersionOptions,
 } from "./ExperimentFormOptions";
+import { TabRoutes } from "./TabRoutes";
 import { XSelect } from "./XSelect";
 
 interface ErrorListProperties {
@@ -37,7 +38,7 @@ const ErrorList: React.FC<ErrorListProperties> = ({ errors }) => {
   );
 };
 
-const ExperimentForm: React.FC = () => {
+export const SettingsForm: React.FC = () => {
   const formData = {
     ...useExperimentState(),
     ...{ status: ExperimentStatus.DRAFT },
@@ -192,6 +193,64 @@ const ExperimentForm: React.FC = () => {
         Save
       </button>
     </form>
+  );
+};
+
+export const BranchesForm: React.FC = () => {
+  return (
+    <div>
+      <table className="table table-bordered">
+        <thead>
+          <tr>
+            <th>Branch</th>
+            <th>Description</th>
+            <th>Content</th>
+            <th>Ratio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <code>control</code>
+            </td>
+            <td>An empty branch.</td>
+            <td>
+              <code>(empty)</code>
+            </td>
+            <td>50%</td>
+          </tr>
+          <tr>
+            <td>
+              <code>variant</code>
+            </td>
+            <td>An empty branch.</td>
+            <td>
+              <code>(empty)</code>
+            </td>
+            <td>50%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const ExperimentForm: React.FC = () => {
+  return (
+    <TabRoutes
+      tabs={[
+        {
+          label: "Settings",
+          path: "",
+          component: SettingsForm,
+        },
+        {
+          label: "Branches",
+          path: "branches",
+          component: BranchesForm,
+        },
+      ]}
+    />
   );
 };
 
