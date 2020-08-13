@@ -1,8 +1,11 @@
 {% extends "base.html" %}
+{% load static%}
+
 
 {% block main %}
   <div class="w-100" data-react-dom-render="rapid"></div>
 {% endblock %}
 
 {% block extrascripts %}
+  <script src="{% static "assets/rapid/main.js" %}"></script>
 {% endblock %}
