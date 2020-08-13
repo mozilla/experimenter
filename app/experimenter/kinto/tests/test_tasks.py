@@ -56,11 +56,15 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
             if_not_exists=True,
         )
 
+        changed_values = {
+            "recipe": {"new_value": data, "old_value": None, "display_name": "Recipe"}
+        }
+
         self.assertTrue(
             ExperimentChangeLog.objects.filter(
                 experiment=self.experiment,
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                changed_values=data,
+                changed_values=changed_values,
             ).exists()
         )
 

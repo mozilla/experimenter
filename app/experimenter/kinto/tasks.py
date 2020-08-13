@@ -51,12 +51,16 @@ def push_experiment_to_kinto(experiment_id):
             email=settings.KINTO_DEFAULT_CHANGELOG_USER,
             username=settings.KINTO_DEFAULT_CHANGELOG_USER,
         )
+
+        changed_values = {
+            "recipe": {"new_value": data, "old_value": None, "display_name": "Recipe"}
+        }
         ExperimentChangeLog.objects.create(
             experiment=experiment,
             old_status=experiment.status,
             new_status=experiment.status,
             message="Recipe Sent to Kinto",
-            changed_values=data,
+            changed_values=changed_values,
             changed_by=experimenter_kinto_user,
         )
 
