@@ -379,3 +379,9 @@ KINTO_PASS = config("KINTO_PASS")
 KINTO_BUCKET = config("KINTO_BUCKET")
 KINTO_BUCKET_MAIN = config("KINTO_BUCKET_MAIN")
 KINTO_COLLECTION = config("KINTO_COLLECTION")
+
+
+# Jetstream GCS Bucket data
+DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+GS_PROJECT_ID = "experiments-analysis"
+GS_BUCKET_NAME = 'mozanalysis'
