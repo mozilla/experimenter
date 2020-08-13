@@ -31,7 +31,7 @@ interface TabProps {
  * the default route should be path=""
  */
 export const TabRoutes: React.FC<TabProps> = ({ tabs }) => {
-  const { url } = useRouteMatch();
+  const { url, path } = useRouteMatch();
   return (
     <div>
       <ul className="nav nav-tabs mb-4">
@@ -54,7 +54,7 @@ export const TabRoutes: React.FC<TabProps> = ({ tabs }) => {
             key={tab.path}
             component={tab.component}
             exact={true}
-            path={pathJoinWithTrailingSlash(url, tab.path)}
+            path={pathJoinWithTrailingSlash(path, tab.path)}
             render={tab.render}
           />
         ))}

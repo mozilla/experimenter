@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, waitFor } from "@testing-library/react";
 import React from "react";
+import { Route, useParams } from "react-router-dom";
 
 import {
   TabRoutes,
@@ -64,6 +65,28 @@ describe("<TabRoutes />", () => {
       const hasClass = getByText("Bar Label").classList.contains("active");
       return expect(hasClass).toBe(true);
     });
+  });
+  it("should have access to URL params from parent route", () => {
+    const CheckIdComponent = () => {
+      const { id } = useParams();
+      return <div>The id is {id}</div>;
+    };
+
+    const { getByText } = renderWithRouter(
+      <Route exact={true} path="/experiments/:id">
+        <TabRoutes
+          tabs={[
+            {
+              path: "",
+              label: "Hello world",
+              component: CheckIdComponent,
+            },
+          ]}
+        />
+      </Route>,
+      { route: "/experiments/fooBarBaz" },
+    );
+    expect(getByText("The id is fooBarBaz")).toBeInTheDocument();
   });
 });
 
