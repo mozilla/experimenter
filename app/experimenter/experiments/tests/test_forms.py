@@ -227,7 +227,7 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "old_value": None,
             },
             "projects": {
-                "display_name": "Related Projects",
+                "display_name": "Projects",
                 "new_value": [{"slug": project.slug}],
                 "old_value": None,
             },
