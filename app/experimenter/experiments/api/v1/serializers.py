@@ -103,6 +103,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
     pref_type = PrefTypeField()
     changes = ExperimentChangeLogSerializer(many=True)
     results = serializers.SerializerMethodField()
+    normandy_slug = serializers.CharField(source="recipe_slug")
 
     class Meta:
         model = Experiment
@@ -132,7 +133,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "proposed_start_date",
             "proposed_enrollment",
             "proposed_duration",
-            "recipe_slug",
+            "normandy_slug",
             "normandy_id",
             "other_normandy_ids",
             "variants",

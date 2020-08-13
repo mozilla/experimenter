@@ -121,7 +121,7 @@ class TestExperimentSerializer(TestCase):
             "start_date": JSTimestampField().to_representation(experiment.start_date),
             "status": Experiment.STATUS_COMPLETE,
             "type": experiment.type,
-            "recipe_slug": experiment.recipe_slug,
+            "normandy_slug": experiment.recipe_slug,
             "normandy_id": experiment.normandy_id,
             "other_normandy_ids": experiment.other_normandy_ids,
             "variants": [
