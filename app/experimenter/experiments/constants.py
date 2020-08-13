@@ -839,9 +839,10 @@ class ExperimentConstants(object):
 
     ANALYSIS_HELP_TEXT = """
       <p>
-       The analysis plan is clear leading indicator statement(s) of what is being observed. 
-       These reflect how you are impacting the hypothesis outcome(s), 
-       specifically what you are observing, and how much of a difference you anticipate.
+       The analysis plan is clear leading indicator statement(s)
+        of what is being observed. These reflect how you are
+        impacting the hypothesis outcome(s), specifically
+        what you are observing, and how much of a difference you anticipate.
       </p>
     """
 
@@ -1075,7 +1076,7 @@ Any additional filters:
 There may be multiple leading indicator statements.
 
 Optional: We hypothesize the desired change will <increase/decrease/neutral> to the <core metric>.
-    """
+    """  # noqa
 
     RISKS_DEFAULT = """
 If you answered "Yes" to any of the question above - this box is the area to
