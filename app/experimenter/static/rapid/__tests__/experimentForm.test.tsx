@@ -7,7 +7,9 @@ import {
   renderWithRouter,
   wrapInExperimentProvider,
 } from "experimenter-rapid/__tests__/utils";
-import ExperimentForm from "experimenter-rapid/components/forms/ExperimentForm";
+import ExperimentForm, {
+  SettingsForm,
+} from "experimenter-rapid/components/forms/ExperimentForm";
 import {
   ExperimentStatus,
   FirefoxChannel,
@@ -18,10 +20,10 @@ afterEach(async () => {
   fetchMock.resetMocks();
 });
 
-describe("<ExperimentForm />", () => {
+describe("<SettingsForm />", () => {
   it("renders without issues", () => {
     const { getByText } = renderWithRouter(
-      wrapInExperimentProvider(<ExperimentForm />),
+      wrapInExperimentProvider(<SettingsForm />),
     );
     expect(getByText("Save")).toBeInTheDocument();
   });
@@ -37,7 +39,7 @@ describe("<ExperimentForm />", () => {
     });
 
     const { getByLabelText } = renderWithRouter(
-      wrapInExperimentProvider(<ExperimentForm />),
+      wrapInExperimentProvider(<SettingsForm />),
       {
         route: "/test-slug/edit/",
         matchRoutePath: "/:experimentSlug/edit/",
@@ -55,7 +57,7 @@ describe("<ExperimentForm />", () => {
 
   it("makes the correct API call on save new", async () => {
     const { getByText, getByLabelText, history } = renderWithRouter(
-      wrapInExperimentProvider(<ExperimentForm />),
+      wrapInExperimentProvider(<SettingsForm />),
       {
         route: "/new/",
       },
@@ -138,7 +140,7 @@ describe("<ExperimentForm />", () => {
       getByLabelText,
       getByDisplayValue,
       history,
-    } = renderWithRouter(wrapInExperimentProvider(<ExperimentForm />), {
+    } = renderWithRouter(wrapInExperimentProvider(<SettingsForm />), {
       route: "/test-slug/edit/",
       matchRoutePath: "/:experimentSlug/edit/",
     });
@@ -194,7 +196,7 @@ describe("<ExperimentForm />", () => {
   ].forEach((fieldName) => {
     it(`shows the appropriate error message for '${fieldName}' on save`, async () => {
       const { getByText } = renderWithRouter(
-        wrapInExperimentProvider(<ExperimentForm />),
+        wrapInExperimentProvider(<SettingsForm />),
       );
       fetchMock.mockOnce(async () => {
         return {
@@ -211,5 +213,20 @@ describe("<ExperimentForm />", () => {
         expect(getByText("an error occurred")).toBeInTheDocument(),
       );
     });
+  });
+});
+
+describe("<ExperimentForm />", () => {
+  it("should render the settings form by default", () => {
+    const { getByText } = renderWithRouter(<ExperimentForm />);
+    expect(getByText("Public Name")).toBeInTheDocument();
+  });
+  it("should render the branches form for /branches route", async () => {
+    const { getByText } = renderWithRouter(<ExperimentForm />);
+
+    // Click the branches tab
+    fireEvent.click(getByText("Branches"));
+
+    await waitFor(() => expect(getByText("Branch")).toBeInTheDocument());
   });
 });

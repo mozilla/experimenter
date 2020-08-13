@@ -13,13 +13,14 @@ export function renderWithRouter(
   {
     route = "/",
     matchRoutePath = route,
+    exact = false,
     history = createMemoryHistory({ initialEntries: [route] }),
   } = {},
 ): RenderWithRouterResult {
   const Wrapper = ({ children }) => (
     <Router history={history}>
       <Switch>
-        <Route exact path={matchRoutePath}>
+        <Route exact={exact} path={matchRoutePath}>
           {children}
         </Route>
       </Switch>
