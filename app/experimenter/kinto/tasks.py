@@ -1,5 +1,3 @@
-import datetime
-
 import markus
 from celery.utils.log import get_task_logger
 from django.conf import settings
@@ -109,7 +107,6 @@ def check_kinto_push_queue():
             next_experiment,
             {
                 "status": Experiment.STATUS_ACCEPTED,
-                "proposed_start_date": datetime.date.today(),
                 "recipe_slug": next_experiment.generate_recipe_slug(),
             },
             settings.KINTO_DEFAULT_CHANGELOG_USER,
