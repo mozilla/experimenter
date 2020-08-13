@@ -3,6 +3,7 @@ import datetime
 import markus
 from celery.utils.log import get_task_logger
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 from mozilla_nimbus_shared import get_data
 
@@ -11,6 +12,7 @@ from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSer
 from experimenter.experiments.changelog_utils import update_experiment_with_change_log
 from experimenter.experiments.models import (
     Experiment,
+    ExperimentChangeLog,
     ExperimentBucketNamespace,
     ExperimentBucketRange,
 )
@@ -44,6 +46,23 @@ def push_experiment_to_kinto(experiment_id):
 
     try:
         client.push_to_kinto(data)
+
+        experimenter_kinto_user, _ = get_user_model().objects.get_or_create(
+            email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+            username=settings.KINTO_DEFAULT_CHANGELOG_USER,
+        )
+
+        changed_values = {
+            "recipe": {"new_value": data, "old_value": None, "display_name": "Recipe"}
+        }
+        ExperimentChangeLog.objects.create(
+            experiment=experiment,
+            old_status=experiment.status,
+            new_status=experiment.status,
+            message="Recipe Sent to Kinto",
+            changed_values=changed_values,
+            changed_by=experimenter_kinto_user,
+        )
 
         logger.info(f"{experiment} pushed to Kinto")
         metrics.incr("push_experiment_to_kinto.completed")
