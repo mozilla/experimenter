@@ -316,8 +316,8 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-# Normandy Configuration
-NORMANDY_SLUG_MAX_LEN = 80
+# Recipe Configuration
+RECIPE_SLUG_MAX_LEN = 80
 
 # Monitoring
 MONITORING_URL = (

@@ -14,14 +14,14 @@ class TestExperimentRapidRecipeSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         audience = "us_only"
         features = ["pinned_tabs", "picture_in_picture"]
-        normandy_slug = "experimenter-normandy-slug"
+        recipe_slug = "experimenter-normandy-slug"
         today = datetime.datetime.today()
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_RAPID,
             rapid_type=Experiment.RAPID_AA_CFR,
             audience=audience,
             features=features,
-            normandy_slug=normandy_slug,
+            recipe_slug=recipe_slug,
             firefox_min_version="80.0",
             proposed_enrollment=9,
             proposed_start_date=today,
@@ -41,8 +41,8 @@ class TestExperimentRapidRecipeSerializer(TestCase):
         self.assertDictEqual(
             data,
             {
-                "id": normandy_slug,
-                "filter_expression": "env.version|versionCompare('80.0') >= 0",
+                "id": recipe_slug,
+                "filter_expression": "env.version|versionCompare('80.!') >= 0",
                 "targeting": None,
                 "enabled": True,
             },
@@ -53,7 +53,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             {
                 "userFacingName": experiment.name,
                 "userFacingDescription": experiment.public_description,
-                "slug": normandy_slug,
+                "slug": recipe_slug,
                 "active": True,
                 "isEnrollmentPaused": False,
                 "endDate": None,
@@ -82,15 +82,16 @@ class TestExperimentRapidRecipeSerializer(TestCase):
     def test_serializer_outputs_expected_schema_with_nameSpace_bucket(self):
         audience = "us_only"
         features = ["pinned_tabs", "picture_in_picture"]
-        normandy_slug = "experimenter-normandy-slug"
+        recipe_slug = "experimenter-recipe-slug"
         today = datetime.datetime.today()
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_RAPID,
             rapid_type=Experiment.RAPID_AA_CFR,
             audience=audience,
             features=features,
-            normandy_slug=normandy_slug,
+            recipe_slug=recipe_slug,
             firefox_min_version="80.0",
+            firefox_channel=Experiment.CHANNEL_RELEASE,
             proposed_enrollment=9,
             proposed_start_date=today,
         )
@@ -101,7 +102,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
         ExperimentVariantFactory.create(experiment=experiment, slug="variant-2")
 
         ExperimentBucketNamespace.request_namespace_buckets(
-            experiment.normandy_slug, experiment, 100
+            experiment.recipe_slug, experiment, 100
         )
 
         serializer = ExperimentRapidRecipeSerializer(experiment)
@@ -113,9 +114,9 @@ class TestExperimentRapidRecipeSerializer(TestCase):
         self.assertDictEqual(
             data,
             {
-                "id": normandy_slug,
-                "filter_expression": "env.version|versionCompare('80.0') >= 0",
-                "targeting": '[userId, "experimenter-normandy-slug"]'
+                "id": recipe_slug,
+                "filter_expression": "env.version|versionCompare('80.!') >= 0",
+                "targeting": '[userId, "experimenter-recipe-slug"]'
                 "|bucketSample(0, 100, 10000) "
                 "&& localeLanguageCode == 'en' && region == 'US' "
                 "&& browserSettings.update.channel == 'release'",
@@ -130,7 +131,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             {
                 "userFacingName": experiment.name,
                 "userFacingDescription": experiment.public_description,
-                "slug": normandy_slug,
+                "slug": recipe_slug,
                 "active": True,
                 "isEnrollmentPaused": False,
                 "endDate": None,

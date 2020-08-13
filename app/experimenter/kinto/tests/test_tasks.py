@@ -10,6 +10,7 @@ from experimenter.experiments.models import Experiment, ExperimentBucketRange
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
 from experimenter.kinto import tasks
+from experimenter.kinto.client import KINTO_REJECTED_STATUS
 from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
 
 NIMBUS_DATA = get_data()
@@ -21,7 +22,7 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         self.experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             proposed_start_date=datetime.date(2020, 1, 20),
-            normandy_slug="normandy-slug",
+            recipe_slug="recipe-slug",
             audience="us_only",
         )
 
@@ -68,6 +69,7 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         self.addCleanup(mock_push_task_patcher.stop)
 
     def test_check_with_empty_queue_pushes_nothing(self):
+        self.setup_kinto_no_pending_review()
         tasks.check_kinto_push_queue()
         self.mock_push_task.assert_not_called()
 
@@ -80,6 +82,7 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         ]:
             ExperimentFactory.create(type=Experiment.TYPE_RAPID, status=status)
 
+        self.setup_kinto_no_pending_review()
         tasks.check_kinto_push_queue()
         self.mock_push_task.assert_not_called()
 
@@ -87,6 +90,7 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         ExperimentFactory.create(
             type=Experiment.TYPE_ADDON, status=Experiment.STATUS_REVIEW
         )
+        self.setup_kinto_no_pending_review()
         tasks.check_kinto_push_queue()
         self.mock_push_task.assert_not_called()
 
@@ -138,7 +142,48 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         self.assertEqual(experiment.proposed_start_date, datetime.date.today())
         self.assertEqual(experiment.firefox_min_version, Experiment.VERSION_CHOICES[0][0])
         self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
-        self.assertEqual(experiment.normandy_slug, "bug-12345-rapid-test-release-55")
+        self.assertEqual(experiment.recipe_slug, "bug-12345-rapid-test-release-55")
+
+    def test_check_with_reject_rapid_review(self):
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_ACCEPTED,
+            bugzilla_id="12345",
+            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_max_version=None,
+            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            name="test",
+            type=Experiment.TYPE_RAPID,
+            recipe_slug="bug-12345-rapid-test-release-55",
+        )
+
+        self.mock_kinto_client.delete_record.return_value = {}
+        self.mock_kinto_client.get_collection.side_effect = [
+            {
+                "data": {
+                    "status": KINTO_REJECTED_STATUS,
+                    "last_reviewer_comment": "it's no good",
+                }
+            },
+            {"data": {"status": "anything"}},
+        ]
+        self.mock_kinto_client.get_records.side_effect = [
+            [{"id": "bug-9999-rapid-test-release-55"}],
+            [
+                {"id": "bug-12345-rapid-test-release-55"},
+                {"id": "bug-9999-rapid-test-release-55"},
+            ],
+        ]
+        tasks.check_kinto_push_queue()
+
+        self.mock_kinto_client.delete_record.assert_called()
+
+        self.assertTrue(
+            experiment.changes.filter(
+                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+                old_status=Experiment.STATUS_ACCEPTED,
+                new_status=Experiment.STATUS_REJECTED,
+            ).exists()
+        )
 
 
 class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):

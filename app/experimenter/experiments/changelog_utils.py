@@ -75,7 +75,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "survey_instructions",
             "engineering_owner",
             "bugzilla_id",
-            "normandy_slug",
+            "recipe_slug",
             "normandy_id",
             "other_normandy_ids",
             "data_science_issue_url",
@@ -136,7 +136,9 @@ class ChangeLogSerializer(serializers.ModelSerializer):
         )
 
 
-def update_experiment_with_change_log(old_experiment, changed_data, user_email):
+def update_experiment_with_change_log(
+    old_experiment, changed_data, user_email, message=None
+):
     old_serialized_exp = ChangeLogSerializer(old_experiment).data
     Experiment.objects.filter(id=old_experiment.id).update(**changed_data)
     new_experiment = Experiment.objects.get(slug=old_experiment.slug)
@@ -152,6 +154,7 @@ def update_experiment_with_change_log(old_experiment, changed_data, user_email):
         new_experiment,
         changed_data,
         default_user,
+        message,
     )
 
 

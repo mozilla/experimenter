@@ -6,6 +6,7 @@ import {
   featureOptions,
   audienceOptions,
   firefoxVersionOptions,
+  firefoxChannelOptions,
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
 import {
   requestReview,
@@ -25,15 +26,13 @@ const LabelledRow: React.FC<{ label: string; value?: string }> = ({
   value,
 }) => {
   return (
-    <div className="row my-3">
-      <label className="col-2 d-inline-block pt-2 font-weight-bold">
-        {label}
-      </label>
-      <span className="col-10">
-        <input readOnly className="w-100" type="text" value={value || ""} />
+    <tr>
+      <th style={{ whiteSpace: "nowrap", width: "1%" }}>{label}</th>
+      <td>
+        {value}
         {children}
-      </span>
-    </div>
+      </td>
+    </tr>
   );
 };
 
@@ -68,15 +67,17 @@ const ExperimentDetails: React.FC = () => {
   let bugzilla_url;
   if (experimentData.bugzilla_url) {
     bugzilla_url = (
-      <div className="my-2">
-        Bugzilla ticket can be found{" "}
-        <a
-          href={experimentData.bugzilla_url}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          here
-        </a>
+      <div>
+        <small>
+          Bugzilla ticket can be found{" "}
+          <a
+            href={experimentData.bugzilla_url}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            here
+          </a>
+        </small>
       </div>
     );
   }
@@ -85,7 +86,7 @@ const ExperimentDetails: React.FC = () => {
   if (experimentData.monitoring_dashboard_url) {
     monitoring_url = (
       <>
-        <h3 className="my-4">Monitoring</h3>
+        <h4 className="my-4">Monitoring</h4>
         <p>
           The live monitoring dashboard can be found here:
           <a
@@ -111,7 +112,7 @@ const ExperimentDetails: React.FC = () => {
     const slug_underscored = experimentData.slug.split("-").join("_");
     analysis_report = (
       <>
-        <h3 className="my-4">Results</h3>
+        <h4 className="my-4">Results</h4>
         <p>
           The results will be available 7 days after the experiment is launched.
           An email will be sent to you once we start recording data.
@@ -130,11 +131,26 @@ const ExperimentDetails: React.FC = () => {
     );
   }
 
-  const buttonsDisabled = experimentData.status !== ExperimentStatus.DRAFT;
-  let buttonsClass = "btn btn-primary";
-  if (buttonsDisabled) {
-    buttonsClass = "btn btn-secondary";
+  const backButtonDisabled = ![
+    ExperimentStatus.DRAFT,
+    ExperimentStatus.REJECTED,
+  ].includes(experimentData.status);
+
+  let backButton = (
+    <Link to={`/${experimentData.slug}/edit/`}>
+      <button className="btn btn-primary">Back</button>
+    </Link>
+  );
+  if (backButtonDisabled) {
+    backButton = (
+      <button disabled className="btn btn-secondary">
+        Back
+      </button>
+    );
   }
+
+  const requestButtonDisabled =
+    experimentData.status !== ExperimentStatus.DRAFT;
 
   const buttonsShown = ![
     ExperimentStatus.LIVE,
@@ -145,19 +161,14 @@ const ExperimentDetails: React.FC = () => {
   if (buttonsShown) {
     changeStatusButtons = (
       <div className="d-flex mt-4">
-        <span>
-          <Link
-            className={buttonsClass}
-            to={buttonsDisabled ? "#" : `/${experimentData.slug}/edit/`}
-          >
-            Back
-          </Link>
-        </span>
+        <span>{backButton}</span>
 
         <span className="flex-grow-1 text-right">
           <button
-            className={buttonsClass}
-            disabled={buttonsDisabled}
+            className={
+              requestButtonDisabled ? "btn btn-secondary" : "btn btn-primary"
+            }
+            disabled={requestButtonDisabled}
             type="button"
             onClick={handleClickRequestApproval}
           >
@@ -168,46 +179,85 @@ const ExperimentDetails: React.FC = () => {
     );
   }
 
+  let rejectFeedback;
+
+  if (experimentData.reject_feedback) {
+    const messageDate = new Date(experimentData.reject_feedback.changed_on);
+    rejectFeedback = (
+      <>
+        <h3 className="my-4">Review Feedback</h3>
+        <div className="alert alert-secondary" role="alert">
+          <p className="font-weight-bold"> {messageDate.toDateString()}</p>
+          <p>Reject reason: {experimentData.reject_feedback.message}</p>
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className="col pt-3">
       <div className="mb-4">
-        <div className="d-flex align-items-center">
-          <h3 className="mr-3">Experiment Summary</h3>
-          <span className="badge badge-secondary mb-1">
-            {experimentData.status}
-          </span>
+        <div className="mb-4">
+          <h3 className="mb-0">
+            {experimentData.name}{" "}
+            <span className="badge badge-pill badge-small badge-secondary">
+              {experimentData.status}
+            </span>
+          </h3>
+          {experimentData.recipe_slug && (
+            <p>
+              <code>{experimentData.recipe_slug}</code>
+            </p>
+          )}
         </div>
-        <LabelledRow label="Experiment Owner" value={experimentData.owner} />
-        <LabelledRow label="Public Name" value={experimentData.name}>
-          {bugzilla_url}
-        </LabelledRow>
-        <LabelledRow label="Hypothesis" value={experimentData.objectives} />
-        <LabelledRow
-          label="Feature"
-          value={displaySelectOptionLabels(
-            featureOptions,
-            experimentData.features,
-          )}
-        />
-        <LabelledRow
-          label="Audience"
-          value={displaySelectOptionLabels(
-            audienceOptions,
-            experimentData.audience,
-          )}
-        />
-        <LabelledRow
-          label="Firefox Minimum Version"
-          value={displaySelectOptionLabels(
-            firefoxVersionOptions,
-            experimentData.firefox_min_version,
-          )}
-        />
+
+        <table className="table table-bordered">
+          <tbody>
+            <LabelledRow
+              label="Experiment Owner"
+              value={experimentData.owner}
+            />
+            <LabelledRow label="Public Name" value={experimentData.name}>
+              {bugzilla_url}
+            </LabelledRow>
+            <LabelledRow label="Hypothesis" value={experimentData.objectives} />
+            <LabelledRow
+              label="Feature"
+              value={displaySelectOptionLabels(
+                featureOptions,
+                experimentData.features,
+              )}
+            />
+            <LabelledRow
+              label="Audience"
+              value={displaySelectOptionLabels(
+                audienceOptions,
+                experimentData.audience,
+              )}
+            />
+            <LabelledRow
+              label="Firefox Minimum Version"
+              value={displaySelectOptionLabels(
+                firefoxVersionOptions,
+                experimentData.firefox_min_version,
+              )}
+            />
+
+            <LabelledRow
+              label="Firefox Channel"
+              value={displaySelectOptionLabels(
+                firefoxChannelOptions,
+                experimentData.firefox_channel,
+              )}
+            />
+          </tbody>
+        </table>
 
         {monitoring_url}
 
         {analysis_report}
 
+        {rejectFeedback}
         {changeStatusButtons}
       </div>
     </div>

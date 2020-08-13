@@ -8,7 +8,7 @@ from experimenter.experiments.api.v3.serializers import (
     ExperimentRapidSerializer,
     ExperimentRapidStatusSerializer,
 )
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import Experiment, ExperimentChangeLog
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.base.tests.mixins import MockRequestMixin
@@ -32,6 +32,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             audience="all_english",
             features=["picture_in_picture"],
             firefox_min_version=FIREFOX_VERSION,
+            firefox_channel=Experiment.CHANNEL_RELEASE,
         )
 
         serializer = ExperimentRapidSerializer(experiment)
@@ -44,12 +45,15 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                     bug_host=settings.BUGZILLA_HOST, bug_id=experiment.bugzilla_id
                 ),
                 "features": ["picture_in_picture"],
+                "firefox_channel": Experiment.CHANNEL_RELEASE,
                 "firefox_min_version": FIREFOX_VERSION,
                 "monitoring_dashboard_url": None,
                 "name": "rapid experiment",
                 "objectives": "gotta go fast",
+                "reject_feedback": None,
                 "owner": "owner@example.com",
                 "slug": "rapid-experiment",
+                "recipe_slug": experiment.recipe_slug,
                 "status": Experiment.STATUS_DRAFT,
             },
         )
@@ -83,12 +87,70 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 ),
                 "features": ["picture_in_picture"],
                 "firefox_min_version": FIREFOX_VERSION,
+                "firefox_channel": Experiment.CHANNEL_RELEASE,
                 "monitoring_dashboard_url": experiment.monitoring_dashboard_url,
                 "name": "rapid experiment",
                 "objectives": "gotta go fast",
                 "owner": "owner@example.com",
+                "reject_feedback": None,
                 "slug": "rapid-experiment",
+                "recipe_slug": experiment.recipe_slug,
                 "status": Experiment.STATUS_LIVE,
+            },
+        )
+
+    def test_serializer_outputs_expected_schema_for_rejected_experiment(self):
+        owner = UserFactory(email="owner@example.com")
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_ACCEPTED,
+            type=Experiment.TYPE_RAPID,
+            rapid_type=Experiment.RAPID_AA_CFR,
+            owner=owner,
+            name="rapid experiment",
+            slug="rapid-experiment",
+            objectives="gotta go fast",
+            audience="all_english",
+            features=["picture_in_picture"],
+            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_min_version=FIREFOX_VERSION,
+            firefox_max_version=None,
+        )
+
+        ExperimentChangeLog.objects.create(
+            old_status=Experiment.STATUS_ACCEPTED,
+            new_status=Experiment.STATUS_REJECTED,
+            message="It's no good",
+            experiment=experiment,
+            changed_by=owner,
+            changed_on="2020-07-30T05:37:22.540985Z",
+        )
+
+        experiment.status = Experiment.STATUS_REJECTED
+        experiment.save()
+
+        serializer = ExperimentRapidSerializer(experiment)
+
+        self.assertDictEqual(
+            serializer.data,
+            {
+                "audience": "all_english",
+                "bugzilla_url": "{bug_host}show_bug.cgi?id={bug_id}".format(
+                    bug_host=settings.BUGZILLA_HOST, bug_id=experiment.bugzilla_id
+                ),
+                "features": ["picture_in_picture"],
+                "firefox_channel": "Release",
+                "firefox_min_version": FIREFOX_VERSION,
+                "monitoring_dashboard_url": experiment.monitoring_dashboard_url,
+                "name": "rapid experiment",
+                "objectives": "gotta go fast",
+                "owner": "owner@example.com",
+                "reject_feedback": {
+                    "changed_on": "2020-07-30T05:37:22.540985Z",
+                    "message": "It's no good",
+                },
+                "slug": "rapid-experiment",
+                "recipe_slug": experiment.recipe_slug,
+                "status": Experiment.STATUS_REJECTED,
             },
         )
 
@@ -97,7 +159,16 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             set(serializer.errors.keys()),
-            set(["name", "objectives", "audience", "features", "firefox_min_version"]),
+            set(
+                [
+                    "name",
+                    "objectives",
+                    "audience",
+                    "features",
+                    "firefox_min_version",
+                    "firefox_channel",
+                ]
+            ),
         )
 
     def test_serializer_bad_audience_value(self):
@@ -107,6 +178,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "audience": "WRONG AUDIENCE CHOICE",
             "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
+            "firefox_channel": Experiment.CHANNEL_RELEASE,
         }
         serializer = ExperimentRapidSerializer(
             data=data, context={"request": self.request}
@@ -121,6 +193,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "audience": "all_english",
             "features": ["WRONG FEATURE 1", "WRONG FEATURE 2"],
             "firefox_min_version": FIREFOX_VERSION,
+            "firefox_channel": Experiment.CHANNEL_RELEASE,
         }
         serializer = ExperimentRapidSerializer(
             data=data, context={"request": self.request}
@@ -135,12 +208,28 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": "invalid version",
+            "firefox_channel": Experiment.CHANNEL_RELEASE,
         }
         serializer = ExperimentRapidSerializer(
             data=data, context={"request": self.request}
         )
         self.assertFalse(serializer.is_valid())
         self.assertIn("firefox_min_version", serializer.errors)
+
+    def test_serializer_bad_firefox_channel_value(self):
+        data = {
+            "name": "rapid experiment",
+            "objectives": "gotta go fast",
+            "audience": "all_english",
+            "features": ["picture_in_picture", "pinned_tabs"],
+            "firefox_min_version": FIREFOX_VERSION,
+            "firefox_channel": "invalid channel",
+        }
+        serializer = ExperimentRapidSerializer(
+            data=data, context={"request": self.request}
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("firefox_channel", serializer.errors)
 
     def test_serializer_creates_experiment_and_sets_slug_and_changelog(self):
         data = {
@@ -149,6 +238,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
+            "firefox_channel": Experiment.CHANNEL_RELEASE,
         }
 
         serializer = ExperimentRapidSerializer(
@@ -167,6 +257,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertEqual(experiment.audience, "all_english")
         self.assertEqual(experiment.features, ["picture_in_picture", "pinned_tabs"])
         self.assertEqual(experiment.firefox_min_version, FIREFOX_VERSION)
+        self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
         self.assertEqual(
             experiment.public_description, Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
         )
@@ -175,9 +266,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         preset_data = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
             "arguments"
         ]
-        audience_data = NIMBUS_DATA["Audiences"]["all_english"]
 
-        self.assertEqual(experiment.firefox_channel, audience_data["firefox_channel"])
+        self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
         self.assertEqual(experiment.proposed_duration, preset_data["proposedDuration"])
         self.assertEqual(
             experiment.proposed_enrollment, preset_data["proposedEnrollment"]
@@ -258,6 +348,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             objectives="gotta go fast",
             audience="us_only",
             features=["picture_in_picture", "pinned_tabs"],
+            firefox_channel=Experiment.CHANNEL_RELEASE,
             firefox_min_version=FIREFOX_VERSION,
             public_description=Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
         )
@@ -268,6 +359,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "objectives": "changing objectives",
             "audience": "all_english",
             "features": ["pinned_tabs"],
+            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
             "firefox_min_version": Experiment.VERSION_CHOICES[1][0],
         }
         serializer = ExperimentRapidSerializer(
@@ -303,6 +395,11 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "new_value": Experiment.VERSION_CHOICES[1][0],
                 "old_value": FIREFOX_VERSION,
             },
+            "firefox_channel": {
+                "display_name": "Firefox Channel",
+                "new_value": Experiment.CHANNEL_NIGHTLY,
+                "old_value": Experiment.CHANNEL_RELEASE,
+            },
         }
         self.assertTrue(
             experiment.changes.filter(
@@ -319,6 +416,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
+            "firefox_channel": Experiment.CHANNEL_RELEASE,
         }
 
         serializer = ExperimentRapidSerializer(
@@ -338,6 +436,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
+            "firefox_channel": Experiment.CHANNEL_RELEASE,
         }
 
         serializer = ExperimentRapidSerializer(
@@ -361,6 +460,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
+            "firefox_channel": Experiment.CHANNEL_RELEASE,
         }
 
         serializer = ExperimentRapidSerializer(

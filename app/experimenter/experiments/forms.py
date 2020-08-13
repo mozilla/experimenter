@@ -876,7 +876,7 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
             and experiment.bugzilla_id
             and experiment.should_use_normandy
         ):
-            experiment.normandy_slug = experiment.generate_normandy_slug()
+            experiment.recipe_slug = experiment.generate_recipe_slug()
             experiment.save()
 
             tasks.update_experiment_bug_task.delay(self.request.user.id, experiment.id)
