@@ -7,8 +7,12 @@ import {
   useRouteMatch,
 } from "react-router-dom";
 
-function pathJoin(...paths: Array<string>): string {
-  return paths.join("/").replace(/\/{1,}/g, "/");
+/**
+ * Helper function to join paths without duplicating slashes.
+ * Adds a trailing slash to be inline with Experimenter's style of URL
+ */
+export function pathJoinWithTrailingSlash(...paths: Array<string>): string {
+  return `${paths.join("/")}/`.replace(/\/{1,}/g, "/");
 }
 
 interface TabProps {
@@ -37,7 +41,7 @@ export const TabRoutes: React.FC<TabProps> = ({ tabs }) => {
               activeClassName="active"
               className="nav-link"
               exact={true}
-              to={pathJoin(url, tab.path)}
+              to={pathJoinWithTrailingSlash(url, tab.path)}
             >
               {tab.label}
             </NavLink>
@@ -50,7 +54,7 @@ export const TabRoutes: React.FC<TabProps> = ({ tabs }) => {
             key={tab.path}
             component={tab.component}
             exact={true}
-            path={pathJoin(url, tab.path)}
+            path={pathJoinWithTrailingSlash(url, tab.path)}
             render={tab.render}
           />
         ))}

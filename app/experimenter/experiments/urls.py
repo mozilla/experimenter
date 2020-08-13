@@ -25,7 +25,7 @@ urlpatterns = [
         r"^rapid/(?P<slug>)", ExperimentRapidView.as_view(), name="experiments-rapid"
     ),
     re_path(
-        r"^rapid/new", ExperimentRapidView.as_view(), name="experiments-rapid-create"
+        r"^rapid/new/", ExperimentRapidView.as_view(), name="experiments-rapid-create"
     ),
     re_path(r"^new/$", ExperimentCreateView.as_view(), name="experiments-create"),
     re_path(
