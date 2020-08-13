@@ -173,7 +173,7 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
     )
     projects = forms.ModelMultipleChoiceField(
         required=False,
-        label="Related Projects",
+        label="Projects",
         help_text=(
             """Is this delivery related to a specific project?
          Ask in #ask-experimenter on Slack if you need to add a new project"""
