@@ -23,7 +23,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         owner = UserFactory(email="owner@example.com")
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA_CFR,
+            rapid_type=Experiment.RAPID_AA,
             status=Experiment.STATUS_DRAFT,
             owner=owner,
             name="rapid experiment",
@@ -63,7 +63,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_LIVE,
             type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA_CFR,
+            rapid_type=Experiment.RAPID_AA,
             owner=owner,
             name="rapid experiment",
             slug="rapid-experiment",
@@ -104,7 +104,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_ACCEPTED,
             type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA_CFR,
+            rapid_type=Experiment.RAPID_AA,
             owner=owner,
             name="rapid experiment",
             slug="rapid-experiment",
@@ -249,7 +249,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
 
         # User input data
         self.assertEqual(experiment.type, Experiment.TYPE_RAPID)
-        self.assertEqual(experiment.rapid_type, Experiment.RAPID_AA_CFR)
+        self.assertEqual(experiment.rapid_type, Experiment.RAPID_AA)
         self.assertEqual(experiment.owner, self.user)
         self.assertEqual(experiment.name, "rapid experiment")
         self.assertEqual(experiment.slug, "rapid-experiment")
@@ -341,7 +341,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_DRAFT,
             type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA_CFR,
+            rapid_type=Experiment.RAPID_AA,
             owner=owner,
             name="rapid experiment",
             slug="rapid-experiment",
