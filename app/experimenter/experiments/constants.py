@@ -61,9 +61,9 @@ class ExperimentConstants(object):
     )
 
     # Rapid stuff
-    RAPID_AA_CFR = "cfr a/a"
+    RAPID_AA = "cfr a/a"
 
-    RAPID_TYPE_CHOICES = ((RAPID_AA_CFR, "Rapid CFR A/A Experiment"),)
+    RAPID_TYPE_CHOICES = ((RAPID_AA, "Rapid CFR A/A Experiment"),)
 
     RAPID_FEATURE_CHOICES = (("FEATURE 1", "FEATURE 1"), ("FEATURE 2", "FEATURE 2"))
 
