@@ -61,9 +61,9 @@ class ExperimentConstants(object):
     )
 
     # Rapid stuff
-    RAPID_AA_CFR = "cfr a/a"
+    RAPID_AA = "cfr a/a"
 
-    RAPID_TYPE_CHOICES = ((RAPID_AA_CFR, "Rapid CFR A/A Experiment"),)
+    RAPID_TYPE_CHOICES = ((RAPID_AA, "Rapid CFR A/A Experiment"),)
 
     RAPID_FEATURE_CHOICES = (("FEATURE 1", "FEATURE 1"), ("FEATURE 2", "FEATURE 2"))
 
@@ -831,16 +831,11 @@ class ExperimentConstants(object):
 
     ANALYSIS_HELP_TEXT = """
       <p>
-        Describe how this delivery will be analyzed, including
-        which telemetry metrics will be considered, how those metrics will be
-        analyzed to determine the outcome of the delivery,
-        and who will be responsible for that analysis.
+       The analysis plan is clear leading indicator statement(s)
+        of what is being observed. These reflect how you are
+        impacting the hypothesis outcome(s), specifically
+        what you are observing, and how much of a difference you anticipate.
       </p>
-      <p><strong>Example:</strong></p>
-      <p>Unique page views</p>
-      <p>Usage hours</p>
-      <p>Attracting heavy users and influencers.</p>
-      <p>Understanding the landscape of the web (research)</p>
     """
 
     SURVEY_HELP_TEXT = """
@@ -1073,12 +1068,11 @@ We believe this because we have observed <this> via <data source, UR, survey>.
 Optional - We believe this outcome will <describe impact> on <core metric>
     """  # noqa
 
-    ANALYSIS_DEFAULT = """What is the main effect you are looking for and what data will
-you use to make these decisions? What metrics are you using to measure success
+    ANALYSIS_DEFAULT = """We will measure <outcome> by an <increase/decrease/neutral> of <size> in <feature telemetry>.
+There may be multiple leading indicator statements.
 
-Do you plan on surveying users at the end of the delivery? Yes/No.
-Strategy and Insights can help create surveys if needed
-    """
+Optional: We hypothesize the desired change will <increase/decrease/neutral> to the <core metric>.
+    """  # noqa
 
     RISKS_DEFAULT = """
 If you answered "Yes" to any of the question above - this box is the area to
