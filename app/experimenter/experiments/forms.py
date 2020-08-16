@@ -275,7 +275,7 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
 
     objectives = forms.CharField(
         required=False,
-        label="Objectives",
+        label="Hypothesis",
         help_text=Experiment.OBJECTIVES_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
