@@ -155,7 +155,6 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         experiment = Experiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.changes.count(), 3)
         self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
-        self.assertEqual(experiment.proposed_start_date, datetime.date.today())
         self.assertEqual(experiment.firefox_min_version, Experiment.VERSION_CHOICES[0][0])
         self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
         self.assertEqual(experiment.recipe_slug, "bug-12345-rapid-test-release-55")
