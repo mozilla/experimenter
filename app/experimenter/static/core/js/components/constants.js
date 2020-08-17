@@ -103,13 +103,13 @@ export const ADDON_EXPERIMENT_ID_HELP = (
 export const ADDON_RELEASE_URL_HELP = (
   <div>
     <p>
-      Enter the URL where the release build of your add-on can be found. This is
-      often attached to a bugzilla ticket. This MUST BE the release signed
-      add-on (not the test add-on) that you want deployed.&nbsp;
+      Enter the URL to your release signed add-on. This MUST BE a link to a
+      taskcluster artifact that was signed as part of a "release build" not a
+      "dev build".&nbsp;
       <a
         target="_blank"
         rel="noreferrer noopener"
-        href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-Add-ons"
+        href="https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments"
       >
         See here for more info.
       </a>
