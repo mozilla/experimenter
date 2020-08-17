@@ -18,7 +18,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
         today = datetime.datetime.today()
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA_CFR,
+            rapid_type=Experiment.RAPID_AA,
             audience=audience,
             features=features,
             recipe_slug=recipe_slug,
@@ -86,7 +86,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
         today = datetime.datetime.today()
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA_CFR,
+            rapid_type=Experiment.RAPID_AA,
             audience=audience,
             features=features,
             recipe_slug=recipe_slug,
