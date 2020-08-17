@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('experiments', '0107_auto_20200813_2053'),
+        ("experiments", "0107_auto_20200813_2053"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='experiment',
-            name='objectives',
-            field=models.TextField(blank=True, default='If we <do this/build this/create this change in the experiment> for <these users>, then we will see <this outcome>.\nWe believe this because we have observed <this> via <data source, UR, survey>.\n     \nOptional - We believe this outcome will <describe impact> on <core metric>\n    ', null=True),
+            model_name="experiment",
+            name="objectives",
+            field=models.TextField(
+                blank=True,
+                default="If we <do this/build this/create this change in the experiment> for <these users>, then we will see <this outcome>.\nWe believe this because we have observed <this> via <data source, UR, survey>.\n     \nOptional - We believe this outcome will <describe impact> on <core metric>\n    ",
+                null=True,
+            ),
         ),
     ]

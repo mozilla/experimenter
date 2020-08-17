@@ -785,7 +785,7 @@ class ExperimentConstants(object):
 
     OBJECTIVES_HELP_TEXT = """
       <p>
-        Describe the details / purpose of your delivery in for internal consumers. 
+        Describe the details / purpose of your delivery in for internal consumers.
          This assists supporting teams to understand what you are doing and helps
          avoid delays. It is also a useful reference to understand the experiments
          that have been run.
