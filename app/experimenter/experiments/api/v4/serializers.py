@@ -50,7 +50,7 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
     proposedEnrollment = serializers.ReadOnlyField(source="proposed_enrollment")
     bucketConfig = serializers.SerializerMethodField()
     startDate = serializers.SerializerMethodField()
-    endDate = serializers.ReadOnlyField(default=None)
+    endDate = serializers.SerializerMethodField()
     branches = ExperimentRapidBranchesSerializer(many=True, source="variants")
     referenceBranch = serializers.SerializerMethodField()
 
@@ -72,7 +72,6 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
         )
 
     def get_bucketConfig(self, obj):
-
         if hasattr(obj, "bucket"):
             return ExperimentBucketRangeSerializer(obj.bucket).data
         return {
@@ -92,6 +91,11 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
         # placeholder value
         if obj.start_date:
             return obj.start_date.isoformat()
+
+    def get_endDate(self, obj):
+        # placeholder value
+        if obj.end_date:
+            return obj.end_date.isoformat()
 
 
 class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):
