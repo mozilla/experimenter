@@ -16,10 +16,6 @@ from experimenter.experiments.models import (
 )
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.changelog_utils import ChangelogSerializerMixin
-from experimenter.experiments.api.v1.serializers import (
-    LocaleSerializer,
-    CountrySerializer,
-)
 
 
 class PrefValidationMixin(object):
@@ -774,7 +770,7 @@ class ExperimentCSVSerializer(serializers.ModelSerializer):
         return ", ".join([p.name for p in obj.projects.order_by("name")])
 
     def get_locales(self, obj):
-        return ", ".join([l.name for l in obj.locales.order_by("name")])
+        return ", ".join([locale.name for locale in obj.locales.order_by("name")])
 
     def get_countries(self, obj):
-        return ", ".join([c.name for c in obj.countries.order_by("name")])
+        return ", ".join([country.name for country in obj.countries.order_by("name")])
