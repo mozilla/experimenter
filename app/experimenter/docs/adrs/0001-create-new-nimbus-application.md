@@ -96,6 +96,7 @@ Creating a new web application in TypeScript/Node would allow us to completely r
   - Native async/websocket support allows richer UI experience when coupled with SPA frameworks (like React)
   - [Fits more cohesively into the FXA team's tooling/processes](https://github.com/mozilla/fxa/blob/main/docs/adr/0020-application-architecture.md)
   - Logic/types in TS can be easily shared across multiple projects potentially including Desktop/Mobile clients
+  - TS may integrate more smoothly with Rust than Python does to more tightly couple the server and the new Experiment Client
 - Cons
   - Lose single source of truth
     - Possibly require people to know which application to refer to depending on experiment type
