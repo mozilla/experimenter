@@ -159,12 +159,6 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         label="Feature Bugzilla URL",
         help_text=Experiment.FEATURE_BUGZILLA_HELP_TEXT,
     )
-    related_work = forms.CharField(
-        required=False,
-        label="Related Work URLs",
-        help_text=Experiment.RELATED_WORK_HELP_TEXT,
-        widget=forms.Textarea(attrs={"rows": 3}),
-    )
     related_to = forms.ModelMultipleChoiceField(
         label="Related Deliveries",
         required=False,
