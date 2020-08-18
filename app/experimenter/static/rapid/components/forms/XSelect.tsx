@@ -75,6 +75,7 @@ export function XSelect<OptionType extends XSelectOption = XSelectOption>(
           optionValues = value["value"];
         }
       }
+
       onOptionChange(optionValues);
       renderProps.value = value;
     };
