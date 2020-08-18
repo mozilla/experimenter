@@ -1,5 +1,3 @@
-import datetime
-
 from django.test import TestCase
 
 from experimenter.experiments.models import Experiment, ExperimentBucketNamespace
@@ -11,98 +9,33 @@ from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSer
 
 
 class TestExperimentRapidRecipeSerializer(TestCase):
-    def test_serializer_outputs_expected_schema(self):
+    maxDiff = None
+
+    def test_serializer_outputs_expected_schema_for_accepted(self):
         audience = "us_only"
         features = ["pinned_tabs", "picture_in_picture"]
-        normandy_slug = "experimenter-normandy-slug"
-        today = datetime.datetime.today()
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA_CFR,
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_ACCEPTED,
             audience=audience,
             features=features,
-            normandy_slug=normandy_slug,
-            firefox_min_version="80.0",
-            proposed_enrollment=9,
-            proposed_start_date=today,
-        )
-
-        ExperimentVariantFactory.create(
-            experiment=experiment, slug="control", is_control=True
-        )
-        ExperimentVariantFactory.create(experiment=experiment, slug="variant-2")
-
-        serializer = ExperimentRapidRecipeSerializer(experiment)
-        data = serializer.data
-
-        arguments = data.pop("arguments")
-        branches = arguments.pop("branches")
-
-        self.assertDictEqual(
-            data,
-            {
-                "id": normandy_slug,
-                "filter_expression": "env.version|versionCompare('80.0') >= 0",
-                "targeting": None,
-                "enabled": True,
-            },
-        )
-
-        self.assertDictEqual(
-            dict(arguments),
-            {
-                "userFacingName": experiment.name,
-                "userFacingDescription": experiment.public_description,
-                "slug": normandy_slug,
-                "active": True,
-                "isEnrollmentPaused": False,
-                "endDate": None,
-                "proposedEnrollment": experiment.proposed_enrollment,
-                "features": features,
-                "referenceBranch": "control",
-                "startDate": today.isoformat(),
-                "bucketConfig": {
-                    "count": 0,
-                    "namespace": "",
-                    "randomizationUnit": "normandy_id",
-                    "start": 0,
-                    "total": 10000,
-                },
-            },
-        )
-        converted_branches = [dict(branch) for branch in branches]
-        self.assertEqual(
-            converted_branches,
-            [
-                {"ratio": 33, "slug": "variant-2", "value": None},
-                {"ratio": 33, "slug": "control", "value": None},
-            ],
-        )
-
-    def test_serializer_outputs_expected_schema_with_nameSpace_bucket(self):
-        audience = "us_only"
-        features = ["pinned_tabs", "picture_in_picture"]
-        normandy_slug = "experimenter-normandy-slug"
-        today = datetime.datetime.today()
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA_CFR,
-            audience=audience,
-            features=features,
-            normandy_slug=normandy_slug,
-            firefox_min_version="80.0",
             firefox_channel=Experiment.CHANNEL_RELEASE,
-            proposed_enrollment=9,
-            proposed_start_date=today,
+            firefox_min_version="80.0",
+            proposed_start_date=None,
+            proposed_duration=28,
+            proposed_enrollment=7,
+            rapid_type=Experiment.RAPID_AA,
+            type=Experiment.TYPE_RAPID,
         )
-
+        experiment.variants.all().delete()
         ExperimentVariantFactory.create(
-            experiment=experiment, slug="control", is_control=True
+            experiment=experiment, ratio=1, slug="control", is_control=True
         )
-        ExperimentVariantFactory.create(experiment=experiment, slug="variant-2")
+        ExperimentVariantFactory.create(
+            experiment=experiment, ratio=1, slug="treatment", is_control=False
+        )
 
         ExperimentBucketNamespace.request_namespace_buckets(
-            experiment.normandy_slug, experiment, 100
+            experiment.recipe_slug, experiment, 100
         )
 
         serializer = ExperimentRapidRecipeSerializer(experiment)
@@ -114,9 +47,9 @@ class TestExperimentRapidRecipeSerializer(TestCase):
         self.assertDictEqual(
             data,
             {
-                "id": normandy_slug,
-                "filter_expression": "env.version|versionCompare('80.0') >= 0",
-                "targeting": '[userId, "experimenter-normandy-slug"]'
+                "id": experiment.recipe_slug,
+                "filter_expression": "env.version|versionCompare('80.!') >= 0",
+                "targeting": f'[userId, "{experiment.recipe_slug}"]'
                 "|bucketSample(0, 100, 10000) "
                 "&& localeLanguageCode == 'en' && region == 'US' "
                 "&& browserSettings.update.channel == 'release'",
@@ -124,27 +57,25 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             },
         )
 
-        bucket = experiment.bucket
-
         self.assertDictEqual(
             dict(arguments),
             {
                 "userFacingName": experiment.name,
                 "userFacingDescription": experiment.public_description,
-                "slug": normandy_slug,
+                "slug": experiment.recipe_slug,
                 "active": True,
                 "isEnrollmentPaused": False,
                 "endDate": None,
                 "proposedEnrollment": experiment.proposed_enrollment,
                 "features": features,
                 "referenceBranch": "control",
-                "startDate": today.isoformat(),
+                "startDate": None,
                 "bucketConfig": {
-                    "count": bucket.count,
-                    "namespace": bucket.namespace.name,
+                    "count": experiment.bucket.count,
+                    "namespace": experiment.bucket.namespace.name,
                     "randomizationUnit": "userId",
-                    "start": bucket.start,
-                    "total": bucket.namespace.total,
+                    "start": experiment.bucket.start,
+                    "total": experiment.bucket.namespace.total,
                 },
             },
         )
@@ -152,7 +83,84 @@ class TestExperimentRapidRecipeSerializer(TestCase):
         self.assertEqual(
             converted_branches,
             [
-                {"ratio": 33, "slug": "variant-2", "value": None},
-                {"ratio": 33, "slug": "control", "value": None},
+                {"ratio": 1, "slug": "treatment", "value": None},
+                {"ratio": 1, "slug": "control", "value": None},
+            ],
+        )
+
+    def test_serializer_outputs_expected_schema_for_live(self):
+        audience = "us_only"
+        features = ["pinned_tabs", "picture_in_picture"]
+        experiment = ExperimentFactory.create_with_status(
+            Experiment.STATUS_LIVE,
+            audience=audience,
+            features=features,
+            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_min_version="80.0",
+            proposed_start_date=None,
+            proposed_duration=28,
+            proposed_enrollment=7,
+            rapid_type=Experiment.RAPID_AA,
+            type=Experiment.TYPE_RAPID,
+        )
+        experiment.variants.all().delete()
+        ExperimentVariantFactory.create(
+            experiment=experiment, ratio=1, slug="control", is_control=True
+        )
+        ExperimentVariantFactory.create(
+            experiment=experiment, ratio=1, slug="treatment", is_control=False
+        )
+
+        ExperimentBucketNamespace.request_namespace_buckets(
+            experiment.recipe_slug, experiment, 100
+        )
+
+        serializer = ExperimentRapidRecipeSerializer(experiment)
+        data = serializer.data
+
+        arguments = data.pop("arguments")
+        branches = arguments.pop("branches")
+
+        self.assertDictEqual(
+            data,
+            {
+                "id": experiment.recipe_slug,
+                "filter_expression": "env.version|versionCompare('80.!') >= 0",
+                "targeting": f'[userId, "{experiment.recipe_slug}"]'
+                "|bucketSample(0, 100, 10000) "
+                "&& localeLanguageCode == 'en' && region == 'US' "
+                "&& browserSettings.update.channel == 'release'",
+                "enabled": True,
+            },
+        )
+
+        self.assertDictEqual(
+            dict(arguments),
+            {
+                "userFacingName": experiment.name,
+                "userFacingDescription": experiment.public_description,
+                "slug": experiment.recipe_slug,
+                "active": True,
+                "isEnrollmentPaused": False,
+                "endDate": experiment.end_date.isoformat(),
+                "proposedEnrollment": experiment.proposed_enrollment,
+                "features": features,
+                "referenceBranch": "control",
+                "startDate": experiment.start_date.isoformat(),
+                "bucketConfig": {
+                    "count": experiment.bucket.count,
+                    "namespace": experiment.bucket.namespace.name,
+                    "randomizationUnit": "userId",
+                    "start": experiment.bucket.start,
+                    "total": experiment.bucket.namespace.total,
+                },
+            },
+        )
+        converted_branches = [dict(branch) for branch in branches]
+        self.assertEqual(
+            converted_branches,
+            [
+                {"ratio": 1, "slug": "treatment", "value": None},
+                {"ratio": 1, "slug": "control", "value": None},
             ],
         )

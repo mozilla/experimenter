@@ -23,7 +23,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         owner = UserFactory(email="owner@example.com")
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA_CFR,
+            rapid_type=Experiment.RAPID_AA,
             status=Experiment.STATUS_DRAFT,
             owner=owner,
             name="rapid experiment",
@@ -53,6 +53,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "reject_feedback": None,
                 "owner": "owner@example.com",
                 "slug": "rapid-experiment",
+                "recipe_slug": experiment.recipe_slug,
                 "status": Experiment.STATUS_DRAFT,
             },
         )
@@ -62,7 +63,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_LIVE,
             type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA_CFR,
+            rapid_type=Experiment.RAPID_AA,
             owner=owner,
             name="rapid experiment",
             slug="rapid-experiment",
@@ -93,6 +94,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "owner": "owner@example.com",
                 "reject_feedback": None,
                 "slug": "rapid-experiment",
+                "recipe_slug": experiment.recipe_slug,
                 "status": Experiment.STATUS_LIVE,
             },
         )
@@ -102,7 +104,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_ACCEPTED,
             type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA_CFR,
+            rapid_type=Experiment.RAPID_AA,
             owner=owner,
             name="rapid experiment",
             slug="rapid-experiment",
@@ -147,6 +149,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                     "message": "It's no good",
                 },
                 "slug": "rapid-experiment",
+                "recipe_slug": experiment.recipe_slug,
                 "status": Experiment.STATUS_REJECTED,
             },
         )
@@ -246,7 +249,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
 
         # User input data
         self.assertEqual(experiment.type, Experiment.TYPE_RAPID)
-        self.assertEqual(experiment.rapid_type, Experiment.RAPID_AA_CFR)
+        self.assertEqual(experiment.rapid_type, Experiment.RAPID_AA)
         self.assertEqual(experiment.owner, self.user)
         self.assertEqual(experiment.name, "rapid experiment")
         self.assertEqual(experiment.slug, "rapid-experiment")
@@ -338,7 +341,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_DRAFT,
             type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA_CFR,
+            rapid_type=Experiment.RAPID_AA,
             owner=owner,
             name="rapid experiment",
             slug="rapid-experiment",

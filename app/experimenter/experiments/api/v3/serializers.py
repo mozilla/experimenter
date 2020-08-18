@@ -40,7 +40,7 @@ class ExperimentRapidSerializer(
     AUDIENCE_CHOICES = list(NIMBUS_DATA["Audiences"].keys())
 
     type = serializers.HiddenField(default=Experiment.TYPE_RAPID)
-    rapid_type = serializers.HiddenField(default=Experiment.RAPID_AA_CFR)
+    rapid_type = serializers.HiddenField(default=Experiment.RAPID_AA)
     owner = serializers.ReadOnlyField(source="owner.email")
     slug = serializers.ReadOnlyField()
     public_description = serializers.HiddenField(
@@ -81,6 +81,7 @@ class ExperimentRapidSerializer(
             "status",
             "type",
             "reject_feedback",
+            "recipe_slug",
         )
 
     def get_reject_feedback(self, obj):

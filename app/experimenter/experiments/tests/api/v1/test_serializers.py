@@ -84,7 +84,7 @@ class TestExperimentSerializer(TestCase):
             Experiment.STATUS_COMPLETE,
             countries=[],
             locales=[],
-            normandy_slug="a-normandy-slug",
+            recipe_slug="a-normandy-slug",
             normandy_id=123,
             other_normandy_ids=[],
             results_fail_to_launch=False,
@@ -121,7 +121,7 @@ class TestExperimentSerializer(TestCase):
             "start_date": JSTimestampField().to_representation(experiment.start_date),
             "status": Experiment.STATUS_COMPLETE,
             "type": experiment.type,
-            "normandy_slug": experiment.normandy_slug,
+            "normandy_slug": experiment.recipe_slug,
             "normandy_id": experiment.normandy_id,
             "other_normandy_ids": experiment.other_normandy_ids,
             "variants": [

@@ -6,7 +6,11 @@ from django.test import TestCase
 
 from mozilla_nimbus_shared import get_data
 
-from experimenter.experiments.models import Experiment, ExperimentBucketRange
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentBucketRange,
+    ExperimentChangeLog,
+)
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
 from experimenter.kinto import tasks
@@ -22,7 +26,7 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         self.experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             proposed_start_date=datetime.date(2020, 1, 20),
-            normandy_slug="normandy-slug",
+            recipe_slug="recipe-slug",
             audience="us_only",
         )
 
@@ -50,6 +54,18 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
             collection=settings.KINTO_COLLECTION,
             bucket=settings.KINTO_BUCKET,
             if_not_exists=True,
+        )
+
+        changed_values = {
+            "recipe": {"new_value": data, "old_value": None, "display_name": "Recipe"}
+        }
+
+        self.assertTrue(
+            ExperimentChangeLog.objects.filter(
+                experiment=self.experiment,
+                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+                changed_values=changed_values,
+            ).exists()
         )
 
     def test_push_experiment_to_kinto_reraises_exception(self):
@@ -139,10 +155,9 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         experiment = Experiment.objects.get(id=experiment.id)
         self.assertEqual(experiment.changes.count(), 3)
         self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
-        self.assertEqual(experiment.proposed_start_date, datetime.date.today())
         self.assertEqual(experiment.firefox_min_version, Experiment.VERSION_CHOICES[0][0])
         self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
-        self.assertEqual(experiment.normandy_slug, "bug-12345-rapid-test-release-55")
+        self.assertEqual(experiment.recipe_slug, "bug-12345-rapid-test-release-55")
 
     def test_check_with_reject_rapid_review(self):
         experiment = ExperimentFactory.create_with_status(
@@ -153,7 +168,7 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             firefox_min_version=Experiment.VERSION_CHOICES[0][0],
             name="test",
             type=Experiment.TYPE_RAPID,
-            normandy_slug="bug-12345-rapid-test-release-55",
+            recipe_slug="bug-12345-rapid-test-release-55",
         )
 
         self.mock_kinto_client.delete_record.return_value = {}

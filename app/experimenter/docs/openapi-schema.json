@@ -345,9 +345,7 @@
                       "minimum": 0
                     },
                     "normandy_slug": {
-                      "type": "string",
-                      "nullable": true,
-                      "maxLength": 255
+                      "type": "string"
                     },
                     "normandy_id": {
                       "type": "integer",
@@ -508,6 +506,7 @@
                     "end_date",
                     "pref_type",
                     "proposed_start_date",
+                    "normandy_slug",
                     "variants",
                     "changes"
                   ]
@@ -813,9 +812,7 @@
                         "minimum": 0
                       },
                       "normandy_slug": {
-                        "type": "string",
-                        "nullable": true,
-                        "maxLength": 255
+                        "type": "string"
                       },
                       "normandy_id": {
                         "type": "integer",
@@ -976,6 +973,7 @@
                       "end_date",
                       "pref_type",
                       "proposed_start_date",
+                      "normandy_slug",
                       "variants",
                       "changes"
                     ]
@@ -1089,7 +1087,7 @@
                         ],
                         "nullable": true
                       },
-                      "normandy_slug": {
+                      "recipe_slug": {
                         "type": "string",
                         "nullable": true,
                         "maxLength": 255
@@ -7689,6 +7687,11 @@
                     "reject_feedback": {
                       "type": "string",
                       "readOnly": true
+                    },
+                    "recipe_slug": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
                     }
                   },
                   "required": [
@@ -7816,6 +7819,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -7919,6 +7927,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -8022,6 +8035,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -8150,6 +8168,11 @@
                     "reject_feedback": {
                       "type": "string",
                       "readOnly": true
+                    },
+                    "recipe_slug": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
                     }
                   },
                   "required": [
@@ -8277,6 +8300,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 }
               }
@@ -8372,6 +8400,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 }
               }
@@ -8467,6 +8500,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 }
               }
@@ -8587,6 +8625,11 @@
                     "reject_feedback": {
                       "type": "string",
                       "readOnly": true
+                    },
+                    "recipe_slug": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
                     }
                   },
                   "required": [
@@ -8733,13 +8776,13 @@
         ]
       }
     },
-    "/api/v4/experiments/{slug}/": {
+    "/api/v4/experiments/{recipe_slug}/": {
       "get": {
         "operationId": "retrieveExperiment",
         "description": "",
         "parameters": [
           {
-            "name": "slug",
+            "name": "recipe_slug",
             "in": "path",
             "required": true,
             "description": "",
@@ -8963,6 +9006,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -9066,6 +9114,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -9169,6 +9222,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -9297,6 +9355,11 @@
                     "reject_feedback": {
                       "type": "string",
                       "readOnly": true
+                    },
+                    "recipe_slug": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
                     }
                   },
                   "required": [
@@ -9426,6 +9489,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -9529,6 +9597,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -9632,6 +9705,11 @@
                       "Complete",
                       "Rejected"
                     ]
+                  },
+                  "recipe_slug": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
                   }
                 },
                 "required": [
@@ -9760,6 +9838,11 @@
                     "reject_feedback": {
                       "type": "string",
                       "readOnly": true
+                    },
+                    "recipe_slug": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
                     }
                   },
                   "required": [
@@ -10052,9 +10135,7 @@
                     "minimum": 0
                   },
                   "normandy_slug": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
+                    "type": "string"
                   },
                   "normandy_id": {
                     "type": "integer",
@@ -10211,6 +10292,7 @@
                   "end_date",
                   "pref_type",
                   "proposed_start_date",
+                  "normandy_slug",
                   "variants",
                   "changes"
                 ]
@@ -10470,9 +10552,7 @@
                     "minimum": 0
                   },
                   "normandy_slug": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
+                    "type": "string"
                   },
                   "normandy_id": {
                     "type": "integer",
@@ -10629,6 +10709,7 @@
                   "end_date",
                   "pref_type",
                   "proposed_start_date",
+                  "normandy_slug",
                   "variants",
                   "changes"
                 ]
@@ -10888,9 +10969,7 @@
                     "minimum": 0
                   },
                   "normandy_slug": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
+                    "type": "string"
                   },
                   "normandy_id": {
                     "type": "integer",
@@ -11047,6 +11126,7 @@
                   "end_date",
                   "pref_type",
                   "proposed_start_date",
+                  "normandy_slug",
                   "variants",
                   "changes"
                 ]
@@ -11319,9 +11399,7 @@
                       "minimum": 0
                     },
                     "normandy_slug": {
-                      "type": "string",
-                      "nullable": true,
-                      "maxLength": 255
+                      "type": "string"
                     },
                     "normandy_id": {
                       "type": "integer",
@@ -11482,6 +11560,7 @@
                     "end_date",
                     "pref_type",
                     "proposed_start_date",
+                    "normandy_slug",
                     "variants",
                     "changes"
                   ]
@@ -11765,9 +11844,7 @@
                     "minimum": 0
                   },
                   "normandy_slug": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
+                    "type": "string"
                   },
                   "normandy_id": {
                     "type": "integer",
@@ -12171,9 +12248,7 @@
                     "minimum": 0
                   },
                   "normandy_slug": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
+                    "type": "string"
                   },
                   "normandy_id": {
                     "type": "integer",
@@ -12577,9 +12652,7 @@
                     "minimum": 0
                   },
                   "normandy_slug": {
-                    "type": "string",
-                    "nullable": true,
-                    "maxLength": 255
+                    "type": "string"
                   },
                   "normandy_id": {
                     "type": "integer",
@@ -12996,9 +13069,7 @@
                       "minimum": 0
                     },
                     "normandy_slug": {
-                      "type": "string",
-                      "nullable": true,
-                      "maxLength": 255
+                      "type": "string"
                     },
                     "normandy_id": {
                       "type": "integer",
@@ -13159,6 +13230,7 @@
                     "end_date",
                     "pref_type",
                     "proposed_start_date",
+                    "normandy_slug",
                     "variants",
                     "changes"
                   ]
