@@ -93,7 +93,7 @@ Creating a new web application in TypeScript/Node would allow us to completely r
   - Every decision and line of code built specifically to address the needs of Nimbus
   - TypeScript provides excellent feedback and guarantees which improves development experience
   - Native async/websocket support allows richer UI experience when coupled with SPA frameworks (like React)
-  - Fits more cohesively into the FXA teams tooling/processes
+  - Fits more cohesively into the FXA team's tooling/processes
   - Logic/types in TS can be easily shared across multiple projects potentially including Desktop/Mobile clients
 - Cons
   - Lose single source of truth
