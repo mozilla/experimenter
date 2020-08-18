@@ -94,6 +94,7 @@ Creating a new web application in TypeScript/Node would allow us to completely r
   - TypeScript provides excellent feedback and guarantees which improves development experience
   - Native async/websocket support allows richer UI experience when coupled with SPA frameworks (like React)
   - Fits more cohesively into the FXA teams tooling/processes
+  - Logic/types in TS can be easily shared across multiple projects potentially including Desktop/Mobile clients
 - Cons
   - Lose single source of truth
     - Possibly require people to know which application to refer to depending on experiment type
