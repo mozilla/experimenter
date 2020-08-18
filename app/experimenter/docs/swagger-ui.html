@@ -1018,6 +1018,23 @@
                         "type": "string",
                         "maxLength": 255
                       },
+                      "description": {
+                        "type": "string"
+                      },
+                      "hypothesis": {
+                        "type": "string"
+                      },
+                      "leading_indicators": {
+                        "type": "string"
+                      },
+                      "experiment_url": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "start_date": {
+                        "type": "string",
+                        "readOnly": true
+                      },
                       "type": {
                         "enum": [
                           "pref",
@@ -1028,104 +1045,22 @@
                           "rapid"
                         ]
                       },
-                      "status": {
-                        "enum": [
-                          "Draft",
-                          "Review",
-                          "Ship",
-                          "Accepted",
-                          "Live",
-                          "Complete",
-                          "Rejected"
-                        ]
+                      "length": {
+                        "type": "integer"
                       },
-                      "experiment_url": {
-                        "type": "string",
-                        "readOnly": true
-                      },
-                      "public_description": {
-                        "type": "string",
-                        "nullable": true
+                      "channel": {
+                        "type": "string"
                       },
                       "owner": {
                         "type": "string",
                         "readOnly": true
                       },
-                      "analysis_owner": {
+                      "data_scientist": {
                         "type": "string",
                         "readOnly": true
                       },
-                      "engineering_owner": {
-                        "type": "string",
-                        "nullable": true,
-                        "maxLength": 255
-                      },
-                      "short_description": {
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "objectives": {
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "parent": {
-                        "type": "string",
-                        "readOnly": true
-                      },
-                      "projects": {
-                        "type": "string",
-                        "readOnly": true
-                      },
-                      "data_science_issue_url": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "maxLength": 200,
-                        "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
-                      },
-                      "feature_bugzilla_url": {
-                        "type": "string",
-                        "format": "uri",
-                        "nullable": true,
-                        "maxLength": 200,
-                        "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
-                      },
-                      "firefox_channel": {
-                        "enum": [
-                          null,
-                          "Nightly",
-                          "Beta",
-                          "Release"
-                        ],
-                        "nullable": true
-                      },
-                      "recipe_slug": {
-                        "type": "string",
-                        "nullable": true,
-                        "maxLength": 255
-                      },
-                      "proposed_duration": {
-                        "type": "integer",
-                        "maximum": 1000,
-                        "nullable": true,
-                        "minimum": 0
-                      },
-                      "proposed_start_date": {
-                        "type": "string",
-                        "format": "date",
-                        "nullable": true
-                      },
-                      "related_to": {
-                        "type": "string",
-                        "readOnly": true
-                      },
-                      "related_work": {
-                        "type": "string",
-                        "nullable": true
-                      },
-                      "results_initial": {
-                        "type": "string",
-                        "nullable": true
+                      "enrolled_target": {
+                        "type": "integer"
                       },
                       "results_url": {
                         "type": "string",
@@ -1133,10 +1068,28 @@
                         "nullable": true,
                         "maxLength": 200,
                         "pattern": "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\.]+\\]|([a-z\u00a1-\uffff0-9](?:[a-z\u00a1-\uffff0-9-]{0,61}[a-z\u00a1-\uffff0-9])?(?:\\.(?!-)[a-z\u00a1-\uffff0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\u00a1-\uffff-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                      },
+                      "projects": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "locales": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "countries": {
+                        "type": "string",
+                        "readOnly": true
                       }
                     },
                     "required": [
-                      "name"
+                      "name",
+                      "description",
+                      "hypothesis",
+                      "leading_indicators",
+                      "length",
+                      "channel",
+                      "enrolled_target"
                     ]
                   }
                 }
