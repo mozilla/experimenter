@@ -85,7 +85,7 @@ Creating a new web application in Python/Django would allow us to reuse much of 
 
 ### Start A New Application in TypeScript/Node
 
-Creating a new web application in TypeScript/Node would allow us to completely restart our thinking about the entire structure of the application which may result in both code and workflow/UI that are purpose built from the ground up to solely address the concerns of Nimbus experiments.
+Creating a new web application in TypeScript/Node would allow us to completely restart our thinking about the entire structure of the application which would result in both code and workflow/UI that are purpose built from the ground up to solely address the concerns of Nimbus experiments.
 
 - Pros
   - Totally greenfield approach allows fresh perspectives to flourish
