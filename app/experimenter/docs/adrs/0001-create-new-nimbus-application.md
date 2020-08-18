@@ -61,7 +61,7 @@ Much of the existing Experimenter infrastructure can be reused, which gives Proj
   - Careful consideration that adding Nimbus features does not disturb existing functionality
   - Lack of static typing (mypy can be added with effort)
   - Supporting both Normandy and Nimbus over time could cause unwanted complexity/duplication
-  - Current Experimenter codebase may not align with FXA tools/processes/practices
+  - [Current Experimenter codebase may not align with FXA tools/processes/practices](https://github.com/mozilla/fxa/blob/main/docs/adr/0020-application-architecture.md)
   - Somewhat constricted by core designs decisions that were made in service of existing Normandy experimentation workflows that may not apply to Nimbus
 
 ### Start A New Application In Python/Django
@@ -82,6 +82,7 @@ Creating a new web application in Python/Django would allow us to reuse much of 
   - Changes that must apply to both Normandy and Nimbus experiments must be made in two places while they're both being actively maintained
   - Divergence in tooling/processes over time may create confusion when context switching between the two
   - Possibly still somewhat constricted by past core design decisions
+  - [Python/Django may not align with FXA tools/processes](https://github.com/mozilla/fxa/blob/main/docs/adr/0020-application-architecture.md)
 
 ### Start A New Application in TypeScript/Node
 
@@ -93,7 +94,7 @@ Creating a new web application in TypeScript/Node would allow us to completely r
   - Every decision and line of code built specifically to address the needs of Nimbus
   - TypeScript provides excellent feedback and guarantees which improves development experience
   - Native async/websocket support allows richer UI experience when coupled with SPA frameworks (like React)
-  - Fits more cohesively into the FXA team's tooling/processes
+  - [Fits more cohesively into the FXA team's tooling/processes](https://github.com/mozilla/fxa/blob/main/docs/adr/0020-application-architecture.md)
   - Logic/types in TS can be easily shared across multiple projects potentially including Desktop/Mobile clients
 - Cons
   - Lose single source of truth
