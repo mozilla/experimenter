@@ -109,10 +109,15 @@ class ExperimentTimelinePopulationView(RetrieveUpdateAPIView):
     serializer_class = ExperimentTimelinePopSerializer
 
 
+class ExperimentCSVRenderer(CSVRenderer):
+    header = ExperimentCSVSerializer.Meta.fields
+    labels = dict(((field, field.replace("_", " ").title()) for field in header))
+
+
 class ExperimentCSVListView(ListAPIView):
     queryset = Experiment.objects.get_prefetched().order_by("status", "name")
     serializer_class = ExperimentCSVSerializer
-    renderer_classes = (CSVRenderer,)
+    renderer_classes = (ExperimentCSVRenderer,)
 
     def get_queryset(self):
         return ExperimentFilterset(
