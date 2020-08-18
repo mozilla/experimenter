@@ -54,7 +54,7 @@ interface XSelectCustomProps<OptionType> {
    * This is an alternative to onChange that is called with array of options as the first parameter.
    * Single selects will return a single item, multis will return the array of options
    */
-  onOptionChange?: (value: Array<string> | string) => void;
+  onOptionChange?: (value: Array<string> | string | null) => void;
   selectValue: string[] | string | null | void;
 }
 
@@ -67,17 +67,16 @@ export function XSelect<OptionType extends XSelectOption = XSelectOption>(
   // convert options to values only
   if (onOptionChange) {
     renderProps.onChange = (value: ValueType<OptionType>) => {
+      let optionValues = null;
       if (value) {
-        let singularValue;
         if (props.isMulti) {
-          singularValue = value.map((element) => element.value);
+          optionValues = value.map((element) => element.value);
         } else {
-          singularValue = value["value"];
+          optionValues = value["value"];
         }
-
-        onOptionChange(singularValue);
-        renderProps.value = value;
       }
+      onOptionChange(optionValues);
+      renderProps.value = value;
     };
   }
 
