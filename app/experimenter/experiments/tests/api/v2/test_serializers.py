@@ -2028,6 +2028,10 @@ class TestExperimentCSVSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         project1 = ProjectFactory.create(name="a")
         project2 = ProjectFactory.create(name="b")
+        country1 = CountryFactory.create(name="c")
+        country2 = CountryFactory.create(name="d")
+        locale1 = LocaleFactory.create(name="e")
+        locale2 = LocaleFactory.create(name="f")
         parent = ExperimentFactory.create()
         related_experiment1 = ExperimentFactory.create(slug="a")
         related_experiment2 = ExperimentFactory.create(slug="b")
@@ -2043,29 +2047,20 @@ class TestExperimentCSVSerializer(TestCase):
             serializer.data,
             {
                 "name": experiment.name,
-                "type": experiment.type,
-                "status": experiment.status,
+                "description": experiment.public_description,
+                "hypothesis": experiment.objectives,
+                "leading_indicators": experiment.analysis,
                 "experiment_url": experiment.experiment_url,
-                "public_description": experiment.public_description,
+                "start_date": experiment.proposed_start_date,
+                "type": experiment.type,
+                "length": experiment.proposed_duration,
+                "channel": experiment.firefox_channel,
                 "owner": experiment.owner.email,
-                "analysis_owner": experiment.analysis_owner.email,
-                "engineering_owner": experiment.engineering_owner,
-                "short_description": experiment.short_description,
-                "objectives": experiment.objectives,
-                "parent": experiment.parent.experiment_url,
-                "projects": f"{project1.name}, {project2.name}",
-                "data_science_issue_url": experiment.data_science_issue_url,
-                "feature_bugzilla_url": experiment.feature_bugzilla_url,
-                "firefox_channel": experiment.firefox_channel,
-                "recipe_slug": experiment.recipe_slug,
-                "proposed_duration": experiment.proposed_duration,
-                "proposed_start_date": "2020-01-01",
-                "related_to": (
-                    f"{related_experiment1.experiment_url}, "
-                    f"{related_experiment2.experiment_url}"
-                ),
-                "related_work": experiment.related_work,
-                "results_initial": experiment.results_initial,
+                "data_scientist": experiment.analysis_owner.email,
+                "enrolled_target": experiment.total_enrolled_clients,
                 "results_url": experiment.results_url,
+                "projects": f"{project1.name}, {project2.name}",
+                "locales": f"{locale1.name}, {locale2.name}",
+                "countries": f"{country1.name}, {country2.name}",
             },
         )
