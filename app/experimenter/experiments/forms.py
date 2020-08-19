@@ -188,7 +188,6 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
             "analysis_owner",
             "engineering_owner",
             "feature_bugzilla_url",
-            "related_work",
             "related_to",
             "projects",
         ]
