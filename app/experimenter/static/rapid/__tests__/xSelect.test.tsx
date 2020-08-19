@@ -1,5 +1,6 @@
 import { cleanup, render, fireEvent } from "@testing-library/react";
 import React from "react";
+import selectEvent from "react-select-event";
 
 import { XSelect } from "experimenter-rapid/components/forms/XSelect";
 
@@ -76,6 +77,25 @@ describe("<XSelect />", () => {
       fireEvent.click(getByText("Bar"));
 
       expect(onOptionChange.mock.calls[1][0]).toEqual(["foo", "bar"]);
+    });
+
+    it("should call onOptionChange with no value select", async () => {
+      const onOptionChange = jest.fn();
+
+      const { container, getByText } = renderSelect({
+        onOptionChange,
+        isMulti: true,
+      });
+
+      openSelect(container);
+      fireEvent.click(getByText("Foo"));
+      openSelect(container);
+      fireEvent.click(getByText("Bar"));
+      expect(onOptionChange.mock.calls[1][0]).toEqual(["foo", "bar"]);
+      await selectEvent.clearFirst(getByText("Foo"));
+      await selectEvent.clearFirst(getByText("Bar"));
+
+      expect(onOptionChange.mock.calls[3][0]).toEqual(null);
     });
   });
 });
