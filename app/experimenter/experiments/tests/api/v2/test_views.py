@@ -4,7 +4,6 @@ from django.conf import settings
 from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
-from rest_framework_csv.renderers import CSVRenderer
 
 
 from experimenter.experiments.constants import ExperimentConstants
@@ -18,6 +17,8 @@ from experimenter.experiments.api.v2.serializers import (
     ExperimentDesignPrefSerializer,
     ExperimentTimelinePopSerializer,
 )
+
+from experimenter.experiments.api.v2.views import ExperimentCSVRenderer
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
@@ -629,7 +630,7 @@ class TestExperimentCSVListView(TestCase):
         self.assertEqual(response.status_code, 200)
 
         csv_data = response.content
-        expected_csv_data = CSVRenderer().render(
+        expected_csv_data = ExperimentCSVRenderer().render(
             ExperimentCSVSerializer([experiment1, experiment2], many=True).data,
             renderer_context={"header": ExperimentCSVSerializer.Meta.fields},
         )
@@ -654,7 +655,7 @@ class TestExperimentCSVListView(TestCase):
         self.assertEqual(response.status_code, 200)
 
         csv_data = response.content
-        expected_csv_data = CSVRenderer().render(
+        expected_csv_data = ExperimentCSVRenderer().render(
             ExperimentCSVSerializer([experiment1, experiment2], many=True).data,
             renderer_context={"header": ExperimentCSVSerializer.Meta.fields},
         )
@@ -680,7 +681,7 @@ class TestExperimentCSVListView(TestCase):
         self.assertEqual(response.status_code, 200)
 
         csv_data = response.content
-        expected_csv_data = CSVRenderer().render(
+        expected_csv_data = ExperimentCSVRenderer().render(
             ExperimentCSVSerializer([experiment1, experiment2], many=True).data,
             renderer_context={"header": ExperimentCSVSerializer.Meta.fields},
         )
