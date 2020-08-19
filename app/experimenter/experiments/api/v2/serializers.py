@@ -739,7 +739,7 @@ class ExperimentCSVSerializer(serializers.ModelSerializer):
     description = serializers.CharField(source="public_description")
     hypothesis = serializers.CharField(source="objectives")
     leading_indicators = serializers.CharField(source="analysis")
-    length = serializers.IntegerField(source="proposed_duration")
+    length = serializers.IntegerField(source="total_duration")
     channel = serializers.CharField(source="firefox_channel")
     enrolled_target = serializers.IntegerField(source="total_enrolled_clients")
     locales = serializers.SerializerMethodField()
@@ -749,6 +749,7 @@ class ExperimentCSVSerializer(serializers.ModelSerializer):
         model = Experiment
         fields = (
             "name",
+            "status",
             "description",
             "hypothesis",
             "leading_indicators",
