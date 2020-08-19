@@ -1,3 +1,1 @@
-$("select[multiple]").selectpicker({
-  noneSelectedText: "All Types"
-});
+$("select[multiple]").selectpicker({});
