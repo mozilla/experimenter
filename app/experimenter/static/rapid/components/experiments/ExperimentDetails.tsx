@@ -107,9 +107,9 @@ const ExperimentDetails: React.FC = () => {
     [ExperimentStatus.LIVE, ExperimentStatus.COMPLETE].includes(
       experimentData.status,
     ) &&
-    experimentData.slug
+    experimentData.recipe_slug
   ) {
-    const slug_underscored = experimentData.slug.split("-").join("_");
+    const slug_underscored = experimentData.recipe_slug.split("-").join("_");
     analysis_report = (
       <>
         <h4 className="my-4">Results</h4>

@@ -237,7 +237,7 @@ describe("<ExperimentDetails />", () => {
         wrapInExperimentProvider(<ExperimentDetails />, {
           initialState: {
             status: ExperimentStatus.LIVE,
-            slug: "test-slug",
+            recipe_slug: "test-slug",
             name: "Test Name",
             objectives: "Test objectives",
             owner: "test@owner.com",
