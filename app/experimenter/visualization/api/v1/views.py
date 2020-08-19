@@ -2,6 +2,8 @@ import json
 import logging
 import requests
 
+from experimenter.experiments.models import Experiment
+
 from django.conf import settings
 from django.http import HttpResponse
 from django.views import View
@@ -9,42 +11,29 @@ from django.core.files.storage import default_storage
 
 
 class VisualizationView(View):
-    EXPERIMENTER_API_URL = "https://experimenter.services.mozilla.com/api/v1/experiments"
 
-    def get_experiment_data(self, experiment_url):
-        try:
-            response = requests.get(experiment_url, verify=(not settings.DEBUG))
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.HTTPError as e:
-            logging.exception(
-                "Experimenter API returned Nonsuccessful Response Code: {}".format(e)
-            )
-        except requests.exceptions.RequestException as e:
-            logging.exception("Error calling Experimenter API: {}".format(e))
-        except ValueError as e:
-            logging.exception("Error parsing JSON Experimenter response: {}".format(e))
-
-        return {}
+    def load_data_from_gcs(self, filename):
+        return json.loads(
+            default_storage.open(filename).read().decode('utf8')
+        ) if default_storage.exists(filename) else []
 
     def get(self, request, *args, **kwargs):
-        # TODO: Normandy slug should come from the experiment object rather than the API.
-
         slug = self.kwargs['slug']
-        experiment_url = f'''{self.EXPERIMENTER_API_URL}/{slug}''';
-        experiment_data = self.get_experiment_data(experiment_url)
-        normandy_slug = experiment_data.get("normandy_slug", None).replace("-", "_")
+        current_expermient_arr = Experiment.objects.get_prefetched().filter(slug=slug)
+        if (len(current_expermient_arr) < 1):
+            return HttpResponse('')
 
-        daily_data_filename = f'''statistics_{normandy_slug}_daily.json'''
-        weekly_data_filename = f'''statistics_{normandy_slug}_weekly.json'''
+        recipe_slug = current_expermient_arr[0].recipe_slug.replace("-", "_")
+
+        daily_data_filename = f'''statistics_{recipe_slug}_daily.json'''
+        weekly_data_filename = f'''statistics_{recipe_slug}_weekly.json'''
+
+        daily_data = self.load_data_from_gcs(daily_data_filename)
+        weekly_data = self.load_data_from_gcs(weekly_data_filename)
 
         experiment_json = {
-            "daily": json.loads(
-                default_storage.open(daily_data_filename).read().decode('utf8')
-            ),
-            "weekly": json.loads(
-                default_storage.open(weekly_data_filename).read().decode('utf8')
-            )
-        }
+            "daily": daily_data,
+            "weekly": weekly_data
+        };
 
         return HttpResponse(json.dumps(experiment_json))
