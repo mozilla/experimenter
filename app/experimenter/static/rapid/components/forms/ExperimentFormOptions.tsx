@@ -53,3 +53,8 @@ export const firefoxVersionOptions = [
   { label: "Firefox 99.0", value: "99.0", description: "Firefox 99.0" },
   { label: "Firefox 100.0", value: "100.0", description: "Firefox 100.0" },
 ];
+
+export const firefoxPlatformOptions = [
+  { label: "Firefox Desktop", value: "firefox-desktop" },
+  { label: "Fenix", value: "fenix" },
+];

@@ -28,6 +28,7 @@ export interface ExperimentData {
   features: Array<string>;
   firefox_min_version: string;
   firefox_channel: FirefoxChannel;
+  firefox_platform: string;
   monitoring_dashboard_url?: string;
   name: string;
   objectives: string;

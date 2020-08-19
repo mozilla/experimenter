@@ -39,6 +39,7 @@ describe("<ExperimentDetails />", () => {
             firefox_min_version: "78.0",
             firefox_channel: FirefoxChannel.NIGHTLY,
             variants: [],
+            firefox_platform: "firefox-desktop",
           },
         }),
       );
@@ -68,6 +69,7 @@ describe("<ExperimentDetails />", () => {
             firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
             variants: [],
+            firefox_platform: "firefox-desktop",
           },
         }),
       );
@@ -96,6 +98,7 @@ describe("<ExperimentDetails />", () => {
             audience: "us_only",
             firefox_min_version: "78.0",
             firefox_channel: FirefoxChannel.RELEASE,
+            firefox_platform: "fenix",
             reject_feedback: {
               changed_on: "2020-07-30T05:37:22.540985Z",
               message: "It's no good",
@@ -131,6 +134,7 @@ describe("<ExperimentDetails />", () => {
             audience: "us_only",
             firefox_min_version: "78.0",
             firefox_channel: FirefoxChannel.RELEASE,
+            firefox_platform: "firefox-desktop",
             bugzilla_url: "https://example.com",
             variants: [],
           },
@@ -158,6 +162,7 @@ describe("<ExperimentDetails />", () => {
             firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
             variants: [],
+            firefox_platform: "firefox-desktop",
           },
         }),
       );
@@ -181,6 +186,7 @@ describe("<ExperimentDetails />", () => {
             firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
             variants: [],
+            firefox_platform: "firefox-desktop",
           },
         }),
       );
@@ -204,6 +210,7 @@ describe("<ExperimentDetails />", () => {
             owner: "test@owner.com",
             slug: "test-slug",
             firefox_channel: FirefoxChannel.RELEASE,
+            firefox_platform: "firefox-desktop",
             status: ExperimentStatus.DRAFT,
             variants: [],
           },
@@ -231,6 +238,7 @@ describe("<ExperimentDetails />", () => {
             firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
             variants: [],
+            firefox_platform: "firefox_platform",
           },
         }),
       );
@@ -254,6 +262,7 @@ describe("<ExperimentDetails />", () => {
             firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
             variants: [],
+            firefox_platform: "fenix",
           },
         }),
       );
@@ -277,6 +286,7 @@ describe("<ExperimentDetails />", () => {
             firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
             variants: [],
+            firefox_platform: "fenix",
           },
         }),
       );
@@ -300,6 +310,7 @@ describe("<ExperimentDetails />", () => {
             firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
             variants: [],
+            firefox_platform: "firefox-desktop",
           },
         }),
       );
@@ -330,6 +341,7 @@ describe("<ExperimentDetails />", () => {
             firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
             variants: [],
+            firefox_platform: "firefox-desktop",
           },
         }),
       );
@@ -380,6 +392,7 @@ describe("<ExperimentDetails />", () => {
             firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
             variants: [],
+            firefox_platform: "firefox-desktop",
           },
         }),
       );

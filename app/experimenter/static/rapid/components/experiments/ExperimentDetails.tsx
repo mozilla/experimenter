@@ -7,6 +7,7 @@ import {
   audienceOptions,
   firefoxVersionOptions,
   firefoxChannelOptions,
+  firefoxPlatformOptions,
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
 import {
   requestReview,
@@ -221,6 +222,13 @@ const ExperimentDetails: React.FC = () => {
               {bugzilla_url}
             </LabelledRow>
             <LabelledRow label="Hypothesis" value={experimentData.objectives} />
+            <LabelledRow
+              label="Platform"
+              value={displaySelectOptionLabels(
+                firefoxPlatformOptions,
+                experimentData.firefox_platform,
+              )}
+            />
             <LabelledRow
               label="Feature"
               value={displaySelectOptionLabels(

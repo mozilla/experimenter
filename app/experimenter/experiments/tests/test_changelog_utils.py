@@ -51,6 +51,7 @@ class TestChangeLogSerializer(TestCase):
             "population_percent": "{0:.4f}".format(experiment.population_percent),
             "firefox_min_version": experiment.firefox_min_version,
             "firefox_max_version": experiment.firefox_max_version,
+            "firefox_platform": experiment.firefox_platform,
             "firefox_channel": experiment.firefox_channel,
             "client_matching": experiment.client_matching,
             "locales": [{"code": "da", "name": "Danish"}],

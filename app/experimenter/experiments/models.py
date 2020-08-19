@@ -206,6 +206,12 @@ class Experiment(ExperimentConstants, models.Model):
     windows_versions = ArrayField(
         models.CharField(max_length=200), blank=True, null=True,
     )
+    firefox_platform = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.FIREFOX_PLATFORM_CHOICES,
+        blank=True,
+        null=True,
+    )
     profile_age = models.CharField(
         max_length=255,
         choices=ExperimentConstants.PROFILE_AGE_CHOICES,

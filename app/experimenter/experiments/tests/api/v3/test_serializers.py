@@ -58,6 +58,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             objectives="gotta go fast",
             audience="all_english",
             features=["picture_in_picture"],
+            firefox_platform="firefox-desktop",
             firefox_min_version=FIREFOX_VERSION,
             firefox_channel=Experiment.CHANNEL_RELEASE,
         )
@@ -91,6 +92,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "features": ["picture_in_picture"],
                 "firefox_channel": Experiment.CHANNEL_RELEASE,
                 "firefox_min_version": FIREFOX_VERSION,
+                "firefox_platform": "firefox-desktop",
                 "monitoring_dashboard_url": None,
                 "name": "rapid experiment",
                 "objectives": "gotta go fast",
@@ -119,6 +121,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             firefox_channel=Experiment.CHANNEL_RELEASE,
             firefox_min_version=FIREFOX_VERSION,
             firefox_max_version=None,
+            firefox_platform="fenix",
         )
 
         variants_data = []
@@ -150,6 +153,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "features": ["picture_in_picture"],
                 "firefox_min_version": FIREFOX_VERSION,
                 "firefox_channel": Experiment.CHANNEL_RELEASE,
+                "firefox_platform": "fenix",
                 "monitoring_dashboard_url": experiment.monitoring_dashboard_url,
                 "name": "rapid experiment",
                 "objectives": "gotta go fast",
@@ -179,6 +183,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             firefox_channel=Experiment.CHANNEL_RELEASE,
             firefox_min_version=FIREFOX_VERSION,
             firefox_max_version=None,
+            firefox_platform="firefox-desktop",
         )
 
         ExperimentChangeLog.objects.create(
@@ -222,6 +227,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "features": ["picture_in_picture"],
                 "firefox_channel": "Release",
                 "firefox_min_version": FIREFOX_VERSION,
+                "firefox_platform": "firefox-desktop",
                 "monitoring_dashboard_url": experiment.monitoring_dashboard_url,
                 "name": "rapid experiment",
                 "objectives": "gotta go fast",
@@ -252,6 +258,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                     "firefox_min_version",
                     "firefox_channel",
                     "variants",
+                    "firefox_platform",
                 ]
             ),
         )
@@ -324,6 +331,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
             "firefox_channel": Experiment.CHANNEL_RELEASE,
+            "firefox_platform": "fenix",
             "variants": [
                 {
                     "name": "duplicate",
@@ -351,6 +359,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "objectives": "gotta go fast",
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
+            "firefox_platform": "firefox-desktop",
             "firefox_min_version": FIREFOX_VERSION,
             "firefox_channel": Experiment.CHANNEL_RELEASE,
             "variants": self.variants_data,
@@ -372,6 +381,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertEqual(experiment.audience, "all_english")
         self.assertEqual(experiment.features, ["picture_in_picture", "pinned_tabs"])
         self.assertEqual(experiment.firefox_min_version, FIREFOX_VERSION)
+        self.assertEqual(experiment.firefox_platform, "firefox-desktop")
         self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
         self.assertEqual(
             experiment.public_description, Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
@@ -438,6 +448,11 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "new_value": Experiment.CHANNEL_RELEASE,
                 "old_value": None,
             },
+            "firefox_platform": {
+                "display_name": "Firefox Platform",
+                "new_value": "firefox-desktop",
+                "old_value": None,
+            },
             "proposed_duration": {
                 "display_name": "Proposed Duration",
                 "new_value": 28,
@@ -500,6 +515,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             objectives="gotta go fast",
             audience="us_only",
             features=["picture_in_picture", "pinned_tabs"],
+            firefox_platform="firefox-desktop",
             firefox_channel=Experiment.CHANNEL_RELEASE,
             firefox_min_version=FIREFOX_VERSION,
             public_description=Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
@@ -532,6 +548,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                     "value": "variant value",
                 },
             ],
+            "firefox_platform": "fenix",
         }
 
         serializer = ExperimentRapidSerializer(
@@ -572,6 +589,11 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "display_name": "Firefox Channel",
                 "new_value": Experiment.CHANNEL_NIGHTLY,
                 "old_value": Experiment.CHANNEL_RELEASE,
+            },
+            "firefox_platform": {
+                "display_name": "Firefox Platform",
+                "new_value": "fenix",
+                "old_value": "firefox-desktop",
             },
             "variants": {
                 "display_name": "Branches",
@@ -639,6 +661,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "objectives": "gotta go fast",
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
+            "firefox_platform": "firefox-desktop",
             "firefox_min_version": FIREFOX_VERSION,
             "firefox_channel": Experiment.CHANNEL_RELEASE,
             "variants": self.variants_data,
@@ -660,6 +683,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "objectives": "gotta go fast",
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
+            "firefox_platform": "firefox-desktop",
             "firefox_min_version": FIREFOX_VERSION,
             "firefox_channel": Experiment.CHANNEL_RELEASE,
             "variants": self.variants_data,
@@ -685,6 +709,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "objectives": "gotta go fast",
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
+            "firefox_platform": "firefox-desktop",
             "firefox_min_version": FIREFOX_VERSION,
             "firefox_channel": Experiment.CHANNEL_RELEASE,
             "variants": self.variants_data,

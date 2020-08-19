@@ -89,6 +89,10 @@ describe("<SettingsForm />", () => {
     const objectivesField = getByLabelText("Hypothesis");
     fireEvent.change(objectivesField, { target: { value: "test objective" } });
 
+    // Update the plaform field
+    const platformField = getByLabelText("Platform");
+    await selectEvent.select(platformField, "Firefox Desktop");
+
     // Update the features field
     const featuresField = getByLabelText("Features");
     await selectEvent.select(featuresField, [
@@ -127,6 +131,7 @@ describe("<SettingsForm />", () => {
       audience: "us_only",
       firefox_min_version: "78.0",
       firefox_channel: FirefoxChannel.NIGHTLY,
+      firefox_platform: "firefox-desktop",
       variants: [
         {
           name: "control",
@@ -213,6 +218,7 @@ describe("<SettingsForm />", () => {
     "audience",
     "firefox_min_version",
     "firefox_channel",
+    "firefox_platform",
   ].forEach((fieldName) => {
     it(`shows the appropriate error message for '${fieldName}' on save`, async () => {
       const { getByText } = renderWithRouter(

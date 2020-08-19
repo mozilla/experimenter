@@ -57,6 +57,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "firefox_min_version",
             "firefox_max_version",
             "firefox_channel",
+            "firefox_platform",
             "client_matching",
             "locales",
             "countries",

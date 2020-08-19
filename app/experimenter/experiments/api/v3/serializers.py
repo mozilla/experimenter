@@ -69,6 +69,9 @@ class ExperimentRapidSerializer(ExperimentDesignBaseSerializer):
     firefox_channel = serializers.ChoiceField(
         required=True, choices=Experiment.CHANNEL_CHOICES
     )
+    firefox_platform = serializers.ChoiceField(
+        required=True, choices=Experiment.FIREFOX_PLATFORM_CHOICES
+    )
     monitoring_dashboard_url = serializers.ReadOnlyField()
     reject_feedback = serializers.SerializerMethodField()
 
@@ -82,6 +85,7 @@ class ExperimentRapidSerializer(ExperimentDesignBaseSerializer):
             "features",
             "firefox_min_version",
             "firefox_channel",
+            "firefox_platform",
             "monitoring_dashboard_url",
             "name",
             "objectives",

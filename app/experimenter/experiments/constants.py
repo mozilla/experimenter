@@ -241,6 +241,13 @@ class ExperimentConstants(object):
         VERSION_WINDOWS_10_PLUS,
     ]
 
+    FIREFOX_DESKTOP = "firefox-desktop"
+    FIREFOX_MOBILE = "fenix"
+    FIREFOX_PLATFORM_CHOICES = [
+        (FIREFOX_DESKTOP, FIREFOX_DESKTOP),
+        (FIREFOX_MOBILE, FIREFOX_MOBILE),
+    ]
+
     PROFILES_NEW = "New Profiles Only"
     PROFILES_EXISTING = "Existing Profiles Only"
     PROFILES_ALL = "All Profiles"

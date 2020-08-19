@@ -16,6 +16,7 @@ import {
   audienceOptions,
   firefoxChannelOptions,
   firefoxVersionOptions,
+  firefoxPlatformOptions,
 } from "./ExperimentFormOptions";
 import { TabRoutes } from "./TabRoutes";
 import { XSelect } from "./XSelect";
@@ -113,6 +114,22 @@ export const SettingsForm: React.FC = () => {
           onChange={handleChange}
         />
         <ErrorList errors={errors.objectives} />
+      </div>
+
+      <div className="mb-4">
+        <label className="font-weight-bold" htmlFor="field-firefox-platform">
+          Platform
+        </label>
+        <p>What platform do you want to run this experiment on?</p>
+        <XSelect
+          className="w-100"
+          id="field-firefox-platform"
+          name="firefox_platform"
+          options={firefoxPlatformOptions}
+          selectValue={formData.firefox_platform}
+          onOptionChange={handleSelectChange("firefox_platform")}
+        />
+        <ErrorList errors={errors.firefox_platform} />
       </div>
 
       <div className="mb-4">
