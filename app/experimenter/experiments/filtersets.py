@@ -36,12 +36,16 @@ class ExperimentFilterset(filters.FilterSet):
     type = filters.MultipleChoiceFilter(
         choices=Experiment.TYPE_CHOICES,
         conjoined=False,
-        widget=forms.SelectMultiple(attrs={"class": "form-control"}),
+        widget=forms.SelectMultiple(
+            attrs={"class": "form-control", "data-none-selected-text": "All Types"}
+        ),
     )
-    projects = filters.ModelChoiceFilter(
-        empty_label="All Projects",
+    projects = filters.ModelMultipleChoiceFilter(
         queryset=Project.objects.all(),
-        widget=forms.Select(attrs={"class": "form-control"}),
+        null_label="No Projects",
+        widget=forms.SelectMultiple(
+            attrs={"class": "form-control", "data-none-selected-text": "All Projects"}
+        ),
     )
     status = filters.ChoiceFilter(
         empty_label="All Statuses",
@@ -287,10 +291,17 @@ class ExperimentFilterset(filters.FilterSet):
         )
 
     def get_project_display_value(self):
-        project_id = self.data.get("projects")
+        project_ids = self.data.getlist("projects")
 
-        if project_id is not None:
-            return Project.objects.get(id=project_id)
+        if project_ids:
+            if "null" in project_ids:
+                project_ids.remove("null")
+            project_name_list = Project.objects.filter(id__in=project_ids).values_list(
+                "name"
+            )
+            if project_name_list:
+                return ", ".join(project_name[0] for project_name in project_name_list)
+            return "No Projects"
 
     def get_owner_display_value(self):
         user_id = self.data.get("owner")
