@@ -2035,8 +2035,8 @@ class TestExperimentCSVSerializer(TestCase):
         parent = ExperimentFactory.create()
         related_experiment1 = ExperimentFactory.create(slug="a")
         related_experiment2 = ExperimentFactory.create(slug="b")
-        experiment = ExperimentFactory.create(
-            proposed_start_date=datetime.date(2020, 1, 1),
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_COMPLETE,
             parent=parent,
             projects=[project1, project2],
         )
@@ -2047,13 +2047,14 @@ class TestExperimentCSVSerializer(TestCase):
             serializer.data,
             {
                 "name": experiment.name,
+                "status": experiment.status,
                 "description": experiment.public_description,
                 "hypothesis": experiment.objectives,
                 "leading_indicators": experiment.analysis,
                 "experiment_url": experiment.experiment_url,
-                "start_date": experiment.proposed_start_date,
+                "start_date": experiment.start_date,
                 "type": experiment.type,
-                "length": experiment.proposed_duration,
+                "length": experiment.total_duration,
                 "channel": experiment.firefox_channel,
                 "owner": experiment.owner.email,
                 "data_scientist": experiment.analysis_owner.email,
