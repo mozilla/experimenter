@@ -184,7 +184,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
             "public_description": "Let us learn new public things",
             "related_to": [related_exp],
             "feature_bugzilla_url": bug_url,
-            "related_work": "Designs: https://www.example.com/myproject/",
             "projects": [project],
         }
 
@@ -241,11 +240,6 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
                 "new_value": [related_exp.id],
                 "old_value": None,
             },
-            "related_work": {
-                "display_name": "Related Work URLs",
-                "new_value": "Designs: https://www.example.com/myproject/",
-                "old_value": None,
-            },
             "short_description": {
                 "display_name": "Internal Description",
                 "new_value": "Let us learn new things",
@@ -279,7 +273,6 @@ class TestExperimentOverviewForm(MockRequestMixin, TestCase):
             "public_description": "Let us learn new public things",
             "related_to": [self.related_exp],
             "feature_bugzilla_url": bug_url,
-            "related_work": "Designs: https://www.example.com/myproject/",
             "projects": [project],
         }
 

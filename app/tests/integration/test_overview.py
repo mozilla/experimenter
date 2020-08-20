@@ -77,18 +77,6 @@ def test_feature_bugzilla_url_changes_correctly(base_url, selenium):
 
 
 @pytest.mark.nondestructive
-def test_related_work_url_changes_correctly(base_url, selenium):
-    """Test adding related work urls."""
-    selenium.get(base_url)
-    home = Home(selenium, base_url).wait_for_page_to_load()
-    experiment = home.create_experiment()
-    assert experiment.related_work_urls == ""
-    new_url = "http://someawesomeurl.com"
-    experiment.related_work_urls = new_url
-    assert new_url in experiment.related_work_urls
-
-
-@pytest.mark.nondestructive
 def test_related_experiments_updates_correctly(base_url, selenium):
     """Test updating related experiments."""
     selenium.get(base_url)
@@ -97,4 +85,3 @@ def test_related_experiments_updates_correctly(base_url, selenium):
     assert experiment.related_experiments == "Nothing selected"
     # Choose some random experiment from the list
     experiment.related_experiments = 1
-    assert "Nothing selected" not in experiment.related_work_urls
