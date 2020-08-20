@@ -130,7 +130,7 @@ class ExperimentRapidSerializer(
         variants = data.get("variants")
 
         if variants:
-            if not self.is_variant_valid(variants):
+            if not self.all_variant_slugs_unique(variants):
                 error_list = []
                 for variant in variants:
                     error_list.append(
@@ -141,7 +141,7 @@ class ExperimentRapidSerializer(
 
         return validated_data
 
-    def is_variant_valid(self, variants):
+    def all_variant_slugs_unique(self, variants):
 
         slugified_names = [slugify(variant["name"]) for variant in variants]
         unique_names = len(set(slugified_names)) == len(variants)

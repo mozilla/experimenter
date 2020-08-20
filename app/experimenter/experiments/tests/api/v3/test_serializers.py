@@ -20,25 +20,28 @@ from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
 NIMBUS_DATA = get_data()
 FIREFOX_VERSION = random.choice(Experiment.VERSION_CHOICES)[0]
-FAKE_VARIANTS = [
-    {
-        "slug": "control",
-        "name": "control",
-        "ratio": 50,
-        "description": "a variant",
-        "is_control": True,
-    },
-    {
-        "slug": "variant",
-        "name": "variant",
-        "ratio": 50,
-        "description": "a variant",
-        "is_control": False,
-    },
-]
 
 
 class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        self.variants_data = [
+            {
+                "slug": "control",
+                "name": "control",
+                "ratio": 50,
+                "description": "a variant",
+                "is_control": True,
+            },
+            {
+                "slug": "variant",
+                "name": "variant",
+                "ratio": 50,
+                "description": "a variant",
+                "is_control": False,
+            },
+        ]
+
     def test_serializer_outputs_expected_schema_for_draft_experiment(self):
         owner = UserFactory(email="owner@example.com")
         experiment = ExperimentFactory.create_with_variants(
@@ -363,7 +366,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
             "firefox_channel": Experiment.CHANNEL_RELEASE,
-            "variants": FAKE_VARIANTS,
+            "variants": self.variants_data,
         }
 
         serializer = ExperimentRapidSerializer(
@@ -388,8 +391,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         )
 
         self.assertEqual(experiment.variants.count(), 2)
-        self.assertTrue(experiment.variants.filter(**FAKE_VARIANTS[0]).exists())
-        self.assertTrue(experiment.variants.filter(**FAKE_VARIANTS[1]).exists())
+        self.assertTrue(experiment.variants.filter(**self.variants_data[0]).exists())
+        self.assertTrue(experiment.variants.filter(**self.variants_data[1]).exists())
 
         # Preset data
         preset_data = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
@@ -550,7 +553,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
             "firefox_channel": Experiment.CHANNEL_RELEASE,
-            "variants": FAKE_VARIANTS,
+            "variants": self.variants_data,
         }
 
         serializer = ExperimentRapidSerializer(
@@ -571,7 +574,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
             "firefox_channel": Experiment.CHANNEL_RELEASE,
-            "variants": FAKE_VARIANTS,
+            "variants": self.variants_data,
         }
 
         serializer = ExperimentRapidSerializer(
@@ -596,7 +599,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": FIREFOX_VERSION,
             "firefox_channel": Experiment.CHANNEL_RELEASE,
-            "variants": FAKE_VARIANTS,
+            "variants": self.variants_data,
         }
 
         serializer = ExperimentRapidSerializer(
