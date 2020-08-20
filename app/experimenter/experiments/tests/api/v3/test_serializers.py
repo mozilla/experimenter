@@ -387,6 +387,10 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             experiment.public_description, Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
         )
 
+        self.assertEqual(experiment.variants.count(), 2)
+        self.assertTrue(experiment.variants.filter(**FAKE_VARIANTS[0]).exists())
+        self.assertTrue(experiment.variants.filter(**FAKE_VARIANTS[1]).exists())
+
         # Preset data
         preset_data = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
             "arguments"
