@@ -29,7 +29,7 @@ export const INITIAL_CONTEXT: {
       },
       {
         name: "variant",
-        is_control: true,
+        is_control: false,
         description: "An empty branch",
         value: "",
         ratio: 50,
