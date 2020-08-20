@@ -159,12 +159,6 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         label="Feature Bugzilla URL",
         help_text=Experiment.FEATURE_BUGZILLA_HELP_TEXT,
     )
-    related_work = forms.CharField(
-        required=False,
-        label="Related Work URLs",
-        help_text=Experiment.RELATED_WORK_HELP_TEXT,
-        widget=forms.Textarea(attrs={"rows": 3}),
-    )
     related_to = forms.ModelMultipleChoiceField(
         label="Related Deliveries",
         required=False,
@@ -194,7 +188,6 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
             "analysis_owner",
             "engineering_owner",
             "feature_bugzilla_url",
-            "related_work",
             "related_to",
             "projects",
         ]
@@ -275,7 +268,7 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
 
     objectives = forms.CharField(
         required=False,
-        label="Objectives",
+        label="Hypothesis",
         help_text=Experiment.OBJECTIVES_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
