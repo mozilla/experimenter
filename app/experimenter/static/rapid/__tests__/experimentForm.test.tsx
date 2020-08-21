@@ -9,7 +9,9 @@ import {
 } from "experimenter-rapid/__tests__/utils";
 import ExperimentForm, {
   SettingsForm,
+  BranchesForm,
 } from "experimenter-rapid/components/forms/ExperimentForm";
+import { INITIAL_CONTEXT } from "experimenter-rapid/contexts/experiment/context";
 import {
   ExperimentStatus,
   FirefoxChannel,
@@ -234,6 +236,36 @@ describe("<SettingsForm />", () => {
   });
 });
 
+describe("<BranchesForm />", () => {
+  it("should render the form", async () => {
+    const { getByText } = renderWithRouter(
+      wrapInExperimentProvider(<BranchesForm />),
+    );
+    expect(
+      getByText(
+        "You can change the configuration of a feature in each branch.",
+      ),
+    ).toBeInTheDocument();
+  });
+  it("should render inputs for each variant", async () => {
+    const { getByDisplayValue } = renderWithRouter(
+      wrapInExperimentProvider(<BranchesForm />),
+    );
+    const { variants } = INITIAL_CONTEXT.state;
+    for (const variant of variants) {
+      expect(getByDisplayValue(variant.name)).toBeInTheDocument();
+    }
+  });
+
+  it("should render a control label", async () => {
+    const { getByText } = renderWithRouter(
+      wrapInExperimentProvider(<BranchesForm />),
+    );
+    // Should only by one control branch
+    expect(getByText("control")).toBeInTheDocument();
+  });
+});
+
 describe("<ExperimentForm />", () => {
   it("should render the settings form by default", () => {
     const { getByText } = renderWithRouter(<ExperimentForm />);
@@ -245,6 +277,12 @@ describe("<ExperimentForm />", () => {
     // Click the branches tab
     fireEvent.click(getByText("Branches"));
 
-    await waitFor(() => expect(getByText("Branch")).toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        getByText(
+          "You can change the configuration of a feature in each branch.",
+        ),
+      ).toBeInTheDocument(),
+    );
   });
 });
