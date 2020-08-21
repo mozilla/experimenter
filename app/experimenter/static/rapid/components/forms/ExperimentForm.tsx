@@ -197,6 +197,8 @@ export const SettingsForm: React.FC = () => {
 };
 
 export const BranchesForm: React.FC = () => {
+  const formData = useExperimentState();
+  const variants = formData.variants || [];
   return (
     <div>
       <table className="table table-bordered">
@@ -209,26 +211,18 @@ export const BranchesForm: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>
-              <code>control</code>
-            </td>
-            <td>An empty branch.</td>
-            <td>
-              <code>(empty)</code>
-            </td>
-            <td>50%</td>
-          </tr>
-          <tr>
-            <td>
-              <code>variant</code>
-            </td>
-            <td>An empty branch.</td>
-            <td>
-              <code>(empty)</code>
-            </td>
-            <td>50%</td>
-          </tr>
+          {variants.map((variant, i) => (
+            <tr key={i}>
+              <td>
+                <code>{variant.name}</code>
+              </td>
+              <td>{variant.description}</td>
+              <td>
+                <code>(empty)</code>
+              </td>
+              <td>{variant.ratio}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
