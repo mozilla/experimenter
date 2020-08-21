@@ -200,31 +200,118 @@ export const BranchesForm: React.FC = () => {
   const formData = useExperimentState();
   const variants = formData.variants || [];
   return (
-    <div>
-      <table className="table table-bordered">
-        <thead>
-          <tr>
-            <th>Branch</th>
-            <th>Description</th>
-            <th>Content</th>
-            <th>Ratio</th>
-          </tr>
-        </thead>
-        <tbody>
-          {variants.map((variant, i) => (
-            <tr key={i}>
-              <td>
-                <code>{variant.name}</code>
-              </td>
-              <td>{variant.description}</td>
-              <td>
-                <code>(empty)</code>
-              </td>
-              <td>{variant.ratio}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div style={{ width: "75%" }}>
+      <div className="mb-4">
+        <h5>Branches</h5>
+        <p>You can change the configuration of a feature in each branch.</p>
+      </div>
+      {[...variants]
+        // Sort control branch to the top
+        .sort((a, b) => (a.is_control < b.is_control ? 1 : -1))
+        .map((variant, i) => {
+          return (
+            <div key={i} className="card mb-4">
+              <ul className="list-group list-group-flush">
+                <li className="list-group-item">
+                  <div className="container">
+                    <div className="row">
+                      <div className="col">
+                        <label htmlFor={`variant-name-${i}`}>
+                          Branch{" "}
+                          {variant.is_control && (
+                            <span className="badge badge-pill badge-primary">
+                              control
+                            </span>
+                          )}
+                        </label>
+                        <input
+                          readOnly
+                          className="form-control"
+                          id={`variant-name-${i}`}
+                          type="text"
+                          value={variant.name}
+                        />
+                      </div>
+                      <div className="col-6">
+                        <label htmlFor={`variant-description-${i}`}>
+                          Description
+                        </label>
+                        <input
+                          readOnly
+                          className="form-control"
+                          id={`variant-description-${i}`}
+                          type="text"
+                          value={variant.description}
+                        />
+                        <small className="form-text text-muted">
+                          Only visible in internal tools behind LDAP.
+                        </small>
+                      </div>
+                      <div className="col">
+                        <label htmlFor={`variant-ratio-${i}`}>Ratio</label>
+                        <div className="input-group">
+                          <input
+                            readOnly
+                            className="form-control"
+                            id={`variant-ratio-${i}`}
+                            type="number"
+                            value={variant.ratio}
+                          />
+                          <div className="input-group-append">
+                            <div className="input-group-text">%</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li className="list-group-item">
+                  <div className="container">
+                    <div className="row">
+                      <div className="col">
+                        <label htmlFor={`variant-feature-${i}`}>Feature</label>
+                      </div>
+                    </div>
+                    <div className="row mb-2">
+                      <div className="col-6">
+                        <fieldset disabled>
+                          <input
+                            readOnly
+                            className="form-control disabled"
+                            id={`variant-feature-${i}`}
+                            type="text"
+                            value="Empty"
+                          />
+                          <small className="form-text text-muted">
+                            This will be become editable as we implement more
+                            features.
+                          </small>
+                        </fieldset>
+                      </div>
+                      <div className="col-2">
+                        <div className="custom-control custom-switch">
+                          <input
+                            readOnly
+                            checked={true}
+                            className="custom-control-input "
+                            id={`variant-enabled-${i}`}
+                            type="checkbox"
+                          />
+                          <label
+                            className="custom-control-label"
+                            htmlFor={`variant-enabled-${i}`}
+                          >
+                            Enabled
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          );
+        })}
     </div>
   );
 };
