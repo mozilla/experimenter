@@ -8,12 +8,16 @@ from mozilla_nimbus_shared import get_data
 from experimenter.experiments.api.v3.serializers import (
     ExperimentRapidSerializer,
     ExperimentRapidStatusSerializer,
+    ExperimentRapidVariantSerializer,
 )
 from experimenter.experiments.models import (
     Experiment,
     ExperimentChangeLog,
 )
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.factories import (
+    ExperimentFactory,
+    ExperimentVariantFactory,
+)
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
@@ -329,35 +333,6 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertFalse(serializer.is_valid())
         self.assertIn("variants", serializer.errors)
 
-    def test_serializer_bad_ratio_variant(self):
-        data = {
-            "name": "rapid experiment",
-            "objectives": "gotta go fast",
-            "audience": "all_english",
-            "features": ["picture_in_picture", "pinned_tabs"],
-            "firefox_min_version": FIREFOX_VERSION,
-            "firefox_channel": Experiment.CHANNEL_RELEASE,
-            "variants": [
-                {
-                    "name": "control",
-                    "ratio": 500,
-                    "description": "a variant",
-                    "is_control": True,
-                },
-                {
-                    "name": "treatment",
-                    "ratio": 500,
-                    "description": "a variant",
-                    "is_control": True,
-                },
-            ],
-        }
-        serializer = ExperimentRapidSerializer(
-            data=data, context={"request": self.request}
-        )
-        self.assertFalse(serializer.is_valid())
-        self.assertIn("variants", serializer.errors)
-
     def test_serializer_creates_experiment_and_sets_slug_and_changelog(self):
         data = {
             "name": "rapid experiment",
@@ -644,3 +619,32 @@ class TestExperimentRapidStatusSerializer(MockRequestMixin, TestCase):
         )
 
         self.assertFalse(serializer.is_valid())
+
+
+class TestExperimentRapidVariantSerializer(TestCase):
+    def test_serializer_outputs_expected_schema(self):
+        variant = ExperimentVariantFactory.create()
+
+        serializer_data = ExperimentRapidVariantSerializer(instance=variant).data
+        self.assertDictEqual(
+            {
+                "name": variant.name,
+                "ratio": variant.ratio,
+                "description": variant.description,
+                "is_control": variant.is_control,
+                "slug": variant.slug,
+                "value": variant.value,
+            },
+            serializer_data,
+        )
+
+    def test_serializer_bad_ratio_variant(self):
+        data = {
+            "name": "control",
+            "ratio": 500,
+            "description": "a variant",
+            "is_control": True,
+        }
+        serializer = ExperimentRapidVariantSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("ratio", serializer.errors)
