@@ -739,7 +739,7 @@ class ExperimentCSVSerializer(serializers.ModelSerializer):
     description = serializers.CharField(source="public_description")
     hypothesis = serializers.CharField(source="objectives")
     leading_indicators = serializers.CharField(source="analysis")
-    length = serializers.IntegerField(source="total_duration")
+    length = serializers.SerializerMethodField()
     channel = serializers.CharField(source="firefox_channel")
     enrolled_target = serializers.IntegerField(source="total_enrolled_clients")
     locales = serializers.SerializerMethodField()
@@ -775,3 +775,7 @@ class ExperimentCSVSerializer(serializers.ModelSerializer):
 
     def get_countries(self, obj):
         return ", ".join([country.name for country in obj.countries.order_by("name")])
+
+    def get_length(self, obj):
+        if obj.end_date:
+            return obj.total_duration
