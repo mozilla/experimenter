@@ -13,6 +13,25 @@ from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
 
 class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        self.variants_data = [
+            {
+                "slug": "control",
+                "name": "control",
+                "ratio": 50,
+                "description": "a variant",
+                "is_control": True,
+            },
+            {
+                "slug": "variant",
+                "name": "variant",
+                "ratio": 50,
+                "description": "a variant",
+                "is_control": False,
+            },
+        ]
+
     def test_get_detail_returns_data_for_rapid_experiment(self):
         user_email = "user@example.com"
 
@@ -79,6 +98,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
                 "features": features,
                 "firefox_min_version": firefox_min_version,
                 "firefox_channel": Experiment.CHANNEL_RELEASE,
+                "variants": self.variants_data,
             }
         )
 
@@ -114,6 +134,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
                 "features": features,
                 "firefox_min_version": firefox_min_version,
                 "firefox_channel": Experiment.CHANNEL_RELEASE,
+                "variants": self.variants_data,
             }
         )
 

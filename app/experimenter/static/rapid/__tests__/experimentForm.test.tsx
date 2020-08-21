@@ -14,6 +14,7 @@ import {
   ExperimentStatus,
   FirefoxChannel,
 } from "experimenter-rapid/types/experiment";
+import { ExperimentData } from "experimenter-types/experiment";
 
 afterEach(async () => {
   await cleanup();
@@ -116,7 +117,7 @@ describe("<SettingsForm />", () => {
     // Check the correct data was submitted
     expect(submitUrl).toEqual("/api/v3/experiments/");
     expect(requestMethod).toEqual("POST");
-    expect(formData).toEqual({
+    const expected: ExperimentData = {
       status: ExperimentStatus.DRAFT,
       name: "test name",
       objectives: "test objective",
@@ -124,7 +125,24 @@ describe("<SettingsForm />", () => {
       audience: "us_only",
       firefox_min_version: "78.0",
       firefox_channel: FirefoxChannel.NIGHTLY,
-    });
+      variants: [
+        {
+          name: "control",
+          is_control: true,
+          description: "An empty branch",
+          value: "",
+          ratio: 50,
+        },
+        {
+          name: "variant",
+          is_control: false,
+          description: "An empty branch",
+          value: "",
+          ratio: 50,
+        },
+      ],
+    };
+    expect(formData).toEqual(expected);
   });
 
   it("makes the correct API call on save existing", async () => {
