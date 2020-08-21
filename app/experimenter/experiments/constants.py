@@ -785,24 +785,16 @@ class ExperimentConstants(object):
 
     OBJECTIVES_HELP_TEXT = """
       <p>
-        Describe the objective of the delivery in detail.  What changes
-        will be made in each branch, what effects will those changes have,
-        and how will those effects be measured and compared.
+        Describe the details / purpose of your delivery in for internal consumers.
+         This assists supporting teams to understand what you are doing and helps
+         avoid delays. It is also a useful reference to understand the experiments
+         that have been run.
       </p>
       <p>
-        Link to any relevant google docs / Drive files that
-        describe the project. Links to prior art if it exists:
+        Please add any bugs and/or issues related to this delivery work.
+        Link to any PRDs, Invision, or related documents.
+        Please include a description of for each link.
       </p>
-      <p>
-        If there is prior art (e.g. testpilot, usertesting.com,
-        field research, etc.),
-      </p>
-      <p>
-        If there are previous results (particularly if they allow
-        for the removal of experimental branches), review them here.
-      </p>
-      <p><strong>Example:</strong> We think that by doing X
-      we will improve [retention/page views/performance/satisfaction]</p>
     """
 
     TOTAL_ENROLLED_CLIENTS_HELP_TEXT = """
@@ -1070,7 +1062,11 @@ Any additional filters:
 
     DESIGN_DEFAULT = "What is the design of this delivery? Explain in detail."
 
-    OBJECTIVES_DEFAULT = "What is the objective of this delivery?  Explain in detail."
+    OBJECTIVES_DEFAULT = """If we <do this/build this/create this change in the experiment> for <these users>, then we will see <this outcome>.
+We believe this because we have observed <this> via <data source, UR, survey>.
+     
+Optional - We believe this outcome will <describe impact> on <core metric>
+    """  # noqa
 
     ANALYSIS_DEFAULT = """We will measure <outcome> by an <increase/decrease/neutral> of <size> in <feature telemetry>.
 There may be multiple leading indicator statements.
