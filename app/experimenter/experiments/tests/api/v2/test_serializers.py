@@ -2065,3 +2065,8 @@ class TestExperimentCSVSerializer(TestCase):
                 "countries": f"{country1.name}, {country2.name}",
             },
         )
+    def test_serializer_outputs_no_length_for_exp_with_no_end_date(self):
+        experiment = ExperimentFactory.create(proposed_duration=None)
+        serializer = ExperimentCSVSerializer(experiment)
+        self.assertIsNone(serializer.data.get("length"))
+        
