@@ -95,7 +95,7 @@ describe("<SettingsForm />", () => {
 
     // Update the audience field
     const audienceField = getByLabelText("Audience");
-    await selectEvent.select(audienceField, "US users (en; release)");
+    await selectEvent.select(audienceField, "US users (en)");
 
     // Update the firefox version field
     const firefoxVersionField = getByLabelText("Firefox Minimum Version");
