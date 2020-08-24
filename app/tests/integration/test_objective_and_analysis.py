@@ -8,7 +8,7 @@ def test_edit_objectives_box(base_url, selenium, fill_overview):
     analysis = ObjectiveAndAnalysisPage(
         selenium, base_url, experiment_url=f"{fill_overview.url}"
     ).open()
-    text = " OBJECTIVELY OBJECTIVE"
+    text = "OBJECTIVELY OBJECTIVE"
     assert text not in analysis.objectives_text_box
     analysis.objectives_text_box = text
     detail_page = analysis.save_btn()
