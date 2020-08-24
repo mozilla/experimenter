@@ -1057,7 +1057,8 @@
                         ]
                       },
                       "length": {
-                        "type": "integer"
+                        "type": "string",
+                        "readOnly": true
                       },
                       "channel": {
                         "type": "string"
@@ -1098,7 +1099,6 @@
                       "description",
                       "hypothesis",
                       "leading_indicators",
-                      "length",
                       "channel",
                       "enrolled_target"
                     ]
@@ -7668,6 +7668,39 @@
                       "type": "string",
                       "nullable": true,
                       "maxLength": 255
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "slug": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "is_control": {
+                            "type": "boolean"
+                          },
+                          "ratio": {
+                            "type": "integer",
+                            "maximum": 2147483647,
+                            "minimum": 0
+                          },
+                          "value": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "name"
+                        ]
+                      }
                     }
                   },
                   "required": [
@@ -7676,7 +7709,8 @@
                     "firefox_min_version",
                     "firefox_channel",
                     "name",
-                    "objectives"
+                    "objectives",
+                    "variants"
                   ]
                 }
               }
@@ -7800,6 +7834,39 @@
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "ratio": {
+                          "type": "integer",
+                          "maximum": 2147483647,
+                          "minimum": 0
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -7808,7 +7875,8 @@
                   "firefox_min_version",
                   "firefox_channel",
                   "name",
-                  "objectives"
+                  "objectives",
+                  "variants"
                 ]
               }
             },
@@ -7908,6 +7976,39 @@
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "ratio": {
+                          "type": "integer",
+                          "maximum": 2147483647,
+                          "minimum": 0
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -7916,7 +8017,8 @@
                   "firefox_min_version",
                   "firefox_channel",
                   "name",
-                  "objectives"
+                  "objectives",
+                  "variants"
                 ]
               }
             },
@@ -8016,6 +8118,39 @@
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "ratio": {
+                          "type": "integer",
+                          "maximum": 2147483647,
+                          "minimum": 0
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -8024,7 +8159,8 @@
                   "firefox_min_version",
                   "firefox_channel",
                   "name",
-                  "objectives"
+                  "objectives",
+                  "variants"
                 ]
               }
             }
@@ -8149,6 +8285,39 @@
                       "type": "string",
                       "nullable": true,
                       "maxLength": 255
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "slug": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "is_control": {
+                            "type": "boolean"
+                          },
+                          "ratio": {
+                            "type": "integer",
+                            "maximum": 2147483647,
+                            "minimum": 0
+                          },
+                          "value": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "name"
+                        ]
+                      }
                     }
                   },
                   "required": [
@@ -8157,7 +8326,8 @@
                     "firefox_min_version",
                     "firefox_channel",
                     "name",
-                    "objectives"
+                    "objectives",
+                    "variants"
                   ]
                 }
               }
@@ -8281,6 +8451,39 @@
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "ratio": {
+                          "type": "integer",
+                          "maximum": 2147483647,
+                          "minimum": 0
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
                   }
                 }
               }
@@ -8381,6 +8584,39 @@
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "ratio": {
+                          "type": "integer",
+                          "maximum": 2147483647,
+                          "minimum": 0
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
                   }
                 }
               }
@@ -8481,6 +8717,39 @@
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "ratio": {
+                          "type": "integer",
+                          "maximum": 2147483647,
+                          "minimum": 0
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
                   }
                 }
               }
@@ -8606,6 +8875,39 @@
                       "type": "string",
                       "nullable": true,
                       "maxLength": 255
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "slug": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "is_control": {
+                            "type": "boolean"
+                          },
+                          "ratio": {
+                            "type": "integer",
+                            "maximum": 2147483647,
+                            "minimum": 0
+                          },
+                          "value": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "name"
+                        ]
+                      }
                     }
                   },
                   "required": [
@@ -8614,7 +8916,8 @@
                     "firefox_min_version",
                     "firefox_channel",
                     "name",
-                    "objectives"
+                    "objectives",
+                    "variants"
                   ]
                 }
               }
@@ -8987,6 +9290,39 @@
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "ratio": {
+                          "type": "integer",
+                          "maximum": 2147483647,
+                          "minimum": 0
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -8995,7 +9331,8 @@
                   "firefox_min_version",
                   "firefox_channel",
                   "name",
-                  "objectives"
+                  "objectives",
+                  "variants"
                 ]
               }
             },
@@ -9095,6 +9432,39 @@
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "ratio": {
+                          "type": "integer",
+                          "maximum": 2147483647,
+                          "minimum": 0
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -9103,7 +9473,8 @@
                   "firefox_min_version",
                   "firefox_channel",
                   "name",
-                  "objectives"
+                  "objectives",
+                  "variants"
                 ]
               }
             },
@@ -9203,6 +9574,39 @@
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "ratio": {
+                          "type": "integer",
+                          "maximum": 2147483647,
+                          "minimum": 0
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -9211,7 +9615,8 @@
                   "firefox_min_version",
                   "firefox_channel",
                   "name",
-                  "objectives"
+                  "objectives",
+                  "variants"
                 ]
               }
             }
@@ -9336,6 +9741,39 @@
                       "type": "string",
                       "nullable": true,
                       "maxLength": 255
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "slug": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "is_control": {
+                            "type": "boolean"
+                          },
+                          "ratio": {
+                            "type": "integer",
+                            "maximum": 2147483647,
+                            "minimum": 0
+                          },
+                          "value": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "name"
+                        ]
+                      }
                     }
                   },
                   "required": [
@@ -9344,7 +9782,8 @@
                     "firefox_min_version",
                     "firefox_channel",
                     "name",
-                    "objectives"
+                    "objectives",
+                    "variants"
                   ]
                 }
               }
@@ -9470,6 +9909,39 @@
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "ratio": {
+                          "type": "integer",
+                          "maximum": 2147483647,
+                          "minimum": 0
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -9478,7 +9950,8 @@
                   "firefox_min_version",
                   "firefox_channel",
                   "name",
-                  "objectives"
+                  "objectives",
+                  "variants"
                 ]
               }
             },
@@ -9578,6 +10051,39 @@
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "ratio": {
+                          "type": "integer",
+                          "maximum": 2147483647,
+                          "minimum": 0
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -9586,7 +10092,8 @@
                   "firefox_min_version",
                   "firefox_channel",
                   "name",
-                  "objectives"
+                  "objectives",
+                  "variants"
                 ]
               }
             },
@@ -9686,6 +10193,39 @@
                     "type": "string",
                     "nullable": true,
                     "maxLength": 255
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "slug": {
+                          "type": "string",
+                          "readOnly": true
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "is_control": {
+                          "type": "boolean"
+                        },
+                        "ratio": {
+                          "type": "integer",
+                          "maximum": 2147483647,
+                          "minimum": 0
+                        },
+                        "value": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -9694,7 +10234,8 @@
                   "firefox_min_version",
                   "firefox_channel",
                   "name",
-                  "objectives"
+                  "objectives",
+                  "variants"
                 ]
               }
             }
@@ -9819,6 +10360,39 @@
                       "type": "string",
                       "nullable": true,
                       "maxLength": 255
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "slug": {
+                            "type": "string",
+                            "readOnly": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "is_control": {
+                            "type": "boolean"
+                          },
+                          "ratio": {
+                            "type": "integer",
+                            "maximum": 2147483647,
+                            "minimum": 0
+                          },
+                          "value": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "name"
+                        ]
+                      }
                     }
                   },
                   "required": [
@@ -9827,7 +10401,8 @@
                     "firefox_min_version",
                     "firefox_channel",
                     "name",
-                    "objectives"
+                    "objectives",
+                    "variants"
                   ]
                 }
               }
