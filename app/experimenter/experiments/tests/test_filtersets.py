@@ -31,18 +31,38 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         self.assertEqual(set(filter.qs), set([pref, addon]))
         self.assertEqual(filter.get_type_display_value(), "Pref-Flip, Add-On")
 
-    def test_filters_by_project_type(self):
+    def test_filters_by_no_project_type(self):
         project1 = ProjectFactory.create()
-        project2 = ProjectFactory.create()
-        exp1 = ExperimentFactory.create(projects=[project1])
-        ExperimentFactory.create(projects=[project2])
+        exp1 = ExperimentFactory.create(projects=[])
+        ExperimentFactory.create(projects=[project1])
+        ExperimentFactory.create(projects=[project1])
 
-        data = {"projects": project1.id}
+        data = QueryDict("projects=null")
+
         filter = ExperimentFilterset(data=data, queryset=Experiment.objects.all())
 
         self.assertTrue(filter.is_valid())
         self.assertCountEqual(filter.qs, [exp1])
-        self.assertEqual(filter.get_project_display_value(), project1)
+        display_value = filter.get_project_display_value()
+        self.assertEqual("No Projects", display_value)
+
+    def test_filters_by_multiple_project_type(self):
+        project1 = ProjectFactory.create()
+        project2 = ProjectFactory.create()
+        project3 = ProjectFactory.create()
+        exp1 = ExperimentFactory.create(projects=[project1, project2])
+        exp2 = ExperimentFactory.create(projects=[project2])
+        ExperimentFactory.create(projects=[project3])
+
+        data = QueryDict(f"projects={project1.id}&projects={project2.id}")
+
+        filter = ExperimentFilterset(data=data, queryset=Experiment.objects.all())
+
+        self.assertTrue(filter.is_valid())
+        self.assertCountEqual(filter.qs, [exp1, exp2])
+        display_value = filter.get_project_display_value()
+        self.assertIn(project1.name, display_value)
+        self.assertIn(project2.name, display_value)
 
     def test_filters_out_archived_by_default(self):
         for i in range(3):
