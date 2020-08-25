@@ -1,6 +1,7 @@
 import {
   ExperimentReducerActionType,
   ExperimentData,
+  Variant,
 } from "experimenter-types/experiment";
 import { ExperimentReducerAction } from "experimenter-types/experiment";
 
@@ -38,7 +39,10 @@ export const saveExperiment = async (
   });
 };
 
-export const updateExperiment = (name: string, value: string | string[]) => (
+export const updateExperiment = (
+  name: string,
+  value: string | string[] | Variant[],
+) => (
   experimentData: ExperimentData,
   dispatch: React.Dispatch<ExperimentReducerAction>,
 ): void => {
