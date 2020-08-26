@@ -54,13 +54,13 @@ export const SettingsForm: React.FC = () => {
 
   const handleSelectChange = (name) => {
     return (value) => {
-      dispatch(updateExperiment(name, value));
+      dispatch(updateExperiment({ [name]: value }));
     };
   };
 
   const handleChange = (ev) => {
     const field = ev.target;
-    dispatch(updateExperiment(field.getAttribute("name"), field.value));
+    dispatch(updateExperiment({ [field.getAttribute("name")]: field.value }));
   };
 
   const handleClickSave = async () => {
@@ -216,7 +216,7 @@ export const BranchesForm: React.FC = () => {
       return v;
     });
 
-    dispatch(updateExperiment("variants", updatedVariants));
+    dispatch(updateExperiment({ variants: updatedVariants }));
   };
 
   return (
