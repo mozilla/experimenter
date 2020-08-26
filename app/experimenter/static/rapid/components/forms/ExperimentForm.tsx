@@ -212,8 +212,10 @@ export const BranchesForm: React.FC = () => {
       if (index === i) {
         return { ...v, [name]: field.value };
       }
+
       return v;
     });
+
     dispatch(updateExperiment("variants", updatedVariants));
   };
 
@@ -244,8 +246,8 @@ export const BranchesForm: React.FC = () => {
                         </label>
                         <input
                           className="form-control"
-                          name="name"
                           id={`variant-name-${i}`}
+                          name="name"
                           type="text"
                           value={variant.name}
                           onChange={(ev) => handleChange(ev, i)}

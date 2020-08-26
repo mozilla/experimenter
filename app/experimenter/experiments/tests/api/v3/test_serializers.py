@@ -13,7 +13,6 @@ from experimenter.experiments.api.v3.serializers import (
 from experimenter.experiments.models import (
     Experiment,
     ExperimentChangeLog,
-    ExperimentVariant,
 )
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
