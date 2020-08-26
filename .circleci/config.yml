@@ -20,6 +20,12 @@ jobs:
       - run:
           name: Run tests and linting
           command: make check
+  Mirror Bugzilla issues into GitHub:
+    docker:
+      - image: circleci/python:latest
+    resource_class: small
+    steps:
+      - sync-bugzilla-to-github
 
   integration:
     machine:
@@ -88,3 +94,23 @@ workflows:
           filters:
             branches:
               only: main
+  mirror-bugzilla-to-github-periodically:
+    jobs:
+      - Mirror Bugzilla issues into GitHub
+    triggers:
+      - schedule:
+          cron: "0,30 * * * *"
+          filters:
+            branches:
+              only:
+                - main
+
+commands:
+  sync-bugzilla-to-github:
+    steps:
+      - checkout
+      - run:
+          name: Mirror Bugzilla issues into GitHub
+          command: |
+            sudo pip3 install --require-hashes -r ./scripts/requirements.txt
+            python3 ./scripts/sync_bugzilla_to_github.py
