@@ -264,6 +264,68 @@ describe("<BranchesForm />", () => {
     // Should only by one control branch
     expect(getByText("control")).toBeInTheDocument();
   });
+
+  it("should have variant fields editable", async () => {
+    fetchMock.mockOnce(async () => {
+      return JSON.stringify({
+        variants: [
+          {
+            name: "control",
+            is_control: true,
+            description: "An empty branch",
+            value: "",
+            ratio: 50,
+          },
+          {
+            name: "variant",
+            is_control: false,
+            description: "An empty branch",
+            value: "",
+            ratio: 50,
+          },
+        ],
+      });
+    });
+    const { getByDisplayValue, getAllByDisplayValue } = renderWithRouter(
+      wrapInExperimentProvider(<BranchesForm />),
+    );
+    const controlBranch = getByDisplayValue("control");
+    const variantBranch = getByDisplayValue("variant");
+    const descriptions = getAllByDisplayValue("An empty branch");
+    const ratios = getAllByDisplayValue("50");
+
+    const controlBranchName = "control branch name";
+    fireEvent.change(controlBranch, { target: { value: controlBranchName } });
+    expect(getByDisplayValue(controlBranchName)).toBeInTheDocument();
+
+    const controlDescription = "control description";
+    fireEvent.change(descriptions[0], {
+      target: { value: controlDescription },
+    });
+    expect(getByDisplayValue(controlDescription)).toBeInTheDocument();
+
+    const controlRatio = "70";
+    fireEvent.change(ratios[0], {
+      target: { value: controlRatio },
+    });
+    expect(getByDisplayValue(controlRatio)).toBeInTheDocument();
+
+    const variantBranchName = "variant branch name";
+    fireEvent.change(variantBranch, { target: { value: variantBranchName } });
+    expect(getByDisplayValue(variantBranchName)).toBeInTheDocument();
+
+    const variantDescription = "variant description";
+    fireEvent.change(descriptions[1], {
+      target: { value: variantDescription },
+    });
+    expect(getByDisplayValue(variantDescription)).toBeInTheDocument();
+
+    const variantRatio = "30";
+    fireEvent.change(ratios[1], {
+      target: { value: variantRatio },
+    });
+    expect(getByDisplayValue(variantRatio)).toBeInTheDocument();
+  });
 });
 
 describe("<ExperimentForm />", () => {
