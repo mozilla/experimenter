@@ -219,6 +219,28 @@ export const BranchesForm: React.FC = () => {
     dispatch(updateExperiment({ variants: updatedVariants }));
   };
 
+  const NEW_BRANCH = {
+    name: "",
+    is_control: false,
+    description: "An empty branch",
+    value: "",
+    ratio: 50,
+  };
+
+  const handleAddBranch = () => {
+    const updatedVariants = [...variants, NEW_BRANCH];
+
+    dispatch(updateExperiment({ variants: updatedVariants }));
+  };
+
+  const handleRemoveBranch = (i) => {
+    const updatedVariants = variants.filter((v, index) => {
+      return i !== index;
+    });
+
+    dispatch(updateExperiment({ variants: updatedVariants }));
+  };
+
   return (
     <div style={{ width: "75%" }}>
       <div className="mb-4">
@@ -230,7 +252,7 @@ export const BranchesForm: React.FC = () => {
 
         .map((variant, i) => {
           return (
-            <div key={i} className="card mb-4">
+            <div key={`${i}${variants.length}`} className="card mb-4">
               <ul className="list-group list-group-flush">
                 <li className="list-group-item">
                   <div className="container">
@@ -285,6 +307,18 @@ export const BranchesForm: React.FC = () => {
                           </div>
                         </div>
                       </div>
+                      {!variant.is_control && (
+                        <div>
+                          <button
+                            aria-label="Close"
+                            className="close"
+                            type="button"
+                            onClick={() => handleRemoveBranch(i)}
+                          >
+                            <span style={{ color: "red" }}>&times;</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </li>
@@ -335,6 +369,13 @@ export const BranchesForm: React.FC = () => {
             </div>
           );
         })}
+      <button
+        className="btn btn-primary"
+        type="button"
+        onClick={handleAddBranch}
+      >
+        Add Branch
+      </button>
     </div>
   );
 };

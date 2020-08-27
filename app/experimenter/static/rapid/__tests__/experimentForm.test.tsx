@@ -289,6 +289,7 @@ describe("<BranchesForm />", () => {
     const { getByDisplayValue, getAllByDisplayValue } = renderWithRouter(
       wrapInExperimentProvider(<BranchesForm />),
     );
+
     const controlBranch = getByDisplayValue("control");
     const variantBranch = getByDisplayValue("variant");
     const descriptions = getAllByDisplayValue("An empty branch");
@@ -326,6 +327,55 @@ describe("<BranchesForm />", () => {
     });
     expect(getByDisplayValue(variantRatio)).toBeInTheDocument();
   });
+});
+
+it("should add and delete branches", async () => {
+  fetchMock.mockOnce(async () => {
+    return JSON.stringify({
+      variants: [
+        {
+          name: "control",
+          is_control: true,
+          description: "An empty branch",
+          value: "",
+          ratio: 50,
+        },
+        {
+          name: "variant",
+          is_control: false,
+          description: "An empty branch",
+          value: "",
+          ratio: 50,
+        },
+      ],
+    });
+  });
+  const {
+    getByText,
+    getAllByText,
+    queryByDisplayValue,
+    getByDisplayValue,
+    getAllByDisplayValue,
+  } = renderWithRouter(wrapInExperimentProvider(<BranchesForm />));
+
+  fireEvent.click(getByText("Add Branch"));
+  expect(getAllByText("Branch")).toHaveLength(3);
+
+  const descriptions = getAllByDisplayValue("An empty branch");
+
+  const changedDescription1 = "gonna be deleted!";
+  fireEvent.change(descriptions[1], { target: { value: changedDescription1 } });
+  expect(getByDisplayValue(changedDescription1)).toBeInTheDocument();
+
+  const changedDescription2 = "something else!";
+  fireEvent.change(descriptions[2], { target: { value: changedDescription2 } });
+  expect(getByDisplayValue(changedDescription2)).toBeInTheDocument();
+
+  // delete
+  fireEvent.click(getAllByText("×")[0]);
+
+  expect(getAllByText("Branch")).toHaveLength(2);
+  expect(queryByDisplayValue(changedDescription1)).toBeNull();
 });
 
 describe("<ExperimentForm />", () => {
