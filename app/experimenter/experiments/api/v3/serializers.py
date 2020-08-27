@@ -10,7 +10,10 @@ from experimenter.experiments.models import (
     ExperimentChangeLog,
 )
 from experimenter.experiments.changelog_utils import ChangelogSerializerMixin
-
+from experimenter.experiments.api.v2.serializers import (
+    ExperimentDesignVariantBaseSerializer,
+    ExperimentDesignBaseSerializer,
+)
 
 NIMBUS_DATA = get_data()
 
@@ -22,34 +25,26 @@ class ExperimentRapidRejectChangeLogSerializer(serializers.ModelSerializer):
 
 
 class ExperimentRapidChangelogSerializerMixin(ChangelogSerializerMixin):
-    def create(self, validated_data):
-        experiment = super().create(validated_data)
-        self.update_changelog(experiment, validated_data)
-        return experiment
-
     def update(self, instance, validated_data):
         updated_instance = super().update(instance, validated_data)
         self.update_changelog(updated_instance, validated_data)
         return updated_instance
 
 
-class ExperimentRapidVariantSerializer(serializers.ModelSerializer):
-    slug = serializers.ReadOnlyField()
-
-    def validate_ratio(self, value):
-        if 1 <= value <= 100:
-            return value
-
-        raise serializers.ValidationError(["Branch sizes must be between 1 and 100."])
-
+class ExperimentRapidVariantSerializer(ExperimentDesignVariantBaseSerializer):
     class Meta:
-        fields = ["slug", "name", "description", "is_control", "ratio", "value"]
+        fields = (
+            "id",
+            "description",
+            "is_control",
+            "name",
+            "ratio",
+            "value",
+        )
         model = ExperimentVariant
 
 
-class ExperimentRapidSerializer(
-    ExperimentRapidChangelogSerializerMixin, serializers.ModelSerializer
-):
+class ExperimentRapidSerializer(ExperimentDesignBaseSerializer):
     FEATURES_CHOICES = list(NIMBUS_DATA["features"].keys())
     AUDIENCE_CHOICES = list(NIMBUS_DATA["Audiences"].keys())
 
@@ -106,6 +101,7 @@ class ExperimentRapidSerializer(
             return ExperimentRapidRejectChangeLogSerializer(obj.changes.latest()).data
 
     def validate(self, data):
+
         validated_data = super().validate(data)
         if validated_data.get("slug") is None:
             slug = slugify(data.get("name"))
@@ -127,27 +123,7 @@ class ExperimentRapidSerializer(
                     }
                 )
 
-        variants = data.get("variants")
-
-        if variants:
-            if not self.all_variant_slugs_unique(variants):
-                error_list = []
-                for variant in variants:
-                    error_list.append(
-                        {"name": [("All branches must have a unique name")]}
-                    )
-
-                raise serializers.ValidationError({"variants": error_list})
-
         return validated_data
-
-    def all_variant_slugs_unique(self, variants):
-
-        slugified_names = [slugify(variant["name"]) for variant in variants]
-        unique_names = len(set(slugified_names)) == len(variants)
-        non_empty = all(slugified_names)
-
-        return unique_names and non_empty
 
     def create(self, validated_data):
         preset_data = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
@@ -173,15 +149,8 @@ class ExperimentRapidSerializer(
         self.fields["variants"].create(variants_validated)
 
         create_experiment_bug_task.delay(experiment.owner.id, experiment.id)
+        self.update_changelog(experiment, validated_data)
         return experiment
-
-    def update(self, instance, validated_data):
-        # TODO: Update branches
-        validated_data.pop("variants")
-
-        instance = super().update(instance, validated_data)
-
-        return instance
 
 
 class ExperimentRapidStatusSerializer(
