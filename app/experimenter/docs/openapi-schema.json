@@ -7618,6 +7618,12 @@
                         "Release"
                       ]
                     },
+                    "firefox_platform": {
+                      "enum": [
+                        "firefox-desktop",
+                        "fenix"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -7696,6 +7702,7 @@
                     "features",
                     "firefox_min_version",
                     "firefox_channel",
+                    "firefox_platform",
                     "name",
                     "objectives",
                     "variants"
@@ -7800,6 +7807,12 @@
                       "Release"
                     ]
                   },
+                  "firefox_platform": {
+                    "enum": [
+                      "firefox-desktop",
+                      "fenix"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -7862,6 +7875,7 @@
                   "features",
                   "firefox_min_version",
                   "firefox_channel",
+                  "firefox_platform",
                   "name",
                   "objectives",
                   "variants"
@@ -7942,6 +7956,12 @@
                       "Release"
                     ]
                   },
+                  "firefox_platform": {
+                    "enum": [
+                      "firefox-desktop",
+                      "fenix"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -8004,6 +8024,7 @@
                   "features",
                   "firefox_min_version",
                   "firefox_channel",
+                  "firefox_platform",
                   "name",
                   "objectives",
                   "variants"
@@ -8084,6 +8105,12 @@
                       "Release"
                     ]
                   },
+                  "firefox_platform": {
+                    "enum": [
+                      "firefox-desktop",
+                      "fenix"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -8146,6 +8173,7 @@
                   "features",
                   "firefox_min_version",
                   "firefox_channel",
+                  "firefox_platform",
                   "name",
                   "objectives",
                   "variants"
@@ -8235,6 +8263,12 @@
                         "Release"
                       ]
                     },
+                    "firefox_platform": {
+                      "enum": [
+                        "firefox-desktop",
+                        "fenix"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -8313,6 +8347,7 @@
                     "features",
                     "firefox_min_version",
                     "firefox_channel",
+                    "firefox_platform",
                     "name",
                     "objectives",
                     "variants"
@@ -8417,6 +8452,12 @@
                       "Release"
                     ]
                   },
+                  "firefox_platform": {
+                    "enum": [
+                      "firefox-desktop",
+                      "fenix"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -8550,6 +8591,12 @@
                       "Release"
                     ]
                   },
+                  "firefox_platform": {
+                    "enum": [
+                      "firefox-desktop",
+                      "fenix"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -8681,6 +8728,12 @@
                       "Nightly",
                       "Beta",
                       "Release"
+                    ]
+                  },
+                  "firefox_platform": {
+                    "enum": [
+                      "firefox-desktop",
+                      "fenix"
                     ]
                   },
                   "name": {
@@ -8825,6 +8878,12 @@
                         "Release"
                       ]
                     },
+                    "firefox_platform": {
+                      "enum": [
+                        "firefox-desktop",
+                        "fenix"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -8903,6 +8962,7 @@
                     "features",
                     "firefox_min_version",
                     "firefox_channel",
+                    "firefox_platform",
                     "name",
                     "objectives",
                     "variants"
@@ -9256,6 +9316,12 @@
                       "Release"
                     ]
                   },
+                  "firefox_platform": {
+                    "enum": [
+                      "firefox-desktop",
+                      "fenix"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -9318,6 +9384,7 @@
                   "features",
                   "firefox_min_version",
                   "firefox_channel",
+                  "firefox_platform",
                   "name",
                   "objectives",
                   "variants"
@@ -9398,6 +9465,12 @@
                       "Release"
                     ]
                   },
+                  "firefox_platform": {
+                    "enum": [
+                      "firefox-desktop",
+                      "fenix"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -9460,6 +9533,7 @@
                   "features",
                   "firefox_min_version",
                   "firefox_channel",
+                  "firefox_platform",
                   "name",
                   "objectives",
                   "variants"
@@ -9540,6 +9614,12 @@
                       "Release"
                     ]
                   },
+                  "firefox_platform": {
+                    "enum": [
+                      "firefox-desktop",
+                      "fenix"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -9602,6 +9682,7 @@
                   "features",
                   "firefox_min_version",
                   "firefox_channel",
+                  "firefox_platform",
                   "name",
                   "objectives",
                   "variants"
@@ -9691,6 +9772,12 @@
                         "Release"
                       ]
                     },
+                    "firefox_platform": {
+                      "enum": [
+                        "firefox-desktop",
+                        "fenix"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -9769,6 +9856,7 @@
                     "features",
                     "firefox_min_version",
                     "firefox_channel",
+                    "firefox_platform",
                     "name",
                     "objectives",
                     "variants"
@@ -9875,6 +9963,12 @@
                       "Release"
                     ]
                   },
+                  "firefox_platform": {
+                    "enum": [
+                      "firefox-desktop",
+                      "fenix"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -9937,6 +10031,7 @@
                   "features",
                   "firefox_min_version",
                   "firefox_channel",
+                  "firefox_platform",
                   "name",
                   "objectives",
                   "variants"
@@ -10017,6 +10112,12 @@
                       "Release"
                     ]
                   },
+                  "firefox_platform": {
+                    "enum": [
+                      "firefox-desktop",
+                      "fenix"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -10079,6 +10180,7 @@
                   "features",
                   "firefox_min_version",
                   "firefox_channel",
+                  "firefox_platform",
                   "name",
                   "objectives",
                   "variants"
@@ -10159,6 +10261,12 @@
                       "Release"
                     ]
                   },
+                  "firefox_platform": {
+                    "enum": [
+                      "firefox-desktop",
+                      "fenix"
+                    ]
+                  },
                   "name": {
                     "type": "string",
                     "maxLength": 255
@@ -10221,6 +10329,7 @@
                   "features",
                   "firefox_min_version",
                   "firefox_channel",
+                  "firefox_platform",
                   "name",
                   "objectives",
                   "variants"
@@ -10310,6 +10419,12 @@
                         "Release"
                       ]
                     },
+                    "firefox_platform": {
+                      "enum": [
+                        "firefox-desktop",
+                        "fenix"
+                      ]
+                    },
                     "monitoring_dashboard_url": {
                       "type": "string",
                       "readOnly": true
@@ -10388,6 +10503,7 @@
                     "features",
                     "firefox_min_version",
                     "firefox_channel",
+                    "firefox_platform",
                     "name",
                     "objectives",
                     "variants"
