@@ -6,13 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('experiments', '0108_auto_20200817_1534'),
+        ("experiments", "0108_auto_20200817_1534"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='experiment',
-            name='firefox_platform',
-            field=models.CharField(blank=True, choices=[('firefox-desktop', 'firefox-desktop'), ('fenix', 'fenix')], max_length=255, null=True),
+            model_name="experiment",
+            name="firefox_platform",
+            field=models.CharField(
+                blank=True,
+                choices=[("firefox-desktop", "firefox-desktop"), ("fenix", "fenix")],
+                max_length=255,
+                null=True,
+            ),
         ),
     ]
