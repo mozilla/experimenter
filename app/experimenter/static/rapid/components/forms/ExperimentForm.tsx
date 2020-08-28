@@ -19,6 +19,7 @@ import {
 } from "./ExperimentFormOptions";
 import { TabRoutes } from "./TabRoutes";
 import { XSelect } from "./XSelect";
+import { VariantValueForm } from "./VariantValueForm";
 
 interface ErrorListProperties {
   errors: Array<string> | undefined;
@@ -211,12 +212,16 @@ export const BranchesForm: React.FC = () => {
 
   const dispatch = useExperimentDispatch();
 
-  const handleChange = (ev, i) => {
+  const handleVariantFieldChange = (ev, i) => {
     const field = ev.target;
     const name = field.getAttribute("name");
+    handleVariantChange(name, field.value, i);
+  };
+
+  const handleVariantChange = (name, value, i) => {
     const updatedVariants: Variant[] = variants.map((v, index) => {
       if (index === i) {
-        return { ...v, [name]: field.value };
+        return { ...v, [name]: value };
       }
 
       return v;
@@ -277,7 +282,7 @@ export const BranchesForm: React.FC = () => {
                           name="name"
                           type="text"
                           value={variant.name}
-                          onChange={(ev) => handleChange(ev, i)}
+                          onChange={(ev) => handleVariantFieldChange(ev, i)}
                         />
                       </div>
                       <div className="col-6">
@@ -290,7 +295,7 @@ export const BranchesForm: React.FC = () => {
                           name="description"
                           type="text"
                           value={variant.description}
-                          onChange={(ev) => handleChange(ev, i)}
+                          onChange={(ev) => handleVariantFieldChange(ev, i)}
                         />
                         <small className="form-text text-muted">
                           Only visible in internal tools behind LDAP.
@@ -369,6 +374,14 @@ export const BranchesForm: React.FC = () => {
                       </div>
                     </div>
                   </div>
+                </li>
+                <li className="list-group-item">
+                  <VariantValueForm
+                    key={i}
+                    index={i}
+                    value={variant.value}
+                    onChange={handleVariantChange}
+                  />
                 </li>
               </ul>
             </div>
