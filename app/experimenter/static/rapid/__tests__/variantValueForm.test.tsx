@@ -1,6 +1,6 @@
 import { cleanup, render, fireEvent } from "@testing-library/react";
 import React from "react";
-import selectEvent from "react-select-event";
+
 import { VariantValueForm } from "experimenter-rapid/components/forms/VariantValueForm";
 
 afterEach(async () => {
@@ -21,12 +21,11 @@ describe("<VariantValueForm />", () => {
     const handleChange = jest.fn();
     const stringifySpy = jest.spyOn(JSON, "stringify");
     const { getByDisplayValue } = render(
-        <VariantValueForm
-          index={0}
-          value="variant value"
-          onChange={handleChange}
-        />
-
+      <VariantValueForm
+        index={0}
+        value="variant value"
+        onChange={handleChange}
+      />,
     );
 
     const textArea = getByDisplayValue("variant value");

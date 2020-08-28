@@ -18,8 +18,8 @@ import {
   firefoxVersionOptions,
 } from "./ExperimentFormOptions";
 import { TabRoutes } from "./TabRoutes";
-import { XSelect } from "./XSelect";
 import { VariantValueForm } from "./VariantValueForm";
+import { XSelect } from "./XSelect";
 
 interface ErrorListProperties {
   errors: Array<string> | undefined;

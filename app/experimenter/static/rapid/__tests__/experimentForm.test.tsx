@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, waitFor, prettyDOM } from "@testing-library/react";
+import { cleanup, fireEvent, waitFor } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React from "react";
 import selectEvent from "react-select-event";
@@ -16,7 +16,7 @@ import {
   ExperimentStatus,
   FirefoxChannel,
 } from "experimenter-rapid/types/experiment";
-import { ExperimentData, Variant } from "experimenter-types/experiment";
+import { ExperimentData } from "experimenter-types/experiment";
 
 afterEach(async () => {
   await cleanup();

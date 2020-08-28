@@ -1,11 +1,12 @@
 import React from "react";
+
 import { Variant } from "experimenter-rapid/types/experiment";
 
 export function VariantValueForm(props: {
   index: number;
   value: string;
   onChange: (value: string, variant: Variant, index: number) => void;
-}) {
+}): JSX.Element {
   const { index, value, onChange } = props;
   const [variantValue, setVariantValue] = React.useState(value);
 
@@ -22,7 +23,9 @@ export function VariantValueForm(props: {
   const formatValue = () => {
     try {
       setVariantValue(JSON.stringify(JSON.parse(variantValue), null, 2));
-    } catch (e) {}
+    } catch (e) {
+      /* istanbul ignore next */
+    }
   };
 
   return (
@@ -39,9 +42,9 @@ export function VariantValueForm(props: {
             id={`variant-value-${index}`}
             name="value"
             rows={4}
-            onChange={handleChange}
-            onBlur={formatValue}
             value={variantValue}
+            onBlur={formatValue}
+            onChange={handleChange}
           />
           <small className="form-text text-muted">
             This field accepts JSON format.
