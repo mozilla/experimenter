@@ -235,8 +235,6 @@ export const BranchesForm: React.FC = () => {
 
   const handleAddBranch = () => {
     const updatedVariants = [...variants, NEW_BRANCH];
-    //setVariantRatio((100 / (variants.length + 1)).toFixed(2));
-
     dispatch(updateExperiment({ variants: updatedVariants }));
   };
 
@@ -245,7 +243,6 @@ export const BranchesForm: React.FC = () => {
       return i !== index;
     });
 
-    //setVariantRatio((100 / (variants.length - 1)).toFixed(2));
     dispatch(updateExperiment({ variants: updatedVariants }));
   };
 
