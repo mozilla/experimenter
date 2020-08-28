@@ -203,9 +203,11 @@ export const BranchesForm: React.FC = () => {
     [...formData.variants].sort((a, b) =>
       a.is_control < b.is_control ? 1 : -1,
     ) || [];
-  const [variantRatio, setVariantRatio] = React.useState<string>(
-    (100 / variants.length).toFixed(2),
-  );
+
+  function ratioToPercentage(ratio: number) {
+    const ratioTotal: number = variants.reduce((a, b) => a + b.ratio, 0);
+    return Math.round((ratio / ratioTotal) * 10000) / 100;
+  }
 
   const dispatch = useExperimentDispatch();
 
@@ -233,7 +235,7 @@ export const BranchesForm: React.FC = () => {
 
   const handleAddBranch = () => {
     const updatedVariants = [...variants, NEW_BRANCH];
-    setVariantRatio((100 / (variants.length + 1)).toFixed(2));
+    //setVariantRatio((100 / (variants.length + 1)).toFixed(2));
 
     dispatch(updateExperiment({ variants: updatedVariants }));
   };
@@ -243,7 +245,7 @@ export const BranchesForm: React.FC = () => {
       return i !== index;
     });
 
-    setVariantRatio((100 / (variants.length - 1)).toFixed(2));
+    //setVariantRatio((100 / (variants.length - 1)).toFixed(2));
     dispatch(updateExperiment({ variants: updatedVariants }));
   };
 
@@ -306,7 +308,7 @@ export const BranchesForm: React.FC = () => {
                             id={`variant-ratio-${i}`}
                             name="ratio"
                             type="number"
-                            value={variantRatio}
+                            value={ratioToPercentage(variant.ratio)}
                           />
                           <div className="input-group-append">
                             <div className="input-group-text">%</div>

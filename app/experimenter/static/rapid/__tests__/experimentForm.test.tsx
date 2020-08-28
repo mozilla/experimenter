@@ -366,7 +366,7 @@ it("should add and delete branches", async () => {
 
   expect(getAllByText("Branch")).toHaveLength(2);
   expect(queryByDisplayValue(changedDescription1)).toBeNull();
-  expect(getAllByDisplayValue("50.00")).toHaveLength(2);
+  expect(getAllByDisplayValue("50")).toHaveLength(2);
 });
 
 describe("<ExperimentForm />", () => {
