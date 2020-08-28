@@ -198,10 +198,14 @@ export const SettingsForm: React.FC = () => {
 
 export const BranchesForm: React.FC = () => {
   const formData = useExperimentState();
+
   const variants =
     [...formData.variants].sort((a, b) =>
       a.is_control < b.is_control ? 1 : -1,
     ) || [];
+  const [variantRatio, setVariantRatio] = React.useState<string>(
+    (100 / variants.length).toFixed(2),
+  );
 
   const dispatch = useExperimentDispatch();
 
@@ -219,25 +223,27 @@ export const BranchesForm: React.FC = () => {
     dispatch(updateExperiment({ variants: updatedVariants }));
   };
 
-  const NEW_BRANCH = {
-    name: "",
+  const NEW_BRANCH: Variant = {
+    name: `variant-${variants.length}`,
     is_control: false,
     description: "An empty branch",
     value: "",
-    ratio: 50,
+    ratio: 1,
   };
 
   const handleAddBranch = () => {
     const updatedVariants = [...variants, NEW_BRANCH];
+    setVariantRatio((100 / (variants.length + 1)).toFixed(2));
 
     dispatch(updateExperiment({ variants: updatedVariants }));
   };
 
-  const handleRemoveBranch = (i) => {
+  const handleRemoveBranch = (i: number) => {
     const updatedVariants = variants.filter((v, index) => {
       return i !== index;
     });
 
+    setVariantRatio((100 / (variants.length - 1)).toFixed(2));
     dispatch(updateExperiment({ variants: updatedVariants }));
   };
 
@@ -295,12 +301,12 @@ export const BranchesForm: React.FC = () => {
                         <label htmlFor={`variant-ratio-${i}`}>Ratio</label>
                         <div className="input-group">
                           <input
+                            readOnly
                             className="form-control"
                             id={`variant-ratio-${i}`}
                             name="ratio"
                             type="number"
-                            value={variant.ratio}
-                            onChange={(ev) => handleChange(ev, i)}
+                            value={variantRatio}
                           />
                           <div className="input-group-append">
                             <div className="input-group-text">%</div>
@@ -315,7 +321,7 @@ export const BranchesForm: React.FC = () => {
                             type="button"
                             onClick={() => handleRemoveBranch(i)}
                           >
-                            <span style={{ color: "red" }}>&times;</span>
+                            <span>&times;</span>
                           </button>
                         </div>
                       )}

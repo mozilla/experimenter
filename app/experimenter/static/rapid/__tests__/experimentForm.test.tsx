@@ -16,7 +16,7 @@ import {
   ExperimentStatus,
   FirefoxChannel,
 } from "experimenter-rapid/types/experiment";
-import { ExperimentData } from "experimenter-types/experiment";
+import { ExperimentData, Variant } from "experimenter-types/experiment";
 
 afterEach(async () => {
   await cleanup();
@@ -133,14 +133,14 @@ describe("<SettingsForm />", () => {
           is_control: true,
           description: "An empty branch",
           value: "",
-          ratio: 50,
+          ratio: 1,
         },
         {
           name: "variant",
           is_control: false,
           description: "An empty branch",
           value: "",
-          ratio: 50,
+          ratio: 1,
         },
       ],
     };
@@ -293,7 +293,6 @@ describe("<BranchesForm />", () => {
     const controlBranch = getByDisplayValue("control");
     const variantBranch = getByDisplayValue("variant");
     const descriptions = getAllByDisplayValue("An empty branch");
-    const ratios = getAllByDisplayValue("50");
 
     const controlBranchName = "control branch name";
     fireEvent.change(controlBranch, { target: { value: controlBranchName } });
@@ -305,12 +304,6 @@ describe("<BranchesForm />", () => {
     });
     expect(getByDisplayValue(controlDescription)).toBeInTheDocument();
 
-    const controlRatio = "70";
-    fireEvent.change(ratios[0], {
-      target: { value: controlRatio },
-    });
-    expect(getByDisplayValue(controlRatio)).toBeInTheDocument();
-
     const variantBranchName = "variant branch name";
     fireEvent.change(variantBranch, { target: { value: variantBranchName } });
     expect(getByDisplayValue(variantBranchName)).toBeInTheDocument();
@@ -320,35 +313,30 @@ describe("<BranchesForm />", () => {
       target: { value: variantDescription },
     });
     expect(getByDisplayValue(variantDescription)).toBeInTheDocument();
-
-    const variantRatio = "30";
-    fireEvent.change(ratios[1], {
-      target: { value: variantRatio },
-    });
-    expect(getByDisplayValue(variantRatio)).toBeInTheDocument();
   });
 });
 
 it("should add and delete branches", async () => {
   fetchMock.mockOnce(async () => {
-    return JSON.stringify({
+    const fakeVariants: { variants: Variant[] } = {
       variants: [
         {
           name: "control",
           is_control: true,
           description: "An empty branch",
           value: "",
-          ratio: 50,
+          ratio: 1,
         },
         {
           name: "variant",
           is_control: false,
           description: "An empty branch",
           value: "",
-          ratio: 50,
+          ratio: 1,
         },
       ],
-    });
+    };
+    return JSON.stringify(fakeVariants);
   });
   const {
     getByText,
@@ -360,6 +348,8 @@ it("should add and delete branches", async () => {
 
   fireEvent.click(getByText("Add Branch"));
   expect(getAllByText("Branch")).toHaveLength(3);
+
+  expect(getAllByDisplayValue("33.33")).toHaveLength(3);
 
   const descriptions = getAllByDisplayValue("An empty branch");
 
@@ -376,6 +366,7 @@ it("should add and delete branches", async () => {
 
   expect(getAllByText("Branch")).toHaveLength(2);
   expect(queryByDisplayValue(changedDescription1)).toBeNull();
+  expect(getAllByDisplayValue("50.00")).toHaveLength(2);
 });
 
 describe("<ExperimentForm />", () => {
