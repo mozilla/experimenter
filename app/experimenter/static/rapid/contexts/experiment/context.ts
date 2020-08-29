@@ -19,6 +19,7 @@ export const INITIAL_CONTEXT: {
     audience: "",
     firefox_channel: FirefoxChannel.RELEASE,
     firefox_min_version: "",
+    firefox_platform: "",
     variants: [
       {
         name: "control",
