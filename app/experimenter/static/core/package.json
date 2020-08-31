@@ -64,7 +64,7 @@
     "eslint-plugin-react": "7.20.6",
     "eslint-plugin-standard": "4.0.1",
     "faker": "5.1.0",
-    "jest": "26.4.0",
+    "jest": "26.4.2",
     "jest-dom": "4.0.0",
     "parcel-bundler": "1.12.4"
   },
