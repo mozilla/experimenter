@@ -119,9 +119,9 @@ pytest-cov==2.10.0 \
 django-mozilla-product-details==0.14.1 \
     --hash=sha256:5fa2a8c3f2b9489aeb39b42c3612a43b0be5e778ffab07a5a2cf23b1eced4d64 \
     --hash=sha256:b7428e2dae653c4b0e35fa15363dd26b74dba821bf384c5cd835da0f1566b841
-django-countries==6.1.2 \
-    --hash=sha256:2e852c9693818d64d28758a720a0cb8277673ac495af8b855c4dc64940703bd2 \
-    --hash=sha256:e2ae9b76f9a0b5f3f365b5b81fe4972df0a5878c930139586f43f7d6d50a9594
+django-countries==6.1.3 \
+    --hash=sha256:a0f77154ae08cb38a0d65530a399ead5f5837ebf6c74f7576e71bb7acdacca94 \
+    --hash=sha256:64015977a5989bcb0e645007299b19fe8ac117466af375161b26bcfa32ae2808
 markus==2.2.0 \
     --hash=sha256:ed9a275aa4cbfc02e5cf0f2abbd34bc3720c43e432c1448ac7cc36c507111103 \
     --hash=sha256:f088183e7fef11a4f563f496069ab600942e072dd82e5301b0b896e8fd8b6bcb
