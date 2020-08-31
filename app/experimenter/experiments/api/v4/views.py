@@ -5,7 +5,9 @@ from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSer
 
 
 class ExperimentRapidViewSet(
-    mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet,
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
 ):
     lookup_field = "recipe_slug"
     queryset = (

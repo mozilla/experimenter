@@ -64,7 +64,8 @@ class ExperimentRapidSerializer(ExperimentDesignBaseSerializer):
     audience = serializers.ChoiceField(required=True, choices=AUDIENCE_CHOICES)
     bugzilla_url = serializers.ReadOnlyField()
     firefox_min_version = serializers.ChoiceField(
-        required=True, choices=Experiment.VERSION_CHOICES,
+        required=True,
+        choices=Experiment.VERSION_CHOICES,
     )
     firefox_channel = serializers.ChoiceField(
         required=True, choices=Experiment.CHANNEL_CHOICES
