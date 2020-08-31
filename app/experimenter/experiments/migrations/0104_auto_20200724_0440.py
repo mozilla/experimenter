@@ -10,8 +10,20 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="experiment", name="telemetry_event_category",),
-        migrations.RemoveField(model_name="experiment", name="telemetry_event_method",),
-        migrations.RemoveField(model_name="experiment", name="telemetry_event_object",),
-        migrations.RemoveField(model_name="experiment", name="telemetry_event_value",),
+        migrations.RemoveField(
+            model_name="experiment",
+            name="telemetry_event_category",
+        ),
+        migrations.RemoveField(
+            model_name="experiment",
+            name="telemetry_event_method",
+        ),
+        migrations.RemoveField(
+            model_name="experiment",
+            name="telemetry_event_object",
+        ),
+        migrations.RemoveField(
+            model_name="experiment",
+            name="telemetry_event_value",
+        ),
     ]

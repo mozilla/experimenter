@@ -7,7 +7,8 @@ KINTO_REJECTED_STATUS = "work-in-progress"
 
 def push_to_kinto(data):
     client = kinto_http.Client(
-        server_url=settings.KINTO_HOST, auth=(settings.KINTO_USER, settings.KINTO_PASS),
+        server_url=settings.KINTO_HOST,
+        auth=(settings.KINTO_USER, settings.KINTO_PASS),
     )
     client.create_record(
         data=data,
@@ -24,7 +25,8 @@ def push_to_kinto(data):
 
 def has_pending_review():
     client = kinto_http.Client(
-        server_url=settings.KINTO_HOST, auth=(settings.KINTO_USER, settings.KINTO_PASS),
+        server_url=settings.KINTO_HOST,
+        auth=(settings.KINTO_USER, settings.KINTO_PASS),
     )
     collection = client.get_collection(
         id=settings.KINTO_COLLECTION, bucket=settings.KINTO_BUCKET
@@ -34,7 +36,8 @@ def has_pending_review():
 
 def get_rejected_collection_data():
     client = kinto_http.Client(
-        server_url=settings.KINTO_HOST, auth=(settings.KINTO_USER, settings.KINTO_PASS),
+        server_url=settings.KINTO_HOST,
+        auth=(settings.KINTO_USER, settings.KINTO_PASS),
     )
     collection = client.get_collection(
         id=settings.KINTO_COLLECTION, bucket=settings.KINTO_BUCKET
@@ -46,7 +49,8 @@ def get_rejected_collection_data():
 
 def get_rejected_record():
     client = kinto_http.Client(
-        server_url=settings.KINTO_HOST, auth=(settings.KINTO_USER, settings.KINTO_PASS),
+        server_url=settings.KINTO_HOST,
+        auth=(settings.KINTO_USER, settings.KINTO_PASS),
     )
 
     main_records = client.get_records(
@@ -65,7 +69,8 @@ def get_rejected_record():
 
 def delete_rejected_record(record_id):
     client = kinto_http.Client(
-        server_url=settings.KINTO_HOST, auth=(settings.KINTO_USER, settings.KINTO_PASS),
+        server_url=settings.KINTO_HOST,
+        auth=(settings.KINTO_USER, settings.KINTO_PASS),
     )
     client.delete_record(
         id=record_id, bucket=settings.KINTO_BUCKET, collection=settings.KINTO_COLLECTION
@@ -74,7 +79,8 @@ def delete_rejected_record(record_id):
 
 def get_main_records():
     client = kinto_http.Client(
-        server_url=settings.KINTO_HOST, auth=(settings.KINTO_USER, settings.KINTO_PASS),
+        server_url=settings.KINTO_HOST,
+        auth=(settings.KINTO_USER, settings.KINTO_PASS),
     )
     return client.get_records(
         bucket=settings.KINTO_BUCKET_MAIN, collection=settings.KINTO_COLLECTION
