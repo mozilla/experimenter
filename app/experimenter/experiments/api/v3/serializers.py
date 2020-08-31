@@ -102,8 +102,16 @@ class ExperimentRapidSerializer(ExperimentDesignBaseSerializer):
 
     def validate(self, data):
 
-        validated_data = super().validate(data)
-        if validated_data.get("slug") is None:
+        variants = data.get("variants")
+
+        if not self.is_variant_valid(variants):
+            error_list = []
+            for variant in variants:
+                error_list.append({"name": [("All branches must have a unique name")]})
+
+            raise serializers.ValidationError({"variants": error_list})
+
+        if data.get("slug") is None:
             slug = slugify(data.get("name"))
 
             if not slug:
@@ -123,7 +131,7 @@ class ExperimentRapidSerializer(ExperimentDesignBaseSerializer):
                     }
                 )
 
-        return validated_data
+        return data
 
     def create(self, validated_data):
         preset_data = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][

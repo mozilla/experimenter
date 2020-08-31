@@ -198,10 +198,16 @@ export const SettingsForm: React.FC = () => {
 
 export const BranchesForm: React.FC = () => {
   const formData = useExperimentState();
+
   const variants =
     [...formData.variants].sort((a, b) =>
       a.is_control < b.is_control ? 1 : -1,
     ) || [];
+
+  function ratioToPercentage(ratio: number) {
+    const ratioTotal: number = variants.reduce((a, b) => a + b.ratio, 0);
+    return Math.round((ratio / ratioTotal) * 10000) / 100;
+  }
 
   const dispatch = useExperimentDispatch();
 
@@ -219,6 +225,27 @@ export const BranchesForm: React.FC = () => {
     dispatch(updateExperiment({ variants: updatedVariants }));
   };
 
+  const NEW_BRANCH: Variant = {
+    name: `variant-${variants.length}`,
+    is_control: false,
+    description: "An empty branch",
+    value: "",
+    ratio: 1,
+  };
+
+  const handleAddBranch = () => {
+    const updatedVariants = [...variants, NEW_BRANCH];
+    dispatch(updateExperiment({ variants: updatedVariants }));
+  };
+
+  const handleRemoveBranch = (i: number) => {
+    const updatedVariants = variants.filter((v, index) => {
+      return i !== index;
+    });
+
+    dispatch(updateExperiment({ variants: updatedVariants }));
+  };
+
   return (
     <div style={{ width: "75%" }}>
       <div className="mb-4">
@@ -230,7 +257,7 @@ export const BranchesForm: React.FC = () => {
 
         .map((variant, i) => {
           return (
-            <div key={i} className="card mb-4">
+            <div key={`${i}${variants.length}`} className="card mb-4">
               <ul className="list-group list-group-flush">
                 <li className="list-group-item">
                   <div className="container">
@@ -273,18 +300,30 @@ export const BranchesForm: React.FC = () => {
                         <label htmlFor={`variant-ratio-${i}`}>Ratio</label>
                         <div className="input-group">
                           <input
+                            readOnly
                             className="form-control"
                             id={`variant-ratio-${i}`}
                             name="ratio"
                             type="number"
-                            value={variant.ratio}
-                            onChange={(ev) => handleChange(ev, i)}
+                            value={ratioToPercentage(variant.ratio)}
                           />
                           <div className="input-group-append">
                             <div className="input-group-text">%</div>
                           </div>
                         </div>
                       </div>
+                      {!variant.is_control && (
+                        <div>
+                          <button
+                            aria-label="Close"
+                            className="close"
+                            type="button"
+                            onClick={() => handleRemoveBranch(i)}
+                          >
+                            <span>&times;</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </li>
@@ -335,6 +374,13 @@ export const BranchesForm: React.FC = () => {
             </div>
           );
         })}
+      <button
+        className="btn btn-primary"
+        type="button"
+        onClick={handleAddBranch}
+      >
+        Add Branch
+      </button>
     </div>
   );
 };
