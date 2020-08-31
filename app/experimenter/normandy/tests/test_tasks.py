@@ -147,7 +147,8 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
 
         self.assertFalse(
             experiment.changes.filter(
-                old_status=Experiment.STATUS_SHIP, new_status=Experiment.STATUS_ACCEPTED,
+                old_status=Experiment.STATUS_SHIP,
+                new_status=Experiment.STATUS_ACCEPTED,
             ).exists()
         )
 
