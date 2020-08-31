@@ -112,7 +112,8 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
 
     def test_check_with_rapid_review_and_kinto_pending_pushes_nothing(self):
         ExperimentFactory.create(
-            type=Experiment.TYPE_RAPID, status=Experiment.STATUS_REVIEW,
+            type=Experiment.TYPE_RAPID,
+            status=Experiment.STATUS_REVIEW,
         )
         self.setup_kinto_pending_review()
         tasks.check_kinto_push_queue()

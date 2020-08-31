@@ -1598,7 +1598,9 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
         self.assertCountEqual(variant_data, expected_variant_data)
 
     def test_serializer_saves_design_cfr_message_experiment(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_MESSAGE,)
+        experiment = ExperimentFactory.create(
+            type=ExperimentConstants.TYPE_MESSAGE,
+        )
 
         variant_1 = {
             "is_control": True,
