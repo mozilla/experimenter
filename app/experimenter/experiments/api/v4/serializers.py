@@ -147,7 +147,10 @@ class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):
             bucket_total = bucket_config["total"]
             audience_targeting = NIMBUS_DATA["Audiences"][obj.audience][
                 "targeting"
-            ].format(slug=obj.recipe_slug, firefox_channel=obj.firefox_channel.lower(),)
+            ].format(
+                slug=obj.recipe_slug,
+                firefox_channel=obj.firefox_channel.lower(),
+            )
 
             targeting_string = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"][
                 "preset"

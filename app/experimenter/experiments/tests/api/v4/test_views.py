@@ -25,7 +25,9 @@ class TestExperimentListView(TestCase):
             if status not in [Experiment.STATUS_DRAFT, Experiment.STATUS_REVIEW]:
                 experiments.append(experiment)
 
-        response = self.client.get(reverse("experiment-rapid-recipe-list"),)
+        response = self.client.get(
+            reverse("experiment-rapid-recipe-list"),
+        )
         self.assertEqual(response.status_code, 200)
 
         json_data = json.loads(response.content)
@@ -65,7 +67,8 @@ class TestExperimentRapidRecipeView(TestCase):
 
     def test_get_rapid_experiment_recipe_returns_404_for_draft(self):
         experiment = ExperimentFactory.create_with_variants(
-            status=Experiment.STATUS_DRAFT, type=ExperimentConstants.TYPE_RAPID,
+            status=Experiment.STATUS_DRAFT,
+            type=ExperimentConstants.TYPE_RAPID,
         )
 
         response = self.client.get(
