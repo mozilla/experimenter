@@ -236,6 +236,29 @@ describe("<SettingsForm />", () => {
   });
 });
 
+["name", "description", "ratio"].forEach((fieldName) => {
+  it(`shows the appropriate error message for variant '${fieldName}' on save`, async () => {
+    const { getByText } = renderWithRouter(
+      wrapInExperimentProvider(<ExperimentForm />),
+    );
+    fetchMock.mockOnce(async () => {
+      return {
+        status: 400,
+        body: JSON.stringify({
+          variants: [{ [fieldName]: ["an error occurred"] }, {}],
+        }),
+      };
+    });
+
+    // Click the save button
+    fireEvent.click(getByText("Save"));
+
+    // Ensure the error message is shown
+    await waitFor(() =>
+      expect(getByText("an error occurred")).toBeInTheDocument(),
+    );
+  });
+});
 describe("<BranchesForm />", () => {
   it("should render the form", async () => {
     const { getByText } = renderWithRouter(

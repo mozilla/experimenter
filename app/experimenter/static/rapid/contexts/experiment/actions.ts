@@ -1,6 +1,9 @@
 import {
   ExperimentReducerActionType,
   ExperimentData,
+  ExperimentErrors,
+  ExperimentErrorReducerAction,
+  ExperimentErrorReducerActionType,
 } from "experimenter-types/experiment";
 import { ExperimentReducerAction } from "experimenter-types/experiment";
 
@@ -48,6 +51,16 @@ export const updateExperiment = (value: Partial<ExperimentData>) => (
       ...experimentData,
       ...value,
     },
+  });
+};
+
+export const updateExperimentError = (value: Partial<ExperimentErrors>) => (
+  experimentErrors: ExperimentErrors,
+  dispatch: React.Dispatch<ExperimentErrorReducerAction>,
+): void => {
+  dispatch({
+    type: ExperimentErrorReducerActionType.UPDATE_ERRORS,
+    errors: value,
   });
 };
 

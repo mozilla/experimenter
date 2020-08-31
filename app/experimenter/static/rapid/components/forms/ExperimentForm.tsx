@@ -4,9 +4,12 @@ import { useHistory, useParams } from "react-router-dom";
 import {
   saveExperiment,
   updateExperiment,
+  updateExperimentError,
 } from "experimenter-rapid/contexts/experiment/actions";
 import {
   useExperimentDispatch,
+  useExperimentErrorState,
+  useExperimentErrorDispatch,
   useExperimentState,
 } from "experimenter-rapid/contexts/experiment/hooks";
 import { ExperimentStatus, Variant } from "experimenter-rapid/types/experiment";
@@ -44,12 +47,12 @@ export const SettingsForm: React.FC = () => {
     ...{ status: ExperimentStatus.DRAFT },
   };
 
+  const errors = useExperimentErrorState();
+  const errorDispatch = useExperimentErrorDispatch();
+
   const dispatch = useExperimentDispatch();
   const { experimentSlug } = useParams();
 
-  const [errors, setErrors] = React.useState<{ [name: string]: Array<string> }>(
-    {},
-  );
   const history = useHistory();
 
   const handleSelectChange = (name) => {
@@ -68,9 +71,14 @@ export const SettingsForm: React.FC = () => {
 
     const responseData = await response.json();
     if (!response.ok) {
-      setErrors(responseData);
+      errorDispatch(updateExperimentError(responseData));
+      const errorFields = Object.keys(responseData);
+
+      if (errorFields.length === 1 && errorFields.includes("variants")) {
+        history.push(history.location.pathname + "branches/");
+      }
     } else {
-      setErrors({});
+      errorDispatch(updateExperimentError({}));
       history.push(`/${responseData.slug}/`);
     }
   };
@@ -198,7 +206,7 @@ export const SettingsForm: React.FC = () => {
 
 export const BranchesForm: React.FC = () => {
   const formData = useExperimentState();
-
+  const errors = useExperimentErrorState();
   const variants =
     [...formData.variants].sort((a, b) =>
       a.is_control < b.is_control ? 1 : -1,
@@ -279,6 +287,13 @@ export const BranchesForm: React.FC = () => {
                           value={variant.name}
                           onChange={(ev) => handleChange(ev, i)}
                         />
+                        <ErrorList
+                          errors={
+                            errors.variants
+                              ? errors.variants[i].name
+                              : undefined
+                          }
+                        />
                       </div>
                       <div className="col-6">
                         <label htmlFor={`variant-description-${i}`}>
@@ -291,6 +306,13 @@ export const BranchesForm: React.FC = () => {
                           type="text"
                           value={variant.description}
                           onChange={(ev) => handleChange(ev, i)}
+                        />
+                        <ErrorList
+                          errors={
+                            errors.variants
+                              ? errors.variants[i].description
+                              : undefined
+                          }
                         />
                         <small className="form-text text-muted">
                           Only visible in internal tools behind LDAP.
@@ -306,6 +328,13 @@ export const BranchesForm: React.FC = () => {
                             name="ratio"
                             type="number"
                             value={ratioToPercentage(variant.ratio)}
+                          />
+                          <ErrorList
+                            errors={
+                              errors.variants
+                                ? errors.variants[i].ratio
+                                : undefined
+                            }
                           />
                           <div className="input-group-append">
                             <div className="input-group-text">%</div>

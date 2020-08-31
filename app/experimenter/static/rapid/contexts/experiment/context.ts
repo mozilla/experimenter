@@ -4,12 +4,16 @@ import {
   Action,
   ExperimentStatus,
   ExperimentData,
+  ExperimentErrors,
   FirefoxChannel,
+  ErrorAction,
 } from "experimenter-types/experiment";
 
 export const INITIAL_CONTEXT: {
   state: ExperimentData;
+  errors: ExperimentErrors;
   dispatch: (action: Action) => void;
+  errorDispatch: (errorAction: ErrorAction) => void;
 } = {
   state: {
     status: ExperimentStatus.DRAFT,
@@ -36,9 +40,14 @@ export const INITIAL_CONTEXT: {
       },
     ],
   },
+  errors: {},
   dispatch: (action: Action) => {
     /* istanbul ignore next */
     console.log(action);
+  },
+  errorDispatch: (errorAction: ErrorAction) => {
+    /* istanbul ignore next */
+    console.log(errorAction);
   },
 };
 
