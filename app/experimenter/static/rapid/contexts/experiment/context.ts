@@ -19,6 +19,22 @@ export const INITIAL_CONTEXT: {
     audience: "",
     firefox_channel: FirefoxChannel.RELEASE,
     firefox_min_version: "",
+    variants: [
+      {
+        name: "control",
+        is_control: true,
+        description: "An empty branch",
+        value: "",
+        ratio: 50,
+      },
+      {
+        name: "variant",
+        is_control: false,
+        description: "An empty branch",
+        value: "",
+        ratio: 50,
+      },
+    ],
   },
   dispatch: (action: Action) => {
     /* istanbul ignore next */

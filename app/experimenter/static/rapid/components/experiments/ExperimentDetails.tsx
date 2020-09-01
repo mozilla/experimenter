@@ -107,9 +107,9 @@ const ExperimentDetails: React.FC = () => {
     [ExperimentStatus.LIVE, ExperimentStatus.COMPLETE].includes(
       experimentData.status,
     ) &&
-    experimentData.slug
+    experimentData.recipe_slug
   ) {
-    const slug_underscored = experimentData.slug.split("-").join("_");
+    const slug_underscored = experimentData.recipe_slug.split("-").join("_");
     analysis_report = (
       <>
         <h4 className="my-4">Results</h4>
@@ -120,7 +120,7 @@ const ExperimentDetails: React.FC = () => {
         <p>
           The results can be found{" "}
           <a
-            href={`https://metrics.mozilla.com/protected/experiments/${slug_underscored}.html`}
+            href={`https://protosaur.dev/partybal/${slug_underscored}.html`}
             rel="noopener noreferrer"
             target="_blank"
           >

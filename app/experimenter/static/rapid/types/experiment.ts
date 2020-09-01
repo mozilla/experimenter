@@ -13,6 +13,15 @@ export enum FirefoxChannel {
   RELEASE = "Release",
 }
 
+interface Variant {
+  slug?: string;
+  name: string;
+  description: string;
+  ratio: number;
+  is_control: boolean;
+  value: string;
+}
+
 export interface ExperimentData {
   audience: string;
   bugzilla_url?: string;
@@ -27,6 +36,7 @@ export interface ExperimentData {
   recipe_slug?: string;
   reject_feedback?: RejectFeedback;
   status: ExperimentStatus;
+  variants: Array<Variant>;
 }
 
 export enum ExperimentReducerActionType {

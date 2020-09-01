@@ -731,41 +731,51 @@ class ExperimentCloneSerializer(serializers.ModelSerializer):
 
 
 class ExperimentCSVSerializer(serializers.ModelSerializer):
-    analysis_owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
+    data_scientist = serializers.SlugRelatedField(
+        source="analysis_owner", read_only=True, slug_field="email"
+    )
     owner = serializers.SlugRelatedField(read_only=True, slug_field="email")
-    parent = serializers.SlugRelatedField(read_only=True, slug_field="experiment_url")
     projects = serializers.SerializerMethodField()
-    related_to = serializers.SerializerMethodField()
+    description = serializers.CharField(source="public_description")
+    hypothesis = serializers.CharField(source="objectives")
+    leading_indicators = serializers.CharField(source="analysis")
+    length = serializers.SerializerMethodField()
+    channel = serializers.CharField(source="firefox_channel")
+    enrolled_target = serializers.IntegerField(source="total_enrolled_clients")
+    locales = serializers.SerializerMethodField()
+    countries = serializers.SerializerMethodField()
 
     class Meta:
         model = Experiment
         fields = (
             "name",
-            "type",
             "status",
+            "description",
+            "hypothesis",
+            "leading_indicators",
             "experiment_url",
-            "public_description",
+            "start_date",
+            "type",
+            "length",
+            "channel",
             "owner",
-            "analysis_owner",
-            "engineering_owner",
-            "short_description",
-            "objectives",
-            "parent",
-            "projects",
-            "data_science_issue_url",
-            "feature_bugzilla_url",
-            "firefox_channel",
-            "recipe_slug",
-            "proposed_duration",
-            "proposed_start_date",
-            "related_to",
-            "related_work",
-            "results_initial",
+            "data_scientist",
+            "enrolled_target",
             "results_url",
+            "projects",
+            "locales",
+            "countries",
         )
 
     def get_projects(self, obj):
         return ", ".join([p.name for p in obj.projects.order_by("name")])
 
-    def get_related_to(self, obj):
-        return ", ".join([e.experiment_url for e in obj.related_to.order_by("slug")])
+    def get_locales(self, obj):
+        return ", ".join([locale.name for locale in obj.locales.order_by("name")])
+
+    def get_countries(self, obj):
+        return ", ".join([country.name for country in obj.countries.order_by("name")])
+
+    def get_length(self, obj):
+        if obj.end_date:
+            return obj.total_duration

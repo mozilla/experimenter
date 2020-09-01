@@ -2028,11 +2028,15 @@ class TestExperimentCSVSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         project1 = ProjectFactory.create(name="a")
         project2 = ProjectFactory.create(name="b")
+        country1 = CountryFactory.create(name="c")
+        country2 = CountryFactory.create(name="d")
+        locale1 = LocaleFactory.create(name="e")
+        locale2 = LocaleFactory.create(name="f")
         parent = ExperimentFactory.create()
         related_experiment1 = ExperimentFactory.create(slug="a")
         related_experiment2 = ExperimentFactory.create(slug="b")
-        experiment = ExperimentFactory.create(
-            proposed_start_date=datetime.date(2020, 1, 1),
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_COMPLETE,
             parent=parent,
             projects=[project1, project2],
         )
@@ -2043,29 +2047,26 @@ class TestExperimentCSVSerializer(TestCase):
             serializer.data,
             {
                 "name": experiment.name,
-                "type": experiment.type,
                 "status": experiment.status,
+                "description": experiment.public_description,
+                "hypothesis": experiment.objectives,
+                "leading_indicators": experiment.analysis,
                 "experiment_url": experiment.experiment_url,
-                "public_description": experiment.public_description,
+                "start_date": experiment.start_date,
+                "type": experiment.type,
+                "length": experiment.total_duration,
+                "channel": experiment.firefox_channel,
                 "owner": experiment.owner.email,
-                "analysis_owner": experiment.analysis_owner.email,
-                "engineering_owner": experiment.engineering_owner,
-                "short_description": experiment.short_description,
-                "objectives": experiment.objectives,
-                "parent": experiment.parent.experiment_url,
-                "projects": f"{project1.name}, {project2.name}",
-                "data_science_issue_url": experiment.data_science_issue_url,
-                "feature_bugzilla_url": experiment.feature_bugzilla_url,
-                "firefox_channel": experiment.firefox_channel,
-                "recipe_slug": experiment.recipe_slug,
-                "proposed_duration": experiment.proposed_duration,
-                "proposed_start_date": "2020-01-01",
-                "related_to": (
-                    f"{related_experiment1.experiment_url}, "
-                    f"{related_experiment2.experiment_url}"
-                ),
-                "related_work": experiment.related_work,
-                "results_initial": experiment.results_initial,
+                "data_scientist": experiment.analysis_owner.email,
+                "enrolled_target": experiment.total_enrolled_clients,
                 "results_url": experiment.results_url,
+                "projects": f"{project1.name}, {project2.name}",
+                "locales": f"{locale1.name}, {locale2.name}",
+                "countries": f"{country1.name}, {country2.name}",
             },
         )
+
+    def test_serializer_outputs_no_length_for_exp_with_no_end_date(self):
+        experiment = ExperimentFactory.create(proposed_duration=None)
+        serializer = ExperimentCSVSerializer(experiment)
+        self.assertIsNone(serializer.data.get("length"))
