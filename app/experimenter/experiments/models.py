@@ -204,7 +204,9 @@ class Experiment(ExperimentConstants, models.Model):
         default=default_all_platforms,
     )
     windows_versions = ArrayField(
-        models.CharField(max_length=200), blank=True, null=True,
+        models.CharField(max_length=200),
+        blank=True,
+        null=True,
     )
     profile_age = models.CharField(
         max_length=255,
