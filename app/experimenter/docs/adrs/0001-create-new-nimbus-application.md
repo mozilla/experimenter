@@ -1,7 +1,7 @@
 # Create A New Web Application To Manage Nimbus Experiments
 
-* Status: proposed
-* Deciders: Kate Hudson, Jared Lockhart, TBD
+* Status: decided
+* Deciders: Kate Hudson
 * Date: 2020-08-18
 
 ## Context and Problem Statement
@@ -11,9 +11,11 @@ Experimenter is a web application developed solely for the purpose of managing p
 ## Decision Drivers <!-- optional -->
 
 * Meeting Project Nimbus' needs in a rapid, continuous fashion with minimal downtime
+  * the impact to (a) near-term goals of launching our first real set of feature experiments (b) mid-term goals of deprecating and replacing existing experimentation channels (Normandy pref-flips, leanplum) (c) long-term developer productivity and maintenance costs.
 * Contributability by a large, distributed group of people with different backgrounds (web engineers, data engineers, data scientists)
 * Fitting cohesively into the FXA engineering pipeline/culture
-* Continuing to support the existing experimentation (Normandy) workflow
+* Continuing to support the existing experimentation (Normandy) workflow until Normandy experiments can be deprecated and transitioned to Nimbus
+
 
 ## Considered Options
 
@@ -23,7 +25,11 @@ Experimenter is a web application developed solely for the purpose of managing p
 
 ## Decision Outcome
 
-Chosen option: TBD
+Chosen option: After careful consideration of both options, we have decided to adopt the proposal to build on top of Experimenter and invest in improvements. This includes work to create new models, improve and document a development workflow that can be used by all members of the team, and write a new front end in React. While we carefully considered the proposal to start a new application in Node/Typescript, we determined that the risk around the time to bring a new application up to parity and the operations overhead of maintaining parallel systems was too significant to adopt the proposal.
+
+We already have a list of improvements we’d like to make – over the next few days we will work on clarifying any details, breaking things down, and getting everyone up to speed on running the existing code base.
+
+[Decision Brief](https://docs.google.com/document/d/1AwtxZZAqP_2adyfDN5juTHW0TiuU8VV8VzDDo695kZQ/edit#)
 
 ### Positive Consequences
 
@@ -55,8 +61,12 @@ Much of the existing Experimenter infrastructure can be reused, which gives Proj
     - 100% unit testing coverage across Python/JS/TS
     - Automated Selenium Integration tests for frontend
     - Continuous Deployment
+  - Dynamic Risk Mitigation
+    - There have been several cases where risk will need to set on different path for mitigation (partner involved, new metrics needed, new targeting needed). The goal is 100% to move to lighter weight/no review whenever possible - but kick the ones that need more hands-on into that flow.
+
 - Cons
   - Existing workflow/UI not applicable
+    - The existing workflow and UI is designed around a highly managed experimentation design process with multiple coordinators and sign-offs required, in which an additional set of tools is required for the actual launch and management of experiments. It is also, for the most part, based around the Firefox Desktop release management process.  Nimbus is intended to manage the whole process from experiment design to launch to monitoring, with a lighter-weight peer review process, in which individuals creating experiments are more responsible for the entire life cycle and viability of their own experiments.
   - Some database schemas require refactoring to isolate Normandy and Nimbus concerns
   - Careful consideration that adding Nimbus features does not disturb existing functionality
   - Lack of static typing (mypy can be added with effort)
@@ -83,6 +93,7 @@ Creating a new web application in Python/Django would allow us to reuse much of 
   - Divergence in tooling/processes over time may create confusion when context switching between the two
   - Possibly still somewhat constricted by past core design decisions
   - [Python/Django may not align with FXA tools/processes](https://github.com/mozilla/fxa/blob/main/docs/adr/0020-application-architecture.md)
+  - There is a cost to supporting teams, including cloud ops/IT/QA, to setting up and running an additional application
 
 ### Start A New Application in TypeScript/Node
 
@@ -111,7 +122,7 @@ Creating a new web application in TypeScript/Node would allow us to completely r
     - Dependent service integration (bugzilla/remote settings/email/auth0)
     - History/Changelog management
     - User roles/permissions
-
+  - There is a cost to supporting teams, including cloud ops/IT/QA, to setting up and running an additional application
 
 ## Links <!-- optional -->
 
