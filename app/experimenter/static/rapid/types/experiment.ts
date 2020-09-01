@@ -13,7 +13,7 @@ export enum FirefoxChannel {
   RELEASE = "Release",
 }
 
-interface Variant {
+export interface Variant {
   slug?: string;
   name: string;
   description: string;
