@@ -624,7 +624,8 @@ class TestExperimentCSVListView(TestCase):
         )
 
         response = self.client.get(
-            reverse("experiments-api-csv"), **{settings.OPENIDC_EMAIL_HEADER: user_email},
+            reverse("experiments-api-csv"),
+            **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
         self.assertEqual(response.status_code, 200)
