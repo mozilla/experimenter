@@ -204,9 +204,7 @@ class Experiment(ExperimentConstants, models.Model):
         default=default_all_platforms,
     )
     windows_versions = ArrayField(
-        models.CharField(max_length=200),
-        blank=True,
-        null=True,
+        models.CharField(max_length=200), blank=True, null=True,
     )
     profile_age = models.CharField(
         max_length=255,
@@ -927,11 +925,11 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def use_multi_pref_serializer(self):
-        return (
-            self.is_pref_experiment
-            and self.firefox_min_version_integer
+        return self.is_pref_experiment and (
+            self.firefox_min_version_integer
             >= ExperimentConstants.FX_MIN_MULTI_BRANCHED_VERSION
-        ) or self.is_multi_pref
+            or self.is_multi_pref
+        )
 
     @property
     def versions_integer_list(self):
