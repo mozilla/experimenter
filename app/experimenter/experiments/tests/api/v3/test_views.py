@@ -7,7 +7,10 @@ from parameterized import parameterized
 
 from experimenter.experiments.api.v3.serializers import ExperimentRapidSerializer
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.factories import (
+    ExperimentFactory,
+    ExperimentRapidFactory,
+)
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
@@ -34,13 +37,10 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
 
     def test_get_detail_returns_data_for_rapid_experiment(self):
         user_email = "user@example.com"
-
         owner = UserFactory(email=user_email)
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_RAPID,
+        experiment = ExperimentRapidFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
             owner=owner,
-            name="rapid experiment",
-            objectives="gotta go fast",
         )
 
         response = self.client.get(
@@ -63,7 +63,6 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
     )
     def test_get_detail_returns_404_for_non_rapid_experiment(self, experiment_type):
         user_email = "user@example.com"
-
         experiment = ExperimentFactory.create(type=experiment_type)
 
         response = self.client.get(
@@ -80,8 +79,8 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         firefox_min_version = Experiment.VERSION_CHOICES[0][0]
 
         owner = UserFactory(email=user_email)
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_RAPID,
+        experiment = ExperimentRapidFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
             owner=owner,
             name="rapid experiment",
             slug="rapid-experiment",
@@ -158,7 +157,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
 
     def test_request_review_updates_status_creates_changelog(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(
+        experiment = ExperimentRapidFactory.create_with_status(
             Experiment.STATUS_DRAFT,
             type=Experiment.TYPE_RAPID,
             name="rapid experiment",

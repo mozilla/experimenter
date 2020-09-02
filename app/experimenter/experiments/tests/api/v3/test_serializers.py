@@ -1,4 +1,3 @@
-import random
 from collections import OrderedDict
 
 from django.conf import settings
@@ -15,7 +14,7 @@ from experimenter.experiments.models import (
     ExperimentChangeLog,
 )
 from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
+    ExperimentRapidFactory,
     ExperimentVariantFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
@@ -23,7 +22,6 @@ from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
 NIMBUS_DATA = get_data()
-FIREFOX_VERSION = random.choice(Experiment.VERSION_CHOICES)[0]
 
 
 class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, TestCase):
@@ -48,33 +46,15 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
 
     def test_serializer_outputs_expected_schema_for_draft_experiment(self):
         owner = UserFactory(email="owner@example.com")
-        experiment = ExperimentFactory.create_with_variants(
-            type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA,
-            status=Experiment.STATUS_DRAFT,
+        experiment = ExperimentRapidFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
             owner=owner,
             name="rapid experiment",
             slug="rapid-experiment",
             objectives="gotta go fast",
             audience="all_english",
             features=["picture_in_picture"],
-            firefox_min_version=FIREFOX_VERSION,
-            firefox_channel=Experiment.CHANNEL_RELEASE,
         )
-
-        variants_data = []
-        for variant in experiment.variants.all():
-            variant_data = OrderedDict(
-                {
-                    "id": variant.id,
-                    "description": variant.description,
-                    "is_control": variant.is_control,
-                    "name": variant.name,
-                    "ratio": variant.ratio,
-                    "value": variant.value,
-                }
-            )
-            variants_data.append(variant_data)
 
         serializer = ExperimentRapidSerializer(experiment)
         serializer_data = serializer.data
@@ -85,12 +65,10 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             serializer_data,
             {
                 "audience": "all_english",
-                "bugzilla_url": "{bug_host}show_bug.cgi?id={bug_id}".format(
-                    bug_host=settings.BUGZILLA_HOST, bug_id=experiment.bugzilla_id
-                ),
+                "bugzilla_url": None,
                 "features": ["picture_in_picture"],
-                "firefox_channel": Experiment.CHANNEL_RELEASE,
-                "firefox_min_version": FIREFOX_VERSION,
+                "firefox_channel": experiment.firefox_channel,
+                "firefox_min_version": experiment.firefox_min_version,
                 "monitoring_dashboard_url": None,
                 "name": "rapid experiment",
                 "objectives": "gotta go fast",
@@ -101,27 +79,6 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "status": Experiment.STATUS_DRAFT,
             },
         )
-        for serialize_data in serializer_variants_data:
-            self.assertIn(serialize_data, variants_data)
-
-    def test_serializer_outputs_expected_schema_for_live_experiment(self):
-        owner = UserFactory(email="owner@example.com")
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_LIVE,
-            type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA,
-            owner=owner,
-            name="rapid experiment",
-            slug="rapid-experiment",
-            objectives="gotta go fast",
-            audience="all_english",
-            features=["picture_in_picture"],
-            firefox_channel=Experiment.CHANNEL_RELEASE,
-            firefox_min_version=FIREFOX_VERSION,
-            firefox_max_version=None,
-        )
-
-        variants_data = []
         for variant in experiment.variants.all():
             variant_data = OrderedDict(
                 {
@@ -133,12 +90,24 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                     "value": variant.value,
                 }
             )
-            variants_data.append(variant_data)
+            self.assertIn(variant_data, serializer_variants_data)
+
+    def test_serializer_outputs_expected_schema_for_live_experiment(self):
+        owner = UserFactory(email="owner@example.com")
+        experiment = ExperimentRapidFactory.create_with_status(
+            Experiment.STATUS_LIVE,
+            owner=owner,
+            name="rapid experiment",
+            slug="rapid-experiment",
+            objectives="gotta go fast",
+            audience="all_english",
+            features=["picture_in_picture"],
+        )
 
         serializer = ExperimentRapidSerializer(experiment)
-
         serializer_data = serializer.data
         serializer_variants_data = serializer_data.pop("variants")
+
         self.maxDiff = None
         self.assertDictEqual(
             serializer_data,
@@ -148,8 +117,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                     bug_host=settings.BUGZILLA_HOST, bug_id=experiment.bugzilla_id
                 ),
                 "features": ["picture_in_picture"],
-                "firefox_min_version": FIREFOX_VERSION,
-                "firefox_channel": Experiment.CHANNEL_RELEASE,
+                "firefox_min_version": experiment.firefox_min_version,
+                "firefox_channel": experiment.firefox_channel,
                 "monitoring_dashboard_url": experiment.monitoring_dashboard_url,
                 "name": "rapid experiment",
                 "objectives": "gotta go fast",
@@ -161,39 +130,6 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             },
         )
 
-        for serialize_data in serializer_variants_data:
-            self.assertIn(serialize_data, variants_data)
-
-    def test_serializer_outputs_expected_schema_for_rejected_experiment(self):
-        owner = UserFactory(email="owner@example.com")
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_ACCEPTED,
-            type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA,
-            owner=owner,
-            name="rapid experiment",
-            slug="rapid-experiment",
-            objectives="gotta go fast",
-            audience="all_english",
-            features=["picture_in_picture"],
-            firefox_channel=Experiment.CHANNEL_RELEASE,
-            firefox_min_version=FIREFOX_VERSION,
-            firefox_max_version=None,
-        )
-
-        ExperimentChangeLog.objects.create(
-            old_status=Experiment.STATUS_ACCEPTED,
-            new_status=Experiment.STATUS_REJECTED,
-            message="It's no good",
-            experiment=experiment,
-            changed_by=owner,
-            changed_on="2020-07-30T05:37:22.540985Z",
-        )
-
-        experiment.status = Experiment.STATUS_REJECTED
-        experiment.save()
-
-        variants_data = []
         for variant in experiment.variants.all():
             variant_data = OrderedDict(
                 {
@@ -205,13 +141,37 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                     "value": variant.value,
                 }
             )
-            variants_data.append(variant_data)
+            self.assertIn(variant_data, serializer_variants_data)
+
+    def test_serializer_outputs_expected_schema_for_rejected_experiment(self):
+        owner = UserFactory(email="owner@example.com")
+        experiment = ExperimentRapidFactory.create_with_status(
+            Experiment.STATUS_ACCEPTED,
+            owner=owner,
+            name="rapid experiment",
+            slug="rapid-experiment",
+            objectives="gotta go fast",
+            audience="all_english",
+            features=["picture_in_picture"],
+        )
+
+        changelog = ExperimentChangeLog.objects.create(
+            old_status=Experiment.STATUS_ACCEPTED,
+            new_status=Experiment.STATUS_REJECTED,
+            message="It's no good",
+            experiment=experiment,
+            changed_by=owner,
+        )
+
+        experiment.status = Experiment.STATUS_REJECTED
+        experiment.save()
+
         serializer = ExperimentRapidSerializer(experiment)
 
         serializer_data = serializer.data
-        serializer_variants_data = serializer_data.pop("variants")
-        self.maxDiff = None
+        serializer_data.pop("variants")
 
+        self.maxDiff = None
         self.assertDictEqual(
             serializer_data,
             {
@@ -220,14 +180,14 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                     bug_host=settings.BUGZILLA_HOST, bug_id=experiment.bugzilla_id
                 ),
                 "features": ["picture_in_picture"],
-                "firefox_channel": "Release",
-                "firefox_min_version": FIREFOX_VERSION,
+                "firefox_channel": experiment.firefox_channel,
+                "firefox_min_version": experiment.firefox_min_version,
                 "monitoring_dashboard_url": experiment.monitoring_dashboard_url,
                 "name": "rapid experiment",
                 "objectives": "gotta go fast",
                 "owner": "owner@example.com",
                 "reject_feedback": {
-                    "changed_on": "2020-07-30T05:37:22.540985Z",
+                    "changed_on": changelog.changed_on.isoformat().replace("+00:00", "Z"),
                     "message": "It's no good",
                 },
                 "slug": "rapid-experiment",
@@ -235,8 +195,6 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "status": Experiment.STATUS_REJECTED,
             },
         )
-        for serialize_data in serializer_variants_data:
-            self.assertIn(serialize_data, variants_data)
 
     def test_serializer_required_fields(self):
         serializer = ExperimentRapidSerializer(data={}, context={"request": self.request})
@@ -262,7 +220,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "objectives": "gotta go fast",
             "audience": "WRONG AUDIENCE CHOICE",
             "features": ["picture_in_picture", "pinned_tabs"],
-            "firefox_min_version": FIREFOX_VERSION,
+            "firefox_min_version": "80.0",
             "firefox_channel": Experiment.CHANNEL_RELEASE,
         }
         serializer = ExperimentRapidSerializer(
@@ -277,7 +235,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "objectives": "gotta go fast",
             "audience": "all_english",
             "features": ["WRONG FEATURE 1", "WRONG FEATURE 2"],
-            "firefox_min_version": FIREFOX_VERSION,
+            "firefox_min_version": "80.0",
             "firefox_channel": Experiment.CHANNEL_RELEASE,
         }
         serializer = ExperimentRapidSerializer(
@@ -307,7 +265,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "objectives": "gotta go fast",
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
-            "firefox_min_version": FIREFOX_VERSION,
+            "firefox_min_version": "80.0",
             "firefox_channel": "invalid channel",
         }
         serializer = ExperimentRapidSerializer(
@@ -322,7 +280,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "objectives": "gotta go fast",
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
-            "firefox_min_version": FIREFOX_VERSION,
+            "firefox_min_version": "80.0",
             "firefox_channel": Experiment.CHANNEL_RELEASE,
             "variants": [
                 {
@@ -351,7 +309,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "objectives": "gotta go fast",
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
-            "firefox_min_version": FIREFOX_VERSION,
+            "firefox_min_version": "80.0",
             "firefox_channel": Experiment.CHANNEL_RELEASE,
             "variants": self.variants_data,
         }
@@ -362,6 +320,11 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertTrue(serializer.is_valid())
         experiment = serializer.save()
 
+        # Preset data
+        preset_data = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
+            "arguments"
+        ]
+
         # User input data
         self.assertEqual(experiment.type, Experiment.TYPE_RAPID)
         self.assertEqual(experiment.rapid_type, Experiment.RAPID_AA)
@@ -371,138 +334,59 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertEqual(experiment.objectives, "gotta go fast")
         self.assertEqual(experiment.audience, "all_english")
         self.assertEqual(experiment.features, ["picture_in_picture", "pinned_tabs"])
-        self.assertEqual(experiment.firefox_min_version, FIREFOX_VERSION)
+        self.assertEqual(experiment.firefox_min_version, "80.0")
         self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
         self.assertEqual(
             experiment.public_description, Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
         )
-
-        self.assertEqual(experiment.variants.count(), 2)
-        self.assertTrue(experiment.variants.filter(**self.variants_data[0]).exists())
-        self.assertTrue(experiment.variants.filter(**self.variants_data[1]).exists())
-
-        # Preset data
-        preset_data = NIMBUS_DATA["ExperimentDesignPresets"]["empty_aa"]["preset"][
-            "arguments"
-        ]
-
         self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
         self.assertEqual(experiment.proposed_duration, preset_data["proposedDuration"])
         self.assertEqual(
             experiment.proposed_enrollment, preset_data["proposedEnrollment"]
         )
 
+        self.assertEqual(experiment.variants.count(), 2)
+        self.assertTrue(experiment.variants.filter(**self.variants_data[0]).exists())
+        self.assertTrue(experiment.variants.filter(**self.variants_data[1]).exists())
+
         self.mock_tasks_serializer_create_bug.delay.assert_called()
 
         self.assertEqual(experiment.changes.count(), 1)
 
-        changed_values = {
-            "name": {
-                "display_name": "Name",
-                "new_value": "rapid experiment",
-                "old_value": None,
-            },
-            "objectives": {
-                "display_name": "Objectives",
-                "new_value": "gotta go fast",
-                "old_value": None,
-            },
-            "owner": {
-                "display_name": "Owner",
-                "new_value": self.user.id,
-                "old_value": None,
-            },
-            "type": {"display_name": "Type", "new_value": "rapid", "old_value": None},
-            "public_description": {
-                "display_name": "Public Description",
-                "new_value": Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
-                "old_value": None,
-            },
-            "audience": {
-                "display_name": "Audience",
-                "new_value": "all_english",
-                "old_value": None,
-            },
-            "features": {
-                "display_name": "Features",
-                "new_value": ["picture_in_picture", "pinned_tabs"],
-                "old_value": None,
-            },
-            "firefox_min_version": {
-                "display_name": "Firefox Min Version",
-                "new_value": FIREFOX_VERSION,
-                "old_value": None,
-            },
-            "firefox_channel": {
-                "display_name": "Firefox Channel",
-                "new_value": Experiment.CHANNEL_RELEASE,
-                "old_value": None,
-            },
-            "proposed_duration": {
-                "display_name": "Proposed Duration",
-                "new_value": 28,
-                "old_value": None,
-            },
-            "proposed_enrollment": {
-                "display_name": "Proposed Enrollment",
-                "new_value": 7,
-                "old_value": None,
-            },
-            "variants": {
-                "display_name": "Branches",
-                "new_value": [
-                    {
-                        "addon_release_url": None,
-                        "description": "a variant",
-                        "is_control": False,
-                        "message_targeting": None,
-                        "message_threshold": None,
-                        "message_triggers": None,
-                        "name": "variant",
-                        "preferences": [],
-                        "ratio": 50,
-                        "slug": "variant",
-                        "value": None,
-                    },
-                    {
-                        "addon_release_url": None,
-                        "description": "a variant",
-                        "is_control": True,
-                        "message_targeting": None,
-                        "message_threshold": None,
-                        "message_triggers": None,
-                        "name": "control",
-                        "preferences": [],
-                        "ratio": 50,
-                        "slug": "control",
-                        "value": None,
-                    },
-                ],
-                "old_value": None,
-            },
-        }
         changelog = experiment.changes.get(
             old_status=None, new_status=Experiment.STATUS_DRAFT
         )
+        self.assertEqual(changelog.changed_by, self.request.user)
+        self.assertEqual(
+            set(changelog.changed_values.keys()),
+            set(
+                [
+                    "audience",
+                    "features",
+                    "firefox_channel",
+                    "firefox_min_version",
+                    "name",
+                    "objectives",
+                    "owner",
+                    "proposed_duration",
+                    "proposed_enrollment",
+                    "public_description",
+                    "type",
+                    "variants",
+                ]
+            ),
+        )
 
-        self.maxDiff = None
-        self.assertEqual(changelog.changed_values, changed_values)
-
-    def test_serializer_creates_changelog_for_updates(self):
+    def test_serializer_updates_experiment_and_creates_changelog(self):
         owner = UserFactory(email="owner@example.com")
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_DRAFT,
-            type=Experiment.TYPE_RAPID,
-            rapid_type=Experiment.RAPID_AA,
+        experiment = ExperimentRapidFactory.create_with_status(
+            Experiment.STATUS_DRAFT,
             owner=owner,
             name="rapid experiment",
             slug="rapid-experiment",
             objectives="gotta go fast",
             audience="us_only",
             features=["picture_in_picture", "pinned_tabs"],
-            firefox_channel=Experiment.CHANNEL_RELEASE,
-            firefox_min_version=FIREFOX_VERSION,
-            public_description=Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
         )
         experiment.variants.all().delete()
         variant = ExperimentVariantFactory.create(experiment=experiment)
@@ -542,95 +426,23 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         experiment = serializer.save()
         self.assertEqual(experiment.changes.count(), 2)
 
-        changed_values = {
-            "name": {
-                "display_name": "Name",
-                "new_value": "changing the name",
-                "old_value": "rapid experiment",
-            },
-            "objectives": {
-                "display_name": "Objectives",
-                "new_value": "changing objectives",
-                "old_value": "gotta go fast",
-            },
-            "audience": {
-                "display_name": "Audience",
-                "new_value": "all_english",
-                "old_value": "us_only",
-            },
-            "features": {
-                "display_name": "Features",
-                "new_value": ["pinned_tabs"],
-                "old_value": ["picture_in_picture", "pinned_tabs"],
-            },
-            "firefox_min_version": {
-                "display_name": "Firefox Min Version",
-                "new_value": Experiment.VERSION_CHOICES[1][0],
-                "old_value": FIREFOX_VERSION,
-            },
-            "firefox_channel": {
-                "display_name": "Firefox Channel",
-                "new_value": Experiment.CHANNEL_NIGHTLY,
-                "old_value": Experiment.CHANNEL_RELEASE,
-            },
-            "variants": {
-                "display_name": "Branches",
-                "new_value": [
-                    {
-                        "addon_release_url": None,
-                        "description": "variant1 description",
-                        "is_control": False,
-                        "message_targeting": None,
-                        "message_threshold": None,
-                        "message_triggers": None,
-                        "name": "variant1",
-                        "preferences": [],
-                        "ratio": 50,
-                        "slug": "variant1",
-                        "value": "variant value",
-                    },
-                    {
-                        "addon_release_url": None,
-                        "description": "something",
-                        "is_control": True,
-                        "message_targeting": None,
-                        "message_threshold": None,
-                        "message_triggers": None,
-                        "name": "something else",
-                        "preferences": [],
-                        "ratio": 50,
-                        "slug": "something-else",
-                        "value": "something",
-                    },
-                ],
-                "old_value": [
-                    {
-                        "addon_release_url": variant.addon_release_url,
-                        "description": variant.description,
-                        "is_control": False,
-                        "message_targeting": variant.message_targeting,
-                        "message_threshold": variant.message_threshold,
-                        "message_triggers": variant.message_triggers,
-                        "name": variant.name,
-                        "preferences": [],
-                        "ratio": variant.ratio,
-                        "slug": variant.slug,
-                        "value": variant.value,
-                    }
-                ],
-            },
-        }
-
-        self.maxDiff = None
         changelog = experiment.changes.latest()
-        self.assertEqual(changelog.changed_values, changed_values)
-
-        self.assertTrue(
-            experiment.changes.filter(
-                old_status=Experiment.STATUS_DRAFT,
-                new_status=Experiment.STATUS_DRAFT,
-                changed_values=changed_values,
-            ).exists()
+        self.assertEqual(changelog.old_status, Experiment.STATUS_DRAFT)
+        self.assertEqual(changelog.new_status, Experiment.STATUS_DRAFT)
+        self.assertEqual(
+            set(changelog.changed_values.keys()),
+            set(
+                [
+                    "audience",
+                    "features",
+                    "firefox_channel",
+                    "firefox_min_version",
+                    "name",
+                    "objectives",
+                    "public_description",
+                    "variants",
+                ]
+            ),
         )
 
     def test_serializer_returns_errors_for_non_alpha_numeric_name(self):
@@ -639,7 +451,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "objectives": "gotta go fast",
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
-            "firefox_min_version": FIREFOX_VERSION,
+            "firefox_min_version": "80.0",
             "firefox_channel": Experiment.CHANNEL_RELEASE,
             "variants": self.variants_data,
         }
@@ -653,14 +465,14 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         )
 
     def test_serializer_returns_error_for_non_unique_slug(self):
-        ExperimentFactory.create(name="non unique slug", slug="non-unique-slug")
+        ExperimentRapidFactory.create(name="non unique slug", slug="non-unique-slug")
 
         data = {
             "name": "non. unique slug",
             "objectives": "gotta go fast",
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
-            "firefox_min_version": FIREFOX_VERSION,
+            "firefox_min_version": "80.0",
             "firefox_channel": Experiment.CHANNEL_RELEASE,
             "variants": self.variants_data,
         }
@@ -676,7 +488,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         )
 
     def test_serializer_update_experiment_does_not_throw_slug_err(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentRapidFactory.create(
             name="non unique slug", slug="non-unique-slug"
         )
 
@@ -685,7 +497,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "objectives": "gotta go fast",
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
-            "firefox_min_version": FIREFOX_VERSION,
+            "firefox_min_version": "80.0",
             "firefox_channel": Experiment.CHANNEL_RELEASE,
             "variants": self.variants_data,
         }
@@ -698,9 +510,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
 
 class TestExperimentRapidStatusSerializer(MockRequestMixin, TestCase):
     def test_serializer_updates_status(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, type=Experiment.TYPE_RAPID
-        )
+        experiment = ExperimentRapidFactory.create_with_status(Experiment.STATUS_DRAFT)
 
         data = {
             "status": Experiment.STATUS_REVIEW,
@@ -719,7 +529,7 @@ class TestExperimentRapidStatusSerializer(MockRequestMixin, TestCase):
         self.assertEqual(experiment.changes.count(), 2)
 
     def test_serializer_rejects_invalid_state_transition(self):
-        experiment = ExperimentFactory.create_with_status(
+        experiment = ExperimentRapidFactory.create_with_status(
             Experiment.STATUS_REVIEW, type=Experiment.TYPE_RAPID
         )
 
