@@ -76,7 +76,6 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         user_email = "user@example.com"
         audience = "us_only"
         features = ["picture_in_picture", "pinned_tabs"]
-        firefox_min_version = Experiment.VERSION_CHOICES[0][0]
 
         owner = UserFactory(email=user_email)
         experiment = ExperimentRapidFactory.create_with_status(
@@ -87,6 +86,8 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
             objectives="gotta go fast",
             audience=audience,
             features=features,
+            firefox_min_version="79.0",
+            firefox_channel=Experiment.CHANNEL_NIGHTLY,
         )
 
         data = json.dumps(
@@ -95,9 +96,24 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
                 "objectives": "new hypothesis",
                 "audience": audience,
                 "features": features,
-                "firefox_min_version": firefox_min_version,
+                "firefox_min_version": "80.0",
                 "firefox_channel": Experiment.CHANNEL_RELEASE,
-                "variants": self.variants_data,
+                "variants": [
+                    {
+                        "slug": "control",
+                        "name": "control",
+                        "ratio": 50,
+                        "description": "a variant",
+                        "is_control": True,
+                    },
+                    {
+                        "slug": "variant",
+                        "name": "variant",
+                        "ratio": 50,
+                        "description": "a variant",
+                        "is_control": False,
+                    },
+                ],
             }
         )
 
@@ -108,6 +124,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
+        print(response.content)
         self.assertEqual(response.status_code, 200)
         experiment = Experiment.objects.get()
         self.assertEqual(experiment.owner.email, user_email)
@@ -116,14 +133,13 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         self.assertEqual(experiment.objectives, "new hypothesis")
         self.assertEqual(experiment.audience, audience)
         self.assertEqual(experiment.features, features)
-        self.assertEqual(experiment.firefox_min_version, firefox_min_version)
+        self.assertEqual(experiment.firefox_min_version, "80.0")
         self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
 
     def test_post_list_creates_rapid_experiment(self):
         user_email = "user@example.com"
         audience = "us_only"
         features = ["picture_in_picture", "pinned_tabs"]
-        firefox_min_version = Experiment.VERSION_CHOICES[0][0]
 
         data = json.dumps(
             {
@@ -131,7 +147,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
                 "objectives": "gotta go fast",
                 "audience": audience,
                 "features": features,
-                "firefox_min_version": firefox_min_version,
+                "firefox_min_version": "80.0",
                 "firefox_channel": Experiment.CHANNEL_RELEASE,
                 "variants": self.variants_data,
             }
@@ -152,7 +168,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         self.assertEqual(experiment.objectives, "gotta go fast")
         self.assertEqual(experiment.audience, audience)
         self.assertEqual(experiment.features, features)
-        self.assertEqual(experiment.firefox_min_version, firefox_min_version)
+        self.assertEqual(experiment.firefox_min_version, "80.0")
         self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
 
     def test_request_review_updates_status_creates_changelog(self):
