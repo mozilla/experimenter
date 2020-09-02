@@ -38,7 +38,7 @@ export const saveExperiment = async (
   });
 };
 
-export const updateExperiment = (name: string, value: string | string[]) => (
+export const updateExperiment = (value: Partial<ExperimentData>) => (
   experimentData: ExperimentData,
   dispatch: React.Dispatch<ExperimentReducerAction>,
 ): void => {
@@ -46,7 +46,7 @@ export const updateExperiment = (name: string, value: string | string[]) => (
     type: ExperimentReducerActionType.UPDATE_STATE,
     state: {
       ...experimentData,
-      [name]: value,
+      ...value,
     },
   });
 };

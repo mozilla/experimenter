@@ -66,10 +66,10 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         for variant in experiment.variants.all():
             variant_data = OrderedDict(
                 {
-                    "slug": variant.slug,
-                    "name": variant.name,
+                    "id": variant.id,
                     "description": variant.description,
                     "is_control": variant.is_control,
+                    "name": variant.name,
                     "ratio": variant.ratio,
                     "value": variant.value,
                 }
@@ -77,10 +77,12 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             variants_data.append(variant_data)
 
         serializer = ExperimentRapidSerializer(experiment)
+        serializer_data = serializer.data
+        serializer_variants_data = serializer_data.pop("variants")
 
         self.maxDiff = None
         self.assertDictEqual(
-            serializer.data,
+            serializer_data,
             {
                 "audience": "all_english",
                 "bugzilla_url": "{bug_host}show_bug.cgi?id={bug_id}".format(
@@ -97,9 +99,10 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "slug": "rapid-experiment",
                 "recipe_slug": experiment.recipe_slug,
                 "status": Experiment.STATUS_DRAFT,
-                "variants": variants_data,
             },
         )
+        for serialize_data in serializer_variants_data:
+            self.assertIn(serialize_data, variants_data)
 
     def test_serializer_outputs_expected_schema_for_live_experiment(self):
         owner = UserFactory(email="owner@example.com")
@@ -117,14 +120,15 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             firefox_min_version=FIREFOX_VERSION,
             firefox_max_version=None,
         )
+
         variants_data = []
         for variant in experiment.variants.all():
             variant_data = OrderedDict(
                 {
-                    "slug": variant.slug,
-                    "name": variant.name,
+                    "id": variant.id,
                     "description": variant.description,
                     "is_control": variant.is_control,
+                    "name": variant.name,
                     "ratio": variant.ratio,
                     "value": variant.value,
                 }
@@ -133,9 +137,11 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
 
         serializer = ExperimentRapidSerializer(experiment)
 
+        serializer_data = serializer.data
+        serializer_variants_data = serializer_data.pop("variants")
         self.maxDiff = None
         self.assertDictEqual(
-            serializer.data,
+            serializer_data,
             {
                 "audience": "all_english",
                 "bugzilla_url": "{bug_host}show_bug.cgi?id={bug_id}".format(
@@ -152,9 +158,11 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "slug": "rapid-experiment",
                 "recipe_slug": experiment.recipe_slug,
                 "status": Experiment.STATUS_LIVE,
-                "variants": variants_data,
             },
         )
+
+        for serialize_data in serializer_variants_data:
+            self.assertIn(serialize_data, variants_data)
 
     def test_serializer_outputs_expected_schema_for_rejected_experiment(self):
         owner = UserFactory(email="owner@example.com")
@@ -189,20 +197,23 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         for variant in experiment.variants.all():
             variant_data = OrderedDict(
                 {
-                    "slug": variant.slug,
-                    "name": variant.name,
+                    "id": variant.id,
                     "description": variant.description,
                     "is_control": variant.is_control,
+                    "name": variant.name,
                     "ratio": variant.ratio,
                     "value": variant.value,
                 }
             )
             variants_data.append(variant_data)
-
         serializer = ExperimentRapidSerializer(experiment)
 
+        serializer_data = serializer.data
+        serializer_variants_data = serializer_data.pop("variants")
+        self.maxDiff = None
+
         self.assertDictEqual(
-            serializer.data,
+            serializer_data,
             {
                 "audience": "all_english",
                 "bugzilla_url": "{bug_host}show_bug.cgi?id={bug_id}".format(
@@ -222,9 +233,10 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "slug": "rapid-experiment",
                 "recipe_slug": experiment.recipe_slug,
                 "status": Experiment.STATUS_REJECTED,
-                "variants": variants_data,
             },
         )
+        for serialize_data in serializer_variants_data:
+            self.assertIn(serialize_data, variants_data)
 
     def test_serializer_required_fields(self):
         serializer = ExperimentRapidSerializer(data={}, context={"request": self.request})
@@ -436,10 +448,43 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "new_value": 7,
                 "old_value": None,
             },
+            "variants": {
+                "display_name": "Branches",
+                "new_value": [
+                    {
+                        "addon_release_url": None,
+                        "description": "a variant",
+                        "is_control": False,
+                        "message_targeting": None,
+                        "message_threshold": None,
+                        "message_triggers": None,
+                        "name": "variant",
+                        "preferences": [],
+                        "ratio": 50,
+                        "slug": "variant",
+                        "value": None,
+                    },
+                    {
+                        "addon_release_url": None,
+                        "description": "a variant",
+                        "is_control": True,
+                        "message_targeting": None,
+                        "message_threshold": None,
+                        "message_triggers": None,
+                        "name": "control",
+                        "preferences": [],
+                        "ratio": 50,
+                        "slug": "control",
+                        "value": None,
+                    },
+                ],
+                "old_value": None,
+            },
         }
         changelog = experiment.changes.get(
             old_status=None, new_status=Experiment.STATUS_DRAFT
         )
+
         self.maxDiff = None
         self.assertEqual(changelog.changed_values, changed_values)
 
@@ -459,9 +504,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             firefox_min_version=FIREFOX_VERSION,
             public_description=Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
         )
-
-        # TODO when updating Variants in serializer fix test
         experiment.variants.all().delete()
+        variant = ExperimentVariantFactory.create(experiment=experiment)
 
         self.assertEqual(experiment.changes.count(), 1)
         data = {
@@ -471,11 +515,29 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "features": ["pinned_tabs"],
             "firefox_channel": Experiment.CHANNEL_NIGHTLY,
             "firefox_min_version": Experiment.VERSION_CHOICES[1][0],
-            "variants": [],
+            "variants": [
+                {
+                    "id": variant.id,
+                    "name": "something else",
+                    "description": "something",
+                    "is_control": True,
+                    "ratio": 50,
+                    "value": "something",
+                },
+                {
+                    "name": "variant1",
+                    "description": "variant1 description",
+                    "is_control": False,
+                    "ratio": 50,
+                    "value": "variant value",
+                },
+            ],
         }
+
         serializer = ExperimentRapidSerializer(
             instance=experiment, data=data, context={"request": self.request}
         )
+
         self.assertTrue(serializer.is_valid())
         experiment = serializer.save()
         self.assertEqual(experiment.changes.count(), 2)
@@ -511,7 +573,58 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "new_value": Experiment.CHANNEL_NIGHTLY,
                 "old_value": Experiment.CHANNEL_RELEASE,
             },
+            "variants": {
+                "display_name": "Branches",
+                "new_value": [
+                    {
+                        "addon_release_url": None,
+                        "description": "variant1 description",
+                        "is_control": False,
+                        "message_targeting": None,
+                        "message_threshold": None,
+                        "message_triggers": None,
+                        "name": "variant1",
+                        "preferences": [],
+                        "ratio": 50,
+                        "slug": "variant1",
+                        "value": "variant value",
+                    },
+                    {
+                        "addon_release_url": None,
+                        "description": "something",
+                        "is_control": True,
+                        "message_targeting": None,
+                        "message_threshold": None,
+                        "message_triggers": None,
+                        "name": "something else",
+                        "preferences": [],
+                        "ratio": 50,
+                        "slug": "something-else",
+                        "value": "something",
+                    },
+                ],
+                "old_value": [
+                    {
+                        "addon_release_url": variant.addon_release_url,
+                        "description": variant.description,
+                        "is_control": False,
+                        "message_targeting": variant.message_targeting,
+                        "message_threshold": variant.message_threshold,
+                        "message_triggers": variant.message_triggers,
+                        "name": variant.name,
+                        "preferences": [],
+                        "ratio": variant.ratio,
+                        "slug": variant.slug,
+                        "value": variant.value,
+                    }
+                ],
+            },
         }
+
+        self.maxDiff = None
+        changelog = experiment.changes.latest()
+        self.assertEqual(changelog.changed_values, changed_values)
+
         self.assertTrue(
             experiment.changes.filter(
                 old_status=Experiment.STATUS_DRAFT,
@@ -628,23 +741,12 @@ class TestExperimentRapidVariantSerializer(TestCase):
         serializer_data = ExperimentRapidVariantSerializer(instance=variant).data
         self.assertDictEqual(
             {
+                "id": variant.id,
                 "name": variant.name,
                 "ratio": variant.ratio,
                 "description": variant.description,
                 "is_control": variant.is_control,
-                "slug": variant.slug,
                 "value": variant.value,
             },
             serializer_data,
         )
-
-    def test_serializer_bad_ratio_variant(self):
-        data = {
-            "name": "control",
-            "ratio": 500,
-            "description": "a variant",
-            "is_control": True,
-        }
-        serializer = ExperimentRapidVariantSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn("ratio", serializer.errors)

@@ -257,8 +257,8 @@ class RadioWidget(forms.widgets.RadioSelect):
 
 class RadioWidgetCloser(RadioWidget):
     """
-        This radio widget is similar to the RadioWidget
-        except for the No and Yes buttons are closer together.
+    This radio widget is similar to the RadioWidget
+    except for the No and Yes buttons are closer together.
     """
 
     template_name = "experiments/radio_widget_closer.html"
