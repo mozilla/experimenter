@@ -7673,13 +7673,8 @@
                       "type": "array",
                       "items": {
                         "properties": {
-                          "slug": {
-                            "type": "string",
-                            "readOnly": true
-                          },
-                          "name": {
-                            "type": "string",
-                            "maxLength": 255
+                          "id": {
+                            "type": "integer"
                           },
                           "description": {
                             "type": "string"
@@ -7687,10 +7682,12 @@
                           "is_control": {
                             "type": "boolean"
                           },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
                           "ratio": {
-                            "type": "integer",
-                            "maximum": 2147483647,
-                            "minimum": 0
+                            "type": "integer"
                           },
                           "value": {
                             "type": "string",
@@ -7698,7 +7695,10 @@
                           }
                         },
                         "required": [
-                          "name"
+                          "description",
+                          "is_control",
+                          "name",
+                          "ratio"
                         ]
                       }
                     }
@@ -7839,13 +7839,8 @@
                     "type": "array",
                     "items": {
                       "properties": {
-                        "slug": {
-                          "type": "string",
-                          "readOnly": true
-                        },
-                        "name": {
-                          "type": "string",
-                          "maxLength": 255
+                        "id": {
+                          "type": "integer"
                         },
                         "description": {
                           "type": "string"
@@ -7853,10 +7848,12 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
                         "ratio": {
-                          "type": "integer",
-                          "maximum": 2147483647,
-                          "minimum": 0
+                          "type": "integer"
                         },
                         "value": {
                           "type": "string",
@@ -7864,7 +7861,10 @@
                         }
                       },
                       "required": [
-                        "name"
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio"
                       ]
                     }
                   }
@@ -7981,13 +7981,8 @@
                     "type": "array",
                     "items": {
                       "properties": {
-                        "slug": {
-                          "type": "string",
-                          "readOnly": true
-                        },
-                        "name": {
-                          "type": "string",
-                          "maxLength": 255
+                        "id": {
+                          "type": "integer"
                         },
                         "description": {
                           "type": "string"
@@ -7995,10 +7990,12 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
                         "ratio": {
-                          "type": "integer",
-                          "maximum": 2147483647,
-                          "minimum": 0
+                          "type": "integer"
                         },
                         "value": {
                           "type": "string",
@@ -8006,7 +8003,10 @@
                         }
                       },
                       "required": [
-                        "name"
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio"
                       ]
                     }
                   }
@@ -8123,13 +8123,8 @@
                     "type": "array",
                     "items": {
                       "properties": {
-                        "slug": {
-                          "type": "string",
-                          "readOnly": true
-                        },
-                        "name": {
-                          "type": "string",
-                          "maxLength": 255
+                        "id": {
+                          "type": "integer"
                         },
                         "description": {
                           "type": "string"
@@ -8137,10 +8132,12 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
                         "ratio": {
-                          "type": "integer",
-                          "maximum": 2147483647,
-                          "minimum": 0
+                          "type": "integer"
                         },
                         "value": {
                           "type": "string",
@@ -8148,7 +8145,10 @@
                         }
                       },
                       "required": [
-                        "name"
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio"
                       ]
                     }
                   }
@@ -8290,13 +8290,8 @@
                       "type": "array",
                       "items": {
                         "properties": {
-                          "slug": {
-                            "type": "string",
-                            "readOnly": true
-                          },
-                          "name": {
-                            "type": "string",
-                            "maxLength": 255
+                          "id": {
+                            "type": "integer"
                           },
                           "description": {
                             "type": "string"
@@ -8304,10 +8299,12 @@
                           "is_control": {
                             "type": "boolean"
                           },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
                           "ratio": {
-                            "type": "integer",
-                            "maximum": 2147483647,
-                            "minimum": 0
+                            "type": "integer"
                           },
                           "value": {
                             "type": "string",
@@ -8315,7 +8312,10 @@
                           }
                         },
                         "required": [
-                          "name"
+                          "description",
+                          "is_control",
+                          "name",
+                          "ratio"
                         ]
                       }
                     }
@@ -8456,13 +8456,8 @@
                     "type": "array",
                     "items": {
                       "properties": {
-                        "slug": {
-                          "type": "string",
-                          "readOnly": true
-                        },
-                        "name": {
-                          "type": "string",
-                          "maxLength": 255
+                        "id": {
+                          "type": "integer"
                         },
                         "description": {
                           "type": "string"
@@ -8470,10 +8465,12 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
                         "ratio": {
-                          "type": "integer",
-                          "maximum": 2147483647,
-                          "minimum": 0
+                          "type": "integer"
                         },
                         "value": {
                           "type": "string",
@@ -8481,7 +8478,10 @@
                         }
                       },
                       "required": [
-                        "name"
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio"
                       ]
                     }
                   }
@@ -8589,13 +8589,8 @@
                     "type": "array",
                     "items": {
                       "properties": {
-                        "slug": {
-                          "type": "string",
-                          "readOnly": true
-                        },
-                        "name": {
-                          "type": "string",
-                          "maxLength": 255
+                        "id": {
+                          "type": "integer"
                         },
                         "description": {
                           "type": "string"
@@ -8603,10 +8598,12 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
                         "ratio": {
-                          "type": "integer",
-                          "maximum": 2147483647,
-                          "minimum": 0
+                          "type": "integer"
                         },
                         "value": {
                           "type": "string",
@@ -8614,7 +8611,10 @@
                         }
                       },
                       "required": [
-                        "name"
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio"
                       ]
                     }
                   }
@@ -8722,13 +8722,8 @@
                     "type": "array",
                     "items": {
                       "properties": {
-                        "slug": {
-                          "type": "string",
-                          "readOnly": true
-                        },
-                        "name": {
-                          "type": "string",
-                          "maxLength": 255
+                        "id": {
+                          "type": "integer"
                         },
                         "description": {
                           "type": "string"
@@ -8736,10 +8731,12 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
                         "ratio": {
-                          "type": "integer",
-                          "maximum": 2147483647,
-                          "minimum": 0
+                          "type": "integer"
                         },
                         "value": {
                           "type": "string",
@@ -8747,7 +8744,10 @@
                         }
                       },
                       "required": [
-                        "name"
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio"
                       ]
                     }
                   }
@@ -8880,13 +8880,8 @@
                       "type": "array",
                       "items": {
                         "properties": {
-                          "slug": {
-                            "type": "string",
-                            "readOnly": true
-                          },
-                          "name": {
-                            "type": "string",
-                            "maxLength": 255
+                          "id": {
+                            "type": "integer"
                           },
                           "description": {
                             "type": "string"
@@ -8894,10 +8889,12 @@
                           "is_control": {
                             "type": "boolean"
                           },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
                           "ratio": {
-                            "type": "integer",
-                            "maximum": 2147483647,
-                            "minimum": 0
+                            "type": "integer"
                           },
                           "value": {
                             "type": "string",
@@ -8905,7 +8902,10 @@
                           }
                         },
                         "required": [
-                          "name"
+                          "description",
+                          "is_control",
+                          "name",
+                          "ratio"
                         ]
                       }
                     }
@@ -9295,13 +9295,8 @@
                     "type": "array",
                     "items": {
                       "properties": {
-                        "slug": {
-                          "type": "string",
-                          "readOnly": true
-                        },
-                        "name": {
-                          "type": "string",
-                          "maxLength": 255
+                        "id": {
+                          "type": "integer"
                         },
                         "description": {
                           "type": "string"
@@ -9309,10 +9304,12 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
                         "ratio": {
-                          "type": "integer",
-                          "maximum": 2147483647,
-                          "minimum": 0
+                          "type": "integer"
                         },
                         "value": {
                           "type": "string",
@@ -9320,7 +9317,10 @@
                         }
                       },
                       "required": [
-                        "name"
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio"
                       ]
                     }
                   }
@@ -9437,13 +9437,8 @@
                     "type": "array",
                     "items": {
                       "properties": {
-                        "slug": {
-                          "type": "string",
-                          "readOnly": true
-                        },
-                        "name": {
-                          "type": "string",
-                          "maxLength": 255
+                        "id": {
+                          "type": "integer"
                         },
                         "description": {
                           "type": "string"
@@ -9451,10 +9446,12 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
                         "ratio": {
-                          "type": "integer",
-                          "maximum": 2147483647,
-                          "minimum": 0
+                          "type": "integer"
                         },
                         "value": {
                           "type": "string",
@@ -9462,7 +9459,10 @@
                         }
                       },
                       "required": [
-                        "name"
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio"
                       ]
                     }
                   }
@@ -9579,13 +9579,8 @@
                     "type": "array",
                     "items": {
                       "properties": {
-                        "slug": {
-                          "type": "string",
-                          "readOnly": true
-                        },
-                        "name": {
-                          "type": "string",
-                          "maxLength": 255
+                        "id": {
+                          "type": "integer"
                         },
                         "description": {
                           "type": "string"
@@ -9593,10 +9588,12 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
                         "ratio": {
-                          "type": "integer",
-                          "maximum": 2147483647,
-                          "minimum": 0
+                          "type": "integer"
                         },
                         "value": {
                           "type": "string",
@@ -9604,7 +9601,10 @@
                         }
                       },
                       "required": [
-                        "name"
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio"
                       ]
                     }
                   }
@@ -9746,13 +9746,8 @@
                       "type": "array",
                       "items": {
                         "properties": {
-                          "slug": {
-                            "type": "string",
-                            "readOnly": true
-                          },
-                          "name": {
-                            "type": "string",
-                            "maxLength": 255
+                          "id": {
+                            "type": "integer"
                           },
                           "description": {
                             "type": "string"
@@ -9760,10 +9755,12 @@
                           "is_control": {
                             "type": "boolean"
                           },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
                           "ratio": {
-                            "type": "integer",
-                            "maximum": 2147483647,
-                            "minimum": 0
+                            "type": "integer"
                           },
                           "value": {
                             "type": "string",
@@ -9771,7 +9768,10 @@
                           }
                         },
                         "required": [
-                          "name"
+                          "description",
+                          "is_control",
+                          "name",
+                          "ratio"
                         ]
                       }
                     }
@@ -9914,13 +9914,8 @@
                     "type": "array",
                     "items": {
                       "properties": {
-                        "slug": {
-                          "type": "string",
-                          "readOnly": true
-                        },
-                        "name": {
-                          "type": "string",
-                          "maxLength": 255
+                        "id": {
+                          "type": "integer"
                         },
                         "description": {
                           "type": "string"
@@ -9928,10 +9923,12 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
                         "ratio": {
-                          "type": "integer",
-                          "maximum": 2147483647,
-                          "minimum": 0
+                          "type": "integer"
                         },
                         "value": {
                           "type": "string",
@@ -9939,7 +9936,10 @@
                         }
                       },
                       "required": [
-                        "name"
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio"
                       ]
                     }
                   }
@@ -10056,13 +10056,8 @@
                     "type": "array",
                     "items": {
                       "properties": {
-                        "slug": {
-                          "type": "string",
-                          "readOnly": true
-                        },
-                        "name": {
-                          "type": "string",
-                          "maxLength": 255
+                        "id": {
+                          "type": "integer"
                         },
                         "description": {
                           "type": "string"
@@ -10070,10 +10065,12 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
                         "ratio": {
-                          "type": "integer",
-                          "maximum": 2147483647,
-                          "minimum": 0
+                          "type": "integer"
                         },
                         "value": {
                           "type": "string",
@@ -10081,7 +10078,10 @@
                         }
                       },
                       "required": [
-                        "name"
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio"
                       ]
                     }
                   }
@@ -10198,13 +10198,8 @@
                     "type": "array",
                     "items": {
                       "properties": {
-                        "slug": {
-                          "type": "string",
-                          "readOnly": true
-                        },
-                        "name": {
-                          "type": "string",
-                          "maxLength": 255
+                        "id": {
+                          "type": "integer"
                         },
                         "description": {
                           "type": "string"
@@ -10212,10 +10207,12 @@
                         "is_control": {
                           "type": "boolean"
                         },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 255
+                        },
                         "ratio": {
-                          "type": "integer",
-                          "maximum": 2147483647,
-                          "minimum": 0
+                          "type": "integer"
                         },
                         "value": {
                           "type": "string",
@@ -10223,7 +10220,10 @@
                         }
                       },
                       "required": [
-                        "name"
+                        "description",
+                        "is_control",
+                        "name",
+                        "ratio"
                       ]
                     }
                   }
@@ -10365,13 +10365,8 @@
                       "type": "array",
                       "items": {
                         "properties": {
-                          "slug": {
-                            "type": "string",
-                            "readOnly": true
-                          },
-                          "name": {
-                            "type": "string",
-                            "maxLength": 255
+                          "id": {
+                            "type": "integer"
                           },
                           "description": {
                             "type": "string"
@@ -10379,10 +10374,12 @@
                           "is_control": {
                             "type": "boolean"
                           },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 255
+                          },
                           "ratio": {
-                            "type": "integer",
-                            "maximum": 2147483647,
-                            "minimum": 0
+                            "type": "integer"
                           },
                           "value": {
                             "type": "string",
@@ -10390,7 +10387,10 @@
                           }
                         },
                         "required": [
-                          "name"
+                          "description",
+                          "is_control",
+                          "name",
+                          "ratio"
                         ]
                       }
                     }

@@ -16,7 +16,7 @@ import {
   ExperimentStatus,
   FirefoxChannel,
 } from "experimenter-rapid/types/experiment";
-import { ExperimentData } from "experimenter-types/experiment";
+import { ExperimentData, Variant } from "experimenter-types/experiment";
 
 afterEach(async () => {
   await cleanup();
@@ -133,14 +133,14 @@ describe("<SettingsForm />", () => {
           is_control: true,
           description: "An empty branch",
           value: "",
-          ratio: 50,
+          ratio: 1,
         },
         {
           name: "variant",
           is_control: false,
           description: "An empty branch",
           value: "",
-          ratio: 50,
+          ratio: 1,
         },
       ],
     };
@@ -264,6 +264,109 @@ describe("<BranchesForm />", () => {
     // Should only by one control branch
     expect(getByText("control")).toBeInTheDocument();
   });
+
+  it("should have variant fields editable", async () => {
+    fetchMock.mockOnce(async () => {
+      return JSON.stringify({
+        variants: [
+          {
+            name: "control",
+            is_control: true,
+            description: "An empty branch",
+            value: "",
+            ratio: 50,
+          },
+          {
+            name: "variant",
+            is_control: false,
+            description: "An empty branch",
+            value: "",
+            ratio: 50,
+          },
+        ],
+      });
+    });
+    const { getByDisplayValue, getAllByDisplayValue } = renderWithRouter(
+      wrapInExperimentProvider(<BranchesForm />),
+    );
+
+    const controlBranch = getByDisplayValue("control");
+    const variantBranch = getByDisplayValue("variant");
+    const descriptions = getAllByDisplayValue("An empty branch");
+
+    const controlBranchName = "control branch name";
+    fireEvent.change(controlBranch, { target: { value: controlBranchName } });
+    expect(getByDisplayValue(controlBranchName)).toBeInTheDocument();
+
+    const controlDescription = "control description";
+    fireEvent.change(descriptions[0], {
+      target: { value: controlDescription },
+    });
+    expect(getByDisplayValue(controlDescription)).toBeInTheDocument();
+
+    const variantBranchName = "variant branch name";
+    fireEvent.change(variantBranch, { target: { value: variantBranchName } });
+    expect(getByDisplayValue(variantBranchName)).toBeInTheDocument();
+
+    const variantDescription = "variant description";
+    fireEvent.change(descriptions[1], {
+      target: { value: variantDescription },
+    });
+    expect(getByDisplayValue(variantDescription)).toBeInTheDocument();
+  });
+});
+
+it("should add and delete branches", async () => {
+  fetchMock.mockOnce(async () => {
+    const fakeVariants: { variants: Variant[] } = {
+      variants: [
+        {
+          name: "control",
+          is_control: true,
+          description: "An empty branch",
+          value: "",
+          ratio: 1,
+        },
+        {
+          name: "variant",
+          is_control: false,
+          description: "An empty branch",
+          value: "",
+          ratio: 1,
+        },
+      ],
+    };
+    return JSON.stringify(fakeVariants);
+  });
+  const {
+    getByText,
+    getAllByText,
+    queryByDisplayValue,
+    getByDisplayValue,
+    getAllByDisplayValue,
+  } = renderWithRouter(wrapInExperimentProvider(<BranchesForm />));
+
+  fireEvent.click(getByText("Add Branch"));
+  expect(getAllByText("Branch")).toHaveLength(3);
+
+  expect(getAllByDisplayValue("33.33")).toHaveLength(3);
+
+  const descriptions = getAllByDisplayValue("An empty branch");
+
+  const changedDescription1 = "gonna be deleted!";
+  fireEvent.change(descriptions[1], { target: { value: changedDescription1 } });
+  expect(getByDisplayValue(changedDescription1)).toBeInTheDocument();
+
+  const changedDescription2 = "something else!";
+  fireEvent.change(descriptions[2], { target: { value: changedDescription2 } });
+  expect(getByDisplayValue(changedDescription2)).toBeInTheDocument();
+
+  // delete
+  fireEvent.click(getAllByText("×")[0]);
+
+  expect(getAllByText("Branch")).toHaveLength(2);
+  expect(queryByDisplayValue(changedDescription1)).toBeNull();
+  expect(getAllByDisplayValue("50")).toHaveLength(2);
 });
 
 describe("<ExperimentForm />", () => {

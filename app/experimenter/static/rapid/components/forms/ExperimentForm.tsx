@@ -9,7 +9,7 @@ import {
   useExperimentDispatch,
   useExperimentState,
 } from "experimenter-rapid/contexts/experiment/hooks";
-import { ExperimentStatus } from "experimenter-rapid/types/experiment";
+import { ExperimentStatus, Variant } from "experimenter-rapid/types/experiment";
 
 import {
   featureOptions,
@@ -54,13 +54,13 @@ export const SettingsForm: React.FC = () => {
 
   const handleSelectChange = (name) => {
     return (value) => {
-      dispatch(updateExperiment(name, value));
+      dispatch(updateExperiment({ [name]: value }));
     };
   };
 
   const handleChange = (ev) => {
     const field = ev.target;
-    dispatch(updateExperiment(field.getAttribute("name"), field.value));
+    dispatch(updateExperiment({ [field.getAttribute("name")]: field.value }));
   };
 
   const handleClickSave = async () => {
@@ -198,7 +198,54 @@ export const SettingsForm: React.FC = () => {
 
 export const BranchesForm: React.FC = () => {
   const formData = useExperimentState();
-  const variants = formData.variants || [];
+
+  const variants =
+    [...formData.variants].sort((a, b) =>
+      a.is_control < b.is_control ? 1 : -1,
+    ) || [];
+
+  function ratioToPercentage(ratio: number) {
+    const ratioTotal: number = variants.reduce((a, b) => a + b.ratio, 0);
+    return Math.round((ratio / ratioTotal) * 10000) / 100;
+  }
+
+  const dispatch = useExperimentDispatch();
+
+  const handleChange = (ev, i) => {
+    const field = ev.target;
+    const name = field.getAttribute("name");
+    const updatedVariants: Variant[] = variants.map((v, index) => {
+      if (index === i) {
+        return { ...v, [name]: field.value };
+      }
+
+      return v;
+    });
+
+    dispatch(updateExperiment({ variants: updatedVariants }));
+  };
+
+  const NEW_BRANCH: Variant = {
+    name: `variant-${variants.length}`,
+    is_control: false,
+    description: "An empty branch",
+    value: "",
+    ratio: 1,
+  };
+
+  const handleAddBranch = () => {
+    const updatedVariants = [...variants, NEW_BRANCH];
+    dispatch(updateExperiment({ variants: updatedVariants }));
+  };
+
+  const handleRemoveBranch = (i: number) => {
+    const updatedVariants = variants.filter((v, index) => {
+      return i !== index;
+    });
+
+    dispatch(updateExperiment({ variants: updatedVariants }));
+  };
+
   return (
     <div style={{ width: "75%" }}>
       <div className="mb-4">
@@ -207,10 +254,10 @@ export const BranchesForm: React.FC = () => {
       </div>
       {[...variants]
         // Sort control branch to the top
-        .sort((a, b) => (a.is_control < b.is_control ? 1 : -1))
+
         .map((variant, i) => {
           return (
-            <div key={i} className="card mb-4">
+            <div key={`${i}${variants.length}`} className="card mb-4">
               <ul className="list-group list-group-flush">
                 <li className="list-group-item">
                   <div className="container">
@@ -225,11 +272,12 @@ export const BranchesForm: React.FC = () => {
                           )}
                         </label>
                         <input
-                          readOnly
                           className="form-control"
                           id={`variant-name-${i}`}
+                          name="name"
                           type="text"
                           value={variant.name}
+                          onChange={(ev) => handleChange(ev, i)}
                         />
                       </div>
                       <div className="col-6">
@@ -237,11 +285,12 @@ export const BranchesForm: React.FC = () => {
                           Description
                         </label>
                         <input
-                          readOnly
                           className="form-control"
                           id={`variant-description-${i}`}
+                          name="description"
                           type="text"
                           value={variant.description}
+                          onChange={(ev) => handleChange(ev, i)}
                         />
                         <small className="form-text text-muted">
                           Only visible in internal tools behind LDAP.
@@ -254,14 +303,27 @@ export const BranchesForm: React.FC = () => {
                             readOnly
                             className="form-control"
                             id={`variant-ratio-${i}`}
+                            name="ratio"
                             type="number"
-                            value={variant.ratio}
+                            value={ratioToPercentage(variant.ratio)}
                           />
                           <div className="input-group-append">
                             <div className="input-group-text">%</div>
                           </div>
                         </div>
                       </div>
+                      {!variant.is_control && (
+                        <div>
+                          <button
+                            aria-label="Close"
+                            className="close"
+                            type="button"
+                            onClick={() => handleRemoveBranch(i)}
+                          >
+                            <span>&times;</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </li>
@@ -312,6 +374,13 @@ export const BranchesForm: React.FC = () => {
             </div>
           );
         })}
+      <button
+        className="btn btn-primary"
+        type="button"
+        onClick={handleAddBranch}
+      >
+        Add Branch
+      </button>
     </div>
   );
 };
