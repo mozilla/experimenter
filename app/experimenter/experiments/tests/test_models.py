@@ -1438,6 +1438,10 @@ class TestExperimentModel(TestCase):
         )
         self.assertFalse(experiment.use_multi_pref_serializer)
 
+    def test_use_multi_pref_serializer_is_false_when_type_not_pref(self):
+        experiment = ExperimentFactory(type=Experiment.TYPE_ROLLOUT, is_multi_pref=True)
+        self.assertFalse(experiment.use_multi_pref_serializer)
+
     def test_is_multi_pref_returns_false_for_addon_type(self):
         experiment = ExperimentFactory(type=Experiment.TYPE_ADDON)
         self.assertFalse(experiment.use_multi_pref_serializer)
