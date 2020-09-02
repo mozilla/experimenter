@@ -14,7 +14,7 @@ from experimenter.base.models import Country, Locale
 from experimenter.projects.models import Project
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import (
-    Experiment,
+    ExperimentCore,
     ExperimentBucketRange,
     ExperimentBucketNamespace,
     ExperimentChangeLog,
@@ -25,14 +25,14 @@ from experimenter.experiments.models import (
 from experimenter.openidc.tests.factories import UserFactory
 
 faker = FakerFactory.create()
-NORMANDY_STATUS_CHOICES = Experiment.STATUS_CHOICES[:-1]
+NORMANDY_STATUS_CHOICES = ExperimentCore.STATUS_CHOICES[:-1]
 
 
 NIMBUS_DATA = get_data()
 
 
 class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
-    type = Experiment.TYPE_PREF
+    type = ExperimentCore.TYPE_PREF
     owner = factory.SubFactory(UserFactory)
     analysis_owner = factory.SubFactory(UserFactory)
     engineering_owner = factory.LazyAttribute(lambda o: faker.name())
@@ -65,19 +65,19 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
         lambda o: "browser.{pref}.enabled".format(pref=faker.word())
     )
     pref_type = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.PREF_TYPE_CHOICES[1:])[0]
+        lambda o: random.choice(ExperimentCore.PREF_TYPE_CHOICES[1:])[0]
     )
     pref_branch = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.PREF_BRANCH_CHOICES[1:])[0]
+        lambda o: random.choice(ExperimentCore.PREF_BRANCH_CHOICES[1:])[0]
     )
     firefox_min_version = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.VERSION_CHOICES[1:])[0]
+        lambda o: random.choice(ExperimentCore.VERSION_CHOICES[1:])[0]
     )
     firefox_max_version = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.VERSION_CHOICES)[0]
+        lambda o: random.choice(ExperimentCore.VERSION_CHOICES)[0]
     )
     firefox_channel = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.CHANNEL_CHOICES[1:])[0]
+        lambda o: random.choice(ExperimentCore.CHANNEL_CHOICES[1:])[0]
     )
     addon_experiment_id = factory.LazyAttribute(lambda o: slugify(faker.catch_phrase()))
     addon_release_url = factory.LazyAttribute(
@@ -127,7 +127,7 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     message_type = ExperimentConstants.MESSAGE_TYPE_CFR
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
 
     @classmethod
     def create_with_variants(cls, num_variants=3, *args, **kwargs):
@@ -148,7 +148,7 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
         now = timezone.now() - datetime.timedelta(days=random.randint(100, 200))
 
         old_status = None
-        for status_value, status_label in Experiment.STATUS_CHOICES:
+        for status_value, status_label in ExperimentCore.STATUS_CHOICES:
             experiment.status = status_value
 
             ExperimentChangeLogFactory.create(
@@ -158,7 +158,7 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
                 changed_on=now,
             )
 
-            if status_value == Experiment.STATUS_SHIP:
+            if status_value == ExperimentCore.STATUS_SHIP:
                 experiment.recipe_slug = experiment.generate_recipe_slug()
 
             if status_value == target_status:
@@ -307,9 +307,9 @@ class ExperimentVariantFactory(BaseExperimentVariantFactory):
     @factory.lazy_attribute
     def value(self):
         value = self.is_control
-        if self.experiment.pref_type == Experiment.PREF_TYPE_INT:
+        if self.experiment.pref_type == ExperimentCore.PREF_TYPE_INT:
             value = 10
-        elif self.experiment.pref_type == Experiment.PREF_TYPE_STR:
+        elif self.experiment.pref_type == ExperimentCore.PREF_TYPE_STR:
             value = slugify(faker.catch_phrase())
         return json.dumps(value)
 
@@ -323,7 +323,7 @@ class VariantPreferencesFactory(factory.django.DjangoModelFactory):
     pref_name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     pref_type = "string"
     pref_branch = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.PREF_BRANCH_CHOICES[1:])[0]
+        lambda o: random.choice(ExperimentCore.PREF_BRANCH_CHOICES[1:])[0]
     )
     pref_value = factory.LazyAttribute(lambda o: faker.word())
 
@@ -340,7 +340,7 @@ class ExperimentChangeLogFactory(factory.django.DjangoModelFactory):
     )
     new_status = factory.LazyAttribute(
         lambda o: random.choice(
-            Experiment.STATUS_TRANSITIONS[o.old_status] or [o.old_status]
+            ExperimentCore.STATUS_TRANSITIONS[o.old_status] or [o.old_status]
         )
     )
 
@@ -351,7 +351,7 @@ class ExperimentChangeLogFactory(factory.django.DjangoModelFactory):
 class ExperimentCommentFactory(factory.django.DjangoModelFactory):
     experiment = factory.SubFactory(ExperimentFactory)
     section = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.SECTION_CHOICES)[0]
+        lambda o: random.choice(ExperimentCore.SECTION_CHOICES)[0]
     )
     created_by = factory.SubFactory(UserFactory)
     text = factory.LazyAttribute(lambda o: faker.text())

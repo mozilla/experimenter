@@ -14,7 +14,7 @@ from experimenter.bugzilla import get_bugzilla_id
 from experimenter.bugzilla import tasks
 from experimenter.experiments.changelog_utils import generate_change_log
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.models import Experiment, ExperimentComment
+from experimenter.experiments.models import ExperimentCore, ExperimentComment
 from experimenter.experiments.changelog_utils import ChangeLogSerializer
 from experimenter.notifications.models import Notification
 from experimenter.projects.models import Project
@@ -104,13 +104,13 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
 
     type = forms.ChoiceField(
         label="Type",
-        choices=Experiment.FEATURE_TYPE_CHOICES(),
-        help_text=Experiment.TYPE_HELP_TEXT,
+        choices=ExperimentCore.FEATURE_TYPE_CHOICES(),
+        help_text=ExperimentCore.TYPE_HELP_TEXT,
     )
     owner = forms.ModelChoiceField(
         required=True,
         label="Delivery Owner",
-        help_text=Experiment.OWNER_HELP_TEXT,
+        help_text=ExperimentCore.OWNER_HELP_TEXT,
         queryset=get_user_model().objects.all().order_by("email"),
         # This one forces the <select> widget to not include a blank
         # option which would otherwise be included because the model field
@@ -118,36 +118,36 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
         empty_label=None,
     )
     name = forms.CharField(
-        required=True, label="Public Name", help_text=Experiment.PUBLIC_NAME_HELP_TEXT
+        required=True, label="Public Name", help_text=ExperimentCore.PUBLIC_NAME_HELP_TEXT
     )
     slug = forms.CharField(required=False, widget=forms.HiddenInput())
     public_description = forms.CharField(
         required=True,
         label="Public Description",
-        help_text=Experiment.PUBLIC_DESCRIPTION_HELP_TEXT,
+        help_text=ExperimentCore.PUBLIC_DESCRIPTION_HELP_TEXT,
         max_length=1024,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
     short_description = forms.CharField(
         required=True,
         label="Internal Description",
-        help_text=Experiment.SHORT_DESCRIPTION_HELP_TEXT,
+        help_text=ExperimentCore.SHORT_DESCRIPTION_HELP_TEXT,
         widget=forms.Textarea(attrs={"rows": 3}),
     )
     data_science_issue_url = DSIssueURLField(
         required=False,
         label="Data Science Issue URL",
-        help_text=Experiment.DATA_SCIENCE_ISSUE_HELP_TEXT,
+        help_text=ExperimentCore.DATA_SCIENCE_ISSUE_HELP_TEXT,
     )
     engineering_owner = forms.CharField(
         required=False,
         label="Engineering Owner",
-        help_text=Experiment.ENGINEERING_OWNER_HELP_TEXT,
+        help_text=ExperimentCore.ENGINEERING_OWNER_HELP_TEXT,
     )
     analysis_owner = forms.ModelChoiceField(
         required=False,
         label="Data Science Owner",
-        help_text=Experiment.ANALYSIS_OWNER_HELP_TEXT,
+        help_text=ExperimentCore.ANALYSIS_OWNER_HELP_TEXT,
         queryset=get_user_model().objects.all().order_by("email"),
         # This one forces the <select> widget to not include a blank
         # option which would otherwise be included because the model field
@@ -157,13 +157,13 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
     feature_bugzilla_url = BugzillaURLField(
         required=False,
         label="Feature Bugzilla URL",
-        help_text=Experiment.FEATURE_BUGZILLA_HELP_TEXT,
+        help_text=ExperimentCore.FEATURE_BUGZILLA_HELP_TEXT,
     )
     related_to = forms.ModelMultipleChoiceField(
         label="Related Deliveries",
         required=False,
         help_text="Is this related to a previously run delivery?",
-        queryset=Experiment.objects.all(),
+        queryset=ExperimentCore.objects.all(),
     )
     projects = forms.ModelMultipleChoiceField(
         required=False,
@@ -176,7 +176,7 @@ class ExperimentOverviewForm(ChangeLogMixin, forms.ModelForm):
     )
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = [
             "type",
             "owner",
@@ -269,7 +269,7 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
     objectives = forms.CharField(
         required=False,
         label="Hypothesis",
-        help_text=Experiment.OBJECTIVES_HELP_TEXT,
+        help_text=ExperimentCore.OBJECTIVES_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
 
@@ -277,38 +277,38 @@ class ExperimentObjectivesForm(ChangeLogMixin, forms.ModelForm):
         required=False,
         min_value=1,
         label="Estimated Total Enrolled Clients",
-        help_text=Experiment.TOTAL_ENROLLED_CLIENTS_HELP_TEXT,
+        help_text=ExperimentCore.TOTAL_ENROLLED_CLIENTS_HELP_TEXT,
     )
 
     analysis = forms.CharField(
         required=False,
         label="Analysis Plan",
-        help_text=Experiment.ANALYSIS_HELP_TEXT,
+        help_text=ExperimentCore.ANALYSIS_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
     )
 
     survey_required = forms.ChoiceField(
         required=False,
-        label=Experiment.SURVEY_REQUIRED_LABEL,
-        help_text=Experiment.SURVEY_HELP_TEXT,
+        label=ExperimentCore.SURVEY_REQUIRED_LABEL,
+        help_text=ExperimentCore.SURVEY_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidgetCloser,
     )
     survey_urls = forms.CharField(
         required=False,
-        help_text=Experiment.SURVEY_HELP_TEXT,
+        help_text=ExperimentCore.SURVEY_HELP_TEXT,
         label="Survey URLs",
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 1}),
     )
     survey_instructions = forms.CharField(
         required=False,
-        label=Experiment.SURVEY_INSTRUCTIONS_LABEL,
-        help_text=Experiment.SURVEY_LAUNCH_INSTRUCTIONS_HELP_TEXT,
+        label=ExperimentCore.SURVEY_INSTRUCTIONS_LABEL,
+        help_text=ExperimentCore.SURVEY_LAUNCH_INSTRUCTIONS_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
     )
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = (
             "objectives",
             "analysis",
@@ -323,66 +323,65 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
 
     results_url = forms.URLField(
         label="Primary Results URL",
-        help_text=Experiment.RESULTS_URL_HELP_TEXT,
+        help_text=ExperimentCore.RESULTS_URL_HELP_TEXT,
         required=False,
     )
     results_initial = forms.CharField(
         label="Initial Results",
-        help_text=Experiment.RESULTS_INITIAL_HELP_TEXT,
+        help_text=ExperimentCore.RESULTS_INITIAL_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
         required=False,
     )
     results_lessons_learned = forms.CharField(
         label="Lessons Learned",
-        help_text=Experiment.RESULTS_LESSONS_HELP_TEXT,
+        help_text=ExperimentCore.RESULTS_LESSONS_HELP_TEXT,
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 20}),
         required=False,
     )
-
     results_fail_to_launch = forms.ChoiceField(
         required=False,
-        label=Experiment.RESULTS_FAIL_TO_LAUNCH_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        label=ExperimentCore.RESULTS_FAIL_TO_LAUNCH_LABEL,
+        help_text=ExperimentCore.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     results_recipe_errors = forms.ChoiceField(
         required=False,
-        label=Experiment.RESULTS_RECIPE_ERRORS_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        label=ExperimentCore.RESULTS_RECIPE_ERRORS_LABEL,
+        help_text=ExperimentCore.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     results_restarts = forms.ChoiceField(
         required=False,
-        label=Experiment.RESULTS_RESTARTS_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        label=ExperimentCore.RESULTS_RESTARTS_LABEL,
+        help_text=ExperimentCore.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     results_low_enrollment = forms.ChoiceField(
         required=False,
-        label=Experiment.RESULTS_LOW_ENROLLMENT_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        label=ExperimentCore.RESULTS_LOW_ENROLLMENT_LABEL,
+        help_text=ExperimentCore.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     results_early_end = forms.ChoiceField(
         required=False,
-        label=Experiment.RESULTS_EARLY_END_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        label=ExperimentCore.RESULTS_EARLY_END_LABEL,
+        help_text=ExperimentCore.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     results_no_usable_data = forms.ChoiceField(
         required=False,
-        label=Experiment.RESULTS_NO_USABLE_DATA_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        label=ExperimentCore.RESULTS_NO_USABLE_DATA_LABEL,
+        help_text=ExperimentCore.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     results_failures_notes = forms.CharField(
-        label=Experiment.RESULTS_NOTES_LABEL,
+        label=ExperimentCore.RESULTS_NOTES_LABEL,
         help_text="",
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
         required=False,
@@ -390,41 +389,41 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
 
     results_changes_to_firefox = forms.ChoiceField(
         required=False,
-        label=Experiment.RESULTS_CHANGES_TO_FIREFOX_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        label=ExperimentCore.RESULTS_CHANGES_TO_FIREFOX_LABEL,
+        help_text=ExperimentCore.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     results_data_for_hypothesis = forms.ChoiceField(
         required=False,
-        label=Experiment.RESULTS_DATA_FOR_HYPOTHESIS_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        label=ExperimentCore.RESULTS_DATA_FOR_HYPOTHESIS_LABEL,
+        help_text=ExperimentCore.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     results_confidence = forms.ChoiceField(
         required=False,
-        label=Experiment.RESULTS_CONFIDENCE_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        label=ExperimentCore.RESULTS_CONFIDENCE_LABEL,
+        help_text=ExperimentCore.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     results_measure_impact = forms.ChoiceField(
         required=False,
-        label=Experiment.RESULTS_MEASURE_IMPACT_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
+        label=ExperimentCore.RESULTS_MEASURE_IMPACT_LABEL,
+        help_text=ExperimentCore.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     results_impact_notes = forms.CharField(
-        label=Experiment.RESULTS_NOTES_LABEL,
+        label=ExperimentCore.RESULTS_NOTES_LABEL,
         help_text="",
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
         required=False,
     )
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = (
             "results_url",
             "results_initial",
@@ -449,99 +448,99 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
     # Radio Buttons
     risk_partner_related = forms.ChoiceField(
         required=False,
-        label=Experiment.RISK_PARTNER_RELATED_LABEL,
-        help_text=Experiment.RISK_PARTNER_RELATED_HELP_TEXT,
+        label=ExperimentCore.RISK_PARTNER_RELATED_LABEL,
+        help_text=ExperimentCore.RISK_PARTNER_RELATED_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_brand = forms.ChoiceField(
         required=False,
-        label=Experiment.RISK_BRAND_LABEL,
-        help_text=Experiment.RISK_BRAND_HELP_TEXT,
+        label=ExperimentCore.RISK_BRAND_LABEL,
+        help_text=ExperimentCore.RISK_BRAND_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_fast_shipped = forms.ChoiceField(
         required=False,
-        label=Experiment.RISK_FAST_SHIPPED_LABEL,
-        help_text=Experiment.RISK_FAST_SHIPPED_HELP_TEXT,
+        label=ExperimentCore.RISK_FAST_SHIPPED_LABEL,
+        help_text=ExperimentCore.RISK_FAST_SHIPPED_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_confidential = forms.ChoiceField(
         required=False,
-        label=Experiment.RISK_CONFIDENTIAL_LABEL,
-        help_text=Experiment.RISK_CONFIDENTIAL_HELP_TEXT,
+        label=ExperimentCore.RISK_CONFIDENTIAL_LABEL,
+        help_text=ExperimentCore.RISK_CONFIDENTIAL_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_release_population = forms.ChoiceField(
         required=False,
-        label=Experiment.RISK_RELEASE_POPULATION_LABEL,
-        help_text=Experiment.RISK_RELEASE_POPULATION_HELP_TEXT,
+        label=ExperimentCore.RISK_RELEASE_POPULATION_LABEL,
+        help_text=ExperimentCore.RISK_RELEASE_POPULATION_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_revenue = forms.ChoiceField(
         required=False,
-        label=Experiment.RISK_REVENUE_LABEL,
-        help_text=Experiment.RISK_REVENUE_HELP_TEXT,
+        label=ExperimentCore.RISK_REVENUE_LABEL,
+        help_text=ExperimentCore.RISK_REVENUE_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_data_category = forms.ChoiceField(
         required=False,
-        label=Experiment.RISK_DATA_CATEGORY_LABEL,
-        help_text=Experiment.RISK_DATA_CATEGORY_HELP_TEXT,
+        label=ExperimentCore.RISK_DATA_CATEGORY_LABEL,
+        help_text=ExperimentCore.RISK_DATA_CATEGORY_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_external_team_impact = forms.ChoiceField(
         required=False,
-        label=Experiment.RISK_EXTERNAL_TEAM_IMPACT_LABEL,
-        help_text=Experiment.RISK_EXTERNAL_TEAM_IMPACT_HELP_TEXT,
+        label=ExperimentCore.RISK_EXTERNAL_TEAM_IMPACT_LABEL,
+        help_text=ExperimentCore.RISK_EXTERNAL_TEAM_IMPACT_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_telemetry_data = forms.ChoiceField(
         required=False,
-        label=Experiment.RISK_TELEMETRY_DATA_LABEL,
-        help_text=Experiment.RISK_TELEMETRY_DATA_HELP_TEXT,
+        label=ExperimentCore.RISK_TELEMETRY_DATA_LABEL,
+        help_text=ExperimentCore.RISK_TELEMETRY_DATA_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_ux = forms.ChoiceField(
         required=False,
-        label=Experiment.RISK_UX_LABEL,
-        help_text=Experiment.RISK_UX_HELP_TEXT,
+        label=ExperimentCore.RISK_UX_LABEL,
+        help_text=ExperimentCore.RISK_UX_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_security = forms.ChoiceField(
         required=False,
-        label=Experiment.RISK_SECURITY_LABEL,
-        help_text=Experiment.RISK_SECURITY_HELP_TEXT,
+        label=ExperimentCore.RISK_SECURITY_LABEL,
+        help_text=ExperimentCore.RISK_SECURITY_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_revision = forms.ChoiceField(
         required=False,
-        label=Experiment.RISK_REVISION_LABEL,
-        help_text=Experiment.RISK_REVISION_HELP_TEXT,
+        label=ExperimentCore.RISK_REVISION_LABEL,
+        help_text=ExperimentCore.RISK_REVISION_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_technical = forms.ChoiceField(
         required=False,
-        label=Experiment.RISK_TECHNICAL_LABEL,
-        help_text=Experiment.RISK_TECHNICAL_HELP_TEXT,
+        label=ExperimentCore.RISK_TECHNICAL_LABEL,
+        help_text=ExperimentCore.RISK_TECHNICAL_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
     risk_higher_risk = forms.ChoiceField(
         required=False,
-        label=Experiment.RISK_HIGHER_RISK_LABEL,
-        help_text=Experiment.RISK_HIGHER_RISK_HELP_TEXT,
+        label=ExperimentCore.RISK_HIGHER_RISK_LABEL,
+        help_text=ExperimentCore.RISK_HIGHER_RISK_HELP_TEXT,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
     )
@@ -550,24 +549,24 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
     risk_technical_description = forms.CharField(
         required=False,
         label="Technical Risks Description",
-        help_text=Experiment.RISK_TECHNICAL_HELP_TEXT,
+        help_text=ExperimentCore.RISK_TECHNICAL_HELP_TEXT,
         widget=forms.Textarea(
             attrs={
                 "class": "form-control",
                 "rows": 10,
-                "placeholder": Experiment.RISK_TECHNICAL_DEFAULT,
+                "placeholder": ExperimentCore.RISK_TECHNICAL_DEFAULT,
             }
         ),
     )
     risks = forms.CharField(
         required=False,
         label="Risks",
-        help_text=Experiment.RISKS_HELP_TEXT,
+        help_text=ExperimentCore.RISKS_HELP_TEXT,
         widget=forms.Textarea(
             attrs={
                 "class": "form-control",
                 "rows": 20,
-                "placeholder": Experiment.RISKS_DEFAULT,
+                "placeholder": ExperimentCore.RISKS_DEFAULT,
             }
         ),
     )
@@ -576,42 +575,42 @@ class ExperimentRisksForm(ChangeLogMixin, forms.ModelForm):
     testing = forms.CharField(
         required=False,
         label="Test Instructions",
-        help_text=Experiment.TESTING_HELP_TEXT,
+        help_text=ExperimentCore.TESTING_HELP_TEXT,
         widget=forms.Textarea(
             attrs={
                 "class": "form-control",
                 "rows": 10,
-                "placeholder": Experiment.TESTING_DEFAULT,
+                "placeholder": ExperimentCore.TESTING_DEFAULT,
             }
         ),
     )
     test_builds = forms.CharField(
         required=False,
         label="Test Builds",
-        help_text=Experiment.TEST_BUILDS_HELP_TEXT,
+        help_text=ExperimentCore.TEST_BUILDS_HELP_TEXT,
         widget=forms.Textarea(
             attrs={
                 "class": "form-control",
                 "rows": 5,
-                "placeholder": Experiment.TEST_BUILDS_DEFAULT,
+                "placeholder": ExperimentCore.TEST_BUILDS_DEFAULT,
             }
         ),
     )
     qa_status = forms.CharField(
         required=False,
         label="QA Status",
-        help_text=Experiment.QA_STATUS_HELP_TEXT,
+        help_text=ExperimentCore.QA_STATUS_HELP_TEXT,
         widget=forms.Textarea(
             attrs={
                 "class": "form-control",
                 "rows": 3,
-                "placeholder": Experiment.QA_STATUS_DEFAULT,
+                "placeholder": ExperimentCore.QA_STATUS_DEFAULT,
             }
         ),
     )
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = (
             "risk_partner_related",
             "risk_brand",
@@ -644,81 +643,83 @@ class ExperimentReviewForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
     review_science = forms.BooleanField(
         required=False,
         label="Data Science Sign-Off",
-        help_text=Experiment.REVIEW_SCIENCE_HELP_TEXT,
+        help_text=ExperimentCore.REVIEW_SCIENCE_HELP_TEXT,
     )
     review_engineering = forms.BooleanField(
         required=False,
         label="Engineering Allocated",
-        help_text=Experiment.REVIEW_ENGINEERING_HELP_TEXT,
+        help_text=ExperimentCore.REVIEW_ENGINEERING_HELP_TEXT,
     )
     review_qa_requested = forms.BooleanField(
         required=False,
         label=mark_safe(
             f"QA <a href={settings.JIRA_URL} target='_blank'>" "Jira</a> Request Sent"
         ),
-        help_text=Experiment.REVIEW_QA_REQUESTED_HELP_TEXT,
+        help_text=ExperimentCore.REVIEW_QA_REQUESTED_HELP_TEXT,
     )
     review_intent_to_ship = forms.BooleanField(
         required=False,
         label="Intent to Ship Email Sent",
-        help_text=Experiment.REVIEW_INTENT_TO_SHIP_HELP_TEXT,
+        help_text=ExperimentCore.REVIEW_INTENT_TO_SHIP_HELP_TEXT,
     )
     review_bugzilla = forms.BooleanField(
         required=False,
         label="Bugzilla Updated",
-        help_text=Experiment.REVIEW_BUGZILLA_HELP_TEXT,
+        help_text=ExperimentCore.REVIEW_BUGZILLA_HELP_TEXT,
     )
     review_qa = forms.BooleanField(
-        required=False, label="QA Sign-Off", help_text=Experiment.REVIEW_QA_HELP_TEXT
+        required=False, label="QA Sign-Off", help_text=ExperimentCore.REVIEW_QA_HELP_TEXT
     )
     review_relman = forms.BooleanField(
         required=False,
         label="Release Management Sign-Off",
-        help_text=Experiment.REVIEW_RELMAN_HELP_TEXT,
+        help_text=ExperimentCore.REVIEW_RELMAN_HELP_TEXT,
     )
 
     # Optional
     review_advisory = forms.BooleanField(
         required=False,
         label="Lightning Advisory (Optional)",
-        help_text=Experiment.REVIEW_LIGHTNING_ADVISING_HELP_TEXT,
+        help_text=ExperimentCore.REVIEW_LIGHTNING_ADVISING_HELP_TEXT,
     )
     review_legal = forms.BooleanField(
         required=False,
         label="Legal Review",
-        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
+        help_text=ExperimentCore.REVIEW_GENERAL_HELP_TEXT,
     )
     review_ux = forms.BooleanField(
         required=False,
         label="Copy/UX Review",
-        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
+        help_text=ExperimentCore.REVIEW_GENERAL_HELP_TEXT,
     )
     review_security = forms.BooleanField(
         required=False,
         label="Security Review",
-        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
+        help_text=ExperimentCore.REVIEW_GENERAL_HELP_TEXT,
     )
     review_vp = forms.BooleanField(
-        required=False, label="VP Sign Off", help_text=Experiment.REVIEW_GENERAL_HELP_TEXT
+        required=False,
+        label="VP Sign Off",
+        help_text=ExperimentCore.REVIEW_GENERAL_HELP_TEXT,
     )
     review_data_steward = forms.BooleanField(
         required=False,
         label="Data Steward Review",
-        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
+        help_text=ExperimentCore.REVIEW_GENERAL_HELP_TEXT,
     )
     review_comms = forms.BooleanField(
         required=False,
         label="Mozilla Press/Comms",
-        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
+        help_text=ExperimentCore.REVIEW_GENERAL_HELP_TEXT,
     )
     review_impacted_teams = forms.BooleanField(
         required=False,
         label="Review from a Fx Module Peer",
-        help_text=Experiment.REVIEW_GENERAL_HELP_TEXT,
+        help_text=ExperimentCore.REVIEW_GENERAL_HELP_TEXT,
     )
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = (
             # Required
             "review_science",
@@ -828,7 +829,7 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
     attention = forms.CharField(required=False)
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("status", "attention")
 
     def __init__(self, *args, **kwargs):
@@ -856,16 +857,16 @@ class ExperimentStatusForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm)
         experiment = super().save(*args, **kwargs)
 
         if (
-            self.old_status == Experiment.STATUS_DRAFT
-            and self.new_status == Experiment.STATUS_REVIEW
+            self.old_status == ExperimentCore.STATUS_DRAFT
+            and self.new_status == ExperimentCore.STATUS_REVIEW
             and not experiment.bugzilla_id
         ):
 
             tasks.create_experiment_bug_task.delay(self.request.user.id, experiment.id)
 
         if (
-            self.old_status == Experiment.STATUS_REVIEW
-            and self.new_status == Experiment.STATUS_SHIP
+            self.old_status == ExperimentCore.STATUS_REVIEW
+            and self.new_status == ExperimentCore.STATUS_SHIP
             and experiment.bugzilla_id
             and experiment.should_use_normandy
         ):
@@ -882,7 +883,7 @@ class ExperimentArchiveForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm
     archived = forms.BooleanField(required=False)
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("archived",)
 
     def clean_archived(self):
@@ -895,7 +896,7 @@ class ExperimentArchiveForm(ExperimentConstants, ChangeLogMixin, forms.ModelForm
         return message
 
     def save(self, *args, **kwargs):
-        experiment = Experiment.objects.get(id=self.instance.id)
+        experiment = ExperimentCore.objects.get(id=self.instance.id)
 
         if not experiment.is_archivable:
             notification_msg = "This delivery cannot be archived in its current state!"
@@ -912,7 +913,7 @@ class ExperimentSubscribedForm(ExperimentConstants, forms.ModelForm):
     subscribed = forms.BooleanField(required=False)
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ()
 
     def __init__(self, request, *args, **kwargs):
@@ -939,7 +940,7 @@ class ExperimentSubscribedForm(ExperimentConstants, forms.ModelForm):
 class ExperimentCommentForm(forms.ModelForm):
     created_by = forms.CharField(required=False)
     text = forms.CharField(required=True)
-    section = forms.ChoiceField(required=True, choices=Experiment.SECTION_CHOICES)
+    section = forms.ChoiceField(required=True, choices=ExperimentCore.SECTION_CHOICES)
 
     class Meta:
         model = ExperimentComment
@@ -997,7 +998,7 @@ class NormandyIdForm(ChangeLogMixin, forms.ModelForm):
             raise forms.ValidationError("IDs must be numbers separated by commas.")
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("normandy_id", "other_normandy_ids")
 
 
