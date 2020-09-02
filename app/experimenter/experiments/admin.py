@@ -3,6 +3,7 @@ from django.contrib import admin
 from experimenter.experiments.models import (
     Experiment,
     ExperimentCore,
+    ExperimentRapid,
     ExperimentVariant,
     ExperimentChangeLog,
     VariantPreferences,
@@ -78,3 +79,4 @@ admin.site.register(Experiment, ExperimentAdmin)
 admin.site.register(ExperimentVariant, ExperimentVariantAdmin)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(ExperimentCore)
+admin.site.register(ExperimentRapid)

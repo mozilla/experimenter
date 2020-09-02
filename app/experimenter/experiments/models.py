@@ -80,6 +80,7 @@ class Experiment(ExperimentConstants, models.Model):
     public_description = models.TextField(blank=True, null=True)
     short_description = models.TextField(default="", blank=True, null=True)
 
+    is_paused = models.BooleanField(default=False)
     proposed_start_date = models.DateField(blank=True, null=True)
     proposed_duration = models.PositiveIntegerField(
         blank=True,
@@ -90,29 +91,6 @@ class Experiment(ExperimentConstants, models.Model):
         blank=True,
         null=True,
         validators=[MaxValueValidator(ExperimentConstants.MAX_DURATION)],
-    )
-
-    rapid_type = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=ExperimentConstants.RAPID_TYPE_CHOICES,
-    )
-
-    features = ArrayField(
-        models.CharField(
-            max_length=255,
-            blank=True,
-            null=True,
-            choices=ExperimentConstants.RAPID_FEATURE_CHOICES,
-        ),
-        default=list,
-    )
-    audience = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=ExperimentConstants.RAPID_AUDIENCE_CHOICES,
     )
 
     firefox_min_version = models.CharField(
@@ -135,15 +113,12 @@ class Experiment(ExperimentConstants, models.Model):
     )
 
     projects = models.ManyToManyField(Project, blank=True)
-
     objectives = models.TextField(
         default=ExperimentConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
 
     bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
     recipe_slug = models.CharField(max_length=255, blank=True, null=True)
-
-    is_paused = models.BooleanField(default=False)
 
     objects = ExperimentManager()
 
@@ -1090,6 +1065,33 @@ class ExperimentCore(Experiment):
     results_confidence = models.NullBooleanField(default=None, blank=True, null=True)
     results_measure_impact = models.NullBooleanField(default=None, blank=True, null=True)
     results_impact_notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        pass
+
+
+class ExperimentRapid(Experiment):
+    rapid_type = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=ExperimentConstants.RAPID_TYPE_CHOICES,
+    )
+    features = ArrayField(
+        models.CharField(
+            max_length=255,
+            blank=True,
+            null=True,
+            choices=ExperimentConstants.RAPID_FEATURE_CHOICES,
+        ),
+        default=list,
+    )
+    audience = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=ExperimentConstants.RAPID_AUDIENCE_CHOICES,
+    )
 
     class Meta:
         pass
