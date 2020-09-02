@@ -59,13 +59,7 @@ class Experiment(ExperimentConstants, models.Model):
         on_delete=models.CASCADE,
         related_name="owned_experiments",
     )
-    analysis_owner = models.ForeignKey(
-        get_user_model(),
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-        related_name="analyzed_experiments",
-    )
+
     subscribers = models.ManyToManyField(
         get_user_model(), blank=True, related_name="subscribed_experiments"
     )
@@ -85,7 +79,6 @@ class Experiment(ExperimentConstants, models.Model):
     slug = models.SlugField(max_length=255, unique=True, blank=False, null=False)
     public_description = models.TextField(blank=True, null=True)
     short_description = models.TextField(default="", blank=True, null=True)
-    related_work = models.TextField(default="", blank=True, null=True)
 
     proposed_start_date = models.DateField(blank=True, null=True)
     proposed_duration = models.PositiveIntegerField(
@@ -97,19 +90,6 @@ class Experiment(ExperimentConstants, models.Model):
         blank=True,
         null=True,
         validators=[MaxValueValidator(ExperimentConstants.MAX_DURATION)],
-    )
-
-    message_type = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=ExperimentConstants.MESSAGE_TYPE_CHOICES,
-    )
-    message_template = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=ExperimentConstants.MESSAGE_TEMPLATE_CHOICES,
     )
 
     rapid_type = models.CharField(
@@ -135,44 +115,6 @@ class Experiment(ExperimentConstants, models.Model):
         choices=ExperimentConstants.RAPID_AUDIENCE_CHOICES,
     )
 
-    is_multi_pref = models.BooleanField(default=False)
-    rollout_type = models.CharField(
-        max_length=255,
-        choices=ExperimentConstants.ROLLOUT_TYPE_CHOICES,
-        default=ExperimentConstants.TYPE_PREF,
-    )
-    rollout_playbook = models.CharField(
-        max_length=255,
-        choices=ExperimentConstants.ROLLOUT_PLAYBOOK_CHOICES,
-        blank=True,
-        null=True,
-    )
-
-    addon_experiment_id = models.CharField(
-        max_length=255, unique=True, blank=True, null=True
-    )
-    addon_release_url = models.URLField(max_length=400, blank=True, null=True)
-    is_branched_addon = models.BooleanField(default=False)
-
-    pref_name = models.CharField(max_length=255, blank=True, null=True)
-    pref_type = models.CharField(
-        max_length=255,
-        choices=ExperimentConstants.PREF_TYPE_CHOICES,
-        blank=True,
-        null=True,
-    )
-    pref_branch = models.CharField(
-        max_length=255,
-        choices=ExperimentConstants.PREF_BRANCH_CHOICES,
-        blank=True,
-        null=True,
-    )
-    pref_value = models.TextField(blank=True, null=True)
-
-    population_percent = models.DecimalField(
-        max_digits=7, decimal_places=4, default=0.0, blank=True, null=True
-    )
-    total_enrolled_clients = models.PositiveIntegerField(blank=True, null=True)
     firefox_min_version = models.CharField(
         max_length=255,
         choices=ExperimentConstants.VERSION_CHOICES,
@@ -191,124 +133,17 @@ class Experiment(ExperimentConstants, models.Model):
         blank=True,
         null=True,
     )
-    client_matching = models.TextField(
-        default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True, null=True
-    )
-    locales = models.ManyToManyField(Locale, blank=True)
-    countries = models.ManyToManyField(Country, blank=True)
+
     projects = models.ManyToManyField(Project, blank=True)
-    platforms = ArrayField(
-        models.CharField(max_length=200),
-        blank=True,
-        null=True,
-        default=default_all_platforms,
-    )
-    windows_versions = ArrayField(
-        models.CharField(max_length=200),
-        blank=True,
-        null=True,
-    )
-    profile_age = models.CharField(
-        max_length=255,
-        choices=ExperimentConstants.PROFILE_AGE_CHOICES,
-        blank=True,
-        null=True,
-        default=ExperimentConstants.PROFILES_ALL,
-    )
-    design = models.TextField(
-        default=ExperimentConstants.DESIGN_DEFAULT, blank=True, null=True
-    )
+
     objectives = models.TextField(
         default=ExperimentConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
-    analysis = models.TextField(
-        default=ExperimentConstants.ANALYSIS_DEFAULT, blank=True, null=True
-    )
-
-    survey_required = models.BooleanField(default=False)
-    survey_urls = models.TextField(blank=True, null=True)
-    survey_instructions = models.TextField(blank=True, null=True)
-
-    engineering_owner = models.CharField(max_length=255, blank=True, null=True)
 
     bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
     recipe_slug = models.CharField(max_length=255, blank=True, null=True)
-    normandy_id = models.PositiveIntegerField(blank=True, null=True)
-    other_normandy_ids = ArrayField(models.IntegerField(), blank=True, null=True)
-
-    data_science_issue_url = models.URLField(blank=True, null=True)
-    feature_bugzilla_url = models.URLField(blank=True, null=True)
-
-    # Risk fields
-    risk_partner_related = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_brand = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_fast_shipped = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_confidential = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_release_population = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_revenue = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_data_category = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_external_team_impact = models.NullBooleanField(
-        default=None, blank=True, null=True
-    )
-    risk_telemetry_data = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_ux = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_security = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_revision = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_technical = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_higher_risk = models.NullBooleanField(default=None, blank=True, null=True)
-
-    risk_technical_description = models.TextField(blank=True, null=True)
-    risks = models.TextField(blank=True, null=True)
-
-    # Testing
-    testing = models.TextField(blank=True, null=True)
-    test_builds = models.TextField(blank=True, null=True)
-    qa_status = models.TextField(blank=True, null=True)
-
-    # Review Fields (sign-offs)
-    # Required
-    review_science = models.NullBooleanField(default=None, blank=True, null=True)
-    review_engineering = models.NullBooleanField(default=None, blank=True, null=True)
-    review_qa_requested = models.NullBooleanField(default=None, blank=True, null=True)
-    review_intent_to_ship = models.NullBooleanField(default=None, blank=True, null=True)
-    review_bugzilla = models.NullBooleanField(default=None, blank=True, null=True)
-    review_qa = models.NullBooleanField(default=None, blank=True, null=True)
-    review_relman = models.NullBooleanField(default=None, blank=True, null=True)
-
-    # Optional
-    review_advisory = models.NullBooleanField(default=None, blank=True, null=True)
-    review_legal = models.NullBooleanField(default=None, blank=True, null=True)
-    review_ux = models.NullBooleanField(default=None, blank=True, null=True)
-    review_security = models.NullBooleanField(default=None, blank=True, null=True)
-    review_vp = models.NullBooleanField(default=None, blank=True, null=True)
-    review_data_steward = models.NullBooleanField(default=None, blank=True, null=True)
-    review_comms = models.NullBooleanField(default=None, blank=True, null=True)
-    review_impacted_teams = models.NullBooleanField(default=None, blank=True, null=True)
 
     is_paused = models.BooleanField(default=False)
-
-    # results fields
-    results_url = models.URLField(blank=True, null=True)
-    results_initial = models.TextField(blank=True, null=True)
-    results_lessons_learned = models.TextField(blank=True, null=True)
-
-    results_fail_to_launch = models.NullBooleanField(default=None, blank=True, null=True)
-    results_recipe_errors = models.NullBooleanField(default=None, blank=True, null=True)
-    results_restarts = models.NullBooleanField(default=None, blank=True, null=True)
-    results_low_enrollment = models.NullBooleanField(default=None, blank=True, null=True)
-    results_early_end = models.NullBooleanField(default=None, blank=True, null=True)
-    results_no_usable_data = models.NullBooleanField(default=None, blank=True, null=True)
-    results_failures_notes = models.TextField(blank=True, null=True)
-
-    results_changes_to_firefox = models.NullBooleanField(
-        default=None, blank=True, null=True
-    )
-    results_data_for_hypothesis = models.NullBooleanField(
-        default=None, blank=True, null=True
-    )
-    results_confidence = models.NullBooleanField(default=None, blank=True, null=True)
-    results_measure_impact = models.NullBooleanField(default=None, blank=True, null=True)
-    results_impact_notes = models.TextField(blank=True, null=True)
 
     objects = ExperimentManager()
 
@@ -1082,6 +917,182 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
         return cloned
+
+
+class ExperimentCore(Experiment):
+    analysis_owner = models.ForeignKey(
+        get_user_model(),
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="analyzed_experiments_core",
+    )
+    related_work = models.TextField(default="", blank=True, null=True)
+
+    message_type = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=ExperimentConstants.MESSAGE_TYPE_CHOICES,
+    )
+    message_template = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=ExperimentConstants.MESSAGE_TEMPLATE_CHOICES,
+    )
+
+    rollout_playbook = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.ROLLOUT_PLAYBOOK_CHOICES,
+        blank=True,
+        null=True,
+    )
+
+    addon_experiment_id = models.CharField(
+        max_length=255, unique=True, blank=True, null=True
+    )
+    addon_release_url = models.URLField(max_length=400, blank=True, null=True)
+    is_branched_addon = models.BooleanField(default=False)
+
+    pref_name = models.CharField(max_length=255, blank=True, null=True)
+    pref_type = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.PREF_TYPE_CHOICES,
+        blank=True,
+        null=True,
+    )
+    pref_branch = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.PREF_BRANCH_CHOICES,
+        blank=True,
+        null=True,
+    )
+    pref_value = models.TextField(blank=True, null=True)
+    is_multi_pref = models.BooleanField(default=False)
+    rollout_type = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.ROLLOUT_TYPE_CHOICES,
+        default=ExperimentConstants.TYPE_PREF,
+    )
+
+    population_percent = models.DecimalField(
+        max_digits=7, decimal_places=4, default=0.0, blank=True, null=True
+    )
+    total_enrolled_clients = models.PositiveIntegerField(blank=True, null=True)
+    client_matching = models.TextField(
+        default=ExperimentConstants.CLIENT_MATCHING_DEFAULT, blank=True, null=True
+    )
+    locales = models.ManyToManyField(Locale, blank=True)
+    countries = models.ManyToManyField(Country, blank=True)
+    platforms = ArrayField(
+        models.CharField(max_length=200),
+        blank=True,
+        null=True,
+        default=default_all_platforms,
+    )
+    windows_versions = ArrayField(
+        models.CharField(max_length=200),
+        blank=True,
+        null=True,
+    )
+    profile_age = models.CharField(
+        max_length=255,
+        choices=ExperimentConstants.PROFILE_AGE_CHOICES,
+        blank=True,
+        null=True,
+        default=ExperimentConstants.PROFILES_ALL,
+    )
+    design = models.TextField(
+        default=ExperimentConstants.DESIGN_DEFAULT, blank=True, null=True
+    )
+    analysis = models.TextField(
+        default=ExperimentConstants.ANALYSIS_DEFAULT, blank=True, null=True
+    )
+
+    survey_required = models.BooleanField(default=False)
+    survey_urls = models.TextField(blank=True, null=True)
+    survey_instructions = models.TextField(blank=True, null=True)
+
+    engineering_owner = models.CharField(max_length=255, blank=True, null=True)
+
+    normandy_id = models.PositiveIntegerField(blank=True, null=True)
+    other_normandy_ids = ArrayField(models.IntegerField(), blank=True, null=True)
+
+    data_science_issue_url = models.URLField(blank=True, null=True)
+    feature_bugzilla_url = models.URLField(blank=True, null=True)
+
+    # Risk fields
+    risk_partner_related = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_brand = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_fast_shipped = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_confidential = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_release_population = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_revenue = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_data_category = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_external_team_impact = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    risk_telemetry_data = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_ux = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_security = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_revision = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_technical = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_higher_risk = models.NullBooleanField(default=None, blank=True, null=True)
+
+    risk_technical_description = models.TextField(blank=True, null=True)
+    risks = models.TextField(blank=True, null=True)
+
+    # Testing
+    testing = models.TextField(blank=True, null=True)
+    test_builds = models.TextField(blank=True, null=True)
+    qa_status = models.TextField(blank=True, null=True)
+
+    # Review Fields (sign-offs)
+    # Required
+    review_science = models.NullBooleanField(default=None, blank=True, null=True)
+    review_engineering = models.NullBooleanField(default=None, blank=True, null=True)
+    review_qa_requested = models.NullBooleanField(default=None, blank=True, null=True)
+    review_intent_to_ship = models.NullBooleanField(default=None, blank=True, null=True)
+    review_bugzilla = models.NullBooleanField(default=None, blank=True, null=True)
+    review_qa = models.NullBooleanField(default=None, blank=True, null=True)
+    review_relman = models.NullBooleanField(default=None, blank=True, null=True)
+
+    # Optional
+    review_advisory = models.NullBooleanField(default=None, blank=True, null=True)
+    review_legal = models.NullBooleanField(default=None, blank=True, null=True)
+    review_ux = models.NullBooleanField(default=None, blank=True, null=True)
+    review_security = models.NullBooleanField(default=None, blank=True, null=True)
+    review_vp = models.NullBooleanField(default=None, blank=True, null=True)
+    review_data_steward = models.NullBooleanField(default=None, blank=True, null=True)
+    review_comms = models.NullBooleanField(default=None, blank=True, null=True)
+    review_impacted_teams = models.NullBooleanField(default=None, blank=True, null=True)
+
+    # results fields
+    results_url = models.URLField(blank=True, null=True)
+    results_initial = models.TextField(blank=True, null=True)
+    results_lessons_learned = models.TextField(blank=True, null=True)
+
+    results_fail_to_launch = models.NullBooleanField(default=None, blank=True, null=True)
+    results_recipe_errors = models.NullBooleanField(default=None, blank=True, null=True)
+    results_restarts = models.NullBooleanField(default=None, blank=True, null=True)
+    results_low_enrollment = models.NullBooleanField(default=None, blank=True, null=True)
+    results_early_end = models.NullBooleanField(default=None, blank=True, null=True)
+    results_no_usable_data = models.NullBooleanField(default=None, blank=True, null=True)
+    results_failures_notes = models.TextField(blank=True, null=True)
+
+    results_changes_to_firefox = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    results_data_for_hypothesis = models.NullBooleanField(
+        default=None, blank=True, null=True
+    )
+    results_confidence = models.NullBooleanField(default=None, blank=True, null=True)
+    results_measure_impact = models.NullBooleanField(default=None, blank=True, null=True)
+    results_impact_notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        pass
 
 
 class ExperimentVariant(models.Model):
