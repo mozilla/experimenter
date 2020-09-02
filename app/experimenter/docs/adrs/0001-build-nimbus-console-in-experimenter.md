@@ -1,8 +1,8 @@
-# Create A New Web Application To Manage Nimbus Experiments
+# Build Nimbus Console As Part Of The Experimenter Code Base
 
 * Status: decided
 * Deciders: Kate Hudson
-* Date: 2020-08-18
+* Date: 2020-08-31
 
 ## Context and Problem Statement
 
@@ -28,18 +28,6 @@ Experimenter is a web application developed solely for the purpose of managing p
 Chosen option: After careful consideration of both options, we have decided to adopt the proposal to build on top of Experimenter and invest in improvements. This includes work to create new models, improve and document a development workflow that can be used by all members of the team, and write a new front end in React. While we carefully considered the proposal to start a new application in Node/Typescript, we determined that the risk around the time to bring a new application up to parity and the operations overhead of maintaining parallel systems was too significant to adopt the proposal.
 
 We already have a list of improvements we’d like to make – over the next few days we will work on clarifying any details, breaking things down, and getting everyone up to speed on running the existing code base.
-
-[Decision Brief](https://docs.google.com/document/d/1AwtxZZAqP_2adyfDN5juTHW0TiuU8VV8VzDDo695kZQ/edit#)
-
-### Positive Consequences
-
-* [e.g., improvement of quality attribute satisfaction, follow-up decisions required, …]
-* …
-
-### Negative Consequences
-
-* [e.g., compromising quality attribute, follow-up decisions required, …]
-* …
 
 ## Pros and Cons of the Options
 
@@ -126,5 +114,5 @@ Creating a new web application in TypeScript/Node would allow us to completely r
 
 ## Links <!-- optional -->
 
-* [Link type] [Link to ADR] <!-- example: Refined by [ADR-0005](0005-example.md) -->
-* … <!-- numbers of links can vary -->
+* [Decision Brief](https://docs.google.com/document/d/1AwtxZZAqP_2adyfDN5juTHW0TiuU8VV8VzDDo695kZQ/edit#)
+* [New Experimenter Proposal](https://docs.google.com/document/d/1QMROYab-S5ZBL3oU_hoJxn5V2ocdPG5hlH_kYRMjO_4/edit?skip_itp2_check=true&pli=1)
