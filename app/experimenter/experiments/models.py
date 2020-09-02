@@ -900,7 +900,7 @@ class ExperimentCore(Experiment):
         blank=True,
         null=True,
         on_delete=models.CASCADE,
-        related_name="analyzed_experiments_core",
+        related_name="analyzed_experiments",
     )
     related_work = models.TextField(default="", blank=True, null=True)
 

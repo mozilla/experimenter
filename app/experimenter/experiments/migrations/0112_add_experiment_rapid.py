@@ -78,4 +78,9 @@ class Migration(migrations.Migration):
             ],
             bases=("experiments.experiment",),
         ),
+        migrations.AlterField(
+            model_name='experimentcore',
+            name='analysis_owner',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='analyzed_experiments', to=settings.AUTH_USER_MODEL),
+        ),
     ]
