@@ -1,10 +1,7 @@
 from django.test import TestCase
 
-from experimenter.experiments.models import Experiment, ExperimentBucketNamespace
-from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
-    ExperimentVariantFactory,
-)
+from experimenter.experiments.models import Experiment
+from experimenter.experiments.tests.factories import ExperimentRapidFactory
 from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
 
 
@@ -14,28 +11,12 @@ class TestExperimentRapidRecipeSerializer(TestCase):
     def test_serializer_outputs_expected_schema_for_accepted(self):
         audience = "us_only"
         features = ["pinned_tabs", "picture_in_picture"]
-        experiment = ExperimentFactory.create_with_status(
+        experiment = ExperimentRapidFactory.create_with_status(
             Experiment.STATUS_ACCEPTED,
             audience=audience,
             features=features,
             firefox_channel=Experiment.CHANNEL_RELEASE,
             firefox_min_version="80.0",
-            proposed_start_date=None,
-            proposed_duration=28,
-            proposed_enrollment=7,
-            rapid_type=Experiment.RAPID_AA,
-            type=Experiment.TYPE_RAPID,
-        )
-        experiment.variants.all().delete()
-        ExperimentVariantFactory.create(
-            experiment=experiment, ratio=1, slug="control", is_control=True
-        )
-        ExperimentVariantFactory.create(
-            experiment=experiment, ratio=1, slug="treatment", is_control=False
-        )
-
-        ExperimentBucketNamespace.request_namespace_buckets(
-            experiment.recipe_slug, experiment, 100
         )
 
         serializer = ExperimentRapidRecipeSerializer(experiment)
@@ -83,36 +64,20 @@ class TestExperimentRapidRecipeSerializer(TestCase):
         self.assertEqual(
             converted_branches,
             [
-                {"ratio": 1, "slug": "treatment", "value": None},
-                {"ratio": 1, "slug": "control", "value": None},
+                {"ratio": 33, "slug": "treatment", "value": None},
+                {"ratio": 33, "slug": "control", "value": None},
             ],
         )
 
     def test_serializer_outputs_expected_schema_for_live(self):
         audience = "us_only"
         features = ["pinned_tabs", "picture_in_picture"]
-        experiment = ExperimentFactory.create_with_status(
+        experiment = ExperimentRapidFactory.create_with_status(
             Experiment.STATUS_LIVE,
             audience=audience,
             features=features,
             firefox_channel=Experiment.CHANNEL_RELEASE,
             firefox_min_version="80.0",
-            proposed_start_date=None,
-            proposed_duration=28,
-            proposed_enrollment=7,
-            rapid_type=Experiment.RAPID_AA,
-            type=Experiment.TYPE_RAPID,
-        )
-        experiment.variants.all().delete()
-        ExperimentVariantFactory.create(
-            experiment=experiment, ratio=1, slug="control", is_control=True
-        )
-        ExperimentVariantFactory.create(
-            experiment=experiment, ratio=1, slug="treatment", is_control=False
-        )
-
-        ExperimentBucketNamespace.request_namespace_buckets(
-            experiment.recipe_slug, experiment, 100
         )
 
         serializer = ExperimentRapidRecipeSerializer(experiment)
@@ -160,7 +125,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
         self.assertEqual(
             converted_branches,
             [
-                {"ratio": 1, "slug": "treatment", "value": None},
-                {"ratio": 1, "slug": "control", "value": None},
+                {"ratio": 33, "slug": "treatment", "value": None},
+                {"ratio": 33, "slug": "control", "value": None},
             ],
         )

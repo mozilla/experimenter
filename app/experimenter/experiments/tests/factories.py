@@ -251,11 +251,16 @@ class ExperimentRapidFactory(ExperimentConstants, factory.django.DjangoModelFact
 
         experiment = cls.create(**kwargs)
 
-        ExperimentControlFactory.create(experiment=experiment)
-        ExperimentVariantFactory.create(experiment=experiment)
+        ExperimentControlFactory.create(
+            experiment=experiment, name="Control", slug="control"
+        )
+        ExperimentVariantFactory.create(
+            experiment=experiment, name="Treatment", slug="treatment"
+        )
 
         for status, _ in Experiment.STATUS_CHOICES:
             if status == Experiment.STATUS_REVIEW:
+                experiment.proposed_duration = 28
                 experiment.bugzilla_id = "12345"
                 experiment.recipe_slug = experiment.generate_recipe_slug()
                 experiment.save()
