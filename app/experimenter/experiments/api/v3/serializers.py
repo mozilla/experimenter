@@ -102,7 +102,6 @@ class ExperimentRapidSerializer(ExperimentDesignBaseSerializer):
             return ExperimentRapidRejectChangeLogSerializer(obj.changes.latest()).data
 
     def validate(self, data):
-
         variants = data.get("variants")
 
         if not self.is_variant_valid(variants):
