@@ -16,11 +16,12 @@ import {
   ExperimentStatus,
   FirefoxChannel,
 } from "experimenter-rapid/types/experiment";
-import { ExperimentData, Variant } from "experimenter-types/experiment";
+import { ExperimentData } from "experimenter-types/experiment";
 
 afterEach(async () => {
   await cleanup();
-  fetchMock.resetMocks();
+  await jest.clearAllMocks();
+  await fetchMock.resetMocks();
 });
 
 describe("<SettingsForm />", () => {
@@ -266,26 +267,6 @@ describe("<BranchesForm />", () => {
   });
 
   it("should have variant fields editable", async () => {
-    fetchMock.mockOnce(async () => {
-      return JSON.stringify({
-        variants: [
-          {
-            name: "control",
-            is_control: true,
-            description: "An empty branch",
-            value: "",
-            ratio: 50,
-          },
-          {
-            name: "variant",
-            is_control: false,
-            description: "An empty branch",
-            value: "",
-            ratio: 50,
-          },
-        ],
-      });
-    });
     const { getByDisplayValue, getAllByDisplayValue } = renderWithRouter(
       wrapInExperimentProvider(<BranchesForm />),
     );
@@ -293,6 +274,7 @@ describe("<BranchesForm />", () => {
     const controlBranch = getByDisplayValue("control");
     const variantBranch = getByDisplayValue("variant");
     const descriptions = getAllByDisplayValue("An empty branch");
+    const values = document.querySelectorAll("textarea");
 
     const controlBranchName = "control branch name";
     fireEvent.change(controlBranch, { target: { value: controlBranchName } });
@@ -304,6 +286,10 @@ describe("<BranchesForm />", () => {
     });
     expect(getByDisplayValue(controlDescription)).toBeInTheDocument();
 
+    const controlValue = "[]";
+    fireEvent.change(values[0], { target: { value: controlValue } });
+    expect(getByDisplayValue(controlValue)).toBeInTheDocument();
+
     const variantBranchName = "variant branch name";
     fireEvent.change(variantBranch, { target: { value: variantBranchName } });
     expect(getByDisplayValue(variantBranchName)).toBeInTheDocument();
@@ -313,31 +299,14 @@ describe("<BranchesForm />", () => {
       target: { value: variantDescription },
     });
     expect(getByDisplayValue(variantDescription)).toBeInTheDocument();
+
+    const variantValue = "variantValue";
+    fireEvent.change(values[0], { target: { value: variantValue } });
+    expect(getByDisplayValue(variantValue)).toBeInTheDocument();
   });
 });
 
 it("should add and delete branches", async () => {
-  fetchMock.mockOnce(async () => {
-    const fakeVariants: { variants: Variant[] } = {
-      variants: [
-        {
-          name: "control",
-          is_control: true,
-          description: "An empty branch",
-          value: "",
-          ratio: 1,
-        },
-        {
-          name: "variant",
-          is_control: false,
-          description: "An empty branch",
-          value: "",
-          ratio: 1,
-        },
-      ],
-    };
-    return JSON.stringify(fakeVariants);
-  });
   const {
     getByText,
     getAllByText,
