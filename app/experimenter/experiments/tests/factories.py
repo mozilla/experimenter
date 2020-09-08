@@ -14,11 +14,12 @@ from experimenter.base.models import Country, Locale
 from experimenter.projects.models import Project
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import (
-    ExperimentCore,
-    ExperimentBucketRange,
     ExperimentBucketNamespace,
+    ExperimentBucketRange,
     ExperimentChangeLog,
     ExperimentComment,
+    ExperimentCore,
+    ExperimentRapid,
     ExperimentVariant,
     VariantPreferences,
 )
@@ -221,9 +222,9 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
 
 
 class ExperimentRapidFactory(ExperimentConstants, factory.django.DjangoModelFactory):
-    type = Experiment.TYPE_RAPID
+    type = ExperimentConstants.TYPE_RAPID
     rapid_type = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.RAPID_TYPE_CHOICES)[0]
+        lambda o: random.choice(ExperimentConstants.RAPID_TYPE_CHOICES)[0]
     )
     owner = factory.SubFactory(UserFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
@@ -234,14 +235,14 @@ class ExperimentRapidFactory(ExperimentConstants, factory.django.DjangoModelFact
     )
     features = factory.LazyAttribute(lambda o: list(NIMBUS_DATA["features"].keys()))
     firefox_min_version = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.VERSION_CHOICES[1:])[0]
+        lambda o: random.choice(ExperimentConstants.VERSION_CHOICES[1:])[0]
     )
     firefox_channel = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.CHANNEL_CHOICES[1:])[0]
+        lambda o: random.choice(ExperimentConstants.CHANNEL_CHOICES[1:])[0]
     )
 
     class Meta:
-        model = Experiment
+        model = ExperimentRapid
 
     @classmethod
     def create_with_status(cls, target_status, **kwargs):
@@ -258,8 +259,8 @@ class ExperimentRapidFactory(ExperimentConstants, factory.django.DjangoModelFact
             experiment=experiment, name="Treatment", slug="treatment"
         )
 
-        for status, _ in Experiment.STATUS_CHOICES:
-            if status == Experiment.STATUS_REVIEW:
+        for status, _ in ExperimentConstants.STATUS_CHOICES:
+            if status == ExperimentConstants.STATUS_REVIEW:
                 experiment.proposed_duration = 28
                 experiment.bugzilla_id = "12345"
                 experiment.recipe_slug = experiment.generate_recipe_slug()
@@ -280,7 +281,7 @@ class ExperimentRapidFactory(ExperimentConstants, factory.django.DjangoModelFact
             if status == target_status:
                 break
 
-        return Experiment.objects.get(id=experiment.id)
+        return cls.Meta.model.objects.get(id=experiment.id)
 
 
 class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
