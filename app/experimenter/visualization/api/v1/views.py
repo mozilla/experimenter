@@ -1,10 +1,7 @@
 import json
-import logging
-import requests
 
 from experimenter.experiments.models import Experiment
 
-from django.conf import settings
 from django.http import HttpResponse
 from django.views import View
 from django.core.files.storage import default_storage
@@ -34,6 +31,6 @@ class VisualizationView(View):
         experiment_json = {
             "daily": daily_data,
             "weekly": weekly_data
-        };
+        }
 
         return HttpResponse(json.dumps(experiment_json))
