@@ -4,9 +4,8 @@ from django.test import TestCase
 from django.urls import reverse
 
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.factories import ExperimentRapidFactory
 
 
 class TestExperimentListView(TestCase):
@@ -14,13 +13,7 @@ class TestExperimentListView(TestCase):
         experiments = []
 
         for status, _ in Experiment.STATUS_CHOICES:
-            experiment = ExperimentFactory.create_with_status(
-                target_status=status,
-                type=ExperimentConstants.TYPE_RAPID,
-                objectives="gotta go fast",
-                audience="us_only",
-                features=["pinned_tabs"],
-            )
+            experiment = ExperimentRapidFactory.create_with_status(status)
 
             if status not in [Experiment.STATUS_DRAFT, Experiment.STATUS_REVIEW]:
                 experiments.append(experiment)
@@ -42,14 +35,7 @@ class TestExperimentListView(TestCase):
 
 class TestExperimentRapidRecipeView(TestCase):
     def test_get_rapid_experiment_recipe_returns_recipe_info_for_experiment(self):
-        experiment = ExperimentFactory.create_with_variants(
-            status=Experiment.STATUS_LIVE,
-            type=ExperimentConstants.TYPE_RAPID,
-            objectives="gotta go fast",
-            audience="us_only",
-            features=["pinned_tabs"],
-            recipe_slug="recipe-slug",
-        )
+        experiment = ExperimentRapidFactory.create_with_status(Experiment.STATUS_LIVE)
 
         response = self.client.get(
             reverse(
@@ -66,10 +52,7 @@ class TestExperimentRapidRecipeView(TestCase):
         self.assertEqual(serialized_experiment, json_data)
 
     def test_get_rapid_experiment_recipe_returns_404_for_draft(self):
-        experiment = ExperimentFactory.create_with_variants(
-            status=Experiment.STATUS_DRAFT,
-            type=ExperimentConstants.TYPE_RAPID,
-        )
+        experiment = ExperimentRapidFactory.create_with_status(Experiment.STATUS_DRAFT)
 
         response = self.client.get(
             reverse(
