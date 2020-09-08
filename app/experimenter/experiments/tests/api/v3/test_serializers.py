@@ -387,6 +387,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             objectives="gotta go fast",
             audience="us_only",
             features=["picture_in_picture", "pinned_tabs"],
+            firefox_channel=Experiment.CHANNEL_RELEASE,
         )
         experiment.variants.all().delete()
         variant = ExperimentVariantFactory.create(experiment=experiment)

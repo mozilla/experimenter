@@ -90,6 +90,9 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
             firefox_channel=Experiment.CHANNEL_NIGHTLY,
         )
 
+        control_variant = experiment.variants.get(is_control=True)
+        treatment_variant = experiment.variants.get(is_control=False)
+
         data = json.dumps(
             {
                 "name": "new name",
@@ -100,6 +103,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
                 "firefox_channel": Experiment.CHANNEL_RELEASE,
                 "variants": [
                     {
+                        "id": control_variant.id,
                         "slug": "control",
                         "name": "control",
                         "ratio": 50,
@@ -107,6 +111,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
                         "is_control": True,
                     },
                     {
+                        "id": treatment_variant.id,
                         "slug": "variant",
                         "name": "variant",
                         "ratio": 50,
@@ -124,7 +129,6 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
-        print(response.content)
         self.assertEqual(response.status_code, 200)
         experiment = Experiment.objects.get()
         self.assertEqual(experiment.owner.email, user_email)
