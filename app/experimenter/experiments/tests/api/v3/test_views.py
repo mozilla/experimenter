@@ -179,7 +179,6 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         user_email = "user@example.com"
         experiment = ExperimentRapidFactory.create_with_status(
             Experiment.STATUS_DRAFT,
-            type=Experiment.TYPE_RAPID,
             name="rapid experiment",
             slug="rapid-experiment",
             objectives="gotta go fast",
