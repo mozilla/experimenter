@@ -60,7 +60,7 @@ const ExperimentDetails: React.FC = () => {
 
   React.useEffect(() => {
     const pibalRoot = document.getElementById("pibal-root");
-    if (!pibalRoot) {
+    if (!pibalRoot || !window.initSvelte) {
       return;
     }
 

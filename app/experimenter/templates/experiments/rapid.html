@@ -5,9 +5,12 @@
 {% load static %}
 
 {% block main %}
-  <link rel="stylesheet" href="{% static "assets/pibal/bundle.css" %}" />
+  {% if FEATURE_ANALYSIS %}
+    <script src="{% static "assets/pibal/bundle.js" %}"></script>
+    <link rel="stylesheet" href="{% static "assets/pibal/bundle.css" %}" />
+  {% endif %}
+
   <link rel="stylesheet" href="{% static "assets/css/index.css" %}">
-  <script src="{% static "assets/pibal/bundle.js" %}"></script>
   <div class="w-100" data-react-dom-render="rapid"></div>
 {% endblock %}
 
