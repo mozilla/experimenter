@@ -6,11 +6,16 @@ from django.urls import reverse
 from parameterized import parameterized
 
 from experimenter.experiments.api.v3.serializers import ExperimentRapidSerializer
+<<<<<<< HEAD
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentRapidFactory,
 )
+=======
+from experimenter.experiments.models import ExperimentRapid
+from experimenter.experiments.tests.factories import ExperimentFactory
+>>>>>>> Rename v1-v4 for refactored experiment tables.
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
@@ -57,8 +62,8 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
     @parameterized.expand(
         [
             experiment_type
-            for (experiment_type, _) in Experiment.TYPE_CHOICES
-            if experiment_type != Experiment.TYPE_RAPID
+            for (experiment_type, _) in ExperimentRapid.TYPE_CHOICES
+            if experiment_type != ExperimentRapid.TYPE_RAPID
         ]
     )
     def test_get_detail_returns_404_for_non_rapid_experiment(self, experiment_type):
@@ -130,7 +135,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        experiment = Experiment.objects.get()
+        experiment = ExperimentRapid.objects.get()
         self.assertEqual(experiment.owner.email, user_email)
         self.assertEqual(experiment.name, "new name")
         self.assertEqual(experiment.slug, "rapid-experiment")
@@ -165,7 +170,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         )
 
         self.assertEqual(response.status_code, 201)
-        experiment = Experiment.objects.get()
+        experiment = ExperimentRapid.objects.get()
         self.assertEqual(experiment.owner.email, user_email)
         self.assertEqual(experiment.name, "rapid experiment")
         self.assertEqual(experiment.slug, "rapid-experiment")
@@ -191,6 +196,6 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        experiment = Experiment.objects.get()
-        self.assertEqual(experiment.status, Experiment.STATUS_REVIEW)
+        experiment = ExperimentRapid.objects.get()
+        self.assertEqual(experiment.status, ExperimentRapid.STATUS_REVIEW)
         self.assertEqual(experiment.changes.count(), 2)

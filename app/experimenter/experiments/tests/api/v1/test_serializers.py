@@ -3,7 +3,7 @@ import datetime
 from django.test import TestCase
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import ExperimentCore
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
@@ -34,20 +34,21 @@ class TestPrefTypeField(TestCase):
     def test_non_json_field(self):
         field = PrefTypeField()
         self.assertEqual(
-            field.to_representation(Experiment.PREF_TYPE_INT), Experiment.PREF_TYPE_INT
+            field.to_representation(ExperimentCore.PREF_TYPE_INT),
+            ExperimentCore.PREF_TYPE_INT,
         )
 
     def test_json_field(self):
         field = PrefTypeField()
         self.assertEqual(
-            field.to_representation(Experiment.PREF_TYPE_JSON_STR),
-            Experiment.PREF_TYPE_STR,
+            field.to_representation(ExperimentCore.PREF_TYPE_JSON_STR),
+            ExperimentCore.PREF_TYPE_STR,
         )
 
 
 class TestExperimentVariantSerializer(TestCase):
     def test_serializer_outputs_expected_bool(self):
-        experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_BOOL)
+        experiment = ExperimentFactory(pref_type=ExperimentCore.PREF_TYPE_BOOL)
         variant = ExperimentVariantFactory.create(experiment=experiment, value="true")
         serializer = ExperimentRecipeVariantSerializer(variant)
 
@@ -57,7 +58,7 @@ class TestExperimentVariantSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_int_val(self):
-        experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_INT)
+        experiment = ExperimentFactory(pref_type=ExperimentCore.PREF_TYPE_INT)
         variant = ExperimentVariantFactory.create(experiment=experiment, value="28")
         serializer = ExperimentRecipeVariantSerializer(variant)
 
@@ -67,7 +68,7 @@ class TestExperimentVariantSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_str_val(self):
-        experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_STR)
+        experiment = ExperimentFactory(pref_type=ExperimentCore.PREF_TYPE_STR)
         variant = ExperimentVariantFactory.create(experiment=experiment)
         serializer = ExperimentRecipeVariantSerializer(variant)
 
@@ -81,7 +82,7 @@ class TestExperimentVariantSerializer(TestCase):
 class TestExperimentSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_COMPLETE,
+            ExperimentCore.STATUS_COMPLETE,
             countries=[],
             locales=[],
             recipe_slug="a-normandy-slug",
@@ -89,7 +90,7 @@ class TestExperimentSerializer(TestCase):
             other_normandy_ids=[],
             results_fail_to_launch=False,
             results_failures_notes="failure notes",
-            platforms=[Experiment.PLATFORM_LINUX],
+            platforms=[ExperimentCore.PLATFORM_LINUX],
         )
 
         # ensure expected_data has "string" if pref_type is json string
@@ -119,7 +120,7 @@ class TestExperimentSerializer(TestCase):
             "public_description": experiment.public_description,
             "slug": experiment.slug,
             "start_date": JSTimestampField().to_representation(experiment.start_date),
-            "status": Experiment.STATUS_COMPLETE,
+            "status": ExperimentCore.STATUS_COMPLETE,
             "type": experiment.type,
             "normandy_slug": experiment.recipe_slug,
             "normandy_id": experiment.normandy_id,

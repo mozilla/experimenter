@@ -10,7 +10,7 @@ from experimenter.experiments.api.v3.serializers import (
     ExperimentRapidVariantSerializer,
 )
 from experimenter.experiments.models import (
-    Experiment,
+    ExperimentRapid,
     ExperimentChangeLog,
 )
 from experimenter.experiments.tests.factories import (
@@ -76,7 +76,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "owner": "owner@example.com",
                 "slug": "rapid-experiment",
                 "recipe_slug": experiment.recipe_slug,
-                "status": Experiment.STATUS_DRAFT,
+                "status": ExperimentRapid.STATUS_DRAFT,
             },
         )
         for variant in experiment.variants.all():
@@ -126,7 +126,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 "reject_feedback": None,
                 "slug": "rapid-experiment",
                 "recipe_slug": experiment.recipe_slug,
-                "status": Experiment.STATUS_LIVE,
+                "status": ExperimentRapid.STATUS_LIVE,
             },
         )
 
@@ -163,7 +163,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             changed_by=owner,
         )
 
-        experiment.status = Experiment.STATUS_REJECTED
+        experiment.status = ExperimentRapid.STATUS_REJECTED
         experiment.save()
 
         serializer = ExperimentRapidSerializer(experiment)
@@ -192,7 +192,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
                 },
                 "slug": "rapid-experiment",
                 "recipe_slug": experiment.recipe_slug,
-                "status": Experiment.STATUS_REJECTED,
+                "status": ExperimentRapid.STATUS_REJECTED,
             },
         )
 
@@ -251,7 +251,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "audience": "all_english",
             "features": ["picture_in_picture", "pinned_tabs"],
             "firefox_min_version": "invalid version",
-            "firefox_channel": Experiment.CHANNEL_RELEASE,
+            "firefox_channel": ExperimentRapid.CHANNEL_RELEASE,
         }
         serializer = ExperimentRapidSerializer(
             data=data, context={"request": self.request}
@@ -326,8 +326,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         ]
 
         # User input data
-        self.assertEqual(experiment.type, Experiment.TYPE_RAPID)
-        self.assertEqual(experiment.rapid_type, Experiment.RAPID_AA)
+        self.assertEqual(experiment.type, ExperimentRapid.TYPE_RAPID)
+        self.assertEqual(experiment.rapid_type, ExperimentRapid.RAPID_AA)
         self.assertEqual(experiment.owner, self.user)
         self.assertEqual(experiment.name, "rapid experiment")
         self.assertEqual(experiment.slug, "rapid-experiment")
@@ -337,7 +337,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertEqual(experiment.firefox_min_version, "80.0")
         self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
         self.assertEqual(
-            experiment.public_description, Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
+            experiment.public_description,
+            ExperimentRapid.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
         )
         self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
         self.assertEqual(experiment.proposed_duration, preset_data["proposedDuration"])
@@ -354,7 +355,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
         self.assertEqual(experiment.changes.count(), 1)
 
         changelog = experiment.changes.get(
-            old_status=None, new_status=Experiment.STATUS_DRAFT
+            old_status=None, new_status=ExperimentRapid.STATUS_DRAFT
         )
         self.assertEqual(changelog.changed_by, self.request.user)
         self.assertEqual(
@@ -398,8 +399,8 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "objectives": "changing objectives",
             "audience": "all_english",
             "features": ["pinned_tabs"],
-            "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-            "firefox_min_version": Experiment.VERSION_CHOICES[1][0],
+            "firefox_channel": ExperimentRapid.CHANNEL_NIGHTLY,
+            "firefox_min_version": ExperimentRapid.VERSION_CHOICES[1][0],
             "variants": [
                 {
                     "id": variant.id,
@@ -514,7 +515,7 @@ class TestExperimentRapidStatusSerializer(MockRequestMixin, TestCase):
         experiment = ExperimentRapidFactory.create_with_status(Experiment.STATUS_DRAFT)
 
         data = {
-            "status": Experiment.STATUS_REVIEW,
+            "status": ExperimentRapid.STATUS_REVIEW,
         }
 
         serializer = ExperimentRapidStatusSerializer(
@@ -526,7 +527,7 @@ class TestExperimentRapidStatusSerializer(MockRequestMixin, TestCase):
 
         experiment = serializer.save()
 
-        self.assertEqual(experiment.status, Experiment.STATUS_REVIEW)
+        self.assertEqual(experiment.status, ExperimentRapid.STATUS_REVIEW)
         self.assertEqual(experiment.changes.count(), 2)
 
     def test_serializer_rejects_invalid_state_transition(self):
@@ -535,7 +536,7 @@ class TestExperimentRapidStatusSerializer(MockRequestMixin, TestCase):
         )
 
         data = {
-            "status": Experiment.STATUS_DRAFT,
+            "status": ExperimentRapid.STATUS_DRAFT,
         }
 
         serializer = ExperimentRapidStatusSerializer(

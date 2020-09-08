@@ -5,7 +5,7 @@ from mozilla_nimbus_shared import get_data
 
 from experimenter.bugzilla.tasks import create_experiment_bug_task
 from experimenter.experiments.models import (
-    Experiment,
+    ExperimentRapid,
     ExperimentVariant,
     ExperimentChangeLog,
 )
@@ -48,12 +48,12 @@ class ExperimentRapidSerializer(ExperimentDesignBaseSerializer):
     FEATURES_CHOICES = list(NIMBUS_DATA["features"].keys())
     AUDIENCE_CHOICES = list(NIMBUS_DATA["Audiences"].keys())
 
-    type = serializers.HiddenField(default=Experiment.TYPE_RAPID)
-    rapid_type = serializers.HiddenField(default=Experiment.RAPID_AA)
+    type = serializers.HiddenField(default=ExperimentRapid.TYPE_RAPID)
+    rapid_type = serializers.HiddenField(default=ExperimentRapid.RAPID_AA)
     owner = serializers.ReadOnlyField(source="owner.email")
     slug = serializers.ReadOnlyField()
     public_description = serializers.HiddenField(
-        default=Experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
+        default=ExperimentRapid.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE
     )
     objectives = serializers.CharField(required=True)
     features = serializers.ListField(
@@ -65,10 +65,10 @@ class ExperimentRapidSerializer(ExperimentDesignBaseSerializer):
     bugzilla_url = serializers.ReadOnlyField()
     firefox_min_version = serializers.ChoiceField(
         required=True,
-        choices=Experiment.VERSION_CHOICES,
+        choices=ExperimentRapid.VERSION_CHOICES,
     )
     firefox_channel = serializers.ChoiceField(
-        required=True, choices=Experiment.CHANNEL_CHOICES
+        required=True, choices=ExperimentRapid.CHANNEL_CHOICES
     )
     monitoring_dashboard_url = serializers.ReadOnlyField()
     reject_feedback = serializers.SerializerMethodField()
@@ -76,7 +76,7 @@ class ExperimentRapidSerializer(ExperimentDesignBaseSerializer):
     variants = ExperimentRapidVariantSerializer(many=True)
 
     class Meta:
-        model = Experiment
+        model = ExperimentRapid
         fields = (
             "audience",
             "bugzilla_url",
@@ -98,7 +98,7 @@ class ExperimentRapidSerializer(ExperimentDesignBaseSerializer):
         )
 
     def get_reject_feedback(self, obj):
-        if obj.status == Experiment.STATUS_REJECTED:
+        if obj.status == ExperimentRapid.STATUS_REJECTED:
             return ExperimentRapidRejectChangeLogSerializer(obj.changes.latest()).data
 
     def validate(self, data):
@@ -121,7 +121,7 @@ class ExperimentRapidSerializer(ExperimentDesignBaseSerializer):
             if (
                 self.instance is None
                 and slug
-                and Experiment.objects.filter(slug=slug).exists()
+                and ExperimentRapid.objects.filter(slug=slug).exists()
             ):
                 raise serializers.ValidationError(
                     {
@@ -165,7 +165,7 @@ class ExperimentRapidStatusSerializer(
     ExperimentRapidChangelogSerializerMixin, serializers.ModelSerializer
 ):
     class Meta:
-        model = Experiment
+        model = ExperimentRapid
         fields = ("status",)
 
     def validate_status(self, status):

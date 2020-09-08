@@ -2,7 +2,7 @@ from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import ExperimentRapid
 from experimenter.experiments.api.v3.serializers import (
     ExperimentRapidSerializer,
     ExperimentRapidStatusSerializer,
@@ -16,13 +16,13 @@ class ExperimentRapidViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = ExperimentRapidSerializer
-    queryset = Experiment.objects.filter(type=Experiment.TYPE_RAPID)
+    queryset = ExperimentRapid.objects.filter(type=ExperimentRapid.TYPE_RAPID)
     lookup_field = "slug"
 
     @action(detail=True, methods=["post"])
     def request_review(self, request, slug=None):
         instance = self.get_object()
-        update_data = {"status": Experiment.STATUS_REVIEW}
+        update_data = {"status": ExperimentRapid.STATUS_REVIEW}
         serializer = ExperimentRapidStatusSerializer(
             instance, data=update_data, context={"request": request}
         )

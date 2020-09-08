@@ -3,7 +3,7 @@ from rest_framework import serializers
 from mozilla_nimbus_shared import get_data
 
 from experimenter.experiments.models import (
-    Experiment,
+    ExperimentRapid,
     ExperimentVariant,
     ExperimentBucketRange,
 )
@@ -55,7 +55,7 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
     referenceBranch = serializers.SerializerMethodField()
 
     class Meta:
-        model = Experiment
+        model = ExperimentRapid
         fields = (
             "slug",
             "userFacingName",
@@ -99,7 +99,7 @@ class ExperimentRapidRecipeSerializer(serializers.ModelSerializer):
     targeting = serializers.SerializerMethodField()
 
     class Meta:
-        model = Experiment
+        model = ExperimentRapid
         fields = ("id", "arguments", "filter_expression", "enabled", "targeting")
 
     def get_filter_expression(self, obj):

@@ -6,7 +6,7 @@ from django.urls import reverse
 from parameterized import parameterized
 
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import ExperimentCore
 from experimenter.experiments.api.v1.serializers import ExperimentSerializer
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.normandy.serializers import ExperimentRecipeSerializer
@@ -26,7 +26,7 @@ class TestExperimentListView(TestCase):
         json_data = json.loads(response.content)
 
         serialized_experiments = ExperimentSerializer(
-            Experiment.objects.get_prefetched(), many=True
+            ExperimentCore.objects.get_prefetched(), many=True
         ).data
 
         self.assertEqual(serialized_experiments, json_data)
@@ -46,14 +46,16 @@ class TestExperimentListView(TestCase):
             pending_experiments.append(experiment)
 
         response = self.client.get(
-            reverse("experiments-api-list"), {"status": Experiment.STATUS_REVIEW}
+            reverse("experiments-api-list"), {"status": ExperimentCore.STATUS_REVIEW}
         )
         self.assertEqual(response.status_code, 200)
 
         json_data = json.loads(response.content)
 
         serialized_experiments = ExperimentSerializer(
-            Experiment.objects.get_prefetched().filter(status=Experiment.STATUS_REVIEW),
+            ExperimentCore.objects.get_prefetched().filter(
+                status=ExperimentCore.STATUS_REVIEW
+            ),
             many=True,
         ).data
 
