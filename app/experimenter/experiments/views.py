@@ -20,16 +20,16 @@ from experimenter.experiments.forms import (
     NormandyIdForm,
     ExperimentOrderingForm,
 )
-from experimenter.experiments.models import Experiment, Locale, Country
+from experimenter.experiments.models import ExperimentCore, Locale, Country
 
 
 class ExperimentListView(FilterView):
     context_object_name = "experiments"
     filterset_class = ExperimentFilterset
-    model = Experiment
+    model = ExperimentCore
     template_name = "experiments/list.html"
     paginate_by = settings.EXPERIMENTS_PAGINATE_BY
-    queryset = Experiment.objects.get_prefetched()
+    queryset = ExperimentCore.objects.get_prefetched()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -46,7 +46,7 @@ class ExperimentListView(FilterView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        qs = qs.annotate(firefox_channel_sort=Experiment.firefox_channel_sort())
+        qs = qs.annotate(firefox_channel_sort=ExperimentCore.firefox_channel_sort())
         return qs
 
     def get_ordering(self):
@@ -62,7 +62,7 @@ class ExperimentListView(FilterView):
 
 
 class ExperimentFormMixin(object):
-    model = Experiment
+    model = ExperimentCore
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -94,7 +94,7 @@ class ExperimentOverviewUpdateView(ExperimentFormMixin, UpdateView):
 
 
 class ExperimentTimelinePopulationUpdateView(DetailView):
-    model = Experiment
+    model = ExperimentCore
     template_name = "experiments/edit_timeline_population.html"
 
     def get_context_data(self, **kwargs):
@@ -118,7 +118,7 @@ class ExperimentTimelinePopulationUpdateView(DetailView):
 
 
 class ExperimentDesignUpdateView(DetailView):
-    model = Experiment
+    model = ExperimentCore
     template_name = "experiments/edit_design.html"
 
 
@@ -141,9 +141,9 @@ class ExperimentResultsUpdateView(ExperimentFormMixin, UpdateView):
 
 
 class ExperimentDetailView(ExperimentFormMixin, ModelFormMixin, DetailView):
-    model = Experiment
+    model = ExperimentCore
     form_class = ExperimentReviewForm
-    queryset = Experiment.objects.get_prefetched()
+    queryset = ExperimentCore.objects.get_prefetched()
 
     def get_template_names(self):
         return [
@@ -168,7 +168,7 @@ class ExperimentDetailView(ExperimentFormMixin, ModelFormMixin, DetailView):
 
 class ExperimentStatusUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentStatusForm
-    model = Experiment
+    model = ExperimentCore
 
     def form_invalid(self, form):
         return redirect(reverse("experiments-detail", kwargs={"slug": self.object.slug}))
@@ -176,28 +176,28 @@ class ExperimentStatusUpdateView(ExperimentFormMixin, UpdateView):
 
 class ExperimentReviewUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentReviewForm
-    model = Experiment
+    model = ExperimentCore
 
 
 class ExperimentArchiveUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentArchiveForm
-    model = Experiment
+    model = ExperimentCore
 
 
 class ExperimentSubscribedUpdateView(ExperimentFormMixin, UpdateView):
     form_class = ExperimentSubscribedForm
-    model = Experiment
+    model = ExperimentCore
 
 
 class ExperimentNormandyUpdateView(ExperimentFormMixin, UpdateView):
     form_class = NormandyIdForm
-    model = Experiment
+    model = ExperimentCore
 
     def form_valid(self, form):
         response = super().form_valid(form)
         status_form = ExperimentStatusForm(
             request=self.request,
-            data={"status": Experiment.STATUS_ACCEPTED},
+            data={"status": ExperimentCore.STATUS_ACCEPTED},
             instance=self.object,
         )
         status_form.save()

@@ -3,12 +3,12 @@ from django.test import TestCase
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.models import (
-    Experiment,
+    ExperimentCore,
     ExperimentVariant,
     RolloutPreference,
 )
 from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
+    ExperimentCoreFactory,
     ExperimentVariantFactory,
     VariantPreferencesFactory,
 )
@@ -38,7 +38,7 @@ from experimenter.experiments.api.v1.serializers import PrefTypeField
 
 class TestPrefValueField(TestCase):
     def test_variant_pref_value_returns_int_when_type_is_int(self):
-        experiment = ExperimentFactory.create(pref_type=Experiment.PREF_TYPE_INT)
+        experiment = ExperimentCoreFactory.create(pref_type=ExperimentCore.PREF_TYPE_INT)
         variant = ExperimentVariantFactory.create(experiment=experiment, value="8")
         value = PrefValueField(
             type_field="experiment__pref_type", value_field="value"
@@ -46,7 +46,7 @@ class TestPrefValueField(TestCase):
         self.assertEqual(value, 8)
 
     def test_variant_pref_value_returns_bool_when_type_is_bool(self):
-        experiment = ExperimentFactory.create(pref_type=Experiment.PREF_TYPE_BOOL)
+        experiment = ExperimentCoreFactory.create(pref_type=ExperimentCore.PREF_TYPE_BOOL)
         variant = ExperimentVariantFactory.create(experiment=experiment, value="false")
         value = PrefValueField(
             type_field="experiment__pref_type", value_field="value"
@@ -54,7 +54,7 @@ class TestPrefValueField(TestCase):
         self.assertEqual(value, False)
 
     def test_variant_pref_value_str_returns_bool_when_type_is_str(self):
-        experiment = ExperimentFactory.create(pref_type=Experiment.PREF_TYPE_STR)
+        experiment = ExperimentCoreFactory.create(pref_type=ExperimentCore.PREF_TYPE_STR)
         variant = ExperimentVariantFactory.create(
             experiment=experiment, value="it's a string"
         )
@@ -65,7 +65,7 @@ class TestPrefValueField(TestCase):
 
     def test_variantpref_pref_value_returns_bool_when_type_is_bool(self):
         vp = VariantPreferencesFactory.create(
-            pref_type=Experiment.PREF_TYPE_BOOL, pref_value="false"
+            pref_type=ExperimentCore.PREF_TYPE_BOOL, pref_value="false"
         )
         value = PrefValueField(
             type_field="pref_type", value_field="pref_value"
@@ -74,7 +74,7 @@ class TestPrefValueField(TestCase):
 
     def test_variantpref_pref_value_returns_int_when_type_is_int(self):
         vp = VariantPreferencesFactory.create(
-            pref_type=Experiment.PREF_TYPE_INT, pref_value="22"
+            pref_type=ExperimentCore.PREF_TYPE_INT, pref_value="22"
         )
         value = PrefValueField(
             type_field="pref_type", value_field="pref_value"
@@ -83,7 +83,7 @@ class TestPrefValueField(TestCase):
 
     def test_variantpref_pref_value_returns_str_when_type_is_str(self):
         vp = VariantPreferencesFactory.create(
-            pref_type=Experiment.PREF_TYPE_STR, pref_value="it's another string"
+            pref_type=ExperimentCore.PREF_TYPE_STR, pref_value="it's another string"
         )
         value = PrefValueField(
             type_field="pref_type", value_field="pref_value"
@@ -93,7 +93,7 @@ class TestPrefValueField(TestCase):
 
 class TestFilterObjectBucketSampleSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create(population_percent=Decimal("12.34"))
+        experiment = ExperimentCoreFactory.create(population_percent=Decimal("12.34"))
         serializer = FilterObjectBucketSampleSerializer(experiment)
         self.assertDictEqual(
             serializer.data,
@@ -109,7 +109,9 @@ class TestFilterObjectBucketSampleSerializer(TestCase):
 
 class TestFilterObjectChannelSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create(firefox_channel=Experiment.CHANNEL_NIGHTLY)
+        experiment = ExperimentCoreFactory.create(
+            firefox_channel=ExperimentCore.CHANNEL_NIGHTLY
+        )
         serializer = FilterObjectChannelSerializer(experiment)
         self.assertDictEqual(
             serializer.data, {"type": "channel", "channels": ["nightly"]}
@@ -118,14 +120,14 @@ class TestFilterObjectChannelSerializer(TestCase):
 
 class TestFilterObjectVersionsSerializer(TestCase):
     def test_serializer_outputs_version_string_with_only_min(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             firefox_min_version="68.0", firefox_max_version=""
         )
         serializer = FilterObjectVersionsSerializer(experiment)
         self.assertDictEqual(serializer.data, {"type": "version", "versions": [68]})
 
     def test_serializer_outputs_version_string_with_range(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             firefox_min_version="68.0", firefox_max_version="70.0"
         )
         serializer = FilterObjectVersionsSerializer(experiment)
@@ -138,7 +140,7 @@ class TestFilterObjectLocaleSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         locale1 = LocaleFactory.create(code="ab")
         locale2 = LocaleFactory.create(code="cd")
-        experiment = ExperimentFactory.create(locales=[locale1, locale2])
+        experiment = ExperimentCoreFactory.create(locales=[locale1, locale2])
         serializer = FilterObjectLocaleSerializer(experiment)
         self.assertEqual(serializer.data["type"], "locale")
         self.assertEqual(set(serializer.data["locales"]), set(["ab", "cd"]))
@@ -148,7 +150,7 @@ class TestFilterObjectCountrySerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         country1 = CountryFactory.create(code="ab")
         country2 = CountryFactory.create(code="cd")
-        experiment = ExperimentFactory.create(countries=[country1, country2])
+        experiment = ExperimentCoreFactory.create(countries=[country1, country2])
         serializer = FilterObjectCountrySerializer(experiment)
         self.assertEqual(serializer.data["type"], "country")
         self.assertEqual(set(serializer.data["countries"]), set(["ab", "cd"]))
@@ -165,8 +167,8 @@ class TestExperimentRecipeAddonVariantSerializer(TestCase):
 
 class TestExperimentRecipeAddonArgumentsSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP, type=Experiment.TYPE_ADDON
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_SHIP, type=ExperimentCore.TYPE_ADDON
         )
         serializer = ExperimentRecipeAddonArgumentsSerializer(experiment)
         self.assertDictEqual(
@@ -180,10 +182,10 @@ class TestExperimentRecipeAddonArgumentsSerializer(TestCase):
 
 class TestExperimentRecipeAddonRolloutArgumentsSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP,
-            type=Experiment.TYPE_ROLLOUT,
-            rollout_type=Experiment.TYPE_ADDON,
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_SHIP,
+            type=ExperimentCore.TYPE_ROLLOUT,
+            rollout_type=ExperimentCore.TYPE_ADDON,
             addon_release_url="https://www.example.com/addon.xpi",
         )
         serializer = ExperimentRecipeAddonRolloutArgumentsSerializer(experiment)
@@ -199,14 +201,14 @@ class TestExperimentRecipeAddonRolloutArgumentsSerializer(TestCase):
 class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
     def test_serializer_outputs_expected_schema_for_int(self):
 
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ROLLOUT,
+        experiment = ExperimentCoreFactory.create(
+            type=ExperimentCore.TYPE_ROLLOUT,
             recipe_slug="normandy-slug",
-            rollout_type=Experiment.TYPE_PREF,
+            rollout_type=ExperimentCore.TYPE_PREF,
         )
 
         preference = RolloutPreference(
-            pref_type=Experiment.PREF_TYPE_INT,
+            pref_type=ExperimentCore.PREF_TYPE_INT,
             pref_name="browser.pref",
             pref_value="4",
             experiment=experiment,
@@ -214,7 +216,7 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
 
         preference.save()
 
-        experiment = Experiment.objects.get(recipe_slug="normandy-slug")
+        experiment = ExperimentCore.objects.get(recipe_slug="normandy-slug")
         serializer = ExperimentRecipePrefRolloutArgumentsSerializer(experiment)
 
         serializer_data = serializer.data
@@ -227,14 +229,14 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_schema_for_bool(self):
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ROLLOUT,
+        experiment = ExperimentCoreFactory.create(
+            type=ExperimentCore.TYPE_ROLLOUT,
             recipe_slug="normandy-slug",
-            rollout_type=Experiment.TYPE_PREF,
+            rollout_type=ExperimentCore.TYPE_PREF,
         )
 
         preference = RolloutPreference(
-            pref_type=Experiment.PREF_TYPE_BOOL,
+            pref_type=ExperimentCore.PREF_TYPE_BOOL,
             pref_name="browser.pref",
             pref_value="true",
             experiment=experiment,
@@ -253,14 +255,14 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_schema_for_str(self):
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ROLLOUT,
+        experiment = ExperimentCoreFactory.create(
+            type=ExperimentCore.TYPE_ROLLOUT,
             recipe_slug="normandy-slug",
-            rollout_type=Experiment.TYPE_PREF,
+            rollout_type=ExperimentCore.TYPE_PREF,
         )
 
         preference = RolloutPreference(
-            pref_type=Experiment.PREF_TYPE_STR,
+            pref_type=ExperimentCore.PREF_TYPE_STR,
             pref_name="browser.pref",
             pref_value="a string",
             experiment=experiment,
@@ -279,21 +281,21 @@ class TestExperimentRecipePrefRolloutArgumentsSerializer(TestCase):
 
     def test_serializer_outputs_expected_schema_for_multi_pref(self):
 
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ROLLOUT,
+        experiment = ExperimentCoreFactory.create(
+            type=ExperimentCore.TYPE_ROLLOUT,
             recipe_slug="normandy-slug",
-            rollout_type=Experiment.TYPE_PREF,
+            rollout_type=ExperimentCore.TYPE_PREF,
         )
 
         preference1 = RolloutPreference(
-            pref_type=Experiment.PREF_TYPE_INT,
+            pref_type=ExperimentCore.PREF_TYPE_INT,
             pref_name="browser.pref",
             pref_value="4",
             experiment=experiment,
         )
 
         preference2 = RolloutPreference(
-            pref_type=Experiment.PREF_TYPE_STR,
+            pref_type=ExperimentCore.PREF_TYPE_STR,
             pref_name="browser.pref1",
             pref_value="a string",
             experiment=experiment,
@@ -321,13 +323,13 @@ class TestExperimentRecipeSerializer(TestCase):
     maxDiff = None
 
     def test_serializer_outputs_expected_schema_for_pref_experiment(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP,
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_SHIP,
             firefox_min_version="65.0",
-            type=Experiment.TYPE_PREF,
+            type=ExperimentCore.TYPE_PREF,
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
-            platforms=[Experiment.PLATFORM_MAC],
+            platforms=[ExperimentCore.PLATFORM_MAC],
             profile_age="Existing Profiles Only",
         )
         serializer = ExperimentRecipeSerializer(experiment)
@@ -357,13 +359,13 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertEqual(serializer.data["experimenter_slug"], experiment.slug)
 
     def test_serializer_outputs_expected_schema_for_windows_versions(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP,
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_SHIP,
             firefox_min_version="65.0",
-            type=Experiment.TYPE_PREF,
+            type=ExperimentCore.TYPE_PREF,
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
-            windows_versions=[Experiment.VERSION_WINDOWS_8],
+            windows_versions=[ExperimentCore.VERSION_WINDOWS_8],
         )
 
         serializer = ExperimentRecipeSerializer(experiment)
@@ -380,14 +382,14 @@ class TestExperimentRecipeSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_schema_for_addon_experiment(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP,
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_SHIP,
             firefox_min_version="63.0",
-            type=Experiment.TYPE_ADDON,
+            type=ExperimentCore.TYPE_ADDON,
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
-            platforms=[Experiment.PLATFORM_WINDOWS],
-            windows_versions=[Experiment.VERSION_WINDOWS_8],
+            platforms=[ExperimentCore.PLATFORM_WINDOWS],
+            windows_versions=[ExperimentCore.VERSION_WINDOWS_8],
         )
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertEqual(serializer.data["action_name"], "opt-out-study")
@@ -417,15 +419,15 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertEqual(serializer.data["experimenter_slug"], experiment.slug)
 
     def test_serializer_outputs_expect_schema_for_branched_addon(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             countries=[CountryFactory.create()],
             firefox_min_version="70.0",
             locales=[LocaleFactory.create()],
             name="public name",
             recipe_slug="some-random-slug",
-            platforms=[Experiment.PLATFORM_LINUX],
+            platforms=[ExperimentCore.PLATFORM_LINUX],
             public_description="this is my public description!",
-            type=Experiment.TYPE_ADDON,
+            type=ExperimentCore.TYPE_ADDON,
         )
 
         variant = ExperimentVariant(slug="slug-value", ratio=25, experiment=experiment)
@@ -459,16 +461,16 @@ class TestExperimentRecipeSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_multipref_schema_for_singularpref(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="public name",
-            pref_type=Experiment.PREF_TYPE_INT,
-            pref_branch=Experiment.PREF_BRANCH_DEFAULT,
+            pref_type=ExperimentCore.PREF_TYPE_INT,
+            pref_branch=ExperimentCore.PREF_BRANCH_DEFAULT,
             firefox_min_version="70.0",
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
             public_description="this is my public description!",
             recipe_slug="some-random-slug",
-            platforms=[Experiment.PLATFORM_WINDOWS],
+            platforms=[ExperimentCore.PLATFORM_WINDOWS],
         )
 
         variant = ExperimentVariant(
@@ -504,7 +506,7 @@ class TestExperimentRecipeSerializer(TestCase):
                     "preferences": {
                         experiment.pref_name: {
                             "preferenceBranchType": "default",
-                            "preferenceType": Experiment.PREF_TYPE_INT,
+                            "preferenceType": ExperimentCore.PREF_TYPE_INT,
                             "preferenceValue": 5,
                         }
                     },
@@ -516,7 +518,7 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertDictEqual(serializer.data["arguments"], expected_data)
 
     def test_serializer_outputs_expected_schema_for_multipref(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="public name",
             firefox_min_version="70.0",
             locales=[LocaleFactory.create()],
@@ -524,9 +526,9 @@ class TestExperimentRecipeSerializer(TestCase):
             public_description="this is my public description!",
             recipe_slug="some-random-slug",
             platforms=[
-                Experiment.PLATFORM_WINDOWS,
-                Experiment.PLATFORM_MAC,
-                Experiment.PLATFORM_LINUX,
+                ExperimentCore.PLATFORM_WINDOWS,
+                ExperimentCore.PLATFORM_MAC,
+                ExperimentCore.PLATFORM_LINUX,
             ],
             is_multi_pref=True,
         )
@@ -577,20 +579,20 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertDictEqual(serializer.data["arguments"], expected_data)
 
     def test_serializer_outputs_expected_schema_for_addon_rollout(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             addon_release_url="https://www.example.com/addon.xpi",
             countries=[],
-            firefox_channel=Experiment.CHANNEL_BETA,
+            firefox_channel=ExperimentCore.CHANNEL_BETA,
             firefox_max_version="71",
             firefox_min_version="70",
             locales=[],
             name="Experimenter Name",
             recipe_slug="normandy-slug",
-            platforms=[Experiment.PLATFORM_WINDOWS],
+            platforms=[ExperimentCore.PLATFORM_WINDOWS],
             population_percent=30.0,
-            rollout_type=Experiment.TYPE_ADDON,
+            rollout_type=ExperimentCore.TYPE_ADDON,
             slug="experimenter-slug",
-            type=Experiment.TYPE_ROLLOUT,
+            type=ExperimentCore.TYPE_ROLLOUT,
         )
         serializer = ExperimentRecipeSerializer(experiment)
         self.assertDictEqual(
@@ -621,24 +623,24 @@ class TestExperimentRecipeSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_schema_for_pref_rollout(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             countries=[],
-            firefox_channel=Experiment.CHANNEL_BETA,
+            firefox_channel=ExperimentCore.CHANNEL_BETA,
             firefox_max_version="71",
             firefox_min_version="70",
             locales=[],
             name="Experimenter Name",
             recipe_slug="normandy-slug",
-            platforms=[Experiment.PLATFORM_WINDOWS],
+            platforms=[ExperimentCore.PLATFORM_WINDOWS],
             population_percent=30.0,
-            rollout_type=Experiment.TYPE_PREF,
+            rollout_type=ExperimentCore.TYPE_PREF,
             slug="experimenter-slug",
-            type=Experiment.TYPE_ROLLOUT,
+            type=ExperimentCore.TYPE_ROLLOUT,
         )
         preference = RolloutPreference(
             pref_name="browser.pref",
             pref_value="true",
-            pref_type=Experiment.PREF_TYPE_BOOL,
+            pref_type=ExperimentCore.PREF_TYPE_BOOL,
             experiment=experiment,
         )
         preference.save()
@@ -672,15 +674,15 @@ class TestExperimentRecipeSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_schema_for_message(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="public name",
-            type=Experiment.TYPE_MESSAGE,
+            type=ExperimentCore.TYPE_MESSAGE,
             firefox_min_version="70.0",
             locales=[LocaleFactory.create()],
             countries=[CountryFactory.create()],
             public_description="this is my public description!",
             recipe_slug="some-random-slug",
-            platforms=[Experiment.PLATFORM_WINDOWS],
+            platforms=[ExperimentCore.PLATFORM_WINDOWS],
         )
 
         variant = ExperimentVariant(
@@ -718,8 +720,8 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertDictEqual(serializer.data["arguments"], expected_data)
 
     def test_serializer_excludes_locales_if_none_set(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP, type=Experiment.TYPE_ADDON
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_SHIP, type=ExperimentCore.TYPE_ADDON
         )
         experiment.locales.all().delete()
         serializer = ExperimentRecipeSerializer(experiment)
@@ -727,8 +729,8 @@ class TestExperimentRecipeSerializer(TestCase):
         self.assertNotIn("locale", filter_object_types)
 
     def test_serializer_excludes_countries_if_none_set(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP, type=Experiment.TYPE_ADDON
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_SHIP, type=ExperimentCore.TYPE_ADDON
         )
         experiment.countries.all().delete()
         serializer = ExperimentRecipeSerializer(experiment)
@@ -738,10 +740,10 @@ class TestExperimentRecipeSerializer(TestCase):
 
 class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
     def test_serializer_outputs_expected_schema_non_multi_pref_format(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             recipe_slug="normandy-slug",
-            pref_branch=Experiment.PREF_BRANCH_DEFAULT,
-            pref_type=Experiment.PREF_TYPE_JSON_STR,
+            pref_branch=ExperimentCore.PREF_BRANCH_DEFAULT,
+            pref_type=ExperimentCore.PREF_TYPE_JSON_STR,
             pref_name="browser.pref",
             firefox_min_version="55.0",
         )
@@ -764,7 +766,7 @@ class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
         self.assertDictEqual(expected_data, serializer.data)
 
     def test_serializer_outputs_expected_schema_for_multi_pref_format(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             recipe_slug="normandy-slug", firefox_min_version="55.0", is_multi_pref=True
         )
         variant = ExperimentVariantFactory.create(
@@ -788,8 +790,8 @@ class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
         )
 
     def test_seriailzer_outputs_expected_schema_for_single_pref_experiment(self):
-        experiment = ExperimentFactory.create(
-            pref_type=Experiment.PREF_TYPE_JSON_STR, firefox_max_version="70.0"
+        experiment = ExperimentCoreFactory.create(
+            pref_type=ExperimentCore.PREF_TYPE_JSON_STR, firefox_max_version="70.0"
         )
         variant = ExperimentVariantFactory.create(experiment=experiment)
 
@@ -809,8 +811,8 @@ class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
         )
 
     def test_seriailzer_outputs_expected_schema_for_multi_pref_variant(self):
-        experiment = ExperimentFactory.create(
-            pref_type=Experiment.PREF_TYPE_JSON_STR, is_multi_pref=True
+        experiment = ExperimentCoreFactory.create(
+            pref_type=ExperimentCore.PREF_TYPE_JSON_STR, is_multi_pref=True
         )
         variant = ExperimentVariantFactory.create(experiment=experiment)
         preference = VariantPreferencesFactory.create(variant=variant)
@@ -834,7 +836,7 @@ class TestExperimentRecipeMultiPrefVariantSerializer(TestCase):
 
 class TestExperimentRecipeVariantSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_STR)
+        experiment = ExperimentCoreFactory(pref_type=ExperimentCore.PREF_TYPE_STR)
         variant = ExperimentVariantFactory.create(experiment=experiment)
         serializer = ExperimentRecipeVariantSerializer(variant)
         self.assertDictEqual(
@@ -845,7 +847,7 @@ class TestExperimentRecipeVariantSerializer(TestCase):
 
 class TestExperimentRecipePrefArgumentsSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_INT)
+        experiment = ExperimentCoreFactory(pref_type=ExperimentCore.PREF_TYPE_INT)
         serializer = ExperimentRecipePrefArgumentsSerializer(experiment)
         self.assertDictEqual(
             serializer.data,
@@ -863,7 +865,7 @@ class TestExperimentRecipePrefArgumentsSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_schema_with_json_str(self):
-        experiment = ExperimentFactory(pref_type=Experiment.PREF_TYPE_JSON_STR)
+        experiment = ExperimentCoreFactory(pref_type=ExperimentCore.PREF_TYPE_JSON_STR)
         serializer = ExperimentRecipePrefArgumentsSerializer(experiment)
         self.assertDictEqual(
             serializer.data,
@@ -883,7 +885,7 @@ class TestExperimentRecipePrefArgumentsSerializer(TestCase):
 
 class TestExperimentRecipeMessageVariantSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory()
+        experiment = ExperimentCoreFactory()
         variant = ExperimentVariantFactory.create(experiment=experiment)
         serializer = ExperimentRecipeMessageVariantSerializer(variant)
         self.assertDictEqual(
@@ -894,7 +896,7 @@ class TestExperimentRecipeMessageVariantSerializer(TestCase):
 
 class TestExperimentRecipeMessageArgumentsSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory()
+        experiment = ExperimentCoreFactory()
         serializer = ExperimentRecipeMessageArgumentsSerializer(experiment)
         self.assertDictEqual(
             serializer.data,

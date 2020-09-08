@@ -15,7 +15,7 @@ from experimenter.experiments.models import (
     RolloutPreference,
 )
 from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
+    ExperimentCoreFactory,
     ExperimentVariantFactory,
     VariantPreferencesFactory,
     UserFactory,
@@ -132,10 +132,10 @@ class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
             "preferences": [self.pref1, self.pref2, self.pref3, self.pref4],
         }
 
-        self.experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        self.experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_PREF)
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create()
+        experiment = ExperimentCoreFactory.create()
         variant = ExperimentVariantFactory.create(experiment=experiment, is_control=True)
         vp = VariantPreferencesFactory.create(variant=variant)
 
@@ -293,7 +293,7 @@ class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
         self.assertEqual(experiment.changes.count(), 1)
 
     def test_serializer_outputs_dummy_variants_when_no_variants(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             type=ExperimentConstants.TYPE_PREF, is_multi_pref=True
         )
 
@@ -399,7 +399,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         }
 
     def test_serializer_saves_new_variants(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_GENERIC)
 
         self.assertEqual(experiment.variants.all().count(), 0)
 
@@ -430,7 +430,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         )
 
     def test_serializer_updates_existing_variants(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_GENERIC)
         control_variant = ExperimentVariantFactory.create(
             experiment=experiment, is_control=True
         )
@@ -470,7 +470,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         )
 
     def test_serializer_deletes_removed_variants(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_GENERIC)
         control_variant = ExperimentVariantFactory.create(
             experiment=experiment, is_control=True
         )
@@ -500,7 +500,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         )
 
     def test_serializer_adds_new_variant(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_GENERIC)
         control_variant = ExperimentVariantFactory.create(
             experiment=experiment, is_control=True
         )
@@ -547,7 +547,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         )
 
     def test_serializer_rejects_ratio_not_100(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_GENERIC)
 
         self.control_variant_data["ratio"] = 50
         self.treatment_variant_data["ratio"] = 40
@@ -560,7 +560,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         self.assertIn("variants", serializer.errors)
 
     def test_serializer_rejects_ratios_of_0(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_GENERIC)
 
         self.control_variant_data["ratio"] = 0
 
@@ -572,7 +572,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         self.assertIn("variants", serializer.errors)
 
     def test_serializer_rejects_ratios_above_100(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_GENERIC)
 
         self.control_variant_data["ratio"] = 110
 
@@ -584,7 +584,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         self.assertIn("variants", serializer.errors)
 
     def test_serializer_rejects_duplicate_branch_names(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_GENERIC)
 
         self.control_variant_data["name"] = "Great branch"
 
@@ -596,7 +596,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         self.assertIn("variants", serializer.errors)
 
     def test_serializer_allows_special_char_branch_names(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_PREF)
 
         self.control_variant_data["name"] = "&re@t -br@nche$!"
 
@@ -613,7 +613,7 @@ class TestExperimentDesignBaseSerializer(MockRequestMixin, TestCase):
         self.assertEqual(variant.slug, "ret-brnche")
 
     def test_serializer_swapping_variant_name_throws_returns_errors(self):
-        experiment = ExperimentFactory.create()
+        experiment = ExperimentCoreFactory.create()
         variant1 = ExperimentVariantFactory.create(experiment=experiment)
         variant2 = ExperimentVariantFactory.create(experiment=experiment)
 
@@ -670,7 +670,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         }
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_with_variants(
+        experiment = ExperimentCoreFactory.create_with_variants(
             type=ExperimentConstants.TYPE_PREF
         )
 
@@ -701,7 +701,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.assertCountEqual(expected_variant_data, variant_data)
 
     def test_serializer_saves_pref_experiment_design(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             type=ExperimentConstants.TYPE_PREF, pref_name="first pref name"
         )
 
@@ -725,7 +725,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.assertEqual(experiment.changes.count(), 1)
 
     def test_serializer_rejects_duplicate_branch_values(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_PREF)
 
         self.variant_1["value"] = "value 1"
         self.variant_2["value"] = "value 1"
@@ -744,7 +744,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.assertEqual(experiment.changes.count(), 0)
 
     def test_serializer_rejects_no_type_choice(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_PREF)
 
         data = {
             "is_multi_pref": False,
@@ -761,7 +761,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.assertEqual(experiment.changes.count(), 0)
 
     def test_serializer_rejects_no_branch_choice(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_PREF)
 
         data = {
             "is_multi_pref": False,
@@ -776,7 +776,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.assertEqual(set(serializer.errors), set(["pref_branch"]))
 
     def test_serializer_rejects_inconsistent_pref_type_bool(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_PREF)
 
         self.variant_1["value"] = "value 1"
 
@@ -795,7 +795,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.assertEqual(experiment.changes.count(), 0)
 
     def test_serializer_accepts_int_branch_values(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_PREF)
 
         self.variant_1["value"] = 50
         self.variant_2["value"] = 40
@@ -812,7 +812,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.assertTrue(serializer.is_valid())
 
     def test_serializer_rejects_inconsistent_pref_type_int(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_PREF)
         self.variant_1["value"] = "value 1"
         self.variant_2["value"] = "value 2"
 
@@ -829,7 +829,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.assertIn("variants", serializer.errors)
 
     def test_serializer_accepts_pref_type_json_value(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_PREF)
 
         self.variant_1["value"] = "{}"
         self.variant_2["value"] = '{"variant":[1,2,3,4]}'
@@ -846,7 +846,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.assertTrue(serializer.is_valid())
 
     def test_serializer_rejects_inconsistent_pref_type_json(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_PREF)
 
         self.variant_1["value"] = "value_1"
         self.variant_2["value"] = "value 2"
@@ -897,7 +897,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         self.assertIn("pref_branch", serializer.errors)
 
     def test_serializer_outputs_dummy_variants_when_no_variants(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_PREF)
 
         serializer = ExperimentDesignPrefSerializer(experiment)
 
@@ -945,7 +945,7 @@ class TestExperimentDesignAddonSerializer(MockRequestMixin, TestCase):
         }
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_with_variants(
+        experiment = ExperimentCoreFactory.create_with_variants(
             type=ExperimentConstants.TYPE_ADDON
         )
 
@@ -973,7 +973,7 @@ class TestExperimentDesignAddonSerializer(MockRequestMixin, TestCase):
         self.assertCountEqual(variant_data, expected_variant_data)
 
     def test_serializer_saves_design_addon_experiment(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             type=ExperimentConstants.TYPE_ADDON,
             addon_release_url="http://www.example.com",
         )
@@ -1005,7 +1005,7 @@ class TestExperimentDesignAddonSerializer(MockRequestMixin, TestCase):
         self.assertIn("addon_release_url", serializer.errors)
 
     def test_serializer_outputs_dummy_variants_when_no_variants(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_ADDON)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_ADDON)
 
         serializer = ExperimentDesignAddonSerializer(experiment)
 
@@ -1024,7 +1024,7 @@ class TestExperimentDesignAddonSerializer(MockRequestMixin, TestCase):
 
 class TestExperimentDesignGenericSerializer(MockRequestMixin, TestCase):
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_with_variants(
+        experiment = ExperimentCoreFactory.create_with_variants(
             type=ExperimentConstants.TYPE_GENERIC
         )
 
@@ -1047,7 +1047,7 @@ class TestExperimentDesignGenericSerializer(MockRequestMixin, TestCase):
         self.assertCountEqual(variant_data, expected_variant_data)
 
     def test_serializer_saves_design_generic_experiment(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             type=ExperimentConstants.TYPE_GENERIC, design="First Design"
         )
         variant_1 = {
@@ -1077,7 +1077,7 @@ class TestExperimentDesignGenericSerializer(MockRequestMixin, TestCase):
         self.assertEqual(experiment.changes.count(), 1)
 
     def test_serializer_outputs_dummy_variants_when_no_variants(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_GENERIC)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_GENERIC)
 
         serializer = ExperimentDesignGenericSerializer(experiment)
 
@@ -1095,7 +1095,7 @@ class TestExperimentDesignGenericSerializer(MockRequestMixin, TestCase):
 
 class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_with_variants(
+        experiment = ExperimentCoreFactory.create_with_variants(
             type=ExperimentConstants.TYPE_ADDON
         )
         experiment.is_branched_addon = True
@@ -1121,7 +1121,7 @@ class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
         self.assertCountEqual(variant_data, expected_variant_data)
 
     def test_serializer_saves_branched_addon_experiment(self):
-        experiment = ExperimentFactory.create_with_variants(
+        experiment = ExperimentCoreFactory.create_with_variants(
             type=ExperimentConstants.TYPE_ADDON, is_branched_addon=False
         )
         variant_1 = {
@@ -1157,7 +1157,7 @@ class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
 class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
     def test_pref_fields_required_for_rollout_type_pref(self):
 
-        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
+        experiment = ExperimentCoreFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
 
         data = {"rollout_type": ExperimentCore.TYPE_PREF}
 
@@ -1169,7 +1169,7 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
         self.assertIn("preferences", serializer.errors)
 
     def test_validates_pref_type_matches_value(self):
-        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
+        experiment = ExperimentCoreFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
 
         data = {
             "rollout_type": ExperimentCore.TYPE_PREF,
@@ -1188,7 +1188,7 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
         self.assertFalse(serializer.is_valid())
 
     def test_saves_pref_rollout(self):
-        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
+        experiment = ExperimentCoreFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
 
         data = {
             "rollout_type": ExperimentCore.TYPE_PREF,
@@ -1230,7 +1230,7 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
         self.assertEqual(pref2.pref_value, data_pref2["pref_value"])
 
     def test_pref_name_uniqueness_constraint(self):
-        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
+        experiment = ExperimentCoreFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
 
         data = {
             "rollout_type": ExperimentCore.TYPE_PREF,
@@ -1259,7 +1259,7 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
         )
 
     def test_save_pref_rollout_with_existing_prefs(self):
-        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
+        experiment = ExperimentCoreFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
         preference1 = RolloutPreference(
             pref_type=ExperimentCore.PREF_TYPE_INT,
             pref_name="browser.pref",
@@ -1317,14 +1317,14 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
         self.assertEqual(pref2.pref_value, data_pref2["pref_value"])
 
     def test_serializer_outputs_empty_pref_when_no_prefs(self):
-        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
+        experiment = ExperimentCoreFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
 
         serializer = ExperimentDesignPrefRolloutSerializer(instance=experiment)
 
         self.assertEqual(serializer.data["preferences"], [{}])
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
+        experiment = ExperimentCoreFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
         preference = RolloutPreference(
             pref_type=ExperimentCore.PREF_TYPE_INT,
             pref_name="browser.pref",
@@ -1351,7 +1351,7 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
 
 class TestExperimentDesignAddonRolloutSerializer(MockRequestMixin, TestCase):
     def test_addon_fields_required_for_rollout_type_addon(self):
-        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
+        experiment = ExperimentCoreFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
 
         data = {"rollout_type": ExperimentCore.TYPE_ADDON}
 
@@ -1363,7 +1363,7 @@ class TestExperimentDesignAddonRolloutSerializer(MockRequestMixin, TestCase):
         self.assertIn("addon_release_url", serializer.errors)
 
     def test_saves_addon_rollout(self):
-        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
+        experiment = ExperimentCoreFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
 
         data = {
             "rollout_type": ExperimentCore.TYPE_ADDON,
@@ -1384,7 +1384,7 @@ class TestExperimentDesignAddonRolloutSerializer(MockRequestMixin, TestCase):
 
 class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
     def test_update_changelog_creates_no_log_when_no_change(self):
-        experiment = ExperimentFactory.create_with_status(
+        experiment = ExperimentCoreFactory.create_with_status(
             target_status=ExperimentCore.STATUS_DRAFT, num_variants=0
         )
         variant = ExperimentVariantFactory.create(
@@ -1425,7 +1425,7 @@ class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
 
     def test_update_change_log_creates_log_with_correct_change(self):
 
-        experiment = ExperimentFactory.create()
+        experiment = ExperimentCoreFactory.create()
         variant = ExperimentVariantFactory.create(
             experiment=experiment,
             ratio=100,
@@ -1561,7 +1561,7 @@ class TestPrefValidationMixin(TestCase):
 
 class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_with_variants(
+        experiment = ExperimentCoreFactory.create_with_variants(
             type=ExperimentConstants.TYPE_MESSAGE,
             message_type=ExperimentConstants.MESSAGE_TYPE_CFR,
             message_template=ExperimentConstants.MESSAGE_TEMPLATE_DOOR,
@@ -1598,7 +1598,7 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
         self.assertCountEqual(variant_data, expected_variant_data)
 
     def test_serializer_saves_design_cfr_message_experiment(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             type=ExperimentConstants.TYPE_MESSAGE,
         )
 
@@ -1664,7 +1664,7 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
         self.assertEqual(treatment_branch.value, "treatment content")
 
     def test_serializer_saves_design_welcome_message_experiment(self):
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_MESSAGE)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_MESSAGE)
 
         variant_1 = {
             "is_control": True,
@@ -1712,7 +1712,7 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
         self.assertEqual(control_branch.value, "control content")
 
     def test_serializer_outputs_dummy_variants_when_no_variants(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             type=ExperimentConstants.TYPE_MESSAGE,
             message_type=None,
             message_template=None,
@@ -1770,7 +1770,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
         super().setUp()
         self.locale = LocaleFactory.create()
         self.country = CountryFactory.create()
-        self.experiment = ExperimentFactory.create_with_status(
+        self.experiment = ExperimentCoreFactory.create_with_status(
             ExperimentConstants.STATUS_DRAFT,
             type=ExperimentConstants.TYPE_PREF,
             locales=[self.locale],
@@ -1912,7 +1912,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
         self.assertIn("platforms", serializer.errors)
 
     def test_serializer_outputs_expected_schema_rollout(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             type=ExperimentConstants.TYPE_ROLLOUT,
             rollout_playbook="Low Risk Schedule",
             locales=[self.locale],
@@ -1955,7 +1955,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
         )
 
     def test_serializer_saves_rollout_playbook_field(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             type=ExperimentConstants.TYPE_ROLLOUT,
             rollout_playbook=ExperimentConstants.ROLLOUT_PLAYBOOK_LOW_RISK,
             locales=[self.locale],
@@ -1985,7 +1985,7 @@ class TestExperimentTimelinePopSerializer(MockRequestMixin, TestCase):
 
 class TestCloneSerializer(MockRequestMixin, TestCase):
     def test_clone_serializer_rejects_duplicate_slug(self):
-        experiment_1 = ExperimentFactory.create(
+        experiment_1 = ExperimentCoreFactory.create(
             name="good experiment", slug="great-experiment"
         )
         clone_data = {"name": "great experiment"}
@@ -1994,7 +1994,7 @@ class TestCloneSerializer(MockRequestMixin, TestCase):
         self.assertFalse(serializer.is_valid())
 
     def test_clone_serializer_rejects_duplicate_name(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="wonderful experiment", slug="amazing-experiment"
         )
         clone_data = {"name": "wonderful experiment"}
@@ -2003,7 +2003,7 @@ class TestCloneSerializer(MockRequestMixin, TestCase):
         self.assertFalse(serializer.is_valid())
 
     def test_clone_serializer_rejects_invalid_name(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="great experiment", slug="great-experiment"
         )
 
@@ -2013,7 +2013,7 @@ class TestCloneSerializer(MockRequestMixin, TestCase):
         self.assertFalse(serializer.is_valid())
 
     def test_clone_serializer_accepts_unique_name(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="great experiment", slug="great-experiment"
         )
         clone_data = {"name": "best experiment"}
@@ -2036,10 +2036,10 @@ class TestExperimentCSVSerializer(TestCase):
         country2 = CountryFactory.create(name="d")
         locale1 = LocaleFactory.create(name="e")
         locale2 = LocaleFactory.create(name="f")
-        parent = ExperimentFactory.create()
-        related_experiment1 = ExperimentFactory.create(slug="a")
-        related_experiment2 = ExperimentFactory.create(slug="b")
-        experiment = ExperimentFactory.create_with_status(
+        parent = ExperimentCoreFactory.create()
+        related_experiment1 = ExperimentCoreFactory.create(slug="a")
+        related_experiment2 = ExperimentCoreFactory.create(slug="b")
+        experiment = ExperimentCoreFactory.create_with_status(
             target_status=ExperimentCore.STATUS_COMPLETE,
             parent=parent,
             projects=[project1, project2],
@@ -2071,6 +2071,6 @@ class TestExperimentCSVSerializer(TestCase):
         )
 
     def test_serializer_outputs_no_length_for_exp_with_no_end_date(self):
-        experiment = ExperimentFactory.create(proposed_duration=None)
+        experiment = ExperimentCoreFactory.create(proposed_duration=None)
         serializer = ExperimentCSVSerializer(experiment)
         self.assertIsNone(serializer.data.get("length"))

@@ -7,10 +7,7 @@ from parameterized import parameterized
 
 from experimenter.experiments.api.v3.serializers import ExperimentRapidSerializer
 from experimenter.experiments.models import ExperimentRapid
-from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
-    ExperimentRapidFactory,
-)
+from experimenter.experiments.tests.factories import ExperimentRapidFactory
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
@@ -63,7 +60,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
     )
     def test_get_detail_returns_404_for_non_rapid_experiment(self, experiment_type):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create(type=experiment_type)
+        experiment = ExperimentRapidFactory.create(type=experiment_type)
 
         response = self.client.get(
             reverse("experiments-rapid-detail", kwargs={"slug": experiment.slug}),
