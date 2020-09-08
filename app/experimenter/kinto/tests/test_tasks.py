@@ -7,11 +7,11 @@ from django.test import TestCase
 from mozilla_nimbus_shared import get_data
 
 from experimenter.experiments.models import (
-    Experiment,
+    ExperimentCore,
     ExperimentBucketRange,
     ExperimentChangeLog,
 )
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.factories import ExperimentCoreFactory
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
 from experimenter.kinto import tasks
 from experimenter.kinto.client import KINTO_REJECTED_STATUS
@@ -23,8 +23,8 @@ NIMBUS_DATA = get_data()
 class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
     def setUp(self):
         super().setUp()
-        self.experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
+        self.experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT,
             proposed_start_date=datetime.date(2020, 1, 20),
             recipe_slug="recipe-slug",
             audience="us_only",
@@ -91,29 +91,29 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
 
     def test_check_with_no_review_status_pushes_nothing(self):
         for status in [
-            Experiment.STATUS_DRAFT,
-            Experiment.STATUS_ACCEPTED,
-            Experiment.STATUS_LIVE,
-            Experiment.STATUS_COMPLETE,
+            ExperimentCore.STATUS_DRAFT,
+            ExperimentCore.STATUS_ACCEPTED,
+            ExperimentCore.STATUS_LIVE,
+            ExperimentCore.STATUS_COMPLETE,
         ]:
-            ExperimentFactory.create(type=Experiment.TYPE_RAPID, status=status)
+            ExperimentCoreFactory.create(type=ExperimentCore.TYPE_RAPID, status=status)
 
         self.setup_kinto_no_pending_review()
         tasks.check_kinto_push_queue()
         self.mock_push_task.assert_not_called()
 
     def test_check_with_review_non_rapid_pushes_nothing(self):
-        ExperimentFactory.create(
-            type=Experiment.TYPE_ADDON, status=Experiment.STATUS_REVIEW
+        ExperimentCoreFactory.create(
+            type=ExperimentCore.TYPE_ADDON, status=ExperimentCore.STATUS_REVIEW
         )
         self.setup_kinto_no_pending_review()
         tasks.check_kinto_push_queue()
         self.mock_push_task.assert_not_called()
 
     def test_check_with_rapid_review_and_kinto_pending_pushes_nothing(self):
-        ExperimentFactory.create(
-            type=Experiment.TYPE_RAPID,
-            status=Experiment.STATUS_REVIEW,
+        ExperimentCoreFactory.create(
+            type=ExperimentCore.TYPE_RAPID,
+            status=ExperimentCore.STATUS_REVIEW,
         )
         self.setup_kinto_pending_review()
         tasks.check_kinto_push_queue()
@@ -122,14 +122,14 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
     def test_check_with_rapid_review_and_no_bugzilla_and_no_kinto_pending_pushes_nothing(
         self,
     ):
-        ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW,
+        ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_REVIEW,
             bugzilla_id=None,
-            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_channel=ExperimentCore.CHANNEL_RELEASE,
             firefox_max_version=None,
-            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            firefox_min_version=ExperimentCore.VERSION_CHOICES[0][0],
             name="test",
-            type=Experiment.TYPE_RAPID,
+            type=ExperimentCore.TYPE_RAPID,
         )
         self.setup_kinto_no_pending_review()
         tasks.check_kinto_push_queue()
@@ -138,14 +138,14 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
     def test_check_with_rapid_review_and_bugzilla_and_no_kinto_pending_pushes_experiment(
         self,
     ):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_REVIEW,
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_REVIEW,
             bugzilla_id="12345",
-            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_channel=ExperimentCore.CHANNEL_RELEASE,
             firefox_max_version=None,
-            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            firefox_min_version=ExperimentCore.VERSION_CHOICES[0][0],
             name="test",
-            type=Experiment.TYPE_RAPID,
+            type=ExperimentCore.TYPE_RAPID,
         )
         self.assertEqual(experiment.changes.count(), 2)
 
@@ -153,22 +153,24 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         tasks.check_kinto_push_queue()
         self.mock_push_task.assert_called_with(experiment.id)
 
-        experiment = Experiment.objects.get(id=experiment.id)
+        experiment = ExperimentCore.objects.get(id=experiment.id)
         self.assertEqual(experiment.changes.count(), 3)
-        self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
-        self.assertEqual(experiment.firefox_min_version, Experiment.VERSION_CHOICES[0][0])
-        self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
+        self.assertEqual(experiment.status, ExperimentCore.STATUS_ACCEPTED)
+        self.assertEqual(
+            experiment.firefox_min_version, ExperimentCore.VERSION_CHOICES[0][0]
+        )
+        self.assertEqual(experiment.firefox_channel, ExperimentCore.CHANNEL_RELEASE)
         self.assertEqual(experiment.recipe_slug, "bug-12345-rapid-test-release-55")
 
     def test_check_with_reject_rapid_review(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_ACCEPTED,
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_ACCEPTED,
             bugzilla_id="12345",
-            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_channel=ExperimentCore.CHANNEL_RELEASE,
             firefox_max_version=None,
-            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            firefox_min_version=ExperimentCore.VERSION_CHOICES[0][0],
             name="test",
-            type=Experiment.TYPE_RAPID,
+            type=ExperimentCore.TYPE_RAPID,
             recipe_slug="bug-12345-rapid-test-release-55",
         )
 
@@ -196,42 +198,42 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         self.assertTrue(
             experiment.changes.filter(
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=Experiment.STATUS_ACCEPTED,
-                new_status=Experiment.STATUS_REJECTED,
+                old_status=ExperimentCore.STATUS_ACCEPTED,
+                new_status=ExperimentCore.STATUS_REJECTED,
             ).exists()
         )
 
 
 class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
     def test_experiment_updates_when_recipe_is_in_main(self):
-        experiment1 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_ACCEPTED,
+        experiment1 = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_ACCEPTED,
             bugzilla_id="12345",
-            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_channel=ExperimentCore.CHANNEL_RELEASE,
             firefox_max_version=None,
-            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            firefox_min_version=ExperimentCore.VERSION_CHOICES[0][0],
             name="test",
-            type=Experiment.TYPE_RAPID,
+            type=ExperimentCore.TYPE_RAPID,
         )
 
-        experiment2 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_ACCEPTED,
+        experiment2 = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_ACCEPTED,
             bugzilla_id="99999",
-            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_channel=ExperimentCore.CHANNEL_RELEASE,
             firefox_max_version=None,
-            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            firefox_min_version=ExperimentCore.VERSION_CHOICES[0][0],
             name="test1",
-            type=Experiment.TYPE_RAPID,
+            type=ExperimentCore.TYPE_RAPID,
         )
 
-        experiment3 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
+        experiment3 = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT,
             bugzilla_id="54321",
-            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_channel=ExperimentCore.CHANNEL_RELEASE,
             firefox_max_version=None,
-            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            firefox_min_version=ExperimentCore.VERSION_CHOICES[0][0],
             name="test2",
-            type=Experiment.TYPE_RAPID,
+            type=ExperimentCore.TYPE_RAPID,
         )
 
         self.assertEqual(experiment1.changes.count(), 4)
@@ -246,50 +248,50 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
         self.assertTrue(
             experiment1.changes.filter(
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=Experiment.STATUS_ACCEPTED,
-                new_status=Experiment.STATUS_LIVE,
+                old_status=ExperimentCore.STATUS_ACCEPTED,
+                new_status=ExperimentCore.STATUS_LIVE,
             ).exists()
         )
 
         self.assertFalse(
             experiment2.changes.filter(
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=Experiment.STATUS_ACCEPTED,
-                new_status=Experiment.STATUS_LIVE,
+                old_status=ExperimentCore.STATUS_ACCEPTED,
+                new_status=ExperimentCore.STATUS_LIVE,
             ).exists()
         )
 
 
 class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
     def test_experiment_updates_when_recipe_is_not_in_main(self):
-        experiment1 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_LIVE,
+        experiment1 = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_LIVE,
             bugzilla_id="12345",
-            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_channel=ExperimentCore.CHANNEL_RELEASE,
             firefox_max_version=None,
-            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            firefox_min_version=ExperimentCore.VERSION_CHOICES[0][0],
             name="test",
-            type=Experiment.TYPE_RAPID,
+            type=ExperimentCore.TYPE_RAPID,
         )
 
-        experiment2 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_LIVE,
+        experiment2 = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_LIVE,
             bugzilla_id="99999",
-            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_channel=ExperimentCore.CHANNEL_RELEASE,
             firefox_max_version=None,
-            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            firefox_min_version=ExperimentCore.VERSION_CHOICES[0][0],
             name="test1",
-            type=Experiment.TYPE_RAPID,
+            type=ExperimentCore.TYPE_RAPID,
         )
 
-        experiment3 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
+        experiment3 = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT,
             bugzilla_id="54321",
-            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_channel=ExperimentCore.CHANNEL_RELEASE,
             firefox_max_version=None,
-            firefox_min_version=Experiment.VERSION_CHOICES[0][0],
+            firefox_min_version=ExperimentCore.VERSION_CHOICES[0][0],
             name="test2",
-            type=Experiment.TYPE_RAPID,
+            type=ExperimentCore.TYPE_RAPID,
         )
 
         self.assertEqual(experiment1.changes.count(), 5)
@@ -304,15 +306,15 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
         self.assertFalse(
             experiment1.changes.filter(
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=Experiment.STATUS_LIVE,
-                new_status=Experiment.STATUS_COMPLETE,
+                old_status=ExperimentCore.STATUS_LIVE,
+                new_status=ExperimentCore.STATUS_COMPLETE,
             ).exists()
         )
 
         self.assertTrue(
             experiment2.changes.filter(
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
-                old_status=Experiment.STATUS_LIVE,
-                new_status=Experiment.STATUS_COMPLETE,
+                old_status=ExperimentCore.STATUS_LIVE,
+                new_status=ExperimentCore.STATUS_COMPLETE,
             ).exists()
         )

@@ -8,7 +8,7 @@ from parameterized import parameterized
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import ExperimentCore
 from experimenter.experiments.api.v1.serializers import ExperimentSerializer
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.factories import ExperimentCoreFactory
 from experimenter.normandy.serializers import ExperimentRecipeSerializer
 
 
@@ -17,7 +17,7 @@ class TestExperimentListView(TestCase):
         experiments = []
 
         for i in range(3):
-            experiment = ExperimentFactory.create_with_variants()
+            experiment = ExperimentCoreFactory.create_with_variants()
             experiments.append(experiment)
 
         response = self.client.get(reverse("experiments-api-list"))
@@ -36,11 +36,11 @@ class TestExperimentListView(TestCase):
 
         # new experiments should be excluded
         for i in range(2):
-            ExperimentFactory.create_with_variants()
+            ExperimentCoreFactory.create_with_variants()
 
         # pending experiments should be included
         for i in range(3):
-            experiment = ExperimentFactory.create_with_variants()
+            experiment = ExperimentCoreFactory.create_with_variants()
             experiment.status = experiment.STATUS_REVIEW
             experiment.save()
             pending_experiments.append(experiment)
@@ -65,7 +65,7 @@ class TestExperimentListView(TestCase):
 class TestExperimentDetailView(TestCase):
     def test_get_experiment_returns_experiment_info(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_variants()
+        experiment = ExperimentCoreFactory.create_with_variants()
 
         response = self.client.get(
             reverse("experiments-api-detail", kwargs={"slug": experiment.slug}),
@@ -91,7 +91,7 @@ class TestExperimentRecipeView(TestCase):
         self, status
     ):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(status)
+        experiment = ExperimentCoreFactory.create_with_status(status)
 
         response = self.client.get(
             reverse("experiments-api-recipe", kwargs={"slug": experiment.slug}),
@@ -108,7 +108,7 @@ class TestExperimentRecipeView(TestCase):
     )
     def test_get_experiment_recipe_returns_404_for_not_launched_experiment(self, status):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(status)
+        experiment = ExperimentCoreFactory.create_with_status(status)
 
         response = self.client.get(
             reverse("experiments-api-recipe", kwargs={"slug": experiment.slug}),

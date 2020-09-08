@@ -27,12 +27,10 @@ from experimenter.openidc.tests.factories import UserFactory
 
 faker = FakerFactory.create()
 NORMANDY_STATUS_CHOICES = ExperimentCore.STATUS_CHOICES[:-1]
-
-
 NIMBUS_DATA = get_data()
 
 
-class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
+class ExperimentCoreFactory(ExperimentConstants, factory.django.DjangoModelFactory):
     type = ExperimentCore.TYPE_PREF
     owner = factory.SubFactory(UserFactory)
     analysis_owner = factory.SubFactory(UserFactory)
@@ -286,7 +284,7 @@ class ExperimentRapidFactory(ExperimentConstants, factory.django.DjangoModelFact
 
 class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda o: faker.text())
-    experiment = factory.SubFactory(ExperimentFactory)
+    experiment = factory.SubFactory(ExperimentCoreFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: slugify(o.name))
     message_targeting = factory.LazyAttribute(lambda o: faker.catch_phrase())
@@ -333,8 +331,7 @@ class VariantPreferencesFactory(factory.django.DjangoModelFactory):
 
 
 class ExperimentChangeLogFactory(factory.django.DjangoModelFactory):
-
-    experiment = factory.SubFactory(ExperimentFactory)
+    experiment = factory.SubFactory(ExperimentCoreFactory)
     changed_by = factory.SubFactory(UserFactory)
     old_status = factory.LazyAttribute(
         lambda o: random.choice(NORMANDY_STATUS_CHOICES)[0]
@@ -350,7 +347,7 @@ class ExperimentChangeLogFactory(factory.django.DjangoModelFactory):
 
 
 class ExperimentCommentFactory(factory.django.DjangoModelFactory):
-    experiment = factory.SubFactory(ExperimentFactory)
+    experiment = factory.SubFactory(ExperimentCoreFactory)
     section = factory.LazyAttribute(
         lambda o: random.choice(ExperimentCore.SECTION_CHOICES)[0]
     )
@@ -379,7 +376,7 @@ class ExperimentBucketNamespaceFactory(factory.django.DjangoModelFactory):
 
 
 class ExperimentBucketRangeFactory(factory.django.DjangoModelFactory):
-    experiment = factory.SubFactory(ExperimentFactory)
+    experiment = factory.SubFactory(ExperimentCoreFactory)
     namespace = factory.SubFactory(ExperimentBucketNamespaceFactory)
     start = factory.Sequence(lambda n: n * 100)
     count = 100

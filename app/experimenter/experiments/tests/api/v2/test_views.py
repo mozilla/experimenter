@@ -20,7 +20,7 @@ from experimenter.experiments.api.v2.serializers import (
 
 from experimenter.experiments.api.v2.views import ExperimentCSVRenderer
 from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
+    ExperimentCoreFactory,
     ExperimentVariantFactory,
     VariantPreferencesFactory,
 )
@@ -32,7 +32,7 @@ class TestExperimentSendIntentToShipEmailView(TestCase):
     def test_put_to_view_sends_email(self):
         user_email = "user@example.com"
 
-        experiment = ExperimentFactory.create_with_variants(
+        experiment = ExperimentCoreFactory.create_with_variants(
             review_intent_to_ship=False, status=ExperimentCore.STATUS_REVIEW
         )
         old_outbox_len = len(mail.outbox)
@@ -52,7 +52,7 @@ class TestExperimentSendIntentToShipEmailView(TestCase):
         self.assertEqual(len(mail.outbox), old_outbox_len + 1)
 
     def test_put_raises_409_if_email_already_sent(self):
-        experiment = ExperimentFactory.create_with_variants(
+        experiment = ExperimentCoreFactory.create_with_variants(
             review_intent_to_ship=True, status=ExperimentCore.STATUS_REVIEW
         )
 
@@ -69,7 +69,7 @@ class TestExperimentSendIntentToShipEmailView(TestCase):
 
 class TestExperimentCloneView(TestCase):
     def test_patch_to_view_returns_clone_name_and_url(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="great experiment", slug="great-experiment"
         )
         user_email = "user@example.com"
@@ -91,7 +91,7 @@ class TestExperimentCloneView(TestCase):
 class TestExperimentDesignPrefView(TestCase):
     def test_get_design_pref_returns_design_info(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_variants(type="pref")
+        experiment = ExperimentCoreFactory.create_with_variants(type="pref")
 
         response = self.client.get(
             reverse("experiments-design-pref", kwargs={"slug": experiment.slug}),
@@ -104,7 +104,7 @@ class TestExperimentDesignPrefView(TestCase):
         self.assertEqual(serialized_experiment, json_data)
 
     def test_put_to_view_saves_design_info(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="great experiment", slug="great-experiment"
         )
         user_email = "user@example.com"
@@ -145,7 +145,7 @@ class TestExperimentDesignPrefView(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_put_to_view_returns_400_on_missing_required_field(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="great experiment", slug="great-experiment"
         )
         user_email = "user@example.com"
@@ -188,7 +188,7 @@ class TestExperimentDesignPrefView(TestCase):
 class TestExperimentDesignMultiPrefView(TestCase):
     def setUp(self):
         self.user_email = "user@example.com"
-        self.experiment = ExperimentFactory.create(type="pref")
+        self.experiment = ExperimentCoreFactory.create(type="pref")
         self.variant = ExperimentVariantFactory.create(
             experiment=self.experiment, is_control=True
         )
@@ -209,7 +209,7 @@ class TestExperimentDesignMultiPrefView(TestCase):
         self.assertEqual(serialized_experiment, json_data)
 
     def test_put_to_view_save_design_info(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="an experiment", slug="an-experiment", type="pref"
         )
         variant = {
@@ -244,7 +244,7 @@ class TestExperimentDesignMultiPrefView(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_put_to_view_returns_400_for_dup_pref_name(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="an experiment", slug="an-experiment", type="pref"
         )
         variant = {
@@ -282,7 +282,7 @@ class TestExperimentDesignMultiPrefView(TestCase):
 class TestExperimentDesignAddonView(TestCase):
     def test_get_design_addon_returns_design_info(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_variants(
+        experiment = ExperimentCoreFactory.create_with_variants(
             type=ExperimentConstants.TYPE_ADDON
         )
 
@@ -298,7 +298,7 @@ class TestExperimentDesignAddonView(TestCase):
         self.assertEqual(serialized_experiment, json_data)
 
     def test_put_to_view_saves_design_info(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="great experiment",
             slug="great-experiment",
             type=ExperimentConstants.TYPE_ADDON,
@@ -338,7 +338,7 @@ class TestExperimentDesignAddonView(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_put_to_view_returns_400_on_missing_required_field(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="great experiment",
             slug="great-experiment",
             type=ExperimentConstants.TYPE_ADDON,
@@ -382,7 +382,7 @@ class TestExperimentDesignAddonView(TestCase):
 class TestExperimentDesignGenericView(TestCase):
     def test_get_returns_design_info(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_variants(
+        experiment = ExperimentCoreFactory.create_with_variants(
             type=ExperimentConstants.TYPE_GENERIC
         )
 
@@ -398,7 +398,7 @@ class TestExperimentDesignGenericView(TestCase):
         self.assertEqual(serialized_experiment, json_data)
 
     def test_put_to_view_saves_design_info(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="great experiment",
             slug="great-experiment",
             type=ExperimentConstants.TYPE_GENERIC,
@@ -436,7 +436,7 @@ class TestExperimentDesignGenericView(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_put_to_view_design_is_optional(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="great experiment",
             slug="great-experiment",
             type=ExperimentConstants.TYPE_GENERIC,
@@ -473,7 +473,7 @@ class TestExperimentDesignGenericView(TestCase):
 class TestExperimentDesignMessageView(TestCase):
     def test_get_returns_design_info(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_variants(
+        experiment = ExperimentCoreFactory.create_with_variants(
             type=ExperimentConstants.TYPE_MESSAGE
         )
 
@@ -489,7 +489,7 @@ class TestExperimentDesignMessageView(TestCase):
         self.assertEqual(serialized_experiment, json_data)
 
     def test_put_to_view_saves_cfr_info(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="great experiment",
             slug="great-experiment",
             type=ExperimentConstants.TYPE_MESSAGE,
@@ -536,7 +536,7 @@ class TestExperimentDesignMessageView(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_put_to_view_saves_about_welcome_info(self):
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             name="great experiment",
             slug="great-experiment",
             type=ExperimentConstants.TYPE_MESSAGE,
@@ -579,7 +579,7 @@ class TestExperimentTimelinePopulationView(TestCase):
     def test_get_timeline_pop_returns_info(self):
         user_email = "user@example.com"
 
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_PREF)
 
         response = self.client.get(
             reverse("experiments-timeline-population", kwargs={"slug": experiment.slug}),
@@ -596,7 +596,7 @@ class TestExperimentTimelinePopulationView(TestCase):
     def test_put_to_view_timeline_pop_info(self):
         user_email = "user@example.com"
 
-        experiment = ExperimentFactory.create(type=ExperimentConstants.TYPE_PREF)
+        experiment = ExperimentCoreFactory.create(type=ExperimentConstants.TYPE_PREF)
 
         data = json.dumps(
             {
@@ -620,10 +620,10 @@ class TestExperimentTimelinePopulationView(TestCase):
 class TestExperimentCSVListView(TestCase):
     def test_get_returns_csv_info(self):
         user_email = "user@example.com"
-        experiment1 = ExperimentFactory.create_with_status(
+        experiment1 = ExperimentCoreFactory.create_with_status(
             ExperimentCore.STATUS_DRAFT, name="a"
         )
-        experiment2 = ExperimentFactory.create_with_status(
+        experiment2 = ExperimentCoreFactory.create_with_status(
             ExperimentCore.STATUS_DRAFT, name="b"
         )
 
@@ -644,13 +644,13 @@ class TestExperimentCSVListView(TestCase):
     def test_view_filters_by_project(self):
         user_email = "user@example.com"
         project = ProjectFactory.create()
-        experiment1 = ExperimentFactory.create_with_status(
+        experiment1 = ExperimentCoreFactory.create_with_status(
             ExperimentCore.STATUS_DRAFT, name="a", projects=[project]
         )
-        experiment2 = ExperimentFactory.create_with_status(
+        experiment2 = ExperimentCoreFactory.create_with_status(
             ExperimentCore.STATUS_DRAFT, name="b", projects=[project]
         )
-        ExperimentFactory.create_with_variants()
+        ExperimentCoreFactory.create_with_variants()
 
         url = reverse("experiments-api-csv")
         response = self.client.get(
@@ -668,15 +668,15 @@ class TestExperimentCSVListView(TestCase):
 
     def test_view_filters_by_subscriber(self):
         user = UserFactory(email="user@example.com")
-        experiment1 = ExperimentFactory.create_with_status(
+        experiment1 = ExperimentCoreFactory.create_with_status(
             ExperimentCore.STATUS_DRAFT, name="a"
         )
         experiment1.subscribers.add(user)
-        experiment2 = ExperimentFactory.create_with_status(
+        experiment2 = ExperimentCoreFactory.create_with_status(
             ExperimentCore.STATUS_DRAFT, name="b"
         )
         experiment2.subscribers.add(user)
-        ExperimentFactory.create_with_variants()
+        ExperimentCoreFactory.create_with_variants()
 
         url = reverse("experiments-api-csv")
         response = self.client.get(

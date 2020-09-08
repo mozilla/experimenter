@@ -8,8 +8,8 @@ from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.bugzilla import tasks
 from experimenter.bugzilla import client as bugzilla
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
-from experimenter.experiments.models import Experiment
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.models import ExperimentCore
+from experimenter.experiments.tests.factories import ExperimentCoreFactory
 from experimenter.normandy.tests.mixins import MockNormandyMixin
 from experimenter.notifications.models import Notification
 
@@ -18,8 +18,8 @@ class TestCreateBugTask(MockRequestMixin, MockBugzillaMixin, TestCase):
     def setUp(self):
         super().setUp()
 
-        self.experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, bugzilla_id=None
+        self.experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT, bugzilla_id=None
         )
 
     def test_experiment_bug_successfully_created(self):
@@ -56,7 +56,7 @@ class TestCreateBugTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 
         self.mock_bugzilla_requests_post.assert_called()
 
-        experiment = Experiment.objects.get(id=self.experiment.id)
+        experiment = ExperimentCore.objects.get(id=self.experiment.id)
         self.assertEqual(experiment.bugzilla_id, self.bugzilla_id)
 
         notification = Notification.objects.get()
@@ -105,7 +105,7 @@ class TestCreateBugTask(MockRequestMixin, MockBugzillaMixin, TestCase):
         self.mock_bugzilla_requests_post.assert_called()
         self.assertEqual(Notification.objects.count(), 1)
 
-        experiment = Experiment.objects.get(id=self.experiment.id)
+        experiment = ExperimentCore.objects.get(id=self.experiment.id)
         self.assertEqual(experiment.bugzilla_id, None)
 
         notification = Notification.objects.get()
@@ -119,7 +119,9 @@ class TestUpdateResolutionTask(MockRequestMixin, MockBugzillaMixin, TestCase):
     def setUp(self):
         super().setUp()
 
-        self.experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        self.experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT
+        )
         self.experiment.bugzilla_id = self.bugzilla_id
         self.experiment.save()
 
@@ -140,8 +142,8 @@ class TestUpdateResolutionTask(MockRequestMixin, MockBugzillaMixin, TestCase):
         )
 
     def test_no_request_call_when_no_bug_id(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP, risk_confidential=True
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_SHIP, risk_confidential=True
         )
         experiment.bugzilla_id = None
         experiment.save()
@@ -174,7 +176,9 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
     def setUp(self):
         super().setUp()
 
-        self.experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        self.experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT
+        )
         self.experiment.bugzilla_id = self.bugzilla_id
         self.experiment.save()
 
@@ -260,8 +264,8 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
         )
 
     def test_confidential_only_does_not_update_bugzilla(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_SHIP, risk_confidential=True
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_SHIP, risk_confidential=True
         )
 
         with MetricsMock() as mm:
@@ -298,7 +302,7 @@ class TestUpdateTask(MockRequestMixin, MockBugzillaMixin, TestCase):
 
 class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase):
     def test_add_start_date_comment_task(self):
-        experiment = ExperimentFactory.create(normandy_id=12345)
+        experiment = ExperimentCoreFactory.create(normandy_id=12345)
         comment = "Start Date: {} End Date: {}".format(
             experiment.start_date, experiment.end_date
         )
@@ -311,15 +315,15 @@ class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase
         )
 
     def test_add_start_date_comment_task_failure(self):
-        experiment = ExperimentFactory.create(normandy_id=12345)
+        experiment = ExperimentCoreFactory.create(normandy_id=12345)
 
         self.mock_bugzilla_requests_post.side_effect = RequestException
         with self.assertRaises(bugzilla.BugzillaError):
             tasks.add_start_date_comment_task(experiment.id)
 
     def test_comp_experiment_update_res_task(self):
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_COMPLETE, normandy_id=12345
+        experiment = ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_COMPLETE, normandy_id=12345
         )
 
         expected_call_data = {"status": "RESOLVED", "resolution": "FIXED"}
@@ -333,8 +337,8 @@ class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase
 
     def test_comp_experiment_update_res_task_with_bug_error(self):
         self.mock_bugzilla_requests_put.side_effect = RequestException()
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_COMPLETE, normandy_id=12345
+        experiment = ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_COMPLETE, normandy_id=12345
         )
 
         with self.assertRaises(bugzilla.BugzillaError):

@@ -5,7 +5,7 @@ from django.test import TestCase
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.models import ExperimentCore
 from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
+    ExperimentCoreFactory,
     ExperimentVariantFactory,
     ExperimentChangeLogFactory,
 )
@@ -48,7 +48,7 @@ class TestPrefTypeField(TestCase):
 
 class TestExperimentVariantSerializer(TestCase):
     def test_serializer_outputs_expected_bool(self):
-        experiment = ExperimentFactory(pref_type=ExperimentCore.PREF_TYPE_BOOL)
+        experiment = ExperimentCoreFactory(pref_type=ExperimentCore.PREF_TYPE_BOOL)
         variant = ExperimentVariantFactory.create(experiment=experiment, value="true")
         serializer = ExperimentRecipeVariantSerializer(variant)
 
@@ -58,7 +58,7 @@ class TestExperimentVariantSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_int_val(self):
-        experiment = ExperimentFactory(pref_type=ExperimentCore.PREF_TYPE_INT)
+        experiment = ExperimentCoreFactory(pref_type=ExperimentCore.PREF_TYPE_INT)
         variant = ExperimentVariantFactory.create(experiment=experiment, value="28")
         serializer = ExperimentRecipeVariantSerializer(variant)
 
@@ -68,7 +68,7 @@ class TestExperimentVariantSerializer(TestCase):
         )
 
     def test_serializer_outputs_expected_str_val(self):
-        experiment = ExperimentFactory(pref_type=ExperimentCore.PREF_TYPE_STR)
+        experiment = ExperimentCoreFactory(pref_type=ExperimentCore.PREF_TYPE_STR)
         variant = ExperimentVariantFactory.create(experiment=experiment)
         serializer = ExperimentRecipeVariantSerializer(variant)
 
@@ -81,7 +81,7 @@ class TestExperimentVariantSerializer(TestCase):
 
 class TestExperimentSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create_with_status(
+        experiment = ExperimentCoreFactory.create_with_status(
             ExperimentCore.STATUS_COMPLETE,
             countries=[],
             locales=[],
@@ -159,7 +159,7 @@ class TestExperimentSerializer(TestCase):
 
     def test_serializer_locales(self):
         locale = LocaleFactory()
-        experiment = ExperimentFactory.create(locales=[locale])
+        experiment = ExperimentCoreFactory.create(locales=[locale])
         serializer = ExperimentSerializer(experiment)
         self.assertEqual(
             serializer.data["locales"], [{"code": locale.code, "name": locale.name}]
@@ -167,7 +167,7 @@ class TestExperimentSerializer(TestCase):
 
     def test_serializer_countries(self):
         country = CountryFactory()
-        experiment = ExperimentFactory.create(countries=[country])
+        experiment = ExperimentCoreFactory.create(countries=[country])
         serializer = ExperimentSerializer(experiment)
         self.assertEqual(
             serializer.data["countries"], [{"code": country.code, "name": country.name}]

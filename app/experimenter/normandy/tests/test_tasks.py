@@ -6,11 +6,11 @@ from django.conf import settings
 from django.core import mail
 from django.test import override_settings, TestCase
 
-from experimenter.experiments.models import Experiment, ExperimentEmail
+from experimenter.experiments.models import ExperimentCore, ExperimentEmail
 from experimenter.experiments.constants import ExperimentConstants
 
 
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.factories import ExperimentCoreFactory
 from experimenter.normandy.tests.mixins import MockNormandyMixin, MockNormandyTasksMixin
 
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
@@ -20,8 +20,8 @@ from experimenter.normandy import tasks, client as normandy
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
 class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCase):
     def test_update_ready_to_ship_experiment(self):
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_SHIP
+        experiment = ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_SHIP
         )
         mock_response_data = {
             "results": [
@@ -40,23 +40,23 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         self.mock_normandy_requests_get.return_value = mock_response
         tasks.update_recipe_ids_to_experiments()
 
-        experiment = Experiment.objects.get(id=experiment.id)
+        experiment = ExperimentCore.objects.get(id=experiment.id)
 
-        self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
+        self.assertEqual(experiment.status, ExperimentCore.STATUS_ACCEPTED)
         self.assertEqual(experiment.normandy_id, 1)
         self.assertCountEqual(experiment.other_normandy_ids, [10, 100])
 
         self.assertTrue(
             experiment.changes.filter(
                 changed_by__email="dev@example.com",
-                old_status=Experiment.STATUS_SHIP,
-                new_status=Experiment.STATUS_ACCEPTED,
+                old_status=ExperimentCore.STATUS_SHIP,
+                new_status=ExperimentCore.STATUS_ACCEPTED,
             ).exists()
         )
 
     def test_update_ready_to_ship_experiment_with_pre_existing_recipe(self):
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED, normandy_id=2
+        experiment = ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_ACCEPTED, normandy_id=2
         )
         mock_response_data = {"results": [{"id": 2}, {"id": 10}, {"id": 100}]}
         mock_response = mock.Mock()
@@ -69,22 +69,22 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         self.mock_normandy_requests_get.return_value = mock_response
         tasks.update_recipe_ids_to_experiments()
 
-        experiment = Experiment.objects.get(id=experiment.id)
+        experiment = ExperimentCore.objects.get(id=experiment.id)
 
-        self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
+        self.assertEqual(experiment.status, ExperimentCore.STATUS_ACCEPTED)
         self.assertEqual(experiment.normandy_id, 2)
         self.assertCountEqual(experiment.other_normandy_ids, [10, 100])
 
         self.assertTrue(
             experiment.changes.filter(
-                old_status=Experiment.STATUS_ACCEPTED,
-                new_status=Experiment.STATUS_ACCEPTED,
+                old_status=ExperimentCore.STATUS_ACCEPTED,
+                new_status=ExperimentCore.STATUS_ACCEPTED,
             ).exists()
         )
 
     def test_update_accepted_experiment_task(self):
-        experiment = ExperimentFactory.create(
-            status=Experiment.STATUS_ACCEPTED,
+        experiment = ExperimentCoreFactory.create(
+            status=ExperimentCore.STATUS_ACCEPTED,
             normandy_id=1234,
             proposed_enrollment=60,
             proposed_duration=60,
@@ -109,8 +109,8 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
 
     def test_update_live_experiment_task(self):
 
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_LIVE, normandy_id=1234
+        experiment = ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_LIVE, normandy_id=1234
         )
 
         self.mock_normandy_requests_get.return_value = (
@@ -127,8 +127,8 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         self.assertEqual(len(mail.outbox), 0)
 
     def test_ship_experiment_not_updated(self):
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_SHIP
+        experiment = ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_SHIP
         )
         mock_response_data = {}
         mock_response = mock.Mock()
@@ -141,20 +141,20 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
 
         tasks.update_recipe_ids_to_experiments()
 
-        self.assertEqual(experiment.status, Experiment.STATUS_SHIP)
+        self.assertEqual(experiment.status, ExperimentCore.STATUS_SHIP)
         self.assertIsNone(experiment.normandy_id)
         self.assertIsNone(experiment.other_normandy_ids)
 
         self.assertFalse(
             experiment.changes.filter(
-                old_status=Experiment.STATUS_SHIP,
-                new_status=Experiment.STATUS_ACCEPTED,
+                old_status=ExperimentCore.STATUS_SHIP,
+                new_status=ExperimentCore.STATUS_ACCEPTED,
             ).exists()
         )
 
     def test_update_live_experiment_not_updated(self):
-        ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_LIVE, normandy_id=1234
+        ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_LIVE, normandy_id=1234
         )
 
         tasks.update_launched_experiments()
@@ -164,8 +164,8 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         self.mock_tasks_set_is_paused_value.delay.assert_called()
 
     def test_experiment_with_no_recipe_data(self):
-        ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
+        ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_ACCEPTED, normandy_id=1234
         )
 
         mock_response_data = {"approved_revision": None}
@@ -179,20 +179,20 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         self.mock_normandy_requests_get.return_value = mock_response
         tasks.update_launched_experiments()
 
-        experiment = Experiment.objects.get(normandy_id=1234)
+        experiment = ExperimentCore.objects.get(normandy_id=1234)
 
-        self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
+        self.assertEqual(experiment.status, ExperimentCore.STATUS_ACCEPTED)
         self.assertFalse(
             experiment.changes.filter(
                 changed_by__email="dev@example.com",
-                old_status=Experiment.STATUS_ACCEPTED,
-                new_status=Experiment.STATUS_LIVE,
+                old_status=ExperimentCore.STATUS_ACCEPTED,
+                new_status=ExperimentCore.STATUS_LIVE,
             ).exists()
         )
 
     def test_experiment_with_no_creator_in_recipe(self):
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
+        experiment = ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_ACCEPTED, normandy_id=1234
         )
 
         mock_response_data = {
@@ -208,71 +208,71 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         self.mock_normandy_requests_get.return_value = mock_response
 
         tasks.update_launched_experiments()
-        experiment = Experiment.objects.get(normandy_id=1234)
+        experiment = ExperimentCore.objects.get(normandy_id=1234)
 
-        self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
+        self.assertEqual(experiment.status, ExperimentCore.STATUS_LIVE)
         self.assertTrue(
             experiment.changes.filter(
                 changed_by__email="unknown-user@normandy.mozilla.com",
-                old_status=Experiment.STATUS_ACCEPTED,
-                new_status=Experiment.STATUS_LIVE,
+                old_status=ExperimentCore.STATUS_ACCEPTED,
+                new_status=ExperimentCore.STATUS_LIVE,
             ).exists()
         )
 
     def test_one_failure_does_not_affect_other_experiment_status_updates(self):
         self.setUpMockNormandyFailWithSpecifiedID("1234")
-        ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED, normandy_id=1234
+        ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_ACCEPTED, normandy_id=1234
         )
 
-        ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED, normandy_id=1235
+        ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_ACCEPTED, normandy_id=1235
         )
 
         tasks.update_launched_experiments()
-        updated_experiment = Experiment.objects.get(normandy_id=1234)
-        updated_experiment2 = Experiment.objects.get(normandy_id=1235)
-        self.assertEqual(updated_experiment.status, Experiment.STATUS_ACCEPTED)
-        self.assertEqual(updated_experiment2.status, Experiment.STATUS_LIVE)
+        updated_experiment = ExperimentCore.objects.get(normandy_id=1234)
+        updated_experiment2 = ExperimentCore.objects.get(normandy_id=1235)
+        self.assertEqual(updated_experiment.status, ExperimentCore.STATUS_ACCEPTED)
+        self.assertEqual(updated_experiment2.status, ExperimentCore.STATUS_LIVE)
         self.assertFalse(
             updated_experiment.changes.filter(
                 changed_by__email="dev@example.com",
-                old_status=Experiment.STATUS_ACCEPTED,
-                new_status=Experiment.STATUS_LIVE,
+                old_status=ExperimentCore.STATUS_ACCEPTED,
+                new_status=ExperimentCore.STATUS_LIVE,
             ).exists()
         )
         self.assertTrue(
             updated_experiment2.changes.filter(
                 changed_by__email="dev@example.com",
-                old_status=Experiment.STATUS_ACCEPTED,
-                new_status=Experiment.STATUS_LIVE,
+                old_status=ExperimentCore.STATUS_ACCEPTED,
+                new_status=ExperimentCore.STATUS_LIVE,
             ).exists()
         )
 
     def test_experiment_without_normandy_ids(self):
-        ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_LIVE, normandy_id=None
+        ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_LIVE, normandy_id=None
         )
         tasks.update_launched_experiments()
         self.mock_normandy_requests_get.assert_not_called()
 
     def test_send_experiment_ending_email(self):
-        ExperimentFactory.create(
-            status=Experiment.STATUS_LIVE,
+        ExperimentCoreFactory.create(
+            status=ExperimentCore.STATUS_LIVE,
             normandy_id=1234,
             proposed_start_date=date.today(),
             proposed_enrollment=0,
             proposed_duration=5,
         )
-        ExperimentFactory.create(
-            status=Experiment.STATUS_LIVE,
+        ExperimentCoreFactory.create(
+            status=ExperimentCore.STATUS_LIVE,
             normandy_id=1234,
             proposed_start_date=date.today(),
             proposed_duration=30,
             proposed_enrollment=0,
         )
-        exp_3 = ExperimentFactory.create(
-            status=Experiment.STATUS_LIVE,
+        exp_3 = ExperimentCoreFactory.create(
+            status=ExperimentCore.STATUS_LIVE,
             normandy_id=1234,
             proposed_start_date=date.today(),
             proposed_duration=4,
@@ -289,18 +289,18 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
 
     def test_accepted_experiment_becomes_live_if_normandy_enabled(self):
 
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             normandy_id=1234,
             proposed_start_date=date.today(),
             proposed_duration=30,
             proposed_enrollment=1,
         )
 
-        experiment.status = Experiment.STATUS_LIVE
+        experiment.status = ExperimentCore.STATUS_LIVE
         experiment.save()
 
         tasks.update_launched_experiments()
-        experiment = Experiment.objects.get(normandy_id=1234)
+        experiment = ExperimentCore.objects.get(normandy_id=1234)
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(
@@ -309,9 +309,9 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         )
 
     def test_live_rollout_updates_population_percent(self):
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_ROLLOUT,
-            status=Experiment.STATUS_LIVE,
+        experiment = ExperimentCoreFactory.create(
+            type=ExperimentCore.TYPE_ROLLOUT,
+            status=ExperimentCore.STATUS_LIVE,
             normandy_id=1234,
             population_percent=decimal.Decimal("25.000"),
         )
@@ -334,38 +334,38 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         self.mock_normandy_requests_get.return_value = mock_response
 
         tasks.update_launched_experiments()
-        experiment = Experiment.objects.get(normandy_id=1234)
+        experiment = ExperimentCore.objects.get(normandy_id=1234)
         self.assertEqual(experiment.population_percent, decimal.Decimal("50.000"))
 
 
 class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase):
     def test_update_status_task(self):
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED
+        experiment = ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_ACCEPTED
         )
         recipe_data = normandy.get_recipe(experiment.normandy_id)
         tasks.update_status_task(experiment, recipe_data)
-        experiment = Experiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
+        experiment = ExperimentCore.objects.get(id=experiment.id)
+        self.assertEqual(experiment.status, ExperimentCore.STATUS_LIVE)
 
         self.assertTrue(
             experiment.changes.filter(
                 changed_by__email="dev@example.com",
-                old_status=Experiment.STATUS_ACCEPTED,
-                new_status=Experiment.STATUS_LIVE,
+                old_status=ExperimentCore.STATUS_ACCEPTED,
+                new_status=ExperimentCore.STATUS_LIVE,
             ).exists()
         )
 
     def test_set_is_paused_value_task(self):
 
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED, normandy_id=12345
+        experiment = ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_ACCEPTED, normandy_id=12345
         )
         recipe_data = normandy.get_recipe(experiment.normandy_id)
 
         tasks.set_is_paused_value_task(experiment.id, recipe_data)
 
-        experiment = Experiment.objects.get(id=experiment.id)
+        experiment = ExperimentCore.objects.get(id=experiment.id)
 
         self.assertTrue(experiment.is_paused)
         self.assertTrue(
@@ -376,31 +376,31 @@ class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase
         )
 
     def test_experiment_with_re_enabled_enrollment(self):
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_LIVE, normandy_id=1234, is_paused=True
+        experiment = ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_LIVE, normandy_id=1234, is_paused=True
         )
         self.mock_normandy_requests_get.return_value = (
             self.buildMockSucessWithNoPauseEnrollment()
         )
         recipe_data = normandy.get_recipe(experiment.normandy_id)
         tasks.set_is_paused_value_task(experiment.id, recipe_data)
-        experiment = Experiment.objects.get(normandy_id=1234)
+        experiment = ExperimentCore.objects.get(normandy_id=1234)
 
-        self.assertEqual(experiment.status, Experiment.STATUS_LIVE)
+        self.assertEqual(experiment.status, ExperimentCore.STATUS_LIVE)
         self.assertFalse(experiment.is_paused)
 
         self.assertEquals(experiment.changes.latest().message, "Enrollment Re-enabled")
 
     def test_set_is_paused_value_with_bad_recipe(self):
 
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_ACCEPTED, normandy_id=12345
+        experiment = ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_ACCEPTED, normandy_id=12345
         )
         recipe_data = {}
 
         tasks.set_is_paused_value_task(experiment.id, recipe_data)
 
-        experiment = Experiment.objects.get(id=experiment.id)
+        experiment = ExperimentCore.objects.get(id=experiment.id)
 
         self.assertFalse(experiment.is_paused)
         self.assertFalse(

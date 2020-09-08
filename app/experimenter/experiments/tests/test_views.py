@@ -11,8 +11,8 @@ from django.urls import reverse
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.forms import NormandyIdForm, RADIO_NO, RADIO_YES
-from experimenter.experiments.models import Experiment, Country, Locale
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.models import ExperimentCore, Country, Locale
+from experimenter.experiments.tests.factories import ExperimentCoreFactory
 
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 from experimenter.openidc.tests.factories import UserFactory
@@ -24,15 +24,17 @@ class TestExperimentListView(TestCase):
         user_email = "user@example.com"
 
         # Archived experiment is ommitted
-        ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, archived=True)
+        ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT, archived=True
+        )
 
         for i in range(3):
-            ExperimentFactory.create_with_status(
-                random.choice(Experiment.STATUS_CHOICES)[0]
+            ExperimentCoreFactory.create_with_status(
+                random.choice(ExperimentCore.STATUS_CHOICES)[0]
             )
 
         experiments = (
-            Experiment.objects.all()
+            ExperimentCore.objects.all()
             .filter(archived=False)
             .order_by(ExperimentOrderingForm.ORDERING_CHOICES[0][0])
         )
@@ -49,14 +51,16 @@ class TestExperimentListView(TestCase):
         user_email = "user@example.com"
 
         # Archived experiment is included
-        ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT, archived=True)
+        ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT, archived=True
+        )
 
         for i in range(3):
-            ExperimentFactory.create_with_status(
-                random.choice(Experiment.STATUS_CHOICES)[0]
+            ExperimentCoreFactory.create_with_status(
+                random.choice(ExperimentCore.STATUS_CHOICES)[0]
             )
 
-        experiments = Experiment.objects.all()
+        experiments = ExperimentCore.objects.all()
 
         response = self.client.get(
             "{url}?{params}".format(
@@ -73,15 +77,15 @@ class TestExperimentListView(TestCase):
         user_email = "user@example.com"
 
         ordering = "latest_change"
-        filtered_channel = Experiment.CHANNEL_CHOICES[1][0]
+        filtered_channel = ExperimentCore.CHANNEL_CHOICES[1][0]
         filtered_owner = UserFactory.create()
-        filtered_status = Experiment.STATUS_DRAFT
-        filtered_types = (Experiment.TYPE_PREF, Experiment.TYPE_GENERIC)
-        filtered_version = Experiment.VERSION_CHOICES[1][0]
+        filtered_status = ExperimentCore.STATUS_DRAFT
+        filtered_types = (ExperimentCore.TYPE_PREF, ExperimentCore.TYPE_GENERIC)
+        filtered_version = ExperimentCore.VERSION_CHOICES[1][0]
 
         for i in range(3):
             for filtered_type in filtered_types:
-                ExperimentFactory.create_with_status(
+                ExperimentCoreFactory.create_with_status(
                     firefox_channel=filtered_channel,
                     firefox_min_version=filtered_version,
                     owner=filtered_owner,
@@ -90,11 +94,11 @@ class TestExperimentListView(TestCase):
                 )
 
         for i in range(3):
-            ExperimentFactory.create_with_status(
-                random.choice(Experiment.STATUS_CHOICES)[0]
+            ExperimentCoreFactory.create_with_status(
+                random.choice(ExperimentCore.STATUS_CHOICES)[0]
             )
 
-        filtered_ordered_experiments = Experiment.objects.filter(
+        filtered_ordered_experiments = ExperimentCore.objects.filter(
             firefox_channel=filtered_channel,
             firefox_min_version=filtered_version,
             owner=filtered_owner,
@@ -128,13 +132,13 @@ class TestExperimentListView(TestCase):
         user_email = "user@example.com"
         ordering = "firefox_channel_sort"
         channels = [
-            Experiment.CHANNEL_RELEASE,
-            Experiment.CHANNEL_NIGHTLY,
-            Experiment.CHANNEL_BETA,
+            ExperimentCore.CHANNEL_RELEASE,
+            ExperimentCore.CHANNEL_NIGHTLY,
+            ExperimentCore.CHANNEL_BETA,
             "",
         ]
         for channel in channels:
-            ExperimentFactory.create(firefox_channel=channel)
+            ExperimentCoreFactory.create(firefox_channel=channel)
 
         response = self.client.get(
             "{url}?{params}".format(
@@ -148,9 +152,9 @@ class TestExperimentListView(TestCase):
             list(exp.firefox_channel for exp in context["experiments"]),
             [
                 "",
-                Experiment.CHANNEL_NIGHTLY,
-                Experiment.CHANNEL_BETA,
-                Experiment.CHANNEL_RELEASE,
+                ExperimentCore.CHANNEL_NIGHTLY,
+                ExperimentCore.CHANNEL_BETA,
+                ExperimentCore.CHANNEL_RELEASE,
             ],
         )
 
@@ -159,8 +163,8 @@ class TestExperimentListView(TestCase):
 
         number_of_experiments = settings.EXPERIMENTS_PAGINATE_BY + 1
         for i in range(number_of_experiments):
-            ExperimentFactory.create_with_status(
-                random.choice(Experiment.STATUS_CHOICES)[0]
+            ExperimentCoreFactory.create_with_status(
+                random.choice(ExperimentCore.STATUS_CHOICES)[0]
             )
 
         response = self.client.get(
@@ -265,7 +269,7 @@ class TestExperimentCreateView(TestCase):
         bugzilla_url = "https://bugzilla.example.com/show_bug.cgi?id=123"
         data = {
             "action": "continue",
-            "type": Experiment.TYPE_PREF,
+            "type": ExperimentCore.TYPE_PREF,
             "name": "A new experiment!",
             "short_description": "Let us learn new things",
             "public_description": "Public Description",
@@ -288,7 +292,7 @@ class TestExperimentCreateView(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
-        experiment = Experiment.objects.get()
+        experiment = ExperimentCore.objects.get()
         self.assertEqual(experiment.status, experiment.STATUS_DRAFT)
         self.assertEqual(experiment.name, data["name"])
 
@@ -309,8 +313,8 @@ class TestExperimentOverviewUpdateView(TestCase):
     def test_view_saves_experiment(self):
         user = UserFactory.create()
         user_email = user.email
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, proposed_enrollment=1, proposed_duration=2
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT, proposed_enrollment=1, proposed_duration=2
         )
 
         ds_url = "{base}DS-123".format(base=settings.DS_ISSUE_HOST)
@@ -318,7 +322,7 @@ class TestExperimentOverviewUpdateView(TestCase):
 
         data = {
             "action": "continue",
-            "type": Experiment.TYPE_PREF,
+            "type": ExperimentCore.TYPE_PREF,
             "name": "A new name!",
             "short_description": "A new description!",
             "public_description": "Public Description",
@@ -337,7 +341,7 @@ class TestExperimentOverviewUpdateView(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
-        experiment = Experiment.objects.get()
+        experiment = ExperimentCore.objects.get()
         self.assertEqual(experiment.name, data["name"])
         self.assertEqual(experiment.short_description, data["short_description"])
         self.assertEqual(experiment.analysis_owner, user)
@@ -355,7 +359,7 @@ class TestExperimentTimelinePopulationUpdateView(TestCase):
     def test_get_view_returns_context(self):
         user_email = "user@example.com"
 
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentCoreFactory.create_with_status(ExperimentCore.STATUS_DRAFT)
 
         response = self.client.get(
             reverse("experiments-timeline-pop-update", kwargs={"slug": experiment.slug}),
@@ -383,7 +387,7 @@ class TestExperimentTimelinePopulationUpdateView(TestCase):
 class TestExperimentDesignUpdateView(TestCase):
     def test_page_loads(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create()
+        experiment = ExperimentCoreFactory.create()
         response = self.client.get(
             reverse("experiments-design-update", kwargs={"slug": experiment.slug}),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -394,7 +398,7 @@ class TestExperimentDesignUpdateView(TestCase):
 class TestExperimentObjectivesUpdateView(TestCase):
     def test_view_saves_experiment(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentCoreFactory.create_with_status(ExperimentCore.STATUS_DRAFT)
 
         data = {
             "action": "continue",
@@ -411,7 +415,7 @@ class TestExperimentObjectivesUpdateView(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
-        experiment = Experiment.objects.get()
+        experiment = ExperimentCore.objects.get()
         self.assertEqual(experiment.objectives, data["objectives"])
         self.assertEqual(experiment.analysis, data["analysis"])
         self.assertFalse(experiment.survey_required, data["survey_required"])
@@ -428,7 +432,7 @@ class TestExperimentObjectivesUpdateView(TestCase):
 class TestExperimentRisksUpdateView(TestCase):
     def test_view_saves_experiment(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentCoreFactory.create_with_status(ExperimentCore.STATUS_DRAFT)
 
         data = {
             "risk_partner_related": RADIO_YES,
@@ -458,7 +462,7 @@ class TestExperimentRisksUpdateView(TestCase):
         )
         self.assertEqual(response.status_code, 302)
 
-        experiment = Experiment.objects.get()
+        experiment = ExperimentCore.objects.get()
 
         self.assertTrue(experiment.risk_partner_related)
         self.assertTrue(experiment.risk_brand)
@@ -486,7 +490,9 @@ class TestExperimentRisksUpdateView(TestCase):
 class TestResultsUpdateView(TestCase):
     def test_view_saves_experiment(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_COMPLETE)
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_COMPLETE
+        )
 
         data = {
             "results_url": "https://example.com",
@@ -500,7 +506,7 @@ class TestResultsUpdateView(TestCase):
         )
         self.assertEqual(response.status_code, 302)
 
-        experiment = Experiment.objects.get()
+        experiment = ExperimentCore.objects.get()
 
         self.assertEqual(experiment.results_url, "https://example.com")
         self.assertEqual(experiment.results_lessons_learned, "Many lessons were learned.")
@@ -509,7 +515,7 @@ class TestResultsUpdateView(TestCase):
 class TestExperimentDetailView(TestCase):
     def test_view_renders_correctly(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentCoreFactory.create_with_status(ExperimentCore.STATUS_DRAFT)
 
         response = self.client.get(
             reverse("experiments-detail", kwargs={"slug": experiment.slug}),
@@ -522,7 +528,7 @@ class TestExperimentDetailView(TestCase):
 
     def test_view_renders_locales_correctly(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentCoreFactory.create_with_status(ExperimentCore.STATUS_DRAFT)
         experiment.locales.add(LocaleFactory(code="yy", name="Why"))
         experiment.locales.add(LocaleFactory(code="xx", name="Xess"))
         response = self.client.get(
@@ -533,7 +539,7 @@ class TestExperimentDetailView(TestCase):
 
     def test_view_renders_countries_correctly(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentCoreFactory.create_with_status(ExperimentCore.STATUS_DRAFT)
         experiment.countries.add(CountryFactory(code="YY", name="Wazoo"))
         experiment.countries.add(CountryFactory(code="XX", name="Xanadu"))
         response = self.client.get(
@@ -544,7 +550,7 @@ class TestExperimentDetailView(TestCase):
 
     def test_includes_normandy_id_form_in_context(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
+        experiment = ExperimentCoreFactory.create_with_status(ExperimentCore.STATUS_SHIP)
         response = self.client.get(
             reverse("experiments-detail", kwargs={"slug": experiment.slug}),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -555,7 +561,7 @@ class TestExperimentDetailView(TestCase):
 
     def test_includes_bound_normandy_id_form_if_GET_param_set(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
+        experiment = ExperimentCoreFactory.create_with_status(ExperimentCore.STATUS_SHIP)
         bad_normandy_id = "abc"
         detail_url = reverse("experiments-detail", kwargs={"slug": experiment.slug})
         response = self.client.get(
@@ -571,7 +577,7 @@ class TestExperimentDetailView(TestCase):
 class TestExperimentStatusUpdateView(MockBugzillaTasksMixin, TestCase):
     def test_view_updates_status_and_redirects(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentCoreFactory.create_with_status(ExperimentCore.STATUS_DRAFT)
 
         new_status = experiment.STATUS_REVIEW
 
@@ -586,17 +592,17 @@ class TestExperimentStatusUpdateView(MockBugzillaTasksMixin, TestCase):
             reverse("experiments-detail", kwargs={"slug": experiment.slug}),
             fetch_redirect_response=False,
         )
-        updated_experiment = Experiment.objects.get(slug=experiment.slug)
+        updated_experiment = ExperimentCore.objects.get(slug=experiment.slug)
         self.assertEqual(updated_experiment.status, new_status)
 
     def test_view_redirects_on_failure(self):
         user_email = "user@example.com"
-        original_status = Experiment.STATUS_DRAFT
-        experiment = ExperimentFactory.create_with_status(original_status)
+        original_status = ExperimentCore.STATUS_DRAFT
+        experiment = ExperimentCoreFactory.create_with_status(original_status)
 
         response = self.client.post(
             reverse("experiments-status-update", kwargs={"slug": experiment.slug}),
-            {"status": Experiment.STATUS_COMPLETE},
+            {"status": ExperimentCore.STATUS_COMPLETE},
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
 
@@ -605,14 +611,16 @@ class TestExperimentStatusUpdateView(MockBugzillaTasksMixin, TestCase):
             reverse("experiments-detail", kwargs={"slug": experiment.slug}),
             fetch_redirect_response=False,
         )
-        updated_experiment = Experiment.objects.get(slug=experiment.slug)
+        updated_experiment = ExperimentCore.objects.get(slug=experiment.slug)
         self.assertEqual(updated_experiment.status, original_status)
 
 
 class TestExperimentReviewUpdateView(TestCase):
     def test_view_updates_reviews_and_redirects(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_REVIEW)
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_REVIEW
+        )
 
         data = {
             "review_science": True,
@@ -641,7 +649,7 @@ class TestExperimentReviewUpdateView(TestCase):
             fetch_redirect_response=False,
         )
 
-        experiment = Experiment.objects.get()
+        experiment = ExperimentCore.objects.get()
 
         self.assertTrue(experiment.review_science)
         self.assertTrue(experiment.review_legal)
@@ -658,7 +666,7 @@ class TestExperimentReviewUpdateView(TestCase):
 class TestExperimentCommentCreateView(TestCase):
     def test_view_creates_comment_redirects_to_detail_page(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentCoreFactory.create_with_status(ExperimentCore.STATUS_DRAFT)
 
         section = experiment.SECTION_OBJECTIVES
         text = "Hello!"
@@ -683,7 +691,7 @@ class TestExperimentCommentCreateView(TestCase):
 
     def test_view_redirects_to_detail_page_when_form_is_invalid(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_DRAFT)
+        experiment = ExperimentCoreFactory.create_with_status(ExperimentCore.STATUS_DRAFT)
 
         section = "invalid section"
         text = ""
@@ -704,7 +712,7 @@ class TestExperimentCommentCreateView(TestCase):
 class TestExperimentArchiveUpdateView(MockBugzillaTasksMixin, TestCase):
     def test_view_flips_archive_bool_and_redirects(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create(archived=False)
+        experiment = ExperimentCoreFactory.create(archived=False)
 
         response = self.client.post(
             reverse("experiments-archive-update", kwargs={"slug": experiment.slug}),
@@ -717,7 +725,7 @@ class TestExperimentArchiveUpdateView(MockBugzillaTasksMixin, TestCase):
             fetch_redirect_response=False,
         )
 
-        experiment = Experiment.objects.get(id=experiment.id)
+        experiment = ExperimentCore.objects.get(id=experiment.id)
 
         self.assertTrue(self.mock_tasks_update_bug_resolution.delay.assert_called_once)
         self.assertTrue(experiment.archived)
@@ -726,7 +734,7 @@ class TestExperimentArchiveUpdateView(MockBugzillaTasksMixin, TestCase):
 class TestExperimentSubscribedUpdateView(TestCase):
     def test_view_flips_subscribed_bool_and_redirects(self):
         user = UserFactory()
-        experiment = ExperimentFactory.create()
+        experiment = ExperimentCoreFactory.create()
         self.assertFalse(user in experiment.subscribers.all())
 
         response = self.client.post(
@@ -740,14 +748,14 @@ class TestExperimentSubscribedUpdateView(TestCase):
             fetch_redirect_response=False,
         )
 
-        experiment = Experiment.objects.get(id=experiment.id)
+        experiment = ExperimentCore.objects.get(id=experiment.id)
         self.assertTrue(user in experiment.subscribers.all())
 
 
 class TestExperimentNormandyUpdateView(TestCase):
     def test_valid_recipe_id_updates_experiment_status(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
+        experiment = ExperimentCoreFactory.create_with_status(ExperimentCore.STATUS_SHIP)
         normandy_id = 123
 
         response = self.client.post(
@@ -761,13 +769,13 @@ class TestExperimentNormandyUpdateView(TestCase):
             fetch_redirect_response=False,
         )
 
-        experiment = Experiment.objects.get(id=experiment.id)
+        experiment = ExperimentCore.objects.get(id=experiment.id)
         self.assertEqual(experiment.normandy_id, normandy_id)
-        self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
+        self.assertEqual(experiment.status, ExperimentCore.STATUS_ACCEPTED)
 
     def test_invalid_recipe_id_redirects_to_detail(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
+        experiment = ExperimentCoreFactory.create_with_status(ExperimentCore.STATUS_SHIP)
         normandy_id = "abc"
 
         response = self.client.post(
@@ -785,7 +793,7 @@ class TestExperimentNormandyUpdateView(TestCase):
 
     def test_invalid_other_recipe_ids_redirects_to_detail(self):
         user_email = "user@example.com"
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_SHIP)
+        experiment = ExperimentCoreFactory.create_with_status(ExperimentCore.STATUS_SHIP)
         normandy_id = "432"
         other_normandy_ids = "abc"
 

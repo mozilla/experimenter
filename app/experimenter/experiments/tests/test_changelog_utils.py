@@ -1,9 +1,9 @@
 from django.test import TestCase
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import ExperimentCore
 from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
+    ExperimentCoreFactory,
     ExperimentVariantFactory,
     UserFactory,
     VariantPreferencesFactory,
@@ -20,11 +20,11 @@ class TestChangeLogSerializer(TestCase):
         country1 = CountryFactory(code="CA", name="Canada")
         locale1 = LocaleFactory(code="da", name="Danish")
         project = ProjectFactory.create()
-        experiment = ExperimentFactory.create(
+        experiment = ExperimentCoreFactory.create(
             locales=[locale1], countries=[country1], projects=[project]
         )
 
-        related_exp = ExperimentFactory.create()
+        related_exp = ExperimentCoreFactory.create()
         experiment.related_to.add(related_exp)
 
         serializer = ChangeLogSerializer(experiment)
@@ -160,8 +160,8 @@ class TestChangeLogSerializer(TestCase):
 
 class TestChangeLogUtils(TestCase):
     def test_generate_change_log_gives_correct_output(self):
-        experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_REVIEW,
+        experiment = ExperimentCoreFactory.create_with_status(
+            target_status=ExperimentCore.STATUS_REVIEW,
             num_variants=0,
             short_description="description",
             qa_status="pretty good",
@@ -192,8 +192,8 @@ class TestChangeLogUtils(TestCase):
         VariantPreferencesFactory.create(
             variant=variant2,
             pref_name="p1",
-            pref_type=Experiment.PREF_TYPE_INT,
-            pref_branch=Experiment.PREF_BRANCH_DEFAULT,
+            pref_type=ExperimentCore.PREF_TYPE_INT,
+            pref_branch=ExperimentCore.PREF_BRANCH_DEFAULT,
             pref_value="5",
         )
 
@@ -283,7 +283,7 @@ class TestChangeLogUtils(TestCase):
         )
 
     def test_generate_change_log_is_empty_when_no_change(self):
-        experiment = ExperimentFactory.create()
+        experiment = ExperimentCoreFactory.create()
         old_serialized_val = ChangeLogSerializer(experiment).data
         new_serialized_val = ChangeLogSerializer(experiment).data
         changed_data = {}

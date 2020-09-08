@@ -9,14 +9,14 @@ from experimenter.experiments.email import (
     send_experiment_ending_email,
     send_enrollment_pause_email,
 )
-from experimenter.experiments.tests.factories import ExperimentFactory, UserFactory
+from experimenter.experiments.tests.factories import ExperimentCoreFactory, UserFactory
 from experimenter.experiments.constants import ExperimentConstants
 
 
 class TestIntentToShipEmail(TestCase):
     def test_send_intent_to_ship_email_with_risk_fields(self):
-        experiment = ExperimentFactory.create(
-            name="Experiment",
+        experiment = ExperimentCoreFactory.create(
+            name="ExperimentCore",
             slug="experiment",
             risks="Fictitious risk",
             risk_technical_description="Fictitious technical challenge",
@@ -42,7 +42,7 @@ class TestIntentToShipEmail(TestCase):
 
         sent_email = mail.outbox[-1]
         self.assertEqual(
-            sent_email.subject, "Delivery Intent to ship: Experiment 56.0 Nightly"
+            sent_email.subject, "Delivery Intent to ship: ExperimentCore 56.0 Nightly"
         )
         self.assertEqual(sent_email.from_email, sender)
         self.assertEqual(
@@ -70,8 +70,8 @@ class TestIntentToShipEmail(TestCase):
         self.assertIn("Fictitious technical challenge", sent_email.body)
 
     def test_send_intent_to_ship_email_without_risk_fields(self):
-        experiment = ExperimentFactory.create(
-            name="Experiment",
+        experiment = ExperimentCoreFactory.create(
+            name="ExperimentCore",
             slug="experiment",
             risks="",
             risk_technical_description="",
@@ -97,7 +97,7 @@ class TestIntentToShipEmail(TestCase):
 
         sent_email = mail.outbox[-1]
         self.assertEqual(
-            sent_email.subject, "Delivery Intent to ship: Experiment 56.0 Nightly"
+            sent_email.subject, "Delivery Intent to ship: ExperimentCore 56.0 Nightly"
         )
         self.assertIn(f"Experimenter Bug: {bug_url}", sent_email.body)
         self.assertIn(
@@ -136,8 +136,8 @@ class TestIntentToShipEmail(TestCase):
 
 class TestStatusUpdateEmail(TestCase):
     def setUp(self):
-        self.experiment = ExperimentFactory.create_with_variants(
-            name="Greatest Experiment",
+        self.experiment = ExperimentCoreFactory.create_with_variants(
+            name="Greatest ExperimentCore",
             slug="greatest-experiment",
             firefox_min_version="68.0",
             firefox_max_version="69.0",
@@ -158,7 +158,7 @@ class TestStatusUpdateEmail(TestCase):
 
         self.assertEqual(
             sent_email.subject,
-            "Delivery launched: Greatest Experiment 68.0 to 69.0 Nightly",
+            "Delivery launched: Greatest ExperimentCore 68.0 to 69.0 Nightly",
         )
         self.assertTrue(
             self.experiment.emails.filter(
@@ -186,7 +186,7 @@ class TestStatusUpdateEmail(TestCase):
 
         self.assertEqual(
             sent_email.subject,
-            "Delivery launched: Greatest Experiment 68.0 to 69.0 Nightly",
+            "Delivery launched: Greatest ExperimentCore 68.0 to 69.0 Nightly",
         )
         self.assertTrue(
             self.experiment.emails.filter(
@@ -207,7 +207,7 @@ class TestStatusUpdateEmail(TestCase):
 
         self.assertEqual(
             sent_email.subject,
-            "Delivery ending soon: Greatest Experiment 68.0 to 69.0 Nightly",
+            "Delivery ending soon: Greatest ExperimentCore 68.0 to 69.0 Nightly",
         )
         self.assertEqual(sent_email.content_subtype, "html")
         self.assertTrue(
@@ -234,7 +234,7 @@ class TestStatusUpdateEmail(TestCase):
             sent_email.subject,
             (
                 "Experimenter enrollment ending verification for: "
-                "Greatest Experiment 68.0 to 69.0 Nightly"
+                "Greatest ExperimentCore 68.0 to 69.0 Nightly"
             ),
         )
         self.assertEqual(sent_email.content_subtype, "html")

@@ -16,8 +16,8 @@ from experimenter.bugzilla import (
     update_bug_resolution,
     update_experiment_bug,
 )
-from experimenter.experiments.models import Experiment
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.models import ExperimentCore
+from experimenter.experiments.tests.factories import ExperimentCoreFactory
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 
 
@@ -32,9 +32,9 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
         self.assertIsNone(set_bugzilla_id_value(bug_url))
 
     def test_creating_pref_bugzilla_ticket_returns_ticket_id(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
-            name="An Experiment",
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT,
+            name="An ExperimentCore",
             firefox_min_version="56.0",
             firefox_max_version="57.0",
         )
@@ -49,7 +49,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
                 "product": "Shield",
                 "component": "Shield Study",
                 "version": "unspecified",
-                "summary": "[Experiment]: {experiment}".format(experiment=experiment),
+                "summary": "[ExperimentCore]: {experiment}".format(experiment=experiment),
                 "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
                     experiment=experiment
                 ),
@@ -63,8 +63,8 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
         )
 
     def test_create_bugzilla_ticket_creation_with_bad_assigned_to_val(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, name="An Experiment"
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT, name="An ExperimentCore"
         )
 
         self.mock_bugzilla_requests_get.side_effect = [
@@ -80,7 +80,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "product": "Shield",
             "component": "Shield Study",
             "version": "unspecified",
-            "summary": "[Experiment]: {experiment}".format(experiment=experiment),
+            "summary": "[ExperimentCore]: {experiment}".format(experiment=experiment),
             "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
                 experiment=experiment
             ),
@@ -97,8 +97,8 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
         )
 
     def test_create_bugzilla_ticket_creation_with_blocks_bad_val(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, name="An Experiment"
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT, name="An ExperimentCore"
         )
 
         self.mock_bugzilla_requests_get.side_effect = [
@@ -115,7 +115,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "product": "Shield",
             "component": "Shield Study",
             "version": "unspecified",
-            "summary": "[Experiment]: {experiment}".format(experiment=experiment),
+            "summary": "[ExperimentCore]: {experiment}".format(experiment=experiment),
             "description": experiment.BUGZILLA_OVERVIEW_TEMPLATE.format(
                 experiment=experiment
             ),
@@ -132,8 +132,8 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
         )
 
     def test_create_bugzilla_ticket_creation_for_rapid_experiments(self):
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_RAPID, name="An Experiment"
+        experiment = ExperimentCoreFactory.create(
+            type=ExperimentCore.TYPE_RAPID, name="An ExperimentCore"
         )
 
         self.mock_bugzilla_requests_get.side_effect = [
@@ -150,7 +150,7 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             "component": "Shield Study",
             "version": "unspecified",
             "type": "task",
-            "summary": "[Experiment]: {experiment}".format(experiment=experiment),
+            "summary": "[ExperimentCore]: {experiment}".format(experiment=experiment),
             "description": experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
             "assigned_to": experiment.owner.email,
         }
@@ -160,28 +160,28 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
         )
 
     def test_create_bugzilla_ticket_creation_failure(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, name="An Experiment"
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT, name="An ExperimentCore"
         )
         self.setupMockBugzillaCreationFailure()
         self.assertRaises(BugzillaError, create_experiment_bug, experiment)
 
     def test_format_long_summary_name(self):
         long_name = "a" * 225
-        experiment = ExperimentFactory.create(name=long_name)
+        experiment = ExperimentCoreFactory.create(name=long_name)
         summary = format_summary(experiment)
 
         expected_name = "a" * 150
 
-        expected_summary = ("[Experiment]: Pref-Flip Experiment: {name}...").format(
-            name=expected_name
-        )
+        expected_summary = (
+            "[ExperimentCore]: Pref-Flip ExperimentCore: {name}..."
+        ).format(name=expected_name)
         self.assertEqual(summary, expected_summary)
 
 
 class TestFormatBugBody(TestCase):
     def test_countries_locales_list_all_when_none_specified(self):
-        experiment = ExperimentFactory.create(countries=[], locales=[])
+        experiment = ExperimentCoreFactory.create(countries=[], locales=[])
         body = format_bug_body(experiment)
         self.assertIn("Countries: all", body)
         self.assertIn("Locales: all", body)
@@ -189,7 +189,7 @@ class TestFormatBugBody(TestCase):
     def test_format_bug_body_lists_countries_locales(self):
         country = CountryFactory(code="CA", name="Canada")
         locale = LocaleFactory(code="da", name="Danish")
-        experiment = ExperimentFactory.create(countries=[country], locales=[locale])
+        experiment = ExperimentCoreFactory.create(countries=[country], locales=[locale])
         body = format_bug_body(experiment)
         self.assertIn("Countries: Canada (CA)", body)
         self.assertIn("Locales: Danish (da)", body)
@@ -197,18 +197,21 @@ class TestFormatBugBody(TestCase):
 
 class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
     def test_update_bugzilla_pref_experiment(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
-            name="An Experiment",
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT,
+            name="An ExperimentCore",
             bugzilla_id="123",
-            type=Experiment.TYPE_PREF,
+            type=ExperimentCore.TYPE_PREF,
             firefox_min_version="55.0",
             firefox_max_version="56.0",
             firefox_channel="Beta",
         )
 
         update_experiment_bug(experiment)
-        summary = "[Experiment] Pref-Flip Experiment: An Experiment Fx 55.0 to 56.0 Beta"
+        summary = (
+            "[ExperimentCore] Pref-Flip ExperimentCore: "
+            "An ExperimentCore Fx 55.0 to 56.0 Beta"
+        )
 
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
@@ -216,17 +219,19 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
         )
 
     def test_update_bugzilla_addon_experiment(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
-            name="An Experiment",
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT,
+            name="An ExperimentCore",
             bugzilla_id="123",
-            type=Experiment.TYPE_ADDON,
+            type=ExperimentCore.TYPE_ADDON,
             firefox_min_version="56.0",
             firefox_max_version="",
             firefox_channel="Nightly",
         )
         update_experiment_bug(experiment)
-        summary = "[Experiment] Add-On Experiment: An Experiment Fx 56.0 Nightly"
+        summary = (
+            "[ExperimentCore] Add-On ExperimentCore: An ExperimentCore Fx 56.0 Nightly"
+        )
 
         self.mock_bugzilla_requests_put.assert_called_with(
             settings.BUGZILLA_UPDATE_URL.format(id=experiment.bugzilla_id),
@@ -236,11 +241,11 @@ class TestUpdateExperimentBug(MockBugzillaMixin, TestCase):
 
 class TestUpdateBugzillaResolution(MockBugzillaMixin, TestCase):
     def test_bugzilla_resolution_with_archive_true(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
-            name="An Experiment",
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT,
+            name="An ExperimentCore",
             bugzilla_id="123",
-            type=Experiment.TYPE_PREF,
+            type=ExperimentCore.TYPE_PREF,
             archived=True,
         )
 
@@ -251,11 +256,11 @@ class TestUpdateBugzillaResolution(MockBugzillaMixin, TestCase):
         )
 
     def test_bugzilla_resolution_with_archive_false(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
-            name="An Experiment",
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT,
+            name="An ExperimentCore",
             bugzilla_id="123",
-            type=Experiment.TYPE_PREF,
+            type=ExperimentCore.TYPE_PREF,
             archived=False,
         )
 
@@ -267,7 +272,9 @@ class TestUpdateBugzillaResolution(MockBugzillaMixin, TestCase):
         )
 
     def test_bugzilla_resolution_with_completed_status(self):
-        experiment = ExperimentFactory.create_with_status(Experiment.STATUS_COMPLETE)
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_COMPLETE
+        )
 
         update_bug_resolution(experiment)
 
@@ -279,11 +286,11 @@ class TestUpdateBugzillaResolution(MockBugzillaMixin, TestCase):
 
 class TestAddExperimentComment(MockBugzillaMixin, TestCase):
     def test_add_bugzilla_comment_pref_experiment(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
-            name="An Experiment",
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT,
+            name="An ExperimentCore",
             bugzilla_id="123",
-            type=Experiment.TYPE_PREF,
+            type=ExperimentCore.TYPE_PREF,
         )
         comment = "Start Date: {} End Date: {}".format(
             experiment.start_date, experiment.end_date
@@ -299,11 +306,11 @@ class TestAddExperimentComment(MockBugzillaMixin, TestCase):
         )
 
     def test_add_bugzilla_comment_addon_experiment(self):
-        experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
-            name="An Experiment",
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCore.STATUS_DRAFT,
+            name="An ExperimentCore",
             bugzilla_id="123",
-            type=Experiment.TYPE_ADDON,
+            type=ExperimentCore.TYPE_ADDON,
         )
 
         comment = "Start Date: {} End Date: {}".format(

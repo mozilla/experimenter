@@ -27,7 +27,7 @@ def default_all_platforms():
     return ExperimentConstants.PLATFORMS_LIST
 
 
-class ExperimentManager(models.Manager):
+class ExperimentCoreManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().annotate(latest_change=Max("changes__changed_on"))
 
@@ -119,8 +119,6 @@ class Experiment(ExperimentConstants, models.Model):
 
     bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
     recipe_slug = models.CharField(max_length=255, blank=True, null=True)
-
-    objects = ExperimentManager()
 
     class Meta:
         verbose_name = "Experiment"
@@ -1066,8 +1064,11 @@ class ExperimentCore(Experiment):
     results_measure_impact = models.NullBooleanField(default=None, blank=True, null=True)
     results_impact_notes = models.TextField(blank=True, null=True)
 
+    objects = ExperimentCoreManager()
+
     class Meta:
-        pass
+        verbose_name = "ExperimentCore"
+        verbose_name_plural = "ExperimentCores"
 
 
 class ExperimentRapid(Experiment):
@@ -1094,7 +1095,8 @@ class ExperimentRapid(Experiment):
     )
 
     class Meta:
-        pass
+        verbose_name = "ExperimentRapid"
+        verbose_name_plural = "ExperimentRapids"
 
 
 class ExperimentVariant(models.Model):

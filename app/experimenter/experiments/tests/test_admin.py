@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.test import TestCase
 
 from experimenter.experiments.admin import ExperimentAdmin
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.factories import ExperimentCoreFactory
 from experimenter.openidc.tests.factories import UserFactory
 
 
@@ -23,7 +23,9 @@ class ExperimentAdminTest(TestCase):
         user.is_superuser = True
         user.save()
 
-        experiment = ExperimentFactory.create_with_status(ExperimentFactory.STATUS_DRAFT)
+        experiment = ExperimentCoreFactory.create_with_status(
+            ExperimentCoreFactory.STATUS_DRAFT
+        )
         response = self.client.get(
             reverse(
                 "admin:experiments_experiment_change", kwargs={"object_id": experiment.id}
