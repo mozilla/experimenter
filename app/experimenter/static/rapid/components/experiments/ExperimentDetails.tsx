@@ -59,12 +59,12 @@ const ExperimentDetails: React.FC = () => {
   const handleClickRequestApproval = async () => dispatch(requestReview());
 
   React.useEffect(() => {
-    const pibalRoot = document.getElementById("pibal-root");
-    if (!pibalRoot || !window.initSvelte) {
+    const visualizationRoot = document.getElementById("visualization-root");
+    if (!visualizationRoot || !window.initSvelte) {
       return;
     }
 
-    window.initSvelte(pibalRoot, experimentData.analysis);
+    window.initSvelte(visualizationRoot, experimentData.analysis);
   });
 
   useInterval(() => {
@@ -136,7 +136,7 @@ const ExperimentDetails: React.FC = () => {
             here
           </a>
         </p>
-        <div id="pibal-root"></div>
+        <div id="visualization-root"></div>
       </>
     );
   }
