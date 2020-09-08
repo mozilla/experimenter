@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from experimenter.base.serializers import CountrySerializer, LocaleSerializer
 from experimenter.experiments.models import (
-    Experiment,
+    ExperimentCore,
     ExperimentVariant,
     ExperimentChangeLog,
     VariantPreferences,
@@ -27,8 +27,8 @@ class JSTimestampField(serializers.Field):
 
 class PrefTypeField(serializers.Field):
     def to_representation(self, obj):
-        if obj == Experiment.PREF_TYPE_JSON_STR:
-            return Experiment.PREF_TYPE_STR
+        if obj == ExperimentCore.PREF_TYPE_JSON_STR:
+            return ExperimentCore.PREF_TYPE_STR
         else:
             return obj
 
@@ -73,7 +73,7 @@ class ExperimentChangeLogSerializer(serializers.ModelSerializer):
 
 class ResultsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = (
             "results_url",
             "results_initial",
@@ -106,7 +106,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
     normandy_slug = serializers.CharField(source="recipe_slug")
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = (
             "experiment_url",
             "type",

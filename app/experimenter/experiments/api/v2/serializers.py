@@ -9,7 +9,7 @@ from rest_framework import serializers
 
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.models import (
-    Experiment,
+    ExperimentCore,
     ExperimentVariant,
     VariantPreferences,
     RolloutPreference,
@@ -196,7 +196,7 @@ class ExperimentDesignBaseSerializer(
     variants = ExperimentDesignVariantBaseSerializer(many=True)
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("variants",)
 
     def validate(self, data):
@@ -278,11 +278,11 @@ class ExperimentDesignRolloutPreferenceSerializer(
 class ExperimentDesignPrefRolloutSerializer(
     PrefValidationMixin, ExperimentDesignBaseSerializer
 ):
-    rollout_type = serializers.ChoiceField(choices=Experiment.ROLLOUT_TYPE_CHOICES)
+    rollout_type = serializers.ChoiceField(choices=ExperimentCore.ROLLOUT_TYPE_CHOICES)
     preferences = ExperimentDesignRolloutPreferenceSerializer(many=True)
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("rollout_type", "design", "preferences")
 
     def validate(self, data):
@@ -290,7 +290,7 @@ class ExperimentDesignPrefRolloutSerializer(
 
         preferences = data["preferences"]
 
-        if data["rollout_type"] == Experiment.TYPE_PREF:
+        if data["rollout_type"] == ExperimentCore.TYPE_PREF:
             invalid_preferences = []
             for preference in preferences:
                 pref_invalid = self.validate_multi_preference(preference)
@@ -336,11 +336,11 @@ class ExperimentDesignPrefRolloutSerializer(
 
 
 class ExperimentDesignAddonRolloutSerializer(ExperimentDesignBaseSerializer):
-    rollout_type = serializers.ChoiceField(choices=Experiment.ROLLOUT_TYPE_CHOICES)
+    rollout_type = serializers.ChoiceField(choices=ExperimentCore.ROLLOUT_TYPE_CHOICES)
     addon_release_url = serializers.URLField(max_length=400, allow_null=True)
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("rollout_type", "design", "addon_release_url")
 
 
@@ -349,7 +349,7 @@ class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
     variants = ExperimentDesignBranchMultiPrefSerializer(many=True)
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("is_multi_pref", "variants")
 
     def update(self, instance, validated_data):
@@ -395,7 +395,7 @@ class ExperimentDesignPrefSerializer(PrefValidationMixin, ExperimentDesignBaseSe
     variants = ExperimentDesignVariantPrefSerializer(many=True)
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("is_multi_pref", "pref_name", "pref_type", "pref_branch", "variants")
 
     def validate_pref_type(self, value):
@@ -441,7 +441,7 @@ class ExperimentDesignAddonSerializer(ExperimentDesignBaseSerializer):
     is_branched_addon = serializers.BooleanField()
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("addon_release_url", "variants", "is_branched_addon")
 
 
@@ -449,7 +449,7 @@ class ExperimentDesignGenericSerializer(ExperimentDesignBaseSerializer):
     design = serializers.CharField(allow_null=True, allow_blank=True, required=False)
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("design", "variants")
 
 
@@ -473,7 +473,7 @@ class ExperimentDesignBranchedAddonSerializer(ExperimentDesignBaseSerializer):
     is_branched_addon = serializers.BooleanField()
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("is_branched_addon", "variants")
 
 
@@ -507,7 +507,7 @@ class ExperimentDesignMessageSerializer(ExperimentDesignBaseSerializer):
     )
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("message_type", "message_template", "variants")
 
 
@@ -630,7 +630,7 @@ class ExperimentTimelinePopSerializer(
             "profile_age",
             "client_matching",
         )
-        model = Experiment
+        model = ExperimentCore
 
     def validate_proposed_start_date(self, value):
         if value and value < datetime.date.today():
@@ -704,11 +704,11 @@ class ExperimentCloneSerializer(serializers.ModelSerializer):
     clone_url = serializers.SerializerMethodField()
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("name", "clone_url")
 
     def validate_name(self, value):
-        existing_slug_or_name = Experiment.objects.filter(
+        existing_slug_or_name = ExperimentCore.objects.filter(
             Q(slug=slugify(value)) | Q(name=value)
         )
 
@@ -746,7 +746,7 @@ class ExperimentCSVSerializer(serializers.ModelSerializer):
     countries = serializers.SerializerMethodField()
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = (
             "name",
             "status",

@@ -9,7 +9,7 @@ from rest_framework_csv.renderers import CSVRenderer
 
 
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import ExperimentCore
 from experimenter.experiments import email
 from experimenter.experiments.filtersets import ExperimentFilterset
 from experimenter.experiments.api.v1.serializers import ExperimentSerializer
@@ -30,7 +30,7 @@ from experimenter.experiments.api.v2.serializers import (
 
 class ExperimentSendIntentToShipEmailView(UpdateAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.filter(status=Experiment.STATUS_REVIEW)
+    queryset = ExperimentCore.objects.filter(status=ExperimentCore.STATUS_REVIEW)
     serializer_class = ExperimentSerializer
 
     def update(self, request, *args, **kwargs):
@@ -51,61 +51,61 @@ class ExperimentSendIntentToShipEmailView(UpdateAPIView):
 
 class ExperimentCloneView(UpdateAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.all()
+    queryset = ExperimentCore.objects.all()
     serializer_class = ExperimentCloneSerializer
 
 
 class ExperimentDesignPrefView(RetrieveUpdateAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_PREF)
+    queryset = ExperimentCore.objects.filter(type=ExperimentConstants.TYPE_PREF)
     serializer_class = ExperimentDesignPrefSerializer
 
 
 class ExperimentDesignMultiPrefView(RetrieveUpdateAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_PREF)
+    queryset = ExperimentCore.objects.filter(type=ExperimentConstants.TYPE_PREF)
     serializer_class = ExperimentDesignMultiPrefSerializer
 
 
 class ExperimentDesignAddonView(RetrieveUpdateAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_ADDON)
+    queryset = ExperimentCore.objects.filter(type=ExperimentConstants.TYPE_ADDON)
     serializer_class = ExperimentDesignAddonSerializer
 
 
 class ExperimentDesignGenericView(RetrieveUpdateAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_GENERIC)
+    queryset = ExperimentCore.objects.filter(type=ExperimentConstants.TYPE_GENERIC)
     serializer_class = ExperimentDesignGenericSerializer
 
 
 class ExperimentDesignBranchedAddonView(RetrieveUpdateAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_ADDON)
+    queryset = ExperimentCore.objects.filter(type=ExperimentConstants.TYPE_ADDON)
     serializer_class = ExperimentDesignBranchedAddonSerializer
 
 
 class ExperimentDesignPrefRolloutView(RetrieveUpdateAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_ROLLOUT)
+    queryset = ExperimentCore.objects.filter(type=ExperimentConstants.TYPE_ROLLOUT)
     serializer_class = ExperimentDesignPrefRolloutSerializer
 
 
 class ExperimentDesignAddonRolloutView(RetrieveUpdateAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_ROLLOUT)
+    queryset = ExperimentCore.objects.filter(type=ExperimentConstants.TYPE_ROLLOUT)
     serializer_class = ExperimentDesignAddonRolloutSerializer
 
 
 class ExperimentDesignMessageView(RetrieveUpdateAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.filter(type=ExperimentConstants.TYPE_MESSAGE)
+    queryset = ExperimentCore.objects.filter(type=ExperimentConstants.TYPE_MESSAGE)
     serializer_class = ExperimentDesignMessageSerializer
 
 
 class ExperimentTimelinePopulationView(RetrieveUpdateAPIView):
     lookup_field = "slug"
-    queryset = Experiment.objects.all()
+    queryset = ExperimentCore.objects.all()
     serializer_class = ExperimentTimelinePopSerializer
 
 
@@ -115,7 +115,7 @@ class ExperimentCSVRenderer(CSVRenderer):
 
 
 class ExperimentCSVListView(ListAPIView):
-    queryset = Experiment.objects.get_prefetched().order_by("status", "name")
+    queryset = ExperimentCore.objects.get_prefetched().order_by("status", "name")
     serializer_class = ExperimentCSVSerializer
     renderer_classes = (ExperimentCSVRenderer,)
 

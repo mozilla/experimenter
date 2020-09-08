@@ -15,7 +15,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             Experiment.STATUS_ACCEPTED,
             audience=audience,
             features=features,
-            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_channel=ExperimentRapid.CHANNEL_RELEASE,
             firefox_min_version="80.0",
         )
 
@@ -76,7 +76,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             Experiment.STATUS_LIVE,
             audience=audience,
             features=features,
-            firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_channel=ExperimentRapid.CHANNEL_RELEASE,
             firefox_min_version="80.0",
         )
 

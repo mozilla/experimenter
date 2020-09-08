@@ -9,7 +9,7 @@ from experimenter.experiments.api.v1.serializers import ExperimentVariantSeriali
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.experiments.models import (
-    Experiment,
+    ExperimentCore,
     ExperimentVariant,
     ExperimentChangeLog,
     RolloutPreference,
@@ -192,7 +192,7 @@ class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
         self.assertIn("Pref name per Branch needs to be unique", error_string)
 
     def test_serailizer_reject_mismatch_type_value_integer(self):
-        self.pref1["pref_type"] = Experiment.PREF_TYPE_INT
+        self.pref1["pref_type"] = ExperimentCore.PREF_TYPE_INT
         self.pref1["pref_value"] = "some random string"
         data = {"variants": [self.control_variant]}
 
@@ -204,7 +204,7 @@ class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
         self.assertIn("The pref value must be an integer", error_string)
 
     def test_serailizer_reject_mismatch_type_value_bool(self):
-        self.pref1["pref_type"] = Experiment.PREF_TYPE_BOOL
+        self.pref1["pref_type"] = ExperimentCore.PREF_TYPE_BOOL
         self.pref1["pref_value"] = "some random string"
         data = {"variants": [self.control_variant]}
 
@@ -216,7 +216,7 @@ class TestExperimentDesignMultiPrefSerializer(MockRequestMixin, TestCase):
         self.assertIn("The pref value must be a boolean", error_string)
 
     def test_serailizer_reject_mismatch_type_value_json_string(self):
-        self.pref1["pref_type"] = Experiment.PREF_TYPE_JSON_STR
+        self.pref1["pref_type"] = ExperimentCore.PREF_TYPE_JSON_STR
         self.pref1["pref_value"] = "some random string"
         data = {"variants": [self.control_variant]}
 
@@ -740,7 +740,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
         serializer = ExperimentDesignPrefSerializer(instance=experiment, data=data)
         self.assertFalse(serializer.is_valid())
         self.assertIn("variants", serializer.errors)
-        experiment = Experiment.objects.get(id=experiment.id)
+        experiment = ExperimentCore.objects.get(id=experiment.id)
         self.assertEqual(experiment.changes.count(), 0)
 
     def test_serializer_rejects_no_type_choice(self):
@@ -757,7 +757,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertEqual(set(serializer.errors), set(["pref_type"]))
-        experiment = Experiment.objects.get(id=experiment.id)
+        experiment = ExperimentCore.objects.get(id=experiment.id)
         self.assertEqual(experiment.changes.count(), 0)
 
     def test_serializer_rejects_no_branch_choice(self):
@@ -791,7 +791,7 @@ class TestExperimentDesignPrefSerializer(MockRequestMixin, TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertIn("variants", serializer.errors)
-        experiment = Experiment.objects.get(id=experiment.id)
+        experiment = ExperimentCore.objects.get(id=experiment.id)
         self.assertEqual(experiment.changes.count(), 0)
 
     def test_serializer_accepts_int_branch_values(self):
@@ -1157,9 +1157,9 @@ class TestExperimentDesignBranchedAddonSerializer(MockRequestMixin, TestCase):
 class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
     def test_pref_fields_required_for_rollout_type_pref(self):
 
-        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
 
-        data = {"rollout_type": Experiment.TYPE_PREF}
+        data = {"rollout_type": ExperimentCore.TYPE_PREF}
 
         serializer = ExperimentDesignPrefRolloutSerializer(
             instance=experiment, data=data, context={"request": self.request}
@@ -1169,14 +1169,14 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
         self.assertIn("preferences", serializer.errors)
 
     def test_validates_pref_type_matches_value(self):
-        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
 
         data = {
-            "rollout_type": Experiment.TYPE_PREF,
+            "rollout_type": ExperimentCore.TYPE_PREF,
             "preferences": [
                 {
                     "pref_name": "browser.pref",
-                    "pref_type": Experiment.PREF_TYPE_INT,
+                    "pref_type": ExperimentCore.PREF_TYPE_INT,
                     "pref_value": "abc",
                 }
             ],
@@ -1188,19 +1188,19 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
         self.assertFalse(serializer.is_valid())
 
     def test_saves_pref_rollout(self):
-        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
 
         data = {
-            "rollout_type": Experiment.TYPE_PREF,
+            "rollout_type": ExperimentCore.TYPE_PREF,
             "preferences": [
                 {
                     "pref_name": "browser.pref",
-                    "pref_type": Experiment.PREF_TYPE_INT,
+                    "pref_type": ExperimentCore.PREF_TYPE_INT,
                     "pref_value": "1",
                 },
                 {
                     "pref_name": "browser.pref2",
-                    "pref_type": Experiment.PREF_TYPE_STR,
+                    "pref_type": ExperimentCore.PREF_TYPE_STR,
                     "pref_value": "A STRING!",
                 },
             ],
@@ -1230,19 +1230,19 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
         self.assertEqual(pref2.pref_value, data_pref2["pref_value"])
 
     def test_pref_name_uniqueness_constraint(self):
-        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
 
         data = {
-            "rollout_type": Experiment.TYPE_PREF,
+            "rollout_type": ExperimentCore.TYPE_PREF,
             "preferences": [
                 {
                     "pref_name": "browser.pref",
-                    "pref_type": Experiment.PREF_TYPE_INT,
+                    "pref_type": ExperimentCore.PREF_TYPE_INT,
                     "pref_value": "1",
                 },
                 {
                     "pref_name": "browser.pref",
-                    "pref_type": Experiment.PREF_TYPE_STR,
+                    "pref_type": ExperimentCore.PREF_TYPE_STR,
                     "pref_value": "A STRING!",
                 },
             ],
@@ -1259,9 +1259,9 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
         )
 
     def test_save_pref_rollout_with_existing_prefs(self):
-        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
         preference1 = RolloutPreference(
-            pref_type=Experiment.PREF_TYPE_INT,
+            pref_type=ExperimentCore.PREF_TYPE_INT,
             pref_name="browser.pref",
             pref_value="4",
             experiment=experiment,
@@ -1270,24 +1270,24 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
         original_pref1_id = experiment.preferences.first().id
 
         RolloutPreference(
-            pref_type=Experiment.PREF_TYPE_INT,
+            pref_type=ExperimentCore.PREF_TYPE_INT,
             pref_name="browser.pref2",
             pref_value="4",
             experiment=experiment,
         ).save()
 
         data = {
-            "rollout_type": Experiment.TYPE_PREF,
+            "rollout_type": ExperimentCore.TYPE_PREF,
             "preferences": [
                 {
                     "id": original_pref1_id,
                     "pref_name": "change.original.pref",
-                    "pref_type": Experiment.PREF_TYPE_STR,
+                    "pref_type": ExperimentCore.PREF_TYPE_STR,
                     "pref_value": "change original pref",
                 },
                 {
                     "pref_name": "browser.pref3",
-                    "pref_type": Experiment.PREF_TYPE_STR,
+                    "pref_type": ExperimentCore.PREF_TYPE_STR,
                     "pref_value": "A STRING!",
                 },
             ],
@@ -1317,16 +1317,16 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
         self.assertEqual(pref2.pref_value, data_pref2["pref_value"])
 
     def test_serializer_outputs_empty_pref_when_no_prefs(self):
-        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
 
         serializer = ExperimentDesignPrefRolloutSerializer(instance=experiment)
 
         self.assertEqual(serializer.data["preferences"], [{}])
 
     def test_serializer_outputs_expected_schema(self):
-        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
         preference = RolloutPreference(
-            pref_type=Experiment.PREF_TYPE_INT,
+            pref_type=ExperimentCore.PREF_TYPE_INT,
             pref_name="browser.pref",
             pref_value="4",
             experiment=experiment,
@@ -1343,7 +1343,7 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
                     "id": experiment.preferences.first().id,
                     "pref_name": "browser.pref",
                     "pref_value": "4",
-                    "pref_type": Experiment.PREF_TYPE_INT,
+                    "pref_type": ExperimentCore.PREF_TYPE_INT,
                 }
             ],
         )
@@ -1351,9 +1351,9 @@ class TestExperimentDesignPrefRolloutSerializer(MockRequestMixin, TestCase):
 
 class TestExperimentDesignAddonRolloutSerializer(MockRequestMixin, TestCase):
     def test_addon_fields_required_for_rollout_type_addon(self):
-        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
 
-        data = {"rollout_type": Experiment.TYPE_ADDON}
+        data = {"rollout_type": ExperimentCore.TYPE_ADDON}
 
         serializer = ExperimentDesignAddonRolloutSerializer(
             instance=experiment, data=data, context={"request": self.request}
@@ -1363,10 +1363,10 @@ class TestExperimentDesignAddonRolloutSerializer(MockRequestMixin, TestCase):
         self.assertIn("addon_release_url", serializer.errors)
 
     def test_saves_addon_rollout(self):
-        experiment = ExperimentFactory.create(type=Experiment.TYPE_ROLLOUT)
+        experiment = ExperimentFactory.create(type=ExperimentCore.TYPE_ROLLOUT)
 
         data = {
-            "rollout_type": Experiment.TYPE_ADDON,
+            "rollout_type": ExperimentCore.TYPE_ADDON,
             "addon_release_url": "https://www.example.com/addon.xpi",
         }
 
@@ -1385,7 +1385,7 @@ class TestExperimentDesignAddonRolloutSerializer(MockRequestMixin, TestCase):
 class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
     def test_update_changelog_creates_no_log_when_no_change(self):
         experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_DRAFT, num_variants=0
+            target_status=ExperimentCore.STATUS_DRAFT, num_variants=0
         )
         variant = ExperimentVariantFactory.create(
             ratio=100,
@@ -1448,8 +1448,8 @@ class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
         ExperimentChangeLog.objects.create(
             experiment=experiment,
             changed_by=UserFactory(),
-            old_status=Experiment.STATUS_DRAFT,
-            new_status=Experiment.STATUS_DRAFT,
+            old_status=ExperimentCore.STATUS_DRAFT,
+            new_status=ExperimentCore.STATUS_DRAFT,
             changed_values=changed_values,
             message="",
         )
@@ -1625,8 +1625,8 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
         }
 
         data = {
-            "message_type": Experiment.MESSAGE_TYPE_CFR,
-            "message_template": Experiment.MESSAGE_TEMPLATE_DOOR,
+            "message_type": ExperimentCore.MESSAGE_TYPE_CFR,
+            "message_template": ExperimentCore.MESSAGE_TEMPLATE_DOOR,
             "variants": [variant_1, variant_2],
         }
 
@@ -1638,8 +1638,10 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
 
         experiment = serializer.save()
 
-        self.assertEqual(experiment.message_type, Experiment.MESSAGE_TYPE_CFR)
-        self.assertEqual(experiment.message_template, Experiment.MESSAGE_TEMPLATE_DOOR)
+        self.assertEqual(experiment.message_type, ExperimentCore.MESSAGE_TYPE_CFR)
+        self.assertEqual(
+            experiment.message_template, ExperimentCore.MESSAGE_TEMPLATE_DOOR
+        )
         self.assertEqual(experiment.variants.count(), 2)
         self.assertEqual(experiment.changes.count(), 1)
 
@@ -1681,7 +1683,7 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
         }
 
         data = {
-            "message_type": Experiment.MESSAGE_TYPE_WELCOME,
+            "message_type": ExperimentCore.MESSAGE_TYPE_WELCOME,
             "variants": [variant_1, variant_2],
         }
 
@@ -1693,7 +1695,7 @@ class TestExperimentDesignMessageSerializer(MockRequestMixin, TestCase):
 
         experiment = serializer.save()
 
-        self.assertEqual(experiment.message_type, Experiment.MESSAGE_TYPE_WELCOME)
+        self.assertEqual(experiment.message_type, ExperimentCore.MESSAGE_TYPE_WELCOME)
         self.assertEqual(experiment.variants.count(), 2)
         self.assertEqual(experiment.changes.count(), 1)
 
@@ -2038,7 +2040,7 @@ class TestExperimentCSVSerializer(TestCase):
         related_experiment1 = ExperimentFactory.create(slug="a")
         related_experiment2 = ExperimentFactory.create(slug="b")
         experiment = ExperimentFactory.create_with_status(
-            target_status=Experiment.STATUS_COMPLETE,
+            target_status=ExperimentCore.STATUS_COMPLETE,
             parent=parent,
             projects=[project1, project2],
         )

@@ -15,7 +15,10 @@ class TestExperimentListView(TestCase):
         for status, _ in Experiment.STATUS_CHOICES:
             experiment = ExperimentRapidFactory.create_with_status(status)
 
-            if status not in [Experiment.STATUS_DRAFT, Experiment.STATUS_REVIEW]:
+            if status not in [
+                ExperimentRapid.STATUS_DRAFT,
+                ExperimentRapid.STATUS_REVIEW,
+            ]:
                 experiments.append(experiment)
 
         response = self.client.get(

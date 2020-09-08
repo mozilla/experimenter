@@ -7,7 +7,7 @@ from django.urls import reverse
 
 
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import ExperimentCore
 from experimenter.experiments.api.v2.serializers import (
     ExperimentCSVSerializer,
     ExperimentDesignAddonSerializer,
@@ -33,7 +33,7 @@ class TestExperimentSendIntentToShipEmailView(TestCase):
         user_email = "user@example.com"
 
         experiment = ExperimentFactory.create_with_variants(
-            review_intent_to_ship=False, status=Experiment.STATUS_REVIEW
+            review_intent_to_ship=False, status=ExperimentCore.STATUS_REVIEW
         )
         old_outbox_len = len(mail.outbox)
 
@@ -47,13 +47,13 @@ class TestExperimentSendIntentToShipEmailView(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        experiment = Experiment.objects.get(pk=experiment.pk)
+        experiment = ExperimentCore.objects.get(pk=experiment.pk)
         self.assertEqual(experiment.review_intent_to_ship, True)
         self.assertEqual(len(mail.outbox), old_outbox_len + 1)
 
     def test_put_raises_409_if_email_already_sent(self):
         experiment = ExperimentFactory.create_with_variants(
-            review_intent_to_ship=True, status=Experiment.STATUS_REVIEW
+            review_intent_to_ship=True, status=ExperimentCore.STATUS_REVIEW
         )
 
         response = self.client.put(
@@ -227,7 +227,11 @@ class TestExperimentDesignMultiPrefView(TestCase):
             ],
         }
         data = json.dumps(
-            {"type": Experiment.TYPE_PREF, "is_multi_pref": True, "variants": [variant]}
+            {
+                "type": ExperimentCore.TYPE_PREF,
+                "is_multi_pref": True,
+                "variants": [variant],
+            }
         )
 
         response = self.client.put(
@@ -516,8 +520,8 @@ class TestExperimentDesignMessageView(TestCase):
 
         data = json.dumps(
             {
-                "message_type": Experiment.MESSAGE_TYPE_CFR,
-                "message_template": Experiment.MESSAGE_TEMPLATE_DOOR,
+                "message_type": ExperimentCore.MESSAGE_TYPE_CFR,
+                "message_template": ExperimentCore.MESSAGE_TEMPLATE_DOOR,
                 "variants": [variant_1, variant_2],
             }
         )
@@ -556,7 +560,7 @@ class TestExperimentDesignMessageView(TestCase):
 
         data = json.dumps(
             {
-                "message_type": Experiment.MESSAGE_TYPE_WELCOME,
+                "message_type": ExperimentCore.MESSAGE_TYPE_WELCOME,
                 "variants": [variant_1, variant_2],
             }
         )
@@ -617,10 +621,10 @@ class TestExperimentCSVListView(TestCase):
     def test_get_returns_csv_info(self):
         user_email = "user@example.com"
         experiment1 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, name="a"
+            ExperimentCore.STATUS_DRAFT, name="a"
         )
         experiment2 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, name="b"
+            ExperimentCore.STATUS_DRAFT, name="b"
         )
 
         response = self.client.get(
@@ -641,10 +645,10 @@ class TestExperimentCSVListView(TestCase):
         user_email = "user@example.com"
         project = ProjectFactory.create()
         experiment1 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, name="a", projects=[project]
+            ExperimentCore.STATUS_DRAFT, name="a", projects=[project]
         )
         experiment2 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, name="b", projects=[project]
+            ExperimentCore.STATUS_DRAFT, name="b", projects=[project]
         )
         ExperimentFactory.create_with_variants()
 
@@ -665,11 +669,11 @@ class TestExperimentCSVListView(TestCase):
     def test_view_filters_by_subscriber(self):
         user = UserFactory(email="user@example.com")
         experiment1 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, name="a"
+            ExperimentCore.STATUS_DRAFT, name="a"
         )
         experiment1.subscribers.add(user)
         experiment2 = ExperimentFactory.create_with_status(
-            Experiment.STATUS_DRAFT, name="b"
+            ExperimentCore.STATUS_DRAFT, name="b"
         )
         experiment2.subscribers.add(user)
         ExperimentFactory.create_with_variants()
