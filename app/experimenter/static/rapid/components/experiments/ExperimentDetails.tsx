@@ -64,7 +64,7 @@ const ExperimentDetails: React.FC = () => {
       return;
     }
 
-    window.initSvelte(pibalRoot);
+    window.initSvelte(pibalRoot, experimentData.analysis);
   });
 
   useInterval(() => {

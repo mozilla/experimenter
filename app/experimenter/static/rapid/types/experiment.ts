@@ -13,6 +13,23 @@ export enum FirefoxChannel {
   RELEASE = "Release",
 }
 
+export interface AnalysisPoint {
+  metric: string;
+  statistic: string;
+  parameter?: string;
+  branch: string;
+  ci_width?: number;
+  point: number;
+  lower?: number;
+  upper?: number;
+  window_index: string;
+}
+
+export interface ExperimentAnalysis {
+  daily: Array<AnalysisPoint>;
+  weekly: Array<AnalysisPoint>;
+}
+
 export interface ExperimentData {
   audience: string;
   bugzilla_url?: string;
@@ -27,6 +44,7 @@ export interface ExperimentData {
   recipe_slug?: string;
   reject_feedback?: RejectFeedback;
   status: ExperimentStatus;
+  analysis?: ExperimentAnalysis
 }
 
 export enum ExperimentReducerActionType {
