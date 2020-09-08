@@ -1,5 +1,6 @@
 import svelte from "rollup-plugin-svelte";
 import resolve from "@rollup/plugin-node-resolve";
+import node from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import livereload from "rollup-plugin-livereload";
 import postcss from "rollup-plugin-postcss";
@@ -21,6 +22,7 @@ export default [{
     file: path.resolve(__dirname, "../assets/pibal/bundle.js")
   },
   plugins: [
+    node({jsnext: true}),
     postcss(),
     copy({
       targets: [
