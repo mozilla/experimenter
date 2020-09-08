@@ -74,13 +74,6 @@ class ExperimentRapidArgumentSerializer(serializers.ModelSerializer):
     def get_bucketConfig(self, obj):
         if hasattr(obj, "bucket"):
             return ExperimentBucketRangeSerializer(obj.bucket).data
-        return {
-            "randomizationUnit": "normandy_id",
-            "namespace": "",
-            "start": 0,
-            "count": 0,
-            "total": 10000,
-        }
 
     def get_referenceBranch(self, obj):
         if obj.variants.count():
