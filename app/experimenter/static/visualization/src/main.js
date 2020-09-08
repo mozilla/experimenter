@@ -4,6 +4,7 @@ import "prismjs/themes/prism.css";
 
 let app;
 window.initSvelte = (target, data) => {
+	console.log("OMGGGGG ", data);
 	if (!app) {
 		app = new App({target, props: {
 			experimentData: data

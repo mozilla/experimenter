@@ -19,14 +19,14 @@ export default [{
     sourcemap: true,
     format: "iife",
     name: "app",
-    file: path.resolve(__dirname, "../assets/pibal/bundle.js")
+    file: path.resolve(__dirname, "../assets/visualization/bundle.js")
   },
   plugins: [
     node({jsnext: true}),
     postcss(),
     copy({
       targets: [
-        { src: "public/global.css", dest: "../assets/pibal/" }
+        { src: "public/global.css", dest: "../assets/visualization/" }
       ]
     }),
     svelte({
@@ -36,7 +36,7 @@ export default [{
       // we'll extract any component CSS out into
       // a separate file - better for performance
       css: (css) => {
-        css.write("../assets/pibal/bundle.css");
+        css.write("../assets/visualization/bundle.css");
       },
     }),
     typescript({ sourceMap: !production }),

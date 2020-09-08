@@ -40,6 +40,7 @@
 
   function getDataByType(info: Array<string>) {
     const [statistic, metric, analysisWindow] = info;
+    console.log("here?? ", info);
 
     let fullData: Array<AnalysisPoint>;
     if (analysisWindow === "daily") {
@@ -75,6 +76,8 @@
 
   $: {
     setBranches();
+    console.log("branches ", branches);
+    console.log("data made it here ", experimentData);
   }
 </script>
 
