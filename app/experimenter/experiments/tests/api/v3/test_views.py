@@ -6,16 +6,11 @@ from django.urls import reverse
 from parameterized import parameterized
 
 from experimenter.experiments.api.v3.serializers import ExperimentRapidSerializer
-<<<<<<< HEAD
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import ExperimentRapid
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentRapidFactory,
 )
-=======
-from experimenter.experiments.models import ExperimentRapid
-from experimenter.experiments.tests.factories import ExperimentFactory
->>>>>>> Rename v1-v4 for refactored experiment tables.
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
@@ -44,7 +39,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         user_email = "user@example.com"
         owner = UserFactory(email=user_email)
         experiment = ExperimentRapidFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
+            ExperimentRapid.STATUS_DRAFT,
             owner=owner,
         )
 
@@ -84,7 +79,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
 
         owner = UserFactory(email=user_email)
         experiment = ExperimentRapidFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
+            ExperimentRapid.STATUS_DRAFT,
             owner=owner,
             name="rapid experiment",
             slug="rapid-experiment",
@@ -92,7 +87,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
             audience=audience,
             features=features,
             firefox_min_version="79.0",
-            firefox_channel=Experiment.CHANNEL_NIGHTLY,
+            firefox_channel=ExperimentRapid.CHANNEL_NIGHTLY,
         )
 
         control_variant = experiment.variants.get(is_control=True)
@@ -105,7 +100,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
                 "audience": audience,
                 "features": features,
                 "firefox_min_version": "80.0",
-                "firefox_channel": Experiment.CHANNEL_RELEASE,
+                "firefox_channel": ExperimentRapid.CHANNEL_RELEASE,
                 "variants": [
                     {
                         "id": control_variant.id,
@@ -143,7 +138,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         self.assertEqual(experiment.audience, audience)
         self.assertEqual(experiment.features, features)
         self.assertEqual(experiment.firefox_min_version, "80.0")
-        self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
+        self.assertEqual(experiment.firefox_channel, ExperimentRapid.CHANNEL_RELEASE)
 
     def test_post_list_creates_rapid_experiment(self):
         user_email = "user@example.com"
@@ -157,7 +152,7 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
                 "audience": audience,
                 "features": features,
                 "firefox_min_version": "80.0",
-                "firefox_channel": Experiment.CHANNEL_RELEASE,
+                "firefox_channel": ExperimentRapid.CHANNEL_RELEASE,
                 "variants": self.variants_data,
             }
         )
@@ -178,12 +173,12 @@ class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):
         self.assertEqual(experiment.audience, audience)
         self.assertEqual(experiment.features, features)
         self.assertEqual(experiment.firefox_min_version, "80.0")
-        self.assertEqual(experiment.firefox_channel, Experiment.CHANNEL_RELEASE)
+        self.assertEqual(experiment.firefox_channel, ExperimentRapid.CHANNEL_RELEASE)
 
     def test_request_review_updates_status_creates_changelog(self):
         user_email = "user@example.com"
         experiment = ExperimentRapidFactory.create_with_status(
-            Experiment.STATUS_DRAFT,
+            ExperimentRapid.STATUS_DRAFT,
             name="rapid experiment",
             slug="rapid-experiment",
             objectives="gotta go fast",
