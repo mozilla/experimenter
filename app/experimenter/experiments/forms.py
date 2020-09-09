@@ -15,7 +15,7 @@ from experimenter.bugzilla import tasks
 from experimenter.experiments.changelog_utils import generate_change_log
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import ExperimentCore, ExperimentComment
-from experimenter.experiments.changelog_utils import ChangeLogSerializer
+from experimenter.experiments.changelog_utils import CoreChangeLogSerializer
 from experimenter.notifications.models import Notification
 from experimenter.projects.models import Project
 
@@ -76,7 +76,7 @@ class ChangeLogMixin(object):
         self.request = request
         super().__init__(*args, **kwargs)
         if self.instance.id:
-            self.old_serialized_vals = ChangeLogSerializer(self.instance).data
+            self.old_serialized_vals = CoreChangeLogSerializer(self.instance).data
         else:
             self.old_serialized_vals = None
 
@@ -86,7 +86,7 @@ class ChangeLogMixin(object):
     def save(self, *args, **kwargs):
 
         experiment = super().save(*args, **kwargs)
-        new_serialized_vals = ChangeLogSerializer(self.instance).data
+        new_serialized_vals = CoreChangeLogSerializer(self.instance).data
         message = self.get_changelog_message()
         generate_change_log(
             self.old_serialized_vals,
