@@ -87,7 +87,7 @@ def check_kinto_push_queue():
     metrics.incr("check_kinto_push_queue.started")
 
     queued_experiments = ExperimentRapid.objects.filter(
-        type=ExperimentRapid.TYPE_RAPID, status=ExperimentRapid.STATUS_REVIEW
+        status=ExperimentRapid.STATUS_REVIEW
     ).exclude(bugzilla_id=None)
 
     if (rejected_collection_data := client.get_rejected_collection_data()) and (
@@ -126,7 +126,7 @@ def check_experiment_is_live():
     metrics.incr("check_experiment_is_live.started")
 
     accepted_experiments = ExperimentRapid.objects.filter(
-        type=ExperimentRapid.TYPE_RAPID, status=ExperimentRapid.STATUS_ACCEPTED
+        status=ExperimentRapid.STATUS_ACCEPTED
     )
 
     records = client.get_main_records()
@@ -155,9 +155,7 @@ def check_experiment_is_live():
 def check_experiment_is_complete():
     metrics.incr("check_experiment_is_complete.started")
 
-    live_experiments = ExperimentRapid.objects.filter(
-        type=ExperimentRapid.TYPE_RAPID, status=ExperimentRapid.STATUS_LIVE
-    )
+    live_experiments = ExperimentRapid.objects.filter(status=ExperimentRapid.STATUS_LIVE)
 
     records = client.get_main_records()
     record_ids = [r.get("id") for r in records]

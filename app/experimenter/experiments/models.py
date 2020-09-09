@@ -117,13 +117,6 @@ class Experiment(ExperimentConstants, models.Model):
     def get_absolute_url(self):
         return reverse("experiments-detail", kwargs={"slug": self.slug})
 
-    def __str__(self):
-        return self.full_name
-
-    @property
-    def full_name(self):
-        return "{type}: {name}".format(type=self.get_type_display(), name=self.name)
-
     @property
     def experiment_url(self):
         return urljoin(
@@ -161,41 +154,6 @@ class Experiment(ExperimentConstants, models.Model):
             self.TYPE_ROLLOUT,
             self.TYPE_MESSAGE,
         )
-
-    def generate_recipe_slug(self):
-        if self.is_addon_experiment and not self.use_branched_addon_serializer:
-            if not self.addon_experiment_id:
-                raise ValueError(
-                    (
-                        "An Add-on experiment requires an Active "
-                        "Experiment Name before it can be sent to Normandy"
-                    )
-                )
-            return self.addon_experiment_id
-
-        error_msg = "The {field} must be set before a Normandy slug can be generated"
-
-        if not self.firefox_min_version:
-            raise ValueError(error_msg.format(field="Firefox version"))
-
-        if not self.firefox_channel:
-            raise ValueError(error_msg.format(field="Firefox channel"))
-
-        if not self.bugzilla_id:
-            raise ValueError(error_msg.format(field="Bugzilla ID"))
-
-        version_string = self.firefox_min_version_integer
-        if self.firefox_max_version:
-            version_string = (
-                f"{self.firefox_min_version_integer}-"
-                f"{self.firefox_max_version_integer}"
-            )
-
-        slug_prefix = f"bug-{self.bugzilla_id}-{self.type}-"
-        slug_postfix = f"-{self.firefox_channel}-{version_string}"
-        remaining_chars = settings.RECIPE_SLUG_MAX_LEN - len(slug_prefix + slug_postfix)
-        truncated_slug = slugify(self.name[:remaining_chars])
-        return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
 
     @property
     def normandy_recipe_json(self):
@@ -397,38 +355,6 @@ class Experiment(ExperimentConstants, models.Model):
             date_ordered_changes.append((date, date_changes))
 
         return date_ordered_changes
-
-    @property
-    def is_generic_experiment(self):
-        return self.type == self.TYPE_GENERIC
-
-    @property
-    def is_addon_experiment(self):
-        return self.type == self.TYPE_ADDON
-
-    @property
-    def is_pref_experiment(self):
-        return self.type == self.TYPE_PREF
-
-    @property
-    def is_message_experiment(self):
-        return self.type == self.TYPE_MESSAGE
-
-    @property
-    def is_rollout(self):
-        return self.type == self.TYPE_ROLLOUT
-
-    @property
-    def is_rapid_experiment(self):
-        return self.type == self.TYPE_RAPID
-
-    @property
-    def is_pref_rollout(self):
-        return self.is_rollout and self.rollout_type == self.TYPE_PREF
-
-    @property
-    def is_addon_rollout(self):
-        return self.is_rollout and self.rollout_type == self.TYPE_ADDON
 
     @property
     def is_editable(self):
@@ -792,7 +718,6 @@ class Experiment(ExperimentConstants, models.Model):
         )
 
     def clone(self, name, user):
-
         cloned = copy.copy(self)
         variants = ExperimentVariant.objects.filter(experiment=self)
 
@@ -1065,6 +990,76 @@ class ExperimentCore(Experiment):
         verbose_name = "ExperimentCore"
         verbose_name_plural = "ExperimentCores"
 
+    def __str__(self):
+        return self.full_name
+
+    @property
+    def full_name(self):
+        return "{type}: {name}".format(type=self.get_type_display(), name=self.name)
+
+    @property
+    def is_generic_experiment(self):
+        return self.type == self.TYPE_GENERIC
+
+    @property
+    def is_addon_experiment(self):
+        return self.type == self.TYPE_ADDON
+
+    @property
+    def is_pref_experiment(self):
+        return self.type == self.TYPE_PREF
+
+    @property
+    def is_message_experiment(self):
+        return self.type == self.TYPE_MESSAGE
+
+    @property
+    def is_rollout(self):
+        return self.type == self.TYPE_ROLLOUT
+
+    @property
+    def is_pref_rollout(self):
+        return self.is_rollout and self.rollout_type == self.TYPE_PREF
+
+    @property
+    def is_addon_rollout(self):
+        return self.is_rollout and self.rollout_type == self.TYPE_ADDON
+
+    def generate_recipe_slug(self):
+        if self.is_addon_experiment and not self.use_branched_addon_serializer:
+            if not self.addon_experiment_id:
+                raise ValueError(
+                    (
+                        "An Add-on experiment requires an Active "
+                        "Experiment Name before it can be sent to Normandy"
+                    )
+                )
+            return self.addon_experiment_id
+
+        error_msg = "The {field} must be set before a Normandy slug can be generated"
+
+        if not self.firefox_min_version:
+            raise ValueError(error_msg.format(field="Firefox version"))
+
+        if not self.firefox_channel:
+            raise ValueError(error_msg.format(field="Firefox channel"))
+
+        if not self.bugzilla_id:
+            raise ValueError(error_msg.format(field="Bugzilla ID"))
+
+        version_string = self.firefox_min_version_integer
+        if self.firefox_max_version:
+            version_string = (
+                f"{self.firefox_min_version_integer}-"
+                f"{self.firefox_max_version_integer}"
+            )
+
+        slug_prefix = f"bug-{self.bugzilla_id}-{self.type}-"
+        slug_postfix = f"-{self.firefox_channel}-{version_string}"
+        remaining_chars = settings.RECIPE_SLUG_MAX_LEN - len(slug_prefix + slug_postfix)
+        truncated_slug = slugify(self.name[:remaining_chars])
+        return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
+
 
 class ExperimentRapid(Experiment):
     rapid_type = models.CharField(
@@ -1092,6 +1087,31 @@ class ExperimentRapid(Experiment):
     class Meta:
         verbose_name = "ExperimentRapid"
         verbose_name_plural = "ExperimentRapids"
+
+    def generate_recipe_slug(self):
+        error_msg = "The {field} must be set before a recipe slug can be generated"
+
+        if not self.firefox_min_version:
+            raise ValueError(error_msg.format(field="Firefox version"))
+
+        if not self.firefox_channel:
+            raise ValueError(error_msg.format(field="Firefox channel"))
+
+        if not self.bugzilla_id:
+            raise ValueError(error_msg.format(field="Bugzilla ID"))
+
+        version_string = self.firefox_min_version_integer
+        if self.firefox_max_version:
+            version_string = (
+                f"{self.firefox_min_version_integer}-"
+                f"{self.firefox_max_version_integer}"
+            )
+
+        slug_prefix = f"bug-{self.bugzilla_id}-"
+        slug_postfix = f"-{self.firefox_channel}-{version_string}"
+        remaining_chars = settings.RECIPE_SLUG_MAX_LEN - len(slug_prefix + slug_postfix)
+        truncated_slug = slugify(self.name[:remaining_chars])
+        return f"{slug_prefix}{truncated_slug}{slug_postfix}".lower()
 
 
 class ExperimentVariant(models.Model):
