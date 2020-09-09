@@ -9,7 +9,7 @@ from django.db import IntegrityError, transaction
 from experimenter.celery import app
 from experimenter.experiments.changelog_utils import update_experiment_with_change_log
 
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import ExperimentCore
 from experimenter.bugzilla.tasks import (
     add_start_date_comment_task,
     comp_experiment_update_res_task,
@@ -22,8 +22,8 @@ from experimenter.experiments.email import (
 )
 
 STATUS_UPDATE_MAPPING = {
-    Experiment.STATUS_ACCEPTED: Experiment.STATUS_LIVE,
-    Experiment.STATUS_LIVE: Experiment.STATUS_COMPLETE,
+    ExperimentCore.STATUS_ACCEPTED: ExperimentCore.STATUS_LIVE,
+    ExperimentCore.STATUS_LIVE: ExperimentCore.STATUS_COMPLETE,
 }
 
 logger = get_task_logger(__name__)
@@ -36,13 +36,13 @@ def update_recipe_ids_to_experiments():
     metrics.incr("update_ready_to_ship_experiments.started")
     logger.info("Update Recipes to Experiments")
 
-    ready_to_ship_experiments = Experiment.objects.filter(
-        status__in=[Experiment.STATUS_SHIP, Experiment.STATUS_ACCEPTED]
-    ).exclude(type=Experiment.TYPE_RAPID)
+    ready_to_ship_experiments = ExperimentCore.objects.filter(
+        status__in=[ExperimentCore.STATUS_SHIP, ExperimentCore.STATUS_ACCEPTED]
+    ).exclude(type=ExperimentCore.TYPE_RAPID)
 
     for experiment in ready_to_ship_experiments:
         try:
-            logger.info("Updating Experiment: {}".format(experiment))
+            logger.info("Updating ExperimentCore: {}".format(experiment))
             recipe_data = normandy.get_recipe_list(experiment.slug)
 
             if len(recipe_data):
@@ -51,7 +51,7 @@ def update_recipe_ids_to_experiments():
                 changed_data = {
                     "normandy_id": recipe_ids[0],
                     "other_normandy_ids": recipe_ids[1:],
-                    "status": Experiment.STATUS_ACCEPTED,
+                    "status": ExperimentCore.STATUS_ACCEPTED,
                 }
                 user_email = (
                     sorted_recipe_data[0]
@@ -63,7 +63,7 @@ def update_recipe_ids_to_experiments():
                 update_experiment_with_change_log(experiment, changed_data, user_email)
 
         except (IntegrityError, KeyError, normandy.NormandyError) as e:
-            logger.info(f"Failed to update Experiment {experiment}: {e}")
+            logger.info(f"Failed to update ExperimentCore {experiment}: {e}")
             metrics.incr("update_ready_to_experiments.failed")
     metrics.incr("update_ready_to_experiments.completed")
 
@@ -74,42 +74,42 @@ def update_launched_experiments():
     metrics.incr("update_launched_experiments.started")
     logger.info("Updating launched experiments info")
 
-    launched_experiments = Experiment.objects.filter(
-        status__in=[Experiment.STATUS_ACCEPTED, Experiment.STATUS_LIVE]
-    ).exclude(type=Experiment.TYPE_RAPID)
+    launched_experiments = ExperimentCore.objects.filter(
+        status__in=[ExperimentCore.STATUS_ACCEPTED, ExperimentCore.STATUS_LIVE]
+    ).exclude(type=ExperimentCore.TYPE_RAPID)
 
     for experiment in launched_experiments:
         try:
-            logger.info("Updating Experiment: {}".format(experiment))
+            logger.info("Updating ExperimentCore: {}".format(experiment))
             if experiment.normandy_id:
                 recipe_data = normandy.get_recipe(experiment.normandy_id)
 
                 if needs_to_be_updated(recipe_data, experiment.status):
                     experiment = update_status_task(experiment, recipe_data)
 
-                    if experiment.status == Experiment.STATUS_LIVE:
+                    if experiment.status == ExperimentCore.STATUS_LIVE:
                         add_start_date_comment_task.delay(experiment.id)
                         send_experiment_launch_email(experiment)
 
-                    elif experiment.status == Experiment.STATUS_COMPLETE:
+                    elif experiment.status == ExperimentCore.STATUS_COMPLETE:
                         comp_experiment_update_res_task.delay(experiment.id)
 
-                if experiment.status == Experiment.STATUS_LIVE:
+                if experiment.status == ExperimentCore.STATUS_LIVE:
                     update_population_percent(experiment, recipe_data)
                     set_is_paused_value_task.delay(experiment.id, recipe_data)
                     send_period_ending_emails_task(experiment)
             else:
                 logger.info(
-                    "Skipping Experiment: {}. No Normandy id found".format(experiment)
+                    "Skipping ExperimentCore: {}. No Normandy id found".format(experiment)
                 )
         except (IntegrityError, KeyError, normandy.NormandyError) as e:
-            logger.info(f"Failed to update Experiment {experiment}: {e}")
+            logger.info(f"Failed to update ExperimentCore {experiment}: {e}")
             metrics.incr("update_launched_experiments.failed")
     metrics.incr("update_launched_experiments.completed")
 
 
 def update_status_task(experiment, recipe_data):
-    logger.info("Updating Experiment Status")
+    logger.info("Updating ExperimentCore Status")
     enabler = normandy.get_recipe_state_enabler(recipe_data)
     old_status = experiment.status
     new_status = STATUS_UPDATE_MAPPING[old_status]
@@ -121,14 +121,14 @@ def update_status_task(experiment, recipe_data):
             changed_by=enabler, old_status=old_status, new_status=new_status
         )
         metrics.incr("update_experiment_info.updated")
-        logger.info("Experiment Status Updated")
+        logger.info("ExperimentCore Status Updated")
     return experiment
 
 
 @app.task
 @metrics.timer_decorator("set_is_paused_value")
 def set_is_paused_value_task(experiment_id, recipe_data):
-    experiment = Experiment.objects.get(id=experiment_id)
+    experiment = ExperimentCore.objects.get(id=experiment_id)
     metrics.incr("set_is_paused_value.started")
     logger.info("Updating Enrollment Value")
     if recipe_data:
@@ -168,8 +168,8 @@ def needs_to_be_updated(recipe_data, status):
         return False
 
     enabled = recipe_data["enabled"]
-    accepted_update = enabled and status == Experiment.STATUS_ACCEPTED
-    live_update = not enabled and status == Experiment.STATUS_LIVE
+    accepted_update = enabled and status == ExperimentCore.STATUS_ACCEPTED
+    live_update = not enabled and status == ExperimentCore.STATUS_LIVE
     return accepted_update or live_update
 
 
