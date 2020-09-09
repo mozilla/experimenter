@@ -1,21 +1,23 @@
 from django.test import TestCase
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
-from experimenter.experiments.models import ExperimentCore
+from experimenter.experiments.models import ExperimentCore, ExperimentRapid
 from experimenter.experiments.tests.factories import (
     ExperimentCoreFactory,
+    ExperimentRapidFactory,
     ExperimentVariantFactory,
     UserFactory,
     VariantPreferencesFactory,
 )
 from experimenter.experiments.changelog_utils import (
     generate_change_log,
-    ChangeLogSerializer,
+    CoreChangeLogSerializer,
+    RapidChangeLogSerializer,
 )
 from experimenter.projects.tests.factories import ProjectFactory
 
 
-class TestChangeLogSerializer(TestCase):
+class TestCoreChangeLogSerializer(TestCase):
     def test_serializer_outputs_expected_schema(self):
         country1 = CountryFactory(code="CA", name="Canada")
         locale1 = LocaleFactory(code="da", name="Danish")
@@ -27,87 +29,104 @@ class TestChangeLogSerializer(TestCase):
         related_exp = ExperimentCoreFactory.create()
         experiment.related_to.add(related_exp)
 
-        serializer = ChangeLogSerializer(experiment)
+        serializer = CoreChangeLogSerializer(experiment)
 
         risk_tech_description = experiment.risk_technical_description
 
         expected_data = {
-            "type": experiment.type,
-            "owner": experiment.owner.id,
-            "name": experiment.name,
-            "short_description": experiment.short_description,
-            "related_work": experiment.related_work,
-            "related_to": [related_exp.id],
-            "proposed_start_date": str(experiment.proposed_start_date),
-            "proposed_duration": experiment.proposed_duration,
-            "proposed_enrollment": experiment.proposed_enrollment,
-            "design": experiment.design,
             "addon_experiment_id": experiment.addon_experiment_id,
             "addon_release_url": experiment.addon_release_url,
+            "analysis_owner": experiment.analysis_owner.id,
+            "analysis": experiment.analysis,
+            "bugzilla_id": experiment.bugzilla_id,
+            "client_matching": experiment.client_matching,
+            "countries": [{"code": "CA", "name": "Canada"}],
+            "data_science_issue_url": experiment.data_science_issue_url,
+            "design": experiment.design,
+            "engineering_owner": experiment.engineering_owner,
+            "feature_bugzilla_url": experiment.feature_bugzilla_url,
+            "firefox_channel": experiment.firefox_channel,
+            "firefox_max_version": experiment.firefox_max_version,
+            "firefox_min_version": experiment.firefox_min_version,
+            "locales": [{"code": "da", "name": "Danish"}],
+            "message_template": experiment.message_template,
+            "message_type": experiment.message_type,
+            "name": experiment.name,
+            "normandy_id": experiment.normandy_id,
+            "objectives": experiment.objectives,
+            "other_normandy_ids": experiment.other_normandy_ids,
+            "owner": experiment.owner.id,
+            "platforms": experiment.platforms,
+            "population_percent": "{0:.4f}".format(experiment.population_percent),
+            "pref_branch": experiment.pref_branch,
             "pref_name": experiment.pref_name,
             "pref_type": experiment.pref_type,
-            "pref_branch": experiment.pref_branch,
-            "public_description": experiment.public_description,
-            "population_percent": "{0:.4f}".format(experiment.population_percent),
-            "firefox_min_version": experiment.firefox_min_version,
-            "firefox_max_version": experiment.firefox_max_version,
-            "firefox_channel": experiment.firefox_channel,
-            "client_matching": experiment.client_matching,
-            "locales": [{"code": "da", "name": "Danish"}],
-            "countries": [{"code": "CA", "name": "Canada"}],
-            "projects": [{"slug": project.slug}],
-            "platforms": experiment.platforms,
-            "windows_versions": experiment.windows_versions,
             "profile_age": experiment.profile_age,
-            "objectives": experiment.objectives,
-            "audience": experiment.audience,
-            "features": experiment.features,
-            "total_enrolled_clients": experiment.total_enrolled_clients,
-            "analysis": experiment.analysis,
-            "analysis_owner": experiment.analysis_owner.id,
-            "survey_required": experiment.survey_required,
-            "survey_urls": experiment.survey_urls,
-            "survey_instructions": experiment.survey_instructions,
-            "engineering_owner": experiment.engineering_owner,
-            "bugzilla_id": experiment.bugzilla_id,
-            "recipe_slug": experiment.recipe_slug,
-            "normandy_id": experiment.normandy_id,
-            "other_normandy_ids": experiment.other_normandy_ids,
-            "data_science_issue_url": experiment.data_science_issue_url,
-            "feature_bugzilla_url": experiment.feature_bugzilla_url,
-            "risk_partner_related": experiment.risk_partner_related,
-            "risk_brand": experiment.risk_brand,
-            "risk_fast_shipped": experiment.risk_fast_shipped,
-            "risk_confidential": experiment.risk_confidential,
-            "risk_release_population": experiment.risk_release_population,
-            "risk_revenue": experiment.risk_revenue,
-            "risk_data_category": experiment.risk_data_category,
-            "risk_external_team_impact": experiment.risk_external_team_impact,
-            "risk_telemetry_data": experiment.risk_telemetry_data,
-            "risk_ux": experiment.risk_ux,
-            "risk_security": experiment.risk_security,
-            "risk_revision": experiment.risk_revision,
-            "risk_technical": experiment.risk_technical,
-            "risk_technical_description": risk_tech_description,
-            "risks": experiment.risks,
-            "testing": experiment.testing,
-            "test_builds": experiment.test_builds,
+            "projects": [{"slug": project.slug}],
+            "proposed_duration": experiment.proposed_duration,
+            "proposed_enrollment": experiment.proposed_enrollment,
+            "proposed_start_date": str(experiment.proposed_start_date),
+            "public_description": experiment.public_description,
             "qa_status": experiment.qa_status,
-            "review_science": experiment.review_science,
-            "review_engineering": experiment.review_engineering,
-            "review_qa_requested": experiment.review_qa_requested,
-            "review_intent_to_ship": experiment.review_intent_to_ship,
+            "recipe_slug": experiment.recipe_slug,
+            "related_to": [related_exp.id],
+            "related_work": experiment.related_work,
+            "results_changes_to_firefox": experiment.results_changes_to_firefox,
+            "results_confidence": experiment.results_confidence,
+            "results_data_for_hypothesis": experiment.results_data_for_hypothesis,
+            "results_early_end": experiment.results_early_end,
+            "results_fail_to_launch": experiment.results_fail_to_launch,
+            "results_failures_notes": experiment.results_failures_notes,
+            "results_impact_notes": experiment.results_impact_notes,
+            "results_initial": experiment.results_initial,
+            "results_lessons_learned": experiment.results_lessons_learned,
+            "results_low_enrollment": experiment.results_low_enrollment,
+            "results_measure_impact": experiment.results_measure_impact,
+            "results_no_usable_data": experiment.results_no_usable_data,
+            "results_recipe_errors": experiment.results_recipe_errors,
+            "results_restarts": experiment.results_restarts,
+            "results_url": experiment.results_url,
+            "review_advisory": experiment.review_advisory,
             "review_bugzilla": experiment.review_bugzilla,
+            "review_comms": experiment.review_comms,
+            "review_data_steward": experiment.review_data_steward,
+            "review_engineering": experiment.review_engineering,
+            "review_impacted_teams": experiment.review_impacted_teams,
+            "review_intent_to_ship": experiment.review_intent_to_ship,
+            "review_legal": experiment.review_legal,
+            "review_qa_requested": experiment.review_qa_requested,
             "review_qa": experiment.review_qa,
             "review_relman": experiment.review_relman,
-            "review_advisory": experiment.review_advisory,
-            "review_legal": experiment.review_legal,
-            "review_ux": experiment.review_ux,
+            "review_science": experiment.review_science,
             "review_security": experiment.review_security,
+            "review_ux": experiment.review_ux,
             "review_vp": experiment.review_vp,
-            "review_data_steward": experiment.review_data_steward,
-            "review_comms": experiment.review_comms,
-            "review_impacted_teams": experiment.review_impacted_teams,
+            "risk_brand": experiment.risk_brand,
+            "risk_confidential": experiment.risk_confidential,
+            "risk_data_category": experiment.risk_data_category,
+            "risk_external_team_impact": experiment.risk_external_team_impact,
+            "risk_fast_shipped": experiment.risk_fast_shipped,
+            "risk_partner_related": experiment.risk_partner_related,
+            "risk_release_population": experiment.risk_release_population,
+            "risk_revenue": experiment.risk_revenue,
+            "risk_revision": experiment.risk_revision,
+            "risk_security": experiment.risk_security,
+            "risk_technical_description": risk_tech_description,
+            "risk_technical": experiment.risk_technical,
+            "risk_telemetry_data": experiment.risk_telemetry_data,
+            "risk_ux": experiment.risk_ux,
+            "risks": experiment.risks,
+            "rollout_playbook": experiment.rollout_playbook,
+            "rollout_type": experiment.rollout_type,
+            "short_description": experiment.short_description,
+            "survey_instructions": experiment.survey_instructions,
+            "survey_required": experiment.survey_required,
+            "survey_urls": experiment.survey_urls,
+            "test_builds": experiment.test_builds,
+            "testing": experiment.testing,
+            "total_enrolled_clients": experiment.total_enrolled_clients,
+            "type": experiment.type,
+            "windows_versions": experiment.windows_versions,
             "variants": [
                 {
                     "description": variant.description,
@@ -132,30 +151,59 @@ class TestChangeLogSerializer(TestCase):
                 }
                 for variant in experiment.variants.all()
             ],
-            "results_url": experiment.results_url,
-            "results_initial": experiment.results_initial,
-            "results_lessons_learned": experiment.results_lessons_learned,
-            "results_fail_to_launch": experiment.results_fail_to_launch,
-            "results_recipe_errors": experiment.results_recipe_errors,
-            "results_restarts": experiment.results_restarts,
-            "results_low_enrollment": experiment.results_low_enrollment,
-            "results_early_end": experiment.results_early_end,
-            "results_no_usable_data": experiment.results_no_usable_data,
-            "results_failures_notes": experiment.results_failures_notes,
-            "results_changes_to_firefox": experiment.results_changes_to_firefox,
-            "results_data_for_hypothesis": experiment.results_data_for_hypothesis,
-            "results_confidence": experiment.results_confidence,
-            "results_measure_impact": experiment.results_measure_impact,
-            "results_impact_notes": experiment.results_impact_notes,
-            "rollout_playbook": experiment.rollout_playbook,
-            "rollout_type": experiment.rollout_type,
-            "message_type": experiment.message_type,
-            "message_template": experiment.message_template,
         }
 
-        self.assertEqual(set(serializer.data.keys()), set(expected_data.keys()))
+        self.assertDictEqual(serializer.data, expected_data)
 
-        self.assertEqual(serializer.data, expected_data)
+
+class TestRapidChangeLogSerializer(TestCase):
+    def test_serializer_outputs_expected_schema(self):
+        experiment = ExperimentRapidFactory.create_with_status(
+            ExperimentRapid.STATUS_DRAFT
+        )
+        serializer = RapidChangeLogSerializer(experiment)
+
+        self.maxDiff = None
+        expected_data = {
+            "archived": experiment.archived,
+            "audience": experiment.audience,
+            "bugzilla_id": experiment.bugzilla_id,
+            "features": experiment.features,
+            "firefox_channel": experiment.firefox_channel,
+            "firefox_max_version": experiment.firefox_max_version,
+            "firefox_min_version": experiment.firefox_min_version,
+            "is_paused": experiment.is_paused,
+            "name": experiment.name,
+            "objectives": experiment.objectives,
+            "owner": experiment.owner.id,
+            "proposed_duration": experiment.proposed_duration,
+            "proposed_enrollment": experiment.proposed_enrollment,
+            "proposed_start_date": experiment.proposed_start_date,
+            "public_description": experiment.public_description,
+            "rapid_type": experiment.rapid_type,
+            "recipe_slug": experiment.recipe_slug,
+            "short_description": experiment.short_description,
+            "slug": experiment.slug,
+            "status": experiment.status,
+            "variants": [
+                {
+                    "description": variant.description,
+                    "is_control": variant.is_control,
+                    "name": variant.name,
+                    "ratio": variant.ratio,
+                    "slug": variant.slug,
+                    "value": variant.value,
+                    "addon_release_url": None,
+                    "preferences": [],
+                    "message_targeting": None,
+                    "message_threshold": None,
+                    "message_triggers": None,
+                }
+                for variant in experiment.variants.all()
+            ],
+        }
+
+        self.assertDictEqual(serializer.data, expected_data)
 
 
 class TestChangeLogUtils(TestCase):
@@ -175,7 +223,7 @@ class TestChangeLogUtils(TestCase):
             slug="variant1-slug",
         )
         variant1.save()
-        old_serialized_val = ChangeLogSerializer(experiment).data
+        old_serialized_val = CoreChangeLogSerializer(experiment).data
 
         experiment.short_description = "changing the description"
         experiment.qa_status = "good"
@@ -198,7 +246,7 @@ class TestChangeLogUtils(TestCase):
         )
 
         experiment.save()
-        new_serialized_val = ChangeLogSerializer(experiment).data
+        new_serialized_val = CoreChangeLogSerializer(experiment).data
         changed_variant_pref = {
             "pref_name": "p1",
             "pref_type": "integer",
@@ -284,8 +332,8 @@ class TestChangeLogUtils(TestCase):
 
     def test_generate_change_log_is_empty_when_no_change(self):
         experiment = ExperimentCoreFactory.create()
-        old_serialized_val = ChangeLogSerializer(experiment).data
-        new_serialized_val = ChangeLogSerializer(experiment).data
+        old_serialized_val = CoreChangeLogSerializer(experiment).data
+        new_serialized_val = CoreChangeLogSerializer(experiment).data
         changed_data = {}
         user = UserFactory.create()
         generate_change_log(

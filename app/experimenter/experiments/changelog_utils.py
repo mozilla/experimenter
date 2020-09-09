@@ -4,6 +4,7 @@ from rest_framework import serializers
 from experimenter.base.serializers import CountrySerializer, LocaleSerializer
 from experimenter.experiments.models import (
     ExperimentCore,
+    ExperimentRapid,
     ExperimentChangeLog,
 )
 from experimenter.experiments.api.v1.serializers import ExperimentVariantSerializer
@@ -15,10 +16,10 @@ class ChangelogSerializerMixin(object):
         super().__init__(*args, **kwargs)
         self.old_serialized_vals = {}
         if self.instance and self.instance.id:
-            self.old_serialized_vals = ChangeLogSerializer(self.instance).data
+            self.old_serialized_vals = CoreChangeLogSerializer(self.instance).data
 
     def update_changelog(self, instance, validated_data):
-        new_serialized_vals = ChangeLogSerializer(instance).data
+        new_serialized_vals = CoreChangeLogSerializer(instance).data
         user = self.context["request"].user
         changed_data = validated_data.copy()
         generate_change_log(
@@ -28,7 +29,7 @@ class ChangelogSerializerMixin(object):
         return instance
 
 
-class ChangeLogSerializer(serializers.ModelSerializer):
+class CoreChangeLogSerializer(serializers.ModelSerializer):
     variants = ExperimentVariantSerializer(many=True, required=False)
     locales = LocaleSerializer(many=True, required=False)
     countries = CountrySerializer(many=True, required=False)
@@ -134,13 +135,50 @@ class ChangeLogSerializer(serializers.ModelSerializer):
         )
 
 
+class RapidChangeLogSerializer(serializers.ModelSerializer):
+    variants = ExperimentVariantSerializer(many=True, required=False)
+
+    class Meta:
+        model = ExperimentRapid
+        fields = (
+            "archived",
+            "audience",
+            "bugzilla_id",
+            "features",
+            "firefox_channel",
+            "firefox_max_version",
+            "firefox_min_version",
+            "is_paused",
+            "name",
+            "objectives",
+            "owner",
+            "proposed_duration",
+            "proposed_enrollment",
+            "proposed_start_date",
+            "public_description",
+            "rapid_type",
+            "recipe_slug",
+            "short_description",
+            "slug",
+            "status",
+            "variants",
+        )
+
+
+EXPERIMENT_TYPE_SERIALIZER = {
+    ExperimentCore: CoreChangeLogSerializer,
+    ExperimentRapid: RapidChangeLogSerializer,
+}
+
+
 def update_experiment_with_change_log(
     old_experiment, changed_data, user_email, message=None
 ):
-    old_serialized_exp = ChangeLogSerializer(old_experiment).data
-    ExperimentCore.objects.filter(id=old_experiment.id).update(**changed_data)
-    new_experiment = ExperimentCore.objects.get(slug=old_experiment.slug)
-    new_serialized_exp = ChangeLogSerializer(new_experiment).data
+    Serializer = EXPERIMENT_TYPE_SERIALIZER[type(old_experiment)]
+    old_serialized_exp = Serializer(old_experiment).data
+    type(old_experiment).objects.filter(id=old_experiment.id).update(**changed_data)
+    new_experiment = type(old_experiment).objects.get(slug=old_experiment.slug)
+    new_serialized_exp = Serializer(new_experiment).data
 
     default_user, _ = get_user_model().objects.get_or_create(
         email=user_email, username=user_email

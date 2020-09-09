@@ -250,10 +250,10 @@ class ExperimentRapidFactory(ExperimentConstants, factory.django.DjangoModelFact
 
         experiment = cls.create(**kwargs)
 
-        ExperimentControlFactory.create(
+        ExperimentRapidControlFactory.create(
             experiment=experiment, name="Control", slug="control"
         )
-        ExperimentVariantFactory.create(
+        ExperimentRapidVariantFactory.create(
             experiment=experiment, name="Treatment", slug="treatment"
         )
 
@@ -279,14 +279,20 @@ class ExperimentRapidFactory(ExperimentConstants, factory.django.DjangoModelFact
             if status == target_status:
                 break
 
-        return cls.Meta.model.objects.get(id=experiment.id)
+        return ExperimentRapid.objects.get(id=experiment.id)
 
 
 class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda o: faker.text())
-    experiment = factory.SubFactory(ExperimentCoreFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: slugify(o.name))
+
+    class Meta:
+        model = ExperimentVariant
+
+
+class BaseExperimentCoreVariantFactory(BaseExperimentVariantFactory):
+    experiment = factory.SubFactory(ExperimentCoreFactory)
     message_targeting = factory.LazyAttribute(lambda o: faker.catch_phrase())
     message_threshold = factory.LazyAttribute(lambda o: faker.catch_phrase())
     message_triggers = factory.LazyAttribute(lambda o: faker.catch_phrase())
@@ -295,11 +301,8 @@ class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
     def addon_release_url(self):
         return "https://www.example.com/{}-release.xpi".format(slugify(self.name))
 
-    class Meta:
-        model = ExperimentVariant
 
-
-class ExperimentVariantFactory(BaseExperimentVariantFactory):
+class ExperimentVariantFactory(BaseExperimentCoreVariantFactory):
     is_control = False
     ratio = 33
 
@@ -313,7 +316,15 @@ class ExperimentVariantFactory(BaseExperimentVariantFactory):
         return json.dumps(value)
 
 
-class ExperimentControlFactory(ExperimentVariantFactory):
+class ExperimentControlFactory(BaseExperimentCoreVariantFactory):
+    is_control = True
+
+
+class ExperimentRapidVariantFactory(BaseExperimentVariantFactory):
+    pass
+
+
+class ExperimentRapidControlFactory(BaseExperimentVariantFactory):
     is_control = True
 
 
