@@ -2,7 +2,7 @@ import json
 from rest_framework import serializers
 
 from experimenter.experiments.models import (
-    Experiment,
+    ExperimentCore,
     ExperimentVariant,
     VariantPreferences,
     RolloutPreference,
@@ -28,7 +28,7 @@ class PrefValueField(serializers.Field):
         pref_type = model_fields[self.type_field]
         value = model_fields[self.value_field]
 
-        if pref_type in (Experiment.PREF_TYPE_BOOL, Experiment.PREF_TYPE_INT):
+        if pref_type in (ExperimentCore.PREF_TYPE_BOOL, ExperimentCore.PREF_TYPE_INT):
             return json.loads(value)
 
         return value
@@ -42,7 +42,7 @@ class FilterObjectBucketSampleSerializer(serializers.ModelSerializer):
     total = serializers.ReadOnlyField(default=10000)
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("type", "input", "start", "count", "total")
 
     def get_type(self, obj):
@@ -57,7 +57,7 @@ class FilterObjectChannelSerializer(serializers.ModelSerializer):
     channels = serializers.SerializerMethodField()
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("type", "channels")
 
     def get_type(self, obj):
@@ -72,7 +72,7 @@ class FilterObjectVersionsSerializer(serializers.ModelSerializer):
     versions = serializers.SerializerMethodField()
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("type", "versions")
 
     def get_type(self, obj):
@@ -87,7 +87,7 @@ class FilterObjectLocaleSerializer(serializers.ModelSerializer):
     locales = serializers.SerializerMethodField()
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("type", "locales")
 
     def get_type(self, obj):
@@ -102,7 +102,7 @@ class FilterObjectCountrySerializer(serializers.ModelSerializer):
     countries = serializers.SerializerMethodField()
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("type", "countries")
 
     def get_type(self, obj):
@@ -114,7 +114,9 @@ class FilterObjectCountrySerializer(serializers.ModelSerializer):
 
 class ExperimentRecipeVariantSerializer(serializers.ModelSerializer):
     value = PrefValueField(
-        type_field="experiment__pref_type", value_field="value", source="*"
+        type_field="experiment__experimentcore__pref_type",
+        value_field="value",
+        source="*",
     )
 
     class Meta:
@@ -137,7 +139,9 @@ class SingularPreferenceRecipeValueSerializer(serializers.ModelSerializer):
     preferenceBranchType = serializers.ReadOnlyField(source="experiment.pref_branch")
     preferenceType = PrefTypeField(source="experiment.pref_type")
     preferenceValue = PrefValueField(
-        type_field="experiment__pref_type", value_field="value", source="*"
+        type_field="experiment__experimentcore__pref_type",
+        value_field="value",
+        source="*",
     )
 
     class Meta:
@@ -193,7 +197,7 @@ class ExperimentRecipePrefArgumentsSerializer(serializers.ModelSerializer):
     branches = ExperimentRecipeVariantSerializer(many=True, source="variants")
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = (
             "preferenceBranchType",
             "slug",
@@ -211,7 +215,7 @@ class ExperimentRecipeBranchedArgumentsSerializer(serializers.ModelSerializer):
     branches = serializers.SerializerMethodField()
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("slug", "userFacingName", "userFacingDescription")
 
 
@@ -222,7 +226,7 @@ class ExperimentRecipeBranchedAddonArgumentsSerializer(
     branches = serializers.SerializerMethodField()
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("slug", "userFacingName", "userFacingDescription", "branches")
 
     def get_branches(self, obj):
@@ -237,7 +241,7 @@ class ExperimentRecipeMultiPrefArgumentsSerializer(
     experimentDocumentUrl = serializers.ReadOnlyField(source="experiment_url")
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = (
             "slug",
             "userFacingName",
@@ -255,7 +259,7 @@ class ExperimentRecipeAddonArgumentsSerializer(serializers.ModelSerializer):
     description = serializers.ReadOnlyField(source="public_description")
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("name", "description")
 
 
@@ -264,7 +268,7 @@ class ExperimentRecipeAddonRolloutArgumentsSerializer(serializers.ModelSerialize
     extensionApiId = serializers.SerializerMethodField()
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("slug", "extensionApiId")
 
     def get_extensionApiId(self, obj):
@@ -285,7 +289,7 @@ class ExperimentRecipePrefRolloutArgumentsSerializer(serializers.ModelSerializer
     preferences = RolloutPrefRecipeSerializer(many=True)
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = ("slug", "preferences")
 
 
@@ -309,7 +313,7 @@ class ExperimentRecipeMessageArgumentsSerializer(
     experimentDocumentUrl = serializers.ReadOnlyField(source="experiment_url")
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = (
             "slug",
             "userFacingName",
@@ -330,7 +334,7 @@ class ExperimentRecipeSerializer(serializers.ModelSerializer):
     experimenter_slug = serializers.ReadOnlyField(source="slug")
 
     class Meta:
-        model = Experiment
+        model = ExperimentCore
         fields = (
             "action_name",
             "name",
