@@ -41,7 +41,7 @@ class TestPrefValueField(TestCase):
         experiment = ExperimentCoreFactory.create(pref_type=ExperimentCore.PREF_TYPE_INT)
         variant = ExperimentVariantFactory.create(experiment=experiment, value="8")
         value = PrefValueField(
-            type_field="experiment__pref_type", value_field="value"
+            type_field="experiment__experimentcore__pref_type", value_field="value"
         ).to_representation(variant)
         self.assertEqual(value, 8)
 
@@ -49,7 +49,7 @@ class TestPrefValueField(TestCase):
         experiment = ExperimentCoreFactory.create(pref_type=ExperimentCore.PREF_TYPE_BOOL)
         variant = ExperimentVariantFactory.create(experiment=experiment, value="false")
         value = PrefValueField(
-            type_field="experiment__pref_type", value_field="value"
+            type_field="experiment__experimentcore__pref_type", value_field="value"
         ).to_representation(variant)
         self.assertEqual(value, False)
 
@@ -59,7 +59,7 @@ class TestPrefValueField(TestCase):
             experiment=experiment, value="it's a string"
         )
         value = PrefValueField(
-            type_field="experiment__pref_type", value_field="value"
+            type_field="experiment__experimentcore__pref_type", value_field="value"
         ).to_representation(variant)
         self.assertEqual(value, "it's a string")
 

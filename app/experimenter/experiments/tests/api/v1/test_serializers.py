@@ -6,7 +6,6 @@ from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.experiments.models import ExperimentCore
 from experimenter.experiments.tests.factories import (
     ExperimentCoreFactory,
-    ExperimentVariantFactory,
     ExperimentChangeLogFactory,
 )
 from experimenter.experiments.api.v1.serializers import (
@@ -16,7 +15,6 @@ from experimenter.experiments.api.v1.serializers import (
     JSTimestampField,
     PrefTypeField,
 )
-from experimenter.normandy.serializers import ExperimentRecipeVariantSerializer
 
 
 class TestJSTimestampField(TestCase):
@@ -43,39 +41,6 @@ class TestPrefTypeField(TestCase):
         self.assertEqual(
             field.to_representation(ExperimentCore.PREF_TYPE_JSON_STR),
             ExperimentCore.PREF_TYPE_STR,
-        )
-
-
-class TestExperimentVariantSerializer(TestCase):
-    def test_serializer_outputs_expected_bool(self):
-        experiment = ExperimentCoreFactory(pref_type=ExperimentCore.PREF_TYPE_BOOL)
-        variant = ExperimentVariantFactory.create(experiment=experiment, value="true")
-        serializer = ExperimentRecipeVariantSerializer(variant)
-
-        self.assertEqual(type(serializer.data["value"]), bool)
-        self.assertEqual(
-            serializer.data, {"ratio": variant.ratio, "slug": variant.slug, "value": True}
-        )
-
-    def test_serializer_outputs_expected_int_val(self):
-        experiment = ExperimentCoreFactory(pref_type=ExperimentCore.PREF_TYPE_INT)
-        variant = ExperimentVariantFactory.create(experiment=experiment, value="28")
-        serializer = ExperimentRecipeVariantSerializer(variant)
-
-        self.assertEqual(type(serializer.data["value"]), int)
-        self.assertEqual(
-            serializer.data, {"ratio": variant.ratio, "slug": variant.slug, "value": 28}
-        )
-
-    def test_serializer_outputs_expected_str_val(self):
-        experiment = ExperimentCoreFactory(pref_type=ExperimentCore.PREF_TYPE_STR)
-        variant = ExperimentVariantFactory.create(experiment=experiment)
-        serializer = ExperimentRecipeVariantSerializer(variant)
-
-        self.assertEqual(type(serializer.data["value"]), str)
-        self.assertEqual(
-            serializer.data,
-            {"ratio": variant.ratio, "slug": variant.slug, "value": variant.value},
         )
 
 
