@@ -3,7 +3,7 @@ from celery.utils.log import get_task_logger
 
 from experimenter.celery import app
 from experimenter.bugzilla import client as bugzilla
-from experimenter.experiments.models import Experiment
+from experimenter.experiments.models import ExperimentCore
 from experimenter.notifications.models import Notification
 
 
@@ -45,7 +45,7 @@ NOTIFICATION_MESSAGE_ARCHIVE_ERROR_MESSAGE = (
 def create_experiment_bug_task(user_id, experiment_id):
     metrics.incr("create_experiment_bug.started")
 
-    experiment = Experiment.objects.get(id=experiment_id)
+    experiment = ExperimentCore.objects.get(id=experiment_id)
 
     logger.info("Creating Bugzilla ticket")
     try:
@@ -78,7 +78,7 @@ def create_experiment_bug_task(user_id, experiment_id):
 def update_experiment_bug_task(user_id, experiment_id):
     metrics.incr("update_experiment_bug.started")
 
-    experiment = Experiment.objects.get(id=experiment_id)
+    experiment = ExperimentCore.objects.get(id=experiment_id)
 
     if experiment.risk_confidential:
         logger.info("Skipping Bugzilla update for internal only experiment")
@@ -109,7 +109,7 @@ def update_experiment_bug_task(user_id, experiment_id):
 @app.task
 @metrics.timer_decorator("comp_experiment_update_res_task.timing")
 def comp_experiment_update_res_task(experiment_id):
-    experiment = Experiment.objects.get(id=experiment_id)
+    experiment = ExperimentCore.objects.get(id=experiment_id)
     metrics.incr("comp_experiment_update_res_task.started")
     logger.info("Updating Bugzilla Resolution")
     try:
@@ -125,7 +125,7 @@ def comp_experiment_update_res_task(experiment_id):
 @app.task
 @metrics.timer_decorator("add_start_date_comment.timing")
 def add_start_date_comment_task(experiment_id):
-    experiment = Experiment.objects.get(id=experiment_id)
+    experiment = ExperimentCore.objects.get(id=experiment_id)
     metrics.incr("add_start_data_comment.started")
     logger.info("Adding Bugzilla Start Date Comment")
     comment = "Start Date: {} End Date: {}".format(
@@ -146,7 +146,7 @@ def add_start_date_comment_task(experiment_id):
 @metrics.timer_decorator("update_bug_resolution.timing")
 def update_bug_resolution_task(user_id, experiment_id):
     metrics.incr("update_bug_resolution.started")
-    experiment = Experiment.objects.get(id=experiment_id)
+    experiment = ExperimentCore.objects.get(id=experiment_id)
 
     if experiment.status == experiment.STATUS_COMPLETE or experiment.bugzilla_id is None:
         logger.info("Skipping update either experiment complete or no bugzilla ticket")
