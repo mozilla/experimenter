@@ -96,25 +96,14 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             ExperimentRapid.STATUS_LIVE,
             ExperimentRapid.STATUS_COMPLETE,
         ]:
-            ExperimentRapidFactory.create(type=ExperimentRapid.TYPE_RAPID, status=status)
+            ExperimentRapidFactory.create(status=status)
 
-        self.setup_kinto_no_pending_review()
-        tasks.check_kinto_push_queue()
-        self.mock_push_task.assert_not_called()
-
-    def test_check_with_review_non_rapid_pushes_nothing(self):
-        ExperimentRapidFactory.create(
-            type=ExperimentRapid.TYPE_ADDON, status=ExperimentRapid.STATUS_REVIEW
-        )
         self.setup_kinto_no_pending_review()
         tasks.check_kinto_push_queue()
         self.mock_push_task.assert_not_called()
 
     def test_check_with_rapid_review_and_kinto_pending_pushes_nothing(self):
-        ExperimentRapidFactory.create(
-            type=ExperimentRapid.TYPE_RAPID,
-            status=ExperimentRapid.STATUS_REVIEW,
-        )
+        ExperimentRapidFactory.create(status=ExperimentRapid.STATUS_REVIEW)
         self.setup_kinto_pending_review()
         tasks.check_kinto_push_queue()
         self.mock_push_task.assert_not_called()
@@ -129,7 +118,6 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             firefox_max_version=None,
             firefox_min_version=ExperimentRapid.VERSION_CHOICES[0][0],
             name="test",
-            type=ExperimentRapid.TYPE_RAPID,
         )
         self.setup_kinto_no_pending_review()
         tasks.check_kinto_push_queue()
@@ -145,7 +133,6 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             firefox_max_version=None,
             firefox_min_version=ExperimentRapid.VERSION_CHOICES[0][0],
             name="test",
-            type=ExperimentRapid.TYPE_RAPID,
         )
         self.assertEqual(experiment.changes.count(), 2)
 
@@ -170,7 +157,6 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             firefox_max_version=None,
             firefox_min_version=ExperimentRapid.VERSION_CHOICES[0][0],
             name="test",
-            type=ExperimentRapid.TYPE_RAPID,
             recipe_slug="bug-12345-rapid-test-release-55",
         )
 
@@ -213,7 +199,6 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
             firefox_max_version=None,
             firefox_min_version=ExperimentRapid.VERSION_CHOICES[0][0],
             name="test",
-            type=ExperimentRapid.TYPE_RAPID,
         )
 
         experiment2 = ExperimentRapidFactory.create_with_status(
@@ -223,7 +208,6 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
             firefox_max_version=None,
             firefox_min_version=ExperimentRapid.VERSION_CHOICES[0][0],
             name="test1",
-            type=ExperimentRapid.TYPE_RAPID,
         )
 
         experiment3 = ExperimentRapidFactory.create_with_status(
@@ -233,7 +217,6 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
             firefox_max_version=None,
             firefox_min_version=ExperimentRapid.VERSION_CHOICES[0][0],
             name="test2",
-            type=ExperimentRapid.TYPE_RAPID,
         )
 
         self.assertEqual(experiment1.changes.count(), 4)
@@ -271,7 +254,6 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
             firefox_max_version=None,
             firefox_min_version=ExperimentRapid.VERSION_CHOICES[0][0],
             name="test",
-            type=ExperimentRapid.TYPE_RAPID,
         )
 
         experiment2 = ExperimentRapidFactory.create_with_status(
@@ -281,7 +263,6 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
             firefox_max_version=None,
             firefox_min_version=ExperimentRapid.VERSION_CHOICES[0][0],
             name="test1",
-            type=ExperimentRapid.TYPE_RAPID,
         )
 
         experiment3 = ExperimentRapidFactory.create_with_status(
@@ -291,7 +272,6 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
             firefox_max_version=None,
             firefox_min_version=ExperimentRapid.VERSION_CHOICES[0][0],
             name="test2",
-            type=ExperimentRapid.TYPE_RAPID,
         )
 
         self.assertEqual(experiment1.changes.count(), 5)

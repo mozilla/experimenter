@@ -283,6 +283,7 @@ class ExperimentRapidFactory(ExperimentConstants, factory.django.DjangoModelFact
 
 
 class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
+    is_control = False
     description = factory.LazyAttribute(lambda o: faker.text())
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     slug = factory.LazyAttribute(lambda o: slugify(o.name))
@@ -291,7 +292,8 @@ class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
         model = ExperimentVariant
 
 
-class BaseExperimentCoreVariantFactory(BaseExperimentVariantFactory):
+class ExperimentVariantFactory(BaseExperimentVariantFactory):
+    ratio = 33
     experiment = factory.SubFactory(ExperimentCoreFactory)
     message_targeting = factory.LazyAttribute(lambda o: faker.catch_phrase())
     message_threshold = factory.LazyAttribute(lambda o: faker.catch_phrase())
@@ -300,11 +302,6 @@ class BaseExperimentCoreVariantFactory(BaseExperimentVariantFactory):
     @factory.lazy_attribute
     def addon_release_url(self):
         return "https://www.example.com/{}-release.xpi".format(slugify(self.name))
-
-
-class ExperimentVariantFactory(BaseExperimentCoreVariantFactory):
-    is_control = False
-    ratio = 33
 
     @factory.lazy_attribute
     def value(self):
@@ -316,7 +313,7 @@ class ExperimentVariantFactory(BaseExperimentCoreVariantFactory):
         return json.dumps(value)
 
 
-class ExperimentControlFactory(BaseExperimentCoreVariantFactory):
+class ExperimentControlFactory(ExperimentVariantFactory):
     is_control = True
 
 
