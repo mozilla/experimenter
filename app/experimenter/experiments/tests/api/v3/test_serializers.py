@@ -388,6 +388,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             audience="us_only",
             features=["picture_in_picture", "pinned_tabs"],
             firefox_channel=Experiment.CHANNEL_RELEASE,
+            firefox_min_version="79.0",
         )
         experiment.variants.all().delete()
         variant = ExperimentVariantFactory.create(experiment=experiment)
@@ -399,7 +400,7 @@ class TestExperimentRapidSerializer(MockRequestMixin, MockBugzillaTasksMixin, Te
             "audience": "all_english",
             "features": ["pinned_tabs"],
             "firefox_channel": Experiment.CHANNEL_NIGHTLY,
-            "firefox_min_version": Experiment.VERSION_CHOICES[1][0],
+            "firefox_min_version": "80.0",
             "variants": [
                 {
                     "id": variant.id,
