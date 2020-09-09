@@ -16,7 +16,7 @@ class ExperimentRapidViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = ExperimentRapidSerializer
-    queryset = ExperimentRapid.objects.filter(type=ExperimentRapid.TYPE_RAPID)
+    queryset = ExperimentRapid.objects.all()
     lookup_field = "slug"
 
     @action(detail=True, methods=["post"])

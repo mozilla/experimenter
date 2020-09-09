@@ -285,6 +285,11 @@ class Migration(migrations.Migration):
                 ("locales", models.ManyToManyField(blank=True, to="base.Locale")),
             ],
         ),
+        migrations.AddField(
+            model_name='experimentcore',
+            name='type',
+            field=models.CharField(choices=[('pref', 'Pref-Flip Experiment'), ('addon', 'Add-On Experiment'), ('generic', 'Generic Experiment'), ('rollout', 'Staged Rollout'), ('message', 'Message Router Content Experiment'), ('rapid', 'Rapid Experiment')], default='pref', max_length=255),
+        ),
         migrations.RunPython(copy_experiment_data),
         migrations.RemoveField(
             model_name="experiment",
@@ -642,6 +647,10 @@ class Migration(migrations.Migration):
             model_name="experiment",
             name="rapid_type",
         ),
+        migrations.RemoveField(
+            model_name='experiment',
+            name='type',
+        ),
         migrations.CreateModel(
             name="ExperimentRapid",
             fields=[
@@ -706,5 +715,13 @@ class Migration(migrations.Migration):
                 related_name="analyzed_experiments",
                 to=settings.AUTH_USER_MODEL,
             ),
+        ),
+            migrations.AlterModelOptions(
+            name='experimentcore',
+            options={'verbose_name': 'ExperimentCore', 'verbose_name_plural': 'ExperimentCores'},
+        ),
+        migrations.AlterModelOptions(
+            name='experimentrapid',
+            options={'verbose_name': 'ExperimentRapid', 'verbose_name_plural': 'ExperimentRapids'},
         ),
     ]

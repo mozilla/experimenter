@@ -38,7 +38,6 @@ class ExperimentAdmin(admin.ModelAdmin):
     inlines = (ExperimentVariantInlineAdmin, ExperimentChangeLogInlineAdmin)
     list_display = (
         "name",
-        "type",
         "status",
         "owner",
         "firefox_min_version",
