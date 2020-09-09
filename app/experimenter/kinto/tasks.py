@@ -9,7 +9,7 @@ from experimenter.celery import app
 from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
 from experimenter.experiments.changelog_utils import update_experiment_with_change_log
 from experimenter.experiments.models import (
-    Experiment,
+    ExperimentRapid,
     ExperimentChangeLog,
     ExperimentBucketNamespace,
     ExperimentBucketRange,
@@ -28,7 +28,7 @@ NIMBUS_DATA = get_data()
 def push_experiment_to_kinto(experiment_id):
     metrics.incr("push_experiment_to_kinto.started")
 
-    experiment = Experiment.objects.get(id=experiment_id)
+    experiment = ExperimentRapid.objects.get(id=experiment_id)
     if not ExperimentBucketRange.objects.filter(experiment=experiment).exists():
         ExperimentBucketNamespace.request_namespace_buckets(
             experiment.recipe_slug,
@@ -71,10 +71,10 @@ def push_experiment_to_kinto(experiment_id):
 
 
 def update_rejected_record(record_id, rejected_data):
-    experiment = Experiment.objects.get(recipe_slug=record_id)
+    experiment = ExperimentRapid.objects.get(recipe_slug=record_id)
     update_experiment_with_change_log(
         experiment,
-        {"status": Experiment.STATUS_REJECTED},
+        {"status": ExperimentRapid.STATUS_REJECTED},
         settings.KINTO_DEFAULT_CHANGELOG_USER,
         message=rejected_data["last_reviewer_comment"],
     )
@@ -86,8 +86,8 @@ def update_rejected_record(record_id, rejected_data):
 def check_kinto_push_queue():
     metrics.incr("check_kinto_push_queue.started")
 
-    queued_experiments = Experiment.objects.filter(
-        type=Experiment.TYPE_RAPID, status=Experiment.STATUS_REVIEW
+    queued_experiments = ExperimentRapid.objects.filter(
+        type=ExperimentRapid.TYPE_RAPID, status=ExperimentRapid.STATUS_REVIEW
     ).exclude(bugzilla_id=None)
 
     if (rejected_collection_data := client.get_rejected_collection_data()) and (
@@ -106,7 +106,7 @@ def check_kinto_push_queue():
         update_experiment_with_change_log(
             next_experiment,
             {
-                "status": Experiment.STATUS_ACCEPTED,
+                "status": ExperimentRapid.STATUS_ACCEPTED,
                 "recipe_slug": next_experiment.generate_recipe_slug(),
             },
             settings.KINTO_DEFAULT_CHANGELOG_USER,
@@ -125,8 +125,8 @@ def check_kinto_push_queue():
 def check_experiment_is_live():
     metrics.incr("check_experiment_is_live.started")
 
-    accepted_experiments = Experiment.objects.filter(
-        type=Experiment.TYPE_RAPID, status=Experiment.STATUS_ACCEPTED
+    accepted_experiments = ExperimentRapid.objects.filter(
+        type=ExperimentRapid.TYPE_RAPID, status=ExperimentRapid.STATUS_ACCEPTED
     )
 
     records = client.get_main_records()
@@ -141,11 +141,11 @@ def check_experiment_is_live():
             )
             update_experiment_with_change_log(
                 experiment,
-                {"status": Experiment.STATUS_LIVE},
+                {"status": ExperimentRapid.STATUS_LIVE},
                 settings.KINTO_DEFAULT_CHANGELOG_USER,
             )
 
-            logger.info("Experiment Status is set to Live")
+            logger.info("ExperimentRapid Status is set to Live")
 
     metrics.incr("check_experiment_is_live.completed")
 
@@ -155,8 +155,8 @@ def check_experiment_is_live():
 def check_experiment_is_complete():
     metrics.incr("check_experiment_is_complete.started")
 
-    live_experiments = Experiment.objects.filter(
-        type=Experiment.TYPE_RAPID, status=Experiment.STATUS_LIVE
+    live_experiments = ExperimentRapid.objects.filter(
+        type=ExperimentRapid.TYPE_RAPID, status=ExperimentRapid.STATUS_LIVE
     )
 
     records = client.get_main_records()
@@ -171,10 +171,10 @@ def check_experiment_is_complete():
             )
             update_experiment_with_change_log(
                 experiment,
-                {"status": Experiment.STATUS_COMPLETE},
+                {"status": ExperimentRapid.STATUS_COMPLETE},
                 settings.KINTO_DEFAULT_CHANGELOG_USER,
             )
 
-            logger.info("Experiment Status is set to complete")
+            logger.info("ExperimentRapid Status is set to complete")
 
     metrics.incr("check_experiment_is_complete.completed")
