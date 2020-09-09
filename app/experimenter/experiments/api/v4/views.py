@@ -10,7 +10,7 @@ class ExperimentRapidViewSet(
     viewsets.GenericViewSet,
 ):
     lookup_field = "recipe_slug"
-    queryset = ExperimentRapid.objects.filter(type=ExperimentRapid.TYPE_RAPID).exclude(
+    queryset = ExperimentRapid.objects.exclude(
         status__in=[ExperimentRapid.STATUS_DRAFT, ExperimentRapid.STATUS_REVIEW]
     )
     serializer_class = ExperimentRapidRecipeSerializer

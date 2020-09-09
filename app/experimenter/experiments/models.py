@@ -47,11 +47,6 @@ class ExperimentCoreManager(models.Manager):
 
 
 class Experiment(ExperimentConstants, models.Model):
-    type = models.CharField(
-        max_length=255,
-        default=ExperimentConstants.TYPE_PREF,
-        choices=ExperimentConstants.TYPE_CHOICES,
-    )
     owner = models.ForeignKey(
         get_user_model(),
         blank=True,
@@ -59,7 +54,6 @@ class Experiment(ExperimentConstants, models.Model):
         on_delete=models.CASCADE,
         related_name="owned_experiments",
     )
-
     subscribers = models.ManyToManyField(
         get_user_model(), blank=True, related_name="subscribed_experiments"
     )
@@ -79,7 +73,6 @@ class Experiment(ExperimentConstants, models.Model):
     slug = models.SlugField(max_length=255, unique=True, blank=False, null=False)
     public_description = models.TextField(blank=True, null=True)
     short_description = models.TextField(default="", blank=True, null=True)
-
     is_paused = models.BooleanField(default=False)
     proposed_start_date = models.DateField(blank=True, null=True)
     proposed_duration = models.PositiveIntegerField(
@@ -92,7 +85,6 @@ class Experiment(ExperimentConstants, models.Model):
         null=True,
         validators=[MaxValueValidator(ExperimentConstants.MAX_DURATION)],
     )
-
     firefox_min_version = models.CharField(
         max_length=255,
         choices=ExperimentConstants.VERSION_CHOICES,
@@ -111,12 +103,10 @@ class Experiment(ExperimentConstants, models.Model):
         blank=True,
         null=True,
     )
-
     projects = models.ManyToManyField(Project, blank=True)
     objectives = models.TextField(
         default=ExperimentConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
-
     bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
     recipe_slug = models.CharField(max_length=255, blank=True, null=True)
 
@@ -893,6 +883,11 @@ class Experiment(ExperimentConstants, models.Model):
 
 
 class ExperimentCore(Experiment):
+    type = models.CharField(
+        max_length=255,
+        default=ExperimentConstants.TYPE_PREF,
+        choices=ExperimentConstants.TYPE_CHOICES,
+    )
     analysis_owner = models.ForeignKey(
         get_user_model(),
         blank=True,
