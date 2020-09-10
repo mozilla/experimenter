@@ -4,6 +4,7 @@ from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
     ExperimentChangeLog,
+    NimbusExperiment,
     VariantPreferences,
 )
 from experimenter.projects.models import Project
@@ -196,6 +197,13 @@ class ProjectAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
 
 
+class NimbusExperimentAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug")
+
+    prepopulated_fields = {"slug": ("name",)}
+
+
 admin.site.register(Experiment, ExperimentAdmin)
 admin.site.register(ExperimentVariant, ExperimentVariantAdmin)
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(NimbusExperiment, NimbusExperimentAdmin)
