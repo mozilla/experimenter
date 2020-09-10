@@ -8,4 +8,7 @@ def google_analytics(request):
 
 
 def features(request):
-    return {"FEATURE_MESSAGE_TYPE": settings.FEATURE_MESSAGE_TYPE}
+    return {
+        "FEATURE_MESSAGE_TYPE": settings.FEATURE_MESSAGE_TYPE,
+        "FEATURE_ANALYSIS": settings.FEATURE_ANALYSIS,
+    }
