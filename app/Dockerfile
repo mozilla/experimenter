@@ -18,13 +18,23 @@ RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources
 RUN apt-get update
 RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgresql-client nodejs yarn parallel
 
+
+
 # Python packages
-COPY ./requirements /app/requirements
-RUN pip install -r requirements/default.txt --no-cache-dir --disable-pip-version-check
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+ENV PATH "/root/.poetry/bin:${PATH}"
+
+# Make and activate a Python virtualenv
+RUN python -m venv /opt/venv
+ENV PATH "/opt/venv/bin:${PATH}"
+ENV VIRTUAL_ENV="/opt/venv"
+
+COPY poetry.lock pyproject.toml ./
+RUN poetry install
+
 
 # If any package is installed, that is incompatible by version, this command
-# will exit non-zero and print what is usually just a warning in `pip install`
-RUN pip check
+RUN poetry check
 
 # Node packages
 COPY ./package.json /app/package.json
