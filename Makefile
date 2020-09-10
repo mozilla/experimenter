@@ -19,7 +19,6 @@ WAIT_FOR_DB = /app/bin/wait-for-it.sh db:5432 &&
 COMPOSE = docker-compose -f docker-compose.yml
 COMPOSE_TEST = docker-compose -f docker-compose-test.yml
 COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml
-COMPOSE_FULL = docker-compose -f docker-compose.yml -f docker-compose-full.yml
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
@@ -45,30 +44,6 @@ MIGRATE = python manage.py migrate
 test_build: build
 	$(COMPOSE_TEST) build
 
-test: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)"'
-
-lint: test_build
-	$(COMPOSE_TEST) run app sh -c '${PARALLEL} "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(TYPECHECK_RAPID)"'
-
-py_test: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_TEST)"
-
-js_test: test_build
-	$(COMPOSE_TEST) run app sh -c "$(JS_TEST_CORE)&&$(JS_TEST_RAPID)"
-
-flake8: test_build
-	$(COMPOSE_TEST) run app sh -c "$(FLAKE8)"
-
-black_check: test_build
-	$(COMPOSE_TEST) run app sh -c "$(BLACK_CHECK)"
-
-check_migrations: test_build
-	$(COMPOSE_TEST) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_CHECK_MIGRATIONS)"
-
-check_docs: test_build
-	$(COMPOSE_TEST) run app sh -c "$(CHECK_DOCS)"
-
 check: test_build
 	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(TYPECHECK_RAPID)" "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)"'
 
@@ -92,17 +67,17 @@ kill: compose_stop compose_rm volumes_rm
 up: compose_stop compose_build
 	$(COMPOSE) up
 
+up_db: compose_stop compose_build
+	$(COMPOSE) up db redis kinto autograph
+
+up_django: compose_stop compose_build
+	$(COMPOSE) up nginx app worker beat db redis kinto autograph
+
 up_detached: compose_stop compose_build
 	$(COMPOSE) up -d
 
 generate_docs: compose_build
 	$(COMPOSE) run app sh -c "$(GENERATE_DOCS)"
-
-eslint_fix: test_build
-	$(COMPOSE) run app sh -c '${PARALLEL} "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_RAPID)"'
-
-black_fix: test_build
-	$(COMPOSE) run app sh -c "$(BLACK_FIX)"
 
 code_format: compose_build
 	$(COMPOSE) run app sh -c "$(BLACK_FIX)&&$(ESLINT_FIX_CORE)&&$(ESLINT_FIX_RAPID)"
@@ -113,40 +88,17 @@ makemigrations: compose_build
 migrate: compose_build
 	$(COMPOSE) run app sh -c "$(WAIT_FOR_DB) python manage.py migrate"
 
-createuser: compose_build
-	$(COMPOSE) run app python manage.py createsuperuser
-
 load_locales_countries: compose_build
 	$(COMPOSE) run app sh -c "$(WAIT_FOR_DB) $(LOAD_LOCALES)&&$(LOAD_COUNTRIES)"
 
 load_dummy_experiments: compose_build
 	$(COMPOSE) run app python manage.py load_dummy_experiments
 
-shell: compose_build
-	$(COMPOSE) run app python manage.py shell
-
-dbshell: compose_build
-	$(COMPOSE) run app python manage.py dbshell
-
 bash: compose_build
 	$(COMPOSE) run app bash
 
 refresh: kill compose_build
 	$(COMPOSE) run app sh -c '$(WAIT_FOR_DB) $(MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_DUMMY_EXPERIMENTS)'
-
-# experimenter + delivery console + normandy stack
-compose_build_all: build ssl
-	 $(COMPOSE_FULL) build
-
-up_all: compose_build_all
-	$(COMPOSE_FULL) up
-
-kill_all: kill
-	$(COMPOSE_FULL) kill
-	$(COMPOSE_FULL) -v rm
-
-normandy_shell: compose_build_all
-	$(COMPOSE_FULL) run normandy ./manage.py shell
 
 # integration tests
 integration_build: compose_build
