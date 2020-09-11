@@ -1,7 +1,6 @@
 # Mozilla Experimenter
 
 [![CircleCI](https://circleci.com/gh/mozilla/experimenter.svg?style=svg)](https://circleci.com/gh/mozilla/experimenter)
-[![What's deployed on dev,stage,prod?](https://img.shields.io/badge/whatsdeployed-dev,stage,prod-green.svg)](https://whatsdeployed.io/s/uFe)
 
 <p align="center">
   <img src="https://cdn1.iconfinder.com/data/icons/simple-arrow/512/arrow_20-128.png"><br/>
@@ -21,33 +20,9 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 <https://experimenter.services.mozilla.com/>
 
-## What is an experiment?
-
-An experiment is a way to measure how a change to your product affects how people use it.
-
-An experiment has three parts:
-
-1. A new feature that can be selectively enabled
-1. A group of users to test the new feature
-1. Telemetry to measure how people interact with the new feature
-
-## How do I run an experiment?
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/mozilla/experimenter/164/app/experimenter/static/imgs/architecture.png"><br/>
-</p>
-
-1. Build a new feature behind a pref flag
-1. Define an experiment for that feature in Experimenter
-1. Send it to Shield
-1. After Shield reviews and approves it, it is sent to Firefox
-1. Firefox clients check whether they should enroll in the experiment and configure themselves accordingly
-1. Telemetry about the experiment is collected
-1. Dashboards are created to visualize the telemetry
-1. Analyze and collect the results to understand how the new feature impacted users
-1. Do it again!
 
 ## Installation
+### Fully Dockerized Dev Environment
 
 1.  Install [docker](https://www.docker.com/) on your machine
 
@@ -103,25 +78,25 @@ Build the supporting services (nginx, postgresql) defined in the [compose file](
 
 Start a dev server listening on port 80 using the [Django runserver](https://docs.djangoproject.com/en/1.10/ref/django-admin/#runserver)
 
-### test
+### up_db
 
-Run the Django test suite with code coverage
+Start postgresql, redis, autograph, kinto on their respective ports to allow running the Django runserver and yarn watchers locally (non containerized)
 
-### lint
+### up_django
 
-Run flake8 against the code
+Start Django runserver, Celery worker, postgresql, redis, autograph, kinto on their respective ports to allow running the yarn watchers locally (non containerized)
+
+### up_detached
+
+Start all containers in the background (not attached to shell)
 
 ### check
 
-Run both test and lint
+Run all test and lint suites, this is run in CI on all PRs and deploys
 
 ### migrate
 
 Apply all django migrations
-
-### createuser
-
-Create an admin user in the local dev instance
 
 ### load_locales_countries
 
@@ -131,13 +106,9 @@ Populates locales and countries
 
 Populates db with dummy experiments
 
-### shell
-
-Start an ipython shell inside the container (this lets you import and test code, interact with the db, etc)
-
 ### bash
 
-Start a bash shell inside the container (this lets you interact with the containerized filesystem)
+Start a bash shell inside the container (this lets you interact with the containerized filesystem and run Django management commands)
 
 ### ssl
 
@@ -153,10 +124,6 @@ WARNING: this will remove your database and all data. Use this to reset your dev
 ### refresh
 
 Run kill, migrate, load_locales_countries load_dummy_experiments
-
-### up_all
-
-Start up a normandy and delivery console instance. Prereqs. Symlink normandy and delivery console eg. `ln -s ../normandy normandy`, ensure user is assigned superuser status
 
 ### integration_test
 
