@@ -10,6 +10,8 @@ services:
       - db
       - redis
       - kinto
+    ports:
+      - "7001:7001"
     volumes:
       - ./app:/app
       - /app/node_modules/
@@ -18,9 +20,6 @@ services:
       - assets_volume:/app/experimenter/static/assets/
       - static_volume:/app/experimenter/served/
     command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py collectstatic --noinput;python /app/manage.py runserver 0:7001"
-    networks:
-      - private_nw
-      - public_nw
 
   yarn-core:
     image: app:build
@@ -55,9 +54,6 @@ services:
     volumes:
       - ./app:/app
     command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l debug"
-    networks:
-      - private_nw
-      - public_nw
 
   beat:
     image: app:build
@@ -68,8 +64,6 @@ services:
     volumes:
       - ./app:/app
     command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat --pidfile /celerybeat.pid -s /celerybeat-schedule -l debug"
-    networks:
-      - private_nw
 
   nginx:
     build: ./nginx
@@ -78,9 +72,6 @@ services:
       - app
     ports:
       - "443:443"
-    networks:
-      - private_nw
-      - public_nw
     volumes:
       - static_volume:/app/experimenter/served/
 
@@ -89,23 +80,20 @@ services:
     image: postgres:9.6.17
     environment:
       POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
     volumes:
       - db_volume:/var/lib/postgresql
-    networks:
-      - private_nw
 
   redis:
     image: redis
-    networks:
-      - private_nw
+    ports:
+      - "6379:6379"
 
   kinto:
     image: mozilla/kinto-dist
     environment:
       KINTO_INI: /etc/kinto.ini
-    networks:
-      - private_nw
-      - public_nw
     ports:
       - "8888:8888"
     links:
@@ -116,8 +104,6 @@ services:
 
   autograph:
     image: mozilla/autograph
-    networks:
-      - private_nw
     ports:
       - "8000:8000"
 
@@ -126,8 +112,3 @@ volumes:
   static_volume:
   assets_volume:
   kinto_volume:
-
-networks:
-  private_nw:
-    internal: true
-  public_nw:
