@@ -23,17 +23,14 @@ RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgre
 # Python packages
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 ENV PATH "/root/.poetry/bin:${PATH}"
-
-# Make and activate a Python virtualenv
-RUN python -m venv /opt/venv
-ENV PATH "/opt/venv/bin:${PATH}"
-ENV VIRTUAL_ENV="/opt/venv"
+RUN poetry config virtualenvs.create false
 
 COPY poetry.lock pyproject.toml ./
 RUN poetry install
 
 
 # If any package is installed, that is incompatible by version, this command
+# will exit non-zero and print what is usually just a warning in `poetry install`
 RUN poetry check
 
 # Node packages
