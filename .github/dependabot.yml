@@ -11,7 +11,7 @@ updates:
     interval: weekly
   target-branch: dependencies
 - package-ecosystem: pip
-  directory: "/app/requirements"
+  directory: "/app"
   schedule:
     interval: weekly
   target-branch: dependencies
