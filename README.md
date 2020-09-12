@@ -20,8 +20,8 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 <https://experimenter.services.mozilla.com/>
 
-
 ## Installation
+
 ### Fully Dockerized Dev Environment
 
 1.  Install [docker](https://www.docker.com/) on your machine
@@ -65,6 +65,41 @@ Pro-tip: we have had at least one large code refactor. You can ignore specific l
 ```
 git config blame.ignoreRevsFile .git-blame-ignore-revs
 ```
+
+### Semi Dockerized Setup
+
+[osx catalina, reinstall command line tools](https://medium.com/flawless-app-stories/gyp-no-xcode-or-clt-version-detected-macos-catalina-anansewaa-38b536389e8d)
+
+1.  Pre reqs
+
+        brew install postgresql llvm openssl yarn
+
+        echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile
+        export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/opt/openssl/lib/
+
+2.  Install dependencies
+
+        poetry install
+
+        yarn install
+
+3.  env values
+
+        .env:
+        DEBUG=True
+        POSTGRES_HOST=localhost
+        HOSTNAME=localhost
+
+4.  Start postgresql, redis, autograph, kinto
+
+        make up_db
+
+5.  Django app
+
+        poetry shell
+        yarn workspace @experimenter/core build
+        yarn workspace @experimenter/rapid build
+        ./manage.py runserver 0.0.0.0:7001
 
 ## Usage
 
