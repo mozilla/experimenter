@@ -7,12 +7,12 @@ from parameterized import parameterized
 
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 from experimenter.experiments.api.v3.serializers import (
-    ExperimentRapidSerializer
+    ExperimentRapidSerializer,
 )
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
-    ExperimentRapidFactory
+    ExperimentRapidFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
 

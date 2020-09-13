@@ -9,11 +9,11 @@ from experimenter.experiments.email import (
     send_enrollment_pause_email,
     send_experiment_ending_email,
     send_experiment_launch_email,
-    send_intent_to_ship_email
+    send_intent_to_ship_email,
 )
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
-    UserFactory
+    UserFactory,
 )
 
 

@@ -8,15 +8,15 @@ from django.db import IntegrityError, transaction
 
 from experimenter.bugzilla.tasks import (
     add_start_date_comment_task,
-    comp_experiment_update_res_task
+    comp_experiment_update_res_task,
 )
 from experimenter.celery import app
 from experimenter.experiments.changelog_utils import (
-    update_experiment_with_change_log
+    update_experiment_with_change_log,
 )
 from experimenter.experiments.email import (
     send_experiment_launch_email,
-    send_period_ending_emails_task
+    send_period_ending_emails_task,
 )
 from experimenter.experiments.models import Experiment
 from experimenter.normandy import client as normandy

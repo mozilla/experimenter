@@ -13,7 +13,7 @@ from experimenter.experiments.models import (
     ExperimentChangeLog,
     ExperimentVariant,
     RolloutPreference,
-    VariantPreferences
+    VariantPreferences,
 )
 from experimenter.experiments.tests.factories import (
     ExperimentBucketNamespaceFactory,
@@ -23,7 +23,7 @@ from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
     NimbusExperimentFactory,
-    VariantPreferencesFactory
+    VariantPreferencesFactory,
 )
 from experimenter.normandy.serializers import ExperimentRecipeSerializer
 from experimenter.openidc.tests.factories import UserFactory

@@ -7,12 +7,12 @@ from experimenter.experiments.api.v1.serializers import PrefTypeField
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
-    RolloutPreference
+    RolloutPreference,
 )
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
-    VariantPreferencesFactory
+    VariantPreferencesFactory,
 )
 from experimenter.normandy.serializers import (
     ExperimentRecipeAddonArgumentsSerializer,
@@ -30,7 +30,7 @@ from experimenter.normandy.serializers import (
     FilterObjectCountrySerializer,
     FilterObjectLocaleSerializer,
     FilterObjectVersionsSerializer,
-    PrefValueField
+    PrefValueField,
 )
 
 

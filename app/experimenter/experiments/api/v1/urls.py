@@ -3,7 +3,7 @@ from django.conf.urls import url
 from experimenter.experiments.api.v1.views import (
     ExperimentDetailView,
     ExperimentListView,
-    ExperimentRecipeView
+    ExperimentRecipeView,
 )
 
 urlpatterns = [

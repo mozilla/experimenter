@@ -7,7 +7,7 @@ from experimenter.normandy import (
     NonsuccessfulNormandyCall,
     NormandyDecodeError,
     get_recipe,
-    make_normandy_call
+    make_normandy_call,
 )
 from experimenter.normandy.tests.mixins import MockNormandyMixin
 

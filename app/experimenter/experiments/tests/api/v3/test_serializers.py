@@ -9,12 +9,12 @@ from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 from experimenter.experiments.api.v3.serializers import (
     ExperimentRapidSerializer,
     ExperimentRapidStatusSerializer,
-    ExperimentRapidVariantSerializer
+    ExperimentRapidVariantSerializer,
 )
 from experimenter.experiments.models import Experiment, ExperimentChangeLog
 from experimenter.experiments.tests.factories import (
     ExperimentRapidFactory,
-    ExperimentVariantFactory
+    ExperimentVariantFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
 

@@ -12,7 +12,7 @@ from experimenter.experiments.api.v2.serializers import (
     ExperimentDesignMessageSerializer,
     ExperimentDesignMultiPrefSerializer,
     ExperimentDesignPrefSerializer,
-    ExperimentTimelinePopSerializer
+    ExperimentTimelinePopSerializer,
 )
 from experimenter.experiments.api.v2.views import ExperimentCSVRenderer
 from experimenter.experiments.constants import ExperimentConstants
@@ -20,7 +20,7 @@ from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
-    VariantPreferencesFactory
+    VariantPreferencesFactory,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory

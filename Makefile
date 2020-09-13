@@ -22,8 +22,8 @@ COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose.int
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
-PY_IMPORT_SORT =  python -m isort . -m VERTICAL_HANGING_INDENT
-PY_IMPORT_CHECK =  python -m isort . -m VERTICAL_HANGING_INDENT --check
+PY_IMPORT_SORT =  python -m isort . -m VERTICAL_HANGING_INDENT -tc
+PY_IMPORT_CHECK =  python -m isort . -m VERTICAL_HANGING_INDENT -tc --check
 PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 ESLINT_CORE = yarn workspace @experimenter/core lint

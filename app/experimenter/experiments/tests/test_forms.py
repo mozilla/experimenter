@@ -13,7 +13,7 @@ from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.bugzilla.tests.mixins import (
     MockBugzillaMixin,
-    MockBugzillaTasksMixin
+    MockBugzillaTasksMixin,
 )
 from experimenter.experiments.forms import (
     RADIO_NO,
@@ -32,12 +32,12 @@ from experimenter.experiments.forms import (
     ExperimentStatusForm,
     ExperimentSubscribedForm,
     JSONField,
-    NormandyIdForm
+    NormandyIdForm,
 )
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
-    UserFactory
+    UserFactory,
 )
 from experimenter.notifications.models import Notification
 from experimenter.projects.tests.factories import ProjectFactory

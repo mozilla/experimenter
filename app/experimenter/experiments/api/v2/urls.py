@@ -12,7 +12,7 @@ from experimenter.experiments.api.v2.views import (
     ExperimentDesignPrefRolloutView,
     ExperimentDesignPrefView,
     ExperimentSendIntentToShipEmailView,
-    ExperimentTimelinePopulationView
+    ExperimentTimelinePopulationView,
 )
 
 urlpatterns = [

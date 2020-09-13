@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.search import (
     SearchQuery,
     SearchRank,
-    SearchVector
+    SearchVector,
 )
 from django.db.models import F, IntegerField, Q
 from django.db.models.expressions import Func, Value

@@ -6,16 +6,16 @@ from mozilla_nimbus_shared import get_data
 
 from experimenter.celery import app
 from experimenter.experiments.api.v4.serializers import (
-    ExperimentRapidRecipeSerializer
+    ExperimentRapidRecipeSerializer,
 )
 from experimenter.experiments.changelog_utils import (
-    update_experiment_with_change_log
+    update_experiment_with_change_log,
 )
 from experimenter.experiments.models import (
     Experiment,
     ExperimentBucketNamespace,
     ExperimentBucketRange,
-    ExperimentChangeLog
+    ExperimentChangeLog,
 )
 from experimenter.kinto import client
 

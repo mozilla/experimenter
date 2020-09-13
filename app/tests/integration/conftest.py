@@ -8,7 +8,7 @@ from dateutil.parser import parse
 from models.base_dataclass import (
     BaseBranchDataClass,
     BaseDataClass,
-    BasePreferencesDataClass
+    BasePreferencesDataClass,
 )
 from pages.experiment_design import DesignPage
 from pages.experiment_detail import DetailPage

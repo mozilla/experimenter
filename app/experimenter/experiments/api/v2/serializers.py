@@ -14,7 +14,7 @@ from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
     RolloutPreference,
-    VariantPreferences
+    VariantPreferences,
 )
 
 

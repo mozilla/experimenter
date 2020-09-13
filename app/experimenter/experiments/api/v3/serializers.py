@@ -5,13 +5,13 @@ from rest_framework import serializers
 from experimenter.bugzilla.tasks import create_experiment_bug_task
 from experimenter.experiments.api.v2.serializers import (
     ExperimentDesignBaseSerializer,
-    ExperimentDesignVariantBaseSerializer
+    ExperimentDesignVariantBaseSerializer,
 )
 from experimenter.experiments.changelog_utils import ChangelogSerializerMixin
 from experimenter.experiments.models import (
     Experiment,
     ExperimentChangeLog,
-    ExperimentVariant
+    ExperimentVariant,
 )
 
 NIMBUS_DATA = get_data()

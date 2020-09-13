@@ -8,13 +8,13 @@ from experimenter.experiments.api.v1.serializers import (
     ExperimentSerializer,
     ExperimentVariantSerializer,
     JSTimestampField,
-    PrefTypeField
+    PrefTypeField,
 )
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentChangeLogFactory,
     ExperimentFactory,
-    ExperimentVariantFactory
+    ExperimentVariantFactory,
 )
 from experimenter.normandy.serializers import ExperimentRecipeVariantSerializer
 

@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.generics import (
     ListAPIView,
     RetrieveUpdateAPIView,
-    UpdateAPIView
+    UpdateAPIView,
 )
 from rest_framework.response import Response
 from rest_framework_csv.renderers import CSVRenderer
@@ -20,7 +20,7 @@ from experimenter.experiments.api.v2.serializers import (
     ExperimentDesignMultiPrefSerializer,
     ExperimentDesignPrefRolloutSerializer,
     ExperimentDesignPrefSerializer,
-    ExperimentTimelinePopSerializer
+    ExperimentTimelinePopSerializer,
 )
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.filtersets import ExperimentFilterset

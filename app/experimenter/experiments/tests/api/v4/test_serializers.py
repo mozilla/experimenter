@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from experimenter.experiments.api.v4.serializers import (
-    ExperimentRapidRecipeSerializer
+    ExperimentRapidRecipeSerializer,
 )
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentRapidFactory

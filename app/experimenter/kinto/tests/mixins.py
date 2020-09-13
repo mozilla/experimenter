@@ -2,7 +2,7 @@ import mock
 
 from experimenter.kinto.client import (
     KINTO_REJECTED_STATUS,
-    KINTO_REVIEW_STATUS
+    KINTO_REVIEW_STATUS,
 )
 
 

@@ -15,7 +15,7 @@ from experimenter.experiments.models.legacy import (
     Preference,
     RolloutPreference,
     VariantPreferences,
-    default_all_platforms
+    default_all_platforms,
 )
 from experimenter.experiments.models.nimbus import NimbusExperiment
 

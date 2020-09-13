@@ -15,7 +15,7 @@ from experimenter.experiments.views import (
     ExperimentRisksUpdateView,
     ExperimentStatusUpdateView,
     ExperimentSubscribedUpdateView,
-    ExperimentTimelinePopulationUpdateView
+    ExperimentTimelinePopulationUpdateView,
 )
 
 urlpatterns = [

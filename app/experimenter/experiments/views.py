@@ -7,7 +7,7 @@ from django.views.generic import (
     CreateView,
     DetailView,
     TemplateView,
-    UpdateView
+    UpdateView,
 )
 from django.views.generic.edit import ModelFormMixin
 from django_filters.views import FilterView
@@ -24,7 +24,7 @@ from experimenter.experiments.forms import (
     ExperimentRisksForm,
     ExperimentStatusForm,
     ExperimentSubscribedForm,
-    NormandyIdForm
+    NormandyIdForm,
 )
 from experimenter.experiments.models import Country, Experiment, Locale
 

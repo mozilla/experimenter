@@ -15,7 +15,7 @@ from experimenter.experiments.models import Country, Experiment, Locale
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.views import (
     ExperimentFormMixin,
-    ExperimentOrderingForm
+    ExperimentOrderingForm,
 )
 from experimenter.openidc.tests.factories import UserFactory
 

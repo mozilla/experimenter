@@ -14,7 +14,7 @@ from experimenter.normandy import client as normandy
 from experimenter.normandy import tasks
 from experimenter.normandy.tests.mixins import (
     MockNormandyMixin,
-    MockNormandyTasksMixin
+    MockNormandyTasksMixin,
 )
 
 

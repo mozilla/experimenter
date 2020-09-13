@@ -13,7 +13,7 @@ from experimenter.base.models import Country, Locale
 from experimenter.bugzilla import get_bugzilla_id, tasks
 from experimenter.experiments.changelog_utils import (
     ChangeLogSerializer,
-    generate_change_log
+    generate_change_log,
 )
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment, ExperimentComment

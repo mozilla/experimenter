@@ -7,7 +7,7 @@ from experimenter.experiments.models import (
     Experiment,
     ExperimentChangeLog,
     ExperimentVariant,
-    VariantPreferences
+    VariantPreferences,
 )
 from experimenter.projects.models import Project
 

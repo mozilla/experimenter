@@ -14,7 +14,7 @@ from experimenter.bugzilla import (
     make_bugzilla_call,
     set_bugzilla_id_value,
     update_bug_resolution,
-    update_experiment_bug
+    update_experiment_bug,
 )
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 from experimenter.experiments.models import Experiment

@@ -5,7 +5,7 @@ from experimenter.experiments.models import (
     ExperimentChangeLog,
     ExperimentVariant,
     NimbusExperiment,
-    VariantPreferences
+    VariantPreferences,
 )
 from experimenter.projects.models import Project
 

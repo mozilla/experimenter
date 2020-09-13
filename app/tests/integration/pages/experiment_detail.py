@@ -73,7 +73,7 @@ class DetailPage(Base):
             self.find_element(*self._edit_btn_locator).click()
 
             from pages.experiment_objective_and_analysis import (
-                ObjectiveAndAnalysisPage
+                ObjectiveAndAnalysisPage,
             )
 
             return ObjectiveAndAnalysisPage(
@@ -109,7 +109,7 @@ class DetailPage(Base):
             self.find_element(*self._edit_btn_locator).click()
 
             from pages.experiment_objective_and_analysis import (
-                ObjectiveAndAnalysisPage
+                ObjectiveAndAnalysisPage,
             )
 
             return ObjectiveAndAnalysisPage(

@@ -210,7 +210,7 @@ class ExperimentOverview(Base):
     def save_and_continue_btn(self):
         self.find_element(*self._save_and_continue_btn_locator).click()
         from pages.experiment_timeline_and_population import (
-            TimelineAndPopulationPage
+            TimelineAndPopulationPage,
         )
 
         return TimelineAndPopulationPage(

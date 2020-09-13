@@ -4,7 +4,7 @@ from rest_framework import serializers
 from experimenter.experiments.models import (
     Experiment,
     ExperimentBucketRange,
-    ExperimentVariant
+    ExperimentVariant,
 )
 
 NIMBUS_DATA = get_data()

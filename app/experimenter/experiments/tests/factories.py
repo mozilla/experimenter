@@ -20,7 +20,7 @@ from experimenter.experiments.models import (
     ExperimentComment,
     ExperimentVariant,
     NimbusExperiment,
-    VariantPreferences
+    VariantPreferences,
 )
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.models import Project
@@ -247,7 +247,7 @@ class ExperimentRapidFactory(ExperimentConstants, factory.django.DjangoModelFact
     @classmethod
     def create_with_status(cls, target_status, **kwargs):
         from experimenter.experiments.changelog_utils import (
-            update_experiment_with_change_log
+            update_experiment_with_change_log,
         )
 
         experiment = cls.create(**kwargs)

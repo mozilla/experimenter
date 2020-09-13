@@ -5,7 +5,7 @@ import requests
 from models.base_dataclass import (
     BaseBranchDataClass,
     BaseDataClass,
-    BasePreferencesDataClass
+    BasePreferencesDataClass,
 )
 from models.validation_dataclass import APIDataClass
 

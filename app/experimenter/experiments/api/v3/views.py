@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from experimenter.experiments.api.v3.serializers import (
     ExperimentRapidSerializer,
-    ExperimentRapidStatusSerializer
+    ExperimentRapidStatusSerializer,
 )
 from experimenter.experiments.models import Experiment
 
