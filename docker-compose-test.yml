@@ -10,17 +10,9 @@ services:
       - /app/node_modules/
     links:
       - db
-    networks:
-      - private_nw
 
   db:
     restart: always
     image: postgres:9.6.17
     environment:
       POSTGRES_PASSWORD: postgres
-    networks:
-      - private_nw
-
-networks:
-  private_nw:
-    internal: true
