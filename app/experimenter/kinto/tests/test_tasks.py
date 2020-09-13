@@ -3,19 +3,20 @@ import datetime
 import mock
 from django.conf import settings
 from django.test import TestCase
-
 from mozilla_nimbus_shared import get_data
 
+from experimenter.experiments.api.v4.serializers import (
+    ExperimentRapidRecipeSerializer
+)
 from experimenter.experiments.models import (
     Experiment,
     ExperimentBucketRange,
-    ExperimentChangeLog,
+    ExperimentChangeLog
 )
 from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.kinto.tests.mixins import MockKintoClientMixin
 from experimenter.kinto import tasks
 from experimenter.kinto.client import KINTO_REJECTED_STATUS
-from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
+from experimenter.kinto.tests.mixins import MockKintoClientMixin
 
 NIMBUS_DATA = get_data()
 

@@ -1,11 +1,10 @@
 import random
 import string
 
+from pages.base import Base
 from selenium.common.exceptions import ElementNotInteractableException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
-
-from pages.base import Base
 
 
 def get_random_chars():
@@ -210,7 +209,9 @@ class ExperimentOverview(Base):
 
     def save_and_continue_btn(self):
         self.find_element(*self._save_and_continue_btn_locator).click()
-        from pages.experiment_timeline_and_population import TimelineAndPopulationPage
+        from pages.experiment_timeline_and_population import (
+            TimelineAndPopulationPage
+        )
 
         return TimelineAndPopulationPage(
             self.driver, self.base_url

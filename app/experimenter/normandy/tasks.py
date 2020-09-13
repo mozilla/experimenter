@@ -1,25 +1,25 @@
 import decimal
+
 import markus
 from celery.utils.log import get_task_logger
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
 
-from experimenter.celery import app
-from experimenter.experiments.changelog_utils import update_experiment_with_change_log
-
-from experimenter.experiments.models import Experiment
 from experimenter.bugzilla.tasks import (
     add_start_date_comment_task,
-    comp_experiment_update_res_task,
+    comp_experiment_update_res_task
 )
-from experimenter.normandy import client as normandy
-
+from experimenter.celery import app
+from experimenter.experiments.changelog_utils import (
+    update_experiment_with_change_log
+)
 from experimenter.experiments.email import (
     send_experiment_launch_email,
-    send_period_ending_emails_task,
+    send_period_ending_emails_task
 )
+from experimenter.experiments.models import Experiment
+from experimenter.normandy import client as normandy
 
 STATUS_UPDATE_MAPPING = {
     Experiment.STATUS_ACCEPTED: Experiment.STATUS_LIVE,

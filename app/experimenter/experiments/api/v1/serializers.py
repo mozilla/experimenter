@@ -5,9 +5,9 @@ from rest_framework import serializers
 from experimenter.base.serializers import CountrySerializer, LocaleSerializer
 from experimenter.experiments.models import (
     Experiment,
-    ExperimentVariant,
     ExperimentChangeLog,
-    VariantPreferences,
+    ExperimentVariant,
+    VariantPreferences
 )
 from experimenter.projects.models import Project
 

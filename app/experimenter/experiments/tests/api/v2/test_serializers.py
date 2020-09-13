@@ -3,22 +3,10 @@ import datetime
 from django.test import TestCase
 from rest_framework import serializers
 
-from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
-from experimenter.experiments.api.v1.serializers import ExperimentVariantSerializer
-from experimenter.experiments.constants import ExperimentConstants
 from experimenter.base.tests.mixins import MockRequestMixin
-from experimenter.experiments.models import (
-    Experiment,
-    ExperimentVariant,
-    ExperimentChangeLog,
-    RolloutPreference,
-)
-from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
-    ExperimentVariantFactory,
-    VariantPreferencesFactory,
-    UserFactory,
+from experimenter.experiments.api.v1.serializers import (
+    ExperimentVariantSerializer
 )
 from experimenter.experiments.api.v2.serializers import (
     CountrySerializerMultiSelect,
@@ -38,8 +26,22 @@ from experimenter.experiments.api.v2.serializers import (
     ExperimentDesignVariantBaseSerializer,
     ExperimentTimelinePopSerializer,
     LocaleSerializerMultiSelect,
-    PrefValidationMixin,
+    PrefValidationMixin
 )
+from experimenter.experiments.constants import ExperimentConstants
+from experimenter.experiments.models import (
+    Experiment,
+    ExperimentChangeLog,
+    ExperimentVariant,
+    RolloutPreference
+)
+from experimenter.experiments.tests.factories import (
+    ExperimentFactory,
+    ExperimentVariantFactory,
+    UserFactory,
+    VariantPreferencesFactory
+)
+from experimenter.projects.tests.factories import ProjectFactory
 
 
 class TestExperimentDesignVariantBaseSerializer(TestCase):

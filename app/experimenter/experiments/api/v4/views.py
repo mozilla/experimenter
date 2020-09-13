@@ -1,7 +1,9 @@
-from rest_framework import viewsets, mixins
+from rest_framework import mixins, viewsets
 
+from experimenter.experiments.api.v4.serializers import (
+    ExperimentRapidRecipeSerializer
+)
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
 
 
 class ExperimentRapidViewSet(

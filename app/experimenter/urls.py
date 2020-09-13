@@ -1,10 +1,9 @@
 from django.conf import settings
-from django.conf.urls import re_path, include
+from django.conf.urls import include, re_path
 from django.conf.urls.static import static
 from django.contrib import admin
 
 from experimenter.experiments.views import ExperimentListView
-
 
 urlpatterns = [
     re_path(r"^api/v1/experiments/", include("experimenter.experiments.api.v1.urls")),

@@ -1,12 +1,12 @@
 import mock
 import requests
-from django.test import TestCase
 from django.conf import settings
+from django.test import TestCase
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.bugzilla import (
-    add_experiment_comment,
     BugzillaError,
+    add_experiment_comment,
     create_experiment_bug,
     format_bug_body,
     format_summary,
@@ -14,11 +14,11 @@ from experimenter.bugzilla import (
     make_bugzilla_call,
     set_bugzilla_id_value,
     update_bug_resolution,
-    update_experiment_bug,
+    update_experiment_bug
 )
+from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
 
 
 class TestCreateExperimentBug(MockBugzillaMixin, TestCase):

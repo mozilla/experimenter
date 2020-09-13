@@ -3,12 +3,11 @@
 import random
 import string
 
+from pages.base import Base
+from pypom import Region
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
-from selenium.webdriver.common.action_chains import ActionChains
-from pypom import Region
-
-from pages.base import Base
 
 
 class DesignPage(Base):

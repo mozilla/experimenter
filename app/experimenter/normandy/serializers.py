@@ -1,14 +1,15 @@
 import json
+
 from rest_framework import serializers
 
+from experimenter.experiments.api.v1.serializers import PrefTypeField
+from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
-    VariantPreferences,
     RolloutPreference,
+    VariantPreferences
 )
-from experimenter.experiments.api.v1.serializers import PrefTypeField
-from experimenter.experiments.constants import ExperimentConstants
 
 
 class PrefValueField(serializers.Field):

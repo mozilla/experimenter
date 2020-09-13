@@ -1,13 +1,11 @@
-import os
-import logging
 import json
+import logging
+import os
 
 from django.conf import settings
-from django.template.loader import render_to_string
 from django.core.management.base import BaseCommand
-
+from django.template.loader import render_to_string
 from rest_framework.schemas.openapi import SchemaGenerator
-
 
 logger = logging.getLogger()
 

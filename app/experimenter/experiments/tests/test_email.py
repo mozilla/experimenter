@@ -1,16 +1,20 @@
-from django.test import TestCase
-from django.conf import settings
-from django.core import mail
 from datetime import date
 
-from experimenter.experiments.email import (
-    send_intent_to_ship_email,
-    send_experiment_launch_email,
-    send_experiment_ending_email,
-    send_enrollment_pause_email,
-)
-from experimenter.experiments.tests.factories import ExperimentFactory, UserFactory
+from django.conf import settings
+from django.core import mail
+from django.test import TestCase
+
 from experimenter.experiments.constants import ExperimentConstants
+from experimenter.experiments.email import (
+    send_enrollment_pause_email,
+    send_experiment_ending_email,
+    send_experiment_launch_email,
+    send_intent_to_ship_email
+)
+from experimenter.experiments.tests.factories import (
+    ExperimentFactory,
+    UserFactory
+)
 
 
 class TestIntentToShipEmail(TestCase):

@@ -1,13 +1,13 @@
 import mock
-from requests.exceptions import RequestException, HTTPError
 from django.test import TestCase
+from requests.exceptions import HTTPError, RequestException
 
 from experimenter.normandy import (
     APINormandyError,
     NonsuccessfulNormandyCall,
     NormandyDecodeError,
-    make_normandy_call,
     get_recipe,
+    make_normandy_call
 )
 from experimenter.normandy.tests.mixins import MockNormandyMixin
 

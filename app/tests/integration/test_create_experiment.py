@@ -1,5 +1,4 @@
 import pytest
-
 from pages.experiment_design import DesignPage
 
 

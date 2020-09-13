@@ -5,14 +5,16 @@ from django.test import TestCase
 from django.urls import reverse
 from parameterized import parameterized
 
-from experimenter.experiments.api.v3.serializers import ExperimentRapidSerializer
+from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
+from experimenter.experiments.api.v3.serializers import (
+    ExperimentRapidSerializer
+)
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
-    ExperimentRapidFactory,
+    ExperimentRapidFactory
 )
 from experimenter.openidc.tests.factories import UserFactory
-from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
 
 class TestExperimentRapidViewSet(MockBugzillaTasksMixin, TestCase):

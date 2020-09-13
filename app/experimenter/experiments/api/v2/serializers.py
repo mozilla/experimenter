@@ -8,14 +8,14 @@ from django.utils.text import slugify
 from rest_framework import serializers
 
 from experimenter.base.models import Country, Locale
+from experimenter.experiments.changelog_utils import ChangelogSerializerMixin
+from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import (
     Experiment,
     ExperimentVariant,
-    VariantPreferences,
     RolloutPreference,
+    VariantPreferences
 )
-from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.changelog_utils import ChangelogSerializerMixin
 
 
 class PrefValidationMixin(object):

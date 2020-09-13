@@ -4,22 +4,19 @@ from django.conf import settings
 from django.test import TestCase
 from mozilla_nimbus_shared import get_data
 
+from experimenter.base.tests.mixins import MockRequestMixin
+from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 from experimenter.experiments.api.v3.serializers import (
     ExperimentRapidSerializer,
     ExperimentRapidStatusSerializer,
-    ExperimentRapidVariantSerializer,
+    ExperimentRapidVariantSerializer
 )
-from experimenter.experiments.models import (
-    Experiment,
-    ExperimentChangeLog,
-)
+from experimenter.experiments.models import Experiment, ExperimentChangeLog
 from experimenter.experiments.tests.factories import (
     ExperimentRapidFactory,
-    ExperimentVariantFactory,
+    ExperimentVariantFactory
 )
 from experimenter.openidc.tests.factories import UserFactory
-from experimenter.base.tests.mixins import MockRequestMixin
-from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 
 NIMBUS_DATA = get_data()
 

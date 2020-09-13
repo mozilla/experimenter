@@ -2,10 +2,10 @@ from django.contrib import admin
 
 from experimenter.experiments.models import (
     Experiment,
-    ExperimentVariant,
     ExperimentChangeLog,
+    ExperimentVariant,
     NimbusExperiment,
-    VariantPreferences,
+    VariantPreferences
 )
 from experimenter.projects.models import Project
 

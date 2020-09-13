@@ -4,17 +4,18 @@ from datetime import date
 import mock
 from django.conf import settings
 from django.core import mail
-from django.test import override_settings, TestCase
-
-from experimenter.experiments.models import Experiment, ExperimentEmail
-from experimenter.experiments.constants import ExperimentConstants
-
-
-from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.normandy.tests.mixins import MockNormandyMixin, MockNormandyTasksMixin
+from django.test import TestCase, override_settings
 
 from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
-from experimenter.normandy import tasks, client as normandy
+from experimenter.experiments.constants import ExperimentConstants
+from experimenter.experiments.models import Experiment, ExperimentEmail
+from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.normandy import client as normandy
+from experimenter.normandy import tasks
+from experimenter.normandy.tests.mixins import (
+    MockNormandyMixin,
+    MockNormandyTasksMixin
+)
 
 
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)

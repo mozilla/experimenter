@@ -1,8 +1,8 @@
 import factory
 from faker import Factory as FakerFactory
 
-from experimenter.openidc.tests.factories import UserFactory
 from experimenter.notifications.models import Notification
+from experimenter.openidc.tests.factories import UserFactory
 
 faker = FakerFactory.create()
 

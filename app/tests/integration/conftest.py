@@ -1,23 +1,22 @@
 import datetime
-from dateutil.parser import parse
 import os
 from urllib.parse import urlparse
 
 import pytest
 import requests
-from requests.packages.urllib3.util.retry import Retry
-from requests.adapters import HTTPAdapter
-
+from dateutil.parser import parse
 from models.base_dataclass import (
-    BasePreferencesDataClass,
     BaseBranchDataClass,
     BaseDataClass,
+    BasePreferencesDataClass
 )
-from pages.home import Home
-from pages.experiment_timeline_and_population import TimelineAndPopulationPage
 from pages.experiment_design import DesignPage
 from pages.experiment_detail import DetailPage
 from pages.experiment_objective_and_analysis import ObjectiveAndAnalysisPage
+from pages.experiment_timeline_and_population import TimelineAndPopulationPage
+from pages.home import Home
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 
 @pytest.fixture

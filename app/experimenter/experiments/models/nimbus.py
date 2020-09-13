@@ -3,8 +3,8 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator
 from django.db import models
 
-from experimenter.projects.models import Project
 from experimenter.experiments.constants import ExperimentConstants
+from experimenter.projects.models import Project
 
 
 class NimbusExperiment(ExperimentConstants, models.Model):
