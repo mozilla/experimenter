@@ -70,7 +70,7 @@ git config blame.ignoreRevsFile .git-blame-ignore-revs
 
 [osx catalina, reinstall command line tools](https://medium.com/flawless-app-stories/gyp-no-xcode-or-clt-version-detected-macos-catalina-anansewaa-38b536389e8d)
 
-1.  Pre reqs
+1.  Pre reqs (macOs instructions)
 
         brew install postgresql llvm openssl yarn
 
