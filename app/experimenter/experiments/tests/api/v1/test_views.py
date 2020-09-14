@@ -5,9 +5,9 @@ from django.test import TestCase
 from django.urls import reverse
 from parameterized import parameterized
 
+from experimenter.experiments.api.v1.serializers import ExperimentSerializer
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.api.v1.serializers import ExperimentSerializer
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.normandy.serializers import ExperimentRecipeSerializer
 

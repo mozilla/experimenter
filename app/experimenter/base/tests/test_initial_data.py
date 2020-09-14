@@ -1,8 +1,8 @@
-from django.test import TestCase
 from django.core.management import call_command
+from django.test import TestCase
 
-from experimenter.experiments.models import Experiment
 from experimenter.experiments.constants import ExperimentConstants
+from experimenter.experiments.models import Experiment
 
 
 class TestInitialData(TestCase):

@@ -1,7 +1,7 @@
 import logging
-import requests
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import parse_qs, urlparse
 
+import requests
 from django.conf import settings
 
 INVALID_USER_ERROR_CODE = 51

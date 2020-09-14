@@ -1,16 +1,16 @@
 from django.test import TestCase
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
+from experimenter.experiments.changelog_utils import (
+    ChangeLogSerializer,
+    generate_change_log,
+)
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
     UserFactory,
     VariantPreferencesFactory,
-)
-from experimenter.experiments.changelog_utils import (
-    generate_change_log,
-    ChangeLogSerializer,
 )
 from experimenter.projects.tests.factories import ProjectFactory
 

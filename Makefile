@@ -22,6 +22,8 @@ COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose.int
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
+PY_IMPORT_SORT =  python -m isort . -m VERTICAL_HANGING_INDENT --tc
+PY_IMPORT_CHECK =  python -m isort . -m VERTICAL_HANGING_INDENT --tc --check
 PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 ESLINT_CORE = yarn workspace @experimenter/core lint
@@ -45,7 +47,7 @@ test_build: build
 	$(COMPOSE_TEST) build
 
 check: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(TYPECHECK_RAPID)" "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)"'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(TYPECHECK_RAPID)" "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)"'
 
 compose_build: build ssl
 	$(COMPOSE)  build
@@ -80,7 +82,7 @@ generate_docs: compose_build
 	$(COMPOSE) run app sh -c "$(GENERATE_DOCS)"
 
 code_format: compose_build
-	$(COMPOSE) run app sh -c "$(BLACK_FIX)&&$(ESLINT_FIX_CORE)&&$(ESLINT_FIX_RAPID)"
+	$(COMPOSE) run app sh -c "${PY_IMPORT_SORT}&&$(BLACK_FIX)&&$(ESLINT_FIX_CORE)&&$(ESLINT_FIX_RAPID)"
 
 makemigrations: compose_build
 	$(COMPOSE) run app python manage.py makemigrations

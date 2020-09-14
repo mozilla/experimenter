@@ -5,9 +5,6 @@ from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
 
-
-from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.models import Experiment
 from experimenter.experiments.api.v2.serializers import (
     ExperimentCSVSerializer,
     ExperimentDesignAddonSerializer,
@@ -17,8 +14,9 @@ from experimenter.experiments.api.v2.serializers import (
     ExperimentDesignPrefSerializer,
     ExperimentTimelinePopSerializer,
 )
-
 from experimenter.experiments.api.v2.views import ExperimentCSVRenderer
+from experimenter.experiments.constants import ExperimentConstants
+from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,

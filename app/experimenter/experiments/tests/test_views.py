@@ -1,22 +1,23 @@
+import json
 import random
 import re
-import json
 from urllib.parse import urlencode
 
 import mock
-
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
-from experimenter.experiments.forms import NormandyIdForm, RADIO_NO, RADIO_YES
-from experimenter.experiments.models import Experiment, Country, Locale
-from experimenter.experiments.tests.factories import ExperimentFactory
-
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
+from experimenter.experiments.forms import RADIO_NO, RADIO_YES, NormandyIdForm
+from experimenter.experiments.models import Country, Experiment, Locale
+from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.views import (
+    ExperimentFormMixin,
+    ExperimentOrderingForm,
+)
 from experimenter.openidc.tests.factories import UserFactory
-from experimenter.experiments.views import ExperimentFormMixin, ExperimentOrderingForm
 
 
 class TestExperimentListView(TestCase):

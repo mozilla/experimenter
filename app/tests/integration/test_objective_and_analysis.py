@@ -1,5 +1,4 @@
 import pytest
-
 from pages.experiment_objective_and_analysis import ObjectiveAndAnalysisPage
 
 

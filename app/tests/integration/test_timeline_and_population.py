@@ -1,8 +1,7 @@
 import datetime
 
-from dateutil.parser import parse
 import pytest
-
+from dateutil.parser import parse
 from pages.experiment_timeline_and_population import TimelineAndPopulationPage
 
 

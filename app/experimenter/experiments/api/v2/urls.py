@@ -15,7 +15,6 @@ from experimenter.experiments.api.v2.views import (
     ExperimentTimelinePopulationView,
 )
 
-
 urlpatterns = [
     url(
         r"^csv/$",
