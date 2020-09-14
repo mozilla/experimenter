@@ -1,8 +1,7 @@
 """Representaion of the Owned Experiments Page."""
 
-from selenium.webdriver.common.by import By
-
 from pages.base import Base
+from selenium.webdriver.common.by import By
 
 
 class OwnedExperiments(Base):

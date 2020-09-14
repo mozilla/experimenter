@@ -1,10 +1,11 @@
 import logging
+
 from django.conf import settings
 from django.core.mail.message import EmailMessage
 from django.template.loader import render_to_string
 
-from experimenter.experiments.models import Experiment, ExperimentEmail
 from experimenter.experiments.constants import ExperimentConstants
+from experimenter.experiments.models import Experiment, ExperimentEmail
 
 
 def send_intent_to_ship_email(experiment_id):

@@ -1,5 +1,4 @@
 import pytest
-
 from pages.base import Base
 
 

@@ -3,9 +3,8 @@ import random
 
 from django.core.management.base import BaseCommand
 
-from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.models import Experiment
-
+from experimenter.experiments.tests.factories import ExperimentFactory
 
 logger = logging.getLogger()
 

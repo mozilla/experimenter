@@ -1,15 +1,17 @@
 import django_filters as filters
-from django import forms
-
-from django.contrib.auth import get_user_model
-from django.db.models import Q, F, IntegerField
-from django.db.models.functions import Cast
-from django.db.models.expressions import Func, Value
-from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 import django_filters.widgets as widgets
+from django import forms
+from django.contrib.auth import get_user_model
+from django.contrib.postgres.search import (
+    SearchQuery,
+    SearchRank,
+    SearchVector,
+)
+from django.db.models import F, IntegerField, Q
+from django.db.models.expressions import Func, Value
+from django.db.models.functions import Cast
 
 from experimenter.experiments.constants import ExperimentConstants
-
 from experimenter.experiments.models import Experiment
 from experimenter.projects.models import Project
 

@@ -2,12 +2,11 @@ import datetime
 import json
 
 from django.conf import settings
+from django.db.utils import IntegrityError
 from django.test import TestCase, override_settings
 from django.utils import timezone
-from django.db.utils import IntegrityError
 from parameterized import parameterized
 
-from experimenter.openidc.tests.factories import UserFactory
 from experimenter.experiments.models import (
     Experiment,
     ExperimentBucketNamespace,
@@ -16,10 +15,9 @@ from experimenter.experiments.models import (
     RolloutPreference,
     VariantPreferences,
 )
-from experimenter.normandy.serializers import ExperimentRecipeSerializer
 from experimenter.experiments.tests.factories import (
-    ExperimentBucketRangeFactory,
     ExperimentBucketNamespaceFactory,
+    ExperimentBucketRangeFactory,
     ExperimentChangeLogFactory,
     ExperimentCommentFactory,
     ExperimentFactory,
@@ -27,6 +25,8 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     VariantPreferencesFactory,
 )
+from experimenter.normandy.serializers import ExperimentRecipeSerializer
+from experimenter.openidc.tests.factories import UserFactory
 
 
 class TestExperimentManager(TestCase):

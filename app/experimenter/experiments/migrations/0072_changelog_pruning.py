@@ -1,9 +1,11 @@
+from collections import defaultdict
+
 import django.contrib.postgres.fields.jsonb
 import django.core.serializers.json
 from django.db import migrations
 from django.db.models import F
+
 from experimenter.experiments.constants import ExperimentConstants
-from collections import defaultdict
 
 
 class Migration(migrations.Migration):

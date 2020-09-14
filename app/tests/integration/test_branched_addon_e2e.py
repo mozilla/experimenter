@@ -2,9 +2,8 @@ from urllib.parse import urlparse
 
 import pytest
 import requests
-
-from models.validation_dataclass import APIDataClass
 from models.base_dataclass import BaseBranchDataClass, BaseDataClass
+from models.validation_dataclass import APIDataClass
 
 
 @pytest.fixture(name="experiment_type", scope="module")

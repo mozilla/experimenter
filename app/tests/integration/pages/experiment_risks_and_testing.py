@@ -1,7 +1,6 @@
-from selenium.webdriver.common.by import By
-from pypom import Region
-
 from pages.base import Base
+from pypom import Region
+from selenium.webdriver.common.by import By
 
 
 class RiskAndTestingPage(Base):

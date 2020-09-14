@@ -1,9 +1,8 @@
 """Representaion of the Timeline & Population Page."""
 
+from pages.base import Base
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
-
-from pages.base import Base
 
 
 class TimelineAndPopulationPage(Base):

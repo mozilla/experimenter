@@ -1,9 +1,8 @@
 """Representaion of the Experiment Detail Page."""
 
-from selenium.webdriver.common.by import By
-from pypom import Region
-
 from pages.base import Base
+from pypom import Region
+from selenium.webdriver.common.by import By
 
 
 class DetailPage(Base):
@@ -73,7 +72,9 @@ class DetailPage(Base):
         def click_edit(self):
             self.find_element(*self._edit_btn_locator).click()
 
-            from pages.experiment_objective_and_analysis import ObjectiveAndAnalysisPage
+            from pages.experiment_objective_and_analysis import (
+                ObjectiveAndAnalysisPage,
+            )
 
             return ObjectiveAndAnalysisPage(
                 self.driver, self.page.base_url
@@ -107,7 +108,9 @@ class DetailPage(Base):
         def click_edit(self):
             self.find_element(*self._edit_btn_locator).click()
 
-            from pages.experiment_objective_and_analysis import ObjectiveAndAnalysisPage
+            from pages.experiment_objective_and_analysis import (
+                ObjectiveAndAnalysisPage,
+            )
 
             return ObjectiveAndAnalysisPage(
                 self.driver, self.page.base_url

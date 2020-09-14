@@ -1,11 +1,10 @@
-from rest_framework import serializers
-
 from mozilla_nimbus_shared import get_data
+from rest_framework import serializers
 
 from experimenter.experiments.models import (
     Experiment,
-    ExperimentVariant,
     ExperimentBucketRange,
+    ExperimentVariant,
 )
 
 NIMBUS_DATA = get_data()

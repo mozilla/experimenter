@@ -18,7 +18,6 @@ from experimenter.experiments.views import (
     ExperimentTimelinePopulationUpdateView,
 )
 
-
 urlpatterns = [
     re_path(r"^rapid/", ExperimentRapidView.as_view(), name="experiments-rapid"),
     re_path(
