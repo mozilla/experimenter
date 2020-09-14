@@ -3,20 +3,19 @@ import decimal
 import json
 import random
 
+import factory
 from django.conf import settings
 from django.utils import timezone
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
 from mozilla_nimbus_shared import get_data
-import factory
 
 from experimenter.base.models import Country, Locale
-from experimenter.projects.models import Project
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import (
     Experiment,
-    ExperimentBucketRange,
     ExperimentBucketNamespace,
+    ExperimentBucketRange,
     ExperimentChangeLog,
     ExperimentComment,
     ExperimentVariant,
@@ -24,6 +23,7 @@ from experimenter.experiments.models import (
     VariantPreferences,
 )
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.projects.models import Project
 
 faker = FakerFactory.create()
 NORMANDY_STATUS_CHOICES = Experiment.STATUS_CHOICES[:-1]

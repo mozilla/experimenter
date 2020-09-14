@@ -6,7 +6,6 @@ from experimenter.experiments.api.v1.views import (
     ExperimentRecipeView,
 )
 
-
 urlpatterns = [
     url(
         r"^(?P<slug>[\w-]+)/recipe/$",

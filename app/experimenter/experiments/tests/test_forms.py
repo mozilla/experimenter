@@ -10,7 +10,14 @@ from django.test import TestCase, override_settings
 from faker import Factory as FakerFactory
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
+from experimenter.base.tests.mixins import MockRequestMixin
+from experimenter.bugzilla.tests.mixins import (
+    MockBugzillaMixin,
+    MockBugzillaTasksMixin,
+)
 from experimenter.experiments.forms import (
+    RADIO_NO,
+    RADIO_YES,
     BugzillaURLField,
     ChangeLogMixin,
     DSIssueURLField,
@@ -26,20 +33,14 @@ from experimenter.experiments.forms import (
     ExperimentSubscribedForm,
     JSONField,
     NormandyIdForm,
-    RADIO_NO,
-    RADIO_YES,
 )
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     UserFactory,
 )
-from experimenter.base.tests.mixins import MockRequestMixin
-from experimenter.bugzilla.tests.mixins import MockBugzillaMixin
-from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 from experimenter.notifications.models import Notification
 from experimenter.projects.tests.factories import ProjectFactory
-
 
 faker = FakerFactory.create()
 

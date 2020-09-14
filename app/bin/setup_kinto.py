@@ -1,7 +1,8 @@
-import kinto_http
 import os
-import requests
 import urllib
+
+import kinto_http
+import requests
 
 ADMIN_USER = ADMIN_PASS = "admin"
 REVIEW_USER = REVIEW_PASS = "review"

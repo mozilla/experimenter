@@ -1,7 +1,6 @@
+import markus
 from django.apps import AppConfig
 from django.conf import settings
-
-import markus
 
 
 class ExperimentsConfig(AppConfig):

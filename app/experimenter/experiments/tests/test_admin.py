@@ -1,7 +1,7 @@
 import mock
 from django.conf import settings
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 
 from experimenter.experiments.admin import ExperimentAdmin
 from experimenter.experiments.tests.factories import ExperimentFactory

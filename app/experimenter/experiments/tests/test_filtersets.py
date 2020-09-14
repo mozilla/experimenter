@@ -7,10 +7,10 @@ from django.http.request import QueryDict
 from django.test import TestCase
 from django.urls import reverse
 
+from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.experiments.filtersets import ExperimentFilterset
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.base.tests.mixins import MockRequestMixin
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 
