@@ -48,15 +48,15 @@ def test_proposed_enrollment_duration_updates_correctly(
 
 
 @pytest.mark.nondestructive
-def test_population_precentage_updates_correctly(selenium, base_url, fill_overview):
-    """Test Population precentage updates."""
+def test_population_percentage_updates_correctly(selenium, base_url, fill_overview):
+    """Test Population percentage updates."""
     timeline_pop_form = TimelineAndPopulationPage(
         selenium, base_url, experiment_url=f"{fill_overview.url}"
     ).open()
-    assert timeline_pop_form.population_precentage == "0.0000"
-    precentage = "37.0"
-    timeline_pop_form.population_precentage = precentage
-    assert timeline_pop_form.population_precentage == precentage
+    assert timeline_pop_form.population_percentage == "0.0000"
+    percentage = "37.0"
+    timeline_pop_form.population_percentage = percentage
+    assert timeline_pop_form.population_percentage == percentage
 
 
 @pytest.mark.nondestructive
