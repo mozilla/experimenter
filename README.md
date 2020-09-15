@@ -22,7 +22,7 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 ## Installation
 
-### Fully Dockerized Dev Environment
+- ### General Setup
 
 1.  Install [docker](https://www.docker.com/) on your machine
 
@@ -50,6 +50,8 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
         make refresh
 
+#### Fully Dockerized Setup (continuation from General Setup 1-7)
+
 1.  Run a dev instance
 
         make up
@@ -58,8 +60,9 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
         https://localhost/
 
-Done!
+#### Semi Dockerized Setup (continuation from General Setup 1-7)
 
+<<<<<<< HEAD
 Pro-tip: we have had at least one large code refactor. You can ignore specific large commits when blaming by setting the Git config's `ignoreRevsFile` to `.git-blame-ignore-revs`:
 
 ```
@@ -67,6 +70,9 @@ git config blame.ignoreRevsFile .git-blame-ignore-revs
 ```
 
 ### Semi Dockerized Setup
+=======
+Node ^14.0.0 is required
+>>>>>>> feedback changes
 
 [osx catalina, reinstall command line tools](https://medium.com/flawless-app-stories/gyp-no-xcode-or-clt-version-detected-macos-catalina-anansewaa-38b536389e8d)
 
@@ -79,13 +85,15 @@ git config blame.ignoreRevsFile .git-blame-ignore-revs
 
 2.  Install dependencies
 
-        poetry install
+        source .env
+
+        poetry install (cd into app)
 
         yarn install
 
 3.  env values
 
-        .env:
+        .env (set at root):
         DEBUG=True
         POSTGRES_HOST=localhost
         HOSTNAME=localhost
