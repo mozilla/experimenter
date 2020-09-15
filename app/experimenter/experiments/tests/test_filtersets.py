@@ -444,3 +444,14 @@ class TestExperimentFilterset(MockRequestMixin, TestCase):
         self.assertEqual(
             set(filter.qs), set([self.exp_1, self.exp_2, self.exp_3, self.exp_4])
         )
+
+    def test_filters_by_analysis_owner(self):
+        user = UserFactory.create()
+        experiment = ExperimentFactory.create(analysis_owner=user)
+        filter = ExperimentFilterset(data={"analysis_owner": user.id})
+        self.assertEqual(set(filter.qs), set([experiment]))
+
+    def test_filter_by_analysis_owner_invalid_for_non_analysis_owner(self):
+        user = UserFactory.create()
+        filter = ExperimentFilterset(data={"analysis_owner": user.id})
+        self.assertFalse(filter.is_valid())

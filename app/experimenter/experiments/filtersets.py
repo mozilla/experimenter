@@ -72,7 +72,12 @@ class ExperimentFilterset(filters.FilterSet):
     )
     analysis_owner = filters.ModelChoiceFilter(
         empty_label="All Data Scientists",
-        queryset=get_user_model().objects.all().order_by("email"),
+        queryset=get_user_model()
+        .objects.all()
+        .filter(
+            id__in=Experiment.objects.all().values_list("analysis_owner__id", flat=True)
+        )
+        .order_by("email"),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
 
