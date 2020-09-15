@@ -4,29 +4,27 @@
 {% block title %}Mozilla Experimenter{% endblock %}
 
 {% block extrahead %}
-  {{ block.super }}
-  <link rel="icon" href="{% static "imgs/favicon.svg" %}" type="image/x-icon" />
-	<link href="{% static "css/adminextra.css" %}" rel="stylesheet" type="text/css" media="screen,projection" />
+{{ block.super }}
+<link rel="icon" href="{% static "imgs/favicon.svg" %}" type="image/x-icon" />
+<link href="{% static "css/adminextra.css" %}" rel="stylesheet" type="text/css" media="screen,projection" />
 {% endblock %}
 
 {% block branding %}
 <h1 id="site-name">
   <a href="{% url 'admin:index' %}">
-    <svg id="header_icon_svg" enable-background="new 0 0 32 32" version="1.1" viewBox="0 0 32 32" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="GLYPH"><path d="M16,0L1.565,8v16L16,32l14.435-8V8L16,0z M24.237,20.565L16,25.131l-8.237-4.565v-9.131L16,6.869l8.237,4.565V20.565z"/><polygon points="10.364,12.877 16,9.753 21.636,12.877 21.636,19.123 16,22.247 10.364,19.123  "/></g>
-    </svg>
     Mozilla Experimenter
   </a>
 </h1>
 {% endblock %}
 
 {% block usertools %}
-  {{ block.super}}
-  <a style="float:right" href="https://github.com/mozilla/experimenter/issues/new">Leave feedback!</a>
+{{ block.super}}
+<a style="float:right" href="https://github.com/mozilla/experimenter/issues/new">Leave feedback!</a>
 {% endblock %}
 
 {% block userlinks %}
 {% endblock %}
 
 {% block welcome-msg %}
-	<strong>{% firstof user.get_short_name user.get_username %}</strong>
+<strong>{% firstof user.get_short_name user.get_username %}</strong>
 {% endblock %}
