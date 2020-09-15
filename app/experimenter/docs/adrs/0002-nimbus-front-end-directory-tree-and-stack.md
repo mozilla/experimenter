@@ -33,9 +33,11 @@ Drivers for starting a new application:
 
 Currently, a `static/` directory contains the front-end applications with some shared assets, and a `templates/` directory lives adjacent to it.  To provide a more obvious separation of concerns in the directory tree:
 
-* Rename `static/` to `legacy-ui/` since `static/rapid/` will become obsolete and `static/core/` will be the legacy Normandy platform
+* Rename `static/` to `legacy-ui/` since `static/rapid/` will become obsolete and `static/core/` will be the legacy Normandy platform¹
 * Move `templates/` into `legacy-ui/` and add a README with historical information
 * Use `create-react-app` to create a new React application in `app/experimenter/nimbus-ui/` with a README for development documentation
+
+¹2020-09-15 clarification: `legacy-ui` will contain the `core` and `rapid` projects. When `nimbus-ui` reaches parity with `rapid`, we can delete the `rapid` directory. Once Nimbus can replace all experimentation moving forward and we either make legacy experiment data available in Nimbus or archive it elsewhere, we can then delete the entire `legacy-ui` directory.
 
 ### Front-End Stack
 
