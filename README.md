@@ -22,7 +22,7 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 ## Installation
 
-- ### General Setup
+### General Setup
 
 1.  Install [docker](https://www.docker.com/) on your machine
 
@@ -83,26 +83,26 @@ Node ^14.0.0 is required
         echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile
         export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/opt/openssl/lib/
 
-2.  Install dependencies
+2.  Install dependencies (at root)
 
         source .env
 
-        poetry install (cd into app)
+        poetry install (cd into app for this)
 
         yarn install
 
-3.  env values
+3.  env values (at root)
 
-        .env (set at root):
+        .env:
         DEBUG=True
         POSTGRES_HOST=localhost
         HOSTNAME=localhost
 
-4.  Start postgresql, redis, autograph, kinto
+4.  Start postgresql, redis, autograph, kinto (at root)
 
         make up_db
 
-5.  Django app
+5.  Django app (at root)
 
         poetry shell
         yarn workspace @experimenter/core build
