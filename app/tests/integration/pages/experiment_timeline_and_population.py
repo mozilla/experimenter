@@ -76,7 +76,7 @@ class TimelineAndPopulationPage(Base):
         return element.get_attribute("value")
 
     @population_percentage.setter
-    def population_precentage(self, text=None):
+    def population_percentage(self, text=None):
         element = self.find_element(*self._population_percentage_locator)
         element.clear()
         element.send_keys(text)
