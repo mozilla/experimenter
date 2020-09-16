@@ -95,9 +95,11 @@ def update_launched_experiments():
                         comp_experiment_update_res_task.delay(experiment.id)
 
                 if experiment.status == Experiment.STATUS_LIVE:
+                    update_is_high_population(experiment, recipe_data)
                     update_population_percent(experiment, recipe_data)
                     set_is_paused_value_task.delay(experiment.id, recipe_data)
                     send_period_ending_emails_task(experiment)
+
             else:
                 logger.info(
                     "Skipping Experiment: {}. No Normandy id found".format(experiment)
@@ -160,6 +162,19 @@ def update_population_percent(experiment, recipe_data):
             experiment.population_percent = decimal.Decimal(
                 bucket_sample["count"] / bucket_sample["total"] * 100
             )
+            experiment.save()
+
+
+def update_is_high_population(experiment, recipe_data):
+    recipe_args = recipe_data.get("arguments", {})
+    if recipe_is_high_population := recipe_args.get("isHighPopulation"):
+        if experiment.is_high_population != recipe_is_high_population:
+            logger.info(
+                "{experiment}: Setting is_high_population to {high_pop_val}".format(
+                    experiment=experiment, high_pop_val=recipe_is_high_population
+                )
+            )
+            experiment.is_high_population = recipe_is_high_population
             experiment.save()
 
 
