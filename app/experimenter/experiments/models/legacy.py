@@ -285,7 +285,7 @@ class Experiment(ExperimentConstants, models.Model):
     review_impacted_teams = models.NullBooleanField(default=None, blank=True, null=True)
 
     is_paused = models.BooleanField(default=False)
-    is_high_population = models.BooleanField(null=True)
+    is_high_population = models.BooleanField(default=False)
 
     # results fields
     results_url = models.URLField(blank=True, null=True)
@@ -1006,7 +1006,6 @@ class Experiment(ExperimentConstants, models.Model):
             "recipe_slug",
             "normandy_id",
             "other_normandy_ids",
-            "is_high_population",
             "bugzilla_id",
             "review_science",
             "review_engineering",
@@ -1049,6 +1048,7 @@ class Experiment(ExperimentConstants, models.Model):
         cloned.parent = self
         cloned.archived = False
         cloned.is_paused = False
+        cloned.is_high_population = False
 
         for field in set_to_none_fields:
             setattr(cloned, field, None)

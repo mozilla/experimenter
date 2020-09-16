@@ -167,11 +167,15 @@ def update_population_percent(experiment, recipe_data):
 
 def update_is_high_population(experiment, recipe_data):
     recipe_args = recipe_data.get("arguments", {})
-    if recipe_data and ("isHighPopulation" in recipe_args):
-        recipe_is_high_population = recipe_args["isHighPopulation"]
+    if recipe_data and recipe_is_high_population := recipe_args.get("isHighPopulation"):
         if (experiment.is_high_population is None) or (
             experiment.is_high_population == recipe_is_high_population
         ):
+            logger.info(
+                "{experiment}: Setting is_high_population to {high_pop_val}".format(
+                    experiment=experiment, high_pop_val=recipe_args["isHighPopulation"]
+                )
+            )
             experiment.is_high_population = recipe_args["isHighPopulation"]
             experiment.save()
 

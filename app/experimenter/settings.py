@@ -302,18 +302,6 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.normandy.tasks.update_launched_experiments",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
-    "check_kinto_push_queue_task": {
-        "task": "experimenter.kinto.tasks.check_kinto_push_queue",
-        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
-    },
-    "check_experiment_is_live": {
-        "task": "experimenter.kinto.tasks.check_experiment_is_live",
-        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
-    },
-    "check_experiment_is_complete": {
-        "task": "experimenter.kinto.tasks.check_experiment_is_complete",
-        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
-    },
 }
 
 # Recipe Configuration

@@ -361,8 +361,7 @@
                       "nullable": true
                     },
                     "is_high_population": {
-                      "type": "boolean",
-                      "nullable": true
+                      "type": "boolean"
                     },
                     "variants": {
                       "type": "array",
@@ -832,8 +831,7 @@
                         "nullable": true
                       },
                       "is_high_population": {
-                        "type": "boolean",
-                        "nullable": true
+                        "type": "boolean"
                       },
                       "variants": {
                         "type": "array",
@@ -10698,8 +10696,7 @@
                     "nullable": true
                   },
                   "is_high_population": {
-                    "type": "boolean",
-                    "nullable": true
+                    "type": "boolean"
                   },
                   "variants": {
                     "type": "array",
@@ -11119,8 +11116,7 @@
                     "nullable": true
                   },
                   "is_high_population": {
-                    "type": "boolean",
-                    "nullable": true
+                    "type": "boolean"
                   },
                   "variants": {
                     "type": "array",
@@ -11540,8 +11536,7 @@
                     "nullable": true
                   },
                   "is_high_population": {
-                    "type": "boolean",
-                    "nullable": true
+                    "type": "boolean"
                   },
                   "variants": {
                     "type": "array",
@@ -11974,8 +11969,7 @@
                       "nullable": true
                     },
                     "is_high_population": {
-                      "type": "boolean",
-                      "nullable": true
+                      "type": "boolean"
                     },
                     "variants": {
                       "type": "array",
@@ -12423,8 +12417,7 @@
                     "nullable": true
                   },
                   "is_high_population": {
-                    "type": "boolean",
-                    "nullable": true
+                    "type": "boolean"
                   },
                   "variants": {
                     "type": "array",
@@ -12831,8 +12824,7 @@
                     "nullable": true
                   },
                   "is_high_population": {
-                    "type": "boolean",
-                    "nullable": true
+                    "type": "boolean"
                   },
                   "variants": {
                     "type": "array",
@@ -13239,8 +13231,7 @@
                     "nullable": true
                   },
                   "is_high_population": {
-                    "type": "boolean",
-                    "nullable": true
+                    "type": "boolean"
                   },
                   "variants": {
                     "type": "array",
@@ -13660,8 +13651,7 @@
                       "nullable": true
                     },
                     "is_high_population": {
-                      "type": "boolean",
-                      "nullable": true
+                      "type": "boolean"
                     },
                     "variants": {
                       "type": "array",

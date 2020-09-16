@@ -358,6 +358,8 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         mock_response.raise_for_status.side_effect = None
         mock_response.status_code = 200
 
+        self.assertFalse(experiment.is_high_population)
+
         self.mock_normandy_requests_get.return_value = mock_response
 
         tasks.update_launched_experiments()
