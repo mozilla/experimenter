@@ -75,6 +75,7 @@ class ExperimentAdmin(admin.ModelAdmin):
                     "feature_bugzilla_url",
                     "related_work",
                     "is_paused",
+                    "is_high_population",
                 )
             },
         ),

@@ -360,6 +360,9 @@
                       },
                       "nullable": true
                     },
+                    "is_high_population": {
+                      "type": "boolean"
+                    },
                     "variants": {
                       "type": "array",
                       "items": {
@@ -826,6 +829,9 @@
                           "type": "integer"
                         },
                         "nullable": true
+                      },
+                      "is_high_population": {
+                        "type": "boolean"
                       },
                       "variants": {
                         "type": "array",
@@ -10689,6 +10695,9 @@
                     },
                     "nullable": true
                   },
+                  "is_high_population": {
+                    "type": "boolean"
+                  },
                   "variants": {
                     "type": "array",
                     "items": {
@@ -11106,6 +11115,9 @@
                     },
                     "nullable": true
                   },
+                  "is_high_population": {
+                    "type": "boolean"
+                  },
                   "variants": {
                     "type": "array",
                     "items": {
@@ -11522,6 +11534,9 @@
                       "type": "integer"
                     },
                     "nullable": true
+                  },
+                  "is_high_population": {
+                    "type": "boolean"
                   },
                   "variants": {
                     "type": "array",
@@ -11952,6 +11967,9 @@
                         "type": "integer"
                       },
                       "nullable": true
+                    },
+                    "is_high_population": {
+                      "type": "boolean"
                     },
                     "variants": {
                       "type": "array",
@@ -12398,6 +12416,9 @@
                     },
                     "nullable": true
                   },
+                  "is_high_population": {
+                    "type": "boolean"
+                  },
                   "variants": {
                     "type": "array",
                     "items": {
@@ -12802,6 +12823,9 @@
                     },
                     "nullable": true
                   },
+                  "is_high_population": {
+                    "type": "boolean"
+                  },
                   "variants": {
                     "type": "array",
                     "items": {
@@ -13205,6 +13229,9 @@
                       "type": "integer"
                     },
                     "nullable": true
+                  },
+                  "is_high_population": {
+                    "type": "boolean"
                   },
                   "variants": {
                     "type": "array",
@@ -13622,6 +13649,9 @@
                         "type": "integer"
                       },
                       "nullable": true
+                    },
+                    "is_high_population": {
+                      "type": "boolean"
                     },
                     "variants": {
                       "type": "array",

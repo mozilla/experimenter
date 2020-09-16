@@ -1562,6 +1562,7 @@ class TestExperimentModel(TestCase):
             results_url="http://www.example.com",
             results_recipe_errors=True,
             results_restarts=True,
+            is_high_population=True,
         )
 
         experiment.clone("best experiment", user_2)
@@ -1601,6 +1602,7 @@ class TestExperimentModel(TestCase):
         self.assertFalse(cloned_experiment.results_url)
         self.assertFalse(cloned_experiment.results_recipe_errors)
         self.assertFalse(cloned_experiment.results_restarts)
+        self.assertFalse(cloned_experiment.is_high_population)
 
         self.assertEqual(cloned_experiment.changes.count(), 1)
 
