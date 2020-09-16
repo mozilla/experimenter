@@ -136,6 +136,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
             "normandy_slug",
             "normandy_id",
             "other_normandy_ids",
+            "is_high_population",
             "variants",
             "results",
             "changes",
