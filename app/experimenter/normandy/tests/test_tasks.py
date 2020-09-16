@@ -338,6 +338,32 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         experiment = Experiment.objects.get(normandy_id=1234)
         self.assertEqual(experiment.population_percent, decimal.Decimal("50.000"))
 
+    def test_live_isHighPopulation_update(self):
+        experiment = ExperimentFactory.create(
+            type=Experiment.TYPE_PREF,
+            status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+        )
+
+        mock_response_data = {
+            "approved_revision": {
+                "enabled": True,
+                "arguments": {"isHighPopulation": True},
+            }
+        }
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status = mock.Mock()
+        mock_response.raise_for_status.side_effect = None
+        mock_response.status_code = 200
+
+        self.mock_normandy_requests_get.return_value = mock_response
+
+        tasks.update_launched_experiments()
+        experiment = Experiment.objects.get(normandy_id=1234)
+        self.assertEqual(experiment.is_high_population, True)
+
 
 class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase):
     def test_update_status_task(self):
