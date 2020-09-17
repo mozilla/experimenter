@@ -90,6 +90,7 @@ class TestExperimentSerializer(TestCase):
             results_fail_to_launch=False,
             results_failures_notes="failure notes",
             platforms=[Experiment.PLATFORM_LINUX],
+            is_high_population=True,
         )
 
         # ensure expected_data has "string" if pref_type is json string
@@ -124,6 +125,7 @@ class TestExperimentSerializer(TestCase):
             "normandy_slug": experiment.recipe_slug,
             "normandy_id": experiment.normandy_id,
             "other_normandy_ids": experiment.other_normandy_ids,
+            "is_high_population": experiment.is_high_population,
             "variants": [
                 ExperimentVariantSerializer(variant).data
                 for variant in experiment.variants.all()
