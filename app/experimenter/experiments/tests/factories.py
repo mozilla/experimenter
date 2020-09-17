@@ -23,6 +23,8 @@ from experimenter.experiments.models import (
     VariantPreferences,
 )
 from experimenter.openidc.tests.factories import UserFactory
+
+from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.projects.models import Project
 
 faker = FakerFactory.create()
@@ -359,15 +361,6 @@ class ExperimentCommentFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = ExperimentComment
-
-
-class ProjectFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
-    slug = factory.LazyAttribute(lambda o: "{}_".format(slugify(o.name)))
-
-    class Meta:
-        model = Project
-        django_get_or_create = ("slug",)
 
 
 class ExperimentBucketNamespaceFactory(factory.django.DjangoModelFactory):
