@@ -133,7 +133,7 @@ def fill_timeline_page(
     today = f"{new_date.date()}"
     timeline.proposed_start_date = today
     timeline.proposed_experiment_duration = "25"
-    timeline.population_precentage = "100.0"
+    timeline.population_percentage = "100.0"
     timeline.firefox_channel = default_data.channels
     timeline.firefox_min_version = f"{default_data.min_version}.0"
     timeline.firefox_max_version = f"{default_data.max_version}.0"
