@@ -18,7 +18,6 @@ from experimenter.experiments.models.legacy import (
 from experimenter.experiments.models.nimbus import NimbusExperiment
 
 __all__ = [
-    "Country",
     "default_all_platforms",
     "Experiment",
     "ExperimentBucketNamespace",
@@ -31,7 +30,6 @@ __all__ = [
     "ExperimentEmail",
     "ExperimentManager",
     "ExperimentVariant",
-    "Locale",
     "NimbusExperiment",
     "Preference",
     "RolloutPreference",
