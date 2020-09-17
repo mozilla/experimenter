@@ -80,3 +80,71 @@ class NimbusExperiment(ExperimentConstants, models.Model):
 
     def __str__(self):
         return self.name
+
+
+class NimbusBucketNamespace(models.Model):
+    name = models.CharField(max_length=255)
+    instance = models.PositiveIntegerField(default=1)
+    total = models.PositiveIntegerField(default=ExperimentConstants.BUCKET_TOTAL)
+    randomization_unit = models.CharField(
+        max_length=255, default=ExperimentConstants.BUCKET_RANDOMIZATION_UNIT
+    )
+
+    class Meta:
+        verbose_name = "Bucket Namespace"
+        verbose_name_plural = "Bucket Namespaces"
+        unique_together = ("name", "instance")
+        ordering = ("name", "instance")
+
+    def __str__(self):  # pragma: no cover
+        return f"{self.name}-{self.instance}"
+
+    @classmethod
+    def request_namespace_buckets(cls, name, experiment, count):
+        if cls.objects.filter(name=name).exists():
+            namespace = cls.objects.filter(name=name).order_by("-instance").first()
+        else:
+            namespace = cls.objects.create(name=name)
+
+        return namespace.request_buckets(experiment, count)
+
+    def request_buckets(self, experiment, count):
+        namespace = self
+        start = 0
+
+        if self.nimbus_bucket_ranges.exists():
+            highest_bucket = self.nimbus_bucket_ranges.all().order_by("-start").first()
+            if highest_bucket.end + count > self.total:
+                namespace = NimbusBucketNamespace.objects.create(
+                    name=self.name, instance=self.instance + 1
+                )
+            else:
+                start = highest_bucket.end + 1
+
+        return NimbusBucketRange.objects.create(
+            experiment=experiment, namespace=namespace, start=start, count=count
+        )
+
+
+class NimbusBucketRange(models.Model):
+    experiment = models.OneToOneField(
+        NimbusExperiment, related_name="nimbus_bucket_ranges", on_delete=models.CASCADE
+    )
+    namespace = models.ForeignKey(
+        NimbusBucketNamespace,
+        related_name="nimbus_bucket_ranges",
+        on_delete=models.CASCADE,
+    )
+    start = models.PositiveIntegerField()
+    count = models.PositiveIntegerField()
+
+    class Meta:
+        verbose_name = "Bucket Range"
+        verbose_name_plural = "Bucket Ranges"
+
+    def __str__(self):  # pragma: no cover
+        return f"{self.namespace}: {self.start}-{self.end}/{self.namespace.total}"
+
+    @property
+    def end(self):
+        return self.start + self.count - 1

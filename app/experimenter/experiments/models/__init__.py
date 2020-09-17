@@ -1,4 +1,4 @@
-from experimenter.experiments.models.legacy import (
+from experimenter.experiments.models.legacy import (  # noqa: F401
     Experiment,
     ExperimentBucketNamespace,
     ExperimentBucketRange,
@@ -15,23 +15,8 @@ from experimenter.experiments.models.legacy import (
     VariantPreferences,
     default_all_platforms,
 )
-from experimenter.experiments.models.nimbus import NimbusExperiment
-
-__all__ = [
-    "default_all_platforms",
-    "Experiment",
-    "ExperimentBucketNamespace",
-    "ExperimentBucketRange",
-    "ExperimentChangeLog",
-    "ExperimentChangeLogManager",
-    "ExperimentComment",
-    "ExperimentCommentManager",
-    "ExperimentConstants",
-    "ExperimentEmail",
-    "ExperimentManager",
-    "ExperimentVariant",
-    "NimbusExperiment",
-    "Preference",
-    "RolloutPreference",
-    "VariantPreferences",
-]
+from experimenter.experiments.models.nimbus import (  # noqa: F401
+    NimbusBucketNamespace,
+    NimbusBucketRange,
+    NimbusExperiment,
+)
