@@ -23,9 +23,8 @@ from experimenter.experiments.models import (
     VariantPreferences,
 )
 from experimenter.openidc.tests.factories import UserFactory
-
-from experimenter.projects.tests.factories import ProjectFactory
 from experimenter.projects.models import Project
+from experimenter.projects.tests.factories import ProjectFactory
 
 faker = FakerFactory.create()
 NORMANDY_STATUS_CHOICES = Experiment.STATUS_CHOICES[:-1]
