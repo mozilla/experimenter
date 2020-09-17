@@ -97,6 +97,8 @@ Node ^14.0.0 is required
         DEBUG=True
         POSTGRES_HOST=localhost
         HOSTNAME=localhost
+        KINTO_HOST=http://localhost:8888/v1
+        REDIS_HOST=localhost
 
 4.  Start postgresql, redis, autograph, kinto (at root)
 
