@@ -8924,6 +8924,36 @@
         ]
       }
     },
+    "/api/v3/visualization/{slug}/": {
+      "get": {
+        "operationId": "Retrieveanalysis_results_view",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Rapid: Private"
+        ]
+      }
+    },
     "/api/v4/experiments/": {
       "get": {
         "operationId": "listExperiments",

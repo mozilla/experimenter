@@ -8,10 +8,11 @@ from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from experimenter.base.models import Country, Locale
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 from experimenter.experiments.forms import RADIO_NO, RADIO_YES, NormandyIdForm
-from experimenter.experiments.models import Country, Experiment, Locale
+from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.experiments.views import (
     ExperimentFormMixin,
