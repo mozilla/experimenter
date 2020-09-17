@@ -1,5 +1,4 @@
 from experimenter.experiments.models.legacy import (
-    Country,
     Experiment,
     ExperimentBucketNamespace,
     ExperimentBucketRange,
@@ -11,7 +10,6 @@ from experimenter.experiments.models.legacy import (
     ExperimentEmail,
     ExperimentManager,
     ExperimentVariant,
-    Locale,
     Preference,
     RolloutPreference,
     VariantPreferences,
