@@ -12,6 +12,7 @@ from django.views.generic import (
 from django.views.generic.edit import ModelFormMixin
 from django_filters.views import FilterView
 
+from experimenter.base.models import Country, Locale
 from experimenter.experiments.filtersets import ExperimentFilterset
 from experimenter.experiments.forms import (
     ExperimentArchiveForm,
@@ -26,7 +27,7 @@ from experimenter.experiments.forms import (
     ExperimentSubscribedForm,
     NormandyIdForm,
 )
-from experimenter.experiments.models import Country, Experiment, Locale
+from experimenter.experiments.models import Experiment
 
 
 class ExperimentListView(FilterView):
