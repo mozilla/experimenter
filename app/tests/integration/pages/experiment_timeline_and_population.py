@@ -27,7 +27,7 @@ class TimelineAndPopulationPage(Base):
     _proposed_duration_locator = (By.CSS_SELECTOR, "#id_proposed_duration")
     _proposed_enrollment_locator = (By.CSS_SELECTOR, "#id_proposed_enrollment")
     _proposed_start_date_locator = (By.CSS_SELECTOR, "#id_proposed_start_date")
-    _population_precentage_locator = (By.CSS_SELECTOR, "#id_population_percent")
+    _population_percentage_locator = (By.CSS_SELECTOR, "#id_population_percent")
     _save_btn_locator = (By.CSS_SELECTOR, "button.mr-1")
     _page_wait_locator = (By.CSS_SELECTOR, ".page-edit-timeline-and-population")
 
@@ -71,13 +71,13 @@ class TimelineAndPopulationPage(Base):
         element.send_keys(text)
 
     @property
-    def population_precentage(self):
-        element = self.find_element(*self._population_precentage_locator)
+    def population_percentage(self):
+        element = self.find_element(*self._population_percentage_locator)
         return element.get_attribute("value")
 
-    @population_precentage.setter
-    def population_precentage(self, text=None):
-        element = self.find_element(*self._population_precentage_locator)
+    @population_percentage.setter
+    def population_percentage(self, text=None):
+        element = self.find_element(*self._population_percentage_locator)
         element.clear()
         element.send_keys(text)
 
