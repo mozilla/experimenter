@@ -35,11 +35,9 @@ from experimenter.experiments.forms import (
     NormandyIdForm,
 )
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
-    UserFactory,
-)
+from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.notifications.models import Notification
+from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 
 faker = FakerFactory.create()

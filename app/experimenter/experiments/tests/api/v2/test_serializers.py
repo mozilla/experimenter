@@ -38,9 +38,9 @@ from experimenter.experiments.models import (
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,
     ExperimentVariantFactory,
-    UserFactory,
     VariantPreferencesFactory,
 )
+from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 
 

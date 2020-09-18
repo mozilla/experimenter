@@ -11,10 +11,8 @@ from experimenter.experiments.email import (
     send_experiment_launch_email,
     send_intent_to_ship_email,
 )
-from experimenter.experiments.tests.factories import (
-    ExperimentFactory,
-    UserFactory,
-)
+from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.openidc.tests.factories import UserFactory
 
 
 class TestIntentToShipEmail(TestCase):
