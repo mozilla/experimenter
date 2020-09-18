@@ -372,6 +372,9 @@
                       },
                       "nullable": true
                     },
+                    "is_high_population": {
+                      "type": "boolean"
+                    },
                     "variants": {
                       "type": "array",
                       "items": {
@@ -838,6 +841,9 @@
                           "type": "integer"
                         },
                         "nullable": true
+                      },
+                      "is_high_population": {
+                        "type": "boolean"
                       },
                       "variants": {
                         "type": "array",
@@ -8930,6 +8936,36 @@
         ]
       }
     },
+    "/api/v3/visualization/{slug}/": {
+      "get": {
+        "operationId": "Retrieveanalysis_results_view",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Rapid: Private"
+        ]
+      }
+    },
     "/api/v4/experiments/": {
       "get": {
         "operationId": "listExperiments",
@@ -10701,6 +10737,9 @@
                     },
                     "nullable": true
                   },
+                  "is_high_population": {
+                    "type": "boolean"
+                  },
                   "variants": {
                     "type": "array",
                     "items": {
@@ -11118,6 +11157,9 @@
                     },
                     "nullable": true
                   },
+                  "is_high_population": {
+                    "type": "boolean"
+                  },
                   "variants": {
                     "type": "array",
                     "items": {
@@ -11534,6 +11576,9 @@
                       "type": "integer"
                     },
                     "nullable": true
+                  },
+                  "is_high_population": {
+                    "type": "boolean"
                   },
                   "variants": {
                     "type": "array",
@@ -11964,6 +12009,9 @@
                         "type": "integer"
                       },
                       "nullable": true
+                    },
+                    "is_high_population": {
+                      "type": "boolean"
                     },
                     "variants": {
                       "type": "array",
@@ -12410,6 +12458,9 @@
                     },
                     "nullable": true
                   },
+                  "is_high_population": {
+                    "type": "boolean"
+                  },
                   "variants": {
                     "type": "array",
                     "items": {
@@ -12814,6 +12865,9 @@
                     },
                     "nullable": true
                   },
+                  "is_high_population": {
+                    "type": "boolean"
+                  },
                   "variants": {
                     "type": "array",
                     "items": {
@@ -13217,6 +13271,9 @@
                       "type": "integer"
                     },
                     "nullable": true
+                  },
+                  "is_high_population": {
+                    "type": "boolean"
                   },
                   "variants": {
                     "type": "array",
@@ -13634,6 +13691,9 @@
                         "type": "integer"
                       },
                       "nullable": true
+                    },
+                    "is_high_population": {
+                      "type": "boolean"
                     },
                     "variants": {
                       "type": "array",
