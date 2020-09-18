@@ -31,9 +31,13 @@ ESLINT_FIX_CORE = yarn workspace @experimenter/core lint-fix
 ESLINT_RAPID = yarn workspace @experimenter/rapid lint:eslint
 ESLINT_VISUALIZATION = yarn workspace @experimenter/visualization lint
 ESLINT_FIX_RAPID = yarn workspace @experimenter/rapid lint:eslint --fix
+ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:eslint
+ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:eslint --fix
 TYPECHECK_RAPID = yarn workspace @experimenter/rapid lint:tsc
+TYPECHECK_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:tsc
 JS_TEST_CORE = yarn workspace @experimenter/core test
 JS_TEST_RAPID = yarn workspace @experimenter/rapid test
+JS_TEST_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui test CI=true
 FLAKE8 = flake8 .
 BLACK_CHECK = black -l 90 --check --diff .
 BLACK_FIX = black -l 90 .
@@ -48,7 +52,7 @@ test_build: build
 	$(COMPOSE_TEST) build
 
 check: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(ESLINT_VISUALIZATION)" "$(TYPECHECK_RAPID)" "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)"'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(ESLINT_VISUALIZATION)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_RAPID)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)" "$(JS_TEST_NIMBUS_UI)"'
 
 compose_build: build ssl
 	$(COMPOSE)  build
@@ -83,7 +87,7 @@ generate_docs: compose_build
 	$(COMPOSE) run app sh -c "$(GENERATE_DOCS)"
 
 code_format: compose_build
-	$(COMPOSE) run app sh -c "${PY_IMPORT_SORT}&&$(BLACK_FIX)&&$(ESLINT_FIX_CORE)&&$(ESLINT_FIX_RAPID)"
+	$(COMPOSE) run app sh -c "${PY_IMPORT_SORT}&&$(BLACK_FIX)&&$(ESLINT_FIX_CORE)&&$(ESLINT_FIX_RAPID)&&$(ESLINT_FIX_NIMBUS_UI)"
 
 makemigrations: compose_build
 	$(COMPOSE) run app python manage.py makemigrations
