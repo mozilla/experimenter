@@ -112,8 +112,8 @@ class NimbusBucketNamespace(models.Model):
         namespace = self
         start = 0
 
-        if self.nimbus_bucket_ranges.exists():
-            highest_bucket = self.nimbus_bucket_ranges.all().order_by("-start").first()
+        if self.bucket_ranges.exists():
+            highest_bucket = self.bucket_ranges.all().order_by("-start").first()
             if highest_bucket.end + count > self.total:
                 namespace = NimbusBucketNamespace.objects.create(
                     name=self.name, instance=self.instance + 1
@@ -128,11 +128,11 @@ class NimbusBucketNamespace(models.Model):
 
 class NimbusBucketRange(models.Model):
     experiment = models.OneToOneField(
-        NimbusExperiment, related_name="nimbus_bucket_ranges", on_delete=models.CASCADE
+        NimbusExperiment, related_name="bucket_ranges", on_delete=models.CASCADE
     )
     namespace = models.ForeignKey(
         NimbusBucketNamespace,
-        related_name="nimbus_bucket_ranges",
+        related_name="bucket_ranges",
         on_delete=models.CASCADE,
     )
     start = models.PositiveIntegerField()
