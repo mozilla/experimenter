@@ -4,7 +4,11 @@ import factory
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
 
-from experimenter.experiments.models import NimbusExperiment
+from experimenter.experiments.models import (
+    NimbusBucketRange,
+    NimbusExperiment,
+    NimbusIsolationGroup,
+)
 from experimenter.openidc.tests.factories import UserFactory
 
 faker = FakerFactory.create()
@@ -37,3 +41,38 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = NimbusExperiment
+
+    @classmethod
+    def create_with_status(cls, target_status, **kwargs):
+        experiment = cls.create(**kwargs)
+
+        for status, _ in NimbusExperiment.STATUS_CHOICES:
+            if status == NimbusExperiment.STATUS_REVIEW:
+                NimbusIsolationGroup.request_isolation_group_buckets(
+                    experiment.slug,
+                    experiment,
+                    100,
+                )
+
+            if status == target_status:
+                break
+
+        return NimbusExperiment.objects.get(id=experiment.id)
+
+
+class NimbusIsolationGroupFactory(factory.django.DjangoModelFactory):
+    name = factory.LazyAttribute(lambda o: slugify(faker.catch_phrase()))
+    instance = factory.Sequence(lambda n: n)
+
+    class Meta:
+        model = NimbusIsolationGroup
+
+
+class NimbusBucketRangeFactory(factory.django.DjangoModelFactory):
+    experiment = factory.SubFactory(NimbusExperimentFactory)
+    isolation_group = factory.SubFactory(NimbusIsolationGroupFactory)
+    start = factory.Sequence(lambda n: n * 100)
+    count = 100
+
+    class Meta:
+        model = NimbusBucketRange

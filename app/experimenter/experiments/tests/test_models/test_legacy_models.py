@@ -22,7 +22,6 @@ from experimenter.experiments.tests.factories import (
     ExperimentCommentFactory,
     ExperimentFactory,
     ExperimentVariantFactory,
-    NimbusExperimentFactory,
     VariantPreferencesFactory,
 )
 from experimenter.normandy.serializers import ExperimentRecipeSerializer
@@ -64,12 +63,6 @@ class TestExperimentManager(TestCase):
             list(Experiment.objects.order_by("-latest_change")),
             [experiment1, experiment2],
         )
-
-
-class TestNimbusExperimentModel(TestCase):
-    def test_str(self):
-        experiment = NimbusExperimentFactory.create(slug="experiment-slug")
-        self.assertEqual(str(experiment), experiment.name)
 
 
 class TestExperimentModel(TestCase):
