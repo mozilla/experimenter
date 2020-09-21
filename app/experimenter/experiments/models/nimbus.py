@@ -82,7 +82,7 @@ class NimbusExperiment(ExperimentConstants, models.Model):
         return self.name
 
 
-class NimbusBucketNamespace(models.Model):
+class NimbusIsolationGroup(models.Model):
     name = models.CharField(max_length=255)
     instance = models.PositiveIntegerField(default=1)
     total = models.PositiveIntegerField(default=ExperimentConstants.BUCKET_TOTAL)
@@ -91,8 +91,8 @@ class NimbusBucketNamespace(models.Model):
     )
 
     class Meta:
-        verbose_name = "Bucket Namespace"
-        verbose_name_plural = "Bucket Namespaces"
+        verbose_name = "Bucket IsolationGroup"
+        verbose_name_plural = "Bucket IsolationGroups"
         unique_together = ("name", "instance")
         ordering = ("name", "instance")
 
@@ -100,29 +100,32 @@ class NimbusBucketNamespace(models.Model):
         return f"{self.name}-{self.instance}"
 
     @classmethod
-    def request_namespace_buckets(cls, name, experiment, count):
+    def request_isolation_group_buckets(cls, name, experiment, count):
         if cls.objects.filter(name=name).exists():
-            namespace = cls.objects.filter(name=name).order_by("-instance").first()
+            isolation_group = cls.objects.filter(name=name).order_by("-instance").first()
         else:
-            namespace = cls.objects.create(name=name)
+            isolation_group = cls.objects.create(name=name)
 
-        return namespace.request_buckets(experiment, count)
+        return isolation_group.request_buckets(experiment, count)
 
     def request_buckets(self, experiment, count):
-        namespace = self
+        isolation_group = self
         start = 0
 
         if self.bucket_ranges.exists():
             highest_bucket = self.bucket_ranges.all().order_by("-start").first()
             if highest_bucket.end + count > self.total:
-                namespace = NimbusBucketNamespace.objects.create(
+                isolation_group = NimbusIsolationGroup.objects.create(
                     name=self.name, instance=self.instance + 1
                 )
             else:
                 start = highest_bucket.end + 1
 
         return NimbusBucketRange.objects.create(
-            experiment=experiment, namespace=namespace, start=start, count=count
+            experiment=experiment,
+            isolation_group=isolation_group,
+            start=start,
+            count=count,
         )
 
 
@@ -130,8 +133,8 @@ class NimbusBucketRange(models.Model):
     experiment = models.OneToOneField(
         NimbusExperiment, related_name="bucket_ranges", on_delete=models.CASCADE
     )
-    namespace = models.ForeignKey(
-        NimbusBucketNamespace,
+    isolation_group = models.ForeignKey(
+        NimbusIsolationGroup,
         related_name="bucket_ranges",
         on_delete=models.CASCADE,
     )
@@ -143,7 +146,10 @@ class NimbusBucketRange(models.Model):
         verbose_name_plural = "Bucket Ranges"
 
     def __str__(self):  # pragma: no cover
-        return f"{self.namespace}: {self.start}-{self.end}/{self.namespace.total}"
+        return (
+            f"{self.isolation_group}: {self.start}-{self.end}"
+            f"/{self.isolation_group.total}"
+        )
 
     @property
     def end(self):
