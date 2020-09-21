@@ -80,3 +80,77 @@ class NimbusExperiment(ExperimentConstants, models.Model):
 
     def __str__(self):
         return self.name
+
+
+class NimbusIsolationGroup(models.Model):
+    name = models.CharField(max_length=255)
+    instance = models.PositiveIntegerField(default=1)
+    total = models.PositiveIntegerField(default=ExperimentConstants.BUCKET_TOTAL)
+    randomization_unit = models.CharField(
+        max_length=255, default=ExperimentConstants.BUCKET_RANDOMIZATION_UNIT
+    )
+
+    class Meta:
+        verbose_name = "Bucket IsolationGroup"
+        verbose_name_plural = "Bucket IsolationGroups"
+        unique_together = ("name", "instance")
+        ordering = ("name", "instance")
+
+    def __str__(self):  # pragma: no cover
+        return f"{self.name}-{self.instance}"
+
+    @classmethod
+    def request_isolation_group_buckets(cls, name, experiment, count):
+        if cls.objects.filter(name=name).exists():
+            isolation_group = cls.objects.filter(name=name).order_by("-instance").first()
+        else:
+            isolation_group = cls.objects.create(name=name)
+
+        return isolation_group.request_buckets(experiment, count)
+
+    def request_buckets(self, experiment, count):
+        isolation_group = self
+        start = 0
+
+        if self.bucket_ranges.exists():
+            highest_bucket = self.bucket_ranges.all().order_by("-start").first()
+            if highest_bucket.end + count > self.total:
+                isolation_group = NimbusIsolationGroup.objects.create(
+                    name=self.name, instance=self.instance + 1
+                )
+            else:
+                start = highest_bucket.end + 1
+
+        return NimbusBucketRange.objects.create(
+            experiment=experiment,
+            isolation_group=isolation_group,
+            start=start,
+            count=count,
+        )
+
+
+class NimbusBucketRange(models.Model):
+    experiment = models.OneToOneField(
+        NimbusExperiment, related_name="bucket_ranges", on_delete=models.CASCADE
+    )
+    isolation_group = models.ForeignKey(
+        NimbusIsolationGroup,
+        related_name="bucket_ranges",
+        on_delete=models.CASCADE,
+    )
+    start = models.PositiveIntegerField()
+    count = models.PositiveIntegerField()
+
+    class Meta:
+        verbose_name = "Bucket Range"
+        verbose_name_plural = "Bucket Ranges"
+
+    def __str__(self):  # pragma: no cover
+        return (
+            f"{self.isolation_group}: {self.start}-{self.end}"
+            f"/{self.isolation_group.total}"
+        )
+
+    @property
+    def end(self):
+        return self.start + self.count - 1
