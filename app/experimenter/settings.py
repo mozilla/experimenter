@@ -206,12 +206,14 @@ LOGGING = {
 
 
 # Sentry configuration
-RAVEN_CONFIG = {
-    "dsn": config("SENTRY_DSN"),
-    # If you are using git, you can also automatically configure the
-    # release based on the git info.
-    # 'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
-}
+SENTRY_DSN = config("SENTRY_DSN", default=None)
+if SENTRY_DSN:  # pragma: no cover
+    RAVEN_CONFIG = {
+        "dsn": SENTRY_DSN,
+        # If you are using git, you can also automatically configure the
+        # release based on the git info.
+        # 'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
+    }
 
 
 # Django Rest Framework Configuration
