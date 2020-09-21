@@ -10,7 +10,7 @@ from experimenter.experiments.tests.factories.legacy import (  # noqa: F401
     VariantPreferencesFactory,
 )
 from experimenter.experiments.tests.factories.nimbus import (  # noqa: F401
-    NimbusBucketNamespaceFactory,
     NimbusBucketRangeFactory,
     NimbusExperimentFactory,
+    NimbusIsolationGroupFactory,
 )
