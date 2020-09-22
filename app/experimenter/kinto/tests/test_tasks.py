@@ -5,9 +5,7 @@ from django.conf import settings
 from django.test import TestCase
 from mozilla_nimbus_shared import get_data
 
-from experimenter.experiments.api.v4.serializers import (
-    ExperimentRapidRecipeSerializer,
-)
+from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
 from experimenter.experiments.models import (
     Experiment,
     ExperimentBucketRange,

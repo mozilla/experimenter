@@ -11,10 +11,7 @@ from faker import Factory as FakerFactory
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.base.tests.mixins import MockRequestMixin
-from experimenter.bugzilla.tests.mixins import (
-    MockBugzillaMixin,
-    MockBugzillaTasksMixin,
-)
+from experimenter.bugzilla.tests.mixins import MockBugzillaMixin, MockBugzillaTasksMixin
 from experimenter.experiments.forms import (
     RADIO_NO,
     RADIO_YES,
@@ -35,7 +32,11 @@ from experimenter.experiments.forms import (
     NormandyIdForm,
 )
 from experimenter.experiments.models import Experiment
+<<<<<<< HEAD
 from experimenter.experiments.tests.factories import ExperimentFactory
+=======
+from experimenter.experiments.tests.factories import ExperimentFactory, UserFactory
+>>>>>>> fix #3524 isort to use black profile
 from experimenter.notifications.models import Notification
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory

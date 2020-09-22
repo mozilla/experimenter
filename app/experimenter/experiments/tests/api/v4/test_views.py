@@ -3,9 +3,7 @@ import json
 from django.test import TestCase
 from django.urls import reverse
 
-from experimenter.experiments.api.v4.serializers import (
-    ExperimentRapidRecipeSerializer,
-)
+from experimenter.experiments.api.v4.serializers import ExperimentRapidRecipeSerializer
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentRapidFactory
 
