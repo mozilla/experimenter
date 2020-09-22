@@ -2,9 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from experimenter.base.serializers import CountrySerializer, LocaleSerializer
-from experimenter.experiments.api.v1.serializers import (
-    ExperimentVariantSerializer,
-)
+from experimenter.experiments.api.v1.serializers import ExperimentVariantSerializer
 from experimenter.experiments.models import Experiment, ExperimentChangeLog
 from experimenter.projects.serializers import ProjectSerializer
 

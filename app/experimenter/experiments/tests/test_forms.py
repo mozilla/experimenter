@@ -11,10 +11,7 @@ from faker import Factory as FakerFactory
 
 from experimenter.base.tests.factories import CountryFactory, LocaleFactory
 from experimenter.base.tests.mixins import MockRequestMixin
-from experimenter.bugzilla.tests.mixins import (
-    MockBugzillaMixin,
-    MockBugzillaTasksMixin,
-)
+from experimenter.bugzilla.tests.mixins import MockBugzillaMixin, MockBugzillaTasksMixin
 from experimenter.experiments.forms import (
     RADIO_NO,
     RADIO_YES,

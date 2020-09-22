@@ -2,11 +2,7 @@ import django_filters as filters
 import django_filters.widgets as widgets
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.search import (
-    SearchQuery,
-    SearchRank,
-    SearchVector,
-)
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.db.models import F, IntegerField, Q
 from django.db.models.expressions import Func, Value
 from django.db.models.functions import Cast
