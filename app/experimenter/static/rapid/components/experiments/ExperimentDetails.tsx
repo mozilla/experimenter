@@ -20,6 +20,12 @@ import { ExperimentStatus } from "experimenter-rapid/types/experiment";
 
 export const POLL_TIMEOUT = 30000;
 
+declare global {
+  interface Window {
+    initSvelte(svelteRoot: HTMLElement | null): void;
+  }
+}
+
 const LabelledRow: React.FC<{ label: string; value?: string }> = ({
   children,
   label,
@@ -54,9 +60,18 @@ const displaySelectOptionLabels = (options, values) => {
 
 const ExperimentDetails: React.FC = () => {
   const experimentData = useExperimentState();
+  const visualizationRef = React.useRef(null);
   const dispatch = useExperimentDispatch();
 
   const handleClickRequestApproval = async () => dispatch(requestReview());
+
+  React.useEffect(() => {
+    if (!visualizationRef.current || !window.initSvelte) {
+      return;
+    }
+
+    window.initSvelte(visualizationRef.current);
+  });
 
   useInterval(() => {
     if (experimentData.slug) {
@@ -127,6 +142,7 @@ const ExperimentDetails: React.FC = () => {
             here
           </a>
         </p>
+        <div ref={visualizationRef}></div>
       </>
     );
   }
