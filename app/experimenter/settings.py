@@ -373,6 +373,7 @@ SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W004"]
 
 # Feature Flags
 FEATURE_MESSAGE_TYPE = config("FEATURE_MESSAGE_TYPE", default=False, cast=bool)
+FEATURE_ANALYSIS = config("FEATURE_ANALYSIS", default=False, cast=bool)
 
 # Kinto settings
 KINTO_HOST = config("KINTO_HOST")
