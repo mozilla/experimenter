@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "types": ["svelte"],
+        "lib": ["es2020", "DOM"],
+        "allowJs": true,
+        "checkJs": true,
+        "experimentalDecorators": true,
+        "esModuleInterop": true,
+        "baseUrl": ".",
+        "paths": {
+            "experimenter-types/*": ["./../rapid/types/*"]
+        },
+        "downlevelIteration": true,
+        "noEmit": true,
+        "strictNullChecks": true,
+        "isolatedModules": true,
+        "typeRoots": ["./../rapid/types", "typings"],
+        "moduleResolution": "node",
+        "importsNotUsedAsValues": "preserve",
+    },
+    "extends": "@tsconfig/svelte/tsconfig.json",
+    "include": ["src/**/*"],
+    "exclude": ["node_modules/*"],
+}
