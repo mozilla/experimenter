@@ -32,11 +32,7 @@ from experimenter.experiments.forms import (
     NormandyIdForm,
 )
 from experimenter.experiments.models import Experiment
-<<<<<<< HEAD
 from experimenter.experiments.tests.factories import ExperimentFactory
-=======
-from experimenter.experiments.tests.factories import ExperimentFactory, UserFactory
->>>>>>> fix #3524 isort to use black profile
 from experimenter.notifications.models import Notification
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory

@@ -11,12 +11,8 @@ from experimenter.experiments.email import (
     send_experiment_launch_email,
     send_intent_to_ship_email,
 )
-<<<<<<< HEAD
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.openidc.tests.factories import UserFactory
-=======
-from experimenter.experiments.tests.factories import ExperimentFactory, UserFactory
->>>>>>> fix #3524 isort to use black profile
 
 
 class TestIntentToShipEmail(TestCase):
