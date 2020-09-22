@@ -12,10 +12,7 @@ from experimenter.experiments.models import Experiment, ExperimentEmail
 from experimenter.experiments.tests.factories import ExperimentFactory
 from experimenter.normandy import client as normandy
 from experimenter.normandy import tasks
-from experimenter.normandy.tests.mixins import (
-    MockNormandyMixin,
-    MockNormandyTasksMixin,
-)
+from experimenter.normandy.tests.mixins import MockNormandyMixin, MockNormandyTasksMixin
 
 
 @override_settings(CELERY_TASK_ALWAYS_EAGER=True)

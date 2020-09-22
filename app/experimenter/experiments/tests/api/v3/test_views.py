@@ -6,9 +6,7 @@ from django.urls import reverse
 from parameterized import parameterized
 
 from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
-from experimenter.experiments.api.v3.serializers import (
-    ExperimentRapidSerializer,
-)
+from experimenter.experiments.api.v3.serializers import ExperimentRapidSerializer
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import (
     ExperimentFactory,

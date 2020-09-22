@@ -14,10 +14,7 @@ from experimenter.bugzilla.tests.mixins import MockBugzillaTasksMixin
 from experimenter.experiments.forms import RADIO_NO, RADIO_YES, NormandyIdForm
 from experimenter.experiments.models import Experiment
 from experimenter.experiments.tests.factories import ExperimentFactory
-from experimenter.experiments.views import (
-    ExperimentFormMixin,
-    ExperimentOrderingForm,
-)
+from experimenter.experiments.views import ExperimentFormMixin, ExperimentOrderingForm
 from experimenter.openidc.tests.factories import UserFactory
 
 

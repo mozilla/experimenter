@@ -1,9 +1,5 @@
 from rest_framework import status
-from rest_framework.generics import (
-    ListAPIView,
-    RetrieveUpdateAPIView,
-    UpdateAPIView,
-)
+from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView, UpdateAPIView
 from rest_framework.response import Response
 from rest_framework_csv.renderers import CSVRenderer
 
