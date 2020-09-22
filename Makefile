@@ -29,6 +29,7 @@ PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --no
 ESLINT_CORE = yarn workspace @experimenter/core lint
 ESLINT_FIX_CORE = yarn workspace @experimenter/core lint-fix
 ESLINT_RAPID = yarn workspace @experimenter/rapid lint:eslint
+ESLINT_VISUALIZATION = yarn workspace @experimenter/visualization lint
 ESLINT_FIX_RAPID = yarn workspace @experimenter/rapid lint:eslint --fix
 TYPECHECK_RAPID = yarn workspace @experimenter/rapid lint:tsc
 JS_TEST_CORE = yarn workspace @experimenter/core test
@@ -47,7 +48,7 @@ test_build: build
 	$(COMPOSE_TEST) build
 
 check: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(TYPECHECK_RAPID)" "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)"'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(ESLINT_VISUALIZATION)" "$(TYPECHECK_RAPID)" "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)"'
 
 compose_build: build ssl
 	$(COMPOSE)  build

@@ -285,6 +285,32 @@ describe("<ExperimentDetails />", () => {
     });
   });
 
+  it("Initializes the svelte code as expected", async () => {
+    window.initSvelte = () => {
+      return;
+    };
+
+    await act(async () => {
+      renderWithRouter(
+        wrapInExperimentProvider(<ExperimentDetails />, {
+          initialState: {
+            status: ExperimentStatus.LIVE,
+            slug: "test-slug",
+            recipe_slug: "bug-123-test-slug",
+            name: "Test Name",
+            objectives: "Test objectives",
+            owner: "test@owner.com",
+            features: ["picture_in_picture", "pinned_tabs"],
+            audience: "us_only",
+            firefox_channel: FirefoxChannel.RELEASE,
+            firefox_min_version: "78.0",
+            variants: [],
+          },
+        }),
+      );
+    });
+  });
+
   it("sends you to the edit page when the 'Back' button is clicked", async () => {
     await act(async () => {
       const { getByText, history } = renderWithRouter(
