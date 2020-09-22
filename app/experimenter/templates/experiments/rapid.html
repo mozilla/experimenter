@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 {% load static%}
 
-
 {% block main %}
+  {% if FEATURE_ANALYSIS %}
+    <script src="{% static "assets/visualization/bundle.js" %}"></script>
+    <link rel="stylesheet" href="{% static "assets/visualization/bundle.css" %}" />
+  {% endif %}
+
   <div class="w-100" data-react-dom-render="rapid"></div>
 {% endblock %}
 
