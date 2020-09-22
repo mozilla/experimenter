@@ -3,12 +3,7 @@ import json
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import (
-    CreateView,
-    DetailView,
-    TemplateView,
-    UpdateView,
-)
+from django.views.generic import CreateView, DetailView, TemplateView, UpdateView
 from django.views.generic.edit import ModelFormMixin
 from django_filters.views import FilterView
 

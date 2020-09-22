@@ -11,9 +11,7 @@ from experimenter.bugzilla.tasks import (
     comp_experiment_update_res_task,
 )
 from experimenter.celery import app
-from experimenter.experiments.changelog_utils import (
-    update_experiment_with_change_log,
-)
+from experimenter.experiments.changelog_utils import update_experiment_with_change_log
 from experimenter.experiments.email import (
     send_experiment_launch_email,
     send_period_ending_emails_task,

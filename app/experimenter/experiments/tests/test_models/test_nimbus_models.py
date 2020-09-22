@@ -1,9 +1,6 @@
 from django.test import TestCase
 
-from experimenter.experiments.models import (
-    NimbusExperiment,
-    NimbusIsolationGroup,
-)
+from experimenter.experiments.models import NimbusExperiment, NimbusIsolationGroup
 from experimenter.experiments.tests.factories import (
     NimbusBucketRangeFactory,
     NimbusExperimentFactory,
