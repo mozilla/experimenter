@@ -5,6 +5,7 @@ from django.utils.text import slugify
 from faker import Factory as FakerFactory
 
 from experimenter.experiments.models import (
+    NimbusBranch,
     NimbusBucketRange,
     NimbusExperiment,
     NimbusIsolationGroup,
@@ -46,6 +47,10 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     def create_with_status(cls, target_status, **kwargs):
         experiment = cls.create(**kwargs)
 
+        NimbusBranchFactory.create(experiment=experiment)
+        experiment.control_branch = NimbusBranchFactory.create(experiment=experiment)
+        experiment.save()
+
         for status, _ in NimbusExperiment.Status.choices:
             if status == NimbusExperiment.Status.REVIEW.value:
                 NimbusIsolationGroup.request_isolation_group_buckets(
@@ -58,6 +63,17 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 break
 
         return NimbusExperiment.objects.get(id=experiment.id)
+
+
+class NimbusBranchFactory(factory.django.DjangoModelFactory):
+    ratio = 1
+    experiment = factory.SubFactory(NimbusExperimentFactory)
+    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    slug = factory.LazyAttribute(lambda o: slugify(o.name))
+    description = factory.LazyAttribute(lambda o: faker.text())
+
+    class Meta:
+        model = NimbusBranch
 
 
 class NimbusIsolationGroupFactory(factory.django.DjangoModelFactory):
