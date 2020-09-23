@@ -77,7 +77,7 @@ version.json
 # Hosted assets
 app/experimenter/media/
 app/experimenter/served/
-app/experimenter/static/assets/
+app/experimenter/legacy-ui/assets/
 
 # Key files
 *.pem
