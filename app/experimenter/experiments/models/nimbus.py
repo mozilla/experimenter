@@ -73,10 +73,37 @@ class NimbusExperiment(NimbusConstants, models.Model):
         null=True,
         choices=NimbusConstants.Audience.choices,
     )
+    control_branch = models.OneToOneField(
+        "NimbusBranch", blank=True, null=True, on_delete=models.CASCADE
+    )
 
     class Meta:
         verbose_name = "NimbusExperiment"
         verbose_name_plural = "NimbusExperiments"
+
+    def __str__(self):
+        return self.name
+
+
+class NimbusBranch(models.Model):
+    experiment = models.ForeignKey(
+        NimbusExperiment,
+        blank=False,
+        null=False,
+        related_name="branches",
+        on_delete=models.CASCADE,
+    )
+    enabled = models.BooleanField(default=True)
+    name = models.CharField(max_length=255, blank=False, null=False)
+    slug = models.SlugField(max_length=255, blank=False, null=False)
+    description = models.TextField(default="")
+    ratio = models.PositiveIntegerField(default=1)
+    value = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Nimbus Branch"
+        verbose_name_plural = "Nimbus Branches"
+        unique_together = (("slug", "experiment"),)
 
     def __str__(self):
         return self.name
