@@ -1835,9 +1835,9 @@
     physical-cpu-count "^2.0.0"
 
 "@popperjs/core@^2.0.0":
-  version "2.4.4"
-  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.4.4.tgz#11d5db19bd178936ec89cd84519c4de439574398"
-  integrity sha512-1oO6+dN5kdIA3sKPZhRGJTfGVP4SWV6KqlMOwry4J3HfyD68sl/3KmG7DeYUzvN+RbhXDnv/D8vNNB8168tAMg==
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.5.1.tgz#32b99c0a2b6120d200556fa2d5cd9211ca711881"
+  integrity sha512-VVOiO4HSzITdcRxUNopcDmI6kE3gNRGq+1Kna1djqx7uCWhaRWpkSl7QxK/i1X3+S5F3dlEQ50qhmBB/JNWubQ==
 
 "@restart/context@^2.1.4":
   version "2.1.4"
@@ -2363,16 +2363,16 @@
   integrity sha512-FA/BWv8t8ZWJ+gEOnLLd8ygxH/2UFbAvgEonyfN6yWGLKc7zVjbpl2Y4CTjid9h2RfgPP6SEt6uHwEOply00yw==
 
 "@types/yargs@^13.0.0":
-  version "13.0.10"
-  resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-13.0.10.tgz#e77bf3fc73c781d48c2eb541f87c453e321e5f4b"
-  integrity sha512-MU10TSgzNABgdzKvQVW1nuuT+sgBMWeXNc3XOs5YXV5SDAK+PPja2eUuBNB9iqElu03xyEDqlnGw0jgl4nbqGQ==
+  version "13.0.11"
+  resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-13.0.11.tgz#def2f0c93e4bdf2c61d7e34899b17e34be28d3b1"
+  integrity sha512-NRqD6T4gktUrDi1o1wLH3EKC1o2caCr7/wR87ODcbVITQF106OM3sFN92ysZ++wqelOd1CTzatnOBRDYYG6wGQ==
   dependencies:
     "@types/yargs-parser" "*"
 
 "@types/yargs@^15.0.0":
-  version "15.0.5"
-  resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-15.0.5.tgz#947e9a6561483bdee9adffc983e91a6902af8b79"
-  integrity sha512-Dk/IDOPtOgubt/IaevIUbTgV7doaKkoorvOyYM2CMwuDyP89bekI7H4xLIwunNYiK9jhCkmc6pUrJk3cj2AB9w==
+  version "15.0.7"
+  resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-15.0.7.tgz#dad50a7a234a35ef9460737a56024287a3de1d2b"
+  integrity sha512-Gf4u3EjaPNcC9cTu4/j2oN14nSVhr8PQ+BvBcBQHAhDZfl0bVIiLgvnRXv/dn58XhTm9UXvBpvJpDlwV65QxOA==
   dependencies:
     "@types/yargs-parser" "*"
 
@@ -5402,9 +5402,9 @@ ee-first@1.1.1:
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
 electron-to-chromium@^1.3.378, electron-to-chromium@^1.3.570:
-  version "1.3.570"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.570.tgz#3f5141cc39b4e3892a276b4889980dabf1d29c7f"
-  integrity sha512-Y6OCoVQgFQBP5py6A/06+yWxUZHDlNr/gNDGatjH8AZqXl8X0tE4LfjLJsXGz/JmWJz8a6K7bR1k+QzZ+k//fg==
+  version "1.3.571"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.571.tgz#e57977f1569f8326ae2a7905e26f3943536ba28f"
+  integrity sha512-UYEQ2Gtc50kqmyOmOVtj6Oqi38lm5yRJY3pLuWt6UIot0No1L09uu6Ja6/1XKwmz/p0eJFZTUZi+khd1PV1hHA==
 
 elliptic@^6.5.3:
   version "6.5.3"
@@ -9507,10 +9507,15 @@ miller-rabin@^4.0.0:
     bn.js "^4.0.0"
     brorand "^1.0.1"
 
-mime-db@1.44.0, "mime-db@>= 1.43.0 < 2":
+mime-db@1.44.0:
   version "1.44.0"
   resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.44.0.tgz#fa11c5eb0aca1334b4233cb4d52f10c5a6272f92"
   integrity sha512-/NOTfLrsPBVeH7YtFPgsVWveuL+4SjjYxaQ1xtM1KMFj7HdxlBlxeyNLzhyJVx7r4rZGJAZ/6lkKCitSc/Nmpg==
+
+"mime-db@>= 1.43.0 < 2":
+  version "1.45.0"
+  resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.45.0.tgz#cceeda21ccd7c3a745eba2decd55d4b73e7879ea"
+  integrity sha512-CkqLUxUk15hofLoLyljJSrukZi8mAtgd+yE5uO4tqRZsdsAJKv0O+rFMhVDRJgozy+yG6md5KwuXhD4ocIoP+w==
 
 mime-types@^2.1.12, mime-types@~2.1.17, mime-types@~2.1.19, mime-types@~2.1.24:
   version "2.1.27"
@@ -13448,9 +13453,9 @@ supports-hyperlinks@^2.0.0:
     supports-color "^7.0.0"
 
 svelte-check@^1.0.28:
-  version "1.0.47"
-  resolved "https://registry.yarnpkg.com/svelte-check/-/svelte-check-1.0.47.tgz#3af1ab092aee99aca2df037f2e6708a5120dce51"
-  integrity sha512-ZGUsVKcWBlsZxYnq5Ss58+R3/aUCTgRXhWr91X+YYgy5ZkLt3FgURamuooJh2wqjibMqJr5J2T54Ncl0iQXk9g==
+  version "1.0.48"
+  resolved "https://registry.yarnpkg.com/svelte-check/-/svelte-check-1.0.48.tgz#632e21e188ef8a7277b360e052a5ce9315b7da71"
+  integrity sha512-2dnyJUv/5UWT5rkIWvyYpJdwV8aXJtOBSbUpltL2da+STt/wT8WHOWIwTdc2l3JdCKsp0ycOcSE4EdcLOhwtfw==
   dependencies:
     chalk "^4.0.0"
     chokidar "^3.4.1"
@@ -13463,9 +13468,9 @@ svelte-check@^1.0.28:
     vscode-uri "2.1.2"
 
 svelte-language-server@*:
-  version "0.10.126"
-  resolved "https://registry.yarnpkg.com/svelte-language-server/-/svelte-language-server-0.10.126.tgz#3ef1782fa3ba0d022bfda475abbf8ae05e01e9bd"
-  integrity sha512-xCG6tUNlgUXTF4jPrIDrt7uVG08sIZcGLrY6qiA0xws3GNnpypd4n6gqK0Ha9fSTzcvZdQYqymjZNcoPyTKjBg==
+  version "0.10.127"
+  resolved "https://registry.yarnpkg.com/svelte-language-server/-/svelte-language-server-0.10.127.tgz#c531930c49923c1819f14f1ef2c2a8e3bcc17a40"
+  integrity sha512-oCWGx+JGjl351RWZtKF4XZX1De4wpa0fLxf4DvfJqUERhimsclJOLuFzwHe0mDYu7L6CsxXD+eA0TvlhhJ4esQ==
   dependencies:
     chokidar "^3.4.1"
     cosmiconfig "^7.0.0"
@@ -13496,9 +13501,9 @@ svelte-preprocess@^4.1.2, svelte-preprocess@~4.3.0:
     strip-indent "^3.0.0"
 
 svelte2tsx@*:
-  version "0.1.114"
-  resolved "https://registry.yarnpkg.com/svelte2tsx/-/svelte2tsx-0.1.114.tgz#f1d9183d98e643f38050e9ee2d5a57bb2d04c836"
-  integrity sha512-nQlemrIc86/0QmKwVh02ZOcO2hnNvCrG+B7Kn7MeX8v9hQwKCl0UMDmlKNiMRJlsspph9XdyYAVSUDtEWwwscQ==
+  version "0.1.115"
+  resolved "https://registry.yarnpkg.com/svelte2tsx/-/svelte2tsx-0.1.115.tgz#0fbb979b7933f712ffb16fc571f13ead5703a6e4"
+  integrity sha512-/N1C7ORjxfmN91CDm8TlGeLtR53+p1PpykQMIRVmoJT76GcWNqPij9e9gqlwc7o69CgF5jyssC5q+Gpu0VE0yQ==
   dependencies:
     dedent-js "^1.0.1"
     pascal-case "^3.1.1"
