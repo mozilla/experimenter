@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from experimenter.experiments.models import NimbusExperiment, NimbusIsolationGroup
 from experimenter.experiments.tests.factories import (
+    NimbusBranchFactory,
     NimbusBucketRangeFactory,
     NimbusExperimentFactory,
     NimbusIsolationGroupFactory,
@@ -12,6 +13,12 @@ class TestNimbusExperimentModel(TestCase):
     def test_str(self):
         experiment = NimbusExperimentFactory.create(slug="experiment-slug")
         self.assertEqual(str(experiment), experiment.name)
+
+
+class TestNimbusBranchModel(TestCase):
+    def test_str(self):
+        branch = NimbusBranchFactory.create()
+        self.assertEqual(str(branch), branch.name)
 
 
 class TestNimbusIsolationGroup(TestCase):

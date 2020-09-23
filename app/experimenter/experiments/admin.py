@@ -4,6 +4,7 @@ from experimenter.experiments.models import (
     Experiment,
     ExperimentChangeLog,
     ExperimentVariant,
+    NimbusBranch,
     NimbusExperiment,
     VariantPreferences,
 )
@@ -198,9 +199,13 @@ class ProjectAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
 
 
-class NimbusExperimentAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug")
+class NimbusBranchInlineAdmin(admin.StackedInline):
+    model = NimbusBranch
 
+
+class NimbusExperimentAdmin(admin.ModelAdmin):
+    inlines = (NimbusBranchInlineAdmin,)
+    list_display = ("name", "slug")
     prepopulated_fields = {"slug": ("name",)}
 
 
