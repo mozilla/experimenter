@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 
 services:
   app:
@@ -11,7 +11,7 @@ services:
       - redis
       - kinto
     ports:
-      - "7001:7001"
+      - '7001:7001'
     volumes:
       - ./app:/app
       - /app/node_modules/
@@ -19,6 +19,8 @@ services:
       - /app/experimenter/legacy-ui/rapid/node_modules/
       - /app/experimenter/legacy-ui/visualization/node_modules/
       - assets_volume:/app/experimenter/legacy-ui/assets/
+      - /app/experimenter/nimbus-ui/node_modules/
+      - /app/experimenter/nimbus-ui/build/
       - static_volume:/app/experimenter/served/
     command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py collectstatic --noinput;python /app/manage.py runserver 0:7001"
 
@@ -84,7 +86,7 @@ services:
     links:
       - app
     ports:
-      - "443:443"
+      - '443:443'
     volumes:
       - static_volume:/app/experimenter/served/
 
@@ -94,21 +96,21 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - db_volume:/var/lib/postgresql
 
   redis:
     image: redis
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
   kinto:
     image: mozilla/kinto-dist
     environment:
       KINTO_INI: /etc/kinto.ini
     ports:
-      - "8888:8888"
+      - '8888:8888'
     links:
       - autograph
     volumes:
@@ -118,7 +120,7 @@ services:
   autograph:
     image: mozilla/autograph
     ports:
-      - "8000:8000"
+      - '8000:8000'
 
 volumes:
   db_volume:
