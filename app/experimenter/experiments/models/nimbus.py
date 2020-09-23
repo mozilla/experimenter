@@ -3,11 +3,11 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator
 from django.db import models
 
-from experimenter.experiments.constants import ExperimentConstants
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.projects.models import Project
 
 
-class NimbusExperiment(ExperimentConstants, models.Model):
+class NimbusExperiment(NimbusConstants, models.Model):
     owner = models.ForeignKey(
         get_user_model(),
         blank=True,
@@ -17,8 +17,8 @@ class NimbusExperiment(ExperimentConstants, models.Model):
     )
     status = models.CharField(
         max_length=255,
-        default=ExperimentConstants.STATUS_DRAFT,
-        choices=ExperimentConstants.STATUS_CHOICES,
+        default=NimbusConstants.Status.DRAFT.value,
+        choices=NimbusConstants.Status.choices,
     )
     name = models.CharField(max_length=255, unique=True, blank=False, null=False)
     slug = models.SlugField(max_length=255, unique=True, blank=False, null=False)
@@ -27,34 +27,34 @@ class NimbusExperiment(ExperimentConstants, models.Model):
     proposed_duration = models.PositiveIntegerField(
         blank=True,
         null=True,
-        validators=[MaxValueValidator(ExperimentConstants.MAX_DURATION)],
+        validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
     )
     proposed_enrollment = models.PositiveIntegerField(
         blank=True,
         null=True,
-        validators=[MaxValueValidator(ExperimentConstants.MAX_DURATION)],
+        validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
     )
     firefox_min_version = models.CharField(
         max_length=255,
-        choices=ExperimentConstants.VERSION_CHOICES,
+        choices=NimbusConstants.Version.choices,
         blank=True,
         null=True,
     )
     firefox_max_version = models.CharField(
         max_length=255,
-        choices=ExperimentConstants.VERSION_CHOICES,
+        choices=NimbusConstants.Version.choices,
         blank=True,
         null=True,
     )
     firefox_channel = models.CharField(
         max_length=255,
-        choices=ExperimentConstants.CHANNEL_CHOICES,
+        choices=NimbusConstants.Channel.choices,
         blank=True,
         null=True,
     )
     projects = models.ManyToManyField(Project, blank=True)
     objectives = models.TextField(
-        default=ExperimentConstants.OBJECTIVES_DEFAULT, blank=True, null=True
+        default=NimbusConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
     bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
 
@@ -63,7 +63,7 @@ class NimbusExperiment(ExperimentConstants, models.Model):
             max_length=255,
             blank=True,
             null=True,
-            choices=ExperimentConstants.RAPID_FEATURE_CHOICES,
+            choices=NimbusConstants.Feature.choices,
         ),
         default=list,
     )
@@ -71,7 +71,7 @@ class NimbusExperiment(ExperimentConstants, models.Model):
         max_length=255,
         blank=True,
         null=True,
-        choices=ExperimentConstants.RAPID_AUDIENCE_CHOICES,
+        choices=NimbusConstants.Audience.choices,
     )
 
     class Meta:
@@ -85,9 +85,9 @@ class NimbusExperiment(ExperimentConstants, models.Model):
 class NimbusIsolationGroup(models.Model):
     name = models.CharField(max_length=255)
     instance = models.PositiveIntegerField(default=1)
-    total = models.PositiveIntegerField(default=ExperimentConstants.BUCKET_TOTAL)
+    total = models.PositiveIntegerField(default=NimbusConstants.BUCKET_TOTAL)
     randomization_unit = models.CharField(
-        max_length=255, default=ExperimentConstants.BUCKET_RANDOMIZATION_UNIT
+        max_length=255, default=NimbusConstants.BUCKET_RANDOMIZATION_UNIT
     )
 
     class Meta:

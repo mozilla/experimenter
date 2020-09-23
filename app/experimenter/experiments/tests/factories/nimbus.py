@@ -27,13 +27,13 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     )
 
     firefox_min_version = factory.LazyAttribute(
-        lambda o: random.choice(NimbusExperiment.VERSION_CHOICES[1:])[0]
+        lambda o: random.choice(NimbusExperiment.Version.choices)[0]
     )
     firefox_max_version = factory.LazyAttribute(
-        lambda o: random.choice(NimbusExperiment.VERSION_CHOICES)[0]
+        lambda o: random.choice(NimbusExperiment.Version.choices)[0]
     )
     firefox_channel = factory.LazyAttribute(
-        lambda o: random.choice(NimbusExperiment.CHANNEL_CHOICES[1:])[0]
+        lambda o: random.choice(NimbusExperiment.Channel.choices)[0]
     )
     objectives = factory.LazyAttribute(lambda o: faker.text(1000))
 
@@ -46,8 +46,8 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     def create_with_status(cls, target_status, **kwargs):
         experiment = cls.create(**kwargs)
 
-        for status, _ in NimbusExperiment.STATUS_CHOICES:
-            if status == NimbusExperiment.STATUS_REVIEW:
+        for status, _ in NimbusExperiment.Status.choices:
+            if status == NimbusExperiment.Status.REVIEW.value:
                 NimbusIsolationGroup.request_isolation_group_buckets(
                     experiment.slug,
                     experiment,
