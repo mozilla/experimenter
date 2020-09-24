@@ -37,7 +37,7 @@ TYPECHECK_RAPID = yarn workspace @experimenter/rapid lint:tsc
 TYPECHECK_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:tsc
 JS_TEST_CORE = yarn workspace @experimenter/core test
 JS_TEST_RAPID = yarn workspace @experimenter/rapid test
-JS_TEST_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui test CI=true
+JS_TEST_NIMBUS_UI = CI=yes yarn workspace @experimenter/nimbus-ui test
 FLAKE8 = flake8 .
 BLACK_CHECK = black -l 90 --check --diff .
 BLACK_FIX = black -l 90 .
