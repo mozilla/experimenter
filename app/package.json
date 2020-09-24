@@ -3,7 +3,7 @@
   "license": "MPL-2.0",
   "private": true,
   "workspaces": [
-    "experimenter/static/*"
+    "experimenter/legacy-ui/*"
   ],
   "dependencies": {},
   "devDependencies": {},

@@ -60,6 +60,12 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 Done!
 
+Pro-tip: we have had at least one large code refactor. You can ignore specific large commits when blaming by setting the Git config's `ignoreRevsFile` to `.git-blame-ignore-revs`:
+
+```
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
 ## Usage
 
 Experimenter uses [docker](https://www.docker.com/) for all development, testing, and deployment.
@@ -132,6 +138,16 @@ Run the integration test suite inside a containerized instance of Firefox. You m
 ### integration_vnc_up
 
 Start a linux VM container with VNC available over `vnc://localhost:5900` with password `secret`. Right click on the desktop and select `Applications > Shell > Bash` and enter `tox -c tests/integration/` to run the integration tests and watch them run in a Firefox instance you can watch and interact with.
+
+## Frontend
+
+Experimenter has three front-end UIs right now:
+
+- [`core`](./app/experimenter/legacy-ui/core) is the current UI used for Experimenter intake.
+- [`rapid`](./app/experimenter/legacy-ui/core) is a partially-built React UI.
+- [`nimbus-ui`](./app/experimenter/nimbus-ui) is a new React UI for an upcoming Experimenter refactor.
+
+Learn more about the organization of these UIs [here](./app/experimenter/legacy-ui/README.md).
 
 ## API
 

@@ -73,8 +73,8 @@
   },
   "scripts": {
     "test": "jest --silent --coverage",
-    "build": "parcel build css/index.css js/index.js --out-dir ../assets --public-url /static/assets/ --no-source-maps",
-    "watch": "parcel watch css/index.css js/index.js --out-dir ../assets --public-url /static/assets/",
+    "build": "parcel build css/index.css js/index.js --out-dir ../assets --public-url /legacy-ui/assets/ --no-source-maps",
+    "watch": "parcel watch css/index.css js/index.js --out-dir ../assets --public-url /legacy-ui/assets/",
     "lint": "eslint js/components/**/*.js js/tests/**/*.js js/index.js",
     "lint-fix": "eslint --fix js/components/**/*.js js/tests/**/*.js js/index.js"
   },
