@@ -36,7 +36,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     firefox_channel = factory.LazyAttribute(
         lambda o: random.choice(NimbusExperiment.Channel.choices)[0]
     )
-    objectives = factory.LazyAttribute(lambda o: faker.text(1000))
+    hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
 
     class Meta:
         model = NimbusExperiment
