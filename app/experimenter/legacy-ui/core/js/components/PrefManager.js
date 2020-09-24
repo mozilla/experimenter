@@ -37,13 +37,14 @@ class PrefManager extends React.PureComponent {
   }
 
   renderPref(preference, index) {
-    const { errors } = this.props;
+    const { errors, preferences } = this.props;
 
     return (
       <Col md={{ span: 11, offset: 1 }}>
         <Pref
-          key={index}
+          key={`${index}${preferences.size}`}
           index={index}
+          numOfPreferences={preferences.size}
           preference={preference}
           errors={errors.get(index, new Map())}
           remove={this.removePref}
