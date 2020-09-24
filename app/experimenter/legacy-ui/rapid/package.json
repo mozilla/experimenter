@@ -55,7 +55,7 @@
     "lint": "yarn lint:eslint; yarn lint:tsc",
     "lint:eslint": "eslint --color --max-warnings 0 --ext=.js,.jsx,.ts,.tsx .",
     "lint:tsc": "tsc --noEmit --project tsconfig.json",
-    "test": "jest",
+    "test": "jest --env=jest-environment-jsdom-sixteen",
     "watch": "webpack --watch --mode development --progress"
   }
 }
