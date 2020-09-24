@@ -44,14 +44,14 @@ RUN poetry check
 # Node packages
 COPY ./package.json /app/package.json
 COPY ./yarn.lock /app/yarn.lock
-COPY ./experimenter/static/core/package.json /app/experimenter/static/core/package.json
-COPY ./experimenter/static/rapid/package.json /app/experimenter/static/rapid/package.json
-COPY ./experimenter/static/visualization/package.json /app/experimenter/static/visualization/package.json
+COPY ./experimenter/legacy-ui/core/package.json /app/experimenter/legacy-ui/core/package.json
+COPY ./experimenter/legacy-ui/rapid/package.json /app/experimenter/legacy-ui/rapid/package.json
+COPY ./experimenter/legacy-ui/visualization/package.json /app/experimenter/legacy-ui/visualization/package.json
 RUN yarn install --frozen-lockfile
 
 
 # Build assets
-COPY ./experimenter/static/ /app/experimenter/static/
+COPY ./experimenter/legacy-ui/ /app/experimenter/legacy-ui/
 RUN yarn workspace @experimenter/core build
 RUN yarn workspace @experimenter/visualization build
 RUN yarn workspace @experimenter/rapid build
