@@ -5,6 +5,7 @@ import factory
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
 
+from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBucketRange,
@@ -19,7 +20,9 @@ faker = FakerFactory.create()
 class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     owner = factory.SubFactory(UserFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
-    slug = factory.LazyAttribute(lambda o: "{}_".format(slugify(o.name)))
+    slug = factory.LazyAttribute(
+        lambda o: slugify(o.name)[: NimbusConstants.MAX_SLUG_LEN]
+    )
     public_description = factory.LazyAttribute(lambda o: faker.text(200))
     proposed_duration = factory.LazyAttribute(lambda o: random.randint(10, 60))
     proposed_enrollment = factory.LazyAttribute(
@@ -70,7 +73,9 @@ class NimbusBranchFactory(factory.django.DjangoModelFactory):
     ratio = 1
     experiment = factory.SubFactory(NimbusExperimentFactory)
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
-    slug = factory.LazyAttribute(lambda o: slugify(o.name))
+    slug = factory.LazyAttribute(
+        lambda o: slugify(o.name)[: NimbusConstants.MAX_SLUG_LEN]
+    )
     description = factory.LazyAttribute(lambda o: faker.text())
 
     class Meta:
