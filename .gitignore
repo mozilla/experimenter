@@ -43,6 +43,7 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+coverage/
 *,cover
 .hypothesis/
 app/tests/integration/integration-test.html
@@ -51,8 +52,11 @@ app/tests/integration/integration-test.html
 *.mo
 *.pot
 
-# Django stuff:
+# Logging
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Sphinx documentation
 docs/_build/
@@ -71,7 +75,6 @@ target/
 version.json
 
 .vscode/
-
 .psql_history
 
 # Hosted assets
@@ -87,5 +90,7 @@ app/experimenter/legacy-ui/assets/
 .testmondata
 .tmontmp
 app/coverage_html_report/
+
+# Dependencies
 node_modules
 
