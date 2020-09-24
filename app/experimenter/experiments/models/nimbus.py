@@ -8,6 +8,7 @@ from experimenter.projects.models import Project
 
 
 class NimbusExperiment(NimbusConstants, models.Model):
+
     owner = models.ForeignKey(
         get_user_model(),
         blank=True,
@@ -21,7 +22,9 @@ class NimbusExperiment(NimbusConstants, models.Model):
         choices=NimbusConstants.Status.choices,
     )
     name = models.CharField(max_length=255, unique=True, blank=False, null=False)
-    slug = models.SlugField(max_length=255, unique=True, blank=False, null=False)
+    slug = models.SlugField(
+        max_length=NimbusConstants.MAX_SLUG_LEN, unique=True, blank=False, null=False
+    )
     public_description = models.TextField(blank=True, null=True)
     is_paused = models.BooleanField(default=False)
     proposed_duration = models.PositiveIntegerField(
@@ -96,7 +99,9 @@ class NimbusBranch(models.Model):
     )
     enabled = models.BooleanField(default=True)
     name = models.CharField(max_length=255, blank=False, null=False)
-    slug = models.SlugField(max_length=255, blank=False, null=False)
+    slug = models.SlugField(
+        max_length=NimbusConstants.MAX_SLUG_LEN, blank=False, null=False
+    )
     description = models.TextField(default="")
     ratio = models.PositiveIntegerField(default=1)
     value = models.TextField(blank=True, null=True)
