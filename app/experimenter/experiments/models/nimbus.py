@@ -53,7 +53,7 @@ class NimbusExperiment(NimbusConstants, models.Model):
         null=True,
     )
     projects = models.ManyToManyField(Project, blank=True)
-    objectives = models.TextField(
+    hypothesis = models.TextField(
         default=NimbusConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
 
