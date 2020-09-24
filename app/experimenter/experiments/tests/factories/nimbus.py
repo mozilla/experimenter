@@ -38,8 +38,6 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     )
     objectives = factory.LazyAttribute(lambda o: faker.text(1000))
 
-    bugzilla_id = "12345"
-
     class Meta:
         model = NimbusExperiment
 
