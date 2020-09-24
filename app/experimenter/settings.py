@@ -231,10 +231,6 @@ REST_FRAMEWORK = {
 # CORS Security Header Config
 CORS_ORIGIN_ALLOW_ALL = True
 
-# reDash Rate Limit
-# Number of dashboards to deploy per hour
-DASHBOARD_RATE_LIMIT = 2
-
 # Experiments list pagination
 EXPERIMENTS_PAGINATE_BY = config("EXPERIMENTS_PAGINATE_BY", default=10, cast=int)
 
