@@ -56,7 +56,6 @@ class NimbusExperiment(NimbusConstants, models.Model):
     objectives = models.TextField(
         default=NimbusConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
-    bugzilla_id = models.CharField(max_length=255, blank=True, null=True)
 
     features = ArrayField(
         models.CharField(
