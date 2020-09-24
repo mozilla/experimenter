@@ -5,6 +5,7 @@ from django.utils.text import slugify
 from faker import Factory as FakerFactory
 
 from experimenter.experiments.models import (
+    NimbusBranch,
     NimbusBucketRange,
     NimbusExperiment,
     NimbusIsolationGroup,
@@ -27,17 +28,15 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     )
 
     firefox_min_version = factory.LazyAttribute(
-        lambda o: random.choice(NimbusExperiment.VERSION_CHOICES[1:])[0]
+        lambda o: random.choice(NimbusExperiment.Version.choices)[0]
     )
     firefox_max_version = factory.LazyAttribute(
-        lambda o: random.choice(NimbusExperiment.VERSION_CHOICES)[0]
+        lambda o: random.choice(NimbusExperiment.Version.choices)[0]
     )
     firefox_channel = factory.LazyAttribute(
-        lambda o: random.choice(NimbusExperiment.CHANNEL_CHOICES[1:])[0]
+        lambda o: random.choice(NimbusExperiment.Channel.choices)[0]
     )
-    objectives = factory.LazyAttribute(lambda o: faker.text(1000))
-
-    bugzilla_id = "12345"
+    hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
 
     class Meta:
         model = NimbusExperiment
@@ -46,8 +45,12 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     def create_with_status(cls, target_status, **kwargs):
         experiment = cls.create(**kwargs)
 
-        for status, _ in NimbusExperiment.STATUS_CHOICES:
-            if status == NimbusExperiment.STATUS_REVIEW:
+        NimbusBranchFactory.create(experiment=experiment)
+        experiment.control_branch = NimbusBranchFactory.create(experiment=experiment)
+        experiment.save()
+
+        for status, _ in NimbusExperiment.Status.choices:
+            if status == NimbusExperiment.Status.REVIEW.value:
                 NimbusIsolationGroup.request_isolation_group_buckets(
                     experiment.slug,
                     experiment,
@@ -58,6 +61,17 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
                 break
 
         return NimbusExperiment.objects.get(id=experiment.id)
+
+
+class NimbusBranchFactory(factory.django.DjangoModelFactory):
+    ratio = 1
+    experiment = factory.SubFactory(NimbusExperimentFactory)
+    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    slug = factory.LazyAttribute(lambda o: slugify(o.name))
+    description = factory.LazyAttribute(lambda o: faker.text())
+
+    class Meta:
+        model = NimbusBranch
 
 
 class NimbusIsolationGroupFactory(factory.django.DjangoModelFactory):

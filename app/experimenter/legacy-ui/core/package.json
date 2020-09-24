@@ -29,7 +29,7 @@
   "description": "a tool for managing experiments in Firefox",
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.14.0",
-    "@testing-library/dom": "latest",
+    "@testing-library/dom": "7.17.1",
     "autobind-decorator": "2.4.0",
     "bootstrap": "4.5.2",
     "bootstrap-select": "1.13.17",
@@ -66,15 +66,16 @@
     "faker": "5.1.0",
     "jest": "26.4.2",
     "jest-dom": "4.0.0",
+    "jest-environment-jsdom-sixteen": "^1.0.3",
     "parcel-bundler": "1.12.4"
   },
   "alias": {
     "experimenter": "./js"
   },
   "scripts": {
-    "test": "jest --silent --coverage",
-    "build": "parcel build css/index.css js/index.js --out-dir ../assets --public-url /static/assets/ --no-source-maps",
-    "watch": "parcel watch css/index.css js/index.js --out-dir ../assets --public-url /static/assets/",
+    "test": "jest --silent --coverage --env=jest-environment-jsdom-sixteen",
+    "build": "parcel build css/index.css js/index.js --out-dir ../assets --public-url /legacy-ui/assets/ --no-source-maps",
+    "watch": "parcel watch css/index.css js/index.js --out-dir ../assets --public-url /legacy-ui/assets/",
     "lint": "eslint js/components/**/*.js js/tests/**/*.js js/index.js",
     "lint-fix": "eslint --fix js/components/**/*.js js/tests/**/*.js js/index.js"
   },
@@ -91,13 +92,22 @@
         "@babel/plugin-proposal-decorators",
         {
           "legacy": true
-        }
+        },
+        "@babel/plugin-proposal-decorators"
       ],
       [
         "@babel/plugin-proposal-class-properties",
         {
           "loose": true
-        }
+        },
+        "@babel/plugin-proposal-class-properties"
+      ],
+      [
+        "@babel/plugin-proposal-private-methods",
+        {
+          "loose": true
+        },
+        "@babel/plugin-proposal-private-methods"
       ]
     ]
   }

@@ -1,12 +1,17 @@
 version: 2
 updates:
 - package-ecosystem: npm
-  directory: "/app/experimenter/static/rapid"
+  directory: "/app/experimenter/nimbus-ui"
   schedule:
     interval: weekly
   target-branch: dependencies
 - package-ecosystem: npm
-  directory: "/app/experimenter/static/core"
+  directory: "/app/experimenter/legacy-ui/rapid"
+  schedule:
+    interval: weekly
+  target-branch: dependencies
+- package-ecosystem: npm
+  directory: "/app/experimenter/legacy-ui/core"
   schedule:
     interval: weekly
   target-branch: dependencies
