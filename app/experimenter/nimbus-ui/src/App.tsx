@@ -3,13 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import AppLayout from "./AppLayout";
 
 const App = () => {
   return (
     <div data-testid="app">
-      <section>
-        <p>🌧</p>
-      </section>
+      <AppLayout>
+        <section>
+          <p>🌧</p>
+        </section>
+      </AppLayout>
     </div>
   );
 };
