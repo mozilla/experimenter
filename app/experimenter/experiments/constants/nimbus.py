@@ -47,6 +47,12 @@ class NimbusConstants(object):
         FIREFOX_99 = "99.0"
         FIREFOX_100 = "100.0"
 
+    # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
+    # have limits on the length of their unique identifiers, we should
+    # limit the size of our slugs to the smallest limit, which is 80
+    # for Firefox Desktop Telemetry v4.
+    MAX_SLUG_LEN = 80
+
     MAX_DURATION = 1000
 
     # Bucket stuff
