@@ -1,6 +1,7 @@
 import {
   ExperimentReducerActionType,
   ExperimentData,
+  ExperimentAnalysis,
 } from "experimenter-types/experiment";
 import { ExperimentReducerAction } from "experimenter-types/experiment";
 
@@ -8,14 +9,31 @@ export const fetchExperiment = (experimentSlug: string) => async (
   experimentData: ExperimentData,
   dispatch: React.Dispatch<ExperimentReducerAction>,
 ): Promise<void> => {
-  const response = await fetch(`/api/v3/experiments/${experimentSlug}/`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
+  const experimentResponse = await fetch(
+    `/api/v3/experiments/${experimentSlug}/`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
     },
-  });
+  );
 
-  const data: ExperimentData = await response.json();
+  const analysisResponse = await fetch(
+    `/api/v3/visualization/${experimentSlug}/`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  const data: ExperimentData = await experimentResponse.json();
+  const analysis: ExperimentAnalysis = await analysisResponse.json();
+
+  data.analysis = analysis;
+
   dispatch({
     type: ExperimentReducerActionType.UPDATE_STATE,
     state: data,

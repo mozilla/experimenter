@@ -29,7 +29,7 @@ describe("<App />", () => {
   });
 
   it("includes the experiment form page at `/:experimentSlug/edit/`", async () => {
-    fetchMock.mockOnce(async () => {
+    fetchMock.mockResponse(async () => {
       return JSON.stringify({
         slug: "test-slug",
         name: "Test Name",
@@ -54,7 +54,7 @@ describe("<App />", () => {
   });
 
   it("includes the experiment details page at `/:experimentSlug/`", async () => {
-    fetchMock.mockOnce(async () => {
+    fetchMock.mockResponse(async () => {
       return JSON.stringify({
         slug: "test-slug",
         name: "Test Name",

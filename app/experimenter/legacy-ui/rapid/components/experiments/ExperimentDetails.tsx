@@ -8,6 +8,7 @@ import {
   firefoxVersionOptions,
   firefoxChannelOptions,
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
+import ResultsTable from "experimenter-rapid/components/visualization/ResultsTable";
 import {
   requestReview,
   fetchExperiment,
@@ -128,21 +129,30 @@ const ExperimentDetails: React.FC = () => {
     analysis_report = (
       <>
         <h4 className="my-4">Results</h4>
-        <p>
-          The results will be available 7 days after the experiment is launched.
-          An email will be sent to you once we start recording data.
-        </p>
-        <p>
-          The results can be found{" "}
-          <a
-            href={`https://protosaur.dev/partybal/${slug_underscored}.html`}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            here
-          </a>
-        </p>
-        <div ref={visualizationRef}></div>
+        {experimentData.analysis?.show_analysis ? (
+          <div>
+            <ResultsTable experimentData={experimentData} />
+            <div ref={visualizationRef}></div>
+          </div>
+        ) : (
+          <div>
+            <p>
+              The results will be available 7 days after the experiment is
+              launched. An email will be sent to you once we start recording
+              data.
+            </p>
+            <p>
+              The results can be found{" "}
+              <a
+                href={`https://protosaur.dev/partybal/${slug_underscored}.html`}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                here
+              </a>
+            </p>
+          </div>
+        )}
       </>
     );
   }

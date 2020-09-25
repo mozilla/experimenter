@@ -234,3 +234,13 @@ pre.json {
 .required-label.optional .text-danger {
   display: none;
 }
+
+.positive-significance {
+  color: green;
+  font-weight: bold;
+}
+
+.negative-significance {
+  color: red;
+  font-weight: bold;
+}
