@@ -2,7 +2,7 @@ import { boundClass } from "autobind-decorator";
 import { Map } from "immutable";
 import PropTypes from "prop-types";
 import React from "react";
-import { Button, Row, Col } from "react-bootstrap";
+import { Button, Container, Row, Col } from "react-bootstrap";
 import DesignInput from "experimenter/components/DesignInput";
 
 import {
@@ -16,6 +16,7 @@ import { PREF_VALUE_HELP, ROLLOUT_PREF_BRANCH_HELP } from "./constants";
 class Pref extends React.PureComponent {
   static propTypes = {
     preference: PropTypes.instanceOf(Map),
+    numOfPreferences: PropTypes.number,
     errors: PropTypes.instanceOf(Map),
     index: PropTypes.number,
     onChange: PropTypes.func,
@@ -34,8 +35,8 @@ class Pref extends React.PureComponent {
   }
 
   renderRemoveButton() {
-    const { index } = this.props;
-    if (index != 0) {
+    const { index, numOfPreferences } = this.props;
+    if (!(numOfPreferences == 1 && index == 0)) {
       return (
         <Button
           variant="outline-danger"
@@ -58,7 +59,7 @@ class Pref extends React.PureComponent {
           id={`pref-branch-${this.props.variantIndex}-${this.props.index}`}
           helpContent={ROLLOUT_PREF_BRANCH_HELP}
           note="*Note: Pref Rollouts always use the Default Pref Branch"
-          labelColumnWidth={3}
+          labelColumnWidth={5}
           as="select"
           value={"default"}
         >
@@ -83,7 +84,7 @@ class Pref extends React.PureComponent {
         error={this.props.errors.get("pref_branch", null)}
         as="select"
         helpContent={PREF_BRANCH_HELP}
-        labelColumnWidth={3}
+        labelColumnWidth={5}
       >
         <option>Firefox Pref Branch</option>
         <option>default</option>
@@ -94,11 +95,30 @@ class Pref extends React.PureComponent {
 
   renderPrefBranch() {
     return (
-      <div>
-        <div className="row">
-          <div className="col-6">{this.renderPrefBranchInput()}</div>
-
-          <div className="col-6">
+      <Container>
+        <Row>
+          <Col lg={4}>{this.renderPrefBranchInput()}</Col>
+          <Col lg={8}>
+            <DesignInput
+              label="Pref Name"
+              name="pref_name"
+              id={`pref-key-${this.props.variantIndex}-${this.props.index}`}
+              onChange={(value) => {
+                this.handlePrefValueChange("pref_name", value);
+              }}
+              value={
+                this.props.preference
+                  ? this.props.preference.get("pref_name")
+                  : null
+              }
+              error={this.props.errors.get("pref_name", null)}
+              helpContent={PREF_NAME_HELP}
+              labelColumnWidth={2}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col lg={4}>
             <DesignInput
               label="Pref Type"
               name="pref_type"
@@ -114,7 +134,7 @@ class Pref extends React.PureComponent {
               error={this.props.errors.get("pref_type", null)}
               as="select"
               helpContent={PREF_TYPE_HELP}
-              labelColumnWidth={3}
+              labelColumnWidth={5}
             >
               <option>Firefox Pref Type</option>
               <option>boolean</option>
@@ -122,29 +142,8 @@ class Pref extends React.PureComponent {
               <option>string</option>
               <option>json string</option>
             </DesignInput>
-          </div>
-        </div>
-        <div className="row mb-3">
-          <div className="col-6">
-            <DesignInput
-              label="Pref Name"
-              name="pref_name"
-              id={`pref-key-${this.props.variantIndex}-${this.props.index}`}
-              onChange={(value) => {
-                this.handlePrefValueChange("pref_name", value);
-              }}
-              value={
-                this.props.preference
-                  ? this.props.preference.get("pref_name")
-                  : null
-              }
-              error={this.props.errors.get("pref_name", null)}
-              helpContent={PREF_NAME_HELP}
-              labelColumnWidth={3}
-            />
-          </div>
-
-          <div className="col-6">
+          </Col>
+          <Col lg={8}>
             <DesignInput
               label="Pref Value"
               name="pref_value"
@@ -159,11 +158,11 @@ class Pref extends React.PureComponent {
               }
               error={this.props.errors.get("pref_value", null)}
               helpContent={PREF_VALUE_HELP}
-              labelColumnWidth={3}
+              labelColumnWidth={2}
             />
-          </div>
-        </div>
-      </div>
+          </Col>
+        </Row>
+      </Container>
     );
   }
   render() {
@@ -176,6 +175,7 @@ class Pref extends React.PureComponent {
           </Col>
         </Row>
         {this.renderPrefBranch()}
+        <hr />
       </div>
     );
   }
