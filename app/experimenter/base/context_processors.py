@@ -11,4 +11,5 @@ def features(request):
     return {
         "FEATURE_MESSAGE_TYPE": settings.FEATURE_MESSAGE_TYPE,
         "FEATURE_ANALYSIS": settings.FEATURE_ANALYSIS,
+        "SENTRY_DSN": settings.SENTRY_DSN,
     }
