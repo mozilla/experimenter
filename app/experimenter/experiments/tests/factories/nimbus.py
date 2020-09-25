@@ -1,3 +1,4 @@
+import decimal
 import random
 
 import factory
@@ -26,7 +27,9 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         if o.proposed_duration
         else None
     )
-
+    population_percent = factory.LazyAttribute(
+        lambda o: decimal.Decimal(random.randint(1, 10) * 10)
+    )
     firefox_min_version = factory.LazyAttribute(
         lambda o: random.choice(NimbusExperiment.Version.choices)[0]
     )
