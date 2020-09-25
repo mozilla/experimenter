@@ -1,0 +1,17 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+// Looking to customize Bootstrap styles? Place SCSS variables
+// modifications *above* the Bootstrap import below. Learn more:
+// https://getbootstrap.com/docs/4.4/getting-started/theming/
+
+$grid-breakpoints: (
+  xs: 0,
+  sm: 480px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1441px,
+);
+
+@import "~bootstrap/scss/bootstrap";
