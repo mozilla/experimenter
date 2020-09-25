@@ -34,6 +34,9 @@ class NimbusExperiment(NimbusConstants, models.Model):
         null=True,
         validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
     )
+    population_percent = models.DecimalField(
+        max_digits=7, decimal_places=4, default=0.0, blank=True, null=True
+    )
     firefox_min_version = models.CharField(
         max_length=255,
         choices=NimbusConstants.Version.choices,
@@ -56,7 +59,6 @@ class NimbusExperiment(NimbusConstants, models.Model):
     hypothesis = models.TextField(
         default=NimbusConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
-
     features = ArrayField(
         models.CharField(
             max_length=255,
