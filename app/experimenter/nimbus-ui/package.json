@@ -6,10 +6,14 @@
   "scripts": {
     "start": "SKIP_PREFLIGHT_CHECK=true react-scripts start",
     "build": "SKIP_PREFLIGHT_CHECK=true react-scripts build",
-    "test": "SKIP_PREFLIGHT_CHECK=true react-scripts test",
+    "test": "SKIP_PREFLIGHT_CHECK=true react-scripts test --coverage",
     "lint:eslint": "eslint --color --max-warnings 0 --ext=.ts,.tsx .",
     "lint:tsc": "tsc --noEmit --project tsconfig.json",
+    "storybook": "start-storybook -p 3001",
     "eject": "react-scripts eject"
+  },
+  "jest": {
+    "collectCoverageFrom": ["!src/**/*.stories.*"]
   },
   "dependencies": {
     "react": "^16.13.1",
@@ -18,6 +22,10 @@
     "typescript": "4.0.3"
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^6.0.21",
+    "@storybook/addon-links": "^6.0.21",
+    "@storybook/preset-create-react-app": "^3.1.4",
+    "@storybook/react": "^6.0.21",
     "@testing-library/dom": "^7.24.2",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^11.0.4",
