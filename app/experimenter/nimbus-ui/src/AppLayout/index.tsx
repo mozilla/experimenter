@@ -12,11 +12,7 @@ type AppLayoutProps = {
 // AppLayouts - one with a header/footer, and another with a nav sidebar.
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  return (
-    <main id="main" data-testid="main">
-      {children}
-    </main>
-  );
+  return <main data-testid="main">{children}</main>;
 };
 
 export default AppLayout;

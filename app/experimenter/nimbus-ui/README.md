@@ -21,3 +21,13 @@ yarn test -t="renders as expected"
 ```
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
+
+## Storybook
+
+This project uses [Storybook](https://storybook.js.org/) to visually show each component and page of this project in various application states without requiring the full stack to run.
+
+In local development, `yarn storybook` will start a Storybook server at <http://localhost:3001> with hot module replacement to reflect live changes. We plan to push Storybook builds from pull requests and commits to a GH pages URL in the very near future.
+
+## License
+
+MPL-2.0
