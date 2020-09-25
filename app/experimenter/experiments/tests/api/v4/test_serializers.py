@@ -61,7 +61,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             },
         )
         converted_branches = [dict(branch) for branch in branches]
-        self.assertEqual(
+        self.assertCountEqual(
             converted_branches,
             [
                 {"ratio": 33, "slug": "treatment", "value": None},
@@ -122,7 +122,7 @@ class TestExperimentRapidRecipeSerializer(TestCase):
             },
         )
         converted_branches = [dict(branch) for branch in branches]
-        self.assertEqual(
+        self.assertCountEqual(
             converted_branches,
             [
                 {"ratio": 33, "slug": "treatment", "value": None},
