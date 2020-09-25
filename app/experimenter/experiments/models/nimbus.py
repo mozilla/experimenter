@@ -46,12 +46,6 @@ class NimbusExperiment(NimbusConstants, models.Model):
         blank=True,
         null=True,
     )
-    firefox_max_version = models.CharField(
-        max_length=255,
-        choices=NimbusConstants.Version.choices,
-        blank=True,
-        null=True,
-    )
     firefox_channel = models.CharField(
         max_length=255,
         choices=NimbusConstants.Channel.choices,
