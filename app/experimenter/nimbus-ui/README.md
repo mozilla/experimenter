@@ -4,7 +4,7 @@
 
 - `yarn start` to start the app in development mode on `http://localhost:3000`
 - `yarn build` to create a production build
-- `yarn test` to run unit tests, or `yarn test --coverage` to see coverage details
+- `yarn test` to run unit tests, coverage details are displayed by default
 
 ## Testing
 
