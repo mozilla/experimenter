@@ -24,6 +24,8 @@ STATUS_UPDATE_MAPPING = {
     Experiment.STATUS_LIVE: Experiment.STATUS_COMPLETE,
 }
 
+NAMESPACE_FILTER_TOTAL = 10000
+
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("experiments.tasks")
 
@@ -94,7 +96,7 @@ def update_launched_experiments():
 
                 if experiment.status == Experiment.STATUS_LIVE:
                     update_is_high_population(experiment, recipe_data)
-                    update_population_percent(experiment, recipe_data)
+                    update_population_info(experiment, recipe_data)
                     set_is_paused_value_task.delay(experiment.id, recipe_data)
                     send_period_ending_emails_task(experiment)
 
@@ -152,15 +154,43 @@ def set_is_paused_value_task(experiment_id, recipe_data):
     metrics.incr("set_is_paused_value.completed")
 
 
-def update_population_percent(experiment, recipe_data):
+def update_population_info(experiment, recipe_data):
     if recipe_data and "filter_object" in recipe_data:
         filter_objects = {f["type"]: f for f in recipe_data["filter_object"]}
-        if "bucketSample" in filter_objects:
-            bucket_sample = filter_objects["bucketSample"]
-            experiment.population_percent = decimal.Decimal(
-                bucket_sample["count"] / bucket_sample["total"] * 100
+
+        update_population_percent(experiment, recipe_data, filter_objects)
+        update_firefox_versions(experiment, recipe_data, filter_objects)
+
+
+def update_population_percent(experiment, recipe_data, filter_objects):
+
+    if "bucketSample" in filter_objects:
+        bucket_sample = filter_objects["bucketSample"]
+        experiment.population_percent = decimal.Decimal(
+            bucket_sample["count"] / bucket_sample["total"] * 100
+        )
+        experiment.save()
+
+
+def update_firefox_versions(experiment, recipe_data, filter_objects):
+    changed_data = {}
+
+    if "version" in filter_objects:
+        versions = filter_objects["version"]
+        min_version = min(versions["versions"])
+        max_version = max(versions["versions"])
+        if experiment.firefox_min_version != min_version:
+            changed_data["firefox_min_version"] = min_version
+        if experiment.firefox_max_version != max(versions):
+            changed_data["firefox_max_version"] = max_version
+
+        if changed_data:
+            user_email = (
+                recipe_data.get("creator", {}).get("email", "")
+            ) or settings.NORMANDY_DEFAULT_CHANGELOG_USER
+            update_experiment_with_change_log(
+                experiment, changed_data, user_email, message="Added Version(s)"
             )
-            experiment.save()
 
 
 def update_is_high_population(experiment, recipe_data):
