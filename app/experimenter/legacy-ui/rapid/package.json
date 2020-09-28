@@ -26,7 +26,7 @@
     "@types/jest": "26.0.13",
     "@types/react-router": "5.1.8",
     "@types/react-router-dom": "5.1.5",
-    "@types/react-select": "3.0.19",
+    "@types/react-select": "3.0.20",
     "@typescript-eslint/eslint-plugin": "3.10.1",
     "@typescript-eslint/parser": "3.9.0",
     "babel-loader": "8.1.0",
