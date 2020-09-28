@@ -26,7 +26,14 @@ Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more adva
 
 This project uses [Storybook](https://storybook.js.org/) to visually show each component and page of this project in various application states without requiring the full stack to run.
 
-In local development, `yarn storybook` will start a Storybook server at <http://localhost:3001> with hot module replacement to reflect live changes. We plan to push Storybook builds from pull requests and commits to a GH pages URL in the very near future.
+In local development, `yarn storybook` will start a Storybook server at <http://localhost:3001> with hot module replacement to reflect live changes. 
+
+For Pull Requests to the mozilla/experimenter repository on GitHub, Storybook builds [are published to a static website][storybook-builds] via CircleCI test runs. You can view these to see the result of changes without needing to install and run code locally.
+
+The specific build for any given PR or commit should be available as a [status check][status-check] associated with the commit - the check labelled "storybooks: pull request" should have a "details" link for the build.
+
+[storybook-builds]: https://storage.googleapis.com/mozilla-storybooks-experimenter/index.html
+[status-check]: https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/about-status-checks
 
 ## Writing styles
 

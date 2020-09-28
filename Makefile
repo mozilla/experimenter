@@ -47,6 +47,7 @@ LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countrie
 LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json
 LOAD_DUMMY_EXPERIMENTS = python manage.py load_dummy_experiments
 MIGRATE = python manage.py migrate
+PUBLISH_STORYBOOKS = npx github:mozilla-fxa/storybook-gcp-publisher --commit-summary commit-summary.txt --commit-description commit-description.txt --version-json version.json
 
 test_build: build
 	$(COMPOSE_TEST) build
@@ -85,6 +86,9 @@ up_detached: compose_stop compose_build
 
 generate_docs: compose_build
 	$(COMPOSE) run app sh -c "$(GENERATE_DOCS)"
+
+publish_storybooks: build
+	$(COMPOSE_TEST) run app sh -c "$(PUBLISH_STORYBOOKS)"
 
 code_format: compose_build
 	$(COMPOSE) run app sh -c "${PY_IMPORT_SORT}&&$(BLACK_FIX)&&$(ESLINT_FIX_CORE)&&$(ESLINT_FIX_RAPID)&&$(ESLINT_FIX_NIMBUS_UI)"

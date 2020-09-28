@@ -12,6 +12,7 @@
     "lint:tsc": "tsc --noEmit --project tsconfig.json",
     "lint:styles": "stylelint --config .stylelintrc **/*.scss",
     "storybook": "start-storybook -p 3001",
+    "build-storybook": "build-storybook",
     "eject": "react-scripts eject"
   },
   "jest": {
