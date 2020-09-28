@@ -66,6 +66,11 @@ Node ^14.0.0 is required
 
 ### Semi Dockerized Setup
 
+One might choose the semi dockerized approach for:
+
+1. faster startup/teardown time (not having to rebuild/start/stop containers)
+2. better ide integration
+
 [osx catalina, reinstall command line tools](https://medium.com/flawless-app-stories/gyp-no-xcode-or-clt-version-detected-macos-catalina-anansewaa-38b536389e8d)
 
 [poetry](https://python-poetry.org/docs/#installation)
