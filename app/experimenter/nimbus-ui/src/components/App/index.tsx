@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import AppLayout from "./AppLayout";
+import AppLayout from "../AppLayout";
 
 const App = () => {
   return (
