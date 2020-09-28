@@ -35,7 +35,8 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
 ENV PATH "/root/.poetry/bin:${PATH}"
 RUN poetry config virtualenvs.create false
 COPY poetry.lock pyproject.toml ./
-RUN poetry install
+# Temporary speedup hack until Poetry releases their parallel installer, ref: https://github.com/python-poetry/poetry/issues/338#issuecomment-546813466
+RUN poetry export -f requirements.txt --dev | grep -v Warning: | pip install -r /dev/stdin
 
 # If any package is installed, that is incompatible by version, this command
 # will exit non-zero and print what is usually just a warning in `poetry install`
