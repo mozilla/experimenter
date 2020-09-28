@@ -22,6 +22,8 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 ## Installation
 
+Node ^14.0.0 is required
+
 ### General Setup
 
 1.  Install [docker](https://www.docker.com/) on your machine
@@ -62,19 +64,11 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 #### Semi Dockerized Setup (continuation from General Setup 1-7)
 
-<<<<<<< HEAD
-Pro-tip: we have had at least one large code refactor. You can ignore specific large commits when blaming by setting the Git config's `ignoreRevsFile` to `.git-blame-ignore-revs`:
-
-```
-git config blame.ignoreRevsFile .git-blame-ignore-revs
-```
-
 ### Semi Dockerized Setup
-=======
-Node ^14.0.0 is required
->>>>>>> feedback changes
 
 [osx catalina, reinstall command line tools](https://medium.com/flawless-app-stories/gyp-no-xcode-or-clt-version-detected-macos-catalina-anansewaa-38b536389e8d)
+
+[poetry](https://python-poetry.org/docs/#installation)
 
 1.  Pre reqs (macOs instructions)
 
@@ -83,33 +77,41 @@ Node ^14.0.0 is required
         echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile
         export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/opt/openssl/lib/
 
-2.  Install dependencies (at root)
+2.  Install dependencies
 
         source .env
 
-        poetry install (cd into app for this)
+        poetry install (cd into app)
 
         yarn install
 
-3.  env values (at root)
+3.  env values
 
-        .env:
+        .env (set at root):
         DEBUG=True
-        POSTGRES_HOST=localhost
+        DB_HOST=localhost
         HOSTNAME=localhost
-        KINTO_HOST=http://localhost:8888/v1
-        REDIS_HOST=localhost
 
-4.  Start postgresql, redis, autograph, kinto (at root)
+4.  Start postgresql, redis, autograph, kinto
 
         make up_db
 
-5.  Django app (at root)
+5.  Django app
+
+        # in app
 
         poetry shell
+
+        yarn workspace @experimenter/nimbus-ui build
         yarn workspace @experimenter/core build
         yarn workspace @experimenter/rapid build
         ./manage.py runserver 0.0.0.0:7001
+
+Pro-tip: we have had at least one large code refactor. You can ignore specific large commits when blaming by setting the Git config's `ignoreRevsFile` to `.git-blame-ignore-revs`:
+
+```
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
 
 ## Usage
 
