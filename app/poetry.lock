@@ -507,27 +507,28 @@ category = "main"
 description = "Google Cloud API client core library"
 name = "google-cloud-core"
 optional = false
-python-versions = "*"
-version = "0.28.1"
+python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
+version = "1.4.1"
 
 [package.dependencies]
-google-api-core = ">=0.1.1,<2.0.0dev"
+google-api-core = ">=1.19.0,<2.0.0dev"
 
 [package.extras]
-grpc = ["grpcio (>=1.8.2)"]
+grpc = ["grpcio (>=1.8.2,<2.0dev)"]
 
 [[package]]
 category = "main"
 description = "Google Cloud Storage API client library"
 name = "google-cloud-storage"
 optional = false
-python-versions = "*"
-version = "1.10.0"
+python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
+version = "1.31.2"
 
 [package.dependencies]
-google-api-core = ">=0.1.1,<2.0.0dev"
-google-cloud-core = ">=0.28.0,<0.29dev"
-google-resumable-media = ">=0.3.1"
+google-auth = ">=1.11.0,<2.0dev"
+google-cloud-core = ">=1.4.1,<2.0dev"
+google-resumable-media = ">=1.0.0,<2.0dev"
+requests = ">=2.18.0,<3.0.0dev"
 
 [[package]]
 category = "main"
@@ -1437,7 +1438,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "18767c978531d13e4b6bd249af4248c0402dbb059c8d0faae2dd3546772d5b7f"
+content-hash = "8eb15cfaab8704c3631ebb48298800c2182d20361e38712e09eade5a3580ca5c"
 lock-version = "1.0"
 python-versions = "^3.7"
 
@@ -1672,12 +1673,12 @@ google-auth = [
     {file = "google_auth-1.21.1-py2.py3-none-any.whl", hash = "sha256:f4d5093f13b1b1c0a434ab1dc851cd26a983f86a4d75c95239974e33ed406a87"},
 ]
 google-cloud-core = [
-    {file = "google-cloud-core-0.28.1.tar.gz", hash = "sha256:89e8140a288acec20c5e56159461d3afa4073570c9758c05d4e6cb7f2f8cc440"},
-    {file = "google_cloud_core-0.28.1-py2.py3-none-any.whl", hash = "sha256:0090df83dbc5cb2405fa90844366d13176d1c0b48181c1807ab15f53be403f73"},
+    {file = "google-cloud-core-1.4.1.tar.gz", hash = "sha256:613e56f164b6bee487dd34f606083a0130f66f42f7b10f99730afdf1630df507"},
+    {file = "google_cloud_core-1.4.1-py2.py3-none-any.whl", hash = "sha256:4c9e457fcfc026fdde2e492228f04417d4c717fb0f29f070122fb0ab89e34ebd"},
 ]
 google-cloud-storage = [
-    {file = "google-cloud-storage-1.10.0.tar.gz", hash = "sha256:c1969558df8d7994cf4f89f60c01c619d77fc19facb38f66640d1f749a663e2e"},
-    {file = "google_cloud_storage-1.10.0-py2.py3-none-any.whl", hash = "sha256:6e53ee063e5075dc69322162fdf7e1b2a51eac82ec0449293e471fa8f36cdeba"},
+    {file = "google-cloud-storage-1.31.2.tar.gz", hash = "sha256:74bbb5b2d0b249de4a52f561435d0c3570ddc19b249653ae588ec0abcc3c81e6"},
+    {file = "google_cloud_storage-1.31.2-py2.py3-none-any.whl", hash = "sha256:e2a2533b5e368365e84d2acaa53b75266a09802fc1c8bda52e3212335eccb6bd"},
 ]
 google-crc32c = [
     {file = "google-crc32c-1.0.0.tar.gz", hash = "sha256:9439b960b6ecd847557675d130fc3626d762bf535da595c20a6949a705fb3eae"},
