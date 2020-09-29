@@ -205,7 +205,7 @@ export const SettingsForm: React.FC = () => {
           Firefox Channel
         </p>
         <p>What channel do you want to run this experiment on?</p>
-        <div aria-labelledby="field-firefox-channel">
+        <div aria-labelledby="field-firefox-channel-label">
           <XSelect
             className="w-100"
             id="field-firefox-channel"

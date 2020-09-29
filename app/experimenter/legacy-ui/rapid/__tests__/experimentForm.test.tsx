@@ -1,9 +1,4 @@
-import {
-  cleanup,
-  fireEvent,
-  getByTestId,
-  waitFor,
-} from "@testing-library/react";
+import { cleanup, fireEvent, waitFor } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import React from "react";
 import selectEvent from "react-select-event";
