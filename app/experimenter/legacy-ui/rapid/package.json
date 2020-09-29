@@ -38,7 +38,7 @@
     "eslint-plugin-react": "7.20.6",
     "jest": "26.4.2",
     "jest-fetch-mock": "3.0.3",
-    "prettier": "2.1.1",
+    "prettier": "2.1.2",
     "react-select-event": "5.0.0",
     "rimraf": "3.0.2",
     "ts-jest": "26.4.0",
