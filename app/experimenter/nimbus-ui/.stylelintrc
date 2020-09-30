@@ -1,0 +1,13 @@
+{
+  "extends": "stylelint-config-prettier",
+  "rules": {
+    "declaration-empty-line-before": "never",
+    "selector-max-id": [
+      0,
+      {
+        "message": "Using ID selectors is discouraged",
+        "severity": "warning"
+      }
+    ]
+  }
+}

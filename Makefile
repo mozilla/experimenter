@@ -32,14 +32,14 @@ ESLINT_RAPID = yarn workspace @experimenter/rapid lint:eslint
 ESLINT_VISUALIZATION = yarn workspace @experimenter/visualization lint
 ESLINT_FIX_RAPID = yarn workspace @experimenter/rapid lint:eslint --fix
 ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:eslint
-ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:eslint --fix
+ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint --fix
 TYPECHECK_RAPID = yarn workspace @experimenter/rapid lint:tsc
 TYPECHECK_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:tsc
 JS_TEST_CORE = yarn workspace @experimenter/core test
 JS_TEST_RAPID = yarn workspace @experimenter/rapid test
 JS_TEST_NIMBUS_UI = CI=yes yarn workspace @experimenter/nimbus-ui test
 FLAKE8 = flake8 .
-BLACK_CHECK = black -l 90 --check --diff .
+BLACK_CHECK = black -l 90 --check --diff . --exclude node_modules
 BLACK_FIX = black -l 90 .
 CHECK_DOCS = python manage.py generate_docs --check=true
 GENERATE_DOCS = python manage.py generate_docs
