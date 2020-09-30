@@ -24,6 +24,18 @@ services:
       - static_volume:/app/experimenter/served/
     command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py collectstatic --noinput;python /app/manage.py runserver 0:7001"
 
+  yarn-nimbus-ui:
+    image: app:build
+    env_file: .env
+    tty: true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./app:/app
+      - /app/node_modules/
+      - /app/experimenter/nimbus-ui/node_modules/
+    command: bash -c "FORCE_COLOR=true yarn workspace @experimenter/nimbus-ui start | cat"
+
   yarn-core:
     image: app:build
     env_file: .env
