@@ -3,15 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import { storiesOf } from "@storybook/react";
+import AppLayout from ".";
 
-const App = () => {
-  return (
-    <div data-testid="app">
-      <section>
-        <p>🌧</p>
-      </section>
-    </div>
-  );
-};
-
-export default App;
+storiesOf("AppLayout", module).add("default", () => (
+  <AppLayout>
+    <p>App contents go here</p>
+  </AppLayout>
+));

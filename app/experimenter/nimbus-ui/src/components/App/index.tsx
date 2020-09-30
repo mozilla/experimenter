@@ -3,13 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import ReactDOM from "react-dom";
-import App from "./components/App";
-import "./styles/index.scss";
+import AppLayout from "../AppLayout";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById("root"),
-);
+const App = () => {
+  return (
+    <div data-testid="app">
+      <AppLayout>
+        <section>
+          <p>🌧</p>
+        </section>
+      </AppLayout>
+    </div>
+  );
+};
+
+export default App;

@@ -8,6 +8,7 @@ from experimenter.projects.models import Project
 
 
 class NimbusExperiment(NimbusConstants, models.Model):
+
     owner = models.ForeignKey(
         get_user_model(),
         blank=True,
@@ -21,7 +22,9 @@ class NimbusExperiment(NimbusConstants, models.Model):
         choices=NimbusConstants.Status.choices,
     )
     name = models.CharField(max_length=255, unique=True, blank=False, null=False)
-    slug = models.SlugField(max_length=255, unique=True, blank=False, null=False)
+    slug = models.SlugField(
+        max_length=NimbusConstants.MAX_SLUG_LEN, unique=True, blank=False, null=False
+    )
     public_description = models.TextField(blank=True, null=True)
     is_paused = models.BooleanField(default=False)
     proposed_duration = models.PositiveIntegerField(
@@ -34,13 +37,10 @@ class NimbusExperiment(NimbusConstants, models.Model):
         null=True,
         validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
     )
-    firefox_min_version = models.CharField(
-        max_length=255,
-        choices=NimbusConstants.Version.choices,
-        blank=True,
-        null=True,
+    population_percent = models.DecimalField(
+        max_digits=7, decimal_places=4, default=0.0, blank=True, null=True
     )
-    firefox_max_version = models.CharField(
+    firefox_min_version = models.CharField(
         max_length=255,
         choices=NimbusConstants.Version.choices,
         blank=True,
@@ -56,7 +56,6 @@ class NimbusExperiment(NimbusConstants, models.Model):
     hypothesis = models.TextField(
         default=NimbusConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
-
     features = ArrayField(
         models.CharField(
             max_length=255,
@@ -94,7 +93,9 @@ class NimbusBranch(models.Model):
     )
     enabled = models.BooleanField(default=True)
     name = models.CharField(max_length=255, blank=False, null=False)
-    slug = models.SlugField(max_length=255, blank=False, null=False)
+    slug = models.SlugField(
+        max_length=NimbusConstants.MAX_SLUG_LEN, blank=False, null=False
+    )
     description = models.TextField(default="")
     ratio = models.PositiveIntegerField(default=1)
     value = models.TextField(blank=True, null=True)

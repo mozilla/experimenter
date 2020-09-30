@@ -6,18 +6,30 @@
   "scripts": {
     "start": "SKIP_PREFLIGHT_CHECK=true react-scripts start",
     "build": "SKIP_PREFLIGHT_CHECK=true react-scripts build",
-    "test": "SKIP_PREFLIGHT_CHECK=true react-scripts test",
+    "test": "SKIP_PREFLIGHT_CHECK=true react-scripts test --coverage",
+    "lint": "yarn lint:eslint && yarn lint:tsc && yarn lint:styles",
     "lint:eslint": "eslint --color --max-warnings 0 --ext=.ts,.tsx .",
     "lint:tsc": "tsc --noEmit --project tsconfig.json",
+    "lint:styles": "stylelint --config .stylelintrc **/*.scss",
+    "storybook": "start-storybook -p 3001",
     "eject": "react-scripts eject"
   },
+  "jest": {
+    "collectCoverageFrom": ["!src/**/*.stories.*"]
+  },
   "dependencies": {
+    "bootstrap": "^4.5.2",
     "react": "^16.13.1",
+    "react-bootstrap": "^1.3.0",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.0",
     "typescript": "4.0.3"
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^6.0.21",
+    "@storybook/addon-links": "^6.0.21",
+    "@storybook/preset-create-react-app": "^3.1.4",
+    "@storybook/react": "^6.0.21",
     "@testing-library/dom": "^7.24.2",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^11.0.4",
@@ -35,7 +47,10 @@
     "eslint-plugin-import": "2.x",
     "eslint-plugin-jsx-a11y": "6.x",
     "eslint-plugin-react": "7.x",
-    "eslint-plugin-react-hooks": "2.x"
+    "eslint-plugin-react-hooks": "2.x",
+    "node-sass": "^4.14.1",
+    "stylelint": "^13.7.1",
+    "stylelint-config-prettier": "^8.0.2"
   },
   "eslintConfig": {
     "extends": "react-app"
