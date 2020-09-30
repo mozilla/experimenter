@@ -117,73 +117,105 @@ export const SettingsForm: React.FC = () => {
       </div>
 
       <div className="mb-4">
-        <label className="font-weight-bold" htmlFor="field-feature">
+        <p
+          className="font-weight-bold"
+          data-testid="field-feature-label"
+          id="field-feature-label"
+        >
           Features
-        </label>
+        </p>
         <p>
           Select the user action or feature that you&apos;d be measuring with
           this experiment.
         </p>
-        <XSelect
-          isMulti
-          className="w-100"
-          id="field-feature"
-          name="features"
-          options={featureOptions}
-          selectValue={formData.features}
-          onOptionChange={handleSelectChange("features")}
-        />
-        <ErrorList errors={errors.features} />
+        {/* 
+          Slight hack we'll want to address in `nimbus-ui`: if an XSelect has multiple
+          options, it renders `<div>`s from `react-select` which can't have a `label`
+          since they're not form elements. An `aria-labelledby` works the same, but
+          won't render as an attribute so it's stuck on a container div. Additionally,
+          `data-testid` won't render either so the test goes by ID and not testid.
+        */}
+        <div aria-labelledby="field-feature-label">
+          <XSelect
+            isMulti
+            className="w-100"
+            id="field-feature"
+            name="features"
+            options={featureOptions}
+            selectValue={formData.features}
+            onOptionChange={handleSelectChange("features")}
+          />
+          <ErrorList errors={errors.features} />
+        </div>
       </div>
 
       <div className="mb-4">
-        <label className="font-weight-bold" htmlFor="field-audience">
+        <p
+          className="font-weight-bold"
+          data-testid="field-audience-label"
+          id="field-audience-label"
+        >
           Audience
-        </label>
+        </p>
         <p>Description of audience.</p>
-        <XSelect
-          className="w-100"
-          id="field-audience"
-          name="audience"
-          options={audienceOptions}
-          selectValue={formData.audience}
-          onOptionChange={handleSelectChange("audience")}
-        />
-        <ErrorList errors={errors.audience} />
+        <div aria-labelledby="field-audience-label">
+          <XSelect
+            className="w-100"
+            id="field-audience"
+            name="audience"
+            options={audienceOptions}
+            selectValue={formData.audience}
+            onOptionChange={handleSelectChange("audience")}
+          />
+          <ErrorList errors={errors.audience} />
+        </div>
       </div>
+
       <div className="mb-4">
-        <label className="font-weight-bold" htmlFor="field-firefox-min-version">
+        <p
+          className="font-weight-bold"
+          data-testid="field-firefox-min-version-label"
+          id="field-firefox-min-version-label"
+        >
           Firefox Minimum Version
-        </label>
+        </p>
         <p>
           Is there a minimum Firefox Release version this experiment should be
           run on?
         </p>
-        <XSelect
-          className="w-100"
-          id="field-firefox-min-version"
-          name="firefox_min_version"
-          options={firefoxVersionOptions}
-          selectValue={formData.firefox_min_version}
-          onOptionChange={handleSelectChange("firefox_min_version")}
-        />
-        <ErrorList errors={errors.firefox_min_version} />
+        <div aria-labelledby="field-firefox-min-version-label">
+          <XSelect
+            className="w-100"
+            id="field-firefox-min-version"
+            name="firefox_min_version"
+            options={firefoxVersionOptions}
+            selectValue={formData.firefox_min_version}
+            onOptionChange={handleSelectChange("firefox_min_version")}
+          />
+          <ErrorList errors={errors.firefox_min_version} />
+        </div>
       </div>
 
       <div className="mb-4">
-        <label className="font-weight-bold" htmlFor="field-firefox-channel">
+        <p
+          className="font-weight-bold"
+          data-testid="field-firefox-channel-label"
+          id="field-firefox-channel-label"
+        >
           Firefox Channel
-        </label>
+        </p>
         <p>What channel do you want to run this experiment on?</p>
-        <XSelect
-          className="w-100"
-          id="field-firefox-channel"
-          name="firefox_channel"
-          options={firefoxChannelOptions}
-          selectValue={formData.firefox_channel}
-          onOptionChange={handleSelectChange("firefox_channel")}
-        />
-        <ErrorList errors={errors.firefox_channel} />
+        <div aria-labelledby="field-firefox-channel-label">
+          <XSelect
+            className="w-100"
+            id="field-firefox-channel"
+            name="firefox_channel"
+            options={firefoxChannelOptions}
+            selectValue={formData.firefox_channel}
+            onOptionChange={handleSelectChange("firefox_channel")}
+          />
+          <ErrorList errors={errors.firefox_channel} />
+        </div>
       </div>
 
       <button
