@@ -60,12 +60,15 @@ describe("<SettingsForm />", () => {
   });
 
   it("makes the correct API call on save new", async () => {
-    const { getByText, getByLabelText, history } = renderWithRouter(
-      wrapInExperimentProvider(<SettingsForm />),
-      {
-        route: "/new/",
-      },
-    );
+    const {
+      getByText,
+      getByLabelText,
+      getByTestId,
+      history,
+      container,
+    } = renderWithRouter(wrapInExperimentProvider(<SettingsForm />), {
+      route: "/new/",
+    });
 
     let submitUrl;
     let formData;
@@ -90,23 +93,46 @@ describe("<SettingsForm />", () => {
     const objectivesField = getByLabelText("Hypothesis");
     fireEvent.change(objectivesField, { target: { value: "test objective" } });
 
+    // Slight hack we'll want to address in `nimbus-ui`: if an XSelect has multiple
+    // options, it renders `<div>`s from `react-select` which can't have a `label`
+    // since they're not form elements. An `aria-labelledby` works the same, but
+    // won't render as an attribute so it's stuck on a container div. Additionally,
+    // `data-testid` won't render either so the test goes by ID and not testid.
+
     // Update the features field
-    const featuresField = getByLabelText("Features");
+    expect(getByTestId("field-feature-label")).toHaveTextContent("Features");
+    const featuresField = container.querySelector(
+      "#field-feature",
+    ) as HTMLElement;
+
     await selectEvent.select(featuresField, [
       "Picture-in-Picture",
       "Pinned tabs",
     ]);
 
     // Update the audience field
-    const audienceField = getByLabelText("Audience");
+    expect(getByTestId("field-audience-label")).toHaveTextContent("Audience");
+    const audienceField = container.querySelector(
+      "#field-audience",
+    ) as HTMLElement;
     await selectEvent.select(audienceField, "US users (en)");
 
     // Update the firefox version field
-    const firefoxVersionField = getByLabelText("Firefox Minimum Version");
+    expect(getByTestId("field-firefox-min-version-label")).toHaveTextContent(
+      "Firefox Minimum Version",
+    );
+    const firefoxVersionField = container.querySelector(
+      "#field-firefox-min-version",
+    ) as HTMLElement;
     await selectEvent.select(firefoxVersionField, "Firefox 78.0");
 
     // Update the firefox channel field
-    const firefoxChannelField = getByLabelText("Firefox Channel");
+    expect(getByTestId("field-firefox-channel-label")).toHaveTextContent(
+      "Firefox Channel",
+    );
+    const firefoxChannelField = container.querySelector(
+      "#field-firefox-channel",
+    ) as HTMLElement;
     await selectEvent.select(firefoxChannelField, "Firefox Nightly");
 
     // Click the save button
