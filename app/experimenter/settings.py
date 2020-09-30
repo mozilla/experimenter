@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     "django.forms",
+    # Graphene
+    "graphene_django",
     # Libraries
     "corsheaders",
     "django_markdown2",
@@ -125,6 +127,9 @@ DATABASES = {
         "PORT": "5432",
     }
 }
+
+# Graphene Schema
+GRAPHENE = {"SCHEMA": "experimenter.experiments.api.v5.schema"}
 
 
 # Password validation
