@@ -27,8 +27,6 @@ services:
   yarn-nimbus-ui:
     image: app:build
     env_file: .env
-    environment:
-      - CHOKIDAR_USEPOLLING=true
     tty: true
     ports:
       - "3000:3000"
@@ -36,7 +34,7 @@ services:
       - ./app:/app
       - /app/node_modules/
       - /app/experimenter/nimbus-ui/node_modules/
-    command: bash -c "yarn workspace @experimenter/nimbus-ui start"
+    command: bash -c "FORCE_COLOR=true yarn workspace @experimenter/nimbus-ui start | cat"
 
   yarn-core:
     image: app:build
