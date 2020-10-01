@@ -20,6 +20,9 @@ jobs:
       - run:
           name: Run tests and linting
           command: make check
+      - run:
+          name: Publish Storybooks
+          command: make publish_storybooks
 
   integration:
     machine:
