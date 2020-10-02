@@ -22,11 +22,11 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 ## Installation
 
-Node ^14.0.0 is required
-
 ### General Setup
 
 1.  Install [docker](https://www.docker.com/) on your machine
+
+  - On linux, [setup docker to run as non-root](https://docs.docker.com/engine/security/rootless/)
 
 1.  Clone the repo
 
@@ -67,11 +67,15 @@ Node ^14.0.0 is required
 One might choose the semi dockerized approach for:
 
 1. faster startup/teardown time (not having to rebuild/start/stop containers)
-2. better ide integration
+1. better ide integration
 
-[osx catalina, reinstall command line tools](https://medium.com/flawless-app-stories/gyp-no-xcode-or-clt-version-detected-macos-catalina-anansewaa-38b536389e8d)
+Notes:
 
-[poetry](https://python-poetry.org/docs/#installation)
+* Node ^14.0.0 is required
+
+* [osx catalina, reinstall command line tools](https://medium.com/flawless-app-stories/gyp-no-xcode-or-clt-version-detected-macos-catalina-anansewaa-38b536389e8d)
+
+* [poetry](https://python-poetry.org/docs/#installation)
 
 ### Semi Dockerized Setup
 
