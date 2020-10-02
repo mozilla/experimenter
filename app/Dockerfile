@@ -1,7 +1,7 @@
-FROM python:3.8.2
+# Build image
+FROM python:3.8.2 AS build
 
 WORKDIR /app
-EXPOSE 7001
 
 
 # Disable python pyc files
@@ -41,6 +41,7 @@ RUN poetry install
 # will exit non-zero and print what is usually just a warning in `poetry install`
 RUN poetry check
 
+
 # Node packages
 COPY ./package.json /app/package.json
 COPY ./yarn.lock /app/yarn.lock
@@ -62,3 +63,23 @@ RUN yarn workspace @experimenter/nimbus-ui build
 
 # Copy source
 COPY . /app
+
+
+# Deploy image
+FROM python:3.8.2-slim AS deploy
+
+WORKDIR /app
+EXPOSE 7001
+
+# Disable python pyc files
+ENV PYTHONDONTWRITEBYTECODE 1
+# Add poetry to path
+ENV PATH "/root/.poetry/bin:${PATH}"
+
+RUN apt-get update
+RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgresql-client
+
+COPY --from=build /app/bin/ /app/bin/
+COPY --from=build /app/experimenter/ /app/experimenter/
+COPY --from=build /app/manage.py /app/manage.py
+COPY --from=build /usr/local/lib/python3.8/site-packages/ /usr/local/lib/python3.8/site-packages/
