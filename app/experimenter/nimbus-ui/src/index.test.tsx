@@ -5,6 +5,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./components/App";
+import AppErrorBoundary from "./components/AppErrorBoundary";
 
 jest.mock("react-dom", () => ({ render: jest.fn() }));
 
@@ -16,7 +17,9 @@ describe("index.tsx", () => {
     require("./index");
     expect(ReactDOM.render).toHaveBeenCalledWith(
       <React.StrictMode>
-        <App />
+        <AppErrorBoundary>
+          <App />
+        </AppErrorBoundary>
       </React.StrictMode>,
       div,
     );

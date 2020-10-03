@@ -16,9 +16,12 @@
     "eject": "react-scripts eject"
   },
   "jest": {
-    "collectCoverageFrom": ["!src/**/*.stories.*"]
+    "collectCoverageFrom": [
+      "!src/**/*.stories.*"
+    ]
   },
   "dependencies": {
+    "@sentry/browser": "^5.24.2",
     "bootstrap": "^4.5.2",
     "react": "^16.13.1",
     "react-bootstrap": "^1.3.0",

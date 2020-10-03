@@ -5,11 +5,14 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./components/App";
+import AppErrorBoundary from "./components/AppErrorBoundary";
 import "./styles/index.scss";
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <AppErrorBoundary>
+      <App />
+    </AppErrorBoundary>              
   </React.StrictMode>,
   document.getElementById("root"),
 );
