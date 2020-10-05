@@ -6,6 +6,7 @@ from experimenter.experiments.views import (
     ExperimentCreateView,
     ExperimentDesignUpdateView,
     ExperimentDetailView,
+    ExperimentNimbusUIView,
     ExperimentNormandyUpdateView,
     ExperimentObjectivesUpdateView,
     ExperimentOverviewUpdateView,
@@ -19,6 +20,12 @@ from experimenter.experiments.views import (
 )
 
 urlpatterns = [
+    re_path(r"^nimbus/", ExperimentNimbusUIView.as_view(), name="experiments-nimbus"),
+    re_path(
+        r"^nimbus/(?P<slug>)/",
+        ExperimentNimbusUIView.as_view(),
+        name="experiments-nimbus",
+    ),
     re_path(r"^rapid/", ExperimentRapidView.as_view(), name="experiments-rapid"),
     re_path(
         r"^rapid/(?P<slug>)", ExperimentRapidView.as_view(), name="experiments-rapid"
