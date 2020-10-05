@@ -2633,7 +2633,7 @@
     "@svgr/plugin-svgo" "^5.4.0"
     loader-utils "^2.0.0"
 
-"@testing-library/dom@7.24.3", "@testing-library/dom@>=5", "@testing-library/dom@^7.17.1", "@testing-library/dom@^7.24.2", "@testing-library/dom@^7.24.3":
+"@testing-library/dom@7.24.3", "@testing-library/dom@>=7", "@testing-library/dom@^7.17.1", "@testing-library/dom@^7.24.2", "@testing-library/dom@^7.24.3":
   version "7.24.3"
   resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-7.24.3.tgz#dae3071463cf28dc7755b43d9cf2202e34cbb85d"
   integrity sha512-6eW9fUhEbR423FZvoHRwbWm9RUUByLWGayYFNVvqTnQLYvsNpBS4uEuKH9aqr3trhxFwGVneJUonehL3B1sHJw==
@@ -14513,12 +14513,12 @@ react-scripts@3.4.0:
   optionalDependencies:
     fsevents "2.1.2"
 
-react-select-event@5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/react-select-event/-/react-select-event-5.0.0.tgz#e16d1dd240b5e1f41f31cb74a50baaa89aa6406c"
-  integrity sha512-bESECffhi//x1nlMoRJtwI0nGl5n6OKaVYeIEcPTV8flVPycvUoBGank/1RIoxVc6WtoQ4QbPbU8xMvX0xAiOA==
+react-select-event@5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/react-select-event/-/react-select-event-5.1.0.tgz#d45ef68f2a9c872903e8c9725f3ae6e7576f7be0"
+  integrity sha512-D5DzJlYCdZsGbDVFMQFynrG0OLalJM3ZzDT7KQADNVWE604JCeQF9bIuvPZqVD7IzhnPsFzOUCsilzDA6w6WRQ==
   dependencies:
-    "@testing-library/dom" ">=5"
+    "@testing-library/dom" ">=7"
 
 react-select@3.1.0:
   version "3.1.0"
