@@ -4,14 +4,14 @@ updates:
   directory: "/app"
   schedule:
     interval: weekly
-  target-branch: dependencies
+  target-branch: main
 - package-ecosystem: pip
   directory: "/app"
   schedule:
     interval: weekly
-  target-branch: dependencies
+  target-branch: main
 - package-ecosystem: pip
   directory: "/app/tests"
   schedule:
     interval: weekly
-  target-branch: dependencies
+  target-branch: main
