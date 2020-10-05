@@ -66,7 +66,7 @@ jobs:
           command: |
             ./scripts/build.sh
             docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker tag app:build ${DOCKERHUB_REPO}:latest
+            docker tag app:deploy ${DOCKERHUB_REPO}:latest
             docker push ${DOCKERHUB_REPO}:latest
 
 workflows:
