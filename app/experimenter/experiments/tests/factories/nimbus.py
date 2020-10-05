@@ -50,6 +50,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 
         NimbusBranchFactory.create(experiment=experiment)
         experiment.control_branch = NimbusBranchFactory.create(experiment=experiment)
+        experiment.status = target_status
         experiment.save()
 
         for status, _ in NimbusExperiment.Status.choices:
