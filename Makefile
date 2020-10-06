@@ -40,7 +40,7 @@ JS_TEST_RAPID = yarn workspace @experimenter/rapid test
 JS_TEST_NIMBUS_UI = CI=yes yarn workspace @experimenter/nimbus-ui test
 FLAKE8 = flake8 .
 BLACK_CHECK = black -l 90 --check --diff . --exclude node_modules
-BLACK_FIX = black -l 90 .
+BLACK_FIX = black -l 90 . --exclude node_modules
 CHECK_DOCS = python manage.py generate_docs --check=true
 GENERATE_DOCS = python manage.py generate_docs
 LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json
@@ -91,7 +91,7 @@ publish_storybooks: build
 	$(COMPOSE_TEST) run app sh -c "$(PUBLISH_STORYBOOKS)"
 
 code_format: compose_build
-	$(COMPOSE) run app sh -c "${PY_IMPORT_SORT}&&$(BLACK_FIX)&&$(ESLINT_FIX_CORE)&&$(ESLINT_FIX_RAPID)&&$(ESLINT_FIX_NIMBUS_UI)"
+	$(COMPOSE) run app sh -c '${PARALLEL} "${PY_IMPORT_SORT};$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_RAPID)" "$(ESLINT_FIX_NIMBUS_UI)"'
 
 makemigrations: compose_build
 	$(COMPOSE) run app python manage.py makemigrations
