@@ -46,11 +46,20 @@ class NimbusExperiment(NimbusConstants, models.Model):
         blank=True,
         null=True,
     )
-    firefox_channel = models.CharField(
+    application = models.CharField(
         max_length=255,
-        choices=NimbusConstants.Channel.choices,
+        choices=NimbusConstants.Application.choices,
         blank=True,
         null=True,
+    )
+    channels = ArrayField(
+        models.CharField(
+            max_length=255,
+            blank=True,
+            null=True,
+            choices=NimbusConstants.Channel.choices,
+        ),
+        default=list,
     )
     projects = models.ManyToManyField(Project, blank=True)
     hypothesis = models.TextField(

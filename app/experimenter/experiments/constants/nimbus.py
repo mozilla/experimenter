@@ -11,10 +11,33 @@ class NimbusConstants(object):
         COMPLETE = "Complete"
         REJECTED = "Rejected"
 
+    class Application(models.TextChoices):
+        DESKTOP = "firefox-desktop"
+        FENIX = "fenix"
+        REFERENCE = "reference-browser"
+
     class Channel(models.TextChoices):
-        NIGHTLY = "Nightly"
-        BETA = "Beta"
-        RELEASE = "Release"
+        DESKTOP_BETA = "Beta"
+        DESKTOP_NIGHTLY = "Nightly"
+        DESKTOP_RELEASE = "Release"
+        FENIX_BETA = "org.mozilla.firefox.beta"
+        FENIX_NIGHTLY = "org.mozilla.fenix"
+        FENIX_RELEASE = "org.mozilla.firefox"
+        REFERENCE_RELEASE = "org.mozilla.reference.browser"
+
+    ApplicationChannels = {
+        Application.DESKTOP: [
+            Channel.DESKTOP_NIGHTLY,
+            Channel.DESKTOP_BETA,
+            Channel.DESKTOP_RELEASE,
+        ],
+        Application.FENIX: [
+            Channel.FENIX_NIGHTLY,
+            Channel.FENIX_BETA,
+            Channel.FENIX_RELEASE,
+        ],
+        Application.REFERENCE: [Channel.REFERENCE_RELEASE],
+    }
 
     class Feature(models.TextChoices):
         FEATURE_1 = "Feature 1"
