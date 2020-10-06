@@ -346,9 +346,7 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         mock_response_data = {
             "approved_revision": {
                 "enabled": True,
-                "filter_object": [
-                    {"type": "version", "versions": [79.0, 80.0, 81.0, 82.0]}
-                ],
+                "filter_object": [{"type": "version", "versions": [79, 80, 81, 82]}],
             }
         }
         mock_response = mock.Mock()
