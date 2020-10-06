@@ -82,4 +82,5 @@ RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgre
 COPY --from=build /app/bin/ /app/bin/
 COPY --from=build /app/experimenter/ /app/experimenter/
 COPY --from=build /app/manage.py /app/manage.py
+COPY --from=build /usr/local/bin/ /usr/local/bin/
 COPY --from=build /usr/local/lib/python3.8/site-packages/ /usr/local/lib/python3.8/site-packages/
