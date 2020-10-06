@@ -80,7 +80,7 @@ services:
       - redis
     volumes:
       - ./app:/app
-    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l debug"
+    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l DEBUG"
 
   beat:
     image: app:build
@@ -90,7 +90,7 @@ services:
       - redis
     volumes:
       - ./app:/app
-    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat --pidfile /celerybeat.pid -s /celerybeat-schedule -l debug"
+    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat --pidfile /celerybeat.pid -s /celerybeat-schedule -l DEBUG"
 
   nginx:
     build: ./nginx
