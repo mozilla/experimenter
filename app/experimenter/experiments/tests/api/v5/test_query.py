@@ -12,14 +12,14 @@ from experimenter.experiments.tests.factories import NimbusExperimentFactory
 class TestExperimentListView(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
 
-    def test_all_experiments(self):
+    def test_experiments(self):
         user_email = "user@example.com"
         exp = NimbusExperimentFactory.create_with_status(NimbusExperiment.Status.DRAFT)
 
         response = self.query(
             """
             query {
-                allExperiments {
+                experiments {
                     name
                     slug
                     publicDescription
@@ -30,10 +30,38 @@ class TestExperimentListView(GraphQLTestCase):
         )
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
-        experiments = content["data"]["allExperiments"]
+        experiments = content["data"]["experiments"]
         self.assertEqual(len(experiments), 1)
         for key in experiments[0]:
             self.assertEqual(experiments[0][key], str(getattr(exp, to_snake_case(key))))
+
+    def test_experiments_by_status(self):
+        user_email = "user@example.com"
+        draft_exp = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT
+        )
+        NimbusExperimentFactory.create_with_status(NimbusExperiment.Status.ACCEPTED)
+
+        response = self.query(
+            """
+            query {
+                experiments(status: Draft) {
+                    name
+                    slug
+                    publicDescription
+                }
+            }
+            """,
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        experiments = content["data"]["experiments"]
+        self.assertEqual(len(experiments), 1)
+        for key in experiments[0]:
+            self.assertEqual(
+                experiments[0][key], str(getattr(draft_exp, to_snake_case(key)))
+            )
 
     def test_experiment_by_slug(self):
         user_email = "user@example.com"
@@ -79,31 +107,3 @@ class TestExperimentListView(GraphQLTestCase):
         content = json.loads(response.content)
         experiment = content["data"]["experimentBySlug"]
         self.assertIsNone(experiment)
-
-    def test_experiments_by_status(self):
-        user_email = "user@example.com"
-        draft_exp = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT
-        )
-        NimbusExperimentFactory.create_with_status(NimbusExperiment.Status.ACCEPTED)
-
-        response = self.query(
-            """
-            query {
-                experimentsByStatus(status: DRAFT) {
-                    name
-                    slug
-                    publicDescription
-                }
-            }
-            """,
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        experiments = content["data"]["experimentsByStatus"]
-        self.assertEqual(len(experiments), 1)
-        for key in experiments[0]:
-            self.assertEqual(
-                experiments[0][key], str(getattr(draft_exp, to_snake_case(key)))
-            )
