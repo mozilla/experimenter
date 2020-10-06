@@ -14,4 +14,6 @@ class CreateExperimentMutation(DjangoModelFormMutation):
 
 
 class Mutation(graphene.ObjectType):
-    create_experiment = CreateExperimentMutation.Field()
+    create_experiment = CreateExperimentMutation.Field(
+        description="Create a new Nimbus Experiment."
+    )
