@@ -4,7 +4,11 @@ import random
 from django.core.management.base import BaseCommand
 
 from experimenter.experiments.models import Experiment
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.models.nimbus import NimbusExperiment
+from experimenter.experiments.tests.factories import (
+    ExperimentFactory,
+    NimbusExperimentFactory,
+)
 
 logger = logging.getLogger()
 
@@ -12,26 +16,12 @@ logger = logging.getLogger()
 class Command(BaseCommand):
     help = "Generates dummy experiment data"
 
-    def add_arguments(self, parser):
-        parser.add_argument("--num_of_experiments", default=10, type=int)
-        parser.add_argument(
-            "--status",
-            choices=[choice[0] for choice in Experiment.STATUS_CHOICES],
-            help="status of experiments populated",
-        )
-
     def handle(self, *args, **options):
-        self.load_dummy_experiments(options)
-
-    @staticmethod
-    def load_dummy_experiments(options):
-        for i in range(options["num_of_experiments"]):
+        for status, _ in Experiment.STATUS_CHOICES:
             random_type = random.choice(Experiment.TYPE_CHOICES)[0]
-            if options["status"]:
-                ExperimentFactory.create_with_status(options["status"], type=random_type)
-            else:
-                status = Experiment.STATUS_CHOICES[i % len(Experiment.STATUS_CHOICES)][0]
-                experiment = ExperimentFactory.create_with_status(
-                    status, type=random_type
-                )
-                logger.info("Created {}: {}".format(experiment, status))
+            experiment = ExperimentFactory.create_with_status(status, type=random_type)
+            logger.info("Created {}: {}".format(experiment, status))
+
+        for status, _ in NimbusExperiment.Status.choices:
+            experiment = NimbusExperimentFactory.create_with_status(status)
+            logger.info("Created {}: {}".format(experiment, status))
