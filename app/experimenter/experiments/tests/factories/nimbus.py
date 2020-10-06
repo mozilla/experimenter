@@ -36,8 +36,11 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     firefox_min_version = factory.LazyAttribute(
         lambda o: random.choice(NimbusExperiment.Version.choices)[0]
     )
-    firefox_channel = factory.LazyAttribute(
-        lambda o: random.choice(NimbusExperiment.Channel.choices)[0]
+    application = factory.LazyAttribute(
+        lambda o: random.choice(NimbusExperiment.Application.choices)[0]
+    )
+    channels = factory.LazyAttribute(
+        lambda o: NimbusExperiment.ApplicationChannels.get(o.application, []),
     )
     hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
 
