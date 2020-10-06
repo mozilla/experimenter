@@ -37,10 +37,7 @@ do not require tests.
   - Fix any broken tests
   - Ensure coverage remains at 100% by adding new tests for any uncovered lines.
 
-1. When all tests and checks are passing, commit all your changes into a single commit and name
-the commit with a brief description of the change and `fixes #123` where `#123` is the issue number.
-You can add any additional descriptive information to the message body of the commit, but the issue
-number must be present in the first line of the commit.  Example: `Add new dashboard link fixes #123`
+1. When all tests and checks are passing, commit all your changes into a single commit and follow the [Git Commit Guidelines](#git-commit-guidelines)
 
 1. Push your branch up to your fork and submit a pull request on to main.  Add any additional
 information you'd like to the pull request body, including descriptions of changes, screenshots
@@ -64,6 +61,61 @@ contains any additional descriptive information.
 
 1. Thank you for submitting changes to Experimenter :D
 
+## Git Commit Guidelines
+
+### Subject
+
+The subject should follow the this pattern:
+
+`fixes #github_issue_number type(scope): Description`
+
+#### Type
+One of the following
+
+- **feat**: A new feature
+- **fix**: A bug fix
+- **docs**: Documentation only changes
+- **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing
+  semi-colons, etc)
+- **refactor**: A code change that neither fixes a bug or adds a feature
+- **perf**: A code change that improves performance
+- **test**: Adding missing tests
+- **chore**: Changes to the build process or auxiliary tools and libraries such as documentation
+  generation
+
+#### Scope
+
+One of the following:
+
+- **project**: Anything that affects the entire project
+- **nimbus**: Anything scoped only to Nimbus experiment frontend
+- **legacy**: Anything scoped only to Legacy experiment frontend
+- **visualization**: Anything scoped only to Analysis Visualization
+
+#### Description
+
+- use the imperative, present tense: "change" not "changed" nor "changes"
+- don't capitalize first letter
+- no dot (.) at the end
+
+### Body
+
+The body should describe the purpose of the commit, so that it's clear why this change is being
+made. To assist in writing this along with the footer, a git commit template (saved as `~/.gitmessage`)
+can be used:
+
+```
+Because
+
+* Reason
+
+This commit
+
+* Change
+```
+
+Just as in the **subject**, use the imperative, present tense: "change" not "changed" nor "changes". Commits are expected to follow this format.
+
 ## Dependency Management
 Dependencies are automatically updated by [Dependabot](https://dependabot.com/) which is now integrated
 directly into GitHub.  Each week Dependabot will create a large number of individual PRs that update
@@ -72,8 +124,8 @@ each dependency.  To merge those into main, use the following process:
 
 ### Merge Dependabot PRs
 1. Dependabot will create many individual PRs against the `main` branch, which has no
-branch protections and so each of those PRs can be merged automatically by adding the following comment to
-each PR:
+branch protections and so each of those PRs can be merged automatically by approving each PR with the comment:
+
         @dependabot squash and merge
 
 All done!
