@@ -22,6 +22,27 @@ export interface Variant {
   value: string;
 }
 
+export interface AnalysisPoint {
+  metric: string;
+  statistic: string;
+  parameter?: string;
+  branch: string;
+  comparison?: string;
+  ci_width?: number;
+  point: number;
+  lower?: number;
+  upper?: number;
+  window_index?: string;
+}
+
+export interface ExperimentAnalysis {
+  daily: Array<AnalysisPoint>;
+  weekly: Array<AnalysisPoint>;
+  overall: Array<AnalysisPoint>;
+  show_analysis: boolean;
+  result_map: { [key: string]: string };
+}
+
 export interface ExperimentData {
   audience: string;
   bugzilla_url?: string;
@@ -36,6 +57,7 @@ export interface ExperimentData {
   recipe_slug?: string;
   reject_feedback?: RejectFeedback;
   status: ExperimentStatus;
+  analysis?: ExperimentAnalysis;
   variants: Array<Variant>;
 }
 
