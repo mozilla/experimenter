@@ -33,7 +33,7 @@ export default [
         // we'll extract any component CSS out into
         // a separate file - better for performance
         css: (css) => {
-          css.write("../assets/visualization/bundle.css");
+          css.write("bundle.css");
         },
       }),
       typescript({ sourceMap: !production }),
