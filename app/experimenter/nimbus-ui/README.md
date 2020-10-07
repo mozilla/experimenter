@@ -109,6 +109,54 @@ Learn more about all the ways you can [theme Bootstrap](https://getbootstrap.com
 
 **But Bootstrap supports CSS Variables!** You're right, Bootstrap _does_ support [CSS Variables](https://getbootstrap.com/docs/4.5/getting-started/theming/#css-variables). However, all of those values are rendered out from the variables defined in the SCSS, which we have access to. For this reason, and to avoid unexpected styles, please do not attempt to override any Bootstrap CSS Variables.
 
+
+## Working with SVGs
+
+Create React App allows us to use SVGs in a variety of ways, right out of the box. We prefer to inline our SVGs where we can:
+
+```javascript
+// Inline, full markup:
+import { ReactComponent as Logo } from './logo.svg';
+const LogoImage = () => <Logo role="img" aria-label="logo" />;
+```
+
+Inlining our SVGs will minimize the number of network requests our application needs to perform. `role="img"` tells screenreaders to refer to this element as an image and `aria-label` acts like `alt` text on an `img` tag does. You can also pass in `className` and other properties, and if needed, conditionally change elements inside of the SVG such as a `path`'s `fill` property.
+
+If the inlined SVG is inside of a button, you can forgo the `role` and `aria-label` by preferring a `title` on a button:
+
+```jsx
+import { ReactComponent as CloseIcon } from './close.svg';
+...
+<button
+  title="Close"
+>
+  <CloseIcon />
+</button>
+```
+
+Other ways to use SVGs:
+
+```javascript
+// As an image source:
+import logoUrl from './logo.svg';
+const LogoImage = () => <img src={logoUrl} alt="Logo" />;
+
+// As a background-image (inline style)
+import logoUrl from './logo.svg';
+const LogoImage = () => (
+  <div
+    style={{ backgroundImage: `url(${logoUrl})` }}
+    role="img"
+    aria-label="logo"
+  ></div>
+);
+
+// As a background-image (external style)
+// Just reference it in CSS, the loader will find it
+// .logo { background-image: url('logo.svg'); }
+const LogoImage = () => <div class="logo" role="img" aria-label="logo"></div>;
+```
+
 ## License
 
 MPL-2.0
