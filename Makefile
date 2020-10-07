@@ -67,7 +67,7 @@ compose_rm:
 	$(COMPOSE_INTEGRATION) rm -f -v
 
 volumes_rm:
-	docker volume ls -q | xargs docker volume rm -f | echo
+	docker volume prune -f
 
 kill: compose_stop compose_rm volumes_rm
 	echo "All containers removed!"

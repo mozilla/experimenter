@@ -18,10 +18,9 @@ services:
       - /app/experimenter/legacy-ui/core/node_modules/
       - /app/experimenter/legacy-ui/rapid/node_modules/
       - /app/experimenter/legacy-ui/visualization/node_modules/
-      - assets_volume:/app/experimenter/legacy-ui/assets/
       - /app/experimenter/nimbus-ui/node_modules/
       - /app/experimenter/nimbus-ui/build/
-      - static_volume:/app/experimenter/served/
+      - /app/experimenter/served/
     command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py collectstatic --noinput;python /app/manage.py runserver 0:7001"
 
   yarn-nimbus-ui:
@@ -44,8 +43,6 @@ services:
       - ./app:/app
       - /app/node_modules/
       - /app/experimenter/legacy-ui/core/node_modules/
-      - assets_volume:/app/experimenter/legacy-ui/assets/
-      - static_volume:/app/experimenter/served/
     command: bash -c "yarn workspace @experimenter/core watch"
 
   yarn-rapid:
@@ -56,8 +53,6 @@ services:
       - ./app:/app
       - /app/node_modules/
       - /app/experimenter/legacy-ui/rapid/node_modules/
-      - assets_volume:/app/experimenter/legacy-ui/assets/
-      - static_volume:/app/experimenter/served/
     command: bash -c "yarn workspace @experimenter/rapid watch"
 
   yarn-visualization:
@@ -68,8 +63,6 @@ services:
       - ./app:/app
       - /app/node_modules/
       - /app/experimenter/legacy-ui/visualization/node_modules/
-      - assets_volume:/app/experimenter/legacy-ui/assets/
-      - static_volume:/app/experimenter/served/
     command: bash -c "yarn workspace @experimenter/visualization watch"
 
   worker:
@@ -99,8 +92,6 @@ services:
       - app
     ports:
       - "443:443"
-    volumes:
-      - static_volume:/app/experimenter/served/
 
   db:
     restart: always
@@ -136,6 +127,4 @@ services:
 
 volumes:
   db_volume:
-  static_volume:
-  assets_volume:
   kinto_volume:

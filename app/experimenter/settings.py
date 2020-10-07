@@ -168,11 +168,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = "/legacy-ui/"
+STATIC_URL = "/static/"
 
-STATIC_ROOT = os.path.join(os.path.join(BASE_DIR, "served"), "legacy-ui")
+STATIC_ROOT = os.path.join(os.path.join(BASE_DIR, "served"), "static")
 
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "legacy-ui")]
+STATICFILES_DIRS = [
+    ("assets", os.path.join(BASE_DIR, "legacy-ui", "assets")),
+    ("scripts", os.path.join(BASE_DIR, "legacy-ui", "scripts")),
+    ("imgs", os.path.join(BASE_DIR, "legacy-ui", "imgs")),
+    ("nimbus", os.path.join(BASE_DIR, "nimbus-ui", "build")),
+]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
