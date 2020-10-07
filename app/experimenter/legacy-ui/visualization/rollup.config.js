@@ -7,7 +7,6 @@ import postcss from "rollup-plugin-postcss";
 import svelte from "rollup-plugin-svelte";
 import { terser } from "rollup-plugin-terser";
 import sveltePreprocess from "svelte-preprocess";
-import * as path from "path";
 
 const production = !process.env.ROLLUP_WATCH;
 
