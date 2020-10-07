@@ -38,8 +38,8 @@ select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background: url(../imgs/select.png) right / 20px no-repeat #fff !important;
-  background-image: url(../imgs/select.png) right / 20px no-repeat #fff !important;
+  background: url(../../imgs/select.png) right / 20px no-repeat #fff !important;
+  background-image: url(../../imgs/select.png) right / 20px no-repeat #fff !important;
   padding-right: 20px;
 }
 

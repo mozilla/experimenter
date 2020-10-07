@@ -8,7 +8,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link rel="icon" href="{% static "core/imgs/favicon.ico" %}" type="image/x-icon" />
+  <link rel="icon" href="{% static "imgs/favicon.ico" %}" type="image/x-icon" />
 
   <link rel="stylesheet" href="{% static "assets/css/index.css" %}">
 
@@ -137,14 +137,14 @@
   <div class="container">
     <div class="row mt-3">
       {% block main %}
-        <div class="col-9">
-          {% block main_content %}
-          {% endblock %}
-        </div>
-        <div class="col-3">
-          {% block main_sidebar %}
-          {% endblock %}
-        </div>
+      <div class="col-9">
+        {% block main_content %}
+        {% endblock %}
+      </div>
+      <div class="col-3">
+        {% block main_sidebar %}
+        {% endblock %}
+      </div>
       {% endblock %}
     </div>
   </div>
