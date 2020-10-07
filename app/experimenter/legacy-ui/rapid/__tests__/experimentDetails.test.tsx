@@ -304,6 +304,17 @@ describe("<ExperimentDetails />", () => {
             audience: "us_only",
             firefox_channel: FirefoxChannel.RELEASE,
             firefox_min_version: "78.0",
+            analysis: {
+              show_analysis: true,
+              daily: [],
+              weekly: [],
+              overall: [],
+              result_map: {
+                retained: "binomial",
+                search_count: "mean",
+                identity: "count",
+              },
+            },
             variants: [],
           },
         }),
@@ -380,7 +391,7 @@ describe("<ExperimentDetails />", () => {
 
   it("polls fetchExperiment after timeout", async () => {
     await act(async () => {
-      fetchMock.mockOnce(async () => {
+      fetchMock.mockResponse(async () => {
         return JSON.stringify({
           status: ExperimentStatus.REVIEW,
           slug: "test-slug",

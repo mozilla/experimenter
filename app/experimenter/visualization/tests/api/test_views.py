@@ -23,6 +23,7 @@ class TestVisualizationView(TestCase):
 
         mock_exists.return_value = False
         experiment = NimbusExperimentFactory.create(status=status)
+        feature_metric = f"{experiment.features[0]}_ever_used"
 
         response = self.client.get(
             reverse("visualization-analysis-data", kwargs={"slug": experiment.slug}),
@@ -31,7 +32,21 @@ class TestVisualizationView(TestCase):
         self.assertEqual(response.status_code, 200)
 
         json_data = json.loads(response.content)
-        self.assertEqual({}, json_data)
+        self.assertEqual(
+            {
+                "daily": None,
+                "weekly": None,
+                "overall": None,
+                "show_analysis": False,
+                "result_map": {
+                    "retained": "binomial",
+                    "search_count": "mean",
+                    "identity": "count",
+                    feature_metric: "binomial",
+                },
+            },
+            json_data,
+        )
 
     @parameterized.expand(
         [
@@ -43,16 +58,63 @@ class TestVisualizationView(TestCase):
     @patch("django.core.files.storage.default_storage.exists")
     def test_analysis_results_view_data(self, status, mock_exists, mock_open):
         user_email = "user@example.com"
-        DATA_ROW = {"point": 12, "upper": 13, "lower": 10}
-        FULL_DATA = {"daily": DATA_ROW, "weekly": DATA_ROW}
+        CONTROL_DATA_ROW = {
+            "point": 12,
+            "upper": 13,
+            "lower": 10,
+            "metric": "identity",
+            "statistic": "count",
+            "branch": "control",
+        }
+        VARIANT_DATA_ROW = {
+            "point": 12,
+            "upper": 13,
+            "lower": 10,
+            "metric": "identity",
+            "statistic": "count",
+            "branch": "variant",
+        }
+        POPULATION_PERCENTAGE_CONTROL_ROW = {
+            "point": 50,
+            "metric": "identity",
+            "statistic": "percentage",
+            "branch": "control",
+        }
+        POPULATION_PERCENTAGE_VARIANT_ROW = {
+            "point": 50,
+            "metric": "identity",
+            "statistic": "percentage",
+            "branch": "variant",
+        }
+        DATA_WITHOUT_POPULATION_PERCENTAGE = [CONTROL_DATA_ROW, VARIANT_DATA_ROW]
+        DATA_WITH_POPULATION_PERCENTAGE = [
+            CONTROL_DATA_ROW,
+            VARIANT_DATA_ROW,
+            POPULATION_PERCENTAGE_CONTROL_ROW,
+            POPULATION_PERCENTAGE_VARIANT_ROW,
+        ]
+        FULL_DATA = {
+            "daily": DATA_WITHOUT_POPULATION_PERCENTAGE,
+            "weekly": DATA_WITHOUT_POPULATION_PERCENTAGE,
+            "overall": DATA_WITH_POPULATION_PERCENTAGE,
+            "show_analysis": False,
+            "result_map": {
+                "retained": "binomial",
+                "search_count": "mean",
+                "identity": "count",
+            },
+        }
 
         class File:
             def read(self):
-                return json.dumps(DATA_ROW)
+                return json.dumps(DATA_WITHOUT_POPULATION_PERCENTAGE)
 
         mock_open.return_value = File()
         mock_exists.return_value = True
         experiment = NimbusExperimentFactory.create(status=status)
+
+        feature_metric = f"{experiment.features[0]}_ever_used"
+        FULL_DATA["result_map"][feature_metric] = "binomial"
 
         response = self.client.get(
             reverse("visualization-analysis-data", kwargs={"slug": experiment.slug}),

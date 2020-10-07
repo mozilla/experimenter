@@ -43,6 +43,9 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         lambda o: NimbusExperiment.ApplicationChannels.get(o.application, []),
     )
     hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
+    features = factory.LazyAttribute(
+        lambda o: random.choice(NimbusExperiment.Feature.choices)
+    )
 
     class Meta:
         model = NimbusExperiment
