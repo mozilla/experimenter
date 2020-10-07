@@ -335,6 +335,37 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         experiment = Experiment.objects.get(normandy_id=1234)
         self.assertEqual(experiment.population_percent, decimal.Decimal("50.000"))
 
+    def test_firefox_version_updates(self):
+        experiment = ExperimentFactory.create(
+            status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            firefox_min_version="80.0",
+            firefox_max_version="80.0",
+        )
+
+        mock_response_data = {
+            "approved_revision": {
+                "enabled": True,
+                "filter_object": [{"type": "version", "versions": [79, 80, 81, 82]}],
+            }
+        }
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status = mock.Mock()
+        mock_response.raise_for_status.side_effect = None
+        mock_response.status_code = 200
+
+        self.mock_normandy_requests_get.return_value = mock_response
+
+        tasks.update_launched_experiments()
+        experiment = Experiment.objects.get(normandy_id=1234)
+
+        self.assertEqual(experiment.firefox_min_version, "79.0")
+        self.assertEqual(experiment.firefox_max_version, "82.0")
+
+        self.assertTrue(experiment.changes.filter(message="Added Version(s)").exists())
+
     def test_live_isHighPopulation_update(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
