@@ -5,16 +5,24 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./components/App";
+import AppErrorBoundary from "./components/AppErrorBoundary";
+import config, { readConfig } from "./services/config";
+import sentryMetrics from "./services/sentry";
 import "./styles/index.scss";
-import { readConfig } from "./lib/config";
 
 try {
   const root = document.getElementById("root")!;
   readConfig(root);
 
+  if (config.sentry_dsn) {
+    sentryMetrics.configure(config.sentry_dsn, config.version);
+  }
+
   ReactDOM.render(
     <React.StrictMode>
-      <App />
+      <AppErrorBoundary>
+        <App />
+      </AppErrorBoundary>
     </React.StrictMode>,
     root
   );
