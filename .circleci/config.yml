@@ -3,7 +3,7 @@ jobs:
   build:
     machine:
       docker_layer_caching: true
-      image: ubuntu-1604:201903-01 # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
+      image: ubuntu-1604:202007-01 # Ubuntu 16.04, Docker v19.03.12, Docker Compose v1.26.1
     resource_class: large
     working_directory: ~/experimenter
     steps:
@@ -27,8 +27,8 @@ jobs:
   integration:
     machine:
       docker_layer_caching: true
-      image: ubuntu-1604:201903-01 # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
-    resource_class: large
+      image: ubuntu-1604:202007-01 # Ubuntu 16.04, Docker v19.03.12, Docker Compose v1.26.1
+    resource_class: xlarge
     working_directory: ~/experimenter
     steps:
       - run:
@@ -57,10 +57,11 @@ jobs:
   deploy:
     working_directory: ~/experimenter
     docker:
-      - image: docker:17.06.0-ce-git
+      - image: docker:19.03.13-git
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - deploy:
           name: Deploy to latest
           command: |
