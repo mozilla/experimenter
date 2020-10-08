@@ -14,13 +14,14 @@ services:
       - "7001:7001"
     volumes:
       - ./app:/app
-      - /app/node_modules/
       - /app/experimenter/legacy-ui/core/node_modules/
       - /app/experimenter/legacy-ui/rapid/node_modules/
       - /app/experimenter/legacy-ui/visualization/node_modules/
       - /app/experimenter/nimbus-ui/node_modules/
-      - /app/experimenter/nimbus-ui/build/
       - /app/experimenter/served/
+      - /app/node_modules/
+      - assets_volume:/app/experimenter/legacy-ui/assets/
+      - build_volume:/app/experimenter/nimbus-ui/build/
     command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py collectstatic --noinput;python /app/manage.py runserver 0:7001"
 
   yarn-nimbus-ui:
@@ -31,8 +32,14 @@ services:
       - "3000:3000"
     volumes:
       - ./app:/app
-      - /app/node_modules/
+      - /app/experimenter/legacy-ui/core/node_modules/
+      - /app/experimenter/legacy-ui/rapid/node_modules/
+      - /app/experimenter/legacy-ui/visualization/node_modules/
       - /app/experimenter/nimbus-ui/node_modules/
+      - /app/experimenter/served/
+      - /app/node_modules/
+      - assets_volume:/app/experimenter/legacy-ui/assets/
+      - build_volume:/app/experimenter/nimbus-ui/build/
     command: bash -c "FORCE_COLOR=true yarn workspace @experimenter/nimbus-ui start | cat"
 
   yarn-core:
@@ -41,8 +48,14 @@ services:
     tty: true
     volumes:
       - ./app:/app
-      - /app/node_modules/
       - /app/experimenter/legacy-ui/core/node_modules/
+      - /app/experimenter/legacy-ui/rapid/node_modules/
+      - /app/experimenter/legacy-ui/visualization/node_modules/
+      - /app/experimenter/nimbus-ui/node_modules/
+      - /app/experimenter/served/
+      - /app/node_modules/
+      - assets_volume:/app/experimenter/legacy-ui/assets/
+      - build_volume:/app/experimenter/nimbus-ui/build/
     command: bash -c "yarn workspace @experimenter/core watch"
 
   yarn-rapid:
@@ -51,8 +64,14 @@ services:
     tty: true
     volumes:
       - ./app:/app
-      - /app/node_modules/
+      - /app/experimenter/legacy-ui/core/node_modules/
       - /app/experimenter/legacy-ui/rapid/node_modules/
+      - /app/experimenter/legacy-ui/visualization/node_modules/
+      - /app/experimenter/nimbus-ui/node_modules/
+      - /app/experimenter/served/
+      - /app/node_modules/
+      - assets_volume:/app/experimenter/legacy-ui/assets/
+      - build_volume:/app/experimenter/nimbus-ui/build/
     command: bash -c "yarn workspace @experimenter/rapid watch"
 
   yarn-visualization:
@@ -61,8 +80,14 @@ services:
     tty: true
     volumes:
       - ./app:/app
-      - /app/node_modules/
+      - /app/experimenter/legacy-ui/core/node_modules/
+      - /app/experimenter/legacy-ui/rapid/node_modules/
       - /app/experimenter/legacy-ui/visualization/node_modules/
+      - /app/experimenter/nimbus-ui/node_modules/
+      - /app/experimenter/served/
+      - /app/node_modules/
+      - assets_volume:/app/experimenter/legacy-ui/assets/
+      - build_volume:/app/experimenter/nimbus-ui/build/
     command: bash -c "yarn workspace @experimenter/visualization watch"
 
   worker:
@@ -128,3 +153,5 @@ services:
 volumes:
   db_volume:
   kinto_volume:
+  assets_volume:
+  build_volume:
