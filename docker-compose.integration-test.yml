@@ -8,6 +8,7 @@ services:
       - MOZ_HEADLESS
     volumes:
       - .:/code
+      - /code/app/tests/integration/.tox
     links:
       - nginx
     expose:
