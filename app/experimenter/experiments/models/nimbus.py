@@ -8,7 +8,6 @@ from experimenter.projects.models import Project
 
 
 class NimbusExperiment(NimbusConstants, models.Model):
-
     owner = models.ForeignKey(
         get_user_model(),
         blank=True,
@@ -73,6 +72,9 @@ class NimbusExperiment(NimbusConstants, models.Model):
             choices=NimbusConstants.Feature.choices,
         ),
         default=list,
+    )
+    feature_config = models.ForeignKey(
+        "NimbusFeatureConfig", blank=True, null=True, on_delete=models.CASCADE
     )
     audience = models.CharField(
         max_length=255,
@@ -190,3 +192,26 @@ class NimbusBucketRange(models.Model):
     @property
     def end(self):
         return self.start + self.count - 1
+
+
+class NimbusFeatureConfig(models.Model):
+    name = models.CharField(max_length=255, unique=True, blank=False, null=False)
+    slug = models.SlugField(
+        max_length=NimbusConstants.MAX_SLUG_LEN, unique=True, blank=False, null=False
+    )
+    description = models.TextField(blank=True, null=True)
+    application = models.CharField(
+        max_length=255,
+        choices=NimbusConstants.Application.choices,
+        blank=True,
+        null=True,
+    )
+    owner_email = models.EmailField(blank=True, null=True)
+    schema = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Nimbus Feature Config"
+        verbose_name = "Nimbus Feature Configs"
+
+    def __str__(self):  # pragma: no cover
+        return self.name

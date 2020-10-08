@@ -13,5 +13,6 @@ from experimenter.experiments.tests.factories.nimbus import (  # noqa: F401
     NimbusBranchFactory,
     NimbusBucketRangeFactory,
     NimbusExperimentFactory,
+    NimbusFeatureConfigFactory,
     NimbusIsolationGroupFactory,
 )

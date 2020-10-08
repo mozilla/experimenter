@@ -6,6 +6,7 @@ from experimenter.experiments.models import (
     ExperimentVariant,
     NimbusBranch,
     NimbusExperiment,
+    NimbusFeatureConfig,
     VariantPreferences,
 )
 from experimenter.projects.models import Project
@@ -211,5 +212,6 @@ class NimbusExperimentAdmin(admin.ModelAdmin):
 
 admin.site.register(Experiment, ExperimentAdmin)
 admin.site.register(ExperimentVariant, ExperimentVariantAdmin)
-admin.site.register(Project, ProjectAdmin)
 admin.site.register(NimbusExperiment, NimbusExperimentAdmin)
+admin.site.register(NimbusFeatureConfig)
+admin.site.register(Project, ProjectAdmin)
