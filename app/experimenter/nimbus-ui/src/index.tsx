@@ -6,10 +6,18 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./components/App";
 import "./styles/index.scss";
+import { readConfig } from "./lib/config";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById("root"),
-);
+try {
+  const root = document.getElementById("root")!;
+  readConfig(root);
+
+  ReactDOM.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+    root
+  );
+} catch (error) {
+  console.error("Error initializing Nimbus", error);
+}
