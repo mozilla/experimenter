@@ -93,6 +93,7 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
             os.path.join(BASE_DIR, "legacy-ui", "templates"),
+            os.path.join(BASE_DIR, "nimbus-ui", "templates"),
             os.path.join(BASE_DIR, "docs"),
         ],
         "APP_DIRS": True,
@@ -104,6 +105,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "experimenter.base.context_processors.google_analytics",
                 "experimenter.base.context_processors.features",
+                "experimenter.base.context_processors.debug",
             ],
             "debug": DEBUG,
         },

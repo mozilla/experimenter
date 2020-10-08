@@ -233,3 +233,7 @@ class ExperimentCommentCreateView(ExperimentFormMixin, CreateView):
 
 class ExperimentRapidView(TemplateView):
     template_name = "experiments/rapid.html"
+
+
+class ExperimentNimbusUIView(TemplateView):
+    template_name = "nimbus/index.html"

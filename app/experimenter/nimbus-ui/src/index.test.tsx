@@ -5,8 +5,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./components/App";
+import "./lib/config";
 
 jest.mock("react-dom", () => ({ render: jest.fn() }));
+jest.mock("./lib/config", () => ({ readConfig: jest.fn() }));
 
 describe("index.tsx", () => {
   it("should render without crashing", () => {
