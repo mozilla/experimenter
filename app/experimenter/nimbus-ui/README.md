@@ -6,6 +6,35 @@
 - `yarn build` to create a production build
 - `yarn test` to run unit tests, coverage details are displayed by default
 
+## App Configuration
+
+Nimbus uses two approaches for retrieving configuration:
+
+#### Template-rendered configuration
+
+This is used to ensure critical information about the app is retrieved and made available immediately. These details are encoded and rendered in the HTML when the main [Django template](../legacy-ui/templates/experiments/nimbus-ui.html) for loading `nimbus-ui` is requested, and are subsequently parsed by the React app when it is initialized.
+
+The values for this configuration are defined in the [`APP_CONFIG`](../base/context_processors.py) custom context processor.
+
+Accessing these configuration values in the React app is simple: just import the `config` object and access its properties. Example:
+
+```ts
+import config from "./lib/config";
+console.log(config.sentry_dsn);
+```
+
+#### GraphQL configuration
+
+TODO: someone who knows more about this than me should fill this out.
+
+## Overriding Webpack defaults
+
+This React app uses `create-react-react`, which famously provides sensible defaults and is incredibly easy to get off the ground. With this also comes the restriction that you can't modify the Webpack configuration - and for good reason! The setup of CRA under the hood is complex and somewhat fragile, so it's for our own protection.
+
+Except, we know what we're doing. And because we _do_ want all the benefits of CRA with a few small modifications, this app also uses [Rescripts](https://github.com/harrysolovay/rescripts).
+
+You can read up over on their page if you want to know all the details, but if you're looking to make changes to CRA's Webpack configuration, you can do so inside [`.rescriptsrc.js`](.rescriptsrc.js). Rescripts will consume each exported item from this file, supplying it the full config as a function argument, and expecting the modified config back in return.
+
 ## Testing
 
 This package uses [Jest](https://jestjs.io/) to test its code. By default `yarn test` will test all JS/TS files under `src/`.
@@ -26,7 +55,7 @@ Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more adva
 
 This project uses [Storybook](https://storybook.js.org/) to visually show each component and page of this project in various application states without requiring the full stack to run.
 
-In local development, `yarn storybook` will start a Storybook server at <http://localhost:3001> with hot module replacement to reflect live changes. 
+In local development, `yarn storybook` will start a Storybook server at <http://localhost:3001> with hot module replacement to reflect live changes.
 
 For Pull Requests to the mozilla/experimenter repository on GitHub, Storybook builds [are published to a static website][storybook-builds] via CircleCI test runs. You can view these to see the result of changes without needing to install and run code locally.
 

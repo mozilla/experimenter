@@ -1,3 +1,6 @@
+import json
+import urllib
+
 from django.conf import settings
 
 
@@ -11,5 +14,15 @@ def features(request):
     return {
         "FEATURE_MESSAGE_TYPE": settings.FEATURE_MESSAGE_TYPE,
         "FEATURE_ANALYSIS": settings.FEATURE_ANALYSIS,
-        "SENTRY_DSN": settings.SENTRY_DSN,
+        "APP_CONFIG": urllib.parse.quote(
+            json.dumps(
+                {
+                    "sentry_dsn": settings.SENTRY_DSN,
+                }
+            )
+        ),
     }
+
+
+def debug(request):
+    return {"DEBUG": settings.DEBUG}
