@@ -10,6 +10,7 @@ from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBucketRange,
     NimbusExperiment,
+    NimbusFeatureConfig,
     NimbusIsolationGroup,
 )
 from experimenter.openidc.tests.factories import UserFactory
@@ -45,6 +46,9 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
     features = factory.LazyAttribute(
         lambda o: random.choice(NimbusExperiment.Feature.choices)
+    )
+    feature_config = factory.SubFactory(
+        "experimenter.experiments.tests.factories.NimbusFeatureConfigFactory"
     )
 
     class Meta:
@@ -102,3 +106,18 @@ class NimbusBucketRangeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = NimbusBucketRange
+
+
+class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
+    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    slug = factory.LazyAttribute(
+        lambda o: slugify(o.name)[: NimbusConstants.MAX_SLUG_LEN]
+    )
+    description = factory.LazyAttribute(lambda o: faker.text(200))
+    application = factory.LazyAttribute(
+        lambda o: random.choice(NimbusExperiment.Application.choices)[0]
+    )
+    owner_email = factory.LazyAttribute(lambda o: faker.email())
+
+    class Meta:
+        model = NimbusFeatureConfig

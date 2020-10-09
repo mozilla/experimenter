@@ -2,7 +2,7 @@ import json
 from unittest.mock import patch
 
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from parameterized import parameterized
 
@@ -10,6 +10,7 @@ from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 
 
+@override_settings(FEATURE_ANALYSIS=False)
 class TestVisualizationView(TestCase):
     @parameterized.expand(
         [
