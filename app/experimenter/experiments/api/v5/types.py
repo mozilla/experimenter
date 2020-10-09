@@ -4,6 +4,7 @@ from experimenter.experiments.models.nimbus import (
     NimbusBranch,
     NimbusBucketRange,
     NimbusExperiment,
+    NimbusFeatureConfig,
     NimbusIsolationGroup,
 )
 from experimenter.projects.models import Project
@@ -37,3 +38,8 @@ class NimbusBucketRangeType(DjangoObjectType):
     class Meta:
         model = NimbusBucketRange
         exclude = ("id", "experiment")
+
+
+class NimbusFeatureConfigType(DjangoObjectType):
+    class Meta:
+        model = NimbusFeatureConfig
