@@ -21,6 +21,13 @@ jest.mock("./components/AppErrorBoundary", () => ({
   ),
 }));
 
+jest.mock("@apollo/client", () => ({
+  ...jest.requireActual("@apollo/client"),
+  ApolloProvider: ({ children }: { children: ReactNode }) => (
+    <div data-testid="ApolloProvider">{children}</div>
+  ),
+}));
+
 jest.mock("./components/App", () => ({
   __esModule: true,
   default: ({ children }: { children: ReactNode }) => (
@@ -28,7 +35,7 @@ jest.mock("./components/App", () => ({
   ),
 }));
 
-describe("index.tsx", () => {
+describe("index", () => {
   const origError = global.console.error;
   let mockError: any, mockConfig: any, mockSentry: any;
 
@@ -61,10 +68,12 @@ describe("index.tsx", () => {
 
     // Assert that these mock components are nested.
     let currRoot: any = root;
-    ["StrictMode", "AppErrorBoundary", "App"].forEach((name) => {
-      currRoot = currRoot?.querySelector(`*[data-testid="${name}"]`);
-      expect(currRoot).toBeDefined();
-    });
+    ["StrictMode", "AppErrorBoundary", "ApolloProvider", "App"].forEach(
+      (name) => {
+        currRoot = currRoot?.querySelector(`*[data-testid="${name}"]`);
+        expect(currRoot).toBeDefined();
+      },
+    );
   });
 
   it("should configure sentry if DSN is available", () => {

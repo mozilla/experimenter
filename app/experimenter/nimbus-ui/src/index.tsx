@@ -4,6 +4,7 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
+import { InMemoryCache, ApolloClient, ApolloProvider } from "@apollo/client";
 import App from "./components/App";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import config, { readConfig } from "./services/config";
@@ -18,13 +19,20 @@ try {
     sentryMetrics.configure(config.sentry_dsn, config.version);
   }
 
+  const client = new ApolloClient({
+    uri: "/graphql",
+    cache: new InMemoryCache(),
+  });
+
   ReactDOM.render(
     <React.StrictMode>
       <AppErrorBoundary>
-        <App />
+        <ApolloProvider {...{ client }}>
+          <App />
+        </ApolloProvider>
       </AppErrorBoundary>
     </React.StrictMode>,
-    root
+    root,
   );
 } catch (error) {
   console.error("Error initializing Nimbus", error);
