@@ -172,8 +172,9 @@ def update_firefox_versions(experiment, recipe_data, filter_objects):
     changed_data = {}
 
     if versions := filter_objects.get("version"):
-        min_version = str(min(versions["versions"]) * 1.0)
-        max_version = str(max(versions["versions"]) * 1.0)
+
+        min_version = str(float(min(versions["versions"])))
+        max_version = str(float(max(versions["versions"])))
         if experiment.firefox_min_version != min_version:
             changed_data["firefox_min_version"] = min_version
         if experiment.firefox_max_version != max_version:
