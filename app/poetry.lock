@@ -442,7 +442,7 @@ unicodecsv = "*"
 
 [[package]]
 name = "dockerflow"
-version = "2020.6.0"
+version = "2020.10.0"
 description = "Python tools and helpers for Mozilla's Dockerflow"
 category = "main"
 optional = false
@@ -1581,7 +1581,7 @@ testing = ["pytest (>=3.5,<3.7.3 || >3.7.3)", "pytest-checkdocs (>=1.2.3)", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "3ef8597ffaaa4dbbe3e2729ce6662c2c2f550aefe30f5528e1bf4e06d30a7c3b"
+content-hash = "81a5e45b9937a622982c48fa7b36860a44d96d30d7eb62eec7e4b2b1fde93395"
 
 [metadata.files]
 aiohttp = [
@@ -1821,8 +1821,8 @@ djangorestframework-csv = [
     {file = "djangorestframework-csv-2.1.0.tar.gz", hash = "sha256:2f008b20a44f2d3c37835ea5b5ddfe19f54394f07b9cb267c616a917a7f7e27c"},
 ]
 dockerflow = [
-    {file = "dockerflow-2020.6.0-py2.py3-none-any.whl", hash = "sha256:0336428bc7baba97b96eefcb56edd6dc244aacabef0bd48e1d3121f79297ebe4"},
-    {file = "dockerflow-2020.6.0.tar.gz", hash = "sha256:39af796e973858a8d37a0264fd6843f41b16851a5eab2ed4e1f5872954dcc4c4"},
+    {file = "dockerflow-2020.10.0-py2.py3-none-any.whl", hash = "sha256:226086becc436b5a1995348e26c4fb2ad1d4e5dbc10dffec0c675c9a43306c8b"},
+    {file = "dockerflow-2020.10.0.tar.gz", hash = "sha256:36787fa016e5505d71d60c36cd4e0de7b2d1e50059160bd4e93ceb62bb40d3f8"},
 ]
 docopt = [
     {file = "docopt-0.6.2.tar.gz", hash = "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"},
