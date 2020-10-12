@@ -56,7 +56,7 @@ django-storages = "1.7.1"
 graphene-django = "^2.13.0"
 
 [tool.poetry.dev-dependencies]
-rope = "^0.17.0"
+rope = "^0.18.0"
 
 [build-system]
 requires = ["poetry>=0.12"]
