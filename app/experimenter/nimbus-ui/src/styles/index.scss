@@ -14,4 +14,8 @@ $grid-breakpoints: (
   xl: 1441px,
 );
 
+$sizes: (
+  3: 0.75rem
+);
+
 @import "~bootstrap/scss/bootstrap";
