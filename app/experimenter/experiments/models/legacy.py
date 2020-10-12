@@ -28,7 +28,12 @@ def default_all_platforms():
 
 class ExperimentManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().annotate(latest_change=Max("changes__changed_on"))
+        return (
+            super()
+            .get_queryset()
+            .annotate(latest_change=Max("changes__changed_on"))
+            .annotate(firefox_channel_sort=Experiment.firefox_channel_sort())
+        )
 
     def get_prefetched(self):
         return self.get_queryset().prefetch_related(
