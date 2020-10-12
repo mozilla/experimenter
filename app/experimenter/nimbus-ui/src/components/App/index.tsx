@@ -4,14 +4,19 @@
 
 import React from "react";
 import AppLayout from "../AppLayout";
+import { Router } from "@reach/router";
 
-const App = () => {
+import PageHome from "../PageHome";
+import PageExperimentNew from "../PageExperimentNew";
+
+const App = ({ basepath }: { basepath: string }) => {
   return (
     <div data-testid="app">
       <AppLayout>
-        <section>
-          <p>🌧</p>
-        </section>
+        <Router {...{ basepath }}>
+          <PageHome path="/" />
+          <PageExperimentNew path="new" />
+        </Router>
       </AppLayout>
     </div>
   );
