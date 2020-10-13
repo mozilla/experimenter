@@ -418,14 +418,14 @@ python-versions = "*"
 
 [[package]]
 name = "djangorestframework"
-version = "3.11.0"
+version = "3.12.1"
 description = "Web APIs for Django, made easy."
 category = "main"
 optional = false
 python-versions = ">=3.5"
 
 [package.dependencies]
-django = ">=1.11"
+django = ">=2.2"
 
 [[package]]
 name = "djangorestframework-csv"
@@ -1581,7 +1581,7 @@ testing = ["pytest (>=3.5,<3.7.3 || >3.7.3)", "pytest-checkdocs (>=1.2.3)", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "81a5e45b9937a622982c48fa7b36860a44d96d30d7eb62eec7e4b2b1fde93395"
+content-hash = "34281efcf31ceeb8bdd0085624fb92a18c2e54b9b77abff682d44ed841ea4757"
 
 [metadata.files]
 aiohttp = [
@@ -1814,8 +1814,8 @@ django-widget-tweaks = [
     {file = "django_widget_tweaks-1.4.8-py2.py3-none-any.whl", hash = "sha256:f80bff4a8a59b278bb277a405a76a8b9a884e4bae7a6c70e78a39c626cd1c836"},
 ]
 djangorestframework = [
-    {file = "djangorestframework-3.11.0-py3-none-any.whl", hash = "sha256:05809fc66e1c997fd9a32ea5730d9f4ba28b109b9da71fccfa5ff241201fd0a4"},
-    {file = "djangorestframework-3.11.0.tar.gz", hash = "sha256:e782087823c47a26826ee5b6fa0c542968219263fb3976ec3c31edab23a4001f"},
+    {file = "djangorestframework-3.12.1-py3-none-any.whl", hash = "sha256:5c5071fcbad6dce16f566d492015c829ddb0df42965d488b878594aabc3aed21"},
+    {file = "djangorestframework-3.12.1.tar.gz", hash = "sha256:d54452aedebb4b650254ca092f9f4f5df947cb1de6ab245d817b08b4f4156249"},
 ]
 djangorestframework-csv = [
     {file = "djangorestframework-csv-2.1.0.tar.gz", hash = "sha256:2f008b20a44f2d3c37835ea5b5ddfe19f54394f07b9cb267c616a917a7f7e27c"},
