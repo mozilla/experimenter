@@ -27,13 +27,21 @@ class MigrationTestCase(TransactionTestCase):
 
 class TestMigration(MigrationTestCase):
 
-    migrate_from = [("experiments", "0120_add_feature_config")]
-    migrate_to = [("experiments", "0121_prune_add_version_changelogs")]
+    migrate_from = [("experiments", "0121_prune_add_version_changelogs")]
+    migrate_to = [("experiments", "0122_prune_all_add_version_changelogs")]
 
     def test_migration(self):
 
         experiment = ExperimentFactory.create()
         user = UserFactory.create()
+
+        ExperimentChangeLog.objects.create(
+            experiment=experiment,
+            message="Something Else",
+            old_status="Live",
+            new_status="Live",
+            changed_by=user,
+        )
 
         ExperimentChangeLog.objects.create(
             experiment=experiment,
@@ -61,7 +69,6 @@ class TestMigration(MigrationTestCase):
         self.migrate_to_dest()
 
         self.assertEqual(ExperimentChangeLog.objects.count(), 1)
-        self.assertEqual(
-            ExperimentChangeLog.objects.all().first(),
-            experiment_something_change_log,
+        self.assertTrue(
+            ExperimentChangeLog.objects.filter(message="Something Else").exists()
         )
