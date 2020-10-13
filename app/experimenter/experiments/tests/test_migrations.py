@@ -51,7 +51,7 @@ class TestMigration(MigrationTestCase):
             changed_by=user,
         )
 
-        experiment_something_change_log = ExperimentChangeLog.objects.create(
+        ExperimentChangeLog.objects.create(
             experiment=experiment,
             message="Added Version(s)",
             old_status="Live",
