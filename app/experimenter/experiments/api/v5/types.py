@@ -13,25 +13,22 @@ from experimenter.projects.models import Project
 class NimbusBranchType(DjangoObjectType):
     class Meta:
         model = NimbusBranch
-        exclude = ("id", "experiment", "nimbusexperiment")
+        exclude = ("experiment", "nimbusexperiment")
 
 
 class NimbusExperimentType(DjangoObjectType):
     class Meta:
         model = NimbusExperiment
-        exclude = ("id",)
 
 
 class ProjectType(DjangoObjectType):
     class Meta:
         model = Project
-        exclude = ("id",)
 
 
 class NimbusIsolationGroupType(DjangoObjectType):
     class Meta:
         model = NimbusIsolationGroup
-        exclude = ("id",)
 
 
 class NimbusBucketRangeType(DjangoObjectType):
