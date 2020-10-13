@@ -38,24 +38,18 @@ class TestMigration(MigrationTestCase):
         ExperimentChangeLog.objects.create(
             experiment=experiment,
             message="Something Else",
-            old_status="Live",
-            new_status="Live",
             changed_by=user,
         )
 
         ExperimentChangeLog.objects.create(
             experiment=experiment,
             message="Added Version(s)",
-            old_status="Live",
-            new_status="Live",
             changed_by=user,
         )
 
         ExperimentChangeLog.objects.create(
             experiment=experiment,
             message="Added Version(s)",
-            old_status="Live",
-            new_status="Live",
             changed_by=user,
             changed_values={
                 "firefox_max_version": {

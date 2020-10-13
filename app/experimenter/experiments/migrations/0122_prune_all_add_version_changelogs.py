@@ -15,8 +15,6 @@ class Migration(migrations.Migration):
 
         ExperimentChangeLog.objects.filter(
             message="Added Version(s)",
-            old_status="Live",
-            new_status="Live",
         ).delete()
 
     operations = [
