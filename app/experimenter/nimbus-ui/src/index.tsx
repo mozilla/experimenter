@@ -28,7 +28,7 @@ try {
     <React.StrictMode>
       <AppErrorBoundary>
         <ApolloProvider {...{ client }}>
-          <App />
+          <App basepath="/experiments/nimbus" />
         </ApolloProvider>
       </AppErrorBoundary>
     </React.StrictMode>,
