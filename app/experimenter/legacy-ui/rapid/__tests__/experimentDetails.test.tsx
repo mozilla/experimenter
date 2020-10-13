@@ -308,12 +308,7 @@ describe("<ExperimentDetails />", () => {
               show_analysis: true,
               daily: [],
               weekly: [],
-              overall: [],
-              result_map: {
-                retained: "binomial",
-                search_count: "mean",
-                identity: "count",
-              },
+              overall: {},
             },
             variants: [],
           },
