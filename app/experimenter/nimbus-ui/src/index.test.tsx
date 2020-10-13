@@ -6,35 +6,6 @@ import React, { ReactNode } from "react";
 import "./services/config";
 import "./services/sentry";
 
-// Mock out these components - for testing, we only care that they're used
-jest.mock("react", () => ({
-  ...jest.requireActual("react"),
-  StrictMode: ({ children }: { children: ReactNode }) => (
-    <div data-testid="StrictMode">{children}</div>
-  ),
-}));
-
-jest.mock("./components/AppErrorBoundary", () => ({
-  __esModule: true,
-  default: ({ children }: { children: ReactNode }) => (
-    <div data-testid="AppErrorBoundary">{children}</div>
-  ),
-}));
-
-jest.mock("@apollo/client", () => ({
-  ...jest.requireActual("@apollo/client"),
-  ApolloProvider: ({ children }: { children: ReactNode }) => (
-    <div data-testid="ApolloProvider">{children}</div>
-  ),
-}));
-
-jest.mock("./components/App", () => ({
-  __esModule: true,
-  default: ({ children }: { children: ReactNode }) => (
-    <div data-testid="App">{children}</div>
-  ),
-}));
-
 describe("index", () => {
   const origError = global.console.error;
   let mockError: any, mockConfig: any, mockSentry: any;
@@ -102,3 +73,30 @@ describe("index", () => {
     expect(mockError).toHaveBeenCalled();
   });
 });
+
+// Mock out these components - for testing, we only care that they're used
+jest.mock("react", () => ({
+  ...jest.requireActual("react"),
+  StrictMode: mockComponent("StrictMode"),
+}));
+
+jest.mock("./components/AppErrorBoundary", () => ({
+  __esModule: true,
+  default: mockComponent("AppErrorBoundary"),
+}));
+
+jest.mock("@apollo/client", () => ({
+  ...jest.requireActual("@apollo/client"),
+  ApolloProvider: mockComponent("ApolloProvider"),
+}));
+
+jest.mock("./components/App", () => ({
+  __esModule: true,
+  default: mockComponent("App"),
+}));
+
+function mockComponent(testid: string) {
+  return (props: { children: ReactNode }) => (
+    <div data-testid={testid}>{props.children}</div>
+  );
+}
