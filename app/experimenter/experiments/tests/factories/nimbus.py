@@ -37,10 +37,10 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         lambda o: decimal.Decimal(random.randint(1, 10) * 10)
     )
     firefox_min_version = factory.LazyAttribute(
-        lambda o: random.choice(NimbusExperiment.Version.choices)[0]
+        lambda o: random.choice(NimbusExperiment.Version.choices)
     )
     application = factory.LazyAttribute(
-        lambda o: random.choice(NimbusExperiment.Application.choices)[0]
+        lambda o: random.choice(NimbusExperiment.Application.choices)
     )
     channels = factory.LazyAttribute(
         lambda o: NimbusExperiment.ApplicationChannels.get(o.application, []),
@@ -48,6 +48,9 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
     feature_config = factory.SubFactory(
         "experimenter.experiments.tests.factories.NimbusFeatureConfigFactory"
+    )
+    targeting_config_slug = factory.LazyAttribute(
+        lambda o: random.choice(NimbusExperiment.TargetingConfig.choices)
     )
 
     class Meta:

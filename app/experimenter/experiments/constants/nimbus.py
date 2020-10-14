@@ -1,4 +1,58 @@
+from dataclasses import dataclass
+
 from django.db import models
+
+
+@dataclass
+class NimbusTargetingConfig:
+    name: str
+    slug: str
+    description: str
+    targeting: str
+    desktop_telemetry: str
+
+
+TARGETING_ALL_ENGLISH = NimbusTargetingConfig(
+    name="All English users",
+    slug="all_english",
+    description="All users in en-* locales using the release channel.",
+    targeting=(
+        "localeLanguageCode == 'en' && browserSettings.update.channel "
+        "== '{firefox_channel}'"
+    ),
+    desktop_telemetry="STARTS_WITH(environment.settings.locale, 'en')",
+)
+
+TARGETING_US_ONLY = NimbusTargetingConfig(
+    name="US users (en)",
+    slug="us_only",
+    description="All users in the US with an en-* locale using the release channel.",
+    targeting=(
+        "localeLanguageCode == 'en' && region == 'US' && "
+        "browserSettings.update.channel == '{firefox_channel}'"
+    ),
+    desktop_telemetry=(
+        "STARTS_WITH(environment.settings.locale, 'en') "
+        "AND normalized_country_code = 'US'"
+    ),
+)
+
+TARGETING_FIRST_RUN = NimbusTargetingConfig(
+    name="First start-up users (en)",
+    slug="first_run",
+    description=(
+        "First start-up users (e.g. for about:welcome) with an en-* "
+        "locale using the release channel."
+    ),
+    targeting=(
+        "localeLanguageCode == 'en' && (isFirstStartup || '{slug}' in "
+        "activeExperiments) && browserSettings.update.channel == '{firefox_channel}'"
+    ),
+    desktop_telemetry=(
+        "STARTS_WITH(environment.settings.locale, 'en') "
+        "AND payload.info.profile_subsession_counter = 1"
+    ),
+)
 
 
 class NimbusConstants(object):
@@ -39,9 +93,9 @@ class NimbusConstants(object):
         Application.REFERENCE: [Channel.REFERENCE_RELEASE],
     }
 
-    class Audience(models.TextChoices):
-        AUDIENCE_1 = "Audience 1"
-        AUDIENCE_2 = "Audience 2"
+    class Feature(models.TextChoices):
+        FEATURE_1 = "Feature 1"
+        FEATURE_2 = "Feature 2"
 
     class Version(models.TextChoices):
         FIREFOX_80 = "80.0"
@@ -69,6 +123,17 @@ class NimbusConstants(object):
     class ProbeKind(models.TextChoices):
         EVENT = "event"
         SCALAR = "scalar"
+
+    TARGETING_CONFIGS = {
+        TARGETING_ALL_ENGLISH.slug: TARGETING_ALL_ENGLISH,
+        TARGETING_US_ONLY.slug: TARGETING_US_ONLY,
+        TARGETING_FIRST_RUN.slug: TARGETING_FIRST_RUN,
+    }
+
+    class TargetingConfig(models.TextChoices):
+        ALL_ENGLISH = TARGETING_ALL_ENGLISH.slug
+        US_ONLY = TARGETING_US_ONLY.slug
+        FIRST_RUN = TARGETING_FIRST_RUN.slug
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
     # have limits on the length of their unique identifiers, we should
