@@ -14,6 +14,21 @@ class TestNimbusExperimentModel(TestCase):
         experiment = NimbusExperimentFactory.create(slug="experiment-slug")
         self.assertEqual(str(experiment), experiment.name)
 
+    def test_targeting_config_not_set(self):
+        experiment = NimbusExperimentFactory.create(targeting_config_slug=None)
+        self.assertIsNone(experiment.targeting_config)
+
+    def test_targeting_config_set(self):
+        experiment = NimbusExperimentFactory.create(
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH
+        )
+        self.assertEqual(
+            experiment.targeting_config,
+            NimbusExperiment.TARGETING_CONFIGS[
+                NimbusExperiment.TargetingConfig.ALL_ENGLISH
+            ],
+        )
+
 
 class TestNimbusBranchModel(TestCase):
     def test_str(self):
