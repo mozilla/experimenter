@@ -6,6 +6,8 @@ from experimenter.experiments.models.nimbus import (
     NimbusExperiment,
     NimbusFeatureConfig,
     NimbusIsolationGroup,
+    NimbusProbe,
+    NimbusProbeSet,
 )
 from experimenter.projects.models import Project
 
@@ -40,3 +42,13 @@ class NimbusBucketRangeType(DjangoObjectType):
 class NimbusFeatureConfigType(DjangoObjectType):
     class Meta:
         model = NimbusFeatureConfig
+
+
+class NimbusProbeType(DjangoObjectType):
+    class Meta:
+        model = NimbusProbe
+
+
+class NimbusProbeSetType(DjangoObjectType):
+    class Meta:
+        model = NimbusProbeSet

@@ -64,15 +64,7 @@ class NimbusExperiment(NimbusConstants, models.Model):
     hypothesis = models.TextField(
         default=NimbusConstants.OBJECTIVES_DEFAULT, blank=True, null=True
     )
-    features = ArrayField(
-        models.CharField(
-            max_length=255,
-            blank=True,
-            null=True,
-            choices=NimbusConstants.Feature.choices,
-        ),
-        default=list,
-    )
+    probe_sets = models.ManyToManyField("NimbusProbeSet")
     feature_config = models.ForeignKey(
         "NimbusFeatureConfig", blank=True, null=True, on_delete=models.CASCADE
     )
@@ -211,7 +203,38 @@ class NimbusFeatureConfig(models.Model):
 
     class Meta:
         verbose_name = "Nimbus Feature Config"
-        verbose_name = "Nimbus Feature Configs"
+        verbose_name_plural = "Nimbus Feature Configs"
+
+    def __str__(self):  # pragma: no cover
+        return self.name
+
+
+class NimbusProbe(models.Model):
+    kind = models.CharField(max_length=255, choices=NimbusConstants.ProbeKind.choices)
+    name = models.CharField(max_length=255, unique=True, blank=False, null=False)
+    event_category = models.CharField(max_length=255)
+    event_method = models.CharField(max_length=255, blank=True, null=True)
+    event_object = models.CharField(max_length=255, blank=True, null=True)
+    event_value = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Nimbus Probe"
+        verbose_name_plural = "Nimbus Probes"
+
+    def __str__(self):  # pragma: no cover
+        return self.name
+
+
+class NimbusProbeSet(models.Model):
+    name = models.CharField(max_length=255, unique=True, blank=False, null=False)
+    slug = models.SlugField(
+        max_length=NimbusConstants.MAX_SLUG_LEN, unique=True, blank=False, null=False
+    )
+    probes = models.ManyToManyField(NimbusProbe)
+
+    class Meta:
+        verbose_name = "Nimbus Probe Set"
+        verbose_name_plural = "Nimbus Probe Sets"
 
     def __str__(self):  # pragma: no cover
         return self.name

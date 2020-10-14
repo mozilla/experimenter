@@ -20,7 +20,7 @@ def load_data_from_gcs(filename):
     )
 
 
-def get_results_metrics_map(features):
+def get_results_metrics_map(probe_sets):
     # A mapping of metric label to relevant statistic. This is
     # used to see which statistic will be used for each metric.
     RESULTS_METRICS_MAP = {
@@ -28,9 +28,9 @@ def get_results_metrics_map(features):
         "search_count": "mean",
         "identity": "count",
     }
-    for feature in features:
-        feature_metric_id = f"{feature}_ever_used"
-        RESULTS_METRICS_MAP[feature_metric_id] = "binomial"
+    for probe_set in probe_sets:
+        probe_set_id = f"{probe_set.slug}_ever_used"
+        RESULTS_METRICS_MAP[probe_set_id] = "binomial"
 
     return RESULTS_METRICS_MAP
 
@@ -73,6 +73,6 @@ def analysis_results_view(request, slug):
         if data and window == "overall":
             append_population_percentages(data)
         experiment_data[window] = data
-    experiment_data["result_map"] = get_results_metrics_map(experiment.features)
+    experiment_data["result_map"] = get_results_metrics_map(experiment.probe_sets.all())
 
     return Response(experiment_data)
