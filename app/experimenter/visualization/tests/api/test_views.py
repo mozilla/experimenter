@@ -7,7 +7,10 @@ from django.urls import reverse
 from parameterized import parameterized
 
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.experiments.tests.factories import (
+    NimbusExperimentFactory,
+    NimbusProbeSetFactory,
+)
 
 
 @override_settings(FEATURE_ANALYSIS=False)
@@ -23,8 +26,9 @@ class TestVisualizationView(TestCase):
         user_email = "user@example.com"
 
         mock_exists.return_value = False
-        experiment = NimbusExperimentFactory.create(status=status)
-        feature_metric = f"{experiment.features[0]}_ever_used"
+        probe_set = NimbusProbeSetFactory.create()
+        experiment = NimbusExperimentFactory.create(status=status, probe_sets=[probe_set])
+        probe_set_id = f"{probe_set.slug}_ever_used"
 
         response = self.client.get(
             reverse("visualization-analysis-data", kwargs={"slug": experiment.slug}),
@@ -43,7 +47,7 @@ class TestVisualizationView(TestCase):
                     "retained": "binomial",
                     "search_count": "mean",
                     "identity": "count",
-                    feature_metric: "binomial",
+                    probe_set_id: "binomial",
                 },
             },
             json_data,
@@ -112,10 +116,11 @@ class TestVisualizationView(TestCase):
 
         mock_open.return_value = File()
         mock_exists.return_value = True
-        experiment = NimbusExperimentFactory.create(status=status)
+        probe_set = NimbusProbeSetFactory.create()
+        experiment = NimbusExperimentFactory.create(status=status, probe_sets=[probe_set])
 
-        feature_metric = f"{experiment.features[0]}_ever_used"
-        FULL_DATA["result_map"][feature_metric] = "binomial"
+        probe_set_id = f"{probe_set.slug}_ever_used"
+        FULL_DATA["result_map"][probe_set_id] = "binomial"
 
         response = self.client.get(
             reverse("visualization-analysis-data", kwargs={"slug": experiment.slug}),

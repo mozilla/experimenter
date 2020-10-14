@@ -39,10 +39,6 @@ class NimbusConstants(object):
         Application.REFERENCE: [Channel.REFERENCE_RELEASE],
     }
 
-    class Feature(models.TextChoices):
-        FEATURE_1 = "Feature 1"
-        FEATURE_2 = "Feature 2"
-
     class Audience(models.TextChoices):
         AUDIENCE_1 = "Audience 1"
         AUDIENCE_2 = "Audience 2"
@@ -69,6 +65,10 @@ class NimbusConstants(object):
         FIREFOX_98 = "98.0"
         FIREFOX_99 = "99.0"
         FIREFOX_100 = "100.0"
+
+    class ProbeKind(models.TextChoices):
+        EVENT = "event"
+        SCALAR = "scalar"
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
     # have limits on the length of their unique identifiers, we should
