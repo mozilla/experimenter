@@ -68,11 +68,11 @@ class NimbusExperiment(NimbusConstants, models.Model):
     feature_config = models.ForeignKey(
         "NimbusFeatureConfig", blank=True, null=True, on_delete=models.CASCADE
     )
-    audience = models.CharField(
+    targeting_config_slug = models.CharField(
         max_length=255,
         blank=True,
         null=True,
-        choices=NimbusConstants.Audience.choices,
+        choices=NimbusConstants.TargetingConfig.choices,
     )
     control_branch = models.OneToOneField(
         "NimbusBranch", blank=True, null=True, on_delete=models.CASCADE
@@ -84,6 +84,11 @@ class NimbusExperiment(NimbusConstants, models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def targeting_config(self):
+        if self.targeting_config_slug:
+            return self.TARGETING_CONFIGS[self.targeting_config_slug]
 
 
 class NimbusBranch(models.Model):
