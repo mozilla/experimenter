@@ -1,5 +1,5 @@
 # Build image
-FROM python:3.8.2 AS build
+FROM python:3.9 AS build
 
 WORKDIR /app
 
@@ -66,7 +66,7 @@ COPY . /app
 
 
 # Deploy image
-FROM python:3.8.2-slim AS deploy
+FROM python:3.9-slim AS deploy
 
 WORKDIR /app
 EXPOSE 7001
@@ -82,5 +82,5 @@ RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgre
 COPY --from=build /app/bin/ /app/bin/
 COPY --from=build /app/manage.py /app/manage.py
 COPY --from=build /usr/local/bin/ /usr/local/bin/
-COPY --from=build /usr/local/lib/python3.8/site-packages/ /usr/local/lib/python3.8/site-packages/
+COPY --from=build /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9/site-packages/
 COPY --from=build /app/experimenter/ /app/experimenter/
