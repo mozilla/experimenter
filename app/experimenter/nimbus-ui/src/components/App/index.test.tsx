@@ -12,19 +12,14 @@ import {
 import App from ".";
 
 describe("App", () => {
-  it("renders as expected", () => {
-    render(<Subject />);
-    expect(screen.getByTestId("app")).toBeInTheDocument();
-  });
-
   it("routes to PageHome page", () => {
     render(<Subject path="/" />);
     expect(screen.getByTestId("PageHome")).toBeInTheDocument();
   });
 
-  it("routes to PageExperimentNew page", () => {
+  it("routes to PageNew page", () => {
     render(<Subject basepath="/foo/bar" path="/foo/bar/new" />);
-    expect(screen.getByTestId("PageExperimentNew")).toBeInTheDocument();
+    expect(screen.getByTestId("PageNew")).toBeInTheDocument();
   });
 
   const Subject = ({ basepath = "/", path = "/" }) => {
@@ -44,9 +39,9 @@ jest.mock("../PageHome", () => ({
   default: mockComponent("PageHome"),
 }));
 
-jest.mock("../PageExperimentNew", () => ({
+jest.mock("../PageNew", () => ({
   __esModule: true,
-  default: mockComponent("PageExperimentNew"),
+  default: mockComponent("PageNew"),
 }));
 
 function mockComponent(testid: string) {
