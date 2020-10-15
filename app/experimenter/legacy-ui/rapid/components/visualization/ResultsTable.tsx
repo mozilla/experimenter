@@ -2,15 +2,12 @@ import React from "react";
 
 import { featureOptions } from "experimenter-rapid/components/forms/ExperimentFormOptions";
 import {
-  SIGNIFICANCE,
-  METRIC,
   RESULTS_METRICS_LIST,
-  BRANCH_COMPARISON,
-  STATISTIC,
+  TABLE_LABEL,
 } from "experimenter-rapid/components/visualization/constants/analysis";
-import { RESULT_COLUMN_TIPS } from "experimenter-rapid/components/visualization/constants/tooltips";
+import { METRICS_TIPS } from "experimenter-rapid/components/visualization/constants/tooltips";
 import ResultsRow from "experimenter-rapid/components/visualization/ResultsRow";
-import { AnalysisPoint, ExperimentData } from "experimenter-types/experiment";
+import { ExperimentData } from "experimenter-types/experiment";
 
 const getResultMetrics = (
   featureData: Array<string>,
@@ -19,76 +16,26 @@ const getResultMetrics = (
     acc[featureRow.value] = featureRow["name"];
     return acc;
   }, {});
+
+  // Make a copy of `RESULTS_METRICS_LIST` since we modify it.
   const resultsMetricsList = [...RESULTS_METRICS_LIST];
   featureData.forEach((feature) => {
     const featureMetricID = `${feature}_ever_used`;
     resultsMetricsList.unshift({
       value: featureMetricID,
       name: `${featureNameMappings[feature]} Conversion`,
-      tooltip: RESULT_COLUMN_TIPS.CONVERSION,
+      tooltip: METRICS_TIPS.CONVERSION,
     });
   });
 
   return resultsMetricsList;
 };
 
-const computeSignificance = (lower: number, upper: number): SIGNIFICANCE => {
-  if (lower < 0 && upper < 0) {
-    return SIGNIFICANCE.NEGATIVE;
-  } else if (lower > 0 && upper > 0) {
-    return SIGNIFICANCE.POSITIVE;
-  } else {
-    return SIGNIFICANCE.NEUTRAL;
-  }
-};
-
-const getResultsData = (data: ExperimentData) => {
-  const analysisData = data.analysis;
-  if (!analysisData) {
-    return {};
-  }
-
-  const resultMetrics = analysisData["result_map"] || [];
-  const fullResultsData = analysisData["overall"];
-
-  const results = {};
-  Object.values(fullResultsData).forEach((row: AnalysisPoint) => {
-    const { metric, branch, statistic, point, lower, upper, comparison } = row;
-    results[branch] = results[branch] || {};
-
-    // `comparison` could be empty, `difference`, or `relative_uplift`.
-    // Here we want to display the empty comparison which means a given
-    // branch's values is not relative to another branch. We also want
-    // to use the `difference` comparison to decide whether there was
-    // any positive or negative significance.
-    if (metric in resultMetrics && resultMetrics[metric] === statistic) {
-      results[branch][metric] = results[branch][metric] || {};
-
-      let newData = {};
-      if (!comparison) {
-        newData = { lower, upper, point };
-      }
-
-      if (comparison === BRANCH_COMPARISON.DIFFERENCE && lower && upper) {
-        newData = { significance: computeSignificance(lower, upper) };
-      }
-
-      Object.assign(results[branch][metric], newData);
-    }
-
-    if (metric === METRIC.USER_COUNT && statistic === STATISTIC.PERCENT) {
-      results[branch][METRIC.USER_COUNT]["percent"] = point;
-    }
-  });
-
-  return results;
-};
-
 const ResultsTable: React.FC<{ experimentData: ExperimentData }> = ({
   experimentData,
 }) => {
   const resultsMetricsList = getResultMetrics(experimentData.features);
-  const resultsData = getResultsData(experimentData);
+  const resultsData = experimentData.analysis?.overall || {};
 
   return (
     <table className="table text-right h5">
@@ -123,6 +70,7 @@ const ResultsTable: React.FC<{ experimentData: ExperimentData }> = ({
                     key={metricKey}
                     metricKey={metricKey}
                     results={resultsData[branch]}
+                    tableLabel={TABLE_LABEL.RESULTS}
                   />
                 );
               })}

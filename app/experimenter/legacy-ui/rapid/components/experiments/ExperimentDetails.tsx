@@ -8,6 +8,7 @@ import {
   firefoxVersionOptions,
   firefoxChannelOptions,
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
+import HighlightsTable from "experimenter-rapid/components/visualization/HighlightsTable";
 import ResultsTable from "experimenter-rapid/components/visualization/ResultsTable";
 import {
   requestReview,
@@ -237,7 +238,7 @@ const ExperimentDetails: React.FC = () => {
           )}
         </div>
 
-        <table className="table table-bordered">
+        <table className="table table-bordered mb-5">
           <tbody>
             <LabelledRow
               label="Experiment Owner"
@@ -278,6 +279,13 @@ const ExperimentDetails: React.FC = () => {
             />
           </tbody>
         </table>
+
+        {experimentData.analysis?.show_analysis && (
+          <>
+            <h2>Overview</h2>
+            <HighlightsTable {...{ experimentData }} />
+          </>
+        )}
 
         {monitoring_url}
 
