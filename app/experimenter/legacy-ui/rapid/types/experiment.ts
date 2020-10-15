@@ -35,12 +35,36 @@ export interface AnalysisPoint {
   window_index?: string;
 }
 
+export interface BranchDescription {
+  is_control: boolean;
+  branch_data: {
+    [metric: string]: {
+      absolute: {
+        point: number;
+        lower?: number;
+        upper?: number;
+      };
+      difference: {
+        point?: number;
+        lower?: number;
+        upper?: number;
+      };
+      relative_uplift: {
+        point?: number;
+        lower?: number;
+        upper?: number;
+      };
+      percent?: number;
+      significance?: number;
+    };
+  };
+}
+
 export interface ExperimentAnalysis {
   daily: Array<AnalysisPoint>;
   weekly: Array<AnalysisPoint>;
-  overall: Array<AnalysisPoint>;
+  overall: { [branch: string]: BranchDescription };
   show_analysis: boolean;
-  result_map: { [key: string]: string };
 }
 
 export interface ExperimentData {
