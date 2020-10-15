@@ -99,14 +99,14 @@ class NimbusBranch(models.Model):
         related_name="branches",
         on_delete=models.CASCADE,
     )
-    enabled = models.BooleanField(default=True)
     name = models.CharField(max_length=255, blank=False, null=False)
     slug = models.SlugField(
         max_length=NimbusConstants.MAX_SLUG_LEN, blank=False, null=False
     )
     description = models.TextField(default="")
     ratio = models.PositiveIntegerField(default=1)
-    value = models.TextField(blank=True, null=True)
+    feature_enabled = models.BooleanField(default=True)
+    feature_value = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Nimbus Branch"
@@ -132,6 +132,10 @@ class NimbusIsolationGroup(models.Model):
         ordering = ("name", "instance")
 
     def __str__(self):  # pragma: no cover
+        return self.namespace
+
+    @property
+    def namespace(self):
         return f"{self.name}-{self.instance}"
 
     @classmethod
@@ -166,7 +170,7 @@ class NimbusIsolationGroup(models.Model):
 
 class NimbusBucketRange(models.Model):
     experiment = models.OneToOneField(
-        NimbusExperiment, related_name="bucket_ranges", on_delete=models.CASCADE
+        NimbusExperiment, related_name="bucket_range", on_delete=models.CASCADE
     )
     isolation_group = models.ForeignKey(
         NimbusIsolationGroup,
