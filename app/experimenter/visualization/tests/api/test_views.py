@@ -27,8 +27,9 @@ class TestVisualizationView(TestCase):
 
         mock_exists.return_value = False
         probe_set = NimbusProbeSetFactory.create()
-        experiment = NimbusExperimentFactory.create(status=status, probe_sets=[probe_set])
-        probe_set_id = f"{probe_set.slug}_ever_used"
+        experiment = NimbusExperimentFactory.create_with_status(
+            target_status=status, probe_sets=[probe_set]
+        )
 
         response = self.client.get(
             reverse("visualization-analysis-data", kwargs={"slug": experiment.slug}),
@@ -43,12 +44,6 @@ class TestVisualizationView(TestCase):
                 "weekly": None,
                 "overall": None,
                 "show_analysis": False,
-                "result_map": {
-                    "retained": "binomial",
-                    "search_count": "mean",
-                    "identity": "count",
-                    probe_set_id: "binomial",
-                },
             },
             json_data,
         )
@@ -63,51 +58,116 @@ class TestVisualizationView(TestCase):
     @patch("django.core.files.storage.default_storage.exists")
     def test_analysis_results_view_data(self, status, mock_exists, mock_open):
         user_email = "user@example.com"
-        CONTROL_DATA_ROW = {
+        DATA_IDENTITY_ROW = {
             "point": 12,
             "upper": 13,
             "lower": 10,
             "metric": "identity",
             "statistic": "count",
-            "branch": "control",
+        }
+        CONTROL_DATA_ROW = {
+            **DATA_IDENTITY_ROW,
+            **{
+                "branch": "control",
+            },
         }
         VARIANT_DATA_ROW = {
-            "point": 12,
-            "upper": 13,
-            "lower": 10,
-            "metric": "identity",
-            "statistic": "count",
-            "branch": "variant",
+            **DATA_IDENTITY_ROW,
+            **{
+                "branch": "variant",
+            },
         }
-        POPULATION_PERCENTAGE_CONTROL_ROW = {
-            "point": 50,
-            "metric": "identity",
-            "statistic": "percentage",
-            "branch": "control",
+        VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW = {
+            **DATA_IDENTITY_ROW,
+            **{
+                "comparison": "difference",
+                "metric": "search_count",
+                "statistic": "mean",
+                "branch": "variant",
+            },
         }
-        POPULATION_PERCENTAGE_VARIANT_ROW = {
-            "point": 50,
-            "metric": "identity",
-            "statistic": "percentage",
-            "branch": "variant",
+        VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW = {
+            **VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW,
+            **{
+                "point": -2,
+                "upper": -1,
+                "lower": -5,
+                "metric": "retained",
+                "statistic": "binomial",
+            },
         }
-        DATA_WITHOUT_POPULATION_PERCENTAGE = [CONTROL_DATA_ROW, VARIANT_DATA_ROW]
-        DATA_WITH_POPULATION_PERCENTAGE = [
+        CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW = {
+            **VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW,
+            **{
+                "point": 12,
+                "upper": 13,
+                "lower": -5,
+                "branch": "control",
+            },
+        }
+        DATA_WITHOUT_POPULATION_PERCENTAGE = [
             CONTROL_DATA_ROW,
             VARIANT_DATA_ROW,
-            POPULATION_PERCENTAGE_CONTROL_ROW,
-            POPULATION_PERCENTAGE_VARIANT_ROW,
+            VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW,
+            VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW,
+            CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW,
         ]
+        FORMATTED_DATA_WITH_POPULATION_PERCENTAGE = {
+            "control": {
+                "is_control": False,
+                "branch_data": {
+                    "identity": {
+                        "absolute": {"lower": 10, "point": 12, "upper": 13},
+                        "difference": {},
+                        "relative_uplift": {},
+                        "percent": 50,
+                    },
+                    "retained": {
+                        "absolute": {},
+                        "difference": {
+                            "point": 12,
+                            "upper": 13,
+                            "lower": -5,
+                        },
+                        "relative_uplift": {},
+                        "significance": 2,
+                    },
+                },
+            },
+            "variant": {
+                "is_control": False,
+                "branch_data": {
+                    "identity": {
+                        "absolute": {"lower": 10, "point": 12, "upper": 13},
+                        "difference": {},
+                        "relative_uplift": {},
+                        "percent": 50,
+                    },
+                    "search_count": {
+                        "absolute": {},
+                        "difference": {"lower": 10, "point": 12, "upper": 13},
+                        "relative_uplift": {},
+                        "significance": 0,
+                    },
+                    "retained": {
+                        "absolute": {},
+                        "difference": {
+                            "point": -2,
+                            "upper": -1,
+                            "lower": -5,
+                        },
+                        "relative_uplift": {},
+                        "significance": 1,
+                    },
+                },
+            },
+        }
+
         FULL_DATA = {
             "daily": DATA_WITHOUT_POPULATION_PERCENTAGE,
             "weekly": DATA_WITHOUT_POPULATION_PERCENTAGE,
-            "overall": DATA_WITH_POPULATION_PERCENTAGE,
+            "overall": FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
             "show_analysis": False,
-            "result_map": {
-                "retained": "binomial",
-                "search_count": "mean",
-                "identity": "count",
-            },
         }
 
         class File:
@@ -117,10 +177,9 @@ class TestVisualizationView(TestCase):
         mock_open.return_value = File()
         mock_exists.return_value = True
         probe_set = NimbusProbeSetFactory.create()
-        experiment = NimbusExperimentFactory.create(status=status, probe_sets=[probe_set])
-
-        probe_set_id = f"{probe_set.slug}_ever_used"
-        FULL_DATA["result_map"][probe_set_id] = "binomial"
+        experiment = NimbusExperimentFactory.create_with_status(
+            target_status=status, probe_sets=[probe_set]
+        )
 
         response = self.client.get(
             reverse("visualization-analysis-data", kwargs={"slug": experiment.slug}),
