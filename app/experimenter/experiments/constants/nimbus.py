@@ -59,11 +59,9 @@ class NimbusConstants(object):
     class Status(models.TextChoices):
         DRAFT = "Draft"
         REVIEW = "Review"
-        SHIP = "Ship"
         ACCEPTED = "Accepted"
         LIVE = "Live"
         COMPLETE = "Complete"
-        REJECTED = "Rejected"
 
     class Application(models.TextChoices):
         DESKTOP = "firefox-desktop"
