@@ -1,4 +1,5 @@
 import decimal
+import json
 import random
 
 import factory
@@ -37,10 +38,10 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         lambda o: decimal.Decimal(random.randint(1, 10) * 10)
     )
     firefox_min_version = factory.LazyAttribute(
-        lambda o: random.choice(NimbusExperiment.Version.choices)
+        lambda o: random.choice(list(NimbusExperiment.Version)).value
     )
     application = factory.LazyAttribute(
-        lambda o: random.choice(NimbusExperiment.Application.choices)
+        lambda o: random.choice(list(NimbusExperiment.Application)).value
     )
     channels = factory.LazyAttribute(
         lambda o: NimbusExperiment.ApplicationChannels.get(o.application, []),
@@ -50,7 +51,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         "experimenter.experiments.tests.factories.NimbusFeatureConfigFactory"
     )
     targeting_config_slug = factory.LazyAttribute(
-        lambda o: random.choice(NimbusExperiment.TargetingConfig.choices)
+        lambda o: random.choice(list(NimbusExperiment.TargetingConfig)).value
     )
 
     class Meta:
@@ -62,14 +63,13 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             # Simple build, do nothing.
             return
 
-        if not extracted:
-            for i in range(3):
-                self.probe_sets.add(NimbusProbeSetFactory.create())
-
         if extracted:
             # A list of groups were passed in, use them
             for probe_set in extracted:
                 self.probe_sets.add(probe_set)
+        else:
+            for i in range(3):
+                self.probe_sets.add(NimbusProbeSetFactory.create())
 
     @classmethod
     def create_with_status(cls, target_status, **kwargs):
@@ -77,10 +77,12 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 
         NimbusBranchFactory.create(experiment=experiment)
         experiment.control_branch = NimbusBranchFactory.create(experiment=experiment)
-        experiment.status = target_status
         experiment.save()
 
         for status, _ in NimbusExperiment.Status.choices:
+            experiment.status = status
+            experiment.save()
+
             if status == NimbusExperiment.Status.REVIEW.value:
                 NimbusIsolationGroup.request_isolation_group_buckets(
                     experiment.slug,
@@ -102,6 +104,9 @@ class NimbusBranchFactory(factory.django.DjangoModelFactory):
         lambda o: slugify(o.name)[: NimbusConstants.MAX_SLUG_LEN]
     )
     description = factory.LazyAttribute(lambda o: faker.text())
+    feature_value = factory.LazyAttribute(
+        lambda o: json.dumps({faker.slug(): faker.slug()})
+    )
 
     class Meta:
         model = NimbusBranch
@@ -132,7 +137,7 @@ class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
     )
     description = factory.LazyAttribute(lambda o: faker.text(200))
     application = factory.LazyAttribute(
-        lambda o: random.choice(NimbusExperiment.Application.choices)[0]
+        lambda o: random.choice(list(NimbusExperiment.Application)).value
     )
     owner_email = factory.LazyAttribute(lambda o: faker.email())
 
@@ -142,7 +147,7 @@ class NimbusFeatureConfigFactory(factory.django.DjangoModelFactory):
 
 class NimbusProbeFactory(factory.django.DjangoModelFactory):
     kind = factory.LazyAttribute(
-        lambda o: random.choices(NimbusConstants.ProbeKind.choices)
+        lambda o: random.choice(list(NimbusConstants.ProbeKind)).value
     )
     name = factory.LazyAttribute(lambda o: faker.catch_phrase())
     event_category = factory.LazyAttribute(lambda o: slugify(faker.catch_phrase()))

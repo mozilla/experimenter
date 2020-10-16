@@ -16,10 +16,7 @@ TARGETING_ALL_ENGLISH = NimbusTargetingConfig(
     name="All English users",
     slug="all_english",
     description="All users in en-* locales using the release channel.",
-    targeting=(
-        "localeLanguageCode == 'en' && browserSettings.update.channel "
-        "== '{firefox_channel}'"
-    ),
+    targeting="localeLanguageCode == 'en'",
     desktop_telemetry="STARTS_WITH(environment.settings.locale, 'en')",
 )
 
@@ -27,10 +24,7 @@ TARGETING_US_ONLY = NimbusTargetingConfig(
     name="US users (en)",
     slug="us_only",
     description="All users in the US with an en-* locale using the release channel.",
-    targeting=(
-        "localeLanguageCode == 'en' && region == 'US' && "
-        "browserSettings.update.channel == '{firefox_channel}'"
-    ),
+    targeting="localeLanguageCode == 'en' && region == 'US'",
     desktop_telemetry=(
         "STARTS_WITH(environment.settings.locale, 'en') "
         "AND normalized_country_code = 'US'"
@@ -45,8 +39,8 @@ TARGETING_FIRST_RUN = NimbusTargetingConfig(
         "locale using the release channel."
     ),
     targeting=(
-        "localeLanguageCode == 'en' && (isFirstStartup || '{slug}' in "
-        "activeExperiments) && browserSettings.update.channel == '{firefox_channel}'"
+        "localeLanguageCode == 'en' "
+        "&& (isFirstStartup || experiment.slug in activeExperiments)"
     ),
     desktop_telemetry=(
         "STARTS_WITH(environment.settings.locale, 'en') "
@@ -91,36 +85,35 @@ class NimbusConstants(object):
         Application.REFERENCE: [Channel.REFERENCE_RELEASE],
     }
 
-    class Feature(models.TextChoices):
-        FEATURE_1 = "Feature 1"
-        FEATURE_2 = "Feature 2"
-
     class Version(models.TextChoices):
-        FIREFOX_80 = "80.0"
-        FIREFOX_81 = "81.0"
-        FIREFOX_82 = "82.0"
-        FIREFOX_83 = "83.0"
-        FIREFOX_84 = "84.0"
-        FIREFOX_85 = "85.0"
-        FIREFOX_86 = "86.0"
-        FIREFOX_87 = "87.0"
-        FIREFOX_88 = "88.0"
-        FIREFOX_89 = "89.0"
-        FIREFOX_90 = "90.0"
-        FIREFOX_91 = "91.0"
-        FIREFOX_92 = "92.0"
-        FIREFOX_93 = "93.0"
-        FIREFOX_94 = "94.0"
-        FIREFOX_95 = "95.0"
-        FIREFOX_96 = "96.0"
-        FIREFOX_97 = "97.0"
-        FIREFOX_98 = "98.0"
-        FIREFOX_99 = "99.0"
-        FIREFOX_100 = "100.0"
+        FIREFOX_80 = "80.!"
+        FIREFOX_81 = "81.!"
+        FIREFOX_82 = "82.!"
+        FIREFOX_83 = "83.!"
+        FIREFOX_84 = "84.!"
+        FIREFOX_85 = "85.!"
+        FIREFOX_86 = "86.!"
+        FIREFOX_87 = "87.!"
+        FIREFOX_88 = "88.!"
+        FIREFOX_89 = "89.!"
+        FIREFOX_90 = "90.!"
+        FIREFOX_91 = "91.!"
+        FIREFOX_92 = "92.!"
+        FIREFOX_93 = "93.!"
+        FIREFOX_94 = "94.!"
+        FIREFOX_95 = "95.!"
+        FIREFOX_96 = "96.!"
+        FIREFOX_97 = "97.!"
+        FIREFOX_98 = "98.!"
+        FIREFOX_99 = "99.!"
+        FIREFOX_100 = "100.!"
 
     class ProbeKind(models.TextChoices):
         EVENT = "event"
         SCALAR = "scalar"
+
+    TARGETING_VERSION = "version|versionCompare('{version}') >= .!"
+    TARGETING_CHANNELS = "channel in {channels}"
 
     TARGETING_CONFIGS = {
         TARGETING_ALL_ENGLISH.slug: TARGETING_ALL_ENGLISH,
