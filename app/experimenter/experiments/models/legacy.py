@@ -11,7 +11,7 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Case, Max, Value, When
+from django.db.models import Max
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -950,26 +950,6 @@ class Experiment(ExperimentConstants, models.Model):
             )
 
         return population
-
-    @staticmethod
-    def firefox_channel_sort():
-        """A Case that can be added to an Experiment QuerySet to sort."""
-        return Case(
-            When(
-                firefox_channel=ExperimentConstants.CHANNEL_RELEASE,
-                then=Value(ExperimentConstants.CHANNEL_RELEASE_ORDER),
-            ),
-            When(
-                firefox_channel=ExperimentConstants.CHANNEL_BETA,
-                then=Value(ExperimentConstants.CHANNEL_BETA_ORDER),
-            ),
-            When(
-                firefox_channel=ExperimentConstants.CHANNEL_NIGHTLY,
-                then=Value(ExperimentConstants.CHANNEL_NIGHTLY_ORDER),
-            ),
-            default=Value(ExperimentConstants.CHANNEL_UNSET_ORDER),
-            output_field=models.IntegerField(),
-        )
 
     @property
     def is_archivable(self):

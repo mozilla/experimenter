@@ -1008,8 +1008,6 @@ class ExperimentOrderingForm(forms.Form):
         ("latest_change", "Least Recently Updated"),
         ("firefox_min_version", "Firefox Min Version Ascending"),
         ("-firefox_min_version", "Firefox Min Version Descending"),
-        ("firefox_channel_sort", "Firefox Channel Ascending"),
-        ("-firefox_channel_sort", "Firefox Channel Descending"),
     )
 
     ordering = forms.ChoiceField(

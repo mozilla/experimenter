@@ -1465,28 +1465,6 @@ class TestExperimentModel(TestCase):
         )
         self.assertEqual(experiment.population, "Nightly Firefox 57.0")
 
-    def test_experiment_firefox_channel_sort_does_sorting(self):
-        ExperimentFactory.create(firefox_channel=Experiment.CHANNEL_NIGHTLY)
-        ExperimentFactory.create(firefox_channel=Experiment.CHANNEL_RELEASE)
-        ExperimentFactory.create(firefox_channel=Experiment.CHANNEL_BETA)
-        ExperimentFactory.create(firefox_channel="")
-        sorted_experiments = (
-            Experiment.objects.annotate(
-                firefox_channel_sort=Experiment.firefox_channel_sort()
-            )
-            .order_by("firefox_channel_sort")
-            .values("firefox_channel_sort")
-        )
-        self.assertEqual(
-            [r["firefox_channel_sort"] for r in sorted_experiments],
-            [
-                Experiment.CHANNEL_UNSET_ORDER,
-                Experiment.CHANNEL_NIGHTLY_ORDER,
-                Experiment.CHANNEL_BETA_ORDER,
-                Experiment.CHANNEL_RELEASE_ORDER,
-            ],
-        )
-
     def test_should_have_total_enrolled_true(self):
         experiment = ExperimentFactory(type=Experiment.TYPE_PREF)
         self.assertTrue(experiment.should_have_total_enrolled)
