@@ -46,11 +46,6 @@ class ExperimentListView(FilterView):
         kwargs["data"] = self.request.GET
         return kwargs
 
-    def get_queryset(self):
-        qs = super().get_queryset()
-        qs = qs.annotate(firefox_channel_sort=Experiment.firefox_channel_sort())
-        return qs
-
     def get_ordering(self):
         self.ordering_form = ExperimentOrderingForm(self.request.GET)
 
