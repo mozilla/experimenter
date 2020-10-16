@@ -1525,6 +1525,63 @@
         ]
       }
     },
+    "/api/v6/experiments/": {
+      "get": {
+        "operationId": "listNimbusExperiments",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NimbusExperiment"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Nimbus: Public"
+        ]
+      }
+    },
+    "/api/v6/experiments/{slug}/": {
+      "get": {
+        "operationId": "retrieveNimbusExperiment",
+        "description": "",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NimbusExperiment"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "Nimbus: Public"
+        ]
+      }
+    },
     "/api/v3/experiments/": {
       "post": {
         "operationId": "createExperiment",
@@ -3319,6 +3376,130 @@
         },
         "required": [
           "arguments"
+        ]
+      },
+      "NimbusExperiment": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "maxLength": 80,
+            "pattern": "^[-a-zA-Z0-9_]+$"
+          },
+          "id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "application": {
+            "enum": [
+              "firefox-desktop",
+              "fenix",
+              "reference-browser"
+            ],
+            "type": "string",
+            "nullable": true
+          },
+          "userFacingName": {
+            "type": "string",
+            "readOnly": true
+          },
+          "userFacingDescription": {
+            "type": "string",
+            "readOnly": true
+          },
+          "isEnrollmentPaused": {
+            "type": "string",
+            "readOnly": true
+          },
+          "bucketConfig": {
+            "type": "object",
+            "properties": {
+              "randomizationUnit": {
+                "type": "string",
+                "readOnly": true
+              },
+              "namespace": {
+                "type": "string",
+                "readOnly": true
+              },
+              "start": {
+                "type": "integer",
+                "maximum": 2147483647,
+                "minimum": 0
+              },
+              "count": {
+                "type": "integer",
+                "maximum": 2147483647,
+                "minimum": 0
+              },
+              "total": {
+                "type": "string",
+                "readOnly": true
+              }
+            },
+            "required": [
+              "start",
+              "count"
+            ]
+          },
+          "probeSets": {
+            "type": "string",
+            "readOnly": true
+          },
+          "branches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "slug": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "pattern": "^[-a-zA-Z0-9_]+$"
+                },
+                "ratio": {
+                  "type": "integer",
+                  "maximum": 2147483647,
+                  "minimum": 0
+                },
+                "feature": {
+                  "type": "string",
+                  "readOnly": true
+                }
+              },
+              "required": [
+                "slug"
+              ]
+            }
+          },
+          "targeting": {
+            "type": "string",
+            "readOnly": true
+          },
+          "startDate": {
+            "type": "string",
+            "readOnly": true
+          },
+          "endDate": {
+            "type": "string",
+            "readOnly": true
+          },
+          "proposedDuration": {
+            "type": "string",
+            "readOnly": true
+          },
+          "proposedEnrollment": {
+            "type": "string",
+            "readOnly": true
+          },
+          "referenceBranch": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        "required": [
+          "slug",
+          "bucketConfig",
+          "branches"
         ]
       },
       "ExperimentClone": {
