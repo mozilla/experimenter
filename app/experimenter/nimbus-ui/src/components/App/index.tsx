@@ -3,22 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import AppLayout from "../AppLayout";
 import { Router } from "@reach/router";
 
 import PageHome from "../PageHome";
-import PageExperimentNew from "../PageExperimentNew";
+import PageNew from "../PageNew";
 
 const App = ({ basepath }: { basepath: string }) => {
   return (
-    <div data-testid="app">
-      <AppLayout>
-        <Router {...{ basepath }}>
-          <PageHome path="/" />
-          <PageExperimentNew path="new" />
-        </Router>
-      </AppLayout>
-    </div>
+    <Router {...{ basepath }}>
+      <PageHome path="/" />
+      <PageNew path="new" />
+    </Router>
   );
 };
 

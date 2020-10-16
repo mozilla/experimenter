@@ -3,17 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import AppLayout from "../AppLayout";
 import { RouteComponentProps, Link } from "@reach/router";
 
-type PageHomeProps = {
-
-} & RouteComponentProps;
+type PageHomeProps = {} & RouteComponentProps;
 
 const PageHome = (props: PageHomeProps) => (
-  <section data-testid="PageHome">
+  <AppLayout testid="PageHome">
     <h1>Home</h1>
     <Link to="./new">New experiment</Link>
-  </section>
+  </AppLayout>
 );
 
 export default PageHome;

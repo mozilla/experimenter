@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import { RouteComponentProps } from "@reach/router";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -11,18 +12,20 @@ import Nav from "react-bootstrap/Nav";
 import "./index.scss";
 
 type AppLayoutExperimentEditProps = {
+  testid?: string;
   children: React.ReactNode;
-};
+} & RouteComponentProps;
 
 export const AppLayoutExperimentEdit = ({
   children,
+  testid="main"
 }: AppLayoutExperimentEditProps) => {
   return (
     <Container
       fluid
       as="main"
       className="h-100 app-layout-sidebar"
-      data-testid="main"
+      data-testid={testid}
     >
       <Row className="h-100">
         <Col md="3" lg="3" xl="2" className="bg-light border-right shadow-sm">
@@ -35,7 +38,7 @@ export const AppLayoutExperimentEdit = ({
             <SidebarItem>Review &amp; Launch</SidebarItem>
           </Nav>
         </Col>
-        <Col md="auto" className="m-5">
+        <Col className="ml-auto mr-auto col-md-10 col-lg-8">
           {children}
         </Col>
       </Row>
