@@ -37,6 +37,9 @@ class Command(BaseCommand):
             elif "/api/v4/" in path:
                 for method in paths[path]:
                     paths[path][method]["tags"] = ["Rapid: Public"]
+            elif "/api/v6/" in path:
+                for method in paths[path]:
+                    paths[path][method]["tags"] = ["Nimbus: Public"]
 
         return json.dumps(schema, indent=2)
 
