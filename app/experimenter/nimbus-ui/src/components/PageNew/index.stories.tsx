@@ -4,8 +4,8 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import PageExperimentNew from ".";
+import PageNew from ".";
 
-storiesOf("pages/PageExperimentNew", module).add("basic", () => (
-  <PageExperimentNew />
+storiesOf("pages/PageNew", module).add("basic", () => (
+  <PageNew />
 ));
