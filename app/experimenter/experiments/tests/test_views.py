@@ -123,36 +123,6 @@ class TestExperimentListView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(list(context["experiments"]), list(filtered_ordered_experiments))
 
-    def test_list_view_orders_experiments_firefox_channel_sort(self):
-        user_email = "user@example.com"
-        ordering = "firefox_channel_sort"
-        channels = [
-            Experiment.CHANNEL_RELEASE,
-            Experiment.CHANNEL_NIGHTLY,
-            Experiment.CHANNEL_BETA,
-            "",
-        ]
-        for channel in channels:
-            ExperimentFactory.create(firefox_channel=channel)
-
-        response = self.client.get(
-            "{url}?{params}".format(
-                url=reverse("home"), params=urlencode({"ordering": ordering})
-            ),
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-
-        context = response.context[0]
-        self.assertEqual(
-            list(exp.firefox_channel for exp in context["experiments"]),
-            [
-                "",
-                Experiment.CHANNEL_NIGHTLY,
-                Experiment.CHANNEL_BETA,
-                Experiment.CHANNEL_RELEASE,
-            ],
-        )
-
     def test_list_view_total_experiments_count(self):
         user_email = "user@example.com"
 
