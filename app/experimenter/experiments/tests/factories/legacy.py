@@ -8,10 +8,10 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
-from mozilla_nimbus_shared import get_data
 
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
+from experimenter.experiments.constants.shared_data import NIMBUS_DATA
 from experimenter.experiments.models import (
     Experiment,
     ExperimentBucketNamespace,
@@ -26,9 +26,6 @@ from experimenter.projects.tests.factories import ProjectFactory
 
 faker = FakerFactory.create()
 NORMANDY_STATUS_CHOICES = Experiment.STATUS_CHOICES[:-1]
-
-
-NIMBUS_DATA = get_data()
 
 
 class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):

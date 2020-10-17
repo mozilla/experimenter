@@ -9,10 +9,10 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
-
 import os
 from urllib.parse import urljoin
 
+import pkg_resources
 from celery.schedules import crontab
 from decouple import config
 
@@ -401,3 +401,5 @@ KINTO_COLLECTION = config("KINTO_COLLECTION")
 DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
 GS_PROJECT_ID = "experiments-analysis"
 GS_BUCKET_NAME = "mozanalysis"
+
+NIMBUS_SCHEMA_VERSION = pkg_resources.get_distribution("mozilla-nimbus-shared").version
