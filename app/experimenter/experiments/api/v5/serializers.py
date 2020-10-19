@@ -43,6 +43,40 @@ class NimbusExperimentOverviewSerializer(
             "hypothesis",
         )
 
+    slug = serializers.ReadOnlyField()
+
+    def validate(self, data):
+        if data.get("slug") is None:
+            slug = slugify(data.get("name"))
+
+            if not slug:
+                raise serializers.ValidationError(
+                    {"name": ["Name needs to contain alphanumeric characters"]}
+                )
+            if (
+                self.instance is None
+                and slug
+                and NimbusExperiment.objects.filter(slug=slug).exists()
+            ):
+                raise serializers.ValidationError(
+                    {
+                        "name": [
+                            "Name maps to a pre-existing slug, please choose another name"
+                        ]
+                    }
+                )
+
+        return data
+
+    def create(self, validated_data):
+        validated_data.update(
+            {
+                "slug": slugify(validated_data["name"]),
+            }
+        )
+        experiment = super().create(validated_data)
+        return experiment
+
 
 class NimbusBranchUpdateSerializer(NimbusChangeLogMixin, serializers.ModelSerializer):
     reference_branch = NimbusBranchSerializer()

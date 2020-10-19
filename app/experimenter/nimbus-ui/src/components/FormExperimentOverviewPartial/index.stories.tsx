@@ -9,15 +9,30 @@ import FormExperimentOverviewPartial from ".";
 
 const APPLICATIONS = ["firefox-desktop", "fenix", "reference-browser"];
 
-storiesOf("components/FormExperimentOverviewPartial", module).add(
-  "basic",
-  () => <Subject />,
-);
+storiesOf("components/FormExperimentOverviewPartial", module)
+  .add("basic", () => <Subject />)
+  .add("loading", () => <Subject isLoading />)
+  .add("errors", () => (
+    <Subject
+      submitErrors={{
+        "*": "Big bad server thing broke!",
+        name: "This name is terrible.",
+        hypothesis: "You call this a hypothesis?",
+        application: "That's a potato.",
+      }}
+    />
+  ));
 
 const Subject = ({
+  isLoading = false,
+  submitErrors = {},
   onSubmit = action("onSubmit"),
   onCancel = action("onCancel"),
   applications = APPLICATIONS,
 } = {}) => (
-  <FormExperimentOverviewPartial {...{ onSubmit, onCancel, applications }} />
+  <div className="p-5">
+    <FormExperimentOverviewPartial
+      {...{ isLoading, submitErrors, onSubmit, onCancel, applications }}
+    />
+  </div>
 );

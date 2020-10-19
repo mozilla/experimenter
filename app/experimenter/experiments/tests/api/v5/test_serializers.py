@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.utils.text import slugify
 
 from experimenter.experiments.api.v5.serializers import (
     NimbusAudienceUpdateSerializer,
@@ -15,30 +16,71 @@ from experimenter.experiments.tests.factories import (
 from experimenter.openidc.tests.factories import UserFactory
 
 
-class TestCreateNimbusExperimentSerializer(TestCase):
+class TestCreateNimbusExperimentOverviewSerializer(TestCase):
     maxDiff = None
 
     def setUp(self):
         super().setUp()
         self.user = UserFactory()
 
-    def test_serializer_outputs_expected_schema(self):
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.ACCEPTED,
+    def test_serializer_creates_experiment_and_sets_slug(self):
+        data = {
+            "name": "Test 1234",
+            "hypothesis": "Test hypothesis",
+            "application": "firefox-desktop",
+            "public_description": "Test description",
+        }
+
+        serializer = NimbusExperimentOverviewSerializer(
+            data=data, context={"user": self.user}
+        )
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
+
+        self.assertEqual(experiment.slug, slugify(data["name"]))
+        self.assertEqual(experiment.name, data["name"])
+        self.assertEqual(experiment.application, data["application"])
+        self.assertEqual(experiment.hypothesis, data["hypothesis"])
+        self.assertEqual(experiment.public_description, data["public_description"])
+
+    def test_serializer_rejects_bad_name(self):
+        data = {
+            "name": "&^%&^%&^%&^%^&%^&",
+            "hypothesis": "Test hypothesis",
+            "application": "firefox-desktop",
+            "public_description": "Test description",
+        }
+
+        serializer = NimbusExperimentOverviewSerializer(
+            data=data, context={"user": self.user}
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn(
+            "Name needs to contain alphanumeric characters", serializer.errors["name"]
         )
 
-        serializer = NimbusExperimentOverviewSerializer(experiment)
-        data = serializer.data
+    def test_serializer_returns_error_for_non_unique_slug(self):
+        NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.ACCEPTED,
+            name="non unique slug",
+            slug="non-unique-slug",
+        )
 
-        self.assertDictEqual(
-            data,
-            {
-                "application": experiment.application,
-                "hypothesis": experiment.hypothesis,
-                "name": experiment.name,
-                "public_description": experiment.public_description,
-                "slug": experiment.slug,
-            },
+        data = {
+            "name": "non-unique slug",
+            "hypothesis": "Test hypothesis",
+            "application": "firefox-desktop",
+            "public_description": "Test description",
+        }
+
+        serializer = NimbusExperimentOverviewSerializer(
+            data=data, context={"user": self.user}
+        )
+        self.assertFalse(serializer.is_valid())
+
+        self.assertIn(
+            "Name maps to a pre-existing slug, please choose another name",
+            serializer.errors["name"],
         )
 
     def test_saves_new_experiment_with_changelog(self):
@@ -83,7 +125,7 @@ class TestCreateNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.changes.count(), 2)
 
 
-class TestUpdateNimbusExperimentSerializer(TestCase):
+class TestUpdateNimbusExperimentOverviewSerializer(TestCase):
     maxDiff = None
 
     def setUp(self):
