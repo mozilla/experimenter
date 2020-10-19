@@ -244,9 +244,9 @@ pytest-repeat==0.8.0 \
 tenacity==6.2.0 \
     --hash=sha256:29ae90e7faf488a8628432154bb34ace1cca58244c6ea399fd33f066ac71339a \
     --hash=sha256:5a5d3dcd46381abe8b4f82b5736b8726fd3160c6c7161f53f8af7f1eb9b82173
-iniconfig==1.0.1 \
-    --hash=sha256:80cf40c597eb564e86346103f609d74efce0f6b4d4f30ec8ce9e2c26411ba437 \
-    --hash=sha256:e5f92f89355a67de0595932a6c6c02ab4afddc6fcdc0bfc5becd0d60884d3f69
+iniconfig==1.1.1 \
+    --hash=sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3 \
+    --hash=sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32
 toml==0.10.1 \
     --hash=sha256:926b612be1e5ce0634a2ca03470f95169cf16f939018233a670519cb4ac58b0f \
     --hash=sha256:bda89d5935c2eac546d648028b9901107a595863cb36bae0c73ac804a9b4ce88
