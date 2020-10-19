@@ -5,10 +5,11 @@
 import React, { ReactNode } from "react";
 import "./services/config";
 import "./services/sentry";
+import "./services/apollo";
 
 describe("index", () => {
   const origError = global.console.error;
-  let mockError: any, mockConfig: any, mockSentry: any;
+  let mockError: any, mockConfig: any, mockSentry: any, mockApollo: any;
 
   beforeEach(() => {
     jest.resetModules();
@@ -19,9 +20,11 @@ describe("index", () => {
 
     mockConfig = { readConfig: jest.fn() };
     mockSentry = { configure: jest.fn() };
+    mockApollo = { createApolloClient: jest.fn() };
 
     jest.mock("./services/config", () => mockConfig);
     jest.mock("./services/sentry", () => mockSentry);
+    jest.mock("./services/apollo", () => mockApollo);
 
     mockError = jest.fn();
     global.console.error = mockError;
