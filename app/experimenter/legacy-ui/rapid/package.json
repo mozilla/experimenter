@@ -45,7 +45,7 @@
     "ts-jest": "26.4.0",
     "typescript": "3.9.7",
     "webpack": "4.44.1",
-    "webpack-cli": "3.3.12"
+    "webpack-cli": "4.0.0"
   },
   "resolutions": {
     "@types/react": "16.9.43"
