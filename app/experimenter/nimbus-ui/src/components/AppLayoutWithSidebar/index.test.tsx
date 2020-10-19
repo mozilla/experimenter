@@ -4,14 +4,17 @@
 
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import AppLayoutExperimentEdit from ".";
+import { LocationProvider } from "@reach/router";
+import AppLayoutWithSidebar from ".";
 
 test("renders app layout content with children", () => {
   render(
-    <AppLayoutExperimentEdit>
-      <p data-testid="test-child">Hello, world!</p>
-    </AppLayoutExperimentEdit>,
+    <LocationProvider>
+      <AppLayoutWithSidebar>
+        <p data-testid="test-child">Hello, world!</p>
+      </AppLayoutWithSidebar>
+    </LocationProvider>,
   );
-  expect(screen.getByTestId("main")).toBeInTheDocument();
+  expect(screen.getByTestId("AppLayoutWithSidebar")).toBeInTheDocument();
   expect(screen.getByTestId("test-child")).toBeInTheDocument();
 });

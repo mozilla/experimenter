@@ -12,6 +12,17 @@ import {
 import App from ".";
 
 describe("App", () => {
+  const Subject = ({ basepath = "/", path = "/" }) => {
+    let source = createMemorySource(path);
+    let history = createHistory(source);
+
+    return (
+      <LocationProvider {...{ history }}>
+        <App {...{ basepath }} />
+      </LocationProvider>
+    );
+  };
+
   it("routes to PageHome page", () => {
     render(<Subject path="/" />);
     expect(screen.getByTestId("PageHome")).toBeInTheDocument();
@@ -22,16 +33,15 @@ describe("App", () => {
     expect(screen.getByTestId("PageNew")).toBeInTheDocument();
   });
 
-  const Subject = ({ basepath = "/", path = "/" }) => {
-    let source = createMemorySource(path);
-    let history = createHistory(source);
-
-    return (
-      <LocationProvider history={history}>
-        <App {...{ basepath }} />
-      </LocationProvider>
-    );
-  };
+  it("redirects from ':slug/edit' to ':slug/edit/overview'", () => {
+    // WIP
+    // jest.mock("@reach/router", () => ({
+    //   redirect: jest.fn().mockImplementation(() => <span>Redirecting</span>),
+    // }));
+    // render(<Subject basepath="/experiments/nimbus" path="/my-slug/edit" />);
+    // expect(MockRedirect).toHaveBeenCalledTimes(1);
+    // expect(screen.getByTestId("PageEditOverview")).toBeInTheDocument();
+  });
 });
 
 jest.mock("../PageHome", () => ({

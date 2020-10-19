@@ -15,7 +15,23 @@ $grid-breakpoints: (
 );
 
 $sizes: (
-  3: 0.75rem
+  3: 0.75rem,
+  100vh: 100vh,
 );
 
 @import "~bootstrap/scss/bootstrap";
+
+// This gives us responsive sizing.
+// See https://github.com/twbs/bootstrap/issues/21943
+@each $breakpoint in map-keys($grid-breakpoints) {
+  @include media-breakpoint-up($breakpoint) {
+    $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+    @each $prop, $abbrev in (width: w, height: h) {
+      @each $size, $length in $sizes {
+        .#{$abbrev}#{$infix}-#{$size} {
+          #{$prop}: $length !important;
+        }
+      }
+    }
+  }
+}

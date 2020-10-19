@@ -9,6 +9,7 @@ import App from "./components/App";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import config, { readConfig } from "./services/config";
 import sentryMetrics from "./services/sentry";
+import { BASE_PATH } from "./lib/constants";
 import "./styles/index.scss";
 
 try {
@@ -28,7 +29,7 @@ try {
     <React.StrictMode>
       <AppErrorBoundary>
         <ApolloProvider {...{ client }}>
-          <App basepath="/experiments/nimbus" />
+          <App basepath={BASE_PATH} />
         </ApolloProvider>
       </AppErrorBoundary>
     </React.StrictMode>,
