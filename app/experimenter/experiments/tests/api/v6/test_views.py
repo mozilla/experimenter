@@ -12,8 +12,14 @@ class TestNimbusExperimentViewSet(TestCase):
     def test_list_view_serializes_experiments(self):
         experiments = []
 
-        for status, _ in NimbusExperiment.Status.choices:
-            experiments.append(NimbusExperimentFactory.create_with_status(status))
+        for status in NimbusExperiment.Status:
+            if status not in [
+                NimbusExperiment.Status.DRAFT,
+                NimbusExperiment.Status.REVIEW,
+            ]:
+                experiments.append(
+                    NimbusExperimentFactory.create_with_status(status.value, slug=status)
+                )
 
         response = self.client.get(
             reverse("nimbus-experiment-rest-list"),
