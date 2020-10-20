@@ -28,7 +28,9 @@ class CreateExperiment(graphene.Mutation):
 
     @classmethod
     def mutate(cls, root, info, input: CreateExperimentInput):
-        serializer = NimbusExperimentSerializer(data=input)
+        serializer = NimbusExperimentSerializer(
+            data=input, context={"user": info.context.user}
+        )
         if serializer.is_valid():
             obj = serializer.save()
             msg = "success"
@@ -55,7 +57,9 @@ class UpdateExperiment(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, input: UpdateExperimentInput):
         exp = NimbusExperiment.objects.get(id=input.id)
-        serializer = NimbusExperimentSerializer(exp, data=input, partial=True)
+        serializer = NimbusExperimentSerializer(
+            exp, data=input, partial=True, context={"user": info.context.user}
+        )
         if serializer.is_valid():
             obj = serializer.save()
             msg = "success"
