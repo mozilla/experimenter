@@ -3,17 +3,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { RouteComponentProps } from "@reach/router";
+import { RouteComponentProps, useParams } from "@reach/router";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
+import { useExperiment } from "../../hooks/useExperiment";
 
 type PageEditBranchesProps = {} & RouteComponentProps;
 
-const PageEditBranches = (props: PageEditBranchesProps) => (
-  <AppLayoutWithSidebar>
-    <section data-testid="PageEditBranches">
-      <h1>PageEditBranches</h1>
-    </section>
-  </AppLayoutWithSidebar>
-);
+const PageEditBranches = (props: PageEditBranchesProps) => {
+  const { slug } = useParams();
+  const { experiment } = useExperiment(slug);
+
+  if (experiment != null) {
+    console.log(experiment.referenceBranch, experiment.treatmentBranches);
+  }
+
+  return (
+    <AppLayoutWithSidebar>
+      <section data-testid="PageEditBranches">
+        <h1>PageEditBranches</h1>
+      </section>
+    </AppLayoutWithSidebar>
+  );
+};
 
 export default PageEditBranches;
