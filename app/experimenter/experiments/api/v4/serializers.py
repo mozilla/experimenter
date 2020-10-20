@@ -1,13 +1,11 @@
-from mozilla_nimbus_shared import get_data
 from rest_framework import serializers
 
+from experimenter.experiments.constants.shared_data import NIMBUS_DATA
 from experimenter.experiments.models import (
     Experiment,
     ExperimentBucketRange,
     ExperimentVariant,
 )
-
-NIMBUS_DATA = get_data()
 
 
 class ExperimentRapidBranchesSerializer(serializers.ModelSerializer):

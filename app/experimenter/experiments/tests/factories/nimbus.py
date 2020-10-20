@@ -30,9 +30,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     public_description = factory.LazyAttribute(lambda o: faker.text(200))
     proposed_duration = factory.LazyAttribute(lambda o: random.randint(10, 60))
     proposed_enrollment = factory.LazyAttribute(
-        lambda o: random.choice([None, random.randint(2, o.proposed_duration)])
-        if o.proposed_duration
-        else None
+        lambda o: random.randint(2, o.proposed_duration)
     )
     population_percent = factory.LazyAttribute(
         lambda o: decimal.Decimal(random.randint(1, 10) * 10)
