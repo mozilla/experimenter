@@ -95,6 +95,10 @@ class NimbusExperiment(NimbusConstants, models.Model):
     def latest_change(self):
         return self.changes.order_by("-changed_on").first()
 
+    @property
+    def treatment_branches(self):
+        return self.branches.exclude(id=self.control_branch.id).order_by("id")
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(

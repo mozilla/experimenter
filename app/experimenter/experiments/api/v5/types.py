@@ -1,3 +1,4 @@
+import graphene
 from graphene_django.types import DjangoObjectType
 
 from experimenter.experiments.models.nimbus import (
@@ -15,12 +16,20 @@ from experimenter.projects.models import Project
 class NimbusBranchType(DjangoObjectType):
     class Meta:
         model = NimbusBranch
-        exclude = ("experiment", "nimbusexperiment")
+        exclude = ("id", "experiment", "nimbusexperiment")
+
+
+class NimbusFeatureConfigType(DjangoObjectType):
+    class Meta:
+        model = NimbusFeatureConfig
 
 
 class NimbusExperimentType(DjangoObjectType):
+    treatment_branches = graphene.List(NimbusBranchType)
+
     class Meta:
         model = NimbusExperiment
+        exclude = ("branches",)
 
 
 class ProjectType(DjangoObjectType):
@@ -37,11 +46,6 @@ class NimbusBucketRangeType(DjangoObjectType):
     class Meta:
         model = NimbusBucketRange
         exclude = ("id", "experiment")
-
-
-class NimbusFeatureConfigType(DjangoObjectType):
-    class Meta:
-        model = NimbusFeatureConfig
 
 
 class NimbusProbeType(DjangoObjectType):
