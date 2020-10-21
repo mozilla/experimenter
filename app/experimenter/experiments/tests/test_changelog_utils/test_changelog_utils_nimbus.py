@@ -42,6 +42,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "slug": "",
                 "status": NimbusExperiment.Status.DRAFT.value,
                 "targeting_config_slug": None,
+                "total_enrolled_clients": 0,
             },
         )
 
@@ -88,6 +89,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "slug": experiment.slug,
                 "status": experiment.status,
                 "targeting_config_slug": experiment.targeting_config_slug,
+                "total_enrolled_clients": experiment.total_enrolled_clients,
             },
         )
         self.assertEqual(
