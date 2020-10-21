@@ -8,6 +8,7 @@ from experimenter.experiments.models.nimbus import NimbusExperiment, NimbusFeatu
 from experimenter.experiments.tests.factories.nimbus import (
     NimbusExperimentFactory,
     NimbusFeatureConfigFactory,
+    NimbusProbeSetFactory,
 )
 
 CREATE_EXPERIMENT_MUTATION = """\
@@ -64,6 +65,24 @@ mutation ($input: UpdateExperimentBranchesInput !) {
         name
         description
         ratio
+      }
+    }
+    message
+    status
+  }
+}
+"""
+
+
+UPDATE_EXPERIMENT_PROBESETS_MUTATION = """\
+mutation ($input:  UpdateExperimentProbeSetsInput!) {
+  updateExperimentProbeSets(input: $input){
+    clientMutationId
+    nimbusExperiment {
+      id
+      probeSets {
+        id
+        name
       }
     }
     message
@@ -263,4 +282,58 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(
             result["message"],
             {"feature_config": ['Invalid pk "2" - object does not exist.']},
+        )
+
+    def test_update_experiment_probe_sets(self):
+        user_email = "user@example.com"
+        probe_set = NimbusProbeSetFactory()
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT, probe_sets=[]
+        )
+        response = self.query(
+            UPDATE_EXPERIMENT_PROBESETS_MUTATION,
+            variables={
+                "input": {
+                    "nimbusExperimentId": experiment.id,
+                    "clientMutationId": "randomid",
+                    "probeSetIds": [probe_set.id],
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperimentProbeSets"]
+        self.assertEqual(
+            result["nimbusExperiment"],
+            {
+                "id": str(experiment.id),
+                "probeSets": [{"name": probe_set.name, "id": str(probe_set.id)}],
+            },
+        )
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(list(experiment.probe_sets.all()), [probe_set])
+
+    def test_update_experiment_probe_sets_error(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT, probe_sets=[]
+        )
+        response = self.query(
+            UPDATE_EXPERIMENT_PROBESETS_MUTATION,
+            variables={
+                "input": {
+                    "nimbusExperimentId": experiment.id,
+                    "clientMutationId": "randomid",
+                    "probeSetIds": [123],
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperimentProbeSets"]
+        self.assertEqual(
+            result["message"],
+            {"probe_sets": ['Invalid pk "123" - object does not exist.']},
         )
