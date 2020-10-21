@@ -4,7 +4,11 @@ from rest_framework import serializers
 
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.models.nimbus import NimbusBranch, NimbusFeatureConfig
+from experimenter.experiments.models.nimbus import (
+    NimbusBranch,
+    NimbusFeatureConfig,
+    NimbusProbeSet,
+)
 
 
 class NimbusChangeLogMixin:
@@ -73,3 +77,13 @@ class NimbusBranchUpdateSerializer(NimbusChangeLogMixin, serializers.ModelSerial
                 )
             instance.save()
         return instance
+
+
+class NimbusProbeSetUpdateSerializer(NimbusChangeLogMixin, serializers.ModelSerializer):
+    probe_sets = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=NimbusProbeSet.objects.all()
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ("probe_sets",)
