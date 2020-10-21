@@ -13,6 +13,9 @@
   <meta name="viewport"
     content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=2,user-scalable=yes" />
   <title>Mozilla Experimenter</title>
+  {% if not DEBUG %}
+    <link rel="stylesheet" href="{% static 'nimbus/static/css/main.css' %}" />
+  {% endif %}
 </head>
 
 <body>
