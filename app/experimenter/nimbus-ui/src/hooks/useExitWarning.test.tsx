@@ -4,11 +4,11 @@
 
 import React from 'react';
 import { act, render } from '@testing-library/react';
-import { exitHandler, useExitWarning } from "./hooks";
+import { exitHandler, useExitWarning } from "./useExitWarning";
 
-describe("services/hooks", () => {
+describe("hooks/useExitWarning", () => {
   describe("exitHandler", () => {
-    fit("correctly warns on exit", () => {
+    it("correctly warns on exit", () => {
       const event = new Event('beforeunload');
       jest.spyOn(event, 'preventDefault');
       exitHandler(event);
