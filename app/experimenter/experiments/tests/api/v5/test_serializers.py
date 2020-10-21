@@ -3,9 +3,13 @@ from django.test import TestCase
 from experimenter.experiments.api.v5.serializers import (
     NimbusBranchUpdateSerializer,
     NimbusExperimentOverviewSerializer,
+    NimbusProbeSetUpdateSerializer,
 )
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.experiments.tests.factories import (
+    NimbusExperimentFactory,
+    NimbusProbeSetFactory,
+)
 from experimenter.openidc.tests.factories import UserFactory
 
 
@@ -114,3 +118,28 @@ class TestUpdateNimbusExperimentSerializer(TestCase):
         for index, branch in enumerate(treatment_branches):
             for key, val in branch.items():
                 self.assertEqual(getattr(experiment_treatment_branches[index], key), val)
+
+
+class TestNimbusProbeSetUpdateSerializer(TestCase):
+    def test_serializer_updates_probe_sets_on_experiment(self):
+        user = UserFactory()
+        experiment = NimbusExperimentFactory(probe_sets=[])
+        probe_sets = [NimbusProbeSetFactory() for i in range(3)]
+
+        serializer = NimbusProbeSetUpdateSerializer(
+            experiment,
+            {
+                "probe_sets": [p.id for p in probe_sets],
+            },
+            context={"user": user},
+        )
+
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
+        self.assertEqual(experiment.changes.count(), 1)
+
+        self.assertEqual(
+            set([p.id for p in experiment.probe_sets.all()]),
+            set([p.id for p in probe_sets]),
+        )
