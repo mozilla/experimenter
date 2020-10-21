@@ -41,6 +41,9 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     population_percent = factory.LazyAttribute(
         lambda o: decimal.Decimal(random.randint(1, 10) * 10)
     )
+    total_enrolled_clients = factory.LazyAttribute(
+        lambda o: random.randint(1, 100) * 1000
+    )
     firefox_min_version = factory.LazyAttribute(
         lambda o: random.choice(list(NimbusExperiment.Version)).value
     )
