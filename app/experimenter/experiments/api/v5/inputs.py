@@ -52,3 +52,13 @@ class UpdateExperimentBranchesInput(graphene.InputObjectType):
             "updated, or deleted to match the list provided."
         ),
     )
+
+
+class UpdateExperimentProbeSetsInput(graphene.InputObjectType):
+    client_mutation_id = graphene.String()
+    nimbus_experiment_id = graphene.Int(required=True)
+    probe_set_ids = graphene.List(
+        graphene.Int,
+        required=True,
+        description="List of probeset ids that should be set on the experiment.",
+    )
