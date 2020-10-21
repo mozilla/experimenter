@@ -7,6 +7,8 @@ from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBucketRange,
     NimbusExperiment,
+    NimbusProbe,
+    NimbusProbeSet,
 )
 
 
@@ -113,3 +115,24 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
                 )
 
             return f"{channels_expr}{version_expr}{obj.targeting_config.targeting}"
+
+
+class NimbusProbeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NimbusProbe
+        fields = (
+            "kind",
+            "name",
+            "event_category",
+            "event_method",
+            "event_object",
+            "event_value",
+        )
+
+
+class NimbusProbeSetSerializer(serializers.ModelSerializer):
+    probes = NimbusProbeSerializer(many=True)
+
+    class Meta:
+        model = NimbusProbeSet
+        fields = ("name", "slug", "probes")

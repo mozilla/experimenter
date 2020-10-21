@@ -4,7 +4,10 @@ from django.conf import settings
 from django.test import TestCase
 from mozilla_nimbus_shared import check_schema
 
-from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
+from experimenter.experiments.api.v6.serializers import (
+    NimbusExperimentSerializer,
+    NimbusProbeSetSerializer,
+)
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
@@ -130,3 +133,32 @@ class TestNimbusExperimentSerializer(TestCase):
             serializer.data["targeting"],
             'channel in ["Nightly", "Beta", "Release"] && localeLanguageCode == \'en\'',
         )
+
+
+class TestNimbusProbeSetSerializer(TestCase):
+    def test_outputs_expected_schema(self):
+        probeset = NimbusProbeSetFactory()
+
+        probeset_data = dict(NimbusProbeSetSerializer(probeset).data)
+        probes_data = [dict(p) for p in probeset_data.pop("probes")]
+
+        self.assertEqual(
+            probeset_data,
+            {
+                "name": probeset.name,
+                "slug": probeset.slug,
+            },
+        )
+        self.assertEqual(len(probes_data), probeset.probes.count())
+        for probe in probeset.probes.all():
+            self.assertIn(
+                {
+                    "name": probe.name,
+                    "kind": probe.kind,
+                    "event_category": probe.event_category,
+                    "event_method": probe.event_method,
+                    "event_object": probe.event_object,
+                    "event_value": probe.event_value,
+                },
+                probes_data,
+            )
