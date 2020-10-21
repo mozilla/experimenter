@@ -4,8 +4,9 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
+import { withLinks } from "@storybook/addon-links";
 import PageHome from ".";
 
-storiesOf("pages/PageHome", module).add("basic", () => (
-  <PageHome />
-));
+storiesOf("pages/Home", module)
+  .addDecorator(withLinks)
+  .add("basic", () => <PageHome />);

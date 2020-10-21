@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { RouteComponentProps, useParams, Link, LinkProps } from "@reach/router";
+import { RouteComponentProps, useParams, Link } from "@reach/router";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -20,18 +20,27 @@ export const AppLayoutWithSidebar = ({
   children,
   testid = "AppLayoutWithSidebar",
 }: AppLayoutWithSidebarProps) => {
-  const { slug } = useParams();
+  // an empty string makes Storybook happy
+  const { slug } = useParams() || "";
   return (
     <Container fluid className="h-100vh" data-testid={testid}>
       <Row className="h-lg-100">
         <Col md="3" lg="3" xl="2" className="bg-light border-right shadow-sm">
           <nav>
             <Nav className="flex-column" as="ul">
-              <LinkNav to={BASE_PATH}>Experiments</LinkNav>
-              <LinkNav to={`${BASE_PATH}/${slug}/edit/overview`}>
+              <LinkNav to={BASE_PATH} data-sb-kind="pages/Home">
+                Experiments
+              </LinkNav>
+              <LinkNav
+                to={`${BASE_PATH}/${slug}/edit/overview`}
+                data-sb-kind="pages/EditOverview"
+              >
                 Overview
               </LinkNav>
-              <LinkNav to={`${BASE_PATH}/${slug}/edit/branches`}>
+              <LinkNav
+                to={`${BASE_PATH}/${slug}/edit/branches`}
+                data-sb-kind="pages/EditBranches"
+              >
                 Branches
               </LinkNav>
               <Nav.Item as="li" className="text-secondary m-1">
@@ -40,7 +49,10 @@ export const AppLayoutWithSidebar = ({
               <Nav.Item as="li" className="text-secondary m-1">
                 Audience
               </Nav.Item>
-              <LinkNav to={`${BASE_PATH}/${slug}/request-review`}>
+              <LinkNav
+                to={`${BASE_PATH}/${slug}/request-review`}
+                data-sb-kind="pages/RequestReview"
+              >
                 Review &amp; Launch
               </LinkNav>
             </Nav>
@@ -57,12 +69,18 @@ export const AppLayoutWithSidebar = ({
 type LinkNavProps = {
   children: React.ReactNode;
   to: string;
+  "data-sb-kind": string;
 };
 
-const LinkNav = ({ to, children }: LinkNavProps) => (
+const LinkNav = ({
+  to,
+  children,
+  "data-sb-kind": dataSbKind,
+}: LinkNavProps) => (
   <Nav.Item as="li" className="m-1">
     <Link
       {...{ to }}
+      data-sb-kind={dataSbKind}
       getProps={({ isCurrent }) => ({
         className: isCurrent ? "text-primary" : "text-dark",
       })}

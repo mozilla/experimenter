@@ -4,8 +4,11 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
+import { LocationProvider } from "@reach/router";
+import { withLinks } from "@storybook/addon-links";
 import PageRequestReview from ".";
 
-storiesOf("pages/PageRequestReview", module).add("basic", () => (
-  <PageRequestReview />
-));
+storiesOf("pages/RequestReview", module)
+  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
+  .addDecorator(withLinks)
+  .add("basic", () => <PageRequestReview />);

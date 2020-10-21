@@ -11,9 +11,9 @@ type PageHomeProps = {} & RouteComponentProps;
 const PageHome = (props: PageHomeProps) => (
   <AppLayout testid="PageHome">
     <h1>Home</h1>
-    <Link to="./new">New experiment</Link>
-    <br />
-    <Link to="./i-am-a-pretty-slug/edit">Fake pretty slug link</Link>
+    <Link to="./new" data-sb-kind="pages/New">
+      New experiment
+    </Link>
   </AppLayout>
 );
 
