@@ -3,12 +3,20 @@ import json
 from django.test import TestCase
 from django.urls import reverse
 
-from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
+from experimenter.experiments.api.v6.serializers import (
+    NimbusExperimentSerializer,
+    NimbusProbeSetSerializer,
+)
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.experiments.tests.factories import NimbusExperimentFactory
+from experimenter.experiments.tests.factories import (
+    NimbusExperimentFactory,
+    NimbusProbeSetFactory,
+)
 
 
 class TestNimbusExperimentViewSet(TestCase):
+    maxDiff = None
+
     def test_list_view_serializes_experiments(self):
         experiments = []
 
@@ -45,7 +53,33 @@ class TestNimbusExperimentViewSet(TestCase):
 
         self.assertEqual(response.status_code, 200)
         json_data = json.loads(response.content)
-        serialized_experiment = NimbusExperimentSerializer(experiment).data
+        self.assertEqual(NimbusExperimentSerializer(experiment).data, json_data)
 
-        self.maxDiff = None
-        self.assertEqual(serialized_experiment, json_data)
+
+class TestNimbusProbeSetViewSet(TestCase):
+    def test_list_view_serializes_probesets(self):
+        probesets = [NimbusProbeSetFactory() for i in range(3)]
+
+        response = self.client.get(
+            reverse("nimbus-probeset-rest-list"),
+        )
+        self.assertEqual(response.status_code, 200)
+
+        json_data = json.loads(response.content)
+        json_slugs = set([d["slug"] for d in json_data])
+        expected_slugs = set(p.slug for p in probesets)
+        self.assertEqual(json_slugs, expected_slugs)
+
+    def test_get_nimbus_experiment_returns_expected_data(self):
+        probeset = NimbusProbeSetFactory()
+
+        response = self.client.get(
+            reverse(
+                "nimbus-probeset-rest-detail",
+                kwargs={"slug": probeset.slug},
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        json_data = json.loads(response.content)
+        self.assertEqual(NimbusProbeSetSerializer(probeset).data, json_data)
