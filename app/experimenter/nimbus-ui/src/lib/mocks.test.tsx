@@ -7,7 +7,7 @@ import { InMemoryCache } from "@apollo/client";
 import { render, screen } from "@testing-library/react";
 import { createCache, MockedCache } from "./mocks";
 
-describe("services/mocks", () => {
+describe("lib/mocks", () => {
   describe("createCache", () => {
     it("returns an instance of InMemoryCache", () => {
       expect(createCache()).toBeInstanceOf(InMemoryCache);

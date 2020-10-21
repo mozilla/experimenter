@@ -26,7 +26,9 @@ import { useEffect, useState } from "react";
  *   </form>
  * );
  */
+
 export const exitMessage = 'You have unsaved Experiment changes. Are you sure you want to leave?';
+
 export const exitHandler = (event: BeforeUnloadEvent) => {
   event.preventDefault();
 
@@ -35,6 +37,7 @@ export const exitHandler = (event: BeforeUnloadEvent) => {
   event.returnValue = exitMessage;
   return exitMessage;
 }
+
 export function useExitWarning(init = false): (value: boolean) => void {
   const [warnOnExit, setWarnOnExit] = useState<boolean>(init);
 
