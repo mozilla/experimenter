@@ -1,12 +1,15 @@
 from django.test import TestCase
+from django.utils import timezone
 
 from experimenter.experiments.models import NimbusExperiment, NimbusIsolationGroup
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusBucketRangeFactory,
+    NimbusChangeLogFactory,
     NimbusExperimentFactory,
     NimbusIsolationGroupFactory,
 )
+from experimenter.openidc.tests.factories import UserFactory
 
 
 class TestNimbusExperimentModel(TestCase):
@@ -118,3 +121,21 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.isolation_group.name, isolation_group.name)
         self.assertEqual(bucket.isolation_group.instance, isolation_group.instance + 1)
+
+
+class TestNimbusChangeLog(TestCase):
+    def test_uses_message_if_set(self):
+        changelog = NimbusChangeLogFactory.create()
+        self.assertEqual(str(changelog), changelog.message)
+
+    def test_formats_str_if_no_message_set(self):
+        now = timezone.now()
+        user = UserFactory.create()
+        changelog = NimbusChangeLogFactory.create(
+            changed_by=user,
+            changed_on=now,
+            old_status=NimbusExperiment.Status.DRAFT,
+            new_status=NimbusExperiment.Status.REVIEW,
+            message=None,
+        )
+        self.assertEqual(str(changelog), f"Draft > Review by {user.email} on {now}")
