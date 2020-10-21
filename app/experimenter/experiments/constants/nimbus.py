@@ -139,7 +139,7 @@ class NimbusConstants(object):
     BUCKET_AA_COUNT = 100
     BUCKET_RANDOMIZATION_UNIT = "normandy_id"
 
-    OBJECTIVES_DEFAULT = """If we <do this/build this/create this change in the experiment> for <these users>, then we will see <this outcome>.
+    HYPOTHESIS_DEFAULT = """If we <do this/build this/create this change in the experiment> for <these users>, then we will see <this outcome>.
 We believe this because we have observed <this> via <data source, UR, survey>.
 
 Optional - We believe this outcome will <describe impact> on <core metric>
