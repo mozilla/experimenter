@@ -4,6 +4,7 @@ from django.conf import settings
 from django.urls import reverse
 from graphene_django.utils.testing import GraphQLTestCase
 
+from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models.nimbus import NimbusExperiment, NimbusFeatureConfig
 from experimenter.experiments.tests.factories.nimbus import (
     NimbusExperimentFactory,
@@ -75,7 +76,7 @@ mutation ($input: UpdateExperimentBranchesInput !) {
 
 
 UPDATE_EXPERIMENT_PROBESETS_MUTATION = """\
-mutation ($input:  UpdateExperimentProbeSetsInput!) {
+mutation ($input: UpdateExperimentProbeSetsInput!) {
   updateExperimentProbeSets(input: $input){
     clientMutationId
     nimbusExperiment {
@@ -84,6 +85,26 @@ mutation ($input:  UpdateExperimentProbeSetsInput!) {
         id
         name
       }
+    }
+    message
+    status
+  }
+}
+"""
+
+UPDATE_EXPERIMENT_AUDIENCE_MUTATION = """\
+mutation ($input: UpdateExperimentAudienceInput!){
+  updateExperimentAudience(input: $input){
+    clientMutationId
+    nimbusExperiment {
+      id
+      totalEnrolledClients
+      channels
+      firefoxMinVersion
+      populationPercent
+      proposedDuration
+      proposedEnrollment
+      targetingConfigSlug
     }
     message
     status
@@ -336,4 +357,99 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(
             result["message"],
             {"probe_sets": ['Invalid pk "123" - object does not exist.']},
+        )
+
+    def test_update_experiment_audience(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            channels=[],
+            firefox_min_version=None,
+            population_percent=None,
+            proposed_duration=None,
+            proposed_enrollment=None,
+            targeting_config_slug=None,
+            total_enrolled_clients=0,
+        )
+        response = self.query(
+            UPDATE_EXPERIMENT_AUDIENCE_MUTATION,
+            variables={
+                "input": {
+                    "nimbusExperimentId": experiment.id,
+                    "clientMutationId": "randomid",
+                    "channels": [NimbusConstants.Channel.DESKTOP_BETA.name],
+                    "firefoxMinVersion": NimbusConstants.Version.FIREFOX_80.name,
+                    "populationPercent": "10",
+                    "proposedDuration": 42,
+                    "proposedEnrollment": 120,
+                    "targetingConfigSlug": (
+                        NimbusConstants.TargetingConfig.ALL_ENGLISH.name
+                    ),
+                    "totalEnrolledClients": 100,
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        content = json.loads(response.content)
+        result = content["data"]["updateExperimentAudience"]
+        self.assertEqual(
+            result["nimbusExperiment"],
+            {
+                "id": str(experiment.id),
+                "channels": [NimbusConstants.Channel.DESKTOP_BETA.name],
+                "firefoxMinVersion": NimbusConstants.Version.FIREFOX_80.name,
+                "populationPercent": 10.0,
+                "proposedDuration": 42,
+                "proposedEnrollment": 120,
+                "targetingConfigSlug": NimbusConstants.TargetingConfig.ALL_ENGLISH.name,
+                "totalEnrolledClients": 100,
+            },
+        )
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.channels, [NimbusConstants.Channel.choices[0][0]])
+        self.assertEqual(
+            experiment.firefox_min_version, NimbusConstants.Version.choices[0][0]
+        )
+        self.assertEqual(experiment.population_percent, 10.0)
+        self.assertEqual(experiment.proposed_duration, 42)
+        self.assertEqual(experiment.proposed_enrollment, 120)
+        self.assertEqual(
+            experiment.targeting_config_slug,
+            NimbusConstants.TargetingConfig.ALL_ENGLISH.value,
+        )
+        self.assertEqual(experiment.total_enrolled_clients, 100)
+
+    def test_update_experiment_audience_error(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            channels=[],
+            firefox_min_version=None,
+            population_percent=None,
+            proposed_duration=None,
+            proposed_enrollment=None,
+            targeting_config_slug=None,
+            total_enrolled_clients=0,
+        )
+        response = self.query(
+            UPDATE_EXPERIMENT_AUDIENCE_MUTATION,
+            variables={
+                "input": {
+                    "nimbusExperimentId": experiment.id,
+                    "clientMutationId": "randomid",
+                    "populationPercent": "10.23471",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperimentAudience"]
+        self.assertEqual(
+            result["message"],
+            {
+                "population_percent": [
+                    "Ensure that there are no more than 4 decimal places."
+                ]
+            },
         )

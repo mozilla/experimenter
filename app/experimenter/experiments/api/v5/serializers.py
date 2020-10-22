@@ -87,3 +87,17 @@ class NimbusProbeSetUpdateSerializer(NimbusChangeLogMixin, serializers.ModelSeri
     class Meta:
         model = NimbusExperiment
         fields = ("probe_sets",)
+
+
+class NimbusAudienceUpdateSerializer(NimbusChangeLogMixin, serializers.ModelSerializer):
+    class Meta:
+        model = NimbusExperiment
+        fields = (
+            "channels",
+            "firefox_min_version",
+            "population_percent",
+            "proposed_duration",
+            "proposed_enrollment",
+            "targeting_config_slug",
+            "total_enrolled_clients",
+        )

@@ -15,17 +15,34 @@ import graphene
 
 from experimenter.experiments.api.v5.inputs import (
     CreateExperimentInput,
+    UpdateExperimentAudienceInput,
     UpdateExperimentBranchesInput,
     UpdateExperimentInput,
     UpdateExperimentProbeSetsInput,
 )
 from experimenter.experiments.api.v5.serializers import (
+    NimbusAudienceUpdateSerializer,
     NimbusBranchUpdateSerializer,
     NimbusExperimentOverviewSerializer,
     NimbusProbeSetUpdateSerializer,
 )
 from experimenter.experiments.api.v5.types import NimbusExperimentType
 from experimenter.experiments.models import NimbusExperiment
+
+
+def handle_with_serializer(cls, serializer, client_mutation_id):
+    if serializer.is_valid():
+        obj = serializer.save()
+        msg = "success"
+    else:
+        msg = serializer.errors
+        obj = None
+    return cls(
+        nimbus_experiment=obj,
+        message=msg,
+        status=200,
+        client_mutation_id=client_mutation_id,
+    )
 
 
 class ObjectField(graphene.Scalar):
@@ -50,18 +67,7 @@ class CreateExperiment(graphene.Mutation):
         serializer = NimbusExperimentOverviewSerializer(
             data=input, context={"user": info.context.user}
         )
-        if serializer.is_valid():
-            obj = serializer.save()
-            msg = "success"
-        else:
-            msg = serializer.errors
-            obj = None
-        return cls(
-            nimbus_experiment=obj,
-            message=msg,
-            status=200,
-            client_mutation_id=input.client_mutation_id,
-        )
+        return handle_with_serializer(cls, serializer, input.client_mutation_id)
 
 
 class UpdateExperiment(graphene.Mutation):
@@ -79,18 +85,7 @@ class UpdateExperiment(graphene.Mutation):
         serializer = NimbusExperimentOverviewSerializer(
             exp, data=input, partial=True, context={"user": info.context.user}
         )
-        if serializer.is_valid():
-            obj = serializer.save()
-            msg = "success"
-        else:
-            msg = serializer.errors
-            obj = None
-        return cls(
-            nimbus_experiment=obj,
-            message=msg,
-            status=200,
-            client_mutation_id=input.client_mutation_id,
-        )
+        return handle_with_serializer(cls, serializer, input.client_mutation_id)
 
 
 class UpdateExperimentBranches(graphene.Mutation):
@@ -109,18 +104,7 @@ class UpdateExperimentBranches(graphene.Mutation):
         serializer = NimbusBranchUpdateSerializer(
             exp, data=input, partial=True, context={"user": info.context.user}
         )
-        if serializer.is_valid():
-            obj = serializer.save()
-            msg = "success"
-        else:
-            msg = serializer.errors
-            obj = None
-        return cls(
-            nimbus_experiment=obj,
-            message=msg,
-            status=200,
-            client_mutation_id=input.client_mutation_id,
-        )
+        return handle_with_serializer(cls, serializer, input.client_mutation_id)
 
 
 class UpdateExperimentProbeSets(graphene.Mutation):
@@ -140,18 +124,27 @@ class UpdateExperimentProbeSets(graphene.Mutation):
             data={"probe_sets": input["probe_set_ids"]},
             context={"user": info.context.user},
         )
-        if serializer.is_valid():
-            obj = serializer.save()
-            msg = "success"
-        else:
-            msg = serializer.errors
-            obj = None
-        return cls(
-            nimbus_experiment=obj,
-            message=msg,
-            status=200,
-            client_mutation_id=input.client_mutation_id,
+        return handle_with_serializer(cls, serializer, input.client_mutation_id)
+
+
+class UpdateExperimentAudience(graphene.Mutation):
+    client_mutation_id = graphene.String()
+    nimbus_experiment = graphene.Field(NimbusExperimentType)
+    message = ObjectField()
+    status = graphene.Int()
+
+    class Arguments:
+        input = UpdateExperimentAudienceInput(required=True)
+
+    @classmethod
+    def mutate(cls, root, info, input: UpdateExperimentAudienceInput):
+        experiment = NimbusExperiment.objects.get(id=input.nimbus_experiment_id)
+        serializer = NimbusAudienceUpdateSerializer(
+            experiment,
+            data=input,
+            context={"user": info.context.user},
         )
+        return handle_with_serializer(cls, serializer, input.client_mutation_id)
 
 
 class Mutation(graphene.ObjectType):
@@ -166,4 +159,8 @@ class Mutation(graphene.ObjectType):
 
     update_experiment_probe_sets = UpdateExperimentProbeSets.Field(
         description="Updates the probesets on a Nimbus Experiment."
+    )
+
+    update_experiment_audience = UpdateExperimentAudience.Field(
+        description="Updates the audience on a Nimbus Experiment."
     )
