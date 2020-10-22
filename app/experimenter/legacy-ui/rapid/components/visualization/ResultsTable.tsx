@@ -4,6 +4,7 @@ import { featureOptions } from "experimenter-rapid/components/forms/ExperimentFo
 import {
   RESULTS_METRICS_LIST,
   TABLE_LABEL,
+  METRIC_TYPE,
 } from "experimenter-rapid/components/visualization/constants/analysis";
 import { METRICS_TIPS } from "experimenter-rapid/components/visualization/constants/tooltips";
 import ResultsRow from "experimenter-rapid/components/visualization/ResultsRow";
@@ -11,7 +12,12 @@ import { ExperimentData } from "experimenter-types/experiment";
 
 const getResultMetrics = (
   featureData: Array<string>,
-): Array<{ value: string; name: string; tooltip: string }> => {
+): Array<{
+  value: string;
+  name: string;
+  tooltip: string;
+  type?: { label: string; badge: string, tooltip: string };
+}> => {
   const featureNameMappings = featureOptions.reduce((acc, featureRow) => {
     acc[featureRow.value] = featureRow["name"];
     return acc;
@@ -25,6 +31,7 @@ const getResultMetrics = (
       value: featureMetricID,
       name: `${featureNameMappings[feature]} Conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
+      type: METRIC_TYPE.PRIMARY,
     });
   });
 
@@ -43,9 +50,13 @@ const ResultsTable: React.FC<{ experimentData: ExperimentData }> = ({
         <tr>
           <th scope="col"></th>
           {resultsMetricsList.map((value, index) => {
+            const badgeClass = `badge ${value.type?.badge}`;
             return (
               <th key={index} scope="col">
                 <div data-tip={value.tooltip}>{value.name}</div>
+                {value.type && (
+                  <span data-tip={value.type.tooltip} className={badgeClass}>{value.type.label}</span>
+                )}
               </th>
             );
           })}

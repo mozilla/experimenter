@@ -1,4 +1,4 @@
-import { METRICS_TIPS } from "experimenter-rapid/components/visualization/constants/tooltips";
+import { METRICS_TIPS, BADGE_TIPS } from "experimenter-rapid/components/visualization/constants/tooltips";
 
 export enum SIGNIFICANCE {
   POSITIVE,
@@ -15,6 +15,23 @@ export const METRIC = {
   RETENTION: "retained",
   SEARCH: "search_count",
   USER_COUNT: "identity",
+};
+
+export const METRIC_TYPE = {
+  PRIMARY: {
+    label: "Primary Metric",
+    badge: "badge-primary",
+    tooltip: BADGE_TIPS.PRIMARY_METRIC
+  },
+  SECONDARY: {
+    label: "Secondary Metric",
+    badge: "badge-secondary",
+  },
+  GUARDRAIL: {
+    label: "Guardrail Metric",
+    badge: "badge-warning",
+    tooltip: BADGE_TIPS.GUARDRAIL_METRIC
+  },
 };
 
 export const STATISTIC = {
@@ -42,11 +59,13 @@ export const RESULTS_METRICS_LIST = [
     value: METRIC.RETENTION,
     name: "2-Week Browser Retention",
     tooltip: METRICS_TIPS.RETENTION,
+    type: METRIC_TYPE.GUARDRAIL,
   },
   {
     value: METRIC.SEARCH,
     name: "Daily Mean Searches Per User",
     tooltip: METRICS_TIPS.SEARCH,
+    type: METRIC_TYPE.GUARDRAIL,
   },
   {
     value: METRIC.USER_COUNT,

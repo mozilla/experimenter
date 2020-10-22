@@ -58,7 +58,7 @@ const showSignificanceField = (significance, interval, name, tableLabel) => {
         break;
     }
 
-    let intervalText = `(${interval} uplift)`;
+    let intervalText = `(${interval} change)`;
     if (!significance) {
       intervalText = `(${interval})`;
     }
