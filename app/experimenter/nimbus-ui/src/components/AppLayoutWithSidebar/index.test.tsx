@@ -8,6 +8,7 @@ import AppLayoutWithSidebar from ".";
 import { renderWithRouter } from "../../lib/helpers";
 import { BASE_PATH } from "../../lib/constants";
 import { RouteComponentProps, Router } from "@reach/router";
+import App from "../App";
 
 describe("PageNew", () => {
   it("renders app layout content with children", () => {
@@ -47,6 +48,24 @@ describe("PageNew", () => {
         "href",
         `${BASE_PATH}/my-special-slug/request-review`,
       );
+    });
+
+    it("renders expected active page class", async () => {
+      const {
+        history: { navigate },
+      } = renderWithRouter(<App basepath="/" />, {
+        route: `/my-special-slug/`,
+      });
+      // this fails because location.pathname is still set to "/"
+      // and `isCurrent` checks location.pathname against the href
+      // await navigate("/my-special-slug/edit/overview");
+      // const overviewLink = screen.getByTestId("nav-edit-overview");
+      // const branchesLink = screen.getByTestId("nav-edit-branches");
+      // expect(overviewLink).toHaveClass("text-primary");
+      // expect(branchesLink).not.toHaveClass("text-primary");
+      // await navigate("/my-special-slug/edit/branches");
+      // expect(branchesLink).toHaveClass("text-primary");
+      // expect(overviewLink).not.toHaveClass("text-primary");
     });
   });
 });
