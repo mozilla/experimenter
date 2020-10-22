@@ -81,7 +81,8 @@ const LinkNav = ({
 }: LinkNavProps) => {
   const to = route ? `${BASE_PATH}/${route}` : BASE_PATH;
   // an alternative to reach-router's `isCurrent` with identical
-  // functionality; this allows us to test
+  // functionality; explicitely setting it here allows us to test.
+  // eslint-disable-next-line
   const isCurrentPage = location.pathname === to;
   return (
     <Nav.Item as="li" className="m-1">
