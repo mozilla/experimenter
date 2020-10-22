@@ -26,7 +26,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "application": None,
                 "branches": [],
                 "channels": [],
-                "control_branch": None,
+                "reference_branch": None,
                 "feature_config": None,
                 "firefox_min_version": None,
                 "hypothesis": NimbusExperiment.HYPOTHESIS_DEFAULT,
@@ -61,7 +61,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         )
         data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
         branches_data = [dict(b) for b in data.pop("branches")]
-        control_branch_data = dict(data.pop("control_branch"))
+        control_branch_data = dict(data.pop("reference_branch"))
         self.assertEqual(
             data,
             {
@@ -95,12 +95,12 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         self.assertEqual(
             control_branch_data,
             {
-                "description": experiment.control_branch.description,
-                "feature_enabled": experiment.control_branch.feature_enabled,
-                "feature_value": experiment.control_branch.feature_value,
-                "name": experiment.control_branch.name,
-                "ratio": experiment.control_branch.ratio,
-                "slug": experiment.control_branch.slug,
+                "description": experiment.reference_branch.description,
+                "feature_enabled": experiment.reference_branch.feature_enabled,
+                "feature_value": experiment.reference_branch.feature_value,
+                "name": experiment.reference_branch.name,
+                "ratio": experiment.reference_branch.ratio,
+                "slug": experiment.reference_branch.slug,
             },
         )
         for branch in experiment.branches.all():

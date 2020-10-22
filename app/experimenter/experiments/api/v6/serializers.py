@@ -93,8 +93,8 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         return list(obj.probe_sets.all().order_by("slug").values_list("slug", flat=True))
 
     def get_referenceBranch(self, obj):
-        if obj.control_branch:
-            return obj.control_branch.slug
+        if obj.reference_branch:
+            return obj.reference_branch.slug
 
     def get_targeting(self, obj):
         if obj.targeting_config:

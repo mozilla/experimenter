@@ -27,7 +27,7 @@ class BranchType(graphene.InputObjectType):
     feature_value = graphene.String()
 
 
-class ControlBranchType(BranchType):
+class ReferenceBranchType(BranchType):
     class Meta:
         description = "The control branch"
 
@@ -43,7 +43,7 @@ class UpdateExperimentBranchesInput(graphene.InputObjectType):
     client_mutation_id = graphene.String()
     nimbus_experiment_id = graphene.Int(required=True)
     feature_config_id = graphene.Int()
-    control_branch = graphene.Field(ControlBranchType, required=True)
+    reference_branch = graphene.Field(ReferenceBranchType, required=True)
     treatment_branches = graphene.List(
         TreatmentBranchType,
         required=True,

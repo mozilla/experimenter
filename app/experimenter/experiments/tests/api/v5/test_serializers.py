@@ -93,7 +93,7 @@ class TestUpdateNimbusExperimentSerializer(TestCase):
             status=NimbusExperiment.Status.DRAFT,
         )
 
-        control_branch = {"name": "control", "description": "a control", "ratio": 1}
+        reference_branch = {"name": "control", "description": "a control", "ratio": 1}
         treatment_branches = [
             {"name": "treatment1", "description": "desc1", "ratio": 1},
             {"name": "testment2", "description": "desc2", "ratio": 1},
@@ -101,7 +101,7 @@ class TestUpdateNimbusExperimentSerializer(TestCase):
 
         input = {
             "feature_config": None,
-            "control_branch": control_branch,
+            "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
         }
         serializer = NimbusBranchUpdateSerializer(
@@ -109,11 +109,11 @@ class TestUpdateNimbusExperimentSerializer(TestCase):
         )
         self.assertTrue(serializer.is_valid())
         experiment = serializer.save()
-        for key, val in control_branch.items():
-            self.assertEqual(getattr(experiment.control_branch, key), val)
+        for key, val in reference_branch.items():
+            self.assertEqual(getattr(experiment.reference_branch, key), val)
 
         experiment_treatment_branches = experiment.branches.exclude(
-            id=experiment.control_branch.id
+            id=experiment.reference_branch.id
         ).order_by("id")
         for index, branch in enumerate(treatment_branches):
             for key, val in branch.items():
