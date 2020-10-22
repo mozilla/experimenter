@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ApolloClient, InMemoryCache, createHttpLink, from } from "@apollo/client";
+import config from "./config";
 
 export const cache = new InMemoryCache();
 
 export function createApolloClient() {
   const httpLink = createHttpLink({
-    uri: `/api/v5/graphql`,
+    uri: config.graphql_url,
   });
 
   const apolloClient = new ApolloClient({

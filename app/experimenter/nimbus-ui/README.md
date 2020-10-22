@@ -137,6 +137,54 @@ renderWithRouter(
 );
 ```
 
+### Simulating GQL query responses in stories & tests
+
+The `MockedCache` component is good for asserting expected GQL requests in tests. But, it doesn't accommodate arbitrary user input - e.g. filling out a form in a Storybook story with random values to try out the UI.
+
+So, we also have [`SimulatedMockLink`](./src/services/mocks.tsx) for use with `MockedProvider` which allows the definition of a function that receives a GQL Operation and can implement a mocked implementation of what happens server-side.
+
+An example of usage can be found in a story like [`basic` for `PageNew`](./src/components/PageNew/index.stories.tsx) - it looks like this:
+
+```tsx
+const actionCreateExperiment = action("createExperiment");
+
+const mkSimulatedQueries = ({
+  message = "success" as string | Record<string, any>,
+  status = 200,
+  nimbusExperiment = { slug: "foo-bar-baz" },
+} = {}) => [
+  {
+    request: {
+      query: CREATE_EXPERIMENT_MUTATION,
+    },
+    delay: 1000,
+    result: (operation: Operation) => {
+      const { name, application, hypothesis } = operation.variables.input;
+      actionCreateExperiment(name, application, hypothesis);
+      return {
+        data: {
+          createExperiment: {
+            clientMutationId: "8675309",
+            message,
+            status,
+            nimbusExperiment,
+          },
+        },
+      };
+    },
+  },
+];
+
+const Subject = ({ simulatedQueries = mkSimulatedQueries() }) => {
+  const mockLink = new SimulatedMockLink(simulatedQueries, false);
+  return (
+    <MockedProvider link={mockLink} addTypename={false}>
+      <PageNew />
+    </MockedProvider>
+  );
+};
+```
+
 ## Storybook
 
 This project uses [Storybook](https://storybook.js.org/) to visually show each component and page of this project in various application states without requiring the full stack to run.

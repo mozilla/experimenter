@@ -3,8 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { InMemoryCache, ApolloClient, ApolloProvider } from "@apollo/client";
+import {
+  InMemoryCache,
+  ApolloClient,
+  ApolloProvider,
+  ApolloLink,
+  Operation,
+  FetchResult,
+} from "@apollo/client";
+import { Observable } from "@apollo/client/utilities";
 import { MockLink, MockedResponse } from "@apollo/client/testing";
+import { equal } from "@wry/equality";
+import { print } from "graphql";
 
 export interface MockedProps {
   childProps?: object;
@@ -58,5 +68,57 @@ export class MockedCache extends React.Component<MockedProps, MockedState> {
 
   componentWillUnmount() {
     this.state.client.stop();
+  }
+}
+
+type ResultFunction = (operation: Operation) => FetchResult;
+
+type SimulatedMockedResponses = ReadonlyArray<{
+  request: MockedResponse["request"];
+  result: ResultFunction;
+  delay?: number;
+}>;
+
+export class SimulatedMockLink extends ApolloLink {
+  constructor(
+    public mockedResponses: SimulatedMockedResponses,
+    public addTypename: Boolean = true,
+  ) {
+    super();
+  }
+
+  public request(operation: Operation): Observable<FetchResult> | null {
+    const response = this.mockedResponses.find((response) =>
+      equal(operation.query, response.request.query),
+    );
+
+    if (!response) {
+      this.onError(
+        new Error(
+          `No more mocked responses for the query: ${print(
+            operation.query,
+          )}, variables: ${JSON.stringify(operation.variables)}`,
+        ),
+      );
+      return null;
+    }
+
+    const { result, delay } = response!;
+
+    return new Observable((observer) => {
+      let timer = setTimeout(
+        () => {
+          observer.next(
+            typeof result === "function"
+              ? (result(operation) as FetchResult)
+              : result,
+          );
+          observer.complete();
+        },
+        delay ? delay : 0,
+      );
+
+      return () => clearTimeout(timer);
+    });
   }
 }

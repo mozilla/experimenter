@@ -35,7 +35,7 @@ mutation($input: UpdateExperimentInput!) {
             id
             status
             name
-            slug
+            hypothesis
         }
         message
         status
@@ -137,8 +137,9 @@ class TestMutations(GraphQLTestCase):
             CREATE_EXPERIMENT_MUTATION,
             variables={
                 "input": {
-                    "name": "test1234",
-                    "slug": "slug1234",
+                    "name": "Test 1234",
+                    "hypothesis": "Test hypothesis",
+                    "application": "firefox-desktop",
                     "clientMutationId": "randomid",
                 }
             },
@@ -149,7 +150,7 @@ class TestMutations(GraphQLTestCase):
         result = content["data"]["createExperiment"]
         experiment = result["nimbusExperiment"]
         self.assertEqual(
-            experiment, {"status": "DRAFT", "name": "test1234", "slug": "slug1234"}
+            experiment, {"status": "DRAFT", "name": "Test 1234", "slug": "test-1234"}
         )
 
         self.assertEqual(result["clientMutationId"], "randomid")
@@ -157,7 +158,7 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(result["status"], 200)
 
         exp = NimbusExperiment.objects.first()
-        self.assertEqual(exp.slug, "slug1234")
+        self.assertEqual(exp.slug, "test-1234")
 
     def test_create_experiment_error(self):
         user_email = "user@example.com"
@@ -167,7 +168,8 @@ class TestMutations(GraphQLTestCase):
             variables={
                 "input": {
                     "name": long_name,
-                    "slug": "slug1234",
+                    "hypothesis": "Test hypothesis",
+                    "application": "firefox-desktop",
                     "clientMutationId": "randomid",
                 }
             },
@@ -193,8 +195,8 @@ class TestMutations(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "name": "test1234",
-                    "slug": "slug1234",
+                    "name": "Test 1234",
+                    "hypothesis": "Test hypo 2",
                     "clientMutationId": "randomid",
                 }
             },
@@ -209,8 +211,8 @@ class TestMutations(GraphQLTestCase):
             {
                 "id": f"{experiment.id}",
                 "status": "DRAFT",
-                "name": "test1234",
-                "slug": "slug1234",
+                "name": "Test 1234",
+                "hypothesis": "Test hypo 2",
             },
         )
 
@@ -219,7 +221,7 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(result["status"], 200)
 
         experiment = NimbusExperiment.objects.first()
-        self.assertEqual(experiment.slug, "slug1234")
+        self.assertEqual(experiment.hypothesis, "Test hypo 2")
 
     def test_update_experiment_error(self):
         user_email = "user@example.com"
@@ -231,7 +233,6 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "id": experiment.id,
                     "name": long_name,
-                    "slug": "slug1234",
                     "clientMutationId": "randomid",
                 }
             },

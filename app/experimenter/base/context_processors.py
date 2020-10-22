@@ -2,6 +2,7 @@ import json
 import urllib
 
 from django.conf import settings
+from django.urls import reverse
 
 
 def google_analytics(request):
@@ -18,6 +19,7 @@ def features(request):
             json.dumps(
                 {
                     "sentry_dsn": settings.SENTRY_DSN,
+                    "graphql_url": reverse("nimbus-api-graphql"),
                 }
             )
         ),
