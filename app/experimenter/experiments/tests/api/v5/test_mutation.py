@@ -57,7 +57,7 @@ mutation ($input: UpdateExperimentBranchesInput !) {
       status
       name
       slug
-      controlBranch {
+      referenceBranch {
         name
         description
         ratio
@@ -240,7 +240,7 @@ class TestMutations(GraphQLTestCase):
         feature = NimbusFeatureConfigFactory()
         experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.DRAFT)
         experiment_id = experiment.id
-        control_branch = {"name": "control", "description": "a control", "ratio": 1}
+        reference_branch = {"name": "control", "description": "a control", "ratio": 1}
         treatment_branches = [{"name": "treatment1", "description": "desc1", "ratio": 1}]
         response = self.query(
             UPDATE_EXPERIMENT_BRANCHES_MUTATION,
@@ -249,7 +249,7 @@ class TestMutations(GraphQLTestCase):
                     "nimbusExperimentId": experiment.id,
                     "featureConfigId": feature.id,
                     "clientMutationId": "randomid",
-                    "controlBranch": control_branch,
+                    "referenceBranch": reference_branch,
                     "treatmentBranches": treatment_branches,
                 }
             },
@@ -266,21 +266,21 @@ class TestMutations(GraphQLTestCase):
                 "status": experiment.status.upper(),
                 "name": experiment.name,
                 "slug": experiment.slug,
-                "controlBranch": control_branch,
+                "referenceBranch": reference_branch,
                 "treatmentBranches": treatment_branches,
             },
         )
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         self.assertEqual(experiment.feature_config, feature)
         self.assertEqual(experiment.branches.count(), 2)
-        self.assertEqual(experiment.control_branch.name, control_branch["name"])
+        self.assertEqual(experiment.reference_branch.name, reference_branch["name"])
         treatment_branch = experiment.treatment_branches[0]
         self.assertEqual(treatment_branch.name, treatment_branches[0]["name"])
 
     def test_update_experiment_branches_with_feature_config_error(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.DRAFT)
-        control_branch = {"name": "control", "description": "a control", "ratio": 1}
+        reference_branch = {"name": "control", "description": "a control", "ratio": 1}
         treatment_branches = [{"name": "treatment1", "description": "desc1", "ratio": 1}]
         # The NimbusExperimentFactory always creates a single feature config.
         self.assertEqual(NimbusFeatureConfig.objects.count(), 1)
@@ -291,7 +291,7 @@ class TestMutations(GraphQLTestCase):
                     "nimbusExperimentId": experiment.id,
                     "featureConfigId": 2,
                     "clientMutationId": "randomid",
-                    "controlBranch": control_branch,
+                    "referenceBranch": reference_branch,
                     "treatmentBranches": treatment_branches,
                 }
             },
