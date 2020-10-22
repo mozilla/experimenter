@@ -112,6 +112,20 @@ mutation ($input: UpdateExperimentAudienceInput!){
 }
 """
 
+UPDATE_EXPERIMENT_STATUS_MUTATION = """\
+mutation ($input: UpdateExperimentStatusInput!){
+  updateExperimentStatus(input: $input){
+    clientMutationId
+    nimbusExperiment {
+      id
+      status
+    }
+    message
+    status
+  }
+}
+"""
+
 
 class TestMutations(GraphQLTestCase):
     GRAPHQL_URL = reverse("nimbus-api-graphql")
@@ -450,6 +464,64 @@ class TestMutations(GraphQLTestCase):
             {
                 "population_percent": [
                     "Ensure that there are no more than 4 decimal places."
+                ]
+            },
+        )
+
+    def test_update_experiment_status(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+        )
+        response = self.query(
+            UPDATE_EXPERIMENT_STATUS_MUTATION,
+            variables={
+                "input": {
+                    "nimbusExperimentId": experiment.id,
+                    "clientMutationId": "randomid",
+                    "status": NimbusExperiment.Status.REVIEW.name,
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperimentStatus"]
+        self.assertEqual(
+            result["nimbusExperiment"],
+            {
+                "id": str(experiment.id),
+                "status": NimbusExperiment.Status.REVIEW.name,
+            },
+        )
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.status, NimbusExperiment.Status.REVIEW)
+
+    def test_update_experiment_status_error(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.ACCEPTED,
+        )
+        response = self.query(
+            UPDATE_EXPERIMENT_STATUS_MUTATION,
+            variables={
+                "input": {
+                    "nimbusExperimentId": experiment.id,
+                    "clientMutationId": "randomid",
+                    "status": NimbusExperiment.Status.REVIEW.name,
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperimentStatus"]
+        self.assertEqual(
+            result["message"],
+            {
+                "experiment": [
+                    "Nimbus Experiment has status 'Accepted', but can only be "
+                    "changed when set to 'Draft'."
                 ]
             },
         )
