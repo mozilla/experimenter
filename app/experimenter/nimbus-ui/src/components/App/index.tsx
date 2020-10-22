@@ -4,8 +4,6 @@
 
 import React from "react";
 import { Router, Redirect, RouteComponentProps } from "@reach/router";
-
-import { BASE_PATH } from "../../lib/constants";
 import PageHome from "../PageHome";
 import PageNew from "../PageNew";
 import PageEditOverview from "../PageEditOverview";

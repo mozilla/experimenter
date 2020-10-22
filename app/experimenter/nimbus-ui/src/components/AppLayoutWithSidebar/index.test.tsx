@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { screen, waitFor } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import AppLayoutWithSidebar from ".";
 import { renderWithRouter } from "../../lib/test-utils";
 import { BASE_PATH } from "../../lib/constants";
