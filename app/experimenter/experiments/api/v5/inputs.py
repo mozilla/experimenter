@@ -19,7 +19,8 @@ class ExperimentInput(graphene.InputObjectType):
 
 class CreateExperimentInput(ExperimentInput):
     name = graphene.String(required=True)
-    slug = graphene.String(required=True)
+    hypothesis = graphene.String(required=True)
+    application = graphene.String(required=True)
 
 
 class UpdateExperimentInput(ExperimentInput):

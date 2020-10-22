@@ -36,6 +36,26 @@ describe("FormExperimentOverviewPartial", () => {
     });
   });
 
+  const fillOutForm = async (expected: Record<string, string>) => {
+    for (const [labelText, fieldValue] of [
+      ["Public name", expected.name],
+      ["Hypothesis", expected.hypothesis],
+      ["Application", expected.application],
+    ]) {
+      const fieldName = screen.getByLabelText(labelText);
+      expect(fieldName).not.toHaveClass("is-invalid");
+      expect(fieldName).not.toHaveClass("is-valid");
+      await fireEvent.click(fieldName);
+      await fireEvent.blur(fieldName);
+      expect(fieldName).toHaveClass("is-invalid");
+      expect(fieldName).not.toHaveClass("is-valid");
+      await fireEvent.change(fieldName, { target: { value: fieldValue } });
+      await fireEvent.blur(fieldName);
+      expect(fieldName).not.toHaveClass("is-invalid");
+      expect(fieldName).toHaveClass("is-valid");
+    }
+  };
+
   it("validates fields before allowing submit", async () => {
     const expected = {
       name: "Foo bar baz",
@@ -53,23 +73,7 @@ describe("FormExperimentOverviewPartial", () => {
     });
 
     await act(async () => {
-      for (const [labelText, fieldValue] of [
-        ["Public name", expected.name],
-        ["Hypothesis", expected.hypothesis],
-        ["Application", expected.application],
-      ]) {
-        const fieldName = screen.getByLabelText(labelText);
-        expect(fieldName).not.toHaveClass("is-invalid");
-        expect(fieldName).not.toHaveClass("is-valid");
-        await fireEvent.click(fieldName);
-        await fireEvent.blur(fieldName);
-        expect(fieldName).toHaveClass("is-invalid");
-        expect(fieldName).not.toHaveClass("is-valid");
-        await fireEvent.change(fieldName, { target: { value: fieldValue } });
-        await fireEvent.blur(fieldName);
-        expect(fieldName).not.toHaveClass("is-invalid");
-        expect(fieldName).toHaveClass("is-valid");
-      }
+      await fillOutForm(expected);
     });
 
     await act(async () => {
@@ -80,14 +84,67 @@ describe("FormExperimentOverviewPartial", () => {
     expect(onSubmit).toHaveBeenCalled();
     expect(onSubmit.mock.calls[0][0]).toEqual(expected);
   });
+
+  it("disables submission when loading", async () => {
+    const onSubmit = jest.fn();
+    render(<Subject {...{ onSubmit, isLoading: true }} />);
+
+    // Fill out valid form to ensure only isLoading prevents submission
+    await act(async () => {
+      await fillOutForm({
+        name: "Foo bar baz",
+        hypothesis: "Some thing",
+        application: "firefox-desktop",
+      });
+    });
+
+    await act(async () => {
+      const submitButton = screen.getByTestId("submit-button");
+      expect(submitButton).toBeDisabled();
+      await fireEvent.click(submitButton);
+      await fireEvent.submit(
+        screen.getByTestId("FormExperimentOverviewPartial"),
+      );
+    });
+
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("displays an alert for overall submit error", async () => {
+    const submitErrors = {
+      "*": "Big bad happened",
+    };
+    render(<Subject {...{ submitErrors }} />);
+    await act(async () => {
+      expect(screen.getByTestId("submit-error")).toHaveTextContent(
+        submitErrors["*"],
+      );
+    });
+  });
+
+  it("displays feedback for per-field error", async () => {
+    const submitErrors = {
+      "name": "That name is terrble, man",
+    };
+    render(<Subject {...{ submitErrors }} />);
+    await act(async () => {
+      const errorFeedback = screen.getByText(submitErrors['name']);      
+      expect(errorFeedback).toHaveClass('invalid-feedback');
+      expect(errorFeedback).toHaveAttribute('data-for', 'name');
+    });
+  });
 });
 
 const APPLICATIONS = ["firefox-desktop", "fenix", "reference-browser"];
 
 const Subject = ({
+  isLoading = false,
+  submitErrors = {},
   onSubmit = jest.fn(),
   onCancel = jest.fn(),
   applications = APPLICATIONS,
 } = {}) => (
-  <FormExperimentOverviewPartial {...{ onSubmit, onCancel, applications }} />
+  <FormExperimentOverviewPartial
+    {...{ isLoading, submitErrors, onSubmit, onCancel, applications }}
+  />
 );

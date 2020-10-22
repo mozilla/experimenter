@@ -3,9 +3,50 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import { Operation } from "@apollo/client";
+import { MockedProvider } from "@apollo/client/testing";
+import { SimulatedMockLink } from "../../lib/mocks";
 import { storiesOf } from "@storybook/react";
+import { action } from "@storybook/addon-actions";
+import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import PageNew from ".";
 
-storiesOf("pages/PageNew", module).add("basic", () => (
-  <PageNew />
-));
+storiesOf("pages/PageNew", module).add("basic", () => <Subject />);
+
+const actionCreateExperiment = action("createExperiment");
+
+const mkSimulatedQueries = ({
+  message = "success" as string | Record<string, any>,
+  status = 200,
+  nimbusExperiment = { slug: "foo-bar-baz" },
+} = {}) => [
+  {
+    request: {
+      query: CREATE_EXPERIMENT_MUTATION,
+    },
+    delay: 1000,
+    result: (operation: Operation) => {
+      const { name, application, hypothesis } = operation.variables.input;
+      actionCreateExperiment(name, application, hypothesis);
+      return {
+        data: {
+          createExperiment: {
+            clientMutationId: "8675309",
+            message,
+            status,
+            nimbusExperiment,
+          },
+        },
+      };
+    },
+  },
+];
+
+const Subject = ({ simulatedQueries = mkSimulatedQueries() }) => {
+  const mockLink = new SimulatedMockLink(simulatedQueries, false);
+  return (
+    <MockedProvider link={mockLink} addTypename={false}>
+      <PageNew />
+    </MockedProvider>
+  );
+};
