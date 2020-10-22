@@ -1,11 +1,14 @@
 import json
 
+from django.conf import settings
 from rest_framework import serializers
 
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBucketRange,
     NimbusExperiment,
+    NimbusProbe,
+    NimbusProbeSet,
 )
 
 
@@ -34,15 +37,23 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         model = NimbusBranch
         fields = ("slug", "ratio", "feature")
 
+    def to_representation(self, branch):
+        data = super().to_representation(branch)
+        if not branch.experiment.feature_config:
+            data = {k: v for k, v in data.items() if k != "feature"}
+        return data
+
     def get_feature(self, obj):
-        return {
-            "featureId": obj.experiment.feature_config.slug,
-            "enabled": obj.feature_enabled,
-            "value": obj.feature_value,
-        }
+        if obj.experiment.feature_config:
+            return {
+                "featureId": obj.experiment.feature_config.slug,
+                "enabled": obj.feature_enabled,
+                "value": json.loads(obj.feature_value),
+            }
 
 
 class NimbusExperimentSerializer(serializers.ModelSerializer):
+    schemaVersion = serializers.ReadOnlyField(default=settings.NIMBUS_SCHEMA_VERSION)
     id = serializers.ReadOnlyField(source="slug")
     userFacingName = serializers.ReadOnlyField(source="name")
     userFacingDescription = serializers.ReadOnlyField(source="public_description")
@@ -60,6 +71,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     class Meta:
         model = NimbusExperiment
         fields = (
+            "schemaVersion",
             "slug",
             "id",
             "application",
@@ -81,8 +93,8 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         return list(obj.probe_sets.all().order_by("slug").values_list("slug", flat=True))
 
     def get_referenceBranch(self, obj):
-        if obj.control_branch:
-            return obj.control_branch.slug
+        if obj.reference_branch:
+            return obj.reference_branch.slug
 
     def get_targeting(self, obj):
         if obj.targeting_config:
@@ -103,3 +115,24 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
                 )
 
             return f"{channels_expr}{version_expr}{obj.targeting_config.targeting}"
+
+
+class NimbusProbeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NimbusProbe
+        fields = (
+            "kind",
+            "name",
+            "event_category",
+            "event_method",
+            "event_object",
+            "event_value",
+        )
+
+
+class NimbusProbeSetSerializer(serializers.ModelSerializer):
+    probes = NimbusProbeSerializer(many=True)
+
+    class Meta:
+        model = NimbusProbeSet
+        fields = ("name", "slug", "probes")

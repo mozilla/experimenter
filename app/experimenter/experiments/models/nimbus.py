@@ -1,7 +1,9 @@
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
+from django.utils import timezone
 
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.projects.models import Project
@@ -39,6 +41,7 @@ class NimbusExperiment(NimbusConstants, models.Model):
     population_percent = models.DecimalField(
         max_digits=7, decimal_places=4, default=0.0, blank=True, null=True
     )
+    total_enrolled_clients = models.PositiveIntegerField(default=0)
     firefox_min_version = models.CharField(
         max_length=255,
         choices=NimbusConstants.Version.choices,
@@ -62,7 +65,7 @@ class NimbusExperiment(NimbusConstants, models.Model):
     )
     projects = models.ManyToManyField(Project, blank=True)
     hypothesis = models.TextField(
-        default=NimbusConstants.OBJECTIVES_DEFAULT, blank=True, null=True
+        default=NimbusConstants.HYPOTHESIS_DEFAULT, blank=True, null=True
     )
     probe_sets = models.ManyToManyField("NimbusProbeSet")
     feature_config = models.ForeignKey(
@@ -74,7 +77,7 @@ class NimbusExperiment(NimbusConstants, models.Model):
         null=True,
         choices=NimbusConstants.TargetingConfig.choices,
     )
-    control_branch = models.OneToOneField(
+    reference_branch = models.OneToOneField(
         "NimbusBranch", blank=True, null=True, on_delete=models.CASCADE
     )
 
@@ -89,6 +92,13 @@ class NimbusExperiment(NimbusConstants, models.Model):
     def targeting_config(self):
         if self.targeting_config_slug:
             return self.TARGETING_CONFIGS[self.targeting_config_slug]
+
+    def latest_change(self):
+        return self.changes.order_by("-changed_on").first()
+
+    @property
+    def treatment_branches(self):
+        return self.branches.exclude(id=self.reference_branch.id).order_by("id")
 
 
 class NimbusBranch(models.Model):
@@ -247,3 +257,40 @@ class NimbusProbeSet(models.Model):
 
     def __str__(self):  # pragma: no cover
         return self.name
+
+
+class NimbusChangeLog(models.Model):
+    def current_datetime():
+        return timezone.now()
+
+    experiment = models.ForeignKey(
+        NimbusExperiment,
+        blank=False,
+        null=False,
+        related_name="changes",
+        on_delete=models.CASCADE,
+    )
+    changed_on = models.DateTimeField(default=current_datetime)
+    changed_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    old_status = models.CharField(
+        max_length=255, blank=True, null=True, choices=NimbusExperiment.Status.choices
+    )
+    new_status = models.CharField(
+        max_length=255, blank=False, null=False, choices=NimbusExperiment.Status.choices
+    )
+    message = models.TextField(blank=True, null=True)
+    experiment_data = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Nimbus Experiment Change Log"
+        verbose_name_plural = "Nimbus Experiment Change Logs"
+        ordering = ("changed_on",)
+
+    def __str__(self):
+        if self.message:
+            return self.message
+        else:
+            return (
+                f"{self.old_status} > {self.new_status} "
+                f"by {self.changed_by} on {self.changed_on}"
+            )

@@ -6,6 +6,10 @@ import factory
 from django.utils.text import slugify
 from faker import Factory as FakerFactory
 
+from experimenter.experiments.changelog_utils import (
+    NimbusExperimentChangeLogSerializer,
+    generate_nimbus_changelog,
+)
 from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
@@ -16,7 +20,9 @@ from experimenter.experiments.models import (
     NimbusProbe,
     NimbusProbeSet,
 )
+from experimenter.experiments.models.nimbus import NimbusChangeLog
 from experimenter.openidc.tests.factories import UserFactory
+from experimenter.projects.tests.factories import ProjectFactory
 
 faker = FakerFactory.create()
 
@@ -30,12 +36,13 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     public_description = factory.LazyAttribute(lambda o: faker.text(200))
     proposed_duration = factory.LazyAttribute(lambda o: random.randint(10, 60))
     proposed_enrollment = factory.LazyAttribute(
-        lambda o: random.choice([None, random.randint(2, o.proposed_duration)])
-        if o.proposed_duration
-        else None
+        lambda o: random.randint(2, o.proposed_duration)
     )
     population_percent = factory.LazyAttribute(
         lambda o: decimal.Decimal(random.randint(1, 10) * 10)
+    )
+    total_enrolled_clients = factory.LazyAttribute(
+        lambda o: random.randint(1, 100) * 1000
     )
     firefox_min_version = factory.LazyAttribute(
         lambda o: random.choice(list(NimbusExperiment.Version)).value
@@ -71,17 +78,33 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             for i in range(3):
                 self.probe_sets.add(NimbusProbeSetFactory.create())
 
+    @factory.post_generation
+    def projects(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of groups were passed in, use them
+            for project in extracted:
+                self.projects.add(project)
+        else:
+            for i in range(3):
+                self.projects.add(ProjectFactory.create())
+
     @classmethod
     def create_with_status(cls, target_status, **kwargs):
         experiment = cls.create(**kwargs)
 
         NimbusBranchFactory.create(experiment=experiment)
-        experiment.control_branch = NimbusBranchFactory.create(experiment=experiment)
+        experiment.reference_branch = NimbusBranchFactory.create(experiment=experiment)
         experiment.save()
 
         for status, _ in NimbusExperiment.Status.choices:
             experiment.status = status
             experiment.save()
+
+            generate_nimbus_changelog(experiment, experiment.owner)
 
             if status == NimbusExperiment.Status.REVIEW.value:
                 NimbusIsolationGroup.request_isolation_group_buckets(
@@ -182,3 +205,17 @@ class NimbusProbeSetFactory(factory.django.DjangoModelFactory):
             # A list of groups were passed in, use them
             for probe in extracted:
                 self.probes.add(probe)
+
+
+class NimbusChangeLogFactory(factory.django.DjangoModelFactory):
+    experiment = factory.SubFactory(NimbusExperimentFactory)
+    changed_by = factory.SubFactory(UserFactory)
+    old_status = NimbusExperiment.Status.DRAFT
+    new_status = NimbusExperiment.Status.DRAFT
+    message = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    experiment_data = factory.LazyAttribute(
+        lambda o: dict(NimbusExperimentChangeLogSerializer(o.experiment).data)
+    )
+
+    class Meta:
+        model = NimbusChangeLog

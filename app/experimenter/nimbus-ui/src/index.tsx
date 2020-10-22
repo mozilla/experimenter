@@ -4,11 +4,12 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
-import { InMemoryCache, ApolloClient, ApolloProvider } from "@apollo/client";
+import { ApolloProvider } from "@apollo/client";
 import App from "./components/App";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import config, { readConfig } from "./services/config";
 import sentryMetrics from "./services/sentry";
+import { createApolloClient } from "./services/apollo";
 import "./styles/index.scss";
 
 try {
@@ -19,15 +20,10 @@ try {
     sentryMetrics.configure(config.sentry_dsn, config.version);
   }
 
-  const client = new ApolloClient({
-    uri: "/graphql",
-    cache: new InMemoryCache(),
-  });
-
   ReactDOM.render(
     <React.StrictMode>
       <AppErrorBoundary>
-        <ApolloProvider {...{ client }}>
+        <ApolloProvider client={createApolloClient()}>
           <App />
         </ApolloProvider>
       </AppErrorBoundary>

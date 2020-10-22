@@ -1,5 +1,4 @@
 from django.utils.text import slugify
-from mozilla_nimbus_shared import get_data
 from rest_framework import serializers
 
 from experimenter.bugzilla.tasks import create_experiment_bug_task
@@ -8,13 +7,12 @@ from experimenter.experiments.api.v2.serializers import (
     ExperimentDesignVariantBaseSerializer,
 )
 from experimenter.experiments.changelog_utils import ChangelogSerializerMixin
+from experimenter.experiments.constants.shared_data import NIMBUS_DATA
 from experimenter.experiments.models import (
     Experiment,
     ExperimentChangeLog,
     ExperimentVariant,
 )
-
-NIMBUS_DATA = get_data()
 
 
 class ExperimentRapidRejectChangeLogSerializer(serializers.ModelSerializer):

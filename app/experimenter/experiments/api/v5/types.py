@@ -1,5 +1,7 @@
+import graphene
 from graphene_django.types import DjangoObjectType
 
+from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models.nimbus import (
     NimbusBranch,
     NimbusBucketRange,
@@ -12,15 +14,47 @@ from experimenter.experiments.models.nimbus import (
 from experimenter.projects.models import Project
 
 
+class NimbusExperimentStatus(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.Status
+
+
+class NimbusExperimentFirefoxMinVersion(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.Version
+
+
+class NimbusExperimentChannel(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.Channel
+
+
+class NimbusExperimentTargetingConfigSlug(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.TargetingConfig
+
+
 class NimbusBranchType(DjangoObjectType):
     class Meta:
         model = NimbusBranch
-        exclude = ("experiment", "nimbusexperiment")
+        exclude = ("id", "experiment", "nimbusexperiment")
+
+
+class NimbusFeatureConfigType(DjangoObjectType):
+    class Meta:
+        model = NimbusFeatureConfig
 
 
 class NimbusExperimentType(DjangoObjectType):
+    status = NimbusExperimentStatus()
+    firefox_min_version = NimbusExperimentFirefoxMinVersion()
+    channels = graphene.List(NimbusExperimentChannel)
+    treatment_branches = graphene.List(NimbusBranchType)
+    targeting_config_slug = NimbusExperimentTargetingConfigSlug()
+
     class Meta:
         model = NimbusExperiment
+        exclude = ("branches",)
 
 
 class ProjectType(DjangoObjectType):
@@ -37,11 +71,6 @@ class NimbusBucketRangeType(DjangoObjectType):
     class Meta:
         model = NimbusBucketRange
         exclude = ("id", "experiment")
-
-
-class NimbusFeatureConfigType(DjangoObjectType):
-    class Meta:
-        model = NimbusFeatureConfig
 
 
 class NimbusProbeType(DjangoObjectType):

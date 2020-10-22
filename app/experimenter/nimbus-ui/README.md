@@ -35,7 +35,47 @@ Except, we know what we're doing. And because we _do_ want all the benefits of C
 
 You can read up over on their page if you want to know all the details, but if you're looking to make changes to CRA's Webpack configuration, you can do so inside [`.rescriptsrc.js`](.rescriptsrc.js). Rescripts will consume each exported item from this file, supplying it the full config as a function argument, and expecting the modified config back in return.
 
-## Testing
+## Accessing GraphQL Type Definitions
+
+All of our GraphQL resolvers produce types that are compatible with TypeScript, so there is no need to write new types for the queries you perform with Apollo.
+
+To generate types, just run `yarn types`. This will generate type declarations, inside a `types/` directory, relative to the path where the query was performed. Once generated you can import and use as you see fit.
+
+For example, a query that looks like this:
+
+```ts
+export const GET_EXPERIMENT_OVERVIEWS = gql`
+  query GetExperimentOverviews {
+    experiments {
+      name
+      slug
+      hypothesis
+    }
+  }
+`;
+```
+
+Would be analyzed and the corresponding types generated would look like this:
+
+```ts
+export interface GetExperimentOverviews_experiments {
+  __typename: "NimbusExperimentType";
+  name: string;
+  slug: string;
+  hypothesis: string | null;
+}
+
+export interface GetExperimentOverviews {
+  /**
+   * List Nimbus Experiments.
+   */
+  experiments: (GetExperimentOverviews_experiments | null)[] | null;
+}
+```
+
+**Note**: this command performs introspection on the GraphQL endpoint, so your local server must be running for it to work.
+
+## Testing and Mocking
 
 This package uses [Jest](https://jestjs.io/) to test its code. By default `yarn test` will test all JS/TS files under `src/`.
 
@@ -53,6 +93,100 @@ yarn test --watchAll=false
 ```
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
+
+### Components that need a GQL Mock
+
+⚠️ TODO: This section needs to be expanded with mock-able properties once we need to read and write from the cache.
+
+[MockedCache](./src/services/mocks.tsx) is a convenient way to test components that make use of GraphQL mutations. Use it in place of [MockedProvider](https://www.apollographql.com/docs/react/api/react/testing/#mockedprovider) without prop overrides to use the default mocked cache. A `mocks` prop can also be passed in when a query or mutation needs success or failure mocks.
+
+Example:
+
+```jsx
+const mocks = [];
+<MockedCache {...{ mocks }}>
+  <ExperimentsDirectory />
+</MockedCache>;
+```
+
+### Mocking mutation errors
+
+Testing for GQL and network errors is also pretty straightforward. In your tests, wrap your component in a `MockedCache` and provide it with mock mutations that produce either an array of `GraphQLError`s, or a standard `Error`. Example with both:
+
+```tsx
+const mocks = [
+  {
+    request: {
+      query: GET_EXPERIMENT_OVERVIEW,
+      variables: { slug: 'foo' },
+    },
+    result: {
+      errors: [new GraphQLError('invalid slug')],
+    },
+  },
+  {
+    request: {
+      query: GET_EXPERIMENT_OVERVIEW,
+      variables: { slug: 'foo' },
+    },
+    error: new Error('network error'),
+  },
+];
+
+renderWithRouter(
+  <MockedCache {...{ mocks }}>
+    <ExperimentsDirectory {...{ onDismiss, onError }} />
+  </MockedCache>
+);
+```
+
+### Simulating GQL query responses in stories & tests
+
+The `MockedCache` component is good for asserting expected GQL requests in tests. But, it doesn't accommodate arbitrary user input - e.g. filling out a form in a Storybook story with random values to try out the UI.
+
+So, we also have [`SimulatedMockLink`](./src/services/mocks.tsx) for use with `MockedProvider` which allows the definition of a function that receives a GQL Operation and can implement a mocked implementation of what happens server-side.
+
+An example of usage can be found in a story like [`basic` for `PageNew`](./src/components/PageNew/index.stories.tsx) - it looks like this:
+
+```tsx
+const actionCreateExperiment = action("createExperiment");
+
+const mkSimulatedQueries = ({
+  message = "success" as string | Record<string, any>,
+  status = 200,
+  nimbusExperiment = { slug: "foo-bar-baz" },
+} = {}) => [
+  {
+    request: {
+      query: CREATE_EXPERIMENT_MUTATION,
+    },
+    delay: 1000,
+    result: (operation: Operation) => {
+      const { name, application, hypothesis } = operation.variables.input;
+      actionCreateExperiment(name, application, hypothesis);
+      return {
+        data: {
+          createExperiment: {
+            clientMutationId: "8675309",
+            message,
+            status,
+            nimbusExperiment,
+          },
+        },
+      };
+    },
+  },
+];
+
+const Subject = ({ simulatedQueries = mkSimulatedQueries() }) => {
+  const mockLink = new SimulatedMockLink(simulatedQueries, false);
+  return (
+    <MockedProvider link={mockLink} addTypename={false}>
+      <PageNew />
+    </MockedProvider>
+  );
+};
+```
 
 ## Storybook
 
