@@ -11,6 +11,24 @@ from experimenter.experiments.models.nimbus import (
 )
 
 
+class NimbusStatusRestrictionMixin:
+    required_status = NimbusExperiment.Status.DRAFT
+
+    def validate(self, data):
+        data = super().validate(data)
+        if self.instance and self.instance.status != self.required_status:
+            status = self.instance.status
+            raise serializers.ValidationError(
+                {
+                    "experiment": [
+                        f"Nimbus Experiment has status '{status}', but can only "
+                        f"be changed when set to '{self.required_status}'."
+                    ]
+                }
+            )
+        return data
+
+
 class NimbusChangeLogMixin:
     def save(self, *args, **kwargs):
         experiment = super().save(*args, **kwargs)
@@ -31,7 +49,7 @@ class NimbusBranchSerializer(NimbusChangeLogMixin, serializers.ModelSerializer):
 
 
 class NimbusExperimentOverviewSerializer(
-    NimbusChangeLogMixin, serializers.ModelSerializer
+    NimbusChangeLogMixin, NimbusStatusRestrictionMixin, serializers.ModelSerializer
 ):
     class Meta:
         model = NimbusExperiment
@@ -44,7 +62,9 @@ class NimbusExperimentOverviewSerializer(
         )
 
 
-class NimbusBranchUpdateSerializer(NimbusChangeLogMixin, serializers.ModelSerializer):
+class NimbusBranchUpdateSerializer(
+    NimbusChangeLogMixin, NimbusStatusRestrictionMixin, serializers.ModelSerializer
+):
     reference_branch = NimbusBranchSerializer()
     treatment_branches = NimbusBranchSerializer(many=True)
     feature_config = serializers.PrimaryKeyRelatedField(
@@ -69,7 +89,7 @@ class NimbusBranchUpdateSerializer(NimbusChangeLogMixin, serializers.ModelSerial
             experiment.reference_branch = NimbusBranch.objects.create(
                 experiment=instance,
                 slug=slugify(control_branch_data["name"]),
-                **control_branch_data
+                **control_branch_data,
             )
             for branch_data in treatment_branches:
                 NimbusBranch.objects.create(
@@ -79,7 +99,9 @@ class NimbusBranchUpdateSerializer(NimbusChangeLogMixin, serializers.ModelSerial
         return instance
 
 
-class NimbusProbeSetUpdateSerializer(NimbusChangeLogMixin, serializers.ModelSerializer):
+class NimbusProbeSetUpdateSerializer(
+    NimbusChangeLogMixin, NimbusStatusRestrictionMixin, serializers.ModelSerializer
+):
     probe_sets = serializers.PrimaryKeyRelatedField(
         many=True, queryset=NimbusProbeSet.objects.all()
     )
@@ -89,7 +111,9 @@ class NimbusProbeSetUpdateSerializer(NimbusChangeLogMixin, serializers.ModelSeri
         fields = ("probe_sets",)
 
 
-class NimbusAudienceUpdateSerializer(NimbusChangeLogMixin, serializers.ModelSerializer):
+class NimbusAudienceUpdateSerializer(
+    NimbusChangeLogMixin, NimbusStatusRestrictionMixin, serializers.ModelSerializer
+):
     class Meta:
         model = NimbusExperiment
         fields = (
@@ -101,3 +125,18 @@ class NimbusAudienceUpdateSerializer(NimbusChangeLogMixin, serializers.ModelSeri
             "targeting_config_slug",
             "total_enrolled_clients",
         )
+
+
+class NimbusStatusUpdateSerializer(
+    NimbusChangeLogMixin, NimbusStatusRestrictionMixin, serializers.ModelSerializer
+):
+    def validate_status(self, value):
+        if value != NimbusExperiment.Status.REVIEW:
+            raise serializers.ValidationError(
+                "Nimbus Experiments can only transition from DRAFT to REVIEW."
+            )
+        return value
+
+    class Meta:
+        model = NimbusExperiment
+        fields = ("status",)

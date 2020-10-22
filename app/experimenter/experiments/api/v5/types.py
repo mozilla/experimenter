@@ -14,6 +14,11 @@ from experimenter.experiments.models.nimbus import (
 from experimenter.projects.models import Project
 
 
+class NimbusExperimentStatus(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.Status
+
+
 class NimbusExperimentFirefoxMinVersion(graphene.Enum):
     class Meta:
         enum = NimbusConstants.Version
@@ -41,6 +46,7 @@ class NimbusFeatureConfigType(DjangoObjectType):
 
 
 class NimbusExperimentType(DjangoObjectType):
+    status = NimbusExperimentStatus()
     firefox_min_version = NimbusExperimentFirefoxMinVersion()
     channels = graphene.List(NimbusExperimentChannel)
     treatment_branches = graphene.List(NimbusBranchType)
