@@ -5,6 +5,7 @@
 import React from "react";
 import { Router, Redirect, RouteComponentProps } from "@reach/router";
 
+import { BASE_PATH } from "../../lib/constants";
 import PageHome from "../PageHome";
 import PageNew from "../PageNew";
 import PageEditOverview from "../PageEditOverview";
@@ -17,7 +18,7 @@ type RootProps = {
 
 const Root = (props: RootProps) => <>{props.children}</>;
 
-const App = ({ basepath }: { basepath: string }) => {
+const App = ({ basepath = BASE_PATH }: { basepath?: string }) => {
   return (
     <Router {...{ basepath }}>
       <PageHome path="/" />

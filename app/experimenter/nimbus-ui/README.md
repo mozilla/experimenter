@@ -47,6 +47,9 @@ yarn test AppLayout
 
 # Grep for "renders as expected"
 yarn test -t="renders as expected"
+
+# See a full code coverage report
+yarn test --watchAll=false
 ```
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
@@ -63,6 +66,10 @@ The specific build for any given PR or commit should be available as a [status c
 
 [storybook-builds]: https://storage.googleapis.com/mozilla-storybooks-experimenter/index.html
 [status-check]: https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/about-status-checks
+
+### Linking to Stories
+
+TBD
 
 ## Writing styles
 
@@ -81,9 +88,7 @@ This app uses [Bootstrap v4.5](https://getbootstrap.com/) for styles. There are 
     ```
   - A [UI component](https://react-bootstrap.github.io/components/alerts/) encapsulates a category of UI, such as a button or alert banner, and tailors how it looks through the props. Example:
     ```tsx
-    <Alert variant="danger">
-      This is a Danger alert!
-    </Alert>
+    <Alert variant="danger">This is a Danger alert!</Alert>
     ```
 
 **What about the JavaScript plugins?** While Bootstrap does provide optional JavaScript plugins, they are written in jQuery, which we are decidedly not using in this codebase. You are free to build your own equivalent in vanilla JavaScript or as a React component, or introduce a new package (within reason).
@@ -109,14 +114,13 @@ Learn more about all the ways you can [theme Bootstrap](https://getbootstrap.com
 
 **But Bootstrap supports CSS Variables!** You're right, Bootstrap _does_ support [CSS Variables](https://getbootstrap.com/docs/4.5/getting-started/theming/#css-variables). However, all of those values are rendered out from the variables defined in the SCSS, which we have access to. For this reason, and to avoid unexpected styles, please do not attempt to override any Bootstrap CSS Variables.
 
-
 ## Working with SVGs
 
 Create React App allows us to use SVGs in a variety of ways, right out of the box. We prefer to inline our SVGs where we can:
 
 ```javascript
 // Inline, full markup:
-import { ReactComponent as Logo } from './logo.svg';
+import { ReactComponent as Logo } from "./logo.svg";
 const LogoImage = () => <Logo role="img" aria-label="logo" />;
 ```
 
@@ -138,11 +142,11 @@ Other ways to use SVGs:
 
 ```javascript
 // As an image source:
-import logoUrl from './logo.svg';
+import logoUrl from "./logo.svg";
 const LogoImage = () => <img src={logoUrl} alt="Logo" />;
 
 // As a background-image (inline style)
-import logoUrl from './logo.svg';
+import logoUrl from "./logo.svg";
 const LogoImage = () => (
   <div
     style={{ backgroundImage: `url(${logoUrl})` }}

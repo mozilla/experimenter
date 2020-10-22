@@ -3,18 +3,75 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { render, screen } from "@testing-library/react";
-import { LocationProvider } from "@reach/router";
+import { screen } from "@testing-library/react";
 import AppLayoutWithSidebar from ".";
+import { renderWithRouter } from "../../lib/helpers";
+import { BASE_PATH } from "../../lib/constants";
+import App from "../App";
+import { RouteComponentProps, Router, useLocation } from "@reach/router";
+import PageEditOverview from "../PageEditOverview";
 
-test("renders app layout content with children", () => {
-  render(
-    <LocationProvider>
+describe("PageNew", () => {
+  it("renders app layout content with children", () => {
+    renderWithRouter(
       <AppLayoutWithSidebar>
         <p data-testid="test-child">Hello, world!</p>
+      </AppLayoutWithSidebar>,
+    );
+    expect(screen.getByTestId("AppLayoutWithSidebar")).toBeInTheDocument();
+    expect(screen.getByTestId("test-child")).toBeInTheDocument();
+  });
+
+  describe("navigation links", () => {
+    const SidebarRoot = (props: RouteComponentProps) => (
+      <AppLayoutWithSidebar>
+        <p>Hello, world!</p>
       </AppLayoutWithSidebar>
-    </LocationProvider>,
-  );
-  expect(screen.getByTestId("AppLayoutWithSidebar")).toBeInTheDocument();
-  expect(screen.getByTestId("test-child")).toBeInTheDocument();
+    );
+
+    it("renders expected URLs", () => {
+      renderWithRouter(
+        <Router>
+          <SidebarRoot path="/:slug" />
+        </Router>,
+        { route: `/my-special-slug` },
+      );
+      expect(screen.getByTestId("nav-home")).toHaveAttribute("href", BASE_PATH);
+      expect(screen.getByTestId("nav-edit-overview")).toHaveAttribute(
+        "href",
+        `${BASE_PATH}/my-special-slug/edit/overview`,
+      );
+      expect(screen.getByTestId("nav-edit-branches")).toHaveAttribute(
+        "href",
+        `${BASE_PATH}/my-special-slug/edit/branches`,
+      );
+      expect(screen.getByTestId("nav-request-review")).toHaveAttribute(
+        "href",
+        `${BASE_PATH}/my-special-slug/request-review`,
+      );
+    });
+
+    // it("renders expected active page class", async () => {
+
+    // --> WIP <--
+
+    // const {
+    //   history: { navigate },
+    // } = renderWithRouter(
+    //   <Router>
+    //     <SidebarRoot path="/:slug" />
+    //     <PageEditOverview path="/:slug" />
+    //   </Router>,
+    //   { route: `/my-special-slug` },
+    // );
+    // await navigate("/edit/overview");
+    // expect(screen.getByTestId("nav-edit-overview")).toHaveClass(
+    //   "text-primary",
+    // );
+    // await navigate(`${BASE_PATH}/my-special-slug/edit/overview`);
+    // expect(screen.getByTestId("nav-edit-overview")).toHaveClass(
+    //   "text-primary",
+    // );
+    // });
+  });
 });

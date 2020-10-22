@@ -8,7 +8,11 @@ import {
   createMemorySource,
   createHistory,
   LocationProvider,
+  Router,
 } from "@reach/router";
+import { renderWithRouter } from "../../lib/helpers";
+import { BASE_PATH } from "../../lib/constants";
+import { Redirect as MockRedirect } from "@reach/router";
 import App from ".";
 
 describe("App", () => {
@@ -33,14 +37,8 @@ describe("App", () => {
     expect(screen.getByTestId("PageNew")).toBeInTheDocument();
   });
 
-  it("redirects from ':slug/edit' to ':slug/edit/overview'", () => {
+  it("redirects from ':slug/edit' to ':slug/edit/overview'", async () => {
     // WIP
-    // jest.mock("@reach/router", () => ({
-    //   redirect: jest.fn().mockImplementation(() => <span>Redirecting</span>),
-    // }));
-    // render(<Subject basepath="/experiments/nimbus" path="/my-slug/edit" />);
-    // expect(MockRedirect).toHaveBeenCalledTimes(1);
-    // expect(screen.getByTestId("PageEditOverview")).toBeInTheDocument();
   });
 });
 

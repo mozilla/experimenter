@@ -9,7 +9,6 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Nav from "react-bootstrap/Nav";
 import { BASE_PATH } from "../../lib/constants";
-import "./index.scss";
 
 type AppLayoutWithSidebarProps = {
   testid?: string;
@@ -24,22 +23,22 @@ export const AppLayoutWithSidebar = ({
   const { slug } = useParams() || "";
   return (
     <Container fluid className="h-100vh" data-testid={testid}>
-      <Row className="h-lg-100">
+      <Row className="h-md-100">
         <Col md="3" lg="3" xl="2" className="bg-light border-right shadow-sm">
-          <nav>
+          <nav data-testid="sidebarNav">
             <Nav className="flex-column" as="ul">
-              <LinkNav to={BASE_PATH} data-sb-kind="pages/Home">
-                Experiments
-              </LinkNav>
+              <LinkNav storiesOf="pages/Home">Experiments</LinkNav>
               <LinkNav
-                to={`${BASE_PATH}/${slug}/edit/overview`}
-                data-sb-kind="pages/EditOverview"
+                route={`${slug}/edit/overview`}
+                storiesOf="pages/EditOverview"
+                testid="nav-edit-overview"
               >
                 Overview
               </LinkNav>
               <LinkNav
-                to={`${BASE_PATH}/${slug}/edit/branches`}
-                data-sb-kind="pages/EditBranches"
+                route={`${slug}/edit/branches`}
+                storiesOf="pages/EditBranches"
+                testid="nav-edit-branches"
               >
                 Branches
               </LinkNav>
@@ -50,8 +49,9 @@ export const AppLayoutWithSidebar = ({
                 Audience
               </Nav.Item>
               <LinkNav
-                to={`${BASE_PATH}/${slug}/request-review`}
-                data-sb-kind="pages/RequestReview"
+                route={`${slug}/request-review`}
+                storiesOf="pages/RequestReview"
+                testid="nav-request-review"
               >
                 Review &amp; Launch
               </LinkNav>
@@ -68,26 +68,32 @@ export const AppLayoutWithSidebar = ({
 
 type LinkNavProps = {
   children: React.ReactNode;
-  to: string;
-  "data-sb-kind": string;
+  route?: string;
+  storiesOf: string;
+  testid?: string;
 };
 
 const LinkNav = ({
-  to,
+  route,
   children,
-  "data-sb-kind": dataSbKind,
-}: LinkNavProps) => (
-  <Nav.Item as="li" className="m-1">
-    <Link
-      {...{ to }}
-      data-sb-kind={dataSbKind}
-      getProps={({ isCurrent }) => ({
-        className: isCurrent ? "text-primary" : "text-dark",
-      })}
-    >
-      {children}
-    </Link>
-  </Nav.Item>
-);
+  storiesOf,
+  testid = "nav-home",
+}: LinkNavProps) => {
+  const to = route ? `${BASE_PATH}/${route}` : BASE_PATH;
+  return (
+    <Nav.Item as="li" className="m-1">
+      <Link
+        {...{ to }}
+        data-sb-kind={storiesOf}
+        getProps={({ isCurrent }) => ({
+          className: isCurrent ? "text-primary" : "text-dark",
+        })}
+        data-testid={testid}
+      >
+        {children}
+      </Link>
+    </Nav.Item>
+  );
+};
 
 export default AppLayoutWithSidebar;
