@@ -3,15 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+  act,
+} from "@testing-library/react";
+import { MockedCache } from "../../lib/mocks";
 import PageNew from ".";
+import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 
 describe("PageNew", () => {
-  let origConsoleLog: typeof global.console.log;
-
   beforeEach(() => {
     origConsoleLog = global.console.log;
     global.console.log = jest.fn();
+    mockSubmit = {
+      name: "Foo bar baz",
+      hypothesis: "Some thing",
+      application: "firefox-desktop",
+    };
   });
 
   afterEach(() => {
@@ -21,17 +32,63 @@ describe("PageNew", () => {
 
   it("renders as expected", async () => {
     render(<Subject />);
-    expect(screen.getByTestId("PageNew")).toBeInTheDocument();
+    await act(async () => {
+      expect(screen.getByTestId("PageNew")).toBeInTheDocument();
+    });
   });
 
-  it("handles experiment form submission", () => {
-    render(<Subject />);
-    fireEvent.click(screen.getByTestId("submit"));
-    expect(global.console.log).toHaveBeenCalledWith("CREATE TBD", {
-      name: "Foo bar baz",
-      hypothesis: "Some thing",
-      application: "firefox-desktop",
+  it("handles experiment form submission", async () => {
+    const gqlMocks = mkGqlMocks();
+    render(<Subject {...{ gqlMocks }} />);
+    await act(async () => {
+      await fireEvent.click(screen.getByTestId("submit"));
     });
+    expect(global.console.log).toHaveBeenCalledWith(
+      "SAVE SUCCESS",
+      "foo-bar-baz",
+    );
+  });
+
+  it("handles experiment form submission with server-side validation errors", async () => {
+    const expectedErrors = {
+      name: { message: "already exists" },
+    };
+    const gqlMocks = mkGqlMocks({
+      message: expectedErrors,
+    });
+    render(<Subject {...{ gqlMocks }} />);
+    await act(async () => {
+      await fireEvent.click(screen.getByTestId("submit"));
+    });
+    expect(screen.getByTestId("submitErrors")).toHaveTextContent(
+      JSON.stringify(expectedErrors),
+    );
+  });
+
+  it("handles experiment form submission with bad server data", async () => {
+    const gqlMocks = mkGqlMocks();
+    // @ts-ignore - intentionally breaking this type for error handling
+    delete gqlMocks[0].result.data.createExperiment;
+
+    render(<Subject {...{ gqlMocks }} />);
+    await act(async () => {
+      await fireEvent.click(screen.getByTestId("submit"));
+    });
+    expect(screen.getByTestId("submitErrors")).toHaveTextContent(
+      JSON.stringify({ "*": "Save failed, no error available" }),
+    );
+  });
+
+  it("handles experiment form submission with server API error", async () => {
+    const expectedError = "Invalid slug";
+    const gqlMocks = mkGqlMocks();
+    gqlMocks[0].result.errors = [new Error(expectedError)];
+
+    render(<Subject {...{ gqlMocks }} />);
+    await act(async () => {
+      await fireEvent.click(screen.getByTestId("submit"));
+    });
+    expect(screen.getByTestId("submitErrors")).toHaveTextContent(expectedError);
   });
 
   it("handles experiment form cancellation", () => {
@@ -40,26 +97,57 @@ describe("PageNew", () => {
     expect(global.console.log).toHaveBeenCalledWith("CANCEL TBD");
   });
 
-  const Subject = () => {
-    return <PageNew />;
+  const mkGqlMocks = ({
+    message = "success" as string | Record<string, any>,
+    status = 200,
+    nimbusExperiment = { ...mockSubmit, slug: "foo-bar-baz" },
+  } = {}) => [
+    {
+      request: {
+        query: CREATE_EXPERIMENT_MUTATION,
+        variables: {
+          input: mockSubmit,
+        },
+      },
+      result: {
+        errors: undefined as undefined | any[],
+        data: {
+          createExperiment: {
+            clientMutationId: "8675309",
+            message,
+            status,
+            nimbusExperiment,
+          },
+        },
+      },
+    },
+  ];
+
+  const Subject = ({ gqlMocks = [] }: { gqlMocks?: any[] }) => {
+    return (
+      <MockedCache mocks={gqlMocks}>
+        <PageNew />
+      </MockedCache>
+    );
   };
 });
+
+let origConsoleLog: typeof global.console.log;
+let mockSubmit: Record<string, string> = {};
 
 // Mocking form component because validation is exercised in its own tests.
 jest.mock("../FormExperimentOverviewPartial", () => ({
   __esModule: true,
   default: (props: {
+    isLoading: boolean;
+    submitErrors?: Record<string, string[]>;
     onSubmit: Function;
     onCancel: (ev: React.FormEvent) => void;
     applications: string[];
   }) => {
     const handleSubmit = (ev: React.FormEvent) => {
       ev.preventDefault();
-      props.onSubmit({
-        name: "Foo bar baz",
-        hypothesis: "Some thing",
-        application: "firefox-desktop",
-      });
+      props.onSubmit(mockSubmit, jest.fn());
     };
     const handleCancel = (ev: React.FormEvent) => {
       ev.preventDefault();
@@ -67,6 +155,9 @@ jest.mock("../FormExperimentOverviewPartial", () => ({
     };
     return (
       <div data-testid="FormExperimentOverviewPartial">
+        <div data-testid="submitErrors">
+          {JSON.stringify(props.submitErrors)}
+        </div>
         <button data-testid="submit" onClick={handleSubmit} />
         <button data-testid="cancel" onClick={handleCancel} />
       </div>

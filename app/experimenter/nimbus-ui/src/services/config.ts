@@ -3,12 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export interface Config {
+  graphql_url: string;
   sentry_dsn: string;
   version: string;
 }
 
 export function getDefault() {
   return {
+    graphql_url: '',
     sentry_dsn: '',
     version: '',
   }
