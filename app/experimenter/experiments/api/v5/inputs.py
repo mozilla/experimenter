@@ -3,6 +3,7 @@ import graphene
 from experimenter.experiments.api.v5.types import (
     NimbusExperimentChannel,
     NimbusExperimentFirefoxMinVersion,
+    NimbusExperimentStatus,
     NimbusExperimentTargetingConfigSlug,
 )
 
@@ -80,3 +81,9 @@ class UpdateExperimentAudienceInput(graphene.InputObjectType):
     proposed_enrollment = graphene.String()
     targeting_config_slug = NimbusExperimentTargetingConfigSlug()
     total_enrolled_clients = graphene.Int()
+
+
+class UpdateExperimentStatusInput(graphene.InputObjectType):
+    client_mutation_id = graphene.String()
+    nimbus_experiment_id = graphene.Int(required=True)
+    status = NimbusExperimentStatus(required=True)

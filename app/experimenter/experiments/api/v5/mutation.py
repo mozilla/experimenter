@@ -19,12 +19,14 @@ from experimenter.experiments.api.v5.inputs import (
     UpdateExperimentBranchesInput,
     UpdateExperimentInput,
     UpdateExperimentProbeSetsInput,
+    UpdateExperimentStatusInput,
 )
 from experimenter.experiments.api.v5.serializers import (
     NimbusAudienceUpdateSerializer,
     NimbusBranchUpdateSerializer,
     NimbusExperimentOverviewSerializer,
     NimbusProbeSetUpdateSerializer,
+    NimbusStatusUpdateSerializer,
 )
 from experimenter.experiments.api.v5.types import NimbusExperimentType
 from experimenter.experiments.models import NimbusExperiment
@@ -147,6 +149,26 @@ class UpdateExperimentAudience(graphene.Mutation):
         return handle_with_serializer(cls, serializer, input.client_mutation_id)
 
 
+class UpdateExperimentStatus(graphene.Mutation):
+    client_mutation_id = graphene.String()
+    nimbus_experiment = graphene.Field(NimbusExperimentType)
+    message = ObjectField()
+    status = graphene.Int()
+
+    class Arguments:
+        input = UpdateExperimentStatusInput(required=True)
+
+    @classmethod
+    def mutate(cls, root, info, input: UpdateExperimentStatusInput):
+        experiment = NimbusExperiment.objects.get(id=input.nimbus_experiment_id)
+        serializer = NimbusStatusUpdateSerializer(
+            experiment,
+            data=input,
+            context={"user": info.context.user},
+        )
+        return handle_with_serializer(cls, serializer, input.client_mutation_id)
+
+
 class Mutation(graphene.ObjectType):
     create_experiment = CreateExperiment.Field(
         description="Create a new Nimbus Experiment."
@@ -163,4 +185,8 @@ class Mutation(graphene.ObjectType):
 
     update_experiment_audience = UpdateExperimentAudience.Field(
         description="Updates the audience on a Nimbus Experiment."
+    )
+
+    update_experiment_status = UpdateExperimentStatus.Field(
+        description="Mark a Nimubs Experiment as ready for review."
     )
