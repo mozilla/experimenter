@@ -3,21 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { render, screen } from "@testing-library/react";
-import { LocationProvider } from "@reach/router";
+import { screen } from "@testing-library/react";
 import PageRequestReview from ".";
+import { renderWithRouter } from "../../lib/helpers";
 
 describe("PageRequestReview", () => {
-  const Subject = () => {
-    return (
-      <LocationProvider>
-        <PageRequestReview />
-      </LocationProvider>
-    );
-  };
-
   it("renders as expected", () => {
-    render(<Subject />);
+    renderWithRouter(<PageRequestReview />);
     expect(screen.getByTestId("PageRequestReview")).toBeInTheDocument();
   });
 });

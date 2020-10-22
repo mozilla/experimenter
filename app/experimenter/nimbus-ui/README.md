@@ -69,7 +69,9 @@ The specific build for any given PR or commit should be available as a [status c
 
 ### Linking to Stories
 
-TBD
+Storybook uses the [withLinks decorator](https://www.npmjs.com/package/@storybook/addon-links#withlinks-decorator) to override default element behavior (using `event.preventDefault()`) and link to a story within Storybook instead.
+
+Add the decorator in the stories for the component that needs to link to another story within Storybook (`.addDecorator(withLinks)`) and simply add `data-sb-kind="StoryName"` to any element in the component to tell Storybook to link to that specific story. Without `data-sb-story`, the first story in the list will be linked to by default. To link to a specific state of a story, add this data-attribute with the name of the story state.
 
 ## Writing styles
 

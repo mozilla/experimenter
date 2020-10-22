@@ -3,21 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import PageEditOverview from ".";
-import { LocationProvider } from "@reach/router";
+import { renderWithRouter } from "../../lib/helpers";
 
 describe("PageEditOverview", () => {
-  const Subject = () => {
-    return (
-      <LocationProvider>
-        <PageEditOverview />
-      </LocationProvider>
-    );
-  };
-
   it("renders as expected", () => {
-    render(<Subject />);
+    renderWithRouter(<PageEditOverview />);
     expect(screen.getByTestId("PageEditOverview")).toBeInTheDocument();
   });
 });

@@ -7,9 +7,7 @@ import { screen } from "@testing-library/react";
 import AppLayoutWithSidebar from ".";
 import { renderWithRouter } from "../../lib/helpers";
 import { BASE_PATH } from "../../lib/constants";
-import App from "../App";
-import { RouteComponentProps, Router, useLocation } from "@reach/router";
-import PageEditOverview from "../PageEditOverview";
+import { RouteComponentProps, Router } from "@reach/router";
 
 describe("PageNew", () => {
   it("renders app layout content with children", () => {
