@@ -80,14 +80,18 @@ const LinkNav = ({
   testid = "nav-home",
 }: LinkNavProps) => {
   const to = route ? `${BASE_PATH}/${route}` : BASE_PATH;
+  // an alternative to reach-router's `isCurrent` with identical
+  // functionality; this allows us to test
+  console.log("location pathname", location.pathname);
+  console.log("to", to);
+  const isCurrentPage = location.pathname === to;
+  console.error("isCurrentPage", isCurrentPage);
   return (
     <Nav.Item as="li" className="m-1">
       <Link
         {...{ to }}
         data-sb-kind={storiesOf}
-        getProps={({ isCurrent }) => ({
-          className: isCurrent ? "text-primary" : "text-dark",
-        })}
+        className={isCurrentPage ? "text-primary" : "text-dark"}
         data-testid={testid}
       >
         {children}

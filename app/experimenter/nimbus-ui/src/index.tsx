@@ -11,6 +11,7 @@ import config, { readConfig } from "./services/config";
 import sentryMetrics from "./services/sentry";
 import { createApolloClient } from "./services/apollo";
 import "./styles/index.scss";
+import { BASE_PATH } from "./lib/constants";
 
 try {
   const root = document.getElementById("root")!;
@@ -24,7 +25,7 @@ try {
     <React.StrictMode>
       <AppErrorBoundary>
         <ApolloProvider client={createApolloClient()}>
-          <App />
+          <App basepath={BASE_PATH} />
         </ApolloProvider>
       </AppErrorBoundary>
     </React.StrictMode>,

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import AppLayoutWithSidebar from ".";
 import { renderWithRouter } from "../../lib/helpers";
 import { BASE_PATH } from "../../lib/constants";
@@ -51,21 +51,36 @@ describe("PageNew", () => {
     });
 
     it("renders expected active page class", async () => {
+      function pushState(page: string) {
+        window.history.pushState(
+          {},
+          "",
+          `${BASE_PATH}/my-special-slug/${page}`,
+        );
+      }
       const {
         history: { navigate },
       } = renderWithRouter(<App basepath="/" />, {
         route: `/my-special-slug/`,
       });
-      // this fails because location.pathname is still set to "/"
-      // and `isCurrent` checks location.pathname against the href
-      // await navigate("/my-special-slug/edit/overview");
-      // const overviewLink = screen.getByTestId("nav-edit-overview");
-      // const branchesLink = screen.getByTestId("nav-edit-branches");
-      // expect(overviewLink).toHaveClass("text-primary");
-      // expect(branchesLink).not.toHaveClass("text-primary");
-      // await navigate("/my-special-slug/edit/branches");
-      // expect(branchesLink).toHaveClass("text-primary");
-      // expect(overviewLink).not.toHaveClass("text-primary");
+
+      pushState("edit/overview");
+      await navigate("/my-special-slug/edit/overview");
+      let overviewLink = screen.getByTestId("nav-edit-overview");
+      let branchesLink = screen.getByTestId("nav-edit-branches");
+      expect(overviewLink).toHaveClass("text-primary");
+      expect(overviewLink).not.toHaveClass("text-dark");
+      expect(branchesLink).toHaveClass("text-dark");
+      expect(branchesLink).not.toHaveClass("text-primary");
+
+      pushState("edit/branches");
+      await navigate("/my-special-slug/edit/branches");
+      overviewLink = screen.getByTestId("nav-edit-overview");
+      branchesLink = screen.getByTestId("nav-edit-branches");
+      expect(branchesLink).toHaveClass("text-primary");
+      expect(branchesLink).not.toHaveClass("text-dark");
+      expect(overviewLink).toHaveClass("text-dark");
+      expect(overviewLink).not.toHaveClass("text-primary");
     });
   });
 });

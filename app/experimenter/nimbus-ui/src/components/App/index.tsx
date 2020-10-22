@@ -18,7 +18,7 @@ type RootProps = {
 
 const Root = (props: RootProps) => <>{props.children}</>;
 
-const App = ({ basepath = BASE_PATH }: { basepath?: string }) => {
+const App = ({ basepath }: { basepath: string }) => {
   return (
     <Router {...{ basepath }}>
       <PageHome path="/" />

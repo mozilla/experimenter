@@ -12,7 +12,12 @@ import {
 } from "@testing-library/react";
 import { MockedCache } from "../../lib/mocks";
 import PageNew from ".";
+import { navigate } from "@reach/router";
 import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
+
+jest.mock("@reach/router", () => ({
+  navigate: jest.fn(),
+}));
 
 describe("PageNew", () => {
   beforeEach(() => {
@@ -41,12 +46,9 @@ describe("PageNew", () => {
     const gqlMocks = mkGqlMocks();
     render(<Subject {...{ gqlMocks }} />);
     await act(async () => {
-      await fireEvent.click(screen.getByTestId("submit"));
+      fireEvent.click(screen.getByTestId("submit"));
     });
-    expect(global.console.log).toHaveBeenCalledWith(
-      "SAVE SUCCESS",
-      "foo-bar-baz",
-    );
+    expect(navigate).toHaveBeenCalledWith("foo-bar-baz/edit/overview");
   });
 
   it("handles experiment form submission with server-side validation errors", async () => {
@@ -58,7 +60,7 @@ describe("PageNew", () => {
     });
     render(<Subject {...{ gqlMocks }} />);
     await act(async () => {
-      await fireEvent.click(screen.getByTestId("submit"));
+      fireEvent.click(screen.getByTestId("submit"));
     });
     expect(screen.getByTestId("submitErrors")).toHaveTextContent(
       JSON.stringify(expectedErrors),
@@ -72,7 +74,7 @@ describe("PageNew", () => {
 
     render(<Subject {...{ gqlMocks }} />);
     await act(async () => {
-      await fireEvent.click(screen.getByTestId("submit"));
+      fireEvent.click(screen.getByTestId("submit"));
     });
     expect(screen.getByTestId("submitErrors")).toHaveTextContent(
       JSON.stringify({ "*": "Save failed, no error available" }),
@@ -86,7 +88,7 @@ describe("PageNew", () => {
 
     render(<Subject {...{ gqlMocks }} />);
     await act(async () => {
-      await fireEvent.click(screen.getByTestId("submit"));
+      fireEvent.click(screen.getByTestId("submit"));
     });
     expect(screen.getByTestId("submitErrors")).toHaveTextContent(expectedError);
   });
