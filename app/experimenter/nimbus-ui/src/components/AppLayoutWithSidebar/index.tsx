@@ -82,10 +82,7 @@ const LinkNav = ({
   const to = route ? `${BASE_PATH}/${route}` : BASE_PATH;
   // an alternative to reach-router's `isCurrent` with identical
   // functionality; this allows us to test
-  console.log("location pathname", location.pathname);
-  console.log("to", to);
   const isCurrentPage = location.pathname === to;
-  console.error("isCurrentPage", isCurrentPage);
   return (
     <Nav.Item as="li" className="m-1">
       <Link
