@@ -21,7 +21,7 @@ $sizes: (
 
 @import "~bootstrap/scss/bootstrap";
 
-// This gives us responsive sizing.
+// This gives us responsive sizing such as `h-md-100`.
 // See https://github.com/twbs/bootstrap/issues/21943
 @each $breakpoint in map-keys($grid-breakpoints) {
   @include media-breakpoint-up($breakpoint) {
