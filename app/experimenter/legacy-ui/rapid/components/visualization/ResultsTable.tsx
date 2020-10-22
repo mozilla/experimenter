@@ -45,12 +45,7 @@ const ResultsTable: React.FC<{ experimentData: ExperimentData }> = ({
           {resultsMetricsList.map((value, index) => {
             return (
               <th key={index} scope="col">
-                {value.name}
-                &nbsp;
-                <i
-                  className="far fa-question-circle"
-                  data-tip={value.tooltip}
-                />
+                <div data-tip={value.tooltip}>{value.name}</div>
               </th>
             );
           })}

@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import useInterval from "experimenter-rapid/components/experiments/useInterval";
+import { displaySelectOptionLabels } from "experimenter-rapid/components/experiments/utils";
 import {
   featureOptions,
   audienceOptions,
@@ -9,6 +10,7 @@ import {
   firefoxChannelOptions,
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
 import HighlightsTable from "experimenter-rapid/components/visualization/HighlightsTable";
+import Overview from "experimenter-rapid/components/visualization/Overview";
 import ResultsTable from "experimenter-rapid/components/visualization/ResultsTable";
 import {
   requestReview,
@@ -42,22 +44,6 @@ const LabelledRow: React.FC<{ label: string; value?: string }> = ({
       </td>
     </tr>
   );
-};
-
-const displaySelectOptionLabels = (options, values) => {
-  let selectedValue = values;
-  if (!Array.isArray(values)) {
-    selectedValue = [values];
-  }
-
-  const selectedOption = options.reduce((filtered, element) => {
-    if (selectedValue.includes(element.value)) {
-      filtered.push(element.label);
-    }
-
-    return filtered;
-  }, []);
-  return selectedOption.join(", ");
 };
 
 const ExperimentDetails: React.FC = () => {
@@ -129,7 +115,7 @@ const ExperimentDetails: React.FC = () => {
     const slug_underscored = experimentData.recipe_slug.split("-").join("_");
     analysis_report = (
       <>
-        <h4 className="my-4">Results</h4>
+        <h2 className="font-weight-bold">Results</h2>
         {experimentData.analysis?.show_analysis ? (
           <div>
             <ResultsTable experimentData={experimentData} />
@@ -225,12 +211,12 @@ const ExperimentDetails: React.FC = () => {
     <div className="col pt-3">
       <div className="mb-4">
         <div className="mb-4">
-          <h3 className="mb-0">
+          <h1 className="mb-0">
             {experimentData.name}{" "}
             <span className="badge badge-pill badge-small badge-secondary">
               {experimentData.status}
             </span>
-          </h3>
+          </h1>
           {experimentData.recipe_slug && (
             <p>
               <code>{experimentData.recipe_slug}</code>
@@ -238,52 +224,60 @@ const ExperimentDetails: React.FC = () => {
           )}
         </div>
 
-        <table className="table table-bordered mb-5">
-          <tbody>
-            <LabelledRow
-              label="Experiment Owner"
-              value={experimentData.owner}
-            />
-            <LabelledRow label="Public Name" value={experimentData.name}>
-              {bugzilla_url}
-            </LabelledRow>
-            <LabelledRow label="Hypothesis" value={experimentData.objectives} />
-            <LabelledRow
-              label="Feature"
-              value={displaySelectOptionLabels(
-                featureOptions,
-                experimentData.features,
-              )}
-            />
-            <LabelledRow
-              label="Audience"
-              value={displaySelectOptionLabels(
-                audienceOptions,
-                experimentData.audience,
-              )}
-            />
-            <LabelledRow
-              label="Firefox Minimum Version"
-              value={displaySelectOptionLabels(
-                firefoxVersionOptions,
-                experimentData.firefox_min_version,
-              )}
-            />
+        {!experimentData.analysis?.show_analysis && (
+          <table className="table table-bordered mb-5">
+            <tbody>
+              <LabelledRow
+                label="Experiment Owner"
+                value={experimentData.owner}
+              />
+              <LabelledRow label="Public Name" value={experimentData.name}>
+                {bugzilla_url}
+              </LabelledRow>
+              <LabelledRow
+                label="Hypothesis"
+                value={experimentData.objectives}
+              />
+              <LabelledRow
+                label="Feature"
+                value={displaySelectOptionLabels(
+                  featureOptions,
+                  experimentData.features,
+                )}
+              />
+              <LabelledRow
+                label="Audience"
+                value={displaySelectOptionLabels(
+                  audienceOptions,
+                  experimentData.audience,
+                )}
+              />
+              <LabelledRow
+                label="Firefox Minimum Version"
+                value={displaySelectOptionLabels(
+                  firefoxVersionOptions,
+                  experimentData.firefox_min_version,
+                )}
+              />
 
-            <LabelledRow
-              label="Firefox Channel"
-              value={displaySelectOptionLabels(
-                firefoxChannelOptions,
-                experimentData.firefox_channel,
-              )}
-            />
-          </tbody>
-        </table>
+              <LabelledRow
+                label="Firefox Channel"
+                value={displaySelectOptionLabels(
+                  firefoxChannelOptions,
+                  experimentData.firefox_channel,
+                )}
+              />
+            </tbody>
+          </table>
+        )}
 
         {experimentData.analysis?.show_analysis && (
           <>
-            <h2>Overview</h2>
+            <h2 className="font-weight-bold">Overview</h2>
+            <h5 className="text-uppercase font-weight-bold mt-5">Hypothesis</h5>
+            <p className="h5">{experimentData.objectives}</p>
             <HighlightsTable {...{ experimentData }} />
+            <Overview {...{ experimentData }} />
           </>
         )}
 
