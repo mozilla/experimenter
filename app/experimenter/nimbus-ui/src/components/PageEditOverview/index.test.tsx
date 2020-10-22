@@ -5,7 +5,7 @@
 import React from "react";
 import { screen } from "@testing-library/react";
 import PageEditOverview from ".";
-import { renderWithRouter } from "../../lib/helpers";
+import { renderWithRouter } from "../../lib/test-utils";
 
 describe("PageEditOverview", () => {
   it("renders as expected", () => {

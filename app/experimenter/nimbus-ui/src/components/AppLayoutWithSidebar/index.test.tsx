@@ -5,7 +5,7 @@
 import React from "react";
 import { screen, waitFor } from "@testing-library/react";
 import AppLayoutWithSidebar from ".";
-import { renderWithRouter } from "../../lib/helpers";
+import { renderWithRouter } from "../../lib/test-utils";
 import { BASE_PATH } from "../../lib/constants";
 import { RouteComponentProps, Router } from "@reach/router";
 import App from "../App";

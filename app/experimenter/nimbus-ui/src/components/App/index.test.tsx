@@ -4,7 +4,7 @@
 
 import React, { ReactNode } from "react";
 import { screen, waitFor } from "@testing-library/react";
-import { renderWithRouter } from "../../lib/helpers";
+import { renderWithRouter } from "../../lib/test-utils";
 import App from ".";
 
 describe("App", () => {
