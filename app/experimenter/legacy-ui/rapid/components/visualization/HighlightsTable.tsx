@@ -43,7 +43,7 @@ const HighlightsTable: React.FC<{ experimentData: ExperimentData }> = ({
   const resultsData = experimentData.analysis?.overall || {};
 
   return (
-    <table className="table text-left h5 mb-5">
+    <table className="table text-left h5 mt-5">
       <tbody>
         {Object.keys(resultsData).map((branch) => {
           const userCountMetric =
