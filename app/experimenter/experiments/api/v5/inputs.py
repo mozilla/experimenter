@@ -1,5 +1,11 @@
 import graphene
 
+from experimenter.experiments.api.v5.types import (
+    NimbusExperimentChannel,
+    NimbusExperimentFirefoxMinVersion,
+    NimbusExperimentTargetingConfigSlug,
+)
+
 
 class ExperimentInput(graphene.InputObjectType):
     client_mutation_id = graphene.String()
@@ -62,3 +68,15 @@ class UpdateExperimentProbeSetsInput(graphene.InputObjectType):
         required=True,
         description="List of probeset ids that should be set on the experiment.",
     )
+
+
+class UpdateExperimentAudienceInput(graphene.InputObjectType):
+    client_mutation_id = graphene.String()
+    nimbus_experiment_id = graphene.Int(required=True)
+    channels = graphene.List(NimbusExperimentChannel)
+    firefox_min_version = NimbusExperimentFirefoxMinVersion()
+    population_percent = graphene.Decimal()
+    proposed_duration = graphene.Int()
+    proposed_enrollment = graphene.String()
+    targeting_config_slug = NimbusExperimentTargetingConfigSlug()
+    total_enrolled_clients = graphene.Int()

@@ -1,10 +1,12 @@
 from django.test import TestCase
 
 from experimenter.experiments.api.v5.serializers import (
+    NimbusAudienceUpdateSerializer,
     NimbusBranchUpdateSerializer,
     NimbusExperimentOverviewSerializer,
     NimbusProbeSetUpdateSerializer,
 )
+from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
@@ -143,3 +145,50 @@ class TestNimbusProbeSetUpdateSerializer(TestCase):
             set([p.id for p in experiment.probe_sets.all()]),
             set([p.id for p in probe_sets]),
         )
+
+
+class TestNimbusAudienceUpdateSerializer(TestCase):
+    def test_serializer_updates_audience_on_experiment(self):
+        user = UserFactory()
+        experiment = NimbusExperimentFactory(
+            channels=[],
+            firefox_min_version=None,
+            population_percent=None,
+            proposed_duration=None,
+            proposed_enrollment=None,
+            targeting_config_slug=None,
+            total_enrolled_clients=0,
+        )
+        serializer = NimbusAudienceUpdateSerializer(
+            experiment,
+            {
+                "channels": [NimbusConstants.Channel.DESKTOP_BETA.value],
+                "firefox_min_version": NimbusConstants.Version.FIREFOX_80.value,
+                "population_percent": 10,
+                "proposed_duration": 42,
+                "proposed_enrollment": 120,
+                "targeting_config_slug": (
+                    NimbusConstants.TargetingConfig.ALL_ENGLISH.value
+                ),
+                "total_enrolled_clients": 100,
+            },
+            context={"user": user},
+        )
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
+        self.assertEqual(experiment.changes.count(), 1)
+        self.assertEqual(
+            experiment.channels, [NimbusConstants.Channel.DESKTOP_BETA.value]
+        )
+        self.assertEqual(
+            experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_80.value
+        )
+        self.assertEqual(experiment.population_percent, 10)
+        self.assertEqual(experiment.proposed_duration, 42)
+        self.assertEqual(experiment.proposed_enrollment, 120)
+        self.assertEqual(
+            experiment.targeting_config_slug,
+            NimbusConstants.TargetingConfig.ALL_ENGLISH.value,
+        )
+        self.assertEqual(experiment.total_enrolled_clients, 100)
