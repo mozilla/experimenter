@@ -50,28 +50,5 @@ describe("PageNew", () => {
         `${BASE_PATH}/my-special-slug/request-review`,
       );
     });
-
-    // it("renders expected active page class", async () => {
-
-    // --> WIP <--
-
-    // const {
-    //   history: { navigate },
-    // } = renderWithRouter(
-    //   <Router>
-    //     <SidebarRoot path="/:slug" />
-    //     <PageEditOverview path="/:slug" />
-    //   </Router>,
-    //   { route: `/my-special-slug` },
-    // );
-    // await navigate("/edit/overview");
-    // expect(screen.getByTestId("nav-edit-overview")).toHaveClass(
-    //   "text-primary",
-    // );
-    // await navigate(`${BASE_PATH}/my-special-slug/edit/overview`);
-    // expect(screen.getByTestId("nav-edit-overview")).toHaveClass(
-    //   "text-primary",
-    // );
-    // });
   });
 });
