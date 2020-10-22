@@ -24,7 +24,7 @@ class NimbusBranchChangeLogSerializer(serializers.ModelSerializer):
 
 
 class NimbusExperimentChangeLogSerializer(serializers.ModelSerializer):
-    control_branch = NimbusBranchChangeLogSerializer()
+    reference_branch = NimbusBranchChangeLogSerializer()
     branches = NimbusBranchChangeLogSerializer(many=True)
     probe_sets = serializers.SlugRelatedField(
         many=True, queryset=NimbusProbeSet.objects.all(), slug_field="slug"

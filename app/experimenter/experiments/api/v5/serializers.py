@@ -45,7 +45,7 @@ class NimbusExperimentOverviewSerializer(
 
 
 class NimbusBranchUpdateSerializer(NimbusChangeLogMixin, serializers.ModelSerializer):
-    control_branch = NimbusBranchSerializer()
+    reference_branch = NimbusBranchSerializer()
     treatment_branches = NimbusBranchSerializer(many=True)
     feature_config = serializers.PrimaryKeyRelatedField(
         queryset=NimbusFeatureConfig.objects.all(),
@@ -56,17 +56,17 @@ class NimbusBranchUpdateSerializer(NimbusChangeLogMixin, serializers.ModelSerial
         model = NimbusExperiment
         fields = (
             "feature_config",
-            "control_branch",
+            "reference_branch",
             "treatment_branches",
         )
 
     def update(self, experiment, data):
-        control_branch_data = data.pop("control_branch")
+        control_branch_data = data.pop("reference_branch")
         treatment_branches = data.pop("treatment_branches")
         with transaction.atomic():
             instance = super().update(experiment, data)
             NimbusBranch.objects.filter(experiment=instance).delete()
-            experiment.control_branch = NimbusBranch.objects.create(
+            experiment.reference_branch = NimbusBranch.objects.create(
                 experiment=instance,
                 slug=slugify(control_branch_data["name"]),
                 **control_branch_data

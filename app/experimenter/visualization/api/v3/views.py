@@ -100,7 +100,7 @@ def process_data_for_consumption(data, experiment):
 
         results[branch] = results.get(
             branch,
-            {"is_control": experiment.control_branch.name == branch, BRANCH_DATA: {}},
+            {"is_control": experiment.reference_branch.name == branch, BRANCH_DATA: {}},
         )
 
         resultMetrics = get_results_metrics_map(experiment.probe_sets.all())
