@@ -77,7 +77,7 @@ class NimbusExperiment(NimbusConstants, models.Model):
         null=True,
         choices=NimbusConstants.TargetingConfig.choices,
     )
-    control_branch = models.OneToOneField(
+    reference_branch = models.OneToOneField(
         "NimbusBranch", blank=True, null=True, on_delete=models.CASCADE
     )
 
@@ -98,7 +98,7 @@ class NimbusExperiment(NimbusConstants, models.Model):
 
     @property
     def treatment_branches(self):
-        return self.branches.exclude(id=self.control_branch.id).order_by("id")
+        return self.branches.exclude(id=self.reference_branch.id).order_by("id")
 
 
 class NimbusBranch(models.Model):

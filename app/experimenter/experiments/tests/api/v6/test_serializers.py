@@ -53,7 +53,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "isEnrollmentPaused": False,
                 "proposedDuration": experiment.proposed_duration,
                 "proposedEnrollment": experiment.proposed_enrollment,
-                "referenceBranch": experiment.control_branch.slug,
+                "referenceBranch": experiment.reference_branch.slug,
                 "schemaVersion": settings.NIMBUS_SCHEMA_VERSION,
                 "slug": experiment.slug,
                 "startDate": None,

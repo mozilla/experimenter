@@ -97,7 +97,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         experiment = cls.create(**kwargs)
 
         NimbusBranchFactory.create(experiment=experiment)
-        experiment.control_branch = NimbusBranchFactory.create(experiment=experiment)
+        experiment.reference_branch = NimbusBranchFactory.create(experiment=experiment)
         experiment.save()
 
         for status, _ in NimbusExperiment.Status.choices:
