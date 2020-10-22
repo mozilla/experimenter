@@ -5,6 +5,7 @@ from experimenter.experiments.api.v5.serializers import (
     NimbusBranchUpdateSerializer,
     NimbusExperimentOverviewSerializer,
     NimbusProbeSetUpdateSerializer,
+    NimbusStatusUpdateSerializer,
 )
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
@@ -192,3 +193,51 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
             NimbusConstants.TargetingConfig.ALL_ENGLISH.value,
         )
         self.assertEqual(experiment.total_enrolled_clients, 100)
+
+
+class TestNimbusStatusUpdateSerializer(TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory()
+
+    def test_status_update(self):
+        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.DRAFT)
+        serializer = NimbusStatusUpdateSerializer(
+            experiment,
+            data={"status": NimbusExperiment.Status.REVIEW},
+            context={"user": self.user},
+        )
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertTrue(serializer.is_valid())
+        experiment = serializer.save()
+        self.assertEqual(experiment.changes.count(), 1)
+        self.assertEqual(experiment.status, NimbusExperiment.Status.REVIEW)
+
+    def test_status_with_invalid_target_status(self):
+        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.DRAFT)
+        serializer = NimbusStatusUpdateSerializer(
+            experiment,
+            data={"status": NimbusExperiment.Status.ACCEPTED},
+            context={"user": self.user},
+        )
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {"status": ["Nimbus Experiments can only transition from DRAFT to REVIEW."]},
+        )
+
+    def test_status_with_invalid_existing_status(self):
+        experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.ACCEPTED)
+        serializer = NimbusStatusUpdateSerializer(
+            experiment,
+            data={"status": NimbusExperiment.Status.REVIEW},
+            context={"user": self.user},
+        )
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertFalse(serializer.is_valid())
+        self.assert_(
+            serializer.errors["experiment"][0].startswith("Nimbus Experiment has status")
+        )
