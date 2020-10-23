@@ -6,12 +6,17 @@ import React from "react";
 import { storiesOf } from "@storybook/react";
 import { withLinks } from "@storybook/addon-links";
 import { RouterSlugProvider } from "../../lib/test-utils";
+import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
 import PageEditOverview from ".";
+
+const { mock } = mockExperimentQuery();
 
 storiesOf("pages/EditOverview", module)
   .addDecorator(withLinks)
   .add("basic", () => (
     <RouterSlugProvider>
-      <PageEditOverview />
+      <MockedCache mocks={[mock]}>
+        <PageEditOverview />
+      </MockedCache>
     </RouterSlugProvider>
   ));

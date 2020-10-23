@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const CREATE_EXPERIMENT_MUTATION = gql`
   mutation createExperiment($input: CreateExperimentInput!) {
@@ -16,6 +16,50 @@ export const CREATE_EXPERIMENT_MUTATION = gql`
         hypothesis
         application
       }
+    }
+  }
+`;
+
+export const GET_EXPERIMENT_QUERY = gql`
+  query getExperiment($slug: String!) {
+    experimentBySlug(slug: $slug) {
+      name
+      slug
+      status
+
+      hypothesis
+      application
+      publicDescription
+
+      referenceBranch {
+        name
+        slug
+        description
+        ratio
+        featureValue
+        featureEnabled
+      }
+      treatmentBranches {
+        name
+        slug
+        description
+        ratio
+        featureValue
+        featureEnabled
+      }
+
+      probeSets {
+        slug
+        name
+      }
+
+      channels
+      firefoxMinVersion
+      targetingConfigSlug
+
+      populationPercent
+      totalEnrolledClients
+      proposedEnrollment
     }
   }
 `;

@@ -3,19 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { screen } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
 import AppLayoutWithSidebar from ".";
 import { renderWithRouter } from "../../lib/test-utils";
 import { BASE_PATH } from "../../lib/constants";
 import { RouteComponentProps, Router } from "@reach/router";
 import App from "../App";
+import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
+
+const { mock } = mockExperimentQuery("my-special-slug");
 
 describe("PageNew", () => {
   it("renders app layout content with children", () => {
     renderWithRouter(
-      <AppLayoutWithSidebar>
-        <p data-testid="test-child">Hello, world!</p>
-      </AppLayoutWithSidebar>,
+      <MockedCache mocks={[mock]}>
+        <AppLayoutWithSidebar>
+          <p data-testid="test-child">Hello, world!</p>
+        </AppLayoutWithSidebar>
+      </MockedCache>,
     );
     expect(screen.getByTestId("AppLayoutWithSidebar")).toBeInTheDocument();
     expect(screen.getByTestId("test-child")).toBeInTheDocument();
@@ -23,9 +28,11 @@ describe("PageNew", () => {
 
   describe("navigation links", () => {
     const SidebarRoot = (props: RouteComponentProps) => (
-      <AppLayoutWithSidebar>
-        <p>Hello, world!</p>
-      </AppLayoutWithSidebar>
+      <MockedCache mocks={[mock]}>
+        <AppLayoutWithSidebar>
+          <p>Hello, world!</p>
+        </AppLayoutWithSidebar>
+      </MockedCache>
     );
 
     it("renders expected URLs", () => {
@@ -60,9 +67,14 @@ describe("PageNew", () => {
       }
       const {
         history: { navigate },
-      } = renderWithRouter(<App basepath="/" />, {
-        route: `/my-special-slug/`,
-      });
+      } = renderWithRouter(
+        <MockedCache mocks={[mock, mock]}>
+          <App basepath="/" />
+        </MockedCache>,
+        {
+          route: `/my-special-slug/`,
+        },
+      );
 
       pushState("edit/overview");
       await navigate("/my-special-slug/edit/overview");
@@ -74,7 +86,9 @@ describe("PageNew", () => {
       expect(branchesLink).not.toHaveClass("text-primary");
 
       pushState("edit/branches");
-      await navigate("/my-special-slug/edit/branches");
+      await act(async () => {
+        await navigate("/my-special-slug/edit/branches");
+      });
       overviewLink = screen.getByTestId("nav-edit-overview");
       branchesLink = screen.getByTestId("nav-edit-branches");
       expect(branchesLink).toHaveClass("text-primary");
