@@ -3,17 +3,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { RouteComponentProps } from "@reach/router";
+import { RouteComponentProps, useParams } from "@reach/router";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
+import { useExperiment } from "../../hooks/useExperiment";
 
 type PageEditOverviewProps = {} & RouteComponentProps;
 
-const PageEditOverview = (props: PageEditOverviewProps) => (
-  <AppLayoutWithSidebar>
-    <section data-testid="PageEditOverview">
-      <h1>PageEditOverview</h1>
-    </section>
-  </AppLayoutWithSidebar>
-);
+const PageEditOverview = (props: PageEditOverviewProps) => {
+  const { slug } = useParams();
+  const { experiment } = useExperiment(slug);
+
+  if (experiment != null) {
+    console.log(
+      experiment.hypothesis,
+      experiment.application,
+      experiment.publicDescription,
+    );
+  }
+
+  return (
+    <AppLayoutWithSidebar>
+      <section data-testid="PageEditOverview">
+        <h1>PageEditOverview</h1>
+      </section>
+    </AppLayoutWithSidebar>
+  );
+};
 
 export default PageEditOverview;
