@@ -5,8 +5,13 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
 import { withLinks } from "@storybook/addon-links";
-import PageHome from ".";
+import { RouterSlugProvider } from "../../lib/test-utils";
+import PageEditOverview from ".";
 
-storiesOf("pages/Home", module)
+storiesOf("pages/EditOverview", module)
   .addDecorator(withLinks)
-  .add("basic", () => <PageHome />);
+  .add("basic", () => (
+    <RouterSlugProvider>
+      <PageEditOverview />
+    </RouterSlugProvider>
+  ));

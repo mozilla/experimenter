@@ -10,10 +10,9 @@ import FormExperimentOverviewPartial from "../FormExperimentOverviewPartial";
 
 import { useMutation } from "@apollo/client";
 import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import {
-  CreateExperimentInput,
-} from "../../types/globalTypes";
+import { CreateExperimentInput } from "../../types/globalTypes";
 import { createExperiment_createExperiment as CreateExperimentResult } from "../../types/createExperiment";
+import { navigate } from "@reach/router";
 
 const TRAINING_DOC_URL =
   "https://mana.mozilla.org/wiki/display/FJT/Project+Nimbus";
@@ -23,7 +22,7 @@ type PageNewProps = {} & RouteComponentProps;
 const PageNew = (props: PageNewProps) => {
   // TODO: EXP-462 Get this from constants / config loaded at app start?
   const applications = ["firefox-desktop", "fenix", "reference-browser"];
-  
+
   const [createExperiment, { loading }] = useMutation<
     { createExperiment: CreateExperimentResult },
     { input: CreateExperimentInput }
@@ -32,7 +31,7 @@ const PageNew = (props: PageNewProps) => {
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
 
   const onFormCancel = useCallback((ev: React.FormEvent) => {
-    // TODO: EXP-295 navigate to created experiment
+    // TODO: EXP-462 cancel creation
     // navigate(".")
     console.log("CANCEL TBD");
   }, []);
@@ -54,11 +53,8 @@ const PageNew = (props: PageNewProps) => {
         if (message !== "success" && typeof message === "object") {
           return void setSubmitErrors(message);
         }
-
-        // TODO: EXP-295 navigate to created experiment
-        // navigate(`/${nimbusExperiment.slug}/`);
-        console.log("SAVE SUCCESS", nimbusExperiment!.slug);
         resetForm();
+        navigate(`${nimbusExperiment!.slug}/edit/overview`);
       } catch (error) {
         setSubmitErrors({ "*": error.message });
       }
