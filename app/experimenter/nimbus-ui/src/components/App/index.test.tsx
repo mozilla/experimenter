@@ -3,35 +3,38 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode } from "react";
-import { render, screen } from "@testing-library/react";
-import {
-  createMemorySource,
-  createHistory,
-  LocationProvider,
-} from "@reach/router";
+import { screen, waitFor } from "@testing-library/react";
+import { renderWithRouter } from "../../lib/test-utils";
 import App from ".";
 
 describe("App", () => {
   it("routes to PageHome page", () => {
-    render(<Subject path="/" />);
+    renderWithRouter(<App basepath="/" />);
     expect(screen.getByTestId("PageHome")).toBeInTheDocument();
   });
 
   it("routes to PageNew page", () => {
-    render(<Subject basepath="/foo/bar" path="/foo/bar/new" />);
+    renderWithRouter(<App basepath="/foo/bar" />, {
+      route: "/foo/bar/new",
+    });
     expect(screen.getByTestId("PageNew")).toBeInTheDocument();
   });
 
-  const Subject = ({ basepath = "/", path = "/" }) => {
-    let source = createMemorySource(path);
-    let history = createHistory(source);
+  describe(":slug routes", () => {
+    it("redirects from ':slug/edit' to ':slug/edit/overview'", async () => {
+      const {
+        history: { navigate },
+      } = renderWithRouter(<App basepath="/" />, {
+        route: `/my-special-slug/`,
+      });
 
-    return (
-      <LocationProvider history={history}>
-        <App {...{ basepath }} />
-      </LocationProvider>
-    );
-  };
+      await navigate("/my-special-slug/edit");
+      // waitFor the redirect
+      await waitFor(() => {
+        expect(screen.getByTestId("PageEditOverview")).toBeInTheDocument();
+      });
+    });
+  });
 });
 
 jest.mock("../PageHome", () => ({

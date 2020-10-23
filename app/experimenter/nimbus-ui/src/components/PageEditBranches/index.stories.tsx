@@ -4,9 +4,14 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
+import { RouterSlugProvider } from "../../lib/test-utils";
 import { withLinks } from "@storybook/addon-links";
-import PageHome from ".";
+import PageEditBranches from ".";
 
-storiesOf("pages/Home", module)
+storiesOf("pages/EditBranches", module)
   .addDecorator(withLinks)
-  .add("basic", () => <PageHome />);
+  .add("basic", () => (
+    <RouterSlugProvider>
+      <PageEditBranches />
+    </RouterSlugProvider>
+  ));
