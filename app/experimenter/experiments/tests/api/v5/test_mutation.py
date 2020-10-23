@@ -252,7 +252,7 @@ class TestMutations(GraphQLTestCase):
 
     def test_update_experiment_branches_with_feature_config(self):
         user_email = "user@example.com"
-        feature = NimbusFeatureConfigFactory()
+        feature = NimbusFeatureConfigFactory(schema="{}")
         experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.DRAFT)
         experiment_id = experiment.id
         reference_branch = {"name": "control", "description": "a control", "ratio": 1}
