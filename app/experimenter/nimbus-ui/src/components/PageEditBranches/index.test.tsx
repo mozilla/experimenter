@@ -6,10 +6,17 @@ import React from "react";
 import { screen } from "@testing-library/react";
 import PageEditBranches from ".";
 import { renderWithRouter } from "../../lib/test-utils";
+import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
+
+const { mock } = mockExperimentQuery();
 
 describe("PageEditBranches", () => {
   it("renders as expected", () => {
-    renderWithRouter(<PageEditBranches />);
+    renderWithRouter(
+      <MockedCache mocks={[mock]}>
+        <PageEditBranches />
+      </MockedCache>,
+    );
     expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
   });
 });

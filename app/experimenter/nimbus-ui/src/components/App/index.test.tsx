@@ -5,7 +5,10 @@
 import React, { ReactNode } from "react";
 import { screen, waitFor } from "@testing-library/react";
 import { renderWithRouter } from "../../lib/test-utils";
+import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
 import App from ".";
+
+const { mock } = mockExperimentQuery("my-special-slug");
 
 describe("App", () => {
   it("routes to PageHome page", () => {
@@ -24,9 +27,14 @@ describe("App", () => {
     it("redirects from ':slug/edit' to ':slug/edit/overview'", async () => {
       const {
         history: { navigate },
-      } = renderWithRouter(<App basepath="/" />, {
-        route: `/my-special-slug/`,
-      });
+      } = renderWithRouter(
+        <MockedCache mocks={[mock]}>
+          <App basepath="/" />
+        </MockedCache>,
+        {
+          route: `/my-special-slug/`,
+        },
+      );
 
       await navigate("/my-special-slug/edit");
       // waitFor the redirect
