@@ -4,11 +4,14 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { LocationProvider } from "@reach/router";
+import { RouterSlugProvider } from "../../lib/test-utils";
 import { withLinks } from "@storybook/addon-links";
 import PageEditBranches from ".";
 
 storiesOf("pages/EditBranches", module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .addDecorator(withLinks)
-  .add("basic", () => <PageEditBranches />);
+  .add("basic", () => (
+    <RouterSlugProvider>
+      <PageEditBranches />
+    </RouterSlugProvider>
+  ));

@@ -4,17 +4,16 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { LocationProvider } from "@reach/router";
 import { withLinks } from "@storybook/addon-links";
+import { RouterSlugProvider } from "../../lib/test-utils";
 import AppLayoutWithSidebar from ".";
 
 storiesOf("components/AppLayoutWithSidebar", module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .addDecorator(withLinks)
   .add("basic", () => (
-    <div data-testid="app">
+    <RouterSlugProvider>
       <AppLayoutWithSidebar>
         <p>App contents go here</p>
       </AppLayoutWithSidebar>
-    </div>
+    </RouterSlugProvider>
   ));

@@ -4,11 +4,14 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { LocationProvider } from "@reach/router";
 import { withLinks } from "@storybook/addon-links";
+import { RouterSlugProvider } from "../../lib/test-utils";
 import PageEditOverview from ".";
 
 storiesOf("pages/EditOverview", module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .addDecorator(withLinks)
-  .add("basic", () => <PageEditOverview />);
+  .add("basic", () => (
+    <RouterSlugProvider>
+      <PageEditOverview />
+    </RouterSlugProvider>
+  ));

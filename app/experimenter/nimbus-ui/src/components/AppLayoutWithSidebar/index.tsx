@@ -19,8 +19,7 @@ export const AppLayoutWithSidebar = ({
   children,
   testid = "AppLayoutWithSidebar",
 }: AppLayoutWithSidebarProps) => {
-  // an empty string makes Storybook happy
-  const { slug } = useParams() || "";
+  const { slug } = useParams();
   return (
     <Container fluid className="h-100vh" data-testid={testid}>
       <Row className="h-md-100">
