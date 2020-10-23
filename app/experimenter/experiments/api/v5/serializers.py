@@ -1,3 +1,6 @@
+import json
+
+import jsonschema
 from django.db import transaction
 from django.utils.text import slugify
 from rest_framework import serializers
@@ -37,6 +40,34 @@ class NimbusChangeLogMixin:
 
 
 class NimbusBranchSerializer(NimbusChangeLogMixin, serializers.ModelSerializer):
+    def validate_name(self, value):
+        slug_name = slugify(value)
+        if not slug_name:
+            raise serializers.ValidationError(
+                "Name needs to contain alphanumeric characters."
+            )
+        return value
+
+    def validate(self, data):
+        data = super().validate(data)
+        if data.get("feature_enabled", False) and "feature_value" not in data:
+            raise serializers.ValidationError(
+                {
+                    "feature_enabled": (
+                        "feature_value must be specified if feature_enabled is True."
+                    )
+                }
+            )
+        if data.get("feature_value") and "feature_enabled" not in data:
+            raise serializers.ValidationError(
+                {
+                    "feature_value": (
+                        "feature_enabled must be specificed to include a feature_value."
+                    )
+                }
+            )
+        return data
+
     class Meta:
         model = NimbusBranch
         fields = (
@@ -113,6 +144,55 @@ class NimbusBranchUpdateSerializer(
             "reference_branch",
             "treatment_branches",
         )
+
+    def _validate_feature_value_against_schema(self, schema, value):
+        try:
+            json_value = json.loads(value)
+        except json.JSONDecodeError as exc:
+            return [exc.msg]
+        try:
+            jsonschema.validate(json_value, schema)
+        except jsonschema.ValidationError as exc:
+            return [exc.message]
+
+    def validate(self, data):
+        data = super().validate(data)
+        # Determine if we require a feature_config
+        feature_config_required = data["reference_branch"].get("feature_enabled", False)
+        for branch in data["treatment_branches"]:
+            branch_required = branch.get("feature_enabled", False)
+            feature_config_required = feature_config_required or branch_required
+        feature_config = data.get("feature_config", None)
+        if feature_config_required and not feature_config:
+            raise serializers.ValidationError(
+                {
+                    "feature_config": [
+                        "Feature Config required when a branch has feature enabled."
+                    ]
+                }
+            )
+
+        if not data.get("feature_config", None) or not self.instance:
+            return data
+
+        schema = json.loads(feature_config.schema)
+        error_result = {}
+        if data["reference_branch"].get("feature_enabled"):
+            errors = self._validate_feature_value_against_schema(
+                schema, data["reference_branch"]["feature_value"]
+            )
+            if errors:
+                error_result["reference_branch"] = errors
+        for branch_data in data["treatment_branches"]:
+            if branch_data.get("feature_enabled", False):
+                errors = self._validate_feature_value_against_schema(
+                    schema, branch_data["feature_value"]
+                )
+                if errors:
+                    error_result.setdefault("treatment_branches", []).extend(errors)
+        if error_result:
+            raise serializers.ValidationError(error_result)
+        return data
 
     def update(self, experiment, data):
         control_branch_data = data.pop("reference_branch")
