@@ -4,6 +4,8 @@ services:
   app:
     image: app:deploy
     env_file: .env
+    environment:
+      - DEBUG=False
     stdin_open: true
     tty: true
     links:
@@ -12,7 +14,7 @@ services:
       - kinto
     ports:
       - "7001:7001"
-    command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- gunicorn -w 4 -b 0.0.0.0:7001 experimenter.wsgi"
+    command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- python manage.py collectstatic --noinput&&gunicorn -w 4 -b 0.0.0.0:7001 experimenter.wsgi"
 
   worker:
     image: app:dev
