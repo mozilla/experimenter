@@ -1,0 +1,75 @@
+version: "3"
+
+services:
+  app:
+    image: app:deploy
+    env_file: .env
+    stdin_open: true
+    tty: true
+    links:
+      - db
+      - redis
+      - kinto
+    ports:
+      - "7001:7001"
+    command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- gunicorn -w 4 -b 0.0.0.0:7001 experimenter.wsgi"
+
+  worker:
+    image: app:dev
+    env_file: .env
+    links:
+      - db
+      - redis
+    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l DEBUG"
+
+  beat:
+    image: app:dev
+    env_file: .env
+    links:
+      - db
+      - redis
+    command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter beat --pidfile /celerybeat.pid -s /celerybeat-schedule -l DEBUG"
+
+  nginx:
+    build: ./nginx
+    env_file: .env
+    links:
+      - app
+    ports:
+      - "443:443"
+
+  db:
+    restart: always
+    image: postgres:9.6.17
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_volume:/var/lib/postgresql
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  kinto:
+    image: mozilla/kinto-dist
+    environment:
+      KINTO_INI: /etc/kinto.ini
+    ports:
+      - "8888:8888"
+    links:
+      - autograph
+    volumes:
+      - ./kinto/server.ini:/etc/kinto.ini
+      - kinto_volume:/attachments
+
+  autograph:
+    image: mozilla/autograph
+    ports:
+      - "8000:8000"
+
+volumes:
+  db_volume:
+  kinto_volume:

@@ -1,24 +1,9 @@
-ssl: nginx/key.pem nginx/cert.pem
-
-nginx/key.pem:
-	openssl genrsa -out nginx/key.pem 4096
-
-nginx/cert.pem: nginx/key.pem
-	openssl req -new -x509 -nodes -sha256 -key nginx/key.pem \
-		-subj "/C=US/ST=California/L=Mountain View/O=Mozilla/CN=experiment_local" \
-		> nginx/cert.pem
-
-secretkey:
-	openssl rand -hex 24
-
-build:
-	./scripts/build.sh
-
 WAIT_FOR_DB = /app/bin/wait-for-it.sh db:5432 &&
 
 COMPOSE = docker-compose -f docker-compose.yml
 COMPOSE_TEST = docker-compose -f docker-compose-test.yml
 COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose-integration-test.yml
+COMPOSE_PROD = docker-compose -f docker-compose-prod.yml
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
@@ -49,6 +34,25 @@ LOAD_DUMMY_EXPERIMENTS = python manage.py load_dummy_experiments
 MIGRATE = python manage.py migrate
 PUBLISH_STORYBOOKS = npx github:mozilla-fxa/storybook-gcp-publisher --commit-summary commit-summary.txt --commit-description commit-description.txt --version-json version.json
 
+ssl: nginx/key.pem nginx/cert.pem
+
+nginx/key.pem:
+	openssl genrsa -out nginx/key.pem 4096
+
+nginx/cert.pem: nginx/key.pem
+	openssl req -new -x509 -nodes -sha256 -key nginx/key.pem \
+		-subj "/C=US/ST=California/L=Mountain View/O=Mozilla/CN=experiment_local" \
+		> nginx/cert.pem
+
+secretkey:
+	openssl rand -hex 24
+
+build:
+	./scripts/build.sh
+
+build_prod: build
+	docker build --target deploy -f app/Dockerfile -t app:deploy app/
+
 test_build: build
 	$(COMPOSE_TEST) build
 
@@ -61,10 +65,12 @@ compose_build: build ssl
 compose_stop:
 	$(COMPOSE) kill
 	$(COMPOSE_INTEGRATION) kill
+	$(COMPOSE_PROD) kill
 
 compose_rm:
 	$(COMPOSE) rm -f -v
 	$(COMPOSE_INTEGRATION) rm -f -v
+	$(COMPOSE_PROD) rm -f -v
 
 volumes_rm:
 	docker volume prune -f
@@ -74,6 +80,12 @@ kill: compose_stop compose_rm volumes_rm
 
 up: compose_stop compose_build
 	$(COMPOSE) up
+
+up_prod: compose_stop compose_build build_prod
+	$(COMPOSE_PROD) up
+
+up_prod_detached: compose_stop compose_build build_prod
+	$(COMPOSE_PROD) up -d
 
 up_db: compose_stop compose_build
 	$(COMPOSE) up db redis kinto autograph
