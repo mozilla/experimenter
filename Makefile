@@ -75,6 +75,15 @@ compose_rm:
 volumes_rm:
 	docker volume prune -f
 
+static_rm:
+	rm -Rf app/node_modules
+	rm -Rf app/experimenter/legacy-ui/core/node_modules
+	rm -Rf app/experimenter/legacy-ui/rapid/node_modules
+	rm -Rf app/experimenter/legacy-ui/visualization/node_modules
+	rm -Rf app/experimenter/nimbus-ui/node_modules
+	rm -Rf app/experimenter/legacy-ui/assets/
+	rm -Rf app/experimenter/nimbus-ui/build/
+
 kill: compose_stop compose_rm volumes_rm
 	echo "All containers removed!"
 
