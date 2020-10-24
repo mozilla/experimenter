@@ -1,5 +1,5 @@
-# Build image
-FROM python:3.9 AS build
+# Dev image
+FROM python:3.9 AS dev
 
 WORKDIR /app
 
@@ -52,6 +52,14 @@ COPY ./experimenter/nimbus-ui/package.json /app/experimenter/nimbus-ui/package.j
 RUN yarn install --frozen-lockfile
 
 
+# Copy source
+COPY . /app
+
+
+# Build image
+FROM dev AS build
+
+
 # Build assets
 COPY ./experimenter/legacy-ui/ /app/experimenter/legacy-ui/
 COPY ./experimenter/nimbus-ui/ /app/experimenter/nimbus-ui/
@@ -59,10 +67,6 @@ RUN yarn workspace @experimenter/core build
 RUN yarn workspace @experimenter/visualization build
 RUN yarn workspace @experimenter/rapid build
 RUN yarn workspace @experimenter/nimbus-ui build
-
-
-# Copy source
-COPY . /app
 
 
 # Deploy image
