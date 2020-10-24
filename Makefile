@@ -18,7 +18,7 @@ WAIT_FOR_DB = /app/bin/wait-for-it.sh db:5432 &&
 
 COMPOSE = docker-compose -f docker-compose.yml
 COMPOSE_TEST = docker-compose -f docker-compose-test.yml
-COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml
+COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose-integration-test.yml
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
