@@ -1,10 +1,12 @@
 .mypy
 .pytest_cache
 .vscode
-**/.cache/
-**/.pycache/
+**/__pycache__
+**/.cache
+**/.pycache
 **/node_modules
 docs
-experimenter/legacy-ui/assets/
-experimenter/nimbus-ui/build/
+experimenter/legacy-ui/assets
+experimenter/nimbus-ui/build
 node_modules
+tests

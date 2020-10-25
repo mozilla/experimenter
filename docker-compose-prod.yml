@@ -65,7 +65,6 @@ services:
       - autograph
     volumes:
       - ./kinto/server.ini:/etc/kinto.ini
-      - kinto_volume:/attachments
 
   autograph:
     image: mozilla/autograph
@@ -74,4 +73,3 @@ services:
 
 volumes:
   db_volume:
-  kinto_volume:
