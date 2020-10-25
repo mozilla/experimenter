@@ -18,6 +18,7 @@ services:
       - /app/experimenter/legacy-ui/rapid/node_modules/
       - /app/experimenter/legacy-ui/visualization/node_modules/
       - /app/experimenter/nimbus-ui/node_modules/
+      - /app/experimenter/served/
       - /app/node_modules/
     command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- python /app/manage.py runserver 0:7001"
 
@@ -128,7 +129,6 @@ services:
       - autograph
     volumes:
       - ./kinto/server.ini:/etc/kinto.ini
-      - kinto_volume:/attachments
 
   autograph:
     image: mozilla/autograph
@@ -137,4 +137,3 @@ services:
 
 volumes:
   db_volume:
-  kinto_volume:

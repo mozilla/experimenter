@@ -2,8 +2,8 @@ WAIT_FOR_DB = /app/bin/wait-for-it.sh db:5432 &&
 
 COMPOSE = docker-compose -f docker-compose.yml
 COMPOSE_TEST = docker-compose -f docker-compose-test.yml
-COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose-integration-test.yml
 COMPOSE_PROD = docker-compose -f docker-compose-prod.yml
+COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
@@ -87,22 +87,22 @@ static_rm:
 kill: compose_stop compose_rm volumes_rm
 	echo "All containers removed!"
 
-up: compose_stop compose_build
+up: compose_build
 	$(COMPOSE) up
 
-up_prod: compose_stop compose_build build_prod
+up_prod: compose_build build_prod
 	$(COMPOSE_PROD) up
 
-up_prod_detached: compose_stop compose_build build_prod
+up_prod_detached: compose_build build_prod
 	$(COMPOSE_PROD) up -d
 
-up_db: compose_stop compose_build
+up_db: compose_build
 	$(COMPOSE) up db redis kinto autograph
 
-up_django: compose_stop compose_build
+up_django: compose_build
 	$(COMPOSE) up nginx app worker beat db redis kinto autograph
 
-up_detached: compose_stop compose_build
+up_detached: compose_build
 	$(COMPOSE) up -d
 
 generate_docs: compose_build
@@ -119,12 +119,6 @@ makemigrations: compose_build
 
 migrate: compose_build
 	$(COMPOSE) run app sh -c "$(WAIT_FOR_DB) python manage.py migrate"
-
-load_locales_countries: compose_build
-	$(COMPOSE) run app sh -c "$(WAIT_FOR_DB) $(LOAD_LOCALES)&&$(LOAD_COUNTRIES)"
-
-load_dummy_experiments: compose_build
-	$(COMPOSE) run app python manage.py load_dummy_experiments
 
 bash: compose_build
 	$(COMPOSE) run app bash
