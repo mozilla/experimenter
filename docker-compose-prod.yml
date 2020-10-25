@@ -5,7 +5,7 @@ services:
     image: app:deploy
     env_file: .env
     environment:
-      - DEBUG=False
+      - DEBUG=True
     stdin_open: true
     tty: true
     links:
