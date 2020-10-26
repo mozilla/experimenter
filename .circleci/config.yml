@@ -65,7 +65,7 @@ jobs:
       - deploy:
           name: Deploy to latest
           command: |
-            ./scripts/build.sh
+            ./scripts/build_deploy.sh
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker tag app:deploy ${DOCKERHUB_REPO}:latest
             docker push ${DOCKERHUB_REPO}:latest

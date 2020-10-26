@@ -51,7 +51,7 @@ build:
 	./scripts/build.sh
 
 build_prod: build
-	docker build --target deploy -f app/Dockerfile -t app:deploy app/
+	./scripts/build_deploy.sh
 
 test_build: build
 	$(COMPOSE_TEST) build
