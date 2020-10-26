@@ -75,6 +75,106 @@ export interface GetExperimentOverviews {
 
 **Note**: this command performs introspection on the GraphQL endpoint, so your local server must be running for it to work.
 
+## Error handling
+
+This app has an [`AppErrorBoundary`](./src/components/AppErrorBoundary/index.tsx) that will capture any uncaught error that occurs and report them to Sentry. This acts as our last line of defense, but ideally we are able to handle errors before they get to this stage. As well, errors that we wish to display to the user should generally be handled in a consistent fashion.
+
+There are two types of errors to account for:
+
+### Validation errors
+
+These occur when you try to create or modify a record and the server tells us that one or more fields provided incorrect data. For these you should use React Bootstrap's [`Form.Control.Feedback`](https://react-bootstrap.github.io/components/forms/#form-control-feedback-props) component in combination with other form components.
+
+A basic example might look like this:
+
+```tsx
+<Form.Group controlId="description">
+  <Form.Label>Description</Form.Label>
+  <Form.Control type="text" autoFocus />
+  <Form.Text>This is the description.</Form.Text>
+  {errors["description"] && (
+    <Form.Control.Feedback type="invalid">
+      {errors["description"].message}
+    </Form.Control.Feedback>
+  )}
+</Form.Group>
+```
+
+### General errors
+
+General errors can occur when an operation fails altogether. This could be for any reason, such as when a network request fails, or a bad code path raises an exception. For these errors you'll use React Bootstrap's [`Alert`](https://react-bootstrap.github.io/components/alerts/) components.
+
+For example, if error occurs while saving a record:
+
+```tsx
+<Alert variant="warning">Sorry, there was a problem.</Alert>
+```
+
+_Note:_ displaying technical error messages to the user may not be very helpful, so it's generally advised to either provide a [generic message](./src/lib/constants.ts) or instructions on what to do.
+
+## Handling GraphQL operation errors
+
+As GQL queries and mutations are how we get data in and out of the app this is where a majority of our errors are going to occur. These should be handled in a consistent fashion as well.
+
+Both operations can result in a general error, such as a `NetworkError`, or GraphQL errors, which in most cases will be validation errors. Importantly, these two types of errors occur in different ways; general errors will throw or trigger the operations `onError` function, and GraphQL errors will be present in the result of the operation.
+
+At this time we're not requiring any errors to be reported to Sentry as uncaught client errors will bubble up to `AppErrorBoundary`, we don't want to report validation errors, and true GraphQL server errors are already reported on the server-side.
+
+An example of handling a `useMutation` operation:
+
+```tsx
+// Set up the Mutation
+const [updateSomething] = useMutation(UPDATE_RECORD_MUTATION);
+
+// Later, execute it.
+try {
+  const result = await updateSomething({
+    variables,
+  });
+
+  if (!result.data?.updateSomething) {
+    throw new Error("Update failed for an unknown reason");
+  }
+
+  const { message, record } = result.data.updateSomething;
+
+  // In our GraphQL response, the `data.message` could be "success"
+  // to indicate successful mutation, another error string, or an
+  // object containing field keys and an array of string errors.
+  if (message !== "success" && typeof message === "object") {
+    console.log("A GraphQL error occurred", message);
+    return;
+  }
+
+  console.log("Record updated", record);
+} catch (error) {
+  console.log("A general error occurred", error.message);
+}
+```
+
+An example of handling a `useQuery` operation:
+
+```tsx
+// Set up the query, and because it executes immediately, handle it
+// immediately by passing in an `onError` option. This is the same as
+// wrapping it in a try/catch, just a little more grouped together.
+const { data } = useQuery(GET_RECORD_QUERY, {
+  onError(error) {
+    console.log("A general error occurred", error.message);
+  },
+});
+
+const { message, record } = data.getRecord;
+
+// Less likely with a query, but still check for GQL errors
+if (message !== "success") {
+  console.log("A GraphQL error occurred", message);
+  return;
+}
+
+console.log("Retrieved record", record);
+```
+
 ## Testing and Mocking
 
 This package uses [Jest](https://jestjs.io/) to test its code. By default `yarn test` will test all JS/TS files under `src/`.
@@ -118,25 +218,25 @@ const mocks = [
   {
     request: {
       query: GET_EXPERIMENT_OVERVIEW,
-      variables: { slug: 'foo' },
+      variables: { slug: "foo" },
     },
     result: {
-      errors: [new GraphQLError('invalid slug')],
+      errors: [new GraphQLError("invalid slug")],
     },
   },
   {
     request: {
       query: GET_EXPERIMENT_OVERVIEW,
-      variables: { slug: 'foo' },
+      variables: { slug: "foo" },
     },
-    error: new Error('network error'),
+    error: new Error("network error"),
   },
 ];
 
 renderWithRouter(
   <MockedCache {...{ mocks }}>
     <ExperimentsDirectory {...{ onDismiss, onError }} />
-  </MockedCache>
+  </MockedCache>,
 );
 ```
 

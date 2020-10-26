@@ -5,7 +5,7 @@
 import React from "react";
 import { RouteComponentProps, useParams } from "@reach/router";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
-import { useExperiment } from "../../hooks/useExperiment";
+import { useExperiment } from "../../hooks";
 
 type PageEditBranchesProps = {} & RouteComponentProps;
 

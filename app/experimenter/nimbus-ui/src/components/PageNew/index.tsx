@@ -13,6 +13,7 @@ import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { CreateExperimentInput } from "../../types/globalTypes";
 import { createExperiment_createExperiment as CreateExperimentResult } from "../../types/createExperiment";
 import { navigate } from "@reach/router";
+import { SUBMIT_ERROR } from "../../lib/constants";
 
 const TRAINING_DOC_URL =
   "https://mana.mozilla.org/wiki/display/FJT/Project+Nimbus";
@@ -56,7 +57,7 @@ const PageNew = (props: PageNewProps) => {
         resetForm();
         navigate(`${nimbusExperiment!.slug}/edit/overview`);
       } catch (error) {
-        setSubmitErrors({ "*": error.message });
+        setSubmitErrors({ "*": SUBMIT_ERROR });
       }
     },
     [createExperiment],
