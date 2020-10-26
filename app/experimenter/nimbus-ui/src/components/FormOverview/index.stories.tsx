@@ -5,11 +5,11 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
-import FormExperimentOverviewPartial from ".";
+import FormOverview from ".";
 
 const APPLICATIONS = ["firefox-desktop", "fenix", "reference-browser"];
 
-storiesOf("components/FormExperimentOverviewPartial", module)
+storiesOf("components/FormOverview", module)
   .add("basic", () => <Subject />)
   .add("loading", () => <Subject isLoading />)
   .add("errors", () => (
@@ -31,7 +31,7 @@ const Subject = ({
   applications = APPLICATIONS,
 } = {}) => (
   <div className="p-5">
-    <FormExperimentOverviewPartial
+    <FormOverview
       {...{ isLoading, submitErrors, onSubmit, onCancel, applications }}
     />
   </div>

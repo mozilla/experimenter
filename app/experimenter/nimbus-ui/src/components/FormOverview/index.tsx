@@ -6,22 +6,27 @@ import React, { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
+import { getExperiment } from "../../types/getExperiment";
 
-type FormExperimentOverviewPartialProps = {
+type FormOverviewProps = {
   isLoading: boolean;
   submitErrors: Record<string, string[]>;
-  onSubmit: (data: Record<string, any>, reset: Function) => void;
-  onCancel: (ev: React.FormEvent) => void;
   applications: string[];
+  experiment?: getExperiment["experimentBySlug"];
+  onSubmit: (data: Record<string, any>, reset: Function) => void;
+  onCancel?: (ev: React.FormEvent) => void;
+  onNext?: (ev: React.FormEvent) => void;
 };
 
-const FormExperimentOverviewPartial = ({
+const FormOverview = ({
   isLoading,
   submitErrors,
+  applications,
+  experiment,
   onSubmit,
   onCancel,
-  applications,
-}: FormExperimentOverviewPartialProps) => {
+  onNext,
+}: FormOverviewProps) => {
   const { handleSubmit, register, reset, errors, formState } = useForm({
     mode: "onTouched",
   });
@@ -38,9 +43,17 @@ const FormExperimentOverviewPartial = ({
   const handleCancel = useCallback(
     (ev: React.FormEvent) => {
       ev.preventDefault();
-      onCancel(ev);
+      onCancel!(ev);
     },
     [onCancel],
+  );
+
+  const handleNext = useCallback(
+    (ev: React.FormEvent) => {
+      ev.preventDefault();
+      onNext!(ev);
+    },
+    [onNext],
   );
 
   const nameValidated = (
@@ -77,7 +90,7 @@ const FormExperimentOverviewPartial = ({
       noValidate
       onSubmit={handleSubmit(handleSubmitAfterValidation)}
       validated={isSubmitted && isValid}
-      data-testid="FormExperimentOverviewPartial"
+      data-testid="FormOverview"
     >
       {submitErrors["*"] && (
         <Alert data-testid="submit-error" variant="warning">
@@ -87,7 +100,12 @@ const FormExperimentOverviewPartial = ({
 
       <Form.Group controlId="name">
         <Form.Label>Public name</Form.Label>
-        <Form.Control {...nameValidated("name")} type="text" autoFocus />
+        <Form.Control
+          {...nameValidated("name")}
+          type="text"
+          defaultValue={experiment?.name || ""}
+          autoFocus={!experiment}
+        />
         <Form.Text className="text-muted">
           This name will be public to users in about:studies.
         </Form.Text>
@@ -96,7 +114,12 @@ const FormExperimentOverviewPartial = ({
 
       <Form.Group controlId="hypothesis">
         <Form.Label>Hypothesis</Form.Label>
-        <Form.Control {...nameValidated("hypothesis")} as="textarea" rows={3} />
+        <Form.Control
+          {...nameValidated("hypothesis")}
+          as="textarea"
+          rows={3}
+          defaultValue={experiment?.hypothesis || ""}
+        />
         <Form.Text className="text-muted">
           You can add any supporting documents here.
         </Form.Text>
@@ -105,7 +128,13 @@ const FormExperimentOverviewPartial = ({
 
       <Form.Group controlId="application">
         <Form.Label>Application</Form.Label>
-        <Form.Control {...nameValidated("application")} as="select">
+        <Form.Control
+          {...nameValidated("application")}
+          as="select"
+          defaultValue={
+            experiment?.application?.toLowerCase().replace(/_/g, "-") || ""
+          }
+        >
           <option value="">Select...</option>
           {applications.map((application, idx) => (
             <option key={`application-${idx}`}>{application}</option>
@@ -117,31 +146,56 @@ const FormExperimentOverviewPartial = ({
         <FormErrors name="application" />
       </Form.Group>
 
+      {experiment && (
+        <Form.Group controlId="publicDescription">
+          <Form.Label>Public Description</Form.Label>
+          <Form.Control
+            {...nameValidated("publicDescription")}
+            as="textarea"
+            rows={3}
+            defaultValue={experiment?.publicDescription || ""}
+          />
+          <Form.Text className="text-muted">
+            This description will be public to users on about:studies
+          </Form.Text>
+          <FormErrors name="publicDescription" />
+        </Form.Group>
+      )}
+
       <div className="d-flex flex-row-reverse bd-highlight">
+        {onNext && (
+          <div className="p-2">
+            <button onClick={handleNext} className="btn btn-secondary">
+              Next
+            </button>
+          </div>
+        )}
         <div className="p-2">
           <button
             data-testid="submit-button"
             type="submit"
             onClick={handleSubmit(handleSubmitAfterValidation)}
             className="btn btn-primary"
-            disabled={isLoading || !isDirty || !isValid}
+            disabled={isLoading || !isValid || (!experiment && !isDirty)}
             data-sb-kind="pages/EditOverview"
           >
             {isLoading ? (
-              <span>Submitting</span>
+              <span>{experiment ? "Saving" : "Submitting"}</span>
             ) : (
-              <span>Create experiment</span>
+              <span>{experiment ? "Save" : "Create experiment"}</span>
             )}
           </button>
         </div>
-        <div className="p-2">
-          <button onClick={handleCancel} className="btn btn-light">
-            Cancel
-          </button>
-        </div>
+        {onCancel && (
+          <div className="p-2">
+            <button onClick={handleCancel} className="btn btn-light">
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
     </Form>
   );
 };
 
-export default FormExperimentOverviewPartial;
+export default FormOverview;
