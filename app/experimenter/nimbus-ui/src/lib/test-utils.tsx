@@ -11,6 +11,8 @@ import {
   Router,
 } from "@reach/router";
 import { render } from "@testing-library/react";
+import { MockedResponse } from "@apollo/client/testing";
+import { MockedCache } from "./mocks";
 
 export function renderWithRouter(
   ui: React.ReactElement,
@@ -23,18 +25,25 @@ export function renderWithRouter(
 }
 
 export const RouterSlugProvider = ({
-  path = "/demoslug/edit",
+  path = "/demo-slug/edit",
+  mocks = [],
   children,
 }: {
   path?: string;
+  mocks?: MockedResponse<Record<string, any>>[];
   children: React.ReactElement;
 }) => {
-  let source = createMemorySource(path);
-  let history = createHistory(source);
+  const source = createMemorySource(path);
+  const history = createHistory(source);
+
   return (
     <LocationProvider {...{ history }}>
       <Router>
-        <Route path=":slug/edit" data-testid="app" component={() => children} />
+        <Route
+          path=":slug/edit"
+          data-testid="app"
+          component={() => <MockedCache {...{ mocks }}>{children}</MockedCache>}
+        />
       </Router>
     </LocationProvider>
   );

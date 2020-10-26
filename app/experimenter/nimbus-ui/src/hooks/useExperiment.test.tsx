@@ -27,5 +27,27 @@ describe("hooks/useExperiment", () => {
 
       await waitFor(() => expect(hook.experiment).toEqual(data));
     });
+
+    it("returns notFound if no experiment found", async () => {
+      const { mock } = mockExperimentQuery("howdy", null);
+
+      render(
+        <MockedCache mocks={[mock]}>
+          <TestExperiment slug="howdy" />
+        </MockedCache>,
+      );
+
+      await waitFor(() => expect(hook.notFound).toBeTruthy());
+    });
+
+    it("starts by loading", async () => {
+      render(
+        <MockedCache mocks={[]}>
+          <TestExperiment slug="howdy" />
+        </MockedCache>,
+      );
+
+      expect(hook.loading).toBeTruthy();
+    });
   });
 });

@@ -3,20 +3,44 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { screen } from "@testing-library/react";
+import { screen, waitFor, render } from "@testing-library/react";
 import PageEditOverview from ".";
-import { renderWithRouter } from "../../lib/test-utils";
-import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
+import { RouterSlugProvider } from "../../lib/test-utils";
+import { mockExperimentQuery } from "../../lib/mocks";
 
-const { mock } = mockExperimentQuery();
+const { mock } = mockExperimentQuery("demo-slug");
+const { mock: notFoundMock } = mockExperimentQuery("demo-slug", null);
 
 describe("PageEditOverview", () => {
-  it("renders as expected", () => {
-    renderWithRouter(
-      <MockedCache mocks={[mock]}>
+  it("renders as expected", async () => {
+    render(
+      <RouterSlugProvider mocks={[mock]}>
         <PageEditOverview />
-      </MockedCache>,
+      </RouterSlugProvider>,
     );
-    expect(screen.getByTestId("PageEditOverview")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("PageEditOverview")).toBeInTheDocument();
+      expect(screen.getByTestId("header-experiment")).toBeInTheDocument();
+    });
+  });
+
+  it("renders not found screen", async () => {
+    render(
+      <RouterSlugProvider mocks={[notFoundMock]}>
+        <PageEditOverview />
+      </RouterSlugProvider>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("not-found")).toBeInTheDocument();
+    });
+  });
+
+  it("renders loading screen", () => {
+    render(
+      <RouterSlugProvider>
+        <PageEditOverview />
+      </RouterSlugProvider>,
+    );
+    expect(screen.getByTestId("page-loading")).toBeInTheDocument();
   });
 });

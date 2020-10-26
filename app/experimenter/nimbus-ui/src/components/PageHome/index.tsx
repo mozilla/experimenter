@@ -11,7 +11,7 @@ type PageHomeProps = {} & RouteComponentProps;
 const PageHome = (props: PageHomeProps) => (
   <AppLayout testid="PageHome">
     <h1>Home</h1>
-    <Link to="./new" data-sb-kind="pages/New">
+    <Link to="new" data-sb-kind="pages/New">
       New experiment
     </Link>
   </AppLayout>

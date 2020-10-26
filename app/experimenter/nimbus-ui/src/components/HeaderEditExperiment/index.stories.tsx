@@ -5,16 +5,20 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
 import { withLinks } from "@storybook/addon-links";
-import { RouterSlugProvider } from "../../lib/test-utils";
+import HeaderEditExperiment from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
-import PageEditOverview from ".";
+import AppLayout from "../AppLayout";
 
-const { mock } = mockExperimentQuery("demo-slug");
+const { data } = mockExperimentQuery("demo-slug");
 
-storiesOf("pages/EditOverview", module)
+storiesOf("components/HeaderEditExperiment", module)
   .addDecorator(withLinks)
   .add("basic", () => (
-    <RouterSlugProvider mocks={[mock]}>
-      <PageEditOverview />
-    </RouterSlugProvider>
+    <AppLayout>
+      <HeaderEditExperiment
+        name={data!.name}
+        slug={data!.slug}
+        status={data!.status}
+      />
+    </AppLayout>
   ));

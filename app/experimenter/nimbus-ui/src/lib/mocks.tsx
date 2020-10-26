@@ -126,55 +126,61 @@ export class SimulatedMockLink extends ApolloLink {
 }
 
 export const mockExperimentQuery = (
-  slug = "blah",
+  slug: string,
   modifications: Partial<getExperiment["experimentBySlug"]> = {},
 ) => {
-  const experiment = Object.assign(
-    {
-      __typename: "NimbusExperimentType",
-      name: "Open-architected background installation",
-      slug,
-      status: "DRAFT",
-      hypothesis: "Realize material say pretty.",
-      application: "FIREFOX_DESKTOP",
-      publicDescription:
-        "Official approach present industry strategy dream piece.",
-      controlBranch: {
-        __typename: "NimbusBranchType",
-        name: "User-centric mobile solution",
-        slug: "user-centric-mobile-solution",
-        description: "Behind almost radio result personal none future current.",
-        ratio: 1,
-        featureValue: '{"environmental-fact": "really-citizen"}',
-        featureEnabled: true,
-      },
-      treatmentBranches: [
-        {
-          __typename: "NimbusBranchType",
-          name: "Managed zero tolerance projection",
-          slug: "managed-zero-tolerance-projection",
-          description: "Next ask then he in degree order.",
-          ratio: 1,
-          featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
-          featureEnabled: true,
-        },
-      ],
-      probeSets: [
-        {
-          __typename: "NimbusProbeSetType",
-          slug: "enterprise-wide-exuding-focus-group",
-          name: "Enterprise-wide exuding focus group",
-        },
-      ],
-      channels: ["Nightly", "Beta"],
-      firefoxMinVersion: "A_83_",
-      targetingConfigSlug: "US_ONLY",
-      populationPercent: 40,
-      totalEnrolledClients: 68000,
-      proposedEnrollment: 15,
-    },
-    modifications,
-  );
+  // If `null` is explicitely passed in for `modifications`, the experiment
+  // data will be `null`.
+  const experiment =
+    modifications === null
+      ? null
+      : Object.assign(
+          {
+            __typename: "NimbusExperimentType",
+            name: "Open-architected background installation",
+            slug,
+            status: "DRAFT",
+            hypothesis: "Realize material say pretty.",
+            application: "FIREFOX_DESKTOP",
+            publicDescription:
+              "Official approach present industry strategy dream piece.",
+            controlBranch: {
+              __typename: "NimbusBranchType",
+              name: "User-centric mobile solution",
+              slug: "user-centric-mobile-solution",
+              description:
+                "Behind almost radio result personal none future current.",
+              ratio: 1,
+              featureValue: '{"environmental-fact": "really-citizen"}',
+              featureEnabled: true,
+            },
+            treatmentBranches: [
+              {
+                __typename: "NimbusBranchType",
+                name: "Managed zero tolerance projection",
+                slug: "managed-zero-tolerance-projection",
+                description: "Next ask then he in degree order.",
+                ratio: 1,
+                featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
+                featureEnabled: true,
+              },
+            ],
+            probeSets: [
+              {
+                __typename: "NimbusProbeSetType",
+                slug: "enterprise-wide-exuding-focus-group",
+                name: "Enterprise-wide exuding focus group",
+              },
+            ],
+            channels: ["Nightly", "Beta"],
+            firefoxMinVersion: "A_83_",
+            targetingConfigSlug: "US_ONLY",
+            populationPercent: 40,
+            totalEnrolledClients: 68000,
+            proposedEnrollment: 15,
+          },
+          modifications,
+        );
 
   return {
     mock: {
@@ -190,6 +196,6 @@ export const mockExperimentQuery = (
         },
       },
     },
-    data: experiment,
+    data: experiment as getExperiment["experimentBySlug"],
   };
 };
