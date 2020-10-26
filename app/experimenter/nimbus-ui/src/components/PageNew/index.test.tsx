@@ -14,6 +14,7 @@ import { MockedCache } from "../../lib/mocks";
 import PageNew from ".";
 import { navigate } from "@reach/router";
 import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
+import { SUBMIT_ERROR } from "../../lib/constants";
 
 jest.mock("@reach/router", () => ({
   navigate: jest.fn(),
@@ -77,20 +78,21 @@ describe("PageNew", () => {
       fireEvent.click(screen.getByTestId("submit"));
     });
     expect(screen.getByTestId("submitErrors")).toHaveTextContent(
-      JSON.stringify({ "*": "Save failed, no error available" }),
+      JSON.stringify({ "*": SUBMIT_ERROR }),
     );
   });
 
   it("handles experiment form submission with server API error", async () => {
-    const expectedError = "Invalid slug";
     const gqlMocks = mkGqlMocks();
-    gqlMocks[0].result.errors = [new Error(expectedError)];
+    gqlMocks[0].result.errors = [new Error("an error")];
 
     render(<Subject {...{ gqlMocks }} />);
     await act(async () => {
       fireEvent.click(screen.getByTestId("submit"));
     });
-    expect(screen.getByTestId("submitErrors")).toHaveTextContent(expectedError);
+    expect(screen.getByTestId("submitErrors")).toHaveTextContent(
+      JSON.stringify({ "*": SUBMIT_ERROR }),
+    );
   });
 
   it("handles experiment form cancellation", () => {
