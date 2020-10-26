@@ -1,24 +1,9 @@
-ssl: nginx/key.pem nginx/cert.pem
-
-nginx/key.pem:
-	openssl genrsa -out nginx/key.pem 4096
-
-nginx/cert.pem: nginx/key.pem
-	openssl req -new -x509 -nodes -sha256 -key nginx/key.pem \
-		-subj "/C=US/ST=California/L=Mountain View/O=Mozilla/CN=experiment_local" \
-		> nginx/cert.pem
-
-secretkey:
-	openssl rand -hex 24
-
-build:
-	./scripts/build.sh
-
 WAIT_FOR_DB = /app/bin/wait-for-it.sh db:5432 &&
 
 COMPOSE = docker-compose -f docker-compose.yml
 COMPOSE_TEST = docker-compose -f docker-compose-test.yml
-COMPOSE_INTEGRATION = docker-compose -f docker-compose.yml -f docker-compose.integration-test.yml
+COMPOSE_PROD = docker-compose -f docker-compose-prod.yml
+COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
@@ -49,6 +34,25 @@ LOAD_DUMMY_EXPERIMENTS = python manage.py load_dummy_experiments
 MIGRATE = python manage.py migrate
 PUBLISH_STORYBOOKS = npx github:mozilla-fxa/storybook-gcp-publisher --commit-summary commit-summary.txt --commit-description commit-description.txt --version-json version.json
 
+ssl: nginx/key.pem nginx/cert.pem
+
+nginx/key.pem:
+	openssl genrsa -out nginx/key.pem 4096
+
+nginx/cert.pem: nginx/key.pem
+	openssl req -new -x509 -nodes -sha256 -key nginx/key.pem \
+		-subj "/C=US/ST=California/L=Mountain View/O=Mozilla/CN=experiment_local" \
+		> nginx/cert.pem
+
+secretkey:
+	openssl rand -hex 24
+
+build:
+	./scripts/build.sh
+
+build_prod: build
+	docker build --target deploy -f app/Dockerfile -t app:deploy app/
+
 test_build: build
 	$(COMPOSE_TEST) build
 
@@ -61,27 +65,44 @@ compose_build: build ssl
 compose_stop:
 	$(COMPOSE) kill
 	$(COMPOSE_INTEGRATION) kill
+	$(COMPOSE_PROD) kill
 
 compose_rm:
 	$(COMPOSE) rm -f -v
 	$(COMPOSE_INTEGRATION) rm -f -v
+	$(COMPOSE_PROD) rm -f -v
 
 volumes_rm:
 	docker volume prune -f
 
+static_rm:
+	rm -Rf app/node_modules
+	rm -Rf app/experimenter/legacy-ui/core/node_modules
+	rm -Rf app/experimenter/legacy-ui/rapid/node_modules
+	rm -Rf app/experimenter/legacy-ui/visualization/node_modules
+	rm -Rf app/experimenter/nimbus-ui/node_modules
+	rm -Rf app/experimenter/legacy-ui/assets/
+	rm -Rf app/experimenter/nimbus-ui/build/
+
 kill: compose_stop compose_rm volumes_rm
 	echo "All containers removed!"
 
-up: compose_stop compose_build
+up: compose_build
 	$(COMPOSE) up
 
-up_db: compose_stop compose_build
+up_prod: compose_build build_prod
+	$(COMPOSE_PROD) up
+
+up_prod_detached: compose_build build_prod
+	$(COMPOSE_PROD) up -d
+
+up_db: compose_build
 	$(COMPOSE) up db redis kinto autograph
 
-up_django: compose_stop compose_build
+up_django: compose_build
 	$(COMPOSE) up nginx app worker beat db redis kinto autograph
 
-up_detached: compose_stop compose_build
+up_detached: compose_build
 	$(COMPOSE) up -d
 
 generate_docs: compose_build
@@ -99,12 +120,6 @@ makemigrations: compose_build
 migrate: compose_build
 	$(COMPOSE) run app sh -c "$(WAIT_FOR_DB) python manage.py migrate"
 
-load_locales_countries: compose_build
-	$(COMPOSE) run app sh -c "$(WAIT_FOR_DB) $(LOAD_LOCALES)&&$(LOAD_COUNTRIES)"
-
-load_dummy_experiments: compose_build
-	$(COMPOSE) run app python manage.py load_dummy_experiments
-
 bash: compose_build
 	$(COMPOSE) run app bash
 
@@ -112,7 +127,7 @@ refresh: kill compose_build
 	$(COMPOSE) run app sh -c '$(WAIT_FOR_DB) $(MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 # integration tests
-integration_build: compose_build
+integration_build: build_prod ssl
 	$(COMPOSE_INTEGRATION) build
 
 integration_shell: integration_build

@@ -48,7 +48,7 @@ jobs:
           command: |
             sudo chmod -R a+rwx app/tests/
             make refresh
-            make up_detached
+            make up_prod_detached
             make integration_test
             make kill
       - store_artifacts:
