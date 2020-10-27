@@ -1,15 +1,27 @@
-import { METRICS_TIPS, BADGE_TIPS } from "experimenter-rapid/components/visualization/constants/tooltips";
-
-export enum SIGNIFICANCE {
-  POSITIVE,
-  NEGATIVE,
-  NEUTRAL,
-}
+import {
+  METRICS_TIPS,
+  BADGE_TIPS,
+} from "experimenter-rapid/components/visualization/constants/tooltips";
 
 export enum VARIANT_TYPE {
   CONTROL,
   VARIANT,
 }
+
+export enum DISPLAY_TYPE {
+  POPULATION,
+  PERCENT,
+  COUNT,
+  CONVERSION_COUNT,
+  CONVERSION_RATE,
+  CONVERSION_CHANGE,
+}
+
+export const SIGNIFICANCE = {
+  POSITIVE: "positive",
+  NEGATIVE: "negative",
+  NEUTRAL: "neutral",
+};
 
 export const METRIC = {
   RETENTION: "retained",
@@ -17,11 +29,17 @@ export const METRIC = {
   USER_COUNT: "identity",
 };
 
+export const TABLE_LABEL = {
+  HIGHLIGHTS: "highlights",
+  RESULTS: "results",
+  PRIMARY_METRICS: "primary_metrics",
+};
+
 export const METRIC_TYPE = {
   PRIMARY: {
     label: "Primary Metric",
     badge: "badge-primary",
-    tooltip: BADGE_TIPS.PRIMARY_METRIC
+    tooltip: BADGE_TIPS.PRIMARY_METRIC,
   },
   SECONDARY: {
     label: "Secondary Metric",
@@ -30,7 +48,7 @@ export const METRIC_TYPE = {
   GUARDRAIL: {
     label: "Guardrail Metric",
     badge: "badge-warning",
-    tooltip: BADGE_TIPS.GUARDRAIL_METRIC
+    tooltip: BADGE_TIPS.GUARDRAIL_METRIC,
   },
 };
 
@@ -45,11 +63,6 @@ export const BRANCH_COMPARISON = {
   ABSOLUTE: "absolute",
   DIFFERENCE: "difference",
   UPLIFT: "relative_uplift",
-};
-
-export const TABLE_LABEL = {
-  HIGHLIGHTS: "highlights",
-  RESULTS: "results",
 };
 
 // This is used as an ordered list of metrics to
@@ -86,5 +99,24 @@ export const HIGHLIGHTS_METRICS_LIST = [
     value: METRIC.SEARCH,
     name: "Search",
     tooltip: METRICS_TIPS.SEARCH,
+  },
+];
+
+// This is used as an ordered list of items to
+// display in the primary metric table from left to right.
+export const PRIMARY_METRIC_COLUMNS = [
+  {
+    name: "Conversions / Total Users",
+    displayType: DISPLAY_TYPE.CONVERSION_COUNT,
+  },
+  {
+    name: "Conversion Rate",
+    displayType: DISPLAY_TYPE.CONVERSION_RATE,
+    branchComparison: BRANCH_COMPARISON.ABSOLUTE,
+  },
+  {
+    name: "Relative Improvement",
+    displayType: DISPLAY_TYPE.CONVERSION_CHANGE,
+    branchComparison: BRANCH_COMPARISON.UPLIFT,
   },
 ];

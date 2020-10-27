@@ -19,5 +19,5 @@ export const SEGMENT_TIPS = {
 
 export const BADGE_TIPS = {
   PRIMARY_METRIC: "Main metric you are trying to impact in this experiment",
-  GUARDRAIL_METRIC: "Metric that should not regress"
-}
+  GUARDRAIL_METRIC: "Metric that should not regress",
+};
