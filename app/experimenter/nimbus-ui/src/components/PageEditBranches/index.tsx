@@ -6,21 +6,36 @@ import React from "react";
 import { RouteComponentProps, useParams } from "@reach/router";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
 import { useExperiment } from "../../hooks";
+import HeaderEditExperiment from "../HeaderEditExperiment";
+import ExperimentNotFound from "../PageExperimentNotFound";
+import PageLoading from "../PageLoading";
 
 type PageEditBranchesProps = {} & RouteComponentProps;
 
 const PageEditBranches = (props: PageEditBranchesProps) => {
   const { slug } = useParams();
-  const { experiment } = useExperiment(slug);
+  const { experiment, notFound, loading } = useExperiment(slug);
 
-  if (experiment != null) {
-    console.log(experiment.referenceBranch, experiment.treatmentBranches);
+  if (loading) {
+    return <PageLoading />;
   }
 
+  if (notFound) {
+    return <ExperimentNotFound {...{ slug }} />;
+  }
+
+  const { name, status } = experiment;
   return (
     <AppLayoutWithSidebar>
       <section data-testid="PageEditBranches">
-        <h1>PageEditBranches</h1>
+        <HeaderEditExperiment
+          {...{
+            slug,
+            name,
+            status,
+          }}
+        />
+        <h2 className="mt-3 h4">Branches</h2>
       </section>
     </AppLayoutWithSidebar>
   );
