@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { act, screen } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import AppLayoutWithSidebar from ".";
 import { renderWithRouter } from "../../lib/test-utils";
 import { BASE_PATH } from "../../lib/constants";
@@ -76,25 +76,29 @@ describe("PageNew", () => {
         },
       );
 
+      let overviewLink: HTMLElement, branchesLink: HTMLElement;
+
       pushState("edit/overview");
-      await navigate("/my-special-slug/edit/overview");
-      let overviewLink = screen.getByTestId("nav-edit-overview");
-      let branchesLink = screen.getByTestId("nav-edit-branches");
-      expect(overviewLink).toHaveClass("text-primary");
-      expect(overviewLink).not.toHaveClass("text-dark");
-      expect(branchesLink).toHaveClass("text-dark");
-      expect(branchesLink).not.toHaveClass("text-primary");
+      await act(() => navigate("/my-special-slug/edit/overview"));
+      await waitFor(() => {
+        overviewLink = screen.getByTestId("nav-edit-overview");
+        branchesLink = screen.getByTestId("nav-edit-branches");
+      });
+      expect(overviewLink!).toHaveClass("text-primary");
+      expect(overviewLink!).not.toHaveClass("text-dark");
+      expect(branchesLink!).toHaveClass("text-dark");
+      expect(branchesLink!).not.toHaveClass("text-primary");
 
       pushState("edit/branches");
-      await act(async () => {
-        await navigate("/my-special-slug/edit/branches");
+      await act(() => navigate("/my-special-slug/edit/branches"));
+      await waitFor(() => {
+        overviewLink = screen.getByTestId("nav-edit-overview");
+        branchesLink = screen.getByTestId("nav-edit-branches");
       });
-      overviewLink = screen.getByTestId("nav-edit-overview");
-      branchesLink = screen.getByTestId("nav-edit-branches");
-      expect(branchesLink).toHaveClass("text-primary");
-      expect(branchesLink).not.toHaveClass("text-dark");
-      expect(overviewLink).toHaveClass("text-dark");
-      expect(overviewLink).not.toHaveClass("text-primary");
+      expect(branchesLink!).toHaveClass("text-primary");
+      expect(branchesLink!).not.toHaveClass("text-dark");
+      expect(overviewLink!).toHaveClass("text-dark");
+      expect(overviewLink!).not.toHaveClass("text-primary");
     });
   });
 });

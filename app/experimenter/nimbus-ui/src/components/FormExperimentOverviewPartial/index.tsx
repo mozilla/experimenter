@@ -125,6 +125,7 @@ const FormExperimentOverviewPartial = ({
             onClick={handleSubmit(handleSubmitAfterValidation)}
             className="btn btn-primary"
             disabled={isLoading || !isDirty || !isValid}
+            data-sb-kind="pages/EditOverview"
           >
             {isLoading ? (
               <span>Submitting</span>

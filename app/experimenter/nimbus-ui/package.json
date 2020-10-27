@@ -27,6 +27,7 @@
     "@sentry/browser": "^5.25.0",
     "apollo": "^2.31.0",
     "bootstrap": "^4.5.2",
+    "classnames": "^2.2.6",
     "graphql": "^15.3.0",
     "react": "^16.13.1",
     "react-bootstrap": "^1.3.0",

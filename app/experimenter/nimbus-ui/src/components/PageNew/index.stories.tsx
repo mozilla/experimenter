@@ -10,8 +10,11 @@ import { storiesOf } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
 import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import PageNew from ".";
+import { withLinks } from "@storybook/addon-links";
 
-storiesOf("pages/PageNew", module).add("basic", () => <Subject />);
+storiesOf("pages/New", module)
+  .addDecorator(withLinks)
+  .add("basic", () => <Subject />);
 
 const actionCreateExperiment = action("createExperiment");
 
