@@ -9,6 +9,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Nav from "react-bootstrap/Nav";
 import { BASE_PATH } from "../../lib/constants";
+import classNames from "classnames";
 
 type AppLayoutWithSidebarProps = {
   testid?: string;
@@ -23,10 +24,17 @@ export const AppLayoutWithSidebar = ({
   return (
     <Container fluid className="h-100vh" data-testid={testid}>
       <Row className="h-md-100">
-        <Col md="3" lg="3" xl="2" className="bg-light border-right shadow-sm">
+        <Col
+          md="3"
+          lg="3"
+          xl="2"
+          className="bg-light pt-2 border-right shadow-sm"
+        >
           <nav data-testid="sidebarNav">
             <Nav className="flex-column" as="ul">
-              <LinkNav storiesOf="pages/Home">Experiments</LinkNav>
+              <LinkNav storiesOf="pages/Home" className="mb-2">
+                Experiments
+              </LinkNav>
               <LinkNav
                 route={`${slug}/edit/overview`}
                 storiesOf="pages/EditOverview"
@@ -57,7 +65,7 @@ export const AppLayoutWithSidebar = ({
             </Nav>
           </nav>
         </Col>
-        <Col className="ml-auto mr-auto col-md-9 col-xl-10">
+        <Col className="ml-auto mr-auto col-md-9 col-xl-10 pt-5 px-md-3 px-lg-5">
           <main>{children}</main>
         </Col>
       </Row>
@@ -70,6 +78,7 @@ type LinkNavProps = {
   route?: string;
   storiesOf: string;
   testid?: string;
+  className?: string;
 };
 
 const LinkNav = ({
@@ -77,6 +86,7 @@ const LinkNav = ({
   children,
   storiesOf,
   testid = "nav-home",
+  className,
 }: LinkNavProps) => {
   const to = route ? `${BASE_PATH}/${route}` : BASE_PATH;
   // an alternative to reach-router's `isCurrent` with identical
@@ -84,7 +94,7 @@ const LinkNav = ({
   // eslint-disable-next-line
   const isCurrentPage = location.pathname === to;
   return (
-    <Nav.Item as="li" className="m-1">
+    <Nav.Item as="li" className={classNames("m-1", className)}>
       <Link
         {...{ to }}
         data-sb-kind={storiesOf}

@@ -65,7 +65,7 @@ const PageNew = (props: PageNewProps) => {
 
   return (
     <AppLayout testid="PageNew">
-      <h1>Create a new Experiment</h1>
+      <h1 className="h2">Create a new Experiment</h1>
       <p>
         Before launching an experiment, review the{" "}
         <LinkExternal href={TRAINING_DOC_URL}>
