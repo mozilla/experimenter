@@ -21,7 +21,7 @@ class TestNimbusExperimentSerializer(TestCase):
     def test_serializer_outputs_expected_schema_with_feature(self):
         probe_set = NimbusProbeSetFactory.create()
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.COMPLETE,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_80,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             channels=[
@@ -35,7 +35,8 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(experiment)
         experiment_data = serializer.data.copy()
         branches_data = [dict(b) for b in experiment_data.pop("branches")]
-        self.assertDictEqual(
+
+        self.assertEqual(
             experiment_data,
             {
                 "application": experiment.application,
@@ -48,7 +49,8 @@ class TestNimbusExperimentSerializer(TestCase):
                     "count": experiment.bucket_range.count,
                     "total": experiment.bucket_range.isolation_group.total,
                 },
-                "endDate": None,
+                # DRF manually replaces the isoformat suffix so we have to do the same
+                "endDate": experiment.end_date.isoformat().replace("+00:00", "Z"),
                 "id": experiment.slug,
                 "isEnrollmentPaused": False,
                 "proposedDuration": experiment.proposed_duration,
@@ -56,7 +58,8 @@ class TestNimbusExperimentSerializer(TestCase):
                 "referenceBranch": experiment.reference_branch.slug,
                 "schemaVersion": settings.NIMBUS_SCHEMA_VERSION,
                 "slug": experiment.slug,
-                "startDate": None,
+                # DRF manually replaces the isoformat suffix so we have to do the same
+                "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
                 "targeting": (
                     'channel in ["Nightly", "Beta", "Release"] && '
                     "version|versionCompare('80.!') >= .! && localeLanguageCode == 'en'"
