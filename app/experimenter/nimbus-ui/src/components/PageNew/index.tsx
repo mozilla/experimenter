@@ -6,7 +6,7 @@ import React, { useCallback, useState } from "react";
 import { RouteComponentProps } from "@reach/router";
 import AppLayout from "../AppLayout";
 import LinkExternal from "../LinkExternal";
-import FormExperimentOverviewPartial from "../FormExperimentOverviewPartial";
+import FormOverview from "../FormOverview";
 
 import { useMutation } from "@apollo/client";
 import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
@@ -74,7 +74,7 @@ const PageNew = (props: PageNewProps) => {
         .
       </p>
       <section>
-        <FormExperimentOverviewPartial
+        <FormOverview
           {...{
             isLoading: loading,
             submitErrors,
