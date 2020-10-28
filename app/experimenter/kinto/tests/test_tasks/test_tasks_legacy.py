@@ -208,6 +208,7 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
             firefox_max_version=None,
             firefox_min_version=Experiment.VERSION_CHOICES[0][0],
             name="test",
+            recipe_slug="experiment-1",
             type=Experiment.TYPE_RAPID,
         )
 
@@ -218,6 +219,7 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
             firefox_max_version=None,
             firefox_min_version=Experiment.VERSION_CHOICES[0][0],
             name="test1",
+            recipe_slug="experiment-2",
             type=Experiment.TYPE_RAPID,
         )
 
@@ -228,6 +230,7 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
             firefox_max_version=None,
             firefox_min_version=Experiment.VERSION_CHOICES[0][0],
             name="test2",
+            recipe_slug="experiment-3",
             type=Experiment.TYPE_RAPID,
         )
 
@@ -235,7 +238,7 @@ class TestCheckExperimentIsLive(MockKintoClientMixin, TestCase):
         self.assertEqual(experiment2.changes.count(), 4)
         self.assertEqual(experiment3.changes.count(), 1)
 
-        self.setup_kinto_get_main_records()
+        self.setup_kinto_get_main_records([experiment1.recipe_slug])
         tasks.check_experiment_is_live()
 
         self.assertEqual(experiment3.changes.count(), 1)
@@ -293,7 +296,7 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
         self.assertEqual(experiment2.changes.count(), 5)
         self.assertEqual(experiment3.changes.count(), 1)
 
-        self.setup_kinto_get_main_records()
+        self.setup_kinto_get_main_records([experiment1.recipe_slug])
         tasks.check_experiment_is_complete()
 
         self.assertEqual(experiment3.changes.count(), 1)
