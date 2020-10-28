@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from experimenter.celery import app
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
+from experimenter.experiments.email import nimbus_send_experiment_ending_email
 from experimenter.experiments.models import (
     NimbusBucketRange,
     NimbusExperiment,
@@ -172,6 +173,14 @@ def nimbus_check_experiments_are_complete():
     record_ids = [r.get("id") for r in records]
 
     for experiment in live_experiments:
+        if (
+            experiment.should_end
+            and not experiment.emails.filter(
+                type=NimbusExperiment.EmailType.EXPERIMENT_END
+            ).exists()
+        ):
+            nimbus_send_experiment_ending_email(experiment)
+
         if experiment.slug not in record_ids:
             logger.info(
                 "{experiment} status is being updated to complete".format(
