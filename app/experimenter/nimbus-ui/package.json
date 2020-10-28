@@ -18,8 +18,15 @@
   },
   "jest": {
     "collectCoverageFrom": [
-      "!src/**/*.stories.*"
-    ]
+      "src/**/*",
+      "!src/**/*.stories.*",
+      "!src/lib/{mocks,test-utils}.tsx"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 100
+      }
+    }
   },
   "dependencies": {
     "@apollo/client": "^3.2.2",

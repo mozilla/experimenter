@@ -53,6 +53,19 @@ describe("hooks/useExitWarning", () => {
       );
     });
 
+    it("doesn't warn by default when you leave the page when an init value is not passed in", () => {
+      const TestExitWarningDefaultInit = () => {
+        shouldWarnFn = useExitWarning();
+        return <p>Danbury, CT</p>;
+      };
+
+      render(<TestExitWarningDefaultInit />);
+      expect(addListener).not.toHaveBeenCalledWith(
+        "beforeunload",
+        expect.any(Function),
+      );
+    });
+
     it("doesn't warn when you tell it not to when you leave the page", async () => {
       render(<TestExitWarning shouldWarn={true} />);
       expect(addListener).toHaveBeenCalledWith(
