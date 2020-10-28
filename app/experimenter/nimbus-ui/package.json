@@ -21,7 +21,8 @@
     "collectCoverageFrom": [
       "src/**/*",
       "!src/**/*.stories.*",
-      "!src/lib/{mocks,test-utils}.tsx"
+      "!src/**/mocks.*",
+      "!src/lib/test-utils.tsx"
     ],
     "coverageThreshold": {
       "global": {
