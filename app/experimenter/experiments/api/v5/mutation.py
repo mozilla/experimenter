@@ -72,7 +72,7 @@ class CreateExperiment(graphene.Mutation):
         return handle_with_serializer(cls, serializer, input.client_mutation_id)
 
 
-class UpdateExperiment(graphene.Mutation):
+class UpdateExperimentOverview(graphene.Mutation):
     client_mutation_id = graphene.String()
     nimbus_experiment = graphene.Field(NimbusExperimentType)
     message = ObjectField()
@@ -173,7 +173,9 @@ class Mutation(graphene.ObjectType):
     create_experiment = CreateExperiment.Field(
         description="Create a new Nimbus Experiment."
     )
-    update_experiment = UpdateExperiment.Field(description="Update a Nimbus Experiment.")
+    update_experiment_overview = UpdateExperimentOverview.Field(
+        description="Update a Nimbus Experiment."
+    )
 
     update_experiment_branches = UpdateExperimentBranches.Field(
         description="Updates branches on a Nimbus Experiment."

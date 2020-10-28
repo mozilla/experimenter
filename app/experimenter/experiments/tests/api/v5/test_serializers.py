@@ -107,7 +107,6 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
             "hypothesis": "It does the thing",
             "name": "The Thing",
             "public_description": "Does it do the thing?",
-            "slug": "the_thing",
         }
 
         serializer = NimbusExperimentOverviewSerializer(
@@ -118,19 +117,27 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
 
         experiment = serializer.save()
         self.assertEqual(experiment.changes.count(), 1)
+        self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
+        self.assertEqual(experiment.hypothesis, "It does the thing")
+        self.assertEqual(experiment.name, "The Thing")
+        self.assertEqual(experiment.slug, "the-thing")
 
     def test_saves_existing_experiment_with_changelog(self):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT
+            NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.FENIX,
+            hypothesis="Existing hypothesis",
+            name="Existing Name",
+            slug="existing-name",
+            public_description="Existing public description",
         )
         self.assertEqual(experiment.changes.count(), 1)
 
         data = {
             "application": NimbusExperiment.Application.DESKTOP,
-            "hypothesis": "It does the thing",
-            "name": "The Thing",
-            "public_description": "Does it do the thing?",
-            "slug": "the_thing",
+            "hypothesis": "New Hypothesis",
+            "name": "New Name",
+            "public_description": "New public description",
         }
 
         serializer = NimbusExperimentOverviewSerializer(
@@ -141,6 +148,11 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
 
         experiment = serializer.save()
         self.assertEqual(experiment.changes.count(), 2)
+        self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
+        self.assertEqual(experiment.hypothesis, "New Hypothesis")
+        self.assertEqual(experiment.name, "New Name")
+        self.assertEqual(experiment.slug, "existing-name")
+        self.assertEqual(experiment.public_description, "New public description")
 
 
 class TestNimbusBranchSerializer(TestCase):

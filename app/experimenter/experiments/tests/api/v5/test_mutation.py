@@ -30,7 +30,7 @@ mutation($input: CreateExperimentInput!) {
 
 UPDATE_EXPERIMENT_MUTATION = """\
 mutation($input: UpdateExperimentInput!) {
-    updateExperiment(input: $input) {
+    updateExperimentOverview(input: $input) {
         nimbusExperiment {
             id
             status
@@ -187,7 +187,7 @@ class TestMutations(GraphQLTestCase):
         )
         self.assertEqual(result["status"], 200)
 
-    def test_update_experiment(self):
+    def test_update_experiment_overview(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.DRAFT)
         response = self.query(
@@ -204,7 +204,7 @@ class TestMutations(GraphQLTestCase):
         )
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
-        result = content["data"]["updateExperiment"]
+        result = content["data"]["updateExperimentOverview"]
         experiment_result = result["nimbusExperiment"]
         self.assertEqual(
             experiment_result,
@@ -240,7 +240,7 @@ class TestMutations(GraphQLTestCase):
         )
         self.assertEqual(response.status_code, 200)
         content = json.loads(response.content)
-        result = content["data"]["updateExperiment"]
+        result = content["data"]["updateExperimentOverview"]
         self.assertEqual(result["nimbusExperiment"], None)
 
         self.assertEqual(result["clientMutationId"], "randomid")
