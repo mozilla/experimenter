@@ -161,11 +161,23 @@ def update_population_info(experiment, recipe_data):
 
 def update_population_percent(experiment, recipe_data, filter_objects):
 
-    if bucket_sample := filter_objects.get("bucketSample"):
-        experiment.population_percent = decimal.Decimal(
+    changed_data = {}
+    if bucket_sample := filter_objects.get("bucketSample") or filter_objects.get(
+        "namespaceSample"
+    ):
+        percent_decimal = decimal.Decimal(
             bucket_sample["count"] / bucket_sample["total"] * 100
         )
-        experiment.save()
+        if experiment.population_percent != percent_decimal:
+            changed_data = {"population_percent": percent_decimal}
+
+    if changed_data:
+        user_email = (
+            recipe_data.get("creator", {}).get("email", "")
+        ) or settings.NORMANDY_DEFAULT_CHANGELOG_USER
+        update_experiment_with_change_log(
+            experiment, changed_data, user_email, message="Updated Population Percent"
+        )
 
 
 def update_firefox_versions(experiment, recipe_data, filter_objects):
