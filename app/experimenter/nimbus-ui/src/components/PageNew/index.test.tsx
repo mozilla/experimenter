@@ -140,7 +140,7 @@ let origConsoleLog: typeof global.console.log;
 let mockSubmit: Record<string, string> = {};
 
 // Mocking form component because validation is exercised in its own tests.
-jest.mock("../FormExperimentOverviewPartial", () => ({
+jest.mock("../FormOverview", () => ({
   __esModule: true,
   default: (props: {
     isLoading: boolean;
@@ -158,7 +158,7 @@ jest.mock("../FormExperimentOverviewPartial", () => ({
       props.onCancel(ev);
     };
     return (
-      <div data-testid="FormExperimentOverviewPartial">
+      <div data-testid="FormOverview">
         <div data-testid="submitErrors">
           {JSON.stringify(props.submitErrors)}
         </div>
