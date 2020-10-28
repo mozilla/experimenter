@@ -3551,11 +3551,11 @@
           },
           "startDate": {
             "type": "string",
-            "readOnly": true
+            "format": "date-time"
           },
           "endDate": {
             "type": "string",
-            "readOnly": true
+            "format": "date-time"
           },
           "proposedDuration": {
             "type": "string",
@@ -3573,7 +3573,9 @@
         "required": [
           "slug",
           "bucketConfig",
-          "branches"
+          "branches",
+          "startDate",
+          "endDate"
         ]
       },
       "NimbusProbeSet": {
