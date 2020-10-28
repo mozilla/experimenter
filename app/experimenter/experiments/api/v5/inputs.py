@@ -11,7 +11,6 @@ from experimenter.experiments.api.v5.types import (
 class ExperimentInput(graphene.InputObjectType):
     client_mutation_id = graphene.String()
     name = graphene.String()
-    slug = graphene.String()
     application = graphene.String()
     public_description = graphene.String()
     hypothesis = graphene.String()
