@@ -1,3 +1,5 @@
+import datetime
+
 from django.test import TestCase
 from django.utils import timezone
 
@@ -31,6 +33,30 @@ class TestNimbusExperimentModel(TestCase):
                 NimbusExperiment.TargetingConfig.ALL_ENGLISH
             ],
         )
+
+    def test_start_date_returns_None_for_not_started_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT
+        )
+        self.assertIsNone(experiment.start_date)
+
+    def test_end_date_returns_None_for_not_ended_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT
+        )
+        self.assertIsNone(experiment.end_date)
+
+    def test_start_date_returns_datetime_for_started_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE
+        )
+        self.assertEqual(type(experiment.start_date), datetime.datetime)
+
+    def test_end_date_returns_datetime_for_ended_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.COMPLETE
+        )
+        self.assertEqual(type(experiment.end_date), datetime.datetime)
 
 
 class TestNimbusBranchModel(TestCase):
