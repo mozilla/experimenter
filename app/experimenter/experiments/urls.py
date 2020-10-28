@@ -22,7 +22,7 @@ from experimenter.experiments.views import (
 urlpatterns = [
     re_path(r"^nimbus/", ExperimentNimbusUIView.as_view(), name="experiments-nimbus"),
     re_path(
-        r"^nimbus/(?P<slug>)/",
+        r"^nimbus/(?P<slug>[\w-]+)/",
         ExperimentNimbusUIView.as_view(),
         name="experiments-nimbus",
     ),

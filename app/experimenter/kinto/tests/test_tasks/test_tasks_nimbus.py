@@ -1,5 +1,8 @@
+import datetime
+
 import mock
 from django.conf import settings
+from django.core import mail
 from django.test import TestCase
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
@@ -213,3 +216,37 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
                 new_status=NimbusExperiment.Status.COMPLETE,
             ).exists()
         )
+
+    def test_experiment_ending_email_not_sent_for_experiments_before_proposed_end_date(
+        self,
+    ):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            proposed_duration=10,
+        )
+        self.assertEqual(experiment.emails.count(), 0)
+        self.setup_kinto_get_main_records([experiment.slug])
+        tasks.nimbus_check_experiments_are_complete()
+        self.assertEqual(experiment.emails.count(), 0)
+
+    def test_experiment_ending_email_sent_for_experiments_past_proposed_end_date(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            proposed_duration=10,
+        )
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.ACCEPTED,
+            new_status=NimbusExperiment.Status.LIVE,
+        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
+
+        self.assertEqual(experiment.emails.count(), 0)
+
+        self.setup_kinto_get_main_records([experiment.slug])
+        tasks.nimbus_check_experiments_are_complete()
+
+        self.assertTrue(
+            experiment.emails.filter(
+                type=NimbusExperiment.EmailType.EXPERIMENT_END
+            ).exists()
+        )
+        self.assertEqual(len(mail.outbox), 1)

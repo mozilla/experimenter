@@ -1,0 +1,16 @@
+<p>Hello,</p>
+
+<p>
+    This is an automatic email from the Nimbus Experimentation Platform to remind you to turn off an experiment you
+    launched:
+    <a target="_blank" rel="noreferrer noopener" href="{{ experiment.experiment_url }}">{{ experiment.name }}</a>, which
+    you previously configured to end on {{ experiment.proposed_end_date }}.
+</p>
+
+<p>
+    Once you've confirmed with your engineering team, data scientist, and any important stakeholders that it's OK to end
+    the experiment, you should do so <a target="_blank" rel="noreferrer noopener"
+        href="{{ experiment.experiment_url }}">on this page</a>.</p>
+
+<p>Thank you!</p>
+<p>Nimbus Engineering</p>

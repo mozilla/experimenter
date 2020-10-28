@@ -112,6 +112,11 @@ class NimbusConstants(object):
         EVENT = "event"
         SCALAR = "scalar"
 
+    class EmailType(models.TextChoices):
+        EXPERIMENT_END = "experiment end"
+
+    EMAIL_EXPERIMENT_END_SUBJECT = "Action required: Please turn off your Experiment"
+
     TARGETING_VERSION = "version|versionCompare('{version}') >= .!"
     TARGETING_CHANNELS = "channel in {channels}"
 
