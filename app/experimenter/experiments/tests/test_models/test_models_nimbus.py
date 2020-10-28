@@ -14,7 +14,7 @@ from experimenter.experiments.tests.factories import (
 from experimenter.openidc.tests.factories import UserFactory
 
 
-class TestNimbusExperimentModel(TestCase):
+class TestNimbusExperiment(TestCase):
     def test_str(self):
         experiment = NimbusExperimentFactory.create(slug="experiment-slug")
         self.assertEqual(str(experiment), experiment.name)
@@ -58,8 +58,42 @@ class TestNimbusExperimentModel(TestCase):
         )
         self.assertEqual(type(experiment.end_date), datetime.datetime)
 
+    def test_proposed_end_date_returns_None_for_not_started_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT
+        )
+        self.assertIsNone(experiment.proposed_end_date)
 
-class TestNimbusBranchModel(TestCase):
+    def test_proposed_end_date_returns_start_date_plus_duration(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            proposed_duration=10,
+        )
+        self.assertEqual(
+            experiment.proposed_end_date,
+            datetime.date.today() + datetime.timedelta(days=10),
+        )
+
+    def test_should_end_returns_False_before_proposed_end_date(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            proposed_duration=10,
+        )
+        self.assertFalse(experiment.should_end)
+
+    def test_should_end_returns_True_after_proposed_end_date(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            proposed_duration=10,
+        )
+        experiment.changes.filter(
+            old_status=NimbusExperiment.Status.ACCEPTED,
+            new_status=NimbusExperiment.Status.LIVE,
+        ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
+        self.assertTrue(experiment.should_end)
+
+
+class TestNimbusBranch(TestCase):
     def test_str(self):
         branch = NimbusBranchFactory.create()
         self.assertEqual(str(branch), branch.name)

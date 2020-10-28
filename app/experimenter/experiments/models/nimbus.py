@@ -1,8 +1,13 @@
+import datetime
+from urllib.parse import urljoin
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 from experimenter.experiments.constants import NimbusConstants
@@ -22,9 +27,9 @@ class NimbusExperiment(NimbusConstants, models.Model):
         default=NimbusConstants.Status.DRAFT.value,
         choices=NimbusConstants.Status.choices,
     )
-    name = models.CharField(max_length=255, unique=True, blank=False, null=False)
+    name = models.CharField(max_length=255, unique=True, null=False)
     slug = models.SlugField(
-        max_length=NimbusConstants.MAX_SLUG_LEN, unique=True, blank=False, null=False
+        max_length=NimbusConstants.MAX_SLUG_LEN, unique=True, null=False
     )
     public_description = models.TextField(blank=True, null=True)
     is_paused = models.BooleanField(default=False)
@@ -88,6 +93,15 @@ class NimbusExperiment(NimbusConstants, models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse("experiments-nimbus", kwargs={"slug": self.slug})
+
+    @property
+    def experiment_url(self):
+        return urljoin(
+            "https://{host}".format(host=settings.HOSTNAME), self.get_absolute_url()
+        )
+
     @property
     def targeting_config(self):
         if self.targeting_config_slug:
@@ -116,19 +130,27 @@ class NimbusExperiment(NimbusConstants, models.Model):
         if end_changelog.exists():
             return end_changelog.get().changed_on
 
+    @property
+    def proposed_end_date(self):
+        if self.start_date and self.proposed_enrollment:
+            return (
+                self.start_date + datetime.timedelta(days=self.proposed_duration)
+            ).date()
+
+    @property
+    def should_end(self):
+        if self.proposed_end_date:
+            return datetime.date.today() >= self.proposed_end_date
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(
         NimbusExperiment,
-        blank=False,
-        null=False,
         related_name="branches",
         on_delete=models.CASCADE,
     )
-    name = models.CharField(max_length=255, blank=False, null=False)
-    slug = models.SlugField(
-        max_length=NimbusConstants.MAX_SLUG_LEN, blank=False, null=False
-    )
+    name = models.CharField(max_length=255, null=False)
+    slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, null=False)
     description = models.TextField(default="")
     ratio = models.PositiveIntegerField(default=1)
     feature_enabled = models.BooleanField(default=True)
@@ -222,9 +244,9 @@ class NimbusBucketRange(models.Model):
 
 
 class NimbusFeatureConfig(models.Model):
-    name = models.CharField(max_length=255, unique=True, blank=False, null=False)
+    name = models.CharField(max_length=255, unique=True, null=False)
     slug = models.SlugField(
-        max_length=NimbusConstants.MAX_SLUG_LEN, unique=True, blank=False, null=False
+        max_length=NimbusConstants.MAX_SLUG_LEN, unique=True, null=False
     )
     description = models.TextField(blank=True, null=True)
     application = models.CharField(
@@ -246,7 +268,7 @@ class NimbusFeatureConfig(models.Model):
 
 class NimbusProbe(models.Model):
     kind = models.CharField(max_length=255, choices=NimbusConstants.ProbeKind.choices)
-    name = models.CharField(max_length=255, unique=True, blank=False, null=False)
+    name = models.CharField(max_length=255, unique=True, null=False)
     event_category = models.CharField(max_length=255)
     event_method = models.CharField(max_length=255, blank=True, null=True)
     event_object = models.CharField(max_length=255, blank=True, null=True)
@@ -261,9 +283,9 @@ class NimbusProbe(models.Model):
 
 
 class NimbusProbeSet(models.Model):
-    name = models.CharField(max_length=255, unique=True, blank=False, null=False)
+    name = models.CharField(max_length=255, unique=True, null=False)
     slug = models.SlugField(
-        max_length=NimbusConstants.MAX_SLUG_LEN, unique=True, blank=False, null=False
+        max_length=NimbusConstants.MAX_SLUG_LEN, unique=True, null=False
     )
     probes = models.ManyToManyField(NimbusProbe)
 
@@ -281,8 +303,6 @@ class NimbusChangeLog(models.Model):
 
     experiment = models.ForeignKey(
         NimbusExperiment,
-        blank=False,
-        null=False,
         related_name="changes",
         on_delete=models.CASCADE,
     )
@@ -291,9 +311,7 @@ class NimbusChangeLog(models.Model):
     old_status = models.CharField(
         max_length=255, blank=True, null=True, choices=NimbusExperiment.Status.choices
     )
-    new_status = models.CharField(
-        max_length=255, blank=False, null=False, choices=NimbusExperiment.Status.choices
-    )
+    new_status = models.CharField(max_length=255, choices=NimbusExperiment.Status.choices)
     message = models.TextField(blank=True, null=True)
     experiment_data = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
 
@@ -310,3 +328,20 @@ class NimbusChangeLog(models.Model):
                 f"{self.old_status} > {self.new_status} "
                 f"by {self.changed_by} on {self.changed_on}"
             )
+
+
+class NimbusEmail(models.Model):
+    experiment = models.ForeignKey(
+        NimbusExperiment,
+        related_name="emails",
+        on_delete=models.CASCADE,
+    )
+    type = models.CharField(max_length=255, choices=NimbusExperiment.EmailType.choices)
+    sent_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Nimbus Email"
+        verbose_name_plural = "Nimbus Emails"
+
+    def __str__(self):  # pragma: no cover
+        return f"Email: {self.experiment} {self.type} on {self.sent_on}"
