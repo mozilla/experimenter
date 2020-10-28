@@ -100,6 +100,22 @@ class NimbusExperiment(NimbusConstants, models.Model):
     def treatment_branches(self):
         return self.branches.exclude(id=self.reference_branch.id).order_by("id")
 
+    @property
+    def start_date(self):
+        start_changelog = self.changes.filter(
+            old_status=self.Status.ACCEPTED, new_status=self.Status.LIVE
+        )
+        if start_changelog.exists():
+            return start_changelog.get().changed_on
+
+    @property
+    def end_date(self):
+        end_changelog = self.changes.filter(
+            old_status=self.Status.ACCEPTED, new_status=self.Status.LIVE
+        )
+        if end_changelog.exists():
+            return end_changelog.get().changed_on
+
 
 class NimbusBranch(models.Model):
     experiment = models.ForeignKey(
