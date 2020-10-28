@@ -13,15 +13,17 @@ from experimenter.experiments.models import (
     ExperimentBucketRange,
     ExperimentChangeLog,
 )
-from experimenter.kinto import client
+from experimenter.kinto.client import KintoClient
 
 logger = get_task_logger(__name__)
-metrics = markus.get_metrics("kinto.tasks")
+metrics = markus.get_metrics("kinto.legacy_tasks")
 
 
 @app.task
 @metrics.timer_decorator("push_experiment_to_kinto.timing")
 def push_experiment_to_kinto(experiment_id):
+    kinto_client = KintoClient(settings.KINTO_COLLECTION)
+
     metrics.incr("push_experiment_to_kinto.started")
 
     experiment = Experiment.objects.get(id=experiment_id)
@@ -39,7 +41,7 @@ def push_experiment_to_kinto(experiment_id):
     logger.info(f"Pushing {experiment} to Kinto")
 
     try:
-        client.push_to_kinto(data)
+        kinto_client.push_to_kinto(data)
 
         experimenter_kinto_user, _ = get_user_model().objects.get_or_create(
             email=settings.KINTO_DEFAULT_CHANGELOG_USER,
@@ -67,6 +69,8 @@ def push_experiment_to_kinto(experiment_id):
 
 
 def update_rejected_record(record_id, rejected_data):
+    kinto_client = KintoClient(settings.KINTO_COLLECTION)
+
     experiment = Experiment.objects.get(recipe_slug=record_id)
     update_experiment_with_change_log(
         experiment,
@@ -74,26 +78,28 @@ def update_rejected_record(record_id, rejected_data):
         settings.KINTO_DEFAULT_CHANGELOG_USER,
         message=rejected_data["last_reviewer_comment"],
     )
-    client.delete_rejected_record(record_id)
+    kinto_client.delete_rejected_record(record_id)
 
 
 @app.task
 @metrics.timer_decorator("check_kinto_push_queue")
 def check_kinto_push_queue():
+    kinto_client = KintoClient(settings.KINTO_COLLECTION)
+
     metrics.incr("check_kinto_push_queue.started")
 
     queued_experiments = Experiment.objects.filter(
         type=Experiment.TYPE_RAPID, status=Experiment.STATUS_REVIEW
     ).exclude(bugzilla_id=None)
 
-    if (rejected_collection_data := client.get_rejected_collection_data()) and (
-        reject_recipe_id := client.get_rejected_record()
+    if (rejected_collection_data := kinto_client.get_rejected_collection_data()) and (
+        reject_recipe_id := kinto_client.get_rejected_record()
     ):
 
-        update_rejected_record(reject_recipe_id[0], rejected_collection_data)
+        update_rejected_record(reject_recipe_id, rejected_collection_data)
 
     if queued_experiments.exists():
-        if client.has_pending_review():
+        if kinto_client.has_pending_review():
             metrics.incr("check_kinto_push_queue.pending_review")
             return
 
@@ -119,13 +125,15 @@ def check_kinto_push_queue():
 @app.task
 @metrics.timer_decorator("check_experiment_is_live")
 def check_experiment_is_live():
+    kinto_client = KintoClient(settings.KINTO_COLLECTION)
+
     metrics.incr("check_experiment_is_live.started")
 
     accepted_experiments = Experiment.objects.filter(
         type=Experiment.TYPE_RAPID, status=Experiment.STATUS_ACCEPTED
     )
 
-    records = client.get_main_records()
+    records = kinto_client.get_main_records()
     record_ids = [r.get("id") for r in records]
 
     for experiment in accepted_experiments:
@@ -149,13 +157,15 @@ def check_experiment_is_live():
 @app.task
 @metrics.timer_decorator("check_experiment_is_complete")
 def check_experiment_is_complete():
+    kinto_client = KintoClient(settings.KINTO_COLLECTION)
+
     metrics.incr("check_experiment_is_complete.started")
 
     live_experiments = Experiment.objects.filter(
         type=Experiment.TYPE_RAPID, status=Experiment.STATUS_LIVE
     )
 
-    records = client.get_main_records()
+    records = kinto_client.get_main_records()
     record_ids = [r.get("id") for r in records]
 
     for experiment in live_experiments:

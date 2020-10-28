@@ -320,15 +320,27 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "check_kinto_push_queue_task": {
-        "task": "experimenter.kinto.tasks.check_kinto_push_queue",
+        "task": "experimenter.kinto.tasks.legacy.check_kinto_push_queue",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "check_experiment_is_live": {
-        "task": "experimenter.kinto.tasks.check_experiment_is_live",
+        "task": "experimenter.kinto.tasks.legacy.check_experiment_is_live",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
     "check_experiment_is_complete": {
-        "task": "experimenter.kinto.tasks.check_experiment_is_complete",
+        "task": "experimenter.kinto.tasks.legacy.check_experiment_is_complete",
+        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
+    },
+    "nimbus_check_kinto_push_queue_task": {
+        "task": "experimenter.kinto.tasks.nimbus.nimbus_check_kinto_push_queue",
+        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
+    },
+    "nimbus_check_experiments_are_live": {
+        "task": "experimenter.kinto.tasks.nimbus.nimbus_check_experiments_are_live",
+        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
+    },
+    "nimbus_check_experiments_are_complete": {
+        "task": "experimenter.kinto.tasks.nimbus.nimbus_check_experiments_are_complete",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
 }
@@ -397,6 +409,7 @@ KINTO_PASS = config("KINTO_PASS")
 KINTO_BUCKET = config("KINTO_BUCKET")
 KINTO_BUCKET_MAIN = config("KINTO_BUCKET_MAIN")
 KINTO_COLLECTION = config("KINTO_COLLECTION")
+KINTO_COLLECTION_NIMBUS = config("KINTO_COLLECTION_NIMBUS")
 
 
 # Jetstream GCS Bucket data

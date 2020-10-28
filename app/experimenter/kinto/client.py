@@ -5,83 +5,63 @@ KINTO_REVIEW_STATUS = "to-review"
 KINTO_REJECTED_STATUS = "work-in-progress"
 
 
-def push_to_kinto(data):
-    client = kinto_http.Client(
-        server_url=settings.KINTO_HOST,
-        auth=(settings.KINTO_USER, settings.KINTO_PASS),
-    )
-    client.create_record(
-        data=data,
-        collection=settings.KINTO_COLLECTION,
-        bucket=settings.KINTO_BUCKET,
-        if_not_exists=True,
-    )
-    client.patch_collection(
-        id=settings.KINTO_COLLECTION,
-        data={"status": KINTO_REVIEW_STATUS},
-        bucket=settings.KINTO_BUCKET,
-    )
+class KintoClient:
+    def __init__(self, collection):
+        self.collection = collection
+        self.kinto_http_client = kinto_http.Client(
+            server_url=settings.KINTO_HOST,
+            auth=(settings.KINTO_USER, settings.KINTO_PASS),
+        )
 
+    def push_to_kinto(self, data):
+        self.kinto_http_client.create_record(
+            data=data,
+            collection=self.collection,
+            bucket=settings.KINTO_BUCKET,
+            if_not_exists=True,
+        )
+        self.kinto_http_client.patch_collection(
+            id=self.collection,
+            data={"status": KINTO_REVIEW_STATUS},
+            bucket=settings.KINTO_BUCKET,
+        )
 
-def has_pending_review():
-    client = kinto_http.Client(
-        server_url=settings.KINTO_HOST,
-        auth=(settings.KINTO_USER, settings.KINTO_PASS),
-    )
-    collection = client.get_collection(
-        id=settings.KINTO_COLLECTION, bucket=settings.KINTO_BUCKET
-    )
-    return collection["data"]["status"] == KINTO_REVIEW_STATUS
+    def has_pending_review(self):
+        collection = self.kinto_http_client.get_collection(
+            id=self.collection, bucket=settings.KINTO_BUCKET
+        )
+        return collection["data"]["status"] == KINTO_REVIEW_STATUS
 
+    def get_rejected_collection_data(self):
+        collection = self.kinto_http_client.get_collection(
+            id=self.collection, bucket=settings.KINTO_BUCKET
+        )
 
-def get_rejected_collection_data():
-    client = kinto_http.Client(
-        server_url=settings.KINTO_HOST,
-        auth=(settings.KINTO_USER, settings.KINTO_PASS),
-    )
-    collection = client.get_collection(
-        id=settings.KINTO_COLLECTION, bucket=settings.KINTO_BUCKET
-    )
+        if collection["data"]["status"] == KINTO_REJECTED_STATUS:
+            return collection["data"]
 
-    if collection["data"]["status"] == KINTO_REJECTED_STATUS:
-        return collection["data"]
+    def get_rejected_record(self):
+        main_records = self.kinto_http_client.get_records(
+            bucket=settings.KINTO_BUCKET_MAIN, collection=self.collection
+        )
 
+        workspace_records = self.kinto_http_client.get_records(
+            bucket=settings.KINTO_BUCKET, collection=self.collection
+        )
 
-def get_rejected_record():
-    client = kinto_http.Client(
-        server_url=settings.KINTO_HOST,
-        auth=(settings.KINTO_USER, settings.KINTO_PASS),
-    )
+        main_record_ids = [record["id"] for record in main_records]
 
-    main_records = client.get_records(
-        bucket=settings.KINTO_BUCKET_MAIN, collection=settings.KINTO_COLLECTION
-    )
+        workspace_record_ids = [record["id"] for record in workspace_records]
+        return list(set(workspace_record_ids) - set(main_record_ids))[0]
 
-    workspace_records = client.get_records(
-        bucket=settings.KINTO_BUCKET, collection=settings.KINTO_COLLECTION
-    )
+    def delete_rejected_record(self, record_id):
+        self.kinto_http_client.delete_record(
+            id=record_id,
+            bucket=settings.KINTO_BUCKET,
+            collection=self.collection,
+        )
 
-    main_record_ids = [record["id"] for record in main_records]
-
-    workspace_record_ids = [record["id"] for record in workspace_records]
-    return list(set(workspace_record_ids) - set(main_record_ids))
-
-
-def delete_rejected_record(record_id):
-    client = kinto_http.Client(
-        server_url=settings.KINTO_HOST,
-        auth=(settings.KINTO_USER, settings.KINTO_PASS),
-    )
-    client.delete_record(
-        id=record_id, bucket=settings.KINTO_BUCKET, collection=settings.KINTO_COLLECTION
-    )
-
-
-def get_main_records():
-    client = kinto_http.Client(
-        server_url=settings.KINTO_HOST,
-        auth=(settings.KINTO_USER, settings.KINTO_PASS),
-    )
-    return client.get_records(
-        bucket=settings.KINTO_BUCKET_MAIN, collection=settings.KINTO_COLLECTION
-    )
+    def get_main_records(self):
+        return self.kinto_http_client.get_records(
+            bucket=settings.KINTO_BUCKET_MAIN, collection=self.collection
+        )
