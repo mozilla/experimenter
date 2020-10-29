@@ -81,3 +81,8 @@ class NimbusProbeType(DjangoObjectType):
 class NimbusProbeSetType(DjangoObjectType):
     class Meta:
         model = NimbusProbeSet
+
+
+class NimbusLabelValueType(graphene.ObjectType):
+    label = graphene.String()
+    value = graphene.String()
