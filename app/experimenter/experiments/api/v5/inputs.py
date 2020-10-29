@@ -1,6 +1,7 @@
 import graphene
 
 from experimenter.experiments.api.v5.types import (
+    NimbusExperimentApplication,
     NimbusExperimentChannel,
     NimbusExperimentFirefoxMinVersion,
     NimbusExperimentStatus,
@@ -11,7 +12,7 @@ from experimenter.experiments.api.v5.types import (
 class ExperimentInput(graphene.InputObjectType):
     client_mutation_id = graphene.String()
     name = graphene.String()
-    application = graphene.String()
+    application = NimbusExperimentApplication()
     public_description = graphene.String()
     hypothesis = graphene.String()
 
@@ -19,7 +20,7 @@ class ExperimentInput(graphene.InputObjectType):
 class CreateExperimentInput(ExperimentInput):
     name = graphene.String(required=True)
     hypothesis = graphene.String(required=True)
-    application = graphene.String(required=True)
+    application = NimbusExperimentApplication(required=True)
 
 
 class UpdateExperimentInput(ExperimentInput):

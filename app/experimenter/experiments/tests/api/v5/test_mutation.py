@@ -139,7 +139,7 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "name": "Test 1234",
                     "hypothesis": "Test hypothesis",
-                    "application": "firefox-desktop",
+                    "application": NimbusExperiment.Application.DESKTOP.name,
                     "clientMutationId": "randomid",
                 }
             },
@@ -169,7 +169,7 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "name": long_name,
                     "hypothesis": "Test hypothesis",
-                    "application": "firefox-desktop",
+                    "application": NimbusExperiment.Application.DESKTOP.name,
                     "clientMutationId": "randomid",
                 }
             },
