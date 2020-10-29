@@ -334,6 +334,84 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
         tasks.update_launched_experiments()
         experiment = Experiment.objects.get(normandy_id=1234)
         self.assertEqual(experiment.population_percent, decimal.Decimal("50.000"))
+        self.assertTrue(
+            experiment.changes.filter(message="Updated Population Percent").exists()
+        )
+
+    def test_live_experiment_updates_population_percent_with_namespace(self):
+        experiment = ExperimentFactory.create(
+            status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            population_percent=decimal.Decimal("25.000"),
+        )
+
+        mock_response_data = {
+            "approved_revision": {
+                "enabled": True,
+                "filter_object": [
+                    {
+                        "count": 300,
+                        "namespace": "first-run",
+                        "start": 9700,
+                        "total": 10000,
+                        "type": "namespaceSample",
+                    }
+                ],
+            }
+        }
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status = mock.Mock()
+        mock_response.raise_for_status.side_effect = None
+        mock_response.status_code = 200
+
+        self.mock_normandy_requests_get.return_value = mock_response
+
+        tasks.update_launched_experiments()
+        experiment = Experiment.objects.get(normandy_id=1234)
+        self.assertEqual(experiment.population_percent, decimal.Decimal("3.000"))
+
+        self.assertTrue(
+            experiment.changes.filter(message="Updated Population Percent").exists()
+        )
+
+    def test_live_experiment_doesnt_update_population_percent_with_namespace(self):
+        experiment = ExperimentFactory.create(
+            status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            population_percent=decimal.Decimal("25.000"),
+        )
+
+        mock_response_data = {
+            "approved_revision": {
+                "enabled": True,
+                "filter_object": [
+                    {
+                        "count": 2500,
+                        "namespace": "first-run",
+                        "start": 9700,
+                        "total": 10000,
+                        "type": "namespaceSample",
+                    }
+                ],
+            }
+        }
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status = mock.Mock()
+        mock_response.raise_for_status.side_effect = None
+        mock_response.status_code = 200
+
+        self.mock_normandy_requests_get.return_value = mock_response
+
+        tasks.update_launched_experiments()
+        experiment = Experiment.objects.get(normandy_id=1234)
+        self.assertEqual(experiment.population_percent, decimal.Decimal("25.000"))
+        self.assertFalse(
+            experiment.changes.filter(message="Updated Population Percent").exists()
+        )
 
     def test_firefox_version_updates(self):
         experiment = ExperimentFactory.create(
