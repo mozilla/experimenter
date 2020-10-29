@@ -8,7 +8,7 @@ import { RouteComponentProps, Link } from "@reach/router";
 
 type PageHomeProps = {} & RouteComponentProps;
 
-const PageHome = (props: PageHomeProps) => (
+const PageHome: React.FunctionComponent<PageHomeProps> = () => (
   <AppLayout testid="PageHome">
     <h1>Home</h1>
     <Link to="new" data-sb-kind="pages/New">

@@ -8,9 +8,7 @@ import AppErrorBoundary, { AppErrorAlert } from ".";
 
 describe("AppErrorAlert", () => {
   it("renders a general error dialog", () => {
-    const { queryByTestId } = render(
-      <AppErrorAlert error={new Error("bad")} />,
-    );
+    const { queryByTestId } = render(<AppErrorAlert />);
     expect(queryByTestId("error-loading-app")).toBeInTheDocument();
   });
 });

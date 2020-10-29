@@ -84,7 +84,7 @@ type SimulatedMockedResponses = ReadonlyArray<{
 export class SimulatedMockLink extends ApolloLink {
   constructor(
     public mockedResponses: SimulatedMockedResponses,
-    public addTypename: Boolean = true,
+    public addTypename: boolean = true,
   ) {
     super();
   }
@@ -108,7 +108,7 @@ export class SimulatedMockLink extends ApolloLink {
     const { result, delay } = response!;
 
     return new Observable((observer) => {
-      let timer = setTimeout(
+      const timer = setTimeout(
         () => {
           observer.next(
             typeof result === "function"

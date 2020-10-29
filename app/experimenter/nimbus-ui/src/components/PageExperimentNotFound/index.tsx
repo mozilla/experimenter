@@ -12,7 +12,7 @@ const ExperimentNotFound = ({ slug }: { slug: string }) => (
     <section className="text-center">
       <h1 className="h2">Experiment Not Found</h1>
       <p className="pt-3">
-        The experiment with slug "{slug}" could not be found. ☹️
+        The experiment with slug &quot;{slug}&quot; could not be found. ☹️
       </p>
       <Link
         to={BASE_PATH}
