@@ -8,7 +8,7 @@ import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
 
 type PageRequestReviewProps = {} & RouteComponentProps;
 
-const PageRequestReview = (props: PageRequestReviewProps) => (
+const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = () => (
   <AppLayoutWithSidebar>
     <section data-testid="PageRequestReview">
       <h1>PageRequestReview</h1>

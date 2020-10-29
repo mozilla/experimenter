@@ -10,7 +10,7 @@ type ValueOf<T> = T[keyof T];
 const loggerMethodNames = ["info", "trace", "warn", "error"] as const;
 
 describe("services/sentry", () => {
-  let origMethods: { [name: string]: ValueOf<typeof global.console> } = {};
+  const origMethods: { [name: string]: ValueOf<typeof global.console> } = {};
 
   beforeEach(() => {
     // Reduce console log noise in test output
