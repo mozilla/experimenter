@@ -13,7 +13,7 @@ import FormOverview from "../FormOverview";
 
 type PageEditOverviewProps = {} & RouteComponentProps;
 
-const PageEditOverview = (props: PageEditOverviewProps) => {
+const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
   // TODO: EXP-462 Get this from constants / config loaded at app start?
   const applications = ["firefox-desktop", "fenix", "reference-browser"];
 

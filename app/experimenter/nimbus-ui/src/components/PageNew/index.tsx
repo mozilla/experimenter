@@ -20,7 +20,7 @@ const TRAINING_DOC_URL =
 
 type PageNewProps = {} & RouteComponentProps;
 
-const PageNew = (props: PageNewProps) => {
+const PageNew: React.FunctionComponent<PageNewProps> = () => {
   // TODO: EXP-462 Get this from constants / config loaded at app start?
   const applications = ["firefox-desktop", "fenix", "reference-browser"];
 
@@ -31,7 +31,7 @@ const PageNew = (props: PageNewProps) => {
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
 
-  const onFormCancel = useCallback((ev: React.FormEvent) => {
+  const onFormCancel = useCallback(() => {
     // TODO: EXP-462 cancel creation
     // navigate(".")
     console.log("CANCEL TBD");

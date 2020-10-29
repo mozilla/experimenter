@@ -10,27 +10,25 @@ export interface Config {
 
 export function getDefault() {
   return {
-    graphql_url: '',
-    sentry_dsn: '',
-    version: '',
-  }
+    graphql_url: "",
+    sentry_dsn: "",
+    version: "",
+  };
 }
 
-export function readConfig(
-  mountingElement: HTMLElement
-) {
+export function readConfig(mountingElement: HTMLElement) {
   const content = mountingElement.dataset.config;
   update(decode(content));
 }
 
 export function decode(content?: string) {
-  const isDev = process.env.NODE_ENV === 'development';
+  const isDev = process.env.NODE_ENV === "development";
 
   if (!content) {
     if (isDev) {
-      console.warn('Nimbus is missing server config');
+      console.warn("Nimbus is missing server config");
     } else {
-      throw new Error('Configuration is empty');
+      throw new Error("Configuration is empty");
     }
   }
 
@@ -40,10 +38,10 @@ export function decode(content?: string) {
     return JSON.parse(decoded);
   } catch (error) {
     if (isDev) {
-      console.warn('Nimbus server config is invalid');
+      console.warn("Nimbus server config is invalid");
     } else {
       throw new Error(
-        `Invalid configuration ${JSON.stringify(content)}: ${decoded}`
+        `Invalid configuration ${JSON.stringify(content)}: ${decoded}`,
       );
     }
   }
@@ -66,7 +64,7 @@ export function reset() {
 }
 
 export function update(newData: { [key: string]: any }) {
-  config = Object.assign(config, newData)
+  config = Object.assign(config, newData);
 }
 
 let config: Config = getDefault();

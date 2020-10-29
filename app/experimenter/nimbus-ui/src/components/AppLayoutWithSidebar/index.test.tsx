@@ -27,7 +27,7 @@ describe("PageNew", () => {
   });
 
   describe("navigation links", () => {
-    const SidebarRoot = (props: RouteComponentProps) => (
+    const SidebarRoot: React.FunctionComponent<RouteComponentProps> = () => (
       <MockedCache mocks={[mock]}>
         <AppLayoutWithSidebar>
           <p>Hello, world!</p>
