@@ -1,8 +1,53 @@
 import graphene
 
-from experimenter.experiments.api.v5.types import NimbusExperimentType
+from experimenter.experiments.api.v5.types import (
+    NimbusExperimentType,
+    NimbusFeatureConfigType,
+    NimbusLabelValueType,
+    NimbusProbeSetType,
+)
 from experimenter.experiments.constants.nimbus import NimbusConstants
-from experimenter.experiments.models.nimbus import NimbusExperiment
+from experimenter.experiments.models.nimbus import (
+    NimbusExperiment,
+    NimbusFeatureConfig,
+    NimbusProbeSet,
+)
+
+
+class NimbusConfigurationType(graphene.ObjectType):
+    application = graphene.List(NimbusLabelValueType)
+    channels = graphene.List(NimbusLabelValueType)
+    feature_config = graphene.List(NimbusFeatureConfigType)
+    firefox_min_version = graphene.List(NimbusLabelValueType)
+    probe_sets = graphene.List(NimbusProbeSetType)
+    targeting_config_slug = graphene.List(NimbusLabelValueType)
+
+    def _text_choices_to_label_value_list(root, text_choices):
+        return [
+            NimbusLabelValueType(
+                label=text_choices[name].label,
+                value=name,
+            )
+            for name in text_choices.names
+        ]
+
+    def resolve_application(root, info):
+        return root._text_choices_to_label_value_list(NimbusExperiment.Application)
+
+    def resolve_channels(root, info):
+        return root._text_choices_to_label_value_list(NimbusExperiment.Channel)
+
+    def resolve_feature_config(root, info):
+        return NimbusFeatureConfig.objects.all()
+
+    def resolve_firefox_min_version(root, info):
+        return root._text_choices_to_label_value_list(NimbusExperiment.Version)
+
+    def resolve_probe_sets(root, info):
+        return NimbusProbeSet.objects.all()
+
+    def resolve_targeting_config_slug(root, info):
+        return root._text_choices_to_label_value_list(NimbusExperiment.TargetingConfig)
 
 
 class Query(graphene.ObjectType):
@@ -21,6 +66,11 @@ class Query(graphene.ObjectType):
         slug=graphene.String(required=True),
     )
 
+    nimbus_config = graphene.Field(
+        NimbusConfigurationType,
+        description="Nimbus Configuration Data for front-end usage.",
+    )
+
     def resolve_experiments(root, info, offset=0, limit=20, status=None):
         q = NimbusExperiment.objects.all()
         if status:
@@ -32,3 +82,6 @@ class Query(graphene.ObjectType):
             return NimbusExperiment.objects.get(slug=slug)
         except NimbusExperiment.DoesNotExist:
             return None
+
+    def resolve_nimbus_config(root, info):
+        return NimbusConfigurationType()
