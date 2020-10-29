@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { createApolloClient, cache } from "./apollo";
-import { ApolloClient, InMemoryCache } from '@apollo/client/core';
+import { ApolloClient, InMemoryCache } from "@apollo/client/core";
 
 describe("services/apollo", () => {
   describe("cache", () => {
     it("returns an instance of InMemoryCache", () => {
-      expect(cache).toBeInstanceOf(InMemoryCache)
+      expect(cache).toBeInstanceOf(InMemoryCache);
     });
   });
 

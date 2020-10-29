@@ -12,7 +12,7 @@ import PageLoading from "../PageLoading";
 
 type PageEditBranchesProps = {} & RouteComponentProps;
 
-const PageEditBranches = (props: PageEditBranchesProps) => {
+const PageEditBranches: React.FunctionComponent<PageEditBranchesProps> = () => {
   const { slug } = useParams();
   const { experiment, notFound, loading } = useExperiment(slug);
 
