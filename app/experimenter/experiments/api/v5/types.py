@@ -34,6 +34,11 @@ class NimbusExperimentTargetingConfigSlug(graphene.Enum):
         enum = NimbusConstants.TargetingConfig
 
 
+class NimbusExperimentApplication(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.Application
+
+
 class NimbusBranchType(DjangoObjectType):
     class Meta:
         model = NimbusBranch
@@ -47,6 +52,7 @@ class NimbusFeatureConfigType(DjangoObjectType):
 
 class NimbusExperimentType(DjangoObjectType):
     status = NimbusExperimentStatus()
+    application = NimbusExperimentApplication()
     firefox_min_version = NimbusExperimentFirefoxMinVersion()
     channels = graphene.List(NimbusExperimentChannel)
     treatment_branches = graphene.List(NimbusBranchType)
