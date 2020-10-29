@@ -14,7 +14,7 @@ import {
 import { Observable } from "@apollo/client/utilities";
 import { MockLink, MockedResponse } from "@apollo/client/testing";
 import { equal } from "@wry/equality";
-import { print } from "graphql";
+import { DocumentNode, print } from "graphql";
 import { GET_EXPERIMENT_QUERY } from "../gql/experiments";
 import { getExperiment } from "../types/getExperiment";
 import { getConfig_nimbusConfig } from "../types/getConfig";
@@ -216,7 +216,10 @@ export class SimulatedMockLink extends ApolloLink {
 export const mockExperimentQuery = (
   slug: string,
   modifications: Partial<getExperiment["experimentBySlug"]> = {},
-) => {
+): {
+  mock: MockedResponse<Record<string, any>>;
+  data: getExperiment["experimentBySlug"];
+} => {
   // If `null` is explicitely passed in for `modifications`, the experiment
   // data will be `null`.
   const experiment: getExperiment["experimentBySlug"] =
@@ -225,11 +228,12 @@ export const mockExperimentQuery = (
       : Object.assign(
           {
             __typename: "NimbusExperimentType",
+            id: "1",
             name: "Open-architected background installation",
             slug,
             status: "DRAFT",
             hypothesis: "Realize material say pretty.",
-            application: "FIREFOX_DESKTOP",
+            application: "DESKTOP",
             publicDescription:
               "Official approach present industry strategy dream piece.",
             referenceBranch: {
@@ -286,5 +290,40 @@ export const mockExperimentQuery = (
       },
     },
     data: experiment,
+  };
+};
+
+export const mockExperimentMutation = (
+  mutation: DocumentNode,
+  input: Record<string, string>,
+  key: string,
+  {
+    status = 200,
+    message = "success",
+    experiment,
+  }: {
+    status?: number;
+    message?: string | Record<string, any>;
+    experiment?: Record<string, any> | null;
+  },
+) => {
+  return {
+    request: {
+      query: mutation,
+      variables: {
+        input,
+      },
+    },
+    result: {
+      errors: undefined as undefined | any[],
+      data: {
+        [key]: {
+          clientMutationId: "8675309",
+          message,
+          status,
+          nimbusExperiment: experiment,
+        },
+      },
+    },
   };
 };
