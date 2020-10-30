@@ -235,6 +235,7 @@ pre.json {
   display: none;
 }
 
+/* Visualization styles below */
 .positive-significance {
   color: green;
   font-weight: bold;
@@ -243,4 +244,20 @@ pre.json {
 .negative-significance {
   color: red;
   font-weight: bold;
+}
+
+.positive {
+  background-color: green;
+}
+
+.negative {
+  background-color: red;
+}
+
+.neutral {
+  background-color: grey;
+}
+
+.border-3 {
+  border-width:3px !important;
 }

@@ -11,6 +11,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusProbeSetFactory,
 )
+from experimenter.visualization.api.v3.views import Significance
 
 
 @override_settings(FEATURE_ANALYSIS=False)
@@ -47,6 +48,35 @@ class TestVisualizationView(TestCase):
             },
             json_data,
         )
+
+    def add_probe_set_data(self, data, formatted_data, probe_sets):
+        if len(probe_sets) == 0:
+            return
+
+        range_data = {
+            "point": 4,
+            "upper": 8,
+            "lower": 2,
+        }
+        branches = ["control", "variant"]
+        probe_set = f"{probe_sets[0].slug}_ever_used"
+
+        for branch in branches:
+            formatted_data[branch]["branch_data"][probe_set] = {
+                "absolute": {**range_data, **{"count": 48}},
+                "difference": {},
+                "relative_uplift": {},
+            }
+            data.append(
+                {
+                    **range_data,
+                    **{
+                        "metric": probe_set,
+                        "branch": branch,
+                        "statistic": "binomial",
+                    },
+                }
+            )
 
     @parameterized.expand(
         [
@@ -130,7 +160,7 @@ class TestVisualizationView(TestCase):
                             "lower": -5,
                         },
                         "relative_uplift": {},
-                        "significance": 2,
+                        "significance": Significance.NEUTRAL,
                     },
                 },
             },
@@ -147,7 +177,7 @@ class TestVisualizationView(TestCase):
                         "absolute": {},
                         "difference": {"lower": 10, "point": 12, "upper": 13},
                         "relative_uplift": {},
-                        "significance": 0,
+                        "significance": Significance.POSITIVE,
                     },
                     "retained": {
                         "absolute": {},
@@ -157,7 +187,7 @@ class TestVisualizationView(TestCase):
                             "lower": -5,
                         },
                         "relative_uplift": {},
-                        "significance": 1,
+                        "significance": Significance.NEGATIVE,
                     },
                 },
             },
@@ -179,6 +209,12 @@ class TestVisualizationView(TestCase):
         probe_set = NimbusProbeSetFactory.create()
         experiment = NimbusExperimentFactory.create_with_status(
             target_status=status, probe_sets=[probe_set]
+        )
+
+        self.add_probe_set_data(
+            DATA_WITHOUT_POPULATION_PERCENTAGE,
+            FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
+            experiment.probe_sets.all(),
         )
 
         response = self.client.get(
