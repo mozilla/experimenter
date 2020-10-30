@@ -17,8 +17,10 @@ import { equal } from "@wry/equality";
 import { print } from "graphql";
 import { GET_EXPERIMENT_QUERY } from "../gql/experiments";
 import { getExperiment } from "../types/getExperiment";
+import { GET_CONFIG_QUERY } from "../gql/config";
 
 export interface MockedProps {
+  config?: Partial<typeof MOCK_CONFIG> | null;
   childProps?: object;
   children?: React.ReactElement;
   mocks?: MockedResponse<Record<string, any>>[];
@@ -28,22 +30,84 @@ export interface MockedState {
   client: ApolloClient<any>;
 }
 
+export const MOCK_CONFIG = {
+  application: [
+    {
+      label: "Desktop",
+      value: "DESKTOP",
+    },
+  ],
+  channels: [
+    {
+      label: "Desktop Beta",
+      value: "DESKTOP_BETA",
+    },
+  ],
+  featureConfig: [
+    {
+      id: "1",
+      name: "Up-sized cohesive complexity",
+      slug: "up-sized-cohesive-complexity",
+      description:
+        "Quickly above also mission action. Become thing item institution plan.\nImpact friend wonder. Interview strategy nature question. Admit room without impact its enter forward.",
+      application: "REFERENCE_BROWSER",
+      ownerEmail: "sheila43@yahoo.com",
+      schema: null,
+    },
+  ],
+  firefoxMinVersion: [
+    {
+      label: "Firefox 80",
+      value: "FIREFOX_80",
+    },
+  ],
+  probeSets: [
+    {
+      id: "1",
+      name: "Inverse responsive methodology",
+      slug: "inverse-responsive-methodology",
+      probes: [
+        {
+          id: "1",
+          kind: "EVENT",
+          name: "Public-key intangible Graphical User Interface",
+          eventCategory: "persevering-intangible-productivity",
+          eventMethod: "monitored-system-worthy-core",
+          eventObject: "ameliorated-uniform-protocol",
+          eventValue: "front-line-5thgeneration-product",
+        },
+        {
+          id: "2",
+          kind: "SCALAR",
+          name: "Total didactic moderator",
+          eventCategory: "horizontal-bifurcated-attitude",
+          eventMethod: "optimized-homogeneous-system-engine",
+          eventObject: "virtual-discrete-customer-loyalty",
+          eventValue: "automated-national-infrastructure",
+        },
+      ],
+    },
+  ],
+  targetingConfigSlug: [
+    {
+      label: "First Run",
+      value: "FIRST_RUN",
+    },
+  ],
+};
+
 // Disabling this rule for now because we'll eventually
 // be using props from MockedProps.
 // eslint-disable-next-line no-empty-pattern
-export function createCache({}: MockedProps = {}) {
+export function createCache({ config = {} }: MockedProps = {}) {
   const cache = new InMemoryCache();
 
-  // As we set up new cached queries we can use
-  // `cache.writeQuery` to set up default data
-  // in tests with values set in MockedProps
-  //
-  // cache.writeQuery({
-  //   query: MY_QUERY,
-  //   data: {
-  //     queryDataDefault,
-  //   },
-  // });
+  cache.writeQuery({
+    query: GET_CONFIG_QUERY,
+    data: {
+      nimbusConfig: { ...MOCK_CONFIG, ...config },
+    },
+  });
 
   return cache;
 }

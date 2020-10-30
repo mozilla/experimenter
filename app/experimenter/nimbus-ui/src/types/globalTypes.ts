@@ -7,13 +7,10 @@
 // START Enums and Input Objects
 //==============================================================
 
-/**
- * An enumeration.
- */
 export enum NimbusExperimentApplication {
+  DESKTOP = "DESKTOP",
   FENIX = "FENIX",
-  FIREFOX_DESKTOP = "FIREFOX_DESKTOP",
-  REFERENCE_BROWSER = "REFERENCE_BROWSER",
+  REFERENCE = "REFERENCE",
 }
 
 export enum NimbusExperimentChannel {
@@ -64,11 +61,27 @@ export enum NimbusExperimentTargetingConfigSlug {
   US_ONLY = "US_ONLY",
 }
 
+/**
+ * An enumeration.
+ */
+export enum NimbusFeatureConfigApplication {
+  FENIX = "FENIX",
+  FIREFOX_DESKTOP = "FIREFOX_DESKTOP",
+  REFERENCE_BROWSER = "REFERENCE_BROWSER",
+}
+
+/**
+ * An enumeration.
+ */
+export enum NimbusProbeKind {
+  EVENT = "EVENT",
+  SCALAR = "SCALAR",
+}
+
 export interface CreateExperimentInput {
   clientMutationId?: string | null;
   name: string;
-  slug?: string | null;
-  application: string;
+  application: NimbusExperimentApplication;
   publicDescription?: string | null;
   hypothesis: string;
 }
