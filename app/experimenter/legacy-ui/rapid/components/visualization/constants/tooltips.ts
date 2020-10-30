@@ -16,3 +16,8 @@ export const METRICS_TIPS = {
 export const SEGMENT_TIPS = {
   ALL_USERS: "All users within a given variant",
 };
+
+export const BADGE_TIPS = {
+  PRIMARY_METRIC: "Main metric you are trying to impact in this experiment",
+  GUARDRAIL_METRIC: "Metric that should not regress",
+};

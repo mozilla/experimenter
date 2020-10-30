@@ -1,5 +1,6 @@
 import React from "react";
 
+import { getTableDisplayType } from "experimenter-rapid/components/experiments/utils";
 import { featureOptions } from "experimenter-rapid/components/forms/ExperimentFormOptions";
 import {
   METRIC,
@@ -67,13 +68,18 @@ const HighlightsTable: React.FC<{ experimentData: ExperimentData }> = ({
               <td>
                 {highlightMetricsList.map((metric) => {
                   const metricKey = metric.value;
+                  const displayType = getTableDisplayType(
+                    metricKey,
+                    TABLE_LABEL.HIGHLIGHTS,
+                    resultsData[branch]["is_control"],
+                  );
                   return (
                     <ResultsRow
                       key={metricKey}
-                      metricKey={metric.value}
                       metricName={metric.name}
                       results={resultsData[branch]}
                       tableLabel={TABLE_LABEL.HIGHLIGHTS}
+                      {...{ metricKey, displayType }}
                     />
                   );
                 })}

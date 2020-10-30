@@ -11,6 +11,7 @@ import {
 } from "experimenter-rapid/components/forms/ExperimentFormOptions";
 import HighlightsTable from "experimenter-rapid/components/visualization/HighlightsTable";
 import Overview from "experimenter-rapid/components/visualization/Overview";
+import PrimaryMetricTable from "experimenter-rapid/components/visualization/PrimaryMetricTable";
 import ResultsTable from "experimenter-rapid/components/visualization/ResultsTable";
 import {
   requestReview,
@@ -118,7 +119,17 @@ const ExperimentDetails: React.FC = () => {
         <h2 className="font-weight-bold">Results</h2>
         {experimentData.analysis?.show_analysis ? (
           <div>
-            <ResultsTable experimentData={experimentData} />
+            <ResultsTable {...{ experimentData }} />
+            <div>
+              {experimentData.features.map((probeset) => {
+                return (
+                  <PrimaryMetricTable
+                    key={probeset}
+                    {...{ experimentData, probeset }}
+                  />
+                );
+              })}
+            </div>
             <div ref={visualizationRef}></div>
           </div>
         ) : (
