@@ -8,7 +8,23 @@
 
 ## App Configuration
 
-Nimbus uses two approaches for retrieving configuration:
+Nimbus has two types of config available within the app: template-rendered and GraphQL.
+
+#### GraphQL configuration (preferred method)
+
+This is configuration information that the app loads from the server via GraphQL request when the app first starts. This information is stored in the Apollo cache and is made available via the `useConfig` hook, where properties can be destructured out. Conveniently, this hook also includes the template-rendered configuration properties described below, making it the preferred option for both types of config.
+
+Usage is simple:
+
+```ts
+import useConfig from "./hooks/useConfig";
+
+// channels and probesets come from GraphQL, sentry_dsn
+// comes from initial template-rendered config
+const { channels, probeSets, sentry_dsn } = useConfig();
+```
+
+The query for GraphQL config is performed inside the `<App>` component, which makes it immediately available (no need to check for loading) in any child components.
 
 #### Template-rendered configuration
 
@@ -16,16 +32,12 @@ This is used to ensure critical information about the app is retrieved and made 
 
 The values for this configuration are defined in the [`APP_CONFIG`](../base/context_processors.py) custom context processor.
 
-Accessing these configuration values in the React app is simple: just import the `config` object and access its properties. Example:
+Accessing these configuration values in the React app is simple: just import the default `./lib/config` object and access its properties. Example:
 
 ```ts
 import config from "./lib/config";
 console.log(config.sentry_dsn);
 ```
-
-#### GraphQL configuration
-
-TODO: someone who knows more about this than me should fill this out.
 
 ## Overriding Webpack defaults
 
@@ -196,15 +208,27 @@ Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more adva
 
 ### Components that need a GQL Mock
 
-⚠️ TODO: This section needs to be expanded with mock-able properties once we need to read and write from the cache.
-
-[MockedCache](./src/services/mocks.tsx) is a convenient way to test components that make use of GraphQL mutations. Use it in place of [MockedProvider](https://www.apollographql.com/docs/react/api/react/testing/#mockedprovider) without prop overrides to use the default mocked cache. A `mocks` prop can also be passed in when a query or mutation needs success or failure mocks.
+[MockedCache](./src/services/mocks.tsx) is a convenient way to test components that make use of GraphQL mutations. Use it in place of [MockedProvider](https://www.apollographql.com/docs/react/api/react/testing/#mockedprovider) without prop overrides to use the default mocked cache, or pass in `config` to override pieces of the GraphQL config in the default mocked cache. A `mocks` prop can also be passed in when a query or mutation needs success or failure mocks.
 
 Example:
 
-```jsx
+```tsx
 const mocks = [];
-<MockedCache {...{ mocks }}>
+<MockedCache
+  config={{
+    channels: [
+      {
+        label: "Foo Beta",
+        value: "FOO_BETA",
+      },
+      {
+        label: "Bar Nightly",
+        value: "BAR_NIGHTLY",
+      },
+    ],
+  }}
+  {...{ mocks }}
+>
   <ExperimentsDirectory />
 </MockedCache>;
 ```

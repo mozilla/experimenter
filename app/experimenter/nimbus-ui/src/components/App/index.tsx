@@ -4,6 +4,9 @@
 
 import React from "react";
 import { Router, Redirect, RouteComponentProps } from "@reach/router";
+import { useQuery } from "@apollo/client";
+import { GET_CONFIG_QUERY } from "../../gql/config";
+import PageLoading from "../PageLoading";
 import PageHome from "../PageHome";
 import PageNew from "../PageNew";
 import PageEditOverview from "../PageEditOverview";
@@ -17,6 +20,12 @@ type RootProps = {
 const Root = (props: RootProps) => <>{props.children}</>;
 
 const App = ({ basepath }: { basepath: string }) => {
+  const { loading } = useQuery(GET_CONFIG_QUERY);
+
+  if (loading) {
+    return <PageLoading />;
+  }
+
   return (
     <Router {...{ basepath }}>
       <PageHome path="/" />
