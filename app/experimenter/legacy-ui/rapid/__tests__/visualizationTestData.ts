@@ -1,3 +1,4 @@
+import { SIGNIFICANCE } from "experimenter-rapid/components/visualization/constants/analysis";
 import {
   ExperimentStatus,
   FirefoxChannel,
@@ -51,6 +52,27 @@ export const EXPERIMENT_DATA: ExperimentData = {
           picture_in_picture_ever_used: {
             absolute: {
               point: 0.05,
+              count: 10,
+              lower: 0.024357271316207685,
+              upper: 0.084114637001734827,
+            },
+            difference: {},
+            relative_uplift: {},
+          },
+          feature_b_ever_used: {
+            absolute: {
+              point: 0.05,
+              count: 10,
+              lower: 0.024357271316207685,
+              upper: 0.084114637001734827,
+            },
+            difference: {},
+            relative_uplift: {},
+          },
+          feature_c_ever_used: {
+            absolute: {
+              point: 0.05,
+              count: 10,
               lower: 0.024357271316207685,
               upper: 0.084114637001734827,
             },
@@ -82,7 +104,7 @@ export const EXPERIMENT_DATA: ExperimentData = {
               lower: -15.289651027022447,
             },
             relative_uplift: {},
-            significance: 1,
+            significance: SIGNIFICANCE.NEGATIVE,
           },
           retained: {
             absolute: {
@@ -96,11 +118,12 @@ export const EXPERIMENT_DATA: ExperimentData = {
               upper: 0.12483606976999304,
             },
             relative_uplift: {},
-            significance: 2,
+            significance: SIGNIFICANCE.NEUTRAL,
           },
           picture_in_picture_ever_used: {
             absolute: {
               point: 0.049019607843137254,
+              count: 10,
               lower: 0.023872203557007872,
               upper: 0.082490692094610241,
             },
@@ -109,8 +132,50 @@ export const EXPERIMENT_DATA: ExperimentData = {
               upper: 0.043163817365120191,
               lower: 0.041750959639940292,
             },
-            relative_uplift: {},
-            significance: 0,
+            relative_uplift: {
+              lower: -0.455210299676828,
+              upper: 0.5104985718410426,
+              point: -0.06233954570562385,
+            },
+            significance: SIGNIFICANCE.POSITIVE,
+          },
+          feature_b_ever_used: {
+            absolute: {
+              point: 0.049019607843137254,
+              count: 10,
+              lower: 0.023872203557007872,
+              upper: 0.082490692094610241,
+            },
+            difference: {
+              point: -0.00065694876288765341,
+              upper: 0.043163817365120191,
+              lower: 0.041750959639940292,
+            },
+            relative_uplift: {
+              lower: -0.455210299676828,
+              upper: 0.5104985718410426,
+              point: -0.06233954570562385,
+            },
+            significance: SIGNIFICANCE.NEGATIVE,
+          },
+          feature_c_ever_used: {
+            absolute: {
+              point: 0.049019607843137254,
+              count: 10,
+              lower: 0.023872203557007872,
+              upper: 0.082490692094610241,
+            },
+            difference: {
+              point: -0.00065694876288765341,
+              upper: 0.043163817365120191,
+              lower: 0.041750959639940292,
+            },
+            relative_uplift: {
+              lower: -0.455210299676828,
+              upper: 0.5104985718410426,
+              point: -0.06233954570562385,
+            },
+            significance: SIGNIFICANCE.NEUTRAL,
           },
         },
       },

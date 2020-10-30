@@ -1,5 +1,4 @@
 import json
-from enum import IntEnum
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -10,10 +9,10 @@ from rest_framework.response import Response
 from experimenter.experiments.models import NimbusExperiment
 
 
-class Significance(IntEnum):
-    POSITIVE = 0
-    NEGATIVE = 1
-    NEUTRAL = 2
+class Significance:
+    POSITIVE = "positive"
+    NEGATIVE = "negative"
+    NEUTRAL = "neutral"
 
 
 class BranchComparison:
@@ -36,6 +35,7 @@ class Statistic:
 
 
 BRANCH_DATA = "branch_data"
+PRIMARY_METRIC_SUFFIX = "_ever_used"
 
 
 def load_data_from_gcs(filename):
@@ -54,10 +54,12 @@ def get_results_metrics_map(probe_sets):
         Metric.SEARCH: set([Statistic.MEAN]),
         Metric.USER_COUNT: set([Statistic.COUNT, Statistic.PERCENT]),
     }
+    primary_metrics_set = set()
     for probe_set in probe_sets:
-        probe_set_id = f"{probe_set}_ever_used"
+        probe_set_id = f"{probe_set.slug}{PRIMARY_METRIC_SUFFIX}"
         RESULTS_METRICS_MAP[probe_set_id] = set([Statistic.BINOMIAL])
-    return RESULTS_METRICS_MAP
+        primary_metrics_set.add(probe_set_id)
+    return RESULTS_METRICS_MAP, primary_metrics_set
 
 
 def append_population_percentages(data):
@@ -79,7 +81,7 @@ def append_population_percentages(data):
         )
 
 
-def computeSignificance(lower, upper):
+def compute_significance(lower, upper):
     if max(lower, upper, 0) == 0:
         return Significance.NEGATIVE
     if min(lower, upper, 0) == 0:
@@ -88,7 +90,30 @@ def computeSignificance(lower, upper):
         return Significance.NEUTRAL
 
 
+def append_conversion_count(results, primary_metrics_set):
+    for branch in results:
+        branch_data = results[branch][BRANCH_DATA]
+        for primary_metric in primary_metrics_set:
+            population_count = branch_data[Metric.USER_COUNT][BranchComparison.ABSOLUTE][
+                "point"
+            ]
+            conversion_percent = branch_data[primary_metric][BranchComparison.ABSOLUTE][
+                "point"
+            ]
+            conversion_count = population_count * conversion_percent
+            branch_data[primary_metric][BranchComparison.ABSOLUTE][
+                "count"
+            ] = conversion_count
+
+
 def process_data_for_consumption(data, experiment):
+    append_population_percentages(data)
+    results, primary_metrics_set = generate_results_object(data, experiment)
+    append_conversion_count(results, primary_metrics_set)
+    return results
+
+
+def generate_results_object(data, experiment):
     results = {}
     for row in data:
         branch = row.get("branch")
@@ -103,8 +128,10 @@ def process_data_for_consumption(data, experiment):
             {"is_control": experiment.reference_branch.name == branch, BRANCH_DATA: {}},
         )
 
-        resultMetrics = get_results_metrics_map(experiment.probe_sets.all())
-        if metric in resultMetrics and statistic in resultMetrics[metric]:
+        result_metrics, primary_metrics_set = get_results_metrics_map(
+            experiment.probe_sets.all()
+        )
+        if metric in result_metrics and statistic in result_metrics[metric]:
             results[branch][BRANCH_DATA][metric] = results[branch][BRANCH_DATA].get(
                 metric,
                 {
@@ -121,13 +148,13 @@ def process_data_for_consumption(data, experiment):
             comparison = row.get("comparison", BranchComparison.ABSOLUTE)
             if comparison == BranchComparison.DIFFERENCE and lower and upper:
                 results[branch][BRANCH_DATA][metric].update(
-                    {"significance": computeSignificance(lower, upper)}
+                    {"significance": compute_significance(lower, upper)}
                 )
 
             results[branch][BRANCH_DATA][metric][comparison].update(
                 {"lower": lower, "upper": upper, "point": point}
             )
-    return results
+    return results, primary_metrics_set
 
 
 def get_data(slug, window, experiment):
@@ -148,7 +175,6 @@ def analysis_results_view(request, slug):
         data = get_data(recipe_slug, window, experiment)
 
         if data and window == "overall":
-            append_population_percentages(data)
             data = process_data_for_consumption(data, experiment)
 
         experiment_data[window] = data

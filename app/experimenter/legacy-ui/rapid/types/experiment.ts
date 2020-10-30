@@ -43,6 +43,7 @@ export interface BranchDescription {
         point: number;
         lower?: number;
         upper?: number;
+        count?: number;
       };
       difference: {
         point?: number;
@@ -55,7 +56,7 @@ export interface BranchDescription {
         upper?: number;
       };
       percent?: number;
-      significance?: number;
+      significance?: string;
     };
   };
 }
