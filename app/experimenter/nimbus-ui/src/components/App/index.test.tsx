@@ -6,20 +6,43 @@ import React, { ReactNode } from "react";
 import { screen, waitFor } from "@testing-library/react";
 import { renderWithRouter } from "../../lib/test-utils";
 import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
+import * as apollo from "@apollo/client";
 import App from ".";
 
 const { mock } = mockExperimentQuery("my-special-slug");
 
 describe("App", () => {
+  it("displays loading when config is loading", () => {
+    (jest.spyOn(apollo, "useQuery") as jest.Mock).mockReturnValueOnce({
+      loading: true,
+    });
+
+    renderWithRouter(
+      <MockedCache mocks={[]}>
+        <App basepath="/" />
+      </MockedCache>,
+    );
+    expect(screen.getByTestId("page-loading")).toBeInTheDocument();
+  });
+
   it("routes to PageHome page", () => {
-    renderWithRouter(<App basepath="/" />);
+    renderWithRouter(
+      <MockedCache>
+        <App basepath="/" />
+      </MockedCache>,
+    );
     expect(screen.getByTestId("PageHome")).toBeInTheDocument();
   });
 
   it("routes to PageNew page", () => {
-    renderWithRouter(<App basepath="/foo/bar" />, {
-      route: "/foo/bar/new",
-    });
+    renderWithRouter(
+      <MockedCache>
+        <App basepath="/foo/bar" />
+      </MockedCache>,
+      {
+        route: "/foo/bar/new",
+      },
+    );
     expect(screen.getByTestId("PageNew")).toBeInTheDocument();
   });
 
