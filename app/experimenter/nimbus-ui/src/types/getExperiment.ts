@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { NimbusExperimentStatus, NimbusExperimentApplication, NimbusExperimentChannel, NimbusExperimentFirefoxMinVersion, NimbusExperimentTargetingConfigSlug } from "./globalTypes";
+import { NimbusExperimentStatus, NimbusExperimentApplication, NimbusFeatureConfigApplication, NimbusExperimentChannel, NimbusExperimentFirefoxMinVersion, NimbusExperimentTargetingConfigSlug } from "./globalTypes";
 
 // ====================================================
 // GraphQL query operation: getExperiment
@@ -29,6 +29,16 @@ export interface getExperiment_experimentBySlug_treatmentBranches {
   featureEnabled: boolean;
 }
 
+export interface getExperiment_experimentBySlug_featureConfig {
+  __typename: "NimbusFeatureConfigType";
+  slug: string;
+  name: string;
+  description: string | null;
+  application: NimbusFeatureConfigApplication | null;
+  ownerEmail: string | null;
+  schema: string | null;
+}
+
 export interface getExperiment_experimentBySlug_probeSets {
   __typename: "NimbusProbeSetType";
   slug: string;
@@ -45,6 +55,7 @@ export interface getExperiment_experimentBySlug {
   publicDescription: string | null;
   referenceBranch: getExperiment_experimentBySlug_referenceBranch | null;
   treatmentBranches: (getExperiment_experimentBySlug_treatmentBranches | null)[] | null;
+  featureConfig: getExperiment_experimentBySlug_featureConfig | null;
   probeSets: getExperiment_experimentBySlug_probeSets[];
   channels: (NimbusExperimentChannel | null)[] | null;
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion | null;

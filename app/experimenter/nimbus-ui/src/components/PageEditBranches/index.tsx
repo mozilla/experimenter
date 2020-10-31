@@ -5,16 +5,21 @@
 import React from "react";
 import { RouteComponentProps, useParams } from "@reach/router";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
-import { useExperiment } from "../../hooks";
+import { useExperiment, useConfig } from "../../hooks";
 import HeaderEditExperiment from "../HeaderEditExperiment";
 import ExperimentNotFound from "../PageExperimentNotFound";
 import PageLoading from "../PageLoading";
+import FormBranches from "../FormBranches";
+import LinkExternal from "../LinkExternal";
 
-type PageEditBranchesProps = {} & RouteComponentProps;
+// TODO: find this doco URL
+const BRANCHES_DOC_URL =
+  "https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=FJT&title=Project+Nimbus";
 
-const PageEditBranches: React.FunctionComponent<PageEditBranchesProps> = () => {
+const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   const { slug } = useParams();
   const { experiment, notFound, loading } = useExperiment(slug);
+  const { featureConfig } = useConfig();
 
   if (loading) {
     return <PageLoading />;
@@ -36,6 +41,20 @@ const PageEditBranches: React.FunctionComponent<PageEditBranchesProps> = () => {
           }}
         />
         <h2 className="mt-3 h4">Branches</h2>
+        <p>
+          If you want, you can add a <strong>feature flag</strong> configuration
+          to each branch. Experiments can only change one flag at a time.{" "}
+          <LinkExternal href={BRANCHES_DOC_URL}>Learn more</LinkExternal>
+        </p>
+        {/* TODO: EXP-505 for accepting and saving edits to branches */}
+        <FormBranches
+          {...{
+            experiment,
+            featureConfig,
+            // TODO: supply this as default value, track changes within FormBranches
+            equalRatio: false,
+          }}
+        />
       </section>
     </AppLayoutWithSidebar>
   );
