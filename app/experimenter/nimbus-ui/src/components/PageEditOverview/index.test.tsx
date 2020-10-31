@@ -11,7 +11,6 @@ import { mockExperimentQuery } from "../../lib/mocks";
 import { MockedResponse } from "@apollo/client/testing";
 
 const { mock } = mockExperimentQuery("demo-slug");
-const { mock: notFoundMock } = mockExperimentQuery("demo-slug", null);
 
 let origConsoleLog: typeof global.console.log;
 let mockSubmit: Record<string, string> = {};
@@ -61,18 +60,6 @@ describe("PageEditOverview", () => {
     render(<Subject mocks={[mock]} />);
     await waitFor(() => fireEvent.click(screen.getByTestId("next")));
     expect(global.console.log).toHaveBeenCalledWith("NEXT TBD");
-  });
-
-  it("renders not found screen", async () => {
-    render(<Subject mocks={[notFoundMock]} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("not-found")).toBeInTheDocument();
-    });
-  });
-
-  it("renders loading screen", () => {
-    render(<Subject />);
-    expect(screen.getByTestId("page-loading")).toBeInTheDocument();
   });
 });
 

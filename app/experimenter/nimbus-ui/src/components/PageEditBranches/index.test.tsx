@@ -25,19 +25,6 @@ describe("PageEditBranches", () => {
       expect(screen.getByText(slug)).toBeInTheDocument();
     }
   });
-
-  it("renders not found screen", async () => {
-    const { mock: notFoundMock } = mockExperimentQuery("demo-slug", null);
-    render(<Subject mocks={[notFoundMock]} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("not-found")).toBeInTheDocument();
-    });
-  });
-
-  it("renders loading screen", () => {
-    render(<Subject />);
-    expect(screen.getByTestId("page-loading")).toBeInTheDocument();
-  });
 });
 
 const Subject = ({
