@@ -17,7 +17,12 @@ import { equal } from "@wry/equality";
 import { print } from "graphql";
 import { GET_EXPERIMENT_QUERY } from "../gql/experiments";
 import { getExperiment } from "../types/getExperiment";
+import { getConfig_nimbusConfig } from "../types/getConfig";
 import { GET_CONFIG_QUERY } from "../gql/config";
+import {
+  NimbusFeatureConfigApplication,
+  NimbusProbeKind,
+} from "../types/globalTypes";
 
 export interface MockedProps {
   config?: Partial<typeof MOCK_CONFIG> | null;
@@ -30,46 +35,63 @@ export interface MockedState {
   client: ApolloClient<any>;
 }
 
-export const MOCK_CONFIG = {
+export const MOCK_CONFIG: getConfig_nimbusConfig = {
+  __typename: "NimbusConfigurationType",
   application: [
     {
+      __typename: "NimbusLabelValueType",
       label: "Desktop",
       value: "DESKTOP",
     },
   ],
   channels: [
     {
+      __typename: "NimbusLabelValueType",
       label: "Desktop Beta",
       value: "DESKTOP_BETA",
     },
   ],
   featureConfig: [
     {
+      __typename: "NimbusFeatureConfigType",
       id: "1",
       name: "Up-sized cohesive complexity",
       slug: "up-sized-cohesive-complexity",
       description:
         "Quickly above also mission action. Become thing item institution plan.\nImpact friend wonder. Interview strategy nature question. Admit room without impact its enter forward.",
-      application: "REFERENCE_BROWSER",
+      application: NimbusFeatureConfigApplication.REFERENCE_BROWSER,
       ownerEmail: "sheila43@yahoo.com",
       schema: null,
+    },
+    {
+      __typename: "NimbusFeatureConfigType",
+      id: "2",
+      name: "Mauris odio erat",
+      slug: "mauris-odio-erat",
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      application: NimbusFeatureConfigApplication.FENIX,
+      ownerEmail: "dude23@yahoo.com",
+      schema: '{ "sample": "schema" }',
     },
   ],
   firefoxMinVersion: [
     {
+      __typename: "NimbusLabelValueType",
       label: "Firefox 80",
       value: "FIREFOX_80",
     },
   ],
   probeSets: [
     {
+      __typename: "NimbusProbeSetType",
       id: "1",
       name: "Inverse responsive methodology",
       slug: "inverse-responsive-methodology",
       probes: [
         {
+          __typename: "NimbusProbeType",
           id: "1",
-          kind: "EVENT",
+          kind: NimbusProbeKind.EVENT,
           name: "Public-key intangible Graphical User Interface",
           eventCategory: "persevering-intangible-productivity",
           eventMethod: "monitored-system-worthy-core",
@@ -77,8 +99,9 @@ export const MOCK_CONFIG = {
           eventValue: "front-line-5thgeneration-product",
         },
         {
+          __typename: "NimbusProbeType",
           id: "2",
-          kind: "SCALAR",
+          kind: NimbusProbeKind.SCALAR,
           name: "Total didactic moderator",
           eventCategory: "horizontal-bifurcated-attitude",
           eventMethod: "optimized-homogeneous-system-engine",
@@ -90,6 +113,7 @@ export const MOCK_CONFIG = {
   ],
   targetingConfigSlug: [
     {
+      __typename: "NimbusLabelValueType",
       label: "First Run",
       value: "FIRST_RUN",
     },
@@ -195,7 +219,7 @@ export const mockExperimentQuery = (
 ) => {
   // If `null` is explicitely passed in for `modifications`, the experiment
   // data will be `null`.
-  const experiment =
+  const experiment: getExperiment["experimentBySlug"] =
     modifications === null
       ? null
       : Object.assign(
@@ -208,7 +232,7 @@ export const mockExperimentQuery = (
             application: "FIREFOX_DESKTOP",
             publicDescription:
               "Official approach present industry strategy dream piece.",
-            controlBranch: {
+            referenceBranch: {
               __typename: "NimbusBranchType",
               name: "User-centric mobile solution",
               slug: "user-centric-mobile-solution",
@@ -218,6 +242,7 @@ export const mockExperimentQuery = (
               featureValue: '{"environmental-fact": "really-citizen"}',
               featureEnabled: true,
             },
+            featureConfig: null,
             treatmentBranches: [
               {
                 __typename: "NimbusBranchType",
@@ -260,6 +285,6 @@ export const mockExperimentQuery = (
         },
       },
     },
-    data: experiment as getExperiment["experimentBySlug"],
+    data: experiment,
   };
 };

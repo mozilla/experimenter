@@ -70,9 +70,7 @@ export interface getConfig_nimbusConfig {
   featureConfig: (getConfig_nimbusConfig_featureConfig | null)[] | null;
   firefoxMinVersion: (getConfig_nimbusConfig_firefoxMinVersion | null)[] | null;
   probeSets: (getConfig_nimbusConfig_probeSets | null)[] | null;
-  targetingConfigSlug:
-    | (getConfig_nimbusConfig_targetingConfigSlug | null)[]
-    | null;
+  targetingConfigSlug: (getConfig_nimbusConfig_targetingConfigSlug | null)[] | null;
 }
 
 export interface getConfig {

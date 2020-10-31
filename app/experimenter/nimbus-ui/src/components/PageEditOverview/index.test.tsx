@@ -5,6 +5,7 @@
 import React from "react";
 import { screen, waitFor, render, fireEvent } from "@testing-library/react";
 import PageEditOverview from ".";
+import FormOverview from "../FormOverview";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { MockedResponse } from "@apollo/client/testing";
@@ -78,20 +79,14 @@ describe("PageEditOverview", () => {
 // Mocking form component because validation is exercised in its own tests.
 jest.mock("../FormOverview", () => ({
   __esModule: true,
-  default: (props: {
-    isLoading: boolean;
-    submitErrors?: Record<string, string[]>;
-    onSubmit: Function;
-    onNext: (ev: React.FormEvent) => void;
-    applications: string[];
-  }) => {
+  default: (props: React.ComponentProps<typeof FormOverview>) => {
     const handleSubmit = (ev: React.FormEvent) => {
       ev.preventDefault();
       props.onSubmit(mockSubmit, jest.fn());
     };
     const handleNext = (ev: React.FormEvent) => {
       ev.preventDefault();
-      props.onNext(ev);
+      props.onNext && props.onNext(ev);
     };
     return (
       <div data-testid="FormOverview">
