@@ -48,6 +48,15 @@ export const GET_EXPERIMENT_QUERY = gql`
         featureEnabled
       }
 
+      featureConfig {
+        slug
+        name
+        description
+        application
+        ownerEmail
+        schema
+      }
+
       probeSets {
         slug
         name
