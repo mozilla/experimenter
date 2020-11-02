@@ -51,7 +51,7 @@ kinto-http = "10.7.0"
 jsonschema = "3.2.0"
 isort = "5.6.4"
 google-cloud-storage = "1.32.0"
-django-storages = "1.7.1"
+django-storages = "1.10.1"
 graphene-django = "^2.13.0"
 mozilla-nimbus-shared = "^1.0.0"
 
