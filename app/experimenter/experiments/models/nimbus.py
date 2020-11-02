@@ -72,7 +72,9 @@ class NimbusExperiment(NimbusConstants, models.Model):
     hypothesis = models.TextField(
         default=NimbusConstants.HYPOTHESIS_DEFAULT, blank=True, null=True
     )
-    probe_sets = models.ManyToManyField("NimbusProbeSet")
+    probe_sets = models.ManyToManyField(
+        "NimbusProbeSet", through="NimbusExperimentProbeSets"
+    )
     feature_config = models.ForeignKey(
         "NimbusFeatureConfig", blank=True, null=True, on_delete=models.CASCADE
     )
@@ -295,6 +297,18 @@ class NimbusProbeSet(models.Model):
 
     def __str__(self):  # pragma: no cover
         return self.name
+
+
+class NimbusExperimentProbeSets(models.Model):
+    experiment = models.ForeignKey(
+        NimbusExperiment,
+        on_delete=models.CASCADE,
+    )
+    probe_set = models.ForeignKey(NimbusProbeSet, on_delete=models.CASCADE)
+    is_primary = models.BooleanField(null=False)
+
+    class Meta:
+        unique_together = ["experiment", "probe_set"]
 
 
 class NimbusChangeLog(models.Model):

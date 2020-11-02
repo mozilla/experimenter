@@ -219,6 +219,17 @@ class NimbusProbeSetUpdateSerializer(
         model = NimbusExperiment
         fields = ("probe_sets",)
 
+    def update(self, experiment, data):
+        probe_sets = data.pop("probe_sets")
+        with transaction.atomic():
+            experiment = super().update(experiment, data)
+            for probe_set in probe_sets:
+                experiment.probe_sets.add(
+                    probe_set, through_defaults={"is_primary": True}
+                )
+            experiment.save()
+        return experiment
+
 
 class NimbusAudienceUpdateSerializer(
     NimbusChangeLogMixin, NimbusStatusRestrictionMixin, serializers.ModelSerializer
