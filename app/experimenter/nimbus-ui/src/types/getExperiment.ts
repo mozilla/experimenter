@@ -9,6 +9,11 @@ import { NimbusExperimentStatus, NimbusExperimentApplication, NimbusFeatureConfi
 // GraphQL query operation: getExperiment
 // ====================================================
 
+export interface getExperiment_experimentBySlug_owner {
+  __typename: "NimbusExperimentOwner";
+  email: string;
+}
+
 export interface getExperiment_experimentBySlug_referenceBranch {
   __typename: "NimbusBranchType";
   name: string;
@@ -54,6 +59,7 @@ export interface getExperiment_experimentBySlug_secondaryProbeSets {
 export interface getExperiment_experimentBySlug {
   __typename: "NimbusExperimentType";
   id: string;
+  owner: getExperiment_experimentBySlug_owner | null;
   name: string;
   slug: string;
   status: NimbusExperimentStatus | null;
@@ -71,6 +77,7 @@ export interface getExperiment_experimentBySlug {
   populationPercent: number | null;
   totalEnrolledClients: number;
   proposedEnrollment: number | null;
+  proposedDuration: number | null;
 }
 
 export interface getExperiment {

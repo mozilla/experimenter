@@ -7,11 +7,14 @@ import { storiesOf } from "@storybook/react";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { withLinks } from "@storybook/addon-links";
 import PageRequestReview from ".";
+import { mockExperimentQuery } from "../../lib/mocks";
+
+const { mock } = mockExperimentQuery("demo-slug");
 
 storiesOf("pages/RequestReview", module)
   .addDecorator(withLinks)
   .add("basic", () => (
-    <RouterSlugProvider>
+    <RouterSlugProvider mocks={[mock]}>
       <PageRequestReview />
     </RouterSlugProvider>
   ));
