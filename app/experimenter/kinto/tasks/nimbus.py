@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import markus
 from celery.utils.log import get_task_logger
 from django.conf import settings
@@ -49,7 +51,11 @@ def nimbus_push_experiment_to_kinto(experiment_id):
             NimbusIsolationGroup.request_isolation_group_buckets(
                 experiment.slug,
                 experiment,
-                NimbusExperiment.BUCKET_COUNT,
+                int(
+                    experiment.population_percent
+                    / Decimal("100.0")
+                    * NimbusExperiment.BUCKET_TOTAL
+                ),
             )
 
         data = NimbusExperimentSerializer(experiment).data
