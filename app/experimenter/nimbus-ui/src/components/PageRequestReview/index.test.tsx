@@ -3,13 +3,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import PageRequestReview from ".";
-import { renderWithRouter } from "../../lib/test-utils";
+import { RouterSlugProvider } from "../../lib/test-utils";
+import { mockExperimentQuery } from "../../lib/mocks";
 
 describe("PageRequestReview", () => {
-  it("renders as expected", () => {
-    renderWithRouter(<PageRequestReview />);
-    expect(screen.getByTestId("PageRequestReview")).toBeInTheDocument();
+  it("renders as expected", async () => {
+    const { mock } = mockExperimentQuery("demo-slug");
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("PageRequestReview")).toBeInTheDocument();
+    });
   });
 });
+
+const Subject = ({
+  mocks = [],
+}: {
+  mocks?: React.ComponentProps<typeof RouterSlugProvider>["mocks"];
+}) => (
+  <RouterSlugProvider {...{ mocks }}>
+    <PageRequestReview />
+  </RouterSlugProvider>
+);
