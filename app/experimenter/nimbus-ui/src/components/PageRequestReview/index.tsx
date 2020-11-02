@@ -4,16 +4,14 @@
 
 import React from "react";
 import { RouteComponentProps } from "@reach/router";
-import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
+import PageEditContainer from "../PageEditContainer";
 
 type PageRequestReviewProps = {} & RouteComponentProps;
 
 const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = () => (
-  <AppLayoutWithSidebar>
-    <section data-testid="PageRequestReview">
-      <h1>PageRequestReview</h1>
-    </section>
-  </AppLayoutWithSidebar>
+  <PageEditContainer title="Review & Launch" testId="PageRequestReview">
+    {({ experiment }) => <p>{experiment.name}</p>}
+  </PageEditContainer>
 );
 
 export default PageRequestReview;
