@@ -1,6 +1,7 @@
 import decimal
 import json
 import random
+from collections.abc import Iterable
 
 import factory
 from django.utils.text import slugify
@@ -66,17 +67,23 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
 
     @factory.post_generation
     def probe_sets(self, create, extracted, **kwargs):
+        is_primary = kwargs.pop("is_primary", True)
         if not create:
             # Simple build, do nothing.
             return
 
-        if extracted:
+        if isinstance(extracted, Iterable):
             # A list of groups were passed in, use them
             for probe_set in extracted:
-                self.probe_sets.add(probe_set)
+                self.probe_sets.add(
+                    probe_set, through_defaults={"is_primary": is_primary}
+                )
         else:
             for i in range(3):
-                self.probe_sets.add(NimbusProbeSetFactory.create())
+                self.probe_sets.add(
+                    NimbusProbeSetFactory.create(),
+                    through_defaults={"is_primary": is_primary},
+                )
 
     @factory.post_generation
     def projects(self, create, extracted, **kwargs):
