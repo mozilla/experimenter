@@ -484,7 +484,8 @@ class TestNimbusProbeSetUpdateSerializer(TestCase):
         serializer = NimbusProbeSetUpdateSerializer(
             experiment,
             {
-                "probe_sets": [p.id for p in probe_sets],
+                "primary_probe_sets": [p.id for p in probe_sets[:2]],
+                "secondary_probe_sets": [p.id for p in probe_sets[2:]],
             },
             context={"user": user},
         )
@@ -497,6 +498,50 @@ class TestNimbusProbeSetUpdateSerializer(TestCase):
         self.assertEqual(
             set([p.id for p in experiment.probe_sets.all()]),
             set([p.id for p in probe_sets]),
+        )
+
+    def test_serializer_rejects_duplicate_probes(self):
+        user = UserFactory()
+        experiment = NimbusExperimentFactory(probe_sets=[])
+        probe_sets = [NimbusProbeSetFactory() for i in range(3)]
+
+        serializer = NimbusProbeSetUpdateSerializer(
+            experiment,
+            {
+                "primary_probe_sets": [p.id for p in probe_sets[:2]],
+                "secondary_probe_sets": [p.id for p in probe_sets],
+            },
+            context={"user": user},
+        )
+
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertEqual(
+            serializer.errors["primary_probe_sets"][0],
+            "Primary probe sets cannot overlap with secondary probe sets.",
+        )
+
+    def test_serializer_rejects_too_many_primary_probe_sets(self):
+        user = UserFactory()
+        experiment = NimbusExperimentFactory(probe_sets=[])
+        probe_sets = [NimbusProbeSetFactory() for i in range(3)]
+
+        serializer = NimbusProbeSetUpdateSerializer(
+            experiment,
+            {
+                "primary_probe_sets": [p.id for p in probe_sets],
+                "secondary_probe_sets": [],
+            },
+            context={"user": user},
+        )
+
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(experiment.changes.count(), 0)
+        self.assertEqual(
+            serializer.errors["primary_probe_sets"][0],
+            "Exceeded maximum primary probe set limit of 2.",
         )
 
 

@@ -123,7 +123,10 @@ class UpdateExperimentProbeSets(graphene.Mutation):
         experiment = NimbusExperiment.objects.get(id=input.nimbus_experiment_id)
         serializer = NimbusProbeSetUpdateSerializer(
             experiment,
-            data={"probe_sets": input["probe_set_ids"]},
+            data={
+                "primary_probe_sets": input["primary_probe_set_ids"],
+                "secondary_probe_sets": input["secondary_probe_set_ids"],
+            },
             context={"user": info.context.user},
         )
         return handle_with_serializer(cls, serializer, input.client_mutation_id)

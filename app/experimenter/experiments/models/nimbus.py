@@ -117,6 +117,22 @@ class NimbusExperiment(NimbusConstants, models.Model):
         return self.branches.exclude(id=self.reference_branch.id).order_by("id")
 
     @property
+    def primary_probe_sets(self):
+        return (
+            self.probe_sets.filter(nimbusexperimentprobesets__is_primary=True)
+            .order_by("id")
+            .all()
+        )
+
+    @property
+    def secondary_probe_sets(self):
+        return (
+            self.probe_sets.filter(nimbusexperimentprobesets__is_primary=False)
+            .order_by("id")
+            .all()
+        )
+
+    @property
     def start_date(self):
         start_changelog = self.changes.filter(
             old_status=self.Status.ACCEPTED, new_status=self.Status.LIVE
