@@ -9,9 +9,11 @@ REVIEW_USER = REVIEW_PASS = "review"
 EXPERIMENTER_USER = os.environ["KINTO_USER"]
 EXPERIMENTER_PASS = os.environ["KINTO_PASS"]
 KINTO_HOST = os.environ["KINTO_HOST"]
-KINTO_BUCKET = os.environ["KINTO_BUCKET"]
-KINTO_COLLECTION_LEGACY = (os.environ["KINTO_COLLECTION"],)
-KINTO_COLLECTION_NIMBUS = os.environ["KINTO_COLLECTION_NIMBUS"]
+KINTO_BUCKET = "main-workspace"
+KINTO_BUCKET_MAIN = "main"
+KINTO_COLLECTION_LEGACY = "messaging-experiments"
+KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
+KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
 
 
 def create_user(user, passw):
@@ -40,7 +42,11 @@ print(
 )
 
 
-for collection in [KINTO_COLLECTION_LEGACY, KINTO_COLLECTION_NIMBUS]:
+for collection in [
+    KINTO_COLLECTION_LEGACY,
+    KINTO_COLLECTION_NIMBUS_DESKTOP,
+    KINTO_COLLECTION_NIMBUS_MOBILE,
+]:
     print(">>>> Creating kinto group: editors")
     print(
         client.create_group(
