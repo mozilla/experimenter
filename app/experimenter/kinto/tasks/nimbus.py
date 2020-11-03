@@ -34,13 +34,16 @@ def nimbus_push_experiment_to_kinto(experiment_id):
     and push its data to the configured collection. If it fails for any reason, log the
     error and reraise it so it will be forwarded to sentry.
     """
-    kinto_client = KintoClient(settings.KINTO_COLLECTION_NIMBUS)
 
     metrics.incr("push_experiment_to_kinto.started")
 
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
         logger.info(f"Pushing {experiment} to Kinto")
+
+        kinto_client = KintoClient(
+            NimbusExperiment.KINTO_APPLICATION_COLLECTION[experiment.application]
+        )
 
         if not NimbusBucketRange.objects.filter(experiment=experiment).exists():
             NimbusIsolationGroup.request_isolation_group_buckets(
@@ -81,37 +84,38 @@ def nimbus_check_kinto_push_queue():
     - Gets the list of all experiments ready to be pushed to kinto and pushes the first
       one
     """
-    kinto_client = KintoClient(settings.KINTO_COLLECTION_NIMBUS)
-
     metrics.incr("check_kinto_push_queue.started")
 
-    rejected_collection_data = kinto_client.get_rejected_collection_data()
-    if rejected_collection_data:
-        rejected_slug = kinto_client.get_rejected_record()
-        experiment = NimbusExperiment.objects.get(slug=rejected_slug)
-        experiment.status = NimbusExperiment.Status.DRAFT
-        experiment.save()
+    for application, collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.items():
+        kinto_client = KintoClient(collection)
 
-        generate_nimbus_changelog(
-            experiment,
-            get_kinto_user(),
-            message=f'Rejected: {rejected_collection_data["last_reviewer_comment"]}',
+        rejected_collection_data = kinto_client.get_rejected_collection_data()
+        if rejected_collection_data:
+            rejected_slug = kinto_client.get_rejected_record()
+            experiment = NimbusExperiment.objects.get(slug=rejected_slug)
+            experiment.status = NimbusExperiment.Status.DRAFT
+            experiment.save()
+
+            generate_nimbus_changelog(
+                experiment,
+                get_kinto_user(),
+                message=f'Rejected: {rejected_collection_data["last_reviewer_comment"]}',
+            )
+
+            kinto_client.delete_rejected_record(rejected_slug)
+
+        if kinto_client.has_pending_review():
+            metrics.incr("check_kinto_push_queue.{collection}_pending_review")
+            return
+
+        queued_experiments = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.REVIEW, application=application
         )
-
-        kinto_client.delete_rejected_record(rejected_slug)
-
-    if kinto_client.has_pending_review():
-        metrics.incr("check_kinto_push_queue.pending_review")
-        return
-
-    queued_experiments = NimbusExperiment.objects.filter(
-        status=NimbusExperiment.Status.REVIEW
-    )
-    if queued_experiments.exists():
-        nimbus_push_experiment_to_kinto.delay(queued_experiments.first().id)
-        metrics.incr("check_kinto_push_queue.queued_experiment_selected")
-    else:
-        metrics.incr("check_kinto_push_queue.no_experiments_queued")
+        if queued_experiments.exists():
+            nimbus_push_experiment_to_kinto.delay(queued_experiments.first().id)
+            metrics.incr("check_kinto_push_queue.{collection}_queued_experiment_selected")
+        else:
+            metrics.incr("check_kinto_push_queue.{collection}_no_experiments_queued")
 
     metrics.incr("check_kinto_push_queue.completed")
 
@@ -124,31 +128,32 @@ def nimbus_check_experiments_are_live():
     present in the collection but are not yet marked as live in the database and marks
     them as live.
     """
-    kinto_client = KintoClient(settings.KINTO_COLLECTION_NIMBUS)
-
     metrics.incr("check_experiments_are_live.started")
 
-    accepted_experiments = NimbusExperiment.objects.filter(
-        status=NimbusExperiment.Status.ACCEPTED
-    )
+    for collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.values():
+        kinto_client = KintoClient(collection)
 
-    records = kinto_client.get_main_records()
-    record_ids = [r.get("id") for r in records]
+        accepted_experiments = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.ACCEPTED
+        )
 
-    for experiment in accepted_experiments:
-        if experiment.slug in record_ids:
-            logger.info(
-                "{experiment} status is being updated to live".format(
-                    experiment=experiment
+        records = kinto_client.get_main_records()
+        record_ids = [r.get("id") for r in records]
+
+        for experiment in accepted_experiments:
+            if experiment.slug in record_ids:
+                logger.info(
+                    "{experiment} status is being updated to live".format(
+                        experiment=experiment
+                    )
                 )
-            )
 
-            experiment.status = NimbusExperiment.Status.LIVE
-            experiment.save()
+                experiment.status = NimbusExperiment.Status.LIVE
+                experiment.save()
 
-            generate_nimbus_changelog(experiment, get_kinto_user())
+                generate_nimbus_changelog(experiment, get_kinto_user())
 
-            logger.info("{experiment} status is set to Live")
+                logger.info("{experiment} status is set to Live")
 
     metrics.incr("check_experiments_are_live.completed")
 
@@ -161,38 +166,39 @@ def nimbus_check_experiments_are_complete():
     marked as live in the database but missing from the collection, indicating that they
     are no longer live and can be marked as complete.
     """
-    kinto_client = KintoClient(settings.KINTO_COLLECTION_NIMBUS)
-
     metrics.incr("check_experiments_are_complete.started")
 
-    live_experiments = NimbusExperiment.objects.filter(
-        status=NimbusExperiment.Status.LIVE
-    )
+    for collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.values():
+        kinto_client = KintoClient(collection)
 
-    records = kinto_client.get_main_records()
-    record_ids = [r.get("id") for r in records]
+        live_experiments = NimbusExperiment.objects.filter(
+            status=NimbusExperiment.Status.LIVE
+        )
 
-    for experiment in live_experiments:
-        if (
-            experiment.should_end
-            and not experiment.emails.filter(
-                type=NimbusExperiment.EmailType.EXPERIMENT_END
-            ).exists()
-        ):
-            nimbus_send_experiment_ending_email(experiment)
+        records = kinto_client.get_main_records()
+        record_ids = [r.get("id") for r in records]
 
-        if experiment.slug not in record_ids:
-            logger.info(
-                "{experiment} status is being updated to complete".format(
-                    experiment=experiment
+        for experiment in live_experiments:
+            if (
+                experiment.should_end
+                and not experiment.emails.filter(
+                    type=NimbusExperiment.EmailType.EXPERIMENT_END
+                ).exists()
+            ):
+                nimbus_send_experiment_ending_email(experiment)
+
+            if experiment.slug not in record_ids:
+                logger.info(
+                    "{experiment} status is being updated to complete".format(
+                        experiment=experiment
+                    )
                 )
-            )
 
-            experiment.status = NimbusExperiment.Status.COMPLETE
-            experiment.save()
+                experiment.status = NimbusExperiment.Status.COMPLETE
+                experiment.save()
 
-            generate_nimbus_changelog(experiment, get_kinto_user())
+                generate_nimbus_changelog(experiment, get_kinto_user())
 
-            logger.info("{experiment} status is set to Complete")
+                logger.info("{experiment} status is set to Complete")
 
     metrics.incr("check_experiments_are_complete.completed")
