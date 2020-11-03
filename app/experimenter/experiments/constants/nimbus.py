@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from django.conf import settings
 from django.db import models
 
 
@@ -60,7 +61,11 @@ class NimbusConstants(object):
     class Application(models.TextChoices):
         DESKTOP = "firefox-desktop"
         FENIX = "fenix"
-        REFERENCE = "reference-browser"
+
+    KINTO_APPLICATION_COLLECTION = {
+        Application.DESKTOP: settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+        Application.FENIX: settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+    }
 
     class Channel(models.TextChoices):
         DESKTOP_BETA = "Beta"
@@ -82,7 +87,6 @@ class NimbusConstants(object):
             Channel.FENIX_BETA,
             Channel.FENIX_RELEASE,
         ],
-        Application.REFERENCE: [Channel.REFERENCE_RELEASE],
     }
 
     class Version(models.TextChoices):
