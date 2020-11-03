@@ -50,19 +50,6 @@ class NimbusFeatureConfigType(DjangoObjectType):
         model = NimbusFeatureConfig
 
 
-class NimbusExperimentType(DjangoObjectType):
-    status = NimbusExperimentStatus()
-    application = NimbusExperimentApplication()
-    firefox_min_version = NimbusExperimentFirefoxMinVersion()
-    channels = graphene.List(NimbusExperimentChannel)
-    treatment_branches = graphene.List(NimbusBranchType)
-    targeting_config_slug = NimbusExperimentTargetingConfigSlug()
-
-    class Meta:
-        model = NimbusExperiment
-        exclude = ("branches",)
-
-
 class ProjectType(DjangoObjectType):
     class Meta:
         model = Project
@@ -92,3 +79,18 @@ class NimbusProbeSetType(DjangoObjectType):
 class NimbusLabelValueType(graphene.ObjectType):
     label = graphene.String()
     value = graphene.String()
+
+
+class NimbusExperimentType(DjangoObjectType):
+    status = NimbusExperimentStatus()
+    application = NimbusExperimentApplication()
+    firefox_min_version = NimbusExperimentFirefoxMinVersion()
+    channels = graphene.List(NimbusExperimentChannel)
+    treatment_branches = graphene.List(NimbusBranchType)
+    targeting_config_slug = NimbusExperimentTargetingConfigSlug()
+    primary_probe_sets = graphene.List(NimbusProbeSetType)
+    secondary_probe_sets = graphene.List(NimbusProbeSetType)
+
+    class Meta:
+        model = NimbusExperiment
+        exclude = ("branches", "probe_sets")
