@@ -1,4 +1,5 @@
 import datetime
+from decimal import Decimal
 
 import mock
 from django.conf import settings
@@ -6,11 +7,7 @@ from django.core import mail
 from django.test import TestCase
 
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
-from experimenter.experiments.models import (
-    NimbusBucketRange,
-    NimbusChangeLog,
-    NimbusExperiment,
-)
+from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.kinto import tasks
 from experimenter.kinto.client import KINTO_REJECTED_STATUS
@@ -22,13 +19,15 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
+            population_percent=Decimal("50.0"),
         )
 
         tasks.nimbus_push_experiment_to_kinto(experiment.id)
 
-        data = NimbusExperimentSerializer(experiment).data
+        self.assertEqual(experiment.bucket_range.start, 0)
+        self.assertEqual(experiment.bucket_range.count, 5000)
 
-        self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
+        data = NimbusExperimentSerializer(experiment).data
 
         self.mock_kinto_client.create_record.assert_called_with(
             data=data,
@@ -50,13 +49,15 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
+            population_percent=Decimal("50.0"),
         )
 
         tasks.nimbus_push_experiment_to_kinto(experiment.id)
 
-        data = NimbusExperimentSerializer(experiment).data
+        self.assertEqual(experiment.bucket_range.start, 0)
+        self.assertEqual(experiment.bucket_range.count, 5000)
 
-        self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
+        data = NimbusExperimentSerializer(experiment).data
 
         self.mock_kinto_client.create_record.assert_called_with(
             data=data,

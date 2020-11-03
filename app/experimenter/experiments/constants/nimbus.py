@@ -145,7 +145,6 @@ class NimbusConstants(object):
 
     # Bucket stuff
     BUCKET_TOTAL = 10000
-    BUCKET_COUNT = 100
     BUCKET_RANDOMIZATION_UNIT = "normandy_id"
 
     HYPOTHESIS_DEFAULT = """If we <do this/build this/create this change in the experiment> for <these users>, then we will see <this outcome>.
