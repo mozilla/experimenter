@@ -406,10 +406,11 @@ FEATURE_ANALYSIS = config("FEATURE_ANALYSIS", default=False, cast=bool)
 KINTO_HOST = config("KINTO_HOST")
 KINTO_USER = config("KINTO_USER")
 KINTO_PASS = config("KINTO_PASS")
-KINTO_BUCKET = config("KINTO_BUCKET")
-KINTO_BUCKET_MAIN = config("KINTO_BUCKET_MAIN")
-KINTO_COLLECTION = config("KINTO_COLLECTION")
-KINTO_COLLECTION_NIMBUS = config("KINTO_COLLECTION_NIMBUS")
+KINTO_BUCKET = "main-workspace"
+KINTO_BUCKET_MAIN = "main"
+KINTO_COLLECTION = "messaging-experiments"
+KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
+KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
 
 
 # Jetstream GCS Bucket data

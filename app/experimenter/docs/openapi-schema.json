@@ -3455,8 +3455,7 @@
           "application": {
             "enum": [
               "firefox-desktop",
-              "fenix",
-              "reference-browser"
+              "fenix"
             ],
             "type": "string",
             "nullable": true

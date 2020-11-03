@@ -18,31 +18,56 @@ from experimenter.kinto.tests.mixins import MockKintoClientMixin
 
 
 class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
-    def setUp(self):
-        super().setUp()
-        self.experiment = NimbusExperimentFactory.create_with_status(
+    def test_push_experiment_to_kinto_sends_desktop_experiment_data(self):
+        experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP,
         )
 
-    def test_push_experiment_to_kinto_sends_experiment_data(self):
-        tasks.nimbus_push_experiment_to_kinto(self.experiment.id)
+        tasks.nimbus_push_experiment_to_kinto(experiment.id)
 
-        data = NimbusExperimentSerializer(self.experiment).data
+        data = NimbusExperimentSerializer(experiment).data
 
-        self.assertTrue(
-            NimbusBucketRange.objects.filter(experiment=self.experiment).exists()
-        )
+        self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
 
         self.mock_kinto_client.create_record.assert_called_with(
             data=data,
-            collection=settings.KINTO_COLLECTION_NIMBUS,
+            collection=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
             bucket=settings.KINTO_BUCKET,
             if_not_exists=True,
         )
 
         self.assertTrue(
             NimbusChangeLog.objects.filter(
-                experiment=self.experiment,
+                experiment=experiment,
+                changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
+                old_status=NimbusExperiment.Status.DRAFT,
+                new_status=NimbusExperiment.Status.ACCEPTED,
+            ).exists()
+        )
+
+    def test_push_experiment_to_kinto_sends_fenix__experiment_data(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.FENIX,
+        )
+
+        tasks.nimbus_push_experiment_to_kinto(experiment.id)
+
+        data = NimbusExperimentSerializer(experiment).data
+
+        self.assertTrue(NimbusBucketRange.objects.filter(experiment=experiment).exists())
+
+        self.mock_kinto_client.create_record.assert_called_with(
+            data=data,
+            collection=settings.KINTO_COLLECTION_NIMBUS_MOBILE,
+            bucket=settings.KINTO_BUCKET,
+            if_not_exists=True,
+        )
+
+        self.assertTrue(
+            NimbusChangeLog.objects.filter(
+                experiment=experiment,
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
                 old_status=NimbusExperiment.Status.DRAFT,
                 new_status=NimbusExperiment.Status.ACCEPTED,
@@ -50,10 +75,12 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
         )
 
     def test_push_experiment_to_kinto_reraises_exception(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+        )
         self.mock_kinto_client.create_record.side_effect = Exception
-
         with self.assertRaises(Exception):
-            tasks.nimbus_push_experiment_to_kinto(self.experiment.id)
+            tasks.nimbus_push_experiment_to_kinto(experiment.id)
 
 
 class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
@@ -106,10 +133,12 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
     def test_check_with_reject_review(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.ACCEPTED,
+            application=NimbusExperiment.Application.DESKTOP,
         )
 
         self.mock_kinto_client.delete_record.return_value = {}
         self.mock_kinto_client.get_collection.side_effect = [
+            # Desktop responses
             {
                 "data": {
                     "status": KINTO_REJECTED_STATUS,
@@ -117,13 +146,20 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
                 }
             },
             {"data": {"status": "anything"}},
+            # Fenix responses
+            {"data": {"status": "anything"}},
+            {"data": {"status": "anything"}},
         ]
         self.mock_kinto_client.get_records.side_effect = [
+            # Desktop responses
             [{"id": "another-experiment"}],
             [
                 {"id": "another-experiment"},
                 {"id": experiment.slug},
             ],
+            # Fenix responses
+            [],
+            [],
         ]
         tasks.nimbus_check_kinto_push_queue()
 
