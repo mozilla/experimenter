@@ -26,13 +26,13 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
             at a time.{" "}
             <LinkExternal href={BRANCHES_DOC_URL}>Learn more</LinkExternal>
           </p>
-          {/* TODO: EXP-505 for accepting and saving edits to branches */}
           <FormBranches
             {...{
               experiment,
               featureConfig,
-              // TODO: supply this as default value, track changes within FormBranches
-              equalRatio: false,
+              /* TODO: EXP-505 for accepting and saving edits to branches */
+              onSave: async (update) => console.log("SAVE", update),
+              onNext: () => console.log("NEXT"),
             }}
           />
         </>
