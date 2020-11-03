@@ -1,4 +1,5 @@
 import graphene
+from django.contrib.auth import get_user_model
 from graphene_django.types import DjangoObjectType
 
 from experimenter.experiments.constants.nimbus import NimbusConstants
@@ -79,6 +80,12 @@ class NimbusProbeSetType(DjangoObjectType):
 class NimbusLabelValueType(graphene.ObjectType):
     label = graphene.String()
     value = graphene.String()
+
+
+class NimbusExperimentOwner(DjangoObjectType):
+    class Meta:
+        model = get_user_model()
+        fields = ("id", "username", "first_name", "last_name", "email")
 
 
 class NimbusExperimentType(DjangoObjectType):
