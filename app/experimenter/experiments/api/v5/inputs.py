@@ -65,10 +65,17 @@ class UpdateExperimentBranchesInput(graphene.InputObjectType):
 class UpdateExperimentProbeSetsInput(graphene.InputObjectType):
     client_mutation_id = graphene.String()
     nimbus_experiment_id = graphene.Int(required=True)
-    probe_set_ids = graphene.List(
+    primary_probe_set_ids = graphene.List(
         graphene.Int,
         required=True,
-        description="List of probeset ids that should be set on the experiment.",
+        description="List of primary probeset ids that should be set on the experiment.",
+    )
+    secondary_probe_set_ids = graphene.List(
+        graphene.Int,
+        required=True,
+        description=(
+            "List of secondary probeset ids that should be set on the experiment."
+        ),
     )
 
 
