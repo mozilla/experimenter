@@ -211,21 +211,59 @@ class NimbusBranchUpdateSerializer(
 class NimbusProbeSetUpdateSerializer(
     NimbusChangeLogMixin, NimbusStatusRestrictionMixin, serializers.ModelSerializer
 ):
-    probe_sets = serializers.PrimaryKeyRelatedField(
+    primary_probe_sets = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=NimbusProbeSet.objects.all()
+    )
+
+    secondary_probe_sets = serializers.PrimaryKeyRelatedField(
         many=True, queryset=NimbusProbeSet.objects.all()
     )
 
     class Meta:
         model = NimbusExperiment
-        fields = ("probe_sets",)
+        fields = ("primary_probe_sets", "secondary_probe_sets")
+
+    def validate_primary_probe_sets(self, value):
+        if len(value) > 2:
+            raise serializers.ValidationError(
+                "Exceeded maximum primary probe set limit of 2."
+            )
+        return value
+
+    def validate(self, data):
+        """Validate the probe sets don't overlap and have no more than 2 primary.
+
+        Note that the default DRF validation ensures all the probe id's are valid and
+        it will not save overlapping probesets. It does not however throw an error with
+        overlapping probesets, so that is checked explicitly here.
+
+        """
+        data = super().validate(data)
+        primary_probe_sets = set(data["primary_probe_sets"])
+        secondary_probe_sets = set(data["secondary_probe_sets"])
+        if primary_probe_sets.intersection(secondary_probe_sets):
+            raise serializers.ValidationError(
+                {
+                    "primary_probe_sets": (
+                        "Primary probe sets cannot overlap with secondary probe sets."
+                    )
+                }
+            )
+        return data
 
     def update(self, experiment, data):
-        probe_sets = data.pop("probe_sets")
+        primary_probe_sets = data.pop("primary_probe_sets")
+        secondary_probe_sets = data.pop("secondary_probe_sets")
         with transaction.atomic():
             experiment = super().update(experiment, data)
-            for probe_set in probe_sets:
+            experiment.probe_sets.clear()
+            for probe_set in primary_probe_sets:
                 experiment.probe_sets.add(
                     probe_set, through_defaults={"is_primary": True}
+                )
+            for probe_set in secondary_probe_sets:
+                experiment.probe_sets.add(
+                    probe_set, through_defaults={"is_primary": False}
                 )
             experiment.save()
         return experiment

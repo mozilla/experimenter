@@ -81,7 +81,11 @@ mutation ($input: UpdateExperimentProbeSetsInput!) {
     clientMutationId
     nimbusExperiment {
       id
-      probeSets {
+      primaryProbeSets {
+        id
+        name
+      }
+      secondaryProbeSets {
         id
         name
       }
@@ -322,7 +326,7 @@ class TestMutations(GraphQLTestCase):
 
     def test_update_experiment_probe_sets(self):
         user_email = "user@example.com"
-        probe_set = NimbusProbeSetFactory()
+        probe_sets = [NimbusProbeSetFactory() for i in range(3)]
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT, probe_sets=[]
         )
@@ -332,7 +336,8 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "nimbusExperimentId": experiment.id,
                     "clientMutationId": "randomid",
-                    "probeSetIds": [probe_set.id],
+                    "primaryProbeSetIds": [p.id for p in probe_sets[:2]],
+                    "secondaryProbeSetIds": [p.id for p in probe_sets[2:]],
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -344,11 +349,20 @@ class TestMutations(GraphQLTestCase):
             result["nimbusExperiment"],
             {
                 "id": str(experiment.id),
-                "probeSets": [{"name": probe_set.name, "id": str(probe_set.id)}],
+                "primaryProbeSets": [
+                    {"name": probe_set.name, "id": str(probe_set.id)}
+                    for probe_set in probe_sets[:2]
+                ],
+                "secondaryProbeSets": [
+                    {"name": probe_set.name, "id": str(probe_set.id)}
+                    for probe_set in probe_sets[2:]
+                ],
             },
         )
         experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(list(experiment.probe_sets.all()), [probe_set])
+        self.assertEqual(list(experiment.probe_sets.all()), probe_sets)
+        self.assertEqual(list(experiment.primary_probe_sets), probe_sets[:2])
+        self.assertEqual(list(experiment.secondary_probe_sets), probe_sets[2:])
 
     def test_update_experiment_probe_sets_error(self):
         user_email = "user@example.com"
@@ -361,7 +375,8 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "nimbusExperimentId": experiment.id,
                     "clientMutationId": "randomid",
-                    "probeSetIds": [123],
+                    "primaryProbeSetIds": [123],
+                    "secondaryProbeSetIds": [],
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -371,7 +386,7 @@ class TestMutations(GraphQLTestCase):
         result = content["data"]["updateExperimentProbeSets"]
         self.assertEqual(
             result["message"],
-            {"probe_sets": ['Invalid pk "123" - object does not exist.']},
+            {"primary_probe_sets": ['Invalid pk "123" - object does not exist.']},
         )
 
     def test_update_experiment_audience(self):
