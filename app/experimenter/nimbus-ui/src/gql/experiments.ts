@@ -40,6 +40,9 @@ export const GET_EXPERIMENT_QUERY = gql`
   query getExperiment($slug: String!) {
     experimentBySlug(slug: $slug) {
       id
+      owner {
+        email
+      }
       name
       slug
       status
@@ -91,6 +94,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       populationPercent
       totalEnrolledClients
       proposedEnrollment
+      proposedDuration
     }
   }
 `;

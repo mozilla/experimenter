@@ -6,17 +6,17 @@ import React from "react";
 import { storiesOf } from "@storybook/react";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { withLinks } from "@storybook/addon-links";
-import PageEditContainer from ".";
+import ContainerEditPage from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
 
 const { mock } = mockExperimentQuery("demo-slug");
 
-storiesOf("pages/EditContainer", module)
+storiesOf("components/ContainerEditPage", module)
   .addDecorator(withLinks)
   .add("basic", () => (
     <RouterSlugProvider mocks={[mock]}>
-      <PageEditContainer title="Howdy!" testId="PageEditContainer">
+      <ContainerEditPage title="Howdy!" testId="ContainerEditPage">
         {({ experiment }) => <p>{experiment.name}</p>}
-      </PageEditContainer>
+      </ContainerEditPage>
     </RouterSlugProvider>
   ));

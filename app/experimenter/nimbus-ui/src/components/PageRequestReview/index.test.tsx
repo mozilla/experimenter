@@ -15,6 +15,7 @@ describe("PageRequestReview", () => {
     await waitFor(() => {
       expect(screen.getByTestId("PageRequestReview")).toBeInTheDocument();
     });
+    expect(screen.getByTestId("table-summary")).toBeInTheDocument();
   });
 });
 
