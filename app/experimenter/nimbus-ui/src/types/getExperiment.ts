@@ -47,6 +47,7 @@ export interface getExperiment_experimentBySlug_probeSets {
 
 export interface getExperiment_experimentBySlug {
   __typename: "NimbusExperimentType";
+  id: string;
   name: string;
   slug: string;
   status: NimbusExperimentStatus | null;

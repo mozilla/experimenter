@@ -2,16 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import { getExperiment } from "../../types/getExperiment";
+import { useExitWarning } from "../../hooks";
+import { useConfig } from "../../hooks/useConfig";
 
 type FormOverviewProps = {
   isLoading: boolean;
   submitErrors: Record<string, string[]>;
-  applications: string[];
   experiment?: getExperiment["experimentBySlug"];
   onSubmit: (data: Record<string, any>, reset: Function) => void;
   onCancel?: (ev: React.FormEvent) => void;
@@ -21,7 +22,6 @@ type FormOverviewProps = {
 const FormOverview = ({
   isLoading,
   submitErrors,
-  applications,
   experiment,
   onSubmit,
   onCancel,
@@ -31,6 +31,12 @@ const FormOverview = ({
     mode: "onTouched",
   });
   const { isSubmitted, isValid, isDirty, touched } = formState;
+  const shouldWarnOnExit = useExitWarning();
+  const { application } = useConfig();
+
+  useEffect(() => {
+    shouldWarnOnExit(isDirty);
+  }, [shouldWarnOnExit, isDirty]);
 
   const handleSubmitAfterValidation = useCallback(
     (data: Record<string, any>) => {
@@ -131,13 +137,13 @@ const FormOverview = ({
         <Form.Control
           {...nameValidated("application")}
           as="select"
-          defaultValue={
-            experiment?.application?.toLowerCase().replace(/_/g, "-") || ""
-          }
+          defaultValue={experiment?.application || ""}
         >
           <option value="">Select...</option>
-          {applications.map((application, idx) => (
-            <option key={`application-${idx}`}>{application}</option>
+          {application!.map((app, idx) => (
+            <option key={`application-${idx}`} value={app!.value as string}>
+              {app!.label}
+            </option>
           ))}
         </Form.Control>
         <Form.Text className="text-muted">
@@ -148,9 +154,10 @@ const FormOverview = ({
 
       {experiment && (
         <Form.Group controlId="publicDescription">
-          <Form.Label>Public Description</Form.Label>
+          <Form.Label>Public description</Form.Label>
           <Form.Control
-            {...nameValidated("publicDescription")}
+            ref={register}
+            name="publicDescription"
             as="textarea"
             rows={3}
             defaultValue={experiment?.publicDescription || ""}
@@ -165,7 +172,12 @@ const FormOverview = ({
       <div className="d-flex flex-row-reverse bd-highlight">
         {onNext && (
           <div className="p-2">
-            <button onClick={handleNext} className="btn btn-secondary">
+            <button
+              onClick={handleNext}
+              className="btn btn-secondary"
+              disabled={isLoading || !isValid || isDirty}
+              data-sb-kind="pages/EditBranches"
+            >
               Next
             </button>
           </div>
@@ -176,7 +188,7 @@ const FormOverview = ({
             type="submit"
             onClick={handleSubmit(handleSubmitAfterValidation)}
             className="btn btn-primary"
-            disabled={isLoading || !isValid || (!experiment && !isDirty)}
+            disabled={isLoading || !isValid || !isDirty}
             data-sb-kind="pages/EditOverview"
           >
             {isLoading ? (

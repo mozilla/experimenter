@@ -3,37 +3,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import {
-  render,
-  screen,
-  fireEvent,
-  cleanup,
-  act,
-} from "@testing-library/react";
-import { MockedCache } from "../../lib/mocks";
+import { render, screen, fireEvent, act } from "@testing-library/react";
+import { MockedCache, mockExperimentMutation } from "../../lib/mocks";
 import PageNew from ".";
 import { navigate } from "@reach/router";
 import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { SUBMIT_ERROR } from "../../lib/constants";
+import { MockedResponse } from "@apollo/client/testing";
 
 jest.mock("@reach/router", () => ({
   navigate: jest.fn(),
 }));
 
 describe("PageNew", () => {
+  let mutationMock: any;
+
   beforeEach(() => {
-    origConsoleLog = global.console.log;
-    global.console.log = jest.fn();
     mockSubmit = {
       name: "Foo bar baz",
       hypothesis: "Some thing",
       application: "firefox-desktop",
     };
-  });
-
-  afterEach(() => {
-    global.console.log = origConsoleLog;
-    cleanup();
+    mutationMock = mockExperimentMutation(
+      CREATE_EXPERIMENT_MUTATION,
+      mockSubmit,
+      "createExperiment",
+      {
+        experiment: { ...mockSubmit, slug: "foo-bar-baz" },
+      },
+    );
   });
 
   it("renders as expected", async () => {
@@ -44,8 +42,7 @@ describe("PageNew", () => {
   });
 
   it("handles experiment form submission", async () => {
-    const gqlMocks = mkGqlMocks();
-    render(<Subject {...{ gqlMocks }} />);
+    render(<Subject mocks={[mutationMock]} />);
     await act(async () => {
       fireEvent.click(screen.getByTestId("submit"));
     });
@@ -56,10 +53,8 @@ describe("PageNew", () => {
     const expectedErrors = {
       name: { message: "already exists" },
     };
-    const gqlMocks = mkGqlMocks({
-      message: expectedErrors,
-    });
-    render(<Subject {...{ gqlMocks }} />);
+    mutationMock.result.data.createExperiment.message = expectedErrors;
+    render(<Subject mocks={[mutationMock]} />);
     await act(async () => {
       fireEvent.click(screen.getByTestId("submit"));
     });
@@ -69,11 +64,9 @@ describe("PageNew", () => {
   });
 
   it("handles experiment form submission with bad server data", async () => {
-    const gqlMocks = mkGqlMocks();
     // @ts-ignore - intentionally breaking this type for error handling
-    delete gqlMocks[0].result.data.createExperiment;
-
-    render(<Subject {...{ gqlMocks }} />);
+    delete mutationMock.result.data.createExperiment;
+    render(<Subject mocks={[mutationMock]} />);
     await act(async () => {
       fireEvent.click(screen.getByTestId("submit"));
     });
@@ -83,10 +76,8 @@ describe("PageNew", () => {
   });
 
   it("handles experiment form submission with server API error", async () => {
-    const gqlMocks = mkGqlMocks();
-    gqlMocks[0].result.errors = [new Error("an error")];
-
-    render(<Subject {...{ gqlMocks }} />);
+    mutationMock.result.errors = [new Error("an error")];
+    render(<Subject mocks={[mutationMock]} />);
     await act(async () => {
       fireEvent.click(screen.getByTestId("submit"));
     });
@@ -98,45 +89,22 @@ describe("PageNew", () => {
   it("handles experiment form cancellation", () => {
     render(<Subject />);
     fireEvent.click(screen.getByTestId("cancel"));
-    expect(global.console.log).toHaveBeenCalledWith("CANCEL TBD");
+    expect(navigate).toHaveBeenCalledWith(".");
   });
 
-  const mkGqlMocks = ({
-    message = "success" as string | Record<string, any>,
-    status = 200,
-    nimbusExperiment = { ...mockSubmit, slug: "foo-bar-baz" },
-  } = {}) => [
-    {
-      request: {
-        query: CREATE_EXPERIMENT_MUTATION,
-        variables: {
-          input: mockSubmit,
-        },
-      },
-      result: {
-        errors: undefined as undefined | any[],
-        data: {
-          createExperiment: {
-            clientMutationId: "8675309",
-            message,
-            status,
-            nimbusExperiment,
-          },
-        },
-      },
-    },
-  ];
-
-  const Subject = ({ gqlMocks = [] }: { gqlMocks?: any[] }) => {
+  const Subject = ({
+    mocks = [],
+  }: {
+    mocks?: MockedResponse<Record<string, any>>[];
+  }) => {
     return (
-      <MockedCache mocks={gqlMocks}>
+      <MockedCache {...{ mocks }}>
         <PageNew />
       </MockedCache>
     );
   };
 });
 
-let origConsoleLog: typeof global.console.log;
 let mockSubmit: Record<string, string> = {};
 
 // Mocking form component because validation is exercised in its own tests.

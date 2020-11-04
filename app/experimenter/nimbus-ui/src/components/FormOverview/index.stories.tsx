@@ -4,35 +4,29 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
+import { Subject } from "./mocks";
 import { action } from "@storybook/addon-actions";
-import FormOverview from ".";
+import { mockExperimentQuery } from "../../lib/mocks";
 
-const APPLICATIONS = ["firefox-desktop", "fenix", "reference-browser"];
+const onSubmit = action("onSubmit");
+const onCancel = action("onCancel");
+const onNext = action("onNext");
 
 storiesOf("components/FormOverview", module)
-  .add("basic", () => <Subject />)
-  .add("loading", () => <Subject isLoading />)
+  .add("basic", () => <Subject {...{ onSubmit, onCancel }} />)
+  .add("loading", () => <Subject isLoading {...{ onSubmit, onCancel }} />)
   .add("errors", () => (
     <Subject
       submitErrors={{
-        "*": "Big bad server thing broke!",
-        name: "This name is terrible.",
-        hypothesis: "You call this a hypothesis?",
-        application: "That's a potato.",
+        "*": ["Big bad server thing broke!"],
+        name: ["This name is terrible."],
+        hypothesis: ["You call this a hypothesis?"],
+        application: ["That's a potato."],
       }}
+      {...{ onSubmit, onCancel }}
     />
-  ));
-
-const Subject = ({
-  isLoading = false,
-  submitErrors = {},
-  onSubmit = action("onSubmit"),
-  onCancel = action("onCancel"),
-  applications = APPLICATIONS,
-} = {}) => (
-  <div className="p-5">
-    <FormOverview
-      {...{ isLoading, submitErrors, onSubmit, onCancel, applications }}
-    />
-  </div>
-);
+  ))
+  .add("with experiment", () => {
+    const { data: experiment } = mockExperimentQuery("boo");
+    return <Subject {...{ experiment, onSubmit, onNext }} />;
+  });
