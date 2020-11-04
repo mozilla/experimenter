@@ -4,8 +4,7 @@
 
 import React from "react";
 import { Operation } from "@apollo/client";
-import { MockedProvider } from "@apollo/client/testing";
-import { createCache, SimulatedMockLink } from "../../lib/mocks";
+import { MockedCache, SimulatedMockLink } from "../../lib/mocks";
 import { storiesOf } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
 import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
@@ -48,8 +47,8 @@ const mkSimulatedQueries = ({
 const Subject = ({ simulatedQueries = mkSimulatedQueries() }) => {
   const mockLink = new SimulatedMockLink(simulatedQueries, false);
   return (
-    <MockedProvider link={mockLink} addTypename={false} cache={createCache()}>
+    <MockedCache link={mockLink} addTypename={false}>
       <PageNew />
-    </MockedProvider>
+    </MockedCache>
   );
 };

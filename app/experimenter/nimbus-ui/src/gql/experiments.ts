@@ -36,13 +36,23 @@ export const UPDATE_EXPERIMENT_OVERVIEW_MUTATION = gql`
   }
 `;
 
+export const UPDATE_EXPERIMENT_STATUS_MUTATION = gql`
+  mutation updateExperimentStatus($input: UpdateExperimentStatusInput!) {
+    updateExperimentStatus(input: $input) {
+      clientMutationId
+      message
+      status
+      nimbusExperiment {
+        status
+      }
+    }
+  }
+`;
+
 export const GET_EXPERIMENT_QUERY = gql`
   query getExperiment($slug: String!) {
     experimentBySlug(slug: $slug) {
       id
-      owner {
-        email
-      }
       name
       slug
       status
@@ -50,6 +60,10 @@ export const GET_EXPERIMENT_QUERY = gql`
       hypothesis
       application
       publicDescription
+
+      owner {
+        email
+      }
 
       referenceBranch {
         name
