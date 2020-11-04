@@ -11,21 +11,21 @@ import PageExperimentNotFound from "../PageExperimentNotFound";
 import { useExperiment } from "../../hooks";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
-type PageEditContainerChildrenProps = {
+type ContainerEditPageChildrenProps = {
   experiment: getExperiment_experimentBySlug;
 };
 
-type PageEditContainerProps = {
-  children: (props: PageEditContainerChildrenProps) => React.ReactNode | null;
+type ContainerEditPageProps = {
+  children: (props: ContainerEditPageChildrenProps) => React.ReactNode | null;
   testId: string;
   title: string;
 } & RouteComponentProps;
 
-const PageEditContainer = ({
+const ContainerEditPage = ({
   children,
   testId,
   title,
-}: PageEditContainerProps) => {
+}: ContainerEditPageProps) => {
   const { slug } = useParams();
   const { experiment, notFound, loading } = useExperiment(slug);
 
@@ -58,4 +58,4 @@ const PageEditContainer = ({
   );
 };
 
-export default PageEditContainer;
+export default ContainerEditPage;

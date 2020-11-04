@@ -4,7 +4,7 @@
 
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
-import PageEditContainer from ".";
+import ContainerEditPage from ".";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery } from "../../lib/mocks";
 
@@ -13,7 +13,7 @@ describe("PageRequestReview", () => {
     const { mock } = mockExperimentQuery("demo-slug");
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
-      expect(screen.getByTestId("PageEditContainer")).toBeInTheDocument();
+      expect(screen.getByTestId("ContainerEditPage")).toBeInTheDocument();
       expect(screen.getByTestId("page-title")).toBeInTheDocument();
       expect(screen.getByTestId("page-title")).toHaveTextContent("Howdy!");
       expect(screen.getByTestId("child")).toBeInTheDocument();
@@ -40,8 +40,8 @@ const Subject = ({
   mocks?: React.ComponentProps<typeof RouterSlugProvider>["mocks"];
 }) => (
   <RouterSlugProvider {...{ mocks }}>
-    <PageEditContainer title="Howdy!" testId="PageEditContainer">
+    <ContainerEditPage title="Howdy!" testId="ContainerEditPage">
       {({ experiment }) => <p data-testid="child">{experiment.slug}</p>}
-    </PageEditContainer>
+    </ContainerEditPage>
   </RouterSlugProvider>
 );
