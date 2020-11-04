@@ -20,9 +20,26 @@ export const CREATE_EXPERIMENT_MUTATION = gql`
   }
 `;
 
+export const UPDATE_EXPERIMENT_OVERVIEW_MUTATION = gql`
+  mutation updateExperimentOverview($input: UpdateExperimentInput!) {
+    updateExperimentOverview(input: $input) {
+      clientMutationId
+      message
+      status
+      nimbusExperiment {
+        name
+        hypothesis
+        application
+        publicDescription
+      }
+    }
+  }
+`;
+
 export const GET_EXPERIMENT_QUERY = gql`
   query getExperiment($slug: String!) {
     experimentBySlug(slug: $slug) {
+      id
       name
       slug
       status

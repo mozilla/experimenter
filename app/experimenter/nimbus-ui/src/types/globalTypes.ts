@@ -86,6 +86,15 @@ export interface CreateExperimentInput {
   hypothesis: string;
 }
 
+export interface UpdateExperimentInput {
+  clientMutationId?: string | null;
+  name?: string | null;
+  application?: NimbusExperimentApplication | null;
+  publicDescription?: string | null;
+  hypothesis?: string | null;
+  id: string;
+}
+
 //==============================================================
 // END Enums and Input Objects
 //==============================================================

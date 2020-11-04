@@ -21,9 +21,6 @@ const TRAINING_DOC_URL =
 type PageNewProps = {} & RouteComponentProps;
 
 const PageNew: React.FunctionComponent<PageNewProps> = () => {
-  // TODO: EXP-462 Get this from constants / config loaded at app start?
-  const applications = ["firefox-desktop", "fenix", "reference-browser"];
-
   const [createExperiment, { loading }] = useMutation<
     { createExperiment: CreateExperimentResult },
     { input: CreateExperimentInput }
@@ -32,9 +29,7 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
 
   const onFormCancel = useCallback(() => {
-    // TODO: EXP-462 cancel creation
-    // navigate(".")
-    console.log("CANCEL TBD");
+    navigate(".");
   }, []);
 
   const onFormSubmit = useCallback(
@@ -78,7 +73,6 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
           {...{
             isLoading: loading,
             submitErrors,
-            applications,
             onSubmit: onFormSubmit,
             onCancel: onFormCancel,
           }}
