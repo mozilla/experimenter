@@ -59,7 +59,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       slug: "up-sized-cohesive-complexity",
       description:
         "Quickly above also mission action. Become thing item institution plan.\nImpact friend wonder. Interview strategy nature question. Admit room without impact its enter forward.",
-      application: NimbusFeatureConfigApplication.REFERENCE_BROWSER,
+      application: NimbusFeatureConfigApplication.FENIX,
       ownerEmail: "sheila43@yahoo.com",
       schema: null,
     },
@@ -258,7 +258,14 @@ export const mockExperimentQuery = (
                 featureEnabled: true,
               },
             ],
-            probeSets: [
+            primaryProbeSets: [
+              {
+                __typename: "NimbusProbeSetType",
+                slug: "enterprise-wide-exuding-focus-group",
+                name: "Enterprise-wide exuding focus group",
+              },
+            ],
+            secondaryProbeSets: [
               {
                 __typename: "NimbusProbeSetType",
                 slug: "enterprise-wide-exuding-focus-group",
