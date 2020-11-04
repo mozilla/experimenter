@@ -1,4 +1,5 @@
-WAIT_FOR_DB = /app/bin/wait-for-it.sh db:5432 &&
+WAIT_FOR_DB = /app/bin/wait-for-it.sh -t 30 db:5432 &&
+WAIT_FOR_RUNSERVER = /app/bin/wait-for-it.sh -t 30 localhost:7001 &&
 
 COMPOSE = docker-compose -f docker-compose.yml
 COMPOSE_TEST = docker-compose -f docker-compose-test.yml
@@ -11,6 +12,7 @@ PY_IMPORT_SORT =  python -m isort . --profile black
 PY_IMPORT_CHECK =  python -m isort . --profile black --check
 PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
+PYTHON_RUNSERVER = DEBUG=True python manage.py runserver 0:7001
 ESLINT_CORE = yarn workspace @experimenter/core lint
 ESLINT_FIX_CORE = yarn workspace @experimenter/core lint-fix
 ESLINT_RAPID = yarn workspace @experimenter/rapid lint:eslint
@@ -23,6 +25,8 @@ TYPECHECK_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:tsc
 JS_TEST_CORE = yarn workspace @experimenter/core test
 JS_TEST_RAPID = yarn workspace @experimenter/rapid test
 JS_TEST_NIMBUS_UI = CI=yes yarn workspace @experimenter/nimbus-ui test
+NIMBUS_TYPES_CHECK = yarn workspace @experimenter/nimbus-ui types-check
+NIMBUS_TYPES_GENERATE = yarn workspace @experimenter/nimbus-ui types-generate
 FLAKE8 = flake8 .
 BLACK_CHECK = black -l 90 --check --diff . --exclude node_modules
 BLACK_FIX = black -l 90 . --exclude node_modules
@@ -33,6 +37,9 @@ LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.js
 LOAD_DUMMY_EXPERIMENTS = python manage.py load_dummy_experiments
 MIGRATE = python manage.py migrate
 PUBLISH_STORYBOOKS = npx github:mozilla-fxa/storybook-gcp-publisher --commit-summary commit-summary.txt --commit-description commit-description.txt --version-json version.json
+PYTHON_RUNSERVER_MIGRATED = $(WAIT_FOR_DB) $(MIGRATE)&&$(PYTHON_RUNSERVER)&$(WAIT_FOR_RUNSERVER)
+NIMBUS_TYPES_CHECK_RUNSERVER =  $(PYTHON_RUNSERVER_MIGRATED) $(NIMBUS_TYPES_CHECK)
+NIMBUS_TYPES_GENERATE_RUNSERVER = $(PYTHON_RUNSERVER_MIGRATED) $(NIMBUS_TYPES_GENERATE)
 
 ssl: nginx/key.pem nginx/cert.pem
 
@@ -56,8 +63,14 @@ build_prod: build
 test_build: build
 	$(COMPOSE_TEST) build
 
+types_check: build
+	$(COMPOSE_TEST) run app sh -c "$(NIMBUS_TYPES_CHECK_RUNSERVER)"
+
+types_generate: build
+	$(COMPOSE_TEST) run app sh -c "$(NIMBUS_TYPES_GENERATE_RUNSERVER)"
+
 check: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(ESLINT_VISUALIZATION)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_RAPID)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)" "$(JS_TEST_NIMBUS_UI)"'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(NIMBUS_TYPES_CHECK_RUNSERVER)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(ESLINT_VISUALIZATION)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_RAPID)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)" "$(JS_TEST_NIMBUS_UI)"'
 
 compose_build: build ssl
 	$(COMPOSE)  build
