@@ -25,7 +25,7 @@ class MigrationTestCase(TransactionTestCase):
         self.executor.migrate(self.migrate_to)
 
 
-class TestMigration(MigrationTestCase):
+class TestMigrationVersion(MigrationTestCase):
 
     migrate_from = [("experiments", "0121_prune_add_version_changelogs")]
     migrate_to = [("experiments", "0122_prune_all_add_version_changelogs")]
@@ -65,4 +65,60 @@ class TestMigration(MigrationTestCase):
         self.assertEqual(ExperimentChangeLog.objects.count(), 1)
         self.assertTrue(
             ExperimentChangeLog.objects.filter(message="Something Else").exists()
+        )
+
+
+class TestMigrationPercent(MigrationTestCase):
+
+    migrate_from = [("experiments", "0132_auto_20201103_1710")]
+    migrate_to = [("experiments", "0133_prune_pop_percent_logs")]
+
+    def test_migration(self):
+
+        experiment = ExperimentFactory.create()
+        user = UserFactory.create()
+
+        ExperimentChangeLog.objects.create(
+            experiment=experiment,
+            message="Something Else",
+            changed_by=user,
+        )
+
+        ExperimentChangeLog.objects.create(
+            experiment=experiment,
+            message="Updated Population Percent",
+            changed_by=user,
+            changed_values={},
+        )
+
+        ExperimentChangeLog.objects.create(
+            experiment=experiment,
+            message="Updated Population Percent",
+            changed_by=user,
+            changed_values={
+                "population_percent": {
+                    "old_value": "2.0000",
+                    "new_value": "3.0000",
+                    "display_name": "Population Percent",
+                }
+            },
+        )
+
+        self.migrate_to_dest()
+
+        self.assertEqual(ExperimentChangeLog.objects.count(), 2)
+        self.assertTrue(
+            ExperimentChangeLog.objects.filter(message="Something Else").exists()
+        )
+        self.assertTrue(
+            ExperimentChangeLog.objects.filter(
+                message="Updated Population Percent",
+                changed_values={
+                    "population_percent": {
+                        "old_value": "2.0000",
+                        "new_value": "3.0000",
+                        "display_name": "Population Percent",
+                    }
+                },
+            ).exists()
         )

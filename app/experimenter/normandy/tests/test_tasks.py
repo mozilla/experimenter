@@ -475,6 +475,43 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
 
         self.assertFalse(experiment.changes.filter(message="Added Version(s)").exists())
 
+    def test_live_experiment_rounds_population_percent_correctly(self):
+        experiment = ExperimentFactory.create(
+            status=Experiment.STATUS_LIVE,
+            normandy_id=1234,
+            population_percent=decimal.Decimal("7.7778"),
+        )
+
+        mock_response_data = {
+            "approved_revision": {
+                "enabled": True,
+                "filter_object": [
+                    {
+                        "count": 700,
+                        "namespace": "first-run",
+                        "start": 0,
+                        "total": 9000,
+                        "type": "namespaceSample",
+                    }
+                ],
+            }
+        }
+        mock_response = mock.Mock()
+        mock_response.json = mock.Mock()
+        mock_response.json.return_value = mock_response_data
+        mock_response.raise_for_status = mock.Mock()
+        mock_response.raise_for_status.side_effect = None
+        mock_response.status_code = 200
+
+        self.mock_normandy_requests_get.return_value = mock_response
+
+        tasks.update_launched_experiments()
+        experiment = Experiment.objects.get(normandy_id=1234)
+        self.assertEqual(experiment.population_percent, decimal.Decimal("7.7778"))
+        self.assertFalse(
+            experiment.changes.filter(message="Updated Population Percent").exists()
+        )
+
     def test_live_isHighPopulation_update(self):
         experiment = ExperimentFactory.create(
             type=Experiment.TYPE_PREF,
