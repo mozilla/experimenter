@@ -15,7 +15,8 @@
     "storybook": "start-storybook -p 3001",
     "build-storybook": "build-storybook",
     "eject": "react-scripts eject",
-    "types": "NODE_TLS_REJECT_UNAUTHORIZED=0 apollo codegen:generate --target typescript --endpoint https://localhost/api/v5/graphql --outputFlat src/types"
+    "types-check": "NODE_TLS_REJECT_UNAUTHORIZED=0 apollo codegen:generate --target typescript --endpoint http://localhost:7001/api/v5/graphql --outputFlat /dev/null",
+    "types-generate": "NODE_TLS_REJECT_UNAUTHORIZED=0 apollo codegen:generate --target typescript --endpoint http://localhost:7001/api/v5/graphql --outputFlat src/types"
   },
   "jest": {
     "collectCoverageFrom": [
