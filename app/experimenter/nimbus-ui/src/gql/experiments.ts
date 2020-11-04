@@ -74,7 +74,12 @@ export const GET_EXPERIMENT_QUERY = gql`
         schema
       }
 
-      probeSets {
+      primaryProbeSets {
+        slug
+        name
+      }
+
+      secondaryProbeSets {
         slug
         name
       }
