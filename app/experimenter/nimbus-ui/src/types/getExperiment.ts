@@ -39,7 +39,13 @@ export interface getExperiment_experimentBySlug_featureConfig {
   schema: string | null;
 }
 
-export interface getExperiment_experimentBySlug_probeSets {
+export interface getExperiment_experimentBySlug_primaryProbeSets {
+  __typename: "NimbusProbeSetType";
+  slug: string;
+  name: string;
+}
+
+export interface getExperiment_experimentBySlug_secondaryProbeSets {
   __typename: "NimbusProbeSetType";
   slug: string;
   name: string;
@@ -57,7 +63,8 @@ export interface getExperiment_experimentBySlug {
   referenceBranch: getExperiment_experimentBySlug_referenceBranch | null;
   treatmentBranches: (getExperiment_experimentBySlug_treatmentBranches | null)[] | null;
   featureConfig: getExperiment_experimentBySlug_featureConfig | null;
-  probeSets: getExperiment_experimentBySlug_probeSets[];
+  primaryProbeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[] | null;
+  secondaryProbeSets: (getExperiment_experimentBySlug_secondaryProbeSets | null)[] | null;
   channels: (NimbusExperimentChannel | null)[] | null;
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion | null;
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug | null;
