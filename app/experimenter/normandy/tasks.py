@@ -166,11 +166,15 @@ def update_population_percent(experiment, recipe_data, filter_objects):
         "namespaceSample"
     ):
 
-        percent_decimal = bucket_sample["count"] / bucket_sample["total"] * 100
-        rounded_decimal = format(percent_decimal, ".4f")
+        decimal.getcontext().prec = 5
+        percent_decimal = (
+            decimal.Decimal(bucket_sample["count"])
+            / decimal.Decimal(bucket_sample["total"])
+            * decimal.Decimal(100)
+        )
 
-        if str(experiment.population_percent) != rounded_decimal:
-            changed_data = {"population_percent": rounded_decimal}
+        if experiment.population_percent != percent_decimal:
+            changed_data = {"population_percent": percent_decimal}
 
     if changed_data:
         user_email = (
