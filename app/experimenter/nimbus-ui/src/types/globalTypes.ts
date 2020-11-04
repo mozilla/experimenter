@@ -10,7 +10,6 @@
 export enum NimbusExperimentApplication {
   DESKTOP = "DESKTOP",
   FENIX = "FENIX",
-  REFERENCE = "REFERENCE",
 }
 
 export enum NimbusExperimentChannel {
@@ -67,7 +66,6 @@ export enum NimbusExperimentTargetingConfigSlug {
 export enum NimbusFeatureConfigApplication {
   FENIX = "FENIX",
   FIREFOX_DESKTOP = "FIREFOX_DESKTOP",
-  REFERENCE_BROWSER = "REFERENCE_BROWSER",
 }
 
 /**
@@ -84,6 +82,15 @@ export interface CreateExperimentInput {
   application: NimbusExperimentApplication;
   publicDescription?: string | null;
   hypothesis: string;
+}
+
+export interface UpdateExperimentInput {
+  clientMutationId?: string | null;
+  name?: string | null;
+  application?: NimbusExperimentApplication | null;
+  publicDescription?: string | null;
+  hypothesis?: string | null;
+  id: string;
 }
 
 //==============================================================
