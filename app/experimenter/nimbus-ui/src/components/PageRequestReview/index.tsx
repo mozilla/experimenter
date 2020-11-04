@@ -4,14 +4,15 @@
 
 import React from "react";
 import { RouteComponentProps } from "@reach/router";
-import PageEditContainer from "../PageEditContainer";
+import ContainerEditPage from "../ContainerEditPage";
+import TableSummary from "../TableSummary";
 
 type PageRequestReviewProps = {} & RouteComponentProps;
 
 const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = () => (
-  <PageEditContainer title="Review & Launch" testId="PageRequestReview">
-    {({ experiment }) => <p>{experiment.name}</p>}
-  </PageEditContainer>
+  <ContainerEditPage title="Review &#38; Launch" testId="PageRequestReview">
+    {({ experiment }) => <TableSummary {...{ experiment }} />}
+  </ContainerEditPage>
 );
 
 export default PageRequestReview;

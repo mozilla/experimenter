@@ -50,6 +50,11 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       label: "Desktop Beta",
       value: "DESKTOP_BETA",
     },
+    {
+      __typename: "NimbusLabelValueType",
+      label: "Desktop Nightly",
+      value: "DESKTOP_NIGHTLY",
+    },
   ],
   featureConfig: [
     {
@@ -114,8 +119,8 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
   targetingConfigSlug: [
     {
       __typename: "NimbusLabelValueType",
-      label: "First Run",
-      value: "FIRST_RUN",
+      label: "Us Only",
+      value: "US_ONLY",
     },
   ],
 };
@@ -229,6 +234,10 @@ export const mockExperimentQuery = (
           {
             __typename: "NimbusExperimentType",
             id: "1",
+            owner: {
+              __typename: "NimbusExperimentOwner",
+              email: "example@mozilla.com",
+            },
             name: "Open-architected background installation",
             slug,
             status: "DRAFT",
@@ -268,16 +277,17 @@ export const mockExperimentQuery = (
             secondaryProbeSets: [
               {
                 __typename: "NimbusProbeSetType",
-                slug: "enterprise-wide-exuding-focus-group",
-                name: "Enterprise-wide exuding focus group",
+                slug: "public-key-intangible-graphical-user-interface",
+                name: "Public-key intangible Graphical User Interface",
               },
             ],
-            channels: ["Nightly", "Beta"],
-            firefoxMinVersion: "A_83_",
+            channels: ["DESKTOP_NIGHTLY", "DESKTOP_BETA"],
+            firefoxMinVersion: "FIREFOX_80",
             targetingConfigSlug: "US_ONLY",
             populationPercent: 40,
             totalEnrolledClients: 68000,
-            proposedEnrollment: 15,
+            proposedEnrollment: 1,
+            proposedDuration: 28,
           },
           modifications,
         );
