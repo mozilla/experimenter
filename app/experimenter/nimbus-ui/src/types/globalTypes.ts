@@ -10,7 +10,6 @@
 export enum NimbusExperimentApplication {
   DESKTOP = "DESKTOP",
   FENIX = "FENIX",
-  REFERENCE = "REFERENCE",
 }
 
 export enum NimbusExperimentChannel {
@@ -67,7 +66,6 @@ export enum NimbusExperimentTargetingConfigSlug {
 export enum NimbusFeatureConfigApplication {
   FENIX = "FENIX",
   FIREFOX_DESKTOP = "FIREFOX_DESKTOP",
-  REFERENCE_BROWSER = "REFERENCE_BROWSER",
 }
 
 /**
