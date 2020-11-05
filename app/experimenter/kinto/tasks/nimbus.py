@@ -111,7 +111,7 @@ def nimbus_check_kinto_push_queue():
             kinto_client.delete_rejected_record(rejected_slug)
 
         if kinto_client.has_pending_review():
-            metrics.incr("check_kinto_push_queue.{collection}_pending_review")
+            metrics.incr(f"check_kinto_push_queue.{collection}_pending_review")
             return
 
         queued_experiments = NimbusExperiment.objects.filter(
@@ -119,9 +119,11 @@ def nimbus_check_kinto_push_queue():
         )
         if queued_experiments.exists():
             nimbus_push_experiment_to_kinto.delay(queued_experiments.first().id)
-            metrics.incr("check_kinto_push_queue.{collection}_queued_experiment_selected")
+            metrics.incr(
+                f"check_kinto_push_queue.{collection}_queued_experiment_selected"
+            )
         else:
-            metrics.incr("check_kinto_push_queue.{collection}_no_experiments_queued")
+            metrics.incr(f"check_kinto_push_queue.{collection}_no_experiments_queued")
 
     metrics.incr("check_kinto_push_queue.completed")
 
@@ -136,12 +138,12 @@ def nimbus_check_experiments_are_live():
     """
     metrics.incr("check_experiments_are_live.started")
 
+    accepted_experiments = NimbusExperiment.objects.filter(
+        status=NimbusExperiment.Status.ACCEPTED
+    )
+
     for collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.values():
         kinto_client = KintoClient(collection)
-
-        accepted_experiments = NimbusExperiment.objects.filter(
-            status=NimbusExperiment.Status.ACCEPTED
-        )
 
         records = kinto_client.get_main_records()
         record_ids = [r.get("id") for r in records]
@@ -149,7 +151,7 @@ def nimbus_check_experiments_are_live():
         for experiment in accepted_experiments:
             if experiment.slug in record_ids:
                 logger.info(
-                    "{experiment} status is being updated to live".format(
+                    f"{experiment} status is being updated to live".format(
                         experiment=experiment
                     )
                 )
@@ -159,7 +161,7 @@ def nimbus_check_experiments_are_live():
 
                 generate_nimbus_changelog(experiment, get_kinto_user())
 
-                logger.info("{experiment} status is set to Live")
+                logger.info(f"{experiment} status is set to Live")
 
     metrics.incr("check_experiments_are_live.completed")
 
@@ -174,17 +176,20 @@ def nimbus_check_experiments_are_complete():
     """
     metrics.incr("check_experiments_are_complete.started")
 
-    for collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.values():
+    for application, collection in NimbusExperiment.KINTO_APPLICATION_COLLECTION.items():
         kinto_client = KintoClient(collection)
 
         live_experiments = NimbusExperiment.objects.filter(
-            status=NimbusExperiment.Status.LIVE
+            status=NimbusExperiment.Status.LIVE,
+            application=application,
         )
 
         records = kinto_client.get_main_records()
         record_ids = [r.get("id") for r in records]
+        print("found record ids", record_ids)
 
         for experiment in live_experiments:
+            print("checking", experiment)
             if (
                 experiment.should_end
                 and not experiment.emails.filter(
@@ -195,7 +200,7 @@ def nimbus_check_experiments_are_complete():
 
             if experiment.slug not in record_ids:
                 logger.info(
-                    "{experiment} status is being updated to complete".format(
+                    f"{experiment} status is being updated to complete".format(
                         experiment=experiment
                     )
                 )
@@ -205,6 +210,6 @@ def nimbus_check_experiments_are_complete():
 
                 generate_nimbus_changelog(experiment, get_kinto_user())
 
-                logger.info("{experiment} status is set to Complete")
+                logger.info(f"{experiment} status is set to Complete")
 
     metrics.incr("check_experiments_are_complete.completed")

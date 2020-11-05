@@ -60,6 +60,11 @@ class KintoClient:
             bucket=settings.KINTO_BUCKET,
             collection=self.collection,
         )
+        self.kinto_http_client.patch_collection(
+            id=self.collection,
+            data={"status": KINTO_REVIEW_STATUS},
+            bucket=settings.KINTO_BUCKET,
+        )
 
     def get_main_records(self):
         return self.kinto_http_client.get_records(
