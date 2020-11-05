@@ -55,10 +55,10 @@ secretkey:
 	openssl rand -hex 24
 
 build:
-	./scripts/build.sh
+	docker build --target dev -f app/Dockerfile -t app:dev app/
 
 build_prod: build
-	./scripts/build_deploy.sh
+	docker build --target deploy -f app/Dockerfile -t app:deploy app/
 
 test_build: build
 	$(COMPOSE_TEST) build

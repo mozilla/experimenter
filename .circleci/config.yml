@@ -4,6 +4,25 @@ jobs:
     machine:
       docker_layer_caching: true
       image: ubuntu-1604:202007-01 # Ubuntu 16.04, Docker v19.03.12, Docker Compose v1.26.1
+    resource_class: large
+    working_directory: ~/experimenter
+    steps:
+      - run:
+          name: Docker info
+          command: docker -v
+      - run:
+          name: Docker compose info
+          command: docker-compose -v
+      - checkout
+      - run:
+          name: Build docker images
+          command:
+            make test_build
+
+  check:
+    machine:
+      docker_layer_caching: true
+      image: ubuntu-1604:202007-01 # Ubuntu 16.04, Docker v19.03.12, Docker Compose v1.26.1
     resource_class: xlarge
     working_directory: ~/experimenter
     steps:
@@ -15,14 +34,28 @@ jobs:
           command: docker-compose -v
       - checkout
       - run:
-          name: Build images
-          command: make test_build
-      - run:
           name: Run tests and linting
           command: make check
+
+  publish_storybooks:
+    machine:
+      docker_layer_caching: true
+      image: ubuntu-1604:202007-01 # Ubuntu 16.04, Docker v19.03.12, Docker Compose v1.26.1
+    resource_class: medium
+    working_directory: ~/experimenter
+    steps:
+      - run:
+          name: Docker info
+          command: docker -v
+      - run:
+          name: Docker compose info
+          command: docker-compose -v
+      - checkout
       - run:
           name: Publish Storybooks
-          command: make publish_storybooks
+          command: |
+            ./scripts/store_git_info.sh
+            make publish_storybooks
 
   integration:
     machine:
@@ -39,33 +72,25 @@ jobs:
           command: docker-compose -v
       - checkout
       - run:
-          name: Build docker images
-          command: |
-            cp .env.sample .env
-            make integration_build
-      - run:
           name: Run integration tests
           command: |
-            sudo chmod -R a+rwx app/tests/
+            cp .env.sample .env
             make refresh
             make up_prod_detached
             make integration_test
-            make kill
-      - store_artifacts:
-          path: app/tests/integration/integration-test.html
 
   deploy:
     working_directory: ~/experimenter
-    docker:
-      - image: docker:19.03.13-git
+    machine:
+      docker_layer_caching: true
+      image: ubuntu-1604:202007-01 # Ubuntu 16.04, Docker v19.03.12, Docker Compose v1.26.1
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - deploy:
           name: Deploy to latest
           command: |
-            ./scripts/build_deploy.sh
+            ./scripts/store_git_info.sh
+            docker build --target deploy -f app/Dockerfile -t app:deploy app/
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker tag app:deploy ${DOCKERHUB_REPO}:latest
             docker push ${DOCKERHUB_REPO}:latest
@@ -76,15 +101,23 @@ workflows:
     jobs:
       - build:
           name: build
+      - check:
+          name: check
+          requires:
+            - build
+      - publish_storybooks:
+          name: publish_storybooks
+          requires:
+            - build
       - integration:
           name: integration
+          requires:
+            - build
           filters:
             branches:
               ignore:
                 - main
       - deploy:
-          requires:
-            - build
           filters:
             branches:
               only: main

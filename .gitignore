@@ -47,7 +47,6 @@ coverage.xml
 coverage/
 *,cover
 .hypothesis/
-app/tests/integration/integration-test.html
 
 # Translations
 *.mo
@@ -72,9 +71,6 @@ target/
 # Environment file
 .env
 .envrc
-
-version.json
-commit-*.txt
 
 .vscode/
 .psql_history
