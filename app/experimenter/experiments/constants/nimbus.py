@@ -49,6 +49,26 @@ TARGETING_FIRST_RUN = NimbusTargetingConfig(
     ),
 )
 
+TARGETING_FIRST_RUN_ABOUT_WELCOME = NimbusTargetingConfig(
+    name="First start-up users (en) about:welcome",
+    slug="first_run_about_welcome",
+    description=(
+        "First start-up users (e.g. for about:welcome) with an en-* "
+        "locale using the release channel."
+    ),
+    targeting=(
+        'localeLanguageCode == "en" '
+        "&& ((isFirstStartup "
+        "&& !('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)) "
+        "|| '{experiment.slug}' in activeExperiments) "
+        "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+    ),
+    desktop_telemetry=(
+        "STARTS_WITH(environment.settings.locale, 'en') "
+        "AND payload.info.profile_subsession_counter = 1"
+    ),
+)
+
 
 class NimbusConstants(object):
     class Status(models.TextChoices):
@@ -68,13 +88,12 @@ class NimbusConstants(object):
     }
 
     class Channel(models.TextChoices):
-        DESKTOP_BETA = "Beta"
-        DESKTOP_NIGHTLY = "Nightly"
-        DESKTOP_RELEASE = "Release"
+        DESKTOP_BETA = "beta"
+        DESKTOP_NIGHTLY = "nightly"
+        DESKTOP_RELEASE = "release"
         FENIX_BETA = "org.mozilla.firefox.beta"
         FENIX_NIGHTLY = "org.mozilla.fenix"
         FENIX_RELEASE = "org.mozilla.firefox"
-        REFERENCE_RELEASE = "org.mozilla.reference.browser"
 
     ApplicationChannels = {
         Application.DESKTOP: [
@@ -121,19 +140,21 @@ class NimbusConstants(object):
 
     EMAIL_EXPERIMENT_END_SUBJECT = "Action required: Please turn off your Experiment"
 
-    TARGETING_VERSION = "version|versionCompare('{version}') >= .!"
+    TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
     TARGETING_CHANNELS = "channel in {channels}"
 
     TARGETING_CONFIGS = {
         TARGETING_ALL_ENGLISH.slug: TARGETING_ALL_ENGLISH,
         TARGETING_US_ONLY.slug: TARGETING_US_ONLY,
         TARGETING_FIRST_RUN.slug: TARGETING_FIRST_RUN,
+        TARGETING_FIRST_RUN_ABOUT_WELCOME.slug: TARGETING_FIRST_RUN_ABOUT_WELCOME,
     }
 
     class TargetingConfig(models.TextChoices):
         ALL_ENGLISH = TARGETING_ALL_ENGLISH.slug
         US_ONLY = TARGETING_US_ONLY.slug
-        FIRST_RUN = TARGETING_FIRST_RUN.slug
+        TARGETING_FIRST_RUN = TARGETING_FIRST_RUN.slug
+        TARGETING_FIRST_RUN_ABOUT_WELCOME = TARGETING_FIRST_RUN_ABOUT_WELCOME.slug
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
     # have limits on the length of their unique identifiers, we should

@@ -61,8 +61,8 @@ class TestNimbusExperimentSerializer(TestCase):
                 # DRF manually replaces the isoformat suffix so we have to do the same
                 "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
                 "targeting": (
-                    'channel in ["Nightly", "Beta", "Release"] && '
-                    "version|versionCompare('80.!') >= .! && localeLanguageCode == 'en'"
+                    'channel in ["nightly", "beta", "release"] && '
+                    "version|versionCompare('80.!') >= 0 && localeLanguageCode == 'en'"
                 ),
                 "userFacingDescription": experiment.public_description,
                 "userFacingName": experiment.name,
@@ -114,7 +114,7 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(
             serializer.data["targeting"],
-            "version|versionCompare('80.!') >= .! && localeLanguageCode == 'en'",
+            "version|versionCompare('80.!') >= 0 && localeLanguageCode == 'en'",
         )
 
     def test_serializer_outputs_targeting_for_experiment_without_firefox_min_version(
@@ -134,7 +134,7 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(
             serializer.data["targeting"],
-            'channel in ["Nightly", "Beta", "Release"] && localeLanguageCode == \'en\'',
+            'channel in ["nightly", "beta", "release"] && localeLanguageCode == \'en\'',
         )
 
 
