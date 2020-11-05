@@ -101,14 +101,26 @@ workflows:
     jobs:
       - build:
           name: build
+          filters:
+            branches:
+              ignore:
+                - main
       - check:
           name: check
           requires:
             - build
+          filters:
+            branches:
+              ignore:
+                - main
       - publish_storybooks:
           name: publish_storybooks
           requires:
             - build
+          filters:
+            branches:
+              ignore:
+                - main
       - integration:
           name: integration
           requires:
