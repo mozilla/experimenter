@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { RouteComponentProps, useParams } from "@reach/router";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
 import HeaderEditExperiment from "../HeaderEditExperiment";
@@ -19,15 +19,34 @@ type ContainerEditPageProps = {
   children: (props: ContainerEditPageChildrenProps) => React.ReactNode | null;
   testId: string;
   title: string;
+  polling?: boolean;
 } & RouteComponentProps;
+
+export const POLL_INTERVAL = 30000;
 
 const ContainerEditPage = ({
   children,
   testId,
   title,
+  polling = false,
 }: ContainerEditPageProps) => {
   const { slug } = useParams();
-  const { experiment, notFound, loading } = useExperiment(slug);
+  const {
+    experiment,
+    notFound,
+    loading,
+    startPolling,
+    stopPolling,
+  } = useExperiment(slug);
+
+  useEffect(() => {
+    if (polling && experiment) {
+      startPolling(POLL_INTERVAL);
+    }
+    return () => {
+      stopPolling();
+    };
+  }, [startPolling, stopPolling, experiment, polling]);
 
   if (loading) {
     return <PageLoading />;

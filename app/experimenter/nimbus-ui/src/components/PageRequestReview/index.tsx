@@ -57,7 +57,11 @@ const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = () =>
   }, [submitForReview, currentExperiment]);
 
   return (
-    <ContainerEditPage title="Review &amp; Launch" testId="PageRequestReview">
+    <ContainerEditPage
+      title="Review &amp; Launch"
+      testId="PageRequestReview"
+      polling
+    >
       {({ experiment }) => {
         currentExperiment.current = experiment;
 

@@ -29,7 +29,7 @@ import { getExperiment } from "../types/getExperiment";
  */
 
 export function useExperiment(slug: string) {
-  const { data, loading } = useQuery<{
+  const { data, loading, startPolling, stopPolling } = useQuery<{
     experimentBySlug: getExperiment["experimentBySlug"];
   }>(GET_EXPERIMENT_QUERY, {
     variables: { slug },
@@ -42,5 +42,7 @@ export function useExperiment(slug: string) {
     experiment: experiment!,
     notFound: !loading && experiment === null,
     loading,
+    startPolling,
+    stopPolling,
   };
 }
