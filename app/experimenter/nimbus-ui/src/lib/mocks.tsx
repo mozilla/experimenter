@@ -29,6 +29,8 @@ export interface MockedProps {
   childProps?: object;
   children?: React.ReactElement;
   mocks?: MockedResponse<Record<string, any>>[];
+  addTypename?: boolean;
+  link?: ApolloLink;
 }
 
 export interface MockedState {
@@ -147,7 +149,9 @@ export class MockedCache extends React.Component<MockedProps, MockedState> {
     this.state = {
       client: new ApolloClient({
         cache: createCache(props),
-        link: new MockLink(props.mocks || [], true),
+        link:
+          props.link ||
+          new MockLink(props.mocks || [], props.addTypename || true),
       }),
     };
   }
@@ -312,7 +316,7 @@ export const mockExperimentQuery = (
 
 export const mockExperimentMutation = (
   mutation: DocumentNode,
-  input: Record<string, string>,
+  input: Record<string, string | number>,
   key: string,
   {
     status = 200,
