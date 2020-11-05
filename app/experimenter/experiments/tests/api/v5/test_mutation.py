@@ -394,6 +394,7 @@ class TestMutations(GraphQLTestCase):
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             channels=[],
+            application=NimbusConstants.Application.DESKTOP,
             firefox_min_version=None,
             population_percent=None,
             proposed_duration=None,
