@@ -14,6 +14,7 @@ services:
       - "7001:7001"
     volumes:
       - ./app:/app
+      - /app/experimenter/legacy-ui/core/.cache/
       - /app/experimenter/legacy-ui/core/node_modules/
       - /app/experimenter/legacy-ui/rapid/node_modules/
       - /app/experimenter/legacy-ui/visualization/node_modules/
@@ -30,10 +31,12 @@ services:
       - "3000:3000"
     volumes:
       - ./app:/app
+      - /app/experimenter/legacy-ui/core/.cache/
       - /app/experimenter/legacy-ui/core/node_modules/
       - /app/experimenter/legacy-ui/rapid/node_modules/
       - /app/experimenter/legacy-ui/visualization/node_modules/
       - /app/experimenter/nimbus-ui/node_modules/
+      - /app/experimenter/served/
       - /app/node_modules/
     command: bash -c "FORCE_COLOR=true yarn workspace @experimenter/nimbus-ui start | cat"
 
@@ -43,10 +46,12 @@ services:
     tty: true
     volumes:
       - ./app:/app
+      - /app/experimenter/legacy-ui/core/.cache/
       - /app/experimenter/legacy-ui/core/node_modules/
       - /app/experimenter/legacy-ui/rapid/node_modules/
       - /app/experimenter/legacy-ui/visualization/node_modules/
       - /app/experimenter/nimbus-ui/node_modules/
+      - /app/experimenter/served/
       - /app/node_modules/
     command: bash -c "yarn workspace @experimenter/core watch"
 
@@ -56,10 +61,12 @@ services:
     tty: true
     volumes:
       - ./app:/app
+      - /app/experimenter/legacy-ui/core/.cache/
       - /app/experimenter/legacy-ui/core/node_modules/
       - /app/experimenter/legacy-ui/rapid/node_modules/
       - /app/experimenter/legacy-ui/visualization/node_modules/
       - /app/experimenter/nimbus-ui/node_modules/
+      - /app/experimenter/served/
       - /app/node_modules/
     command: bash -c "yarn workspace @experimenter/rapid watch"
 
@@ -69,10 +76,12 @@ services:
     tty: true
     volumes:
       - ./app:/app
+      - /app/experimenter/legacy-ui/core/.cache/
       - /app/experimenter/legacy-ui/core/node_modules/
       - /app/experimenter/legacy-ui/rapid/node_modules/
       - /app/experimenter/legacy-ui/visualization/node_modules/
       - /app/experimenter/nimbus-ui/node_modules/
+      - /app/experimenter/served/
       - /app/node_modules/
     command: bash -c "yarn workspace @experimenter/visualization watch"
 

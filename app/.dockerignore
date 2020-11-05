@@ -10,3 +10,5 @@ experimenter/legacy-ui/assets
 experimenter/nimbus-ui/build
 node_modules
 tests
+experimenter/legacy-ui/core/.cache/
+experimenter/nimbus-ui/yarn-error.log
