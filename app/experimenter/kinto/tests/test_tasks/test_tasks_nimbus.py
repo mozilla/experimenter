@@ -238,6 +238,22 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
 
         self.assertEqual(experiment3.changes.count(), 1)
 
+        self.assertTrue(
+            NimbusExperiment.objects.filter(
+                id=experiment1.id, status=NimbusExperiment.Status.LIVE
+            ).exists()
+        )
+        self.assertTrue(
+            NimbusExperiment.objects.filter(
+                id=experiment2.id, status=NimbusExperiment.Status.COMPLETE
+            ).exists()
+        )
+        self.assertTrue(
+            NimbusExperiment.objects.filter(
+                id=experiment3.id, status=NimbusExperiment.Status.DRAFT
+            ).exists()
+        )
+
         self.assertFalse(
             experiment1.changes.filter(
                 changed_by__email=settings.KINTO_DEFAULT_CHANGELOG_USER,
@@ -287,3 +303,33 @@ class TestCheckExperimentIsComplete(MockKintoClientMixin, TestCase):
             ).exists()
         )
         self.assertEqual(len(mail.outbox), 1)
+
+    def test_only_completes_experiments_with_matching_application_collection(self):
+        desktop_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        fenix_experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.LIVE,
+            application=NimbusExperiment.Application.FENIX,
+        )
+
+        def get_records(bucket, collection):
+            if collection == settings.KINTO_COLLECTION_NIMBUS_DESKTOP:
+                return [{"id": desktop_experiment.slug}]
+            if collection == settings.KINTO_COLLECTION_NIMBUS_MOBILE:
+                return [{"id": fenix_experiment.slug}]
+
+        self.mock_kinto_client.get_records.side_effect = get_records
+        tasks.nimbus_check_experiments_are_complete()
+
+        self.assertTrue(
+            NimbusExperiment.objects.filter(
+                id=desktop_experiment.id, status=NimbusExperiment.Status.LIVE
+            ).exists()
+        )
+        self.assertTrue(
+            NimbusExperiment.objects.filter(
+                id=fenix_experiment.id, status=NimbusExperiment.Status.LIVE
+            ).exists()
+        )
