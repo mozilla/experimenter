@@ -31,6 +31,26 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
             bucket=settings.KINTO_BUCKET,
         )
 
+    def test_delete_rejected_record_removes_record_patches_collection(self):
+        self.client.delete_rejected_record("test_id")
+
+        self.mock_kinto_client_creator.assert_called_with(
+            server_url=settings.KINTO_HOST,
+            auth=(settings.KINTO_USER, settings.KINTO_PASS),
+        )
+
+        self.mock_kinto_client.delete_record.assert_called_with(
+            id="test_id",
+            bucket=settings.KINTO_BUCKET,
+            collection=settings.KINTO_COLLECTION,
+        )
+
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=settings.KINTO_COLLECTION,
+            data={"status": "to-review"},
+            bucket=settings.KINTO_BUCKET,
+        )
+
     def test_returns_true_for_pending_review(self):
         self.setup_kinto_pending_review()
         self.assertTrue(self.client.has_pending_review())

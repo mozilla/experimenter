@@ -89,8 +89,8 @@ class NimbusExperiment(NimbusConstants, models.Model):
     )
 
     class Meta:
-        verbose_name = "NimbusExperiment"
-        verbose_name_plural = "NimbusExperiments"
+        verbose_name = "Nimbus Experiment"
+        verbose_name_plural = "Nimbus Experiments"
 
     def __str__(self):
         return self.name

@@ -114,7 +114,9 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
                     )
                 )
 
-            return f"{channels_expr}{version_expr}{obj.targeting_config.targeting}"
+            targeting_config = obj.targeting_config.targeting.format(experiment=obj)
+
+            return f"{channels_expr}{version_expr}{targeting_config}"
 
 
 class NimbusProbeSerializer(serializers.ModelSerializer):
