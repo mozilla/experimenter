@@ -16,9 +16,15 @@ from experimenter.experiments.models.nimbus import (
 )
 
 
+class ApplicationChannel(graphene.ObjectType):
+    label = graphene.String()
+    channels = graphene.List(graphene.String)
+
+
 class NimbusConfigurationType(graphene.ObjectType):
     application = graphene.List(NimbusLabelValueType)
     channels = graphene.List(NimbusLabelValueType)
+    application_channels = graphene.List(ApplicationChannel)
     feature_config = graphene.List(NimbusFeatureConfigType)
     firefox_min_version = graphene.List(NimbusLabelValueType)
     probe_sets = graphene.List(NimbusProbeSetType)
@@ -50,6 +56,17 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_targeting_config_slug(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.TargetingConfig)
+
+    def resolve_application_channels(root, info):
+        app_channels = []
+        for app_label, channel_names in NimbusExperiment.ApplicationChannels.items():
+            app_channels.append(
+                ApplicationChannel(
+                    label=app_label.label,
+                    channels=[channel.label for channel in channel_names],
+                )
+            )
+        return app_channels
 
 
 class NimbusReadyForReviewType(graphene.ObjectType):

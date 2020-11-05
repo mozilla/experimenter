@@ -168,6 +168,10 @@ class TestNimbusQuery(GraphQLTestCase):
             """
             query{
                 nimbusConfig{
+                    applicationChannels {
+                        label
+                        channels
+                    }
                     application {
                         label
                         value
@@ -215,6 +219,16 @@ class TestNimbusQuery(GraphQLTestCase):
         assertChoices(config["targetingConfigSlug"], NimbusExperiment.TargetingConfig)
         self.assertEqual(len(config["featureConfig"]), 10)
         self.assertEqual(len(config["probeSets"]), 10)
+        app_channels = config["applicationChannels"]
+        self.assertEqual(len(app_channels), len(NimbusExperiment.ApplicationChannels))
+        # Transform list to dict for easier comparison
+        app_channel_dict = {ac["label"]: ac["channels"] for ac in app_channels}
+        for app_label, channel_names in NimbusExperiment.ApplicationChannels.items():
+            app_compare_channels = app_channel_dict[app_label.label]
+            self.assertEqual(
+                set(app_compare_channels),
+                set(channel.label for channel in channel_names),
+            )
         for probe_set in probe_sets:
             config_probe_set = next(
                 filter(lambda p: p["id"] == str(probe_set.id), config["probeSets"])
