@@ -324,6 +324,8 @@ class NimbusExperimentProbeSets(models.Model):
     is_primary = models.BooleanField(null=False)
 
     class Meta:
+        verbose_name = "Nimbus Experiment Probe Set"
+        verbose_name_plural = "Nimbus Experiment Probe Sets"
         unique_together = ["experiment", "probe_set"]
 
 
