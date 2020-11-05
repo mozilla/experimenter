@@ -61,8 +61,8 @@ FROM dev AS build
 
 
 # Build assets
-COPY ./experimenter/legacy-ui/ /app/experimenter/legacy-ui/
-COPY ./experimenter/nimbus-ui/ /app/experimenter/nimbus-ui/
+COPY --from=dev /app/experimenter/legacy-ui/ /app/experimenter/legacy-ui/
+COPY --from=dev /app/experimenter/nimbus-ui/ /app/experimenter/nimbus-ui/
 RUN yarn workspace @experimenter/core build
 RUN yarn workspace @experimenter/visualization build
 RUN yarn workspace @experimenter/rapid build
