@@ -117,10 +117,6 @@ workflows:
           name: publish_storybooks
           requires:
             - build
-          filters:
-            branches:
-              ignore:
-                - main
       - integration:
           name: integration
           requires:
