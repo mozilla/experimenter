@@ -59,13 +59,13 @@ export interface getExperiment_experimentBySlug_secondaryProbeSets {
 export interface getExperiment_experimentBySlug {
   __typename: "NimbusExperimentType";
   id: string;
-  owner: getExperiment_experimentBySlug_owner | null;
   name: string;
   slug: string;
   status: NimbusExperimentStatus | null;
   hypothesis: string | null;
   application: NimbusExperimentApplication | null;
   publicDescription: string | null;
+  owner: getExperiment_experimentBySlug_owner | null;
   referenceBranch: getExperiment_experimentBySlug_referenceBranch | null;
   treatmentBranches: (getExperiment_experimentBySlug_treatmentBranches | null)[] | null;
   featureConfig: getExperiment_experimentBySlug_featureConfig | null;
