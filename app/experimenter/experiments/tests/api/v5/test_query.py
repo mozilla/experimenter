@@ -112,6 +112,52 @@ class TestNimbusQuery(GraphQLTestCase):
         experiment = content["data"]["experimentBySlug"]
         self.assertIsNone(experiment)
 
+    def test_experiment_valid_by_slug(self):
+        user_email = "user@example.com"
+        exp = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP.value,
+            feature_config=NimbusFeatureConfigFactory(
+                application=NimbusExperiment.Application.DESKTOP.value
+            ),
+        )
+
+        response = self.query(
+            """
+            query experimentReadyForReviewBySlug($slug: String!) {
+                experimentReadyForReviewBySlug(slug: $slug) {
+                    message
+                    ready
+                }
+            }
+            """,
+            variables={"slug": exp.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        experiment = content["data"]["experimentReadyForReviewBySlug"]
+        self.assertTrue(experiment["ready"])
+
+    def test_experiment_valid_by_slug_not_found(self):
+        user_email = "user@example.com"
+        response = self.query(
+            """
+            query experimentReadyForReviewBySlug($slug: String!) {
+                experimentReadyForReviewBySlug(slug: $slug) {
+                    message
+                    ready
+                }
+            }
+            """,
+            variables={"slug": "nope"},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        experiment = content["data"]["experimentReadyForReviewBySlug"]
+        self.assertFalse(experiment["ready"])
+
     def test_nimbus_config(self):
         user_email = "user@example.com"
         # Create some probes and feature configs
