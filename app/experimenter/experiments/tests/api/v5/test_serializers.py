@@ -7,6 +7,7 @@ from experimenter.experiments.api.v5.serializers import (
     NimbusBranchUpdateSerializer,
     NimbusExperimentOverviewSerializer,
     NimbusProbeSetUpdateSerializer,
+    NimbusReadyForReviewSerializer,
     NimbusStatusUpdateSerializer,
 )
 from experimenter.experiments.constants.nimbus import NimbusConstants
@@ -16,6 +17,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusProbeSetFactory,
 )
+from experimenter.experiments.tests.factories.nimbus import NimbusFeatureConfigFactory
 from experimenter.openidc.tests.factories import UserFactory
 
 BASIC_JSON_SCHEMA = """\
@@ -637,4 +639,77 @@ class TestNimbusStatusUpdateSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assert_(
             serializer.errors["experiment"][0].startswith("Nimbus Experiment has status")
+        )
+
+
+class TestNimbusReadyForReviewSerializer(TestCase):
+    maxDiff = None
+
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory()
+
+    def test_valid_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP.value,
+            feature_config=NimbusFeatureConfigFactory(
+                application=NimbusExperiment.Application.DESKTOP.value
+            ),
+        )
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertTrue(serializer.is_valid())
+
+    def test_invalid_experiment_default_hypothesis(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP.value,
+            feature_config=NimbusFeatureConfigFactory(
+                application=NimbusExperiment.Application.DESKTOP.value
+            ),
+        )
+        experiment.hypothesis = NimbusExperiment.HYPOTHESIS_DEFAULT
+        experiment.save()
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors, {"hypothesis": ["Hypothesis cannot be the default value."]}
+        )
+
+    def test_invalid_experiment_requires_reference_branch(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP.value,
+            feature_config=NimbusFeatureConfigFactory(
+                application=NimbusExperiment.Application.DESKTOP.value
+            ),
+        )
+        experiment.reference_branch = None
+        experiment.save()
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {"reference_branch": ["This field may not be null."]},
         )

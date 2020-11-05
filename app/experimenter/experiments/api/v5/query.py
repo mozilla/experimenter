@@ -1,5 +1,7 @@
 import graphene
 
+from experimenter.experiments.api.v5.mutation import ObjectField
+from experimenter.experiments.api.v5.serializers import NimbusReadyForReviewSerializer
 from experimenter.experiments.api.v5.types import (
     NimbusExperimentType,
     NimbusFeatureConfigType,
@@ -50,6 +52,11 @@ class NimbusConfigurationType(graphene.ObjectType):
         return root._text_choices_to_label_value_list(NimbusExperiment.TargetingConfig)
 
 
+class NimbusReadyForReviewType(graphene.ObjectType):
+    message = ObjectField()
+    ready = graphene.Boolean()
+
+
 class Query(graphene.ObjectType):
     experiments = graphene.List(
         NimbusExperimentType,
@@ -63,6 +70,11 @@ class Query(graphene.ObjectType):
     experiment_by_slug = graphene.Field(
         NimbusExperimentType,
         description="Retrieve a Nimbus experiment by its slug.",
+        slug=graphene.String(required=True),
+    )
+    experiment_ready_for_review_by_slug = graphene.Field(
+        NimbusReadyForReviewType,
+        description="Returns whether the Nimbus experiment is ready for review.",
         slug=graphene.String(required=True),
     )
 
@@ -82,6 +94,24 @@ class Query(graphene.ObjectType):
             return NimbusExperiment.objects.get(slug=slug)
         except NimbusExperiment.DoesNotExist:
             return None
+
+    def resolve_experiment_ready_for_review_by_slug(root, info, slug):
+        try:
+            experiment = NimbusExperiment.objects.get(slug=slug)
+            serializer = NimbusReadyForReviewSerializer(
+                experiment,
+                data=NimbusReadyForReviewSerializer(
+                    experiment,
+                ).data,
+            )
+            ready = serializer.is_valid()
+            return NimbusReadyForReviewType(message=serializer.errors, ready=ready)
+
+        except NimbusExperiment.DoesNotExist:
+            return NimbusReadyForReviewType(
+                message={"slug": "Experiment with this slug does not exist."},
+                ready=False,
+            )
 
     def resolve_nimbus_config(root, info):
         return NimbusConfigurationType()
