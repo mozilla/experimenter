@@ -298,3 +298,37 @@ class NimbusStatusUpdateSerializer(
     class Meta:
         model = NimbusExperiment
         fields = ("status",)
+
+
+class NimbusReadyForReviewSerializer(
+    NimbusStatusRestrictionMixin, serializers.ModelSerializer
+):
+    public_description = serializers.CharField(required=True)
+    proposed_duration = serializers.IntegerField(required=True)
+    proposed_enrollment = serializers.IntegerField(required=True)
+    population_percent = serializers.DecimalField(7, 4, required=True)
+    firefox_min_version = serializers.ChoiceField(
+        NimbusExperiment.Version.choices, required=True
+    )
+    application = serializers.ChoiceField(
+        NimbusExperiment.Application.choices, required=True
+    )
+    hypothesis = serializers.CharField(required=True)
+    targeting_config_slug = serializers.ChoiceField(
+        NimbusExperiment.TargetingConfig.choices, required=True
+    )
+    reference_branch = NimbusBranchSerializer(required=True)
+    treatment_branches = NimbusBranchSerializer(many=True)
+    feature_config = serializers.PrimaryKeyRelatedField(
+        queryset=NimbusFeatureConfig.objects.all(),
+        allow_null=True,
+    )
+
+    class Meta:
+        model = NimbusExperiment
+        exclude = ("id",)
+
+    def validate_hypothesis(self, value):
+        if value == NimbusExperiment.HYPOTHESIS_DEFAULT.strip():
+            raise serializers.ValidationError("Hypothesis cannot be the default value.")
+        return value

@@ -114,7 +114,10 @@ class NimbusExperiment(NimbusConstants, models.Model):
 
     @property
     def treatment_branches(self):
-        return self.branches.exclude(id=self.reference_branch.id).order_by("id")
+        if self.reference_branch:
+            return self.branches.exclude(id=self.reference_branch.id).order_by("id")
+        else:
+            return self.branches.order_by("id")
 
     @property
     def primary_probe_sets(self):
