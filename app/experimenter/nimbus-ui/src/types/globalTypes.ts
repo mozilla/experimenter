@@ -19,7 +19,6 @@ export enum NimbusExperimentChannel {
   FENIX_BETA = "FENIX_BETA",
   FENIX_NIGHTLY = "FENIX_NIGHTLY",
   FENIX_RELEASE = "FENIX_RELEASE",
-  REFERENCE_RELEASE = "REFERENCE_RELEASE",
 }
 
 export enum NimbusExperimentFirefoxMinVersion {
@@ -56,7 +55,8 @@ export enum NimbusExperimentStatus {
 
 export enum NimbusExperimentTargetingConfigSlug {
   ALL_ENGLISH = "ALL_ENGLISH",
-  FIRST_RUN = "FIRST_RUN",
+  TARGETING_FIRST_RUN = "TARGETING_FIRST_RUN",
+  TARGETING_FIRST_RUN_ABOUT_WELCOME = "TARGETING_FIRST_RUN_ABOUT_WELCOME",
   US_ONLY = "US_ONLY",
 }
 
@@ -91,6 +91,12 @@ export interface UpdateExperimentInput {
   publicDescription?: string | null;
   hypothesis?: string | null;
   id: string;
+}
+
+export interface UpdateExperimentStatusInput {
+  clientMutationId?: string | null;
+  nimbusExperimentId: number;
+  status: NimbusExperimentStatus;
 }
 
 //==============================================================

@@ -8,13 +8,31 @@ import { RouterSlugProvider } from "../../lib/test-utils";
 import { withLinks } from "@storybook/addon-links";
 import PageRequestReview from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
+import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { createMutationMock } from "./mocks";
 
-const { mock } = mockExperimentQuery("demo-slug");
+const { mock, data } = mockExperimentQuery("demo-slug");
 
 storiesOf("pages/RequestReview", module)
   .addDecorator(withLinks)
-  .add("basic", () => (
+  .add("success", () => (
+    <RouterSlugProvider mocks={[mock, createMutationMock(data!.id)]}>
+      <PageRequestReview />
+    </RouterSlugProvider>
+  ))
+  .add("error", () => (
     <RouterSlugProvider mocks={[mock]}>
       <PageRequestReview />
     </RouterSlugProvider>
-  ));
+  ))
+  .add("non-reviewable", () => {
+    const { mock } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.ACCEPTED,
+    });
+
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <PageRequestReview />
+      </RouterSlugProvider>
+    );
+  });
