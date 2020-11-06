@@ -22,7 +22,7 @@ storiesOf("pages/RequestReview", module)
   ))
   .add("error", () => (
     <RouterSlugProvider mocks={[mock]}>
-      <PageRequestReview />
+      <PageRequestReview polling={false} />
     </RouterSlugProvider>
   ))
   .add("non-reviewable", () => {

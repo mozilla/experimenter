@@ -9,7 +9,7 @@ import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { BASE_PATH } from "../../lib/constants";
-import { act } from "react-dom/test-utils";
+import { act } from "@testing-library/react";
 
 jest.useFakeTimers();
 
