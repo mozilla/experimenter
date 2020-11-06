@@ -33,72 +33,67 @@ describe("ContainerEditPage", () => {
     });
   });
 
-  it("polls useExperiment when the option is passed in", async () => {
+  describe("polling", () => {
     const { mock } = mockExperimentQuery("demo-slug");
     const { mock: updatedMock } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.REVIEW,
     });
-    render(<Subject mocks={[mock, updatedMock]} polling />);
-    await waitFor(() => {
-      expect(screen.getByTestId("header-experiment-status")).toHaveTextContent(
-        NimbusExperimentStatus.DRAFT,
-      );
+
+    it("polls useExperiment when the prop is passed in", async () => {
+      render(<Subject mocks={[mock, updatedMock]} polling />);
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("header-experiment-status"),
+        ).toHaveTextContent(NimbusExperimentStatus.DRAFT);
+      });
+
+      jest.advanceTimersByTime(POLL_INTERVAL);
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("header-experiment-status"),
+        ).toHaveTextContent(NimbusExperimentStatus.REVIEW);
+      });
     });
 
-    jest.advanceTimersByTime(POLL_INTERVAL);
-    await waitFor(() => {
-      expect(screen.getByTestId("header-experiment-status")).toHaveTextContent(
-        NimbusExperimentStatus.REVIEW,
-      );
-    });
-  });
+    it("does not poll useExperiment when the prop is not passed in", async () => {
+      render(<Subject mocks={[mock, updatedMock]} />);
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("header-experiment-status"),
+        ).toHaveTextContent(NimbusExperimentStatus.DRAFT);
+      });
 
-  it("does not poll useExperiment when the option is not passed in", async () => {
-    const { mock } = mockExperimentQuery("demo-slug");
-    const { mock: updatedMock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.REVIEW,
-    });
-    render(<Subject mocks={[mock, updatedMock]} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("header-experiment-status")).toHaveTextContent(
-        NimbusExperimentStatus.DRAFT,
-      );
+      jest.advanceTimersByTime(POLL_INTERVAL);
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("header-experiment-status"),
+        ).toHaveTextContent(NimbusExperimentStatus.DRAFT);
+      });
     });
 
-    jest.advanceTimersByTime(POLL_INTERVAL);
-    await waitFor(() => {
-      expect(screen.getByTestId("header-experiment-status")).toHaveTextContent(
-        NimbusExperimentStatus.DRAFT,
-      );
-    });
-  });
+    it("stops polling useExperiment when the prop is passed in and the user navigates to a page without polling", async () => {
+      const {
+        history: { navigate },
+      } = renderWithRouter(<Subject mocks={[mock, updatedMock]} polling />, {
+        route: "/demo-slug",
+      });
 
-  it("stops polling useExperiment when the option is passed in and the user navigates to a page without polling", async () => {
-    const { mock } = mockExperimentQuery("demo-slug");
-    const { mock: updatedMock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.REVIEW,
-    });
-    const {
-      history: { navigate },
-    } = renderWithRouter(<Subject mocks={[mock, updatedMock]} polling />, {
-      route: "/demo-slug",
-    });
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("header-experiment-status"),
+        ).toHaveTextContent(NimbusExperimentStatus.DRAFT);
+      });
 
-    await waitFor(() => {
-      expect(screen.getByTestId("header-experiment-status")).toHaveTextContent(
-        NimbusExperimentStatus.DRAFT,
-      );
-    });
+      window.history.pushState({}, "", `${BASE_PATH}/demo-slug/edit/overview`);
+      await act(() => navigate("/demo-slug/edit/overview"));
 
-    window.history.pushState({}, "", `${BASE_PATH}/demo-slug/edit/overview`);
-    await act(() => navigate("/demo-slug/edit/overview"));
-
-    jest.advanceTimersByTime(POLL_INTERVAL);
-    // updatedMock should not be hit
-    await waitFor(() => {
-      expect(screen.getByTestId("header-experiment-status")).toHaveTextContent(
-        NimbusExperimentStatus.DRAFT,
-      );
+      jest.advanceTimersByTime(POLL_INTERVAL);
+      // updatedMock should not be hit
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("header-experiment-status"),
+        ).toHaveTextContent(NimbusExperimentStatus.DRAFT);
+      });
     });
   });
 
