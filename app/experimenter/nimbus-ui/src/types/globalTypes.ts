@@ -60,17 +60,11 @@ export enum NimbusExperimentTargetingConfigSlug {
   US_ONLY = "US_ONLY",
 }
 
-/**
- * An enumeration.
- */
 export enum NimbusFeatureConfigApplication {
   FENIX = "FENIX",
   FIREFOX_DESKTOP = "FIREFOX_DESKTOP",
 }
 
-/**
- * An enumeration.
- */
 export enum NimbusProbeKind {
   EVENT = "EVENT",
   SCALAR = "SCALAR",

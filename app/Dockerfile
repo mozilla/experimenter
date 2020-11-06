@@ -46,8 +46,14 @@ RUN poetry check
 COPY ./package.json /app/package.json
 COPY ./yarn.lock /app/yarn.lock
 COPY ./experimenter/legacy-ui/core/package.json /app/experimenter/legacy-ui/core/package.json
+RUN yarn install --frozen-lockfile
+
 COPY ./experimenter/legacy-ui/rapid/package.json /app/experimenter/legacy-ui/rapid/package.json
+RUN yarn install --frozen-lockfile
+
 COPY ./experimenter/legacy-ui/visualization/package.json /app/experimenter/legacy-ui/visualization/package.json
+RUN yarn install --frozen-lockfile
+
 COPY ./experimenter/nimbus-ui/package.json /app/experimenter/nimbus-ui/package.json
 RUN yarn install --frozen-lockfile
 

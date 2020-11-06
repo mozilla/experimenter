@@ -26,9 +26,6 @@ export interface updateExperimentOverview_updateExperimentOverview {
 }
 
 export interface updateExperimentOverview {
-  /**
-   * Update a Nimbus Experiment.
-   */
   updateExperimentOverview: updateExperimentOverview_updateExperimentOverview | null;
 }
 
