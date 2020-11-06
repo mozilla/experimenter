@@ -206,9 +206,13 @@ class TestVisualizationView(TestCase):
 
         mock_open.return_value = File()
         mock_exists.return_value = True
-        probe_set = NimbusProbeSetFactory.create()
+        probe_set_primary = NimbusProbeSetFactory.create()
         experiment = NimbusExperimentFactory.create_with_status(
-            target_status=status, probe_sets=[probe_set]
+            target_status=status, probe_sets=[probe_set_primary]
+        )
+        experiment.probe_sets.add(
+            NimbusProbeSetFactory.create(),
+            through_defaults={"is_primary": False},
         )
 
         self.add_probe_set_data(

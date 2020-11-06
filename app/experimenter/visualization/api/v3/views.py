@@ -46,7 +46,7 @@ def load_data_from_gcs(filename):
     )
 
 
-def get_results_metrics_map(probe_sets):
+def get_results_metrics_map(primary_probe_sets, secondary_probe_sets):
     # A mapping of metric label to relevant statistic. This is
     # used to see which statistic will be used for each metric.
     RESULTS_METRICS_MAP = {
@@ -55,10 +55,14 @@ def get_results_metrics_map(probe_sets):
         Metric.USER_COUNT: set([Statistic.COUNT, Statistic.PERCENT]),
     }
     primary_metrics_set = set()
-    for probe_set in probe_sets:
+    for probe_set in primary_probe_sets:
         probe_set_id = f"{probe_set.slug}{PRIMARY_METRIC_SUFFIX}"
         RESULTS_METRICS_MAP[probe_set_id] = set([Statistic.BINOMIAL])
         primary_metrics_set.add(probe_set_id)
+
+    for probe_set in secondary_probe_sets:
+        RESULTS_METRICS_MAP[probe_set.slug] = set([Statistic.MEAN])
+
     return RESULTS_METRICS_MAP, primary_metrics_set
 
 
@@ -129,7 +133,7 @@ def generate_results_object(data, experiment):
         )
 
         result_metrics, primary_metrics_set = get_results_metrics_map(
-            experiment.probe_sets.all()
+            experiment.primary_probe_sets, experiment.secondary_probe_sets
         )
         if metric in result_metrics and statistic in result_metrics[metric]:
             results[branch][BRANCH_DATA][metric] = results[branch][BRANCH_DATA].get(
