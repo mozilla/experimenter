@@ -360,7 +360,8 @@ class TestMutations(GraphQLTestCase):
             },
         )
         experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(list(experiment.probe_sets.all()), probe_sets)
+        self.assertEqual(set(experiment.probe_sets.all()), set(probe_sets))
+        # These must be compared as lists to ensure ordering is retained.
         self.assertEqual(list(experiment.primary_probe_sets), probe_sets[:2])
         self.assertEqual(list(experiment.secondary_probe_sets), probe_sets[2:])
 
