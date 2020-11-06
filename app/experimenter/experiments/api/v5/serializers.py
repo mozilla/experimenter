@@ -284,6 +284,21 @@ class NimbusAudienceUpdateSerializer(
             "total_enrolled_clients",
         )
 
+    def validate_channels(self, value):
+        # If we have an instance, we can validate the channels against the application
+        if value and self.instance and self.instance.application:
+            valid_channels = set(
+                channel.value
+                for channel in NimbusExperiment.ApplicationChannels[
+                    self.instance.application
+                ]
+            )
+            if not valid_channels.issuperset(set(value)):
+                raise serializers.ValidationError(
+                    "Invalid channels for experiment application."
+                )
+        return value
+
 
 class NimbusStatusUpdateSerializer(
     NimbusChangeLogMixin, NimbusStatusRestrictionMixin, serializers.ModelSerializer
