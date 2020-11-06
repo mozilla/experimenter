@@ -17,9 +17,13 @@ import { updateExperimentStatus_updateExperimentStatus as UpdateExperimentStatus
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import FormRequestReview from "../FormRequestReview";
 
-type PageRequestReviewProps = {} & RouteComponentProps;
+type PageRequestReviewProps = {
+  polling?: boolean;
+} & RouteComponentProps;
 
-const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = () => {
+const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = ({
+  polling = true,
+}) => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
   const currentExperiment = useRef<getExperiment_experimentBySlug>();
@@ -57,7 +61,11 @@ const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = () =>
   }, [submitForReview, currentExperiment]);
 
   return (
-    <ContainerEditPage title="Review &amp; Launch" testId="PageRequestReview">
+    <ContainerEditPage
+      title="Review &amp; Launch"
+      testId="PageRequestReview"
+      {...{ polling }}
+    >
       {({ experiment }) => {
         currentExperiment.current = experiment;
 

@@ -17,12 +17,12 @@ storiesOf("pages/RequestReview", module)
   .addDecorator(withLinks)
   .add("success", () => (
     <RouterSlugProvider mocks={[mock, createMutationMock(data!.id)]}>
-      <PageRequestReview />
+      <PageRequestReview polling={false} />
     </RouterSlugProvider>
   ))
   .add("error", () => (
     <RouterSlugProvider mocks={[mock]}>
-      <PageRequestReview />
+      <PageRequestReview polling={false} />
     </RouterSlugProvider>
   ))
   .add("non-reviewable", () => {
@@ -32,7 +32,7 @@ storiesOf("pages/RequestReview", module)
 
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <PageRequestReview />
+        <PageRequestReview polling={false} />
       </RouterSlugProvider>
     );
   });
