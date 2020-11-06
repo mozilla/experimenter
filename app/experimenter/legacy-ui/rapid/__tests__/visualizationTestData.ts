@@ -79,6 +79,16 @@ export const EXPERIMENT_DATA: ExperimentData = {
             difference: {},
             relative_uplift: {},
           },
+          probeset_d: {
+            absolute: {
+              point: 0.05,
+              count: 10,
+              lower: 0.024357271316207685,
+              upper: 0.084114637001734827,
+            },
+            difference: {},
+            relative_uplift: {},
+          },
         },
       },
       treatment: {
@@ -176,6 +186,25 @@ export const EXPERIMENT_DATA: ExperimentData = {
               point: -0.06233954570562385,
             },
             significance: SIGNIFICANCE.NEUTRAL,
+          },
+          probeset_d: {
+            absolute: {
+              point: 0.049019607843137254,
+              count: 10,
+              lower: 0.023872203557007872,
+              upper: 0.082490692094610241,
+            },
+            difference: {
+              point: -0.00065694876288765341,
+              upper: 0.043163817365120191,
+              lower: 0.041750959639940292,
+            },
+            relative_uplift: {
+              lower: -0.455210299676828,
+              upper: 0.5104985718410426,
+              point: -0.06233954570562385,
+            },
+            significance: SIGNIFICANCE.POSITIVE,
           },
         },
       },
