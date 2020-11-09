@@ -3555,6 +3555,10 @@
           "referenceBranch": {
             "type": "string",
             "readOnly": true
+          },
+          "arguments": {
+            "type": "string",
+            "readOnly": true
           }
         },
         "required": [
