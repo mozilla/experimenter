@@ -926,7 +926,7 @@ class ExperimentConstants(object):
         "Did this delivery fail to launch at the expected time?"
     )
 
-    RESULTS_RECIPE_ERRORS_LABEL = "Did this delivery have recipe errors?"
+    RESULTS_RECIPE_ERRORS_LABEL = "Did this experiment encounter any issues or errors?"
 
     RESULTS_RESTARTS_LABEL = "Did this delivery require any restarts after it launched?"
 
@@ -936,7 +936,7 @@ class ExperimentConstants(object):
 
     RESULTS_NO_USABLE_DATA_LABEL = "Did this delivery fail to generate usable data?"
 
-    RESULTS_NOTES_LABEL = "Notes"
+    RESULTS_NOTES_LABEL = "Error Notes"
 
     RESULTS_CHANGES_TO_FIREFOX_LABEL = """
         Did changes (features, performance, UX, etc.) enter Firefox because
@@ -946,9 +946,7 @@ class ExperimentConstants(object):
     RESULTS_DATA_FOR_HYPOTHESIS_LABEL = """Was the data required to prove or disprove your
         hypothesis (which may include a null result) obtained?"""
 
-    RESULTS_CONFIDENCE_LABEL = (
-        "Did this delivery provide the confidence needed to more forward?"
-    )
+    RESULTS_CONFIDENCE_LABEL = "Did this delivery move the primary metric?"
 
     RESULTS_MEASURE_IMPACT_LABEL = (
         "Did this delivery help understand/measure the impact of this feature?"

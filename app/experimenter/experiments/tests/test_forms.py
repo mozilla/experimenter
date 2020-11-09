@@ -522,18 +522,9 @@ class TestExperimentResultsForm(MockRequestMixin, TestCase):
         "results_url": "https://example.com",
         "results_initial": "Initially, all went well.",
         "results_lessons_learned": "Lessons were learned.",
-        "results_fail_to_launch": RADIO_NO,
         "results_recipe_errors": RADIO_YES,
-        "results_restarts": RADIO_YES,
-        "results_low_enrollment": RADIO_NO,
-        "results_early_end": RADIO_YES,
-        "results_no_usable_data": RADIO_NO,
         "results_failures_notes": "Bad.",
-        "results_changes_to_firefox": RADIO_YES,
-        "results_data_for_hypothesis": RADIO_NO,
         "results_confidence": RADIO_YES,
-        "results_measure_impact": RADIO_NO,
-        "results_impact_notes": "Good.",
     }
 
     def test_no_fields_required(self):
@@ -543,7 +534,7 @@ class TestExperimentResultsForm(MockRequestMixin, TestCase):
 
     def test_form_saves_results(self):
         created_experiment = ExperimentFactory.create_with_status(
-            Experiment.STATUS_COMPLETE, results_early_end=False
+            Experiment.STATUS_COMPLETE
         )
         self.assertEqual(created_experiment.changes.count(), 6)
 
@@ -558,18 +549,9 @@ class TestExperimentResultsForm(MockRequestMixin, TestCase):
 
         self.assertEqual(experiment.results_url, "https://example.com")
         self.assertEqual(experiment.results_initial, "Initially, all went well.")
-        self.assertFalse(experiment.results_fail_to_launch)
         self.assertTrue(experiment.results_recipe_errors)
-        self.assertTrue(experiment.results_restarts)
-        self.assertFalse(experiment.results_low_enrollment)
-        self.assertTrue(experiment.results_early_end)
-        self.assertFalse(experiment.results_no_usable_data)
-        self.assertEqual(experiment.results_failures_notes, "Bad.")
-        self.assertTrue(experiment.results_changes_to_firefox)
-        self.assertFalse(experiment.results_data_for_hypothesis)
         self.assertTrue(experiment.results_confidence)
-        self.assertFalse(experiment.results_measure_impact)
-        self.assertEqual(experiment.results_impact_notes, "Good.")
+        self.assertEqual(experiment.results_failures_notes, "Bad.")
         self.assertEqual(experiment.changes.count(), 7)
 
 

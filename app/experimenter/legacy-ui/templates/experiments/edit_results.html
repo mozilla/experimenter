@@ -6,35 +6,25 @@
 Edit <a href="{% url "experiments-detail" slug=object.slug %}">
   {{ object.name }}
 </a>
- Results
+Results
 {% endblock %}
 
 {% block edit_form %}
-  {% include "experiments/field_inline.html" with field=form.results_url %}
-  {% include "experiments/field_inline.html" with field=form.results_initial %}
-  {% include "experiments/field_inline.html" with field=form.results_lessons_learned %}
-  <div class="row my-4">
-    <div class="col-10 offset-2">
-      <h4>What Went Wrong?</h4>
-    </div>
-  </div>
-  {% include "experiments/radio_field_inline.html" with field=form.results_fail_to_launch %}
-  {% include "experiments/radio_field_inline.html" with field=form.results_recipe_errors %}
-  {% include "experiments/radio_field_inline.html" with field=form.results_restarts %}
-  {% include "experiments/radio_field_inline.html" with field=form.results_low_enrollment %}
-  {% include "experiments/radio_field_inline.html" with field=form.results_early_end %}
-  {% include "experiments/radio_field_inline.html" with field=form.results_no_usable_data %}
+{% include "experiments/field_inline.html" with field=form.results_url %}
+
+{% include "experiments/field_inline.html" with field=form.results_initial %}
+
+{% include "experiments/radio_field_inline.html" with field=form.results_confidence %}
+
+{% include "experiments/field_inline.html" with field=form.results_lessons_learned %}
+
+{% include "experiments/radio_field_inline.html" with field=form.results_recipe_errors %}
+
+<div id="results-failure-notes" class="collapse">
   {% include "experiments/field_inline.html" with field=form.results_failures_notes %}
-  <div class="row my-4">
-    <div class="col-10 offset-2">
-      <h4>What Went Right?</h4>
-    </div>
-  </div>
-  {% include "experiments/radio_field_inline.html" with field=form.results_changes_to_firefox %}
-  {% include "experiments/radio_field_inline.html" with field=form.results_data_for_hypothesis %}
-  {% include "experiments/radio_field_inline.html" with field=form.results_confidence %}
-  {% include "experiments/radio_field_inline.html" with field=form.results_measure_impact %}
-  {% include "experiments/field_inline.html" with field=form.results_impact_notes %}
+</div>
+
+
 {% endblock %}
 
 
@@ -42,16 +32,20 @@ Edit <a href="{% url "experiments-detail" slug=object.slug %}">
 <div class="form-group row">
   <div class="col text-right">
     {% block edit_buttons %}
-      {% if object %}
-        <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-link">
-          <span class="fas fa-times"></span>
-          Cancel Editing
-        </a>
-      {% endif %}
-      <button id="save-btn" type="submit" name="action" value="save" class="btn btn-primary">
-        <span class="fas fa-save"></span>
-        Save Results
-      </button>
+    {% if object %}
+    <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-link">
+      <span class="fas fa-times"></span>
+      Cancel Editing
+    </a>
+    {% endif %}
+    <button id="save-btn" type="submit" name="action" value="save" class="btn btn-primary">
+      <span class="fas fa-save"></span>
+      Save Results
+    </button>
     {% endblock %}
   </div>
 </div>
+
+{% block extrascripts %}
+<script src="{% static "scripts/edit-results.js" %}"></script>
+{% endblock %}
