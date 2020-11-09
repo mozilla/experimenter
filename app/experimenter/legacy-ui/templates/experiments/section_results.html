@@ -6,60 +6,61 @@ Results
 {% endblock %}
 
 {% block section_content %}
-  <p><strong>Primary Result URL: </strong></p>
-  {% if experiment.results_url %}
-    <p>{{ experiment.results_url|urlize|markdown }}</p>
-  {% else %}
-    <p><em class="text-secondary">Not Complete.</em></p>
-  {% endif %}
+<p><strong>Primary Result URL: </strong></p>
+{% if experiment.results_url %}
+<p>{{ experiment.results_url|urlize|markdown }}</p>
+{% else %}
+<p><em class="text-secondary">Not Complete.</em></p>
+{% endif %}
 
-  {% include "experiments/results_radio_field.html" with label=experiment.RESULTS_CONFIDENCE_LABEL field=experiment.results_confidence %}
+<p><strong>Initial Results: </strong></p>
+{% if experiment.results_initial %}
+<p>{{ experiment.results_initial|urlize|markdown }}</p>
+{% else %}
+<p><em class="text-secondary">Not Complete.</em></p>
+{% endif %}
 
-  <p><strong>Initial Results: </strong></p>
-  {% if experiment.results_initial %}
-    <p>{{ experiment.results_initial|urlize|markdown }}</p>
-  {% else %}
-    <p><em class="text-secondary">Not Complete.</em></p>
-  {% endif %}
-  {% include "experiments/results_radio_field.html" with label=experiment.RESULTS_RECIPE_ERRORS_LABEL field=experiment.results_recipe_errors %}
-  
-  {% if experiment.results_failures_notes %}
-    <p><strong>Recipe Error Notes: </strong></p>
-    <p>{{ experiment.results_failures_notes|urlize|markdown }}</ p>
-  {% endif %}
-  
-  <p><strong>Lessons Learned: </strong></p>
-  {% if experiment.results_lessons_learned %}
-    <p>{{ experiment.results_lessons_learned|urlize|markdown }}</p>
-  {% else %}
-    <p><em class="text-secondary">Not Complete.</em></p>
-  {% endif %}
+{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_CONFIDENCE_LABEL field=experiment.results_confidence %}
 
-  {% if experiment.additional_results %}
-    <hr/>
-    <h4> Additional Results</h4>
-    <h5>What Went Wrong?</h5>
+<p><strong>Lessons Learned: </strong></p>
+{% if experiment.results_lessons_learned %}
+<p>{{ experiment.results_lessons_learned|urlize|markdown }}</p>
+{% else %}
+<p><em class="text-secondary">Not Complete.</em></p>
+{% endif %}
 
-    {% include "experiments/results_radio_field.html" with label=experiment.RESULTS_FAIL_TO_LAUNCH_LABEL field=experiment.results_fail_to_launch %}
-  
-    {% include "experiments/results_radio_field.html" with label=experiment.RESULTS_RESTARTS_LABEL field=experiment.results_restarts %}
-    {% include "experiments/results_radio_field.html" with label=experiment.RESULTS_LOW_ENROLLMENT_LABEL field=experiment.results_low_enrollment %}
-    {% include "experiments/results_radio_field.html" with label=experiment.RESULTS_EARLY_END_LABEL field=experiment.results_early_end %}
-    {% include "experiments/results_radio_field.html" with label=experiment.RESULTS_NO_USABLE_DATA_LABEL field=experiment.results_no_usable_data %}
+{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_RECIPE_ERRORS_LABEL field=experiment.results_recipe_errors %}
 
-    <hr/>
-    <h5>What Went Right?</h5>
+{% if experiment.results_failures_notes %}
+<p><strong>Recipe Error Notes: </strong></p>
+<p>{{ experiment.results_failures_notes|urlize|markdown }}</p>
+{% endif %}
 
-    {% include "experiments/results_radio_field.html" with label=experiment.RESULTS_CHANGES_TO_FIREFOX_LABEL field=experiment.results_changes_to_firefox %}
-    {% include "experiments/results_radio_field.html" with label=experiment.RESULTS_DATA_FOR_HYPOTHESIS_LABEL field=experiment.results_data_for_hypothesis %}
+{% if experiment.additional_results %}
+<hr />
+<h4> Additional Results</h4>
+<h5>What Went Wrong?</h5>
 
-    {% include "experiments/results_radio_field.html" with label=experiment.RESULTS_MEASURE_IMPACT_LABEL field=experiment.results_measure_impact %}
+{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_FAIL_TO_LAUNCH_LABEL field=experiment.results_fail_to_launch %}
+
+{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_RESTARTS_LABEL field=experiment.results_restarts %}
+{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_LOW_ENROLLMENT_LABEL field=experiment.results_low_enrollment %}
+{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_EARLY_END_LABEL field=experiment.results_early_end %}
+{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_NO_USABLE_DATA_LABEL field=experiment.results_no_usable_data %}
+
+<hr />
+<h5>What Went Right?</h5>
+
+{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_CHANGES_TO_FIREFOX_LABEL field=experiment.results_changes_to_firefox %}
+{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_DATA_FOR_HYPOTHESIS_LABEL field=experiment.results_data_for_hypothesis %}
+
+{% include "experiments/results_radio_field.html" with label=experiment.RESULTS_MEASURE_IMPACT_LABEL field=experiment.results_measure_impact %}
 
 
-    {% if experiment.results_impact_notes %}
-      <p><strong>Notes: </strong></p>
-      <p>{{ experiment.results_impact_notes|urlize|markdown }}</p>
-    {% endif %}
+{% if experiment.results_impact_notes %}
+<p><strong>Notes: </strong></p>
+<p>{{ experiment.results_impact_notes|urlize|markdown }}</p>
+{% endif %}
 
-  {% endif %}
+{% endif %}
 {% endblock %}

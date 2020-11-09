@@ -6,23 +6,24 @@
 Edit <a href="{% url "experiments-detail" slug=object.slug %}">
   {{ object.name }}
 </a>
- Results
+Results
 {% endblock %}
 
 {% block edit_form %}
-  {% include "experiments/field_inline.html" with field=form.results_url %}
+{% include "experiments/field_inline.html" with field=form.results_url %}
 
-  {% include "experiments/radio_field_inline.html" with field=form.results_confidence %}
+{% include "experiments/field_inline.html" with field=form.results_initial %}
 
-  {% include "experiments/field_inline.html" with field=form.results_initial %}
+{% include "experiments/radio_field_inline.html" with field=form.results_confidence %}
 
-  {% include "experiments/radio_field_inline.html" with field=form.results_recipe_errors %}
+{% include "experiments/field_inline.html" with field=form.results_lessons_learned %}
 
-  <div id="results-failure-notes"  class="collapse">
-    {% include "experiments/field_inline.html" with field=form.results_failures_notes %}
-  </div>
+{% include "experiments/radio_field_inline.html" with field=form.results_recipe_errors %}
 
-    {% include "experiments/field_inline.html" with field=form.results_lessons_learned %}
+<div id="results-failure-notes" class="collapse">
+  {% include "experiments/field_inline.html" with field=form.results_failures_notes %}
+</div>
+
 
 {% endblock %}
 
@@ -31,20 +32,20 @@ Edit <a href="{% url "experiments-detail" slug=object.slug %}">
 <div class="form-group row">
   <div class="col text-right">
     {% block edit_buttons %}
-      {% if object %}
-        <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-link">
-          <span class="fas fa-times"></span>
-          Cancel Editing
-        </a>
-      {% endif %}
-      <button id="save-btn" type="submit" name="action" value="save" class="btn btn-primary">
-        <span class="fas fa-save"></span>
-        Save Results
-      </button>
+    {% if object %}
+    <a href="{% url "experiments-detail" slug=object.slug %}" class="btn btn-link">
+      <span class="fas fa-times"></span>
+      Cancel Editing
+    </a>
+    {% endif %}
+    <button id="save-btn" type="submit" name="action" value="save" class="btn btn-primary">
+      <span class="fas fa-save"></span>
+      Save Results
+    </button>
     {% endblock %}
   </div>
 </div>
 
 {% block extrascripts %}
-    <script src="{% static "scripts/edit-results.js" %}"></script>
+<script src="{% static "scripts/edit-results.js" %}"></script>
 {% endblock %}

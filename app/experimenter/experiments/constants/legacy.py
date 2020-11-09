@@ -936,7 +936,7 @@ class ExperimentConstants(object):
 
     RESULTS_NO_USABLE_DATA_LABEL = "Did this delivery fail to generate usable data?"
 
-    RESULTS_NOTES_LABEL = "Notes"
+    RESULTS_NOTES_LABEL = "Error Notes"
 
     RESULTS_CHANGES_TO_FIREFOX_LABEL = """
         Did changes (features, performance, UX, etc.) enter Firefox because
