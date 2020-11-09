@@ -49,12 +49,20 @@ export const AppLayoutWithSidebar = ({
               >
                 Branches
               </LinkNav>
-              <Nav.Item as="li" className="text-secondary m-1">
+              <LinkNav
+                route={`${slug}/edit/metrics`}
+                storiesOf="pages/EditMetrics"
+                testid="nav-edit-metrics"
+              >
                 Metrics
-              </Nav.Item>
-              <Nav.Item as="li" className="text-secondary m-1">
+              </LinkNav>
+              <LinkNav
+                route={`${slug}/edit/audience`}
+                storiesOf="pages/EditAudience"
+                testid="nav-edit-audience"
+              >
                 Audience
-              </Nav.Item>
+              </LinkNav>
               <LinkNav
                 route={`${slug}/request-review`}
                 storiesOf="pages/RequestReview"
