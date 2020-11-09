@@ -23,9 +23,6 @@ export interface updateExperimentStatus_updateExperimentStatus {
 }
 
 export interface updateExperimentStatus {
-  /**
-   * Mark a Nimubs Experiment as ready for review.
-   */
   updateExperimentStatus: updateExperimentStatus_updateExperimentStatus | null;
 }
 

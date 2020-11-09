@@ -81,9 +81,6 @@ export interface getExperiment_experimentBySlug {
 }
 
 export interface getExperiment {
-  /**
-   * Retrieve a Nimbus experiment by its slug.
-   */
   experimentBySlug: getExperiment_experimentBySlug | null;
 }
 
