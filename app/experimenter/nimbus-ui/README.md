@@ -51,7 +51,7 @@ You can read up over on their page if you want to know all the details, but if y
 
 All of our GraphQL resolvers produce types that are compatible with TypeScript, so there is no need to write new types for the queries you perform with Apollo.
 
-To generate types, just run `yarn types`. This will generate type declarations inside a `types/` directory at the root of this app. Once generated you can import and use as you see fit.
+To generate types, just run `yarn generate-types`. This will generate type declarations inside a `types/` directory at the root of this app. Once generated you can import and use as you see fit.  If there are changes to the graphql API on the server, run `make generate_types` to export the server schema and update the typescript stubs.
 
 For example, a query that looks like this:
 
@@ -84,8 +84,6 @@ export interface GetExperimentOverviews {
   experiments: (GetExperimentOverviews_experiments | null)[] | null;
 }
 ```
-
-**Note**: this command performs introspection on the GraphQL endpoint, so your local server must be running for it to work.
 
 ## Error handling
 

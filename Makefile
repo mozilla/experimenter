@@ -12,7 +12,7 @@ PY_IMPORT_SORT =  python -m isort . --profile black
 PY_IMPORT_CHECK =  python -m isort . --profile black --check
 PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
-PYTHON_RUNSERVER = DEBUG=True python manage.py runserver 0:7001
+PYTHON_MIGRATE = python manage.py migrate
 ESLINT_CORE = yarn workspace @experimenter/core lint
 ESLINT_FIX_CORE = yarn workspace @experimenter/core lint-fix
 ESLINT_RAPID = yarn workspace @experimenter/rapid lint:eslint
@@ -25,8 +25,8 @@ TYPECHECK_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:tsc
 JS_TEST_CORE = yarn workspace @experimenter/core test
 JS_TEST_RAPID = yarn workspace @experimenter/rapid test
 JS_TEST_NIMBUS_UI = CI=yes yarn workspace @experimenter/nimbus-ui test
-NIMBUS_TYPES_CHECK = yarn workspace @experimenter/nimbus-ui types-check
-NIMBUS_TYPES_GENERATE = yarn workspace @experimenter/nimbus-ui types-generate
+NIMBUS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/nimbus-ui/test_schema.graphql&&diff experimenter/nimbus-ui/test_schema.graphql experimenter/nimbus-ui/schema.graphql || (echo GraphQL Schema is out of sync please run make generate_types;exit 1)
+NIMBUS_TYPES_GENERATE = python manage.py graphql_schema --out experimenter/nimbus-ui/schema.graphql&&yarn workspace @experimenter/nimbus-ui generate-types
 FLAKE8 = flake8 .
 BLACK_CHECK = black -l 90 --check --diff . --exclude node_modules
 BLACK_FIX = black -l 90 . --exclude node_modules
@@ -35,11 +35,7 @@ GENERATE_DOCS = python manage.py generate_docs
 LOAD_COUNTRIES = python manage.py loaddata ./experimenter/base/fixtures/countries.json
 LOAD_LOCALES = python manage.py loaddata ./experimenter/base/fixtures/locales.json
 LOAD_DUMMY_EXPERIMENTS = python manage.py load_dummy_experiments
-MIGRATE = python manage.py migrate
 PUBLISH_STORYBOOKS = npx github:mozilla-fxa/storybook-gcp-publisher --commit-summary commit-summary.txt --commit-description commit-description.txt --version-json version.json
-PYTHON_RUNSERVER_MIGRATED = $(WAIT_FOR_DB) $(MIGRATE)&&$(PYTHON_RUNSERVER)&$(WAIT_FOR_RUNSERVER)
-NIMBUS_TYPES_CHECK_RUNSERVER =  $(PYTHON_RUNSERVER_MIGRATED) $(NIMBUS_TYPES_CHECK)
-NIMBUS_TYPES_GENERATE_RUNSERVER = $(PYTHON_RUNSERVER_MIGRATED) $(NIMBUS_TYPES_GENERATE)
 
 ssl: nginx/key.pem nginx/cert.pem
 
@@ -63,14 +59,8 @@ build_prod: build
 test_build: build
 	$(COMPOSE_TEST) build
 
-types_check: build
-	$(COMPOSE_TEST) run app sh -c "$(NIMBUS_TYPES_CHECK_RUNSERVER)"
-
-types_generate: build
-	$(COMPOSE_TEST) run app sh -c "$(NIMBUS_TYPES_GENERATE_RUNSERVER)"
-
 check: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(NIMBUS_TYPES_CHECK_RUNSERVER)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(ESLINT_VISUALIZATION)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_RAPID)" "$(TYPECHECK_NIMBUS_UI)" "$(PYTHON_TEST)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)" "$(JS_TEST_NIMBUS_UI)"'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(ESLINT_VISUALIZATION)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_RAPID)" "$(TYPECHECK_NIMBUS_UI)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)" "$(JS_TEST_NIMBUS_UI)" "$(PYTHON_TEST)"'
 
 compose_build: build ssl
 	$(COMPOSE)  build
@@ -121,6 +111,9 @@ up_detached: compose_build
 generate_docs: compose_build
 	$(COMPOSE) run app sh -c "$(GENERATE_DOCS)"
 
+generate_types: build
+	$(COMPOSE) run app sh -c "$(NIMBUS_TYPES_GENERATE)"
+
 publish_storybooks: build
 	$(COMPOSE_TEST) run app sh -c "$(PUBLISH_STORYBOOKS)"
 
@@ -131,13 +124,13 @@ makemigrations: compose_build
 	$(COMPOSE) run app python manage.py makemigrations
 
 migrate: compose_build
-	$(COMPOSE) run app sh -c "$(WAIT_FOR_DB) python manage.py migrate"
+	$(COMPOSE) run app sh -c "$(WAIT_FOR_DB) $(PYTHON_MIGRATE)"
 
 bash: compose_build
 	$(COMPOSE) run app bash
 
 refresh: kill compose_build
-	$(COMPOSE) run app sh -c '$(WAIT_FOR_DB) $(MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_DUMMY_EXPERIMENTS)'
+	$(COMPOSE) run app sh -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_DUMMY_EXPERIMENTS)'
 
 # integration tests
 integration_build: build_prod ssl
