@@ -1352,6 +1352,14 @@ class TestExperimentModel(TestCase):
         )
         self.assertFalse(experiment.completed_results)
 
+    def test_additional_results_returns_true_with_non_primary_results(self):
+        experiment = ExperimentFactory.create(results_restarts=True)
+        self.assertTrue(experiment.additional_results)
+
+    def test_additional_results_return_false_without_non_primary_results(self):
+        experiment = ExperimentFactory.create()
+        self.assertFalse(experiment.additional_results)
+
     def test_experiment_is_not_archivable(self):
         experiment = ExperimentFactory.create_with_status(
             target_status=Experiment.STATUS_ACCEPTED

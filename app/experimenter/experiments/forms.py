@@ -340,44 +340,9 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         required=False,
     )
 
-    results_fail_to_launch = forms.ChoiceField(
-        required=False,
-        label=Experiment.RESULTS_FAIL_TO_LAUNCH_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
-        choices=RADIO_OPTIONS,
-        widget=RadioWidget,
-    )
     results_recipe_errors = forms.ChoiceField(
         required=False,
         label=Experiment.RESULTS_RECIPE_ERRORS_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
-        choices=RADIO_OPTIONS,
-        widget=RadioWidget,
-    )
-    results_restarts = forms.ChoiceField(
-        required=False,
-        label=Experiment.RESULTS_RESTARTS_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
-        choices=RADIO_OPTIONS,
-        widget=RadioWidget,
-    )
-    results_low_enrollment = forms.ChoiceField(
-        required=False,
-        label=Experiment.RESULTS_LOW_ENROLLMENT_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
-        choices=RADIO_OPTIONS,
-        widget=RadioWidget,
-    )
-    results_early_end = forms.ChoiceField(
-        required=False,
-        label=Experiment.RESULTS_EARLY_END_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
-        choices=RADIO_OPTIONS,
-        widget=RadioWidget,
-    )
-    results_no_usable_data = forms.ChoiceField(
-        required=False,
-        label=Experiment.RESULTS_NO_USABLE_DATA_LABEL,
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
@@ -389,39 +354,12 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
         required=False,
     )
 
-    results_changes_to_firefox = forms.ChoiceField(
-        required=False,
-        label=Experiment.RESULTS_CHANGES_TO_FIREFOX_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
-        choices=RADIO_OPTIONS,
-        widget=RadioWidget,
-    )
-    results_data_for_hypothesis = forms.ChoiceField(
-        required=False,
-        label=Experiment.RESULTS_DATA_FOR_HYPOTHESIS_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
-        choices=RADIO_OPTIONS,
-        widget=RadioWidget,
-    )
     results_confidence = forms.ChoiceField(
         required=False,
         label=Experiment.RESULTS_CONFIDENCE_LABEL,
         help_text=Experiment.RESULTS_QUESTIONS_HELP,
         choices=RADIO_OPTIONS,
         widget=RadioWidget,
-    )
-    results_measure_impact = forms.ChoiceField(
-        required=False,
-        label=Experiment.RESULTS_MEASURE_IMPACT_LABEL,
-        help_text=Experiment.RESULTS_QUESTIONS_HELP,
-        choices=RADIO_OPTIONS,
-        widget=RadioWidget,
-    )
-    results_impact_notes = forms.CharField(
-        label=Experiment.RESULTS_NOTES_LABEL,
-        help_text="",
-        widget=forms.Textarea(attrs={"class": "form-control", "rows": 10}),
-        required=False,
     )
 
     class Meta:
@@ -430,18 +368,9 @@ class ExperimentResultsForm(ChangeLogMixin, forms.ModelForm):
             "results_url",
             "results_initial",
             "results_lessons_learned",
-            "results_fail_to_launch",
             "results_recipe_errors",
-            "results_restarts",
-            "results_low_enrollment",
-            "results_early_end",
-            "results_no_usable_data",
             "results_failures_notes",
-            "results_changes_to_firefox",
-            "results_data_for_hypothesis",
             "results_confidence",
-            "results_measure_impact",
-            "results_impact_notes",
         )
 
 
