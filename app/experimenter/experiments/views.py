@@ -8,6 +8,7 @@ from django.views.generic.edit import ModelFormMixin
 from django_filters.views import FilterView
 
 from experimenter.base.models import Country, Locale
+from experimenter.experiments.email import send_experiment_comment_email
 from experimenter.experiments.filtersets import ExperimentFilterset
 from experimenter.experiments.forms import (
     ExperimentArchiveForm,
@@ -213,6 +214,7 @@ class ExperimentCommentCreateView(ExperimentFormMixin, CreateView):
 
     def form_valid(self, form):
         comment = form.save()
+        send_experiment_comment_email(comment)
         return redirect(
             "{url}#{section}-comments".format(
                 url=reverse("experiments-detail", kwargs={"slug": self.kwargs["slug"]}),

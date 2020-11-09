@@ -1,0 +1,20 @@
+{% autoescape off %}
+
+<p>Hello,</p>
+
+<p>
+  This is an automatic email from Experimenter about
+  <a target="_blank" rel="noreferrer noopener" href="{{ experiment.experiment_url }}">{{ experiment.name }}</a>.
+</p>
+<p>
+  {{comment.created_by.email}} has commented on this experiment with:
+</p>
+<p>{{comment.text}}</p>
+
+
+<p>Thank you!</p>
+<p>Experimenter and Normandy Teams</p>
+
+<a target="_blank" rel="noreferrer noopener" href="{{ comment_url }}">view it on Experimenter</a>.
+
+{% endautoescape %}
