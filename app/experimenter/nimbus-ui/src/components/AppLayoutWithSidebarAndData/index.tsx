@@ -11,12 +11,14 @@ import PageExperimentNotFound from "../PageExperimentNotFound";
 import { useExperiment } from "../../hooks";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
-type ContainerEditPageChildrenProps = {
+type AppLayoutWithSidebarAndDataChildrenProps = {
   experiment: getExperiment_experimentBySlug;
 };
 
-type ContainerEditPageProps = {
-  children: (props: ContainerEditPageChildrenProps) => React.ReactNode | null;
+type AppLayoutWithSidebarAndDataProps = {
+  children: (
+    props: AppLayoutWithSidebarAndDataChildrenProps,
+  ) => React.ReactNode | null;
   testId: string;
   title: string;
   polling?: boolean;
@@ -24,12 +26,12 @@ type ContainerEditPageProps = {
 
 export const POLL_INTERVAL = 30000;
 
-const ContainerEditPage = ({
+const AppLayoutWithSidebarAndData = ({
   children,
   testId,
   title,
   polling = false,
-}: ContainerEditPageProps) => {
+}: AppLayoutWithSidebarAndDataProps) => {
   const { slug } = useParams();
   const {
     experiment,
@@ -77,4 +79,4 @@ const ContainerEditPage = ({
   );
 };
 
-export default ContainerEditPage;
+export default AppLayoutWithSidebarAndData;
