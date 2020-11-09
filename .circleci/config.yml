@@ -109,10 +109,6 @@ workflows:
           name: check
           requires:
             - build
-          filters:
-            branches:
-              ignore:
-                - main
       - publish_storybooks:
           name: publish_storybooks
           requires:
@@ -129,3 +125,5 @@ workflows:
           filters:
             branches:
               only: main
+          requires:
+           - check
