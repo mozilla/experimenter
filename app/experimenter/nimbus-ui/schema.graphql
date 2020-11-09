@@ -1,0 +1,323 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type ApplicationChannel {
+  label: String
+  channels: [String]
+}
+
+type CreateExperiment {
+  clientMutationId: String
+  nimbusExperiment: NimbusExperimentType
+  message: ObjectField
+  status: Int
+}
+
+input CreateExperimentInput {
+  clientMutationId: String
+  name: String!
+  application: NimbusExperimentApplication!
+  publicDescription: String
+  hypothesis: String!
+}
+
+scalar Decimal
+
+type Mutation {
+  createExperiment(input: CreateExperimentInput!): CreateExperiment
+  updateExperimentOverview(input: UpdateExperimentInput!): UpdateExperimentOverview
+  updateExperimentBranches(input: UpdateExperimentBranchesInput!): UpdateExperimentBranches
+  updateExperimentProbeSets(input: UpdateExperimentProbeSetsInput!): UpdateExperimentProbeSets
+  updateExperimentAudience(input: UpdateExperimentAudienceInput!): UpdateExperimentAudience
+  updateExperimentStatus(input: UpdateExperimentStatusInput!): UpdateExperimentStatus
+}
+
+type NimbusBranchType {
+  name: String!
+  slug: String!
+  description: String!
+  ratio: Int!
+  featureEnabled: Boolean!
+  featureValue: String
+}
+
+type NimbusBucketRangeType {
+  isolationGroup: NimbusIsolationGroupType!
+  start: Int!
+  count: Int!
+}
+
+type NimbusConfigurationType {
+  application: [NimbusLabelValueType]
+  channels: [NimbusLabelValueType]
+  applicationChannels: [ApplicationChannel]
+  featureConfig: [NimbusFeatureConfigType]
+  firefoxMinVersion: [NimbusLabelValueType]
+  probeSets: [NimbusProbeSetType]
+  targetingConfigSlug: [NimbusLabelValueType]
+}
+
+enum NimbusExperimentApplication {
+  DESKTOP
+  FENIX
+}
+
+enum NimbusExperimentChannel {
+  DESKTOP_BETA
+  DESKTOP_NIGHTLY
+  DESKTOP_RELEASE
+  FENIX_BETA
+  FENIX_NIGHTLY
+  FENIX_RELEASE
+}
+
+enum NimbusExperimentFirefoxMinVersion {
+  FIREFOX_80
+  FIREFOX_81
+  FIREFOX_82
+  FIREFOX_83
+  FIREFOX_84
+  FIREFOX_85
+  FIREFOX_86
+  FIREFOX_87
+  FIREFOX_88
+  FIREFOX_89
+  FIREFOX_90
+  FIREFOX_91
+  FIREFOX_92
+  FIREFOX_93
+  FIREFOX_94
+  FIREFOX_95
+  FIREFOX_96
+  FIREFOX_97
+  FIREFOX_98
+  FIREFOX_99
+  FIREFOX_100
+}
+
+enum NimbusExperimentOptionalStatus {
+  Draft
+  Review
+  Accepted
+  Live
+  Complete
+}
+
+type NimbusExperimentOwner {
+  id: ID!
+  username: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+}
+
+enum NimbusExperimentStatus {
+  DRAFT
+  REVIEW
+  ACCEPTED
+  LIVE
+  COMPLETE
+}
+
+enum NimbusExperimentTargetingConfigSlug {
+  ALL_ENGLISH
+  US_ONLY
+  TARGETING_FIRST_RUN
+  TARGETING_FIRST_RUN_ABOUT_WELCOME
+}
+
+type NimbusExperimentType {
+  id: ID!
+  owner: NimbusExperimentOwner
+  status: NimbusExperimentStatus
+  name: String!
+  slug: String!
+  publicDescription: String
+  isPaused: Boolean!
+  proposedDuration: Int
+  proposedEnrollment: Int
+  populationPercent: Float
+  totalEnrolledClients: Int!
+  firefoxMinVersion: NimbusExperimentFirefoxMinVersion
+  application: NimbusExperimentApplication
+  channels: [NimbusExperimentChannel]
+  projects: [ProjectType!]!
+  hypothesis: String
+  featureConfig: NimbusFeatureConfigType
+  targetingConfigSlug: NimbusExperimentTargetingConfigSlug
+  referenceBranch: NimbusBranchType
+  bucketRange: NimbusBucketRangeType
+  treatmentBranches: [NimbusBranchType]
+  primaryProbeSets: [NimbusProbeSetType]
+  secondaryProbeSets: [NimbusProbeSetType]
+}
+
+enum NimbusFeatureConfigApplication {
+  FIREFOX_DESKTOP
+  FENIX
+}
+
+type NimbusFeatureConfigType {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  application: NimbusFeatureConfigApplication
+  ownerEmail: String
+  schema: String
+  nimbusexperimentSet: [NimbusExperimentType!]!
+}
+
+type NimbusIsolationGroupType {
+  id: ID!
+  name: String!
+  instance: Int!
+  total: Int!
+  randomizationUnit: String!
+  bucketRanges: [NimbusBucketRangeType!]!
+}
+
+type NimbusLabelValueType {
+  label: String
+  value: String
+}
+
+enum NimbusProbeKind {
+  EVENT
+  SCALAR
+}
+
+type NimbusProbeSetType {
+  id: ID!
+  name: String!
+  slug: String!
+  probes: [NimbusProbeType!]!
+  nimbusexperimentSet: [NimbusExperimentType!]!
+}
+
+type NimbusProbeType {
+  id: ID!
+  kind: NimbusProbeKind!
+  name: String!
+  eventCategory: String!
+  eventMethod: String
+  eventObject: String
+  eventValue: String
+  nimbusprobesetSet: [NimbusProbeSetType!]!
+}
+
+type NimbusReadyForReviewType {
+  message: ObjectField
+  ready: Boolean
+}
+
+scalar ObjectField
+
+type ProjectType {
+  id: ID!
+  name: String!
+  slug: String!
+  nimbusexperimentSet: [NimbusExperimentType!]!
+}
+
+type Query {
+  experiments(offset: Int, limit: Int, status: NimbusExperimentOptionalStatus): [NimbusExperimentType]
+  experimentBySlug(slug: String!): NimbusExperimentType
+  experimentReadyForReviewBySlug(slug: String!): NimbusReadyForReviewType
+  nimbusConfig: NimbusConfigurationType
+}
+
+input ReferenceBranchType {
+  name: String!
+  description: String!
+  ratio: Int!
+  featureEnabled: Boolean
+  featureValue: String
+}
+
+input TreatmentBranchType {
+  name: String!
+  description: String!
+  ratio: Int!
+  featureEnabled: Boolean
+  featureValue: String
+}
+
+type UpdateExperimentAudience {
+  clientMutationId: String
+  nimbusExperiment: NimbusExperimentType
+  message: ObjectField
+  status: Int
+}
+
+input UpdateExperimentAudienceInput {
+  clientMutationId: String
+  nimbusExperimentId: Int!
+  channels: [NimbusExperimentChannel]
+  firefoxMinVersion: NimbusExperimentFirefoxMinVersion
+  populationPercent: Decimal
+  proposedDuration: Int
+  proposedEnrollment: String
+  targetingConfigSlug: NimbusExperimentTargetingConfigSlug
+  totalEnrolledClients: Int
+}
+
+type UpdateExperimentBranches {
+  clientMutationId: String
+  nimbusExperiment: NimbusExperimentType
+  message: ObjectField
+  status: Int
+}
+
+input UpdateExperimentBranchesInput {
+  clientMutationId: String
+  nimbusExperimentId: Int!
+  featureConfigId: Int
+  referenceBranch: ReferenceBranchType!
+  treatmentBranches: [TreatmentBranchType]!
+}
+
+input UpdateExperimentInput {
+  clientMutationId: String
+  name: String
+  application: NimbusExperimentApplication
+  publicDescription: String
+  hypothesis: String
+  id: ID!
+}
+
+type UpdateExperimentOverview {
+  clientMutationId: String
+  nimbusExperiment: NimbusExperimentType
+  message: ObjectField
+  status: Int
+}
+
+type UpdateExperimentProbeSets {
+  clientMutationId: String
+  nimbusExperiment: NimbusExperimentType
+  message: ObjectField
+  status: Int
+}
+
+input UpdateExperimentProbeSetsInput {
+  clientMutationId: String
+  nimbusExperimentId: Int!
+  primaryProbeSetIds: [Int]!
+  secondaryProbeSetIds: [Int]!
+}
+
+type UpdateExperimentStatus {
+  clientMutationId: String
+  nimbusExperiment: NimbusExperimentType
+  message: ObjectField
+  status: Int
+}
+
+input UpdateExperimentStatusInput {
+  clientMutationId: String
+  nimbusExperimentId: Int!
+  status: NimbusExperimentStatus!
+}

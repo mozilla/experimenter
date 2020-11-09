@@ -74,8 +74,5 @@ export interface getConfig_nimbusConfig {
 }
 
 export interface getConfig {
-  /**
-   * Nimbus Configuration Data for front-end usage.
-   */
   nimbusConfig: getConfig_nimbusConfig | null;
 }
