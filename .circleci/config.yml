@@ -101,10 +101,6 @@ workflows:
     jobs:
       - build:
           name: build
-          filters:
-            branches:
-              ignore:
-                - main
       - check:
           name: check
           requires:
