@@ -762,6 +762,22 @@ class Experiment(ExperimentConstants, models.Model):
         return any([getattr(self, field) for field in results_fields])
 
     @property
+    def additional_results(self):
+        return any(
+            [
+                self.results_fail_to_launch,
+                self.results_restarts,
+                self.results_low_enrollment,
+                self.results_early_end,
+                self.results_no_usable_data,
+                self.results_changes_to_firefox,
+                self.results_data_for_hypothesis,
+                self.results_measure_impact,
+                self.results_impact_notes,
+            ]
+        )
+
+    @property
     def risk_fields(self):
         risk_fields = (
             "risk_partner_related",
