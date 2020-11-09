@@ -52,7 +52,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
             }
 
 
-class NimbusExperimentSerializer(serializers.ModelSerializer):
+class NimbusExperimentArgumentsSerializer(serializers.ModelSerializer):
     schemaVersion = serializers.ReadOnlyField(default=settings.NIMBUS_SCHEMA_VERSION)
     id = serializers.ReadOnlyField(source="slug")
     userFacingName = serializers.ReadOnlyField(source="name")
@@ -117,6 +117,17 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             targeting_config = obj.targeting_config.targeting.format(experiment=obj)
 
             return f"{channels_expr}{version_expr}{targeting_config}"
+
+
+class NimbusExperimentSerializer(NimbusExperimentArgumentsSerializer):
+    arguments = serializers.SerializerMethodField()
+
+    class Meta:
+        model = NimbusExperiment
+        fields = NimbusExperimentArgumentsSerializer.Meta.fields + ("arguments",)
+
+    def get_arguments(self, obj):
+        return NimbusExperimentArgumentsSerializer(instance=obj).data
 
 
 class NimbusProbeSerializer(serializers.ModelSerializer):
