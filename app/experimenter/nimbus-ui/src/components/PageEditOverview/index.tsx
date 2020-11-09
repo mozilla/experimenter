@@ -5,7 +5,7 @@
 import React, { useCallback, useRef, useState } from "react";
 import { navigate, RouteComponentProps } from "@reach/router";
 import FormOverview from "../FormOverview";
-import ContainerEditPage from "../ContainerEditPage";
+import AppLayoutWithSidebarAndData from "../AppLayoutWithSidebarAndData";
 import { useMutation } from "@apollo/client";
 import { UPDATE_EXPERIMENT_OVERVIEW_MUTATION } from "../../gql/experiments";
 import { SUBMIT_ERROR } from "../../lib/constants";
@@ -65,7 +65,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
   }, []);
 
   return (
-    <ContainerEditPage title="Overview" testId="PageEditOverview">
+    <AppLayoutWithSidebarAndData title="Overview" testId="PageEditOverview">
       {({ experiment }) => {
         currentExperiment.current = experiment;
 
@@ -81,7 +81,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
           />
         );
       }}
-    </ContainerEditPage>
+    </AppLayoutWithSidebarAndData>
   );
 };
 

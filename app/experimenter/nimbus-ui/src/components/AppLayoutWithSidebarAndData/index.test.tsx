@@ -4,7 +4,7 @@
 
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
-import ContainerEditPage, { POLL_INTERVAL } from ".";
+import AppLayoutWithSidebarAndData, { POLL_INTERVAL } from ".";
 import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
@@ -13,12 +13,14 @@ import { act } from "@testing-library/react";
 
 jest.useFakeTimers();
 
-describe("ContainerEditPage", () => {
+describe("AppLayoutWithSidebarAndData", () => {
   it("renders as expected", async () => {
     const { mock } = mockExperimentQuery("demo-slug");
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
-      expect(screen.getByTestId("ContainerEditPage")).toBeInTheDocument();
+      expect(
+        screen.getByTestId("AppLayoutWithSidebarAndData"),
+      ).toBeInTheDocument();
       expect(screen.getByTestId("page-title")).toBeInTheDocument();
       expect(screen.getByTestId("page-title")).toHaveTextContent("Howdy!");
       expect(screen.getByTestId("child")).toBeInTheDocument();
@@ -112,12 +114,12 @@ const Subject = ({
   polling?: boolean;
 }) => (
   <RouterSlugProvider {...{ mocks }}>
-    <ContainerEditPage
+    <AppLayoutWithSidebarAndData
       title="Howdy!"
-      testId="ContainerEditPage"
+      testId="AppLayoutWithSidebarAndData"
       {...{ polling }}
     >
       {({ experiment }) => <p data-testid="child">{experiment.slug}</p>}
-    </ContainerEditPage>
+    </AppLayoutWithSidebarAndData>
   </RouterSlugProvider>
 );
