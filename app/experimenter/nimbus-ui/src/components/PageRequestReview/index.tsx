@@ -5,7 +5,7 @@
 import React, { useCallback, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { RouteComponentProps } from "@reach/router";
-import ContainerEditPage from "../ContainerEditPage";
+import AppLayoutWithSidebarAndData from "../AppLayoutWithSidebarAndData";
 import TableSummary from "../TableSummary";
 import { SUBMIT_ERROR } from "../../lib/constants";
 import { UPDATE_EXPERIMENT_STATUS_MUTATION } from "../../gql/experiments";
@@ -61,7 +61,7 @@ const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = ({
   }, [submitForReview, currentExperiment]);
 
   return (
-    <ContainerEditPage
+    <AppLayoutWithSidebarAndData
       title="Review &amp; Launch"
       testId="PageRequestReview"
       {...{ polling }}
@@ -104,7 +104,7 @@ const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = ({
           </>
         );
       }}
-    </ContainerEditPage>
+    </AppLayoutWithSidebarAndData>
   );
 };
 

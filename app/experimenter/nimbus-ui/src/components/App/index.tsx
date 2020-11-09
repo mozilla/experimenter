@@ -9,6 +9,8 @@ import { GET_CONFIG_QUERY } from "../../gql/config";
 import PageLoading from "../PageLoading";
 import PageHome from "../PageHome";
 import PageNew from "../PageNew";
+import PageDesign from "../PageDesign";
+import PageResults from "../PageResults";
 import PageEditOverview from "../PageEditOverview";
 import PageEditBranches from "../PageEditBranches";
 import PageRequestReview from "../PageRequestReview";
@@ -36,6 +38,8 @@ const App = ({ basepath }: { basepath: string }) => {
         <PageEditBranches path="branches" />
       </Root>
       <PageRequestReview path=":slug/request-review" />
+      <PageDesign path=":slug/design" />
+      <PageResults path=":slug/results" />
     </Router>
   );
 };
