@@ -160,7 +160,7 @@ const FormOverview = ({
             name="publicDescription"
             as="textarea"
             rows={3}
-            defaultValue={experiment?.publicDescription || ""}
+            defaultValue={experiment?.publicDescription as string}
           />
           <Form.Text className="text-muted">
             This description will be public to users on about:studies
