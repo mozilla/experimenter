@@ -6,43 +6,114 @@ import React from "react";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
-import Badge from "react-bootstrap/Badge";
-import { ReactComponent as DeleteIcon } from "../../images/x.svg";
+
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import {
+  getConfig_nimbusConfig,
+  getConfig_nimbusConfig_featureConfig,
+} from "../../types/getConfig";
+
+import FormBranch from "./FormBranch";
 
 import {
-  getExperiment_experimentBySlug,
-  getExperiment_experimentBySlug_treatmentBranches,
-} from "../../types/getExperiment";
-import { getConfig_nimbusConfig } from "../../types/getConfig";
+  useFormBranchesReducer,
+  FormBranchesSaveState,
+  REFERENCE_BRANCH_IDX,
+  AnnotatedBranch,
+  extractSaveState,
+} from "./reducer";
 
-/* TODO: EXP-505 for managing branch editing interactions & state */
-
-const FormBranches = ({
+export const FormBranches = ({
   experiment,
-  equalRatio,
   featureConfig,
+  onSave,
+  onNext,
 }: {
   experiment: getExperiment_experimentBySlug;
-  equalRatio?: boolean;
   featureConfig: getConfig_nimbusConfig["featureConfig"];
+  onSave: (state: FormBranchesSaveState) => void;
+  onNext: () => void;
 }) => {
+  const [formBranchesState, dispatch] = useFormBranchesReducer(experiment);
   const {
+    featureConfig: experimentFeatureConfig,
     referenceBranch,
     treatmentBranches,
-    featureConfig: experimentFeatureConfig,
-  } = experiment!;
+    equalRatio,
+  } = formBranchesState;
+
+  const handleAddBranch = () => dispatch({ type: "addBranch" });
+
+  const handleRemoveBranch = (idx: number) => () =>
+    dispatch({ type: "removeBranch", idx });
+
+  const handleUpdateBranch = (idx: number) => (value: AnnotatedBranch) =>
+    dispatch({ type: "updateBranch", idx, value });
+
+  const handleEqualRatioChange = (ev: React.ChangeEvent<HTMLInputElement>) =>
+    dispatch({ type: "setEqualRatio", value: ev.target.checked });
+
+  // HACK: just use the first available feature config when adding
+  // The only available indicator whether to display "Add feature config" is a non-null feature config
+  const handleAddFeatureConfig = () =>
+    dispatch({ type: "setFeatureConfig", value: featureConfig![0] });
+
+  const handleRemoveFeatureConfig = () =>
+    dispatch({ type: "removeFeatureConfig" });
+
+  const handleFeatureConfigChange = (
+    value: getConfig_nimbusConfig_featureConfig | null,
+  ) => dispatch({ type: "setFeatureConfig", value });
+
+  // TODO: EXP-505 implement save button enable/disable logic
+  const isSaveDisabled = false;
+
+  const handleSaveClick = (
+    ev: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    ev.preventDefault();
+    onSave(extractSaveState(formBranchesState));
+  };
+
+  // TODO: EXP-505 implement next button enable/disable logic
+  const isNextDisabled = false;
+
+  const handleNextClick = (
+    ev: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    ev.preventDefault();
+    onNext();
+  };
+
+  const commonBranchProps = {
+    equalRatio,
+    featureConfig,
+    experimentFeatureConfig,
+    onFeatureConfigChange: handleFeatureConfigChange,
+    onAddFeatureConfig: handleAddFeatureConfig,
+    onRemoveFeatureConfig: handleRemoveFeatureConfig,
+  };
+
   return (
     <section data-testid="FormBranches" className="border-top my-3">
       <Form className="p-2">
         <Form.Row className="my-3">
           <Form.Group controlId="evenRatio">
             <Form.Check
+              data-testid="equal-ratio-checkbox"
+              onChange={handleEqualRatioChange}
+              checked={equalRatio}
               type="checkbox"
               label="Users should be split evenly between all branches"
             />
           </Form.Group>
           <Form.Group as={Col} className="align-top text-right">
-            <Button variant="outline-primary" size="sm">
+            <Button
+              data-testid="add-branch"
+              variant="outline-primary"
+              size="sm"
+              onClick={handleAddBranch}
+            >
               + Add branch
             </Button>
           </Form.Group>
@@ -52,11 +123,11 @@ const FormBranches = ({
         {referenceBranch && (
           <FormBranch
             {...{
-              branch: referenceBranch,
-              equalRatio,
-              featureConfig,
-              experimentFeatureConfig,
+              ...commonBranchProps,
+              id: `branch-reference`,
               isReference: true,
+              branch: { ...referenceBranch, __key: "branch-reference" },
+              onChange: handleUpdateBranch(REFERENCE_BRANCH_IDX),
             }}
           />
         )}
@@ -66,11 +137,12 @@ const FormBranches = ({
               branch && (
                 <FormBranch
                   {...{
-                    key: `branch-${idx}`,
+                    ...commonBranchProps,
+                    key: branch.__key,
+                    id: branch.__key,
                     branch,
-                    equalRatio,
-                    featureConfig,
-                    experimentFeatureConfig,
+                    onRemove: handleRemoveBranch(idx),
+                    onChange: handleUpdateBranch(idx),
                   }}
                 />
               ),
@@ -79,149 +151,28 @@ const FormBranches = ({
 
       <div className="d-flex flex-row-reverse bd-highlight">
         <div className="p-2">
-          <button className="btn btn-secondary">Next</button>
+          <button
+            data-testid="next-button"
+            className="btn btn-secondary"
+            disabled={isNextDisabled}
+            onClick={handleNextClick}
+          >
+            Next
+          </button>
         </div>
         <div className="p-2">
           <button
-            data-testid="submit-button"
+            data-testid="save-button"
             type="submit"
             className="btn btn-primary"
-            data-sb-kind="pages/EditBranches"
+            disabled={isSaveDisabled}
+            onClick={handleSaveClick}
           >
             <span>Save</span>
           </button>
         </div>
       </div>
     </section>
-  );
-};
-
-/* TODO: EXP-505 for managing branch editing interactions & state */
-
-export const FormBranch = ({
-  branch,
-  equalRatio,
-  isReference,
-  experimentFeatureConfig,
-  featureConfig,
-}: {
-  branch: getExperiment_experimentBySlug_treatmentBranches;
-  equalRatio?: boolean;
-  isReference?: boolean;
-  experimentFeatureConfig: getExperiment_experimentBySlug["featureConfig"];
-  featureConfig: getConfig_nimbusConfig["featureConfig"];
-}) => {
-  const { name, description, ratio, featureValue, featureEnabled } = branch;
-  return (
-    <Form
-      className="mb-3 border border-secondary rounded"
-      data-testid="FormBranch"
-    >
-      <Form.Group className="p-1 mx-3 mt-2 mb-0">
-        <Form.Row>
-          <Form.Group as={Col} controlId="branch" sm={4} md={3}>
-            <Form.Label>
-              Branch{" "}
-              {isReference && (
-                <Badge pill variant="primary" data-testid="control-pill">
-                  control
-                </Badge>
-              )}
-            </Form.Label>
-            <Form.Control type="text" defaultValue={name} />
-          </Form.Group>
-          <Form.Group as={Col} controlId="description">
-            <Form.Label>Description</Form.Label>
-            <Form.Control type="text" defaultValue={description} />
-          </Form.Group>
-          <Form.Group as={Col} controlId="ratio" sm={2} md={2}>
-            <Form.Label>Ratio</Form.Label>
-            {equalRatio ? (
-              <p data-testid="equal-ratio" className="p-0 m-0">
-                Equal
-              </p>
-            ) : (
-              <Form.Control type="text" defaultValue={ratio} />
-            )}
-          </Form.Group>
-          <Form.Group as={Col} sm={1} className="align-top text-right">
-            {!isReference && (
-              <Button
-                variant="light"
-                className="bg-transparent border-0 p-0 m-0"
-              >
-                <DeleteIcon width="18" height="18" />
-              </Button>
-            )}
-          </Form.Group>
-        </Form.Row>
-      </Form.Group>
-
-      {featureValue === null || !experimentFeatureConfig ? (
-        <Form.Group className="px-2 mx-3">
-          <Form.Row>
-            <Button
-              variant="outline-primary"
-              size="sm"
-              data-testid="feature-config-add"
-            >
-              + Feature configuration
-            </Button>
-          </Form.Row>
-        </Form.Group>
-      ) : (
-        <Form.Group
-          className="px-3 py-2 border-top"
-          data-testid="feature-config-edit"
-        >
-          <p>Feature configuration</p>
-          <Form.Row className="align-middle">
-            <Form.Group as={Col} controlId="feature">
-              <Form.Control
-                as="select"
-                defaultValue={experimentFeatureConfig.slug}
-              >
-                <option value="">Select...</option>
-                {featureConfig &&
-                  featureConfig.map(
-                    (feature, idx) =>
-                      feature && (
-                        <option
-                          key={`feature-${feature.slug}-${idx}`}
-                          value={feature.slug}
-                        >
-                          {feature!.name}
-                        </option>
-                      ),
-                  )}
-              </Form.Control>
-            </Form.Group>
-            <Col sm={1} md={1} className="px-2 text-center">
-              is
-            </Col>
-            <Form.Group as={Col} controlId="featureEnabled">
-              <Form.Check
-                type="switch"
-                label={featureEnabled ? "On" : "Off"}
-                defaultChecked={featureEnabled}
-              />
-            </Form.Group>
-          </Form.Row>
-          {!!experimentFeatureConfig.schema && featureEnabled && (
-            <Form.Row data-testid="feature-value-edit">
-              <Form.Group as={Col} controlId="featureValue">
-                <Form.Label>Value</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={4}
-                  defaultValue={featureValue}
-                />
-              </Form.Group>
-            </Form.Row>
-          )}
-        </Form.Group>
-      )}
-    </Form>
   );
 };
 
