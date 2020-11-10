@@ -7,11 +7,15 @@ from django.test import TestCase
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.email import (
     send_enrollment_pause_email,
+    send_experiment_comment_email,
     send_experiment_ending_email,
     send_experiment_launch_email,
     send_intent_to_ship_email,
 )
-from experimenter.experiments.tests.factories import ExperimentFactory
+from experimenter.experiments.tests.factories import (
+    ExperimentCommentFactory,
+    ExperimentFactory,
+)
 from experimenter.openidc.tests.factories import UserFactory
 
 
@@ -254,3 +258,22 @@ class TestStatusUpdateEmail(TestCase):
             ],
         )
         self.assertIn("May 6, 2019", sent_email.body)
+
+    def test_send_experiment_comment_email(self):
+        experiment = ExperimentFactory.create(
+            name="exp1", type=ExperimentConstants.TYPE_PREF
+        )
+        user = UserFactory.create(email="u1@example.com")
+        comment = ExperimentCommentFactory.create(experiment=experiment, created_by=user)
+        send_experiment_comment_email(comment)
+        sent_email = mail.outbox[-1]
+
+        expected_subject = (
+            "[Experimenter]: u1@example.com commented on Pref-Flip Experiment: exp1"
+        )
+
+        self.assertEqual(sent_email.subject, expected_subject)
+        self.assertEqual(sent_email.content_subtype, "html")
+        self.assertTrue(
+            experiment.emails.filter(type=ExperimentConstants.EXPERIMENT_COMMENT).exists()
+        )

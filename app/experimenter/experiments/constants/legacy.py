@@ -89,6 +89,7 @@ class ExperimentConstants(object):
     EXPERIMENT_STARTS = "starting"
     EXPERIMENT_PAUSES = "pausing"
     EXPERIMENT_ENDS = "ending"
+    EXPERIMENT_COMMENT = "new comment"
 
     # extra email-type stuff
     INTENT_TO_SHIP_EMAIL_LABEL = "intent to ship"
@@ -142,6 +143,7 @@ class ExperimentConstants(object):
         (EXPERIMENT_STARTS, EXPERIMENT_STARTS),
         (EXPERIMENT_PAUSES, EXPERIMENT_PAUSES),
         (EXPERIMENT_ENDS, EXPERIMENT_ENDS),
+        (EXPERIMENT_COMMENT, EXPERIMENT_COMMENT),
         (INTENT_TO_SHIP_EMAIL_LABEL, INTENT_TO_SHIP_EMAIL_LABEL),
     )
 
@@ -1115,6 +1117,10 @@ If applicable, link to any relevant test builds / staging information
 
     PAUSE_EMAIL_SUBJECT = (
         "Experimenter enrollment ending verification " "for: {name} {version} {channel}"
+    )
+
+    COMMENT_EMAIL_SUBJECT = (
+        "[Experimenter]: {comment.created_by.email} commented on {experiment}"
     )
 
     NORMANDY_CHANGE_WINDOW = """

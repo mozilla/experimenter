@@ -73,6 +73,23 @@ def send_enrollment_pause_email(experiment):
     )
 
 
+def send_experiment_comment_email(comment):
+    experiment = comment.experiment
+    subject = Experiment.COMMENT_EMAIL_SUBJECT.format(
+        comment=comment, experiment=experiment
+    )
+    format_and_send_html_email(
+        comment.experiment,
+        "experiments/emails/new_comment_email.html",
+        {
+            "experiment": comment.experiment,
+            "comment": comment,
+        },
+        subject,
+        Experiment.EXPERIMENT_COMMENT,
+    )
+
+
 def format_and_send_html_email(
     experiment, file_string, template_vars, subject, email_type, cc_recipients=None
 ):
