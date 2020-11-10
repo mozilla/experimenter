@@ -13,6 +13,8 @@ import PageDesign from "../PageDesign";
 import PageResults from "../PageResults";
 import PageEditOverview from "../PageEditOverview";
 import PageEditBranches from "../PageEditBranches";
+import PageEditMetrics from "../PageEditMetrics";
+import PageEditAudience from "../PageEditAudience";
 import PageRequestReview from "../PageRequestReview";
 
 type RootProps = {
@@ -36,6 +38,8 @@ const App = ({ basepath }: { basepath: string }) => {
         <Redirect from="/" to="overview" noThrow />
         <PageEditOverview path="overview" />
         <PageEditBranches path="branches" />
+        <PageEditMetrics path="metrics" />
+        <PageEditAudience path="audience" />
       </Root>
       <PageRequestReview path=":slug/request-review" />
       <PageDesign path=":slug/design" />
