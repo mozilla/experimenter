@@ -387,27 +387,28 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create(normandy_id="123", recipe_slug=None)
         self.assertTrue(experiment.has_normandy_info)
 
-    def test_format_dc_normandy_urls_returns_empty_list_without_normandy_id(self):
+    def test_format_ndt_normandy_urls_returns_empty_list_without_normandy_id(self):
         experiment = ExperimentFactory.create(normandy_id=None)
-        self.assertEqual(len(experiment.format_dc_normandy_urls), 0)
+        self.assertEqual(len(experiment.format_ndt_normandy_urls), 0)
 
-    def test_format_dc_normandy_urls_with_only_main(self):
+    def test_format_ndt_normandy_urls_with_only_main(self):
         experiment = ExperimentFactory.create(normandy_id="445")
         with override_settings(
-            DELIVERY_CONSOLE_RECIPE_URL=(
-                "http://delivery-console.example.com/recipe/{id}/"
-            )
+            NORMANDY_DEVTOOLS_RECIPE_URL=(
+                "http://normandy-devtools.example.com/#/{instance}/recipes/{id}"
+            ),
+            EXPERIMENTER_INSTANCE="local",
         ):
             self.assertEqual(
-                experiment.format_dc_normandy_urls[0]["DC_url"],
-                "http://delivery-console.example.com/recipe/445/",
+                experiment.format_ndt_normandy_urls[0]["ndt_url"],
+                "http://normandy-devtools.example.com/#/local/recipes/445",
             )
 
         with override_settings(
             NORMANDY_API_RECIPE_URL="http://normandy.example.com/recipe/{id}/"
         ):
             self.assertEqual(
-                experiment.format_dc_normandy_urls[0]["normandy_url"],
+                experiment.format_ndt_normandy_urls[0]["normandy_url"],
                 "http://normandy.example.com/recipe/445/",
             )
 
@@ -416,33 +417,34 @@ class TestExperimentModel(TestCase):
             normandy_id="32", other_normandy_ids=[43, 56]
         )
         with override_settings(
-            DELIVERY_CONSOLE_RECIPE_URL=(
-                "http://delivery-console.example.com/recipe/{id}/"
+            NORMANDY_DEVTOOLS_RECIPE_URL=(
+                "http://normandy-devtools.example.com/#/{instance}/recipes/{id}/"
             ),
+            EXPERIMENTER_INSTANCE="local",
             NORMANDY_API_RECIPE_URL="http://normandy.example.com/recipe/{id}/",
         ):
             self.assertEqual(
-                experiment.format_dc_normandy_urls[0]["DC_url"],
-                "http://delivery-console.example.com/recipe/32/",
+                experiment.format_ndt_normandy_urls[0]["ndt_url"],
+                "http://normandy-devtools.example.com/#/local/recipes/32/",
             )
             self.assertEqual(
-                experiment.format_dc_normandy_urls[0]["normandy_url"],
+                experiment.format_ndt_normandy_urls[0]["normandy_url"],
                 "http://normandy.example.com/recipe/32/",
             )
             self.assertEqual(
-                experiment.format_dc_normandy_urls[1]["DC_url"],
-                "http://delivery-console.example.com/recipe/43/",
+                experiment.format_ndt_normandy_urls[1]["ndt_url"],
+                "http://normandy-devtools.example.com/#/local/recipes/43/",
             )
             self.assertEqual(
-                experiment.format_dc_normandy_urls[1]["normandy_url"],
+                experiment.format_ndt_normandy_urls[1]["normandy_url"],
                 "http://normandy.example.com/recipe/43/",
             )
             self.assertEqual(
-                experiment.format_dc_normandy_urls[2]["DC_url"],
-                "http://delivery-console.example.com/recipe/56/",
+                experiment.format_ndt_normandy_urls[2]["ndt_url"],
+                "http://normandy-devtools.example.com/#/local/recipes/56/",
             )
             self.assertEqual(
-                experiment.format_dc_normandy_urls[2]["normandy_url"],
+                experiment.format_ndt_normandy_urls[2]["normandy_url"],
                 "http://normandy.example.com/recipe/56/",
             )
 
