@@ -51,6 +51,14 @@ describe("PageNew", () => {
         "href",
         `${BASE_PATH}/my-special-slug/edit/branches`,
       );
+      expect(screen.getByTestId("nav-edit-metrics")).toHaveAttribute(
+        "href",
+        `${BASE_PATH}/my-special-slug/edit/metrics`,
+      );
+      expect(screen.getByTestId("nav-edit-audience")).toHaveAttribute(
+        "href",
+        `${BASE_PATH}/my-special-slug/edit/audience`,
+      );
       expect(screen.getByTestId("nav-request-review")).toHaveAttribute(
         "href",
         `${BASE_PATH}/my-special-slug/request-review`,
