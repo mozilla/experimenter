@@ -1120,7 +1120,7 @@ If applicable, link to any relevant test builds / staging information
     )
 
     COMMENT_EMAIL_SUBJECT = (
-        f"[Experimenter]: {comment.created_by.email} commented on {experiment.name}"
+        "[Experimenter]: {comment.created_by.email} commented on {experiment}"
     )
 
     NORMANDY_CHANGE_WINDOW = """
