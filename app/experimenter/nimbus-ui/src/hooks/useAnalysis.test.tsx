@@ -1,0 +1,42 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import React from "react";
+import { render, waitFor } from "@testing-library/react";
+import fetchMock from "jest-fetch-mock";
+import { useAnalysis } from "./useAnalysis";
+
+describe("hooks/useVisualization", () => {
+  describe("useVisualization", () => {
+    let hook: ReturnType<typeof useAnalysis>;
+
+    const TestHook = ({ slug }: { slug: string }) => {
+      hook = useAnalysis(slug);
+      return <p>Algonquin Provincial Park</p>;
+    };
+
+    it("fetches from the visualization endpoint and returns data", async () => {
+      fetchMock.enableMocks();
+
+      const slug = "hungry";
+      const data = { burrito: "Crunchwrap Supreme®" };
+      fetchMock.mockResponseOnce(JSON.stringify(data));
+
+      render(<TestHook {...{ slug }} />);
+
+      expect(fetch).toHaveBeenCalledWith(`/api/v3/visualization/${slug}/`, {
+        headers: { "Content-Type": "application/json" },
+        method: "GET",
+      });
+
+      expect(hook.loading).toBeTruthy();
+      await waitFor(() => {
+        expect(hook.loading).toBeFalsy();
+        expect(hook.result).toEqual(data);
+      });
+
+      fetchMock.disableMocks();
+    });
+  });
+});
