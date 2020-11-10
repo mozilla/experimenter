@@ -75,9 +75,6 @@ def send_enrollment_pause_email(experiment):
 
 def send_experiment_comment_email(comment):
     experiment = comment.experiment
-    comment_url = "{experiment_url}/#comment{comment}".format(
-        experiment_url=experiment.experiment_url, comment=comment.id
-    )
     subject = Experiment.COMMENT_EMAIL_SUBJECT.format(
         comment=comment, experiment=experiment
     )
@@ -87,7 +84,6 @@ def send_experiment_comment_email(comment):
         {
             "experiment": comment.experiment,
             "comment": comment,
-            "comment_url": comment_url,
         },
         subject,
         Experiment.EXPERIMENT_COMMENT,
