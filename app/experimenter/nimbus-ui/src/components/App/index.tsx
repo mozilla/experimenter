@@ -9,6 +9,7 @@ import { GET_CONFIG_QUERY } from "../../gql/config";
 import PageLoading from "../PageLoading";
 import PageHome from "../PageHome";
 import PageNew from "../PageNew";
+import PageSummary from "../PageSummary";
 import PageDesign from "../PageDesign";
 import PageResults from "../PageResults";
 import PageEditOverview from "../PageEditOverview";
@@ -34,6 +35,7 @@ const App = ({ basepath }: { basepath: string }) => {
     <Router {...{ basepath }}>
       <PageHome path="/" />
       <PageNew path="new" />
+      <PageSummary path=":slug" />
       <Root path=":slug/edit">
         <Redirect from="/" to="overview" noThrow />
         <PageEditOverview path="overview" />

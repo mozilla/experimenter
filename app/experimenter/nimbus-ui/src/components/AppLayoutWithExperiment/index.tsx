@@ -10,28 +10,31 @@ import PageLoading from "../PageLoading";
 import PageExperimentNotFound from "../PageExperimentNotFound";
 import { useExperiment } from "../../hooks";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import AppLayout from "../AppLayout";
 
-type AppLayoutWithSidebarAndDataChildrenProps = {
+type AppLayoutWithExperimentChildrenProps = {
   experiment: getExperiment_experimentBySlug;
 };
 
-type AppLayoutWithSidebarAndDataProps = {
+type AppLayoutWithExperimentProps = {
   children: (
-    props: AppLayoutWithSidebarAndDataChildrenProps,
+    props: AppLayoutWithExperimentChildrenProps,
   ) => React.ReactNode | null;
   testId: string;
   title: string;
   polling?: boolean;
+  sidebar?: boolean;
 } & RouteComponentProps;
 
 export const POLL_INTERVAL = 30000;
 
-const AppLayoutWithSidebarAndData = ({
+const AppLayoutWithExperiment = ({
   children,
   testId,
   title,
+  sidebar = true,
   polling = false,
-}: AppLayoutWithSidebarAndDataProps) => {
+}: AppLayoutWithExperimentProps) => {
   const { slug } = useParams();
   const {
     experiment,
@@ -61,7 +64,7 @@ const AppLayoutWithSidebarAndData = ({
   const { name, status } = experiment;
 
   return (
-    <AppLayoutWithSidebar>
+    <Layout {...{ sidebar, children }}>
       <section data-testid={testId}>
         <HeaderEditExperiment
           {...{
@@ -75,8 +78,21 @@ const AppLayoutWithSidebarAndData = ({
         </h2>
         {children({ experiment })}
       </section>
-    </AppLayoutWithSidebar>
+    </Layout>
   );
 };
 
-export default AppLayoutWithSidebarAndData;
+const Layout = ({
+  sidebar,
+  children,
+}: {
+  sidebar: boolean;
+  children: React.ReactElement;
+}) =>
+  sidebar ? (
+    <AppLayoutWithSidebar>{children}</AppLayoutWithSidebar>
+  ) : (
+    <AppLayout>{children}</AppLayout>
+  );
+
+export default AppLayoutWithExperiment;
