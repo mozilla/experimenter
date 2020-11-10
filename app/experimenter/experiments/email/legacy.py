@@ -78,9 +78,7 @@ def send_experiment_comment_email(comment):
     comment_url = "{experiment_url}/#comment{comment}".format(
         experiment_url=experiment.experiment_url, comment=comment.id
     )
-    subject = Experiment.COMMENT_EMAIL_SUBJECT.format(
-        email=comment.created_by.email, name=experiment
-    )
+    subject = Experiment.COMMENT_EMAIL_SUBJECT
     format_and_send_html_email(
         comment.experiment,
         "experiments/emails/new_comment_email.html",

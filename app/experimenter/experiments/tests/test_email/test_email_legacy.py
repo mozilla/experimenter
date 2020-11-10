@@ -260,7 +260,9 @@ class TestStatusUpdateEmail(TestCase):
         self.assertIn("May 6, 2019", sent_email.body)
 
     def test_send_experiment_comment_email(self):
-        experiment = ExperimentFactory.create(name="experiment1")
+        experiment = ExperimentFactory.create(
+            name="experiment1", type=ExperimentConstants.TYPE_PREF
+        )
         user = UserFactory.create(email="user1@example.com")
         comment = ExperimentCommentFactory.create(experiment=experiment, created_by=user)
         send_experiment_comment_email(comment)

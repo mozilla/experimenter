@@ -1119,7 +1119,9 @@ If applicable, link to any relevant test builds / staging information
         "Experimenter enrollment ending verification " "for: {name} {version} {channel}"
     )
 
-    COMMENT_EMAIL_SUBJECT = "[Experimenter]: {email} commented on {name}"
+    COMMENT_EMAIL_SUBJECT = (
+        f"[Experimenter]: {comment.created_by.email} commented on {experiment.name}"
+    )
 
     NORMANDY_CHANGE_WINDOW = """
         https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#Pref-FlipandAdd-OnExperiments-NormandyChangeWindow
