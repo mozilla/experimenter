@@ -1,6 +1,7 @@
 from experimenter.experiments.email.legacy import (  # noqa: F401
     format_and_send_html_email,
     send_enrollment_pause_email,
+    send_experiment_comment_email,
     send_experiment_ending_email,
     send_experiment_launch_email,
     send_intent_to_ship_email,
