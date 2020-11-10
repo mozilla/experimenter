@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { render, screen } from "@testing-library/react";
-
+import { render, screen, fireEvent } from "@testing-library/react";
+import { MOCK_CONFIG } from "../../lib/mocks";
 import {
-  SubjectBranch,
   SubjectBranches,
   MOCK_EXPERIMENT,
   MOCK_BRANCH,
@@ -23,80 +22,228 @@ describe("FormBranches", () => {
       MOCK_EXPERIMENT!.treatmentBranches!.length + 1,
     );
   });
-});
 
-describe("FormBranch", () => {
-  it("renders as expected", async () => {
-    render(<SubjectBranch />);
-    expect(screen.getByTestId("FormBranch")).toBeInTheDocument();
-    expect(screen.queryByTestId("control-pill")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("equal-ratio")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("feature-config-edit")).toBeInTheDocument();
-    expect(screen.queryByTestId("feature-config-add")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("feature-value-edit")).not.toBeInTheDocument();
+  it("calls onSave with current state when save button clicked", () => {
+    const onSave = jest.fn();
+    render(<SubjectBranches {...{ onSave }} />);
+    fireEvent.click(screen.getByTestId("save-button"));
+    expect(onSave).toHaveBeenCalledWith({
+      featureConfig: null,
+      referenceBranch: MOCK_EXPERIMENT.referenceBranch,
+      treatmentBranches: MOCK_EXPERIMENT.treatmentBranches,
+    });
   });
 
-  it("includes a control label when reference branch", () => {
-    render(<SubjectBranch isReference />);
-    expect(screen.getByTestId("control-pill")).toBeInTheDocument();
+  it("calls onNext when next button clicked", () => {
+    const onNext = jest.fn();
+    render(<SubjectBranches {...{ onNext }} />);
+    fireEvent.click(screen.getByTestId("next-button"));
+    expect(onNext).toHaveBeenCalled();
   });
 
-  it("indicates equal ratio when enabled", () => {
-    render(<SubjectBranch equalRatio />);
-    expect(screen.getByTestId("equal-ratio")).toBeInTheDocument();
+  it("sets all branch ratios to 1 when equal ratio checkbox enabled", () => {
+    const onSave = jest.fn();
+    render(<SubjectBranches {...{ onSave }} />);
+    fireEvent.click(screen.getByTestId("equal-ratio-checkbox"));
+    fireEvent.click(screen.getByTestId("save-button"));
+    const saveResult = onSave.mock.calls[0][0];
+    expect(saveResult.referenceBranch.ratio).toEqual(1);
+    for (const branch of saveResult.treatmentBranches) {
+      expect(branch.ratio).toEqual(1);
+    }
   });
 
-  it("reflects when feature is disabled", () => {
+  it("supports adding a control branch", () => {
+    const onSave = jest.fn();
+    render(
+      <SubjectBranches
+        {...{
+          onSave,
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            referenceBranch: null,
+            treatmentBranches: null,
+          },
+        }}
+      />,
+    );
+
+    onSave.mockClear();
+    fireEvent.click(screen.getByTestId("save-button"));
+    const saveResultBefore = onSave.mock.calls[0][0];
+    expect(saveResultBefore.referenceBranch).toEqual(null);
+
+    fireEvent.click(screen.getByTestId("add-branch"));
+
+    onSave.mockClear();
+    fireEvent.click(screen.getByTestId("save-button"));
+    const saveResultAfter = onSave.mock.calls[0][0];
+    expect(saveResultAfter.referenceBranch).not.toEqual(null);
+  });
+
+  it("supports adding a treatment branch", () => {
+    const onSave = jest.fn();
+    render(
+      <SubjectBranches
+        {...{
+          onSave,
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            treatmentBranches: null,
+          },
+        }}
+      />,
+    );
+
+    onSave.mockClear();
+    fireEvent.click(screen.getByTestId("save-button"));
+    const saveResultBefore = onSave.mock.calls[0][0];
+    expect(saveResultBefore.treatmentBranches).toEqual(null);
+
+    fireEvent.click(screen.getByTestId("add-branch"));
+
+    onSave.mockClear();
+    fireEvent.click(screen.getByTestId("save-button"));
+    const saveResultAfter = onSave.mock.calls[0][0];
+    expect(saveResultAfter.treatmentBranches).not.toEqual(null);
+  });
+
+  it("supports removing a treatment branch", () => {
+    const onSave = jest.fn();
+    render(<SubjectBranches {...{ onSave }} />);
+    const removeFirst = screen.queryAllByTestId("remove-branch")![0];
+    fireEvent.click(removeFirst);
+    fireEvent.click(screen.getByTestId("save-button"));
+    const saveResult = onSave.mock.calls[0][0];
+    const expectedDeletedBranch = MOCK_EXPERIMENT.treatmentBranches![0]!;
+    expect(
+      saveResult.treatmentBranches.findIndex(
+        (branch: typeof MOCK_BRANCH) =>
+          branch.slug === expectedDeletedBranch.slug,
+      ),
+    ).toEqual(-1);
+  });
+
+  it("supports adding feature config", () => {
+    const onSave = jest.fn();
+    render(
+      <SubjectBranches
+        {...{
+          onSave,
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            featureConfig: null,
+          },
+        }}
+      />,
+    );
+    const addButton = screen.queryAllByTestId("feature-config-add")[0];
+    fireEvent.click(addButton);
+    fireEvent.click(screen.getByTestId("save-button"));
+    const saveResult = onSave.mock.calls[0][0];
+    expect(saveResult.featureConfig).toEqual(MOCK_CONFIG.featureConfig![0]);
+  });
+
+  it("supports removing feature config", () => {
+    const onSave = jest.fn();
+    render(
+      <SubjectBranches
+        {...{
+          onSave,
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            featureConfig: MOCK_FEATURE_CONFIG,
+          },
+        }}
+      />,
+    );
+    const addButton = screen.queryAllByTestId("feature-config-remove")[0];
+    fireEvent.click(addButton);
+    fireEvent.click(screen.getByTestId("save-button"));
+    const saveResult = onSave.mock.calls[0][0];
+    expect(saveResult.featureConfig).toBeNull();
+  });
+
+  it("changing feature on one branch changes for all", () => {
+    const onSave = jest.fn();
+    const featureIdx = 1;
+    render(
+      <SubjectBranches
+        {...{
+          onSave,
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            featureConfig: MOCK_FEATURE_CONFIG,
+          },
+        }}
+      />,
+    );
+    const featureConfigSelects = screen.queryAllByTestId(
+      "feature-config-select",
+    )! as HTMLInputElement[];
+
+    // All selectors should be equal before change.
+    for (const select of featureConfigSelects) {
+      expect(select.value).toEqual(featureConfigSelects[0].value);
+    }
+    const oldValue = featureConfigSelects[0].value;
+
+    fireEvent.change(featureConfigSelects[0], {
+      target: { value: featureIdx },
+    });
+
+    // All selectors should have changed
+    for (const select of featureConfigSelects) {
+      expect(select.value).toEqual(featureConfigSelects[0].value);
+      expect(select.value).not.toEqual(oldValue);
+    }
+  });
+
+  it("updates save result with edits", () => {
+    const onSave = jest.fn();
     const { container } = render(
-      <SubjectBranch branch={{ ...MOCK_BRANCH, featureEnabled: false }} />,
-    );
-    const featureSwitchLabel = container.querySelector(
-      "label[for=featureEnabled]",
-    );
-    expect(featureSwitchLabel).toHaveTextContent("Off");
-  });
-
-  it("hides feature configuration edit when feature not selected", () => {
-    render(
-      <SubjectBranch branch={MOCK_BRANCH} experimentFeatureConfig={null} />,
-    );
-    expect(screen.queryByTestId("feature-config-edit")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("feature-config-add")).toBeInTheDocument();
-  });
-
-  it("hides feature value edit when schema is null", () => {
-    render(
-      <SubjectBranch
-        branch={{
-          ...MOCK_BRANCH,
+      <SubjectBranches
+        {...{
+          onSave,
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+          },
         }}
-        experimentFeatureConfig={MOCK_FEATURE_CONFIG}
       />,
     );
-    expect(screen.queryByTestId("feature-value-edit")).not.toBeInTheDocument();
-  });
+    const branchIdx = 1;
 
-  it("hides feature value edit when feature disabled", () => {
-    render(
-      <SubjectBranch
-        branch={{ ...MOCK_BRANCH, featureEnabled: false }}
-        experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
-      />,
-    );
-    expect(screen.queryByTestId("feature-value-edit")).not.toBeInTheDocument();
-  });
+    const expectedData = {
+      name: "example name",
+      description: "example description",
+      ratio: "42",
+      featureValue: "example value",
+    };
 
-  it("displays feature value edit when value is non-null", () => {
-    render(
-      <SubjectBranch
-        branch={{
-          ...MOCK_BRANCH,
-          featureValue: "this is a default value",
-          featureEnabled: true,
-        }}
-        experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
-      />,
-    );
-    expect(screen.queryByTestId("feature-value-edit")).toBeInTheDocument();
+    for (const id of [`branch-reference`, `branch-${branchIdx}`]) {
+      for (const [name, value] of Object.entries(expectedData)) {
+        const field = container.querySelector(`#${id}-${name}`);
+        expect(field).not.toBeNull();
+        fireEvent.change(field!, { target: { value } });
+      }
+    }
+
+    fireEvent.click(screen.getByTestId("save-button"));
+    const saveResult = onSave.mock.calls[0][0];
+    expect(saveResult).toEqual({
+      featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+      referenceBranch: {
+        ...MOCK_EXPERIMENT.referenceBranch,
+        ...expectedData,
+      },
+      treatmentBranches: [
+        MOCK_EXPERIMENT.treatmentBranches![0],
+        {
+          ...MOCK_EXPERIMENT.treatmentBranches![1],
+          ...expectedData,
+        },
+      ],
+    });
   });
 });
