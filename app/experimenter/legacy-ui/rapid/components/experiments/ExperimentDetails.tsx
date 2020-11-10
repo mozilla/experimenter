@@ -89,8 +89,8 @@ const ExperimentDetails: React.FC = () => {
   let monitoring_url;
   if (experimentData.monitoring_dashboard_url) {
     monitoring_url = (
-      <>
-        <h4 className="my-4">Monitoring</h4>
+      <div className="mb-5">
+        <h2 className="font-weight-bold">Monitoring</h2>
         <p>
           The live monitoring dashboard can be found here:
           <a
@@ -102,7 +102,7 @@ const ExperimentDetails: React.FC = () => {
             (link here)
           </a>
         </p>
-      </>
+      </div>
     );
   }
 
@@ -284,6 +284,7 @@ const ExperimentDetails: React.FC = () => {
 
         {experimentData.analysis?.show_analysis && (
           <>
+            {monitoring_url}
             <h2 className="font-weight-bold">Overview</h2>
             <h5 className="text-uppercase font-weight-bold mt-5">Hypothesis</h5>
             <p className="h5">{experimentData.objectives}</p>
@@ -292,7 +293,7 @@ const ExperimentDetails: React.FC = () => {
           </>
         )}
 
-        {monitoring_url}
+        {!experimentData.analysis?.show_analysis && monitoring_url}
 
         {analysis_report}
 
