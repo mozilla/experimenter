@@ -261,14 +261,16 @@ class TestStatusUpdateEmail(TestCase):
 
     def test_send_experiment_comment_email(self):
         experiment = ExperimentFactory.create(
-            name="experiment1", type=ExperimentConstants.TYPE_PREF
+            name="exp1", type=ExperimentConstants.TYPE_PREF
         )
-        user = UserFactory.create(email="user1@example.com")
+        user = UserFactory.create(email="u1@example.com")
         comment = ExperimentCommentFactory.create(experiment=experiment, created_by=user)
         send_experiment_comment_email(comment)
         sent_email = mail.outbox[-1]
 
-        expected_subject = "[Experimenter]: user1@example.com commented on Pref-Flip Experiment: experiment1"
+        expected_subject = (
+            "[Experimenter]: u1@example.com commented on Pref-Flip Experiment: exp1"
+        )
 
         self.assertEqual(sent_email.subject, expected_subject)
         self.assertEqual(sent_email.content_subtype, "html")

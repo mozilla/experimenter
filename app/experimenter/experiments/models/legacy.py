@@ -1285,10 +1285,11 @@ class ExperimentComment(ExperimentConstants, models.Model):
 
     objects = ExperimentCommentManager()
 
-
     @property
     def get_absolute_url(self):
-        return "{comment.experiment.experiment_url}/#comment{comment.id}".format(comment=self)
+        return "{comment.experiment.experiment_url}/#comment{comment.id}".format(
+            comment=self
+        )
 
     class Meta:
         verbose_name = "Experiment Comment"
