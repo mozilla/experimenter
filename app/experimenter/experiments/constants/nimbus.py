@@ -91,12 +91,14 @@ class NimbusConstants(object):
         DESKTOP_BETA = "beta"
         DESKTOP_NIGHTLY = "nightly"
         DESKTOP_RELEASE = "release"
+        DESKTOP_UNBRANDED = "default"
         FENIX_BETA = "org.mozilla.firefox.beta"
         FENIX_NIGHTLY = "org.mozilla.fenix"
         FENIX_RELEASE = "org.mozilla.firefox"
 
     ApplicationChannels = {
         Application.DESKTOP: [
+            Channel.DESKTOP_UNBRANDED,
             Channel.DESKTOP_NIGHTLY,
             Channel.DESKTOP_BETA,
             Channel.DESKTOP_RELEASE,
