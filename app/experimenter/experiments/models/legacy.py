@@ -415,7 +415,6 @@ class Experiment(ExperimentConstants, models.Model):
         # urls for the main normandy id and other normandy ids if they exist
         normandy_recipe_url = settings.NORMANDY_API_RECIPE_URL
         ndt_recipe_url = settings.NORMANDY_DEVTOOLS_RECIPE_URL
-        experimenter_instance = settings.EXPERIMENTER_INSTANCE
         urls = []
 
         if self.normandy_id:
@@ -423,9 +422,7 @@ class Experiment(ExperimentConstants, models.Model):
                 {
                     "id": self.normandy_id,
                     "normandy_url": normandy_recipe_url.format(id=self.normandy_id),
-                    "ndt_url": ndt_recipe_url.format(
-                        id=self.normandy_id, instance=experimenter_instance
-                    ),
+                    "ndt_url": ndt_recipe_url.format(id=self.normandy_id),
                 }
             )
 
@@ -435,9 +432,7 @@ class Experiment(ExperimentConstants, models.Model):
                         {
                             "id": norm_id,
                             "normandy_url": normandy_recipe_url.format(id=norm_id),
-                            "ndt_url": ndt_recipe_url.format(
-                                id=norm_id, instance=experimenter_instance
-                            ),
+                            "ndt_url": ndt_recipe_url.format(id=norm_id),
                         }
                     )
 
@@ -445,9 +440,7 @@ class Experiment(ExperimentConstants, models.Model):
 
     @property
     def normandy_devtools_import_url(self):
-        return settings.NORMANDY_DEVTOOLS_RECIPE_IMPORT_URL.format(
-            instance=settings.EXPERIMENTER_INSTANCE, slug=self.slug
-        )
+        return settings.NORMANDY_DEVTOOLS_RECIPE_IMPORT_URL.format(slug=self.slug)
 
     @property
     def api_recipe_url(self):

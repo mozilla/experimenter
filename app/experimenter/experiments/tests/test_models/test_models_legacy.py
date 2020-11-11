@@ -395,9 +395,8 @@ class TestExperimentModel(TestCase):
         experiment = ExperimentFactory.create(normandy_id="445")
         with override_settings(
             NORMANDY_DEVTOOLS_RECIPE_URL=(
-                "http://normandy-devtools.example.com/#/{instance}/recipes/{id}"
-            ),
-            EXPERIMENTER_INSTANCE="local",
+                "http://normandy-devtools.example.com/#/local/recipes/{id}"
+            )
         ):
             self.assertEqual(
                 experiment.format_ndt_normandy_urls[0]["ndt_url"],
@@ -418,9 +417,8 @@ class TestExperimentModel(TestCase):
         )
         with override_settings(
             NORMANDY_DEVTOOLS_RECIPE_URL=(
-                "http://normandy-devtools.example.com/#/{instance}/recipes/{id}/"
+                "http://normandy-devtools.example.com/#/local/recipes/{id}/"
             ),
-            EXPERIMENTER_INSTANCE="local",
             NORMANDY_API_RECIPE_URL="http://normandy.example.com/recipe/{id}/",
         ):
             self.assertEqual(

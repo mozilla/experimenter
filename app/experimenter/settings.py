@@ -375,18 +375,14 @@ MARKUS_BACKEND = [
 ]
 
 # Normandy URLs
-EXPERIMENTER_INSTANCE = config("EXPERIMENTER_INSTANCE", default="local")
-
 NORMANDY_API_HOST = config("NORMANDY_API_HOST")
 NORMANDY_API_RECIPE_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/{id}/")
 NORMANDY_API_RECIPES_LIST_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/")
 
 NORMANDY_DEVTOOLS_HOST = config("NORMANDY_DEVTOOLS_HOST")
-NORMANDY_DEVTOOLS_RECIPE_URL = urljoin(
-    NORMANDY_DEVTOOLS_HOST, "/#/{instance}/recipes/{id}"
-)
+NORMANDY_DEVTOOLS_RECIPE_URL = urljoin(NORMANDY_DEVTOOLS_HOST, "/recipes/{id}")
 NORMANDY_DEVTOOLS_RECIPE_IMPORT_URL = urljoin(
-    NORMANDY_DEVTOOLS_HOST, "/#/{instance}/recipes/import/{slug}"
+    NORMANDY_DEVTOOLS_HOST, "/recipes/import/{slug}"
 )
 
 
