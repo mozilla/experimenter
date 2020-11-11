@@ -4,13 +4,13 @@
 
 import React from "react";
 import { RouteComponentProps } from "@reach/router";
-import AppLayoutWithSidebarAndData from "../AppLayoutWithSidebarAndData";
+import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 
 const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
   return (
-    <AppLayoutWithSidebarAndData title="Audience" testId="PageEditAudience">
+    <AppLayoutWithExperiment title="Audience" testId="PageEditAudience">
       {({ experiment }) => <p>{experiment.name}</p>}
-    </AppLayoutWithSidebarAndData>
+    </AppLayoutWithExperiment>
   );
 };
 

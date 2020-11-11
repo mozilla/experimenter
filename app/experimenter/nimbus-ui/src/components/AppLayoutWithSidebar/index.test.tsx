@@ -13,7 +13,7 @@ import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
 
 const { mock } = mockExperimentQuery("my-special-slug");
 
-describe("PageNew", () => {
+describe("AppLayoutWithSidebar", () => {
   it("renders app layout content with children", () => {
     renderWithRouter(
       <MockedCache mocks={[mock]}>
@@ -76,7 +76,7 @@ describe("PageNew", () => {
       const {
         history: { navigate },
       } = renderWithRouter(
-        <MockedCache mocks={[mock, mock]}>
+        <MockedCache mocks={[mock, mock, mock]}>
           <App basepath="/" />
         </MockedCache>,
         {
