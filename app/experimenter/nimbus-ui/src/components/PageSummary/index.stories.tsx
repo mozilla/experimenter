@@ -6,20 +6,15 @@ import React from "react";
 import { storiesOf } from "@storybook/react";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { withLinks } from "@storybook/addon-links";
-import AppLayoutWithSidebarAndData from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
+import PageSummary from ".";
 
 const { mock } = mockExperimentQuery("demo-slug");
 
-storiesOf("components/AppLayoutWithSidebarAndData", module)
+storiesOf("pages/Summary", module)
   .addDecorator(withLinks)
   .add("basic", () => (
     <RouterSlugProvider mocks={[mock]}>
-      <AppLayoutWithSidebarAndData
-        title="Howdy!"
-        testId="AppLayoutWithSidebarAndData"
-      >
-        {({ experiment }) => <p>{experiment.name}</p>}
-      </AppLayoutWithSidebarAndData>
+      <PageSummary polling={false} />
     </RouterSlugProvider>
   ));

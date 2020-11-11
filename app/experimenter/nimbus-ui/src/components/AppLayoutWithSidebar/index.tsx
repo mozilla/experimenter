@@ -30,7 +30,7 @@ export const AppLayoutWithSidebar = ({
           xl="2"
           className="bg-light pt-2 border-right shadow-sm"
         >
-          <nav data-testid="sidebarNav">
+          <nav data-testid="nav-sidebar">
             <Nav className="flex-column" as="ul">
               <LinkNav storiesOf="pages/Home" className="mb-2">
                 Experiments

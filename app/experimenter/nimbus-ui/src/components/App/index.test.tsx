@@ -48,18 +48,15 @@ describe("App", () => {
 
   describe(":slug routes", () => {
     it("redirects from ':slug/edit' to ':slug/edit/overview'", async () => {
-      const {
-        history: { navigate },
-      } = renderWithRouter(
+      renderWithRouter(
         <MockedCache mocks={[mock]}>
           <App basepath="/" />
         </MockedCache>,
         {
-          route: `/my-special-slug/`,
+          route: `/my-special-slug/edit`,
         },
       );
 
-      await navigate("/my-special-slug/edit");
       // waitFor the redirect
       await waitFor(() => {
         expect(screen.getByTestId("PageEditOverview")).toBeInTheDocument();

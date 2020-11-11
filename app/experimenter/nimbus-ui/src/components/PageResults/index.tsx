@@ -4,7 +4,7 @@
 
 import React from "react";
 import { RouteComponentProps, useParams } from "@reach/router";
-import AppLayoutWithSidebarAndData from "../AppLayoutWithSidebarAndData";
+import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import { useAnalysis } from "../../hooks";
 import { Alert } from "react-bootstrap";
 import LinkExternal from "../LinkExternal";
@@ -14,7 +14,11 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
   const { loading, error, result } = useAnalysis(slug);
 
   return (
-    <AppLayoutWithSidebarAndData title="Results" testId="PageResults">
+    <AppLayoutWithExperiment
+      title="Results"
+      testId="PageResults"
+      sidebar={false}
+    >
       {({ experiment }) => (
         <>
           <p>
@@ -43,7 +47,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
           )}
         </>
       )}
-    </AppLayoutWithSidebarAndData>
+    </AppLayoutWithExperiment>
   );
 };
 
