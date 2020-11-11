@@ -3,27 +3,34 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
-import AppLayoutWithSidebarAndData, { POLL_INTERVAL } from ".";
+import { render, screen, waitFor, act } from "@testing-library/react";
+import AppLayoutWithExperiment, { POLL_INTERVAL } from ".";
 import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { BASE_PATH } from "../../lib/constants";
-import { act } from "@testing-library/react";
 
 jest.useFakeTimers();
 
-describe("AppLayoutWithSidebarAndData", () => {
+describe("AppLayoutWithExperiment", () => {
   it("renders as expected", async () => {
     const { mock } = mockExperimentQuery("demo-slug");
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
-      expect(
-        screen.getByTestId("AppLayoutWithSidebarAndData"),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId("AppLayoutWithExperiment")).toBeInTheDocument();
       expect(screen.getByTestId("page-title")).toBeInTheDocument();
       expect(screen.getByTestId("page-title")).toHaveTextContent("Howdy!");
       expect(screen.getByTestId("child")).toBeInTheDocument();
+      expect(screen.getByTestId("header-experiment")).toBeInTheDocument();
+      expect(screen.getByTestId("nav-sidebar")).toBeInTheDocument();
+    });
+  });
+
+  it("does not render the sidebar if prop is set to false", async () => {
+    const { mock } = mockExperimentQuery("demo-slug");
+    render(<Subject mocks={[mock]} sidebar={false} />);
+    await waitFor(() => {
+      expect(screen.queryByTestId("nav-sidebar")).not.toBeInTheDocument();
     });
   });
 
@@ -109,17 +116,19 @@ describe("AppLayoutWithSidebarAndData", () => {
 const Subject = ({
   mocks = [],
   polling = false,
+  sidebar = true,
 }: {
   mocks?: React.ComponentProps<typeof RouterSlugProvider>["mocks"];
   polling?: boolean;
+  sidebar?: boolean;
 }) => (
   <RouterSlugProvider {...{ mocks }}>
-    <AppLayoutWithSidebarAndData
+    <AppLayoutWithExperiment
       title="Howdy!"
-      testId="AppLayoutWithSidebarAndData"
-      {...{ polling }}
+      testId="AppLayoutWithExperiment"
+      {...{ polling, sidebar }}
     >
       {({ experiment }) => <p data-testid="child">{experiment.slug}</p>}
-    </AppLayoutWithSidebarAndData>
+    </AppLayoutWithExperiment>
   </RouterSlugProvider>
 );

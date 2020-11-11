@@ -7,7 +7,7 @@ import { RouteComponentProps } from "@reach/router";
 import { useConfig } from "../../hooks";
 import FormBranches from "../FormBranches";
 import LinkExternal from "../LinkExternal";
-import AppLayoutWithSidebarAndData from "../AppLayoutWithSidebarAndData";
+import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 
 // TODO: find this doco URL
 const BRANCHES_DOC_URL =
@@ -17,7 +17,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   const { featureConfig } = useConfig();
 
   return (
-    <AppLayoutWithSidebarAndData title="Branches" testId="PageEditBranches">
+    <AppLayoutWithExperiment title="Branches" testId="PageEditBranches">
       {({ experiment }) => (
         <>
           <p>
@@ -37,7 +37,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
           />
         </>
       )}
-    </AppLayoutWithSidebarAndData>
+    </AppLayoutWithExperiment>
   );
 };
 
