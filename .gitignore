@@ -91,3 +91,5 @@ app/coverage_html_report/
 
 # Dependencies
 node_modules
+
+google-credentials.json
