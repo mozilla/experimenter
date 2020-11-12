@@ -26,7 +26,8 @@ jest.mock("@reach/router", () => ({
   navigate: jest.fn(),
 }));
 
-let mockSubmit: Record<string, string> = {};
+let mockSubmitData: Record<string, string> = {};
+const mockSubmit = jest.fn();
 
 describe("PageEditOverview", () => {
   let mutationMock: any;
@@ -44,18 +45,17 @@ describe("PageEditOverview", () => {
   };
 
   beforeEach(() => {
-    mockSubmit = {
+    mockSubmitData = {
       name: data!.name,
       hypothesis: data!.hypothesis!,
-      application: data!.application!,
       publicDescription: data!.publicDescription!,
     };
     mutationMock = mockExperimentMutation(
       UPDATE_EXPERIMENT_OVERVIEW_MUTATION,
-      { ...mockSubmit, id: data!.id },
+      { ...mockSubmitData, id: data!.id },
       "updateExperimentOverview",
       {
-        experiment: mockSubmit,
+        experiment: mockSubmitData,
       },
     );
   });
@@ -70,10 +70,15 @@ describe("PageEditOverview", () => {
 
   it("handles form submission", async () => {
     render(<Subject mocks={[mock, mutationMock]} />);
+
+    let submitButton: HTMLButtonElement;
     await waitFor(() => {
-      const submitButton = screen.getByTestId("submit");
+      submitButton = screen.getByTestId("submit") as HTMLButtonElement;
+    });
+    await act(async () => {
       fireEvent.click(submitButton);
     });
+    expect(mockSubmit).toHaveBeenCalled();
   });
 
   it("handles experiment form submission with server-side validation errors", async () => {
@@ -138,7 +143,8 @@ jest.mock("../FormOverview", () => ({
   default: (props: React.ComponentProps<typeof FormOverview>) => {
     const handleSubmit = (ev: React.FormEvent) => {
       ev.preventDefault();
-      props.onSubmit(mockSubmit, jest.fn());
+      mockSubmit();
+      props.onSubmit(mockSubmitData, jest.fn());
     };
     const handleNext = (ev: React.FormEvent) => {
       ev.preventDefault();

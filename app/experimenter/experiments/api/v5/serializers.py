@@ -113,6 +113,13 @@ class NimbusExperimentOverviewSerializer(
 
         return name
 
+    def validate_hypothesis(self, hypothesis):
+        if hypothesis.strip() == NimbusExperiment.HYPOTHESIS_DEFAULT.strip():
+            raise serializers.ValidationError(
+                "Please describe the hypothesis of your experiment."
+            )
+        return hypothesis
+
     def create(self, validated_data):
         validated_data.update(
             {

@@ -29,7 +29,6 @@ export const UPDATE_EXPERIMENT_OVERVIEW_MUTATION = gql`
       nimbusExperiment {
         name
         hypothesis
-        application
         publicDescription
       }
     }
