@@ -65,7 +65,8 @@ class TestNimbusExperimentSerializer(TestCase):
                     "targeting": (
                         'channel in ["nightly", "beta", "release"] '
                         "&& version|versionCompare('80.!') >= 0 "
-                        "&& localeLanguageCode == 'en'"
+                        "&& localeLanguageCode == 'en' "
+                        "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
                     ),
                     "userFacingDescription": experiment.public_description,
                     "userFacingName": experiment.name,
@@ -117,7 +118,11 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(
             serializer.data["targeting"],
-            "version|versionCompare('80.!') >= 0 && localeLanguageCode == 'en'",
+            (
+                "version|versionCompare('80.!') >= 0 "
+                "&& localeLanguageCode == 'en' "
+                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+            ),
         )
 
     def test_serializer_outputs_targeting_for_experiment_without_firefox_min_version(
@@ -137,7 +142,11 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(
             serializer.data["targeting"],
-            'channel in ["nightly", "beta", "release"] && localeLanguageCode == \'en\'',
+            (
+                'channel in ["nightly", "beta", "release"] '
+                "&& localeLanguageCode == 'en' "
+                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+            ),
         )
 
 
