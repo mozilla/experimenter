@@ -126,7 +126,7 @@ enum NimbusExperimentTargetingConfigSlug {
   ALL_ENGLISH
   US_ONLY
   TARGETING_FIRST_RUN
-  TARGETING_FIRST_RUN_ABOUT_WELCOME
+  TARGETING_FIRST_RUN_CHROME_ATTRIBUTION
 }
 
 type NimbusExperimentType {
