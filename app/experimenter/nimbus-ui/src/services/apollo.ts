@@ -7,10 +7,26 @@ import {
   InMemoryCache,
   createHttpLink,
   from,
+  InMemoryCacheConfig,
 } from "@apollo/client";
 import config from "./config";
 
-export const cache = new InMemoryCache();
+export const cacheConfig: InMemoryCacheConfig = {
+  typePolicies: {
+    NimbusExperimentType: {
+      fields: {
+        referenceBranch: {
+          merge: false,
+        },
+        treatmentBranches: {
+          merge: false,
+        },
+      },
+    },
+  },
+};
+
+export const cache = new InMemoryCache(cacheConfig);
 
 export function createApolloClient() {
   const httpLink = createHttpLink({

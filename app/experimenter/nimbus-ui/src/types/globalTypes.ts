@@ -78,6 +78,30 @@ export interface CreateExperimentInput {
   application: NimbusExperimentApplication;
 }
 
+export interface ReferenceBranchType {
+  name: string;
+  description: string;
+  ratio: number;
+  featureEnabled?: boolean | null;
+  featureValue?: string | null;
+}
+
+export interface TreatmentBranchType {
+  name: string;
+  description: string;
+  ratio: number;
+  featureEnabled?: boolean | null;
+  featureValue?: string | null;
+}
+
+export interface UpdateExperimentBranchesInput {
+  clientMutationId?: string | null;
+  nimbusExperimentId: number;
+  featureConfigId?: number | null;
+  referenceBranch: ReferenceBranchType;
+  treatmentBranches: (TreatmentBranchType | null)[];
+}
+
 export interface UpdateExperimentInput {
   clientMutationId?: string | null;
   name: string;

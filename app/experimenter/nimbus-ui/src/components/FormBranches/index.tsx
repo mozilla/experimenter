@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert";
 
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
@@ -20,27 +21,53 @@ import {
   FormBranchesSaveState,
   REFERENCE_BRANCH_IDX,
   AnnotatedBranch,
-  extractSaveState,
 } from "./reducer";
 
 export const FormBranches = ({
+  isLoading,
   experiment,
   featureConfig,
   onSave,
   onNext,
 }: {
+  isLoading: boolean;
   experiment: getExperiment_experimentBySlug;
   featureConfig: getConfig_nimbusConfig["featureConfig"];
-  onSave: (state: FormBranchesSaveState) => void;
+  onSave: (
+    state: FormBranchesSaveState,
+    setSubmitErrors: Function,
+    clearSubmitErrors: Function,
+  ) => void;
   onNext: () => void;
 }) => {
-  const [formBranchesState, dispatch] = useFormBranchesReducer(experiment);
-  const {
-    featureConfig: experimentFeatureConfig,
-    referenceBranch,
-    treatmentBranches,
-    equalRatio,
-  } = formBranchesState;
+  const [
+    {
+      featureConfig: experimentFeatureConfig,
+      referenceBranch,
+      treatmentBranches,
+      equalRatio,
+      globalErrors,
+    },
+    extractSaveState,
+    dispatch,
+  ] = useFormBranchesReducer(experiment);
+
+  const isSaveDisabled =
+    isLoading ||
+    !referenceBranch ||
+    !referenceBranch.isValid ||
+    (!!treatmentBranches &&
+      !treatmentBranches.every((branch) => branch.isValid));
+
+  const isNextDisabled = isLoading;
+
+  const [lastSubmitTime, setLastSubmitTime] = useState(Date.now());
+
+  // TODO: submitErrors type is any, but in practical use it's AnnotatedBranch["errors"]
+  const setSubmitErrors = (submitErrors: any) =>
+    dispatch({ type: "setSubmitErrors", submitErrors });
+
+  const clearSubmitErrors = () => dispatch({ type: "clearSubmitErrors" });
 
   const handleAddBranch = () => dispatch({ type: "addBranch" });
 
@@ -65,18 +92,17 @@ export const FormBranches = ({
     value: getConfig_nimbusConfig_featureConfig | null,
   ) => dispatch({ type: "setFeatureConfig", value });
 
-  // TODO: EXP-505 implement save button enable/disable logic
-  const isSaveDisabled = false;
-
   const handleSaveClick = (
     ev: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     ev.preventDefault();
-    onSave(extractSaveState(formBranchesState));
+    try {
+      setLastSubmitTime(Date.now());
+      onSave(extractSaveState(), setSubmitErrors, clearSubmitErrors);
+    } catch (error) {
+      setSubmitErrors({ "*": [error.message] });
+    }
   };
-
-  // TODO: EXP-505 implement next button enable/disable logic
-  const isNextDisabled = false;
 
   const handleNextClick = (
     ev: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -86,6 +112,7 @@ export const FormBranches = ({
   };
 
   const commonBranchProps = {
+    lastSubmitTime,
     equalRatio,
     featureConfig,
     experimentFeatureConfig,
@@ -96,6 +123,17 @@ export const FormBranches = ({
 
   return (
     <section data-testid="FormBranches" className="border-top my-3">
+      {globalErrors?.map((err, idx) => (
+        <Alert
+          key={`global-error-${idx}`}
+          data-testid="global-error"
+          variant="warning"
+          className="my-2"
+        >
+          {err}
+        </Alert>
+      ))}
+
       <Form className="p-2">
         <Form.Row className="my-3">
           <Form.Group controlId="evenRatio">
@@ -119,6 +157,7 @@ export const FormBranches = ({
           </Form.Group>
         </Form.Row>
       </Form>
+
       <section>
         {referenceBranch && (
           <FormBranch
@@ -126,7 +165,7 @@ export const FormBranches = ({
               ...commonBranchProps,
               id: `branch-reference`,
               isReference: true,
-              branch: { ...referenceBranch, __key: "branch-reference" },
+              branch: { ...referenceBranch, key: "branch-reference" },
               onChange: handleUpdateBranch(REFERENCE_BRANCH_IDX),
             }}
           />
@@ -138,8 +177,8 @@ export const FormBranches = ({
                 <FormBranch
                   {...{
                     ...commonBranchProps,
-                    key: branch.__key,
-                    id: branch.__key,
+                    key: branch.key,
+                    id: branch.key,
                     branch,
                     onRemove: handleRemoveBranch(idx),
                     onChange: handleUpdateBranch(idx),
@@ -168,7 +207,7 @@ export const FormBranches = ({
             disabled={isSaveDisabled}
             onClick={handleSaveClick}
           >
-            <span>Save</span>
+            <span>{isLoading ? "Saving" : "Save"}</span>
           </button>
         </div>
       </div>

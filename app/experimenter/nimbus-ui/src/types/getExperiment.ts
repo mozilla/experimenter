@@ -36,6 +36,7 @@ export interface getExperiment_experimentBySlug_treatmentBranches {
 
 export interface getExperiment_experimentBySlug_featureConfig {
   __typename: "NimbusFeatureConfigType";
+  id: string;
   slug: string;
   name: string;
   description: string | null;

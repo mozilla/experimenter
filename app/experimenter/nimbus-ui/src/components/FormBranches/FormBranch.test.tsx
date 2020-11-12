@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 
 import { MOCK_CONFIG } from "../../lib/mocks";
 import {
@@ -22,6 +22,12 @@ describe("FormBranch", () => {
     expect(screen.queryByTestId("feature-config-edit")).toBeInTheDocument();
     expect(screen.queryByTestId("feature-config-add")).not.toBeInTheDocument();
     expect(screen.queryByTestId("feature-value-edit")).not.toBeInTheDocument();
+  });
+
+  it("does nothing on form submission", () => {
+    render(<SubjectBranch />);
+    const form = screen.getByTestId("FormBranch");
+    fireEvent.submit(form);
   });
 
   it("includes a control label when reference branch", () => {
@@ -148,11 +154,38 @@ describe("FormBranch", () => {
       onChange.mockClear();
       const field = container.querySelector(`#${id}-${name}`);
       expect(field).not.toBeNull();
-      fireEvent.change(field!, { target: { value } });
+      await act(async () => {
+        fireEvent.change(field!, { target: { value } });
+      });
       expect(onChange).toHaveBeenCalledWith({ ...branch, [name]: value });
     }
 
-    fireEvent.click(container.querySelector(`#${id}-featureEnabled`)!);
+    await act(async () => {
+      fireEvent.click(container.querySelector(`#${id}-featureEnabled`)!);
+    });
     expect(onChange).toHaveBeenCalledWith({ ...branch, featureEnabled: false });
+  });
+
+  it("should display server-side errors but hide when field touched", async () => {
+    const branch = {
+      ...MOCK_ANNOTATED_BRANCH,
+      errors: {
+        name: ["This name is trouble"],
+      },
+    };
+
+    const { container } = render(<SubjectBranch branch={branch} />);
+    expect(container.querySelector("[data-for=demo-name]")).toHaveClass(
+      "invalid-feedback",
+    );
+
+    const field = container.querySelector(`#demo-name`)!;
+    expect(field).not.toBeNull();
+    await act(async () => {
+      fireEvent.change(field, { target: { value: "new value" } });
+      fireEvent.blur(field);
+    });
+
+    expect(container.querySelector("[data-for=demo-name]")).toBeNull();
   });
 });
