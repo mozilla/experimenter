@@ -2,6 +2,7 @@ import json
 
 from django.conf import settings
 from django.test import TestCase
+from mozilla_nimbus_shared import check_schema
 
 from experimenter.experiments.api.v6.serializers import (
     NimbusExperimentSerializer,
@@ -12,8 +13,6 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusProbeSetFactory,
 )
-
-# from mozilla_nimbus_shared import check_schema
 
 
 class TestNimbusExperimentSerializer(TestCase):
@@ -88,7 +87,7 @@ class TestNimbusExperimentSerializer(TestCase):
                     branches_data,
                 )
 
-        # check_schema("experiments/NimbusExperiment", serializer.data)
+        check_schema("experiments/NimbusExperiment", serializer.data)
 
     def test_serializer_outputs_expected_schema_without_feature(self):
         experiment = NimbusExperimentFactory.create_with_status(
@@ -105,7 +104,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 branches_data,
             )
 
-        # check_schema("experiments/NimbusExperiment", serializer.data)
+        check_schema("experiments/NimbusExperiment", serializer.data)
 
     def test_serializer_outputs_targeting_for_experiment_without_channels(self):
         experiment = NimbusExperimentFactory.create_with_status(
