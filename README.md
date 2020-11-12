@@ -122,6 +122,20 @@ Pro-tip: we have had at least one large code refactor. You can ignore specific l
 git config blame.ignoreRevsFile .git-blame-ignore-revs
 ```
 
+### Google Credentials
+
+On certain pages an API endpoint is called to receive experiment analysis data from Jetstream to display visualization tables. To see experiment visualization data, you must provide GCP credentials.
+
+1. Generate a GCP private key file.
+  - Ask in #experimenter for the GCP link to create a new key file.
+  - Add Key > Create New Key > JSON > save this file.
+  - Do not lose or share this file. It's unique to you and you'll only get it once.
+2. Rename the file to `google-credentials.json` and place it anywhere inside the `/app` directory.
+3. Update your `.env` so that `GOOGLE_APPLICATION_CREDENTIALS` points to this file. If your file is inside the `/app` directory it would look like this:
+    ```
+    GOOGLE_APPLICATION_CREDENTIALS=/app/google-credentials.json
+    ```
+
 ## Usage
 
 Experimenter uses [docker](https://www.docker.com/) for all development, testing, and deployment.
