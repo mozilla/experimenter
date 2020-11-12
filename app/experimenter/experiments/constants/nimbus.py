@@ -16,7 +16,7 @@ class NimbusTargetingConfig:
 TARGETING_ALL_ENGLISH = NimbusTargetingConfig(
     name="All English users",
     slug="all_english",
-    description="All users in en-* locales using the release channel.",
+    description="All users in en-* locales.",
     targeting="localeLanguageCode == 'en'",
     desktop_telemetry="STARTS_WITH(environment.settings.locale, 'en')",
 )
@@ -24,7 +24,7 @@ TARGETING_ALL_ENGLISH = NimbusTargetingConfig(
 TARGETING_US_ONLY = NimbusTargetingConfig(
     name="US users (en)",
     slug="us_only",
-    description="All users in the US with an en-* locale using the release channel.",
+    description="All users in the US with an en-* locale.",
     targeting="localeLanguageCode == 'en' && region == 'US'",
     desktop_telemetry=(
         "STARTS_WITH(environment.settings.locale, 'en') "
@@ -35,12 +35,10 @@ TARGETING_US_ONLY = NimbusTargetingConfig(
 TARGETING_FIRST_RUN = NimbusTargetingConfig(
     name="First start-up users (en)",
     slug="first_run",
-    description=(
-        "First start-up users (e.g. for about:welcome) with an en-* "
-        "locale using the release channel."
-    ),
+    description=("First start-up users (e.g. for about:welcome) with an en-* " "locale."),
     targeting=(
         "localeLanguageCode == 'en' "
+        "&& !('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)) "
         "&& (isFirstStartup || experiment.slug in activeExperiments)"
     ),
     desktop_telemetry=(
@@ -49,23 +47,23 @@ TARGETING_FIRST_RUN = NimbusTargetingConfig(
     ),
 )
 
-TARGETING_FIRST_RUN_ABOUT_WELCOME = NimbusTargetingConfig(
-    name="First start-up users (en) about:welcome",
-    slug="first_run_about_welcome",
+TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
+    name="First start-up users (en) from Chrome",
+    slug="first_run_chrome",
     description=(
-        "First start-up users (e.g. for about:welcome) with an en-* "
-        "locale using the release channel."
+        "First start-up users (e.g. for about:welcome) who download Firefox "
+        "from Chrome with an en-* locale."
     ),
     targeting=(
-        'localeLanguageCode == "en" '
-        "&& ((isFirstStartup "
+        "localeLanguageCode == 'en' "
         "&& !('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)) "
-        "|| '{experiment.slug}' in activeExperiments) "
-        "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
+        "&& (isFirstStartup || experiment.slug in activeExperiments)"
+        "&& attributionData.ua == 'chrome'"
     ),
     desktop_telemetry=(
         "STARTS_WITH(environment.settings.locale, 'en') "
         "AND payload.info.profile_subsession_counter = 1"
+        "AND environment.settings.attribution.ua = 'chrome'"
     ),
 )
 
@@ -149,14 +147,18 @@ class NimbusConstants(object):
         TARGETING_ALL_ENGLISH.slug: TARGETING_ALL_ENGLISH,
         TARGETING_US_ONLY.slug: TARGETING_US_ONLY,
         TARGETING_FIRST_RUN.slug: TARGETING_FIRST_RUN,
-        TARGETING_FIRST_RUN_ABOUT_WELCOME.slug: TARGETING_FIRST_RUN_ABOUT_WELCOME,
+        TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.slug: (
+            TARGETING_FIRST_RUN_CHROME_ATTRIBUTION
+        ),
     }
 
     class TargetingConfig(models.TextChoices):
         ALL_ENGLISH = TARGETING_ALL_ENGLISH.slug
         US_ONLY = TARGETING_US_ONLY.slug
         TARGETING_FIRST_RUN = TARGETING_FIRST_RUN.slug
-        TARGETING_FIRST_RUN_ABOUT_WELCOME = TARGETING_FIRST_RUN_ABOUT_WELCOME.slug
+        TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = (
+            TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.slug
+        )
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
     # have limits on the length of their unique identifiers, we should
