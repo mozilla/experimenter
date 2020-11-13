@@ -71,6 +71,7 @@ export interface getConfig_nimbusConfig {
   firefoxMinVersion: (getConfig_nimbusConfig_firefoxMinVersion | null)[] | null;
   probeSets: (getConfig_nimbusConfig_probeSets | null)[] | null;
   targetingConfigSlug: (getConfig_nimbusConfig_targetingConfigSlug | null)[] | null;
+  hypothesisDefault: string | null;
 }
 
 export interface getConfig {

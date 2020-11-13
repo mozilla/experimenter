@@ -29,6 +29,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     firefox_min_version = graphene.List(NimbusLabelValueType)
     probe_sets = graphene.List(NimbusProbeSetType)
     targeting_config_slug = graphene.List(NimbusLabelValueType)
+    hypothesis_default = graphene.String()
 
     def _text_choices_to_label_value_list(root, text_choices):
         return [
@@ -67,6 +68,9 @@ class NimbusConfigurationType(graphene.ObjectType):
                 )
             )
         return app_channels
+
+    def resolve_hypothesis_default(root, info):
+        return NimbusExperiment.HYPOTHESIS_DEFAULT
 
 
 class NimbusReadyForReviewType(graphene.ObjectType):

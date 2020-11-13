@@ -12,6 +12,7 @@ import { useConfig } from "../../hooks/useConfig";
 
 type FormOverviewProps = {
   isLoading: boolean;
+  isServerValid: boolean;
   submitErrors: Record<string, string[]>;
   experiment?: getExperiment["experimentBySlug"];
   onSubmit: (data: Record<string, any>, reset: Function) => void;
@@ -21,6 +22,7 @@ type FormOverviewProps = {
 
 const FormOverview = ({
   isLoading,
+  isServerValid,
   submitErrors,
   experiment,
   onSubmit,
@@ -30,13 +32,15 @@ const FormOverview = ({
   const { handleSubmit, register, reset, errors, formState } = useForm({
     mode: "onTouched",
   });
-  const { isSubmitted, isValid, isDirty, touched } = formState;
-  const shouldWarnOnExit = useExitWarning();
-  const { application } = useConfig();
+  const { isSubmitted, isDirty, touched } = formState;
+  const { application, hypothesisDefault } = useConfig();
+  const isValid = isServerValid && formState.isValid;
+  const isDirtyUnsaved = isDirty && !(isValid && isSubmitted);
 
+  const shouldWarnOnExit = useExitWarning();
   useEffect(() => {
-    shouldWarnOnExit(isDirty);
-  }, [shouldWarnOnExit, isDirty]);
+    shouldWarnOnExit(isDirtyUnsaved);
+  }, [shouldWarnOnExit, isDirtyUnsaved]);
 
   const handleSubmitAfterValidation = useCallback(
     (data: Record<string, any>) => {
@@ -123,31 +127,40 @@ const FormOverview = ({
         <Form.Control
           {...nameValidated("hypothesis")}
           as="textarea"
-          rows={3}
-          defaultValue={experiment?.hypothesis || ""}
+          rows={5}
+          defaultValue={experiment?.hypothesis || (hypothesisDefault as string)}
         />
         <Form.Text className="text-muted">
           You can add any supporting documents here.
         </Form.Text>
         <FormErrors name="hypothesis" />
       </Form.Group>
-
       <Form.Group controlId="application">
         <Form.Label>Application</Form.Label>
-        <Form.Control
-          {...nameValidated("application")}
-          as="select"
-          defaultValue={experiment?.application || ""}
-        >
-          <option value="">Select...</option>
-          {application!.map((app, idx) => (
-            <option key={`application-${idx}`} value={app!.value as string}>
-              {app!.label}
-            </option>
-          ))}
-        </Form.Control>
+        {experiment ? (
+          <Form.Control
+            as="input"
+            value={
+              application!.find((a) => a?.value === experiment.application)
+                ?.label as string
+            }
+            readOnly
+          ></Form.Control>
+        ) : (
+          <Form.Control {...nameValidated("application")} as="select">
+            <option value="">Select...</option>
+            {application!.map((app, idx) => (
+              <option key={`application-${idx}`} value={app!.value as string}>
+                {app!.label}
+              </option>
+            ))}
+          </Form.Control>
+        )}
         <Form.Text className="text-muted">
-          Experiments can only target one Application at a time.
+          <p className="mb-0">
+            Experiments can only target one Application at a time.
+          </p>
+          <p>Application can not be changed after an experiment is created.</p>
         </Form.Text>
         <FormErrors name="application" />
       </Form.Group>
@@ -175,7 +188,7 @@ const FormOverview = ({
             <button
               onClick={handleNext}
               className="btn btn-secondary"
-              disabled={isLoading || !isValid || isDirty}
+              disabled={isLoading}
               data-sb-kind="pages/EditBranches"
             >
               Next
@@ -188,7 +201,7 @@ const FormOverview = ({
             type="submit"
             onClick={handleSubmit(handleSubmitAfterValidation)}
             className="btn btn-primary"
-            disabled={isLoading || !isValid || !isDirty}
+            disabled={isLoading}
             data-sb-kind="pages/EditOverview"
           >
             {isLoading ? (

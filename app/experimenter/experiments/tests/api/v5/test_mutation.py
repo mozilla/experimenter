@@ -16,9 +16,9 @@ CREATE_EXPERIMENT_MUTATION = """\
 mutation($input: CreateExperimentInput!) {
     createExperiment(input: $input) {
         nimbusExperiment {
-            status
             name
-            slug
+            hypothesis
+            application
         }
         message
         status
@@ -28,14 +28,14 @@ mutation($input: CreateExperimentInput!) {
 """
 
 
-UPDATE_EXPERIMENT_MUTATION = """\
+UPDATE_EXPERIMENT_OVERVIEW_MUTATION = """\
 mutation($input: UpdateExperimentInput!) {
     updateExperimentOverview(input: $input) {
         nimbusExperiment {
             id
-            status
             name
             hypothesis
+            publicDescription
         }
         message
         status
@@ -154,7 +154,12 @@ class TestMutations(GraphQLTestCase):
         result = content["data"]["createExperiment"]
         experiment = result["nimbusExperiment"]
         self.assertEqual(
-            experiment, {"status": "DRAFT", "name": "Test 1234", "slug": "test-1234"}
+            experiment,
+            {
+                "name": "Test 1234",
+                "hypothesis": "Test hypothesis",
+                "application": "DESKTOP",
+            },
         )
 
         self.assertEqual(result["clientMutationId"], "randomid")
@@ -193,20 +198,27 @@ class TestMutations(GraphQLTestCase):
 
     def test_update_experiment_overview(self):
         user_email = "user@example.com"
-        experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.DRAFT)
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.DRAFT,
+            slug="old slug",
+            name="old name",
+            hypothesis="old hypothesis",
+            public_description="old public description",
+        )
         response = self.query(
-            UPDATE_EXPERIMENT_MUTATION,
+            UPDATE_EXPERIMENT_OVERVIEW_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
-                    "name": "Test 1234",
-                    "hypothesis": "Test hypo 2",
+                    "name": "new name",
+                    "hypothesis": "new hypothesis",
+                    "publicDescription": "new public description",
                     "clientMutationId": "randomid",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         result = content["data"]["updateExperimentOverview"]
         experiment_result = result["nimbusExperiment"]
@@ -214,9 +226,9 @@ class TestMutations(GraphQLTestCase):
             experiment_result,
             {
                 "id": f"{experiment.id}",
-                "status": "DRAFT",
-                "name": "Test 1234",
-                "hypothesis": "Test hypo 2",
+                "name": "new name",
+                "hypothesis": "new hypothesis",
+                "publicDescription": "new public description",
             },
         )
 
@@ -225,18 +237,22 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(result["status"], 200)
 
         experiment = NimbusExperiment.objects.first()
-        self.assertEqual(experiment.hypothesis, "Test hypo 2")
+        self.assertEqual(experiment.slug, "old slug")
+        self.assertEqual(experiment.name, "new name")
+        self.assertEqual(experiment.hypothesis, "new hypothesis")
+        self.assertEqual(experiment.public_description, "new public description")
 
     def test_update_experiment_error(self):
         user_email = "user@example.com"
         long_name = "test" * 1000
         experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.DRAFT)
         response = self.query(
-            UPDATE_EXPERIMENT_MUTATION,
+            UPDATE_EXPERIMENT_OVERVIEW_MUTATION,
             variables={
                 "input": {
                     "id": experiment.id,
                     "name": long_name,
+                    "hypothesis": "new hypothesis",
                     "clientMutationId": "randomid",
                 }
             },
