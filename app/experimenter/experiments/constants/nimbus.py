@@ -36,10 +36,11 @@ TARGETING_FIRST_RUN = NimbusTargetingConfig(
     name="First start-up users (en)",
     slug="first_run",
     description=("First start-up users (e.g. for about:welcome) with an en-* " "locale."),
-    targeting=(
-        "localeLanguageCode == 'en' "
-        "&& !('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)) "
-        "&& (isFirstStartup || experiment.slug in activeExperiments)"
+    targeting=("{en} && (({is_first_startup} && {not_see_aw}) || {sticky})").format(
+        en=TARGETING_ALL_ENGLISH.targeting,
+        is_first_startup="isFirstStartup",
+        not_see_aw="!('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)",
+        sticky="experiment.slug in activeExperiments",
     ),
     desktop_telemetry=(
         "STARTS_WITH(environment.settings.locale, 'en') "
@@ -54,11 +55,8 @@ TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
         "First start-up users (e.g. for about:welcome) who download Firefox "
         "from Chrome with an en-* locale."
     ),
-    targeting=(
-        "localeLanguageCode == 'en' "
-        "&& !('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)) "
-        "&& (isFirstStartup || experiment.slug in activeExperiments)"
-        "&& attributionData.ua == 'chrome'"
+    targeting=("{first_run} && attributionData.ua == 'chrome'").format(
+        first_run=TARGETING_FIRST_RUN.targeting
     ),
     desktop_telemetry=(
         "STARTS_WITH(environment.settings.locale, 'en') "
