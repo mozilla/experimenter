@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { UpdateExperimentInput, NimbusExperimentApplication } from "./globalTypes";
+import { UpdateExperimentInput } from "./globalTypes";
 
 // ====================================================
 // GraphQL mutation operation: updateExperimentOverview
@@ -13,7 +13,6 @@ export interface updateExperimentOverview_updateExperimentOverview_nimbusExperim
   __typename: "NimbusExperimentType";
   name: string;
   hypothesis: string | null;
-  application: NimbusExperimentApplication | null;
   publicDescription: string | null;
 }
 

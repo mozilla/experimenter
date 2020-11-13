@@ -198,6 +198,7 @@ class TestNimbusQuery(GraphQLTestCase):
                         label
                         value
                     }
+                    hypothesisDefault
                 }
             }
             """,

@@ -47,7 +47,7 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
         data = {
             "name": "Test 1234",
             "hypothesis": "Test hypothesis",
-            "application": "firefox-desktop",
+            "application": NimbusExperiment.Application.DESKTOP.value,
             "public_description": "Test description",
         }
 
@@ -67,7 +67,7 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
         data = {
             "name": "&^%&^%&^%&^%^&%^&",
             "hypothesis": "Test hypothesis",
-            "application": "firefox-desktop",
+            "application": NimbusExperiment.Application.DESKTOP.value,
             "public_description": "Test description",
         }
 
@@ -89,7 +89,7 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
         data = {
             "name": "non-unique slug",
             "hypothesis": "Test hypothesis",
-            "application": "firefox-desktop",
+            "application": NimbusExperiment.Application.DESKTOP.value,
             "public_description": "Test description",
         }
 
@@ -102,6 +102,20 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
             "Name maps to a pre-existing slug, please choose another name",
             serializer.errors["name"],
         )
+
+    def test_serializer_rejects_default_hypothesis(self):
+        data = {
+            "name": "Test 1234",
+            "hypothesis": NimbusExperiment.HYPOTHESIS_DEFAULT,
+            "application": NimbusExperiment.Application.DESKTOP.value,
+            "public_description": "Test description",
+        }
+
+        serializer = NimbusExperimentOverviewSerializer(
+            data=data, context={"user": self.user}
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("hypothesis", serializer.errors)
 
     def test_saves_new_experiment_with_changelog(self):
         data = {

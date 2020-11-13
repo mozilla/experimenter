@@ -23,12 +23,10 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
   const currentExperiment = useRef<getExperiment_experimentBySlug>();
+  const [isServerValid, setIsServerValid] = useState(true);
 
   const onFormSubmit = useCallback(
-    async (
-      { name, hypothesis, application, publicDescription }: Record<string, any>,
-      resetForm: Function,
-    ) => {
+    async ({ name, hypothesis, publicDescription }: Record<string, any>) => {
       try {
         const result = await updateExperimentOverview({
           variables: {
@@ -36,7 +34,6 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
               id: currentExperiment.current!.id,
               name,
               hypothesis,
-              application,
               publicDescription,
             },
           },
@@ -49,10 +46,12 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
         const { message } = result.data.updateExperimentOverview;
 
         if (message !== "success" && typeof message === "object") {
+          setIsServerValid(false);
           return void setSubmitErrors(message);
+        } else {
+          setIsServerValid(true);
+          setSubmitErrors({});
         }
-
-        resetForm({ name, hypothesis, application, publicDescription });
       } catch (error) {
         setSubmitErrors({ "*": SUBMIT_ERROR });
       }
@@ -73,6 +72,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
           <FormOverview
             {...{
               isLoading: loading,
+              isServerValid,
               experiment,
               submitErrors,
               onSubmit: onFormSubmit,

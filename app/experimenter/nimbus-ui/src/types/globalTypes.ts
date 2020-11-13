@@ -74,18 +74,16 @@ export enum NimbusProbeKind {
 export interface CreateExperimentInput {
   clientMutationId?: string | null;
   name: string;
-  application: NimbusExperimentApplication;
-  publicDescription?: string | null;
   hypothesis: string;
+  application: NimbusExperimentApplication;
 }
 
 export interface UpdateExperimentInput {
   clientMutationId?: string | null;
-  name?: string | null;
-  application?: NimbusExperimentApplication | null;
-  publicDescription?: string | null;
-  hypothesis?: string | null;
+  name: string;
+  hypothesis: string;
   id: string;
+  publicDescription?: string | null;
 }
 
 export interface UpdateExperimentStatusInput {
