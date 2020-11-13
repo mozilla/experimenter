@@ -63,7 +63,8 @@ class TestNimbusExperimentSerializer(TestCase):
                     # DRF manually replaces the isoformat suffix so we have to do the same
                     "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
                     "targeting": (
-                        'channel in ["nightly", "beta", "release"] '
+                        "browserSettings.update.channel in "
+                        '["nightly", "beta", "release"] '
                         "&& version|versionCompare('80.!') >= 0 "
                         "&& localeLanguageCode == 'en' "
                         "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
@@ -143,7 +144,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(
             serializer.data["targeting"],
             (
-                'channel in ["nightly", "beta", "release"] '
+                'browserSettings.update.channel in ["nightly", "beta", "release"] '
                 "&& localeLanguageCode == 'en' "
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
             ),
