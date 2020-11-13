@@ -40,15 +40,15 @@ describe("FormOverview", () => {
       ["Application", expected.application],
     ]) {
       const fieldName = screen.getByLabelText(labelText);
-      expect(fieldName).not.toHaveClass("is-invalid");
-      expect(fieldName).not.toHaveClass("is-valid");
 
       await act(async () => {
         fireEvent.click(fieldName);
         fireEvent.blur(fieldName);
       });
-      expect(fieldName).toHaveClass("is-invalid");
-      expect(fieldName).not.toHaveClass("is-valid");
+      if (labelText !== "Hypothesis") {
+        expect(fieldName).toHaveClass("is-invalid");
+        expect(fieldName).not.toHaveClass("is-valid");
+      }
 
       await act(async () => {
         fireEvent.change(fieldName, { target: { value: fieldValue } });
@@ -63,7 +63,6 @@ describe("FormOverview", () => {
     for (const [labelText, fieldValue] of [
       ["Public name", expected.name],
       ["Hypothesis", expected.hypothesis],
-      ["Application", expected.application],
       ["Public description", expected.publicDescription],
     ]) {
       const fieldName = screen.getByLabelText(labelText) as HTMLInputElement;
@@ -82,9 +81,6 @@ describe("FormOverview", () => {
     render(<Subject {...{ onSubmit }} />);
 
     const submitButton = screen.getByText("Create experiment");
-    await act(async () => void fireEvent.click(submitButton));
-    expect(onSubmit).not.toHaveBeenCalled();
-
     await act(async () => fillOutNewForm(expected));
     await act(async () => void fireEvent.click(submitButton));
 
@@ -98,7 +94,6 @@ describe("FormOverview", () => {
     const expected = {
       name: data!.name,
       hypothesis: data!.hypothesis as string,
-      application: data!.application as string,
       publicDescription: data!.publicDescription as string,
     };
 
@@ -108,7 +103,6 @@ describe("FormOverview", () => {
     const nextButton = screen.getByText("Next");
     const nameField = screen.getByLabelText("Public name");
 
-    expect(submitButton).not.toBeEnabled();
     expect(nextButton).toBeEnabled();
 
     await act(async () => checkExistingForm(expected));
@@ -117,7 +111,6 @@ describe("FormOverview", () => {
       fireEvent.change(nameField, { target: { value: "" } });
       fireEvent.blur(nameField);
     });
-    expect(submitButton).not.toBeEnabled();
 
     // Update the name in the form and expected data
     const newName = "Name THIS";

@@ -125,6 +125,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: "US_ONLY",
     },
   ],
+  hypothesisDefault: "Enter a hypothesis",
 };
 
 // Disabling this rule for now because we'll eventually

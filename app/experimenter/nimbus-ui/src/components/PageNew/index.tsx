@@ -7,6 +7,9 @@ import { RouteComponentProps } from "@reach/router";
 import AppLayout from "../AppLayout";
 import LinkExternal from "../LinkExternal";
 import FormOverview from "../FormOverview";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import { ReactComponent as DeleteIcon } from "../../images/x.svg";
 
 import { useMutation } from "@apollo/client";
 import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
@@ -27,6 +30,7 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
   >(CREATE_EXPERIMENT_MUTATION);
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
+  const [isServerValid, setIsServerValid] = useState(true);
 
   const onFormCancel = useCallback(() => {
     navigate(".");
@@ -47,12 +51,16 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
         const { message, nimbusExperiment } = result.data.createExperiment;
 
         if (message !== "success" && typeof message === "object") {
+          setIsServerValid(false);
           return void setSubmitErrors(message);
+        } else {
+          setIsServerValid(true);
+          setSubmitErrors({});
         }
         resetForm();
         navigate(`${nimbusExperiment!.slug}/edit/overview`);
       } catch (error) {
-        setSubmitErrors({ "*": SUBMIT_ERROR });
+        setSubmitErrors({ "*": `${SUBMIT_ERROR}` });
       }
     },
     [createExperiment],
@@ -60,7 +68,16 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
 
   return (
     <AppLayout testid="PageNew">
-      <h1 className="h2">Create a new Experiment</h1>
+      <Row>
+        <Col>
+          <h1 className="h2">Create a new Experiment</h1>
+        </Col>
+        <Col className="text-right">
+          <button title="Cancel" className="btn pr-0" onClick={onFormCancel}>
+            <DeleteIcon width="18" height="18" />{" "}
+          </button>
+        </Col>
+      </Row>
       <p>
         Before launching an experiment, review the{" "}
         <LinkExternal href={TRAINING_DOC_URL}>
@@ -72,6 +89,7 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
         <FormOverview
           {...{
             isLoading: loading,
+            isServerValid,
             submitErrors,
             onSubmit: onFormSubmit,
             onCancel: onFormCancel,

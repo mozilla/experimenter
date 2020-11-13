@@ -11,20 +11,18 @@ from experimenter.experiments.api.v5.types import (
 
 class ExperimentInput(graphene.InputObjectType):
     client_mutation_id = graphene.String()
-    name = graphene.String()
-    application = NimbusExperimentApplication()
-    public_description = graphene.String()
-    hypothesis = graphene.String()
+    name = graphene.String(required=True)
+    hypothesis = graphene.String(required=True)
 
 
 class CreateExperimentInput(ExperimentInput):
     name = graphene.String(required=True)
-    hypothesis = graphene.String(required=True)
     application = NimbusExperimentApplication(required=True)
 
 
 class UpdateExperimentInput(ExperimentInput):
     id = graphene.ID(required=True)
+    public_description = graphene.String()
 
 
 class BranchType(graphene.InputObjectType):
