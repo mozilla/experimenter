@@ -148,7 +148,7 @@ python-versions = "~=3.5"
 
 [[package]]
 name = "celery"
-version = "5.0.0"
+version = "5.0.2"
 description = "Distributed Task Queue."
 category = "main"
 optional = false
@@ -1545,7 +1545,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "d8be89484bd12fed1bf19db67280742723be4a0be8ef1a9e0a6cc597b0e3aefe"
+content-hash = "522ed235cb0852615e35ff0cc1a64325e581860a632e4798e0971bbd8e3a07b1"
 
 [metadata.files]
 aiohttp = [
@@ -1614,8 +1614,8 @@ cachetools = [
     {file = "cachetools-4.1.1.tar.gz", hash = "sha256:bbaa39c3dede00175df2dc2b03d0cf18dd2d32a7de7beb68072d13043c9edb20"},
 ]
 celery = [
-    {file = "celery-5.0.0-py3-none-any.whl", hash = "sha256:72138dc3887f68dc58e1a2397e477256f80f1894c69fa4337f8ed70be460375b"},
-    {file = "celery-5.0.0.tar.gz", hash = "sha256:313930fddde703d8e37029a304bf91429cd11aeef63c57de6daca9d958e1f255"},
+    {file = "celery-5.0.2-py3-none-any.whl", hash = "sha256:930c3acd55349d028c4e7104a7d377729cbcca19d9fce470c17172d9e7f9a8b6"},
+    {file = "celery-5.0.2.tar.gz", hash = "sha256:012c814967fe89e3f5d2cf49df2dba3de5f29253a7f4f2270e8fce6b901b4ebf"},
 ]
 certifi = [
     {file = "certifi-2020.6.20-py2.py3-none-any.whl", hash = "sha256:8fc0819f1f30ba15bdb34cceffb9ef04d99f420f68eb75d901e9560b8749fc41"},
