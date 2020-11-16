@@ -8,7 +8,8 @@ from experimenter.kinto.tests.mixins import MockKintoClientMixin
 class TestKintoClient(MockKintoClientMixin, TestCase):
     def setUp(self):
         super().setUp()
-        self.client = KintoClient(settings.KINTO_COLLECTION)
+        self.collection = "test-collection"
+        self.client = KintoClient(self.collection)
 
     def test_push_to_kinto_sends_data_updates_collection(self):
         self.client.push_to_kinto({"test": "data"})
@@ -20,13 +21,13 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
 
         self.mock_kinto_client.create_record.assert_called_with(
             data={"test": "data"},
-            collection=settings.KINTO_COLLECTION,
+            collection=self.collection,
             bucket=settings.KINTO_BUCKET,
             if_not_exists=True,
         )
 
         self.mock_kinto_client.patch_collection.assert_called_with(
-            id=settings.KINTO_COLLECTION,
+            id=self.collection,
             data={"status": "to-review"},
             bucket=settings.KINTO_BUCKET,
         )
@@ -42,11 +43,11 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
         self.mock_kinto_client.delete_record.assert_called_with(
             id="test_id",
             bucket=settings.KINTO_BUCKET,
-            collection=settings.KINTO_COLLECTION,
+            collection=self.collection,
         )
 
         self.mock_kinto_client.patch_collection.assert_called_with(
-            id=settings.KINTO_COLLECTION,
+            id=self.collection,
             data={"status": "to-review"},
             bucket=settings.KINTO_BUCKET,
         )
