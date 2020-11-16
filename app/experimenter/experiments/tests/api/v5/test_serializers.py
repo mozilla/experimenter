@@ -495,13 +495,17 @@ class TestNimbusProbeSetUpdateSerializer(TestCase):
     def test_serializer_updates_probe_sets_on_experiment(self):
         user = UserFactory()
         experiment = NimbusExperimentFactory(probe_sets=[])
-        probe_sets = [NimbusProbeSetFactory() for i in range(3)]
+        primary_probe_sets = [
+            NimbusProbeSetFactory().id
+            for i in range(NimbusExperiment.MAX_PRIMARY_PROBE_SETS)
+        ]
+        secondary_probe_sets = [NimbusProbeSetFactory().id for i in range(3)]
 
         serializer = NimbusProbeSetUpdateSerializer(
             experiment,
             {
-                "primary_probe_sets": [p.id for p in probe_sets[:2]],
-                "secondary_probe_sets": [p.id for p in probe_sets[2:]],
+                "primary_probe_sets": primary_probe_sets,
+                "secondary_probe_sets": secondary_probe_sets,
             },
             context={"user": user},
         )
@@ -512,8 +516,16 @@ class TestNimbusProbeSetUpdateSerializer(TestCase):
         self.assertEqual(experiment.changes.count(), 1)
 
         self.assertEqual(
-            set([p.id for p in experiment.probe_sets.all()]),
-            set([p.id for p in probe_sets]),
+            set(primary_probe_sets) | set(secondary_probe_sets),
+            set(experiment.probe_sets.all().values_list("id", flat=True)),
+        )
+        self.assertEqual(
+            set([p.id for p in experiment.primary_probe_sets]),
+            set(primary_probe_sets),
+        )
+        self.assertEqual(
+            set([p.id for p in experiment.secondary_probe_sets]),
+            set(secondary_probe_sets),
         )
 
     def test_serializer_rejects_duplicate_probes(self):
@@ -524,7 +536,9 @@ class TestNimbusProbeSetUpdateSerializer(TestCase):
         serializer = NimbusProbeSetUpdateSerializer(
             experiment,
             {
-                "primary_probe_sets": [p.id for p in probe_sets[:2]],
+                "primary_probe_sets": [
+                    p.id for p in probe_sets[: NimbusExperiment.MAX_PRIMARY_PROBE_SETS]
+                ],
                 "secondary_probe_sets": [p.id for p in probe_sets],
             },
             context={"user": user},
@@ -555,9 +569,9 @@ class TestNimbusProbeSetUpdateSerializer(TestCase):
         self.assertEqual(experiment.changes.count(), 0)
         self.assertFalse(serializer.is_valid())
         self.assertEqual(experiment.changes.count(), 0)
-        self.assertEqual(
+        self.assertIn(
+            "Exceeded maximum primary probe set limit of",
             serializer.errors["primary_probe_sets"][0],
-            "Exceeded maximum primary probe set limit of 2.",
         )
 
 

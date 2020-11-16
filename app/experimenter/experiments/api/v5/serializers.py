@@ -231,14 +231,16 @@ class NimbusProbeSetUpdateSerializer(
         fields = ("primary_probe_sets", "secondary_probe_sets")
 
     def validate_primary_probe_sets(self, value):
-        if len(value) > 2:
+        if len(value) > NimbusExperiment.MAX_PRIMARY_PROBE_SETS:
             raise serializers.ValidationError(
-                "Exceeded maximum primary probe set limit of 2."
+                "Exceeded maximum primary probe set limit of "
+                f"{NimbusExperiment.MAX_PRIMARY_PROBE_SETS}."
             )
         return value
 
     def validate(self, data):
-        """Validate the probe sets don't overlap and have no more than 2 primary.
+        """Validate the probe sets don't overlap and have no more than the max
+        number of primary probesets.
 
         Note that the default DRF validation ensures all the probe id's are valid and
         it will not save overlapping probesets. It does not however throw an error with
