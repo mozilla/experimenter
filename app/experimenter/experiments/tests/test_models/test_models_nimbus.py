@@ -47,16 +47,22 @@ class TestNimbusExperiment(TestCase):
         self.assertIsNone(experiment.end_date)
 
     def test_start_date_returns_datetime_for_started_experiment(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.LIVE
+        experiment = NimbusExperimentFactory.create()
+        start_change = NimbusChangeLogFactory(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.ACCEPTED,
+            new_status=NimbusExperiment.Status.LIVE,
         )
-        self.assertEqual(type(experiment.start_date), datetime.datetime)
+        self.assertEqual(experiment.start_date, start_change.changed_on)
 
     def test_end_date_returns_datetime_for_ended_experiment(self):
-        experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.COMPLETE
+        experiment = NimbusExperimentFactory.create()
+        end_change = NimbusChangeLogFactory(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.LIVE,
+            new_status=NimbusExperiment.Status.COMPLETE,
         )
-        self.assertEqual(type(experiment.end_date), datetime.datetime)
+        self.assertEqual(experiment.end_date, end_change.changed_on)
 
     def test_proposed_end_date_returns_None_for_not_started_experiment(self):
         experiment = NimbusExperimentFactory.create_with_status(

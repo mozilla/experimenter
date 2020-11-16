@@ -146,7 +146,7 @@ class NimbusExperiment(NimbusConstants, models.Model):
     @property
     def end_date(self):
         end_changelog = self.changes.filter(
-            old_status=self.Status.ACCEPTED, new_status=self.Status.LIVE
+            old_status=self.Status.LIVE, new_status=self.Status.COMPLETE
         )
         if end_changelog.exists():
             return end_changelog.get().changed_on
