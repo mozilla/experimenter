@@ -28,7 +28,7 @@ pytest-watch = "4.2.0"
 python-decouple = "3.3"
 raven = "6.10.0"
 redis = "3.5.3"
-requests = {version = "2.24.0", extras = ["security"]}
+requests = {version = "2.25.0", extras = ["security"]}
 whitenoise = "5.2.0"
 parameterized = "0.7.4"
 pytest-cov = "2.10.1"
