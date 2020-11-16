@@ -380,9 +380,11 @@ NORMANDY_API_RECIPE_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/{id}/")
 NORMANDY_API_RECIPES_LIST_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/")
 
 NORMANDY_DEVTOOLS_HOST = config("NORMANDY_DEVTOOLS_HOST")
-NORMANDY_DEVTOOLS_RECIPE_URL = urljoin(NORMANDY_DEVTOOLS_HOST, "/recipes/{id}")
-NORMANDY_DEVTOOLS_RECIPE_IMPORT_URL = urljoin(
-    NORMANDY_DEVTOOLS_HOST, "/recipes/import/{slug}"
+NORMANDY_DEVTOOLS_RECIPE_URL = "{root}{recipe_url}".format(
+    root=NORMANDY_DEVTOOLS_HOST, recipe_url="/recipes/{id}"
+)
+NORMANDY_DEVTOOLS_RECIPE_IMPORT_URL = "{root}{import_url}".format(
+    root=NORMANDY_DEVTOOLS_HOST, import_url="/recipes/import/{slug}"
 )
 
 
