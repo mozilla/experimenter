@@ -199,6 +199,7 @@ class TestNimbusQuery(GraphQLTestCase):
                         value
                     }
                     hypothesisDefault
+                    maxPrimaryProbeSets
                 }
             }
             """,
@@ -248,3 +249,7 @@ class TestNimbusQuery(GraphQLTestCase):
             self.assertEqual(
                 config_feature_config["description"], feature_config.description
             )
+        self.assertEqual(config["hypothesisDefault"], NimbusExperiment.HYPOTHESIS_DEFAULT)
+        self.assertEqual(
+            config["maxPrimaryProbeSets"], NimbusExperiment.MAX_PRIMARY_PROBE_SETS
+        )
