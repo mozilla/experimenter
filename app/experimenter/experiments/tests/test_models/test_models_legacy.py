@@ -1738,6 +1738,15 @@ class TestExperimentComments(TestCase):
             testing_comment, experiment.comments.sections[experiment.SECTION_RISKS]
         )
 
+    def test_get_absolute_url(self):
+        experiment = ExperimentFactory.create(name="experiment1")
+        comment = ExperimentCommentFactory.create(id=5, experiment=experiment)
+        with override_settings(HOSTNAME="localhost"):
+            self.assertEqual(
+                comment.get_absolute_url(),
+                "https://localhost/experiments/experiment1_/#comment5",
+            )
+
 
 class TestExperimentBucketNamespace(TestCase):
     def test_empty_namespace_creates_namespace_and_bucket_range(self):

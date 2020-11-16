@@ -1285,9 +1285,8 @@ class ExperimentComment(ExperimentConstants, models.Model):
 
     objects = ExperimentCommentManager()
 
-    @property
     def get_absolute_url(self):
-        return urljoin(self.experiment.experiment_url, "#/comment{id}".format(id=self.id))
+        return f"{self.experiment.experiment_url}#comment{self.id}"
 
     class Meta:
         verbose_name = "Experiment Comment"
