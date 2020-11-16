@@ -30,6 +30,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     probe_sets = graphene.List(NimbusProbeSetType)
     targeting_config_slug = graphene.List(NimbusLabelValueType)
     hypothesis_default = graphene.String()
+    max_primary_probe_sets = graphene.Int()
 
     def _text_choices_to_label_value_list(root, text_choices):
         return [
@@ -71,6 +72,9 @@ class NimbusConfigurationType(graphene.ObjectType):
 
     def resolve_hypothesis_default(root, info):
         return NimbusExperiment.HYPOTHESIS_DEFAULT
+
+    def resolve_max_primary_probe_sets(root, info):
+        return NimbusExperiment.MAX_PRIMARY_PROBE_SETS
 
 
 class NimbusReadyForReviewType(graphene.ObjectType):

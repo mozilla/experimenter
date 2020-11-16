@@ -175,3 +175,5 @@ We believe this because we have observed <this> via <data source, UR, survey>.
 
 Optional - We believe this outcome will <describe impact> on <core metric>
     """  # noqa
+
+    MAX_PRIMARY_PROBE_SETS = 2

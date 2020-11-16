@@ -57,6 +57,7 @@ type NimbusConfigurationType {
   probeSets: [NimbusProbeSetType]
   targetingConfigSlug: [NimbusLabelValueType]
   hypothesisDefault: String
+  maxPrimaryProbeSets: Int
 }
 
 enum NimbusExperimentApplication {
