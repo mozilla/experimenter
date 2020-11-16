@@ -319,18 +319,6 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.normandy.tasks.update_launched_experiments",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
     },
-    "check_kinto_push_queue_task": {
-        "task": "experimenter.kinto.tasks.legacy.check_kinto_push_queue",
-        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
-    },
-    "check_experiment_is_live": {
-        "task": "experimenter.kinto.tasks.legacy.check_experiment_is_live",
-        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
-    },
-    "check_experiment_is_complete": {
-        "task": "experimenter.kinto.tasks.legacy.check_experiment_is_complete",
-        "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
-    },
     "nimbus_check_kinto_push_queue_task": {
         "task": "experimenter.kinto.tasks.nimbus.nimbus_check_kinto_push_queue",
         "schedule": config("CELERY_SCHEDULE_INTERVAL", default=300, cast=int),
@@ -408,7 +396,6 @@ KINTO_USER = config("KINTO_USER")
 KINTO_PASS = config("KINTO_PASS")
 KINTO_BUCKET = "main-workspace"
 KINTO_BUCKET_MAIN = "main"
-KINTO_COLLECTION = "messaging-experiments"
 KINTO_COLLECTION_NIMBUS_DESKTOP = "nimbus-desktop-experiments"
 KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
 
