@@ -3,7 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  act,
+  waitFor,
+} from "@testing-library/react";
 import { MOCK_CONFIG } from "../../lib/mocks";
 import {
   SubjectBranches,
@@ -12,6 +18,7 @@ import {
   MOCK_FEATURE_CONFIG,
   MOCK_FEATURE_CONFIG_WITH_SCHEMA,
 } from "./mocks";
+import { extractUpdateBranch } from "./reducer/update";
 
 describe("FormBranches", () => {
   it("renders as expected", async () => {
@@ -23,14 +30,90 @@ describe("FormBranches", () => {
     );
   });
 
-  it("calls onSave with current state when save button clicked", () => {
+  it("renders as expected while loading", async () => {
+    const onSave = jest.fn();
+    const onNext = jest.fn();
+    render(<SubjectBranches {...{ isLoading: true, onSave, onNext }} />);
+    expect(screen.getByTestId("FormBranches")).toBeInTheDocument();
+    expect(screen.getByTestId("save-button")).toHaveTextContent("Saving");
+    fireEvent.click(screen.getByTestId("save-button"));
+    expect(onSave).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("next-button"));
+    expect(onNext).not.toHaveBeenCalled();
+  });
+
+  it("calls onSave with extracted update when save button clicked", () => {
     const onSave = jest.fn();
     render(<SubjectBranches {...{ onSave }} />);
     fireEvent.click(screen.getByTestId("save-button"));
-    expect(onSave).toHaveBeenCalledWith({
-      featureConfig: null,
-      referenceBranch: MOCK_EXPERIMENT.referenceBranch,
-      treatmentBranches: MOCK_EXPERIMENT.treatmentBranches,
+    expect(onSave).toHaveBeenCalled();
+    const onSaveArgs = onSave.mock.calls[0];
+    expect(onSaveArgs[0]).toEqual({
+      featureConfigId: null,
+      // @ts-ignore type mismatch covers discarded annotation properties
+      referenceBranch: extractUpdateBranch(MOCK_EXPERIMENT.referenceBranch!),
+      treatmentBranches: MOCK_EXPERIMENT.treatmentBranches!.map(
+        // @ts-ignore type mismatch covers discarded annotation properties
+        (branch) => extractUpdateBranch(branch!),
+      ),
+    });
+    expect(typeof onSaveArgs[1]).toEqual("function");
+    expect(typeof onSaveArgs[2]).toEqual("function");
+  });
+
+  it("displays submit errors set by onSave handler", async () => {
+    const expectedErrors = {
+      "*": ["Global error alert"],
+      reference_branch: {
+        name: ["Bad name"],
+      },
+    };
+    const onSave = jest.fn((state, setSubmitErrors /*, clearSubmitErrors*/) => {
+      setSubmitErrors(expectedErrors);
+    });
+    const { container } = render(
+      <SubjectBranches {...{ onSave, saveOnInitialRender: true }} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("global-error")).toHaveTextContent(
+        expectedErrors["*"][0],
+      );
+      expect(
+        container.querySelector('*[data-for="branch-reference-name"]'),
+      ).toHaveTextContent(expectedErrors["reference_branch"]["name"][0]);
+    });
+  });
+
+  it("can clear submit errors after set by onSave handler", async () => {
+    const expectedErrors = {
+      "*": ["Global error alert"],
+      reference_branch: {
+        name: ["Bad name"],
+      },
+    };
+    const onSave = jest.fn((state, setSubmitErrors, clearSubmitErrors) => {
+      setSubmitErrors(expectedErrors);
+      clearSubmitErrors();
+    });
+    const { container } = render(
+      <SubjectBranches {...{ onSave, saveOnInitialRender: true }} />,
+    );
+    expect(screen.queryByTestId("global-error")).not.toBeInTheDocument();
+    expect(
+      container.querySelector('*[data-for="branch-reference-name"]'),
+    ).not.toBeInTheDocument();
+  });
+
+  it("displays exception thrown by onSaveHandler", async () => {
+    const expectedErrorMessage = "Super bad thing happened";
+    const onSave = jest.fn(() => {
+      throw new Error(expectedErrorMessage);
+    });
+    render(<SubjectBranches {...{ onSave, saveOnInitialRender: true }} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("global-error")).toHaveTextContent(
+        expectedErrorMessage,
+      );
     });
   });
 
@@ -53,9 +136,9 @@ describe("FormBranches", () => {
     }
   });
 
-  it("supports adding a control branch", () => {
+  it("requires adding a valid control branch before save is enabled", async () => {
     const onSave = jest.fn();
-    render(
+    const { container } = render(
       <SubjectBranches
         {...{
           onSave,
@@ -68,22 +151,21 @@ describe("FormBranches", () => {
       />,
     );
 
-    onSave.mockClear();
-    fireEvent.click(screen.getByTestId("save-button"));
-    const saveResultBefore = onSave.mock.calls[0][0];
-    expect(saveResultBefore.referenceBranch).toEqual(null);
+    expect(screen.getByTestId("save-button")).toBeDisabled();
 
     fireEvent.click(screen.getByTestId("add-branch"));
+    selectFeatureConfig();
+    await fillInBranch(container, "branch-reference");
+    expect(screen.getByTestId("save-button")).not.toBeDisabled();
 
-    onSave.mockClear();
     fireEvent.click(screen.getByTestId("save-button"));
     const saveResultAfter = onSave.mock.calls[0][0];
     expect(saveResultAfter.referenceBranch).not.toEqual(null);
   });
 
-  it("supports adding a treatment branch", () => {
+  it("supports adding a treatment branch", async () => {
     const onSave = jest.fn();
-    render(
+    const { container } = render(
       <SubjectBranches
         {...{
           onSave,
@@ -95,15 +177,29 @@ describe("FormBranches", () => {
       />,
     );
 
+    selectFeatureConfig();
+    await fillInBranch(container, `branch-reference`);
+
     onSave.mockClear();
-    fireEvent.click(screen.getByTestId("save-button"));
+    act(() => {
+      fireEvent.click(screen.getByTestId("save-button"));
+    });
+    expect(onSave).toHaveBeenCalled();
+
     const saveResultBefore = onSave.mock.calls[0][0];
-    expect(saveResultBefore.treatmentBranches).toEqual(null);
+    expect(saveResultBefore.treatmentBranches).toEqual([]);
 
-    fireEvent.click(screen.getByTestId("add-branch"));
+    act(() => {
+      fireEvent.click(screen.getByTestId("add-branch"));
+    });
+    await fillInBranch(container, `branch-0`);
 
     onSave.mockClear();
-    fireEvent.click(screen.getByTestId("save-button"));
+    act(() => {
+      fireEvent.click(screen.getByTestId("save-button"));
+    });
+    expect(onSave).toHaveBeenCalled();
+
     const saveResultAfter = onSave.mock.calls[0][0];
     expect(saveResultAfter.treatmentBranches).not.toEqual(null);
   });
@@ -141,7 +237,9 @@ describe("FormBranches", () => {
     fireEvent.click(addButton);
     fireEvent.click(screen.getByTestId("save-button"));
     const saveResult = onSave.mock.calls[0][0];
-    expect(saveResult.featureConfig).toEqual(MOCK_CONFIG.featureConfig![0]);
+    expect(saveResult.featureConfigId).toEqual(
+      parseInt(MOCK_CONFIG.featureConfig![0]!.id, 10),
+    );
   });
 
   it("supports removing feature config", () => {
@@ -161,7 +259,7 @@ describe("FormBranches", () => {
     fireEvent.click(addButton);
     fireEvent.click(screen.getByTestId("save-button"));
     const saveResult = onSave.mock.calls[0][0];
-    expect(saveResult.featureConfig).toBeNull();
+    expect(saveResult.featureConfigId).toBeNull();
   });
 
   it("changing feature on one branch changes for all", () => {
@@ -199,7 +297,7 @@ describe("FormBranches", () => {
     }
   });
 
-  it("updates save result with edits", () => {
+  it("updates save result with edits", async () => {
     const onSave = jest.fn();
     const { container } = render(
       <SubjectBranches
@@ -219,31 +317,57 @@ describe("FormBranches", () => {
       description: "example description",
       ratio: "42",
       featureValue: "example value",
+      featureEnabled: true,
     };
 
     for (const id of [`branch-reference`, `branch-${branchIdx}`]) {
-      for (const [name, value] of Object.entries(expectedData)) {
-        const field = container.querySelector(`#${id}-${name}`);
-        expect(field).not.toBeNull();
-        fireEvent.change(field!, { target: { value } });
-      }
+      await fillInBranch(container, id, expectedData);
     }
 
     fireEvent.click(screen.getByTestId("save-button"));
     const saveResult = onSave.mock.calls[0][0];
-    expect(saveResult).toEqual({
-      featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
-      referenceBranch: {
-        ...MOCK_EXPERIMENT.referenceBranch,
-        ...expectedData,
-      },
-      treatmentBranches: [
-        MOCK_EXPERIMENT.treatmentBranches![0],
-        {
-          ...MOCK_EXPERIMENT.treatmentBranches![1],
-          ...expectedData,
-        },
-      ],
-    });
+
+    expect(saveResult.featureConfigId).toEqual(
+      parseInt(MOCK_FEATURE_CONFIG_WITH_SCHEMA.id, 10),
+    );
+    expect(saveResult.referenceBranch).toEqual(expectedData);
+    expect(saveResult.treatmentBranches[1]).toEqual(expectedData);
   });
 });
+
+async function fillInBranch(
+  container: HTMLElement,
+  id: string,
+  expectedData = {
+    name: "example name",
+    description: "example description",
+    ratio: "42",
+    featureValue: "example value",
+    featureEnabled: true,
+  },
+) {
+  for (const [name, value] of Object.entries(expectedData)) {
+    const field = container.querySelector(`#${id}-${name}`);
+    expect(field).not.toBeNull();
+    await act(async () => {
+      fireEvent.change(field!, { target: { value } });
+    });
+  }
+}
+
+function selectFeatureConfig(featureIdx = 1) {
+  act(() => {
+    const featureConfigAddButton = screen.queryAllByTestId(
+      "feature-config-add",
+    )![0];
+    fireEvent.click(featureConfigAddButton);
+  });
+  act(() => {
+    const featureConfigSelects = screen.queryAllByTestId(
+      "feature-config-select",
+    )! as HTMLInputElement[];
+    fireEvent.change(featureConfigSelects[0], {
+      target: { value: featureIdx },
+    });
+  });
+}

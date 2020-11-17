@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, ValidationRules } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import { getExperiment } from "../../types/getExperiment";
@@ -68,16 +68,14 @@ const FormOverview = ({
 
   const nameValidated = (
     name: string,
-    // This could be ValidationRules from react-hook-form/validator, but
-    // register() has several signatures and only this one produces a ref
-    validateRule: Parameters<typeof register>[1] = {
+    validateRules: ValidationRules = {
       required: "This field may not be blank.",
     },
   ) => ({
     name,
     isInvalid: !!submitErrors[name] || (touched[name] && errors[name]),
     isValid: !submitErrors[name] && touched[name] && !errors[name],
-    ref: register(validateRule),
+    ref: register(validateRules),
   });
 
   const FormErrors = ({ name }: { name: string }) => (

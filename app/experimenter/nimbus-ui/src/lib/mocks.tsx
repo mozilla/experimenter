@@ -15,6 +15,7 @@ import { Observable } from "@apollo/client/utilities";
 import { MockLink, MockedResponse } from "@apollo/client/testing";
 import { equal } from "@wry/equality";
 import { DocumentNode, print } from "graphql";
+import { cacheConfig } from "../services/apollo";
 import { GET_EXPERIMENT_QUERY } from "../gql/experiments";
 import { getExperiment } from "../types/getExperiment";
 import { getConfig_nimbusConfig } from "../types/getConfig";
@@ -132,7 +133,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
 // be using props from MockedProps.
 // eslint-disable-next-line no-empty-pattern
 export function createCache({ config = {} }: MockedProps = {}) {
-  const cache = new InMemoryCache();
+  const cache = new InMemoryCache(cacheConfig);
 
   cache.writeQuery({
     query: GET_CONFIG_QUERY,

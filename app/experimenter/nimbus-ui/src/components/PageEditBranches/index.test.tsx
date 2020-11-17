@@ -3,22 +3,37 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { screen, waitFor, render, fireEvent } from "@testing-library/react";
-import PageEditBranches from ".";
+import {
+  screen,
+  waitFor,
+  render,
+  fireEvent,
+  act,
+} from "@testing-library/react";
+import { navigate } from "@reach/router";
+import PageEditBranches, { SUBMIT_ERROR_MESSAGE } from ".";
 import FormBranches from "../FormBranches";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
+import { UPDATE_EXPERIMENT_BRANCHES_MUTATION } from "../../gql/experiments";
+import { UpdateExperimentBranchesInput } from "../../types/globalTypes";
+import {
+  updateExperimentBranches_updateExperimentBranches,
+  updateExperimentBranches_updateExperimentBranches_nimbusExperiment,
+} from "../../types/updateExperimentBranches";
+import {
+  FormBranchesSaveState,
+  extractUpdateBranch,
+} from "../FormBranches/reducer/update";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
 describe("PageEditBranches", () => {
-  const origConsole = console.log;
-
   beforeEach(() => {
-    console.log = jest.fn();
+    mockSetSubmitErrors.mockClear();
+    mockClearSubmitErrors.mockClear();
   });
 
-  afterEach(() => {
-    console.log = origConsole;
-  });
+  afterEach(() => {});
 
   it("renders as expected with experiment data", async () => {
     const { mock } = mockExperimentQuery("demo-slug");
@@ -35,21 +50,6 @@ describe("PageEditBranches", () => {
     }
   });
 
-  it("handles onSave from FormBranches", async () => {
-    const { mock, data: experiment } = mockExperimentQuery("demo-slug");
-    render(<Subject mocks={[mock]} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
-    });
-    fireEvent.click(await screen.findByTestId("save-button"));
-    expect(console.log).toHaveBeenCalledWith("SAVE", {
-      equalRatio: true,
-      featureConfig: experiment!.featureConfig,
-      referenceBranch: experiment!.referenceBranch,
-      treatmentBranches: experiment!.treatmentBranches,
-    });
-  });
-
   it("handles onNext from FormBranches", async () => {
     const { mock } = mockExperimentQuery("demo-slug");
     render(<Subject mocks={[mock]} />);
@@ -57,7 +57,81 @@ describe("PageEditBranches", () => {
       expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
     });
     fireEvent.click(screen.getByTestId("next-button"));
-    expect(console.log).toHaveBeenCalledWith("NEXT");
+    expect(navigate).toHaveBeenCalledWith("metrics");
+  });
+
+  it("handles onSave from FormBranches", async () => {
+    const { mock, data: experiment } = mockExperimentQuery("demo-slug");
+    setMockUpdateState(experiment!);
+    const mockMutation = mockUpdateExperimentBranchesMutation(
+      { ...mockUpdateState, nimbusExperimentId: 1 },
+      { experiment: experiment! },
+    );
+    render(<Subject mocks={[mock, mockMutation, mock]} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
+    });
+    await act(async () => {
+      const saveButton = await screen.getByTestId("save-button");
+      await fireEvent.click(saveButton);
+    });
+    expect(mockSetSubmitErrors).not.toHaveBeenCalled();
+  });
+
+  it("sets a global submit error when updateExperimentBranches fails", async () => {
+    const { mock, data: experiment } = mockExperimentQuery("demo-slug");
+    setMockUpdateState(experiment!);
+
+    const mockMutation = mockUpdateExperimentBranchesMutation(
+      { ...mockUpdateState, nimbusExperimentId: 1 },
+      { experiment: experiment! },
+    );
+    // @ts-ignore - intentionally breaking this type for error handling
+    delete mockMutation.result.data.updateExperimentBranches;
+
+    render(<Subject mocks={[mock, mockMutation, mock]} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      const saveButton = await screen.getByTestId("save-button");
+      await fireEvent.click(saveButton);
+    });
+
+    expect(mockSetSubmitErrors).toHaveBeenCalledWith({
+      "*": [SUBMIT_ERROR_MESSAGE],
+    });
+  });
+
+  it("sets submit errors when updateExperimentBranches is not a success", async () => {
+    const { mock, data: experiment } = mockExperimentQuery("demo-slug");
+    setMockUpdateState(experiment!);
+
+    const mockMutation = mockUpdateExperimentBranchesMutation(
+      { ...mockUpdateState, nimbusExperimentId: 1 },
+      { experiment: experiment! },
+    );
+
+    mockMutation.result.data.updateExperimentBranches.message = {
+      reference_branch: {
+        name: ["This name stinks."],
+      },
+    };
+
+    render(<Subject mocks={[mock, mockMutation, mock]} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      const saveButton = await screen.getByTestId("save-button");
+      await fireEvent.click(saveButton);
+    });
+
+    expect(mockSetSubmitErrors).toHaveBeenCalledWith(
+      mockMutation.result.data.updateExperimentBranches.message,
+    );
   });
 });
 
@@ -71,6 +145,32 @@ const Subject = ({
   </RouterSlugProvider>
 );
 
+jest.mock("@reach/router", () => ({
+  ...jest.requireActual("@reach/router"),
+  navigate: jest.fn(),
+}));
+
+const mockSetSubmitErrors = jest.fn();
+const mockClearSubmitErrors = jest.fn();
+let mockUpdateState: FormBranchesSaveState;
+
+function setMockUpdateState(experiment: getExperiment_experimentBySlug) {
+  // issue #3954: Need to parse string IDs into numbers
+  const featureConfigId =
+    experiment.featureConfig === null
+      ? null
+      : parseInt(experiment.featureConfig.id, 10);
+  mockUpdateState = {
+    featureConfigId,
+    // @ts-ignore type mismatch covers discarded annotation properties
+    referenceBranch: extractUpdateBranch(experiment.referenceBranch!),
+    treatmentBranches: experiment.treatmentBranches!.map((branch) =>
+      // @ts-ignore type mismatch covers discarded annotation properties
+      extractUpdateBranch(branch!),
+    ),
+  };
+}
+
 jest.mock("../FormBranches", () => ({
   __esModule: true,
   default: ({
@@ -79,12 +179,6 @@ jest.mock("../FormBranches", () => ({
     onSave,
     onNext,
   }: React.ComponentProps<typeof FormBranches>) => {
-    const saveState = {
-      equalRatio: true,
-      featureConfig: experiment.featureConfig,
-      referenceBranch: experiment.referenceBranch,
-      treatmentBranches: experiment.treatmentBranches,
-    };
     return (
       <div data-testid="FormBranches">
         {experiment && (
@@ -104,7 +198,9 @@ jest.mock("../FormBranches", () => ({
         <button
           data-testid="save-button"
           type="submit"
-          onClick={() => onSave(saveState)}
+          onClick={() =>
+            onSave(mockUpdateState, mockSetSubmitErrors, mockClearSubmitErrors)
+          }
         >
           <span>Save</span>
         </button>
@@ -112,3 +208,40 @@ jest.mock("../FormBranches", () => ({
     );
   },
 }));
+
+export const mockUpdateExperimentBranchesMutation = (
+  input: Partial<UpdateExperimentBranchesInput>,
+  {
+    clientMutationId = "8675309",
+    status = 200,
+    message = "success",
+    experiment,
+  }: {
+    clientMutationId?: string | null;
+    status?: number;
+    message?: string | Record<string, any>;
+    experiment: updateExperimentBranches_updateExperimentBranches_nimbusExperiment;
+  },
+) => {
+  const updateExperimentBranches: updateExperimentBranches_updateExperimentBranches = {
+    __typename: "UpdateExperimentBranches",
+    clientMutationId,
+    status,
+    message,
+    nimbusExperiment: experiment,
+  };
+  return {
+    request: {
+      query: UPDATE_EXPERIMENT_BRANCHES_MUTATION,
+      variables: {
+        input,
+      },
+    },
+    result: {
+      errors: undefined as undefined | any[],
+      data: {
+        updateExperimentBranches,
+      },
+    },
+  };
+};
