@@ -170,6 +170,10 @@ Start all containers in the background (not attached to shell)
 
 Run all test and lint suites, this is run in CI on all PRs and deploys
 
+### py_test
+
+Run python tests
+
 ### migrate
 
 Apply all django migrations
