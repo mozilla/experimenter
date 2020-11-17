@@ -21,6 +21,7 @@ export type FormBranchesState = Pick<
 export type AnnotatedBranch = getExperiment_experimentBySlug_treatmentBranches & {
   key: string;
   isValid: boolean;
+  isDirty: boolean;
   errors: Record<string, string[]>;
 };
 
@@ -40,11 +41,13 @@ export function createInitialState({
   const annotatedReferenceBranch =
     referenceBranch === null
       ? null
-      : annotateBranch("reference", referenceBranch!);
+      : annotateExperimentBranch("reference", referenceBranch!);
 
   const annotatedTreatmentBranches = !Array.isArray(treatmentBranches)
     ? null
-    : treatmentBranches.map((branch) => annotateBranch(lastId++, branch!));
+    : treatmentBranches.map((branch) =>
+        annotateExperimentBranch(lastId++, branch!),
+      );
 
   return {
     lastId,
@@ -56,7 +59,7 @@ export function createInitialState({
   };
 }
 
-export function annotateBranch(
+export function annotateExperimentBranch(
   lastId: number | string,
   branch: getExperiment_experimentBySlug_treatmentBranches,
 ) {
@@ -64,16 +67,21 @@ export function annotateBranch(
     ...branch,
     key: `branch-${lastId}`,
     isValid: true,
+    isDirty: false,
     errors: {},
   };
 }
 
-export function createBranch(lastId: number, name: string): AnnotatedBranch {
+export function createAnnotatedBranch(
+  lastId: number,
+  name: string,
+): AnnotatedBranch {
   return {
     __typename: "NimbusBranchType" as const,
     key: `branch-${lastId}`,
     errors: {},
     isValid: false,
+    isDirty: false,
     name,
     slug: "",
     description: "",

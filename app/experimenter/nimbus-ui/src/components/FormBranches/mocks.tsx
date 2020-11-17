@@ -104,6 +104,7 @@ export const MOCK_BRANCH = MOCK_EXPERIMENT.treatmentBranches![0]!;
 export const MOCK_ANNOTATED_BRANCH: AnnotatedBranch = {
   key: "branch-1",
   isValid: true,
+  isDirty: false,
   errors: {},
   ...MOCK_BRANCH,
 };

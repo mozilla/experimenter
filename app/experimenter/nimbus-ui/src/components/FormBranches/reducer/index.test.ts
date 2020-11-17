@@ -17,12 +17,14 @@ const MOCK_STATE: FormBranchesState = {
     key: "branch-reference",
     errors: {},
     isValid: true,
+    isDirty: false,
   },
   treatmentBranches: MOCK_EXPERIMENT.treatmentBranches!.map((branch, idx) => ({
     ...branch!,
     key: `branch-${idx}`,
     errors: {},
     isValid: true,
+    isDirty: false,
   })),
 };
 
@@ -278,6 +280,47 @@ describe("formBranchesReducer", () => {
           })),
         ],
       });
+    });
+  });
+
+  describe("resetDirtyBranches", () => {
+    it("resets isDirty flag for all branches", () => {
+      const oldState = {
+        ...MOCK_STATE,
+        referenceBranch: {
+          ...MOCK_STATE.referenceBranch!,
+          isDirty: true,
+        },
+        treatmentBranches: MOCK_STATE.treatmentBranches!.map((branch) => ({
+          ...branch,
+          isDirty: true,
+        })),
+      };
+
+      const newState = formBranchesActionReducer(oldState, {
+        type: "resetDirtyBranches",
+      });
+
+      expect(newState.featureConfig).toBeNull();
+      expect(newState.referenceBranch?.isDirty).toBe(false);
+      expect(
+        newState.treatmentBranches?.every(
+          (branch) => branch?.isDirty === false,
+        ),
+      ).toEqual(true);
+    });
+
+    it("can handle null branches", () => {
+      const oldState = {
+        ...MOCK_STATE,
+        globalErrors: [],
+        referenceBranch: null,
+        treatmentBranches: null,
+      };
+      const newState = formBranchesActionReducer(oldState, {
+        type: "resetDirtyBranches",
+      });
+      expect(newState).toEqual(oldState);
     });
   });
 });

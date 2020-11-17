@@ -157,13 +157,21 @@ describe("FormBranch", () => {
       await act(async () => {
         fireEvent.change(field!, { target: { value } });
       });
-      expect(onChange).toHaveBeenCalledWith({ ...branch, [name]: value });
+      expect(onChange).toHaveBeenCalledWith({
+        ...branch,
+        isDirty: true,
+        [name]: value,
+      });
     }
 
     await act(async () => {
       fireEvent.click(container.querySelector(`#${id}-featureEnabled`)!);
     });
-    expect(onChange).toHaveBeenCalledWith({ ...branch, featureEnabled: false });
+    expect(onChange).toHaveBeenCalledWith({
+      ...branch,
+      isDirty: true,
+      featureEnabled: false,
+    });
   });
 
   it("should display server-side errors but hide when field touched", async () => {

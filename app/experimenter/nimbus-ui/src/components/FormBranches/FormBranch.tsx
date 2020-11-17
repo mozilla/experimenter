@@ -95,7 +95,7 @@ export const FormBranch = ({
   ) => async (ev: React.ChangeEvent<HTMLInputElement>) => {
     const value = ev.target[targetAttr];
     const isValid = await trigger();
-    onChange({ ...branch, isValid, [propertyName]: value });
+    onChange({ ...branch, isValid, isDirty: true, [propertyName]: value });
   };
 
   const handleFeatureConfigChange = (

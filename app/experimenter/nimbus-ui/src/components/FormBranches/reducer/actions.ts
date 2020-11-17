@@ -3,7 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { updateExperimentBranches_updateExperimentBranches } from "../../../types/updateExperimentBranches";
-import { AnnotatedBranch, FormBranchesState, createBranch } from "./state";
+import {
+  AnnotatedBranch,
+  FormBranchesState,
+  createAnnotatedBranch,
+} from "./state";
 import snakeToCamelCase from "../../../lib/snakeToCamelCase";
 
 export const REFERENCE_BRANCH_IDX = -1;
@@ -29,6 +33,8 @@ export function formBranchesActionReducer(
       return setSubmitErrors(state, action);
     case "clearSubmitErrors":
       return clearSubmitErrors(state);
+    case "resetDirtyBranches":
+      return resetDirtyBranches(state);
     default:
       return state;
   }
@@ -42,7 +48,8 @@ export type FormBranchesAction =
   | SetEqualRatioAction
   | SetFeatureConfigAction
   | SetSubmitErrorsAction
-  | ClearSubmitErrorsAction;
+  | ClearSubmitErrorsAction
+  | ResetDirtyBranchesAction;
 
 type AddBranchAction = {
   type: "addBranch";
@@ -53,11 +60,11 @@ function addBranch(state: FormBranchesState) {
   lastId++;
 
   if (referenceBranch === null) {
-    referenceBranch = createBranch(lastId, "New control");
+    referenceBranch = createAnnotatedBranch(lastId, "New control");
   } else {
     treatmentBranches = [
       ...(treatmentBranches || []),
-      createBranch(state.lastId, `New treatment ${lastId}`),
+      createAnnotatedBranch(state.lastId, `New treatment ${lastId}`),
     ];
   }
 
@@ -265,6 +272,31 @@ function clearSubmitErrors(state: FormBranchesState) {
   return {
     ...state,
     globalErrors,
+    referenceBranch,
+    treatmentBranches,
+  };
+}
+
+type ResetDirtyBranchesAction = {
+  type: "resetDirtyBranches";
+};
+
+function resetDirtyBranches(state: FormBranchesState) {
+  let { referenceBranch, treatmentBranches } = state;
+
+  if (referenceBranch) {
+    referenceBranch = { ...referenceBranch, isDirty: false };
+  }
+
+  if (treatmentBranches) {
+    treatmentBranches = treatmentBranches.map((treatmentBranch) => ({
+      ...treatmentBranch,
+      isDirty: false,
+    }));
+  }
+
+  return {
+    ...state,
     referenceBranch,
     treatmentBranches,
   };

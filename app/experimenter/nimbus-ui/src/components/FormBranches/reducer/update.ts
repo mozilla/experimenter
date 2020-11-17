@@ -44,6 +44,7 @@ export function extractUpdateBranch(
     key,
     errors,
     isValid,
+    isDirty,
     slug,
     /* eslint-enable @typescript-eslint/no-unused-vars */
     ...strippedBranch

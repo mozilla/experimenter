@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
+import { useExitWarning } from "../../hooks";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
   getConfig_nimbusConfig,
@@ -63,6 +64,15 @@ export const FormBranches = ({
 
   const [lastSubmitTime, setLastSubmitTime] = useState(Date.now());
 
+  const isDirtyUnsaved =
+    (referenceBranch && referenceBranch.isDirty) ||
+    !!treatmentBranches?.some((branch) => branch?.isDirty);
+
+  const shouldWarnOnExit = useExitWarning();
+  useEffect(() => {
+    shouldWarnOnExit(isDirtyUnsaved);
+  }, [shouldWarnOnExit, isDirtyUnsaved]);
+
   // TODO: submitErrors type is any, but in practical use it's AnnotatedBranch["errors"]
   const setSubmitErrors = (submitErrors: any) =>
     dispatch({ type: "setSubmitErrors", submitErrors });
@@ -99,6 +109,7 @@ export const FormBranches = ({
     try {
       setLastSubmitTime(Date.now());
       onSave(extractSaveState(), setSubmitErrors, clearSubmitErrors);
+      dispatch({ type: "resetDirtyBranches" });
     } catch (error) {
       setSubmitErrors({ "*": [error.message] });
     }
