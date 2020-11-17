@@ -48,6 +48,32 @@ export const UPDATE_EXPERIMENT_STATUS_MUTATION = gql`
   }
 `;
 
+export const UPDATE_EXPERIMENT_BRANCHES_MUTATION = gql`
+  mutation updateExperimentBranches($input: UpdateExperimentBranchesInput!) {
+    updateExperimentBranches(input: $input) {
+      clientMutationId
+      message
+      status
+      nimbusExperiment {
+        id
+        featureConfig {
+          name
+        }
+        referenceBranch {
+          name
+          description
+          ratio
+        }
+        treatmentBranches {
+          name
+          description
+          ratio
+        }
+      }
+    }
+  }
+`;
+
 export const GET_EXPERIMENT_QUERY = gql`
   query getExperiment($slug: String!) {
     experimentBySlug(slug: $slug) {
@@ -82,6 +108,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       }
 
       featureConfig {
+        id
         slug
         name
         description

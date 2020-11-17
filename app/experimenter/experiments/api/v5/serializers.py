@@ -174,7 +174,7 @@ class NimbusBranchUpdateSerializer(
                 }
             )
 
-        if not data.get("feature_config", None) or not self.instance:
+        if not feature_config or not feature_config.schema or not self.instance:
             return data
 
         schema = json.loads(feature_config.schema)
