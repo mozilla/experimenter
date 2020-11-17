@@ -5,6 +5,7 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
+import { FormBranches } from ".";
 import {
   SubjectBranch,
   SubjectBranches,
@@ -86,6 +87,16 @@ storiesOf("components/FormBranches/FormBranch", module)
   ));
 
 storiesOf("components/FormBranches", module)
+  .add("empty", () => (
+    <SubjectBranches
+      {...commonFormBranchesProps}
+      experiment={{
+        ...MOCK_EXPERIMENT,
+        referenceBranch: null,
+        treatmentBranches: null,
+      }}
+    />
+  ))
   .add("with branches", () => <SubjectBranches {...commonFormBranchesProps} />)
   .add("with equal ratio", () => (
     <SubjectBranches
@@ -97,16 +108,6 @@ storiesOf("components/FormBranches", module)
           ...branch!,
           ratio: 1,
         })),
-      }}
-    />
-  ))
-  .add("empty", () => (
-    <SubjectBranches
-      {...commonFormBranchesProps}
-      experiment={{
-        ...MOCK_EXPERIMENT,
-        referenceBranch: null,
-        treatmentBranches: null,
       }}
     />
   ))
@@ -127,4 +128,44 @@ storiesOf("components/FormBranches", module)
         featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
       }}
     />
-  ));
+  ))
+  .add("with errors", () => {
+    const onSave: React.ComponentProps<typeof FormBranches>["onSave"] = (
+      saveState,
+      setSubmitErrors,
+      // clearSubmitErrors,
+    ) => {
+      // Kind of a random nonsensical assortment of errors, but want to
+      // exercise errors scattered between branches and fields.
+      setSubmitErrors({
+        "*": ["Solar flares prevent submission."],
+        feature_config: [
+          "Feature Config required when a branch has feature enabled.",
+        ],
+        reference_branch: {
+          name: ["This name stinks."],
+          description: ["Try harder to describe this branch."],
+          feature_value: ["ASCII art is not acceptable."],
+          ratio: ["You call that a number?"],
+        },
+        treatment_branches: [
+          {},
+          {
+            description: ["More errors."],
+            feature_value: ["Yeah, no."],
+            ratio: ["No roman numerals."],
+          },
+        ],
+      });
+    };
+
+    return (
+      <SubjectBranches
+        {...{ ...commonFormBranchesProps, onSave, saveOnInitialRender: true }}
+        experiment={{
+          ...MOCK_EXPERIMENT,
+          featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+        }}
+      />
+    );
+  });

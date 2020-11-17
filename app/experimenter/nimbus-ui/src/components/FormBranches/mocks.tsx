@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useEffect } from "react";
 import FormBranches from ".";
 import FormBranch from "./FormBranch";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
@@ -10,6 +10,7 @@ import { AnnotatedBranch } from "./reducer";
 
 export const SubjectBranch = ({
   id = "demo",
+  lastSubmitTime = Date.now(),
   branch = MOCK_ANNOTATED_BRANCH,
   equalRatio = false,
   isReference = false,
@@ -25,6 +26,7 @@ export const SubjectBranch = ({
     <FormBranch
       {...{
         id,
+        lastSubmitTime,
         branch,
         isReference,
         equalRatio,
@@ -41,22 +43,39 @@ export const SubjectBranch = ({
 );
 
 export const SubjectBranches = ({
+  isLoading = false,
   experiment = MOCK_EXPERIMENT,
   featureConfig = MOCK_CONFIG.featureConfig,
   onSave = () => {},
   onNext = () => {},
-}: Partial<React.ComponentProps<typeof FormBranches>> = {}) => (
-  <div className="p-5">
-    <FormBranches
-      {...{
-        experiment,
-        featureConfig,
-        onSave,
-        onNext,
-      }}
-    />
-  </div>
-);
+  saveOnInitialRender = false,
+}: Partial<React.ComponentProps<typeof FormBranches>> & {
+  saveOnInitialRender?: boolean;
+} = {}) => {
+  useEffect(() => {
+    if (saveOnInitialRender) {
+      // HACK: this is dirty but it works
+      const saveButton = document!.querySelector(
+        "button[data-testid=save-button]",
+      )! as HTMLInputElement;
+      saveButton.click();
+    }
+  }, [saveOnInitialRender]);
+
+  return (
+    <div className="p-5">
+      <FormBranches
+        {...{
+          isLoading,
+          experiment,
+          featureConfig,
+          onSave,
+          onNext,
+        }}
+      />
+    </div>
+  );
+};
 
 export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
   treatmentBranches: [
@@ -83,7 +102,10 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
 
 export const MOCK_BRANCH = MOCK_EXPERIMENT.treatmentBranches![0]!;
 export const MOCK_ANNOTATED_BRANCH: AnnotatedBranch = {
-  __key: "branch-1",
+  key: "branch-1",
+  isValid: true,
+  isDirty: false,
+  errors: {},
   ...MOCK_BRANCH,
 };
 export const MOCK_FEATURE_CONFIG = MOCK_CONFIG.featureConfig![0]!;
