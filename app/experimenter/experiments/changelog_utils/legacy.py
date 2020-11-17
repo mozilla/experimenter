@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from experimenter.base.serializers import CountrySerializer, LocaleSerializer
 from experimenter.experiments.api.v1.serializers import ExperimentVariantSerializer
+from experimenter.experiments.email import send_experiment_change_email
 from experimenter.experiments.models import Experiment, ExperimentChangeLog
 from experimenter.projects.serializers import ProjectSerializer
 
@@ -243,7 +244,7 @@ def generate_change_log(
                         "display_name": display_name,
                     }
     if _has_changed(old_status, changed_values, instance, message):
-        ExperimentChangeLog.objects.create(
+        change = ExperimentChangeLog.objects.create(
             experiment=instance,
             changed_by=user,
             old_status=old_status,
@@ -251,6 +252,7 @@ def generate_change_log(
             changed_values=changed_values,
             message=message,
         )
+        send_experiment_change_email(change)
 
 
 def _has_changed(old_status, changed_values, experiment, message):

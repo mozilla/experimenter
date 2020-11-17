@@ -7,12 +7,14 @@ from django.test import TestCase
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.email import (
     send_enrollment_pause_email,
+    send_experiment_change_email,
     send_experiment_comment_email,
     send_experiment_ending_email,
     send_experiment_launch_email,
     send_intent_to_ship_email,
 )
 from experimenter.experiments.tests.factories import (
+    ExperimentChangeLogFactory,
     ExperimentCommentFactory,
     ExperimentFactory,
 )
@@ -276,4 +278,22 @@ class TestStatusUpdateEmail(TestCase):
         self.assertEqual(sent_email.content_subtype, "html")
         self.assertTrue(
             experiment.emails.filter(type=ExperimentConstants.EXPERIMENT_COMMENT).exists()
+        )
+
+    def test_send_experiment_change_email(self):
+        experiment = ExperimentFactory.create(
+            name="exp1", type=ExperimentConstants.TYPE_PREF
+        )
+        user = UserFactory.create(email="u1@example.com")
+        change = ExperimentChangeLogFactory.create(experiment=experiment, changed_by=user)
+        send_experiment_change_email(change)
+        sent_email = mail.outbox[-1]
+
+        expected_subject = (
+            "[Experimenter]: u1@example.com made a change to Pref-Flip Experiment: exp1"
+        )
+        self.assertEqual(sent_email.subject, expected_subject)
+        self.assertEqual(sent_email.content_subtype, "html")
+        self.assertTrue(
+            experiment.emails.filter(type=ExperimentConstants.EXPERIMENT_EDIT).exists()
         )

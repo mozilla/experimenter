@@ -1,0 +1,68 @@
+{% autoescape off %}
+
+<style>
+  table,
+  th,
+  td {
+    border: 1px solid black;
+    padding: 5px;
+  }
+</style>
+<p>Hello,</p>
+
+<p>
+  This is an automatic email from Experimenter about
+  <a
+    target="_blank"
+    rel="noreferrer noopener"
+    href="{{ change.experiment.experiment_url }}"
+    >{{ change.experiment.name }}</a
+  >.
+</p>
+<p>{{change.changed_by.email}} has made changes to this experiment:</p>
+<p>Change: {{change}}</p>
+{% if change.changed_values %}
+<table>
+  <thead>
+    <tr>
+      <th scope="col"></th>
+      <th scope="col">Previous</th>
+      <th scope="col">Changed</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for key, value in change.changed_values.items %}
+    <tr>
+      {% if key == "variants" %}
+      <th scope="row">Branches</th>
+      <td>
+        {% for variant in value.old_value %}
+        <strong>Branch: </strong>
+        <br />
+        {% for var_key, var_value in variant.items %}
+        <p><strong>{{var_key}}: </strong>{{var_value}}</p>
+        {% endfor %} {% endfor %}
+      </td>
+      <td>
+        {% for variant in value.new_value %}
+        <strong>Branch: </strong>
+        <br />
+        {% for var_key, var_value in variant.items %}
+        <p><strong>{{var_key}}: </strong>{{var_value}}</p>
+        {% endfor %} {% endfor %}
+      </td>
+      {% else %}
+      <th scope="row">{{value.display_name|safe}}</th>
+      <td>{{value.old_value|linebreaks}}</td>
+      <td>{{value.new_value|linebreaks}}</td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<p>Thank you!</p>
+<p>Experimenter and Normandy Teams</p>
+
+{% endautoescape %}
