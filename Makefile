@@ -62,6 +62,9 @@ test_build: build
 check: test_build
 	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(ESLINT_VISUALIZATION)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_RAPID)" "$(TYPECHECK_NIMBUS_UI)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)" "$(JS_TEST_NIMBUS_UI)" "$(PYTHON_TEST)"'
 
+py_test: test_build
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
+
 compose_build: build ssl
 	$(COMPOSE)  build
 
