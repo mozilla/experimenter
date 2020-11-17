@@ -108,5 +108,43 @@ describe("AppLayoutWithSidebar", () => {
       expect(overviewLink!).toHaveClass("text-dark");
       expect(overviewLink!).not.toHaveClass("text-primary");
     });
+
+    it("renders information about missing experiment details", async () => {
+      const review = {
+        ready: false,
+        invalidPages: ["overview", "branches", "metrics", "audience"],
+      };
+      renderWithRouter(
+        <MockedCache mocks={[mock]}>
+          <AppLayoutWithSidebar {...{ review }}>
+            <p data-testid="test-child">Hello, world!</p>
+          </AppLayoutWithSidebar>
+        </MockedCache>,
+      );
+
+      expect(screen.queryByTestId("missing-details")).toBeInTheDocument();
+
+      review.invalidPages.forEach((page) => {
+        expect(
+          screen.queryByTestId(`missing-detail-alert-${page}`),
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByTestId(`missing-detail-link-${page}`),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("renders the review & launch link when the experiment is ready for review", async () => {
+      renderWithRouter(
+        <MockedCache mocks={[mock]}>
+          <AppLayoutWithSidebar {...{ ready: true }}>
+            <p data-testid="test-child">Hello, world!</p>
+          </AppLayoutWithSidebar>
+        </MockedCache>,
+      );
+
+      expect(screen.queryByTestId("missing-details")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("nav-request-review")).toBeInTheDocument();
+    });
   });
 });
