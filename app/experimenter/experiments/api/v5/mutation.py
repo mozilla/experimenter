@@ -28,7 +28,7 @@ from experimenter.experiments.api.v5.serializers import (
     NimbusProbeSetUpdateSerializer,
     NimbusStatusUpdateSerializer,
 )
-from experimenter.experiments.api.v5.types import NimbusExperimentType
+from experimenter.experiments.api.v5.types import NimbusExperimentType, ObjectField
 from experimenter.experiments.models import NimbusExperiment
 
 
@@ -45,14 +45,6 @@ def handle_with_serializer(cls, serializer, client_mutation_id):
         status=200,
         client_mutation_id=client_mutation_id,
     )
-
-
-class ObjectField(graphene.Scalar):
-    """Utilized to serialize out Serializer errors"""
-
-    @staticmethod
-    def serialize(dt):
-        return dt
 
 
 class CreateExperiment(graphene.Mutation):
