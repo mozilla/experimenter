@@ -108,7 +108,7 @@ def nimbus_check_kinto_push_queue():
                 message=f'Rejected: {rejected_collection_data["last_reviewer_comment"]}',
             )
 
-            kinto_client.delete_rejected_record(rejected_slug)
+            kinto_client.rollback_changes()
 
         if kinto_client.has_pending_review():
             metrics.incr(f"check_kinto_push_queue.{collection}_pending_review")

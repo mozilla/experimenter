@@ -1,7 +1,11 @@
 from django.conf import settings
 from django.test import TestCase
 
-from experimenter.kinto.client import KintoClient
+from experimenter.kinto.client import (
+    KINTO_REVIEW_STATUS,
+    KINTO_ROLLBACK_STATUS,
+    KintoClient,
+)
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
 
 
@@ -28,27 +32,21 @@ class TestKintoClient(MockKintoClientMixin, TestCase):
 
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=self.collection,
-            data={"status": "to-review"},
+            data={"status": KINTO_REVIEW_STATUS},
             bucket=settings.KINTO_BUCKET,
         )
 
-    def test_delete_rejected_record_removes_record_patches_collection(self):
-        self.client.delete_rejected_record("test_id")
+    def test_rollback_changes_patches_collection(self):
+        self.client.rollback_changes()
 
         self.mock_kinto_client_creator.assert_called_with(
             server_url=settings.KINTO_HOST,
             auth=(settings.KINTO_USER, settings.KINTO_PASS),
         )
 
-        self.mock_kinto_client.delete_record.assert_called_with(
-            id="test_id",
-            bucket=settings.KINTO_BUCKET,
-            collection=self.collection,
-        )
-
         self.mock_kinto_client.patch_collection.assert_called_with(
             id=self.collection,
-            data={"status": "to-review"},
+            data={"status": KINTO_ROLLBACK_STATUS},
             bucket=settings.KINTO_BUCKET,
         )
 
