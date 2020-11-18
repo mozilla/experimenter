@@ -6,7 +6,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from parameterized import parameterized
 
-from experimenter.experiments.constants import ExperimentConstants
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusProbeSetFactory,
@@ -18,8 +18,8 @@ from experimenter.visualization.api.v3.views import Significance
 class TestVisualizationView(TestCase):
     @parameterized.expand(
         [
-            ExperimentConstants.STATUS_ACCEPTED,
-            ExperimentConstants.STATUS_COMPLETE,
+            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.COMPLETE,
         ]
     )
     @patch("django.core.files.storage.default_storage.exists")
@@ -49,20 +49,17 @@ class TestVisualizationView(TestCase):
             json_data,
         )
 
-    def add_probe_set_data(self, data, formatted_data, probe_sets):
-        if len(probe_sets) == 0:
-            return
-
+    def add_probe_set_data(self, data, formatted_data, primary_probe_set):
         range_data = {
             "point": 4,
             "upper": 8,
             "lower": 2,
         }
         branches = ["control", "variant"]
-        probe_set = f"{probe_sets[0].slug}_ever_used"
+        primary_metric = f"{primary_probe_set.slug}_ever_used"
 
         for branch in branches:
-            formatted_data[branch]["branch_data"][probe_set] = {
+            formatted_data[branch]["branch_data"][primary_metric] = {
                 "absolute": {**range_data, **{"count": 48}},
                 "difference": {},
                 "relative_uplift": {},
@@ -71,7 +68,7 @@ class TestVisualizationView(TestCase):
                 {
                     **range_data,
                     **{
-                        "metric": probe_set,
+                        "metric": primary_metric,
                         "branch": branch,
                         "statistic": "binomial",
                     },
@@ -80,8 +77,8 @@ class TestVisualizationView(TestCase):
 
     @parameterized.expand(
         [
-            ExperimentConstants.STATUS_ACCEPTED,
-            ExperimentConstants.STATUS_COMPLETE,
+            NimbusExperiment.Status.ACCEPTED,
+            NimbusExperiment.Status.COMPLETE,
         ]
     )
     @patch("django.core.files.storage.default_storage.open")
@@ -206,9 +203,9 @@ class TestVisualizationView(TestCase):
 
         mock_open.return_value = File()
         mock_exists.return_value = True
-        probe_set_primary = NimbusProbeSetFactory.create()
+        primary_probe_set = NimbusProbeSetFactory.create()
         experiment = NimbusExperimentFactory.create_with_status(
-            target_status=status, probe_sets=[probe_set_primary]
+            target_status=status, probe_sets=[primary_probe_set]
         )
         experiment.probe_sets.add(
             NimbusProbeSetFactory.create(),
@@ -218,7 +215,7 @@ class TestVisualizationView(TestCase):
         self.add_probe_set_data(
             DATA_WITHOUT_POPULATION_PERCENTAGE,
             FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
-            experiment.probe_sets.all(),
+            primary_probe_set,
         )
 
         response = self.client.get(
@@ -230,7 +227,7 @@ class TestVisualizationView(TestCase):
         json_data = json.loads(response.content)
         self.assertEqual(FULL_DATA, json_data)
 
-    @parameterized.expand([ExperimentConstants.STATUS_ACCEPTED])
+    @parameterized.expand([NimbusExperiment.Status.ACCEPTED])
     def test_analysis_results_view_no_experiment(self, status):
         user_email = "user@example.com"
         response = self.client.get(
