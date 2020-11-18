@@ -2,6 +2,7 @@ import graphene
 from django.contrib.auth import get_user_model
 from graphene_django.types import DjangoObjectType
 
+from experimenter.experiments.api.v5.serializers import NimbusReadyForReviewSerializer
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models.nimbus import (
     NimbusBranch,
@@ -13,6 +14,14 @@ from experimenter.experiments.models.nimbus import (
     NimbusProbeSet,
 )
 from experimenter.projects.models import Project
+
+
+class ObjectField(graphene.Scalar):
+    """Utilized to serialize out Serializer errors"""
+
+    @staticmethod
+    def serialize(dt):
+        return dt
 
 
 class NimbusExperimentStatus(graphene.Enum):
@@ -88,6 +97,11 @@ class NimbusExperimentOwner(DjangoObjectType):
         fields = ("id", "username", "first_name", "last_name", "email")
 
 
+class NimbusReadyForReviewType(graphene.ObjectType):
+    message = ObjectField()
+    ready = graphene.Boolean()
+
+
 class NimbusExperimentType(DjangoObjectType):
     status = NimbusExperimentStatus()
     application = NimbusExperimentApplication()
@@ -97,7 +111,18 @@ class NimbusExperimentType(DjangoObjectType):
     targeting_config_slug = NimbusExperimentTargetingConfigSlug()
     primary_probe_sets = graphene.List(NimbusProbeSetType)
     secondary_probe_sets = graphene.List(NimbusProbeSetType)
+    ready_for_review = graphene.Field(NimbusReadyForReviewType)
 
     class Meta:
         model = NimbusExperiment
         exclude = ("branches", "probe_sets")
+
+    def resolve_ready_for_review(self, info):
+        serializer = NimbusReadyForReviewSerializer(
+            self,
+            data=NimbusReadyForReviewSerializer(
+                self,
+            ).data,
+        )
+        ready = serializer.is_valid()
+        return NimbusReadyForReviewType(message=serializer.errors, ready=ready)
