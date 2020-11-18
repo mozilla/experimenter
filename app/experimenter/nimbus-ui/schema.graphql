@@ -22,6 +22,8 @@ input CreateExperimentInput {
   application: NimbusExperimentApplication!
 }
 
+scalar DateTime
+
 scalar Decimal
 
 type Mutation {
@@ -157,6 +159,8 @@ type NimbusExperimentType {
   secondaryProbeSets: [NimbusProbeSetType]
   readyForReview: NimbusReadyForReviewType
   monitoringDashboardUrl: String
+  startDate: DateTime
+  endDate: DateTime
 }
 
 enum NimbusFeatureConfigApplication {
