@@ -154,6 +154,7 @@ type NimbusExperimentType {
   treatmentBranches: [NimbusBranchType]
   primaryProbeSets: [NimbusProbeSetType]
   secondaryProbeSets: [NimbusProbeSetType]
+  readyForReview: NimbusReadyForReviewType
 }
 
 enum NimbusFeatureConfigApplication {
@@ -227,7 +228,6 @@ type ProjectType {
 type Query {
   experiments(offset: Int, limit: Int, status: NimbusExperimentOptionalStatus): [NimbusExperimentType]
   experimentBySlug(slug: String!): NimbusExperimentType
-  experimentReadyForReviewBySlug(slug: String!): NimbusReadyForReviewType
   nimbusConfig: NimbusConfigurationType
 }
 
