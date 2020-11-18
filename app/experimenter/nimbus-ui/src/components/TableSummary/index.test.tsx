@@ -51,7 +51,7 @@ describe("TableSummary", () => {
       const { data } = mockExperimentQuery("demo-slug");
       render(<Subject experiment={data!} />);
       expect(screen.getByTestId("experiment-probe-primary")).toHaveTextContent(
-        "Primary: Enterprise-wide exuding focus group",
+        "Primary: Picture-in-Picture",
       );
       expect(
         screen.getByTestId("experiment-probe-secondary"),
