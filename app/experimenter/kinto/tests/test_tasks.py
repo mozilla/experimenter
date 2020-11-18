@@ -10,7 +10,7 @@ from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializ
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.kinto import tasks
-from experimenter.kinto.client import KINTO_REJECTED_STATUS
+from experimenter.kinto.client import KINTO_REJECTED_STATUS, KINTO_ROLLBACK_STATUS
 from experimenter.kinto.tests.mixins import MockKintoClientMixin
 
 
@@ -45,7 +45,7 @@ class TestPushExperimentToKintoTask(MockKintoClientMixin, TestCase):
             ).exists()
         )
 
-    def test_push_experiment_to_kinto_sends_fenix__experiment_data(self):
+    def test_push_experiment_to_kinto_sends_fenix_experiment_data(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.FENIX,
@@ -137,7 +137,6 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
             application=NimbusExperiment.Application.DESKTOP,
         )
 
-        self.mock_kinto_client.delete_record.return_value = {}
         self.mock_kinto_client.get_collection.side_effect = [
             # Desktop responses
             {
@@ -164,7 +163,11 @@ class TestCheckKintoPushQueue(MockKintoClientMixin, TestCase):
         ]
         tasks.nimbus_check_kinto_push_queue()
 
-        self.mock_kinto_client.delete_record.assert_called()
+        self.mock_kinto_client.patch_collection.assert_called_with(
+            id=settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
+            bucket=settings.KINTO_BUCKET,
+            data={"status": KINTO_ROLLBACK_STATUS},
+        )
 
         self.assertTrue(
             experiment.changes.filter(

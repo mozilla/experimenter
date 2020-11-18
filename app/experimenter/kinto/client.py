@@ -3,6 +3,7 @@ from django.conf import settings
 
 KINTO_REVIEW_STATUS = "to-review"
 KINTO_REJECTED_STATUS = "work-in-progress"
+KINTO_ROLLBACK_STATUS = "to-rollback"
 
 
 class KintoClient:
@@ -54,15 +55,10 @@ class KintoClient:
         workspace_record_ids = [record["id"] for record in workspace_records]
         return list(set(workspace_record_ids) - set(main_record_ids))[0]
 
-    def delete_rejected_record(self, record_id):
-        self.kinto_http_client.delete_record(
-            id=record_id,
-            bucket=settings.KINTO_BUCKET,
-            collection=self.collection,
-        )
+    def rollback_changes(self):
         self.kinto_http_client.patch_collection(
             id=self.collection,
-            data={"status": KINTO_REVIEW_STATUS},
+            data={"status": KINTO_ROLLBACK_STATUS},
             bucket=settings.KINTO_BUCKET,
         )
 
