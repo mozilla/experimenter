@@ -6,13 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('experiments', '0138_auto_20201112_1321'),
+        ("experiments", "0138_auto_20201112_1321"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='nimbusexperiment',
-            name='targeting_config_slug',
-            field=models.CharField(blank=True, choices=[('all_english', 'All English'), ('us_only', 'Us Only'), ('first_run', 'Targeting First Run'), ('first_run_chrome', 'Targeting First Run Chrome Attribution'), ('homepage_google_dot_com', 'Targeting Homepage Google')], max_length=255, null=True),
+            model_name="nimbusexperiment",
+            name="targeting_config_slug",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("all_english", "All English"),
+                    ("us_only", "Us Only"),
+                    ("first_run", "Targeting First Run"),
+                    ("first_run_chrome", "Targeting First Run Chrome Attribution"),
+                    ("homepage_google_dot_com", "Targeting Homepage Google"),
+                ],
+                max_length=255,
+                null=True,
+            ),
         ),
     ]
