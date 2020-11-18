@@ -42,6 +42,7 @@ const AppLayoutWithExperiment = ({
     loading,
     startPolling,
     stopPolling,
+    review,
   } = useExperiment(slug);
 
   useEffect(() => {
@@ -64,7 +65,7 @@ const AppLayoutWithExperiment = ({
   const { name, status } = experiment;
 
   return (
-    <Layout {...{ sidebar, children }}>
+    <Layout {...{ sidebar, children, review }}>
       <section data-testid={testId}>
         <HeaderEditExperiment
           {...{
@@ -85,12 +86,17 @@ const AppLayoutWithExperiment = ({
 const Layout = ({
   sidebar,
   children,
+  review,
 }: {
   sidebar: boolean;
   children: React.ReactElement;
+  review: {
+    ready: boolean;
+    invalidPages: string[];
+  };
 }) =>
   sidebar ? (
-    <AppLayoutWithSidebar>{children}</AppLayoutWithSidebar>
+    <AppLayoutWithSidebar {...{ review }}>{children}</AppLayoutWithSidebar>
   ) : (
     <AppLayout>{children}</AppLayout>
   );
