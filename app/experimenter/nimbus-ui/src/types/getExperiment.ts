@@ -57,6 +57,12 @@ export interface getExperiment_experimentBySlug_secondaryProbeSets {
   name: string;
 }
 
+export interface getExperiment_experimentBySlug_readyForReview {
+  __typename: "NimbusReadyForReviewType";
+  ready: boolean | null;
+  message: any | null;
+}
+
 export interface getExperiment_experimentBySlug {
   __typename: "NimbusExperimentType";
   id: string;
@@ -79,6 +85,7 @@ export interface getExperiment_experimentBySlug {
   totalEnrolledClients: number;
   proposedEnrollment: number | null;
   proposedDuration: number | null;
+  readyForReview: getExperiment_experimentBySlug_readyForReview | null;
 }
 
 export interface getExperiment {
