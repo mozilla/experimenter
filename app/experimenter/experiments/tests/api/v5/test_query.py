@@ -67,9 +67,11 @@ class TestNimbusQuery(GraphQLTestCase):
                 experiments[0][key], str(getattr(draft_exp, to_snake_case(key)))
             )
 
-    def test_experiment_by_slug(self):
+    def test_experiment_by_slug_ready_for_review(self):
         user_email = "user@example.com"
-        exp = NimbusExperimentFactory.create_with_status(NimbusExperiment.Status.DRAFT)
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT
+        )
 
         response = self.query(
             """
@@ -78,17 +80,58 @@ class TestNimbusQuery(GraphQLTestCase):
                     name
                     slug
                     publicDescription
+                    readyForReview {
+                        message
+                        ready
+                    }
                 }
             }
             """,
-            variables={"slug": exp.slug},
+            variables={"slug": experiment.slug},
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
-        experiment = content["data"]["experimentBySlug"]
-        for key in experiment:
-            self.assertEqual(experiment[key], str(getattr(exp, to_snake_case(key))))
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(experiment_data["name"], experiment.name)
+        self.assertEqual(experiment_data["slug"], experiment.slug)
+        self.assertEqual(
+            experiment_data["publicDescription"], experiment.public_description
+        )
+        self.assertEqual(
+            experiment_data["readyForReview"], {"message": {}, "ready": True}
+        )
+
+    def test_experiment_by_slug_not_ready_for_review(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT, hypothesis=NimbusExperiment.HYPOTHESIS_DEFAULT
+        )
+
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    readyForReview {
+                        message
+                        ready
+                    }
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(
+            experiment_data["readyForReview"],
+            {
+                "message": {"hypothesis": ["Hypothesis cannot be the default value."]},
+                "ready": False,
+            },
+        )
 
     def test_experiment_by_slug_not_found(self):
         user_email = "user@example.com"
@@ -111,52 +154,6 @@ class TestNimbusQuery(GraphQLTestCase):
         content = json.loads(response.content)
         experiment = content["data"]["experimentBySlug"]
         self.assertIsNone(experiment)
-
-    def test_experiment_valid_by_slug(self):
-        user_email = "user@example.com"
-        exp = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
-            application=NimbusExperiment.Application.DESKTOP.value,
-            feature_config=NimbusFeatureConfigFactory(
-                application=NimbusExperiment.Application.DESKTOP.value
-            ),
-        )
-
-        response = self.query(
-            """
-            query experimentReadyForReviewBySlug($slug: String!) {
-                experimentReadyForReviewBySlug(slug: $slug) {
-                    message
-                    ready
-                }
-            }
-            """,
-            variables={"slug": exp.slug},
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        experiment = content["data"]["experimentReadyForReviewBySlug"]
-        self.assertTrue(experiment["ready"])
-
-    def test_experiment_valid_by_slug_not_found(self):
-        user_email = "user@example.com"
-        response = self.query(
-            """
-            query experimentReadyForReviewBySlug($slug: String!) {
-                experimentReadyForReviewBySlug(slug: $slug) {
-                    message
-                    ready
-                }
-            }
-            """,
-            variables={"slug": "nope"},
-            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200)
-        content = json.loads(response.content)
-        experiment = content["data"]["experimentReadyForReviewBySlug"]
-        self.assertFalse(experiment["ready"])
 
     def test_nimbus_config(self):
         user_email = "user@example.com"
