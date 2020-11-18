@@ -1,4 +1,5 @@
 import datetime
+import time
 from urllib.parse import urljoin
 
 from django.conf import settings
@@ -162,6 +163,24 @@ class NimbusExperiment(NimbusConstants, models.Model):
     def should_end(self):
         if self.proposed_end_date:
             return datetime.date.today() >= self.proposed_end_date
+
+    @property
+    def monitoring_dashboard_url(self):
+        def to_timestamp(date):
+            return int(time.mktime(date.timetuple())) * 1000
+
+        start_date = ""
+        end_date = ""
+
+        if self.start_date:
+            start_date = to_timestamp(self.start_date - datetime.timedelta(days=1))
+
+        if self.end_date:
+            end_date = to_timestamp(self.end_date + datetime.timedelta(days=2))
+
+        return settings.MONITORING_URL.format(
+            slug=self.slug, from_date=start_date, to_date=end_date
+        )
 
 
 class NimbusBranch(models.Model):
