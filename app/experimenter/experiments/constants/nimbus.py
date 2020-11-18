@@ -68,8 +68,10 @@ TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
 TARGETING_HOMEPAGE_GOOGLE = NimbusTargetingConfig(
     name="Homepage set to google.com",
     slug="homepage_google_dot_com",
-    description="Users with their Homepage set to google.com",
+    description="US users (en) with their Homepage set to google.com",
     targeting=(
+        "localeLanguageCode == 'en' && "
+        "region == 'US' && "
         "!homePageSettings.isDefault && "
         "homePageSettings.isCustomUrl && "
         "homePageSettings.urls[.host == 'google.com']|length > 0"
