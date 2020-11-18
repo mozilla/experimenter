@@ -5,11 +5,57 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import TableOverview from ".";
+import { mockExperimentQuery } from "../../lib/mocks";
+import { mockAnalysis } from "../../lib/visualization/mocks";
+import { RouterSlugProvider } from "../../lib/test-utils";
+
+const { mock, data } = mockExperimentQuery("demo-slug");
 
 describe("TableOverview", () => {
-  it("renders as expected", () => {
-    render(<TableOverview />);
+  it("has the correct headings", async () => {
+    const EXPECTED_HEADINGS = ["Targeting", "Probe Sets", "Owner"];
 
-    expect(screen.queryByTestId("table-overview")).toBeInTheDocument();
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <TableOverview experiment={data!} results={mockAnalysis().overall} />
+      </RouterSlugProvider>,
+    );
+
+    EXPECTED_HEADINGS.forEach((heading) => {
+      expect(screen.getByText(heading)).toBeInTheDocument();
+    });
+  });
+
+  it("has the expected targeting", async () => {
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <TableOverview experiment={data!} results={mockAnalysis().overall} />
+      </RouterSlugProvider>,
+    );
+
+    expect(screen.getByText("Firefox 80+")).toBeInTheDocument();
+    expect(
+      screen.getByText("Desktop Nightly, Desktop Beta"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Us Only")).toBeInTheDocument();
+  });
+
+  it("has the expected probe sets", async () => {
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <TableOverview experiment={data!} results={mockAnalysis().overall} />
+      </RouterSlugProvider>,
+    );
+
+    expect(screen.getByText("Picture-in-Picture")).toBeInTheDocument();
+  });
+
+  it("has the experiment owner", async () => {
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <TableOverview experiment={data!} results={mockAnalysis().overall} />
+      </RouterSlugProvider>,
+    );
+    expect(screen.getByText("example@mozilla.com")).toBeInTheDocument();
   });
 });

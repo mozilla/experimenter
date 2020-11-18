@@ -3,9 +3,81 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import { AnalysisData } from "../../lib/visualization/types";
+import { useConfig } from "../../hooks";
+import { getConfig_nimbusConfig } from "../../types/getConfig";
 
-const TableOverview: React.FunctionComponent = () => {
-  return <div data-testid="table-overview">overview table</div>;
+type TableOverviewProps = {
+  experiment: getExperiment_experimentBySlug;
+  results: AnalysisData["overall"];
+};
+
+type displayConfigOptionsProps =
+  | getConfig_nimbusConfig["firefoxMinVersion"]
+  | getConfig_nimbusConfig["channels"]
+  | getConfig_nimbusConfig["targetingConfigSlug"];
+
+const TableOverview = ({ experiment }: TableOverviewProps) => {
+  const { firefoxMinVersion, channels, targetingConfigSlug } = useConfig();
+
+  return (
+    <div className="mb-5" data-testid="table-overview">
+      <table className="table text-left m-0">
+        <tbody>
+          <tr>
+            <td scope="col">
+              <h3 className="h6">Targeting</h3>
+              <span>
+                {displayConfigLabel(
+                  experiment.firefoxMinVersion,
+                  firefoxMinVersion,
+                )}
+                +
+              </span>
+              <br />
+              <span>
+                {experiment.channels?.length
+                  ? experiment.channels
+                      .map((expChannel) =>
+                        displayConfigLabel(expChannel, channels),
+                      )
+                      .join(", ")
+                  : ""}
+              </span>
+              <br />
+              <span>
+                {displayConfigLabel(
+                  experiment.targetingConfigSlug,
+                  targetingConfigSlug,
+                )}
+              </span>
+            </td>
+            <td scope="col">
+              <h3 className="h6">Probe Sets</h3>
+              {experiment.primaryProbeSets?.length
+                ? experiment.primaryProbeSets.map((probeSet) => (
+                    <span key={probeSet?.name}>{probeSet?.name}</span>
+                  ))
+                : ""}
+            </td>
+            <td scope="col">
+              <h3 className="h6">Owner</h3>
+              <span>{experiment.owner?.email}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <hr className="mt-0 mb-5" />
+    </div>
+  );
+};
+
+const displayConfigLabel = (
+  value: string | null,
+  options: displayConfigOptionsProps,
+) => {
+  return options?.find((obj: any) => obj.value === value)?.label;
 };
 
 export default TableOverview;
