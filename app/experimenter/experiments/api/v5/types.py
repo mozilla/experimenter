@@ -112,6 +112,7 @@ class NimbusExperimentType(DjangoObjectType):
     primary_probe_sets = graphene.List(NimbusProbeSetType)
     secondary_probe_sets = graphene.List(NimbusProbeSetType)
     ready_for_review = graphene.Field(NimbusReadyForReviewType)
+    monitoring_dashboard_url = graphene.String()
 
     class Meta:
         model = NimbusExperiment
