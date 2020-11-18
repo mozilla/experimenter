@@ -1,5 +1,6 @@
 import datetime
 
+from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 
@@ -97,6 +98,71 @@ class TestNimbusExperiment(TestCase):
             new_status=NimbusExperiment.Status.LIVE,
         ).update(changed_on=datetime.datetime.now() - datetime.timedelta(days=10))
         self.assertTrue(experiment.should_end)
+
+    def test_monitoring_dashboard_url_is_when_experiment_not_begun(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="experiment",
+            status=NimbusExperiment.Status.DRAFT,
+        )
+        self.assertEqual(
+            experiment.monitoring_dashboard_url,
+            settings.MONITORING_URL.format(
+                slug=experiment.slug,
+                from_date="",
+                to_date="",
+            ),
+        )
+
+    def test_monitoring_dashboard_url_returns_url_when_experiment_is_begun(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="experiment",
+            status=NimbusExperiment.Status.LIVE,
+        )
+
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.ACCEPTED,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=datetime.date(2019, 5, 1),
+        )
+
+        self.assertEqual(
+            experiment.monitoring_dashboard_url,
+            settings.MONITORING_URL.format(
+                slug=experiment.slug,
+                from_date=1556582400000,
+                to_date="",
+            ),
+        )
+
+    def test_monitoring_dashboard_url_returns_url_when_experiment_is_complete(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="experiment",
+            status=NimbusExperiment.Status.COMPLETE,
+        )
+
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.ACCEPTED,
+            new_status=NimbusExperiment.Status.LIVE,
+            changed_on=datetime.date(2019, 5, 1),
+        )
+
+        NimbusChangeLogFactory.create(
+            experiment=experiment,
+            old_status=NimbusExperiment.Status.LIVE,
+            new_status=NimbusExperiment.Status.COMPLETE,
+            changed_on=datetime.date(2019, 5, 10),
+        )
+
+        self.assertEqual(
+            experiment.monitoring_dashboard_url,
+            settings.MONITORING_URL.format(
+                slug=experiment.slug,
+                from_date=1556582400000,
+                to_date=1557619200000,
+            ),
+        )
 
 
 class TestNimbusBranch(TestCase):

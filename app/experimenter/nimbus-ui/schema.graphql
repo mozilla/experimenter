@@ -155,6 +155,7 @@ type NimbusExperimentType {
   primaryProbeSets: [NimbusProbeSetType]
   secondaryProbeSets: [NimbusProbeSetType]
   readyForReview: NimbusReadyForReviewType
+  monitoringDashboardUrl: String
 }
 
 enum NimbusFeatureConfigApplication {
