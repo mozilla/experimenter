@@ -65,6 +65,18 @@ TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = NimbusTargetingConfig(
     ),
 )
 
+TARGETING_HOMEPAGE_GOOGLE = NimbusTargetingConfig(
+    name="Homepage set to google.com",
+    slug="homepage_google_dot_com",
+    description="Users with their Homepage set to google.com",
+    targeting=(
+        "!homePageSettings.isDefault && "
+        "homePageSettings.isCustomUrl && "
+        "homePageSettings.urls[.host == 'google.com']|length > 0"
+    ),
+    desktop_telemetry="",
+)
+
 
 class NimbusConstants(object):
     class Status(models.TextChoices):
@@ -148,6 +160,9 @@ class NimbusConstants(object):
         TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.slug: (
             TARGETING_FIRST_RUN_CHROME_ATTRIBUTION
         ),
+        TARGETING_HOMEPAGE_GOOGLE.slug: (
+            TARGETING_HOMEPAGE_GOOGLE
+        )
     }
 
     class TargetingConfig(models.TextChoices):
@@ -156,6 +171,9 @@ class NimbusConstants(object):
         TARGETING_FIRST_RUN = TARGETING_FIRST_RUN.slug
         TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = (
             TARGETING_FIRST_RUN_CHROME_ATTRIBUTION.slug
+        )
+        TARGETING_HOMEPAGE_GOOGLE = (
+            TARGETING_HOMEPAGE_GOOGLE.slug
         )
 
     # Telemetry systems including Firefox Desktop Telemetry v4 and Glean
