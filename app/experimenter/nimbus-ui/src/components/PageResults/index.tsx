@@ -80,7 +80,7 @@ const AnalysisAvailable = ({
       primaryProbeSets={experiment.primaryProbeSets!}
       results={analysis?.overall!}
     />
-    <TableOverview />
+    <TableOverview {...{ experiment }} results={analysis?.overall!} />
 
     <h2 className="h5 my-3">Results</h2>
     <TableResults />
