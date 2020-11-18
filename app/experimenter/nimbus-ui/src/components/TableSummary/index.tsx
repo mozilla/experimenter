@@ -16,7 +16,7 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
   const { firefoxMinVersion, channels, targetingConfigSlug } = useConfig();
 
   return (
-    <Table striped bordered className="mt-5" data-testid="table-summary">
+    <Table striped bordered data-testid="table-summary">
       <tbody>
         <tr>
           <th className="font-weight-bold">Experiment Owner</th>

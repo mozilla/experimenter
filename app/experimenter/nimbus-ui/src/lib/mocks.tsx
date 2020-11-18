@@ -63,8 +63,8 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     {
       __typename: "NimbusFeatureConfigType",
       id: "1",
-      name: "Up-sized cohesive complexity",
-      slug: "up-sized-cohesive-complexity",
+      name: "Picture-in-Picture",
+      slug: "picture-in-picture",
       description:
         "Quickly above also mission action. Become thing item institution plan.\nImpact friend wonder. Interview strategy nature question. Admit room without impact its enter forward.",
       application: NimbusFeatureConfigApplication.FENIX,
@@ -276,8 +276,8 @@ export const mockExperimentQuery = (
             primaryProbeSets: [
               {
                 __typename: "NimbusProbeSetType",
-                slug: "enterprise-wide-exuding-focus-group",
-                name: "Enterprise-wide exuding focus group",
+                slug: "picture-in-picture",
+                name: "Picture-in-Picture",
               },
             ],
             secondaryProbeSets: [
