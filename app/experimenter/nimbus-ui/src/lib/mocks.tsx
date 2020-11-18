@@ -294,6 +294,11 @@ export const mockExperimentQuery = (
             totalEnrolledClients: 68000,
             proposedEnrollment: 1,
             proposedDuration: 28,
+            readyForReview: {
+              ready: true,
+              message: {},
+              __typename: "NimbusReadyForReviewType",
+            },
           },
           modifications,
         );

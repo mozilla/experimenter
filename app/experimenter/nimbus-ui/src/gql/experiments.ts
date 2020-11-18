@@ -135,6 +135,11 @@ export const GET_EXPERIMENT_QUERY = gql`
       totalEnrolledClients
       proposedEnrollment
       proposedDuration
+
+      readyForReview {
+        ready
+        message
+      }
     }
   }
 `;
