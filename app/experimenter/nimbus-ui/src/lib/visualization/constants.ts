@@ -112,6 +112,25 @@ export const BRANCH_COMPARISON = {
   UPLIFT: "relative_uplift",
 };
 
+// This is used as an ordered list of items to
+// display in the primary metric table from left to right.
+export const PRIMARY_METRIC_COLUMNS = [
+  {
+    name: "Conversions / Total Users",
+    displayType: DISPLAY_TYPE.CONVERSION_COUNT,
+  },
+  {
+    name: "Conversion Rate",
+    displayType: DISPLAY_TYPE.CONVERSION_RATE,
+    branchComparison: BRANCH_COMPARISON.ABSOLUTE,
+  },
+  {
+    name: "Relative Improvement",
+    displayType: DISPLAY_TYPE.CONVERSION_CHANGE,
+    branchComparison: BRANCH_COMPARISON.UPLIFT,
+  },
+];
+
 export const TABLE_LABEL = {
   HIGHLIGHTS: "highlights",
   RESULTS: "results",

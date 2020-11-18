@@ -39,3 +39,29 @@ $sizes: (
 .font-weight-semibold {
   font-weight: 600;
 }
+
+.positive-significance {
+  @extend .text-success;
+  @extend .font-weight-bold;
+}
+
+.negative-significance {
+  @extend .text-danger;
+  @extend .font-weight-bold;
+}
+
+.positive {
+  @extend .bg-success;
+}
+
+.negative {
+  @extend .bg-danger;
+}
+
+.neutral {
+  @extend .bg-secondary;
+}
+
+.border-3 {
+  border-width: 3px !important;
+}
