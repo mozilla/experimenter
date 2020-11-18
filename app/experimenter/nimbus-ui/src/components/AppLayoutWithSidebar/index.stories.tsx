@@ -16,4 +16,16 @@ storiesOf("components/AppLayoutWithSidebar", module)
         <p>App contents go here</p>
       </AppLayoutWithSidebar>
     </RouterSlugProvider>
+  ))
+  .add("missing details", () => (
+    <RouterSlugProvider>
+      <AppLayoutWithSidebar
+        review={{
+          ready: false,
+          invalidPages: ["branches", "audience"],
+        }}
+      >
+        <p>App contents go here</p>
+      </AppLayoutWithSidebar>
+    </RouterSlugProvider>
   ));
