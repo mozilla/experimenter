@@ -22,7 +22,8 @@
       "src/**/*",
       "!src/**/*.stories.*",
       "!src/**/mocks.*",
-      "!src/lib/test-utils.tsx"
+      "!src/lib/test-utils.tsx",
+      "!src/**/*.svg"
     ],
     "coverageThreshold": {
       "global": {
