@@ -40,7 +40,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
                 </LinkExternal>{" "}
                 to view the live monitoring dashboard.
               </p>
-              <h3 className="h5 my-3">Overview</h3>
+              <h3 className="h5 mb-3 mt-4">Overview</h3>
 
               {error && <AnalysisFetchError />}
               {analysis?.show_analysis ? (
@@ -82,8 +82,11 @@ const AnalysisAvailable = ({
     />
     <TableOverview />
 
-    <h2 className="h5 my-3">Results</h2>
-    <TableResults />
+    <h2 className="h5 mb-3 mt-4">Results</h2>
+    <TableResults
+      primaryProbeSets={experiment.primaryProbeSets!}
+      results={analysis?.overall!}
+    />
     <div>
       {experiment.primaryProbeSets?.map((probeSet) => (
         <TableMetricPrimary key={probeSet?.slug} />

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export const METRICS_TIPS = {
-  RETENTION: "Percentage of users w ho returned to Firefox two weeks later",
+  RETENTION: "Percentage of users who returned to Firefox two weeks later",
   SEARCH: "Daily mean number of searches per user",
   USER_COUNT:
     "Total users in a variant and the % of users out of the entire experiment population",
@@ -19,6 +19,11 @@ export const SIGNIFICANCE_TIPS = {
   NEGATIVE: "Treatment variant is significantly worse than control variant",
   NEUTRAL:
     "Treatment variant has no significant difference relative to control variant",
+};
+
+export const BADGE_TIPS = {
+  PRIMARY_METRIC: "Main metric you are trying to impact in this experiment",
+  GUARDRAIL_METRIC: "Metric that should not regress",
 };
 
 export enum VARIANT_TYPE {
@@ -47,6 +52,25 @@ export const METRIC = {
   USER_COUNT: "identity",
 };
 
+export const METRIC_TYPE = {
+  PRIMARY: {
+    label: "Primary Metric",
+    badge: "badge-primary",
+    tooltip: BADGE_TIPS.PRIMARY_METRIC,
+  },
+  SECONDARY: {
+    label: "Secondary Metric",
+    badge: "badge-secondary",
+  },
+  GUARDRAIL: {
+    label: "Guardrail Metric",
+    badge: "badge-warning",
+    tooltip: BADGE_TIPS.GUARDRAIL_METRIC,
+  },
+};
+
+// This is used as an ordered list of items to
+// display in the highlights table from top to bottom.
 export const HIGHLIGHTS_METRICS_LIST = [
   {
     value: METRIC.RETENTION,
@@ -57,6 +81,28 @@ export const HIGHLIGHTS_METRICS_LIST = [
     value: METRIC.SEARCH,
     name: "Search",
     tooltip: METRICS_TIPS.SEARCH,
+  },
+];
+
+// This is used as an ordered list of metrics to
+// display in the results table from left to right.
+export const RESULTS_METRICS_LIST = [
+  {
+    value: METRIC.RETENTION,
+    name: "2-Week Browser Retention",
+    tooltip: METRICS_TIPS.RETENTION,
+    type: METRIC_TYPE.GUARDRAIL,
+  },
+  {
+    value: METRIC.SEARCH,
+    name: "Daily Mean Searches Per User",
+    tooltip: METRICS_TIPS.SEARCH,
+    type: METRIC_TYPE.GUARDRAIL,
+  },
+  {
+    value: METRIC.USER_COUNT,
+    name: "Total Users",
+    tooltip: METRICS_TIPS.USER_COUNT,
   },
 ];
 
