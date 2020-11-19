@@ -23,7 +23,7 @@ jobs:
     machine:
       docker_layer_caching: true
       image: ubuntu-1604:202007-01 # Ubuntu 16.04, Docker v19.03.12, Docker Compose v1.26.1
-    resource_class: xlarge
+    resource_class: large
     working_directory: ~/experimenter
     steps:
       - run:
