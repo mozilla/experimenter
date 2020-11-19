@@ -69,15 +69,21 @@ const showSignificanceField = (
     intervalText = `(${interval})`;
   }
 
+  if (tableLabel === TABLE_LABEL.HIGHLIGHTS) {
+    return (
+      <>
+        <p {...{ className }} data-testid={className}>
+          {significanceIcon}&nbsp;{name} {changeText} {intervalText}
+        </p>
+        <ReactTooltip />
+      </>
+    );
+  }
   return (
     <>
-      <p {...{ className }} data-testid={className}>
-        {significanceIcon}
-        &nbsp;
-        {tableLabel === TABLE_LABEL.HIGHLIGHTS
-          ? `${name} ${changeText} ${intervalText}`
-          : `${interval}`}
-      </p>
+      <span {...{ className }} data-testid={className}>
+        {significanceIcon}&nbsp;{interval}
+      </span>
       <ReactTooltip />
     </>
   );

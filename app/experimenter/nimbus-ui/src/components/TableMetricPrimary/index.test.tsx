@@ -10,7 +10,7 @@ import { mockAnalysis } from "../../lib/visualization/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 
 describe("TableMetricPrimary", () => {
-  it("has the correct headings", async () => {
+  it("has the correct headings", () => {
     const EXPECTED_HEADINGS = [
       "Conversions / Total Users",
       "Conversion Rate",
@@ -22,7 +22,7 @@ describe("TableMetricPrimary", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
           results={mockAnalysis().overall}
-          probeSet={data!.primaryProbeSets![0]}
+          probeSet={data!.primaryProbeSets![0]!}
         />
       </RouterSlugProvider>,
     );
@@ -32,14 +32,14 @@ describe("TableMetricPrimary", () => {
     });
   });
 
-  it("has correctly labelled result significance", async () => {
+  it("has correctly labelled result significance", () => {
     const { mock, data } = mockExperimentQuery("demo-slug");
 
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
           results={mockAnalysis().overall}
-          probeSet={data!.primaryProbeSets![0]}
+          probeSet={data!.primaryProbeSets![0]!}
         />
       </RouterSlugProvider>,
     );
@@ -52,14 +52,14 @@ describe("TableMetricPrimary", () => {
     expect(neutralSignificance).not.toBeInTheDocument();
   });
 
-  it("has the expected control and treatment labels", async () => {
+  it("has the expected control and treatment labels", () => {
     const { mock, data } = mockExperimentQuery("demo-slug");
 
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
           results={mockAnalysis().overall}
-          probeSet={data!.primaryProbeSets![0]}
+          probeSet={data!.primaryProbeSets![0]!}
         />
       </RouterSlugProvider>,
     );
@@ -68,14 +68,14 @@ describe("TableMetricPrimary", () => {
     expect(screen.getByText("treatment")).toBeInTheDocument();
   });
 
-  it("shows the positive improvement bar", async () => {
+  it("shows the positive improvement bar", () => {
     const { mock, data } = mockExperimentQuery("demo-slug");
 
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
           results={mockAnalysis().overall}
-          probeSet={data!.primaryProbeSets![0]}
+          probeSet={data!.primaryProbeSets![0]!}
         />
       </RouterSlugProvider>,
     );
@@ -88,7 +88,7 @@ describe("TableMetricPrimary", () => {
     expect(neutralBlock).not.toBeInTheDocument();
   });
 
-  it("shows the negative improvement bar", async () => {
+  it("shows the negative improvement bar", () => {
     const { mock, data } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [
         {
@@ -103,7 +103,7 @@ describe("TableMetricPrimary", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
           results={mockAnalysis().overall}
-          probeSet={data!.primaryProbeSets![0]}
+          probeSet={data!.primaryProbeSets![0]!}
         />
       </RouterSlugProvider>,
     );
@@ -116,7 +116,7 @@ describe("TableMetricPrimary", () => {
     expect(neutralBlock).not.toBeInTheDocument();
   });
 
-  it("shows the neutral improvement bar", async () => {
+  it("shows the neutral improvement bar", () => {
     const { mock, data } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [
         {
@@ -131,7 +131,7 @@ describe("TableMetricPrimary", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricPrimary
           results={mockAnalysis().overall}
-          probeSet={data!.primaryProbeSets![0]}
+          probeSet={data!.primaryProbeSets![0]!}
         />
       </RouterSlugProvider>,
     );

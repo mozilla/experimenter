@@ -4,9 +4,7 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { RouterSlugProvider } from "../../lib/test-utils";
 import { withLinks } from "@storybook/addon-links";
-import { mockExperimentQuery } from "../../lib/mocks";
 import TableVisualizationRow from ".";
 import { mockAnalysis } from "../../lib/visualization/mocks";
 import {
@@ -15,100 +13,67 @@ import {
   TABLE_LABEL,
 } from "../../lib/visualization/constants";
 
-const { mock } = mockExperimentQuery("demo-slug");
+const MOCK_ANALYSIS = mockAnalysis();
 
 storiesOf("visualization/TableVisualizationRow", module)
   .addDecorator(withLinks)
   .add("Population field", () => (
-    <RouterSlugProvider mocks={[mock]}>
-      <TableVisualizationRow
-        key="retained"
-        results={mockAnalysis().overall.control}
-        tableLabel={TABLE_LABEL.HIGHLIGHTS}
-        metricKey="retained"
-        displayType={DISPLAY_TYPE.POPULATION}
-      />
-    </RouterSlugProvider>
+    <TableVisualizationRow
+      results={MOCK_ANALYSIS.overall.control}
+      tableLabel={TABLE_LABEL.HIGHLIGHTS}
+      metricKey="retained"
+      displayType={DISPLAY_TYPE.POPULATION}
+    />
   ))
   .add("Count field", () => (
-    <RouterSlugProvider mocks={[mock]}>
-      <TableVisualizationRow
-        key="retained"
-        results={mockAnalysis().overall.control}
-        tableLabel={TABLE_LABEL.HIGHLIGHTS}
-        metricKey="retained"
-        displayType={DISPLAY_TYPE.COUNT}
-      />
-    </RouterSlugProvider>
+    <TableVisualizationRow
+      results={MOCK_ANALYSIS.overall.control}
+      tableLabel={TABLE_LABEL.HIGHLIGHTS}
+      metricKey="retained"
+      displayType={DISPLAY_TYPE.COUNT}
+    />
   ))
   .add("Percent field", () => (
-    <RouterSlugProvider mocks={[mock]}>
-      <TableVisualizationRow
-        key="retained"
-        results={mockAnalysis().overall.control}
-        tableLabel={TABLE_LABEL.RESULTS}
-        metricKey="retained"
-        displayType={DISPLAY_TYPE.PERCENT}
-      />
-    </RouterSlugProvider>
+    <TableVisualizationRow
+      results={MOCK_ANALYSIS.overall.control}
+      tableLabel={TABLE_LABEL.RESULTS}
+      metricKey="retained"
+      displayType={DISPLAY_TYPE.PERCENT}
+    />
   ))
-  .add("Conversion count field", () => {
-    const MOCK_ANALYSIS = mockAnalysis();
-    return (
-      <RouterSlugProvider mocks={[mock]}>
-        <TableVisualizationRow
-          key={DISPLAY_TYPE.CONVERSION_COUNT}
-          branchComparison={BRANCH_COMPARISON.ABSOLUTE}
-          displayType={DISPLAY_TYPE.CONVERSION_COUNT}
-          results={MOCK_ANALYSIS.overall.treatment}
-          tableLabel={TABLE_LABEL.PRIMARY_METRICS}
-          metricKey="picture_in_picture_ever_used"
-        />
-      </RouterSlugProvider>
-    );
-  })
-  .add("Conversion change field (positive)", () => {
-    const MOCK_ANALYSIS = mockAnalysis();
-    return (
-      <RouterSlugProvider mocks={[mock]}>
-        <TableVisualizationRow
-          key={DISPLAY_TYPE.CONVERSION_COUNT}
-          branchComparison={BRANCH_COMPARISON.UPLIFT}
-          displayType={DISPLAY_TYPE.CONVERSION_CHANGE}
-          results={MOCK_ANALYSIS.overall.treatment}
-          tableLabel={TABLE_LABEL.PRIMARY_METRICS}
-          metricKey="picture_in_picture_ever_used"
-        />
-      </RouterSlugProvider>
-    );
-  })
-  .add("Conversion change field (negative)", () => {
-    const MOCK_ANALYSIS = mockAnalysis();
-    return (
-      <RouterSlugProvider mocks={[mock]}>
-        <TableVisualizationRow
-          key={DISPLAY_TYPE.CONVERSION_COUNT}
-          branchComparison={BRANCH_COMPARISON.UPLIFT}
-          displayType={DISPLAY_TYPE.CONVERSION_CHANGE}
-          results={MOCK_ANALYSIS.overall.treatment}
-          tableLabel={TABLE_LABEL.PRIMARY_METRICS}
-          metricKey="feature_b_ever_used"
-        />
-      </RouterSlugProvider>
-    );
-  })
-  .add("Conversion change field (neutral)", () => {
-    const MOCK_ANALYSIS = mockAnalysis();
-    return (
-      <RouterSlugProvider mocks={[mock]}>
-        <TableVisualizationRow
-          key={DISPLAY_TYPE.CONVERSION_COUNT}
-          branchComparison={BRANCH_COMPARISON.UPLIFT}
-          displayType={DISPLAY_TYPE.CONVERSION_CHANGE}
-          results={MOCK_ANALYSIS.overall.treatment}
-          tableLabel={TABLE_LABEL.PRIMARY_METRICS}
-          metricKey="feature_c_ever_used"
-        />
-      </RouterSlugProvider>
-    );
-  });
+  .add("Conversion count field", () => (
+    <TableVisualizationRow
+      branchComparison={BRANCH_COMPARISON.ABSOLUTE}
+      displayType={DISPLAY_TYPE.CONVERSION_COUNT}
+      results={MOCK_ANALYSIS.overall.treatment}
+      tableLabel={TABLE_LABEL.PRIMARY_METRICS}
+      metricKey="picture_in_picture_ever_used"
+    />
+  ))
+  .add("Conversion change field (positive)", () => (
+    <TableVisualizationRow
+      branchComparison={BRANCH_COMPARISON.UPLIFT}
+      displayType={DISPLAY_TYPE.CONVERSION_CHANGE}
+      results={MOCK_ANALYSIS.overall.treatment}
+      tableLabel={TABLE_LABEL.PRIMARY_METRICS}
+      metricKey="picture_in_picture_ever_used"
+    />
+  ))
+  .add("Conversion change field (negative)", () => (
+    <TableVisualizationRow
+      branchComparison={BRANCH_COMPARISON.UPLIFT}
+      displayType={DISPLAY_TYPE.CONVERSION_CHANGE}
+      results={MOCK_ANALYSIS.overall.treatment}
+      tableLabel={TABLE_LABEL.PRIMARY_METRICS}
+      metricKey="feature_b_ever_used"
+    />
+  ))
+  .add("Conversion change field (neutral)", () => (
+    <TableVisualizationRow
+      branchComparison={BRANCH_COMPARISON.UPLIFT}
+      displayType={DISPLAY_TYPE.CONVERSION_CHANGE}
+      results={MOCK_ANALYSIS.overall.treatment}
+      tableLabel={TABLE_LABEL.PRIMARY_METRICS}
+      metricKey="feature_c_ever_used"
+    />
+  ));

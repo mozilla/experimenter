@@ -4,18 +4,55 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { RouterSlugProvider } from "../../lib/test-utils";
 import { withLinks } from "@storybook/addon-links";
 import { mockExperimentQuery } from "../../lib/mocks";
 import TableMetricSecondary from ".";
-// import { mockAnalysis } from "../../lib/visualization/mocks";
-
-const { mock } = mockExperimentQuery("demo-slug");
+import { mockAnalysis } from "../../lib/visualization/mocks";
 
 storiesOf("visualization/TableMetricSecondary", module)
   .addDecorator(withLinks)
-  .add("basic", () => (
-    <RouterSlugProvider mocks={[mock]}>
-      <TableMetricSecondary />
-    </RouterSlugProvider>
-  ));
+  .add("with positive secondary metric", () => {
+    const { data } = mockExperimentQuery("demo-slug", {
+      secondaryProbeSets: [
+        {
+          __typename: "NimbusProbeSetType",
+          slug: "picture_in_picture",
+          name: "Picture-in-Picture",
+        },
+      ],
+    });
+
+    return (
+      <TableMetricSecondary
+        results={mockAnalysis().overall}
+        probeSet={data!.secondaryProbeSets![0]!}
+      />
+    );
+  })
+  .add("with negative secondary metric", () => {
+    const { data } = mockExperimentQuery("demo-slug");
+    return (
+      <TableMetricSecondary
+        results={mockAnalysis().overall}
+        probeSet={data!.secondaryProbeSets![0]!}
+      />
+    );
+  })
+  .add("with neutral secondary metric", () => {
+    const { data } = mockExperimentQuery("demo-slug", {
+      secondaryProbeSets: [
+        {
+          __typename: "NimbusProbeSetType",
+          slug: "feature_c",
+          name: "Feature C",
+        },
+      ],
+    });
+
+    return (
+      <TableMetricSecondary
+        results={mockAnalysis().overall}
+        probeSet={data!.secondaryProbeSets![0]!}
+      />
+    );
+  });

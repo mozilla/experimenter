@@ -283,8 +283,8 @@ export const mockExperimentQuery = (
             secondaryProbeSets: [
               {
                 __typename: "NimbusProbeSetType",
-                slug: "public-key-intangible-graphical-user-interface",
-                name: "Public-key intangible Graphical User Interface",
+                slug: "feature_b",
+                name: "Feature B",
               },
             ],
             channels: ["DESKTOP_NIGHTLY", "DESKTOP_BETA"],
