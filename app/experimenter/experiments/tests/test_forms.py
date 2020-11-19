@@ -101,9 +101,11 @@ class TestChangeLogMixin(MockRequestMixin, TestCase):
         class TestForm(ChangeLogMixin, forms.ModelForm):
             class Meta:
                 model = Experiment
-                fields = ("name",)
+                fields = ("name", "owner", "slug")
 
+        user = UserFactory.create()
         data = factory.build(dict, FACTORY_CLASS=ExperimentFactory)
+        data["owner"] = user
         form = TestForm(request=self.request, data=data)
 
         self.assertTrue(form.is_valid())
