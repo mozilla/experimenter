@@ -63,7 +63,7 @@ const TableHighlights = ({
                 <span className="align-middle">All Users&nbsp;</span>
                 <Info data-tip={SEGMENT_TIPS.ALL_USERS} />
               </td>
-              <td className="pt-1 px-1 pt-lg-3 px-lg-3">
+              <td className="pt-3 px-1 px-lg-3">
                 {highlightMetricsList.map((metric) => {
                   const metricKey = metric.value;
                   const displayType = getTableDisplayType(

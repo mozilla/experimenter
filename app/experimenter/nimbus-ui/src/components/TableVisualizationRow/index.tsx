@@ -4,7 +4,7 @@ import ReactTooltip from "react-tooltip";
 // import ConfidenceInterval from "../ConfidenceInterval";
 import {
   SIGNIFICANCE,
-  // METRIC,
+  METRIC,
   BRANCH_COMPARISON,
   TABLE_LABEL,
   VARIANT_TYPE,
@@ -108,14 +108,14 @@ const showSignificanceField = (
 //   return <ConfidenceInterval {...{ upper, lower, significance }} />;
 // };
 
-// const populationField = (point: number, percent: number | undefined) => {
-//   return (
-//     <div>
-//       <p className="font-weight-bold">{point}</p>
-//       <p className="h6">{percent}%</p>
-//     </div>
-//   );
-// };
+const populationField = (point: number, percent: number | undefined) => {
+  return (
+    <>
+      <p className="font-weight-bold mb-1">{point}</p>
+      <p className="mb-0">{percent}%</p>
+    </>
+  );
+};
 
 const countField = (
   lower: number,
@@ -159,7 +159,7 @@ const TableVisualizationRow: React.FC<{
   const { branch_data, is_control } = results;
 
   const metricData = branch_data[metricKey];
-  // const percent = branch_data[METRIC.USER_COUNT]["percent"];
+  const percent = branch_data[METRIC.USER_COUNT]["percent"];
   // const userCountMetric =
   //   branch_data[METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE]["point"];
 
@@ -167,14 +167,14 @@ const TableVisualizationRow: React.FC<{
   branchComparison =
     branchComparison || dataTypeMapping[tableLabel][branchType];
   // const { lower, upper, point, count } = metricData[branchComparison];
-  const { lower, upper } = metricData[branchComparison];
+  const { lower, upper, point } = metricData[branchComparison];
   const significance = metricData["significance"];
 
   let field;
   switch (displayType) {
-    // case DISPLAY_TYPE.POPULATION:
-    //   field = populationField(point, percent);
-    //   break;
+    case DISPLAY_TYPE.POPULATION:
+      field = populationField(point, percent);
+      break;
     case DISPLAY_TYPE.COUNT:
       field = countField(lower, upper, significance, metricName, tableLabel);
       break;
