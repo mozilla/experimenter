@@ -58,6 +58,8 @@ COPY ./experimenter/nimbus-ui/package.json /app/experimenter/nimbus-ui/package.j
 RUN yarn install --frozen-lockfile
 
 
+FROM dev AS test
+
 # Copy source
 COPY . /app
 
@@ -67,8 +69,8 @@ FROM dev AS build
 
 
 # Build assets
-COPY --from=dev /app/experimenter/legacy-ui/ /app/experimenter/legacy-ui/
-COPY --from=dev /app/experimenter/nimbus-ui/ /app/experimenter/nimbus-ui/
+COPY ./experimenter/legacy-ui/ /app/experimenter/legacy-ui/
+COPY ./experimenter/nimbus-ui/ /app/experimenter/nimbus-ui/
 RUN yarn workspace @experimenter/core build
 RUN yarn workspace @experimenter/visualization build
 RUN yarn workspace @experimenter/rapid build
@@ -89,8 +91,10 @@ ENV PATH "/root/.poetry/bin:${PATH}"
 RUN apt-get update
 RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgresql-client
 
-COPY --from=build /app/bin/ /app/bin/
-COPY --from=build /app/manage.py /app/manage.py
-COPY --from=build /usr/local/bin/ /usr/local/bin/
-COPY --from=build /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9/site-packages/
-COPY --from=build /app/experimenter/ /app/experimenter/
+COPY --from=dev /usr/local/bin/ /usr/local/bin/
+COPY --from=dev /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9/site-packages/
+COPY --from=dev /app/bin/ /app/bin/
+COPY ./manage.py /app/manage.py
+COPY ./experimenter/ /app/experimenter/
+COPY --from=build /app/experimenter/legacy-ui/assets/ /app/experimenter/legacy-ui/assets/
+COPY --from=build /app/experimenter/nimbus-ui/build/ /app/experimenter/nimbus-ui/build/

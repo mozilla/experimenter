@@ -2,6 +2,7 @@ import pytest
 from pages.experiment_objective_and_analysis import ObjectiveAndAnalysisPage
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_edit_objectives_box(base_url, selenium, fill_overview):
     analysis = ObjectiveAndAnalysisPage(
@@ -14,6 +15,7 @@ def test_edit_objectives_box(base_url, selenium, fill_overview):
     assert text in detail_page.objective_section.text
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_edit_analysis_box(base_url, selenium, fill_overview):
     analysis = ObjectiveAndAnalysisPage(
@@ -27,6 +29,7 @@ def test_edit_analysis_box(base_url, selenium, fill_overview):
     assert text in detail_page.analysis_section.text
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_survey_checkbox(base_url, selenium, fill_overview):
     analysis = ObjectiveAndAnalysisPage(
@@ -40,6 +43,7 @@ def test_survey_checkbox(base_url, selenium, fill_overview):
     assert analysis.survey_required_checkbox == "Yes"
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_survey_urls(base_url, selenium, fill_overview):
     analysis = ObjectiveAndAnalysisPage(
@@ -55,6 +59,7 @@ def test_survey_urls(base_url, selenium, fill_overview):
     assert test_url in detail_page.analysis_section.survey_urls
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_survey_launch_instructions(base_url, selenium, fill_overview):
     analysis = ObjectiveAndAnalysisPage(

@@ -2,6 +2,7 @@ import pytest
 from pages.base import Base
 
 
+@pytest.mark.skip(reason="covered by unit tests")
 @pytest.mark.nondestructive
 def test_owned_experiments_page_loads(base_url, selenium):
     """Test Owned Deliveries link opens correct page."""
@@ -11,6 +12,7 @@ def test_owned_experiments_page_loads(base_url, selenium):
     assert f"{experiments.count} Deliveries by" in experiments.title
 
 
+@pytest.mark.skip(reason="covered by unit tests")
 @pytest.mark.nondestructive
 def test_subscribed_experiments_page_loads(base_url, selenium):
     """Test Subscribed Deliveries link opens correct page."""
