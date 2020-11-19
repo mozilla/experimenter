@@ -1,7 +1,7 @@
 import React from "react";
 import ReactTooltip from "react-tooltip";
 
-// import ConfidenceInterval from "../ConfidenceInterval";
+import ConfidenceInterval from "../ConfidenceInterval";
 import {
   SIGNIFICANCE,
   METRIC,
@@ -83,30 +83,30 @@ const showSignificanceField = (
   );
 };
 
-// const conversionCountField = (totalConversions: number, totalUsers: number) => {
-//   return (
-//     <>
-//       <span className="font-weight-bold">
-//         {Math.round(totalConversions * 100) / 100}{" "}
-//       </span>
-//       / {totalUsers}
-//     </>
-//   );
-// };
+const conversionCountField = (totalConversions: number, totalUsers: number) => {
+  return (
+    <>
+      <span className="font-weight-bold">
+        {Math.round(totalConversions * 100) / 100}{" "}
+      </span>
+      / {totalUsers}
+    </>
+  );
+};
 
-// const conversionChangeField = (
-//   lower: number,
-//   upper: number,
-//   significance: string | undefined,
-// ) => {
-//   if (!lower || !upper || !significance) {
-//     return <div className="font-italic">---baseline---</div>;
-//   }
+const conversionChangeField = (
+  lower: number,
+  upper: number,
+  significance: string | undefined,
+) => {
+  if (!lower || !upper || !significance) {
+    return <div className="font-italic">---baseline---</div>;
+  }
 
-//   lower = Math.round(lower * 1000) / 10;
-//   upper = Math.round(upper * 1000) / 10;
-//   return <ConfidenceInterval {...{ upper, lower, significance }} />;
-// };
+  lower = Math.round(lower * 1000) / 10;
+  upper = Math.round(upper * 1000) / 10;
+  return <ConfidenceInterval {...{ upper, lower, significance }} />;
+};
 
 const populationField = (point: number, percent: number | undefined) => {
   return (
@@ -160,14 +160,13 @@ const TableVisualizationRow: React.FC<{
 
   const metricData = branch_data[metricKey];
   const percent = branch_data[METRIC.USER_COUNT]["percent"];
-  // const userCountMetric =
-  //   branch_data[METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE]["point"];
+  const userCountMetric =
+    branch_data[METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE]["point"];
 
   const branchType = is_control ? VARIANT_TYPE.CONTROL : VARIANT_TYPE.VARIANT;
   branchComparison =
     branchComparison || dataTypeMapping[tableLabel][branchType];
-  // const { lower, upper, point, count } = metricData[branchComparison];
-  const { lower, upper, point } = metricData[branchComparison];
+  const { lower, upper, point, count } = metricData[branchComparison];
   const significance = metricData["significance"];
 
   let field;
@@ -182,12 +181,12 @@ const TableVisualizationRow: React.FC<{
     case DISPLAY_TYPE.CONVERSION_RATE:
       field = percentField(lower, upper, significance, metricName, tableLabel);
       break;
-    // case DISPLAY_TYPE.CONVERSION_COUNT:
-    //   field = conversionCountField(count, userCountMetric);
-    //   break;
-    // case DISPLAY_TYPE.CONVERSION_CHANGE:
-    //   field = conversionChangeField(lower, upper, significance);
-    //   break;
+    case DISPLAY_TYPE.CONVERSION_COUNT:
+      field = conversionCountField(count, userCountMetric);
+      break;
+    case DISPLAY_TYPE.CONVERSION_CHANGE:
+      field = conversionChangeField(lower, upper, significance);
+      break;
   }
 
   return tableLabel === TABLE_LABEL.HIGHLIGHTS ? (
