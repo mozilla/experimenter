@@ -87,6 +87,7 @@ class ExperimentConstants(object):
 
     # date range stuff
     EXPERIMENT_STARTS = "starting"
+    EXPERIMENT_EDIT = "edit"
     EXPERIMENT_PAUSES = "pausing"
     EXPERIMENT_ENDS = "ending"
     EXPERIMENT_COMMENT = "new comment"
@@ -1121,6 +1122,10 @@ If applicable, link to any relevant test builds / staging information
 
     COMMENT_EMAIL_SUBJECT = (
         "[Experimenter]: {comment.created_by.email} commented on {experiment}"
+    )
+
+    CHANGE_EMAIL_SUBJECT = (
+        "[Experimenter]: {change.changed_by.email} made a change to {change.experiment}"
     )
 
     NORMANDY_CHANGE_WINDOW = """

@@ -90,6 +90,20 @@ def send_experiment_comment_email(comment):
     )
 
 
+def send_experiment_change_email(change):
+
+    # Launch has its own separate email
+    if change != "Launched Experiment":
+        subject = Experiment.CHANGE_EMAIL_SUBJECT.format(change=change)
+        format_and_send_html_email(
+            change.experiment,
+            "experiments/emails/new_change_email.html",
+            {"change": change},
+            subject,
+            Experiment.EXPERIMENT_EDIT,
+        )
+
+
 def format_and_send_html_email(
     experiment, file_string, template_vars, subject, email_type, cc_recipients=None
 ):
