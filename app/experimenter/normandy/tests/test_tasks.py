@@ -559,6 +559,31 @@ class TestUpdateExperimentSubTask(MockNormandyMixin, MockBugzillaMixin, TestCase
             ).exists()
         )
 
+    def test_update_status_for_in_qa_recipe(self):
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_ACCEPTED
+        )
+        recipe_data = {
+            "enabled": True,
+            "enabled_states": [{"creator": {"email": "dev@example.com"}}],
+            "filter_object": [{"type": "qaOnly"}],
+        }
+        self.assertTrue(tasks.is_qaOnly(recipe_data))
+        self.assertFalse(tasks.is_alreadyQALaunched(experiment))
+
+        tasks.update_status_task(experiment, recipe_data)
+
+        self.assertEqual(experiment.status, Experiment.STATUS_ACCEPTED)
+
+        self.assertTrue(
+            experiment.changes.filter(
+                changed_by__email="dev@example.com",
+                old_status=Experiment.STATUS_ACCEPTED,
+                new_status=Experiment.STATUS_ACCEPTED,
+                message="Launched for QA",
+            ).exists()
+        )
+
     def test_set_is_paused_value_task(self):
 
         experiment = ExperimentFactory.create_with_status(
