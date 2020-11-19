@@ -184,6 +184,8 @@ class TestStatusUpdateEmail(TestCase):
             ],
         )
 
+        self.assertEqual(self.experiment.emails.count(), 1)
+
     def test_send_experiment_launch_email_without_analysis_owner(self):
         self.experiment.analysis_owner = None
         self.experiment.save()

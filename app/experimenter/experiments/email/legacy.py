@@ -93,7 +93,7 @@ def send_experiment_comment_email(comment):
 def send_experiment_change_email(change):
 
     # Launch has its own separate email
-    if str(change) not in ("Launched Experiment"):
+    if change != "Launched Experiment":
         subject = Experiment.CHANGE_EMAIL_SUBJECT.format(change=change)
         format_and_send_html_email(
             change.experiment,
