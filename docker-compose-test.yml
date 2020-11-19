@@ -2,7 +2,7 @@ version: "3"
 
 services:
   app:
-    image: app:dev
+    image: app:test
     env_file: .env.sample
     environment:
       - DEBUG=False

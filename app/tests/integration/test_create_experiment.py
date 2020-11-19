@@ -2,6 +2,7 @@ import pytest
 from pages.experiment_design import DesignPage
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_add_branch(base_url, selenium, ds_issue_host, fill_overview):
     """Test adding a new branch."""
@@ -15,6 +16,7 @@ def test_add_branch(base_url, selenium, ds_issue_host, fill_overview):
     assert "Branch 2" in new_branch.branch_number.text
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_remove_branch(base_url, selenium, fill_overview):
     """Test removing a branch."""
@@ -31,6 +33,7 @@ def test_remove_branch(base_url, selenium, fill_overview):
     assert "Control Branch" in branches[-1].branch_number.text
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_duplicate_branch_name(base_url, selenium, ds_issue_host, fill_overview):
     """Test adding a branch with the same name as the control branch."""

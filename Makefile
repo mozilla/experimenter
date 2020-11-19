@@ -15,15 +15,10 @@ PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --no
 PYTHON_MIGRATE = python manage.py migrate
 ESLINT_CORE = yarn workspace @experimenter/core lint
 ESLINT_FIX_CORE = yarn workspace @experimenter/core lint-fix
-ESLINT_RAPID = yarn workspace @experimenter/rapid lint:eslint
-ESLINT_VISUALIZATION = yarn workspace @experimenter/visualization lint
-ESLINT_FIX_RAPID = yarn workspace @experimenter/rapid lint:eslint --fix
 ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint
 ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint-fix
-TYPECHECK_RAPID = yarn workspace @experimenter/rapid lint:tsc
 TYPECHECK_NIMBUS_UI = yarn workspace @experimenter/nimbus-ui lint:tsc
 JS_TEST_CORE = yarn workspace @experimenter/core test
-JS_TEST_RAPID = yarn workspace @experimenter/rapid test
 JS_TEST_NIMBUS_UI = CI=yes yarn workspace @experimenter/nimbus-ui test
 NIMBUS_SCHEMA_CHECK = python manage.py graphql_schema --out experimenter/nimbus-ui/test_schema.graphql&&diff experimenter/nimbus-ui/test_schema.graphql experimenter/nimbus-ui/schema.graphql || (echo GraphQL Schema is out of sync please run make generate_types;exit 1)
 NIMBUS_TYPES_GENERATE = python manage.py graphql_schema --out experimenter/nimbus-ui/schema.graphql&&yarn workspace @experimenter/nimbus-ui generate-types
@@ -50,22 +45,25 @@ nginx/cert.pem: nginx/key.pem
 secretkey:
 	openssl rand -hex 24
 
-build:
+build_dev:
 	docker build --target dev -f app/Dockerfile -t app:dev app/
 
-build_prod: build
+build_test:
+	docker build --target test -f app/Dockerfile -t app:test app/
+
+build_prod:
 	docker build --target deploy -f app/Dockerfile -t app:deploy app/
 
-test_build: build
+test_build: build_test
 	$(COMPOSE_TEST) build
 
 check: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_RAPID)" "$(ESLINT_VISUALIZATION)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_RAPID)" "$(TYPECHECK_NIMBUS_UI)" "$(JS_TEST_CORE)" "$(JS_TEST_RAPID)" "$(JS_TEST_NIMBUS_UI)" "$(PYTHON_TEST)"'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(JS_TEST_CORE)" "$(JS_TEST_NIMBUS_UI)" "$(PYTHON_TEST)"'
 
 py_test: test_build
 	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
 
-compose_build: build ssl
+compose_build: build_dev ssl
 	$(COMPOSE)  build
 
 compose_stop:
@@ -83,10 +81,9 @@ volumes_rm:
 
 static_rm:
 	rm -Rf app/node_modules
-	rm -Rf app/experimenter/legacy-ui/core/node_modules
-	rm -Rf app/experimenter/legacy-ui/rapid/node_modules
-	rm -Rf app/experimenter/legacy-ui/visualization/node_modules
-	rm -Rf app/experimenter/nimbus-ui/node_modules
+	rm -Rf app/experimenter/legacy-ui/core/node_modules/
+	rm -Rf app/experimenter/legacy-ui/rapid/node_modules/
+	rm -Rf app/experimenter/nimbus-ui/node_modules/
 	rm -Rf app/experimenter/legacy-ui/assets/
 	rm -Rf app/experimenter/nimbus-ui/build/
 
@@ -114,14 +111,14 @@ up_detached: compose_build
 generate_docs: compose_build
 	$(COMPOSE) run app sh -c "$(GENERATE_DOCS)"
 
-generate_types: build
+generate_types: build_dev
 	$(COMPOSE) run app sh -c "$(NIMBUS_TYPES_GENERATE)"
 
-publish_storybooks: build
+publish_storybooks: build_test
 	$(COMPOSE_TEST) run app sh -c "$(PUBLISH_STORYBOOKS)"
 
 code_format: compose_build
-	$(COMPOSE) run app sh -c '${PARALLEL} "${PY_IMPORT_SORT};$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_RAPID)" "$(ESLINT_FIX_NIMBUS_UI)"'
+	$(COMPOSE) run app sh -c '${PARALLEL} "${PY_IMPORT_SORT};$(BLACK_FIX)" "$(ESLINT_FIX_CORE)" "$(ESLINT_FIX_NIMBUS_UI)"'
 
 makemigrations: compose_build
 	$(COMPOSE) run app python manage.py makemigrations

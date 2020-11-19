@@ -2,6 +2,7 @@ import pytest
 from pages.home import Home
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_overview_type_changes_correctly(base_url, selenium):
     """Test changing experiment type."""
@@ -14,6 +15,7 @@ def test_overview_type_changes_correctly(base_url, selenium):
     assert exp_type in experiment.experiment_type
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_overview_engineering_owner_changes_correctly(base_url, selenium):
     """Test changing engineering owner."""
@@ -39,6 +41,7 @@ def test_overview_owner_changes_correctly(base_url, selenium):
     assert owner in experiment.experiment_owner
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_public_name_changes_correctly(base_url, selenium):
     """Test adding a public name."""
@@ -51,6 +54,7 @@ def test_public_name_changes_correctly(base_url, selenium):
     assert new_public_name in experiment.public_name
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_public_description_changes_correctly(base_url, selenium):
     """Test adding a public description."""
@@ -63,6 +67,7 @@ def test_public_description_changes_correctly(base_url, selenium):
     assert new_public_description in experiment.public_description
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_feature_bugzilla_url_changes_correctly(base_url, selenium):
     """Test adding a bugzilla url."""
@@ -75,6 +80,7 @@ def test_feature_bugzilla_url_changes_correctly(base_url, selenium):
     assert new_url in experiment.feature_bugzilla_url
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_related_experiments_updates_correctly(base_url, selenium):
     """Test updating related experiments."""
