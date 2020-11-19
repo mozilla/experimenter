@@ -5,6 +5,7 @@ from dateutil.parser import parse
 from pages.experiment_timeline_and_population import TimelineAndPopulationPage
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_proposed_start_date_fills_correctly(selenium, base_url, fill_overview):
     """Test proposed start date fills."""
@@ -19,6 +20,7 @@ def test_proposed_start_date_fills_correctly(selenium, base_url, fill_overview):
     assert timeline_pop_form.proposed_start_date == today
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_proposed_experiment_duration_updates_correctly(
     selenium, base_url, fill_overview
@@ -33,6 +35,7 @@ def test_proposed_experiment_duration_updates_correctly(
     assert timeline_pop_form.proposed_experiment_duration == duration
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_proposed_enrollment_duration_updates_correctly(
     selenium, base_url, fill_overview
@@ -47,6 +50,7 @@ def test_proposed_enrollment_duration_updates_correctly(
     assert timeline_pop_form.proposed_enrollment_duration == duration
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_population_percentage_updates_correctly(selenium, base_url, fill_overview):
     """Test Population percentage updates."""
@@ -59,6 +63,7 @@ def test_population_percentage_updates_correctly(selenium, base_url, fill_overvi
     assert timeline_pop_form.population_percentage == percentage
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_firefox_channel_updates_correctly(selenium, base_url, fill_overview):
     """Test selecting a Firefox Channel."""
@@ -71,6 +76,7 @@ def test_firefox_channel_updates_correctly(selenium, base_url, fill_overview):
     assert timeline_pop_form.firefox_channel == channel
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_firefox_min_version_updates_correctly(selenium, base_url, fill_overview):
     """Test setting a Firefox min version."""
@@ -83,6 +89,7 @@ def test_firefox_min_version_updates_correctly(selenium, base_url, fill_overview
     assert timeline_pop_form.firefox_min_version == version
 
 
+@pytest.mark.skip(reason="superceded by e2e tests")
 @pytest.mark.nondestructive
 def test_firefox_max_version_updates_correctly(selenium, base_url, fill_overview):
     """Test setting a Firefox max version."""

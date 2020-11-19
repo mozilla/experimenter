@@ -17,7 +17,7 @@ services:
     command: bash -c "/app/bin/wait-for-it.sh kinto:8888 -- python bin/setup_kinto.py;/app/bin/wait-for-it.sh db:5432 -- python manage.py collectstatic --noinput&&gunicorn -w 4 -b 0.0.0.0:7001 experimenter.wsgi"
 
   worker:
-    image: app:dev
+    image: app:deploy
     env_file: .env
     links:
       - db
@@ -25,7 +25,7 @@ services:
     command: bash -c "/app/bin/wait-for-it.sh db:5432 -- celery -A experimenter worker -l DEBUG"
 
   beat:
-    image: app:dev
+    image: app:deploy
     env_file: .env
     links:
       - db
