@@ -8,14 +8,67 @@ import { RouterSlugProvider } from "../../lib/test-utils";
 import { withLinks } from "@storybook/addon-links";
 import { mockExperimentQuery } from "../../lib/mocks";
 import TableMetricPrimary from ".";
-// import { mockAnalysis } from "../../lib/visualization/mocks";
-
-const { mock } = mockExperimentQuery("demo-slug");
+import { mockAnalysis } from "../../lib/visualization/mocks";
 
 storiesOf("visualization/TableMetricPrimary", module)
   .addDecorator(withLinks)
-  .add("basic", () => (
-    <RouterSlugProvider mocks={[mock]}>
-      <TableMetricPrimary />
-    </RouterSlugProvider>
-  ));
+  .add("with positive primary metric", () => {
+    const { mock, data } = mockExperimentQuery("demo-slug", {
+      primaryProbeSets: [
+        {
+          __typename: "NimbusProbeSetType",
+          slug: "picture_in_picture",
+          name: "Picture-in-Picture",
+        },
+      ],
+    });
+
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <TableMetricPrimary
+          results={mockAnalysis().overall}
+          probeSet={data!.primaryProbeSets![0]}
+        />
+      </RouterSlugProvider>
+    );
+  })
+  .add("with negative primary metric", () => {
+    const { mock, data } = mockExperimentQuery("demo-slug", {
+      primaryProbeSets: [
+        {
+          __typename: "NimbusProbeSetType",
+          slug: "feature_b",
+          name: "Feature B",
+        },
+      ],
+    });
+
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <TableMetricPrimary
+          results={mockAnalysis().overall}
+          probeSet={data!.primaryProbeSets![0]}
+        />
+      </RouterSlugProvider>
+    );
+  })
+  .add("with neutral primary metric", () => {
+    const { mock, data } = mockExperimentQuery("demo-slug", {
+      primaryProbeSets: [
+        {
+          __typename: "NimbusProbeSetType",
+          slug: "feature_c",
+          name: "Feature C",
+        },
+      ],
+    });
+
+    return (
+      <RouterSlugProvider mocks={[mock]}>
+        <TableMetricPrimary
+          results={mockAnalysis().overall}
+          probeSet={data!.primaryProbeSets![0]}
+        />
+      </RouterSlugProvider>
+    );
+  });

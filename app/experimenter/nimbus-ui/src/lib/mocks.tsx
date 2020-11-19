@@ -276,7 +276,7 @@ export const mockExperimentQuery = (
             primaryProbeSets: [
               {
                 __typename: "NimbusProbeSetType",
-                slug: "picture-in-picture",
+                slug: "picture_in_picture",
                 name: "Picture-in-Picture",
               },
             ],

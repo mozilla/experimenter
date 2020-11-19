@@ -28,15 +28,14 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
           <tr>
             <td scope="col">
               <h3 className="h6">Targeting</h3>
-              <span>
+              <div>
                 {displayConfigLabel(
                   experiment.firefoxMinVersion,
                   firefoxMinVersion,
                 )}
                 +
-              </span>
-              <br />
-              <span>
+              </div>
+              <div>
                 {experiment.channels?.length
                   ? experiment.channels
                       .map((expChannel) =>
@@ -44,20 +43,19 @@ const TableOverview = ({ experiment }: TableOverviewProps) => {
                       )
                       .join(", ")
                   : ""}
-              </span>
-              <br />
-              <span>
+              </div>
+              <div>
                 {displayConfigLabel(
                   experiment.targetingConfigSlug,
                   targetingConfigSlug,
                 )}
-              </span>
+              </div>
             </td>
             <td scope="col">
               <h3 className="h6">Probe Sets</h3>
               {experiment.primaryProbeSets?.length
                 ? experiment.primaryProbeSets.map((probeSet) => (
-                    <span key={probeSet?.name}>{probeSet?.name}</span>
+                    <div key={probeSet?.name}>{probeSet?.name}</div>
                   ))
                 : ""}
             </td>

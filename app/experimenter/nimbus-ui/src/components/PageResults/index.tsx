@@ -89,7 +89,11 @@ const AnalysisAvailable = ({
     />
     <div>
       {experiment.primaryProbeSets?.map((probeSet) => (
-        <TableMetricPrimary key={probeSet?.slug} />
+        <TableMetricPrimary
+          key={probeSet?.slug}
+          results={analysis?.overall!}
+          {...{ probeSet }}
+        />
       ))}
       {experiment.secondaryProbeSets?.map((probeSet) => (
         <TableMetricSecondary key={probeSet?.slug} />
