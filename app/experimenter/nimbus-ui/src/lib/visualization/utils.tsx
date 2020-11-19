@@ -11,9 +11,9 @@ export const getTableDisplayType = (
 ): DISPLAY_TYPE => {
   let displayType;
   switch (metricKey) {
-    // case METRIC.USER_COUNT:
-    //   displayType = DISPLAY_TYPE.POPULATION;
-    //   break;
+    case METRIC.USER_COUNT:
+      displayType = DISPLAY_TYPE.POPULATION;
+      break;
     case METRIC.SEARCH:
       if (tableLabel === TABLE_LABEL.RESULTS || isControl) {
         displayType = DISPLAY_TYPE.COUNT;

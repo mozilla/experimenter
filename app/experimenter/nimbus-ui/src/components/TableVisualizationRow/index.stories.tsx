@@ -9,24 +9,42 @@ import { withLinks } from "@storybook/addon-links";
 import { mockExperimentQuery } from "../../lib/mocks";
 import TableVisualizationRow from ".";
 import { mockAnalysis } from "../../lib/visualization/mocks";
-import { DISPLAY_TYPE } from "../../lib/visualization/constants";
+import { DISPLAY_TYPE, TABLE_LABEL } from "../../lib/visualization/constants";
 
 const { mock } = mockExperimentQuery("demo-slug");
 
-// TODO: this can use a lot more stories as other tables are built out
 storiesOf("visualization/TableVisualizationRow", module)
   .addDecorator(withLinks)
-  .add("in Highlights table", () => {
-    const MOCK_ANALYSIS = mockAnalysis();
-    return (
-      <RouterSlugProvider mocks={[mock]}>
-        <TableVisualizationRow
-          key="retained"
-          results={MOCK_ANALYSIS.overall.control}
-          tableLabel="highlights"
-          metricKey="retained"
-          displayType={DISPLAY_TYPE.POPULATION}
-        />
-      </RouterSlugProvider>
-    );
-  });
+  .add("Population field", () => (
+    <RouterSlugProvider mocks={[mock]}>
+      <TableVisualizationRow
+        key="retained"
+        results={mockAnalysis().overall.control}
+        tableLabel={TABLE_LABEL.HIGHLIGHTS}
+        metricKey="retained"
+        displayType={DISPLAY_TYPE.POPULATION}
+      />
+    </RouterSlugProvider>
+  ))
+  .add("Count field", () => (
+    <RouterSlugProvider mocks={[mock]}>
+      <TableVisualizationRow
+        key="retained"
+        results={mockAnalysis().overall.control}
+        tableLabel={TABLE_LABEL.HIGHLIGHTS}
+        metricKey="retained"
+        displayType={DISPLAY_TYPE.COUNT}
+      />
+    </RouterSlugProvider>
+  ))
+  .add("Percent field", () => (
+    <RouterSlugProvider mocks={[mock]}>
+      <TableVisualizationRow
+        key="retained"
+        results={mockAnalysis().overall.control}
+        tableLabel={TABLE_LABEL.RESULTS}
+        metricKey="retained"
+        displayType={DISPLAY_TYPE.PERCENT}
+      />
+    </RouterSlugProvider>
+  ));
