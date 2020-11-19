@@ -4,15 +4,18 @@
 
 import React, { useCallback, useEffect } from "react";
 import { useForm, ValidationRules } from "react-hook-form";
+import ReactTooltip from "react-tooltip";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import { getExperiment } from "../../types/getExperiment";
 import { useExitWarning } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
+import { ReactComponent as ErrorCircle } from "../../images/error-circle.svg";
 
 type FormOverviewProps = {
   isLoading: boolean;
   isServerValid: boolean;
+  isMissingField?: (fieldName: string) => boolean;
   submitErrors: Record<string, string[]>;
   experiment?: getExperiment["experimentBySlug"];
   onSubmit: (data: Record<string, any>, reset: Function) => void;
@@ -23,6 +26,7 @@ type FormOverviewProps = {
 const FormOverview = ({
   isLoading,
   isServerValid,
+  isMissingField,
   submitErrors,
   experiment,
   onSubmit,
@@ -165,7 +169,21 @@ const FormOverview = ({
 
       {experiment && (
         <Form.Group controlId="publicDescription">
-          <Form.Label>Public description</Form.Label>
+          <Form.Label>
+            Public description
+            {isMissingField!("public_description") && (
+              <>
+                <ErrorCircle
+                  width="20"
+                  height="20"
+                  className="ml-1"
+                  data-testid="missing-description"
+                  data-tip="Public description cannot be blank"
+                />
+                <ReactTooltip />
+              </>
+            )}
+          </Form.Label>
           <Form.Control
             ref={register}
             name="publicDescription"

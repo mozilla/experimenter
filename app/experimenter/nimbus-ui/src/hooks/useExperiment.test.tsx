@@ -52,6 +52,12 @@ describe("hooks/useExperiment", () => {
       };
 
       it("returns correct review info when missing details", async () => {
+        Object.defineProperty(window, "location", {
+          value: {
+            search: "?show-errors",
+          },
+        });
+
         const { mock } = mockExperimentQuery("howdy", {
           readyForReview: {
             __typename: "NimbusReadyForReviewType",

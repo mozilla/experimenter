@@ -12,7 +12,7 @@
     "lint:eslint": "eslint --color --max-warnings 0 --ext=.ts,.tsx .",
     "lint:tsc": "tsc --noEmit --project tsconfig.json",
     "lint:styles": "stylelint --config .stylelintrc **/*.scss",
-    "storybook": "start-storybook -p 3001",
+    "storybook": "start-storybook -p 3001 --no-version-updates",
     "build-storybook": "build-storybook",
     "eject": "react-scripts eject",
     "generate-types": "apollo codegen:generate --target typescript --outputFlat src/types"
@@ -52,6 +52,7 @@
     "@rescripts/cli": "^0.0.14",
     "@storybook/addon-actions": "^6.0.26",
     "@storybook/addon-links": "^6.1.2",
+    "@storybook/addon-queryparams": "^6.1.9",
     "@storybook/preset-create-react-app": "^3.1.4",
     "@storybook/react": "^6.0.28",
     "@testing-library/dom": "^7.24.3",

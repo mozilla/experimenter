@@ -41,7 +41,7 @@ const fieldPageMap: { [page: string]: string[] } = {
  */
 
 export function useExperiment(slug: string) {
-  const { data, loading, startPolling, stopPolling } = useQuery<{
+  const { data, loading, startPolling, stopPolling, refetch } = useQuery<{
     experimentBySlug: getExperiment["experimentBySlug"];
   }>(GET_EXPERIMENT_QUERY, {
     variables: { slug },
@@ -54,7 +54,11 @@ export function useExperiment(slug: string) {
     fieldPageMap[page].some((field) => missingFields.includes(field)),
   );
   const isMissingField = (fieldName: string) =>
-    missingFields.includes(fieldName);
+    missingFields.includes(fieldName) &&
+    // This is a bit hacky, but we only want to visually display missing field
+    // errors when you click the links under the "Missing details" section, not
+    // from a regular sidebar navigation link
+    window.location.search.includes("show-errors");
 
   return {
     experiment: experiment!,
@@ -67,6 +71,7 @@ export function useExperiment(slug: string) {
       invalidPages,
       missingFields,
       isMissingField,
+      refetch,
     },
   };
 }

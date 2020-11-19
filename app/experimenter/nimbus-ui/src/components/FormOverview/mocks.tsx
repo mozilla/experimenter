@@ -9,6 +9,7 @@ import { MockedCache } from "../../lib/mocks";
 export const Subject = ({
   isLoading = false,
   isServerValid = true,
+  isMissingField = () => false,
   submitErrors = {},
   onSubmit = () => {},
   onCancel,
@@ -20,6 +21,7 @@ export const Subject = ({
       {...{
         isLoading,
         isServerValid,
+        isMissingField,
         submitErrors,
         onSubmit,
         onCancel,
