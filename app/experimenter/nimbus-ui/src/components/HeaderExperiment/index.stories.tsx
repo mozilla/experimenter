@@ -5,17 +5,17 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
 import { withLinks } from "@storybook/addon-links";
-import HeaderEditExperiment from ".";
+import HeaderExperiment from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
 import AppLayout from "../AppLayout";
 
 const { data } = mockExperimentQuery("demo-slug");
 
-storiesOf("components/HeaderEditExperiment", module)
+storiesOf("components/HeaderExperiment", module)
   .addDecorator(withLinks)
   .add("basic", () => (
     <AppLayout>
-      <HeaderEditExperiment
+      <HeaderExperiment
         name={data!.name}
         slug={data!.slug}
         status={data!.status}

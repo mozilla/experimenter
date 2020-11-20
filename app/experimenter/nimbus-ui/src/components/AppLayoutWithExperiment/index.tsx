@@ -5,7 +5,7 @@
 import React, { useEffect } from "react";
 import { RouteComponentProps, useParams } from "@reach/router";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
-import HeaderEditExperiment from "../HeaderEditExperiment";
+import HeaderExperiment from "../HeaderExperiment";
 import PageLoading from "../PageLoading";
 import PageExperimentNotFound from "../PageExperimentNotFound";
 import { useExperiment } from "../../hooks";
@@ -67,7 +67,7 @@ const AppLayoutWithExperiment = ({
   return (
     <Layout {...{ sidebar, children, review }}>
       <section data-testid={testId}>
-        <HeaderEditExperiment
+        <HeaderExperiment
           {...{
             slug,
             name,
