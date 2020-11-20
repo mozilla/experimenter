@@ -82,22 +82,28 @@ const AnalysisAvailable = ({
     />
     <TableOverview {...{ experiment }} results={analysis?.overall!} />
 
-    <h2 className="h5 mb-3 mt-4">Results</h2>
+    <h2 className="h5 mb-3">Results</h2>
     <TableResults
       primaryProbeSets={experiment.primaryProbeSets!}
       results={analysis?.overall!}
     />
     <div>
-      {experiment.primaryProbeSets?.map((probeSet) => (
-        <TableMetricPrimary
-          key={probeSet?.slug}
-          results={analysis?.overall!}
-          {...{ probeSet }}
-        />
-      ))}
-      {experiment.secondaryProbeSets?.map((probeSet) => (
-        <TableMetricSecondary key={probeSet?.slug} />
-      ))}
+      {experiment.primaryProbeSets?.length &&
+        experiment.primaryProbeSets.map((probeSet) => (
+          <TableMetricPrimary
+            key={probeSet?.slug}
+            results={analysis?.overall!}
+            probeSet={probeSet!}
+          />
+        ))}
+      {experiment.secondaryProbeSets?.length &&
+        experiment.secondaryProbeSets.map((probeSet) => (
+          <TableMetricSecondary
+            key={probeSet?.slug}
+            results={analysis?.overall!}
+            probeSet={probeSet!}
+          />
+        ))}
     </div>
   </>
 );

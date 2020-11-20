@@ -21,13 +21,11 @@ type PrimaryMetricStatistic = {
 
 type TableMetricPrimaryProps = {
   results: AnalysisData["overall"];
-  probeSet: getExperiment_experimentBySlug_primaryProbeSets | null;
+  probeSet: getExperiment_experimentBySlug_primaryProbeSets;
 };
 
-const getStatistics = (
-  probeset: string | null,
-): Array<PrimaryMetricStatistic> => {
-  const probesetMetricID = `${probeset}_ever_used`;
+const getStatistics = (slug: string): Array<PrimaryMetricStatistic> => {
+  const probesetMetricID = `${slug}_ever_used`;
 
   // Make a copy of `PRIMARY_METRIC_COLUMNS` since we modify it.
   const primaryMetricStatisticsList = PRIMARY_METRIC_COLUMNS.map(
@@ -45,17 +43,21 @@ const TableMetricPrimary = ({
   probeSet,
 }: TableMetricPrimaryProps) => {
   const primaryMetricStatistics = getStatistics(probeSet!.slug);
-  const metricKey = `${probeSet?.slug}_ever_used`;
+  const metricKey = `${probeSet.slug}_ever_used`;
 
   return (
     <div data-testid="table-metric-primary">
-      <h2 className="h5 mb-3 mt-4">{probeSet?.name}</h2>
-      <table className="table text-center mb-5 mt-4">
+      <h2 className="h5 mb-3">{probeSet.name}</h2>
+      <table className="table-visualization-center">
         <thead>
           <tr>
-            <th scope="col" className="border-bottom-0" />
+            <th scope="col" className="border-bottom-0 bg-light" />
             {PRIMARY_METRIC_COLUMNS.map((value) => (
-              <th className="border-bottom-0" key={value.name} scope="col">
+              <th
+                className="border-bottom-0 bg-light"
+                key={value.name}
+                scope="col"
+              >
                 <div>{value.name}</div>
               </th>
             ))}
@@ -68,16 +70,16 @@ const TableMetricPrimary = ({
                 <th className="align-middle" scope="row">
                   {branch}
                 </th>
-                {primaryMetricStatistics.map((column) => (
-                  <TableVisualizationRow
-                    key={column.displayType}
-                    branchComparison={column.branchComparison}
-                    displayType={column.displayType}
-                    results={results[branch]}
-                    tableLabel={TABLE_LABEL.PRIMARY_METRICS}
-                    {...{ metricKey }}
-                  />
-                ))}
+                {primaryMetricStatistics.map(
+                  ({ displayType, branchComparison, value }) => (
+                    <TableVisualizationRow
+                      key={`${displayType}-${value}`}
+                      results={results[branch]}
+                      tableLabel={TABLE_LABEL.PRIMARY_METRICS}
+                      {...{ metricKey, displayType, branchComparison }}
+                    />
+                  ),
+                )}
               </tr>
             );
           })}

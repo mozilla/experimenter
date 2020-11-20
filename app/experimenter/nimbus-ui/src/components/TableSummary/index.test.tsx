@@ -55,9 +55,7 @@ describe("TableSummary", () => {
       );
       expect(
         screen.getByTestId("experiment-probe-secondary"),
-      ).toHaveTextContent(
-        "Secondary: Public-key intangible Graphical User Interface",
-      );
+      ).toHaveTextContent("Secondary: Feature B");
     });
     it("when neither are set", () => {
       const { data } = mockExperimentQuery("demo-slug", {

@@ -4,7 +4,6 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { RouterSlugProvider } from "../../lib/test-utils";
 import { withLinks } from "@storybook/addon-links";
 import { mockExperimentQuery } from "../../lib/mocks";
 import TableMetricPrimary from ".";
@@ -13,7 +12,7 @@ import { mockAnalysis } from "../../lib/visualization/mocks";
 storiesOf("visualization/TableMetricPrimary", module)
   .addDecorator(withLinks)
   .add("with positive primary metric", () => {
-    const { mock, data } = mockExperimentQuery("demo-slug", {
+    const { data } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
@@ -24,16 +23,14 @@ storiesOf("visualization/TableMetricPrimary", module)
     });
 
     return (
-      <RouterSlugProvider mocks={[mock]}>
-        <TableMetricPrimary
-          results={mockAnalysis().overall}
-          probeSet={data!.primaryProbeSets![0]}
-        />
-      </RouterSlugProvider>
+      <TableMetricPrimary
+        results={mockAnalysis().overall}
+        probeSet={data!.primaryProbeSets![0]!}
+      />
     );
   })
   .add("with negative primary metric", () => {
-    const { mock, data } = mockExperimentQuery("demo-slug", {
+    const { data } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
@@ -44,16 +41,14 @@ storiesOf("visualization/TableMetricPrimary", module)
     });
 
     return (
-      <RouterSlugProvider mocks={[mock]}>
-        <TableMetricPrimary
-          results={mockAnalysis().overall}
-          probeSet={data!.primaryProbeSets![0]}
-        />
-      </RouterSlugProvider>
+      <TableMetricPrimary
+        results={mockAnalysis().overall}
+        probeSet={data!.primaryProbeSets![0]!}
+      />
     );
   })
   .add("with neutral primary metric", () => {
-    const { mock, data } = mockExperimentQuery("demo-slug", {
+    const { data } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
@@ -64,11 +59,9 @@ storiesOf("visualization/TableMetricPrimary", module)
     });
 
     return (
-      <RouterSlugProvider mocks={[mock]}>
-        <TableMetricPrimary
-          results={mockAnalysis().overall}
-          probeSet={data!.primaryProbeSets![0]}
-        />
-      </RouterSlugProvider>
+      <TableMetricPrimary
+        results={mockAnalysis().overall}
+        probeSet={data!.primaryProbeSets![0]!}
+      />
     );
   });
