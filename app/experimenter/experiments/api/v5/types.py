@@ -120,6 +120,16 @@ class NimbusExperimentType(DjangoObjectType):
         model = NimbusExperiment
         exclude = ("branches", "probe_sets")
 
+    def resolve_reference_branch(self, info):
+        if self.reference_branch:
+            return self.reference_branch
+        return NimbusBranch(feature_enabled=False)
+
+    def resolve_treatment_branches(self, info):
+        if self.treatment_branches:
+            return self.treatment_branches
+        return [NimbusBranch(feature_enabled=False)]
+
     def resolve_ready_for_review(self, info):
         serializer = NimbusReadyForReviewSerializer(
             self,

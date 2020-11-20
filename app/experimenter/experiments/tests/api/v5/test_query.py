@@ -18,7 +18,9 @@ class TestNimbusQuery(GraphQLTestCase):
 
     def test_experiments(self):
         user_email = "user@example.com"
-        exp = NimbusExperimentFactory.create_with_status(NimbusExperiment.Status.DRAFT)
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT
+        )
 
         response = self.query(
             """
@@ -37,7 +39,81 @@ class TestNimbusQuery(GraphQLTestCase):
         experiments = content["data"]["experiments"]
         self.assertEqual(len(experiments), 1)
         for key in experiments[0]:
-            self.assertEqual(experiments[0][key], str(getattr(exp, to_snake_case(key))))
+            self.assertEqual(
+                experiments[0][key], str(getattr(experiment, to_snake_case(key)))
+            )
+
+    def test_experiments_with_no_branches_returns_empty_values(self):
+        user_email = "user@example.com"
+        NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT, branches=[]
+        )
+
+        response = self.query(
+            """
+            query {
+                experiments {
+                    referenceBranch {
+                        name
+                        slug
+                        description
+                        ratio
+                    }
+                    treatmentBranches {
+                        name
+                        slug
+                        description
+                        ratio
+                    }
+                }
+            }
+            """,
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experiments"][0]
+        self.assertEqual(
+            experiment_data["referenceBranch"],
+            {"name": "", "slug": "", "description": "", "ratio": 1},
+        )
+        self.assertEqual(
+            experiment_data["treatmentBranches"],
+            [{"name": "", "slug": "", "description": "", "ratio": 1}],
+        )
+
+    def test_experiments_with_branches_returns_branch_data(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+        )
+
+        response = self.query(
+            """
+            query {
+                experiments {
+                    referenceBranch {
+                        slug
+                    }
+                    treatmentBranches {
+                        slug
+                    }
+                }
+            }
+            """,
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experiments"][0]
+        self.assertEqual(
+            experiment_data["referenceBranch"],
+            {"slug": experiment.reference_branch.slug},
+        )
+        self.assertEqual(
+            {b["slug"] for b in experiment_data["treatmentBranches"]},
+            {b.slug for b in experiment.treatment_branches},
+        )
 
     def test_experiments_by_status(self):
         user_email = "user@example.com"
