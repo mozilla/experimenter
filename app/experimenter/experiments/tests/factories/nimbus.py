@@ -91,7 +91,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             # Simple build, do nothing.
             return
 
-        if extracted:
+        if isinstance(extracted, Iterable):
             # A list of groups were passed in, use them
             for project in extracted:
                 self.projects.add(project)
@@ -99,13 +99,24 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             for i in range(3):
                 self.projects.add(ProjectFactory.create())
 
+    @factory.post_generation
+    def branches(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if isinstance(extracted, Iterable):
+            # A list of groups were passed in, use them
+            for branch in extracted:
+                self.branches.add(branch)
+        else:
+            NimbusBranchFactory.create(experiment=self)
+            self.reference_branch = NimbusBranchFactory.create(experiment=self)
+            self.save()
+
     @classmethod
     def create_with_status(cls, target_status, **kwargs):
         experiment = cls.create(**kwargs)
-
-        NimbusBranchFactory.create(experiment=experiment)
-        experiment.reference_branch = NimbusBranchFactory.create(experiment=experiment)
-        experiment.save()
 
         for status, _ in NimbusExperiment.Status.choices:
             experiment.status = status
