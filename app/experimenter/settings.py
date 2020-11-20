@@ -363,15 +363,18 @@ MARKUS_BACKEND = [
 ]
 
 # Normandy URLs
-DELIVERY_CONSOLE_HOST = config("DELIVERY_CONSOLE_HOST")
-DELIVERY_CONSOLE_NEW_RECIPE_URL = urljoin(DELIVERY_CONSOLE_HOST, "/recipe/new/")
-DELIVERY_CONSOLE_RECIPE_URL = urljoin(DELIVERY_CONSOLE_HOST, "/recipe/{id}/")
-DELIVERY_CONSOLE_EXPERIMENT_IMPORT_URL = urljoin(
-    DELIVERY_CONSOLE_HOST, "/recipe/import/{slug}/"
-)
 NORMANDY_API_HOST = config("NORMANDY_API_HOST")
 NORMANDY_API_RECIPE_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/{id}/")
 NORMANDY_API_RECIPES_LIST_URL = urljoin(NORMANDY_API_HOST, "/api/v3/recipe/")
+
+NORMANDY_DEVTOOLS_HOST = config("NORMANDY_DEVTOOLS_HOST")
+NORMANDY_DEVTOOLS_RECIPE_URL = "{root}{recipe_url}".format(
+    root=NORMANDY_DEVTOOLS_HOST, recipe_url="/recipes/{id}"
+)
+NORMANDY_DEVTOOLS_RECIPE_IMPORT_URL = "{root}{import_url}".format(
+    root=NORMANDY_DEVTOOLS_HOST, import_url="/recipes/import/{slug}"
+)
+
 
 # Jira URL
 JIRA_URL = config(

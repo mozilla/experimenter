@@ -410,12 +410,11 @@ class Experiment(ExperimentConstants, models.Model):
         return self.recipe_slug or self.normandy_id
 
     @property
-    def format_dc_normandy_urls(self):
+    def format_ndt_normandy_urls(self):
         # returns a list of dictionaries containing D.C. and Normandy
         # urls for the main normandy id and other normandy ids if they exist
         normandy_recipe_url = settings.NORMANDY_API_RECIPE_URL
-        delivery_console_url = settings.DELIVERY_CONSOLE_RECIPE_URL
-
+        ndt_recipe_url = settings.NORMANDY_DEVTOOLS_RECIPE_URL
         urls = []
 
         if self.normandy_id:
@@ -423,7 +422,7 @@ class Experiment(ExperimentConstants, models.Model):
                 {
                     "id": self.normandy_id,
                     "normandy_url": normandy_recipe_url.format(id=self.normandy_id),
-                    "DC_url": delivery_console_url.format(id=self.normandy_id),
+                    "ndt_url": ndt_recipe_url.format(id=self.normandy_id),
                 }
             )
 
@@ -433,15 +432,15 @@ class Experiment(ExperimentConstants, models.Model):
                         {
                             "id": norm_id,
                             "normandy_url": normandy_recipe_url.format(id=norm_id),
-                            "DC_url": delivery_console_url.format(id=norm_id),
+                            "ndt_url": ndt_recipe_url.format(id=norm_id),
                         }
                     )
 
         return urls
 
     @property
-    def delivery_console_experiment_import_url(self):
-        return settings.DELIVERY_CONSOLE_EXPERIMENT_IMPORT_URL.format(slug=self.slug)
+    def normandy_devtools_import_url(self):
+        return settings.NORMANDY_DEVTOOLS_RECIPE_IMPORT_URL.format(slug=self.slug)
 
     @property
     def api_recipe_url(self):
