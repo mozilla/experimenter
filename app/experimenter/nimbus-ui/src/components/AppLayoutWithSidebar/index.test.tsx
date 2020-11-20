@@ -10,6 +10,7 @@ import { BASE_PATH } from "../../lib/constants";
 import { RouteComponentProps, Router } from "@reach/router";
 import App from "../App";
 import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
+import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 const { mock } = mockExperimentQuery("my-special-slug");
 
@@ -27,9 +28,11 @@ describe("AppLayoutWithSidebar", () => {
   });
 
   describe("navigation links", () => {
-    const SidebarRoot: React.FunctionComponent<RouteComponentProps> = () => (
+    const SidebarRoot = ({
+      status = NimbusExperimentStatus.DRAFT,
+    }: RouteComponentProps & { status?: NimbusExperimentStatus }) => (
       <MockedCache mocks={[mock]}>
-        <AppLayoutWithSidebar>
+        <AppLayoutWithSidebar {...{ status }}>
           <p>Hello, world!</p>
         </AppLayoutWithSidebar>
       </MockedCache>
@@ -145,6 +148,48 @@ describe("AppLayoutWithSidebar", () => {
 
       expect(screen.queryByTestId("missing-details")).not.toBeInTheDocument();
       expect(screen.queryByTestId("nav-request-review")).toBeInTheDocument();
+    });
+
+    it("when in review, disables all edit page links", async () => {
+      renderWithRouter(
+        <MockedCache mocks={[mock]}>
+          <AppLayoutWithSidebar status={NimbusExperimentStatus.REVIEW}>
+            <p data-testid="test-child">Hello, world!</p>
+          </AppLayoutWithSidebar>
+        </MockedCache>,
+      );
+
+      // In review these should all not be <a> tags, but instead <span>s
+      ["overview", "branches", "metrics", "audience"].forEach((slug) => {
+        expect(screen.getByTestId(`nav-edit-${slug}`).tagName).toEqual("SPAN");
+      });
+    });
+
+    it("when live, hides edit and review links, displays design and result links", async () => {
+      renderWithRouter(
+        <Router>
+          <SidebarRoot path="/:slug" status={NimbusExperimentStatus.LIVE} />
+        </Router>,
+        { route: `/my-special-slug` },
+      );
+
+      [
+        "edit-overview",
+        "edit-branches",
+        "edit-metrics",
+        "edit-audience",
+        "edit-request-review",
+      ].forEach((slug) => {
+        expect(screen.queryByTestId(`nav-${slug}`)).not.toBeInTheDocument();
+      });
+
+      ["design", "results"].forEach((slug) => {
+        expect(screen.queryByTestId(`nav-${slug}`)).toBeInTheDocument();
+        expect(screen.queryByTestId(`nav-${slug}`)).toHaveAttribute(
+          "href",
+          `${BASE_PATH}/my-special-slug/${slug}`,
+        );
+      });
     });
   });
 });

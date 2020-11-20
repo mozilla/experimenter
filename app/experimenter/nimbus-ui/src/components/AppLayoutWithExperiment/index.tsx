@@ -11,6 +11,7 @@ import PageExperimentNotFound from "../PageExperimentNotFound";
 import { useExperiment } from "../../hooks";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import AppLayout from "../AppLayout";
+import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 type AppLayoutWithExperimentChildrenProps = {
   experiment: getExperiment_experimentBySlug;
@@ -65,7 +66,7 @@ const AppLayoutWithExperiment = ({
   const { name, status } = experiment;
 
   return (
-    <Layout {...{ sidebar, children, review }}>
+    <Layout {...{ sidebar, children, review }} status={experiment.status}>
       <section data-testid={testId}>
         <HeaderExperiment
           {...{
@@ -83,20 +84,21 @@ const AppLayoutWithExperiment = ({
   );
 };
 
-const Layout = ({
-  sidebar,
-  children,
-  review,
-}: {
+type LayoutProps = {
   sidebar: boolean;
   children: React.ReactElement;
+  status: NimbusExperimentStatus | null;
   review: {
     ready: boolean;
     invalidPages: string[];
   };
-}) =>
+};
+
+const Layout = ({ sidebar, children, review, status }: LayoutProps) =>
   sidebar ? (
-    <AppLayoutWithSidebar {...{ review }}>{children}</AppLayoutWithSidebar>
+    <AppLayoutWithSidebar {...{ status, review }}>
+      {children}
+    </AppLayoutWithSidebar>
   ) : (
     <AppLayout>{children}</AppLayout>
   );
