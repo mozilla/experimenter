@@ -24,8 +24,8 @@ describe("HeaderExperiment", () => {
     expect(screen.getByTestId("header-experiment-slug")).toHaveTextContent(
       "demo-slug",
     );
-    expect(screen.getByTestId("header-experiment-status")).toHaveTextContent(
-      "DRAFT",
-    );
+    expect(
+      screen.getByTestId("header-experiment-status-active"),
+    ).toHaveTextContent("Draft");
   });
 });

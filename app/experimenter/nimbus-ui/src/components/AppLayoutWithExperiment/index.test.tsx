@@ -52,15 +52,15 @@ describe("AppLayoutWithExperiment", () => {
       render(<Subject mocks={[mock, updatedMock]} polling />);
       await waitFor(() => {
         expect(
-          screen.getByTestId("header-experiment-status"),
-        ).toHaveTextContent(NimbusExperimentStatus.DRAFT);
+          screen.getByTestId("header-experiment-status-active"),
+        ).toHaveTextContent("Draft");
       });
 
       jest.advanceTimersByTime(POLL_INTERVAL);
       await waitFor(() => {
         expect(
-          screen.getByTestId("header-experiment-status"),
-        ).toHaveTextContent(NimbusExperimentStatus.REVIEW);
+          screen.getByTestId("header-experiment-status-active"),
+        ).toHaveTextContent("Review");
       });
     });
 
@@ -68,15 +68,15 @@ describe("AppLayoutWithExperiment", () => {
       render(<Subject mocks={[mock, updatedMock]} />);
       await waitFor(() => {
         expect(
-          screen.getByTestId("header-experiment-status"),
-        ).toHaveTextContent(NimbusExperimentStatus.DRAFT);
+          screen.getByTestId("header-experiment-status-active"),
+        ).toHaveTextContent("Draft");
       });
 
       jest.advanceTimersByTime(POLL_INTERVAL);
       await waitFor(() => {
         expect(
-          screen.getByTestId("header-experiment-status"),
-        ).toHaveTextContent(NimbusExperimentStatus.DRAFT);
+          screen.getByTestId("header-experiment-status-active"),
+        ).toHaveTextContent("Draft");
       });
     });
 
@@ -89,8 +89,8 @@ describe("AppLayoutWithExperiment", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByTestId("header-experiment-status"),
-        ).toHaveTextContent(NimbusExperimentStatus.DRAFT);
+          screen.getByTestId("header-experiment-status-active"),
+        ).toHaveTextContent("Draft");
       });
 
       window.history.pushState({}, "", `${BASE_PATH}/demo-slug/edit/overview`);
@@ -100,8 +100,8 @@ describe("AppLayoutWithExperiment", () => {
       // updatedMock should not be hit
       await waitFor(() => {
         expect(
-          screen.getByTestId("header-experiment-status"),
-        ).toHaveTextContent(NimbusExperimentStatus.DRAFT);
+          screen.getByTestId("header-experiment-status-active"),
+        ).toHaveTextContent("Draft");
       });
     });
   });
