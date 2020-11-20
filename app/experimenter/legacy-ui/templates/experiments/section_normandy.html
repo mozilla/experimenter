@@ -7,7 +7,7 @@ Info {% endblock %} {% block section_content %} {% if experiment.recipe_slug %}
 {% endif %} {% if experiment.normandy_id %}
 <p><strong>Normandy Recipe IDs:</strong></p>
 
-{% for entry in experiment.format_dc_normandy_urls %}
+{% for entry in experiment.format_ndt_normandy_urls %}
 <p class="mb-3">
   <code>{{ entry.id }}</code> :
   <span data-ndt-add-class="d-none">
