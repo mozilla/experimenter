@@ -5,16 +5,12 @@
 import React from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
-type HeaderEditExperimentProps = Pick<
+type HeaderExperimentProps = Pick<
   getExperiment_experimentBySlug,
   "name" | "slug" | "status"
 >;
 
-const HeaderEditExperiment = ({
-  name,
-  slug,
-  status,
-}: HeaderEditExperimentProps) => (
+const HeaderExperiment = ({ name, slug, status }: HeaderExperimentProps) => (
   <header className="border-bottom" data-testid="header-experiment">
     <h1 className="h5 font-weight-normal" data-testid="header-experiment-name">
       {name}
@@ -29,4 +25,4 @@ const HeaderEditExperiment = ({
   </header>
 );
 
-export default HeaderEditExperiment;
+export default HeaderExperiment;
