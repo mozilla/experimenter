@@ -116,7 +116,7 @@ export const AppLayoutWithSidebar = ({
           </nav>
         </Col>
         <Col className="ml-auto mr-auto col-md-9 col-xl-10 pt-5 px-md-3 px-lg-5">
-          <main>{children}</main>
+          <main className="container-lg mx-auto">{children}</main>
         </Col>
       </Row>
     </Container>
