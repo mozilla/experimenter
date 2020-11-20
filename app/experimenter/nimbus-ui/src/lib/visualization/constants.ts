@@ -69,6 +69,19 @@ export const METRIC_TYPE = {
   },
 };
 
+export const BRANCH_COMPARISON = {
+  ABSOLUTE: "absolute",
+  DIFFERENCE: "difference",
+  UPLIFT: "relative_uplift",
+};
+
+export const TABLE_LABEL = {
+  HIGHLIGHTS: "highlights",
+  RESULTS: "results",
+  PRIMARY_METRICS: "primary_metrics",
+  SECONDARY_METRICS: "secondary_metrics",
+};
+
 // This is used as an ordered list of items to
 // display in the highlights table from top to bottom.
 export const HIGHLIGHTS_METRICS_LIST = [
@@ -106,12 +119,6 @@ export const RESULTS_METRICS_LIST = [
   },
 ];
 
-export const BRANCH_COMPARISON = {
-  ABSOLUTE: "absolute",
-  DIFFERENCE: "difference",
-  UPLIFT: "relative_uplift",
-};
-
 // This is used as an ordered list of items to
 // display in the primary metric table from left to right.
 export const PRIMARY_METRIC_COLUMNS = [
@@ -131,8 +138,17 @@ export const PRIMARY_METRIC_COLUMNS = [
   },
 ];
 
-export const TABLE_LABEL = {
-  HIGHLIGHTS: "highlights",
-  RESULTS: "results",
-  PRIMARY_METRICS: "primary_metrics",
-};
+// This is used as an ordered list of items to
+// display in the secondary metric table from left to right.
+export const SECONDARY_METRIC_COLUMNS = [
+  {
+    name: "Count",
+    displayType: DISPLAY_TYPE.COUNT,
+    branchComparison: BRANCH_COMPARISON.ABSOLUTE,
+  },
+  {
+    name: "Relative Improvement",
+    displayType: DISPLAY_TYPE.CONVERSION_CHANGE,
+    branchComparison: BRANCH_COMPARISON.UPLIFT,
+  },
+];

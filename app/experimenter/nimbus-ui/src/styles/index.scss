@@ -62,6 +62,13 @@ $sizes: (
   @extend .bg-secondary;
 }
 
+.table-visualization-center {
+  @extend .table;
+  @extend .text-center;
+  @extend .mb-5;
+  @extend .border-bottom;
+}
+
 .border-3 {
   border-width: 3px !important;
 }

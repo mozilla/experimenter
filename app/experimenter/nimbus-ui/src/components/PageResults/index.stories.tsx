@@ -10,8 +10,11 @@ import { mockExperimentQuery } from "../../lib/mocks";
 import PageResults from ".";
 import fetchMock from "fetch-mock";
 import { mockAnalysis } from "../../lib/visualization/mocks";
+import { NimbusExperimentStatus } from "../../types/globalTypes";
 
-const { mock } = mockExperimentQuery("demo-slug");
+const { mock } = mockExperimentQuery("demo-slug", {
+  status: NimbusExperimentStatus.COMPLETE,
+});
 
 storiesOf("pages/Results", module)
   .addDecorator(withLinks)
