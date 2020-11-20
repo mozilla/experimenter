@@ -26,7 +26,7 @@ const getResultMetrics = (
   const resultsMetricsList = [...RESULTS_METRICS_LIST];
   probeSets.forEach((probeSet) => {
     resultsMetricsList.unshift({
-      value: `${probeSet!.slug.replace(/-/g, "_")}_ever_used`,
+      value: `${probeSet!.slug}_ever_used`,
       name: `${probeSet!.name} Conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
       type: METRIC_TYPE.PRIMARY,
@@ -43,17 +43,17 @@ const TableResults = ({
   const resultsMetricsList = getResultMetrics(primaryProbeSets);
 
   return (
-    <table className="table text-center mb-5" data-testid="table-results">
+    <table className="table-visualization-center" data-testid="table-results">
       <thead>
         <tr>
-          <th scope="col" className="border-bottom-0" />
+          <th scope="col" className="border-bottom-0 bg-light" />
           {resultsMetricsList.map((metric, index) => {
             const badgeClass = `badge ${metric.type?.badge}`;
             return (
               <th
-                key={index}
+                key={`${metric.type}-${index}`}
                 scope="col"
-                className="border-bottom-0 align-middle"
+                className="border-bottom-0 align-middle bg-light"
               >
                 <h3 className="h6 mb-0" data-tip={metric.tooltip}>
                   {metric.name}
@@ -84,7 +84,7 @@ const TableResults = ({
                 );
                 return (
                   <TableVisualizationRow
-                    key={metricKey}
+                    key={`${displayType}-${metricKey}`}
                     results={results[branch]}
                     tableLabel={TABLE_LABEL.RESULTS}
                     {...{ metricKey }}

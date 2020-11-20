@@ -29,7 +29,7 @@ const getHighlightMetrics = (
   const highlightMetricsList = [...HIGHLIGHTS_METRICS_LIST];
   probeSets.forEach((probeSet) => {
     highlightMetricsList.unshift({
-      value: `${probeSet!.slug.replace(/-/g, "_")}_ever_used`,
+      value: `${probeSet!.slug}_ever_used`,
       name: `${probeSet!.name} conversion`,
       tooltip: METRICS_TIPS.CONVERSION,
     });
@@ -45,7 +45,7 @@ const TableHighlights = ({
   const highlightMetricsList = getHighlightMetrics(primaryProbeSets);
 
   return (
-    <table data-testid="table-highlights" className="mt-4">
+    <table data-testid="table-highlights" className="table mt-4 mb-0">
       <tbody>
         {Object.keys(results).map((branch) => {
           const userCountMetric =
@@ -59,11 +59,11 @@ const TableHighlights = ({
                   participants ({userCountMetric["percent"]}%)
                 </p>
               </th>
-              <td className="p-1 p-lg-3">
+              <td className="p-1 p-lg-3 align-middle">
                 <span className="align-middle">All Users&nbsp;</span>
                 <Info data-tip={SEGMENT_TIPS.ALL_USERS} />
               </td>
-              <td className="pt-3 px-1 px-lg-3">
+              <td className="pt-3 px-3 pb-0">
                 {highlightMetricsList.map((metric) => {
                   const metricKey = metric.value;
                   const displayType = getTableDisplayType(
@@ -73,7 +73,7 @@ const TableHighlights = ({
                   );
                   return (
                     <TableVisualizationRow
-                      key={metricKey}
+                      key={`${displayType}-${metricKey}`}
                       metricName={metric.name}
                       results={results[branch]}
                       tableLabel={TABLE_LABEL.HIGHLIGHTS}
