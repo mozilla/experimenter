@@ -58,6 +58,11 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       label: "Desktop Nightly",
       value: "DESKTOP_NIGHTLY",
     },
+    {
+      __typename: "NimbusLabelValueType",
+      label: "Platypus Doorstop",
+      value: "PLATYPUS_DOORSTOP",
+    },
   ],
   featureConfig: [
     {
