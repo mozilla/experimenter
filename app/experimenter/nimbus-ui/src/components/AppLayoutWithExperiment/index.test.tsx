@@ -26,6 +26,15 @@ describe("AppLayoutWithExperiment", () => {
     });
   });
 
+  it("can render without a title", async () => {
+    const { mock } = mockExperimentQuery("demo-slug");
+    render(<Subject mocks={[mock]} withTitle={false} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("AppLayoutWithExperiment")).toBeInTheDocument();
+      expect(screen.queryByTestId("page-title")).not.toBeInTheDocument();
+    });
+  });
+
   it("does not render the sidebar if prop is set to false", async () => {
     const { mock } = mockExperimentQuery("demo-slug");
     render(<Subject mocks={[mock]} sidebar={false} />);
@@ -117,14 +126,16 @@ const Subject = ({
   mocks = [],
   polling = false,
   sidebar = true,
+  withTitle = true,
 }: {
   mocks?: React.ComponentProps<typeof RouterSlugProvider>["mocks"];
   polling?: boolean;
   sidebar?: boolean;
+  withTitle?: boolean;
 }) => (
   <RouterSlugProvider {...{ mocks }}>
     <AppLayoutWithExperiment
-      title="Howdy!"
+      title={withTitle ? "Howdy!" : undefined}
       testId="AppLayoutWithExperiment"
       {...{ polling, sidebar }}
     >
