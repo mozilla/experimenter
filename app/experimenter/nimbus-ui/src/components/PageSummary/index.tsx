@@ -6,6 +6,7 @@ import React from "react";
 import { RouteComponentProps } from "@reach/router";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import TableSummary from "../TableSummary";
+import SummaryTimeline from "../SummaryTimeline";
 
 type PageRequestReviewProps = {
   polling?: boolean;
@@ -15,12 +16,19 @@ const PageSummary: React.FunctionComponent<PageRequestReviewProps> = ({
   polling = true,
 }) => (
   <AppLayoutWithExperiment
-    title="Experiment Summary"
     testId="PageSummary"
     sidebar={false}
     {...{ polling }}
   >
-    {({ experiment }) => <TableSummary {...{ experiment }} />}
+    {({ experiment }) => (
+      <>
+        <h2 className="h5 mb-3">Timeline</h2>
+        <SummaryTimeline {...{ experiment }} />
+
+        <h2 className="h5 mb-3">Summary</h2>
+        <TableSummary {...{ experiment }} />
+      </>
+    )}
   </AppLayoutWithExperiment>
 );
 

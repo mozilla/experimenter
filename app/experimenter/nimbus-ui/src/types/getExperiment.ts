@@ -86,6 +86,8 @@ export interface getExperiment_experimentBySlug {
   proposedEnrollment: number | null;
   proposedDuration: number | null;
   readyForReview: getExperiment_experimentBySlug_readyForReview | null;
+  startDate: any | null;
+  endDate: any | null;
 }
 
 export interface getExperiment {
