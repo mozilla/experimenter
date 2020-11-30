@@ -24,6 +24,7 @@ describe("PageSummary", () => {
     // uses correct AppLayout
     expect(screen.queryByTestId("nav-sidebar")).not.toBeInTheDocument();
     expect(screen.queryByTestId("header-experiment")).toBeInTheDocument();
+    expect(screen.queryByTestId("summary-timeline")).toBeInTheDocument();
     expect(screen.queryByTestId("table-summary")).toBeInTheDocument();
   });
 });
