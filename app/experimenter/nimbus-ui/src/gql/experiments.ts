@@ -140,6 +140,9 @@ export const GET_EXPERIMENT_QUERY = gql`
         ready
         message
       }
+
+      startDate
+      endDate
     }
   }
 `;

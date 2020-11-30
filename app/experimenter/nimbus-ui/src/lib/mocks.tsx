@@ -299,6 +299,8 @@ export const mockExperimentQuery = (
               message: {},
               __typename: "NimbusReadyForReviewType",
             },
+            startDate: new Date().toISOString(),
+            endDate: new Date(Date.now() + 12096e5).toISOString(),
           },
           modifications,
         );
