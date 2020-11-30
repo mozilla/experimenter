@@ -4,8 +4,6 @@
 
 import React from "react";
 import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 
 type AppLayoutProps = {
   testid?: string;
@@ -15,9 +13,7 @@ type AppLayoutProps = {
 export const AppLayout = ({ children, testid = "main" }: AppLayoutProps) => {
   return (
     <Container fluid as="main" className="h-100 pt-5" data-testid={testid}>
-      <Row className="h-100">
-        <Col className="ml-auto mr-auto col-md-10 col-lg-8">{children}</Col>
-      </Row>
+      <div className="h-100 container-lg mx-auto">{children}</div>
     </Container>
   );
 };
