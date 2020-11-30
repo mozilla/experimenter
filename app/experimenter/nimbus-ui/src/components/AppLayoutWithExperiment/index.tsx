@@ -26,7 +26,7 @@ type AppLayoutWithExperimentProps = {
     props: AppLayoutWithExperimentChildrenProps,
   ) => React.ReactNode | null;
   testId: string;
-  title: string;
+  title?: string;
   polling?: boolean;
   sidebar?: boolean;
 } & RouteComponentProps;
@@ -79,10 +79,12 @@ const AppLayoutWithExperiment = ({
             status,
           }}
         />
-        <h2 className="mt-3 mb-4 h4" data-testid="page-title">
-          {title}
-        </h2>
-        {children({ experiment, review })}
+        {title && (
+          <h2 className="mt-3 mb-4 h4" data-testid="page-title">
+            {title}
+          </h2>
+        )}
+        <div className="mt-4">{children({ experiment, review })}</div>
       </section>
     </Layout>
   );
