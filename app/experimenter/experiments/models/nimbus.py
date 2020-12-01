@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -367,7 +367,7 @@ class NimbusChangeLog(models.Model):
     )
     new_status = models.CharField(max_length=255, choices=NimbusExperiment.Status.choices)
     message = models.TextField(blank=True, null=True)
-    experiment_data = JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
+    experiment_data = models.JSONField(encoder=DjangoJSONEncoder, blank=True, null=True)
 
     class Meta:
         verbose_name = "Nimbus Experiment Change Log"
