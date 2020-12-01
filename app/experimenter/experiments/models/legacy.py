@@ -7,11 +7,11 @@ from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Max
+from django.db.models import JSONField, Max
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -239,22 +239,20 @@ class Experiment(ExperimentConstants, models.Model):
     feature_bugzilla_url = models.URLField(blank=True, null=True)
 
     # Risk fields
-    risk_partner_related = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_brand = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_fast_shipped = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_confidential = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_release_population = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_revenue = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_data_category = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_external_team_impact = models.NullBooleanField(
-        default=None, blank=True, null=True
-    )
-    risk_telemetry_data = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_ux = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_security = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_revision = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_technical = models.NullBooleanField(default=None, blank=True, null=True)
-    risk_higher_risk = models.NullBooleanField(default=None, blank=True, null=True)
+    risk_partner_related = models.BooleanField(default=None, blank=True, null=True)
+    risk_brand = models.BooleanField(default=None, blank=True, null=True)
+    risk_fast_shipped = models.BooleanField(default=None, blank=True, null=True)
+    risk_confidential = models.BooleanField(default=None, blank=True, null=True)
+    risk_release_population = models.BooleanField(default=None, blank=True, null=True)
+    risk_revenue = models.BooleanField(default=None, blank=True, null=True)
+    risk_data_category = models.BooleanField(default=None, blank=True, null=True)
+    risk_external_team_impact = models.BooleanField(default=None, blank=True, null=True)
+    risk_telemetry_data = models.BooleanField(default=None, blank=True, null=True)
+    risk_ux = models.BooleanField(default=None, blank=True, null=True)
+    risk_security = models.BooleanField(default=None, blank=True, null=True)
+    risk_revision = models.BooleanField(default=None, blank=True, null=True)
+    risk_technical = models.BooleanField(default=None, blank=True, null=True)
+    risk_higher_risk = models.BooleanField(default=None, blank=True, null=True)
 
     risk_technical_description = models.TextField(blank=True, null=True)
     risks = models.TextField(blank=True, null=True)
@@ -266,23 +264,23 @@ class Experiment(ExperimentConstants, models.Model):
 
     # Review Fields (sign-offs)
     # Required
-    review_science = models.NullBooleanField(default=None, blank=True, null=True)
-    review_engineering = models.NullBooleanField(default=None, blank=True, null=True)
-    review_qa_requested = models.NullBooleanField(default=None, blank=True, null=True)
-    review_intent_to_ship = models.NullBooleanField(default=None, blank=True, null=True)
-    review_bugzilla = models.NullBooleanField(default=None, blank=True, null=True)
-    review_qa = models.NullBooleanField(default=None, blank=True, null=True)
-    review_relman = models.NullBooleanField(default=None, blank=True, null=True)
+    review_science = models.BooleanField(default=None, blank=True, null=True)
+    review_engineering = models.BooleanField(default=None, blank=True, null=True)
+    review_qa_requested = models.BooleanField(default=None, blank=True, null=True)
+    review_intent_to_ship = models.BooleanField(default=None, blank=True, null=True)
+    review_bugzilla = models.BooleanField(default=None, blank=True, null=True)
+    review_qa = models.BooleanField(default=None, blank=True, null=True)
+    review_relman = models.BooleanField(default=None, blank=True, null=True)
 
     # Optional
-    review_advisory = models.NullBooleanField(default=None, blank=True, null=True)
-    review_legal = models.NullBooleanField(default=None, blank=True, null=True)
-    review_ux = models.NullBooleanField(default=None, blank=True, null=True)
-    review_security = models.NullBooleanField(default=None, blank=True, null=True)
-    review_vp = models.NullBooleanField(default=None, blank=True, null=True)
-    review_data_steward = models.NullBooleanField(default=None, blank=True, null=True)
-    review_comms = models.NullBooleanField(default=None, blank=True, null=True)
-    review_impacted_teams = models.NullBooleanField(default=None, blank=True, null=True)
+    review_advisory = models.BooleanField(default=None, blank=True, null=True)
+    review_legal = models.BooleanField(default=None, blank=True, null=True)
+    review_ux = models.BooleanField(default=None, blank=True, null=True)
+    review_security = models.BooleanField(default=None, blank=True, null=True)
+    review_vp = models.BooleanField(default=None, blank=True, null=True)
+    review_data_steward = models.BooleanField(default=None, blank=True, null=True)
+    review_comms = models.BooleanField(default=None, blank=True, null=True)
+    review_impacted_teams = models.BooleanField(default=None, blank=True, null=True)
 
     is_paused = models.BooleanField(default=False)
     is_high_population = models.BooleanField(default=False)
@@ -292,22 +290,18 @@ class Experiment(ExperimentConstants, models.Model):
     results_initial = models.TextField(blank=True, null=True)
     results_lessons_learned = models.TextField(blank=True, null=True)
 
-    results_fail_to_launch = models.NullBooleanField(default=None, blank=True, null=True)
-    results_recipe_errors = models.NullBooleanField(default=None, blank=True, null=True)
-    results_restarts = models.NullBooleanField(default=None, blank=True, null=True)
-    results_low_enrollment = models.NullBooleanField(default=None, blank=True, null=True)
-    results_early_end = models.NullBooleanField(default=None, blank=True, null=True)
-    results_no_usable_data = models.NullBooleanField(default=None, blank=True, null=True)
+    results_fail_to_launch = models.BooleanField(default=None, blank=True, null=True)
+    results_recipe_errors = models.BooleanField(default=None, blank=True, null=True)
+    results_restarts = models.BooleanField(default=None, blank=True, null=True)
+    results_low_enrollment = models.BooleanField(default=None, blank=True, null=True)
+    results_early_end = models.BooleanField(default=None, blank=True, null=True)
+    results_no_usable_data = models.BooleanField(default=None, blank=True, null=True)
     results_failures_notes = models.TextField(blank=True, null=True)
 
-    results_changes_to_firefox = models.NullBooleanField(
-        default=None, blank=True, null=True
-    )
-    results_data_for_hypothesis = models.NullBooleanField(
-        default=None, blank=True, null=True
-    )
-    results_confidence = models.NullBooleanField(default=None, blank=True, null=True)
-    results_measure_impact = models.NullBooleanField(default=None, blank=True, null=True)
+    results_changes_to_firefox = models.BooleanField(default=None, blank=True, null=True)
+    results_data_for_hypothesis = models.BooleanField(default=None, blank=True, null=True)
+    results_confidence = models.BooleanField(default=None, blank=True, null=True)
+    results_measure_impact = models.BooleanField(default=None, blank=True, null=True)
     results_impact_notes = models.TextField(blank=True, null=True)
 
     objects = ExperimentManager()
