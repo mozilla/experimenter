@@ -27,6 +27,8 @@ STATUS_UPDATE_MAPPING = {
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("experiments.tasks")
 
+QA_LAUNCH_MESSAGE = "Launched for QA"
+
 
 @app.task
 @metrics.timer_decorator("update_recipe_ids_to_experiments.timing")
@@ -108,20 +110,43 @@ def update_launched_experiments():
     metrics.incr("update_launched_experiments.completed")
 
 
+def is_qaOnly(recipe_data):
+    if "filter_object" in recipe_data:
+        filter_objects = {f["type"]: f for f in recipe_data["filter_object"]}
+        return "qaOnly" in filter_objects
+
+
+def is_alreadyQALaunched(experiment):
+    return experiment.changes.filter(
+        message=QA_LAUNCH_MESSAGE,
+    ).exists()
+
+
 def update_status_task(experiment, recipe_data):
     logger.info("Updating Experiment Status")
     enabler = normandy.get_recipe_state_enabler(recipe_data)
-    old_status = experiment.status
-    new_status = STATUS_UPDATE_MAPPING[old_status]
-    experiment.status = new_status
-    with transaction.atomic():
-        experiment.save()
 
-        experiment.changes.create(
-            changed_by=enabler, old_status=old_status, new_status=new_status
-        )
-        metrics.incr("update_experiment_info.updated")
-        logger.info("Experiment Status Updated")
+    if is_qaOnly(recipe_data):
+        if not is_alreadyQALaunched(experiment):
+            experiment.changes.create(
+                changed_by=enabler,
+                old_status=experiment.status,
+                new_status=experiment.status,
+                message=QA_LAUNCH_MESSAGE,
+            )
+
+    else:
+        old_status = experiment.status
+        new_status = STATUS_UPDATE_MAPPING[old_status]
+        experiment.status = new_status
+        with transaction.atomic():
+            experiment.save()
+
+            experiment.changes.create(
+                changed_by=enabler, old_status=old_status, new_status=new_status
+            )
+            metrics.incr("update_experiment_info.updated")
+            logger.info("Experiment Status Updated")
     return experiment
 
 
