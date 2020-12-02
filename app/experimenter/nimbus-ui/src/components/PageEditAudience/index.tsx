@@ -5,11 +5,22 @@
 import React from "react";
 import { RouteComponentProps } from "@reach/router";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
+import { useConfig } from "../../hooks";
+import FormAudience from "../FormAudience";
 
 const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
+  const config = useConfig();
+
   return (
     <AppLayoutWithExperiment title="Audience" testId="PageEditAudience">
-      {({ experiment }) => <p>{experiment.name}</p>}
+      {({ experiment }) => (
+        <FormAudience
+          {...{
+            experiment,
+            config,
+          }}
+        />
+      )}
     </AppLayoutWithExperiment>
   );
 };
