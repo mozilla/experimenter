@@ -333,6 +333,36 @@ describe("FormBranches", () => {
     expect(saveResult.referenceBranch).toEqual(expectedData);
     expect(saveResult.treatmentBranches[1]).toEqual(expectedData);
   });
+
+  it("displays warning icon when reference branch is not set and server requires it", async () => {
+    Object.defineProperty(window, "location", {
+      value: {
+        search: "?show-errors",
+      },
+    });
+
+    const isMissingField = jest.fn(() => true);
+    render(
+      <SubjectBranches
+        {...{
+          isMissingField,
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            readyForReview: {
+              __typename: "NimbusReadyForReviewType",
+              ready: false,
+              message: {
+                reference_branch: ["This field may not be null."],
+              },
+            },
+          },
+        }}
+      />,
+    );
+
+    expect(isMissingField).toHaveBeenCalled();
+    expect(screen.queryByTestId("missing-control")).toBeInTheDocument();
+  });
 });
 
 async function fillInBranch(

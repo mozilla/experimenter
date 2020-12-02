@@ -49,6 +49,7 @@ export const SubjectBranches = ({
   onSave = () => {},
   onNext = () => {},
   saveOnInitialRender = false,
+  isMissingField = () => false,
 }: Partial<React.ComponentProps<typeof FormBranches>> & {
   saveOnInitialRender?: boolean;
 } = {}) => {
@@ -71,6 +72,7 @@ export const SubjectBranches = ({
           featureConfig,
           onSave,
           onNext,
+          isMissingField,
         }}
       />
     </div>

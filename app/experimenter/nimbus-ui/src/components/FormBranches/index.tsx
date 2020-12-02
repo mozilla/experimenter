@@ -30,6 +30,7 @@ export const FormBranches = ({
   featureConfig,
   onSave,
   onNext,
+  isMissingField,
 }: {
   isLoading: boolean;
   experiment: getExperiment_experimentBySlug;
@@ -40,6 +41,7 @@ export const FormBranches = ({
     clearSubmitErrors: Function,
   ) => void;
   onNext: () => void;
+  isMissingField: (fieldName: string) => boolean;
 }) => {
   const [
     {
@@ -178,6 +180,7 @@ export const FormBranches = ({
               isReference: true,
               branch: { ...referenceBranch, key: "branch-reference" },
               onChange: handleUpdateBranch(REFERENCE_BRANCH_IDX),
+              showMissingIcon: isMissingField("reference_branch"),
             }}
           />
         )}
