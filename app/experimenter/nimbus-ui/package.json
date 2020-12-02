@@ -15,7 +15,7 @@
     "storybook": "start-storybook -p 3001 --no-version-updates",
     "build-storybook": "build-storybook",
     "eject": "react-scripts eject",
-    "generate-types": "apollo codegen:generate --target typescript --outputFlat src/types"
+    "generate-types": "apollo codegen:generate --target typescript --outputFlat src/types --passthroughCustomScalars"
   },
   "jest": {
     "collectCoverageFrom": [

@@ -50,7 +50,7 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
         }
         const { message, nimbusExperiment } = result.data.createExperiment;
 
-        if (message !== "success" && typeof message === "object") {
+        if (message && message !== "success" && typeof message === "object") {
           setIsServerValid(false);
           return void setSubmitErrors(message);
         } else {

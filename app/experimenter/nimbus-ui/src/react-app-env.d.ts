@@ -3,3 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /// <reference types="react-scripts" />
+
+type DateTime = string;
+type ObjectField = Record<string, any> | string;

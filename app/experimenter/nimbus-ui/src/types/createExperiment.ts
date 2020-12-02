@@ -20,7 +20,7 @@ export interface createExperiment_createExperiment_nimbusExperiment {
 export interface createExperiment_createExperiment {
   __typename: "CreateExperiment";
   clientMutationId: string | null;
-  message: any | null;
+  message: ObjectField | null;
   status: number | null;
   nimbusExperiment: createExperiment_createExperiment_nimbusExperiment | null;
 }

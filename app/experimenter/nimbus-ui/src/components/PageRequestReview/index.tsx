@@ -50,7 +50,7 @@ const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = ({
 
       const { message } = result.data.updateExperimentStatus;
 
-      if (message !== "success" && typeof message === "object") {
+      if (message && message !== "success" && typeof message === "object") {
         return void setSubmitError(message.status.join(", "));
       }
 

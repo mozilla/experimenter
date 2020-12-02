@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { updateExperimentBranches_updateExperimentBranches } from "../../../types/updateExperimentBranches";
 import {
   AnnotatedBranch,
   FormBranchesState,
@@ -195,7 +194,7 @@ function setEqualRatio(
 
 type SetSubmitErrorsAction = {
   type: "setSubmitErrors";
-  submitErrors: updateExperimentBranches_updateExperimentBranches["message"];
+  submitErrors: Record<string, any> | null;
 };
 
 function setSubmitErrors(
@@ -205,6 +204,10 @@ function setSubmitErrors(
   let { referenceBranch, treatmentBranches } = state;
   const { submitErrors } = action;
   const globalErrors = [];
+
+  if (!submitErrors) {
+    return state;
+  }
 
   for (const name of ["*", "feature_config"]) {
     if (Array.isArray(submitErrors[name])) {

@@ -60,7 +60,7 @@ export interface getExperiment_experimentBySlug_secondaryProbeSets {
 export interface getExperiment_experimentBySlug_readyForReview {
   __typename: "NimbusReadyForReviewType";
   ready: boolean | null;
-  message: any | null;
+  message: ObjectField | null;
 }
 
 export interface getExperiment_experimentBySlug {
@@ -87,8 +87,8 @@ export interface getExperiment_experimentBySlug {
   proposedEnrollment: number | null;
   proposedDuration: number | null;
   readyForReview: getExperiment_experimentBySlug_readyForReview | null;
-  startDate: any | null;
-  endDate: any | null;
+  startDate: DateTime | null;
+  endDate: DateTime | null;
 }
 
 export interface getExperiment {
