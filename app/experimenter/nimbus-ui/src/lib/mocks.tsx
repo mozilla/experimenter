@@ -247,6 +247,7 @@ export const mockExperimentQuery = (
             name: "Open-architected background installation",
             slug,
             status: "DRAFT",
+            monitoringDashboardUrl: "https://grafana.telemetry.mozilla.org",
             hypothesis: "Realize material say pretty.",
             application: "DESKTOP",
             publicDescription:
