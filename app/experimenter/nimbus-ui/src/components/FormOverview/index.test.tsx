@@ -205,4 +205,19 @@ describe("FormOverview", () => {
       expect(errorFeedback).toHaveAttribute("data-for", "name");
     });
   });
+
+  it("displays warning icon when public description is not filled out and server requires it", async () => {
+    Object.defineProperty(window, "location", {
+      value: {
+        search: "?show-errors",
+      },
+    });
+
+    const { data: experiment } = mockExperimentQuery("boo");
+    const isMissingField = jest.fn(() => true);
+    render(<Subject {...{ isMissingField, experiment }} />);
+
+    expect(isMissingField).toHaveBeenCalled();
+    expect(screen.queryByTestId("missing-description")).toBeInTheDocument();
+  });
 });
