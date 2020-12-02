@@ -8,8 +8,9 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Nav from "react-bootstrap/Nav";
-import { BASE_PATH } from "../../lib/constants";
 import classNames from "classnames";
+import { BASE_PATH } from "../../lib/constants";
+import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { ReactComponent as ChevronLeft } from "./chevron-left.svg";
 import { ReactComponent as Cog } from "./cog.svg";
 import { ReactComponent as Layers } from "./layers.svg";
@@ -18,16 +19,25 @@ import { ReactComponent as Person } from "./person.svg";
 import { ReactComponent as Clipboard } from "./clipboard.svg";
 import { ReactComponent as NotAllowed } from "./not-allowed.svg";
 import { ReactComponent as AlertCircle } from "./alert-circle.svg";
+import { ReactComponent as BarChart } from "./bar-chart.svg";
 
 type AppLayoutWithSidebarProps = {
   testid?: string;
   children: React.ReactNode;
-  // TODO: Will be updated as part of EXP-464 and EXP-466
+  status?: NimbusExperimentStatus | null;
   review?: {
     invalidPages: string[];
     ready: boolean;
   };
 } & RouteComponentProps;
+
+const experimentLocked = (status: NimbusExperimentStatus): boolean => {
+  return [
+    NimbusExperimentStatus.ACCEPTED,
+    NimbusExperimentStatus.LIVE,
+    NimbusExperimentStatus.COMPLETE,
+  ].includes(status);
+};
 
 const editPages = [
   {
@@ -55,9 +65,12 @@ const editPages = [
 export const AppLayoutWithSidebar = ({
   children,
   testid = "AppLayoutWithSidebar",
+  status,
   review,
 }: AppLayoutWithSidebarProps) => {
   const { slug } = useParams();
+  const locked = status && experimentLocked(status);
+  const inReview = status === NimbusExperimentStatus.REVIEW;
 
   return (
     <Container fluid className="h-100vh" data-testid={testid}>
@@ -78,39 +91,63 @@ export const AppLayoutWithSidebar = ({
                 <ChevronLeft className="ml-n1" width="18" height="18" />
                 Experiments
               </LinkNav>
-              {editPages.map((page, idx) => (
-                <LinkNav
-                  key={`sidebar-${page.name}-${idx}`}
-                  route={`${slug}/edit/${page.slug}`}
-                  storiesOf={`pages/Edit${page.name}`}
-                  testid={`nav-edit-${page.slug}`}
-                >
-                  {page.icon}
-                  {page.name}
-                  {review?.invalidPages.includes(page.slug) && (
-                    <AlertCircle
-                      className="ml-3"
-                      width="18"
-                      height="18"
-                      data-testid={`missing-detail-alert-${page.slug}`}
+              {locked ? (
+                <>
+                  <LinkNav
+                    route={`${slug}/design`}
+                    storiesOf={`pages/Design`}
+                    testid={`nav-design`}
+                  >
+                    <Clipboard className="mr-3" width="18" height="18" />
+                    Design
+                  </LinkNav>
+                  <LinkNav
+                    route={`${slug}/results`}
+                    storiesOf={`pages/Results`}
+                    testid={`nav-results`}
+                  >
+                    <BarChart className="mr-3" width="18" height="18" />
+                    Results
+                  </LinkNav>
+                </>
+              ) : (
+                <>
+                  {editPages.map((page, idx) => (
+                    <LinkNav
+                      key={`sidebar-${page.name}-${idx}`}
+                      route={`${slug}/edit/${page.slug}`}
+                      storiesOf={`pages/Edit${page.name}`}
+                      testid={`nav-edit-${page.slug}`}
+                      disabled={inReview}
+                    >
+                      {page.icon}
+                      {page.name}
+                      {review?.invalidPages.includes(page.slug) && (
+                        <AlertCircle
+                          className="ml-3"
+                          width="18"
+                          height="18"
+                          data-testid={`missing-detail-alert-${page.slug}`}
+                        />
+                      )}
+                    </LinkNav>
+                  ))}
+                  {!review || review.ready || inReview ? (
+                    <LinkNav
+                      route={`${slug}/request-review`}
+                      storiesOf="pages/RequestReview"
+                      testid="nav-request-review"
+                    >
+                      <Clipboard className="mr-3" width="18" height="18" />
+                      Review &amp; Launch
+                    </LinkNav>
+                  ) : (
+                    <MissingDetails
+                      experimentSlug={slug}
+                      invalidPages={review.invalidPages}
                     />
                   )}
-                </LinkNav>
-              ))}
-              {!review || review.ready ? (
-                <LinkNav
-                  route={`${slug}/request-review`}
-                  storiesOf="pages/RequestReview"
-                  testid="nav-request-review"
-                >
-                  <Clipboard className="mr-3" width="18" height="18" />
-                  Review &amp; Launch
-                </LinkNav>
-              ) : (
-                <MissingDetails
-                  experimentSlug={slug}
-                  invalidPages={review.invalidPages}
-                />
+                </>
               )}
             </Nav>
           </nav>
@@ -125,6 +162,7 @@ export const AppLayoutWithSidebar = ({
 
 type LinkNavProps = {
   children: React.ReactNode;
+  disabled?: boolean;
   route?: string;
   storiesOf: string;
   testid?: string;
@@ -135,6 +173,7 @@ type LinkNavProps = {
 const LinkNav = ({
   route,
   children,
+  disabled = false,
   storiesOf,
   testid = "nav-home",
   className,
@@ -145,19 +184,31 @@ const LinkNav = ({
   // functionality; explicitely setting it here allows us to test.
   // eslint-disable-next-line
   const isCurrentPage = location.pathname === to;
+
+  // If we supplied a text color, use it. Otherwise use current page colors
+  textColor = textColor || (isCurrentPage ? "text-primary" : "text-dark");
+  // But if the link is disabled, override any existing color
+  textColor = disabled ? "text-muted" : textColor;
+
   return (
     <Nav.Item as="li" className={classNames("mx-1 my-2", className)}>
-      <Link
-        {...{ to }}
-        data-sb-kind={storiesOf}
-        className={classNames(
-          textColor ? textColor : isCurrentPage ? "text-primary" : "text-dark",
-          "d-flex align-items-center",
-        )}
-        data-testid={testid}
-      >
-        {children}
-      </Link>
+      {disabled ? (
+        <span
+          className={classNames(textColor, "d-flex align-items-center")}
+          data-testid={testid}
+        >
+          {children}
+        </span>
+      ) : (
+        <Link
+          {...{ to }}
+          data-sb-kind={storiesOf}
+          className={classNames(textColor, "d-flex align-items-center")}
+          data-testid={testid}
+        >
+          {children}
+        </Link>
+      )}
     </Nav.Item>
   );
 };
