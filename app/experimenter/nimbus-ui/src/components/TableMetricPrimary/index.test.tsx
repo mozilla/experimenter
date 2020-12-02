@@ -93,6 +93,7 @@ describe("TableMetricPrimary", () => {
       primaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
+          id: "1",
           slug: "feature_b",
           name: "Feature B",
         },
@@ -121,6 +122,7 @@ describe("TableMetricPrimary", () => {
       primaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
+          id: "1",
           slug: "feature_c",
           name: "Feature C",
         },

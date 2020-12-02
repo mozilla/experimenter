@@ -119,11 +119,13 @@ export const GET_EXPERIMENT_QUERY = gql`
       }
 
       primaryProbeSets {
+        id
         slug
         name
       }
 
       secondaryProbeSets {
+        id
         slug
         name
       }
