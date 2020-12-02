@@ -63,7 +63,7 @@ describe("PageResults", () => {
     await waitFor(() => {
       expect(screen.queryByTestId("link-monitoring-dashboard")).toHaveAttribute(
         "href",
-        "https://grafana.telemetry.mozilla.org/d/XspgvdxZz/experiment-enrollment?orgId=1&var-experiment_id=demo-slug",
+        "https://grafana.telemetry.mozilla.org",
       );
     });
   });
