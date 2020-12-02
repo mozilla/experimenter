@@ -7,16 +7,19 @@ import { storiesOf } from "@storybook/react";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { withLinks } from "@storybook/addon-links";
 import { mockExperimentQuery } from "../../lib/mocks";
-import TableOverview from ".";
+import TableHighlightsOverview from ".";
 import { mockAnalysis } from "../../lib/visualization/mocks";
 
-storiesOf("visualization/TableOverview", module)
+storiesOf("visualization/TableHighlightsOverview", module)
   .addDecorator(withLinks)
   .add("basic, with one primary probe set", () => {
     const { mock, data } = mockExperimentQuery("demo-slug");
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableOverview experiment={data!} results={mockAnalysis().overall} />
+        <TableHighlightsOverview
+          experiment={data!}
+          results={mockAnalysis().overall}
+        />
       </RouterSlugProvider>
     );
   })
@@ -45,7 +48,10 @@ storiesOf("visualization/TableOverview", module)
     });
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableOverview experiment={data!} results={mockAnalysis().overall} />
+        <TableHighlightsOverview
+          experiment={data!}
+          results={mockAnalysis().overall}
+        />
       </RouterSlugProvider>
     );
   });

@@ -8,7 +8,7 @@ import { AnalysisData } from "../../lib/visualization/types";
 import { useConfig } from "../../hooks";
 import { getConfig_nimbusConfig } from "../../types/getConfig";
 
-type TableOverviewProps = {
+type TableHighlightsOverviewProps = {
   experiment: getExperiment_experimentBySlug;
   results: AnalysisData["overall"];
 };
@@ -18,7 +18,9 @@ type displayConfigOptionsProps =
   | getConfig_nimbusConfig["channels"]
   | getConfig_nimbusConfig["targetingConfigSlug"];
 
-const TableOverview = ({ experiment }: TableOverviewProps) => {
+const TableHighlightsOverview = ({
+  experiment,
+}: TableHighlightsOverviewProps) => {
   const { firefoxMinVersion, channels, targetingConfigSlug } = useConfig();
 
   return (
@@ -78,4 +80,4 @@ const displayConfigLabel = (
   return options?.find((obj: any) => obj.value === value)?.label;
 };
 
-export default TableOverview;
+export default TableHighlightsOverview;

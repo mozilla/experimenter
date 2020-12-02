@@ -6,155 +6,81 @@ import React from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { Table } from "react-bootstrap";
 import { useConfig } from "../../hooks";
-import { getConfig_nimbusConfig } from "../../types/getConfig";
+import { displayConfigLabelOrNotSet, NotSet } from "../Summary";
 
 type TableSummaryProps = {
   experiment: getExperiment_experimentBySlug;
 };
 
+// `<tr>`s showing optional fields that are not set are not displayed.
+
 const TableSummary = ({ experiment }: TableSummaryProps) => {
-  const { firefoxMinVersion, channels, targetingConfigSlug } = useConfig();
+  const { application } = useConfig();
 
   return (
-    <Table striped bordered data-testid="table-summary">
+    <Table striped bordered data-testid="table-summary" className="mb-4">
       <tbody>
         <tr>
-          <th className="font-weight-bold">Experiment Owner</th>
-          <td data-testid="experiment-owner">
-            {experiment.owner?.email ? experiment.owner.email : notSet("Owner")}
+          <th className="w-33">Slug</th>
+          <td data-testid="experiment-slug" className="text-monospace">
+            {experiment.slug}
           </td>
         </tr>
         <tr>
-          <th className="font-weight-bold">
-            <b>Hypothesis</b>
-          </th>
-          <td data-testid="experiment-hypothesis">
-            {experiment.hypothesis
-              ? experiment.hypothesis
-              : notSet("Hypothesis")}
+          <th>Experiment owner</th>
+          <td data-testid="experiment-owner">{experiment.owner!.email}</td>
+        </tr>
+        <tr>
+          <th>Application</th>
+          <td data-testid="experiment-application">
+            {displayConfigLabelOrNotSet(experiment.application, application)}
           </td>
         </tr>
         <tr>
-          <th className="font-weight-bold">Probe Sets</th>
-          <td>
-            <span data-testid="experiment-probe-primary" className="d-block">
-              Primary:{" "}
-              {experiment.primaryProbeSets?.length
-                ? experiment.primaryProbeSets
-                    .map((probeSet) => probeSet?.name)
-                    .join(", ")
-                : notSet("probe")}
-            </span>
-            <span data-testid="experiment-probe-secondary">
-              Secondary:{" "}
-              {experiment.secondaryProbeSets?.length
-                ? experiment.secondaryProbeSets
-                    .map((probeSet) => probeSet?.name)
-                    .join(", ")
-                : notSet("probe")}
-            </span>
-          </td>
+          <th>Hypothesis</th>
+          <td data-testid="experiment-hypothesis">{experiment.hypothesis}</td>
         </tr>
         <tr>
-          <th className="font-weight-bold">Audience</th>
-          <td>
-            <span data-testid="experiment-target">
-              {displayConfigLabelOrNotSet(
-                "Target audience",
-                experiment.targetingConfigSlug,
-                targetingConfigSlug,
-              )}
-              ,{" "}
-            </span>
-            <span data-testid="experiment-channels">
-              {experiment.channels?.length
-                ? experiment.channels
-                    .map((expChannel) =>
-                      displayConfigLabelOrNotSet(
-                        "channel",
-                        expChannel,
-                        channels,
-                      ),
-                    )
-                    .join(", ")
-                : notSet("channel")}
-              {", "}
-            </span>
-            <span data-testid="experiment-ff-min">
-              {displayConfigLabelOrNotSet(
-                "Firefox minimum version",
-                experiment.firefoxMinVersion,
-                firefoxMinVersion,
-              )}
-            </span>
-            <span className="d-block">
-              <span data-testid="experiment-population">
-                {experiment.populationPercent
-                  ? `${experiment.populationPercent}% of population`
-                  : notSet("Population percentage")}
-              </span>
-              <span data-testid="experiment-total-enrolled">
-                {" "}
-                totalling{" "}
-                {experiment.totalEnrolledClients
-                  ? `${experiment.totalEnrolledClients.toLocaleString()} expected enrolled clients`
-                  : notSet("expected enrolled clients")}
-              </span>
-            </span>
+          <th>Public description</th>
+          <td data-testid="experiment-description">
+            {experiment.publicDescription ? (
+              experiment.publicDescription
+            ) : (
+              <NotSet />
+            )}
           </td>
         </tr>
-        <tr>
-          <th className="font-weight-bold">Duration</th>
-          <td>
-            <span data-testid="experiment-duration">
-              {displayDaysOrNotSet(
-                "Proposed duration",
-                experiment.proposedDuration,
-              )}{" "}
-            </span>
-            <span data-testid="experiment-enrollment">
-              over an enrollment period of{" "}
-              {displayDaysOrNotSet(
-                "proposed enrollment",
-                experiment.proposedEnrollment,
-              )}
-            </span>
-          </td>
-        </tr>
+        {experiment.featureConfig?.name && (
+          <tr>
+            <th>Feature config</th>
+            <td data-testid="experiment-feature-config">
+              {experiment.featureConfig.name}
+            </td>
+          </tr>
+        )}
+        {experiment.primaryProbeSets?.length !== 0 && (
+          <tr>
+            <th>Primary probe sets</th>
+            <td data-testid="experiment-probe-primary">
+              {experiment
+                .primaryProbeSets!.map((probeSet) => probeSet?.name)
+                .join(", ")}
+            </td>
+          </tr>
+        )}
+        {experiment.secondaryProbeSets?.length !== 0 && (
+          <tr>
+            <th>Secondary probe sets</th>
+            <td data-testid="experiment-probe-secondary">
+              {experiment
+                .secondaryProbeSets!.map((probeSet) => probeSet?.name)
+                .join(", ")}
+            </td>
+          </tr>
+        )}
       </tbody>
     </Table>
   );
 };
-
-type displayConfigOptionsProps =
-  | getConfig_nimbusConfig["firefoxMinVersion"]
-  | getConfig_nimbusConfig["channels"]
-  | getConfig_nimbusConfig["targetingConfigSlug"];
-
-const displayConfigLabelOrNotSet = (
-  description: string,
-  value: string | null,
-  options: displayConfigOptionsProps,
-) => {
-  if (!value) return notSet(description);
-  const label = options?.find((obj: any) => obj.value === value)?.label;
-  return label;
-};
-
-const displayDaysOrNotSet = (
-  description: string,
-  numberOfDays: number | null,
-) => {
-  if (!numberOfDays) return notSet(description);
-  if (numberOfDays === 1) {
-    return `${numberOfDays} day`;
-  } else {
-    return `${numberOfDays} days`;
-  }
-};
-
-const notSet = (description: string) => (
-  <span className="text-danger">{`${description} not set`}</span>
-);
 
 export default TableSummary;
