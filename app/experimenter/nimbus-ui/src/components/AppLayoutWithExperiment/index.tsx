@@ -15,6 +15,10 @@ import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 type AppLayoutWithExperimentChildrenProps = {
   experiment: getExperiment_experimentBySlug;
+  review: {
+    isMissingField: (fieldName: string) => boolean;
+    refetch: () => void;
+  };
 };
 
 type AppLayoutWithExperimentProps = {
@@ -78,7 +82,7 @@ const AppLayoutWithExperiment = ({
         <h2 className="mt-3 mb-4 h4" data-testid="page-title">
           {title}
         </h2>
-        {children({ experiment })}
+        {children({ experiment, review })}
       </section>
     </Layout>
   );
