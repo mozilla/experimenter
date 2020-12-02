@@ -46,7 +46,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
 
         const { message } = result.data.updateExperimentOverview;
 
-        if (message !== "success" && typeof message === "object") {
+        if (message && message !== "success" && typeof message === "object") {
           setIsServerValid(false);
           return void setSubmitErrors(message);
         } else {

@@ -17,7 +17,7 @@ export interface updateExperimentStatus_updateExperimentStatus_nimbusExperiment 
 export interface updateExperimentStatus_updateExperimentStatus {
   __typename: "UpdateExperimentStatus";
   clientMutationId: string | null;
-  message: any | null;
+  message: ObjectField | null;
   status: number | null;
   nimbusExperiment: updateExperimentStatus_updateExperimentStatus_nimbusExperiment | null;
 }
