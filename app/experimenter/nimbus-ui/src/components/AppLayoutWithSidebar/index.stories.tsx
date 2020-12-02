@@ -7,6 +7,7 @@ import { storiesOf } from "@storybook/react";
 import { withLinks } from "@storybook/addon-links";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import AppLayoutWithSidebar from ".";
+import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 storiesOf("components/AppLayoutWithSidebar", module)
   .addDecorator(withLinks)
@@ -25,6 +26,20 @@ storiesOf("components/AppLayoutWithSidebar", module)
           invalidPages: ["branches", "audience"],
         }}
       >
+        <p>App contents go here</p>
+      </AppLayoutWithSidebar>
+    </RouterSlugProvider>
+  ))
+  .add("status: review", () => (
+    <RouterSlugProvider>
+      <AppLayoutWithSidebar status={NimbusExperimentStatus.REVIEW}>
+        <p>App contents go here</p>
+      </AppLayoutWithSidebar>
+    </RouterSlugProvider>
+  ))
+  .add("status: live", () => (
+    <RouterSlugProvider>
+      <AppLayoutWithSidebar status={NimbusExperimentStatus.LIVE}>
         <p>App contents go here</p>
       </AppLayoutWithSidebar>
     </RouterSlugProvider>
