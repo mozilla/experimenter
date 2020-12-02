@@ -17,6 +17,24 @@ import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { createMutationMock } from "./mocks";
 
 describe("PageRequestReview", () => {
+  // This component is currently set up to handle an experiment
+  // that is live, accepted, and complete, and as a result also performs
+  // an analysis lookup. In practice, and when EXP-497 is complete, this
+  // page should not be accessed. For now I'm stubbing the console.error
+  // that occurs when the analysis lookup happens.
+  // TODO: EXP-497, remove branches and tests that handle locked experiment
+  // state, and remove this console.error stubbing
+  let origError: typeof global.console.error;
+
+  beforeEach(() => {
+    origError = global.console.error;
+    global.console.error = jest.fn();
+  });
+
+  afterEach(() => {
+    global.console.error = origError;
+  });
+
   async function checkRequiredBoxes() {
     const checkboxes = screen.queryAllByTestId("required-checkbox");
 
