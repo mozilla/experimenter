@@ -81,6 +81,7 @@ export const GET_EXPERIMENT_QUERY = gql`
       name
       slug
       status
+      monitoringDashboardUrl
 
       hypothesis
       application

@@ -31,9 +31,8 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
             <>
               <h3 className="h5 mb-3">Monitoring</h3>
               <p>
-                {/* TODO: start/end dates with EXP-607 */}
                 <LinkExternal
-                  href={`https://grafana.telemetry.mozilla.org/d/XspgvdxZz/experiment-enrollment?orgId=1&var-experiment_id=${slug}`}
+                  href={experiment.monitoringDashboardUrl!}
                   data-testid="link-monitoring-dashboard"
                 >
                   Click here
