@@ -23,6 +23,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
   const currentExperiment = useRef<getExperiment_experimentBySlug>();
+  const refetchReview = useRef<() => void>();
   const [isServerValid, setIsServerValid] = useState(true);
 
   const onFormSubmit = useCallback(
@@ -51,6 +52,8 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
         } else {
           setIsServerValid(true);
           setSubmitErrors({});
+          // In practice this should be defined by the time we get here
+          refetchReview.current!();
         }
       } catch (error) {
         setSubmitErrors({ "*": SUBMIT_ERROR });
@@ -65,14 +68,18 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
 
   return (
     <AppLayoutWithExperiment title="Overview" testId="PageEditOverview">
-      {({ experiment }) => {
+      {({ experiment, review }) => {
         currentExperiment.current = experiment;
+        refetchReview.current = review.refetch;
+
+        const { isMissingField } = review;
 
         return (
           <FormOverview
             {...{
               isLoading: loading,
               isServerValid,
+              isMissingField,
               experiment,
               submitErrors,
               onSubmit: onFormSubmit,

@@ -239,7 +239,7 @@ const MissingDetails = ({
               <Link
                 data-sb-kind={`pages/Edit${editPage.name}`}
                 data-testid={`missing-detail-link-${editPage.slug}`}
-                to={`${BASE_PATH}/${experimentSlug}/edit/${editPage.slug}`}
+                to={`${BASE_PATH}/${experimentSlug}/edit/${editPage.slug}?show-errors`}
               >
                 {editPage.name}
               </Link>
