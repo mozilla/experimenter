@@ -232,6 +232,20 @@ describe("formBranchesReducer", () => {
         ],
       });
     });
+
+    it("returns the same state if no submitErrors", () => {
+      const oldState = {
+        ...MOCK_STATE,
+        globalErrors: [],
+        referenceBranch: null,
+        treatmentBranches: null,
+      };
+      const newState = formBranchesActionReducer(oldState, {
+        type: "setSubmitErrors",
+        submitErrors: null,
+      });
+      expect(newState).toEqual(oldState);
+    });
   });
 
   describe("clearSubmitErrors", () => {
