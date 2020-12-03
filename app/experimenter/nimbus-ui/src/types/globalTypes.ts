@@ -111,6 +111,13 @@ export interface UpdateExperimentInput {
   publicDescription?: string | null;
 }
 
+export interface UpdateExperimentProbeSetsInput {
+  clientMutationId?: string | null;
+  nimbusExperimentId: number;
+  primaryProbeSetIds: (number | null)[];
+  secondaryProbeSetIds: (number | null)[];
+}
+
 export interface UpdateExperimentStatusInput {
   clientMutationId?: string | null;
   nimbusExperimentId: number;

@@ -74,6 +74,27 @@ export const UPDATE_EXPERIMENT_BRANCHES_MUTATION = gql`
   }
 `;
 
+export const UPDATE_EXPERIMENT_PROBESETS_MUTATION = gql`
+  mutation updateExperimentProbeSets($input: UpdateExperimentProbeSetsInput!) {
+    updateExperimentProbeSets(input: $input) {
+      clientMutationId
+      nimbusExperiment {
+        id
+        primaryProbeSets {
+          id
+          name
+        }
+        secondaryProbeSets {
+          id
+          name
+        }
+      }
+      message
+      status
+    }
+  }
+`;
+
 export const GET_EXPERIMENT_QUERY = gql`
   query getExperiment($slug: String!) {
     experimentBySlug(slug: $slug) {

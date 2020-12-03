@@ -20,7 +20,7 @@ type FormMetricsProps = {
   isServerValid: boolean;
   submitErrors: Record<string, string[]>;
   onSave: (data: Record<string, any>, reset: Function) => void;
-  onNext?: (ev: React.FormEvent) => void;
+  onNext: (ev: React.FormEvent) => void;
 };
 
 const FormMetrics = ({
@@ -38,11 +38,13 @@ const FormMetrics = ({
   const { isSubmitted, isDirty } = formState;
   const [selectedPrimaryProbeSetIds, setSelectedPrimaryProbeSetIds] = useState<
     string[]
-  >([]);
+  >(experiment?.primaryProbeSets?.map((p) => p?.id as string) || []);
   const [
     selectedSecondaryProbeSetsIds,
     setselectedSecondaryProbeSetsIds,
-  ] = useState<string[]>([]);
+  ] = useState<string[]>(
+    experiment?.secondaryProbeSets?.map((p) => p?.id as string) || [],
+  );
 
   const isValid = isServerValid && formState.isValid;
   const isDirtyUnsaved = isDirty && !(isValid && isSubmitted);
@@ -52,13 +54,22 @@ const FormMetrics = ({
     shouldWarnOnExit(isDirtyUnsaved);
   }, [shouldWarnOnExit, isDirtyUnsaved]);
 
-  const handleSubmitAfterValidation = useCallback(
-    (data: Record<string, any>) => {
-      if (isLoading) return;
-      onSave(data, reset);
-    },
-    [isLoading, onSave, reset],
-  );
+  const handleSubmitAfterValidation = useCallback(() => {
+    if (isLoading) return;
+    onSave(
+      {
+        primaryProbeSetIds: selectedPrimaryProbeSetIds,
+        secondaryProbeSetIds: selectedSecondaryProbeSetsIds,
+      },
+      reset,
+    );
+  }, [
+    isLoading,
+    onSave,
+    reset,
+    selectedPrimaryProbeSetIds,
+    selectedSecondaryProbeSetsIds,
+  ]);
 
   const handleNext = useCallback(
     (ev: React.FormEvent) => {
@@ -175,7 +186,7 @@ const FormMetrics = ({
               onClick={handleNext}
               className="btn btn-secondary"
               disabled={isLoading}
-              data-sb-kind="pages/EditBranches"
+              data-sb-kind="pages/EditMetrics"
             >
               Next
             </button>
