@@ -16,6 +16,7 @@ storiesOf("visualization/TableMetricSecondary", module)
       secondaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
+          id: "1",
           slug: "picture_in_picture",
           name: "Picture-in-Picture",
         },
@@ -43,6 +44,7 @@ storiesOf("visualization/TableMetricSecondary", module)
       secondaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
+          id: "1",
           slug: "feature_c",
           name: "Feature C",
         },

@@ -47,12 +47,14 @@ export interface getExperiment_experimentBySlug_featureConfig {
 
 export interface getExperiment_experimentBySlug_primaryProbeSets {
   __typename: "NimbusProbeSetType";
+  id: string;
   slug: string;
   name: string;
 }
 
 export interface getExperiment_experimentBySlug_secondaryProbeSets {
   __typename: "NimbusProbeSetType";
+  id: string;
   slug: string;
   name: string;
 }
