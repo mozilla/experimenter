@@ -129,7 +129,7 @@ def generate_results_object(data, experiment):
 
         results[branch] = results.get(
             branch,
-            {"is_control": experiment.reference_branch.name == branch, BRANCH_DATA: {}},
+            {"is_control": experiment.reference_branch.slug == branch, BRANCH_DATA: {}},
         )
 
         result_metrics, primary_metrics_set = get_results_metrics_map(
