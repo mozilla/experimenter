@@ -112,16 +112,19 @@ describe("FormMetrics", () => {
         },
       ],
     });
-
-    render(<Subject {...{ experiment: data }} />);
+    render(<Subject {...{ experiment: data, probeSets }} />);
 
     const secondaryProbeSets = screen.getByTestId("secondary-probe-sets");
     expect(secondaryProbeSets).toHaveTextContent("Probe Set A");
   });
 
   it("selects a primary probe set and excludes it from secondary probe sets", async () => {
-    render(<Subject {...{ probeSets }} />);
+    const { data } = mockExperimentQuery("boo", {
+      primaryProbeSets: [],
+      secondaryProbeSets: [],
+    });
 
+    render(<Subject {...{ experiment: data, probeSets }} />);
     const primaryProbeSets = screen.getByTestId("primary-probe-sets");
     const secondaryProbeSets = screen.getByTestId("secondary-probe-sets");
 
@@ -148,7 +151,12 @@ describe("FormMetrics", () => {
   });
 
   it("selects a secondary probe set and excludes it from primary probe sets", async () => {
-    render(<Subject {...{ probeSets }} />);
+    const { data } = mockExperimentQuery("boo", {
+      primaryProbeSets: [],
+      secondaryProbeSets: [],
+    });
+
+    render(<Subject {...{ experiment: data, probeSets }} />);
 
     const primaryProbeSets = screen.getByTestId("primary-probe-sets");
     const secondaryProbeSets = screen.getByTestId("secondary-probe-sets");
@@ -176,7 +184,10 @@ describe("FormMetrics", () => {
   });
 
   it("allows maximum 2 primary probe sets", async () => {
-    const { data } = mockExperimentQuery("boo", { primaryProbeSets: [] });
+    const { data } = mockExperimentQuery("boo", {
+      primaryProbeSets: [],
+      secondaryProbeSets: [],
+    });
 
     render(<Subject {...{ experiment: data, probeSets }} />);
 
