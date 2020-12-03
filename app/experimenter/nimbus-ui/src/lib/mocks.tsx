@@ -282,6 +282,7 @@ export const mockExperimentQuery = (
             primaryProbeSets: [
               {
                 __typename: "NimbusProbeSetType",
+                id: "1",
                 slug: "picture_in_picture",
                 name: "Picture-in-Picture",
               },
@@ -289,6 +290,7 @@ export const mockExperimentQuery = (
             secondaryProbeSets: [
               {
                 __typename: "NimbusProbeSetType",
+                id: "2",
                 slug: "feature_b",
                 name: "Feature B",
               },
@@ -331,7 +333,7 @@ export const mockExperimentQuery = (
 
 export const mockExperimentMutation = (
   mutation: DocumentNode,
-  input: Record<string, string | number>,
+  input: Record<string, string | number | string[] | number[]>,
   key: string,
   {
     status = 200,
