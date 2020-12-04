@@ -30,6 +30,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   >(UPDATE_EXPERIMENT_BRANCHES_MUTATION);
 
   const currentExperiment = useRef<getExperiment_experimentBySlug>();
+  const refetchReview = useRef<() => void>();
 
   const onFormSave = useCallback(
     async (
@@ -79,8 +80,12 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
 
   return (
     <AppLayoutWithExperiment title="Branches" testId="PageEditBranches">
-      {({ experiment }) => {
+      {({ experiment, review }) => {
         currentExperiment.current = experiment;
+        refetchReview.current = review.refetch;
+
+        const { isMissingField } = review;
+
         return (
           <>
             <p>
@@ -93,6 +98,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
               {...{
                 experiment,
                 featureConfig,
+                isMissingField,
                 isLoading: loading,
                 onSave: onFormSave,
                 onNext: onFormNext,
