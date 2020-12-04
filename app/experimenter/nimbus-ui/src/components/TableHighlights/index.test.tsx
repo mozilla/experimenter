@@ -9,7 +9,7 @@ import { mockExperimentQuery } from "../../lib/mocks";
 import { mockAnalysis } from "../../lib/visualization/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 
-const { mock, data } = mockExperimentQuery("demo-slug");
+const { mock, experiment } = mockExperimentQuery("demo-slug");
 
 describe("TableHighlights", () => {
   it("has participants for all users shown for each variant", () => {
@@ -18,7 +18,7 @@ describe("TableHighlights", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableHighlights
-          primaryProbeSets={data!.primaryProbeSets!}
+          primaryProbeSets={experiment.primaryProbeSets!}
           results={mockAnalysis().overall}
         />
       </RouterSlugProvider>,
@@ -37,7 +37,7 @@ describe("TableHighlights", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableHighlights
-          primaryProbeSets={data!.primaryProbeSets!}
+          primaryProbeSets={experiment.primaryProbeSets!}
           results={mockAnalysis().overall}
         />
       </RouterSlugProvider>,
@@ -52,7 +52,7 @@ describe("TableHighlights", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableHighlights
-          primaryProbeSets={data!.primaryProbeSets!}
+          primaryProbeSets={experiment.primaryProbeSets!}
           results={mockAnalysis().overall}
         />
       </RouterSlugProvider>,

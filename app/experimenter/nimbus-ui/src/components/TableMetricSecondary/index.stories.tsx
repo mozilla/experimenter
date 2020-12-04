@@ -12,7 +12,7 @@ import { mockAnalysis } from "../../lib/visualization/mocks";
 storiesOf("visualization/TableMetricSecondary", module)
   .addDecorator(withLinks)
   .add("with positive secondary metric", () => {
-    const { data } = mockExperimentQuery("demo-slug", {
+    const { experiment } = mockExperimentQuery("demo-slug", {
       secondaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
@@ -26,21 +26,21 @@ storiesOf("visualization/TableMetricSecondary", module)
     return (
       <TableMetricSecondary
         results={mockAnalysis().overall}
-        probeSet={data!.secondaryProbeSets![0]!}
+        probeSet={experiment.secondaryProbeSets![0]!}
       />
     );
   })
   .add("with negative secondary metric", () => {
-    const { data } = mockExperimentQuery("demo-slug");
+    const { experiment } = mockExperimentQuery("demo-slug");
     return (
       <TableMetricSecondary
         results={mockAnalysis().overall}
-        probeSet={data!.secondaryProbeSets![0]!}
+        probeSet={experiment.secondaryProbeSets![0]!}
       />
     );
   })
   .add("with neutral secondary metric", () => {
-    const { data } = mockExperimentQuery("demo-slug", {
+    const { experiment } = mockExperimentQuery("demo-slug", {
       secondaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
@@ -54,7 +54,7 @@ storiesOf("visualization/TableMetricSecondary", module)
     return (
       <TableMetricSecondary
         results={mockAnalysis().overall}
-        probeSet={data!.secondaryProbeSets![0]!}
+        probeSet={experiment.secondaryProbeSets![0]!}
       />
     );
   });

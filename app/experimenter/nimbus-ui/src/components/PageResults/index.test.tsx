@@ -86,7 +86,7 @@ jest.mock("../AppLayoutWithExperiment", () => ({
   default: (props: React.ComponentProps<typeof AppLayoutWithExperiment>) => (
     <div data-testid="PageResults">
       {props.children({
-        experiment: mockExperimentQuery("demo-slug").data!,
+        experiment: mockExperimentQuery("demo-slug").experiment,
         analysis: mockAnalysisData,
         review: {
           isMissingField: () => false,

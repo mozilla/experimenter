@@ -12,13 +12,13 @@ import { mockExperimentQuery } from "../../lib/mocks";
 describe("TableMetricSecondary", () => {
   it("has the correct headings", async () => {
     const EXPECTED_HEADINGS = ["Count", "Relative Improvement"];
-    const { mock, data } = mockExperimentQuery("demo-slug");
+    const { mock, experiment } = mockExperimentQuery("demo-slug");
 
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis().overall}
-          probeSet={data!.primaryProbeSets![0]!}
+          probeSet={experiment.primaryProbeSets![0]!}
         />
       </RouterSlugProvider>,
     );
@@ -29,12 +29,12 @@ describe("TableMetricSecondary", () => {
   });
 
   it("has correctly labelled result significance", async () => {
-    const { mock, data } = mockExperimentQuery("demo-slug");
+    const { mock, experiment } = mockExperimentQuery("demo-slug");
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis().overall}
-          probeSet={data!.primaryProbeSets![0]!}
+          probeSet={experiment.primaryProbeSets![0]!}
         />
       </RouterSlugProvider>,
     );
@@ -48,12 +48,12 @@ describe("TableMetricSecondary", () => {
   });
 
   it("has the expected control and treatment labels", async () => {
-    const { mock, data } = mockExperimentQuery("demo-slug");
+    const { mock, experiment } = mockExperimentQuery("demo-slug");
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis().overall}
-          probeSet={data!.primaryProbeSets![0]!}
+          probeSet={experiment.primaryProbeSets![0]!}
         />
       </RouterSlugProvider>,
     );
@@ -63,12 +63,12 @@ describe("TableMetricSecondary", () => {
   });
 
   it("shows the positive improvement bar", async () => {
-    const { mock, data } = mockExperimentQuery("demo-slug");
+    const { mock, experiment } = mockExperimentQuery("demo-slug");
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis().overall}
-          probeSet={data!.primaryProbeSets![0]!}
+          probeSet={experiment.primaryProbeSets![0]!}
         />
       </RouterSlugProvider>,
     );

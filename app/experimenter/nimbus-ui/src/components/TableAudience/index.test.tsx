@@ -12,26 +12,26 @@ import { NimbusExperimentChannel } from "../../types/globalTypes";
 describe("TableAudience", () => {
   describe("renders 'Channels' row as expected", () => {
     it("with one channel", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
+      const { experiment } = mockExperimentQuery("demo-slug", {
         channels: [NimbusExperimentChannel.DESKTOP_BETA],
       });
-      render(<Subject experiment={data!} />);
+      render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-channels")).toHaveTextContent(
         "Desktop Beta",
       );
     });
     it("with multiple channels", () => {
-      const { data } = mockExperimentQuery("demo-slug");
-      render(<Subject experiment={data!} />);
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-channels")).toHaveTextContent(
         "Desktop Nightly, Desktop Beta",
       );
     });
     it("when not set", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
+      const { experiment } = mockExperimentQuery("demo-slug", {
         channels: [],
       });
-      render(<Subject experiment={data!} />);
+      render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-channels")).toHaveTextContent(
         "Not set",
       );
@@ -39,17 +39,17 @@ describe("TableAudience", () => {
   });
   describe("renders 'Minimum version' row as expected", () => {
     it("when set", () => {
-      const { data } = mockExperimentQuery("demo-slug");
-      render(<Subject experiment={data!} />);
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-ff-min")).toHaveTextContent(
         "Firefox 80",
       );
     });
     it("when not set", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
+      const { experiment } = mockExperimentQuery("demo-slug", {
         firefoxMinVersion: null,
       });
-      render(<Subject experiment={data!} />);
+      render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-ff-min")).toHaveTextContent(
         "Not set",
       );
@@ -58,17 +58,17 @@ describe("TableAudience", () => {
 
   describe("renders 'Population %' row as expected", () => {
     it("when set", () => {
-      const { data } = mockExperimentQuery("demo-slug");
-      render(<Subject experiment={data!} />);
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-population")).toHaveTextContent(
         "40%",
       );
     });
     it("when not set", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
+      const { experiment } = mockExperimentQuery("demo-slug", {
         populationPercent: null,
       });
-      render(<Subject experiment={data!} />);
+      render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-population")).toHaveTextContent(
         "Not set",
       );
@@ -77,17 +77,17 @@ describe("TableAudience", () => {
 
   describe("renders 'Expected enrolled clients' row as expected", () => {
     it("when set", () => {
-      const { data } = mockExperimentQuery("demo-slug");
-      render(<Subject experiment={data!} />);
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-total-enrolled")).toHaveTextContent(
         "68,000",
       );
     });
     it("when not set", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
+      const { experiment } = mockExperimentQuery("demo-slug", {
         totalEnrolledClients: 0,
       });
-      render(<Subject experiment={data!} />);
+      render(<Subject {...{ experiment }} />);
       expect(
         screen.queryByTestId("experiment-total-enrolled"),
       ).not.toBeInTheDocument();
@@ -96,17 +96,17 @@ describe("TableAudience", () => {
 
   describe("renders 'Custom audience' row as expected", () => {
     it("when set", () => {
-      const { data } = mockExperimentQuery("demo-slug");
-      render(<Subject experiment={data!} />);
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-target")).toHaveTextContent(
         "Us Only",
       );
     });
     it("when not set", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
+      const { experiment } = mockExperimentQuery("demo-slug", {
         targetingConfigSlug: null,
       });
-      render(<Subject experiment={data!} />);
+      render(<Subject {...{ experiment }} />);
       expect(screen.queryByTestId("experiment-target")).not.toBeInTheDocument();
     });
   });

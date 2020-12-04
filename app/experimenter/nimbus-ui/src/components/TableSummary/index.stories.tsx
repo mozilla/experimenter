@@ -11,17 +11,17 @@ import { RouterSlugProvider } from "../../lib/test-utils";
 
 storiesOf("components/TableSummary", module)
   .add("all fields filled out", () => {
-    const { data } = mockExperimentQuery("demo-slug", {
+    const { experiment } = mockExperimentQuery("demo-slug", {
       featureConfig: MOCK_CONFIG.featureConfig![1],
     });
     return (
       <Subject>
-        <TableSummary experiment={data!} />
+        <TableSummary {...{ experiment }} />
       </Subject>
     );
   })
   .add("filled out with multiple probe sets", () => {
-    const { data } = mockExperimentQuery("demo-slug", {
+    const { experiment } = mockExperimentQuery("demo-slug", {
       featureConfig: MOCK_CONFIG.featureConfig![1],
       primaryProbeSets: [
         {
@@ -54,23 +54,23 @@ storiesOf("components/TableSummary", module)
     });
     return (
       <Subject>
-        <TableSummary experiment={data!} />
+        <TableSummary {...{ experiment }} />
       </Subject>
     );
   })
   .add("only required fields filled out", () => {
-    const { data } = mockExperimentQuery("demo-slug", {
+    const { experiment } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [],
       secondaryProbeSets: [],
     });
     return (
       <Subject>
-        <TableSummary experiment={data!} />
+        <TableSummary {...{ experiment }} />
       </Subject>
     );
   })
   .add("missing required fields", () => {
-    const { data } = mockExperimentQuery("demo-slug", {
+    const { experiment } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [],
       secondaryProbeSets: [],
       publicDescription: null,
@@ -78,7 +78,7 @@ storiesOf("components/TableSummary", module)
 
     return (
       <Subject>
-        <TableSummary experiment={data!} />
+        <TableSummary {...{ experiment }} />
       </Subject>
     );
   });
