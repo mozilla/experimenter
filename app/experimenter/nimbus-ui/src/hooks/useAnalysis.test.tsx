@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { render, waitFor } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import { useAnalysis } from "./useAnalysis";
 
@@ -11,8 +11,8 @@ describe("hooks/useVisualization", () => {
   describe("useVisualization", () => {
     let hook: ReturnType<typeof useAnalysis>;
 
-    const TestHook = ({ slug }: { slug: string }) => {
-      hook = useAnalysis(slug);
+    const TestHook = () => {
+      hook = useAnalysis();
       return <p>Algonquin Provincial Park</p>;
     };
 
@@ -23,18 +23,17 @@ describe("hooks/useVisualization", () => {
       const data = { burrito: "Crunchwrap Supreme®" };
       fetchMock.mockResponseOnce(JSON.stringify(data));
 
-      render(<TestHook {...{ slug }} />);
+      render(<TestHook />);
+
+      await act(async () => void hook.execute([slug]));
 
       expect(fetch).toHaveBeenCalledWith(`/api/v3/visualization/${slug}/`, {
         headers: { "Content-Type": "application/json" },
         method: "GET",
       });
 
-      expect(hook.loading).toBeTruthy();
-      await waitFor(() => {
-        expect(hook.loading).toBeFalsy();
-        expect(hook.result).toEqual(data);
-      });
+      expect(hook.result).toEqual(data);
+      expect(hook.loading).toBeFalsy();
 
       fetchMock.disableMocks();
     });

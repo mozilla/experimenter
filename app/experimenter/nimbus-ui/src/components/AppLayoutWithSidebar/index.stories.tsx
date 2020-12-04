@@ -37,9 +37,31 @@ storiesOf("components/AppLayoutWithSidebar", module)
       </AppLayoutWithSidebar>
     </RouterSlugProvider>
   ))
+  .add("status: accepted", () => (
+    <RouterSlugProvider>
+      <AppLayoutWithSidebar status={NimbusExperimentStatus.ACCEPTED}>
+        <p>App contents go here</p>
+      </AppLayoutWithSidebar>
+    </RouterSlugProvider>
+  ))
   .add("status: live", () => (
     <RouterSlugProvider>
       <AppLayoutWithSidebar status={NimbusExperimentStatus.LIVE}>
+        <p>App contents go here</p>
+      </AppLayoutWithSidebar>
+    </RouterSlugProvider>
+  ))
+  .add("has analysis results", () => (
+    <RouterSlugProvider>
+      <AppLayoutWithSidebar
+        status={NimbusExperimentStatus.COMPLETE}
+        analysis={{
+          show_analysis: true,
+          daily: [],
+          weekly: [],
+          overall: {},
+        }}
+      >
         <p>App contents go here</p>
       </AppLayoutWithSidebar>
     </RouterSlugProvider>
