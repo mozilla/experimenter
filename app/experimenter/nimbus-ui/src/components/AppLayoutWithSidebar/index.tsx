@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { ReactNode } from "react";
 import { RouteComponentProps, useParams, Link } from "@reach/router";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -11,6 +11,7 @@ import Nav from "react-bootstrap/Nav";
 import classNames from "classnames";
 import { BASE_PATH } from "../../lib/constants";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { AnalysisData } from "../../lib/visualization/types";
 import { ReactComponent as ChevronLeft } from "./chevron-left.svg";
 import { ReactComponent as Cog } from "./cog.svg";
 import { ReactComponent as Layers } from "./layers.svg";
@@ -29,6 +30,7 @@ type AppLayoutWithSidebarProps = {
     invalidPages: string[];
     ready: boolean;
   };
+  analysis?: AnalysisData;
 } & RouteComponentProps;
 
 const experimentLocked = (status: NimbusExperimentStatus): boolean => {
@@ -67,10 +69,12 @@ export const AppLayoutWithSidebar = ({
   testid = "AppLayoutWithSidebar",
   status,
   review,
+  analysis,
 }: AppLayoutWithSidebarProps) => {
   const { slug } = useParams();
   const locked = status && experimentLocked(status);
   const inReview = status === NimbusExperimentStatus.REVIEW;
+  const isAccepted = status === NimbusExperimentStatus.ACCEPTED;
 
   return (
     <Container fluid className="h-100vh" data-testid={testid}>
@@ -95,20 +99,28 @@ export const AppLayoutWithSidebar = ({
                 <>
                   <LinkNav
                     route={`${slug}/design`}
-                    storiesOf={`pages/Design`}
-                    testid={`nav-design`}
+                    storiesOf={"pages/Design"}
+                    testid={"nav-design"}
                   >
                     <Clipboard className="mr-3" width="18" height="18" />
                     Design
                   </LinkNav>
-                  <LinkNav
-                    route={`${slug}/results`}
-                    storiesOf={`pages/Results`}
-                    testid={`nav-results`}
-                  >
-                    <BarChart className="mr-3" width="18" height="18" />
-                    Results
-                  </LinkNav>
+                  {analysis?.show_analysis ? (
+                    <LinkNav
+                      route={`${slug}/results`}
+                      storiesOf={"pages/Results"}
+                      testid={"nav-results"}
+                    >
+                      <BarChart className="mr-3" width="18" height="18" />
+                      Results
+                    </LinkNav>
+                  ) : (
+                    <DisabledItem name="Results" testId="show-no-results">
+                      {isAccepted
+                        ? "Waiting for experiment to launch"
+                        : "Experiment results not yet ready"}
+                    </DisabledItem>
+                  )}
                 </>
               ) : (
                 <>
@@ -142,10 +154,31 @@ export const AppLayoutWithSidebar = ({
                       Review &amp; Launch
                     </LinkNav>
                   ) : (
-                    <MissingDetails
-                      experimentSlug={slug}
-                      invalidPages={review.invalidPages}
-                    />
+                    <DisabledItem
+                      name="Review &amp; Launch"
+                      testId="missing-details"
+                    >
+                      Missing details in:{" "}
+                      {review.invalidPages.map((missingPage, idx) => {
+                        const editPage = editPages.find(
+                          (p) => p.slug === missingPage,
+                        )!;
+
+                        return (
+                          <React.Fragment key={`missing-${idx}`}>
+                            <Link
+                              data-sb-kind={`pages/Edit${editPage.name}`}
+                              data-testid={`missing-detail-link-${editPage.slug}`}
+                              to={`${BASE_PATH}/${slug}/edit/${editPage.slug}?show-errors`}
+                            >
+                              {editPage.name}
+                            </Link>
+
+                            {idx !== review.invalidPages.length - 1 && ", "}
+                          </React.Fragment>
+                        );
+                      })}
+                    </DisabledItem>
                   )}
                 </>
               )}
@@ -213,42 +246,21 @@ const LinkNav = ({
   );
 };
 
-type MissingDetailsProps = {
-  experimentSlug: string;
-  invalidPages: string[];
+type DisabledItemProps = {
+  name: string;
+  testId: string;
+  children: ReactNode;
 };
 
-const MissingDetails = ({
-  experimentSlug,
-  invalidPages,
-}: MissingDetailsProps) => (
+const DisabledItem = ({ name, children, testId }: DisabledItemProps) => (
   <div
     className="mx-1 my-2 d-flex text-muted font-weight-normal"
-    data-testid="missing-details"
+    data-testid={testId}
   >
     <NotAllowed className="mr-3 mt-1" width="18" height="18" />
     <div>
-      <p className="mb-1">Review &amp; Launch</p>
-      <p className="mt-0 small">
-        Missing details in:{" "}
-        {invalidPages.map((missingPage, idx) => {
-          const editPage = editPages.find((p) => p.slug === missingPage)!;
-
-          return (
-            <React.Fragment key={`missing-${idx}`}>
-              <Link
-                data-sb-kind={`pages/Edit${editPage.name}`}
-                data-testid={`missing-detail-link-${editPage.slug}`}
-                to={`${BASE_PATH}/${experimentSlug}/edit/${editPage.slug}?show-errors`}
-              >
-                {editPage.name}
-              </Link>
-
-              {idx !== invalidPages.length - 1 && ", "}
-            </React.Fragment>
-          );
-        })}
-      </p>
+      <p className="mb-1">{name}</p>
+      <p className="mt-0 small">{children}</p>
     </div>
   </div>
 );

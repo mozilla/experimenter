@@ -19,6 +19,11 @@ export const fetchData = async (slug: string) =>
  * Hook to retrieve Experiment Analysis data by slug.
  */
 
-export function useAnalysis(slug: string) {
-  return useAsync<AnalysisData>(fetchData, [slug]);
+export function useAnalysis() {
+  // Because this is delayed execution the returned `execute`
+  // function needs to provide the slug parameter
+  return useAsync<AnalysisData>(fetchData, [], {
+    executeOnMount: false,
+    executeOnUpdate: false,
+  });
 }
