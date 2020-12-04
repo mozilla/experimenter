@@ -7,31 +7,19 @@ import { screen, render, waitFor } from "@testing-library/react";
 import PageResults from ".";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery } from "../../lib/mocks";
-import fetchMock from "jest-fetch-mock";
-import * as hooks from "../../hooks/useAnalysis";
 import { mockAnalysis } from "../../lib/visualization/mocks";
-
-const { mock } = mockExperimentQuery("demo-slug");
+import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
+import { AnalysisData } from "../../lib/visualization/types";
 
 const Subject = () => (
-  <RouterSlugProvider mocks={[mock]}>
+  <RouterSlugProvider>
     <PageResults />
   </RouterSlugProvider>
 );
 
+let mockAnalysisData: AnalysisData | undefined = mockAnalysis();
+
 describe("PageResults", () => {
-  beforeAll(() => {
-    fetchMock.enableMocks();
-  });
-
-  afterAll(() => {
-    fetchMock.disableMocks();
-  });
-
-  beforeEach(() => {
-    fetchMock.resetMocks();
-  });
-
   it("renders as expected", async () => {
     render(<Subject />);
     await waitFor(() => {
@@ -40,8 +28,6 @@ describe("PageResults", () => {
   });
 
   it("fetches analysis data and displays expected tables when analysis is ready", async () => {
-    fetchMock.mockResponseOnce(JSON.stringify(mockAnalysis()));
-
     render(<Subject />);
 
     await waitFor(() => {
@@ -60,20 +46,30 @@ describe("PageResults", () => {
   });
 
   it("displays the monitoring dashboard link", async () => {
-    fetchMock.mockResponseOnce(JSON.stringify(mockAnalysis()));
-
     render(<Subject />);
 
     await waitFor(() => {
       expect(screen.queryByTestId("link-monitoring-dashboard")).toHaveAttribute(
         "href",
-        "https://grafana.telemetry.mozilla.org",
+        expect.stringContaining("https://grafana.telemetry.mozilla.org"),
       );
     });
   });
 
-  it("displays analysis load error", async () => {
-    fetchMock.mockRejectOnce(new Error("Cheesy Gordita Crunch"));
+  it("fetches analysis data and displays as expected when analysis is not ready", async () => {
+    mockAnalysisData!.show_analysis = false;
+
+    render(<Subject />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("analysis-unavailable")).toBeInTheDocument();
+    expect(screen.queryByTestId("summary")).toBeInTheDocument();
+  });
+
+  it("displays analysis error when analysis fetch error occurs", async () => {
+    mockAnalysisData = undefined;
 
     render(<Subject />);
 
@@ -81,35 +77,22 @@ describe("PageResults", () => {
       expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
     });
     expect(screen.queryByTestId("analysis-error")).toBeInTheDocument();
-    expect(screen.queryByTestId("summary")).toBeInTheDocument();
-  });
-
-  it("displays analysis loading", async () => {
-    // Can't wait for Experiment data to load and *not* analysis
-    // data, so instead let's just mock the returned hook data
-    (jest.spyOn(hooks, "useAnalysis") as jest.Mock).mockReturnValueOnce({
-      loading: true,
-    });
-
-    render(<Subject />);
-
-    await waitFor(() => {
-      expect(screen.queryByTestId("analysis-loading")).toBeInTheDocument();
-    });
-  });
-
-  it("fetches analysis data and displays as expected when analysis is not ready", async () => {
-    fetchMock.mockResponseOnce(
-      JSON.stringify(mockAnalysis({ show_analysis: false })),
-    );
-
-    render(<Subject />);
-
-    await waitFor(() => {
-      expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
-    });
-
-    expect(screen.queryByTestId("analysis-unavailable")).toBeInTheDocument();
-    expect(screen.queryByTestId("summary")).toBeInTheDocument();
   });
 });
+
+// Mocking form component because validation is exercised in its own tests.
+jest.mock("../AppLayoutWithExperiment", () => ({
+  __esModule: true,
+  default: (props: React.ComponentProps<typeof AppLayoutWithExperiment>) => (
+    <div data-testid="PageResults">
+      {props.children({
+        experiment: mockExperimentQuery("demo-slug").data!,
+        analysis: mockAnalysisData,
+        review: {
+          isMissingField: () => false,
+          refetch: () => {},
+        },
+      })}
+    </div>
+  ),
+}));

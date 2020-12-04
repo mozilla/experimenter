@@ -3,48 +3,59 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { act, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import AppLayoutWithSidebar from ".";
-import { renderWithRouter } from "../../lib/test-utils";
+import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
 import { BASE_PATH } from "../../lib/constants";
-import { RouteComponentProps, Router } from "@reach/router";
+import { RouteComponentProps } from "@reach/router";
 import App from "../App";
 import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 const { mock } = mockExperimentQuery("my-special-slug");
 
+const Subject = ({
+  status = NimbusExperimentStatus.DRAFT,
+  withAnalysis = false,
+  review,
+}: RouteComponentProps & {
+  status?: NimbusExperimentStatus;
+  review?: {
+    ready: boolean;
+    invalidPages: string[];
+  };
+  withAnalysis?: boolean;
+}) => (
+  <RouterSlugProvider mocks={[mock]} path="/my-special-slug/edit">
+    <AppLayoutWithSidebar
+      {...{
+        status,
+        review,
+        analysis: withAnalysis
+          ? {
+              show_analysis: true,
+              daily: [],
+              weekly: [],
+              overall: {},
+            }
+          : undefined,
+      }}
+    >
+      <p data-testid="test-child">Hello, world!</p>
+    </AppLayoutWithSidebar>
+  </RouterSlugProvider>
+);
+
 describe("AppLayoutWithSidebar", () => {
   it("renders app layout content with children", () => {
-    renderWithRouter(
-      <MockedCache mocks={[mock]}>
-        <AppLayoutWithSidebar>
-          <p data-testid="test-child">Hello, world!</p>
-        </AppLayoutWithSidebar>
-      </MockedCache>,
-    );
+    render(<Subject />);
     expect(screen.getByTestId("AppLayoutWithSidebar")).toBeInTheDocument();
     expect(screen.getByTestId("test-child")).toBeInTheDocument();
   });
 
   describe("navigation links", () => {
-    const SidebarRoot = ({
-      status = NimbusExperimentStatus.DRAFT,
-    }: RouteComponentProps & { status?: NimbusExperimentStatus }) => (
-      <MockedCache mocks={[mock]}>
-        <AppLayoutWithSidebar {...{ status }}>
-          <p>Hello, world!</p>
-        </AppLayoutWithSidebar>
-      </MockedCache>
-    );
-
     it("renders expected URLs", () => {
-      renderWithRouter(
-        <Router>
-          <SidebarRoot path="/:slug" />
-        </Router>,
-        { route: `/my-special-slug` },
-      );
+      render(<Subject />);
       expect(screen.getByTestId("nav-home")).toHaveAttribute("href", BASE_PATH);
       expect(screen.getByTestId("nav-edit-overview")).toHaveAttribute(
         "href",
@@ -117,13 +128,7 @@ describe("AppLayoutWithSidebar", () => {
         ready: false,
         invalidPages: ["overview", "branches", "metrics", "audience"],
       };
-      renderWithRouter(
-        <MockedCache mocks={[mock]}>
-          <AppLayoutWithSidebar {...{ review }}>
-            <p data-testid="test-child">Hello, world!</p>
-          </AppLayoutWithSidebar>
-        </MockedCache>,
-      );
+      render(<Subject {...{ review }} />);
 
       expect(screen.queryByTestId("missing-details")).toBeInTheDocument();
 
@@ -138,26 +143,18 @@ describe("AppLayoutWithSidebar", () => {
     });
 
     it("renders the review & launch link when the experiment is ready for review", async () => {
-      renderWithRouter(
-        <MockedCache mocks={[mock]}>
-          <AppLayoutWithSidebar {...{ ready: true }}>
-            <p data-testid="test-child">Hello, world!</p>
-          </AppLayoutWithSidebar>
-        </MockedCache>,
-      );
+      const review = {
+        ready: true,
+        invalidPages: [],
+      };
+      render(<Subject {...{ review }} />);
 
       expect(screen.queryByTestId("missing-details")).not.toBeInTheDocument();
       expect(screen.queryByTestId("nav-request-review")).toBeInTheDocument();
     });
 
     it("when in review, disables all edit page links", async () => {
-      renderWithRouter(
-        <MockedCache mocks={[mock]}>
-          <AppLayoutWithSidebar status={NimbusExperimentStatus.REVIEW}>
-            <p data-testid="test-child">Hello, world!</p>
-          </AppLayoutWithSidebar>
-        </MockedCache>,
-      );
+      render(<Subject status={NimbusExperimentStatus.REVIEW} />);
 
       // In review these should all not be <a> tags, but instead <span>s
       ["overview", "branches", "metrics", "audience"].forEach((slug) => {
@@ -165,13 +162,8 @@ describe("AppLayoutWithSidebar", () => {
       });
     });
 
-    it("when live, hides edit and review links, displays design and result links", async () => {
-      renderWithRouter(
-        <Router>
-          <SidebarRoot path="/:slug" status={NimbusExperimentStatus.LIVE} />
-        </Router>,
-        { route: `/my-special-slug` },
-      );
+    it("when live, hides edit and review links, displays design link and disabled results item", async () => {
+      render(<Subject status={NimbusExperimentStatus.LIVE} />);
 
       [
         "edit-overview",
@@ -182,6 +174,29 @@ describe("AppLayoutWithSidebar", () => {
       ].forEach((slug) => {
         expect(screen.queryByTestId(`nav-${slug}`)).not.toBeInTheDocument();
       });
+
+      expect(screen.queryByTestId("nav-design")).toBeInTheDocument();
+      expect(screen.queryByTestId("nav-design")).toHaveAttribute(
+        "href",
+        `${BASE_PATH}/my-special-slug/design`,
+      );
+      expect(screen.queryByTestId("show-no-results")).toBeInTheDocument();
+      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
+        "Experiment results not yet ready",
+      );
+    });
+
+    it("when accepted displays design link and disabled results item", async () => {
+      render(<Subject status={NimbusExperimentStatus.ACCEPTED} />);
+
+      expect(screen.queryByTestId("show-no-results")).toBeInTheDocument();
+      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
+        "Waiting for experiment to launch",
+      );
+    });
+
+    it("when complete and has analysis results displays design and results items", async () => {
+      render(<Subject status={NimbusExperimentStatus.COMPLETE} withAnalysis />);
 
       ["design", "results"].forEach((slug) => {
         expect(screen.queryByTestId(`nav-${slug}`)).toBeInTheDocument();

@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { RouteComponentProps, useParams } from "@reach/router";
+import { RouteComponentProps } from "@reach/router";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
-import { useAnalysis } from "../../hooks";
 import { Alert } from "react-bootstrap";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import LinkExternal from "../LinkExternal";
@@ -17,40 +16,29 @@ import TableMetricSecondary from "../TableMetricSecondary";
 import { AnalysisData } from "../../lib/visualization/types";
 import Summary from "../Summary";
 
-const PageResults: React.FunctionComponent<RouteComponentProps> = () => {
-  const { slug } = useParams();
-  const { loading, error, result: analysis } = useAnalysis(slug);
-
-  return (
-    <AppLayoutWithExperiment title="Analysis" testId="PageResults">
-      {({ experiment }) => (
-        <>
-          {loading ? (
-            <p data-testid="analysis-loading">Loading analysis data...</p>
-          ) : (
-            <>
-              <h3 className="h5 mb-3">Monitoring</h3>
-              <p>
-                <LinkExternal
-                  href={experiment.monitoringDashboardUrl!}
-                  data-testid="link-monitoring-dashboard"
-                >
-                  Click here
-                </LinkExternal>{" "}
-                to view the live monitoring dashboard.
-              </p>
-              {analysis?.show_analysis ? (
-                <AnalysisAvailable {...{ experiment, analysis }} />
-              ) : (
-                <AnalysisUnavailable {...{ experiment, error }} />
-              )}
-            </>
-          )}
-        </>
-      )}
-    </AppLayoutWithExperiment>
-  );
-};
+const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
+  <AppLayoutWithExperiment title="Analysis" testId="PageResults">
+    {({ experiment, analysis }) => (
+      <>
+        <h3 className="h5 mb-3">Monitoring</h3>
+        <p>
+          <LinkExternal
+            href={experiment.monitoringDashboardUrl!}
+            data-testid="link-monitoring-dashboard"
+          >
+            Click here
+          </LinkExternal>{" "}
+          to view the live monitoring dashboard.
+        </p>
+        {analysis?.show_analysis ? (
+          <AnalysisAvailable {...{ experiment, analysis }} />
+        ) : (
+          <AnalysisUnavailable {...{ experiment, error: analysis == null }} />
+        )}
+      </>
+    )}
+  </AppLayoutWithExperiment>
+);
 
 const AnalysisAvailable = ({
   experiment,
@@ -137,7 +125,7 @@ const AnalysisUnavailable = ({
   error,
 }: {
   experiment: getExperiment_experimentBySlug;
-  error: Error | undefined;
+  error: boolean;
 }) => (
   <>
     {error ? <AlertError /> : <AlertUnavailable />}
