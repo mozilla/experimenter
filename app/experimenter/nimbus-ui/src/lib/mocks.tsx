@@ -69,6 +69,23 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: "PLATYPUS_DOORSTOP",
     },
   ],
+  applicationChannels: [
+    {
+      __typename: "ApplicationChannel",
+      label: "Desktop",
+      channels: [
+        "Desktop Unbranded",
+        "Desktop Nightly",
+        "Desktop Beta",
+        "Desktop Release",
+      ],
+    },
+    {
+      __typename: "ApplicationChannel",
+      label: "Fenix",
+      channels: ["Fenix Nightly", "Fenix Beta", "Fenix Release"],
+    },
+  ],
   featureConfig: [
     {
       __typename: "NimbusFeatureConfigType",
