@@ -6,7 +6,6 @@ import React, { useCallback, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { RouteComponentProps } from "@reach/router";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
-import TableSummary from "../TableSummary";
 import { SUBMIT_ERROR } from "../../lib/constants";
 import { UPDATE_EXPERIMENT_STATUS_MUTATION } from "../../gql/experiments";
 import {
@@ -16,6 +15,7 @@ import {
 import { updateExperimentStatus_updateExperimentStatus as UpdateExperimentStatus } from "../../types/updateExperimentStatus";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import FormRequestReview from "../FormRequestReview";
+import Summary from "../Summary";
 
 type PageRequestReviewProps = {
   polling?: boolean;
@@ -71,7 +71,7 @@ const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = ({
 
         return (
           <>
-            <TableSummary {...{ experiment }} />
+            <Summary {...{ experiment }} />
 
             {![
               NimbusExperimentStatus.REVIEW,
