@@ -29,19 +29,19 @@ storiesOf("visualization/TableResults", module)
         {
           __typename: "NimbusProbeSetType",
           id: "1",
-          slug: "picture-in-picture",
+          slug: "picture_in_picture",
           name: "Picture-in-Picture",
         },
         {
           __typename: "NimbusProbeSetType",
           id: "2",
-          slug: "feature-b",
+          slug: "feature_b",
           name: "Feature B",
         },
         {
           __typename: "NimbusProbeSetType",
           id: "3",
-          slug: "feature-c",
+          slug: "feature_c",
           name: "Feature C",
         },
       ],

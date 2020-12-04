@@ -27,7 +27,7 @@ describe("Summary", () => {
       expect(screen.getByTestId("link-json")).toBeInTheDocument();
       expect(screen.getByTestId("link-json")).toHaveAttribute(
         "href",
-        "https://experimenter.services.mozilla.com/api/v6/experiments/demo-slug/",
+        "/api/v6/experiments/demo-slug/",
       );
     });
   });

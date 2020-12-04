@@ -25,7 +25,7 @@ const Summary = ({ experiment }: SummaryProps) => (
       {experiment.status !== NimbusExperimentStatus.DRAFT && (
         <span>
           <LinkExternal
-            href={`https://experimenter.services.mozilla.com/api/v6/experiments/${experiment.slug}/`}
+            href={`/api/v6/experiments/${experiment.slug}/`}
             data-testid="link-json"
           >
             See full JSON representation

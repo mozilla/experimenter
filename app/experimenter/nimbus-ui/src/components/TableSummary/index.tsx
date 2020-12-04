@@ -58,7 +58,7 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
             </td>
           </tr>
         )}
-        {experiment.primaryProbeSets?.length !== 0 && (
+        {experiment.primaryProbeSets?.length && (
           <tr>
             <th>Primary probe sets</th>
             <td data-testid="experiment-probe-primary">
@@ -68,7 +68,7 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
             </td>
           </tr>
         )}
-        {experiment.secondaryProbeSets?.length !== 0 && (
+        {experiment.secondaryProbeSets?.length && (
           <tr>
             <th>Secondary probe sets</th>
             <td data-testid="experiment-probe-secondary">

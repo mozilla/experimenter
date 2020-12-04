@@ -9,29 +9,28 @@ import AppLayout from "../AppLayout";
 import Summary from ".";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
 storiesOf("components/Summary", module)
   .add("draft status", () => {
     const { data } = mockExperimentQuery("demo-slug");
-    return (
-      <Subject>
-        <Summary experiment={data!} />
-      </Subject>
-    );
+    return <Subject experiment={data!} />;
   })
   .add("non-draft status", () => {
     const { data } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.ACCEPTED,
     });
-    return (
-      <Subject>
-        <Summary experiment={data!} />
-      </Subject>
-    );
+    return <Subject experiment={data!} />;
   });
 
-const Subject = ({ children }: { children: React.ReactElement }) => (
+const Subject = ({
+  experiment,
+}: {
+  experiment: getExperiment_experimentBySlug;
+}) => (
   <AppLayout>
-    <RouterSlugProvider>{children}</RouterSlugProvider>
+    <RouterSlugProvider>
+      <Summary {...{ experiment }} />
+    </RouterSlugProvider>
   </AppLayout>
 );

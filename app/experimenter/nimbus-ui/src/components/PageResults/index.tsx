@@ -90,22 +90,20 @@ const AnalysisAvailable = ({
         results={analysis?.overall!}
       />
       <div>
-        {experiment.primaryProbeSets?.length &&
-          experiment.primaryProbeSets.map((probeSet) => (
-            <TableMetricPrimary
-              key={probeSet?.slug}
-              results={analysis?.overall!}
-              probeSet={probeSet!}
-            />
-          ))}
-        {experiment.secondaryProbeSets?.length &&
-          experiment.secondaryProbeSets.map((probeSet) => (
-            <TableMetricSecondary
-              key={probeSet?.slug}
-              results={analysis?.overall!}
-              probeSet={probeSet!}
-            />
-          ))}
+        {experiment.primaryProbeSets?.map((probeSet) => (
+          <TableMetricPrimary
+            key={probeSet?.slug}
+            results={analysis?.overall!}
+            probeSet={probeSet!}
+          />
+        ))}
+        {experiment.secondaryProbeSets?.map((probeSet) => (
+          <TableMetricSecondary
+            key={probeSet?.slug}
+            results={analysis?.overall!}
+            probeSet={probeSet!}
+          />
+        ))}
       </div>
     </>
   );
