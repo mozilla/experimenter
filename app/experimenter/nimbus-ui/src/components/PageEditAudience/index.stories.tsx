@@ -6,15 +6,48 @@ import React from "react";
 import { storiesOf } from "@storybook/react";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { withLinks } from "@storybook/addon-links";
+import { withQuery } from "@storybook/addon-queryparams";
 import { mockExperimentQuery } from "../../lib/mocks";
 import PageEditAudience from ".";
 
 const { mock } = mockExperimentQuery("demo-slug");
+const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
+  channels: [],
+  firefoxMinVersion: null,
+  targetingConfigSlug: null,
+  proposedEnrollment: null,
+  proposedDuration: null,
+  readyForReview: {
+    __typename: "NimbusReadyForReviewType",
+    ready: false,
+    message: {
+      proposed_duration: ["This field may not be null."],
+      proposed_enrollment: ["This field may not be null."],
+      firefox_min_version: ["This field may not be null."],
+      targeting_config_slug: ["This field may not be null."],
+      channels: ["This list may not be empty."],
+    },
+  },
+});
 
 storiesOf("pages/EditAudience", module)
   .addDecorator(withLinks)
+  .addDecorator(withQuery)
   .add("basic", () => (
     <RouterSlugProvider mocks={[mock]}>
       <PageEditAudience />
     </RouterSlugProvider>
-  ));
+  ))
+  .add(
+    "missing fields",
+    () => (
+      <RouterSlugProvider mocks={[mockMissingFields]}>
+        <PageEditAudience />
+      </RouterSlugProvider>
+    ),
+    {
+      query: {
+        "show-errors": true,
+      },
+    },
+  );

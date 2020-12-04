@@ -18,6 +18,7 @@ import {
 } from "../../types/getConfig";
 
 import { AnnotatedBranch } from "./reducer";
+import InlineErrorIcon from "../InlineErrorIcon";
 
 type DefaultValues = {
   name: string;
@@ -40,6 +41,7 @@ export const FormBranch = ({
   onAddFeatureConfig,
   onRemoveFeatureConfig,
   onFeatureConfigChange,
+  showMissingIcon,
 }: {
   id: string;
   branch: AnnotatedBranch;
@@ -55,6 +57,7 @@ export const FormBranch = ({
   onFeatureConfigChange: (
     featureConfig: getConfig_nimbusConfig_featureConfig | null,
   ) => void;
+  showMissingIcon?: boolean;
 }) => {
   const {
     register,
@@ -213,6 +216,13 @@ export const FormBranch = ({
               >
                 <DeleteIcon width="18" height="18" />
               </Button>
+            )}
+
+            {showMissingIcon && (
+              <InlineErrorIcon
+                name="control"
+                message="A control branch is required"
+              />
             )}
           </Form.Group>
         </Form.Row>
