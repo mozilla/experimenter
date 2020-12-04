@@ -9,12 +9,14 @@ import { FormAudience } from ".";
 export const Subject = ({
   experiment = MOCK_EXPERIMENT,
   config = MOCK_CONFIG,
+  isMissingField = () => false,
 }: Partial<React.ComponentProps<typeof FormAudience>>) => (
   <div className="p-5">
     <FormAudience
       {...{
         experiment,
         config,
+        isMissingField,
       }}
     />
   </div>

@@ -8,6 +8,7 @@ import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Col from "react-bootstrap/Col";
 import LinkExternal from "../LinkExternal";
+import InlineErrorIcon from "../InlineErrorIcon";
 
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
@@ -27,9 +28,11 @@ type FormAudienceConfig = Pick<
 export const FormAudience = ({
   experiment,
   config,
+  isMissingField,
 }: {
   experiment: getExperiment_experimentBySlug;
   config: FormAudienceConfig;
+  isMissingField: (fieldName: string) => boolean;
 }) => {
   const {
     channels,
@@ -53,7 +56,15 @@ export const FormAudience = ({
       <Form.Group>
         <Form.Row>
           <Form.Group as={Col} controlId="channel" md={8} lg={8}>
-            <Form.Label>Channel</Form.Label>
+            <Form.Label className="d-flex align-items-center">
+              Channel
+              {isMissingField("channels") && (
+                <InlineErrorIcon
+                  name="channels"
+                  message="At least one channel must be selected"
+                />
+              )}
+            </Form.Label>
             <Select
               isMulti
               name="channel"
@@ -63,7 +74,15 @@ export const FormAudience = ({
             />
           </Form.Group>
           <Form.Group as={Col} controlId="minVersion">
-            <Form.Label>Min Version</Form.Label>
+            <Form.Label className="d-flex align-items-center">
+              Min Version
+              {isMissingField("firefox_min_version") && (
+                <InlineErrorIcon
+                  name="ff-min"
+                  message="A minimum Firefox version must be selected"
+                />
+              )}
+            </Form.Label>
             <Form.Control
               as="select"
               data-testid="minVersion"
@@ -75,7 +94,15 @@ export const FormAudience = ({
         </Form.Row>
         <Form.Row>
           <Form.Group as={Col} controlId="targeting">
-            <Form.Label>Advanced Targeting</Form.Label>
+            <Form.Label className="d-flex align-items-center">
+              Advanced Targeting
+              {isMissingField("targeting_config_slug") && (
+                <InlineErrorIcon
+                  name="config"
+                  message="A targeting config must be selected"
+                />
+              )}
+            </Form.Label>
             <Form.Control
               as="select"
               data-testid="targeting"
@@ -122,7 +149,15 @@ export const FormAudience = ({
 
         <Form.Row>
           <Form.Group as={Col} className="mx-5" controlId="enrollmentPeriod">
-            <Form.Label>Enrollment period</Form.Label>
+            <Form.Label className="d-flex align-items-center">
+              Enrollment period
+              {isMissingField("proposed_enrollment") && (
+                <InlineErrorIcon
+                  name="enrollment"
+                  message="Proposed enrollment cannot be blank"
+                />
+              )}
+            </Form.Label>
             <InputGroup>
               <Form.Control
                 placeholder="7"
@@ -138,7 +173,15 @@ export const FormAudience = ({
           </Form.Group>
 
           <Form.Group as={Col} className="mx-5" controlId="experimentDuration">
-            <Form.Label>Experiment duration</Form.Label>
+            <Form.Label className="d-flex align-items-center">
+              Experiment duration
+              {isMissingField("proposed_duration") && (
+                <InlineErrorIcon
+                  name="duration"
+                  message="Proposed duration cannot be blank"
+                />
+              )}
+            </Form.Label>
             <InputGroup className="mb-3">
               <Form.Control
                 placeholder="28"

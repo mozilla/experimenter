@@ -4,13 +4,12 @@
 
 import React, { useCallback, useEffect } from "react";
 import { useForm, ValidationRules } from "react-hook-form";
-import ReactTooltip from "react-tooltip";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import { getExperiment } from "../../types/getExperiment";
 import { useExitWarning } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
-import { ReactComponent as ErrorCircle } from "../../images/error-circle.svg";
+import InlineErrorIcon from "../InlineErrorIcon";
 
 type FormOverviewProps = {
   isLoading: boolean;
@@ -169,19 +168,13 @@ const FormOverview = ({
 
       {experiment && (
         <Form.Group controlId="publicDescription">
-          <Form.Label>
+          <Form.Label className="d-flex align-items-center">
             Public description
             {isMissingField!("public_description") && (
-              <>
-                <ErrorCircle
-                  width="20"
-                  height="20"
-                  className="ml-1"
-                  data-testid="missing-description"
-                  data-tip="Public description cannot be blank"
-                />
-                <ReactTooltip />
-              </>
+              <InlineErrorIcon
+                name="description"
+                message="Public description cannot be blank"
+              />
             )}
           </Form.Label>
           <Form.Control
