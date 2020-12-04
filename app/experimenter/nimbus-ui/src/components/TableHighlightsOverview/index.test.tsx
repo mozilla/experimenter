@@ -4,20 +4,23 @@
 
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import TableOverview from ".";
+import TableHighlightsOverview from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { mockAnalysis } from "../../lib/visualization/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 
 const { mock, data } = mockExperimentQuery("demo-slug");
 
-describe("TableOverview", () => {
+describe("TableHighlightsOverview", () => {
   it("has the correct headings", async () => {
     const EXPECTED_HEADINGS = ["Targeting", "Probe Sets", "Owner"];
 
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableOverview experiment={data!} results={mockAnalysis().overall} />
+        <TableHighlightsOverview
+          experiment={data!}
+          results={mockAnalysis().overall}
+        />
       </RouterSlugProvider>,
     );
 
@@ -29,7 +32,10 @@ describe("TableOverview", () => {
   it("has the expected targeting", async () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableOverview experiment={data!} results={mockAnalysis().overall} />
+        <TableHighlightsOverview
+          experiment={data!}
+          results={mockAnalysis().overall}
+        />
       </RouterSlugProvider>,
     );
 
@@ -43,7 +49,10 @@ describe("TableOverview", () => {
   it("has the expected probe sets", async () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableOverview experiment={data!} results={mockAnalysis().overall} />
+        <TableHighlightsOverview
+          experiment={data!}
+          results={mockAnalysis().overall}
+        />
       </RouterSlugProvider>,
     );
 
@@ -53,7 +62,10 @@ describe("TableOverview", () => {
   it("has the experiment owner", async () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
-        <TableOverview experiment={data!} results={mockAnalysis().overall} />
+        <TableHighlightsOverview
+          experiment={data!}
+          results={mockAnalysis().overall}
+        />
       </RouterSlugProvider>,
     );
     expect(screen.getByText("example@mozilla.com")).toBeInTheDocument();

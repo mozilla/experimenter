@@ -53,6 +53,10 @@ describe("PageResults", () => {
     expect(screen.queryByTestId("table-results")).toBeInTheDocument();
     expect(screen.queryByTestId("table-metric-primary")).toBeInTheDocument();
     expect(screen.queryByTestId("table-metric-secondary")).toBeInTheDocument();
+    expect(screen.queryByTestId("link-external-results")).toHaveAttribute(
+      "href",
+      "https://protosaur.dev/partybal/demo_slug.html",
+    );
   });
 
   it("displays the monitoring dashboard link", async () => {
@@ -77,6 +81,7 @@ describe("PageResults", () => {
       expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
     });
     expect(screen.queryByTestId("analysis-error")).toBeInTheDocument();
+    expect(screen.queryByTestId("summary")).toBeInTheDocument();
   });
 
   it("displays analysis loading", async () => {
@@ -103,10 +108,8 @@ describe("PageResults", () => {
     await waitFor(() => {
       expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
     });
-    expect(screen.queryByTestId("table-summary")).toBeInTheDocument();
-    expect(screen.queryByTestId("link-external-results")).toHaveAttribute(
-      "href",
-      "https://protosaur.dev/partybal/demo_slug.html",
-    );
+
+    expect(screen.queryByTestId("analysis-unavailable")).toBeInTheDocument();
+    expect(screen.queryByTestId("summary")).toBeInTheDocument();
   });
 });
