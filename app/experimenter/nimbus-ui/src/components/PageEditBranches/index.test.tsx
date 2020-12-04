@@ -16,7 +16,10 @@ import FormBranches from "../FormBranches";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { UPDATE_EXPERIMENT_BRANCHES_MUTATION } from "../../gql/experiments";
-import { UpdateExperimentBranchesInput } from "../../types/globalTypes";
+import {
+  NimbusExperimentApplication,
+  UpdateExperimentBranchesInput,
+} from "../../types/globalTypes";
 import {
   updateExperimentBranches_updateExperimentBranches,
   updateExperimentBranches_updateExperimentBranches_nimbusExperiment,
@@ -36,7 +39,9 @@ describe("PageEditBranches", () => {
   afterEach(() => {});
 
   it("renders as expected with experiment data", async () => {
-    const { mock } = mockExperimentQuery("demo-slug");
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplication.FENIX,
+    });
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
       expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
@@ -44,7 +49,9 @@ describe("PageEditBranches", () => {
     });
     expect(screen.getByTestId("FormBranches")).toBeInTheDocument();
     expect(screen.getByTestId("feature-config")).toBeInTheDocument();
-    for (const feature of MOCK_CONFIG!.featureConfig!) {
+    for (const feature of MOCK_CONFIG!.featureConfig!.filter(
+      (config) => config?.application === experiment!.application,
+    )) {
       const { slug } = feature!;
       expect(screen.getByText(slug)).toBeInTheDocument();
     }
