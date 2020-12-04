@@ -4,146 +4,146 @@
 
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
+import { MockedCache, mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import TableSummary from ".";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
 describe("TableSummary", () => {
-  describe("renders Experiment Owner row as expected", () => {
-    it("when set", () => {
-      const { data } = mockExperimentQuery("demo-slug");
-      render(<Subject experiment={data!} />);
-      expect(screen.getByTestId("experiment-owner")).toHaveTextContent(
-        "example@mozilla.com",
-      );
-    });
-    it("when not set", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
-        owner: null,
-      });
-      render(<Subject experiment={data!} />);
-      expect(screen.getByTestId("experiment-owner")).toHaveTextContent(
-        "Owner not set",
-      );
-    });
-  });
-  describe("renders Hypothesis row as expected", () => {
-    it("when set", () => {
-      const { data } = mockExperimentQuery("demo-slug");
-      render(<Subject experiment={data!} />);
-      expect(screen.getByTestId("experiment-hypothesis")).toHaveTextContent(
-        "Realize material say pretty.",
-      );
-    });
-    it("when not set", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
-        hypothesis: null,
-      });
-      render(<Subject experiment={data!} />);
-      expect(screen.getByTestId("experiment-hypothesis")).toHaveTextContent(
-        "Hypothesis not set",
-      );
-    });
+  it("renders rows displaying required fields at experiment creation as expected", () => {
+    const { data } = mockExperimentQuery("demo-slug");
+    render(<Subject experiment={data!} />);
+
+    expect(screen.getByTestId("experiment-slug")).toHaveTextContent(
+      "demo-slug",
+    );
+    expect(screen.getByTestId("experiment-owner")).toHaveTextContent(
+      "example@mozilla.com",
+    );
+    expect(screen.getByTestId("experiment-application")).toHaveTextContent(
+      "Desktop",
+    );
+    expect(screen.getByTestId("experiment-hypothesis")).toHaveTextContent(
+      "Realize material say pretty.",
+    );
   });
 
-  describe("renders Probe Sets row as expected", () => {
-    it("when both are set", () => {
+  describe("renders 'Primary probe sets' row as expected", () => {
+    it("with one probe set", () => {
       const { data } = mockExperimentQuery("demo-slug");
       render(<Subject experiment={data!} />);
       expect(screen.getByTestId("experiment-probe-primary")).toHaveTextContent(
-        "Primary: Picture-in-Picture",
+        "Picture-in-Picture",
       );
-      expect(
-        screen.getByTestId("experiment-probe-secondary"),
-      ).toHaveTextContent("Secondary: Feature B");
     });
-    it("when neither are set", () => {
+    it("with multiple probe sets", () => {
+      const { data } = mockExperimentQuery("demo-slug", {
+        primaryProbeSets: [
+          {
+            __typename: "NimbusProbeSetType",
+            id: "1",
+            slug: "picture_in_picture",
+            name: "Picture-in-Picture",
+          },
+          {
+            __typename: "NimbusProbeSetType",
+            id: "2",
+            slug: "feature_c",
+            name: "Feature C",
+          },
+        ],
+      });
+      render(<Subject experiment={data!} />);
+      expect(screen.getByTestId("experiment-probe-primary")).toHaveTextContent(
+        "Picture-in-Picture, Feature C",
+      );
+    });
+    it("when not set", () => {
       const { data } = mockExperimentQuery("demo-slug", {
         primaryProbeSets: [],
+      });
+      render(<Subject experiment={data!} />);
+      expect(
+        screen.queryByTestId("experiment-probe-primary"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("renders 'Secondary probe sets' row as expected", () => {
+    it("with one probe set", () => {
+      const { data } = mockExperimentQuery("demo-slug");
+      render(<Subject experiment={data!} />);
+      expect(
+        screen.getByTestId("experiment-probe-secondary"),
+      ).toHaveTextContent("Feature B");
+    });
+    it("with multiple probe sets", () => {
+      const { data } = mockExperimentQuery("demo-slug", {
+        secondaryProbeSets: [
+          {
+            __typename: "NimbusProbeSetType",
+            id: "1",
+            slug: "picture_in_picture",
+            name: "Picture-in-Picture",
+          },
+          {
+            __typename: "NimbusProbeSetType",
+            id: "2",
+            slug: "feature_b",
+            name: "Feature B",
+          },
+        ],
+      });
+      render(<Subject experiment={data!} />);
+      expect(
+        screen.getByTestId("experiment-probe-secondary"),
+      ).toHaveTextContent("Picture-in-Picture, Feature B");
+    });
+    it("when not set", () => {
+      const { data } = mockExperimentQuery("demo-slug", {
         secondaryProbeSets: [],
       });
       render(<Subject experiment={data!} />);
-      expect(screen.getByTestId("experiment-probe-primary")).toHaveTextContent(
-        "Primary: probe not set",
-      );
       expect(
-        screen.getByTestId("experiment-probe-secondary"),
-      ).toHaveTextContent("Secondary: probe not set");
+        screen.queryByTestId("experiment-probe-secondary"),
+      ).not.toBeInTheDocument();
+    });
+
+    describe("renders 'Public description' row as expected", () => {
+      it("when set", () => {
+        const { data } = mockExperimentQuery("demo-slug");
+        render(<Subject experiment={data!} />);
+        expect(screen.getByTestId("experiment-description")).toHaveTextContent(
+          "Official approach present industry strategy dream piece.",
+        );
+      });
+      it("when not set", () => {
+        const { data } = mockExperimentQuery("demo-slug", {
+          publicDescription: null,
+        });
+        render(<Subject experiment={data!} />);
+        expect(screen.getByTestId("experiment-description")).toHaveTextContent(
+          "Not set",
+        );
+      });
     });
   });
 
-  describe("renders Audience row as expected", () => {
-    it("when all fields are set", () => {
-      const { data } = mockExperimentQuery("demo-slug");
-      render(<Subject experiment={data!} />);
-      expect(screen.getByTestId("experiment-target")).toHaveTextContent(
-        "Us Only",
-      );
-      expect(screen.getByTestId("experiment-channels")).toHaveTextContent(
-        "Desktop Nightly, Desktop Beta,",
-      );
-      expect(screen.getByTestId("experiment-ff-min")).toHaveTextContent(
-        "Firefox 80",
-      );
-      expect(screen.getByTestId("experiment-population")).toHaveTextContent(
-        "40% of population",
-      );
-      expect(screen.getByTestId("experiment-total-enrolled")).toHaveTextContent(
-        "totalling 68,000 expected enrolled clients",
-      );
-    });
-    it("when no fields are set", () => {
+  describe("renders 'Feature config' row as expected", () => {
+    it("when set", () => {
       const { data } = mockExperimentQuery("demo-slug", {
-        channels: [],
-        firefoxMinVersion: null,
-        populationPercent: 0,
-        totalEnrolledClients: 0,
-        proposedEnrollment: 0,
-        proposedDuration: 0,
-        targetingConfigSlug: null,
+        featureConfig: MOCK_CONFIG.featureConfig![1],
       });
       render(<Subject experiment={data!} />);
-      expect(screen.getByTestId("experiment-target")).toHaveTextContent(
-        "Target audience not set",
-      );
-      expect(screen.getByTestId("experiment-channels")).toHaveTextContent(
-        "channel not set",
-      );
-      expect(screen.getByTestId("experiment-ff-min")).toHaveTextContent(
-        "Firefox minimum version not set",
-      );
-      expect(screen.getByTestId("experiment-population")).toHaveTextContent(
-        "Population percentage not set",
-      );
-      expect(screen.getByTestId("experiment-total-enrolled")).toHaveTextContent(
-        "totalling expected enrolled clients not set",
+      expect(screen.getByTestId("experiment-feature-config")).toHaveTextContent(
+        "Mauris odio erat",
       );
     });
-  });
-
-  describe("renders Duration row as expected", () => {
-    it("when all fields are set", () => {
+    it("when not set", () => {
       const { data } = mockExperimentQuery("demo-slug");
       render(<Subject experiment={data!} />);
-      expect(screen.getByTestId("experiment-duration")).toHaveTextContent(
-        "28 days",
-      );
-      expect(screen.getByTestId("experiment-enrollment")).toHaveTextContent(
-        "over an enrollment period of 1 day",
-      );
-    });
-    it("when no fields are set", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
-        proposedEnrollment: 0,
-        proposedDuration: 0,
-      });
-      render(<Subject experiment={data!} />);
-      expect(screen.getByTestId("experiment-duration")).toHaveTextContent(
-        "Proposed duration not set",
-      );
-      expect(screen.getByTestId("experiment-enrollment")).toHaveTextContent(
-        "over an enrollment period of proposed enrollment not set",
-      );
+      expect(
+        screen.queryByTestId("experiment-feature-config"),
+      ).not.toBeInTheDocument();
     });
   });
 });

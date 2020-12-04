@@ -7,16 +7,19 @@ import { storiesOf } from "@storybook/react";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { withLinks } from "@storybook/addon-links";
 import { mockExperimentQuery } from "../../lib/mocks";
-import TableOverview from ".";
+import TableHighlightsOverview from ".";
 import { mockAnalysis } from "../../lib/visualization/mocks";
 
-storiesOf("visualization/TableOverview", module)
+storiesOf("visualization/TableHighlightsOverview", module)
   .addDecorator(withLinks)
   .add("basic, with one primary probe set", () => {
     const { mock, data } = mockExperimentQuery("demo-slug");
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableOverview experiment={data!} results={mockAnalysis().overall} />
+        <TableHighlightsOverview
+          experiment={data!}
+          results={mockAnalysis().overall}
+        />
       </RouterSlugProvider>
     );
   })
@@ -26,26 +29,29 @@ storiesOf("visualization/TableOverview", module)
         {
           __typename: "NimbusProbeSetType",
           id: "1",
-          slug: "picture-in-picture",
+          slug: "picture_in_picture",
           name: "Picture-in-Picture",
         },
         {
           __typename: "NimbusProbeSetType",
           id: "2",
-          slug: "feature-b",
+          slug: "feature_b",
           name: "Feature B",
         },
         {
           __typename: "NimbusProbeSetType",
           id: "3",
-          slug: "feature-c",
+          slug: "feature_c",
           name: "Feature C",
         },
       ],
     });
     return (
       <RouterSlugProvider mocks={[mock]}>
-        <TableOverview experiment={data!} results={mockAnalysis().overall} />
+        <TableHighlightsOverview
+          experiment={data!}
+          results={mockAnalysis().overall}
+        />
       </RouterSlugProvider>
     );
   });

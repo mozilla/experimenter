@@ -7,6 +7,7 @@ import ProgressBar from "react-bootstrap/ProgressBar";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 import pluralize from "../../lib/pluralize";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import { NotSet } from "../Summary";
 
 const humanDate = (date: string): string => {
   return new Date(date).toLocaleString("en-US", {
@@ -16,15 +17,13 @@ const humanDate = (date: string): string => {
   });
 };
 
-const experimentStatus = (status: NimbusExperimentStatus) => {
-  return {
-    draft: status === NimbusExperimentStatus.DRAFT,
-    review: status === NimbusExperimentStatus.REVIEW,
-    accepted: status === NimbusExperimentStatus.ACCEPTED,
-    live: status === NimbusExperimentStatus.LIVE,
-    complete: status === NimbusExperimentStatus.COMPLETE,
-  };
-};
+const experimentStatus = (status: NimbusExperimentStatus) => ({
+  draft: status === NimbusExperimentStatus.DRAFT,
+  review: status === NimbusExperimentStatus.REVIEW,
+  accepted: status === NimbusExperimentStatus.ACCEPTED,
+  live: status === NimbusExperimentStatus.LIVE,
+  complete: status === NimbusExperimentStatus.COMPLETE,
+});
 
 const SummaryTimeline = ({
   experiment,
@@ -34,7 +33,7 @@ const SummaryTimeline = ({
   const status = experimentStatus(experiment.status!);
 
   return (
-    <div className="mb-4" data-testid="summary-timeline">
+    <div className="mb-5" data-testid="summary-timeline">
       <StartEnd
         {...{
           status,
@@ -132,17 +131,13 @@ const Duration = ({
     {duration ? (
       <b data-testid="label-duration-days">{pluralize(duration, "day")}</b>
     ) : (
-      <span className="text-danger" data-testid="label-duration-not-set">
-        Not set
-      </span>
+      <NotSet data-testid="label-duration-not-set" />
     )}{" "}
     / Enrollment:{" "}
     {enrollment ? (
       <b data-testid="label-enrollment-days">{pluralize(enrollment, "day")}</b>
     ) : (
-      <span className="text-danger" data-testid="label-enrollment-not-set">
-        Not set
-      </span>
+      <NotSet data-testid="label-enrollment-not-set" />
     )}
   </span>
 );

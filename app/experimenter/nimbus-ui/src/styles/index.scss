@@ -40,6 +40,10 @@ $sizes: (
   font-weight: 600;
 }
 
+.w-33 {
+  width: 33.33%;
+}
+
 .positive-significance {
   @extend .text-success;
   @extend .font-weight-bold;
