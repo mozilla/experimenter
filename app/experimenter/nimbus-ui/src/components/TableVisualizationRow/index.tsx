@@ -163,42 +163,54 @@ const TableVisualizationRow: React.FC<{
   branchComparison,
 }) => {
   const { branch_data, is_control } = results;
-
   const metricData = branch_data[metricKey];
-  const percent = branch_data[METRIC.USER_COUNT]["percent"];
-  const userCountMetric =
-    branch_data[METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE]["point"];
 
-  const branchType = is_control ? VARIANT_TYPE.CONTROL : VARIANT_TYPE.VARIANT;
-  branchComparison =
-    branchComparison || dataTypeMapping[tableLabel][branchType];
-  const { lower, upper, point, count } = metricData[branchComparison];
-  const significance = metricData["significance"];
+  let field = <>{metricName} is not available</>;
+  let className = "text-danger";
+  if (metricData) {
+    className = "";
+    const percent = branch_data[METRIC.USER_COUNT]["percent"];
+    const userCountMetric =
+      branch_data[METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE]["point"];
 
-  let field;
-  switch (displayType) {
-    case DISPLAY_TYPE.POPULATION:
-      field = populationField(point, percent);
-      break;
-    case DISPLAY_TYPE.COUNT:
-      field = countField(lower, upper, significance, metricName, tableLabel);
-      break;
-    case DISPLAY_TYPE.PERCENT:
-    case DISPLAY_TYPE.CONVERSION_RATE:
-      field = percentField(lower, upper, significance, metricName, tableLabel);
-      break;
-    case DISPLAY_TYPE.CONVERSION_COUNT:
-      field = conversionCountField(count, userCountMetric);
-      break;
-    case DISPLAY_TYPE.CONVERSION_CHANGE:
-      field = conversionChangeField(lower, upper, significance);
-      break;
+    const branchType = is_control ? VARIANT_TYPE.CONTROL : VARIANT_TYPE.VARIANT;
+    branchComparison =
+      branchComparison || dataTypeMapping[tableLabel][branchType];
+    const { lower, upper, point, count } = metricData[branchComparison];
+    const significance = metricData["significance"];
+
+    switch (displayType) {
+      case DISPLAY_TYPE.POPULATION:
+        field = populationField(point, percent);
+        break;
+      case DISPLAY_TYPE.COUNT:
+        field = countField(lower, upper, significance, metricName, tableLabel);
+        break;
+      case DISPLAY_TYPE.PERCENT:
+      case DISPLAY_TYPE.CONVERSION_RATE:
+        field = percentField(
+          lower,
+          upper,
+          significance,
+          metricName,
+          tableLabel,
+        );
+        break;
+      case DISPLAY_TYPE.CONVERSION_COUNT:
+        field = conversionCountField(count, userCountMetric);
+        break;
+      case DISPLAY_TYPE.CONVERSION_CHANGE:
+        field = conversionChangeField(lower, upper, significance);
+        break;
+    }
   }
 
   return tableLabel === TABLE_LABEL.HIGHLIGHTS ? (
-    <div key={metricKey}>{field}</div>
+    <div key={metricKey} {...{ className }}>
+      {field}
+    </div>
   ) : (
-    <td key={metricKey} className="align-middle">
+    <td key={metricKey} className={`align-middle ${className}`}>
       <div>{field}</div>
     </td>
   );

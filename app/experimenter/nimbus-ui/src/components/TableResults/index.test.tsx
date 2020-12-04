@@ -7,7 +7,10 @@ import { render, screen } from "@testing-library/react";
 import TableResults from ".";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery } from "../../lib/mocks";
-import { mockAnalysis } from "../../lib/visualization/mocks";
+import {
+  mockAnalysis,
+  mockIncompleteAnalysis,
+} from "../../lib/visualization/mocks";
 
 const { mock, data } = mockExperimentQuery("demo-slug");
 
@@ -61,5 +64,19 @@ describe("TableResults", () => {
     expect(screen.getByTestId("positive-significance")).toBeInTheDocument();
     expect(screen.getByTestId("negative-significance")).toBeInTheDocument();
     expect(screen.getByTestId("neutral-significance")).toBeInTheDocument();
+  });
+
+  it("renders missing retention with warning", () => {
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <TableResults
+          primaryProbeSets={data!.primaryProbeSets!}
+          results={mockIncompleteAnalysis().overall}
+        />
+      </RouterSlugProvider>,
+    );
+
+    const EXPECTED_TEXT = "2-Week Browser Retention is not available";
+    expect(screen.getAllByText(EXPECTED_TEXT)).toHaveLength(2);
   });
 });

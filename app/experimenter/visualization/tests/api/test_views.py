@@ -71,6 +71,7 @@ class TestVisualizationView(TestCase):
                         "metric": primary_metric,
                         "branch": branch,
                         "statistic": "binomial",
+                        "window_index": "1",
                     },
                 }
             )
@@ -91,6 +92,7 @@ class TestVisualizationView(TestCase):
             "lower": 10,
             "metric": "identity",
             "statistic": "count",
+            "window_index": "1",
         }
         CONTROL_DATA_ROW = {
             **DATA_IDENTITY_ROW,
