@@ -5,11 +5,14 @@
 import React from "react";
 import AppLayout from "../AppLayout";
 import { RouteComponentProps, Link } from "@reach/router";
+import Head from "../Head";
 
 type PageHomeProps = {} & RouteComponentProps;
 
 const PageHome: React.FunctionComponent<PageHomeProps> = () => (
   <AppLayout testid="PageHome">
+    <Head title="Experiments" />
+
     <h1>Home</h1>
     <Link to="new" data-sb-kind="pages/New">
       New experiment
