@@ -1,0 +1,7 @@
+.directory-table th {
+  font-weight: normal;
+  border-top: 0;
+  &:first-child {
+    font-weight: bold;
+  }
+}

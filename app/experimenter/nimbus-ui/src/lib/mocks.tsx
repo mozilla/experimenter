@@ -16,12 +16,16 @@ import { MockLink, MockedResponse } from "@apollo/client/testing";
 import { equal } from "@wry/equality";
 import { DocumentNode, print } from "graphql";
 import { cacheConfig } from "../services/apollo";
-import { GET_EXPERIMENT_QUERY } from "../gql/experiments";
+import { GET_ALL_EXPERIMENTS, GET_EXPERIMENT_QUERY } from "../gql/experiments";
 import {
   getExperiment,
   getExperiment_experimentBySlug,
 } from "../types/getExperiment";
 import { getConfig_nimbusConfig } from "../types/getConfig";
+import {
+  getAllExperiments,
+  getAllExperiments_experiments,
+} from "../types/getAllExperiments";
 import { GET_CONFIG_QUERY } from "../gql/config";
 import { NimbusExperimentStatus } from "../types/globalTypes";
 import { getStatus } from "./experiment";
@@ -401,3 +405,86 @@ export const mockGetStatus = (status: NimbusExperimentStatus | null) => {
   const { experiment } = mockExperimentQuery("boo", { status });
   return getStatus(experiment);
 };
+
+const fiveDaysAgo = new Date();
+fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+
+/** Creates a single mock experiment suitable for getAllExperiments queries.  */
+export function mockSingleDirectoryExperimentFactory(
+  overrides: Partial<getAllExperiments_experiments> = {},
+): getAllExperiments_experiments {
+  return {
+    __typename: "NimbusExperimentType",
+    slug: `some-experiment-${Math.round(Math.random() * 100)}`,
+    owner: {
+      __typename: "NimbusExperimentOwner",
+      username: "example@mozilla.com",
+    },
+    monitoringDashboardUrl:
+      "https://grafana.telemetry.mozilla.org/d/XspgvdxZz/experiment-enrollment?orgId=1&var-experiment_id=bug-1668861-pref-measure-set-to-default-adoption-impact-of-chang-release-81-83",
+    name: "Open-architected background installation",
+    status: NimbusExperimentStatus.COMPLETE,
+    featureConfig: {
+      __typename: "NimbusFeatureConfigType",
+      slug: "newtab",
+      name: "New tab",
+    },
+    proposedEnrollment: 7,
+    proposedDuration: 28,
+    startDate: fiveDaysAgo.toISOString(),
+    endDate: new Date(Date.now() + 12096e5).toISOString(),
+    ...overrides,
+  };
+}
+
+export function mockDirectoryExperimentsFactory(
+  overrides: Partial<getAllExperiments_experiments>[] = [
+    {
+      status: NimbusExperimentStatus.DRAFT,
+      startDate: null,
+      endDate: null,
+    },
+    {
+      status: NimbusExperimentStatus.REVIEW,
+      endDate: null,
+    },
+    {
+      status: NimbusExperimentStatus.REVIEW,
+    },
+    {
+      status: NimbusExperimentStatus.LIVE,
+      endDate: null,
+    },
+    {
+      status: NimbusExperimentStatus.LIVE,
+      endDate: null,
+    },
+    {
+      status: NimbusExperimentStatus.LIVE,
+      endDate: null,
+    },
+    {
+      status: NimbusExperimentStatus.COMPLETE,
+    },
+    {
+      featureConfig: null,
+    },
+  ],
+): getAllExperiments_experiments[] {
+  return overrides.map(mockSingleDirectoryExperimentFactory);
+}
+
+/** Creates a bunch of experiments for the Directory page  */
+export function mockDirectoryExperimentsQuery(
+  overrides?: Partial<getAllExperiments_experiments>[],
+): MockedResponse<getAllExperiments> {
+  const experiments = mockDirectoryExperimentsFactory(overrides);
+  return {
+    request: {
+      query: GET_ALL_EXPERIMENTS,
+    },
+    result: {
+      data: experiments.length ? { experiments } : null,
+    },
+  };
+}

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { getExperiment_experimentBySlug } from "../types/getExperiment";
+import { getAllExperiments_experiments } from "../types/getAllExperiments";
 import { NimbusExperimentStatus } from "../types/globalTypes";
 
 export type StatusCheck = {
@@ -16,7 +17,7 @@ export type StatusCheck = {
 };
 
 export function getStatus(
-  experiment?: getExperiment_experimentBySlug,
+  experiment?: getExperiment_experimentBySlug | getAllExperiments_experiments,
 ): StatusCheck {
   const status = experiment?.status;
 

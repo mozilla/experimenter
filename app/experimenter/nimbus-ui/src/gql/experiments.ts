@@ -190,3 +190,26 @@ export const GET_EXPERIMENT_QUERY = gql`
     }
   }
 `;
+
+// TODO: Only the first 15 until we add pagination.
+export const GET_ALL_EXPERIMENTS = gql`
+  query getAllExperiments {
+    experiments {
+      name
+      owner {
+        username
+      }
+      slug
+      startDate
+      proposedDuration
+      proposedEnrollment
+      endDate
+      status
+      monitoringDashboardUrl
+      featureConfig {
+        slug
+        name
+      }
+    }
+  }
+`;
