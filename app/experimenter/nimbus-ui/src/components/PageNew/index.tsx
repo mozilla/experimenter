@@ -7,8 +7,6 @@ import { RouteComponentProps } from "@reach/router";
 import AppLayout from "../AppLayout";
 import LinkExternal from "../LinkExternal";
 import FormOverview from "../FormOverview";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import { ReactComponent as DeleteIcon } from "../../images/x.svg";
 
 import { useMutation } from "@apollo/client";
@@ -68,16 +66,12 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
 
   return (
     <AppLayout testid="PageNew">
-      <Row>
-        <Col>
-          <h1 className="h2">Create a new Experiment</h1>
-        </Col>
-        <Col className="text-right">
-          <button title="Cancel" className="btn pr-0" onClick={onFormCancel}>
-            <DeleteIcon width="18" height="18" />{" "}
-          </button>
-        </Col>
-      </Row>
+      <div className="d-flex justify-content-between">
+        <h1 className="h2">Create a new Experiment</h1>
+        <button title="Cancel" className="btn pr-0" onClick={onFormCancel}>
+          <DeleteIcon width="18" height="18" />{" "}
+        </button>
+      </div>
       <p>
         Before launching an experiment, review the{" "}
         <LinkExternal href={TRAINING_DOC_URL}>
