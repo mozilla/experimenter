@@ -16,6 +16,7 @@ import { updateExperimentStatus_updateExperimentStatus as UpdateExperimentStatus
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import FormRequestReview from "../FormRequestReview";
 import Summary from "../Summary";
+import { getStatus } from "../../lib/experiment";
 
 type PageRequestReviewProps = {
   polling?: boolean;
@@ -68,15 +69,13 @@ const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = ({
     >
       {({ experiment }) => {
         currentExperiment.current = experiment;
+        const status = getStatus(experiment);
 
         return (
           <>
             <Summary {...{ experiment }} />
 
-            {![
-              NimbusExperimentStatus.REVIEW,
-              NimbusExperimentStatus.DRAFT,
-            ].includes(experiment.status!) && (
+            {status.locked && (
               <p className="my-5" data-testid="cant-review-label">
                 This experiment&apos;s status is{" "}
                 <b className="text-lowercase">{experiment.status}</b> and cannot
@@ -84,23 +83,21 @@ const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = ({
               </p>
             )}
 
-            {(submitSuccess ||
-              experiment.status === NimbusExperimentStatus.REVIEW) && (
+            {(submitSuccess || status.review) && (
               <p className="my-5" data-testid="in-review-label">
                 All set! Your experiment is now <b>waiting for review</b>.
               </p>
             )}
 
-            {!submitSuccess &&
-              experiment.status === NimbusExperimentStatus.DRAFT && (
-                <FormRequestReview
-                  {...{
-                    isLoading: loading,
-                    submitError,
-                    onSubmit: onLaunchClicked,
-                  }}
-                />
-              )}
+            {!submitSuccess && status.draft && (
+              <FormRequestReview
+                {...{
+                  isLoading: loading,
+                  submitError,
+                  onSubmit: onLaunchClicked,
+                }}
+              />
+            )}
           </>
         );
       }}

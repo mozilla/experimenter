@@ -5,13 +5,13 @@
 import classNames from "classnames";
 import React from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { StatusCheck } from "../../lib/experiment";
 import "./index.scss";
 
 type HeaderExperimentProps = Pick<
   getExperiment_experimentBySlug,
-  "name" | "slug" | "status"
->;
+  "name" | "slug"
+> & { status: StatusCheck };
 
 const HeaderExperiment = ({ name, slug, status }: HeaderExperimentProps) => (
   <header className="border-bottom" data-testid="header-experiment">
@@ -25,23 +25,10 @@ const HeaderExperiment = ({ name, slug, status }: HeaderExperimentProps) => (
       {slug}
     </p>
     <p className="header-experiment-status position-relative mt-2 d-inline-block">
-      <StatusPill
-        label="Draft"
-        active={status === NimbusExperimentStatus.DRAFT}
-      />
-      <StatusPill
-        label="Review"
-        active={status === NimbusExperimentStatus.REVIEW}
-      />
-      <StatusPill
-        label="Live"
-        active={status === NimbusExperimentStatus.LIVE}
-      />
-      <StatusPill
-        label="Complete"
-        active={status === NimbusExperimentStatus.COMPLETE}
-        padded={false}
-      />
+      <StatusPill label="Draft" active={status.draft} />
+      <StatusPill label="Review" active={status.review} />
+      <StatusPill label="Live" active={status.live} />
+      <StatusPill label="Complete" active={status.complete} padded={false} />
     </p>
   </header>
 );
