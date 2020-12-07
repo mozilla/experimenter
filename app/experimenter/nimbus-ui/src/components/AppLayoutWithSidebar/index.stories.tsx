@@ -8,6 +8,7 @@ import { withLinks } from "@storybook/addon-links";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import AppLayoutWithSidebar from ".";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { mockGetStatus } from "../../lib/mocks";
 
 storiesOf("components/AppLayoutWithSidebar", module)
   .addDecorator(withLinks)
@@ -32,21 +33,25 @@ storiesOf("components/AppLayoutWithSidebar", module)
   ))
   .add("status: review", () => (
     <RouterSlugProvider>
-      <AppLayoutWithSidebar status={NimbusExperimentStatus.REVIEW}>
+      <AppLayoutWithSidebar
+        status={mockGetStatus(NimbusExperimentStatus.REVIEW)}
+      >
         <p>App contents go here</p>
       </AppLayoutWithSidebar>
     </RouterSlugProvider>
   ))
   .add("status: accepted", () => (
     <RouterSlugProvider>
-      <AppLayoutWithSidebar status={NimbusExperimentStatus.ACCEPTED}>
+      <AppLayoutWithSidebar
+        status={mockGetStatus(NimbusExperimentStatus.ACCEPTED)}
+      >
         <p>App contents go here</p>
       </AppLayoutWithSidebar>
     </RouterSlugProvider>
   ))
   .add("status: live", () => (
     <RouterSlugProvider>
-      <AppLayoutWithSidebar status={NimbusExperimentStatus.LIVE}>
+      <AppLayoutWithSidebar status={mockGetStatus(NimbusExperimentStatus.LIVE)}>
         <p>App contents go here</p>
       </AppLayoutWithSidebar>
     </RouterSlugProvider>
@@ -54,7 +59,7 @@ storiesOf("components/AppLayoutWithSidebar", module)
   .add("has analysis results", () => (
     <RouterSlugProvider>
       <AppLayoutWithSidebar
-        status={NimbusExperimentStatus.COMPLETE}
+        status={mockGetStatus(NimbusExperimentStatus.COMPLETE)}
         analysis={{
           show_analysis: true,
           daily: [],

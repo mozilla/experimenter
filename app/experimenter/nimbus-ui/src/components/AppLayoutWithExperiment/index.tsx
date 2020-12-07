@@ -11,9 +11,9 @@ import PageExperimentNotFound from "../PageExperimentNotFound";
 import { useAnalysis, useExperiment } from "../../hooks";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import AppLayout from "../AppLayout";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { AnalysisData } from "../../lib/visualization/types";
 import Head from "../Head";
+import { getStatus, StatusCheck } from "../../lib/experiment";
 
 type AppLayoutWithExperimentChildrenProps = {
   experiment: getExperiment_experimentBySlug;
@@ -35,15 +35,6 @@ type AppLayoutWithExperimentProps = {
 } & RouteComponentProps;
 
 export const POLL_INTERVAL = 30000;
-
-const experimentActive = (status: NimbusExperimentStatus | null): boolean => {
-  if (!status) return false;
-
-  return [
-    NimbusExperimentStatus.LIVE,
-    NimbusExperimentStatus.COMPLETE,
-  ].includes(status);
-};
 
 const AppLayoutWithExperiment = ({
   children,
@@ -67,6 +58,7 @@ const AppLayoutWithExperiment = ({
   // until we can prove otherwise.
   const [analysisRequired, setAnalysisRequired] = useState<boolean>(true);
   const [analysisFetched, setAnalysisFetched] = useState<boolean>(false);
+  const status = getStatus(experiment);
 
   const {
     execute: fetchAnalysis,
@@ -75,15 +67,11 @@ const AppLayoutWithExperiment = ({
   } = useAnalysis();
 
   useEffect(() => {
-    if (
-      !analysisFetched &&
-      !experimentLoading &&
-      experimentActive(experiment?.status)
-    ) {
+    if (!analysisFetched && !experimentLoading && status.released) {
       fetchAnalysis([experiment?.slug]);
       setAnalysisFetched(true);
     }
-  }, [fetchAnalysis, experimentLoading, experiment, analysisFetched]);
+  }, [fetchAnalysis, experimentLoading, experiment, analysisFetched, status]);
 
   useEffect(() => {
     if (!experimentLoading && !analysisLoading) {
@@ -108,13 +96,10 @@ const AppLayoutWithExperiment = ({
     return <PageExperimentNotFound {...{ slug }} />;
   }
 
-  const { name, status } = experiment;
+  const { name } = experiment;
 
   return (
-    <Layout
-      {...{ sidebar, children, review, analysis }}
-      status={experiment.status}
-    >
+    <Layout {...{ sidebar, children, review, analysis, status }}>
       <section data-testid={testId}>
         <Head
           title={title ? `${experiment.name} – ${title}` : experiment.name}
@@ -141,7 +126,7 @@ const AppLayoutWithExperiment = ({
 type LayoutProps = {
   sidebar: boolean;
   children: React.ReactElement;
-  status: NimbusExperimentStatus | null;
+  status: StatusCheck;
   review: {
     ready: boolean;
     invalidPages: string[];
