@@ -27,6 +27,14 @@ describe("TableSummary", () => {
     );
   });
 
+  it("renders Not Set if experiment owner is not set", () => {
+    const { data } = mockExperimentQuery("demo-slug", {
+      owner: null,
+    });
+    render(<Subject experiment={data!} />);
+    expect(screen.getByTestId("experiment-owner")).toHaveTextContent("Not set");
+  });
+
   describe("renders 'Primary probe sets' row as expected", () => {
     it("with one probe set", () => {
       const { data } = mockExperimentQuery("demo-slug");
