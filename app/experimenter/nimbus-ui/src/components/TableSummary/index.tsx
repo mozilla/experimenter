@@ -28,7 +28,9 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
         </tr>
         <tr>
           <th>Experiment owner</th>
-          <td data-testid="experiment-owner">{experiment.owner!.email}</td>
+          <td data-testid="experiment-owner">
+            {experiment.owner ? experiment.owner.email : <NotSet />}
+          </td>
         </tr>
         <tr>
           <th>Application</th>
