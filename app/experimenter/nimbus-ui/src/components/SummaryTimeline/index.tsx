@@ -4,10 +4,10 @@
 
 import React from "react";
 import ProgressBar from "react-bootstrap/ProgressBar";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
 import pluralize from "../../lib/pluralize";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NotSet } from "../Summary";
+import { getStatus, StatusCheck } from "../../lib/experiment";
 
 const humanDate = (date: string): string => {
   return new Date(date).toLocaleString("en-US", {
@@ -17,20 +17,12 @@ const humanDate = (date: string): string => {
   });
 };
 
-const experimentStatus = (status: NimbusExperimentStatus) => ({
-  draft: status === NimbusExperimentStatus.DRAFT,
-  review: status === NimbusExperimentStatus.REVIEW,
-  accepted: status === NimbusExperimentStatus.ACCEPTED,
-  live: status === NimbusExperimentStatus.LIVE,
-  complete: status === NimbusExperimentStatus.COMPLETE,
-});
-
 const SummaryTimeline = ({
   experiment,
 }: {
   experiment: getExperiment_experimentBySlug;
 }) => {
-  const status = experimentStatus(experiment.status!);
+  const status = getStatus(experiment);
 
   return (
     <div className="mb-5" data-testid="summary-timeline">
@@ -65,7 +57,7 @@ const StartEnd = ({
   startDate,
   endDate,
 }: {
-  status: ReturnType<typeof experimentStatus>;
+  status: StatusCheck;
   startDate: string | null;
   endDate: string | null;
 }) => (
@@ -92,7 +84,7 @@ const Progress = ({
   startDate,
   endDate,
 }: {
-  status: ReturnType<typeof experimentStatus>;
+  status: StatusCheck;
   startDate: string | null;
   endDate: string | null;
 }) => {

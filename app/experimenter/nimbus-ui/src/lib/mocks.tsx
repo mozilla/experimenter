@@ -20,6 +20,8 @@ import { GET_EXPERIMENT_QUERY } from "../gql/experiments";
 import { getExperiment } from "../types/getExperiment";
 import { getConfig_nimbusConfig } from "../types/getConfig";
 import { GET_CONFIG_QUERY } from "../gql/config";
+import { NimbusExperimentStatus } from "../types/globalTypes";
+import { getStatus } from "./experiment";
 import {
   NimbusFeatureConfigApplication,
   NimbusProbeKind,
@@ -364,4 +366,9 @@ export const mockExperimentMutation = (
       },
     },
   };
+};
+
+export const mockGetStatus = (status: NimbusExperimentStatus | null) => {
+  const { data } = mockExperimentQuery("boo", { status });
+  return getStatus(data!);
 };
