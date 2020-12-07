@@ -6,7 +6,7 @@ import React from "react";
 import { storiesOf } from "@storybook/react";
 import { withLinks } from "@storybook/addon-links";
 import HeaderExperiment from ".";
-import { mockExperimentQuery } from "../../lib/mocks";
+import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
 import AppLayout from "../AppLayout";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
@@ -19,7 +19,7 @@ storiesOf("components/HeaderExperiment", module)
       <HeaderExperiment
         name={data!.name}
         slug={data!.slug}
-        status={data!.status}
+        status={mockGetStatus(data!.status)}
       />
     </AppLayout>
   ))
@@ -28,7 +28,7 @@ storiesOf("components/HeaderExperiment", module)
       <HeaderExperiment
         name={data!.name}
         slug={data!.slug}
-        status={NimbusExperimentStatus.REVIEW}
+        status={mockGetStatus(NimbusExperimentStatus.REVIEW)}
       />
     </AppLayout>
   ))
@@ -37,7 +37,7 @@ storiesOf("components/HeaderExperiment", module)
       <HeaderExperiment
         name={data!.name}
         slug={data!.slug}
-        status={NimbusExperimentStatus.LIVE}
+        status={mockGetStatus(NimbusExperimentStatus.LIVE)}
       />
     </AppLayout>
   ))
@@ -46,7 +46,7 @@ storiesOf("components/HeaderExperiment", module)
       <HeaderExperiment
         name={data!.name}
         slug={data!.slug}
-        status={NimbusExperimentStatus.COMPLETE}
+        status={mockGetStatus(NimbusExperimentStatus.COMPLETE)}
       />
     </AppLayout>
   ));

@@ -10,8 +10,8 @@ import Col from "react-bootstrap/Col";
 import Nav from "react-bootstrap/Nav";
 import classNames from "classnames";
 import { BASE_PATH } from "../../lib/constants";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { AnalysisData } from "../../lib/visualization/types";
+import { StatusCheck } from "../../lib/experiment";
 import { ReactComponent as ChevronLeft } from "./chevron-left.svg";
 import { ReactComponent as Cog } from "./cog.svg";
 import { ReactComponent as Layers } from "./layers.svg";
@@ -26,21 +26,13 @@ import "./index.scss";
 type AppLayoutWithSidebarProps = {
   testid?: string;
   children: React.ReactNode;
-  status?: NimbusExperimentStatus | null;
+  status?: StatusCheck;
   review?: {
     invalidPages: string[];
     ready: boolean;
   };
   analysis?: AnalysisData;
 } & RouteComponentProps;
-
-const experimentLocked = (status: NimbusExperimentStatus): boolean => {
-  return [
-    NimbusExperimentStatus.ACCEPTED,
-    NimbusExperimentStatus.LIVE,
-    NimbusExperimentStatus.COMPLETE,
-  ].includes(status);
-};
 
 const editPages = [
   {
@@ -73,9 +65,6 @@ export const AppLayoutWithSidebar = ({
   analysis,
 }: AppLayoutWithSidebarProps) => {
   const { slug } = useParams();
-  const locked = status && experimentLocked(status);
-  const inReview = status === NimbusExperimentStatus.REVIEW;
-  const isAccepted = status === NimbusExperimentStatus.ACCEPTED;
 
   return (
     <Container fluid className="h-100vh" data-testid={testid}>
@@ -96,7 +85,7 @@ export const AppLayoutWithSidebar = ({
                 <ChevronLeft className="ml-n1" width="18" height="18" />
                 Experiments
               </LinkNav>
-              {locked ? (
+              {status?.locked ? (
                 <>
                   <LinkNav
                     route={`${slug}/design`}
@@ -117,7 +106,7 @@ export const AppLayoutWithSidebar = ({
                     </LinkNav>
                   ) : (
                     <DisabledItem name="Results" testId="show-no-results">
-                      {isAccepted
+                      {status?.accepted
                         ? "Waiting for experiment to launch"
                         : "Experiment results not yet ready"}
                     </DisabledItem>
@@ -131,7 +120,7 @@ export const AppLayoutWithSidebar = ({
                       route={`${slug}/edit/${page.slug}`}
                       storiesOf={`pages/Edit${page.name}`}
                       testid={`nav-edit-${page.slug}`}
-                      disabled={inReview}
+                      disabled={status?.review}
                     >
                       {page.icon}
                       {page.name}
@@ -145,7 +134,7 @@ export const AppLayoutWithSidebar = ({
                       )}
                     </LinkNav>
                   ))}
-                  {!review || review.ready || inReview ? (
+                  {!review || review.ready || status?.review ? (
                     <LinkNav
                       route={`${slug}/request-review`}
                       storiesOf="pages/RequestReview"

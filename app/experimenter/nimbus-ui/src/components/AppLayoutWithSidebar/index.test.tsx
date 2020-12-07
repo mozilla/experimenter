@@ -9,7 +9,11 @@ import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
 import { BASE_PATH } from "../../lib/constants";
 import { RouteComponentProps } from "@reach/router";
 import App from "../App";
-import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
+import {
+  MockedCache,
+  mockExperimentQuery,
+  mockGetStatus,
+} from "../../lib/mocks";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 const { mock } = mockExperimentQuery("my-special-slug");
@@ -29,7 +33,7 @@ const Subject = ({
   <RouterSlugProvider mocks={[mock]} path="/my-special-slug/edit">
     <AppLayoutWithSidebar
       {...{
-        status,
+        status: mockGetStatus(status),
         review,
         analysis: withAnalysis
           ? {
