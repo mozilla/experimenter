@@ -2,62 +2,153 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useCallback } from "react";
+import {
+  useForm,
+  Controller,
+  ValidationRules,
+  FieldError,
+} from "react-hook-form";
 import Select from "react-select";
 import Form from "react-bootstrap/Form";
+import Alert from "react-bootstrap/Alert";
 import InputGroup from "react-bootstrap/InputGroup";
 import Col from "react-bootstrap/Col";
 import LinkExternal from "../LinkExternal";
 import InlineErrorIcon from "../InlineErrorIcon";
+import { useConfig } from "../../hooks/useConfig";
 
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import {
-  getConfig_nimbusConfig,
-  getConfig_nimbusConfig_channels,
-} from "../../types/getConfig";
+import { getConfig_nimbusConfig_channels } from "../../types/getConfig";
 
 // TODO: find this doco URL
 const AUDIENCE_DOC_URL =
   "https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=FJT&title=Project+Nimbus";
 
-type FormAudienceConfig = Pick<
-  getConfig_nimbusConfig,
-  "channels" | "firefoxMinVersion" | "targetingConfigSlug"
->;
-
 export const FormAudience = ({
   experiment,
-  config,
+  submitErrors,
   isMissingField,
+  isLoading,
+  onSubmit,
+  onNext,
 }: {
   experiment: getExperiment_experimentBySlug;
-  config: FormAudienceConfig;
+  submitErrors: Record<string, string[]>;
   isMissingField: (fieldName: string) => boolean;
+  isLoading: boolean;
+  onSubmit: (data: Record<string, any>, reset: Function) => void;
+  onNext?: (ev: React.FormEvent) => void;
 }) => {
-  const {
-    channels,
-    firefoxMinVersion,
-    targetingConfigSlug,
-    populationPercent,
-    totalEnrolledClients,
-    proposedEnrollment,
-    proposedDuration,
-  } = experiment;
+  const config = useConfig();
 
   const channelsOptions = config.channels?.filter(
     (item): item is getConfig_nimbusConfig_channels => item !== null,
   );
-  const channelsDefaultValue = channels?.map((channel) =>
+  const channelsDefaultValue = experiment.channels?.map((channel) =>
     channelsOptions?.find((option) => option?.value === channel),
   );
 
+  const defaultValues = {
+    channels: channelsDefaultValue,
+    firefoxMinVersion: experiment.firefoxMinVersion || "",
+    targetingConfigSlug: experiment.targetingConfigSlug || "",
+    populationPercent: experiment.populationPercent || 0,
+    totalEnrolledClients: experiment.totalEnrolledClients,
+    proposedEnrollment: experiment.proposedEnrollment || 7,
+    proposedDuration: experiment.proposedDuration || 28,
+  };
+
+  const {
+    handleSubmit,
+    register,
+    control,
+    reset,
+    errors,
+    formState: { isValid, isSubmitted, touched },
+  } = useForm({
+    mode: "onTouched",
+    defaultValues,
+  });
+
+  type DefaultValues = typeof defaultValues;
+  type DefaultValuesKey = keyof DefaultValues;
+
+  const handleSubmitAfterValidation = useCallback(
+    (dataIn: DefaultValues) => {
+      if (isLoading) return;
+      onSubmit(
+        {
+          ...dataIn,
+          channels: dataIn.channels?.map((item) => item?.value),
+        },
+        reset,
+      );
+    },
+    [isLoading, onSubmit, reset],
+  );
+
+  const handleNext = useCallback(
+    (ev: React.FormEvent) => {
+      ev.preventDefault();
+      onNext!(ev);
+    },
+    [onNext],
+  );
+
+  const fieldValidity = <K extends DefaultValuesKey>(name: K) => ({
+    isInvalid: Boolean(submitErrors[name] || (touched[name] && errors[name])),
+    isValid: Boolean(!submitErrors[name] && touched[name] && !errors[name]),
+  });
+
+  const formControlCommon = <K extends DefaultValuesKey>(
+    name: K,
+    validateRules: ValidationRules = {
+      required: "This field may not be blank.",
+    },
+  ) => ({
+    name,
+    "data-testid": name,
+    ref: register(validateRules),
+    defaultValue: defaultValues[name],
+    ...fieldValidity(name),
+  });
+
+  const FormErrors = <K extends DefaultValuesKey>({ name }: { name: K }) => (
+    <>
+      {errors[name] && (
+        <Form.Control.Feedback type="invalid" data-for={name}>
+          {(errors[name] as FieldError).message}
+        </Form.Control.Feedback>
+      )}
+      {submitErrors[name] && (
+        <Form.Control.Feedback type="invalid" data-for={name}>
+          {submitErrors[name]}
+        </Form.Control.Feedback>
+      )}
+    </>
+  );
+
+  const isNextDisabled = isLoading || !experiment?.readyForReview?.ready;
+
   return (
-    <Form data-testid="FormAudience">
+    <Form
+      noValidate
+      onSubmit={handleSubmit(handleSubmitAfterValidation)}
+      validated={isSubmitted && isValid}
+      data-testid="FormAudience"
+    >
+      {submitErrors["*"] && (
+        <Alert data-testid="submit-error" variant="warning">
+          {submitErrors["*"]}
+        </Alert>
+      )}
+
       <Form.Group>
         <Form.Row>
-          <Form.Group as={Col} controlId="channel" md={8} lg={8}>
+          <Form.Group as={Col} controlId="channels" md={8} lg={8}>
             <Form.Label className="d-flex align-items-center">
-              Channel
+              Channels
               {isMissingField("channels") && (
                 <InlineErrorIcon
                   name="channels"
@@ -65,13 +156,26 @@ export const FormAudience = ({
                 />
               )}
             </Form.Label>
-            <Select
+            <Controller
+              as={Select}
+              control={control}
               isMulti
-              name="channel"
-              data-testid="channel"
-              defaultValue={channelsDefaultValue}
+              inputId="channels"
+              name="channels"
+              data-testid="channels"
               options={channelsOptions}
+              className={
+                fieldValidity("channels").isInvalid ? "is-invalid" : ""
+              }
+              rules={{
+                validate: {
+                  atLeastOne: (value) =>
+                    (Array.isArray(value) && value.length > 0) ||
+                    "At least one channel must be selected",
+                },
+              }}
             />
+            <FormErrors name="channels" />
           </Form.Group>
           <Form.Group as={Col} controlId="minVersion">
             <Form.Label className="d-flex align-items-center">
@@ -84,12 +188,12 @@ export const FormAudience = ({
               )}
             </Form.Label>
             <Form.Control
+              {...formControlCommon("firefoxMinVersion")}
               as="select"
-              data-testid="minVersion"
-              defaultValue={firefoxMinVersion || ""}
             >
               <SelectOptions options={config.firefoxMinVersion} />
             </Form.Control>
+            <FormErrors name="firefoxMinVersion" />
           </Form.Group>
         </Form.Row>
         <Form.Row>
@@ -104,12 +208,12 @@ export const FormAudience = ({
               )}
             </Form.Label>
             <Form.Control
+              {...formControlCommon("targetingConfigSlug")}
               as="select"
-              data-testid="targeting"
-              defaultValue={targetingConfigSlug || ""}
             >
               <SelectOptions options={config.targetingConfigSlug} />
             </Form.Control>
+            <FormErrors name="targetingConfigSlug" />
           </Form.Group>
         </Form.Row>
       </Form.Group>
@@ -121,34 +225,40 @@ export const FormAudience = ({
         </p>
 
         <Form.Row>
-          <Form.Group as={Col} className="mx-5" controlId="clientsPercent">
+          <Form.Group as={Col} className="mx-5" controlId="populationPercent">
             <Form.Label>Percent of clients</Form.Label>
             <InputGroup>
               <Form.Control
-                placeholder="0.00"
-                aria-describedby="clientsPercent-unit"
-                type="text"
-                defaultValue={populationPercent || 0}
+                {...formControlCommon("populationPercent")}
+                aria-describedby="populationPercent-unit"
+                type="number"
+                min="0"
+                max="100"
               />
               <InputGroup.Append>
-                <InputGroup.Text id="clientsPercent-unit">%</InputGroup.Text>
+                <InputGroup.Text id="populationPercent-unit">%</InputGroup.Text>
               </InputGroup.Append>
+              <FormErrors name="populationPercent" />
             </InputGroup>
           </Form.Group>
 
-          <Form.Group as={Col} className="mx-5" controlId="clientsNumber">
+          <Form.Group
+            as={Col}
+            className="mx-5"
+            controlId="totalEnrolledClients"
+          >
             <Form.Label>Expected number of clients</Form.Label>
             <Form.Control
-              name="clientsNumber"
-              placeholder="0"
-              type="text"
-              defaultValue={totalEnrolledClients}
+              {...formControlCommon("totalEnrolledClients")}
+              type="number"
+              min="0"
             />
+            <FormErrors name="totalEnrolledClients" />
           </Form.Group>
         </Form.Row>
 
         <Form.Row>
-          <Form.Group as={Col} className="mx-5" controlId="enrollmentPeriod">
+          <Form.Group as={Col} className="mx-5" controlId="proposedEnrollment">
             <Form.Label className="d-flex align-items-center">
               Enrollment period
               {isMissingField("proposed_enrollment") && (
@@ -160,19 +270,21 @@ export const FormAudience = ({
             </Form.Label>
             <InputGroup>
               <Form.Control
-                placeholder="7"
-                aria-describedby="enrollmentPeriod-unit"
-                defaultValue={proposedEnrollment || 7}
+                {...formControlCommon("proposedEnrollment")}
+                type="number"
+                min="0"
+                aria-describedby="proposedEnrollment-unit"
               />
               <InputGroup.Append>
-                <InputGroup.Text id="enrollmentPeriod-unit">
+                <InputGroup.Text id="proposedEnrollment-unit">
                   days
                 </InputGroup.Text>
               </InputGroup.Append>
+              <FormErrors name="proposedEnrollment" />
             </InputGroup>
           </Form.Group>
 
-          <Form.Group as={Col} className="mx-5" controlId="experimentDuration">
+          <Form.Group as={Col} className="mx-5" controlId="proposedDuration">
             <Form.Label className="d-flex align-items-center">
               Experiment duration
               {isMissingField("proposed_duration") && (
@@ -184,15 +296,17 @@ export const FormAudience = ({
             </Form.Label>
             <InputGroup className="mb-3">
               <Form.Control
-                placeholder="28"
-                aria-describedby="experimentDuration-unit"
-                defaultValue={proposedDuration || 28}
+                {...formControlCommon("proposedDuration")}
+                type="number"
+                min="0"
+                aria-describedby="proposedDuration-unit"
               />
               <InputGroup.Append>
-                <InputGroup.Text id="experimentDuration-unit">
+                <InputGroup.Text id="proposedDuration-unit">
                   days
                 </InputGroup.Text>
               </InputGroup.Append>
+              <FormErrors name="proposedDuration" />
             </InputGroup>
           </Form.Group>
         </Form.Row>
@@ -200,17 +314,26 @@ export const FormAudience = ({
 
       <div className="d-flex flex-row-reverse bd-highlight">
         <div className="p-2">
-          <button data-testid="next-button" className="btn btn-secondary">
+          <button
+            onClick={handleNext}
+            className="btn btn-secondary"
+            disabled={isNextDisabled}
+            data-testid="next-button"
+            data-sb-kind="pages/RequestReview"
+          >
             Next
           </button>
         </div>
         <div className="p-2">
           <button
-            data-testid="save-button"
+            data-testid="submit-button"
             type="submit"
+            onClick={handleSubmit(handleSubmitAfterValidation)}
             className="btn btn-primary"
+            disabled={isLoading}
+            data-sb-kind="pages/EditOverview"
           >
-            <span>Save</span>
+            <span>{isLoading ? "Saving" : "Save"}</span>
           </button>
         </div>
       </div>
