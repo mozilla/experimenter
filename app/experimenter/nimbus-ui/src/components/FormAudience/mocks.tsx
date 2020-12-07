@@ -3,22 +3,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
+import { mockExperimentQuery } from "../../lib/mocks";
 import { FormAudience } from ".";
+import { MOCK_CONFIG, MockedCache } from "../../lib/mocks";
+import { getConfig_nimbusConfig } from "../../types/getConfig";
 
 export const Subject = ({
-  experiment = MOCK_EXPERIMENT,
   config = MOCK_CONFIG,
+  experiment = MOCK_EXPERIMENT,
+  submitErrors = {},
   isMissingField = () => false,
-}: Partial<React.ComponentProps<typeof FormAudience>>) => (
+  isLoading = false,
+  onSubmit = () => {},
+  onNext = () => {},
+}: {
+  config?: getConfig_nimbusConfig;
+} & Partial<React.ComponentProps<typeof FormAudience>>) => (
   <div className="p-5">
-    <FormAudience
-      {...{
-        experiment,
-        config,
-        isMissingField,
-      }}
-    />
+    <MockedCache {...{ config }}>
+      <FormAudience
+        {...{
+          experiment,
+          submitErrors,
+          isMissingField,
+          isLoading,
+          onSubmit,
+          onNext,
+        }}
+      />
+    </MockedCache>
   </div>
 );
 

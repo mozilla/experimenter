@@ -95,6 +95,18 @@ export interface TreatmentBranchType {
   featureValue?: string | null;
 }
 
+export interface UpdateExperimentAudienceInput {
+  clientMutationId?: string | null;
+  nimbusExperimentId: number;
+  channels?: (NimbusExperimentChannel | null)[] | null;
+  firefoxMinVersion?: NimbusExperimentFirefoxMinVersion | null;
+  populationPercent?: number | null;
+  proposedDuration?: number | null;
+  proposedEnrollment?: string | null;
+  targetingConfigSlug?: NimbusExperimentTargetingConfigSlug | null;
+  totalEnrolledClients?: number | null;
+}
+
 export interface UpdateExperimentBranchesInput {
   clientMutationId?: string | null;
   nimbusExperimentId: number;
