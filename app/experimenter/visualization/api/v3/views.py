@@ -110,9 +110,29 @@ def append_conversion_count(results, primary_metrics_set):
             ] = conversion_count
 
 
-def process_data_for_consumption(data, experiment):
-    append_population_percentages(data)
-    results, primary_metrics_set = generate_results_object(data, experiment)
+def get_week_x_retention(week_index, weekly_data):
+    weekly_data = weekly_data or []
+    return [
+        row
+        for row in weekly_data
+        if row["window_index"] == str(week_index) and row["metric"] == Metric.RETENTION
+    ]
+
+
+def append_retention_data(overall_data, weekly_data):
+    # Try to get the two-week retention data. If it doesn't
+    # exist (experiment was too short), settle for 1 week.
+    retention_data = get_week_x_retention(2, weekly_data)
+    if len(retention_data) == 0:
+        retention_data = get_week_x_retention(1, weekly_data)
+
+    overall_data.extend(retention_data)
+
+
+def process_data_for_consumption(overall_data, weekly_data, experiment):
+    append_population_percentages(overall_data)
+    append_retention_data(overall_data, weekly_data)
+    results, primary_metrics_set = generate_results_object(overall_data, experiment)
     append_conversion_count(results, primary_metrics_set)
     return results
 
@@ -179,7 +199,9 @@ def analysis_results_view(request, slug):
         data = get_data(recipe_slug, window, experiment)
 
         if data and window == "overall":
-            data = process_data_for_consumption(data, experiment)
+            data = process_data_for_consumption(
+                data, experiment_data["weekly"], experiment
+            )
 
         experiment_data[window] = data
 
