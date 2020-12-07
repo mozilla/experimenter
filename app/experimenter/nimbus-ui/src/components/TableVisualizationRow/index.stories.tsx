@@ -6,7 +6,10 @@ import React from "react";
 import { storiesOf } from "@storybook/react";
 import { withLinks } from "@storybook/addon-links";
 import TableVisualizationRow from ".";
-import { mockAnalysis } from "../../lib/visualization/mocks";
+import {
+  mockAnalysis,
+  mockIncompleteAnalysis,
+} from "../../lib/visualization/mocks";
 import {
   DISPLAY_TYPE,
   BRANCH_COMPARISON,
@@ -14,6 +17,7 @@ import {
 } from "../../lib/visualization/constants";
 
 const MOCK_ANALYSIS = mockAnalysis();
+const MOCK_INCOMPLETE_ANALYSIS = mockIncompleteAnalysis();
 
 storiesOf("visualization/TableVisualizationRow", module)
   .addDecorator(withLinks)
@@ -75,5 +79,14 @@ storiesOf("visualization/TableVisualizationRow", module)
       results={MOCK_ANALYSIS.overall.treatment}
       tableLabel={TABLE_LABEL.PRIMARY_METRICS}
       metricKey="feature_c_ever_used"
+    />
+  ))
+  .add("Count field missing values", () => (
+    <TableVisualizationRow
+      results={MOCK_INCOMPLETE_ANALYSIS.overall.control}
+      metricName="Retention"
+      tableLabel={TABLE_LABEL.RESULTS}
+      metricKey="retained"
+      displayType={DISPLAY_TYPE.PERCENT}
     />
   ));
