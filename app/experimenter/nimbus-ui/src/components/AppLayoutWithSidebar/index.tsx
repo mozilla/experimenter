@@ -21,6 +21,7 @@ import { ReactComponent as Clipboard } from "./clipboard.svg";
 import { ReactComponent as NotAllowed } from "./not-allowed.svg";
 import { ReactComponent as AlertCircle } from "./alert-circle.svg";
 import { ReactComponent as BarChart } from "./bar-chart.svg";
+import "./index.scss";
 
 type AppLayoutWithSidebarProps = {
   testid?: string;
@@ -45,22 +46,22 @@ const editPages = [
   {
     name: "Overview",
     slug: "overview",
-    icon: <Cog className="mr-3" width="18" height="18" />,
+    icon: <Cog className="sidebar-icon" />,
   },
   {
     name: "Branches",
     slug: "branches",
-    icon: <Layers className="mr-3" width="18" height="18" />,
+    icon: <Layers className="sidebar-icon" />,
   },
   {
     name: "Metrics",
     slug: "metrics",
-    icon: <ChartArrow className="mr-3" width="18" height="18" />,
+    icon: <ChartArrow className="sidebar-icon" />,
   },
   {
     name: "Audience",
     slug: "audience",
-    icon: <Person className="mr-3" width="18" height="18" />,
+    icon: <Person className="sidebar-icon" />,
   },
 ];
 
@@ -102,7 +103,7 @@ export const AppLayoutWithSidebar = ({
                     storiesOf={"pages/Design"}
                     testid={"nav-design"}
                   >
-                    <Clipboard className="mr-3" width="18" height="18" />
+                    <Clipboard className="sidebar-icon" />
                     Design
                   </LinkNav>
                   {analysis?.show_analysis ? (
@@ -111,7 +112,7 @@ export const AppLayoutWithSidebar = ({
                       storiesOf={"pages/Results"}
                       testid={"nav-results"}
                     >
-                      <BarChart className="mr-3" width="18" height="18" />
+                      <BarChart className="sidebar-icon" />
                       Results
                     </LinkNav>
                   ) : (
@@ -150,7 +151,7 @@ export const AppLayoutWithSidebar = ({
                       storiesOf="pages/RequestReview"
                       testid="nav-request-review"
                     >
-                      <Clipboard className="mr-3" width="18" height="18" />
+                      <Clipboard className="sidebar-icon" />
                       Review &amp; Launch
                     </LinkNav>
                   ) : (
@@ -257,7 +258,7 @@ const DisabledItem = ({ name, children, testId }: DisabledItemProps) => (
     className="mx-1 my-2 d-flex text-muted font-weight-normal"
     data-testid={testId}
   >
-    <NotAllowed className="mr-3 mt-1" width="18" height="18" />
+    <NotAllowed className="mt-1 sidebar-icon" />
     <div>
       <p className="mb-1">{name}</p>
       <p className="mt-0 small">{children}</p>
