@@ -85,6 +85,7 @@ const TableResults = ({
                 return (
                   <TableVisualizationRow
                     key={`${displayType}-${metricKey}`}
+                    metricName={metric.name}
                     results={results[branch]}
                     tableLabel={TABLE_LABEL.RESULTS}
                     {...{ metricKey }}
