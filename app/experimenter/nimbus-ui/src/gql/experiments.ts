@@ -95,6 +95,26 @@ export const UPDATE_EXPERIMENT_PROBESETS_MUTATION = gql`
   }
 `;
 
+export const UPDATE_EXPERIMENT_AUDIENCE_MUTATION = gql`
+  mutation updateExperimentAudience($input: UpdateExperimentAudienceInput!) {
+    updateExperimentAudience(input: $input) {
+      clientMutationId
+      message
+      status
+      nimbusExperiment {
+        id
+        totalEnrolledClients
+        channels
+        firefoxMinVersion
+        populationPercent
+        proposedDuration
+        proposedEnrollment
+        targetingConfigSlug
+      }
+    }
+  }
+`;
+
 export const GET_EXPERIMENT_QUERY = gql`
   query getExperiment($slug: String!) {
     experimentBySlug(slug: $slug) {

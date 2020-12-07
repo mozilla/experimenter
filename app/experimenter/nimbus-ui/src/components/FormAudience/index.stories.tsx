@@ -4,6 +4,23 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
+import { action } from "@storybook/addon-actions";
 import { Subject } from "./mocks";
 
-storiesOf("components/FormAudience", module).add("basic", () => <Subject />);
+storiesOf("components/FormAudience", module)
+  .add("basic", () => <Subject onSubmit={action("submit")} />)
+  .add("loading", () => <Subject isLoading />)
+  .add("errors", () => (
+    <Subject
+      submitErrors={{
+        "*": ["Big bad server thing happened"],
+        channels: ["Cannot tune in these channels"],
+        firefoxMinVersion: ["Bad min version"],
+        targetingConfigSlug: ["This slug is icky"],
+        populationPercent: ["This is not a percentage"],
+        totalEnrolledClients: ["Need a number here, bud."],
+        proposedEnrollment: ["Emoji are not numbers"],
+        proposedDuration: ["No negative numbers"],
+      }}
+    />
+  ));
