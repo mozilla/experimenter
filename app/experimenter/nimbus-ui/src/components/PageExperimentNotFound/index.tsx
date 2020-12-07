@@ -6,9 +6,12 @@ import { Link } from "@reach/router";
 import React from "react";
 import { BASE_PATH } from "../../lib/constants";
 import AppLayout from "../AppLayout";
+import Head from "../Head";
 
 const ExperimentNotFound = ({ slug }: { slug: string }) => (
   <AppLayout testid="not-found">
+    <Head title="Experiment not found" />
+
     <section className="text-center">
       <h1 className="h2">Experiment Not Found</h1>
       <p className="pt-3">
