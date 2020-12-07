@@ -15,6 +15,7 @@ import { CreateExperimentInput } from "../../types/globalTypes";
 import { createExperiment_createExperiment as CreateExperimentResult } from "../../types/createExperiment";
 import { navigate } from "@reach/router";
 import { SUBMIT_ERROR } from "../../lib/constants";
+import Head from "../Head";
 
 const TRAINING_DOC_URL =
   "https://mana.mozilla.org/wiki/display/FJT/Project+Nimbus";
@@ -66,12 +67,15 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
 
   return (
     <AppLayout testid="PageNew">
+      <Head title="New Experiment" />
+
       <div className="d-flex justify-content-between">
         <h1 className="h2">Create a new Experiment</h1>
         <button title="Cancel" className="btn pr-0" onClick={onFormCancel}>
           <DeleteIcon width="18" height="18" />{" "}
         </button>
       </div>
+
       <p>
         Before launching an experiment, review the{" "}
         <LinkExternal href={TRAINING_DOC_URL}>

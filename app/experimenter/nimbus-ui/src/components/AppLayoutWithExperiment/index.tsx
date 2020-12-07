@@ -13,6 +13,7 @@ import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import AppLayout from "../AppLayout";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { AnalysisData } from "../../lib/visualization/types";
+import Head from "../Head";
 
 type AppLayoutWithExperimentChildrenProps = {
   experiment: getExperiment_experimentBySlug;
@@ -115,6 +116,10 @@ const AppLayoutWithExperiment = ({
       status={experiment.status}
     >
       <section data-testid={testId}>
+        <Head
+          title={title ? `${experiment.name} – ${title}` : experiment.name}
+        />
+
         <HeaderExperiment
           {...{
             slug,
