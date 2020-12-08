@@ -15,7 +15,7 @@ export interface updateExperimentAudience_updateExperimentAudience_nimbusExperim
   totalEnrolledClients: number;
   channels: (NimbusExperimentChannel | null)[] | null;
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion | null;
-  populationPercent: number | null;
+  populationPercent: string | null;
   proposedDuration: number | null;
   proposedEnrollment: number | null;
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug | null;
