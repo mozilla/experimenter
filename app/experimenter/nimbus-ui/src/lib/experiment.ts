@@ -38,3 +38,13 @@ export function getStatus(
     released,
   };
 }
+
+export function editCommonRedirects({ status }: { status: StatusCheck }) {
+  if (status.review) {
+    return "request-review";
+  }
+
+  if (status.locked) {
+    return "design";
+  }
+}

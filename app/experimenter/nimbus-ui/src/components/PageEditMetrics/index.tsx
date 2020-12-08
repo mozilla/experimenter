@@ -15,6 +15,7 @@ import { useConfig } from "../../hooks/useConfig";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import FormMetrics from "../FormMetrics";
 import LinkExternal from "../LinkExternal";
+import { editCommonRedirects } from "../../lib/experiment";
 
 const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
   const { probeSets } = useConfig();
@@ -73,7 +74,11 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
   }, []);
 
   return (
-    <AppLayoutWithExperiment title="Metrics" testId="PageEditMetrics">
+    <AppLayoutWithExperiment
+      title="Metrics"
+      testId="PageEditMetrics"
+      redirect={editCommonRedirects}
+    >
       {({ experiment, review }) => {
         currentExperiment.current = experiment;
         refetchReview.current = review.refetch;

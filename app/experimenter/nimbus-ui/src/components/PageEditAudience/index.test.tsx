@@ -10,6 +10,7 @@ import {
   fireEvent,
   act,
 } from "@testing-library/react";
+import fetchMock from "jest-fetch-mock";
 import PageEditAudience from ".";
 import FormAudience from "../FormAudience";
 import { RouterSlugProvider } from "../../lib/test-utils";
@@ -17,7 +18,7 @@ import { mockExperimentQuery } from "../../lib/mocks";
 import { MockedResponse } from "@apollo/client/testing";
 import { navigate } from "@reach/router";
 import { UPDATE_EXPERIMENT_AUDIENCE_MUTATION } from "../../gql/experiments";
-import { SUBMIT_ERROR } from "../../lib/constants";
+import { BASE_PATH, SUBMIT_ERROR } from "../../lib/constants";
 import {
   updateExperimentAudience_updateExperimentAudience,
   updateExperimentAudience_updateExperimentAudience_nimbusExperiment,
@@ -25,6 +26,7 @@ import {
 import {
   NimbusExperimentChannel,
   NimbusExperimentFirefoxMinVersion,
+  NimbusExperimentStatus,
   NimbusExperimentTargetingConfigSlug,
   UpdateExperimentAudienceInput,
 } from "../../types/globalTypes";
@@ -35,6 +37,14 @@ let mockSubmitData: Partial<UpdateExperimentAudienceInput>;
 let mutationMock: ReturnType<typeof mockUpdateExperimentAudienceMutation>;
 
 describe("PageEditAudience", () => {
+  beforeAll(() => {
+    fetchMock.enableMocks();
+  });
+
+  afterAll(() => {
+    fetchMock.disableMocks();
+  });
+
   beforeEach(() => {
     mockSubmitData = { ...MOCK_FORM_DATA };
     mutationMock = mockUpdateExperimentAudienceMutation(
@@ -54,6 +64,42 @@ describe("PageEditAudience", () => {
     render(<Subject />);
     await waitFor(() => {
       expect(screen.queryByTestId("PageEditAudience")).toBeInTheDocument();
+    });
+  });
+
+  it("redirects to the review page if the experiment status is review", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.REVIEW,
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith(
+        `${BASE_PATH}/${experiment.slug}/request-review`,
+      );
+    });
+  });
+
+  it("redirects to the design page if the experiment status is live", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.LIVE,
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith(
+        `${BASE_PATH}/${experiment.slug}/design`,
+      );
+    });
+  });
+
+  it("redirects to the design page if the experiment status is complete", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.COMPLETE,
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith(
+        `${BASE_PATH}/${experiment.slug}/design`,
+      );
     });
   });
 
