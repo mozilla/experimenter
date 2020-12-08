@@ -6,7 +6,7 @@ import { NimbusExperimentStatus } from "../types/globalTypes";
 import { getStatus } from "./experiment";
 import { mockExperimentQuery } from "./mocks";
 
-const experiment = mockExperimentQuery("boo").data!;
+const { experiment } = mockExperimentQuery("boo");
 
 describe("getStatus", () => {
   it("correctly returns available experiment states", () => {

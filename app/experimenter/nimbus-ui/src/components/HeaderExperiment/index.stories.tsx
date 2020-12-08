@@ -10,24 +10,24 @@ import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
 import AppLayout from "../AppLayout";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
-const { data } = mockExperimentQuery("demo-slug");
+const { experiment } = mockExperimentQuery("demo-slug");
 
 storiesOf("components/HeaderExperiment", module)
   .addDecorator(withLinks)
   .add("status: draft", () => (
     <AppLayout>
       <HeaderExperiment
-        name={data!.name}
-        slug={data!.slug}
-        status={mockGetStatus(data!.status)}
+        name={experiment.name}
+        slug={experiment.slug}
+        status={mockGetStatus(experiment.status)}
       />
     </AppLayout>
   ))
   .add("status: review", () => (
     <AppLayout>
       <HeaderExperiment
-        name={data!.name}
-        slug={data!.slug}
+        name={experiment.name}
+        slug={experiment.slug}
         status={mockGetStatus(NimbusExperimentStatus.REVIEW)}
       />
     </AppLayout>
@@ -35,8 +35,8 @@ storiesOf("components/HeaderExperiment", module)
   .add("status: live", () => (
     <AppLayout>
       <HeaderExperiment
-        name={data!.name}
-        slug={data!.slug}
+        name={experiment.name}
+        slug={experiment.slug}
         status={mockGetStatus(NimbusExperimentStatus.LIVE)}
       />
     </AppLayout>
@@ -44,8 +44,8 @@ storiesOf("components/HeaderExperiment", module)
   .add("status: complete", () => (
     <AppLayout>
       <HeaderExperiment
-        name={data!.name}
-        slug={data!.slug}
+        name={experiment.name}
+        slug={experiment.slug}
         status={mockGetStatus(NimbusExperimentStatus.COMPLETE)}
       />
     </AppLayout>

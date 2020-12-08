@@ -29,7 +29,7 @@ import {
   UpdateExperimentAudienceInput,
 } from "../../types/globalTypes";
 
-const { mock, data } = mockExperimentQuery("demo-slug");
+const { mock, experiment } = mockExperimentQuery("demo-slug");
 
 let mockSubmitData: Partial<UpdateExperimentAudienceInput>;
 let mutationMock: ReturnType<typeof mockUpdateExperimentAudienceMutation>;
@@ -38,12 +38,12 @@ describe("PageEditAudience", () => {
   beforeEach(() => {
     mockSubmitData = { ...MOCK_FORM_DATA };
     mutationMock = mockUpdateExperimentAudienceMutation(
-      { ...mockSubmitData, nimbusExperimentId: parseInt(data!.id, 10) },
+      { ...mockSubmitData, nimbusExperimentId: parseInt(experiment.id, 10) },
       {
         experiment: {
           ...MOCK_FORM_DATA,
           __typename: "NimbusExperimentType",
-          id: data!.id!,
+          id: experiment.id!,
           proposedEnrollment: parseFloat(MOCK_FORM_DATA.proposedEnrollment),
         },
       },

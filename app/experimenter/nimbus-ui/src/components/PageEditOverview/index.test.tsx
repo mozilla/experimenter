@@ -19,7 +19,7 @@ import { navigate } from "@reach/router";
 import { UPDATE_EXPERIMENT_OVERVIEW_MUTATION } from "../../gql/experiments";
 import { SUBMIT_ERROR } from "../../lib/constants";
 
-const { mock, data } = mockExperimentQuery("demo-slug");
+const { mock, experiment } = mockExperimentQuery("demo-slug");
 
 jest.mock("@reach/router", () => ({
   ...jest.requireActual("@reach/router"),
@@ -46,13 +46,13 @@ describe("PageEditOverview", () => {
 
   beforeEach(() => {
     mockSubmitData = {
-      name: data!.name,
-      hypothesis: data!.hypothesis!,
-      publicDescription: data!.publicDescription!,
+      name: experiment.name,
+      hypothesis: experiment.hypothesis!,
+      publicDescription: experiment.publicDescription!,
     };
     mutationMock = mockExperimentMutation(
       UPDATE_EXPERIMENT_OVERVIEW_MUTATION,
-      { ...mockSubmitData, id: data!.id },
+      { ...mockSubmitData, id: experiment.id },
       "updateExperimentOverview",
       {
         experiment: mockSubmitData,

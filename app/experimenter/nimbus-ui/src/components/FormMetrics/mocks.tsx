@@ -12,7 +12,7 @@ export const Subject = ({
   submitErrors = {},
   onSave = () => {},
   onNext = () => {},
-  experiment = mockExperimentQuery("boo").data,
+  experiment = mockExperimentQuery("boo").experiment,
   probeSets = MOCK_CONFIG.probeSets,
 }: Partial<React.ComponentProps<typeof FormMetrics>>) => (
   <MockedCache>

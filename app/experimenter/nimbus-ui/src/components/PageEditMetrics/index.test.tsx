@@ -19,7 +19,7 @@ import { navigate } from "@reach/router";
 import { UPDATE_EXPERIMENT_PROBESETS_MUTATION } from "../../gql/experiments";
 import { SUBMIT_ERROR } from "../../lib/constants";
 
-const { mock, data } = mockExperimentQuery("demo-slug");
+const { mock, experiment } = mockExperimentQuery("demo-slug");
 
 jest.mock("@reach/router", () => ({
   ...jest.requireActual("@reach/router"),
@@ -46,20 +46,22 @@ describe("PageEditMetrics", () => {
 
   beforeEach(() => {
     mockSubmitData = {
-      nimbusExperimentId: parseInt(data!.id),
-      primaryProbeSetIds: data!.primaryProbeSets!.map((p) => parseInt(p!.id)),
-      secondaryProbeSetIds: data!.secondaryProbeSets!.map((p) =>
+      nimbusExperimentId: parseInt(experiment.id),
+      primaryProbeSetIds: experiment.primaryProbeSets!.map((p) =>
+        parseInt(p!.id),
+      ),
+      secondaryProbeSetIds: experiment.secondaryProbeSets!.map((p) =>
         parseInt(p!.id),
       ),
     };
     const mockResponse = {
       experiment: {
-        id: data!.id,
-        primaryProbeSets: data!.primaryProbeSets!.map((p) => ({
+        id: experiment.id,
+        primaryProbeSets: experiment.primaryProbeSets!.map((p) => ({
           id: p?.id,
           name: p?.name,
         })),
-        secondaryProbeSets: data!.secondaryProbeSets!.map((p) => ({
+        secondaryProbeSets: experiment.secondaryProbeSets!.map((p) => ({
           id: p?.id,
           name: p?.name,
         })),

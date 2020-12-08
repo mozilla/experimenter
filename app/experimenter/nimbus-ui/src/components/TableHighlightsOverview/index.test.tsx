@@ -9,7 +9,7 @@ import { mockExperimentQuery } from "../../lib/mocks";
 import { mockAnalysis } from "../../lib/visualization/mocks";
 import { RouterSlugProvider } from "../../lib/test-utils";
 
-const { mock, data } = mockExperimentQuery("demo-slug");
+const { mock, experiment } = mockExperimentQuery("demo-slug");
 
 describe("TableHighlightsOverview", () => {
   it("has the correct headings", async () => {
@@ -18,7 +18,7 @@ describe("TableHighlightsOverview", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableHighlightsOverview
-          experiment={data!}
+          {...{ experiment }}
           results={mockAnalysis().overall}
         />
       </RouterSlugProvider>,
@@ -33,7 +33,7 @@ describe("TableHighlightsOverview", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableHighlightsOverview
-          experiment={data!}
+          {...{ experiment }}
           results={mockAnalysis().overall}
         />
       </RouterSlugProvider>,
@@ -50,7 +50,7 @@ describe("TableHighlightsOverview", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableHighlightsOverview
-          experiment={data!}
+          {...{ experiment }}
           results={mockAnalysis().overall}
         />
       </RouterSlugProvider>,
@@ -63,7 +63,7 @@ describe("TableHighlightsOverview", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableHighlightsOverview
-          experiment={data!}
+          {...{ experiment }}
           results={mockAnalysis().overall}
         />
       </RouterSlugProvider>,
