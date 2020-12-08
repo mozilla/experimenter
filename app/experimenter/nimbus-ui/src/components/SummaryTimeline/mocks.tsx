@@ -20,12 +20,12 @@ export const Subject = ({
   proposedEnrollment?: number | null;
   status?: NimbusExperimentStatus;
 }) => {
-  const { data: experiment } = mockExperimentQuery("something-vague", {
+  const { experiment } = mockExperimentQuery("something-vague", {
     startDate,
     endDate,
     proposedDuration,
     proposedEnrollment,
     status,
   });
-  return <SummaryTimeline experiment={experiment!} />;
+  return <SummaryTimeline {...{ experiment }} />;
 };

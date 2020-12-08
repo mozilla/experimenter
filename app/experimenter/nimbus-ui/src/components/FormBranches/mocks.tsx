@@ -100,7 +100,7 @@ export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
       featureEnabled: true,
     },
   ],
-})!.data!;
+}).experiment;
 
 export const MOCK_BRANCH = MOCK_EXPERIMENT.treatmentBranches![0]!;
 export const MOCK_ANNOTATED_BRANCH: AnnotatedBranch = {

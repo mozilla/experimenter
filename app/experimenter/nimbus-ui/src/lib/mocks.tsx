@@ -17,7 +17,10 @@ import { equal } from "@wry/equality";
 import { DocumentNode, print } from "graphql";
 import { cacheConfig } from "../services/apollo";
 import { GET_EXPERIMENT_QUERY } from "../gql/experiments";
-import { getExperiment } from "../types/getExperiment";
+import {
+  getExperiment,
+  getExperiment_experimentBySlug,
+} from "../types/getExperiment";
 import { getConfig_nimbusConfig } from "../types/getConfig";
 import { GET_CONFIG_QUERY } from "../gql/config";
 import { NimbusExperimentStatus } from "../types/globalTypes";
@@ -231,89 +234,89 @@ export class SimulatedMockLink extends ApolloLink {
   }
 }
 
-export const mockExperimentQuery = (
+export function mockExperimentQuery<
+  T extends getExperiment["experimentBySlug"] = getExperiment_experimentBySlug
+>(
   slug: string,
   modifications: Partial<getExperiment["experimentBySlug"]> = {},
 ): {
   mock: MockedResponse<Record<string, any>>;
-  data: getExperiment["experimentBySlug"];
-} => {
-  // If `null` is explicitely passed in for `modifications`, the experiment
-  // data will be `null`.
-  const experiment: getExperiment["experimentBySlug"] =
-    modifications === null
-      ? null
-      : Object.assign(
-          {
-            __typename: "NimbusExperimentType",
-            id: "1",
-            owner: {
-              __typename: "NimbusExperimentOwner",
-              email: "example@mozilla.com",
-            },
-            name: "Open-architected background installation",
-            slug,
-            status: "DRAFT",
-            monitoringDashboardUrl: "https://grafana.telemetry.mozilla.org",
-            hypothesis: "Realize material say pretty.",
-            application: "DESKTOP",
-            publicDescription:
-              "Official approach present industry strategy dream piece.",
-            referenceBranch: {
-              __typename: "NimbusBranchType",
-              name: "User-centric mobile solution",
-              slug: "user-centric-mobile-solution",
-              description:
-                "Behind almost radio result personal none future current.",
-              ratio: 1,
-              featureValue: '{"environmental-fact": "really-citizen"}',
-              featureEnabled: true,
-            },
-            featureConfig: null,
-            treatmentBranches: [
-              {
-                __typename: "NimbusBranchType",
-                name: "Managed zero tolerance projection",
-                slug: "managed-zero-tolerance-projection",
-                description: "Next ask then he in degree order.",
-                ratio: 1,
-                featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
-                featureEnabled: true,
-              },
-            ],
-            primaryProbeSets: [
-              {
-                __typename: "NimbusProbeSetType",
-                id: "1",
-                slug: "picture_in_picture",
-                name: "Picture-in-Picture",
-              },
-            ],
-            secondaryProbeSets: [
-              {
-                __typename: "NimbusProbeSetType",
-                id: "2",
-                slug: "feature_b",
-                name: "Feature B",
-              },
-            ],
-            channels: ["DESKTOP_NIGHTLY", "DESKTOP_BETA"],
-            firefoxMinVersion: "FIREFOX_80",
-            targetingConfigSlug: "US_ONLY",
-            populationPercent: 40,
-            totalEnrolledClients: 68000,
-            proposedEnrollment: 1,
-            proposedDuration: 28,
-            readyForReview: {
-              ready: true,
-              message: {},
-              __typename: "NimbusReadyForReviewType",
-            },
-            startDate: new Date().toISOString(),
-            endDate: new Date(Date.now() + 12096e5).toISOString(),
-          },
-          modifications,
-        );
+  experiment: T;
+} {
+  let experiment: getExperiment["experimentBySlug"] = Object.assign(
+    {
+      __typename: "NimbusExperimentType",
+      id: "1",
+      owner: {
+        __typename: "NimbusExperimentOwner",
+        email: "example@mozilla.com",
+      },
+      name: "Open-architected background installation",
+      slug,
+      status: "DRAFT",
+      monitoringDashboardUrl: "https://grafana.telemetry.mozilla.org",
+      hypothesis: "Realize material say pretty.",
+      application: "DESKTOP",
+      publicDescription:
+        "Official approach present industry strategy dream piece.",
+      referenceBranch: {
+        __typename: "NimbusBranchType",
+        name: "User-centric mobile solution",
+        slug: "user-centric-mobile-solution",
+        description: "Behind almost radio result personal none future current.",
+        ratio: 1,
+        featureValue: '{"environmental-fact": "really-citizen"}',
+        featureEnabled: true,
+      },
+      featureConfig: null,
+      treatmentBranches: [
+        {
+          __typename: "NimbusBranchType",
+          name: "Managed zero tolerance projection",
+          slug: "managed-zero-tolerance-projection",
+          description: "Next ask then he in degree order.",
+          ratio: 1,
+          featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
+          featureEnabled: true,
+        },
+      ],
+      primaryProbeSets: [
+        {
+          __typename: "NimbusProbeSetType",
+          id: "1",
+          slug: "picture_in_picture",
+          name: "Picture-in-Picture",
+        },
+      ],
+      secondaryProbeSets: [
+        {
+          __typename: "NimbusProbeSetType",
+          id: "2",
+          slug: "feature_b",
+          name: "Feature B",
+        },
+      ],
+      channels: ["DESKTOP_NIGHTLY", "DESKTOP_BETA"],
+      firefoxMinVersion: "FIREFOX_80",
+      targetingConfigSlug: "US_ONLY",
+      populationPercent: 40,
+      totalEnrolledClients: 68000,
+      proposedEnrollment: 1,
+      proposedDuration: 28,
+      readyForReview: {
+        ready: true,
+        message: {},
+        __typename: "NimbusReadyForReviewType",
+      },
+      startDate: new Date().toISOString(),
+      endDate: new Date(Date.now() + 12096e5).toISOString(),
+    },
+    modifications,
+  );
+
+  if (modifications === null) {
+    experiment = null;
+  }
 
   return {
     mock: {
@@ -329,9 +332,9 @@ export const mockExperimentQuery = (
         },
       },
     },
-    data: experiment,
+    experiment: experiment as T,
   };
-};
+}
 
 export const mockExperimentMutation = (
   mutation: DocumentNode,
@@ -369,6 +372,6 @@ export const mockExperimentMutation = (
 };
 
 export const mockGetStatus = (status: NimbusExperimentStatus | null) => {
-  const { data } = mockExperimentQuery("boo", { status });
-  return getStatus(data!);
+  const { experiment } = mockExperimentQuery("boo", { status });
+  return getStatus(experiment);
 };

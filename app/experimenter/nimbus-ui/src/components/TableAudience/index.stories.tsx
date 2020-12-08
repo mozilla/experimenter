@@ -12,36 +12,36 @@ import { NimbusExperimentChannel } from "../../types/globalTypes";
 
 storiesOf("components/TableAudience", module)
   .add("all fields filled out", () => {
-    const { data } = mockExperimentQuery("demo-slug", {
+    const { experiment } = mockExperimentQuery("demo-slug", {
       channels: [NimbusExperimentChannel.DESKTOP_BETA],
     });
     return (
       <Subject>
-        <TableAudience experiment={data!} />
+        <TableAudience {...{ experiment }} />
       </Subject>
     );
   })
   .add("filled out with multiple channels", () => {
-    const { data } = mockExperimentQuery("demo-slug");
+    const { experiment } = mockExperimentQuery("demo-slug");
     return (
       <Subject>
-        <TableAudience experiment={data!} />
+        <TableAudience {...{ experiment }} />
       </Subject>
     );
   })
   .add("only required fields filled out", () => {
-    const { data } = mockExperimentQuery("demo-slug", {
+    const { experiment } = mockExperimentQuery("demo-slug", {
       totalEnrolledClients: 0,
       targetingConfigSlug: null,
     });
     return (
       <Subject>
-        <TableAudience experiment={data!} />
+        <TableAudience {...{ experiment }} />
       </Subject>
     );
   })
   .add("missing required fields", () => {
-    const { data } = mockExperimentQuery("demo-slug", {
+    const { experiment } = mockExperimentQuery("demo-slug", {
       channels: [],
       firefoxMinVersion: null,
       populationPercent: 0,
@@ -51,7 +51,7 @@ storiesOf("components/TableAudience", module)
 
     return (
       <Subject>
-        <TableAudience experiment={data!} />
+        <TableAudience {...{ experiment }} />
       </Subject>
     );
   });

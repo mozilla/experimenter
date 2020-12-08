@@ -13,14 +13,14 @@ import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
 storiesOf("components/Summary", module)
   .add("draft status", () => {
-    const { data } = mockExperimentQuery("demo-slug");
-    return <Subject experiment={data!} />;
+    const { experiment } = mockExperimentQuery("demo-slug");
+    return <Subject {...{ experiment }} />;
   })
   .add("non-draft status", () => {
-    const { data } = mockExperimentQuery("demo-slug", {
+    const { experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.ACCEPTED,
     });
-    return <Subject experiment={data!} />;
+    return <Subject {...{ experiment }} />;
   });
 
 const Subject = ({

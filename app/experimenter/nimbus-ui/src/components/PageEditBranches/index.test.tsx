@@ -61,11 +61,11 @@ describe("PageEditBranches", () => {
   });
 
   it("handles onSave from FormBranches", async () => {
-    const { mock, data: experiment } = mockExperimentQuery("demo-slug");
-    setMockUpdateState(experiment!);
+    const { mock, experiment } = mockExperimentQuery("demo-slug");
+    setMockUpdateState(experiment);
     const mockMutation = mockUpdateExperimentBranchesMutation(
       { ...mockUpdateState, nimbusExperimentId: 1 },
-      { experiment: experiment! },
+      { experiment },
     );
     render(<Subject mocks={[mock, mockMutation, mock]} />);
     await waitFor(() => {
@@ -79,12 +79,12 @@ describe("PageEditBranches", () => {
   });
 
   it("sets a global submit error when updateExperimentBranches fails", async () => {
-    const { mock, data: experiment } = mockExperimentQuery("demo-slug");
-    setMockUpdateState(experiment!);
+    const { mock, experiment } = mockExperimentQuery("demo-slug");
+    setMockUpdateState(experiment);
 
     const mockMutation = mockUpdateExperimentBranchesMutation(
       { ...mockUpdateState, nimbusExperimentId: 1 },
-      { experiment: experiment! },
+      { experiment },
     );
     // @ts-ignore - intentionally breaking this type for error handling
     delete mockMutation.result.data.updateExperimentBranches;
@@ -105,12 +105,12 @@ describe("PageEditBranches", () => {
   });
 
   it("sets submit errors when updateExperimentBranches is not a success", async () => {
-    const { mock, data: experiment } = mockExperimentQuery("demo-slug");
-    setMockUpdateState(experiment!);
+    const { mock, experiment } = mockExperimentQuery("demo-slug");
+    setMockUpdateState(experiment);
 
     const mockMutation = mockUpdateExperimentBranchesMutation(
       { ...mockUpdateState, nimbusExperimentId: 1 },
-      { experiment: experiment! },
+      { experiment },
     );
 
     mockMutation.result.data.updateExperimentBranches.message = {

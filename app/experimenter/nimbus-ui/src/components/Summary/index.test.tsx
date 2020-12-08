@@ -11,8 +11,8 @@ import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 describe("Summary", () => {
   it("renders expected components", () => {
-    const { data } = mockExperimentQuery("demo-slug");
-    render(<Subject experiment={data!} />);
+    const { experiment } = mockExperimentQuery("demo-slug");
+    render(<Subject {...{ experiment }} />);
     expect(screen.getByTestId("summary-timeline")).toBeInTheDocument();
     expect(screen.getByTestId("table-summary")).toBeInTheDocument();
     expect(screen.getByTestId("table-audience")).toBeInTheDocument();
@@ -20,10 +20,10 @@ describe("Summary", () => {
 
   describe("JSON representation link", () => {
     it("renders in non-draft status", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
+      const { experiment } = mockExperimentQuery("demo-slug", {
         status: NimbusExperimentStatus.COMPLETE,
       });
-      render(<Subject experiment={data!} />);
+      render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("link-json")).toBeInTheDocument();
       expect(screen.getByTestId("link-json")).toHaveAttribute(
         "href",
@@ -33,8 +33,8 @@ describe("Summary", () => {
   });
 
   it("does not render in draft status", () => {
-    const { data } = mockExperimentQuery("demo-slug");
-    render(<Subject experiment={data!} />);
+    const { experiment } = mockExperimentQuery("demo-slug");
+    render(<Subject {...{ experiment }} />);
     expect(screen.queryByTestId("link-json")).not.toBeInTheDocument();
   });
 });

@@ -89,16 +89,16 @@ describe("FormOverview", () => {
   });
 
   it("with existing experiment data, asserts field values before allowing submit and next", async () => {
-    const { data } = mockExperimentQuery("boo");
+    const { experiment } = mockExperimentQuery("boo");
 
     const expected = {
-      name: data!.name,
-      hypothesis: data!.hypothesis as string,
-      publicDescription: data!.publicDescription as string,
+      name: experiment.name,
+      hypothesis: experiment.hypothesis as string,
+      publicDescription: experiment.publicDescription as string,
     };
 
     const onSubmit = jest.fn();
-    render(<Subject {...{ onSubmit, experiment: data, onNext: jest.fn() }} />);
+    render(<Subject {...{ onSubmit, experiment, onNext: jest.fn() }} />);
     const submitButton = screen.getByText("Save");
     const nextButton = screen.getByText("Next");
     const nameField = screen.getByLabelText("Public name");
@@ -129,10 +129,10 @@ describe("FormOverview", () => {
   });
 
   it("with missing public description, still allows submit", async () => {
-    const { data } = mockExperimentQuery("boo");
+    const { experiment } = mockExperimentQuery("boo");
 
     const onSubmit = jest.fn();
-    render(<Subject {...{ onSubmit, experiment: data }} />);
+    render(<Subject {...{ onSubmit, experiment }} />);
     const descriptionField = screen.getByLabelText("Public description");
     const submitButton = screen.getByText("Save");
 
@@ -174,9 +174,9 @@ describe("FormOverview", () => {
   });
 
   it("displays saving button when loading", async () => {
-    const { data } = mockExperimentQuery("boo");
+    const { experiment } = mockExperimentQuery("boo");
     const onSubmit = jest.fn();
-    render(<Subject {...{ onSubmit, experiment: data, isLoading: true }} />);
+    render(<Subject {...{ onSubmit, experiment, isLoading: true }} />);
 
     const submitButton = screen.getByTestId("submit-button");
     expect(submitButton).toHaveTextContent("Saving");
@@ -213,7 +213,7 @@ describe("FormOverview", () => {
       },
     });
 
-    const { data: experiment } = mockExperimentQuery("boo");
+    const { experiment } = mockExperimentQuery("boo");
     const isMissingField = jest.fn(() => true);
     render(<Subject {...{ isMissingField, experiment }} />);
 

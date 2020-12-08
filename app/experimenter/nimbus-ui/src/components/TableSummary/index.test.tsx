@@ -10,8 +10,8 @@ import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
 describe("TableSummary", () => {
   it("renders rows displaying required fields at experiment creation as expected", () => {
-    const { data } = mockExperimentQuery("demo-slug");
-    render(<Subject experiment={data!} />);
+    const { experiment } = mockExperimentQuery("demo-slug");
+    render(<Subject {...{ experiment }} />);
 
     expect(screen.getByTestId("experiment-slug")).toHaveTextContent(
       "demo-slug",
@@ -28,23 +28,23 @@ describe("TableSummary", () => {
   });
 
   it("renders Not Set if experiment owner is not set", () => {
-    const { data } = mockExperimentQuery("demo-slug", {
+    const { experiment } = mockExperimentQuery("demo-slug", {
       owner: null,
     });
-    render(<Subject experiment={data!} />);
+    render(<Subject {...{ experiment }} />);
     expect(screen.getByTestId("experiment-owner")).toHaveTextContent("Not set");
   });
 
   describe("renders 'Primary probe sets' row as expected", () => {
     it("with one probe set", () => {
-      const { data } = mockExperimentQuery("demo-slug");
-      render(<Subject experiment={data!} />);
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-probe-primary")).toHaveTextContent(
         "Picture-in-Picture",
       );
     });
     it("with multiple probe sets", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
+      const { experiment } = mockExperimentQuery("demo-slug", {
         primaryProbeSets: [
           {
             __typename: "NimbusProbeSetType",
@@ -60,16 +60,16 @@ describe("TableSummary", () => {
           },
         ],
       });
-      render(<Subject experiment={data!} />);
+      render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-probe-primary")).toHaveTextContent(
         "Picture-in-Picture, Feature C",
       );
     });
     it("when not set", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
+      const { experiment } = mockExperimentQuery("demo-slug", {
         primaryProbeSets: [],
       });
-      render(<Subject experiment={data!} />);
+      render(<Subject {...{ experiment }} />);
       expect(
         screen.queryByTestId("experiment-probe-primary"),
       ).not.toBeInTheDocument();
@@ -78,14 +78,14 @@ describe("TableSummary", () => {
 
   describe("renders 'Secondary probe sets' row as expected", () => {
     it("with one probe set", () => {
-      const { data } = mockExperimentQuery("demo-slug");
-      render(<Subject experiment={data!} />);
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(<Subject {...{ experiment }} />);
       expect(
         screen.getByTestId("experiment-probe-secondary"),
       ).toHaveTextContent("Feature B");
     });
     it("with multiple probe sets", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
+      const { experiment } = mockExperimentQuery("demo-slug", {
         secondaryProbeSets: [
           {
             __typename: "NimbusProbeSetType",
@@ -101,16 +101,16 @@ describe("TableSummary", () => {
           },
         ],
       });
-      render(<Subject experiment={data!} />);
+      render(<Subject {...{ experiment }} />);
       expect(
         screen.getByTestId("experiment-probe-secondary"),
       ).toHaveTextContent("Picture-in-Picture, Feature B");
     });
     it("when not set", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
+      const { experiment } = mockExperimentQuery("demo-slug", {
         secondaryProbeSets: [],
       });
-      render(<Subject experiment={data!} />);
+      render(<Subject {...{ experiment }} />);
       expect(
         screen.queryByTestId("experiment-probe-secondary"),
       ).not.toBeInTheDocument();
@@ -118,17 +118,17 @@ describe("TableSummary", () => {
 
     describe("renders 'Public description' row as expected", () => {
       it("when set", () => {
-        const { data } = mockExperimentQuery("demo-slug");
-        render(<Subject experiment={data!} />);
+        const { experiment } = mockExperimentQuery("demo-slug");
+        render(<Subject {...{ experiment }} />);
         expect(screen.getByTestId("experiment-description")).toHaveTextContent(
           "Official approach present industry strategy dream piece.",
         );
       });
       it("when not set", () => {
-        const { data } = mockExperimentQuery("demo-slug", {
+        const { experiment } = mockExperimentQuery("demo-slug", {
           publicDescription: null,
         });
-        render(<Subject experiment={data!} />);
+        render(<Subject {...{ experiment }} />);
         expect(screen.getByTestId("experiment-description")).toHaveTextContent(
           "Not set",
         );
@@ -138,17 +138,17 @@ describe("TableSummary", () => {
 
   describe("renders 'Feature config' row as expected", () => {
     it("when set", () => {
-      const { data } = mockExperimentQuery("demo-slug", {
+      const { experiment } = mockExperimentQuery("demo-slug", {
         featureConfig: MOCK_CONFIG.featureConfig![1],
       });
-      render(<Subject experiment={data!} />);
+      render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-feature-config")).toHaveTextContent(
         "Mauris odio erat",
       );
     });
     it("when not set", () => {
-      const { data } = mockExperimentQuery("demo-slug");
-      render(<Subject experiment={data!} />);
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(<Subject {...{ experiment }} />);
       expect(
         screen.queryByTestId("experiment-feature-config"),
       ).not.toBeInTheDocument();
