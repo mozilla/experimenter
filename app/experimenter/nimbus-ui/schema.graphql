@@ -177,12 +177,17 @@ type NimbusFeatureConfigType {
   nimbusexperimentSet: [NimbusExperimentType!]!
 }
 
+enum NimbusIsolationGroupRandomizationUnit {
+  NORMANDY_ID
+  NIMBUS_ID
+}
+
 type NimbusIsolationGroupType {
   id: ID!
   name: String!
   instance: Int!
   total: Int!
-  randomizationUnit: String!
+  randomizationUnit: NimbusIsolationGroupRandomizationUnit!
   bucketRanges: [NimbusBucketRangeType!]!
 }
 
