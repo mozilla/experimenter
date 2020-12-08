@@ -12,7 +12,7 @@ import { mockAnalysis } from "../../lib/visualization/mocks";
 storiesOf("visualization/TableMetricPrimary", module)
   .addDecorator(withLinks)
   .add("with positive primary metric", () => {
-    const { data } = mockExperimentQuery("demo-slug", {
+    const { experiment } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
@@ -26,12 +26,12 @@ storiesOf("visualization/TableMetricPrimary", module)
     return (
       <TableMetricPrimary
         results={mockAnalysis().overall}
-        probeSet={data!.primaryProbeSets![0]!}
+        probeSet={experiment.primaryProbeSets![0]!}
       />
     );
   })
   .add("with negative primary metric", () => {
-    const { data } = mockExperimentQuery("demo-slug", {
+    const { experiment } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
@@ -45,12 +45,12 @@ storiesOf("visualization/TableMetricPrimary", module)
     return (
       <TableMetricPrimary
         results={mockAnalysis().overall}
-        probeSet={data!.primaryProbeSets![0]!}
+        probeSet={experiment.primaryProbeSets![0]!}
       />
     );
   })
   .add("with neutral primary metric", () => {
-    const { data } = mockExperimentQuery("demo-slug", {
+    const { experiment } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
@@ -64,7 +64,7 @@ storiesOf("visualization/TableMetricPrimary", module)
     return (
       <TableMetricPrimary
         results={mockAnalysis().overall}
-        probeSet={data!.primaryProbeSets![0]!}
+        probeSet={experiment.primaryProbeSets![0]!}
       />
     );
   });

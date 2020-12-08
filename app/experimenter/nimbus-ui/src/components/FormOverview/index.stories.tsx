@@ -27,6 +27,6 @@ storiesOf("components/FormOverview", module)
     />
   ))
   .add("with experiment", () => {
-    const { data: experiment } = mockExperimentQuery("boo");
+    const { experiment } = mockExperimentQuery("boo");
     return <Subject {...{ experiment, onSubmit, onNext }} />;
   });

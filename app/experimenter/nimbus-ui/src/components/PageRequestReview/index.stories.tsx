@@ -11,12 +11,12 @@ import { mockExperimentQuery } from "../../lib/mocks";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { createMutationMock } from "./mocks";
 
-const { mock, data } = mockExperimentQuery("demo-slug");
+const { mock, experiment } = mockExperimentQuery("demo-slug");
 
 storiesOf("pages/RequestReview", module)
   .addDecorator(withLinks)
   .add("success", () => (
-    <RouterSlugProvider mocks={[mock, createMutationMock(data!.id)]}>
+    <RouterSlugProvider mocks={[mock, createMutationMock(experiment.id)]}>
       <PageRequestReview polling={false} />
     </RouterSlugProvider>
   ))

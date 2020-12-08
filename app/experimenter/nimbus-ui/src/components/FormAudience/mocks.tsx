@@ -35,4 +35,4 @@ export const Subject = ({
   </div>
 );
 
-export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug")!.data!;
+export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug").experiment;

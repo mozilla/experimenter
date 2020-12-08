@@ -59,10 +59,10 @@ describe("PageRequestReview", () => {
   });
 
   it("can submit for review", async () => {
-    const { mock, data } = mockExperimentQuery("demo-slug", {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
     });
-    const mutationMock = createMutationMock(data!.id);
+    const mutationMock = createMutationMock(experiment.id);
 
     render(<Subject mocks={[mock, mutationMock]} />);
     let submitButton: HTMLButtonElement;
@@ -77,10 +77,10 @@ describe("PageRequestReview", () => {
   });
 
   it("handles submission with bad server data", async () => {
-    const { mock, data } = mockExperimentQuery("demo-slug", {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
     });
-    const mutationMock = createMutationMock(data!.id);
+    const mutationMock = createMutationMock(experiment.id);
     // @ts-ignore - intentionally breaking this type for error handling
     delete mutationMock.result.data.updateExperimentStatus;
     render(<Subject mocks={[mock, mutationMock]} />);
@@ -96,10 +96,10 @@ describe("PageRequestReview", () => {
   });
 
   it("handles submission with server API error", async () => {
-    const { mock, data } = mockExperimentQuery("demo-slug", {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
     });
-    const mutationMock = createMutationMock(data!.id);
+    const mutationMock = createMutationMock(experiment.id);
     mutationMock.result.errors = [new Error("Boo")];
     render(<Subject mocks={[mock, mutationMock]} />);
     let submitButton: HTMLButtonElement;
@@ -114,10 +114,10 @@ describe("PageRequestReview", () => {
   });
 
   it("handles submission with server-side validation errors", async () => {
-    const { mock, data } = mockExperimentQuery("demo-slug", {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
     });
-    const mutationMock = createMutationMock(data!.id);
+    const mutationMock = createMutationMock(experiment.id);
     const errorMessage =
       "Nimbus Experiments can only transition from DRAFT to REVIEW.";
     mutationMock.result.data.updateExperimentStatus.message = {

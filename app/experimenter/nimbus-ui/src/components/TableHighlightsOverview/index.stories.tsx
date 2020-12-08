@@ -13,18 +13,18 @@ import { mockAnalysis } from "../../lib/visualization/mocks";
 storiesOf("visualization/TableHighlightsOverview", module)
   .addDecorator(withLinks)
   .add("basic, with one primary probe set", () => {
-    const { mock, data } = mockExperimentQuery("demo-slug");
+    const { mock, experiment } = mockExperimentQuery("demo-slug");
     return (
       <RouterSlugProvider mocks={[mock]}>
         <TableHighlightsOverview
-          experiment={data!}
+          {...{ experiment }}
           results={mockAnalysis().overall}
         />
       </RouterSlugProvider>
     );
   })
   .add("with multiple primary probe sets", () => {
-    const { mock, data } = mockExperimentQuery("demo-slug", {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
@@ -49,7 +49,7 @@ storiesOf("visualization/TableHighlightsOverview", module)
     return (
       <RouterSlugProvider mocks={[mock]}>
         <TableHighlightsOverview
-          experiment={data!}
+          {...{ experiment }}
           results={mockAnalysis().overall}
         />
       </RouterSlugProvider>

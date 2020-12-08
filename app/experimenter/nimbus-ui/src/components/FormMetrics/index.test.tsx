@@ -75,16 +75,16 @@ describe("FormMetrics", () => {
   });
 
   it("displays saving button when loading", async () => {
-    const { data } = mockExperimentQuery("boo");
+    const { experiment } = mockExperimentQuery("boo");
     const onSave = jest.fn();
-    render(<Subject {...{ onSave, experiment: data, isLoading: true }} />);
+    render(<Subject {...{ onSave, experiment, isLoading: true }} />);
 
     const submitButton = screen.getByTestId("submit-button");
     expect(submitButton).toHaveTextContent("Saving");
   });
 
   it("displays saved primary probe sets", async () => {
-    const { data } = mockExperimentQuery("boo", {
+    const { experiment } = mockExperimentQuery("boo", {
       primaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
@@ -95,14 +95,14 @@ describe("FormMetrics", () => {
       ],
     });
 
-    render(<Subject {...{ experiment: data }} />);
+    render(<Subject {...{ experiment }} />);
 
     const primaryProbeSets = screen.getByTestId("primary-probe-sets");
     expect(primaryProbeSets).toHaveTextContent("Probe Set A");
   });
 
   it("displays saved secondary probe sets", async () => {
-    const { data } = mockExperimentQuery("boo", {
+    const { experiment } = mockExperimentQuery("boo", {
       secondaryProbeSets: [
         {
           __typename: "NimbusProbeSetType",
@@ -112,19 +112,19 @@ describe("FormMetrics", () => {
         },
       ],
     });
-    render(<Subject {...{ experiment: data, probeSets }} />);
+    render(<Subject {...{ experiment, probeSets }} />);
 
     const secondaryProbeSets = screen.getByTestId("secondary-probe-sets");
     expect(secondaryProbeSets).toHaveTextContent("Probe Set A");
   });
 
   it("selects a primary probe set and excludes it from secondary probe sets", async () => {
-    const { data } = mockExperimentQuery("boo", {
+    const { experiment } = mockExperimentQuery("boo", {
       primaryProbeSets: [],
       secondaryProbeSets: [],
     });
 
-    render(<Subject {...{ experiment: data, probeSets }} />);
+    render(<Subject {...{ experiment, probeSets }} />);
     const primaryProbeSets = screen.getByTestId("primary-probe-sets");
     const secondaryProbeSets = screen.getByTestId("secondary-probe-sets");
 
@@ -151,12 +151,12 @@ describe("FormMetrics", () => {
   });
 
   it("selects a secondary probe set and excludes it from primary probe sets", async () => {
-    const { data } = mockExperimentQuery("boo", {
+    const { experiment } = mockExperimentQuery("boo", {
       primaryProbeSets: [],
       secondaryProbeSets: [],
     });
 
-    render(<Subject {...{ experiment: data, probeSets }} />);
+    render(<Subject {...{ experiment, probeSets }} />);
 
     const primaryProbeSets = screen.getByTestId("primary-probe-sets");
     const secondaryProbeSets = screen.getByTestId("secondary-probe-sets");
@@ -184,12 +184,12 @@ describe("FormMetrics", () => {
   });
 
   it("allows maximum 2 primary probe sets", async () => {
-    const { data } = mockExperimentQuery("boo", {
+    const { experiment } = mockExperimentQuery("boo", {
       primaryProbeSets: [],
       secondaryProbeSets: [],
     });
 
-    render(<Subject {...{ experiment: data, probeSets }} />);
+    render(<Subject {...{ experiment, probeSets }} />);
 
     const primaryProbeSets = screen.getByTestId("primary-probe-sets");
 

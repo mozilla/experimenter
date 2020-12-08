@@ -7,15 +7,15 @@ import { screen, render } from "@testing-library/react";
 import HeaderExperiment from ".";
 import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
 
-const { data } = mockExperimentQuery("demo-slug");
+const { experiment } = mockExperimentQuery("demo-slug");
 
 describe("HeaderExperiment", () => {
   it("renders as expected", () => {
     render(
       <HeaderExperiment
-        name={data!.name}
-        slug={data!.slug}
-        status={mockGetStatus(data!.status)}
+        name={experiment.name}
+        slug={experiment.slug}
+        status={mockGetStatus(experiment.status)}
       />,
     );
     expect(screen.getByTestId("header-experiment-name")).toHaveTextContent(

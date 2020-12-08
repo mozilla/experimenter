@@ -12,14 +12,14 @@ import {
   mockIncompleteAnalysis,
 } from "../../lib/visualization/mocks";
 
-const { mock, data } = mockExperimentQuery("demo-slug");
+const { mock, experiment } = mockExperimentQuery("demo-slug");
 
 describe("TableResults", () => {
   it("renders correct headings", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
-          primaryProbeSets={data!.primaryProbeSets!}
+          primaryProbeSets={experiment.primaryProbeSets!}
           results={mockAnalysis().overall}
         />
       </RouterSlugProvider>,
@@ -40,7 +40,7 @@ describe("TableResults", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
-          primaryProbeSets={data!.primaryProbeSets!}
+          primaryProbeSets={experiment.primaryProbeSets!}
           results={mockAnalysis().overall}
         />
       </RouterSlugProvider>,
@@ -55,7 +55,7 @@ describe("TableResults", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
-          primaryProbeSets={data!.primaryProbeSets!}
+          primaryProbeSets={experiment.primaryProbeSets!}
           results={mockAnalysis().overall}
         />
       </RouterSlugProvider>,
@@ -70,7 +70,7 @@ describe("TableResults", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableResults
-          primaryProbeSets={data!.primaryProbeSets!}
+          primaryProbeSets={experiment.primaryProbeSets!}
           results={mockIncompleteAnalysis().overall}
         />
       </RouterSlugProvider>,

@@ -17,7 +17,7 @@ describe("hooks/useExperiment", () => {
     };
 
     it("returns the experiment", async () => {
-      const { mock, data } = mockExperimentQuery("howdy");
+      const { mock, experiment } = mockExperimentQuery("howdy");
 
       render(
         <MockedCache mocks={[mock]}>
@@ -25,7 +25,7 @@ describe("hooks/useExperiment", () => {
         </MockedCache>,
       );
 
-      await waitFor(() => expect(hook.experiment).toEqual(data));
+      await waitFor(() => expect(hook.experiment).toEqual(experiment));
     });
 
     it("returns notFound if no experiment found", async () => {
