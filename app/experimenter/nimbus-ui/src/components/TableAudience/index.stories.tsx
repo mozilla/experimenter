@@ -44,7 +44,7 @@ storiesOf("components/TableAudience", module)
     const { experiment } = mockExperimentQuery("demo-slug", {
       channels: [],
       firefoxMinVersion: null,
-      populationPercent: 0,
+      populationPercent: "0",
       totalEnrolledClients: 0,
       targetingConfigSlug: null,
     });

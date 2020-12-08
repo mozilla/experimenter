@@ -24,8 +24,6 @@ input CreateExperimentInput {
 
 scalar DateTime
 
-scalar Decimal
-
 type Mutation {
   createExperiment(input: CreateExperimentInput!): CreateExperiment
   updateExperimentOverview(input: UpdateExperimentInput!): UpdateExperimentOverview
@@ -143,7 +141,7 @@ type NimbusExperimentType {
   isPaused: Boolean!
   proposedDuration: Int
   proposedEnrollment: Int
-  populationPercent: Float
+  populationPercent: String
   totalEnrolledClients: Int!
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion
   application: NimbusExperimentApplication
@@ -265,7 +263,7 @@ input UpdateExperimentAudienceInput {
   nimbusExperimentId: Int!
   channels: [NimbusExperimentChannel]
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion
-  populationPercent: Decimal
+  populationPercent: String
   proposedDuration: Int
   proposedEnrollment: String
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug
