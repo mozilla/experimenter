@@ -16,7 +16,11 @@ import FormBranches from "../FormBranches";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { UPDATE_EXPERIMENT_BRANCHES_MUTATION } from "../../gql/experiments";
-import { UpdateExperimentBranchesInput } from "../../types/globalTypes";
+import {
+  NimbusExperimentApplication,
+  NimbusFeatureConfigApplication,
+  UpdateExperimentBranchesInput,
+} from "../../types/globalTypes";
 import {
   updateExperimentBranches_updateExperimentBranches,
   updateExperimentBranches_updateExperimentBranches_nimbusExperiment,
@@ -36,7 +40,9 @@ describe("PageEditBranches", () => {
   afterEach(() => {});
 
   it("renders as expected with experiment data", async () => {
-    const { mock } = mockExperimentQuery("demo-slug");
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      application: NimbusExperimentApplication.FENIX,
+    });
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
       expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
@@ -44,9 +50,36 @@ describe("PageEditBranches", () => {
     });
     expect(screen.getByTestId("FormBranches")).toBeInTheDocument();
     expect(screen.getByTestId("feature-config")).toBeInTheDocument();
-    for (const feature of MOCK_CONFIG!.featureConfig!) {
+
+    MOCK_CONFIG.featureConfig = [
+      ...MOCK_CONFIG.featureConfig!,
+      {
+        __typename: "NimbusFeatureConfigType",
+        id: "3",
+        name: "Foo bar",
+        slug: "foo-bar",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        application: NimbusFeatureConfigApplication.FIREFOX_DESKTOP,
+        ownerEmail: "dude23@yahoo.com",
+        schema: '{ "sample": "schema" }',
+      },
+    ];
+
+    // Assert that we have all the feature configs for our application (Fenix) available
+    for (const feature of MOCK_CONFIG!.featureConfig!.filter(
+      (config) => config?.application === experiment.application,
+    )) {
       const { slug } = feature!;
       expect(screen.getByText(slug)).toBeInTheDocument();
+    }
+
+    // Assert that non of the feature configs that don't belong to our application are available
+    for (const feature of MOCK_CONFIG!.featureConfig!.filter(
+      (config) =>
+        config?.application === NimbusFeatureConfigApplication.FIREFOX_DESKTOP,
+    )) {
+      const { slug } = feature!;
+      expect(screen.queryByText(slug)).not.toBeInTheDocument();
     }
   });
 

@@ -15,6 +15,12 @@ export interface getConfig_nimbusConfig_application {
   value: string | null;
 }
 
+export interface getConfig_nimbusConfig_applicationChannels {
+  __typename: "ApplicationChannel";
+  label: string | null;
+  channels: (string | null)[] | null;
+}
+
 export interface getConfig_nimbusConfig_channels {
   __typename: "NimbusLabelValueType";
   label: string | null;
@@ -66,6 +72,7 @@ export interface getConfig_nimbusConfig_targetingConfigSlug {
 export interface getConfig_nimbusConfig {
   __typename: "NimbusConfigurationType";
   application: (getConfig_nimbusConfig_application | null)[] | null;
+  applicationChannels: (getConfig_nimbusConfig_applicationChannels | null)[] | null;
   channels: (getConfig_nimbusConfig_channels | null)[] | null;
   featureConfig: (getConfig_nimbusConfig_featureConfig | null)[] | null;
   firefoxMinVersion: (getConfig_nimbusConfig_firefoxMinVersion | null)[] | null;
