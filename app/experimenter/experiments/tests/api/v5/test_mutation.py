@@ -446,7 +446,7 @@ class TestMutations(GraphQLTestCase):
                 "id": str(experiment.id),
                 "channels": [NimbusConstants.Channel.DESKTOP_BETA.name],
                 "firefoxMinVersion": NimbusConstants.Version.FIREFOX_80.name,
-                "populationPercent": 10.0,
+                "populationPercent": "10.0000",
                 "proposedDuration": 42,
                 "proposedEnrollment": 120,
                 "targetingConfigSlug": NimbusConstants.TargetingConfig.ALL_ENGLISH.name,

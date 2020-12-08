@@ -120,7 +120,7 @@ const MOCK_FORM_DATA = {
   ],
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion.FIREFOX_80,
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug.US_ONLY,
-  populationPercent: 40,
+  populationPercent: "40",
   totalEnrolledClients: 68000,
   proposedEnrollment: "1.0",
   proposedDuration: 28,
