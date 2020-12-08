@@ -150,6 +150,15 @@ class NimbusConstants(object):
     class EmailType(models.TextChoices):
         EXPERIMENT_END = "experiment end"
 
+    class BucketRandomizationUnit(models.TextChoices):
+        NORMANDY = "normandy_id"
+        NIMBUS = "nimbus_id"
+
+    APPLICATION_BUCKET_RANDOMIZATION_UNIT = {
+        Application.DESKTOP: BucketRandomizationUnit.NORMANDY,
+        Application.FENIX: BucketRandomizationUnit.NIMBUS,
+    }
+
     EMAIL_EXPERIMENT_END_SUBJECT = "Action required: Please turn off your Experiment"
 
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
@@ -184,7 +193,6 @@ class NimbusConstants(object):
 
     # Bucket stuff
     BUCKET_TOTAL = 10000
-    BUCKET_RANDOMIZATION_UNIT = "normandy_id"
 
     HYPOTHESIS_DEFAULT = """If we <do this/build this/create this change in the experiment> for <these users>, then we will see <this outcome>.
 We believe this because we have observed <this> via <data source, UR, survey>.

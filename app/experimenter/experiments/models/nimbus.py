@@ -210,7 +210,7 @@ class NimbusIsolationGroup(models.Model):
     instance = models.PositiveIntegerField(default=1)
     total = models.PositiveIntegerField(default=NimbusConstants.BUCKET_TOTAL)
     randomization_unit = models.CharField(
-        max_length=255, default=NimbusConstants.BUCKET_RANDOMIZATION_UNIT
+        max_length=255, choices=NimbusConstants.BucketRandomizationUnit.choices
     )
 
     class Meta:
@@ -231,7 +231,12 @@ class NimbusIsolationGroup(models.Model):
         if cls.objects.filter(name=name).exists():
             isolation_group = cls.objects.filter(name=name).order_by("-instance").first()
         else:
-            isolation_group = cls.objects.create(name=name)
+            isolation_group = cls.objects.create(
+                name=name,
+                randomization_unit=NimbusExperiment.APPLICATION_BUCKET_RANDOMIZATION_UNIT[
+                    experiment.application
+                ],
+            )
 
         return isolation_group.request_buckets(experiment, count)
 

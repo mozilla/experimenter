@@ -3,6 +3,7 @@ import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
+from parameterized import parameterized
 
 from experimenter.experiments.models import NimbusExperiment, NimbusIsolationGroup
 from experimenter.experiments.tests.factories import (
@@ -172,13 +173,27 @@ class TestNimbusBranch(TestCase):
 
 
 class TestNimbusIsolationGroup(TestCase):
-    def test_empty_isolation_group_creates_isolation_group_and_bucket_range(self):
+    @parameterized.expand(
+        [
+            [
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.BucketRandomizationUnit.NORMANDY,
+            ],
+            [
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.BucketRandomizationUnit.NIMBUS,
+            ],
+        ]
+    )
+    def test_empty_isolation_group_creates_isolation_group_and_bucket_range(
+        self, application, randomization_unit
+    ):
         """
         Common case: A new empty isolation group for an experiment
         that is orthogonal to all other current experiments.  This will
         likely describe most experiment launches.
         """
-        experiment = NimbusExperimentFactory.create()
+        experiment = NimbusExperimentFactory.create(application=application)
         bucket = NimbusIsolationGroup.request_isolation_group_buckets(
             experiment.slug, experiment, 100
         )
@@ -190,7 +205,7 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.isolation_group.total, NimbusExperiment.BUCKET_TOTAL)
         self.assertEqual(
             bucket.isolation_group.randomization_unit,
-            NimbusExperiment.BUCKET_RANDOMIZATION_UNIT,
+            randomization_unit,
         )
 
     def test_existing_isolation_group_adds_bucket_range(self):
