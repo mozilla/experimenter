@@ -70,7 +70,7 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
   );
 
   const onNext = useCallback(() => {
-    navigate(`audience`);
+    navigate("audience");
   }, []);
 
   return (
