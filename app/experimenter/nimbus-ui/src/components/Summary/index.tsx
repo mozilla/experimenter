@@ -9,36 +9,40 @@ import SummaryTimeline from "../SummaryTimeline";
 import TableSummary from "../TableSummary";
 import TableAudience from "../TableAudience";
 import LinkExternal from "../LinkExternal";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { getStatus } from "../../lib/experiment";
 
 type SummaryProps = {
   experiment: getExperiment_experimentBySlug;
 };
 
-const Summary = ({ experiment }: SummaryProps) => (
-  <div data-testid="summary">
-    <h2 className="h5 mb-3">Timeline</h2>
-    <SummaryTimeline {...{ experiment }} />
+const Summary = ({ experiment }: SummaryProps) => {
+  const status = getStatus(experiment);
 
-    <div className="d-flex flex-row justify-content-between">
-      <h2 className="h5 mb-3">Summary</h2>
-      {experiment.status !== NimbusExperimentStatus.DRAFT && (
-        <span>
-          <LinkExternal
-            href={`/api/v6/experiments/${experiment.slug}/`}
-            data-testid="link-json"
-          >
-            See full JSON representation
-          </LinkExternal>
-        </span>
-      )}
+  return (
+    <div data-testid="summary">
+      <h2 className="h5 mb-3">Timeline</h2>
+      <SummaryTimeline {...{ experiment }} />
+
+      <div className="d-flex flex-row justify-content-between">
+        <h2 className="h5 mb-3">Summary</h2>
+        {!status.draft && !status.review && (
+          <span>
+            <LinkExternal
+              href={`/api/v6/experiments/${experiment.slug}/`}
+              data-testid="link-json"
+            >
+              See full JSON representation
+            </LinkExternal>
+          </span>
+        )}
+      </div>
+      <TableSummary {...{ experiment }} />
+
+      <h2 className="h5 mb-3">Audience</h2>
+      <TableAudience {...{ experiment }} />
     </div>
-    <TableSummary {...{ experiment }} />
-
-    <h2 className="h5 mb-3">Audience</h2>
-    <TableAudience {...{ experiment }} />
-  </div>
-);
+  );
+};
 
 type displayConfigOptionsProps =
   | getConfig_nimbusConfig["application"]

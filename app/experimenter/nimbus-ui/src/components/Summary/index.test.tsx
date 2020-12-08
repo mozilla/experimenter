@@ -19,9 +19,9 @@ describe("Summary", () => {
   });
 
   describe("JSON representation link", () => {
-    it("renders in non-draft status", () => {
+    it("renders when status is not 'draft' or 'review'", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        status: NimbusExperimentStatus.COMPLETE,
+        status: NimbusExperimentStatus.ACCEPTED,
       });
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("link-json")).toBeInTheDocument();
@@ -32,8 +32,16 @@ describe("Summary", () => {
     });
   });
 
-  it("does not render in draft status", () => {
+  it("does not render in 'draft' status", () => {
     const { experiment } = mockExperimentQuery("demo-slug");
+    render(<Subject {...{ experiment }} />);
+    expect(screen.queryByTestId("link-json")).not.toBeInTheDocument();
+  });
+
+  it("does not render in 'review' status", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.REVIEW,
+    });
     render(<Subject {...{ experiment }} />);
     expect(screen.queryByTestId("link-json")).not.toBeInTheDocument();
   });
