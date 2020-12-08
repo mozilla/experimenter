@@ -129,7 +129,9 @@ const FormOverview = ({
           {...nameValidated("hypothesis")}
           as="textarea"
           rows={5}
-          defaultValue={experiment?.hypothesis || (hypothesisDefault as string)}
+          defaultValue={
+            experiment?.hypothesis || (hypothesisDefault as string).trim()
+          }
         />
         <Form.Text className="text-muted">
           You can add any supporting documents here.

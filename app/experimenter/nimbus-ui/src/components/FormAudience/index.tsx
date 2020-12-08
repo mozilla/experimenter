@@ -42,8 +42,20 @@ export const FormAudience = ({
 }) => {
   const config = useConfig();
 
+  // This could be improved on the GraphQL side, but right now in order
+  // to filter available channels we need to
+  //   - identify the application label by experiment application value
+  //   - use that label to identify the available channels
+  //   - and then filter all channels against our eligible subset
+  const experimentApplication = config.application?.find(
+    (a) => a?.value === experiment.application,
+  );
+  const applicationChannels = config.applicationChannels?.find(
+    (ac) => ac?.label === experimentApplication?.label,
+  )?.channels;
   const channelsOptions = config.channels?.filter(
-    (item): item is getConfig_nimbusConfig_channels => item !== null,
+    (item): item is getConfig_nimbusConfig_channels =>
+      item !== null && (applicationChannels?.includes(item.label) || false),
   );
   const channelsDefaultValue = experiment.channels?.map((channel) =>
     channelsOptions?.find((option) => option?.value === channel),
