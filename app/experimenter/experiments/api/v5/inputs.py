@@ -82,7 +82,7 @@ class UpdateExperimentAudienceInput(graphene.InputObjectType):
     nimbus_experiment_id = graphene.Int(required=True)
     channels = graphene.List(NimbusExperimentChannel)
     firefox_min_version = NimbusExperimentFirefoxMinVersion()
-    population_percent = graphene.Decimal()
+    population_percent = graphene.String()
     proposed_duration = graphene.Int()
     proposed_enrollment = graphene.String()
     targeting_config_slug = NimbusExperimentTargetingConfigSlug()

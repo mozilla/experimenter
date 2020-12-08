@@ -299,7 +299,7 @@ export function mockExperimentQuery<
       channels: ["DESKTOP_NIGHTLY", "DESKTOP_BETA"],
       firefoxMinVersion: "FIREFOX_80",
       targetingConfigSlug: "US_ONLY",
-      populationPercent: 40,
+      populationPercent: "40",
       totalEnrolledClients: 68000,
       proposedEnrollment: 1,
       proposedDuration: 28,

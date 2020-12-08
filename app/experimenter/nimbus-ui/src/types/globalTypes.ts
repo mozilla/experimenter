@@ -100,7 +100,7 @@ export interface UpdateExperimentAudienceInput {
   nimbusExperimentId: number;
   channels?: (NimbusExperimentChannel | null)[] | null;
   firefoxMinVersion?: NimbusExperimentFirefoxMinVersion | null;
-  populationPercent?: number | null;
+  populationPercent?: string | null;
   proposedDuration?: number | null;
   proposedEnrollment?: string | null;
   targetingConfigSlug?: NimbusExperimentTargetingConfigSlug | null;
