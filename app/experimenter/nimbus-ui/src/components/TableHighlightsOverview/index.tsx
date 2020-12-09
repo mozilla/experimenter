@@ -6,17 +6,12 @@ import React from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { AnalysisData } from "../../lib/visualization/types";
 import { useConfig } from "../../hooks";
-import { getConfig_nimbusConfig } from "../../types/getConfig";
+import { getConfigLabel } from "../../lib/getConfigLabel";
 
 type TableHighlightsOverviewProps = {
   experiment: getExperiment_experimentBySlug;
   results: AnalysisData["overall"];
 };
-
-type displayConfigOptionsProps =
-  | getConfig_nimbusConfig["firefoxMinVersion"]
-  | getConfig_nimbusConfig["channel"]
-  | getConfig_nimbusConfig["targetingConfigSlug"];
 
 const TableHighlightsOverview = ({
   experiment,
@@ -33,15 +28,11 @@ const TableHighlightsOverview = ({
           <td>
             <h3 className="h6">Targeting</h3>
             <div>
-              {displayConfigLabel(
-                experiment.firefoxMinVersion,
-                firefoxMinVersion,
-              )}
-              +
+              {getConfigLabel(experiment.firefoxMinVersion, firefoxMinVersion)}+
             </div>
-            <div>{displayConfigLabel(experiment.channel, channel)}</div>
+            <div>{getConfigLabel(experiment.channel, channel)}</div>
             <div>
-              {displayConfigLabel(
+              {getConfigLabel(
                 experiment.targetingConfigSlug,
                 targetingConfigSlug,
               )}
@@ -63,13 +54,6 @@ const TableHighlightsOverview = ({
       </tbody>
     </table>
   );
-};
-
-const displayConfigLabel = (
-  value: string | null,
-  options: displayConfigOptionsProps,
-) => {
-  return options?.find((obj: any) => obj.value === value)?.label;
 };
 
 export default TableHighlightsOverview;

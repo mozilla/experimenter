@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect } from "react";
-import { useForm, RegisterOptions } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import { getExperiment } from "../../types/getExperiment";
-import { useExitWarning } from "../../hooks";
+import { useExitWarning, useCommonForm } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
 import InlineErrorIcon from "../InlineErrorIcon";
 
@@ -16,29 +15,54 @@ type FormOverviewProps = {
   isServerValid: boolean;
   isMissingField?: (fieldName: string) => boolean;
   submitErrors: Record<string, string[]>;
+  setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   experiment?: getExperiment["experimentBySlug"];
   onSubmit: (data: Record<string, any>, reset: Function) => void;
   onCancel?: (ev: React.FormEvent) => void;
   onNext?: (ev: React.FormEvent) => void;
 };
 
+export const overviewFieldNames = [
+  "name",
+  "hypothesis",
+  "application",
+  "publicDescription",
+] as const;
+
 const FormOverview = ({
   isLoading,
   isServerValid,
   isMissingField,
   submitErrors,
+  setSubmitErrors,
   experiment,
   onSubmit,
   onCancel,
   onNext,
 }: FormOverviewProps) => {
-  const { handleSubmit, register, reset, errors, formState } = useForm({
-    mode: "onTouched",
-  });
-  const { isSubmitted, isDirty, touched } = formState;
   const { application, hypothesisDefault } = useConfig();
-  const isValid = isServerValid && formState.isValid;
-  const isDirtyUnsaved = isDirty && !(isValid && isSubmitted);
+
+  const defaultValues = {
+    name: experiment?.name || "",
+    hypothesis: experiment?.hypothesis || (hypothesisDefault as string).trim(),
+    application: "",
+    publicDescription: experiment?.publicDescription as string,
+  };
+
+  const {
+    FormErrors,
+    formControlAttrs,
+    isValid,
+    isDirtyUnsaved,
+    handleSubmit,
+    reset,
+    isSubmitted,
+  } = useCommonForm<typeof overviewFieldNames[number]>(
+    defaultValues,
+    isServerValid,
+    submitErrors,
+    setSubmitErrors,
+  );
 
   const shouldWarnOnExit = useExitWarning();
   useEffect(() => {
@@ -69,33 +93,6 @@ const FormOverview = ({
     [onNext],
   );
 
-  const nameValidated = (
-    name: string,
-    registerOptions: RegisterOptions = {
-      required: "This field may not be blank.",
-    },
-  ) => ({
-    name,
-    isInvalid: !!submitErrors[name] || (touched[name] && errors[name]),
-    isValid: !submitErrors[name] && touched[name] && !errors[name],
-    ref: register(registerOptions),
-  });
-
-  const FormErrors = ({ name }: { name: string }) => (
-    <>
-      {errors[name] && (
-        <Form.Control.Feedback type="invalid" data-for={name}>
-          {errors[name].message}
-        </Form.Control.Feedback>
-      )}
-      {submitErrors[name] && (
-        <Form.Control.Feedback type="invalid" data-for={name}>
-          {submitErrors[name]}
-        </Form.Control.Feedback>
-      )}
-    </>
-  );
-
   return (
     <Form
       noValidate
@@ -112,9 +109,8 @@ const FormOverview = ({
       <Form.Group controlId="name">
         <Form.Label>Public name</Form.Label>
         <Form.Control
-          {...nameValidated("name")}
+          {...formControlAttrs("name")}
           type="text"
-          defaultValue={experiment?.name || ""}
           autoFocus={!experiment}
         />
         <Form.Text className="text-muted">
@@ -126,12 +122,9 @@ const FormOverview = ({
       <Form.Group controlId="hypothesis">
         <Form.Label>Hypothesis</Form.Label>
         <Form.Control
-          {...nameValidated("hypothesis")}
+          {...formControlAttrs("hypothesis")}
           as="textarea"
           rows={5}
-          defaultValue={
-            experiment?.hypothesis || (hypothesisDefault as string).trim()
-          }
         />
         <Form.Text className="text-muted">
           You can add any supporting documents here.
@@ -148,9 +141,9 @@ const FormOverview = ({
                 ?.label as string
             }
             readOnly
-          ></Form.Control>
+          />
         ) : (
-          <Form.Control {...nameValidated("application")} as="select">
+          <Form.Control {...formControlAttrs("application")} as="select">
             <option value="">Select...</option>
             {application!.map((app, idx) => (
               <option key={`application-${idx}`} value={app!.value as string}>
@@ -163,7 +156,9 @@ const FormOverview = ({
           <p className="mb-0">
             Experiments can only target one Application at a time.
           </p>
-          <p>Application can not be changed after an experiment is created.</p>
+          <p className="mb-0">
+            Application can not be changed after an experiment is created.
+          </p>
         </Form.Text>
         <FormErrors name="application" />
       </Form.Group>
@@ -180,11 +175,9 @@ const FormOverview = ({
             )}
           </Form.Label>
           <Form.Control
-            ref={register}
-            name="publicDescription"
             as="textarea"
             rows={3}
-            defaultValue={experiment?.publicDescription as string}
+            {...formControlAttrs("publicDescription", {})}
           />
           <Form.Text className="text-muted">
             This description will be public to users on about:studies
