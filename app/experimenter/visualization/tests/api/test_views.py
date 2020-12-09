@@ -106,6 +106,14 @@ class TestVisualizationView(TestCase):
                 "branch": "variant",
             },
         }
+        VARIANT_DATA_DEFAULT_METRIC_ROW = {
+            **DATA_IDENTITY_ROW,
+            **{
+                "metric": "some_count",
+                "statistic": "mean",
+                "branch": "variant",
+            },
+        }
         VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW = {
             **DATA_IDENTITY_ROW,
             **{
@@ -137,6 +145,7 @@ class TestVisualizationView(TestCase):
         DATA_WITHOUT_POPULATION_PERCENTAGE = [
             CONTROL_DATA_ROW,
             VARIANT_DATA_ROW,
+            VARIANT_DATA_DEFAULT_METRIC_ROW,
             VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW,
             VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW,
             CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW,
@@ -178,6 +187,11 @@ class TestVisualizationView(TestCase):
                         "relative_uplift": {},
                         "significance": Significance.POSITIVE,
                     },
+                    "some_count": {
+                        "absolute": {"lower": 10, "point": 12, "upper": 13},
+                        "difference": {},
+                        "relative_uplift": {},
+                    },
                     "retained": {
                         "absolute": {},
                         "difference": {
@@ -196,6 +210,7 @@ class TestVisualizationView(TestCase):
             "daily": DATA_WITHOUT_POPULATION_PERCENTAGE,
             "weekly": DATA_WITHOUT_POPULATION_PERCENTAGE,
             "overall": FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
+            "other_metrics": {"some_count": "Some Count"},
             "show_analysis": False,
         }
 

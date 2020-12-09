@@ -18,7 +18,9 @@ describe("TableMetricSecondary", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis().overall}
-          probeSet={experiment.primaryProbeSets![0]!}
+          probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
+          probeSetName={experiment.secondaryProbeSets![0]!.name}
+          isDefault={false}
         />
       </RouterSlugProvider>,
     );
@@ -34,16 +36,18 @@ describe("TableMetricSecondary", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis().overall}
-          probeSet={experiment.primaryProbeSets![0]!}
+          probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
+          probeSetName={experiment.secondaryProbeSets![0]!.name}
+          isDefault={false}
         />
       </RouterSlugProvider>,
     );
 
-    const negativeSignificance = screen.queryByTestId("negative-significance");
+    const positiveSignificance = screen.queryByTestId("positive-significance");
     const neutralSignificance = screen.queryByTestId("neutral-significance");
 
-    expect(screen.getByTestId("positive-significance")).toBeInTheDocument();
-    expect(negativeSignificance).not.toBeInTheDocument();
+    expect(screen.getByTestId("negative-significance")).toBeInTheDocument();
+    expect(positiveSignificance).not.toBeInTheDocument();
     expect(neutralSignificance).not.toBeInTheDocument();
   });
 
@@ -53,7 +57,9 @@ describe("TableMetricSecondary", () => {
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis().overall}
-          probeSet={experiment.primaryProbeSets![0]!}
+          probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
+          probeSetName={experiment.secondaryProbeSets![0]!.name}
+          isDefault={false}
         />
       </RouterSlugProvider>,
     );
@@ -62,22 +68,24 @@ describe("TableMetricSecondary", () => {
     expect(screen.getByText("treatment")).toBeInTheDocument();
   });
 
-  it("shows the positive improvement bar", async () => {
+  it("shows the negative improvement bar", async () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
           results={mockAnalysis().overall}
-          probeSet={experiment.primaryProbeSets![0]!}
+          probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
+          probeSetName={experiment.secondaryProbeSets![0]!.name}
+          isDefault={false}
         />
       </RouterSlugProvider>,
     );
 
-    const negativeBlock = screen.queryByTestId("negative-block");
+    const positiveBlock = screen.queryByTestId("positive-block");
     const neutralBlock = screen.queryByTestId("neutral-block");
 
-    expect(screen.getByTestId("positive-block")).toBeInTheDocument();
-    expect(negativeBlock).not.toBeInTheDocument();
+    expect(screen.getByTestId("negative-block")).toBeInTheDocument();
+    expect(positiveBlock).not.toBeInTheDocument();
     expect(neutralBlock).not.toBeInTheDocument();
   });
 });

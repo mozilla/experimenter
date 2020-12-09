@@ -7,6 +7,7 @@ export interface AnalysisData {
   weekly: AnalysisPoint[];
   overall: { [branch: string]: BranchDescription };
   show_analysis: boolean;
+  other_metrics?: { [metric: string]: string };
 }
 
 export interface AnalysisPoint {

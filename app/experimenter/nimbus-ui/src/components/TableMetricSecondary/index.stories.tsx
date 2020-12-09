@@ -26,7 +26,9 @@ storiesOf("visualization/TableMetricSecondary", module)
     return (
       <TableMetricSecondary
         results={mockAnalysis().overall}
-        probeSet={experiment.secondaryProbeSets![0]!}
+        probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
+        probeSetName={experiment.secondaryProbeSets![0]!.name}
+        isDefault={false}
       />
     );
   })
@@ -35,7 +37,9 @@ storiesOf("visualization/TableMetricSecondary", module)
     return (
       <TableMetricSecondary
         results={mockAnalysis().overall}
-        probeSet={experiment.secondaryProbeSets![0]!}
+        probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
+        probeSetName={experiment.secondaryProbeSets![0]!.name}
+        isDefault={false}
       />
     );
   })
@@ -54,7 +58,9 @@ storiesOf("visualization/TableMetricSecondary", module)
     return (
       <TableMetricSecondary
         results={mockAnalysis().overall}
-        probeSet={experiment.secondaryProbeSets![0]!}
+        probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
+        probeSetName={experiment.secondaryProbeSets![0]!.name}
+        isDefault={false}
       />
     );
   });
