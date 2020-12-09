@@ -31,12 +31,6 @@ class Command(BaseCommand):
             elif "/api/v2/" in path:
                 for method in paths[path]:
                     paths[path][method]["tags"] = ["Core: Private"]
-            elif "/api/v3/" in path:
-                for method in paths[path]:
-                    paths[path][method]["tags"] = ["Rapid: Private"]
-            elif "/api/v4/" in path:
-                for method in paths[path]:
-                    paths[path][method]["tags"] = ["Rapid: Public"]
             elif "/api/v6/" in path:
                 for method in paths[path]:
                     paths[path][method]["tags"] = ["Nimbus: Public"]

@@ -5,7 +5,6 @@ from experimenter.experiments.tests.factories.legacy import (  # noqa: F401
     ExperimentCommentFactory,
     ExperimentControlFactory,
     ExperimentFactory,
-    ExperimentRapidFactory,
     ExperimentVariantFactory,
     VariantPreferencesFactory,
 )

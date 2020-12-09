@@ -11,7 +11,6 @@ from faker import Factory as FakerFactory
 
 from experimenter.base.models import Country, Locale
 from experimenter.experiments.constants import ExperimentConstants
-from experimenter.experiments.constants.shared_data import NIMBUS_DATA
 from experimenter.experiments.models import (
     Experiment,
     ExperimentBucketNamespace,
@@ -215,69 +214,6 @@ class ExperimentFactory(ExperimentConstants, factory.django.DjangoModelFactory):
             extracted = [ProjectFactory.create() for i in range(3)]
 
         self.projects.add(*extracted)
-
-
-class ExperimentRapidFactory(ExperimentConstants, factory.django.DjangoModelFactory):
-    type = Experiment.TYPE_RAPID
-    rapid_type = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.RAPID_TYPE_CHOICES)[0]
-    )
-    owner = factory.SubFactory(UserFactory)
-    name = factory.LazyAttribute(lambda o: faker.catch_phrase())
-    slug = factory.LazyAttribute(lambda o: "{}_".format(slugify(o.name)))
-    objectives = factory.LazyAttribute(lambda o: faker.text(1000))
-    audience = factory.LazyAttribute(
-        lambda o: random.choice(list(NIMBUS_DATA["Audiences"].keys()))
-    )
-    features = factory.LazyAttribute(lambda o: list(NIMBUS_DATA["features"].keys()))
-    firefox_min_version = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.VERSION_CHOICES[1:])[0]
-    )
-    firefox_channel = factory.LazyAttribute(
-        lambda o: random.choice(Experiment.CHANNEL_CHOICES[1:])[0]
-    )
-
-    class Meta:
-        model = Experiment
-
-    @classmethod
-    def create_with_status(cls, target_status, **kwargs):
-        from experimenter.experiments.changelog_utils import (
-            update_experiment_with_change_log,
-        )
-
-        experiment = cls.create(**kwargs)
-
-        ExperimentControlFactory.create(
-            experiment=experiment, name="Control", slug="control"
-        )
-        ExperimentVariantFactory.create(
-            experiment=experiment, name="Treatment", slug="treatment"
-        )
-
-        for status, _ in Experiment.STATUS_CHOICES:
-            if status == Experiment.STATUS_REVIEW:
-                experiment.proposed_duration = 28
-                experiment.bugzilla_id = "12345"
-                experiment.recipe_slug = experiment.generate_recipe_slug()
-                experiment.save()
-
-                ExperimentBucketNamespace.request_namespace_buckets(
-                    experiment.recipe_slug,
-                    experiment,
-                    100,
-                )
-
-            update_experiment_with_change_log(
-                experiment,
-                {"status": status},
-                experiment.owner,
-            )
-
-            if status == target_status:
-                break
-
-        return Experiment.objects.get(id=experiment.id)
 
 
 class BaseExperimentVariantFactory(factory.django.DjangoModelFactory):
