@@ -7,6 +7,7 @@ import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { Table } from "react-bootstrap";
 import { useConfig } from "../../hooks";
 import { displayConfigLabelOrNotSet, NotSet } from "../Summary";
+import RichText from "../RichText";
 
 type TableSummaryProps = {
   experiment: getExperiment_experimentBySlug;
@@ -40,7 +41,9 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
         </tr>
         <tr>
           <th>Hypothesis</th>
-          <td data-testid="experiment-hypothesis">{experiment.hypothesis}</td>
+          <td data-testid="experiment-hypothesis">
+            <RichText text={experiment.hypothesis || ""} />
+          </td>
         </tr>
         <tr>
           <th>Public description</th>
