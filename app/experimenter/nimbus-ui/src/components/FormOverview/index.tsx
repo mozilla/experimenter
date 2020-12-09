@@ -14,12 +14,12 @@ import InlineErrorIcon from "../InlineErrorIcon";
 type FormOverviewProps = {
   isLoading: boolean;
   isServerValid: boolean;
-  isMissingField?: (fieldName: string) => boolean;
+  isMissingField?: () => boolean;
   submitErrors: Record<string, string[]>;
   experiment?: getExperiment["experimentBySlug"];
-  onSubmit: (data: Record<string, any>, reset: Function) => void;
-  onCancel?: (ev: React.FormEvent) => void;
-  onNext?: (ev: React.FormEvent) => void;
+  onSubmit: () => void;
+  onCancel?: () => void;
+  onNext?: () => void;
 };
 
 const FormOverview = ({

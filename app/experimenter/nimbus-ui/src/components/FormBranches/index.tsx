@@ -19,7 +19,6 @@ import FormBranch from "./FormBranch";
 
 import {
   useFormBranchesReducer,
-  FormBranchesSaveState,
   REFERENCE_BRANCH_IDX,
   AnnotatedBranch,
 } from "./reducer";
@@ -35,13 +34,9 @@ export const FormBranches = ({
   isLoading: boolean;
   experiment: getExperiment_experimentBySlug;
   featureConfig: getConfig_nimbusConfig["featureConfig"];
-  onSave: (
-    state: FormBranchesSaveState,
-    setSubmitErrors: Function,
-    clearSubmitErrors: Function,
-  ) => void;
+  onSave: () => void;
   onNext: () => void;
-  isMissingField: (fieldName: string) => boolean;
+  isMissingField: () => boolean;
 }) => {
   const [
     {

@@ -9,25 +9,13 @@ import HeaderExperiment from "../HeaderExperiment";
 import PageLoading from "../PageLoading";
 import PageExperimentNotFound from "../PageExperimentNotFound";
 import { useAnalysis, useExperiment } from "../../hooks";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import AppLayout from "../AppLayout";
 import { AnalysisData } from "../../lib/visualization/types";
 import Head from "../Head";
 import { getStatus, StatusCheck } from "../../lib/experiment";
 
-type AppLayoutWithExperimentChildrenProps = {
-  experiment: getExperiment_experimentBySlug;
-  review: {
-    isMissingField: (fieldName: string) => boolean;
-    refetch: () => void;
-  };
-  analysis?: AnalysisData;
-};
-
 type AppLayoutWithExperimentProps = {
-  children: (
-    props: AppLayoutWithExperimentChildrenProps,
-  ) => React.ReactNode | null;
+  children: () => React.ReactNode | null;
   testId: string;
   title?: string;
   polling?: boolean;

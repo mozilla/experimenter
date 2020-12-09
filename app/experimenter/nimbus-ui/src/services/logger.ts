@@ -3,18 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Logging module that performs proper checks and string
- * interpolation before logging message.
- *
- */
-
-interface ModuleError {
-  errorModule: {
-    toInterpolatedMessage: (arg0: ModuleError) => string;
-  };
-}
-
-/**
  * Constructor of log module.
  *
  * @param {Object} console Console object used for logging.

@@ -12,10 +12,7 @@ import { ReactComponent as DeleteIcon } from "../../images/x.svg";
 
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
-import {
-  getConfig_nimbusConfig,
-  getConfig_nimbusConfig_featureConfig,
-} from "../../types/getConfig";
+import { getConfig_nimbusConfig } from "../../types/getConfig";
 
 import { AnnotatedBranch } from "./reducer";
 import InlineErrorIcon from "../InlineErrorIcon";
@@ -51,12 +48,10 @@ export const FormBranch = ({
   featureConfig: getConfig_nimbusConfig["featureConfig"];
   lastSubmitTime: number;
   onRemove?: () => void;
-  onChange: (branch: AnnotatedBranch) => void;
+  onChange: () => void;
   onAddFeatureConfig: () => void;
   onRemoveFeatureConfig: () => void;
-  onFeatureConfigChange: (
-    featureConfig: getConfig_nimbusConfig_featureConfig | null,
-  ) => void;
+  onFeatureConfigChange: () => void;
   showMissingIcon?: boolean;
 }) => {
   const {

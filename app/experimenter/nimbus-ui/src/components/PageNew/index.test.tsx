@@ -114,7 +114,7 @@ jest.mock("../FormOverview", () => ({
     isLoading: boolean;
     submitErrors?: Record<string, string[]>;
     onSubmit: Function;
-    onCancel: (ev: React.FormEvent) => void;
+    onCancel: () => void;
     applications: string[];
   }) => {
     const handleSubmit = (ev: React.FormEvent) => {

@@ -20,8 +20,8 @@ class AppErrorBoundary extends React.Component {
     return { error };
   }
 
-  componentDidCatch(error: Error) {
-    sentryMetrics.captureException(error);
+  componentDidCatch() {
+    sentryMetrics.captureException();
   }
 
   render() {

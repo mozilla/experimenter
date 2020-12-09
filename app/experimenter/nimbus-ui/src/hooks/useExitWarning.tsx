@@ -39,7 +39,7 @@ export const exitHandler = (event: BeforeUnloadEvent) => {
   return exitMessage;
 };
 
-export function useExitWarning(init = false): (value: boolean) => void {
+export function useExitWarning(init = false): () => void {
   const [warnOnExit, setWarnOnExit] = useState<boolean>(init);
 
   useEffect(() => {

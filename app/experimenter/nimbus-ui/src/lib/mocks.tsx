@@ -179,7 +179,7 @@ export class MockedCache extends React.Component<MockedProps, MockedState> {
   }
 }
 
-type ResultFunction = (operation: Operation) => FetchResult;
+type ResultFunction = () => FetchResult;
 
 type SimulatedMockedResponses = ReadonlyArray<{
   request: MockedResponse["request"];

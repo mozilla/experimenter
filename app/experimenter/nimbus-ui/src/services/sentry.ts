@@ -104,10 +104,10 @@ const exceptionTags = ["code", "context", "errno", "namespace", "status"];
 
 interface SentryMetrics {
   _logger: Logger;
-  configure: (arg0: string, arg1?: string) => void;
-  captureException: (arg0: Error) => void;
-  __beforeSend: (arg0: Sentry.Event) => Sentry.Event;
-  __cleanUpQueryParam: (arg0: string) => string;
+  configure: () => void;
+  captureException: () => void;
+  __beforeSend: () => Sentry.Event;
+  __cleanUpQueryParam: () => string;
 }
 
 /**
@@ -119,7 +119,7 @@ interface SentryMetrics {
  *
  * @constructor
  */
-const SentryMetrics = (function (this: SentryMetrics) {
+const SentryMetrics = (function () {
   this._logger = new Logger();
 } as any) as new () => SentryMetrics;
 

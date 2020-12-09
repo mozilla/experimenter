@@ -35,10 +35,10 @@ export const FormAudience = ({
 }: {
   experiment: getExperiment_experimentBySlug;
   submitErrors: Record<string, string[]>;
-  isMissingField: (fieldName: string) => boolean;
+  isMissingField: () => boolean;
   isLoading: boolean;
-  onSubmit: (data: Record<string, any>, reset: Function) => void;
-  onNext?: (ev: React.FormEvent) => void;
+  onSubmit: () => void;
+  onNext?: () => void;
 }) => {
   const config = useConfig();
 

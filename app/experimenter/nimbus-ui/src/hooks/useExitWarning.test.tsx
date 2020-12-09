@@ -17,7 +17,7 @@ describe("hooks/useExitWarning", () => {
   });
 
   describe("useExitWarning", () => {
-    let shouldWarnFn: (value: boolean) => void;
+    let shouldWarnFn: () => void;
     let addListener: jest.SpyInstance;
     let removeListener: jest.SpyInstance;
 

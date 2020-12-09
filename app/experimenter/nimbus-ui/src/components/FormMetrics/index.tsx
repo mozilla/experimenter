@@ -6,10 +6,10 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
+import Select from "react-select";
 import { getExperiment } from "../../types/getExperiment";
 import { getConfig_nimbusConfig_probeSets } from "../../types/getConfig";
 import { useExitWarning } from "../../hooks";
-import Select, { ActionMeta, ValueType } from "react-select";
 
 type SelectOption = { label: string; value: string };
 
@@ -19,8 +19,8 @@ type FormMetricsProps = {
   isLoading: boolean;
   isServerValid: boolean;
   submitErrors: Record<string, string[]>;
-  onSave: (data: Record<string, any>, reset: Function) => void;
-  onNext: (ev: React.FormEvent) => void;
+  onSave: () => void;
+  onNext: () => void;
 };
 
 const FormMetrics = ({
@@ -139,12 +139,7 @@ const FormMetrics = ({
             label: p?.name as string,
             value: p?.id as string,
           }))}
-          onChange={
-            handlePrimaryProbeSetsChange as (
-              value: ValueType<SelectOption>,
-              actionMeta: ActionMeta<SelectOption>,
-            ) => void
-          }
+          onChange={handlePrimaryProbeSetsChange as () => void}
           isOptionDisabled={() => selectedPrimaryProbeSetIds.length >= 2}
           isMulti
         />
@@ -165,12 +160,7 @@ const FormMetrics = ({
             label: p?.name as string,
             value: p?.id as string,
           }))}
-          onChange={
-            handleSecondaryProbeSetsChange as (
-              value: ValueType<SelectOption>,
-              actionMeta: ActionMeta<SelectOption>,
-            ) => void
-          }
+          onChange={handleSecondaryProbeSetsChange as () => void}
           isMulti
         />
         <Form.Text className="text-muted">
