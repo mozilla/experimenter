@@ -774,16 +774,6 @@ class TestExperimentNormandyUpdateView(TestCase):
         )
 
 
-class TestExperimentRapidView(TestCase):
-    def test_page_loads(self):
-        user_email = "user@example.com"
-        response = self.client.get(
-            reverse("experiments-rapid"),
-            **{settings.OPENIDC_EMAIL_HEADER: user_email},
-        )
-        self.assertEqual(response.status_code, 200)
-
-
 class TestExperimentNimbusUIView(TestCase):
     def test_page_loads(self):
         user_email = "user@example.com"

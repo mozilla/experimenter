@@ -13,7 +13,6 @@ class ExperimentConstants(object):
     TYPE_GENERIC = "generic"
     TYPE_ROLLOUT = "rollout"
     TYPE_MESSAGE = "message"
-    TYPE_RAPID = "rapid"
 
     TYPE_CHOICES = (
         (TYPE_PREF, "Pref-Flip Experiment"),
@@ -21,7 +20,6 @@ class ExperimentConstants(object):
         (TYPE_GENERIC, "Generic Experiment"),
         (TYPE_ROLLOUT, "Staged Rollout"),
         (TYPE_MESSAGE, "Message Router Content Experiment"),
-        (TYPE_RAPID, "Rapid Experiment"),
     )
 
     @classmethod
@@ -33,9 +31,6 @@ class ExperimentConstants(object):
             (cls.TYPE_ROLLOUT, "Staged Rollout"),
             (cls.TYPE_MESSAGE, "Message Router Content Experiment"),
         )
-
-        if settings.FEATURE_MESSAGE_TYPE:
-            choices += ((cls.TYPE_RAPID, "Rapid Experiment"),)
 
         return choices
 
@@ -60,15 +55,6 @@ class ExperimentConstants(object):
         (MESSAGE_TEMPLATE_URL, "CFR Urlbar Chiclet"),
         (MESSAGE_TEMPLATE_MILESTONE, "Milestone Message"),
     )
-
-    # Rapid stuff
-    RAPID_AA = "cfr a/a"
-
-    RAPID_TYPE_CHOICES = ((RAPID_AA, "Rapid CFR A/A Experiment"),)
-
-    RAPID_FEATURE_CHOICES = (("FEATURE 1", "FEATURE 1"), ("FEATURE 2", "FEATURE 2"))
-
-    RAPID_AUDIENCE_CHOICES = (("AUDIENCE 1", "AUDIENCE 1"), ("AUDIENCE 2", "AUDIENCE 2"))
 
     # Rollout stuff
     ROLLOUT_TYPE_CHOICES = ((TYPE_PREF, "Pref Rollout"), (TYPE_ADDON, "Add-On Rollout"))
@@ -129,12 +115,6 @@ class ExperimentConstants(object):
         STATUS_ACCEPTED: [STATUS_LIVE],
         STATUS_LIVE: [STATUS_COMPLETE],
         STATUS_COMPLETE: [],
-    }
-
-    RAPID_STATUS_TRANSITIONS = {
-        STATUS_DRAFT: [STATUS_REVIEW],
-        STATUS_ACCEPTED: [STATUS_REJECTED],
-        STATUS_REJECTED: [STATUS_DRAFT],
     }
 
     STATUS_PROCEED_REVIEW = "Begin Sign-Offs"
@@ -1249,5 +1229,3 @@ Locales: {locales}
 
 {experiment.experiment_url}
         """
-    BUGZILLA_RAPID_EXPERIMENT_TEMPLATE = """ This is an empty CFR A/A experiment. The A/A experiment is being run to test the automation, effectiveness, and accuracy of the rapid experiments platform.
-    The experiment is an internal test, and Firefox users will not see any noticeable change and there will be no user impact."""  # noqa

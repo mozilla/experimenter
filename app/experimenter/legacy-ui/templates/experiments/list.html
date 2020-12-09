@@ -75,26 +75,11 @@
       </a>
     </div>
   </div>
-
-  {% if FEATURE_MESSAGE_TYPE %}
-    <div class="row mt-2">
-      <div class="col">
-        <a class="col btn btn-outline-primary" href="{% url "experiments-rapid-create" %}">
-          <span class="fas fa-shipping-fast"></span>
-          Create Rapid Experiment
-        </a>
-      </div>
-    </div>
-  {% endif %}
 {% endblock %}
 
 {% block main_content %}
   {% for experiment in experiments %}
-  {% if experiment.is_rapid_experiment %}
-    <a class="noanchorstyle hovershadow" href="{% url "experiments-rapid" slug=experiment.slug %}">
-  {% else %}
     <a class="noanchorstyle hovershadow" href="{% url "experiments-detail" slug=experiment.slug %}">
-  {% endif %}
       <div class="row">
         <div class="col">
           <h5>
