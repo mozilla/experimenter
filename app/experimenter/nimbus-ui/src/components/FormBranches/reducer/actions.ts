@@ -7,6 +7,7 @@ import {
   FormBranchesState,
   createAnnotatedBranch,
 } from "./state";
+import { FormValue } from "./update";
 import snakeToCamelCase from "../../../lib/snakeToCamelCase";
 
 export const REFERENCE_BRANCH_IDX = -1;
@@ -20,8 +21,6 @@ export function formBranchesActionReducer(
       return addBranch(state);
     case "removeBranch":
       return removeBranch(state, action);
-    case "updateBranch":
-      return updateBranch(state, action);
     case "removeFeatureConfig":
       return removeFeatureConfig(state);
     case "setFeatureConfig":
@@ -32,8 +31,8 @@ export function formBranchesActionReducer(
       return setSubmitErrors(state, action);
     case "clearSubmitErrors":
       return clearSubmitErrors(state);
-    case "resetDirtyBranches":
-      return resetDirtyBranches(state);
+    case "commitDirtyBranches":
+      return commitDirtyBranches(state, action);
     default:
       return state;
   }
@@ -42,13 +41,12 @@ export function formBranchesActionReducer(
 export type FormBranchesAction =
   | AddBranchAction
   | RemoveBranchAction
-  | UpdateBranchAction
   | RemoveFeatureConfigAction
   | SetEqualRatioAction
   | SetFeatureConfigAction
   | SetSubmitErrorsAction
   | ClearSubmitErrorsAction
-  | ResetDirtyBranchesAction;
+  | CommitDirtyBranchesAction;
 
 type AddBranchAction = {
   type: "addBranch";
@@ -88,31 +86,6 @@ function removeBranch(state: FormBranchesState, { idx }: RemoveBranchAction) {
       ...treatmentBranches.slice(0, idx),
       ...treatmentBranches.slice(idx + 1),
     ],
-  };
-}
-
-type UpdateBranchAction = {
-  type: "updateBranch";
-  idx: number;
-  value: AnnotatedBranch;
-};
-
-function updateBranch(
-  state: FormBranchesState,
-  { idx, value }: UpdateBranchAction,
-) {
-  let { referenceBranch, treatmentBranches } = state;
-  const updatedBranch = { ...value };
-  if (idx === REFERENCE_BRANCH_IDX) {
-    referenceBranch = updatedBranch;
-  } else {
-    treatmentBranches = [...treatmentBranches!];
-    treatmentBranches[idx] = updatedBranch;
-  }
-  return {
-    ...state,
-    referenceBranch,
-    treatmentBranches,
   };
 }
 
@@ -280,20 +253,30 @@ function clearSubmitErrors(state: FormBranchesState) {
   };
 }
 
-type ResetDirtyBranchesAction = {
-  type: "resetDirtyBranches";
+type CommitDirtyBranchesAction = {
+  type: "commitDirtyBranches";
+  branchFormValues: FormValue[];
 };
 
-function resetDirtyBranches(state: FormBranchesState) {
+function commitDirtyBranches(
+  state: FormBranchesState,
+  action: CommitDirtyBranchesAction,
+) {
+  const { branchFormValues } = action;
   let { referenceBranch, treatmentBranches } = state;
 
   if (referenceBranch) {
-    referenceBranch = { ...referenceBranch, isDirty: false };
+    referenceBranch = {
+      ...referenceBranch,
+      ...branchFormValues.find(({ idx }) => idx === REFERENCE_BRANCH_IDX),
+      isDirty: false,
+    };
   }
 
   if (treatmentBranches) {
-    treatmentBranches = treatmentBranches.map((treatmentBranch) => ({
+    treatmentBranches = treatmentBranches.map((treatmentBranch, idx) => ({
       ...treatmentBranch,
+      ...branchFormValues.find((entry) => entry.idx === idx),
       isDirty: false,
     }));
   }

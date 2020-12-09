@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from "react";
-import { useForm, ValidationRules } from "react-hook-form";
+import React, { useEffect, useMemo } from "react";
+import { useForm, ValidationRules, UseFormMethods } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
@@ -28,30 +28,40 @@ type DefaultValues = {
   featureEnabled: boolean;
 };
 
+export type FormBranchRegistration = { idx: number } & Pick<
+  UseFormMethods["formState"],
+  "isDirty"
+> &
+  Pick<UseFormMethods, "trigger" | "getValues" | "reset">;
+
 export const FormBranch = ({
   id,
+  idx,
   branch,
   equalRatio,
   isReference,
   experimentFeatureConfig,
   featureConfig,
   lastSubmitTime,
+  registerBranchForm,
+  unregisterBranchForm,
   onRemove,
-  onChange,
   onAddFeatureConfig,
   onRemoveFeatureConfig,
   onFeatureConfigChange,
   showMissingIcon,
 }: {
   id: string;
+  idx: number;
   branch: AnnotatedBranch;
   equalRatio?: boolean;
   isReference?: boolean;
   experimentFeatureConfig: getExperiment_experimentBySlug["featureConfig"];
   featureConfig: getConfig_nimbusConfig["featureConfig"];
-  lastSubmitTime: number;
+  lastSubmitTime: number | undefined;
+  registerBranchForm?: (registration: FormBranchRegistration) => void;
+  unregisterBranchForm?: (registration: FormBranchRegistration) => void;
   onRemove?: () => void;
-  onChange: (branch: AnnotatedBranch) => void;
   onAddFeatureConfig: () => void;
   onRemoveFeatureConfig: () => void;
   onFeatureConfigChange: (
@@ -59,47 +69,59 @@ export const FormBranch = ({
   ) => void;
   showMissingIcon?: boolean;
 }) => {
+  const defaultValues: DefaultValues = useMemo(
+    () => ({
+      name: branch.name,
+      description: branch.description,
+      ratio: branch.ratio,
+      featureValue: branch.featureValue || null,
+      featureEnabled: !!branch.featureEnabled,
+    }),
+    [branch],
+  );
+
+  const attemptedSubmit = !!lastSubmitTime;
+
+  const { errors: submitErrors } = branch;
+  console.log("SUBMIT ERRORS", idx, submitErrors);
+
   const {
     register,
     errors,
     reset,
     trigger,
-    formState: { touched },
+    watch,
+    getValues,
+    formState: { touched, isDirty },
   } = useForm({
-    // Validation will occur automatically onBlur, but we have our own
-    // onChange method below which triggers validation on every change.
     mode: "onBlur",
+    defaultValues,
   });
 
-  const { errors: submitErrors, featureEnabled } = branch;
+  const featureEnabled = watch("featureEnabled");
 
-  // Reset the form to branch values whenever the lastSubmitTime changes,
-  // clears touched flags and allows new server-side errors to appear
+  const registration = useMemo<FormBranchRegistration>(
+    () => ({
+      idx,
+      trigger,
+      getValues,
+      reset,
+      isDirty,
+    }),
+    [idx, trigger, getValues, reset, isDirty],
+  );
   useEffect(() => {
-    const defaultValues: DefaultValues = {
-      name: branch.name,
-      description: branch.description,
-      ratio: branch.ratio,
-      featureValue: branch.featureValue,
-      featureEnabled: branch.featureEnabled,
-    };
+    registerBranchForm && registerBranchForm(registration);
+    return () => unregisterBranchForm && unregisterBranchForm(registration);
+  }, [registration, registerBranchForm, unregisterBranchForm]);
+
+  useEffect(() => {
     reset(defaultValues);
   }, [branch, reset, lastSubmitTime]);
 
   // Child form submit is ignored - parent component handles everything.
   const handleSubmit = (ev: React.FormEvent<HTMLElement>) =>
     ev.preventDefault();
-
-  // Validating and reporting branch updates to parent on every field change,
-  // because this child form never actually gets submitted
-  const handleChange = (
-    propertyName: keyof DefaultValues,
-    targetAttr: keyof React.ChangeEvent<HTMLInputElement>["target"] = "value",
-  ) => async (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const value = ev.target[targetAttr];
-    const isValid = await trigger();
-    onChange({ ...branch, isValid, isDirty: true, [propertyName]: value });
-  };
 
   const handleFeatureConfigChange = (
     ev: React.ChangeEvent<HTMLInputElement>,
@@ -115,22 +137,23 @@ export const FormBranch = ({
 
   const handleRemoveClick = () => onRemove && onRemove();
 
-  const nameValidated = (
+  const formControlCommon = (
     name: keyof DefaultValues,
-    validateRules: ValidationRules = {
+    validateRules: ValidationRules | false = {
       required: "This field may not be blank.",
     },
   ) => ({
     name,
-    ref: register(validateRules),
+    ref: register(validateRules || {}),
     isInvalid:
+      validateRules &&
       // Server-side errors signal invalid when field is freshly reset
-      (!touched[name] && !!submitErrors[name]) ||
-      // Client-side errors signal invalid after a field has been touched
-      (touched[name] && !!errors[name]),
+      ((!touched[name] && !!submitErrors[name]) ||
+        // Client-side errors signal invalid after a field has been touched
+        ((attemptedSubmit || touched[name]) && !!errors[name])),
     isValid:
       // Valid after touched and no client-side errors
-      touched[name] && !errors[name],
+      validateRules && (attemptedSubmit || touched[name]) && !errors[name],
   });
 
   const FormErrors = ({ name }: { name: keyof DefaultValues }) => (
@@ -165,20 +188,12 @@ export const FormBranch = ({
                 </Badge>
               )}
             </Form.Label>
-            <Form.Control
-              {...nameValidated("name")}
-              type="text"
-              onChange={handleChange("name")}
-            />
+            <Form.Control {...formControlCommon("name")} type="text" />
             <FormErrors name="name" />
           </Form.Group>
           <Form.Group as={Col} controlId={`${id}-description`}>
             <Form.Label>Description</Form.Label>
-            <Form.Control
-              {...nameValidated("description")}
-              type="text"
-              onChange={handleChange("description")}
-            />
+            <Form.Control {...formControlCommon("description")} type="text" />
             <FormErrors name="description" />
           </Form.Group>
           <Form.Group as={Col} controlId={`${id}-ratio`} sm={2} md={2}>
@@ -186,11 +201,16 @@ export const FormBranch = ({
             {equalRatio ? (
               <p data-testid="equal-ratio" className="p-0 m-0">
                 Equal
+                <Form.Control
+                  {...formControlCommon("ratio")}
+                  type="hidden"
+                  value="1"
+                />
               </p>
             ) : (
               <>
                 <Form.Control
-                  {...nameValidated("ratio", {
+                  {...formControlCommon("ratio", {
                     required: "Ratio may not be blank.",
                     pattern: {
                       value: /^\d+$/,
@@ -199,7 +219,6 @@ export const FormBranch = ({
                   })}
                   type="number"
                   min="1"
-                  onChange={handleChange("ratio")}
                 />
                 <FormErrors name="ratio" />
               </>
@@ -289,10 +308,9 @@ export const FormBranch = ({
             </Col>
             <Form.Group as={Col} controlId={`${id}-featureEnabled`}>
               <Form.Check
+                {...formControlCommon("featureEnabled", false)}
                 type="switch"
                 label={featureEnabled ? "On" : "Off"}
-                defaultChecked={featureEnabled}
-                onChange={handleChange("featureEnabled", "checked")}
               />
             </Form.Group>
           </Form.Row>
@@ -304,10 +322,9 @@ export const FormBranch = ({
                   <Form.Label>Value</Form.Label>
                   {/* TODO: Maybe do some JSON schema validation here client-side? */}
                   <Form.Control
-                    {...nameValidated("featureValue")}
+                    {...formControlCommon("featureValue")}
                     as="textarea"
                     rows={4}
-                    onChange={handleChange("featureValue")}
                   />
                   <FormErrors name="featureValue" />
                 </Form.Group>

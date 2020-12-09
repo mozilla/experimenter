@@ -6,6 +6,7 @@ import {
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_treatmentBranches,
 } from "../../../types/getExperiment";
+import { TreatmentBranchType } from "../../../types/globalTypes";
 
 export type FormBranchesState = Pick<
   getExperiment_experimentBySlug,
@@ -18,7 +19,7 @@ export type FormBranchesState = Pick<
   globalErrors: string[];
 };
 
-export type AnnotatedBranch = getExperiment_experimentBySlug_treatmentBranches & {
+export type AnnotatedBranch = TreatmentBranchType & {
   key: string;
   isValid: boolean;
   isDirty: boolean;
@@ -77,13 +78,13 @@ export function createAnnotatedBranch(
   name: string,
 ): AnnotatedBranch {
   return {
-    __typename: "NimbusBranchType" as const,
+    //__typename: "NimbusBranchType" as const,
     key: `branch-${lastId}`,
     errors: {},
     isValid: false,
     isDirty: false,
     name,
-    slug: "",
+    //slug: "",
     description: "",
     ratio: 1,
     featureValue: null,

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
@@ -15,7 +15,7 @@ import {
   getConfig_nimbusConfig_featureConfig,
 } from "../../types/getConfig";
 
-import FormBranch from "./FormBranch";
+import FormBranch, { FormBranchRegistration } from "./FormBranch";
 
 import {
   useFormBranchesReducer,
@@ -55,25 +55,10 @@ export const FormBranches = ({
     dispatch,
   ] = useFormBranchesReducer(experiment);
 
-  const isSaveDisabled =
-    isLoading ||
-    !referenceBranch ||
-    !referenceBranch.isValid ||
-    (!!treatmentBranches &&
-      !treatmentBranches.every((branch) => branch.isValid));
-
+  const isSaveDisabled = isLoading;
   const isNextDisabled = isLoading;
 
-  const [lastSubmitTime, setLastSubmitTime] = useState(Date.now());
-
-  const isDirtyUnsaved =
-    (referenceBranch && referenceBranch.isDirty) ||
-    !!treatmentBranches?.some((branch) => branch?.isDirty);
-
-  const shouldWarnOnExit = useExitWarning();
-  useEffect(() => {
-    shouldWarnOnExit(isDirtyUnsaved);
-  }, [shouldWarnOnExit, isDirtyUnsaved]);
+  const [lastSubmitTime, setLastSubmitTime] = useState<number | undefined>();
 
   // TODO: submitErrors type is any, but in practical use it's AnnotatedBranch["errors"]
   const setSubmitErrors = (submitErrors: any) =>
@@ -85,9 +70,6 @@ export const FormBranches = ({
 
   const handleRemoveBranch = (idx: number) => () =>
     dispatch({ type: "removeBranch", idx });
-
-  const handleUpdateBranch = (idx: number) => (value: AnnotatedBranch) =>
-    dispatch({ type: "updateBranch", idx, value });
 
   const handleEqualRatioChange = (ev: React.ChangeEvent<HTMLInputElement>) =>
     dispatch({ type: "setEqualRatio", value: ev.target.checked });
@@ -104,14 +86,57 @@ export const FormBranches = ({
     value: getConfig_nimbusConfig_featureConfig | null,
   ) => dispatch({ type: "setFeatureConfig", value });
 
-  const handleSaveClick = (
+  const registeredBranchForms = useRef<FormBranchRegistration[]>([]);
+  const [registerBranchForm, unregisterBranchForm] = useMemo(() => {
+    const currentBranchForms = registeredBranchForms.current;
+    return [
+      (registration: FormBranchRegistration) => {
+        currentBranchForms.push(registration);
+      },
+      (registration: FormBranchRegistration) => {
+        const idx = currentBranchForms.indexOf(registration);
+        if (idx !== -1) currentBranchForms.splice(idx, 1);
+      },
+    ];
+  }, [registeredBranchForms]);
+
+  const isDirtyUnsaved = registeredBranchForms.current.some(
+    ({ isDirty }) => isDirty,
+  );
+
+  const shouldWarnOnExit = useExitWarning();
+  useEffect(() => {
+    shouldWarnOnExit(isDirtyUnsaved);
+  }, [shouldWarnOnExit, isDirtyUnsaved]);
+
+  const handleSaveClick = async (
     ev: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     ev.preventDefault();
     try {
+      // form validation is async, so trigger it on all branch forms and
+      // collect their values in one batch with Promise.all
+      const branchFormValues = await Promise.all(
+        registeredBranchForms.current.map(
+          async ({ idx, trigger, getValues }) => ({
+            idx,
+            isValid: await trigger(),
+            ...getValues(),
+          }),
+        ),
+      );
+
       setLastSubmitTime(Date.now());
-      onSave(extractSaveState(), setSubmitErrors, clearSubmitErrors);
-      dispatch({ type: "resetDirtyBranches" });
+      dispatch({ type: "commitDirtyBranches", branchFormValues });
+
+      let allValid = branchFormValues.every(({ isValid }) => isValid);
+      if (allValid) {
+        onSave(
+          extractSaveState(branchFormValues),
+          setSubmitErrors,
+          clearSubmitErrors,
+        );
+      }
     } catch (error) {
       setSubmitErrors({ "*": [error.message] });
     }
@@ -129,6 +154,8 @@ export const FormBranches = ({
     equalRatio,
     featureConfig,
     experimentFeatureConfig,
+    registerBranchForm,
+    unregisterBranchForm,
     onFeatureConfigChange: handleFeatureConfigChange,
     onAddFeatureConfig: handleAddFeatureConfig,
     onRemoveFeatureConfig: handleRemoveFeatureConfig,
@@ -177,9 +204,9 @@ export const FormBranches = ({
             {...{
               ...commonBranchProps,
               id: `branch-reference`,
+              idx: REFERENCE_BRANCH_IDX,
               isReference: true,
               branch: { ...referenceBranch, key: "branch-reference" },
-              onChange: handleUpdateBranch(REFERENCE_BRANCH_IDX),
               showMissingIcon: isMissingField("reference_branch"),
             }}
           />
@@ -193,9 +220,9 @@ export const FormBranches = ({
                     ...commonBranchProps,
                     key: branch.key,
                     id: branch.key,
+                    idx,
                     branch,
                     onRemove: handleRemoveBranch(idx),
-                    onChange: handleUpdateBranch(idx),
                   }}
                 />
               ),

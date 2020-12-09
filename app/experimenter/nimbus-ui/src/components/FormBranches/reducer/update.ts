@@ -4,6 +4,7 @@
 
 import { UpdateExperimentBranchesInput } from "../../../types/globalTypes";
 import { FormBranchesState, AnnotatedBranch } from "./state";
+import { REFERENCE_BRANCH_IDX } from "./index";
 
 export type FormBranchesSaveState = Pick<
   UpdateExperimentBranchesInput,
@@ -12,8 +13,13 @@ export type FormBranchesSaveState = Pick<
 
 export class UpdateStateError extends Error {}
 
+export type FormValue = { idx: number; isValid: boolean } & Partial<
+  FormBranchesSaveState["referenceBranch"]
+>;
+
 export function extractUpdateState(
   state: FormBranchesState,
+  formValues: FormValue[],
 ): FormBranchesSaveState {
   const { featureConfig, referenceBranch, treatmentBranches } = state;
 
@@ -27,20 +33,30 @@ export function extractUpdateState(
 
   return {
     featureConfigId,
-    referenceBranch: extractUpdateBranch(referenceBranch),
+    referenceBranch: extractUpdateBranch(
+      referenceBranch,
+      formValues,
+      REFERENCE_BRANCH_IDX,
+    ),
     treatmentBranches:
       treatmentBranches === null
         ? []
-        : treatmentBranches.map(extractUpdateBranch),
+        : treatmentBranches.map((branch, idx) =>
+            extractUpdateBranch(branch, formValues, idx),
+          ),
   };
 }
 
 export function extractUpdateBranch(
   branch: AnnotatedBranch,
+  formValues: FormValue[],
+  idx: number,
 ): FormBranchesSaveState["referenceBranch"] {
+  const formValue = formValues.find((value) => value.idx === idx);
   const {
     /* eslint-disable @typescript-eslint/no-unused-vars */
     __typename,
+    idx: ignoredIdx,
     key,
     errors,
     isValid,
@@ -48,6 +64,6 @@ export function extractUpdateBranch(
     slug,
     /* eslint-enable @typescript-eslint/no-unused-vars */
     ...strippedBranch
-  } = branch;
+  } = { ...branch, ...formValue };
   return strippedBranch;
 }
