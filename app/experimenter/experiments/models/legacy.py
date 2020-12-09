@@ -111,29 +111,6 @@ class Experiment(ExperimentConstants, models.Model):
         choices=ExperimentConstants.MESSAGE_TEMPLATE_CHOICES,
     )
 
-    rapid_type = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=ExperimentConstants.RAPID_TYPE_CHOICES,
-    )
-
-    features = ArrayField(
-        models.CharField(
-            max_length=255,
-            blank=True,
-            null=True,
-            choices=ExperimentConstants.RAPID_FEATURE_CHOICES,
-        ),
-        default=list,
-    )
-    audience = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        choices=ExperimentConstants.RAPID_AUDIENCE_CHOICES,
-    )
-
     is_multi_pref = models.BooleanField(default=False)
     rollout_type = models.CharField(
         max_length=255,
@@ -612,10 +589,6 @@ class Experiment(ExperimentConstants, models.Model):
     @property
     def is_rollout(self):
         return self.type == self.TYPE_ROLLOUT
-
-    @property
-    def is_rapid_experiment(self):
-        return self.type == self.TYPE_RAPID
 
     @property
     def is_pref_rollout(self):

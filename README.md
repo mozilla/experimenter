@@ -113,7 +113,6 @@ Notes:
 
         yarn workspace @experimenter/nimbus-ui build
         yarn workspace @experimenter/core build
-        yarn workspace @experimenter/rapid build
         ./manage.py runserver 0.0.0.0:7001
 
 Pro-tip: we have had at least one large code refactor. You can ignore specific large commits when blaming by setting the Git config's `ignoreRevsFile` to `.git-blame-ignore-revs`:
@@ -218,7 +217,6 @@ Start a linux VM container with VNC available over `vnc://localhost:5900` with p
 Experimenter has three front-end UIs right now:
 
 - [`core`](./app/experimenter/legacy-ui/core) is the current UI used for Experimenter intake.
-- [`rapid`](./app/experimenter/legacy-ui/core) is a partially-built React UI.
 - [`nimbus-ui`](./app/experimenter/nimbus-ui) is a new React UI for an upcoming Experimenter refactor.
 
 Learn more about the organization of these UIs [here](./app/experimenter/legacy-ui/README.md).

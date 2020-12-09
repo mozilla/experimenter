@@ -60,8 +60,6 @@ class TestChangeLogSerializer(TestCase):
             "windows_versions": experiment.windows_versions,
             "profile_age": experiment.profile_age,
             "objectives": experiment.objectives,
-            "audience": experiment.audience,
-            "features": experiment.features,
             "total_enrolled_clients": experiment.total_enrolled_clients,
             "analysis": experiment.analysis,
             "analysis_owner": experiment.analysis_owner.id,
