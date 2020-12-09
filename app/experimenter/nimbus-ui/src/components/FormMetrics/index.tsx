@@ -141,7 +141,7 @@ const FormMetrics = ({
           }))}
           onChange={
             handlePrimaryProbeSetsChange as (
-              value: ValueType<SelectOption>,
+              value: ValueType<SelectOption, true>,
               actionMeta: ActionMeta<SelectOption>,
             ) => void
           }
@@ -167,7 +167,7 @@ const FormMetrics = ({
           }))}
           onChange={
             handleSecondaryProbeSetsChange as (
-              value: ValueType<SelectOption>,
+              value: ValueType<SelectOption, true>,
               actionMeta: ActionMeta<SelectOption>,
             ) => void
           }

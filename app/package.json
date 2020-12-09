@@ -6,7 +6,9 @@
     "experimenter/legacy-ui/*",
     "experimenter/nimbus-ui"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "react-select": "^3.1.1"
+  },
   "devDependencies": {},
   "repository": {
     "type": "git",

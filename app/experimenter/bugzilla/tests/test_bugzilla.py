@@ -131,34 +131,6 @@ class TestCreateExperimentBug(MockBugzillaMixin, TestCase):
             settings.BUGZILLA_CREATE_URL, expected_call_data
         )
 
-    def test_create_bugzilla_ticket_creation_for_rapid_experiments(self):
-        experiment = ExperimentFactory.create(
-            type=Experiment.TYPE_RAPID, name="An Experiment"
-        )
-
-        self.mock_bugzilla_requests_get.side_effect = [
-            self.buildMockSuccessUserResponse(),
-            self.buildMockSuccessResponse(),
-        ]
-
-        response_data = create_experiment_bug(experiment)
-
-        self.assertEqual(response_data, self.bugzilla_id)
-
-        expected_call_data = {
-            "product": "Shield",
-            "component": "Shield Study",
-            "version": "unspecified",
-            "type": "task",
-            "summary": "[Experiment]: {experiment}".format(experiment=experiment),
-            "description": experiment.BUGZILLA_RAPID_EXPERIMENT_TEMPLATE,
-            "assigned_to": experiment.owner.email,
-        }
-
-        self.mock_bugzilla_requests_post.assert_called_with(
-            settings.BUGZILLA_CREATE_URL, expected_call_data
-        )
-
     def test_create_bugzilla_ticket_creation_failure(self):
         experiment = ExperimentFactory.create_with_status(
             Experiment.STATUS_DRAFT, name="An Experiment"

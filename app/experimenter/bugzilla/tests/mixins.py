@@ -119,11 +119,3 @@ class MockBugzillaTasksMixin(object):
         )
 
         self.addCleanup(mock_tasks_comp_experiment_update_res_patcher.stop)
-
-        mock_tasks_serializer_create_bug_patcher = mock.patch(
-            "experimenter.experiments.api.v3.serializers.create_experiment_bug_task"
-        )
-        self.mock_tasks_serializer_create_bug = (
-            mock_tasks_serializer_create_bug_patcher.start()
-        )
-        self.addCleanup(mock_tasks_serializer_create_bug_patcher.stop)
