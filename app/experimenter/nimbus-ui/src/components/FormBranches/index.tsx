@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
+import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
@@ -15,14 +16,9 @@ import {
   getConfig_nimbusConfig_featureConfig,
 } from "../../types/getConfig";
 
-import FormBranch from "./FormBranch";
+import { useFormBranchesReducer, FormBranchesSaveState } from "./reducer";
 
-import {
-  useFormBranchesReducer,
-  FormBranchesSaveState,
-  REFERENCE_BRANCH_IDX,
-  AnnotatedBranch,
-} from "./reducer";
+import FormBranch from "./FormBranch";
 
 export const FormBranches = ({
   isLoading,
@@ -55,25 +51,43 @@ export const FormBranches = ({
     dispatch,
   ] = useFormBranchesReducer(experiment);
 
-  const isSaveDisabled =
-    isLoading ||
-    !referenceBranch ||
-    !referenceBranch.isValid ||
-    (!!treatmentBranches &&
-      !treatmentBranches.every((branch) => branch.isValid));
+  const defaultValues = useMemo(
+    () => ({
+      referenceBranch,
+      treatmentBranches,
+    }),
+    [referenceBranch, treatmentBranches],
+  );
 
-  const isNextDisabled = isLoading;
+  const formMethods = useForm({
+    mode: "onBlur",
+    defaultValues,
+  });
 
-  const [lastSubmitTime, setLastSubmitTime] = useState(Date.now());
-
-  const isDirtyUnsaved =
-    (referenceBranch && referenceBranch.isDirty) ||
-    !!treatmentBranches?.some((branch) => branch?.isDirty);
+  const {
+    reset,
+    getValues,
+    handleSubmit,
+    formState: { isDirty, errors, touched },
+  } = formMethods;
 
   const shouldWarnOnExit = useExitWarning();
   useEffect(() => {
-    shouldWarnOnExit(isDirtyUnsaved);
-  }, [shouldWarnOnExit, isDirtyUnsaved]);
+    shouldWarnOnExit(isDirty);
+  }, [shouldWarnOnExit, isDirty]);
+
+  // reset the form when defaultValues change, i.e. the reducer updates
+  // with submit errors and we need to mark fields as untouched
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
+
+  const isSaveDisabled = isLoading;
+  const isNextDisabled = isLoading;
+
+  const commitFormData = () => {
+    dispatch({ type: "commitFormData", formData: getValues() });
+  };
 
   // TODO: EXP-614 submitErrors type is any, but in practical use it's AnnotatedBranch["errors"]
   const setSubmitErrors = (submitErrors: any) =>
@@ -81,37 +95,44 @@ export const FormBranches = ({
 
   const clearSubmitErrors = () => dispatch({ type: "clearSubmitErrors" });
 
-  const handleAddBranch = () => dispatch({ type: "addBranch" });
+  const handleAddBranch = () => {
+    commitFormData();
+    dispatch({ type: "addBranch" });
+  };
 
-  const handleRemoveBranch = (idx: number) => () =>
+  const handleRemoveBranch = (idx: number) => () => {
+    commitFormData();
     dispatch({ type: "removeBranch", idx });
+  };
 
-  const handleUpdateBranch = (idx: number) => (value: AnnotatedBranch) =>
-    dispatch({ type: "updateBranch", idx, value });
-
-  const handleEqualRatioChange = (ev: React.ChangeEvent<HTMLInputElement>) =>
+  const handleEqualRatioChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    commitFormData();
     dispatch({ type: "setEqualRatio", value: ev.target.checked });
+  };
 
   // HACK: just use the first available feature config when adding
   // The only available indicator whether to display "Add feature config" is a non-null feature config
-  const handleAddFeatureConfig = () =>
+  const handleAddFeatureConfig = () => {
+    commitFormData();
     dispatch({ type: "setFeatureConfig", value: featureConfig![0] });
+  };
 
-  const handleRemoveFeatureConfig = () =>
+  const handleRemoveFeatureConfig = () => {
+    commitFormData();
     dispatch({ type: "removeFeatureConfig" });
+  };
 
   const handleFeatureConfigChange = (
     value: getConfig_nimbusConfig_featureConfig | null,
-  ) => dispatch({ type: "setFeatureConfig", value });
-
-  const handleSaveClick = (
-    ev: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
-    ev.preventDefault();
+    commitFormData();
+    dispatch({ type: "setFeatureConfig", value });
+  };
+
+  const handleSubmitWhenValid: SubmitHandler<any> = async (formData) => {
     try {
-      setLastSubmitTime(Date.now());
-      onSave(extractSaveState(), setSubmitErrors, clearSubmitErrors);
-      dispatch({ type: "resetDirtyBranches" });
+      commitFormData();
+      onSave(extractSaveState(formData), setSubmitErrors, clearSubmitErrors);
     } catch (error) {
       setSubmitErrors({ "*": [error.message] });
     }
@@ -125,7 +146,6 @@ export const FormBranches = ({
   };
 
   const commonBranchProps = {
-    lastSubmitTime,
     equalRatio,
     featureConfig,
     experimentFeatureConfig,
@@ -134,98 +154,117 @@ export const FormBranches = ({
     onRemoveFeatureConfig: handleRemoveFeatureConfig,
   };
 
+  type FormBranchProps = React.ComponentProps<typeof FormBranch>;
+
   return (
-    <section data-testid="FormBranches" className="border-top my-3">
-      {globalErrors?.map((err, idx) => (
-        <Alert
-          key={`global-error-${idx}`}
-          data-testid="global-error"
-          variant="warning"
-          className="my-2"
-        >
-          {err}
-        </Alert>
-      ))}
+    <FormProvider {...formMethods}>
+      <Form
+        data-testid="FormBranches"
+        className="border-top my-3"
+        noValidate
+        onSubmit={handleSubmit(handleSubmitWhenValid)}
+      >
+        {globalErrors?.map((err, idx) => (
+          <Alert
+            key={`global-error-${idx}`}
+            data-testid="global-error"
+            variant="warning"
+            className="my-2"
+          >
+            {err}
+          </Alert>
+        ))}
 
-      <Form className="p-2">
-        <Form.Row className="my-3">
-          <Form.Group controlId="evenRatio">
-            <Form.Check
-              data-testid="equal-ratio-checkbox"
-              onChange={handleEqualRatioChange}
-              checked={equalRatio}
-              type="checkbox"
-              label="Users should be split evenly between all branches"
+        <div className="p-2">
+          <Form.Row className="my-3">
+            <Form.Group controlId="evenRatio">
+              <Form.Check
+                data-testid="equal-ratio-checkbox"
+                onChange={handleEqualRatioChange}
+                checked={equalRatio}
+                type="checkbox"
+                label="Users should be split evenly between all branches"
+              />
+            </Form.Group>
+            <Form.Group as={Col} className="align-top text-right">
+              <Button
+                data-testid="add-branch"
+                variant="outline-primary"
+                size="sm"
+                onClick={handleAddBranch}
+              >
+                + Add branch
+              </Button>
+            </Form.Group>
+          </Form.Row>
+        </div>
+
+        <section>
+          {referenceBranch && (
+            <FormBranch
+              {...{
+                ...commonBranchProps,
+                fieldNamePrefix: "referenceBranch",
+                // react-hook-form types seem broken for nested fields
+                errors: (errors.referenceBranch ||
+                  {}) as FormBranchProps["errors"],
+                // react-hook-form types seem broken for nested fields
+                touched: (touched.referenceBranch ||
+                  {}) as FormBranchProps["touched"],
+                isReference: true,
+                branch: { ...referenceBranch, key: "branch-reference" },
+                showMissingIcon: isMissingField("reference_branch"),
+              }}
             />
-          </Form.Group>
-          <Form.Group as={Col} className="align-top text-right">
-            <Button
-              data-testid="add-branch"
-              variant="outline-primary"
-              size="sm"
-              onClick={handleAddBranch}
-            >
-              + Add branch
-            </Button>
-          </Form.Group>
-        </Form.Row>
-      </Form>
-
-      <section>
-        {referenceBranch && (
-          <FormBranch
-            {...{
-              ...commonBranchProps,
-              id: `branch-reference`,
-              isReference: true,
-              branch: { ...referenceBranch, key: "branch-reference" },
-              onChange: handleUpdateBranch(REFERENCE_BRANCH_IDX),
-              showMissingIcon: isMissingField("reference_branch"),
-            }}
-          />
-        )}
-        {treatmentBranches &&
-          treatmentBranches.map(
-            (branch, idx) =>
-              branch && (
-                <FormBranch
-                  {...{
-                    ...commonBranchProps,
-                    key: branch.key,
-                    id: branch.key,
-                    branch,
-                    onRemove: handleRemoveBranch(idx),
-                    onChange: handleUpdateBranch(idx),
-                  }}
-                />
-              ),
           )}
-      </section>
+          {treatmentBranches &&
+            treatmentBranches.map(
+              (branch, idx) =>
+                branch && (
+                  <FormBranch
+                    {...{
+                      ...commonBranchProps,
+                      key: branch.key,
+                      fieldNamePrefix: `treatmentBranches[${idx}]`,
+                      //@ts-ignore react-hook-form types seem broken for nested fields
+                      errors: (errors?.treatmentBranches?.[idx] ||
+                        {}) as FormBranchProps["errors"],
+                      //@ts-ignore react-hook-form types seem broken for nested fields
+                      touched: (touched?.treatmentBranches?.[idx] ||
+                        {}) as FormBranchProps["touched"],
+                      branch,
+                      onRemove: handleRemoveBranch(idx),
+                    }}
+                  />
+                ),
+            )}
+        </section>
 
-      <div className="d-flex flex-row-reverse bd-highlight">
-        <div className="p-2">
-          <button
-            data-testid="next-button"
-            className="btn btn-secondary"
-            disabled={isNextDisabled}
-            onClick={handleNextClick}
-          >
-            Next
-          </button>
+        <div className="d-flex flex-row-reverse bd-highlight">
+          <div className="p-2">
+            <button
+              data-testid="next-button"
+              className="btn btn-secondary"
+              disabled={isNextDisabled}
+              onClick={handleNextClick}
+            >
+              Next
+            </button>
+          </div>
+          <div className="p-2">
+            <button
+              data-testid="save-button"
+              type="submit"
+              className="btn btn-primary"
+              disabled={isSaveDisabled}
+              onClick={handleSubmit(handleSubmitWhenValid)}
+            >
+              <span>{isLoading ? "Saving" : "Save"}</span>
+            </button>
+          </div>
         </div>
-        <div className="p-2">
-          <button
-            data-testid="save-button"
-            type="submit"
-            className="btn btn-primary"
-            disabled={isSaveDisabled}
-            onClick={handleSaveClick}
-          >
-            <span>{isLoading ? "Saving" : "Save"}</span>
-          </button>
-        </div>
-      </div>
-    </section>
+      </Form>
+    </FormProvider>
   );
 };
 

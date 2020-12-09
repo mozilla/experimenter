@@ -7,6 +7,7 @@ import {
   FormBranchesState,
   createAnnotatedBranch,
 } from "./state";
+import { FormData } from "./update";
 import snakeToCamelCase from "../../../lib/snakeToCamelCase";
 
 export const REFERENCE_BRANCH_IDX = -1;
@@ -20,8 +21,6 @@ export function formBranchesActionReducer(
       return addBranch(state);
     case "removeBranch":
       return removeBranch(state, action);
-    case "updateBranch":
-      return updateBranch(state, action);
     case "removeFeatureConfig":
       return removeFeatureConfig(state);
     case "setFeatureConfig":
@@ -32,8 +31,8 @@ export function formBranchesActionReducer(
       return setSubmitErrors(state, action);
     case "clearSubmitErrors":
       return clearSubmitErrors(state);
-    case "resetDirtyBranches":
-      return resetDirtyBranches(state);
+    case "commitFormData":
+      return commitFormData(state, action);
     default:
       return state;
   }
@@ -42,13 +41,12 @@ export function formBranchesActionReducer(
 export type FormBranchesAction =
   | AddBranchAction
   | RemoveBranchAction
-  | UpdateBranchAction
   | RemoveFeatureConfigAction
   | SetEqualRatioAction
   | SetFeatureConfigAction
   | SetSubmitErrorsAction
   | ClearSubmitErrorsAction
-  | ResetDirtyBranchesAction;
+  | CommitFormDataAction;
 
 type AddBranchAction = {
   type: "addBranch";
@@ -91,31 +89,6 @@ function removeBranch(state: FormBranchesState, { idx }: RemoveBranchAction) {
   };
 }
 
-type UpdateBranchAction = {
-  type: "updateBranch";
-  idx: number;
-  value: AnnotatedBranch;
-};
-
-function updateBranch(
-  state: FormBranchesState,
-  { idx, value }: UpdateBranchAction,
-) {
-  let { referenceBranch, treatmentBranches } = state;
-  const updatedBranch = { ...value };
-  if (idx === REFERENCE_BRANCH_IDX) {
-    referenceBranch = updatedBranch;
-  } else {
-    treatmentBranches = [...treatmentBranches!];
-    treatmentBranches[idx] = updatedBranch;
-  }
-  return {
-    ...state,
-    referenceBranch,
-    treatmentBranches,
-  };
-}
-
 type RemoveFeatureConfigAction = {
   type: "removeFeatureConfig";
 };
@@ -127,12 +100,14 @@ function removeFeatureConfig(state: FormBranchesState) {
     referenceBranch = {
       ...referenceBranch,
       featureEnabled: false,
+      featureValue: null,
     };
   }
 
   if (Array.isArray(treatmentBranches)) {
     treatmentBranches = treatmentBranches.map(
-      (branch) => branch && { ...branch, featureEnabled: false },
+      (branch) =>
+        branch && { ...branch, featureEnabled: false, featureValue: null },
     );
   }
 
@@ -243,15 +218,17 @@ function setSubmitErrors(
 // Server-side field names are in snake-case, client-side field names are
 // in camel-case, this utility converts from server to client convention
 const normalizeFieldNames = (
-  errors: Record<string, string[]>,
+  errors: Record<string, string[]> | undefined,
 ): Record<string, string[]> =>
-  Object.entries(errors).reduce(
-    (acc, [key, value]) => ({
-      ...acc,
-      [snakeToCamelCase(key)]: value,
-    }),
-    {},
-  );
+  errors
+    ? Object.entries(errors).reduce(
+        (acc, [key, value]) => ({
+          ...acc,
+          [snakeToCamelCase(key)]: value,
+        }),
+        {},
+      )
+    : {};
 
 type ClearSubmitErrorsAction = {
   type: "clearSubmitErrors";
@@ -280,21 +257,29 @@ function clearSubmitErrors(state: FormBranchesState) {
   };
 }
 
-type ResetDirtyBranchesAction = {
-  type: "resetDirtyBranches";
+type CommitFormDataAction = {
+  type: "commitFormData";
+  formData: FormData;
 };
 
-function resetDirtyBranches(state: FormBranchesState) {
+function commitFormData(
+  state: FormBranchesState,
+  action: CommitFormDataAction,
+) {
+  const { formData } = action;
   let { referenceBranch, treatmentBranches } = state;
 
   if (referenceBranch) {
-    referenceBranch = { ...referenceBranch, isDirty: false };
+    referenceBranch = {
+      ...referenceBranch,
+      ...formData.referenceBranch,
+    };
   }
 
   if (treatmentBranches) {
-    treatmentBranches = treatmentBranches.map((treatmentBranch) => ({
+    treatmentBranches = treatmentBranches.map((treatmentBranch, idx) => ({
       ...treatmentBranch,
-      isDirty: false,
+      ...formData.treatmentBranches?.[idx],
     }));
   }
 
