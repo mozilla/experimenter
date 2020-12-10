@@ -302,7 +302,7 @@ export const FormBranch = ({
               <Form.Row data-testid="feature-value-edit">
                 <Form.Group as={Col} controlId={`${id}-featureValue`}>
                   <Form.Label>Value</Form.Label>
-                  {/* TODO: Maybe do some JSON schema validation here client-side? */}
+                  {/* TODO: EXP-732 Maybe do some JSON schema validation here client-side? */}
                   <Form.Control
                     {...nameValidated("featureValue")}
                     as="textarea"

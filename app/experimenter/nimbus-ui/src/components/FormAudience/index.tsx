@@ -21,7 +21,7 @@ import { useConfig } from "../../hooks/useConfig";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { getConfig_nimbusConfig_channels } from "../../types/getConfig";
 
-// TODO: find this doco URL
+// TODO: EXP-656 find this doco URL
 const AUDIENCE_DOC_URL =
   "https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=FJT&title=Project+Nimbus";
 

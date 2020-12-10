@@ -84,8 +84,7 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
               Every experiment analysis automatically includes how your
               experiment has impacted{" "}
               <strong>Retention, Search Count, and Ad Click</strong> metrics.
-              Get more information on{" "}
-              {/* TODO Requires url https://jira.mozilla.com/browse/EXP-656 */}
+              Get more information on {/* TODO: EXP-656 find this URL */}
               <LinkExternal href="">Core Firefox Metrics.</LinkExternal>
             </p>
             <FormMetrics
@@ -95,7 +94,6 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
                 isLoading: loading,
                 isServerValid,
                 submitErrors,
-                /* TODO: EXP-505 for accepting and saving edits to branches */
                 onSave,
                 onNext,
               }}
