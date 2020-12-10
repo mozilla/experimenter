@@ -15,23 +15,15 @@ type TableAudienceProps = {
 // `<tr>`s showing optional fields that are not set are not displayed.
 
 const TableAudience = ({ experiment }: TableAudienceProps) => {
-  const { firefoxMinVersion, channels, targetingConfigSlug } = useConfig();
+  const { firefoxMinVersion, channel, targetingConfigSlug } = useConfig();
 
   return (
     <Table striped bordered data-testid="table-audience" className="mb-4">
       <tbody>
         <tr>
-          <th className="w-33">Channels</th>
-          <td data-testid="experiment-channels">
-            {experiment.channels?.length ? (
-              experiment.channels
-                .map((expChannel) =>
-                  displayConfigLabelOrNotSet(expChannel, channels),
-                )
-                .join(", ")
-            ) : (
-              <NotSet />
-            )}
+          <th className="w-33">Channel</th>
+          <td data-testid="experiment-channel">
+            {displayConfigLabelOrNotSet(experiment.channel, channel)}
           </td>
         </tr>
         <tr>

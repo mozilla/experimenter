@@ -10,7 +10,7 @@ const fieldPageMap: { [page: string]: string[] } = {
   overview: ["public_description"],
   branches: ["reference_branch"],
   audience: [
-    "channels",
+    "channel",
     "firefox_min_version",
     "targeting_config_slug",
     "proposed_enrollment",

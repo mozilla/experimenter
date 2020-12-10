@@ -16,7 +16,7 @@ import serverConvig from "../services/config";
  *
  * Example:
  *
- * const { channels, probeSets } = useConfig();
+ * const { channel, probeSets } = useConfig();
  */
 
 export function useConfig() {

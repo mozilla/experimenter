@@ -63,9 +63,7 @@ class NimbusExperimentChangeLogInlineAdmin(admin.TabularInline):
 
 
 class NimbusExperimentAdminForm(forms.ModelForm):
-    channels = forms.MultipleChoiceField(
-        choices=NimbusExperiment.Channel.choices, widget=forms.SelectMultiple
-    )
+    channel = forms.ChoiceField(choices=NimbusExperiment.Channel.choices)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -95,7 +93,7 @@ class NimbusExperimentAdmin(admin.ModelAdmin):
         NimbusProbeSetInlineAdmin,
         NimbusExperimentChangeLogInlineAdmin,
     )
-    list_display = ("name", "status", "application", "channels", "firefox_min_version")
+    list_display = ("name", "status", "application", "channel", "firefox_min_version")
     list_filter = ("status", "application")
     prepopulated_fields = {"slug": ("name",)}
     form = NimbusExperimentAdminForm

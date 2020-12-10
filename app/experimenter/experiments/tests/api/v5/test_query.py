@@ -249,7 +249,7 @@ class TestNimbusQuery(GraphQLTestCase):
                         label
                         value
                     }
-                    channels {
+                    channel {
                         label
                         value
                     }
@@ -289,7 +289,7 @@ class TestNimbusQuery(GraphQLTestCase):
                 self.assertEqual(data[index]["value"], name)
 
         assertChoices(config["application"], NimbusExperiment.Application)
-        assertChoices(config["channels"], NimbusExperiment.Channel)
+        assertChoices(config["channel"], NimbusExperiment.Channel)
         assertChoices(config["firefoxMinVersion"], NimbusExperiment.Version)
         assertChoices(config["targetingConfigSlug"], NimbusExperiment.TargetingConfig)
         self.assertEqual(len(config["featureConfig"]), 10)

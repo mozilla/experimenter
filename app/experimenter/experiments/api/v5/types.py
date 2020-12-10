@@ -107,7 +107,7 @@ class NimbusExperimentType(DjangoObjectType):
     application = NimbusExperimentApplication()
     firefox_min_version = NimbusExperimentFirefoxMinVersion()
     population_percent = graphene.String()
-    channels = graphene.List(NimbusExperimentChannel)
+    channel = NimbusExperimentChannel()
     treatment_branches = graphene.List(NimbusBranchType)
     targeting_config_slug = NimbusExperimentTargetingConfigSlug()
     primary_probe_sets = graphene.List(NimbusProbeSetType)

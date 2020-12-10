@@ -14,7 +14,7 @@ storiesOf("components/FormAudience", module)
     <Subject
       submitErrors={{
         "*": ["Big bad server thing happened"],
-        channels: ["Cannot tune in these channels"],
+        channel: ["Cannot tune in this channel"],
         firefoxMinVersion: ["Bad min version"],
         targetingConfigSlug: ["This slug is icky"],
         populationPercent: ["This is not a percentage"],

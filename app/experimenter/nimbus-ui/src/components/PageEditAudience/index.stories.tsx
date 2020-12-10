@@ -12,7 +12,7 @@ import PageEditAudience from ".";
 
 const { mock } = mockExperimentQuery("demo-slug");
 const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
-  channels: [],
+  channel: null,
   firefoxMinVersion: null,
   targetingConfigSlug: null,
   proposedEnrollment: null,
@@ -25,7 +25,7 @@ const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
       proposed_enrollment: ["This field may not be null."],
       firefox_min_version: ["This field may not be null."],
       targeting_config_slug: ["This field may not be null."],
-      channels: ["This list may not be empty."],
+      channel: ["This field may not be null."],
     },
   },
 });
