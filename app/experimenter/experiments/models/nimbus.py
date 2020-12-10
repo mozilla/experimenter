@@ -97,7 +97,7 @@ class NimbusExperiment(NimbusConstants, models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("experiments-nimbus", kwargs={"slug": self.slug})
+        return reverse("nimbus-detail", kwargs={"slug": self.slug})
 
     @property
     def experiment_url(self):
