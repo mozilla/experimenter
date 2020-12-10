@@ -184,14 +184,22 @@ class NimbusBranchUpdateSerializer(
                 schema, data["reference_branch"]["feature_value"]
             )
             if errors:
-                error_result["reference_branch"] = errors
+                error_result["reference_branch"] = {"feature_value": errors}
+
+        treatment_branches_errors = []
         for branch_data in data["treatment_branches"]:
+            branch_error = None
             if branch_data.get("feature_enabled", False):
                 errors = self._validate_feature_value_against_schema(
                     schema, branch_data["feature_value"]
                 )
                 if errors:
-                    error_result.setdefault("treatment_branches", []).extend(errors)
+                    branch_error = {"feature_value": errors}
+            treatment_branches_errors.append(branch_error)
+
+        if any(x is not None for x in treatment_branches_errors):
+            error_result["treatment_branches"] = treatment_branches_errors
+
         if error_result:
             raise serializers.ValidationError(error_result)
         return data
@@ -209,7 +217,9 @@ class NimbusBranchUpdateSerializer(
             )
             for branch_data in treatment_branches:
                 NimbusBranch.objects.create(
-                    experiment=instance, slug=slugify(branch_data["name"]), **branch_data
+                    experiment=instance,
+                    slug=slugify(branch_data["name"]),
+                    **branch_data,
                 )
             instance.save()
         return instance
