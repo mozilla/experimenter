@@ -218,7 +218,7 @@ function setSubmitErrors(
   if (referenceBranch && submitErrors["reference_branch"]) {
     referenceBranch = {
       ...referenceBranch,
-      // TODO: submitErrors type is any, but in practical use it's AnnotatedBranch["errors"]
+      // TODO: EXP-614 submitErrors type is any, but in practical use it's AnnotatedBranch["errors"]
       errors: normalizeFieldNames(
         submitErrors["reference_branch"],
       ) as AnnotatedBranch["errors"],
