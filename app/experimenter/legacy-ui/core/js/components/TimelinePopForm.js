@@ -156,7 +156,11 @@ class TimelinePopForm extends React.PureComponent {
     let choicesJSX = [];
 
     for (const choice of choices) {
-      choicesJSX.push(<option value={choice[0]}>{choice[1]}</option>);
+      choicesJSX.push(
+        <option value={choice[0]} hidden={choice[0] === null}>
+          {choice[1]}
+        </option>,
+      );
     }
 
     return choicesJSX;
