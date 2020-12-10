@@ -124,6 +124,7 @@ class NimbusExperimentOverviewSerializer(
         validated_data.update(
             {
                 "slug": slugify(validated_data["name"]),
+                "owner": self.context["user"],
             }
         )
         return super().create(validated_data)
