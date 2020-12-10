@@ -43,7 +43,7 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
         super().setUp()
         self.user = UserFactory()
 
-    def test_serializer_creates_experiment_and_sets_slug(self):
+    def test_serializer_creates_experiment_and_sets_slug_and_owner(self):
         data = {
             "name": "Test 1234",
             "hypothesis": "Test hypothesis",
@@ -62,6 +62,8 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
         self.assertEqual(experiment.application, data["application"])
         self.assertEqual(experiment.hypothesis, data["hypothesis"])
         self.assertEqual(experiment.public_description, data["public_description"])
+        # Owner should match the email of the user who created the experiment
+        self.assertEqual(experiment.owner, self.user)
 
     def test_serializer_rejects_bad_name(self):
         data = {
