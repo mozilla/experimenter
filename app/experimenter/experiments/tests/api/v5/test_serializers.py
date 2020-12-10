@@ -361,7 +361,7 @@ class TestNimbusBranchUpdateSerializer(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assert_(
-            serializer.errors["reference_branch"][0].startswith(
+            serializer.errors["reference_branch"]["feature_value"][0].startswith(
                 "Additional properties are not allowed"
             )
         )
@@ -402,7 +402,9 @@ class TestNimbusBranchUpdateSerializer(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assert_(
-            serializer.errors["reference_branch"][0].startswith("Unterminated string")
+            serializer.errors["reference_branch"]["feature_value"][0].startswith(
+                "Unterminated string"
+            )
         )
         self.assertEqual(len(serializer.errors), 1)
 
@@ -484,7 +486,7 @@ class TestNimbusBranchUpdateSerializer(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assert_(
-            serializer.errors["treatment_branches"][0].startswith(
+            serializer.errors["treatment_branches"][1]["feature_value"][0].startswith(
                 "Additional properties are not allowed"
             )
         )
@@ -750,7 +752,8 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
-            serializer.errors, {"hypothesis": ["Hypothesis cannot be the default value."]}
+            serializer.errors,
+            {"hypothesis": ["Hypothesis cannot be the default value."]},
         )
 
     def test_invalid_experiment_requires_reference_branch(self):
