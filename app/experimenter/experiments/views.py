@@ -228,5 +228,5 @@ class ExperimentCommentCreateView(ExperimentFormMixin, CreateView):
         )
 
 
-class ExperimentNimbusUIView(TemplateView):
+class NimbusUIView(TemplateView):
     template_name = "nimbus/index.html"
