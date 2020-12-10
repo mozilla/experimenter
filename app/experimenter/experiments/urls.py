@@ -6,7 +6,6 @@ from experimenter.experiments.views import (
     ExperimentCreateView,
     ExperimentDesignUpdateView,
     ExperimentDetailView,
-    ExperimentNimbusUIView,
     ExperimentNormandyUpdateView,
     ExperimentObjectivesUpdateView,
     ExperimentOverviewUpdateView,
@@ -19,12 +18,6 @@ from experimenter.experiments.views import (
 )
 
 urlpatterns = [
-    re_path(r"^nimbus/", ExperimentNimbusUIView.as_view(), name="experiments-nimbus"),
-    re_path(
-        r"^nimbus/(?P<slug>[\w-]+)/",
-        ExperimentNimbusUIView.as_view(),
-        name="experiments-nimbus",
-    ),
     re_path(r"^new/$", ExperimentCreateView.as_view(), name="experiments-create"),
     re_path(
         r"^(?P<slug>[\w-]+)/edit/$",

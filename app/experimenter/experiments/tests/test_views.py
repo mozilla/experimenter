@@ -774,11 +774,11 @@ class TestExperimentNormandyUpdateView(TestCase):
         )
 
 
-class TestExperimentNimbusUIView(TestCase):
+class TestNimbusUIView(TestCase):
     def test_page_loads(self):
         user_email = "user@example.com"
         response = self.client.get(
-            reverse("experiments-nimbus"),
+            reverse("nimbus-list"),
             **{settings.OPENIDC_EMAIL_HEADER: user_email},
         )
         self.assertEqual(response.status_code, 200)
