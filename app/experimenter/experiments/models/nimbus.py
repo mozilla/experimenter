@@ -206,12 +206,12 @@ class NimbusBranch(models.Model):
 
 
 class NimbusIsolationGroup(models.Model):
+    application = models.CharField(
+        max_length=255, choices=NimbusExperiment.Application.choices
+    )
     name = models.CharField(max_length=255)
     instance = models.PositiveIntegerField(default=1)
     total = models.PositiveIntegerField(default=NimbusConstants.BUCKET_TOTAL)
-    randomization_unit = models.CharField(
-        max_length=255, choices=NimbusConstants.BucketRandomizationUnit.choices
-    )
 
     class Meta:
         verbose_name = "Bucket IsolationGroup"
@@ -223,19 +223,24 @@ class NimbusIsolationGroup(models.Model):
         return self.namespace
 
     @property
+    def randomization_unit(self):
+        return NimbusExperiment.APPLICATION_BUCKET_RANDOMIZATION_UNIT[self.application]
+
+    @property
     def namespace(self):
         return f"{self.name}-{self.instance}"
 
     @classmethod
     def request_isolation_group_buckets(cls, name, experiment, count):
         if cls.objects.filter(name=name).exists():
-            isolation_group = cls.objects.filter(name=name).order_by("-instance").first()
+            isolation_group = (
+                cls.objects.filter(name=name, application=experiment.application)
+                .order_by("-instance")
+                .first()
+            )
         else:
             isolation_group = cls.objects.create(
-                name=name,
-                randomization_unit=NimbusExperiment.APPLICATION_BUCKET_RANDOMIZATION_UNIT[
-                    experiment.application
-                ],
+                name=name, application=experiment.application
             )
 
         return isolation_group.request_buckets(experiment, count)
@@ -248,7 +253,9 @@ class NimbusIsolationGroup(models.Model):
             highest_bucket = self.bucket_ranges.all().order_by("-start").first()
             if highest_bucket.end + count > self.total:
                 isolation_group = NimbusIsolationGroup.objects.create(
-                    name=self.name, instance=self.instance + 1
+                    name=self.name,
+                    application=experiment.application,
+                    instance=self.instance + 1,
                 )
             else:
                 start = highest_bucket.end + 1

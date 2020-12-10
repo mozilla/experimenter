@@ -3,7 +3,7 @@ import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
-from parameterized import parameterized
+from parameterized import parameterized_class
 
 from experimenter.experiments.models import NimbusExperiment, NimbusIsolationGroup
 from experimenter.experiments.tests.factories import (
@@ -172,28 +172,27 @@ class TestNimbusBranch(TestCase):
         self.assertEqual(str(branch), branch.name)
 
 
-class TestNimbusIsolationGroup(TestCase):
-    @parameterized.expand(
+@parameterized_class(
+    ("application", "randomization_unit"),
+    [
         [
-            [
-                NimbusExperiment.Application.DESKTOP,
-                NimbusExperiment.BucketRandomizationUnit.NORMANDY,
-            ],
-            [
-                NimbusExperiment.Application.FENIX,
-                NimbusExperiment.BucketRandomizationUnit.NIMBUS,
-            ],
-        ]
-    )
-    def test_empty_isolation_group_creates_isolation_group_and_bucket_range(
-        self, application, randomization_unit
-    ):
+            NimbusExperiment.Application.DESKTOP,
+            NimbusExperiment.BucketRandomizationUnit.NORMANDY,
+        ],
+        [
+            NimbusExperiment.Application.FENIX,
+            NimbusExperiment.BucketRandomizationUnit.NIMBUS,
+        ],
+    ],
+)
+class TestNimbusIsolationGroup(TestCase):
+    def test_empty_isolation_group_creates_isolation_group_and_bucket_range(self):
         """
         Common case: A new empty isolation group for an experiment
         that is orthogonal to all other current experiments.  This will
         likely describe most experiment launches.
         """
-        experiment = NimbusExperimentFactory.create(application=application)
+        experiment = NimbusExperimentFactory.create(application=self.application)
         bucket = NimbusIsolationGroup.request_isolation_group_buckets(
             experiment.slug, experiment, 100
         )
@@ -205,7 +204,7 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.isolation_group.total, NimbusExperiment.BUCKET_TOTAL)
         self.assertEqual(
             bucket.isolation_group.randomization_unit,
-            randomization_unit,
+            self.randomization_unit,
         )
 
     def test_existing_isolation_group_adds_bucket_range(self):
@@ -214,8 +213,10 @@ class TestNimbusIsolationGroup(TestCase):
         This may become common when users can create their own isolation groups
         and then later assign experiments to them.
         """
-        experiment = NimbusExperimentFactory.create()
-        isolation_group = NimbusIsolationGroupFactory.create(name=experiment.slug)
+        experiment = NimbusExperimentFactory.create(application=self.application)
+        isolation_group = NimbusIsolationGroupFactory.create(
+            name=experiment.slug, application=self.application
+        )
         bucket = NimbusIsolationGroup.request_isolation_group_buckets(
             experiment.slug, experiment, 100
         )
@@ -223,6 +224,10 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.end, 99)
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.isolation_group, isolation_group)
+        self.assertEqual(
+            bucket.isolation_group.randomization_unit,
+            self.randomization_unit,
+        )
 
     def test_existing_isolation_group_with_buckets_adds_next_bucket_range(self):
         """
@@ -230,8 +235,10 @@ class TestNimbusIsolationGroup(TestCase):
         and a subsequent bucket allocation is requested.  This will be the common case
         for any experiments that share an isolation group.
         """
-        experiment = NimbusExperimentFactory.create()
-        isolation_group = NimbusIsolationGroupFactory.create(name=experiment.slug)
+        experiment = NimbusExperimentFactory.create(application=self.application)
+        isolation_group = NimbusIsolationGroupFactory.create(
+            name=experiment.slug, application=self.application
+        )
         NimbusBucketRangeFactory.create(
             isolation_group=isolation_group, start=0, count=100
         )
@@ -242,6 +249,10 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.end, 199)
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.isolation_group, isolation_group)
+        self.assertEqual(
+            bucket.isolation_group.randomization_unit,
+            self.randomization_unit,
+        )
 
     def test_full_isolation_group_creates_next_isolation_group_adds_bucket_range(
         self,
@@ -255,9 +266,9 @@ class TestNimbusIsolationGroup(TestCase):
         overlaps.  When this case becomes more common this will likely need to be given
         more thought.
         """
-        experiment = NimbusExperimentFactory.create()
+        experiment = NimbusExperimentFactory.create(application=self.application)
         isolation_group = NimbusIsolationGroupFactory.create(
-            name=experiment.slug, total=100
+            name=experiment.slug, application=self.application, total=100
         )
         NimbusBucketRangeFactory(isolation_group=isolation_group, count=100)
         bucket = NimbusIsolationGroup.request_isolation_group_buckets(
@@ -268,6 +279,10 @@ class TestNimbusIsolationGroup(TestCase):
         self.assertEqual(bucket.count, 100)
         self.assertEqual(bucket.isolation_group.name, isolation_group.name)
         self.assertEqual(bucket.isolation_group.instance, isolation_group.instance + 1)
+        self.assertEqual(
+            bucket.isolation_group.randomization_unit,
+            self.randomization_unit,
+        )
 
 
 class TestNimbusChangeLog(TestCase):

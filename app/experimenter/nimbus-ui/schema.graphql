@@ -177,17 +177,17 @@ type NimbusFeatureConfigType {
   nimbusexperimentSet: [NimbusExperimentType!]!
 }
 
-enum NimbusIsolationGroupRandomizationUnit {
-  NORMANDY_ID
-  NIMBUS_ID
+enum NimbusIsolationGroupApplication {
+  FIREFOX_DESKTOP
+  FENIX
 }
 
 type NimbusIsolationGroupType {
   id: ID!
+  application: NimbusIsolationGroupApplication!
   name: String!
   instance: Int!
   total: Int!
-  randomizationUnit: NimbusIsolationGroupRandomizationUnit!
   bucketRanges: [NimbusBucketRangeType!]!
 }
 
