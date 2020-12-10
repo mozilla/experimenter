@@ -115,7 +115,7 @@ describe("AppLayoutWithExperiment", () => {
     });
   });
 
-  // TODO: some sort of after test cleanup, can't add tests after without errors
+  // TODO: EXP-733 some sort of after test cleanup, can't add tests after without errors
   it("renders loading screen", () => {
     render(<Subject />);
     expect(screen.getByTestId("page-loading")).toBeInTheDocument();

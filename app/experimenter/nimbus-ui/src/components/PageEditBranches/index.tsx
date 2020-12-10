@@ -15,7 +15,7 @@ import { UpdateExperimentBranchesInput } from "../../types/globalTypes";
 import { updateExperimentBranches_updateExperimentBranches as UpdateExperimentBranchesResult } from "../../types/updateExperimentBranches";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
-// TODO: find this doco URL
+// TODO: EXP-656 find this doco URL
 const BRANCHES_DOC_URL =
   "https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=FJT&title=Project+Nimbus";
 
