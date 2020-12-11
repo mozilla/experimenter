@@ -32,6 +32,7 @@ type AppLayoutWithExperimentProps = {
   title?: string;
   polling?: boolean;
   sidebar?: boolean;
+  analysisRequired?: boolean;
 } & RouteComponentProps;
 
 export const POLL_INTERVAL = 30000;
@@ -42,6 +43,7 @@ const AppLayoutWithExperiment = ({
   title,
   sidebar = true,
   polling = false,
+  analysisRequired = false,
 }: AppLayoutWithExperimentProps) => {
   const { slug } = useParams();
   const {
@@ -56,7 +58,6 @@ const AppLayoutWithExperiment = ({
   // is complete and we inspect its status. To prevent content from flashing on the screen
   // between the experiment and analysis requests, assume we need to wait for analysis
   // until we can prove otherwise.
-  const [analysisRequired, setAnalysisRequired] = useState<boolean>(true);
   const [analysisFetched, setAnalysisFetched] = useState<boolean>(false);
   const status = getStatus(experiment);
 
@@ -74,12 +75,6 @@ const AppLayoutWithExperiment = ({
   }, [fetchAnalysis, experimentLoading, experiment, analysisFetched, status]);
 
   useEffect(() => {
-    if (!experimentLoading && !analysisLoading) {
-      setAnalysisRequired(false);
-    }
-  }, [experimentLoading, analysisLoading]);
-
-  useEffect(() => {
     if (polling && experiment) {
       startPolling(POLL_INTERVAL);
     }
@@ -88,7 +83,7 @@ const AppLayoutWithExperiment = ({
     };
   }, [startPolling, stopPolling, experiment, polling]);
 
-  if (experimentLoading || analysisRequired) {
+  if (experimentLoading || (analysisRequired && analysisLoading)) {
     return <PageLoading />;
   }
 
