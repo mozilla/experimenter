@@ -102,6 +102,10 @@ class NimbusExperiment(NimbusConstants, models.Model):
         )
 
     @property
+    def is_fenix_experiment(self):
+        return self.application == self.Application.FENIX
+
+    @property
     def targeting_config(self):
         if self.targeting_config_slug:
             return self.TARGETING_CONFIGS[self.targeting_config_slug]

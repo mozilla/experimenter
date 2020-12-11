@@ -55,6 +55,7 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
 class NimbusExperimentArgumentsSerializer(serializers.ModelSerializer):
     schemaVersion = serializers.ReadOnlyField(default=settings.NIMBUS_SCHEMA_VERSION)
     id = serializers.ReadOnlyField(source="slug")
+    application = serializers.SerializerMethodField()
     userFacingName = serializers.ReadOnlyField(source="name")
     userFacingDescription = serializers.ReadOnlyField(source="public_description")
     isEnrollmentPaused = serializers.ReadOnlyField(source="is_paused")
@@ -89,6 +90,11 @@ class NimbusExperimentArgumentsSerializer(serializers.ModelSerializer):
             "proposedEnrollment",
             "referenceBranch",
         )
+
+    def get_application(self, obj):
+        if obj.is_fenix_experiment:
+            return obj.channel
+        return obj.application
 
     def get_probeSets(self, obj):
         return list(obj.probe_sets.all().order_by("slug").values_list("slug", flat=True))
