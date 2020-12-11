@@ -13,7 +13,7 @@ export interface updateExperimentAudience_updateExperimentAudience_nimbusExperim
   __typename: "NimbusExperimentType";
   id: string;
   totalEnrolledClients: number;
-  channels: (NimbusExperimentChannel | null)[] | null;
+  channel: NimbusExperimentChannel | null;
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion | null;
   populationPercent: string | null;
   proposedDuration: number | null;

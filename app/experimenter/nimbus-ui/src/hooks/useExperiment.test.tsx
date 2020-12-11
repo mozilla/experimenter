@@ -48,7 +48,7 @@ describe("hooks/useExperiment", () => {
         firefox_min_version: ["This field may not be null."],
         targeting_config_slug: ["This field may not be null."],
         reference_branch: ["This field may not be null."],
-        channels: ["This list may not be empty."],
+        channel: ["This field may not be null."],
       };
 
       it("returns correct review info when missing details", async () => {

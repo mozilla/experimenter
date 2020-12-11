@@ -98,7 +98,7 @@ export interface TreatmentBranchType {
 export interface UpdateExperimentAudienceInput {
   clientMutationId?: string | null;
   nimbusExperimentId: number;
-  channels?: (NimbusExperimentChannel | null)[] | null;
+  channel?: NimbusExperimentChannel | null;
   firefoxMinVersion?: NimbusExperimentFirefoxMinVersion | null;
   populationPercent?: string | null;
   proposedDuration?: number | null;

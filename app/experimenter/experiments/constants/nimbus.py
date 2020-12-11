@@ -162,7 +162,7 @@ class NimbusConstants(object):
     EMAIL_EXPERIMENT_END_SUBJECT = "Action required: Please turn off your Experiment"
 
     TARGETING_VERSION = "version|versionCompare('{version}') >= 0"
-    TARGETING_CHANNELS = "browserSettings.update.channel in {channels}"
+    TARGETING_CHANNEL = 'browserSettings.update.channel == "{channel}"'
 
     TARGETING_CONFIGS = {
         TARGETING_ALL_ENGLISH.slug: TARGETING_ALL_ENGLISH,

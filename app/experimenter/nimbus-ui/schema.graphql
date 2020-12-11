@@ -50,7 +50,7 @@ type NimbusBucketRangeType {
 
 type NimbusConfigurationType {
   application: [NimbusLabelValueType]
-  channels: [NimbusLabelValueType]
+  channel: [NimbusLabelValueType]
   applicationChannels: [ApplicationChannel]
   featureConfig: [NimbusFeatureConfigType]
   firefoxMinVersion: [NimbusLabelValueType]
@@ -145,7 +145,7 @@ type NimbusExperimentType {
   totalEnrolledClients: Int!
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion
   application: NimbusExperimentApplication
-  channels: [NimbusExperimentChannel]
+  channel: NimbusExperimentChannel
   projects: [ProjectType!]!
   hypothesis: String
   featureConfig: NimbusFeatureConfigType
@@ -266,7 +266,7 @@ type UpdateExperimentAudience {
 input UpdateExperimentAudienceInput {
   clientMutationId: String
   nimbusExperimentId: Int!
-  channels: [NimbusExperimentChannel]
+  channel: NimbusExperimentChannel
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion
   populationPercent: String
   proposedDuration: Int

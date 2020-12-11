@@ -52,7 +52,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
       value: "DESKTOP",
     },
   ],
-  channels: [
+  channel: [
     {
       __typename: "NimbusLabelValueType",
       label: "Desktop Beta",
@@ -313,7 +313,7 @@ export function mockExperimentQuery<
           name: "Feature B",
         },
       ],
-      channels: ["DESKTOP_NIGHTLY", "DESKTOP_BETA"],
+      channel: "DESKTOP_NIGHTLY",
       firefoxMinVersion: "FIREFOX_80",
       targetingConfigSlug: "US_ONLY",
       populationPercent: "40",

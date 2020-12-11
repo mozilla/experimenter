@@ -4,7 +4,6 @@ from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import ArrayField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -60,14 +59,11 @@ class NimbusExperiment(NimbusConstants, models.Model):
         blank=True,
         null=True,
     )
-    channels = ArrayField(
-        models.CharField(
-            max_length=255,
-            blank=True,
-            null=True,
-            choices=NimbusConstants.Channel.choices,
-        ),
-        default=list,
+    channel = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        choices=NimbusConstants.Channel.choices,
     )
     projects = models.ManyToManyField(Project, blank=True)
     hypothesis = models.TextField(
