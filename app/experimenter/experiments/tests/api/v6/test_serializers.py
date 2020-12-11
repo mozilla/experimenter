@@ -38,6 +38,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 experiment_data,
                 {
                     "application": experiment.application,
+                    "channel": experiment.channel,
                     "bucketConfig": {
                         "randomizationUnit": (
                             experiment.bucket_range.isolation_group.randomization_unit
