@@ -10,7 +10,6 @@ import {
   fireEvent,
   act,
 } from "@testing-library/react";
-import selectEvent from "react-select-event";
 import { Subject, MOCK_EXPERIMENT } from "./mocks";
 import { MOCK_CONFIG } from "../../lib/mocks";
 
@@ -27,17 +26,17 @@ describe("FormAudience", () => {
     );
 
     // Assert that we have all the channels for our application available
-    for (const channel of MOCK_CONFIG.channels!.filter((channel) =>
-      ["DESKTOP_BETA", "DESKTOP_NIGHTLY"].includes(channel?.value!),
+    for (const channel of MOCK_CONFIG.channel!.filter((channel) =>
+      ["DESKTOP_NIGHTLY"].includes(channel?.value!),
     )) {
       const { label } = channel!;
       expect(screen.getByText(label!)).toBeInTheDocument();
     }
 
-    // Assert that non of the channels that don't belong to our application are available
-    for (const channel of MOCK_CONFIG.channels!.filter(
+    // Assert that none of the channels that don't belong to our application are available
+    for (const channel of MOCK_CONFIG.channel!.filter(
       (channel) =>
-        !["DESKTOP_BETA", "DESKTOP_NIGHTLY"].includes(channel?.value!),
+        !["DESKTOP_NIGHTLY", "DESKTOP_BETA"].includes(channel?.value!),
     )) {
       const { label } = channel!;
       expect(screen.queryByText(label!)).not.toBeInTheDocument();
@@ -47,7 +46,7 @@ describe("FormAudience", () => {
   it("renders server errors", async () => {
     const submitErrors = {
       "*": ["Big bad server thing happened"],
-      channels: ["Cannot tune in these channels"],
+      channel: ["Cannot tune in this channel"],
       firefoxMinVersion: ["Bad min version"],
       targetingConfigSlug: ["This slug is icky"],
       populationPercent: ["This is not a percentage"],
@@ -156,7 +155,7 @@ describe("FormAudience", () => {
     expect(onSubmit).toHaveBeenCalled();
     const [[submitData]] = onSubmit.mock.calls;
     expect(submitData).toEqual({
-      channels: MOCK_EXPERIMENT.channels,
+      channel: MOCK_EXPERIMENT.channel,
       firefoxMinVersion: MOCK_EXPERIMENT.firefoxMinVersion,
       targetingConfigSlug: MOCK_EXPERIMENT.targetingConfigSlug,
       populationPercent: "" + MOCK_EXPERIMENT.populationPercent,
@@ -187,6 +186,7 @@ describe("FormAudience", () => {
     });
 
     for (const fieldName of [
+      "channel",
       "populationPercent",
       "totalEnrolledClients",
       "proposedEnrollment",
@@ -205,24 +205,6 @@ describe("FormAudience", () => {
         container.querySelector(`.invalid-feedback[data-for=${fieldName}`),
       ).toHaveTextContent("This field may not be blank.");
     }
-  });
-
-  it("marks multi-select channels as invalid when none are selected", async () => {
-    const onSubmit = jest.fn();
-    const { container } = render(<Subject {...{ onSubmit }} />);
-    await waitFor(() => {
-      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
-    });
-    const channelsSelect = screen.getByLabelText("Channels");
-    await selectEvent.clearAll(channelsSelect);
-    const submitButton = screen.getByTestId("submit-button");
-    expect(submitButton).toHaveTextContent("Save");
-    await act(async () => {
-      fireEvent.click(submitButton);
-    });
-    expect(
-      container.querySelector(".invalid-feedback[data-for=channels"),
-    ).toHaveTextContent("At least one channel must be selected");
   });
 
   it("displays warning icons when server complains fields are missing", async () => {
@@ -247,7 +229,7 @@ describe("FormAudience", () => {
                 proposed_enrollment: ["This field may not be null."],
                 firefox_min_version: ["This field may not be null."],
                 targeting_config_slug: ["This field may not be null."],
-                channels: ["This list may not be empty."],
+                channel: ["This list may not be empty."],
               },
             },
           },
@@ -256,7 +238,7 @@ describe("FormAudience", () => {
     );
 
     expect(isMissingField).toHaveBeenCalled();
-    expect(screen.queryByTestId("missing-channels")).toBeInTheDocument();
+    expect(screen.queryByTestId("missing-channel")).toBeInTheDocument();
     expect(screen.queryByTestId("missing-ff-min")).toBeInTheDocument();
     expect(screen.queryByTestId("missing-config")).toBeInTheDocument();
     expect(screen.queryByTestId("missing-enrollment")).toBeInTheDocument();

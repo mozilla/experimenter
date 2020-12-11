@@ -106,11 +106,11 @@ class NimbusExperimentArgumentsSerializer(serializers.ModelSerializer):
                     )
                 )
 
-            channels_expr = ""
-            if obj.channels:
-                channels_expr = "{channels_check} && ".format(
-                    channels_check=NimbusExperiment.TARGETING_CHANNELS.format(
-                        channels=json.dumps(obj.channels)
+            channel_expr = ""
+            if obj.channel:
+                channel_expr = "{channel_check} && ".format(
+                    channel_check=NimbusExperiment.TARGETING_CHANNEL.format(
+                        channel=obj.channel
                     )
                 )
 
@@ -118,7 +118,7 @@ class NimbusExperimentArgumentsSerializer(serializers.ModelSerializer):
 
             # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
             return (
-                f"{channels_expr}{version_expr}{targeting_config} "
+                f"{channel_expr}{version_expr}{targeting_config} "
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
             )
 

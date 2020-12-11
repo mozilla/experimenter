@@ -583,7 +583,7 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
     def test_serializer_updates_audience_on_experiment(self):
         user = UserFactory()
         experiment = NimbusExperimentFactory(
-            channels=[],
+            channel=None,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=None,
             population_percent=None,
@@ -595,7 +595,7 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
         serializer = NimbusAudienceUpdateSerializer(
             experiment,
             {
-                "channels": [NimbusConstants.Channel.DESKTOP_BETA.value],
+                "channel": NimbusConstants.Channel.DESKTOP_BETA.value,
                 "firefox_min_version": NimbusConstants.Version.FIREFOX_80.value,
                 "population_percent": 10,
                 "proposed_duration": 42,
@@ -611,9 +611,7 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
         self.assertTrue(serializer.is_valid())
         experiment = serializer.save()
         self.assertEqual(experiment.changes.count(), 1)
-        self.assertEqual(
-            experiment.channels, [NimbusConstants.Channel.DESKTOP_BETA.value]
-        )
+        self.assertEqual(experiment.channel, NimbusConstants.Channel.DESKTOP_BETA.value)
         self.assertEqual(
             experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_80.value
         )
@@ -629,7 +627,7 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
     def test_serializer_updates_audience_on_experiment_invalid_channels(self):
         user = UserFactory()
         experiment = NimbusExperimentFactory(
-            channels=[],
+            channel=None,
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=None,
             population_percent=None,
@@ -641,7 +639,7 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
         serializer = NimbusAudienceUpdateSerializer(
             experiment,
             {
-                "channels": [NimbusConstants.Channel.DESKTOP_BETA.value],
+                "channel": NimbusConstants.Channel.DESKTOP_BETA.value,
                 "firefox_min_version": NimbusConstants.Version.FIREFOX_80.value,
                 "population_percent": 10,
                 "proposed_duration": 42,
@@ -657,7 +655,7 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
             serializer.errors,
-            {"channels": ["Invalid channels for experiment application."]},
+            {"channel": ["Invalid channel for experiment application."]},
         )
 
 

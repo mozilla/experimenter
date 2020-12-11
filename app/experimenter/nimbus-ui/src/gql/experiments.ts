@@ -104,7 +104,7 @@ export const UPDATE_EXPERIMENT_AUDIENCE_MUTATION = gql`
       nimbusExperiment {
         id
         totalEnrolledClients
-        channels
+        channel
         firefoxMinVersion
         populationPercent
         proposedDuration
@@ -171,7 +171,7 @@ export const GET_EXPERIMENT_QUERY = gql`
         name
       }
 
-      channels
+      channel
       firefoxMinVersion
       targetingConfigSlug
 

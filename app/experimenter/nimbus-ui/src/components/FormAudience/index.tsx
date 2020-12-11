@@ -3,13 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from "react";
-import {
-  useForm,
-  Controller,
-  ValidationRules,
-  FieldError,
-} from "react-hook-form";
-import Select from "react-select";
+import { useForm, ValidationRules, FieldError } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import InputGroup from "react-bootstrap/InputGroup";
@@ -19,7 +13,7 @@ import InlineErrorIcon from "../InlineErrorIcon";
 import { useConfig } from "../../hooks/useConfig";
 
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { getConfig_nimbusConfig_channels } from "../../types/getConfig";
+import { getConfig_nimbusConfig_channel } from "../../types/getConfig";
 
 // TODO: EXP-656 find this doco URL
 const AUDIENCE_DOC_URL =
@@ -53,16 +47,13 @@ export const FormAudience = ({
   const applicationChannels = config.applicationChannels?.find(
     (ac) => ac?.label === experimentApplication?.label,
   )?.channels;
-  const channelsOptions = config.channels?.filter(
-    (item): item is getConfig_nimbusConfig_channels =>
+  const channelOptions = config.channel?.filter(
+    (item): item is getConfig_nimbusConfig_channel =>
       item !== null && (applicationChannels?.includes(item.label) || false),
-  );
-  const channelsDefaultValue = experiment.channels?.map((channel) =>
-    channelsOptions?.find((option) => option?.value === channel),
   );
 
   const defaultValues = {
-    channels: channelsDefaultValue,
+    channel: experiment.channel || "",
     firefoxMinVersion: experiment.firefoxMinVersion || "",
     targetingConfigSlug: experiment.targetingConfigSlug || "",
     populationPercent: experiment.populationPercent || 0,
@@ -74,7 +65,6 @@ export const FormAudience = ({
   const {
     handleSubmit,
     register,
-    control,
     reset,
     errors,
     formState: { isValid, isSubmitted, touched },
@@ -89,13 +79,7 @@ export const FormAudience = ({
   const handleSubmitAfterValidation = useCallback(
     (dataIn: DefaultValues) => {
       if (isLoading) return;
-      onSubmit(
-        {
-          ...dataIn,
-          channels: dataIn.channels?.map((item) => item?.value),
-        },
-        reset,
-      );
+      onSubmit(dataIn, reset);
     },
     [isLoading, onSubmit, reset],
   );
@@ -158,36 +142,20 @@ export const FormAudience = ({
 
       <Form.Group>
         <Form.Row>
-          <Form.Group as={Col} controlId="channels" md={8} lg={8}>
+          <Form.Group as={Col} controlId="channel" md={8} lg={8}>
             <Form.Label className="d-flex align-items-center">
-              Channels
-              {isMissingField("channels") && (
+              Channel
+              {isMissingField("channel") && (
                 <InlineErrorIcon
-                  name="channels"
-                  message="At least one channel must be selected"
+                  name="channel"
+                  message="A channel must be selected"
                 />
               )}
             </Form.Label>
-            <Controller
-              as={Select}
-              control={control}
-              isMulti
-              inputId="channels"
-              name="channels"
-              data-testid="channels"
-              options={channelsOptions}
-              className={
-                fieldValidity("channels").isInvalid ? "is-invalid" : ""
-              }
-              rules={{
-                validate: {
-                  atLeastOne: (value) =>
-                    (Array.isArray(value) && value.length > 0) ||
-                    "At least one channel must be selected",
-                },
-              }}
-            />
-            <FormErrors name="channels" />
+            <Form.Control {...formControlCommon("channel")} as="select">
+              <SelectOptions options={channelOptions!} />
+            </Form.Control>
+            <FormErrors name="channel" />
           </Form.Group>
           <Form.Group as={Col} controlId="minVersion">
             <Form.Label className="d-flex align-items-center">

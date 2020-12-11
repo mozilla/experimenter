@@ -15,13 +15,13 @@ type TableHighlightsOverviewProps = {
 
 type displayConfigOptionsProps =
   | getConfig_nimbusConfig["firefoxMinVersion"]
-  | getConfig_nimbusConfig["channels"]
+  | getConfig_nimbusConfig["channel"]
   | getConfig_nimbusConfig["targetingConfigSlug"];
 
 const TableHighlightsOverview = ({
   experiment,
 }: TableHighlightsOverviewProps) => {
-  const { firefoxMinVersion, channels, targetingConfigSlug } = useConfig();
+  const { firefoxMinVersion, channel, targetingConfigSlug } = useConfig();
 
   return (
     <table
@@ -39,15 +39,7 @@ const TableHighlightsOverview = ({
               )}
               +
             </div>
-            <div>
-              {experiment.channels?.length
-                ? experiment.channels
-                    .map((expChannel) =>
-                      displayConfigLabel(expChannel, channels),
-                    )
-                    .join(", ")
-                : ""}
-            </div>
+            <div>{displayConfigLabel(experiment.channel, channel)}</div>
             <div>
               {displayConfigLabel(
                 experiment.targetingConfigSlug,

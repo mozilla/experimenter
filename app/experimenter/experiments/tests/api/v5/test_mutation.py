@@ -103,7 +103,7 @@ mutation ($input: UpdateExperimentAudienceInput!){
     nimbusExperiment {
       id
       totalEnrolledClients
-      channels
+      channel
       firefoxMinVersion
       populationPercent
       proposedDuration
@@ -410,7 +410,7 @@ class TestMutations(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
-            channels=[],
+            channel=None,
             application=NimbusConstants.Application.DESKTOP,
             firefox_min_version=None,
             population_percent=None,
@@ -425,7 +425,7 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "nimbusExperimentId": experiment.id,
                     "clientMutationId": "randomid",
-                    "channels": [NimbusConstants.Channel.DESKTOP_BETA.name],
+                    "channel": NimbusConstants.Channel.DESKTOP_BETA.name,
                     "firefoxMinVersion": NimbusConstants.Version.FIREFOX_80.name,
                     "populationPercent": "10",
                     "proposedDuration": 42,
@@ -444,7 +444,7 @@ class TestMutations(GraphQLTestCase):
             result["nimbusExperiment"],
             {
                 "id": str(experiment.id),
-                "channels": [NimbusConstants.Channel.DESKTOP_BETA.name],
+                "channel": NimbusConstants.Channel.DESKTOP_BETA.name,
                 "firefoxMinVersion": NimbusConstants.Version.FIREFOX_80.name,
                 "populationPercent": "10.0000",
                 "proposedDuration": 42,
@@ -454,9 +454,9 @@ class TestMutations(GraphQLTestCase):
             },
         )
         experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.channels, [NimbusConstants.Channel.choices[0][0]])
+        self.assertEqual(experiment.channel, NimbusConstants.Channel.DESKTOP_BETA.value)
         self.assertEqual(
-            experiment.firefox_min_version, NimbusConstants.Version.choices[0][0]
+            experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_80.value
         )
         self.assertEqual(experiment.population_percent, 10.0)
         self.assertEqual(experiment.proposed_duration, 42)
@@ -471,7 +471,7 @@ class TestMutations(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
-            channels=[],
+            channel=None,
             firefox_min_version=None,
             population_percent=None,
             proposed_duration=None,

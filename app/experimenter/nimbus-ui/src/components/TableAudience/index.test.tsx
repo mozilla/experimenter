@@ -10,29 +10,22 @@ import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NimbusExperimentChannel } from "../../types/globalTypes";
 
 describe("TableAudience", () => {
-  describe("renders 'Channels' row as expected", () => {
+  describe("renders 'Channel' row as expected", () => {
     it("with one channel", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        channels: [NimbusExperimentChannel.DESKTOP_BETA],
+        channel: NimbusExperimentChannel.DESKTOP_BETA,
       });
       render(<Subject {...{ experiment }} />);
-      expect(screen.getByTestId("experiment-channels")).toHaveTextContent(
+      expect(screen.getByTestId("experiment-channel")).toHaveTextContent(
         "Desktop Beta",
-      );
-    });
-    it("with multiple channels", () => {
-      const { experiment } = mockExperimentQuery("demo-slug");
-      render(<Subject {...{ experiment }} />);
-      expect(screen.getByTestId("experiment-channels")).toHaveTextContent(
-        "Desktop Nightly, Desktop Beta",
       );
     });
     it("when not set", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        channels: [],
+        channel: null,
       });
       render(<Subject {...{ experiment }} />);
-      expect(screen.getByTestId("experiment-channels")).toHaveTextContent(
+      expect(screen.getByTestId("experiment-channel")).toHaveTextContent(
         "Not set",
       );
     });

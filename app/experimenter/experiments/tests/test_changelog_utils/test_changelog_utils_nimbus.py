@@ -25,7 +25,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
             {
                 "application": None,
                 "branches": [],
-                "channels": [],
+                "channel": None,
                 "reference_branch": None,
                 "feature_config": None,
                 "firefox_min_version": None,
@@ -66,7 +66,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
             data,
             {
                 "application": experiment.application,
-                "channels": experiment.channels,
+                "channel": experiment.channel,
                 "feature_config": {
                     "name": feature_config.name,
                     "slug": feature_config.slug,

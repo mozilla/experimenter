@@ -40,9 +40,7 @@ describe("TableHighlightsOverview", () => {
     );
 
     expect(screen.getByText("Firefox 80+")).toBeInTheDocument();
-    expect(
-      screen.getByText("Desktop Nightly, Desktop Beta"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Desktop Nightly")).toBeInTheDocument();
     expect(screen.getByText("Us Only")).toBeInTheDocument();
   });
 
