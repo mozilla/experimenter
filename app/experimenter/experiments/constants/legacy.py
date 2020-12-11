@@ -64,7 +64,7 @@ class ExperimentConstants(object):
     ROLLOUT_PLAYBOOK_MARKETING = "marketing"
     ROLLOUT_PLAYBOOK_CUSTOM = "custom"
     ROLLOUT_PLAYBOOK_CHOICES = (
-        (None, "Rollout Playbook"),
+        (None, ""),
         (ROLLOUT_PLAYBOOK_LOW_RISK, "Low Risk Schedule"),
         (ROLLOUT_PLAYBOOK_HIGH_RISK, "High Risk Schedule"),
         (ROLLOUT_PLAYBOOK_MARKETING, "Marketing Launch Schedule"),
