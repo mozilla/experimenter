@@ -234,7 +234,7 @@ export const VERSION_CHOICES = [
 ];
 
 export const PLAYBOOK_CHOICES = [
-  [null, "Rollout Playbook"],
+  [null, ""],
   ["low_risk", "Low Risk Schedule"],
   ["high_risk", "High Risk Schedule"],
   ["marketing", "Marketing Launch Schedule"],
