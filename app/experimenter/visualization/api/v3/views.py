@@ -132,12 +132,18 @@ def append_retention_data(overall_data, weekly_data):
 def process_data_for_consumption(overall_data, weekly_data, experiment):
     append_population_percentages(overall_data)
     append_retention_data(overall_data, weekly_data)
-    results, primary_metrics_set = generate_results_object(overall_data, experiment)
+    results, primary_metrics_set, other_metrics = generate_results_object(
+        overall_data, experiment
+    )
     append_conversion_count(results, primary_metrics_set)
-    return results
+    return results, other_metrics
 
 
 def generate_results_object(data, experiment):
+    # These are metrics sent from Jetstream that are not explicitly chosen
+    # by users to be either primary or secondary
+    other_metrics = {}
+
     results = {}
     for row in data:
         branch = row.get("branch")
@@ -155,7 +161,11 @@ def generate_results_object(data, experiment):
         result_metrics, primary_metrics_set = get_results_metrics_map(
             experiment.primary_probe_sets, experiment.secondary_probe_sets
         )
-        if metric in result_metrics and statistic in result_metrics[metric]:
+        if (
+            metric in result_metrics
+            and statistic in result_metrics[metric]
+            or statistic == Statistic.MEAN
+        ):
             results[branch][BRANCH_DATA][metric] = results[branch][BRANCH_DATA].get(
                 metric,
                 {
@@ -178,7 +188,12 @@ def generate_results_object(data, experiment):
             results[branch][BRANCH_DATA][metric][comparison].update(
                 {"lower": lower, "upper": upper, "point": point}
             )
-    return results, primary_metrics_set
+
+            if metric not in result_metrics:
+                metric_title = " ".join([word.title() for word in metric.split("_")])
+                other_metrics[metric] = metric_title
+
+    return results, primary_metrics_set, other_metrics
 
 
 def get_data(slug, window, experiment):
@@ -199,9 +214,10 @@ def analysis_results_view(request, slug):
         data = get_data(recipe_slug, window, experiment)
 
         if data and window == "overall":
-            data = process_data_for_consumption(
+            data, other_metrics = process_data_for_consumption(
                 data, experiment_data["weekly"], experiment
             )
+            experiment_data["other_metrics"] = other_metrics
 
         experiment_data[window] = data
 

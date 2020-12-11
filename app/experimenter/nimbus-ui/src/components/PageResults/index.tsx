@@ -87,9 +87,19 @@ const AnalysisAvailable = ({
         ))}
         {experiment.secondaryProbeSets?.map((probeSet) => (
           <TableMetricSecondary
-            key={probeSet?.slug}
+            key={probeSet!.slug}
             results={analysis?.overall!}
-            probeSet={probeSet!}
+            probeSetSlug={probeSet!.slug}
+            probeSetName={probeSet!.name}
+            isDefault={false}
+          />
+        ))}
+        {Object.keys(analysis?.other_metrics!).map((metric) => (
+          <TableMetricSecondary
+            key={metric}
+            results={analysis?.overall!}
+            probeSetSlug={metric}
+            probeSetName={analysis!.other_metrics![metric]}
           />
         ))}
       </div>

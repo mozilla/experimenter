@@ -23,6 +23,10 @@ export const SIGNIFICANCE_TIPS = {
 
 export const BADGE_TIPS = {
   PRIMARY_METRIC: "Main metric you are trying to impact in this experiment",
+  USER_SELECTED_SECONDARY_METRIC:
+    "Additional metric chosen by experiment owner for context. Not the main metric you are trying to impact in this experiment",
+  DEFAULT_SECONDARY_METRIC:
+    "Additional metric processed by default for all experiments. Not the main metric you are trying to impact in this experiment",
   GUARDRAIL_METRIC: "Metric that should not regress",
 };
 
@@ -58,9 +62,15 @@ export const METRIC_TYPE = {
     badge: "badge-primary",
     tooltip: BADGE_TIPS.PRIMARY_METRIC,
   },
-  SECONDARY: {
-    label: "Secondary Metric",
-    badge: "badge-secondary",
+  USER_SELECTED_SECONDARY: {
+    label: "User-Selected Secondary Metric",
+    badge: "badge-warning",
+    tooltip: BADGE_TIPS.USER_SELECTED_SECONDARY_METRIC,
+  },
+  DEFAULT_SECONDARY: {
+    label: "Default Secondary Metric",
+    badge: "badge-warning",
+    tooltip: BADGE_TIPS.DEFAULT_SECONDARY_METRIC,
   },
   GUARDRAIL: {
     label: "Guardrail Metric",
