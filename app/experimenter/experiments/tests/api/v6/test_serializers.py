@@ -87,6 +87,20 @@ class TestNimbusExperimentSerializer(TestCase):
 
         check_schema("experiments/NimbusExperiment", serializer.data)
 
+    def test_sets_application_channel_for_fenix_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.ACCEPTED,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.FENIX_NIGHTLY,
+        )
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertEqual(
+            serializer.data["application"], NimbusExperiment.Channel.FENIX_NIGHTLY
+        )
+        self.assertEqual(
+            serializer.data["channel"], NimbusExperiment.Channel.FENIX_NIGHTLY
+        )
+
     def test_serializer_outputs_expected_schema_without_feature(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.ACCEPTED,
