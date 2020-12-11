@@ -75,6 +75,7 @@ class NimbusExperimentArgumentsSerializer(serializers.ModelSerializer):
             "slug",
             "id",
             "application",
+            "channel",
             "userFacingName",
             "userFacingDescription",
             "isEnrollmentPaused",

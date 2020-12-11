@@ -2900,6 +2900,19 @@
             "type": "string",
             "nullable": true
           },
+          "channel": {
+            "enum": [
+              "beta",
+              "nightly",
+              "release",
+              "default",
+              "org.mozilla.firefox.beta",
+              "org.mozilla.fenix",
+              "org.mozilla.firefox"
+            ],
+            "type": "string",
+            "nullable": true
+          },
           "userFacingName": {
             "type": "string",
             "readOnly": true
