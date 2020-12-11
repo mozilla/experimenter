@@ -24,11 +24,7 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusExperiment.Status.COMPLETE,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_80,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
-            channels=[
-                NimbusExperiment.Channel.DESKTOP_NIGHTLY,
-                NimbusExperiment.Channel.DESKTOP_BETA,
-                NimbusExperiment.Channel.DESKTOP_RELEASE,
-            ],
+            channel=NimbusExperiment.Channel.DESKTOP_NIGHTLY,
             probe_sets=[probe_set],
         )
 
@@ -63,8 +59,7 @@ class TestNimbusExperimentSerializer(TestCase):
                     # DRF manually replaces the isoformat suffix so we have to do the same
                     "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
                     "targeting": (
-                        "browserSettings.update.channel in "
-                        '["nightly", "beta", "release"] '
+                        'browserSettings.update.channel == "nightly" '
                         "&& version|versionCompare('80.!') >= 0 "
                         "&& localeLanguageCode == 'en' "
                         "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
@@ -113,7 +108,7 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusExperiment.Status.DRAFT,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_80,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
-            channels=[],
+            channel=None,
         )
 
         serializer = NimbusExperimentSerializer(experiment)
@@ -133,18 +128,14 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusExperiment.Status.DRAFT,
             firefox_min_version=None,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
-            channels=[
-                NimbusExperiment.Channel.DESKTOP_NIGHTLY,
-                NimbusExperiment.Channel.DESKTOP_BETA,
-                NimbusExperiment.Channel.DESKTOP_RELEASE,
-            ],
+            channel=NimbusExperiment.Channel.DESKTOP_NIGHTLY,
         )
 
         serializer = NimbusExperimentSerializer(experiment)
         self.assertEqual(
             serializer.data["targeting"],
             (
-                'browserSettings.update.channel in ["nightly", "beta", "release"] '
+                'browserSettings.update.channel == "nightly" '
                 "&& localeLanguageCode == 'en' "
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
             ),

@@ -25,7 +25,7 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
 
   const onFormSubmit = useCallback(
     async ({
-      channels,
+      channel,
       firefoxMinVersion,
       targetingConfigSlug,
       populationPercent,
@@ -40,7 +40,7 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
           variables: {
             input: {
               nimbusExperimentId,
-              channels,
+              channel,
               firefoxMinVersion,
               targetingConfigSlug,
               populationPercent,

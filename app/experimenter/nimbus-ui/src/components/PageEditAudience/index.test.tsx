@@ -80,7 +80,7 @@ describe("PageEditAudience", () => {
 
   it("handles experiment form submission with server-side validation errors", async () => {
     const expectedErrors = {
-      channels: { message: "this is garbage" },
+      channel: { message: "this is garbage" },
     };
     mutationMock.result.data.updateExperimentAudience.message = expectedErrors;
     render(<Subject mocks={[mock, mutationMock]} />);
@@ -114,10 +114,7 @@ describe("PageEditAudience", () => {
 });
 
 const MOCK_FORM_DATA = {
-  channels: [
-    NimbusExperimentChannel.DESKTOP_NIGHTLY,
-    NimbusExperimentChannel.DESKTOP_BETA,
-  ],
+  channel: NimbusExperimentChannel.DESKTOP_NIGHTLY,
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion.FIREFOX_80,
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug.US_ONLY,
   populationPercent: "40",

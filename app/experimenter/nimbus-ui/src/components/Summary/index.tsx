@@ -47,7 +47,7 @@ const Summary = ({ experiment }: SummaryProps) => {
 type displayConfigOptionsProps =
   | getConfig_nimbusConfig["application"]
   | getConfig_nimbusConfig["firefoxMinVersion"]
-  | getConfig_nimbusConfig["channels"]
+  | getConfig_nimbusConfig["channel"]
   | getConfig_nimbusConfig["targetingConfigSlug"];
 
 export const displayConfigLabelOrNotSet = (

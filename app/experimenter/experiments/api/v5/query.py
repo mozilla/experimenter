@@ -21,7 +21,7 @@ class ApplicationChannel(graphene.ObjectType):
 
 class NimbusConfigurationType(graphene.ObjectType):
     application = graphene.List(NimbusLabelValueType)
-    channels = graphene.List(NimbusLabelValueType)
+    channel = graphene.List(NimbusLabelValueType)
     application_channels = graphene.List(ApplicationChannel)
     feature_config = graphene.List(NimbusFeatureConfigType)
     firefox_min_version = graphene.List(NimbusLabelValueType)
@@ -42,7 +42,7 @@ class NimbusConfigurationType(graphene.ObjectType):
     def resolve_application(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.Application)
 
-    def resolve_channels(root, info):
+    def resolve_channel(root, info):
         return root._text_choices_to_label_value_list(NimbusExperiment.Channel)
 
     def resolve_feature_config(root, info):

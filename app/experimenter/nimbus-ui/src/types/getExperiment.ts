@@ -81,7 +81,7 @@ export interface getExperiment_experimentBySlug {
   featureConfig: getExperiment_experimentBySlug_featureConfig | null;
   primaryProbeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[] | null;
   secondaryProbeSets: (getExperiment_experimentBySlug_secondaryProbeSets | null)[] | null;
-  channels: (NimbusExperimentChannel | null)[] | null;
+  channel: NimbusExperimentChannel | null;
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion | null;
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug | null;
   populationPercent: string | null;

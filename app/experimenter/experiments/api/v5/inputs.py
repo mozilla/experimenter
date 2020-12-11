@@ -80,7 +80,7 @@ class UpdateExperimentProbeSetsInput(graphene.InputObjectType):
 class UpdateExperimentAudienceInput(graphene.InputObjectType):
     client_mutation_id = graphene.String()
     nimbus_experiment_id = graphene.Int(required=True)
-    channels = graphene.List(NimbusExperimentChannel)
+    channel = NimbusExperimentChannel()
     firefox_min_version = NimbusExperimentFirefoxMinVersion()
     population_percent = graphene.String()
     proposed_duration = graphene.Int()

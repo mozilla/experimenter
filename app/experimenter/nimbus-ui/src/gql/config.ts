@@ -15,7 +15,7 @@ export const GET_CONFIG_QUERY = gql`
         label
         channels
       }
-      channels {
+      channel {
         label
         value
       }

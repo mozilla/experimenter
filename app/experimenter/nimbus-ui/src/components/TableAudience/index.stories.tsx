@@ -13,16 +13,8 @@ import { NimbusExperimentChannel } from "../../types/globalTypes";
 storiesOf("components/TableAudience", module)
   .add("all fields filled out", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      channels: [NimbusExperimentChannel.DESKTOP_BETA],
+      channel: NimbusExperimentChannel.DESKTOP_BETA,
     });
-    return (
-      <Subject>
-        <TableAudience {...{ experiment }} />
-      </Subject>
-    );
-  })
-  .add("filled out with multiple channels", () => {
-    const { experiment } = mockExperimentQuery("demo-slug");
     return (
       <Subject>
         <TableAudience {...{ experiment }} />
@@ -42,7 +34,7 @@ storiesOf("components/TableAudience", module)
   })
   .add("missing required fields", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      channels: [],
+      channel: null,
       firefoxMinVersion: null,
       populationPercent: "0",
       totalEnrolledClients: 0,
