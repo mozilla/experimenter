@@ -7,9 +7,9 @@ import {
   DISPLAY_TYPE,
   SECONDARY_METRIC_COLUMNS,
   TABLE_LABEL,
+  METRIC_TYPE,
 } from "../../lib/visualization/constants";
 import { AnalysisData } from "../../lib/visualization/types";
-import { getExperiment_experimentBySlug_secondaryProbeSets } from "../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
 
 type SecondaryMetricStatistic = {
@@ -21,7 +21,9 @@ type SecondaryMetricStatistic = {
 
 type TableMetricSecondaryProps = {
   results: AnalysisData["overall"];
-  probeSet: getExperiment_experimentBySlug_secondaryProbeSets;
+  probeSetSlug: string;
+  probeSetName: string;
+  isDefault?: boolean;
 };
 
 const getStatistics = (slug: string): Array<SecondaryMetricStatistic> => {
@@ -38,14 +40,27 @@ const getStatistics = (slug: string): Array<SecondaryMetricStatistic> => {
 
 const TableMetricSecondary = ({
   results = {},
-  probeSet,
+  probeSetSlug,
+  probeSetName,
+  isDefault = true,
 }: TableMetricSecondaryProps) => {
-  const secondaryMetricStatistics = getStatistics(probeSet.slug);
-  const metricKey = `${probeSet.slug}_ever_used`;
+  const secondaryMetricStatistics = getStatistics(probeSetSlug);
+  const secondaryType = isDefault
+    ? METRIC_TYPE.DEFAULT_SECONDARY
+    : METRIC_TYPE.USER_SELECTED_SECONDARY;
 
   return (
     <div data-testid="table-metric-secondary">
-      <h2 className="h5 mb-3">{probeSet?.name}</h2>
+      <h2 className="h5 mb-3">
+        <div>{probeSetName}</div>
+        <div
+          className={`badge ${secondaryType.badge}`}
+          data-tip={secondaryType.tooltip}
+        >
+          {secondaryType.label}
+        </div>
+      </h2>
+
       <table className="table-visualization-center">
         <thead>
           <tr>
@@ -74,7 +89,8 @@ const TableMetricSecondary = ({
                       key={`${displayType}-${value}`}
                       results={results[branch]}
                       tableLabel={TABLE_LABEL.SECONDARY_METRICS}
-                      {...{ metricKey, displayType, branchComparison }}
+                      metricKey={probeSetSlug}
+                      {...{ displayType, branchComparison }}
                     />
                   ),
                 )}

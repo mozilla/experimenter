@@ -7,6 +7,9 @@ import { SIGNIFICANCE } from "./constants";
 export const mockAnalysis = (modifications = {}) =>
   Object.assign(
     {
+      other_metrics: {
+        feature_d: "Feature D",
+      },
       show_analysis: true,
       daily: [],
       weekly: [],
@@ -50,6 +53,16 @@ export const mockAnalysis = (modifications = {}) =>
               difference: {},
               relative_uplift: {},
             },
+            picture_in_picture: {
+              absolute: {
+                point: 0.05,
+                count: 10,
+                lower: 0.024357271316207685,
+                upper: 0.084114637001734827,
+              },
+              difference: {},
+              relative_uplift: {},
+            },
             feature_b_ever_used: {
               absolute: {
                 point: 0.05,
@@ -60,7 +73,37 @@ export const mockAnalysis = (modifications = {}) =>
               difference: {},
               relative_uplift: {},
             },
+            feature_b: {
+              absolute: {
+                point: 0.05,
+                count: 10,
+                lower: 0.024357271316207685,
+                upper: 0.084114637001734827,
+              },
+              difference: {},
+              relative_uplift: {},
+            },
             feature_c_ever_used: {
+              absolute: {
+                point: 0.05,
+                count: 10,
+                lower: 0.024357271316207685,
+                upper: 0.084114637001734827,
+              },
+              difference: {},
+              relative_uplift: {},
+            },
+            feature_c: {
+              absolute: {
+                point: 0.05,
+                count: 10,
+                lower: 0.024357271316207685,
+                upper: 0.084114637001734827,
+              },
+              difference: {},
+              relative_uplift: {},
+            },
+            feature_d: {
               absolute: {
                 point: 0.05,
                 count: 10,
@@ -140,7 +183,45 @@ export const mockAnalysis = (modifications = {}) =>
               },
               significance: SIGNIFICANCE.POSITIVE,
             },
+            picture_in_picture: {
+              absolute: {
+                point: 0.049019607843137254,
+                count: 10,
+                lower: 0.023872203557007872,
+                upper: 0.082490692094610241,
+              },
+              difference: {
+                point: -0.00065694876288765341,
+                upper: 0.043163817365120191,
+                lower: 0.041750959639940292,
+              },
+              relative_uplift: {
+                lower: -0.455210299676828,
+                upper: 0.5104985718410426,
+                point: -0.06233954570562385,
+              },
+              significance: SIGNIFICANCE.POSITIVE,
+            },
             feature_b_ever_used: {
+              absolute: {
+                point: 0.049019607843137254,
+                count: 10,
+                lower: 0.023872203557007872,
+                upper: 0.082490692094610241,
+              },
+              difference: {
+                point: -0.00065694876288765341,
+                upper: 0.043163817365120191,
+                lower: 0.041750959639940292,
+              },
+              relative_uplift: {
+                lower: -0.455210299676828,
+                upper: 0.5104985718410426,
+                point: -0.06233954570562385,
+              },
+              significance: SIGNIFICANCE.NEGATIVE,
+            },
+            feature_b: {
               absolute: {
                 point: 0.049019607843137254,
                 count: 10,
@@ -177,6 +258,44 @@ export const mockAnalysis = (modifications = {}) =>
                 point: -0.06233954570562385,
               },
               significance: SIGNIFICANCE.NEUTRAL,
+            },
+            feature_c: {
+              absolute: {
+                point: 0.049019607843137254,
+                count: 10,
+                lower: 0.023872203557007872,
+                upper: 0.082490692094610241,
+              },
+              difference: {
+                point: -0.00065694876288765341,
+                upper: 0.043163817365120191,
+                lower: 0.041750959639940292,
+              },
+              relative_uplift: {
+                lower: -0.455210299676828,
+                upper: 0.5104985718410426,
+                point: -0.06233954570562385,
+              },
+              significance: SIGNIFICANCE.NEUTRAL,
+            },
+            feature_d: {
+              absolute: {
+                point: 0.049019607843137254,
+                count: 10,
+                lower: 0.023872203557007872,
+                upper: 0.082490692094610241,
+              },
+              difference: {
+                point: -0.00065694876288765341,
+                upper: 0.043163817365120191,
+                lower: 0.041750959639940292,
+              },
+              relative_uplift: {
+                lower: -0.455210299676828,
+                upper: 0.5104985718410426,
+                point: -0.06233954570562385,
+              },
+              significance: SIGNIFICANCE.POSITIVE,
             },
             probeset_d: {
               absolute: {
