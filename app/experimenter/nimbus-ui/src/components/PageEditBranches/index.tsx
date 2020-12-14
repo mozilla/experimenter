@@ -85,10 +85,6 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
         refetchReview.current = review.refetch;
 
         const { isMissingField } = review;
-        const applicationFeatureConfigs =
-          featureConfig?.filter(
-            (config) => config?.application === experiment.application,
-          ) || [];
 
         return (
           <>
@@ -101,7 +97,8 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
             <FormBranches
               {...{
                 experiment,
-                featureConfig: applicationFeatureConfigs,
+                // TODO: EXP-560 - configs should be filtered by application type
+                featureConfig,
                 isMissingField,
                 isLoading: loading,
                 onSave: onFormSave,
