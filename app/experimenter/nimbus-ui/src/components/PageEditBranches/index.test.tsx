@@ -17,11 +17,6 @@ import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { UPDATE_EXPERIMENT_BRANCHES_MUTATION } from "../../gql/experiments";
 import {
-  NimbusExperimentApplication,
-  NimbusFeatureConfigApplication,
-  UpdateExperimentBranchesInput,
-} from "../../types/globalTypes";
-import {
   updateExperimentBranches_updateExperimentBranches,
   updateExperimentBranches_updateExperimentBranches_nimbusExperiment,
 } from "../../types/updateExperimentBranches";
@@ -30,6 +25,10 @@ import {
   extractUpdateBranch,
 } from "../FormBranches/reducer/update";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import {
+  NimbusFeatureConfigApplication,
+  UpdateExperimentBranchesInput,
+} from "../../types/globalTypes";
 
 describe("PageEditBranches", () => {
   beforeEach(() => {
@@ -40,9 +39,7 @@ describe("PageEditBranches", () => {
   afterEach(() => {});
 
   it("renders as expected with experiment data", async () => {
-    const { mock, experiment } = mockExperimentQuery("demo-slug", {
-      application: NimbusExperimentApplication.FENIX,
-    });
+    const { mock } = mockExperimentQuery("demo-slug");
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
       expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
@@ -51,24 +48,7 @@ describe("PageEditBranches", () => {
     expect(screen.getByTestId("FormBranches")).toBeInTheDocument();
     expect(screen.getByTestId("feature-config")).toBeInTheDocument();
 
-    MOCK_CONFIG.featureConfig = [
-      ...MOCK_CONFIG.featureConfig!,
-      {
-        __typename: "NimbusFeatureConfigType",
-        id: "3",
-        name: "Foo bar",
-        slug: "foo-bar",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        application: NimbusFeatureConfigApplication.FIREFOX_DESKTOP,
-        ownerEmail: "dude23@yahoo.com",
-        schema: '{ "sample": "schema" }',
-      },
-    ];
-
-    // Assert that we have all the feature configs for our application (Fenix) available
-    for (const feature of MOCK_CONFIG!.featureConfig!.filter(
-      (config) => config?.application === experiment.application,
-    )) {
+    for (const feature of MOCK_CONFIG!.featureConfig!) {
       const { slug } = feature!;
       expect(screen.getByText(slug)).toBeInTheDocument();
     }
