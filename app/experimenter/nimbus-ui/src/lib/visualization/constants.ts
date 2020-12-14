@@ -30,6 +30,11 @@ export const BADGE_TIPS = {
   GUARDRAIL_METRIC: "Metric that should not regress",
 };
 
+export const GENERAL_TIPS = {
+  MISSING_RETENTION:
+    "Retention is only available after at least 1 week of data post enrollment",
+};
+
 export enum VARIANT_TYPE {
   CONTROL,
   VARIANT,

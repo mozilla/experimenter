@@ -10,7 +10,10 @@ import {
   VARIANT_TYPE,
   DISPLAY_TYPE,
 } from "../../lib/visualization/constants";
-import { SIGNIFICANCE_TIPS } from "../../lib/visualization/constants";
+import {
+  SIGNIFICANCE_TIPS,
+  GENERAL_TIPS,
+} from "../../lib/visualization/constants";
 import { BranchDescription } from "../../lib/visualization/types";
 import { ReactComponent as SignificanceNegative } from "./significance-negative.svg";
 import { ReactComponent as SignificancePositive } from "./significance-positive.svg";
@@ -168,9 +171,11 @@ const TableVisualizationRow: React.FC<{
   const metricData = branch_data[metricKey];
 
   let field = <>{metricName} is not available</>;
+  let tooltipText =
+    metricKey === METRIC.RETENTION ? GENERAL_TIPS.MISSING_RETENTION : "";
   let className = "text-danger";
   if (metricData) {
-    className = "";
+    className = tooltipText = "";
     const percent = branch_data[METRIC.USER_COUNT]["percent"];
     const userCountMetric =
       branch_data[METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE]["point"];
@@ -208,11 +213,15 @@ const TableVisualizationRow: React.FC<{
   }
 
   return tableLabel === TABLE_LABEL.HIGHLIGHTS ? (
-    <div key={metricKey} {...{ className }}>
+    <div key={metricKey} {...{ className }} data-tip={tooltipText}>
       {field}
     </div>
   ) : (
-    <td key={metricKey} className={`align-middle ${className}`}>
+    <td
+      key={metricKey}
+      className={`align-middle ${className}`}
+      data-tip={tooltipText}
+    >
       <div>{field}</div>
     </td>
   );
