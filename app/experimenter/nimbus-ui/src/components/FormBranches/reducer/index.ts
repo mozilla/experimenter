@@ -21,7 +21,8 @@ export function useFormBranchesReducer(
   );
   return [
     formBranchesState,
-    () => extractUpdateState(formBranchesState),
+    (formValues: Parameters<typeof extractUpdateState>[1]) =>
+      extractUpdateState(formBranchesState, formValues),
     dispatch,
   ] as const;
 }

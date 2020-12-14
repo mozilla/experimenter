@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useState } from "react";
 import { storiesOf } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
 import { FormBranches } from ".";
@@ -16,7 +16,6 @@ import {
 } from "./mocks";
 
 const onRemove = action("onRemove");
-const onChange = action("onChange");
 const onAddFeatureConfig = action("onAddFeatureConfig");
 const onRemoveFeatureConfig = action("onRemoveFeatureConfig");
 const onFeatureConfigChange = action("onFeatureConfigChange");
@@ -25,7 +24,6 @@ const onNext = action("onNext");
 
 const commonFormBranchProps = {
   onRemove,
-  onChange,
   onAddFeatureConfig,
   onRemoveFeatureConfig,
   onFeatureConfigChange,
@@ -129,39 +127,56 @@ storiesOf("components/FormBranches", module)
       }}
     />
   ))
-  .add("with errors", () => {
+  .add("with submit errors", () => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [saveOrClear, setSaveOrClear] = useState(false);
     const onSave: React.ComponentProps<typeof FormBranches>["onSave"] = (
       saveState,
       setSubmitErrors,
-      // clearSubmitErrors,
+      clearSubmitErrors,
     ) => {
-      // Kind of a random nonsensical assortment of errors, but want to
-      // exercise errors scattered between branches and fields.
-      setSubmitErrors({
-        "*": ["Solar flares prevent submission."],
-        feature_config: [
-          "Feature Config required when a branch has feature enabled.",
-        ],
-        reference_branch: {
-          name: ["This name stinks."],
-          description: ["Try harder to describe this branch."],
-          feature_value: ["ASCII art is not acceptable."],
-          ratio: ["You call that a number?"],
-        },
-        treatment_branches: [
-          {},
-          {
-            description: ["More errors."],
-            feature_value: ["Yeah, no."],
-            ratio: ["No roman numerals."],
-          },
-        ],
-      });
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+        // Toggle between clearing and raising simulated errors with each submit.
+        setSaveOrClear(!saveOrClear);
+        if (saveOrClear) {
+          clearSubmitErrors();
+        } else {
+          // Kind of a random nonsensical assortment of errors, but want to
+          // exercise errors scattered between branches and fields.
+          setSubmitErrors({
+            "*": ["Solar flares prevent submission."],
+            feature_config: [
+              "Feature Config required when a branch has feature enabled.",
+            ],
+            reference_branch: {
+              name: ["This name stinks."],
+              description: ["Try harder to describe this branch."],
+              feature_value: ["ASCII art is not acceptable."],
+              ratio: ["You call that a number?"],
+            },
+            treatment_branches: [
+              {},
+              {
+                description: ["More errors."],
+                feature_value: ["Yeah, no."],
+                ratio: ["No roman numerals."],
+              },
+            ],
+          });
+        }
+      }, 500);
     };
 
     return (
       <SubjectBranches
-        {...{ ...commonFormBranchesProps, onSave, saveOnInitialRender: true }}
+        {...{
+          ...commonFormBranchesProps,
+          isLoading,
+          onSave,
+          saveOnInitialRender: true,
+        }}
         experiment={{
           ...MOCK_EXPERIMENT,
           featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,

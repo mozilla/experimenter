@@ -3,7 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  act,
+  waitFor,
+} from "@testing-library/react";
 
 import { MOCK_CONFIG } from "../../lib/mocks";
 import {
@@ -47,7 +53,7 @@ describe("FormBranch", () => {
       />,
     );
     const featureSwitchLabel = container.querySelector(
-      "label[for=demo-featureEnabled]",
+      'label[for="referenceBranch.featureEnabled"]',
     );
     expect(featureSwitchLabel).toHaveTextContent("Off");
   });
@@ -127,50 +133,20 @@ describe("FormBranch", () => {
     expect(onRemove).toHaveBeenCalled();
   });
 
-  it("calls onChange when branch fields are edited", async () => {
-    const id = "testing123";
-    const onChange = jest.fn();
+  it("requires ratio to be a number", async () => {
     const branch = {
       ...MOCK_ANNOTATED_BRANCH,
-      featureValue: "this is a default value",
-      featureEnabled: true,
     };
-
-    const { container } = render(
-      <SubjectBranch
-        {...{ id, onChange, branch }}
-        experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
-      />,
-    );
-
-    const expectedData = {
-      name: "example name",
-      description: "example description",
-      ratio: "42",
-      featureValue: "example value",
-    };
-
-    for (const [name, value] of Object.entries(expectedData)) {
-      onChange.mockClear();
-      const field = container.querySelector(`#${id}-${name}`);
-      expect(field).not.toBeNull();
-      await act(async () => {
-        fireEvent.change(field!, { target: { value } });
-      });
-      expect(onChange).toHaveBeenCalledWith({
-        ...branch,
-        isDirty: true,
-        [name]: value,
-      });
-    }
-
-    await act(async () => {
-      fireEvent.click(container.querySelector(`#${id}-featureEnabled`)!);
+    const { container } = render(<SubjectBranch branch={branch} />);
+    const field = screen.getByTestId("referenceBranch.ratio");
+    act(() => {
+      fireEvent.change(field, { target: { value: "abc" } });
+      fireEvent.blur(field);
     });
-    expect(onChange).toHaveBeenCalledWith({
-      ...branch,
-      isDirty: true,
-      featureEnabled: false,
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-for="referenceBranch.ratio"]'),
+      ).toHaveClass("invalid-feedback");
     });
   });
 
@@ -183,17 +159,21 @@ describe("FormBranch", () => {
     };
 
     const { container } = render(<SubjectBranch branch={branch} />);
-    expect(container.querySelector("[data-for=demo-name]")).toHaveClass(
-      "invalid-feedback",
-    );
+    expect(
+      container.querySelector('[data-for="referenceBranch.name"]'),
+    ).toHaveClass("invalid-feedback");
 
-    const field = container.querySelector(`#demo-name`)!;
+    const field = screen.getByTestId("referenceBranch.name");
     expect(field).not.toBeNull();
-    await act(async () => {
+    act(() => {
       fireEvent.change(field, { target: { value: "new value" } });
       fireEvent.blur(field);
     });
 
-    expect(container.querySelector("[data-for=demo-name]")).toBeNull();
+    await waitFor(() => {
+      expect(
+        container.querySelector("[data-for=referenceBranch-name]"),
+      ).toBeNull();
+    });
   });
 });
