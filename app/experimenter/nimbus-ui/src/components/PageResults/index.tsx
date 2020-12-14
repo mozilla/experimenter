@@ -17,7 +17,11 @@ import { AnalysisData } from "../../lib/visualization/types";
 import Summary from "../Summary";
 
 const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
-  <AppLayoutWithExperiment title="Analysis" testId="PageResults">
+  <AppLayoutWithExperiment
+    title="Analysis"
+    testId="PageResults"
+    analysisRequired
+  >
     {({ experiment, analysis }) => (
       <>
         <h3 className="h5 mb-3">Monitoring</h3>

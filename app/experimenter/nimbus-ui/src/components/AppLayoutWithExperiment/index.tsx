@@ -32,6 +32,7 @@ type AppLayoutWithExperimentProps = {
   title?: string;
   polling?: boolean;
   sidebar?: boolean;
+  analysisRequired?: boolean;
 } & RouteComponentProps;
 
 export const POLL_INTERVAL = 30000;
@@ -42,42 +43,28 @@ const AppLayoutWithExperiment = ({
   title,
   sidebar = true,
   polling = false,
+  analysisRequired = false,
 }: AppLayoutWithExperimentProps) => {
   const { slug } = useParams();
   const {
     experiment,
     notFound,
-    loading: experimentLoading,
+    loading,
     startPolling,
     stopPolling,
     review,
   } = useExperiment(slug);
-  // We won't know if an analysis lookup is required until the initial experiment query
-  // is complete and we inspect its status. To prevent content from flashing on the screen
-  // between the experiment and analysis requests, assume we need to wait for analysis
-  // until we can prove otherwise.
-  const [analysisRequired, setAnalysisRequired] = useState<boolean>(true);
   const [analysisFetched, setAnalysisFetched] = useState<boolean>(false);
   const status = getStatus(experiment);
 
-  const {
-    execute: fetchAnalysis,
-    result: analysis,
-    loading: analysisLoading,
-  } = useAnalysis();
+  const { execute: fetchAnalysis, result: analysis } = useAnalysis();
 
   useEffect(() => {
-    if (!analysisFetched && !experimentLoading && status.released) {
+    if (!analysisFetched && !loading && status.released) {
       fetchAnalysis([experiment?.slug]);
       setAnalysisFetched(true);
     }
-  }, [fetchAnalysis, experimentLoading, experiment, analysisFetched, status]);
-
-  useEffect(() => {
-    if (!experimentLoading && !analysisLoading) {
-      setAnalysisRequired(false);
-    }
-  }, [experimentLoading, analysisLoading]);
+  }, [fetchAnalysis, loading, experiment, analysisFetched, status]);
 
   useEffect(() => {
     if (polling && experiment) {
@@ -88,7 +75,7 @@ const AppLayoutWithExperiment = ({
     };
   }, [startPolling, stopPolling, experiment, polling]);
 
-  if (experimentLoading || analysisRequired) {
+  if (loading || (analysisRequired && !analysis)) {
     return <PageLoading />;
   }
 
