@@ -7,8 +7,12 @@ import { screen, render, waitFor } from "@testing-library/react";
 import PageDesign from ".";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery } from "../../lib/mocks";
+import { mockAnalysis } from "../../lib/visualization/mocks";
+import { AnalysisData } from "../../lib/visualization/types";
+import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 
-const { mock } = mockExperimentQuery("demo-slug");
+const { mock, experiment: mockExperiment } = mockExperimentQuery("demo-slug");
+const mockAnalysisData: AnalysisData | undefined = mockAnalysis();
 
 describe("PageDesign", () => {
   it("renders as expected", async () => {
@@ -22,3 +26,20 @@ describe("PageDesign", () => {
     });
   });
 });
+
+// Mocking form component because validation is exercised in its own tests.
+jest.mock("../AppLayoutWithExperiment", () => ({
+  __esModule: true,
+  default: (props: React.ComponentProps<typeof AppLayoutWithExperiment>) => (
+    <div data-testid="PageDesign">
+      {props.children({
+        experiment: mockExperiment,
+        analysis: mockAnalysisData,
+        review: {
+          isMissingField: () => false,
+          refetch: () => {},
+        },
+      })}
+    </div>
+  ),
+}));

@@ -8,7 +8,11 @@ import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 
 const PageDesign: React.FunctionComponent<RouteComponentProps> = () => {
   return (
-    <AppLayoutWithExperiment title="Design" testId="PageDesign">
+    <AppLayoutWithExperiment
+      title="Design"
+      testId="PageDesign"
+      analysisRequired
+    >
       {({ experiment }) => <p>{experiment.name}</p>}
     </AppLayoutWithExperiment>
   );
