@@ -22,6 +22,7 @@ class TestNimbusExperimentSerializer(TestCase):
         probe_set = NimbusProbeSetFactory.create()
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.COMPLETE,
+            application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_80,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             channel=NimbusExperiment.Channel.DESKTOP_NIGHTLY,
