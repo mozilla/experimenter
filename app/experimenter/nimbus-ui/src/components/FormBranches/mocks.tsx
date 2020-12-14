@@ -3,44 +3,66 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect } from "react";
+import { useForm, FormProvider } from "react-hook-form";
 import FormBranches from ".";
 import FormBranch from "./FormBranch";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { AnnotatedBranch } from "./reducer";
 
+type FormBranchProps = React.ComponentProps<typeof FormBranch>;
+
 export const SubjectBranch = ({
-  id = "demo",
-  lastSubmitTime = Date.now(),
+  fieldNamePrefix = "referenceBranch",
   branch = MOCK_ANNOTATED_BRANCH,
   equalRatio = false,
   isReference = false,
   experimentFeatureConfig = MOCK_FEATURE_CONFIG,
   featureConfig = MOCK_CONFIG.featureConfig,
   onRemove = () => {},
-  onChange = () => {},
   onAddFeatureConfig = () => {},
   onRemoveFeatureConfig = () => {},
   onFeatureConfigChange = () => {},
-}: Partial<React.ComponentProps<typeof FormBranch>>) => (
-  <div className="p-5">
-    <FormBranch
-      {...{
-        id,
-        lastSubmitTime,
-        branch,
-        isReference,
-        equalRatio,
-        featureConfig,
-        experimentFeatureConfig,
-        onRemove,
-        onChange,
-        onAddFeatureConfig,
-        onRemoveFeatureConfig,
-        onFeatureConfigChange,
-      }}
-    />
-  </div>
-);
+}: Partial<React.ComponentProps<typeof FormBranch>>) => {
+  const defaultValues = {
+    referenceBranch: branch,
+    treatmentBranches: [branch],
+  };
+
+  const formMethods = useForm({
+    mode: "onBlur",
+    defaultValues,
+  });
+
+  const {
+    formState: { errors, touched },
+  } = formMethods;
+
+  return (
+    <FormProvider {...formMethods}>
+      <form className="p-5">
+        <FormBranch
+          {...{
+            fieldNamePrefix,
+            // react-hook-form types seem broken for nested fields
+            errors: (errors.referenceBranch || {}) as FormBranchProps["errors"],
+            // react-hook-form types seem broken for nested fields
+            touched: (touched.referenceBranch ||
+              {}) as FormBranchProps["touched"],
+            branch,
+            isReference,
+            equalRatio,
+            featureConfig,
+            experimentFeatureConfig,
+            onRemove,
+            onAddFeatureConfig,
+            onRemoveFeatureConfig,
+            onFeatureConfigChange,
+          }}
+        />
+      </form>
+    </FormProvider>
+  );
+};
 
 export const SubjectBranches = ({
   isLoading = false,

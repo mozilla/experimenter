@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from "react";
-import { useForm, ValidationRules, FieldError } from "react-hook-form";
+import { useForm, RegisterOptions, FieldError } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import InputGroup from "react-bootstrap/InputGroup";
@@ -99,13 +99,13 @@ export const FormAudience = ({
 
   const formControlCommon = <K extends DefaultValuesKey>(
     name: K,
-    validateRules: ValidationRules = {
+    registerOptions: RegisterOptions = {
       required: "This field may not be blank.",
     },
   ) => ({
     name,
     "data-testid": name,
-    ref: register(validateRules),
+    ref: register(registerOptions),
     defaultValue: defaultValues[name],
     ...fieldValidity(name),
   });
