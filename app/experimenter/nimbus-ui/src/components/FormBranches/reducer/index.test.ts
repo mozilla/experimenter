@@ -32,11 +32,32 @@ describe("extractUpdateState", () => {
   it("throws an error if the referenceBranch is null", () => {
     try {
       const state = { ...MOCK_STATE, referenceBranch: null };
-      extractUpdateState(state);
+      extractUpdateState(state, { referenceBranch: {}, treatmentBranches: [] });
       fail("extractUpdateState should have thrown an exception");
     } catch (error) {
       expect(error.message).toEqual("Control branch is required");
     }
+  });
+
+  it("accepts incoming form data", () => {
+    const state = { ...MOCK_STATE };
+    const formData = {
+      referenceBranch: { name: "Name from form" },
+      treatmentBranches: [
+        { description: "Description 1" },
+        { description: "Description 2" },
+      ],
+    };
+    const updateState = extractUpdateState(state, formData);
+    expect(updateState.referenceBranch.name).toEqual(
+      formData.referenceBranch.name,
+    );
+    expect(updateState.treatmentBranches![0]!.description).toEqual(
+      formData.treatmentBranches[0].description,
+    );
+    expect(updateState.treatmentBranches![1]!.description).toEqual(
+      formData.treatmentBranches[1].description,
+    );
   });
 });
 
@@ -233,6 +254,33 @@ describe("formBranchesReducer", () => {
       });
     });
 
+    it("handles undefined errors without exception", () => {
+      const oldState = {
+        ...MOCK_STATE,
+      };
+      const newState = formBranchesActionReducer(oldState, {
+        type: "setSubmitErrors",
+        submitErrors: {
+          ...submitErrors,
+          treatment_branches: [null, null],
+        },
+      });
+      expect(newState).toEqual({
+        ...oldState,
+        globalErrors: submitErrors["*"],
+        referenceBranch: {
+          ...MOCK_STATE.referenceBranch,
+          errors: submitErrors["reference_branch"],
+        },
+        treatmentBranches: [
+          ...MOCK_STATE.treatmentBranches!.map((branch) => ({
+            ...branch,
+            errors: {},
+          })),
+        ],
+      });
+    });
+
     it("returns the same state if no submitErrors", () => {
       const oldState = {
         ...MOCK_STATE,
@@ -297,44 +345,46 @@ describe("formBranchesReducer", () => {
     });
   });
 
-  describe("resetDirtyBranches", () => {
-    it("resets isDirty flag for all branches", () => {
-      const oldState = {
-        ...MOCK_STATE,
-        referenceBranch: {
-          ...MOCK_STATE.referenceBranch!,
-          isDirty: true,
-        },
-        treatmentBranches: MOCK_STATE.treatmentBranches!.map((branch) => ({
-          ...branch,
-          isDirty: true,
-        })),
-      };
+  describe("commitFormData", () => {
+    const formData = {
+      referenceBranch: { name: "Name from form" },
+      treatmentBranches: [
+        { description: "Description 1" },
+        { description: "Description 2" },
+      ],
+    };
 
+    it("accepts incoming form data", () => {
+      const oldState = { ...MOCK_STATE };
       const newState = formBranchesActionReducer(oldState, {
-        type: "resetDirtyBranches",
+        type: "commitFormData",
+        formData,
       });
-
-      expect(newState.featureConfig).toBeNull();
-      expect(newState.referenceBranch?.isDirty).toBe(false);
-      expect(
-        newState.treatmentBranches?.every(
-          (branch) => branch?.isDirty === false,
-        ),
-      ).toEqual(true);
+      expect(newState.referenceBranch!.name).toEqual(
+        formData.referenceBranch.name,
+      );
+      expect(newState.treatmentBranches![0]!.description).toEqual(
+        formData.treatmentBranches[0].description,
+      );
+      expect(newState.treatmentBranches![1]!.description).toEqual(
+        formData.treatmentBranches[1].description,
+      );
     });
 
-    it("can handle null branches", () => {
-      const oldState = {
-        ...MOCK_STATE,
-        globalErrors: [],
-        referenceBranch: null,
-        treatmentBranches: null,
-      };
-      const newState = formBranchesActionReducer(oldState, {
-        type: "resetDirtyBranches",
-      });
-      expect(newState).toEqual(oldState);
+    it("does not fail when missing data", () => {
+      try {
+        const oldState = {
+          ...MOCK_STATE,
+          referenceBranch: null,
+          treatmentBranches: null,
+        };
+        formBranchesActionReducer(oldState, {
+          type: "commitFormData",
+          formData,
+        });
+      } catch (error) {
+        fail("formBranchesActionReducer should not have thrown an exception");
+      }
     });
   });
 });

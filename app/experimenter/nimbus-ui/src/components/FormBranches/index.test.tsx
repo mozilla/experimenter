@@ -36,17 +36,16 @@ describe("FormBranches", () => {
     render(<SubjectBranches {...{ isLoading: true, onSave, onNext }} />);
     expect(screen.getByTestId("FormBranches")).toBeInTheDocument();
     expect(screen.getByTestId("save-button")).toHaveTextContent("Saving");
-    fireEvent.click(screen.getByTestId("save-button"));
+    clickSave();
     expect(onSave).not.toHaveBeenCalled();
     fireEvent.click(screen.getByTestId("next-button"));
     expect(onNext).not.toHaveBeenCalled();
   });
 
-  it("calls onSave with extracted update when save button clicked", () => {
+  it("calls onSave with extracted update when save button clicked", async () => {
     const onSave = jest.fn();
     render(<SubjectBranches {...{ onSave }} />);
-    fireEvent.click(screen.getByTestId("save-button"));
-    expect(onSave).toHaveBeenCalled();
+    await clickAndWaitForSave(onSave);
     const onSaveArgs = onSave.mock.calls[0];
     expect(onSaveArgs[0]).toEqual({
       featureConfigId: null,
@@ -68,7 +67,7 @@ describe("FormBranches", () => {
         name: ["Bad name"],
       },
     };
-    const onSave = jest.fn((state, setSubmitErrors /*, clearSubmitErrors*/) => {
+    const onSave = jest.fn((state, setSubmitErrors) => {
       setSubmitErrors(expectedErrors);
     });
     const { container } = render(
@@ -79,7 +78,7 @@ describe("FormBranches", () => {
         expectedErrors["*"][0],
       );
       expect(
-        container.querySelector('*[data-for="branch-reference-name"]'),
+        container.querySelector('*[data-for="referenceBranch.name"]'),
       ).toHaveTextContent(expectedErrors["reference_branch"]["name"][0]);
     });
   });
@@ -95,13 +94,14 @@ describe("FormBranches", () => {
       setSubmitErrors(expectedErrors);
       clearSubmitErrors();
     });
-    const { container } = render(
-      <SubjectBranches {...{ onSave, saveOnInitialRender: true }} />,
-    );
-    expect(screen.queryByTestId("global-error")).not.toBeInTheDocument();
-    expect(
-      container.querySelector('*[data-for="branch-reference-name"]'),
-    ).not.toBeInTheDocument();
+    const { container } = render(<SubjectBranches {...{ onSave }} />);
+    await clickAndWaitForSave(onSave);
+    await waitFor(() => {
+      expect(screen.queryByTestId("global-error")).not.toBeInTheDocument();
+      expect(
+        container.querySelector('*[data-for="branch-reference-name"]'),
+      ).not.toBeInTheDocument();
+    });
   });
 
   it("displays exception thrown by onSaveHandler", async () => {
@@ -109,7 +109,8 @@ describe("FormBranches", () => {
     const onSave = jest.fn(() => {
       throw new Error(expectedErrorMessage);
     });
-    render(<SubjectBranches {...{ onSave, saveOnInitialRender: true }} />);
+    render(<SubjectBranches {...{ onSave }} />);
+    await clickAndWaitForSave(onSave);
     await waitFor(() => {
       expect(screen.getByTestId("global-error")).toHaveTextContent(
         expectedErrorMessage,
@@ -124,11 +125,11 @@ describe("FormBranches", () => {
     expect(onNext).toHaveBeenCalled();
   });
 
-  it("sets all branch ratios to 1 when equal ratio checkbox enabled", () => {
+  it("sets all branch ratios to 1 when equal ratio checkbox enabled", async () => {
     const onSave = jest.fn();
     render(<SubjectBranches {...{ onSave }} />);
-    fireEvent.click(screen.getByTestId("equal-ratio-checkbox"));
-    fireEvent.click(screen.getByTestId("save-button"));
+    act(() => void fireEvent.click(screen.getByTestId("equal-ratio-checkbox")));
+    await clickAndWaitForSave(onSave);
     const saveResult = onSave.mock.calls[0][0];
     expect(saveResult.referenceBranch.ratio).toEqual(1);
     for (const branch of saveResult.treatmentBranches) {
@@ -136,7 +137,7 @@ describe("FormBranches", () => {
     }
   });
 
-  it("requires adding a valid control branch before save is enabled", async () => {
+  it("requires adding a valid control branch before save is completed", async () => {
     const onSave = jest.fn();
     const { container } = render(
       <SubjectBranches
@@ -151,16 +152,22 @@ describe("FormBranches", () => {
       />,
     );
 
-    expect(screen.getByTestId("save-button")).toBeDisabled();
+    clickSave();
+    await waitFor(() => {
+      expect(screen.getByTestId("global-error")).toHaveTextContent(
+        "Control branch is required",
+      );
+    });
 
     fireEvent.click(screen.getByTestId("add-branch"));
     selectFeatureConfig();
-    await fillInBranch(container, "branch-reference");
+    await fillInBranch(container, "referenceBranch");
     expect(screen.getByTestId("save-button")).not.toBeDisabled();
 
-    fireEvent.click(screen.getByTestId("save-button"));
-    const saveResultAfter = onSave.mock.calls[0][0];
-    expect(saveResultAfter.referenceBranch).not.toEqual(null);
+    await clickAndWaitForSave(onSave);
+    await waitFor(() => {
+      expect(onSave.mock.calls[0][0].referenceBranch).not.toEqual(null);
+    });
   });
 
   it("supports adding a treatment branch", async () => {
@@ -178,38 +185,33 @@ describe("FormBranches", () => {
     );
 
     selectFeatureConfig();
-    await fillInBranch(container, `branch-reference`);
+    await fillInBranch(container, "referenceBranch");
 
     onSave.mockClear();
-    act(() => {
-      fireEvent.click(screen.getByTestId("save-button"));
-    });
-    expect(onSave).toHaveBeenCalled();
+    await clickAndWaitForSave(onSave);
 
     const saveResultBefore = onSave.mock.calls[0][0];
     expect(saveResultBefore.treatmentBranches).toEqual([]);
 
+    onSave.mockClear();
     act(() => {
       fireEvent.click(screen.getByTestId("add-branch"));
     });
-    await fillInBranch(container, `branch-0`);
-
-    onSave.mockClear();
-    act(() => {
-      fireEvent.click(screen.getByTestId("save-button"));
-    });
-    expect(onSave).toHaveBeenCalled();
+    await fillInBranch(container, "treatmentBranches[0]");
+    await clickAndWaitForSave(onSave);
 
     const saveResultAfter = onSave.mock.calls[0][0];
     expect(saveResultAfter.treatmentBranches).not.toEqual(null);
   });
 
-  it("supports removing a treatment branch", () => {
+  it("supports removing a treatment branch", async () => {
     const onSave = jest.fn();
     render(<SubjectBranches {...{ onSave }} />);
     const removeFirst = screen.queryAllByTestId("remove-branch")![0];
-    fireEvent.click(removeFirst);
-    fireEvent.click(screen.getByTestId("save-button"));
+    act(() => {
+      fireEvent.click(removeFirst);
+    });
+    await clickAndWaitForSave(onSave);
     const saveResult = onSave.mock.calls[0][0];
     const expectedDeletedBranch = MOCK_EXPERIMENT.treatmentBranches![0]!;
     expect(
@@ -220,7 +222,7 @@ describe("FormBranches", () => {
     ).toEqual(-1);
   });
 
-  it("supports adding feature config", () => {
+  it("supports adding feature config", async () => {
     const onSave = jest.fn();
     render(
       <SubjectBranches
@@ -233,16 +235,17 @@ describe("FormBranches", () => {
         }}
       />,
     );
-    const addButton = screen.queryAllByTestId("feature-config-add")[0];
-    fireEvent.click(addButton);
-    fireEvent.click(screen.getByTestId("save-button"));
-    const saveResult = onSave.mock.calls[0][0];
-    expect(saveResult.featureConfigId).toEqual(
+    act(() => {
+      const addButton = screen.queryAllByTestId("feature-config-add")[0];
+      fireEvent.click(addButton);
+    });
+    await clickAndWaitForSave(onSave);
+    expect(onSave.mock.calls[0][0].featureConfigId).toEqual(
       parseInt(MOCK_CONFIG.featureConfig![0]!.id, 10),
     );
   });
 
-  it("supports removing feature config", () => {
+  it("supports removing feature config", async () => {
     const onSave = jest.fn();
     render(
       <SubjectBranches
@@ -255,14 +258,17 @@ describe("FormBranches", () => {
         }}
       />,
     );
-    const addButton = screen.queryAllByTestId("feature-config-remove")[0];
-    fireEvent.click(addButton);
-    fireEvent.click(screen.getByTestId("save-button"));
+    act(() => {
+      const removeButton = screen.queryAllByTestId("feature-config-remove")[0];
+      fireEvent.click(removeButton);
+    });
+    clickSave();
+    await clickAndWaitForSave(onSave);
     const saveResult = onSave.mock.calls[0][0];
     expect(saveResult.featureConfigId).toBeNull();
   });
 
-  it("changing feature on one branch changes for all", () => {
+  it("changing feature on one branch changes for all", async () => {
     const onSave = jest.fn();
     const featureIdx = 1;
     render(
@@ -286,8 +292,10 @@ describe("FormBranches", () => {
     }
     const oldValue = featureConfigSelects[0].value;
 
-    fireEvent.change(featureConfigSelects[0], {
-      target: { value: featureIdx },
+    act(() => {
+      fireEvent.change(featureConfigSelects[0], {
+        target: { value: featureIdx },
+      });
     });
 
     // All selectors should have changed
@@ -315,16 +323,16 @@ describe("FormBranches", () => {
     const expectedData = {
       name: "example name",
       description: "example description",
-      ratio: "42",
+      ratio: 42,
       featureValue: "example value",
       featureEnabled: true,
     };
 
-    for (const id of [`branch-reference`, `branch-${branchIdx}`]) {
+    for (const id of ["referenceBranch", `treatmentBranches[${branchIdx}]`]) {
       await fillInBranch(container, id, expectedData);
     }
 
-    fireEvent.click(screen.getByTestId("save-button"));
+    await clickAndWaitForSave(onSave);
     const saveResult = onSave.mock.calls[0][0];
 
     expect(saveResult.featureConfigId).toEqual(
@@ -365,22 +373,40 @@ describe("FormBranches", () => {
   });
 });
 
+const clickSave = () =>
+  act(() => {
+    fireEvent.click(screen.getByTestId("save-button"));
+  });
+
+const clickAndWaitForSave = async (pendingOnSave: jest.Mock<any, any>) => {
+  clickSave();
+  await waitFor(() => expect(pendingOnSave).toHaveBeenCalled());
+};
+
 async function fillInBranch(
   container: HTMLElement,
-  id: string,
+  fieldNamePrefix: string,
   expectedData = {
     name: "example name",
     description: "example description",
-    ratio: "42",
+    ratio: 42,
     featureValue: "example value",
     featureEnabled: true,
   },
 ) {
   for (const [name, value] of Object.entries(expectedData)) {
-    const field = container.querySelector(`#${id}-${name}`);
+    const field = container.querySelector(
+      `[name="${fieldNamePrefix}.${name}"]`,
+    ) as HTMLInputElement;
     expect(field).not.toBeNull();
-    await act(async () => {
+    act(() => {
+      fireEvent.focus(field!);
       fireEvent.change(field!, { target: { value } });
+      fireEvent.blur(field!);
+    });
+    await waitFor(() => {
+      // HACK: the field value is always a string, regardless of input value type
+      expect(field.value).toEqual("" + value);
     });
   }
 }

@@ -12,8 +12,14 @@ export type FormBranchesSaveState = Pick<
 
 export class UpdateStateError extends Error {}
 
+export type FormData = {
+  referenceBranch: Partial<AnnotatedBranch> | null;
+  treatmentBranches: Partial<AnnotatedBranch>[] | null;
+};
+
 export function extractUpdateState(
   state: FormBranchesState,
+  formData: FormData,
 ): FormBranchesSaveState {
   const { featureConfig, referenceBranch, treatmentBranches } = state;
 
@@ -27,27 +33,31 @@ export function extractUpdateState(
 
   return {
     featureConfigId,
-    referenceBranch: extractUpdateBranch(referenceBranch),
+    referenceBranch: extractUpdateBranch(
+      referenceBranch,
+      formData.referenceBranch,
+    ),
     treatmentBranches:
       treatmentBranches === null
         ? []
-        : treatmentBranches.map(extractUpdateBranch),
+        : treatmentBranches.map((branch, idx) =>
+            extractUpdateBranch(branch, formData.treatmentBranches?.[idx]!),
+          ),
   };
 }
 
 export function extractUpdateBranch(
   branch: AnnotatedBranch,
+  formBranch: Partial<FormBranchesSaveState["referenceBranch"]> | null,
 ): FormBranchesSaveState["referenceBranch"] {
-  const {
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    __typename,
-    key,
-    errors,
-    isValid,
-    isDirty,
-    slug,
-    /* eslint-enable @typescript-eslint/no-unused-vars */
-    ...strippedBranch
-  } = branch;
-  return strippedBranch;
+  const merged = { ...branch, ...formBranch };
+  return {
+    name: merged.name,
+    description: merged.description,
+    ratio: merged.ratio,
+    featureValue: merged.featureValue,
+    // HACK: for some reason in tests, this ends up as "true" or undefined
+    // rather than a boolean.
+    featureEnabled: !!merged.featureEnabled,
+  };
 }

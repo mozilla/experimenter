@@ -9,8 +9,21 @@ import { withLinks } from "@storybook/addon-links";
 import { withQuery } from "@storybook/addon-queryparams";
 import { mockExperimentQuery } from "../../lib/mocks";
 import PageEditBranches from ".";
+import { NimbusFeatureConfigApplication } from "../../types/globalTypes";
 
-const { mock } = mockExperimentQuery("demo-slug");
+const { mock } = mockExperimentQuery("demo-slug", {
+  featureConfig: {
+    __typename: "NimbusFeatureConfigType",
+    id: "2",
+    name: "Mauris odio erat",
+    slug: "mauris-odio-erat",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    application: NimbusFeatureConfigApplication.FENIX,
+    ownerEmail: "dude23@yahoo.com",
+    schema: '{ "sample": "schema" }',
+  },
+});
+
 const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
   referenceBranch: {
     __typename: "NimbusBranchType",
