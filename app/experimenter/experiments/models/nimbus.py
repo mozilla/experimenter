@@ -216,7 +216,7 @@ class NimbusIsolationGroup(models.Model):
     class Meta:
         verbose_name = "Bucket IsolationGroup"
         verbose_name_plural = "Bucket IsolationGroups"
-        unique_together = ("name", "instance")
+        unique_together = ("application", "name", "instance")
         ordering = ("name", "instance")
 
     def __str__(self):  # pragma: no cover
