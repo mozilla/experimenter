@@ -284,6 +284,29 @@ class TestNimbusIsolationGroup(TestCase):
             self.randomization_unit,
         )
 
+    def test_existing_isolation_group_with_matching_name_but_not_application_is_filtered(
+        self,
+    ):
+        """
+        Now that isolation groups are bound to applications, we have to check for the
+        case where isolation groups with the same name but different applications are
+        treated separately.
+        """
+        name = "isolation group name"
+        NimbusIsolationGroupFactory.create(
+            name=name, application=NimbusExperiment.Application.DESKTOP
+        )
+        experiment = NimbusExperimentFactory.create(
+            name=name, slug=name, application=NimbusExperiment.Application.FENIX
+        )
+        bucket = NimbusIsolationGroup.request_isolation_group_buckets(
+            name, experiment, 100
+        )
+        self.assertEqual(bucket.isolation_group.name, name)
+        self.assertEqual(
+            bucket.isolation_group.application, NimbusExperiment.Application.FENIX
+        )
+
 
 class TestNimbusChangeLog(TestCase):
     def test_uses_message_if_set(self):
