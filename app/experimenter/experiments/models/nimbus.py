@@ -232,12 +232,9 @@ class NimbusIsolationGroup(models.Model):
 
     @classmethod
     def request_isolation_group_buckets(cls, name, experiment, count):
-        if cls.objects.filter(name=name).exists():
-            isolation_group = (
-                cls.objects.filter(name=name, application=experiment.application)
-                .order_by("-instance")
-                .first()
-            )
+        query = cls.objects.filter(name=name, application=experiment.application)
+        if query.exists():
+            isolation_group = query.order_by("-instance").first()
         else:
             isolation_group = cls.objects.create(
                 name=name, application=experiment.application
