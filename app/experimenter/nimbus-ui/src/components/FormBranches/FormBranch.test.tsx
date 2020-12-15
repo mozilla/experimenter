@@ -143,11 +143,7 @@ describe("FormBranch", () => {
       fireEvent.change(field, { target: { value: "abc" } });
       fireEvent.blur(field);
     });
-    await waitFor(() => {
-      expect(
-        container.querySelector('[data-for="referenceBranch.ratio"]'),
-      ).toHaveClass("invalid-feedback");
-    });
+    await assertInvalidField(container, "referenceBranch.ratio");
   });
 
   it("should display server-side errors but hide when field touched", async () => {
@@ -159,9 +155,7 @@ describe("FormBranch", () => {
     };
 
     const { container } = render(<SubjectBranch branch={branch} />);
-    expect(
-      container.querySelector('[data-for="referenceBranch.name"]'),
-    ).toHaveClass("invalid-feedback");
+    await assertInvalidField(container, "referenceBranch.name");
 
     const field = screen.getByTestId("referenceBranch.name");
     expect(field).not.toBeNull();
@@ -171,9 +165,29 @@ describe("FormBranch", () => {
     });
 
     await waitFor(() => {
-      expect(
-        container.querySelector("[data-for=referenceBranch-name]"),
-      ).toBeNull();
+      expect(screen.getByTestId("referenceBranch.name")).not.toHaveClass(
+        "is-invalid",
+      );
     });
   });
+
+  it("should display server-side errors even when client-side validation is not defined", async () => {
+    const branch = {
+      ...MOCK_ANNOTATED_BRANCH,
+      errors: {
+        description: ["This description is boring"],
+      },
+    };
+    const { container } = render(<SubjectBranch branch={branch} />);
+    await assertInvalidField(container, "referenceBranch.description");
+  });
+
+  const assertInvalidField = async (container: HTMLElement, testId: string) => {
+    await waitFor(() => {
+      expect(screen.getByTestId(testId)).toHaveClass("is-invalid");
+      expect(container.querySelector(`[data-for="${testId}"]`)).toHaveClass(
+        "invalid-feedback",
+      );
+    });
+  };
 });

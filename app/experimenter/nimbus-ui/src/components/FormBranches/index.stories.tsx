@@ -127,6 +127,25 @@ storiesOf("components/FormBranches", module)
       }}
     />
   ))
+  .add("with review errors", () => (
+    <SubjectBranches
+      {...{
+        ...commonFormBranchesProps,
+      }}
+      experiment={{
+        ...MOCK_EXPERIMENT,
+        featureConfig: MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+        readyForReview: {
+          __typename: "NimbusReadyForReviewType",
+          ready: false,
+          message: {
+            reference_branch: ["Description may not be blank"],
+            treatment_branches: [null, ["Description may not be blank"]],
+          },
+        },
+      }}
+    />
+  ))
   .add("with submit errors", () => {
     const [isLoading, setIsLoading] = useState(false);
     const [saveOrClear, setSaveOrClear] = useState(false);

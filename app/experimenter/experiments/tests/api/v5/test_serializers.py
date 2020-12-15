@@ -14,6 +14,7 @@ from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.models.nimbus import NimbusFeatureConfig
 from experimenter.experiments.tests.factories import (
+    NimbusBranchFactory,
     NimbusExperimentFactory,
     NimbusProbeSetFactory,
 )
@@ -778,4 +779,55 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         self.assertEqual(
             serializer.errors,
             {"reference_branch": ["This field may not be null."]},
+        )
+
+    def test_invalid_experiment_reference_branch_requires_description(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP.value,
+            feature_config=NimbusFeatureConfigFactory(
+                application=NimbusExperiment.Application.DESKTOP.value
+            ),
+        )
+        experiment.reference_branch.description = ""
+        experiment.save()
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors,
+            {"reference_branch": ["Description cannot be blank."]},
+        )
+
+    def test_invalid_experiment_treatment_branch_requires_description(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            application=NimbusExperiment.Application.DESKTOP.value,
+            feature_config=NimbusFeatureConfigFactory(
+                application=NimbusExperiment.Application.DESKTOP.value
+            ),
+        )
+        treatment_branch = NimbusBranchFactory.create(
+            experiment=experiment, description=""
+        )
+        experiment.branches.add(treatment_branch)
+        experiment.save()
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            serializer.errors["treatment_branches"][1],
+            ["Description cannot be blank."],
         )

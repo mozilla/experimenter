@@ -29,6 +29,7 @@ import {
   NimbusFeatureConfigApplication,
   NimbusProbeKind,
 } from "../types/globalTypes";
+import { ExperimentReview } from "../hooks";
 
 export interface MockedProps {
   config?: Partial<typeof MOCK_CONFIG> | null;
@@ -352,6 +353,14 @@ export function mockExperimentQuery<
     experiment: experiment as T,
   };
 }
+
+export const MOCK_REVIEW: ExperimentReview = {
+  ready: true,
+  invalidPages: [],
+  missingFields: [],
+  isMissingField: () => false,
+  refetch: () => {},
+};
 
 export const mockExperimentMutation = (
   mutation: DocumentNode,

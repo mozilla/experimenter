@@ -32,6 +32,7 @@ export const FormBranch = ({
   fieldNamePrefix,
   touched,
   errors,
+  reviewErrors,
   branch,
   equalRatio,
   isReference,
@@ -41,11 +42,11 @@ export const FormBranch = ({
   onAddFeatureConfig,
   onRemoveFeatureConfig,
   onFeatureConfigChange,
-  showMissingIcon,
 }: {
   fieldNamePrefix: string;
   touched: Record<string, boolean>;
   errors: Record<string, FieldError>;
+  reviewErrors: string[] | undefined;
   branch: AnnotatedBranch;
   equalRatio?: boolean;
   isReference?: boolean;
@@ -57,7 +58,6 @@ export const FormBranch = ({
   onFeatureConfigChange: (
     featureConfig: getConfig_nimbusConfig_featureConfig | null,
   ) => void;
-  showMissingIcon?: boolean;
 }) => {
   const id = fieldNamePrefix;
 
@@ -95,12 +95,10 @@ export const FormBranch = ({
     name: `${fieldNamePrefix}.${name}`,
     ref: register(registerOptions || {}),
     isInvalid:
-      (registerOptions &&
-        // Server-side errors signal invalid when field is freshly reset
-        !touched[name] &&
-        !!submitErrors[name]) ||
+      // Server-side errors signal invalid when field is not touched
+      (!touched[name] && !!submitErrors[name]) ||
       // Client-side errors signal invalid after a field has been touched
-      ((isSubmitted || touched[name]) && !!errors[name]),
+      (registerOptions && (isSubmitted || touched[name]) && !!errors[name]),
     isValid:
       // Valid after touched and no client-side errors
       registerOptions && (isSubmitted || touched[name]) && !errors[name],
@@ -148,7 +146,10 @@ export const FormBranch = ({
           </Form.Group>
           <Form.Group as={Col} controlId={`${id}-description`}>
             <Form.Label>Description</Form.Label>
-            <Form.Control {...formControlCommon("description")} type="text" />
+            <Form.Control
+              {...formControlCommon("description", false)}
+              type="text"
+            />
             <FormErrors name="description" />
           </Form.Group>
           <Form.Group as={Col} controlId={`${id}-ratio`} sm={2} md={2}>
@@ -178,6 +179,14 @@ export const FormBranch = ({
             )}
           </Form.Group>
           <Form.Group as={Col} sm={1} className="align-top text-right">
+            {Array.isArray(reviewErrors) &&
+              reviewErrors.map((error, idx) => (
+                <InlineErrorIcon
+                  key={`${fieldNamePrefix}-missing-icon-${idx}`}
+                  name={`${fieldNamePrefix}-missing-icon-${idx}`}
+                  message={error}
+                />
+              ))}
             {!isReference && onRemove && (
               <Button
                 data-testid="remove-branch"
@@ -188,13 +197,6 @@ export const FormBranch = ({
               >
                 <DeleteIcon width="18" height="18" />
               </Button>
-            )}
-
-            {showMissingIcon && (
-              <InlineErrorIcon
-                name="control"
-                message="A control branch is required"
-              />
             )}
           </Form.Group>
         </Form.Row>
