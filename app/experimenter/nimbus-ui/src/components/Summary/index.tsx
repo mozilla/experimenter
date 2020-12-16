@@ -10,6 +10,7 @@ import TableSummary from "../TableSummary";
 import TableAudience from "../TableAudience";
 import LinkExternal from "../LinkExternal";
 import { getStatus } from "../../lib/experiment";
+import MonitoringLink from "../MonitoringLink";
 
 type SummaryProps = {
   experiment: getExperiment_experimentBySlug;
@@ -20,6 +21,7 @@ const Summary = ({ experiment }: SummaryProps) => {
 
   return (
     <div data-testid="summary">
+      <MonitoringLink {...experiment} />
       <h2 className="h5 mb-3">Timeline</h2>
       <SummaryTimeline {...{ experiment }} />
 
