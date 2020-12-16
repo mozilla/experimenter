@@ -13,6 +13,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusProbeSetFactory,
 )
+from experimenter.experiments.tests.factories.nimbus import NimbusBranchFactory
 
 
 class TestNimbusExperimentSerializer(TestCase):
@@ -88,6 +89,19 @@ class TestNimbusExperimentSerializer(TestCase):
 
         check_schema("experiments/NimbusExperiment", serializer.data)
 
+    def test_serializers_with_feature_value_None(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.ACCEPTED,
+            branches=[],
+        )
+        experiment.reference_branch = NimbusBranchFactory(
+            experiment=experiment, feature_value=None
+        )
+        experiment.save()
+        serializer = NimbusExperimentSerializer(experiment)
+        self.assertIsNone(serializer.data["branches"][0]["feature"]["value"])
+        check_schema("experiments/NimbusExperiment", serializer.data)
+
     def test_sets_application_channel_for_fenix_experiment(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.ACCEPTED,
@@ -101,6 +115,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(
             serializer.data["channel"], NimbusExperiment.Channel.FENIX_NIGHTLY
         )
+        check_schema("experiments/NimbusExperiment", serializer.data)
 
     def test_serializer_outputs_expected_schema_without_feature(self):
         experiment = NimbusExperimentFactory.create_with_status(
@@ -121,9 +136,10 @@ class TestNimbusExperimentSerializer(TestCase):
 
     def test_serializer_outputs_targeting_for_experiment_without_channels(self):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+            NimbusExperiment.Status.ACCEPTED,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_80,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
+            application=NimbusExperiment.Application.DESKTOP,
             channel=None,
         )
 
@@ -136,12 +152,13 @@ class TestNimbusExperimentSerializer(TestCase):
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
             ),
         )
+        check_schema("experiments/NimbusExperiment", serializer.data)
 
     def test_serializer_outputs_targeting_for_experiment_without_firefox_min_version(
         self,
     ):
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT,
+            NimbusExperiment.Status.ACCEPTED,
             firefox_min_version=None,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             channel=NimbusExperiment.Channel.DESKTOP_NIGHTLY,
@@ -156,6 +173,7 @@ class TestNimbusExperimentSerializer(TestCase):
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
             ),
         )
+        check_schema("experiments/NimbusExperiment", serializer.data)
 
 
 class TestNimbusProbeSetSerializer(TestCase):
