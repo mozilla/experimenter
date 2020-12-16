@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.utils.text import slugify
+from parameterized import parameterized
 
 from experimenter.experiments.api.v5.serializers import (
     NimbusAudienceUpdateSerializer,
@@ -587,7 +588,7 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
             channel=None,
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=None,
-            population_percent=None,
+            population_percent=0.0,
             proposed_duration=None,
             proposed_enrollment=None,
             targeting_config_slug=None,
@@ -631,7 +632,7 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
             channel=None,
             application=NimbusExperiment.Application.FENIX,
             firefox_min_version=None,
-            population_percent=None,
+            population_percent=0.0,
             proposed_duration=None,
             proposed_enrollment=None,
             targeting_config_slug=None,
@@ -658,6 +659,32 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
             serializer.errors,
             {"channel": ["Invalid channel for experiment application."]},
         )
+
+    @parameterized.expand(
+        [
+            [False, None],
+            [False, -1.0],
+            [False, 0.00001],
+            [True, 0.0],
+            [True, 1.0],
+            [True, 99.9999],
+            [True, 100.0],
+            [False, 101.0],
+        ]
+    )
+    def test_population_percent_bounds_check(self, expected_valid, population_percent):
+        user = UserFactory()
+        experiment = NimbusExperimentFactory()
+        serializer = NimbusAudienceUpdateSerializer(
+            experiment,
+            {"population_percent": population_percent},
+            context={"user": user},
+        )
+        self.assertEqual(serializer.is_valid(), expected_valid)
+        if not expected_valid:
+            self.assertIn("population_percent", serializer.errors)
+        else:
+            self.assertNotIn("population_percent", serializer.errors)
 
 
 class TestNimbusStatusUpdateSerializer(TestCase):
@@ -803,6 +830,25 @@ class TestNimbusReadyForReviewSerializer(TestCase):
         self.assertEqual(
             serializer.errors,
             {"reference_branch": ["Description cannot be blank."]},
+        )
+
+    def test_invalid_experiment_requires_non_zero_population_percent(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+            population_percent=0.0,
+        )
+        serializer = NimbusReadyForReviewSerializer(
+            experiment,
+            data=NimbusReadyForReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertEqual(
+            str(serializer.errors["population_percent"][0]),
+            "Ensure this value is greater than or equal to 0.0001.",
         )
 
     def test_invalid_experiment_treatment_branch_requires_description(self):

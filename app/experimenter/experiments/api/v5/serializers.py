@@ -292,6 +292,8 @@ class NimbusProbeSetUpdateSerializer(
 class NimbusAudienceUpdateSerializer(
     NimbusChangeLogMixin, NimbusStatusRestrictionMixin, serializers.ModelSerializer
 ):
+    population_percent = serializers.DecimalField(7, 4, min_value=0.0, max_value=100.0)
+
     class Meta:
         model = NimbusExperiment
         fields = (
@@ -338,7 +340,9 @@ class NimbusReadyForReviewSerializer(
     public_description = serializers.CharField(required=True)
     proposed_duration = serializers.IntegerField(required=True)
     proposed_enrollment = serializers.IntegerField(required=True)
-    population_percent = serializers.DecimalField(7, 4, required=True)
+    population_percent = serializers.DecimalField(
+        7, 4, min_value=0.0001, max_value=100.0, required=True
+    )
     firefox_min_version = serializers.ChoiceField(
         NimbusExperiment.Version.choices, required=True
     )

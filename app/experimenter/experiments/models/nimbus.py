@@ -43,9 +43,7 @@ class NimbusExperiment(NimbusConstants, models.Model):
         null=True,
         validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
     )
-    population_percent = models.DecimalField(
-        max_digits=7, decimal_places=4, default=0.0, blank=True, null=True
-    )
+    population_percent = models.DecimalField(max_digits=7, decimal_places=4, default=0.0)
     total_enrolled_clients = models.PositiveIntegerField(default=0)
     firefox_min_version = models.CharField(
         max_length=255,
