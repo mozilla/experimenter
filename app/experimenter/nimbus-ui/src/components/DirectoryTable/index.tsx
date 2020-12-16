@@ -12,6 +12,7 @@ import {
   getProposedEnrollmentRange,
   humanDate,
 } from "../../lib/dateUtils";
+import { NotSet } from "../Summary";
 
 // These are all render functions for column type sin the table.
 export type ColumnComponent = React.FC<getAllExperiments_experiments>;
@@ -29,7 +30,7 @@ export const DirectoryColumnTitle: ColumnComponent = ({ slug, name }) => {
 };
 
 export const DirectoryColumnOwner: ColumnComponent = ({ owner }) => (
-  <td>{owner && owner.username}</td>
+  <td>{owner?.username || <NotSet />}</td>
 );
 
 export const DirectoryColumnFeature: ColumnComponent = ({ featureConfig }) => (
@@ -43,7 +44,7 @@ export const DirectoryColumnFeature: ColumnComponent = ({ featureConfig }) => (
         </span>
       </>
     ) : (
-      "Simple"
+      "(None)"
     )}
   </td>
 );
@@ -157,7 +158,7 @@ export const DirectoryCompleteTable: React.FC<DirectoryTableProps> = (
         component: ({ slug }) => (
           <td>
             <Link to={`${slug}/results`} data-sb-kind="pages/Results">
-              results
+              Results
             </Link>
           </td>
         ),
