@@ -194,7 +194,7 @@ export const GET_EXPERIMENT_QUERY = gql`
 // TODO: Only the first 15 until we add pagination.
 export const GET_ALL_EXPERIMENTS = gql`
   query getAllExperiments {
-    experiments {
+    experiments(limit: 20) {
       name
       owner {
         username
