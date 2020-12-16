@@ -26,7 +26,6 @@ export const FormBranches = ({
   featureConfig,
   onSave,
   onNext,
-  isMissingField,
 }: {
   isLoading: boolean;
   experiment: getExperiment_experimentBySlug;
@@ -37,8 +36,12 @@ export const FormBranches = ({
     clearSubmitErrors: Function,
   ) => void;
   onNext: () => void;
-  isMissingField: (fieldName: string) => boolean;
 }) => {
+  const reviewErrors =
+    typeof experiment?.readyForReview?.message !== "string"
+      ? experiment?.readyForReview?.message
+      : null;
+
   const [
     {
       featureConfig: experimentFeatureConfig,
@@ -213,7 +216,7 @@ export const FormBranches = ({
                   {}) as FormBranchProps["touched"],
                 isReference: true,
                 branch: { ...referenceBranch, key: "branch-reference" },
-                showMissingIcon: isMissingField("reference_branch"),
+                reviewErrors: reviewErrors?.["reference_branch"],
               }}
             />
           )}
@@ -233,6 +236,7 @@ export const FormBranches = ({
                       touched: (touched?.treatmentBranches?.[idx] ||
                         {}) as FormBranchProps["touched"],
                       branch,
+                      reviewErrors: reviewErrors?.["treatment_branches"]?.[idx],
                       onRemove: handleRemoveBranch(idx),
                     }}
                   />

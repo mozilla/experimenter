@@ -6,7 +6,7 @@ import React from "react";
 import { screen, render, waitFor } from "@testing-library/react";
 import PageResults from ".";
 import { RouterSlugProvider } from "../../lib/test-utils";
-import { mockExperimentQuery } from "../../lib/mocks";
+import { mockExperimentQuery, MOCK_REVIEW } from "../../lib/mocks";
 import { mockAnalysis } from "../../lib/visualization/mocks";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import { AnalysisData } from "../../lib/visualization/types";
@@ -89,8 +89,7 @@ jest.mock("../AppLayoutWithExperiment", () => ({
         experiment: mockExperimentQuery("demo-slug").experiment,
         analysis: mockAnalysisData,
         review: {
-          isMissingField: () => false,
-          refetch: () => {},
+          ...MOCK_REVIEW,
         },
       })}
     </div>

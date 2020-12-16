@@ -83,9 +83,6 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
       {({ experiment, review }) => {
         currentExperiment.current = experiment;
         refetchReview.current = review.refetch;
-
-        const { isMissingField } = review;
-
         return (
           <>
             <p>
@@ -99,7 +96,6 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
                 experiment,
                 // TODO: EXP-560 - configs should be filtered by application type
                 featureConfig,
-                isMissingField,
                 isLoading: loading,
                 onSave: onFormSave,
                 onNext: onFormNext,
