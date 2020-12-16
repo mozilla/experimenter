@@ -8,6 +8,11 @@ COMPOSE_INTEGRATION = ${COMPOSE_PROD} -f docker-compose-integration-test.yml
 
 JOBS = 4
 PARALLEL = parallel --halt now,fail=1 --jobs ${JOBS} {} :::
+NOCOLOR= \033[0m
+RED = \033[0;31m
+GREEN = \033[0;32m
+PAD = -------------------------------------------------\n
+COLOR_CHECK = && echo "${GREEN}${PAD}All Checks Passed\n${PAD}${NOCOLOR}" || echo "${RED}${PAD}Some Checks Failed\n${PAD}${NOCOLOR}"
 PY_IMPORT_SORT =  python -m isort . --profile black
 PY_IMPORT_CHECK =  python -m isort . --profile black --check
 PYTHON_TEST = pytest --cov --cov-report term-missing
@@ -58,7 +63,7 @@ test_build: build_test
 	$(COMPOSE_TEST) build
 
 check: test_build
-	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) ${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(JS_TEST_CORE)" "$(JS_TEST_NIMBUS_UI)" "$(PYTHON_TEST)"'
+	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(NIMBUS_SCHEMA_CHECK)" "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "${PY_IMPORT_CHECK}"  "$(BLACK_CHECK)" "$(FLAKE8)" "$(ESLINT_CORE)" "$(ESLINT_NIMBUS_UI)" "$(TYPECHECK_NIMBUS_UI)" "$(JS_TEST_CORE)" "$(JS_TEST_NIMBUS_UI)" "$(PYTHON_TEST)") ${COLOR_CHECK}'
 
 py_test: test_build
 	$(COMPOSE_TEST) run app sh -c '$(WAIT_FOR_DB) $(PYTHON_TEST)'
