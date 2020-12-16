@@ -15,6 +15,7 @@ import TableMetricPrimary from "../TableMetricPrimary";
 import TableMetricSecondary from "../TableMetricSecondary";
 import { AnalysisData } from "../../lib/visualization/types";
 import Summary from "../Summary";
+import MonitoringLink from "../MonitoringLink";
 
 const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
   <AppLayoutWithExperiment
@@ -24,16 +25,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
   >
     {({ experiment, analysis }) => (
       <>
-        <h3 className="h5 mb-3">Monitoring</h3>
-        <p>
-          <LinkExternal
-            href={experiment.monitoringDashboardUrl!}
-            data-testid="link-monitoring-dashboard"
-          >
-            Click here
-          </LinkExternal>{" "}
-          to view the live monitoring dashboard.
-        </p>
+        <MonitoringLink {...experiment} />
         {analysis?.show_analysis ? (
           <AnalysisAvailable {...{ experiment, analysis }} />
         ) : (
