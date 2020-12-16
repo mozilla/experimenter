@@ -48,6 +48,7 @@ export const SubjectBranch = ({
             // react-hook-form types seem broken for nested fields
             touched: (touched.referenceBranch ||
               {}) as FormBranchProps["touched"],
+            reviewErrors: undefined,
             branch,
             isReference,
             equalRatio,
@@ -71,7 +72,6 @@ export const SubjectBranches = ({
   onSave = () => {},
   onNext = () => {},
   saveOnInitialRender = false,
-  isMissingField = () => false,
 }: Partial<React.ComponentProps<typeof FormBranches>> & {
   saveOnInitialRender?: boolean;
 } = {}) => {
@@ -94,7 +94,6 @@ export const SubjectBranches = ({
           featureConfig,
           onSave,
           onNext,
-          isMissingField,
         }}
       />
     </div>

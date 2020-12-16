@@ -8,7 +8,7 @@ import { getExperiment } from "../types/getExperiment";
 
 const fieldPageMap: { [page: string]: string[] } = {
   overview: ["public_description"],
-  branches: ["reference_branch"],
+  branches: ["reference_branch", "treatment_branches"],
   audience: [
     "channel",
     "firefox_min_version",
@@ -71,7 +71,9 @@ export function useExperiment(slug: string) {
       invalidPages,
       missingFields,
       isMissingField,
-      refetch,
+      refetch: refetch as () => void,
     },
   };
 }
+
+export type ExperimentReview = ReturnType<typeof useExperiment>["review"];

@@ -342,34 +342,77 @@ describe("FormBranches", () => {
     expect(saveResult.treatmentBranches[1]).toEqual(expectedData);
   });
 
-  it("displays warning icon when reference branch is not set and server requires it", async () => {
+  it("displays warning icon when branches have review errors", async () => {
     Object.defineProperty(window, "location", {
       value: {
         search: "?show-errors",
       },
     });
 
-    const isMissingField = jest.fn(() => true);
+    const expectedReviewErrors = {
+      reference_branch: ["This field may not be null."],
+      treatment_branches: [null, ["Description may not be blank"]],
+    } as const;
+
     render(
       <SubjectBranches
         {...{
-          isMissingField,
           experiment: {
             ...MOCK_EXPERIMENT,
             readyForReview: {
               __typename: "NimbusReadyForReviewType",
               ready: false,
-              message: {
-                reference_branch: ["This field may not be null."],
-              },
+              message: expectedReviewErrors,
             },
           },
         }}
       />,
     );
 
-    expect(isMissingField).toHaveBeenCalled();
-    expect(screen.queryByTestId("missing-control")).toBeInTheDocument();
+    const referenceIcon = screen.queryByTestId(
+      "missing-referenceBranch-missing-icon-0",
+    );
+    expect(referenceIcon).toBeInTheDocument();
+    expect(referenceIcon).toHaveAttribute(
+      "data-tip",
+      expectedReviewErrors.reference_branch[0],
+    );
+
+    const treatmentIcon = screen.queryByTestId(
+      "missing-treatmentBranches[1]-missing-icon-0",
+    );
+    expect(treatmentIcon).toBeInTheDocument();
+    expect(treatmentIcon).toHaveAttribute(
+      "data-tip",
+      expectedReviewErrors.treatment_branches[1][0],
+    );
+  });
+
+  it("displays no warning icon when review error content is string", async () => {
+    Object.defineProperty(window, "location", {
+      value: {
+        search: "?show-errors",
+      },
+    });
+
+    render(
+      <SubjectBranches
+        {...{
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            readyForReview: {
+              __typename: "NimbusReadyForReviewType",
+              ready: false,
+              message: "unexpected error",
+            },
+          },
+        }}
+      />,
+    );
+
+    expect(
+      screen.queryByTestId("missing-referenceBranch-missing-icon-0"),
+    ).not.toBeInTheDocument();
   });
 });
 

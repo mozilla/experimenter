@@ -8,7 +8,7 @@ import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
 import HeaderExperiment from "../HeaderExperiment";
 import PageLoading from "../PageLoading";
 import PageExperimentNotFound from "../PageExperimentNotFound";
-import { useAnalysis, useExperiment } from "../../hooks";
+import { useAnalysis, useExperiment, ExperimentReview } from "../../hooks";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import AppLayout from "../AppLayout";
 import { AnalysisData } from "../../lib/visualization/types";
@@ -17,10 +17,7 @@ import { getStatus, StatusCheck } from "../../lib/experiment";
 
 type AppLayoutWithExperimentChildrenProps = {
   experiment: getExperiment_experimentBySlug;
-  review: {
-    isMissingField: (fieldName: string) => boolean;
-    refetch: () => void;
-  };
+  review: ExperimentReview;
   analysis?: AnalysisData;
 };
 
@@ -114,10 +111,7 @@ type LayoutProps = {
   sidebar: boolean;
   children: React.ReactElement;
   status: StatusCheck;
-  review: {
-    ready: boolean;
-    invalidPages: string[];
-  };
+  review: ExperimentReview;
   analysis?: AnalysisData;
 };
 
