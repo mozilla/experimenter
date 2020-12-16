@@ -48,7 +48,7 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
       <Head title="Experiments" />
 
       <h2 className="mb-4">
-        Experiments{" "}
+        Nimbus Experiments{" "}
         <Link
           to="new"
           data-sb-kind="pages/New"
