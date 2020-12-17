@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from "react";
-import { RouteComponentProps, useParams } from "@reach/router";
+import { navigate, RouteComponentProps, useParams } from "@reach/router";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
 import HeaderExperiment from "../HeaderExperiment";
 import PageLoading from "../PageLoading";
@@ -14,6 +14,7 @@ import AppLayout from "../AppLayout";
 import { AnalysisData } from "../../lib/visualization/types";
 import Head from "../Head";
 import { getStatus, StatusCheck } from "../../lib/experiment";
+import { BASE_PATH } from "../../lib/constants";
 
 type AppLayoutWithExperimentChildrenProps = {
   experiment: getExperiment_experimentBySlug;
@@ -30,6 +31,18 @@ type AppLayoutWithExperimentProps = {
   polling?: boolean;
   sidebar?: boolean;
   analysisRequired?: boolean;
+  redirect?: ({
+    status,
+    review,
+    analysis,
+  }: {
+    status: StatusCheck;
+    review?: {
+      ready: boolean;
+      invalidPages: string[];
+    };
+    analysis?: AnalysisData;
+  }) => string | void;
 } & RouteComponentProps;
 
 export const POLL_INTERVAL = 30000;
@@ -41,6 +54,7 @@ const AppLayoutWithExperiment = ({
   sidebar = true,
   polling = false,
   analysisRequired = false,
+  redirect,
 }: AppLayoutWithExperimentProps) => {
   const { slug } = useParams();
   const {
@@ -51,13 +65,30 @@ const AppLayoutWithExperiment = ({
     stopPolling,
     review,
   } = useExperiment(slug);
+  const { execute: fetchAnalysis, result: analysis } = useAnalysis();
   const [analysisFetched, setAnalysisFetched] = useState<boolean>(false);
   const status = getStatus(experiment);
 
-  const { execute: fetchAnalysis, result: analysis } = useAnalysis();
+  // If the redirect prop function is supplied let's call it with
+  // experiment status, review, and analysis details. If it returns
+  // a string we know to redirect to it as a path.
+  let redirectPath: string | undefined, getRedirect: string | void;
+  if (
+    !loading &&
+    redirect &&
+    (getRedirect = redirect!({ status, review, analysis }))
+  ) {
+    redirectPath = `${BASE_PATH}/${slug}/${getRedirect}`;
+  }
 
   useEffect(() => {
-    if (!analysisFetched && !loading && status.released) {
+    if (redirectPath) {
+      navigate(redirectPath, { replace: true });
+    }
+  }, [redirectPath]);
+
+  useEffect(() => {
+    if (!analysisFetched && !loading && status.locked) {
       fetchAnalysis([experiment?.slug]);
       setAnalysisFetched(true);
     }

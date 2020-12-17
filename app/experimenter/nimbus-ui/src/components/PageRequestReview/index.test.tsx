@@ -10,29 +10,27 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import fetchMock from "jest-fetch-mock";
 import PageRequestReview from ".";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { createMutationMock } from "./mocks";
+import { navigate } from "@reach/router";
+import { BASE_PATH } from "../../lib/constants";
+
+jest.mock("@reach/router", () => ({
+  ...jest.requireActual("@reach/router"),
+  navigate: jest.fn(),
+}));
 
 describe("PageRequestReview", () => {
-  // This component is currently set up to handle an experiment
-  // that is live, accepted, and complete, and as a result also performs
-  // an analysis lookup. In practice, and when EXP-497 is complete, this
-  // page should not be accessed. For now I'm stubbing the console.error
-  // that occurs when the analysis lookup happens.
-  // TODO: EXP-497, remove branches and tests that handle locked experiment
-  // state, and remove this console.error stubbing
-  let origError: typeof global.console.error;
-
-  beforeEach(() => {
-    origError = global.console.error;
-    global.console.error = jest.fn();
+  beforeAll(() => {
+    fetchMock.enableMocks();
   });
 
-  afterEach(() => {
-    global.console.error = origError;
+  afterAll(() => {
+    fetchMock.disableMocks();
   });
 
   async function checkRequiredBoxes() {
@@ -56,6 +54,67 @@ describe("PageRequestReview", () => {
     expect(submitButton!).toBeEnabled();
     await checkRequiredBoxes();
     expect(submitButton!).toBeDisabled();
+  });
+
+  it("redirects to the first edit page containing missing fields if the experiment status is draft and its not ready for review", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.DRAFT,
+      readyForReview: {
+        __typename: "NimbusReadyForReviewType",
+        ready: false,
+        message: {
+          // This field exists on the Audience page
+          firefox_min_version: ["This field may not be null."],
+        },
+      },
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith(
+        `${BASE_PATH}/${experiment.slug}/edit/audience?show-errors`,
+      );
+    });
+  });
+
+  it("redirects to the overview edit page if the experiment status is draft and its not ready for review, and for some reason invalid pages is empty", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.DRAFT,
+      readyForReview: {
+        __typename: "NimbusReadyForReviewType",
+        ready: false,
+        message: {},
+      },
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith(
+        `${BASE_PATH}/${experiment.slug}/edit/overview?show-errors`,
+      );
+    });
+  });
+
+  it("redirects to the design page if the experiment status is live", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.LIVE,
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith(
+        `${BASE_PATH}/${experiment.slug}/design`,
+      );
+    });
+  });
+
+  it("redirects to the design page if the experiment status is complete", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.COMPLETE,
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith(
+        `${BASE_PATH}/${experiment.slug}/design`,
+      );
+    });
   });
 
   it("can submit for review", async () => {
@@ -145,26 +204,6 @@ describe("PageRequestReview", () => {
     render(<Subject mocks={[mock]} />);
     await waitFor(() =>
       expect(screen.getByTestId("in-review-label")).toBeInTheDocument(),
-    );
-  });
-
-  it("will not allow submitting if already accepted", async () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.ACCEPTED,
-    });
-    render(<Subject mocks={[mock]} />);
-    await waitFor(() =>
-      expect(screen.getByTestId("cant-review-label")).toBeInTheDocument(),
-    );
-  });
-
-  it("will not allow submitting if already complete", async () => {
-    const { mock } = mockExperimentQuery("demo-slug", {
-      status: NimbusExperimentStatus.COMPLETE,
-    });
-    render(<Subject mocks={[mock]} />);
-    await waitFor(() =>
-      expect(screen.getByTestId("cant-review-label")).toBeInTheDocument(),
     );
   });
 });

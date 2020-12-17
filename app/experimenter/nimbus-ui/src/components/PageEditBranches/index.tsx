@@ -14,6 +14,7 @@ import { UPDATE_EXPERIMENT_BRANCHES_MUTATION } from "../../gql/experiments";
 import { UpdateExperimentBranchesInput } from "../../types/globalTypes";
 import { updateExperimentBranches_updateExperimentBranches as UpdateExperimentBranchesResult } from "../../types/updateExperimentBranches";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import { editCommonRedirects } from "../../lib/experiment";
 
 // TODO: EXP-656 find this doco URL
 const BRANCHES_DOC_URL =
@@ -79,7 +80,11 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   }, []);
 
   return (
-    <AppLayoutWithExperiment title="Branches" testId="PageEditBranches">
+    <AppLayoutWithExperiment
+      title="Branches"
+      testId="PageEditBranches"
+      redirect={editCommonRedirects}
+    >
       {({ experiment, review }) => {
         currentExperiment.current = experiment;
         refetchReview.current = review.refetch;

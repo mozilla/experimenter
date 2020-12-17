@@ -66,6 +66,17 @@ const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = ({
       title="Review &amp; Launch"
       testId="PageRequestReview"
       {...{ polling }}
+      redirect={({ status, review }) => {
+        if (review && status.draft && !review.ready) {
+          // If the experiment is not ready to be reviewed, let's send them to
+          // the first page we know needs fixing up, with field errors displayed
+          return `edit/${review.invalidPages[0] || "overview"}?show-errors`;
+        }
+
+        if (status.released) {
+          return "design";
+        }
+      }}
     >
       {({ experiment }) => {
         currentExperiment.current = experiment;
@@ -74,14 +85,6 @@ const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = ({
         return (
           <>
             <Summary {...{ experiment }} />
-
-            {status.locked && (
-              <p className="my-5" data-testid="cant-review-label">
-                This experiment&apos;s status is{" "}
-                <b className="text-lowercase">{experiment.status}</b> and cannot
-                be reviewed.
-              </p>
-            )}
 
             {(submitSuccess || status.review) && (
               <p className="my-5" data-testid="in-review-label">
