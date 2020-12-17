@@ -8,14 +8,7 @@ import pluralize from "../../lib/pluralize";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NotSet } from "../Summary";
 import { getStatus, StatusCheck } from "../../lib/experiment";
-
-const humanDate = (date: string): string => {
-  return new Date(date).toLocaleString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-};
+import { humanDate } from "../../lib/dateUtils";
 
 const SummaryTimeline = ({
   experiment,
