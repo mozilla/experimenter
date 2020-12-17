@@ -6,18 +6,61 @@ import React from "react";
 import AppLayout from "../AppLayout";
 import { RouteComponentProps, Link } from "@reach/router";
 import Head from "../Head";
+import { useQuery } from "@apollo/client";
+import { getAllExperiments_experiments } from "../../types/getAllExperiments";
+import { GET_EXPERIMENTS_QUERY } from "../../gql/experiments";
+import PageLoading from "../PageLoading";
+import sortByStatus from "./sortByStatus";
+import DirectoryTable, {
+  DirectoryLiveTable,
+  DirectoryCompleteTable,
+  DirectoryDraftsTable,
+} from "../DirectoryTable";
 
 type PageHomeProps = {} & RouteComponentProps;
 
-const PageHome: React.FunctionComponent<PageHomeProps> = () => (
-  <AppLayout testid="PageHome">
-    <Head title="Experiments" />
+export const Body = () => {
+  const { data, loading } = useQuery<{
+    experiments: getAllExperiments_experiments[];
+  }>(GET_EXPERIMENTS_QUERY);
 
-    <h1>Home</h1>
-    <Link to="new" data-sb-kind="pages/New">
-      New experiment
-    </Link>
-  </AppLayout>
-);
+  if (loading) {
+    return <PageLoading />;
+  }
+
+  if (!data) {
+    return <div>No experiments found.</div>;
+  }
+
+  const { live, complete, review, draft } = sortByStatus(data.experiments);
+  return (
+    <>
+      <DirectoryLiveTable title="Live Experiments" experiments={live} />
+      <DirectoryCompleteTable title="Completed" experiments={complete} />
+      <DirectoryTable title="In Review" experiments={review} />
+      <DirectoryDraftsTable title="Drafts" experiments={draft} />
+    </>
+  );
+};
+
+const PageHome: React.FunctionComponent<PageHomeProps> = () => {
+  return (
+    <AppLayout testid="PageHome">
+      <Head title="Experiments" />
+
+      <h2 className="mb-4">
+        Nimbus Experiments{" "}
+        <Link
+          to="new"
+          data-sb-kind="pages/New"
+          className="btn btn-primary btn-small ml-2"
+        >
+          New experiment
+        </Link>
+      </h2>
+      <Body />
+    </AppLayout>
+  );
+};
 
 export default PageHome;

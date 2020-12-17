@@ -4,9 +4,40 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
+import { RouterSlugProvider } from "../../lib/test-utils";
 import { withLinks } from "@storybook/addon-links";
+import { mockDirectoryExperimentsQuery, MockedCache } from "../../lib/mocks";
 import PageHome from ".";
+import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 storiesOf("pages/Home", module)
   .addDecorator(withLinks)
-  .add("basic", () => <PageHome />);
+  .add("basic", () => (
+    <RouterSlugProvider mocks={[mockDirectoryExperimentsQuery()]}>
+      <PageHome />
+    </RouterSlugProvider>
+  ))
+  .add("loading", () => (
+    <RouterSlugProvider mocks={[]}>
+      <PageHome />
+    </RouterSlugProvider>
+  ))
+  .add("no experiments", () => (
+    <MockedCache mocks={[mockDirectoryExperimentsQuery([])]}>
+      <PageHome />
+    </MockedCache>
+  ))
+  .add("only drafts", () => (
+    <MockedCache
+      mocks={[
+        mockDirectoryExperimentsQuery([
+          { status: NimbusExperimentStatus.DRAFT },
+          { status: NimbusExperimentStatus.DRAFT },
+          { status: NimbusExperimentStatus.DRAFT },
+          { status: NimbusExperimentStatus.DRAFT },
+        ]),
+      ]}
+    >
+      <PageHome />
+    </MockedCache>
+  ));
