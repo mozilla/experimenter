@@ -2,7 +2,10 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from experimenter.base.serializers import CountrySerializer, LocaleSerializer
-from experimenter.experiments.api.v1.serializers import ExperimentVariantSerializer
+from experimenter.experiments.api.v1.serializers import (
+    ExperimentVariantSerializer,
+    ExperimentRolloutPreferenceSerializer,
+)
 from experimenter.experiments.email import send_experiment_change_email
 from experimenter.experiments.models import Experiment, ExperimentChangeLog
 from experimenter.projects.serializers import ProjectSerializer
@@ -31,6 +34,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
     locales = LocaleSerializer(many=True, required=False)
     countries = CountrySerializer(many=True, required=False)
     projects = ProjectSerializer(many=True, required=False)
+    preferences = ExperimentRolloutPreferenceSerializer(many=True, required=False)
 
     class Meta:
         model = Experiment
@@ -129,6 +133,7 @@ class ChangeLogSerializer(serializers.ModelSerializer):
             "rollout_playbook",
             "message_type",
             "message_template",
+            "preferences",
         )
 
 

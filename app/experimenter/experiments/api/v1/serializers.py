@@ -8,6 +8,7 @@ from experimenter.experiments.models import (
     ExperimentChangeLog,
     ExperimentVariant,
     VariantPreferences,
+    RolloutPreference,
 )
 from experimenter.projects.models import Project
 
@@ -33,10 +34,16 @@ class PrefTypeField(serializers.Field):
             return obj
 
 
-class ExperimentPreferenceSerializer(serializers.ModelSerializer):
+class ExperimentVariantPreferenceSerializer(serializers.ModelSerializer):
     class Meta:
         model = VariantPreferences
         fields = ("pref_name", "pref_type", "pref_branch", "pref_value")
+
+
+class ExperimentRolloutPreferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RolloutPreference
+        fields = ("pref_name", "pref_type", "pref_value")
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -46,7 +53,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ExperimentVariantSerializer(serializers.ModelSerializer):
-    preferences = ExperimentPreferenceSerializer(many=True, required=False)
+    preferences = ExperimentVariantPreferenceSerializer(many=True, required=False)
 
     class Meta:
         model = ExperimentVariant

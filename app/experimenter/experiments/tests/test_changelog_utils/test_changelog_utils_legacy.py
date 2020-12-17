@@ -149,10 +149,18 @@ class TestChangeLogSerializer(TestCase):
             "rollout_type": experiment.rollout_type,
             "message_type": experiment.message_type,
             "message_template": experiment.message_template,
+            "preferences": [
+                {
+                    "pref_name": preference.pref_name,
+                    "pref_type": preference.pref_type,
+                    "pref_value": preference.pref_value,
+                }
+                for preference in experiment.preferences.all()
+            ],
         }
 
         self.assertEqual(set(serializer.data.keys()), set(expected_data.keys()))
-
+        self.maxDiff = None
         self.assertEqual(serializer.data, expected_data)
 
 
