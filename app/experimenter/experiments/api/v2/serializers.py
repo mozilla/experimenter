@@ -229,7 +229,7 @@ class ExperimentDesignBaseSerializer(
 
         return unique_names and non_empty
 
-    def update(self, instance, validated_data):
+    def update_instance(self, instance, validated_data):
         try:
             with transaction.atomic():
                 variants_data = validated_data.pop("variants", [])
@@ -254,8 +254,6 @@ class ExperimentDesignBaseSerializer(
                 if removed_ids:
                     ExperimentVariant.objects.filter(id__in=removed_ids).delete()
 
-            self.update_changelog(instance, validated_data)
-
             return instance
         except IntegrityError:
             error_string = (
@@ -264,6 +262,11 @@ class ExperimentDesignBaseSerializer(
             error = [{"name": error_string}] * len(variants_data)
 
             raise serializers.ValidationError({"variants": error})
+
+    def update(self, instance, validated_data):
+        instance = self.update_instance(instance, validated_data)
+        self.update_changelog(instance, validated_data)
+        return instance
 
 
 class ExperimentDesignRolloutPreferenceSerializer(
@@ -309,8 +312,10 @@ class ExperimentDesignPrefRolloutSerializer(
         return data
 
     def update(self, instance, validated_data):
+        validated_data_copy = validated_data.copy()
         preferences_data = validated_data.pop("preferences", [])
-        instance = super().update(instance, validated_data)
+
+        instance = super().update_instance(instance, validated_data)
 
         if preferences_data:
             existing_preference_ids = set(
@@ -332,6 +337,7 @@ class ExperimentDesignPrefRolloutSerializer(
             if removed_ids:
                 RolloutPreference.objects.filter(id__in=removed_ids).delete()
 
+        self.update_changelog(instance, validated_data_copy)
         return instance
 
 
@@ -357,7 +363,7 @@ class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
             (v_d, v_d.pop("preferences")) for v_d in validated_data["variants"]
         ]
 
-        instance = super().update(instance, validated_data)
+        instance = super().update_instance(instance, validated_data)
         existing_pref_ids = list(
             instance.variants.all().values_list("preferences__id", flat=True)
         )
@@ -378,6 +384,7 @@ class ExperimentDesignMultiPrefSerializer(ExperimentDesignBaseSerializer):
         if removed_ids:
             VariantPreferences.objects.filter(id__in=removed_ids).delete()
 
+        self.update_changelog(instance, validated_data)
         return instance
 
 
