@@ -11,32 +11,75 @@ import {
   act,
 } from "@testing-library/react";
 import { navigate } from "@reach/router";
+import fetchMock from "jest-fetch-mock";
 import PageEditBranches, { SUBMIT_ERROR_MESSAGE } from ".";
 import FormBranches from "../FormBranches";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { UPDATE_EXPERIMENT_BRANCHES_MUTATION } from "../../gql/experiments";
-import {
-  updateExperimentBranches_updateExperimentBranches,
-  updateExperimentBranches_updateExperimentBranches_nimbusExperiment,
-} from "../../types/updateExperimentBranches";
-import {
-  FormBranchesSaveState,
-  extractUpdateBranch,
-} from "../FormBranches/reducer/update";
+import { BASE_PATH } from "../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
+  NimbusExperimentStatus,
   NimbusFeatureConfigApplication,
   UpdateExperimentBranchesInput,
 } from "../../types/globalTypes";
+import {
+  updateExperimentBranches_updateExperimentBranches_nimbusExperiment,
+  updateExperimentBranches_updateExperimentBranches,
+} from "../../types/updateExperimentBranches";
+import { FormBranchesSaveState } from "../FormBranches/reducer";
+import { extractUpdateBranch } from "../FormBranches/reducer/update";
 
 describe("PageEditBranches", () => {
+  beforeAll(() => {
+    fetchMock.enableMocks();
+  });
+
+  afterAll(() => {
+    fetchMock.disableMocks();
+  });
+
   beforeEach(() => {
     mockSetSubmitErrors.mockClear();
     mockClearSubmitErrors.mockClear();
   });
 
-  afterEach(() => {});
+  it("redirects to the review page if the experiment status is review", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.REVIEW,
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith(
+        `${BASE_PATH}/${experiment.slug}/request-review`,
+      );
+    });
+  });
+
+  it("redirects to the design page if the experiment status is live", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.LIVE,
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith(
+        `${BASE_PATH}/${experiment.slug}/design`,
+      );
+    });
+  });
+
+  it("redirects to the design page if the experiment status is complete", async () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.COMPLETE,
+    });
+    render(<Subject mocks={[mock]} />);
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith(
+        `${BASE_PATH}/${experiment.slug}/design`,
+      );
+    });
+  });
 
   it("renders as expected with experiment data", async () => {
     const { mock } = mockExperimentQuery("demo-slug");

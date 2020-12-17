@@ -12,6 +12,7 @@ import { UPDATE_EXPERIMENT_AUDIENCE_MUTATION } from "../../gql/experiments";
 import { SUBMIT_ERROR } from "../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import FormAudience from "../FormAudience";
+import { editCommonRedirects } from "../../lib/experiment";
 
 const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
   const [updateExperimentAudience, { loading }] = useMutation<
@@ -76,7 +77,11 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
   }, []);
 
   return (
-    <AppLayoutWithExperiment title="Audience" testId="PageEditAudience">
+    <AppLayoutWithExperiment
+      title="Audience"
+      testId="PageEditAudience"
+      redirect={editCommonRedirects}
+    >
       {({ experiment, review }) => {
         currentExperiment.current = experiment;
         refetchReview.current = review.refetch;

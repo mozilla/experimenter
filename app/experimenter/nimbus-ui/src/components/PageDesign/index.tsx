@@ -12,6 +12,11 @@ const PageDesign: React.FunctionComponent<RouteComponentProps> = () => {
       title="Design"
       testId="PageDesign"
       analysisRequired
+      redirect={({ status }) => {
+        if (!status?.locked) {
+          return "edit/overview";
+        }
+      }}
     >
       {({ experiment }) => <p>{experiment.name}</p>}
     </AppLayoutWithExperiment>

@@ -12,6 +12,7 @@ import { SUBMIT_ERROR } from "../../lib/constants";
 import { UpdateExperimentInput } from "../../types/globalTypes";
 import { updateExperimentOverview_updateExperimentOverview as UpdateExperimentOverviewResult } from "../../types/updateExperimentOverview";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import { editCommonRedirects } from "../../lib/experiment";
 
 type PageEditOverviewProps = {} & RouteComponentProps;
 
@@ -67,7 +68,11 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
   }, []);
 
   return (
-    <AppLayoutWithExperiment title="Overview" testId="PageEditOverview">
+    <AppLayoutWithExperiment
+      title="Overview"
+      testId="PageEditOverview"
+      redirect={editCommonRedirects}
+    >
       {({ experiment, review }) => {
         currentExperiment.current = experiment;
         refetchReview.current = review.refetch;
