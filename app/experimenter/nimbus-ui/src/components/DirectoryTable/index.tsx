@@ -17,10 +17,12 @@ import { NotSet } from "../Summary";
 // These are all render functions for column type sin the table.
 export type ColumnComponent = React.FC<getAllExperiments_experiments>;
 
-export const DirectoryColumnTitle: ColumnComponent = ({ slug, name }) => {
+export const DirectoryColumnTitle: React.FC<
+  getAllExperiments_experiments & { subPath?: string; sbLink?: string }
+> = ({ slug, name, subPath = "", sbLink = "pages/Summary" }) => {
   return (
     <td className="w-33">
-      <Link to={slug} data-sb-kind="pages/Summary">
+      <Link to={slug + subPath} data-sb-kind={sbLink}>
         {name}
       </Link>
       <br />
@@ -65,16 +67,12 @@ interface DirectoryTableProps {
 const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
   title,
   experiments,
-  columns: customColumns = [],
+  columns: customColumns,
 }) => {
-  const columns = [
-    // All directory views start with these three columns...
+  const columns = customColumns || [
     { label: title, component: DirectoryColumnTitle },
     { label: "Owner", component: DirectoryColumnOwner },
     { label: "Feature", component: DirectoryColumnFeature },
-
-    // And add any additional ones.
-    ...customColumns,
   ];
   return (
     <div className="directory-table pb-4" data-testid="DirectoryTable">
@@ -110,6 +108,9 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
   <DirectoryTable
     {...props}
     columns={[
+      { label: props.title, component: DirectoryColumnTitle },
+      { label: "Owner", component: DirectoryColumnOwner },
+      { label: "Feature", component: DirectoryColumnFeature },
       {
         label: "Enrolling",
         component: (experiment) => (
@@ -145,6 +146,9 @@ export const DirectoryCompleteTable: React.FC<DirectoryTableProps> = (
   <DirectoryTable
     {...props}
     columns={[
+      { label: props.title, component: DirectoryColumnTitle },
+      { label: "Owner", component: DirectoryColumnOwner },
+      { label: "Feature", component: DirectoryColumnFeature },
       {
         label: "Started",
         component: ({ startDate: d }) => <td>{d && humanDate(d)}</td>,
@@ -163,6 +167,26 @@ export const DirectoryCompleteTable: React.FC<DirectoryTableProps> = (
           </td>
         ),
       },
+    ]}
+  />
+);
+
+export const DirectoryDraftsTable: React.FC<DirectoryTableProps> = (props) => (
+  <DirectoryTable
+    {...props}
+    columns={[
+      {
+        label: props.title,
+        component: (experiment) => (
+          <DirectoryColumnTitle
+            {...experiment}
+            subPath="/edit"
+            sbLink="pages/EditOverview"
+          />
+        ),
+      },
+      { label: "Owner", component: DirectoryColumnOwner },
+      { label: "Feature", component: DirectoryColumnFeature },
     ]}
   />
 );

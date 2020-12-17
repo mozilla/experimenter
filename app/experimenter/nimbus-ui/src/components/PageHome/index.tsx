@@ -14,6 +14,7 @@ import sortByStatus from "./sortByStatus";
 import DirectoryTable, {
   DirectoryLiveTable,
   DirectoryCompleteTable,
+  DirectoryDraftsTable,
 } from "../DirectoryTable";
 
 type PageHomeProps = {} & RouteComponentProps;
@@ -37,7 +38,7 @@ export const Body = () => {
       <DirectoryLiveTable title="Live Experiments" experiments={live} />
       <DirectoryCompleteTable title="Completed" experiments={complete} />
       <DirectoryTable title="In Review" experiments={review} />
-      <DirectoryTable title="Drafts" experiments={draft} />
+      <DirectoryDraftsTable title="Drafts" experiments={draft} />
     </>
   );
 };

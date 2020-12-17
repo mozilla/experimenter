@@ -6,7 +6,11 @@ import React from "react";
 import { storiesOf } from "@storybook/react";
 import { withLinks } from "@storybook/addon-links";
 import { mockDirectoryExperimentsFactory } from "../../lib/mocks";
-import DirectoryTable, { DirectoryCompleteTable, DirectoryLiveTable } from ".";
+import DirectoryTable, {
+  DirectoryCompleteTable,
+  DirectoryDraftsTable,
+  DirectoryLiveTable,
+} from ".";
 
 storiesOf("components/DirectoryTable", module)
   .addDecorator(withLinks)
@@ -29,6 +33,14 @@ storiesOf("components/DirectoryTable", module)
   .add("complete", () => {
     return (
       <DirectoryCompleteTable
+        title="Mocked Experiments"
+        experiments={mockDirectoryExperimentsFactory()}
+      />
+    );
+  })
+  .add("drafts", () => {
+    return (
+      <DirectoryDraftsTable
         title="Mocked Experiments"
         experiments={mockDirectoryExperimentsFactory()}
       />
