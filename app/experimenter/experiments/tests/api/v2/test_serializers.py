@@ -29,7 +29,6 @@ from experimenter.experiments.api.v2.serializers import (
 from experimenter.experiments.constants import ExperimentConstants
 from experimenter.experiments.models import (
     Experiment,
-    ExperimentChangeLog,
     ExperimentVariant,
     RolloutPreference,
 )
@@ -38,7 +37,6 @@ from experimenter.experiments.tests.factories import (
     ExperimentVariantFactory,
     VariantPreferencesFactory,
 )
-from experimenter.openidc.tests.factories import UserFactory
 from experimenter.projects.tests.factories import ProjectFactory
 
 
@@ -1425,70 +1423,75 @@ class TestChangeLogSerializerMixin(MockRequestMixin, TestCase):
 
     def test_update_change_log_creates_log_with_correct_change(self):
 
-        experiment = ExperimentFactory.create()
-        variant = ExperimentVariantFactory.create(
-            experiment=experiment,
-            ratio=100,
-            description="it's a description",
-            name="variant name",
-        )
-
-        variant_data = {
-            "ratio": 100,
-            "description": variant.description,
-            "name": variant.name,
-        }
-        changed_values = {
-            "variants": {
-                "new_value": {"variants": [variant_data]},
-                "old_value": None,
-                "display_name": "Branches",
-            }
-        }
-        ExperimentChangeLog.objects.create(
-            experiment=experiment,
-            changed_by=UserFactory(),
-            old_status=Experiment.STATUS_DRAFT,
-            new_status=Experiment.STATUS_DRAFT,
-            changed_values=changed_values,
-            message="",
+        experiment = ExperimentFactory.create_with_status(
+            target_status=Experiment.STATUS_DRAFT,
+            num_variants=0,
+            type=Experiment.TYPE_PREF,
         )
 
         self.assertEqual(experiment.changes.count(), 1)
 
         change_data = {
+            "is_multi_pref": True,
             "variants": [
                 {
-                    "id": variant.id,
                     "ratio": 100,
-                    "description": "some other description",
-                    "name": "some other name",
-                    "is_control": False,
+                    "description": "the description",
+                    "name": "a name",
+                    "is_control": True,
+                    "preferences": [
+                        {
+                            "pref_type": "string",
+                            "pref_name": "the pref name",
+                            "pref_branch": "default",
+                            "pref_value": "the pref value",
+                        }
+                    ],
                 }
-            ]
+            ],
         }
-        serializer = ExperimentDesignBaseSerializer(
+
+        serializer = ExperimentDesignMultiPrefSerializer(
             instance=experiment, data=change_data, context={"request": self.request}
         )
 
         self.assertTrue(serializer.is_valid())
         experiment = serializer.save()
 
-        serializer_variant_data = ExperimentVariantSerializer(variant).data
-
         self.assertEqual(experiment.changes.count(), 2)
+
+        expected_changed_values = {
+            "variants": {
+                "display_name": "Branches",
+                "new_value": [
+                    {
+                        "addon_release_url": None,
+                        "description": "the description",
+                        "is_control": True,
+                        "message_targeting": None,
+                        "message_threshold": None,
+                        "message_triggers": None,
+                        "name": "a name",
+                        "preferences": [
+                            {
+                                "pref_branch": "default",
+                                "pref_name": "the pref name",
+                                "pref_type": "string",
+                                "pref_value": "the pref value",
+                            }
+                        ],
+                        "ratio": 100,
+                        "slug": "a-name",
+                        "value": None,
+                    }
+                ],
+                "old_value": [],
+            }
+        }
+
         changed_values = experiment.changes.latest().changed_values
 
-        variant = ExperimentVariant.objects.get(id=variant.id)
-        changed_serializer_variant_data = ExperimentVariantSerializer(variant).data
-
-        self.assertIn("variants", changed_values)
-        self.assertEqual(
-            changed_values["variants"]["old_value"], [serializer_variant_data]
-        )
-        self.assertEqual(
-            changed_values["variants"]["new_value"], [changed_serializer_variant_data]
-        )
+        self.assertEqual(changed_values, expected_changed_values)
 
 
 class TestPrefValidationMixin(TestCase):
