@@ -5,7 +5,7 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
 import { withLinks } from "@storybook/addon-links";
-import { mockDirectoryExperimentsFactory } from "../../lib/mocks";
+import { mockDirectoryExperiments } from "../../lib/mocks";
 import DirectoryTable, {
   DirectoryCompleteTable,
   DirectoryDraftsTable,
@@ -18,7 +18,7 @@ storiesOf("components/DirectoryTable", module)
     return (
       <DirectoryTable
         title="Mocked Experiments"
-        experiments={mockDirectoryExperimentsFactory()}
+        experiments={mockDirectoryExperiments()}
       />
     );
   })
@@ -26,7 +26,7 @@ storiesOf("components/DirectoryTable", module)
     return (
       <DirectoryLiveTable
         title="Mocked Experiments"
-        experiments={mockDirectoryExperimentsFactory()}
+        experiments={mockDirectoryExperiments()}
       />
     );
   })
@@ -34,7 +34,7 @@ storiesOf("components/DirectoryTable", module)
     return (
       <DirectoryCompleteTable
         title="Mocked Experiments"
-        experiments={mockDirectoryExperimentsFactory()}
+        experiments={mockDirectoryExperiments()}
       />
     );
   })
@@ -42,7 +42,7 @@ storiesOf("components/DirectoryTable", module)
     return (
       <DirectoryDraftsTable
         title="Mocked Experiments"
-        experiments={mockDirectoryExperimentsFactory()}
+        experiments={mockDirectoryExperiments()}
       />
     );
   })
@@ -50,7 +50,7 @@ storiesOf("components/DirectoryTable", module)
     return (
       <DirectoryTable
         title="Mocked Experiments"
-        experiments={mockDirectoryExperimentsFactory()}
+        experiments={mockDirectoryExperiments()}
         columns={[
           {
             label: "Testing column",
@@ -64,7 +64,7 @@ storiesOf("components/DirectoryTable", module)
     return (
       <DirectoryTable
         title="Mocked Experiments"
-        experiments={mockDirectoryExperimentsFactory([{ owner: null }])}
+        experiments={mockDirectoryExperiments([{ owner: null }])}
       />
     );
   })
@@ -72,7 +72,7 @@ storiesOf("components/DirectoryTable", module)
     return (
       <DirectoryTable
         title="Mocked Experiments"
-        experiments={mockDirectoryExperimentsFactory([{ featureConfig: null }])}
+        experiments={mockDirectoryExperiments([{ featureConfig: null }])}
       />
     );
   });

@@ -16,7 +16,10 @@ import { MockLink, MockedResponse } from "@apollo/client/testing";
 import { equal } from "@wry/equality";
 import { DocumentNode, print } from "graphql";
 import { cacheConfig } from "../services/apollo";
-import { GET_ALL_EXPERIMENTS, GET_EXPERIMENT_QUERY } from "../gql/experiments";
+import {
+  GET_EXPERIMENTS_QUERY,
+  GET_EXPERIMENT_QUERY,
+} from "../gql/experiments";
 import {
   getExperiment,
   getExperiment_experimentBySlug,
@@ -410,7 +413,7 @@ const fiveDaysAgo = new Date();
 fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
 
 /** Creates a single mock experiment suitable for getAllExperiments queries.  */
-export function mockSingleDirectoryExperimentFactory(
+export function mockSingleDirectoryExperiment(
   overrides: Partial<getAllExperiments_experiments> = {},
 ): getAllExperiments_experiments {
   return {
@@ -437,7 +440,7 @@ export function mockSingleDirectoryExperimentFactory(
   };
 }
 
-export function mockDirectoryExperimentsFactory(
+export function mockDirectoryExperiments(
   overrides: Partial<getAllExperiments_experiments>[] = [
     {
       status: NimbusExperimentStatus.DRAFT,
@@ -471,17 +474,17 @@ export function mockDirectoryExperimentsFactory(
     },
   ],
 ): getAllExperiments_experiments[] {
-  return overrides.map(mockSingleDirectoryExperimentFactory);
+  return overrides.map(mockSingleDirectoryExperiment);
 }
 
 /** Creates a bunch of experiments for the Directory page  */
 export function mockDirectoryExperimentsQuery(
   overrides?: Partial<getAllExperiments_experiments>[],
 ): MockedResponse<getAllExperiments> {
-  const experiments = mockDirectoryExperimentsFactory(overrides);
+  const experiments = mockDirectoryExperiments(overrides);
   return {
     request: {
-      query: GET_ALL_EXPERIMENTS,
+      query: GET_EXPERIMENTS_QUERY,
     },
     result: {
       data: experiments.length ? { experiments } : null,

@@ -4,7 +4,6 @@
 
 import React from "react";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
-import "./index.scss";
 import { Link } from "@reach/router";
 import LinkExternal from "../LinkExternal";
 import {
@@ -79,8 +78,15 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
       <table className="table">
         <thead>
           <tr>
-            {columns.map(({ label }) => (
-              <th key={label}>{label}</th>
+            {columns.map(({ label }, i) => (
+              <th
+                className={`border-top-0 ${
+                  i === 0 ? "font-weight-bold" : "font-weight-normal"
+                }`}
+                key={label}
+              >
+                {label}
+              </th>
             ))}
           </tr>
         </thead>

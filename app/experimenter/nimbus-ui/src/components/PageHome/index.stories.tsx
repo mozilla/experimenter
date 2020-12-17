@@ -12,40 +12,32 @@ import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 storiesOf("pages/Home", module)
   .addDecorator(withLinks)
-  .add("basic", () => {
-    return (
-      <RouterSlugProvider mocks={[mockDirectoryExperimentsQuery()]}>
-        <PageHome />
-      </RouterSlugProvider>
-    );
-  })
-  .add("loading", () => {
-    return (
-      <RouterSlugProvider mocks={[]}>
-        <PageHome />
-      </RouterSlugProvider>
-    );
-  })
-  .add("no experiments", () => {
-    return (
-      <MockedCache mocks={[mockDirectoryExperimentsQuery([])]}>
-        <PageHome />
-      </MockedCache>
-    );
-  })
-  .add("only drafts", () => {
-    return (
-      <MockedCache
-        mocks={[
-          mockDirectoryExperimentsQuery([
-            { status: NimbusExperimentStatus.DRAFT },
-            { status: NimbusExperimentStatus.DRAFT },
-            { status: NimbusExperimentStatus.DRAFT },
-            { status: NimbusExperimentStatus.DRAFT },
-          ]),
-        ]}
-      >
-        <PageHome />
-      </MockedCache>
-    );
-  });
+  .add("basic", () => (
+    <RouterSlugProvider mocks={[mockDirectoryExperimentsQuery()]}>
+      <PageHome />
+    </RouterSlugProvider>
+  ))
+  .add("loading", () => (
+    <RouterSlugProvider mocks={[]}>
+      <PageHome />
+    </RouterSlugProvider>
+  ))
+  .add("no experiments", () => (
+    <MockedCache mocks={[mockDirectoryExperimentsQuery([])]}>
+      <PageHome />
+    </MockedCache>
+  ))
+  .add("only drafts", () => (
+    <MockedCache
+      mocks={[
+        mockDirectoryExperimentsQuery([
+          { status: NimbusExperimentStatus.DRAFT },
+          { status: NimbusExperimentStatus.DRAFT },
+          { status: NimbusExperimentStatus.DRAFT },
+          { status: NimbusExperimentStatus.DRAFT },
+        ]),
+      ]}
+    >
+      <PageHome />
+    </MockedCache>
+  ));

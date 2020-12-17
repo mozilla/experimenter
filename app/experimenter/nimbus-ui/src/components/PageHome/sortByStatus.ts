@@ -5,12 +5,10 @@
 import { getStatus } from "../../lib/experiment";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
 
-export interface ExperimentCollector {
-  draft: getAllExperiments_experiments[];
-  review: getAllExperiments_experiments[];
-  live: getAllExperiments_experiments[];
-  complete: getAllExperiments_experiments[];
-}
+export type ExperimentCollector = Record<
+  "draft" | "review" | "live" | "complete",
+  getAllExperiments_experiments[]
+>;
 
 function sortByStatus(experiments: getAllExperiments_experiments[] = []) {
   return experiments.reduce<ExperimentCollector>(
@@ -20,7 +18,7 @@ function sortByStatus(experiments: getAllExperiments_experiments[] = []) {
         collector.live.push(experiment);
       } else if (status.complete) {
         collector.complete.push(experiment);
-      } else if (status.review) {
+      } else if (status.review || status.accepted) {
         collector.review.push(experiment);
       } else {
         collector.draft.push(experiment);

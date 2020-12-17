@@ -191,8 +191,8 @@ export const GET_EXPERIMENT_QUERY = gql`
   }
 `;
 
-// TODO: Only the first 15 until we add pagination.
-export const GET_ALL_EXPERIMENTS = gql`
+// TODO: Only the first 50 until we add pagination.
+export const GET_EXPERIMENTS_QUERY = gql`
   query getAllExperiments {
     experiments(limit: 50) {
       name

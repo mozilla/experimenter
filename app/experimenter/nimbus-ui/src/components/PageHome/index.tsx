@@ -8,7 +8,7 @@ import { RouteComponentProps, Link } from "@reach/router";
 import Head from "../Head";
 import { useQuery } from "@apollo/client";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
-import { GET_ALL_EXPERIMENTS } from "../../gql/experiments";
+import { GET_EXPERIMENTS_QUERY } from "../../gql/experiments";
 import PageLoading from "../PageLoading";
 import sortByStatus from "./sortByStatus";
 import DirectoryTable, {
@@ -22,7 +22,7 @@ type PageHomeProps = {} & RouteComponentProps;
 export const Body = () => {
   const { data, loading } = useQuery<{
     experiments: getAllExperiments_experiments[];
-  }>(GET_ALL_EXPERIMENTS);
+  }>(GET_EXPERIMENTS_QUERY);
 
   if (loading) {
     return <PageLoading />;
