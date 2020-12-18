@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from "react";
-import { useForm, RegisterOptions, FieldError } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import InputGroup from "react-bootstrap/InputGroup";
@@ -14,25 +13,42 @@ import { useConfig } from "../../hooks/useConfig";
 
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { getConfig_nimbusConfig_channel } from "../../types/getConfig";
+import { useCommonForm } from "../../hooks";
 
 export const AUDIENCE_DOC_URL =
   "https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=109990007";
 
-export const FormAudience = ({
-  experiment,
-  submitErrors,
-  isMissingField,
-  isLoading,
-  onSubmit,
-  onNext,
-}: {
+type FormAudienceProps = {
   experiment: getExperiment_experimentBySlug;
   submitErrors: Record<string, string[]>;
+  setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   isMissingField: (fieldName: string) => boolean;
+  isServerValid: boolean;
   isLoading: boolean;
   onSubmit: (data: Record<string, any>, reset: Function) => void;
   onNext?: (ev: React.FormEvent) => void;
-}) => {
+};
+
+export const audienceFieldNames = [
+  "channel",
+  "firefoxMinVersion",
+  "targetingConfigSlug",
+  "populationPercent",
+  "totalEnrolledClients",
+  "proposedEnrollment",
+  "proposedDuration",
+] as const;
+
+export const FormAudience = ({
+  experiment,
+  submitErrors,
+  setSubmitErrors,
+  isMissingField,
+  isServerValid,
+  isLoading,
+  onSubmit,
+  onNext,
+}: FormAudienceProps) => {
   const config = useConfig();
 
   // This could be improved on the GraphQL side, but right now in order
@@ -62,18 +78,20 @@ export const FormAudience = ({
   };
 
   const {
+    FormErrors,
+    formControlAttrs,
+    isValid,
     handleSubmit,
-    register,
     reset,
-    errors,
-    formState: { isValid, isSubmitted, touched },
-  } = useForm({
-    mode: "onTouched",
+    isSubmitted,
+  } = useCommonForm<typeof audienceFieldNames[number]>(
     defaultValues,
-  });
+    isServerValid,
+    submitErrors,
+    setSubmitErrors,
+  );
 
   type DefaultValues = typeof defaultValues;
-  type DefaultValuesKey = keyof DefaultValues;
 
   const handleSubmitAfterValidation = useCallback(
     (dataIn: DefaultValues) => {
@@ -89,39 +107,6 @@ export const FormAudience = ({
       onNext!(ev);
     },
     [onNext],
-  );
-
-  const fieldValidity = <K extends DefaultValuesKey>(name: K) => ({
-    isInvalid: Boolean(submitErrors[name] || (touched[name] && errors[name])),
-    isValid: Boolean(!submitErrors[name] && touched[name] && !errors[name]),
-  });
-
-  const formControlCommon = <K extends DefaultValuesKey>(
-    name: K,
-    registerOptions: RegisterOptions = {
-      required: "This field may not be blank.",
-    },
-  ) => ({
-    name,
-    "data-testid": name,
-    ref: register(registerOptions),
-    defaultValue: defaultValues[name],
-    ...fieldValidity(name),
-  });
-
-  const FormErrors = <K extends DefaultValuesKey>({ name }: { name: K }) => (
-    <>
-      {errors[name] && (
-        <Form.Control.Feedback type="invalid" data-for={name}>
-          {(errors[name] as FieldError).message}
-        </Form.Control.Feedback>
-      )}
-      {submitErrors[name] && (
-        <Form.Control.Feedback type="invalid" data-for={name}>
-          {submitErrors[name]}
-        </Form.Control.Feedback>
-      )}
-    </>
   );
 
   const isNextDisabled = isLoading || !experiment?.readyForReview?.ready;
@@ -151,7 +136,7 @@ export const FormAudience = ({
                 />
               )}
             </Form.Label>
-            <Form.Control {...formControlCommon("channel")} as="select">
+            <Form.Control {...formControlAttrs("channel")} as="select">
               <SelectOptions options={channelOptions!} />
             </Form.Control>
             <FormErrors name="channel" />
@@ -167,7 +152,7 @@ export const FormAudience = ({
               )}
             </Form.Label>
             <Form.Control
-              {...formControlCommon("firefoxMinVersion")}
+              {...formControlAttrs("firefoxMinVersion")}
               as="select"
             >
               <SelectOptions options={config.firefoxMinVersion} />
@@ -187,7 +172,7 @@ export const FormAudience = ({
               )}
             </Form.Label>
             <Form.Control
-              {...formControlCommon("targetingConfigSlug")}
+              {...formControlAttrs("targetingConfigSlug")}
               as="select"
             >
               <SelectOptions options={config.targetingConfigSlug} />
@@ -210,7 +195,7 @@ export const FormAudience = ({
             <Form.Label>Percent of clients</Form.Label>
             <InputGroup>
               <Form.Control
-                {...formControlCommon("populationPercent")}
+                {...formControlAttrs("populationPercent")}
                 aria-describedby="populationPercent-unit"
                 type="number"
                 min="0"
@@ -231,7 +216,7 @@ export const FormAudience = ({
           >
             <Form.Label>Expected number of clients</Form.Label>
             <Form.Control
-              {...formControlCommon("totalEnrolledClients")}
+              {...formControlAttrs("totalEnrolledClients")}
               type="number"
               min="0"
             />
@@ -252,7 +237,7 @@ export const FormAudience = ({
             </Form.Label>
             <InputGroup>
               <Form.Control
-                {...formControlCommon("proposedEnrollment")}
+                {...formControlAttrs("proposedEnrollment")}
                 type="number"
                 min="0"
                 aria-describedby="proposedEnrollment-unit"
@@ -278,7 +263,7 @@ export const FormAudience = ({
             </Form.Label>
             <InputGroup className="mb-3">
               <Form.Control
-                {...formControlCommon("proposedDuration")}
+                {...formControlAttrs("proposedDuration")}
                 type="number"
                 min="0"
                 aria-describedby="proposedDuration-unit"

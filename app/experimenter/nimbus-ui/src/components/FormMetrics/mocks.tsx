@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import React, { useState } from "react";
 import FormMetrics from ".";
-import { MockedCache, mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
+import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
 
 export const Subject = ({
   isLoading = false,
@@ -13,19 +13,23 @@ export const Subject = ({
   onSave = () => {},
   onNext = () => {},
   experiment = mockExperimentQuery("boo").experiment,
-  probeSets = MOCK_CONFIG.probeSets,
-}: Partial<React.ComponentProps<typeof FormMetrics>>) => (
-  <MockedCache>
-    <FormMetrics
-      {...{
-        isLoading,
-        isServerValid,
-        submitErrors,
-        onSave,
-        onNext,
-        experiment,
-        probeSets,
-      }}
-    />
-  </MockedCache>
-);
+}: Partial<React.ComponentProps<typeof FormMetrics>>) => {
+  const [submitErrorsDefault, setSubmitErrors] = useState<Record<string, any>>(
+    submitErrors,
+  );
+  return (
+    <MockedCache>
+      <FormMetrics
+        submitErrors={submitErrorsDefault}
+        {...{
+          isLoading,
+          isServerValid,
+          setSubmitErrors,
+          onSave,
+          onNext,
+          experiment,
+        }}
+      />
+    </MockedCache>
+  );
+};

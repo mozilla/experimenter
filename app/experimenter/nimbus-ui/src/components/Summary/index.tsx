@@ -4,13 +4,13 @@
 
 import React from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { getConfig_nimbusConfig } from "../../types/getConfig";
 import SummaryTimeline from "../SummaryTimeline";
 import TableSummary from "../TableSummary";
 import TableAudience from "../TableAudience";
 import LinkExternal from "../LinkExternal";
 import { getStatus } from "../../lib/experiment";
 import MonitoringLink from "../MonitoringLink";
+import { getConfigLabel, ConfigOptions } from "../../lib/getConfigLabel";
 
 type SummaryProps = {
   experiment: getExperiment_experimentBySlug;
@@ -46,18 +46,12 @@ const Summary = ({ experiment }: SummaryProps) => {
   );
 };
 
-type displayConfigOptionsProps =
-  | getConfig_nimbusConfig["application"]
-  | getConfig_nimbusConfig["firefoxMinVersion"]
-  | getConfig_nimbusConfig["channel"]
-  | getConfig_nimbusConfig["targetingConfigSlug"];
-
 export const displayConfigLabelOrNotSet = (
   value: string | null,
-  options: displayConfigOptionsProps,
+  options: ConfigOptions,
 ) => {
   if (!value) return <NotSet />;
-  return options?.find((obj: any) => obj.value === value)?.label;
+  return getConfigLabel(value, options);
 };
 
 export const NotSet = ({

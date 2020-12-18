@@ -23,6 +23,7 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
   const currentExperiment = useRef<getExperiment_experimentBySlug>();
   const refetchReview = useRef<() => void>();
+  const [isServerValid, setIsServerValid] = useState(true);
 
   const onFormSubmit = useCallback(
     async ({
@@ -59,8 +60,10 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
         const { message } = result.data.updateExperimentAudience;
 
         if (message && message !== "success" && typeof message === "object") {
+          setIsServerValid(false);
           return void setSubmitErrors(message);
         } else {
+          setIsServerValid(true);
           setSubmitErrors({});
           // In practice this should be defined by the time we get here
           refetchReview.current!();
@@ -93,7 +96,9 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
             {...{
               experiment,
               submitErrors,
+              setSubmitErrors,
               isMissingField,
+              isServerValid,
               isLoading: loading,
               onSubmit: onFormSubmit,
               onNext: onFormNext,

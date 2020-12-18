@@ -10,7 +10,7 @@ import { Subject } from "./mocks";
 storiesOf("components/FormAudience", module)
   .add("basic", () => <Subject onSubmit={action("submit")} />)
   .add("loading", () => <Subject isLoading />)
-  .add("errors", () => (
+  .add("server/submit errors", () => (
     <Subject
       submitErrors={{
         "*": ["Big bad server thing happened"],
