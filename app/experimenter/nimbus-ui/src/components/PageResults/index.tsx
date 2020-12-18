@@ -32,16 +32,13 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
       }
     }}
   >
-    {({ experiment, analysis }) => (
-      <>
-        <MonitoringLink {...experiment} />
-        {analysis?.show_analysis ? (
-          <AnalysisAvailable {...{ experiment, analysis }} />
-        ) : (
-          <AnalysisUnavailable {...{ experiment, error: analysis == null }} />
-        )}
-      </>
-    )}
+    {({ experiment, analysis }) =>
+      analysis?.show_analysis ? (
+        <AnalysisAvailable {...{ experiment, analysis }} />
+      ) : (
+        <AnalysisUnavailable {...{ experiment, error: analysis == null }} />
+      )
+    }
   </AppLayoutWithExperiment>
 );
 
@@ -50,11 +47,12 @@ const AnalysisAvailable = ({
   analysis,
 }: {
   experiment: getExperiment_experimentBySlug;
-  analysis: AnalysisData | undefined;
+  analysis: AnalysisData;
 }) => {
   const slugUnderscored = experiment.slug.replace(/-/g, "_");
   return (
     <>
+      <MonitoringLink {...experiment} />
       <h3 className="h5 mb-3 mt-4">Overview</h3>
       <p className="mb-4">
         Detailed analysis{" "}
@@ -70,36 +68,36 @@ const AnalysisAvailable = ({
       <p>{experiment.hypothesis}</p>
       <TableHighlights
         primaryProbeSets={experiment.primaryProbeSets!}
-        results={analysis?.overall!}
+        results={analysis.overall!}
       />
       <TableHighlightsOverview
         {...{ experiment }}
-        results={analysis?.overall!}
+        results={analysis.overall!}
       />
 
       <h2 className="h5 mb-3">Results</h2>
       <TableResults
         primaryProbeSets={experiment.primaryProbeSets!}
-        results={analysis?.overall!}
+        results={analysis.overall!}
       />
       <div>
         {experiment.primaryProbeSets?.map((probeSet) => (
           <TableMetricPrimary
             key={probeSet?.slug}
-            results={analysis?.overall!}
+            results={analysis.overall!}
             probeSet={probeSet!}
           />
         ))}
         {experiment.secondaryProbeSets?.map((probeSet) => (
           <TableMetricSecondary
             key={probeSet!.slug}
-            results={analysis?.overall!}
+            results={analysis.overall!}
             probeSetSlug={probeSet!.slug}
             probeSetName={probeSet!.name}
             isDefault={false}
           />
         ))}
-        {Object.keys(analysis?.other_metrics!).map((metric) => (
+        {Object.keys(analysis.other_metrics!).map((metric) => (
           <TableMetricSecondary
             key={metric}
             results={analysis?.overall!}

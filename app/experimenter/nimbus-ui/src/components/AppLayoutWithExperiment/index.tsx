@@ -65,9 +65,14 @@ const AppLayoutWithExperiment = ({
     stopPolling,
     review,
   } = useExperiment(slug);
-  const { execute: fetchAnalysis, result: analysis } = useAnalysis();
+  const {
+    execute: fetchAnalysis,
+    status: analysisStatus,
+    result: analysis,
+  } = useAnalysis();
   const [analysisFetched, setAnalysisFetched] = useState<boolean>(false);
-  const status = getStatus(experiment);
+
+  const experimentStatus = getStatus(experiment);
 
   // If the redirect prop function is supplied let's call it with
   // experiment status, review, and analysis details. If it returns
@@ -76,7 +81,7 @@ const AppLayoutWithExperiment = ({
   if (
     !loading &&
     redirect &&
-    (getRedirect = redirect!({ status, review, analysis }))
+    (getRedirect = redirect!({ status: experimentStatus, review, analysis }))
   ) {
     redirectPath = `${BASE_PATH}/${slug}/${getRedirect}`;
   }
@@ -88,11 +93,11 @@ const AppLayoutWithExperiment = ({
   }, [redirectPath]);
 
   useEffect(() => {
-    if (!analysisFetched && !loading && status.locked) {
+    if (!analysisFetched && !loading && experimentStatus.locked) {
       fetchAnalysis([experiment?.slug]);
       setAnalysisFetched(true);
     }
-  }, [fetchAnalysis, loading, experiment, analysisFetched, status]);
+  }, [fetchAnalysis, loading, experiment, analysisFetched, experimentStatus]);
 
   useEffect(() => {
     if (polling && experiment) {
@@ -103,7 +108,7 @@ const AppLayoutWithExperiment = ({
     };
   }, [startPolling, stopPolling, experiment, polling]);
 
-  if (loading || (analysisRequired && !analysis)) {
+  if (loading || (analysisRequired && analysisStatus === "loading")) {
     return <PageLoading />;
   }
 
@@ -114,7 +119,9 @@ const AppLayoutWithExperiment = ({
   const { name } = experiment;
 
   return (
-    <Layout {...{ sidebar, children, review, analysis, status }}>
+    <Layout
+      {...{ sidebar, children, review, analysis, status: experimentStatus }}
+    >
       <section data-testid={testId}>
         <Head
           title={title ? `${experiment.name} – ${title}` : experiment.name}
@@ -124,7 +131,7 @@ const AppLayoutWithExperiment = ({
           {...{
             slug,
             name,
-            status,
+            status: experimentStatus,
           }}
         />
         {title && (
