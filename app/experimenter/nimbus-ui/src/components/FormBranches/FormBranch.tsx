@@ -46,7 +46,7 @@ export const FormBranch = ({
   fieldNamePrefix: string;
   touched: Record<string, boolean>;
   errors: Record<string, FieldError>;
-  reviewErrors: string[] | undefined;
+  reviewErrors: string[] | Record<string, string[]> | undefined;
   branch: AnnotatedBranch;
   equalRatio?: boolean;
   isReference?: boolean;
@@ -125,6 +125,21 @@ export const FormBranch = ({
     </>
   );
 
+  const ReviewErrors = ({ name }: { name: string }) => (
+    <>
+      {reviewErrors &&
+        !Array.isArray(reviewErrors) &&
+        Array.isArray(reviewErrors[name]) &&
+        reviewErrors[name].map((error, idx) => (
+          <InlineErrorIcon
+            key={`${fieldNamePrefix}-${name}-missing-icon-${idx}`}
+            name={`${fieldNamePrefix}-${name}-missing-icon-${idx}`}
+            message={error}
+          />
+        ))}
+    </>
+  );
+
   return (
     <div
       className="mb-3 border border-secondary rounded"
@@ -139,13 +154,16 @@ export const FormBranch = ({
                 <Badge pill variant="primary" data-testid="control-pill">
                   control
                 </Badge>
-              )}
+              )}{" "}
+               <ReviewErrors name="name" />
             </Form.Label>
             <Form.Control {...formControlCommon("name")} type="text" />
             <FormErrors name="name" />
           </Form.Group>
           <Form.Group as={Col} controlId={`${id}-description`}>
-            <Form.Label>Description</Form.Label>
+            <Form.Label>
+              Description <ReviewErrors name="description" />
+            </Form.Label>
             <Form.Control
               {...formControlCommon("description", false)}
               type="text"
@@ -153,7 +171,7 @@ export const FormBranch = ({
             <FormErrors name="description" />
           </Form.Group>
           <Form.Group as={Col} controlId={`${id}-ratio`} sm={2} md={2}>
-            <Form.Label>Ratio</Form.Label>
+            <Form.Label>Ratio <ReviewErrors name="ratio" /></Form.Label>
             {equalRatio ? (
               <p data-testid="equal-ratio" className="p-0 m-0">
                 Equal
@@ -179,12 +197,14 @@ export const FormBranch = ({
             )}
           </Form.Group>
           <Form.Group as={Col} sm={1} className="align-top text-right">
+            {/* TODO: the serializer error here is usually "This field may
+                not be null" but does not mention the branch name */}
             {Array.isArray(reviewErrors) &&
               reviewErrors.map((error, idx) => (
                 <InlineErrorIcon
                   key={`${fieldNamePrefix}-missing-icon-${idx}`}
-                  name={`${fieldNamePrefix}-missing-icon-${idx}`}
-                  message={error}
+                  name={`${fieldNamePrefix}-missing-icon-${idx}`}                  
+                  message="Branch must be defined"
                 />
               ))}
             {!isReference && onRemove && (
@@ -274,7 +294,7 @@ export const FormBranch = ({
           featureEnabled ? (
             <Form.Row data-testid="feature-value-edit">
               <Form.Group as={Col} controlId={`${id}-featureValue`}>
-                <Form.Label>Value</Form.Label>
+                <Form.Label>Value <ReviewErrors name="feature_value" /></Form.Label>
                 {/* TODO: EXP-732 Maybe do some JSON schema validation here client-side? */}
                 <Form.Control
                   {...formControlCommon("featureValue")}
