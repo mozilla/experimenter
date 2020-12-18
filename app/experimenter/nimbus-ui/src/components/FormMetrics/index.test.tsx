@@ -7,6 +7,7 @@ import { render, screen, act, fireEvent } from "@testing-library/react";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { Subject } from "./mocks";
 import { getConfig_nimbusConfig_probeSets } from "../../types/getConfig";
+import { PRIMARY_PROBE_SETS_TOOLTIP, SECONDARY_PROBE_SETS_TOOLTIP } from ".";
 
 describe("FormMetrics", () => {
   const probeSets: getConfig_nimbusConfig_probeSets[] = [
@@ -37,6 +38,15 @@ describe("FormMetrics", () => {
     render(<Subject />);
     await act(async () =>
       expect(screen.getByTestId("FormMetrics")).toBeInTheDocument(),
+    );
+
+    expect(screen.getByTestId("tooltip-primary-probe-sets")).toHaveAttribute(
+      "data-tip",
+      PRIMARY_PROBE_SETS_TOOLTIP,
+    );
+    expect(screen.getByTestId("tooltip-secondary-probe-sets")).toHaveAttribute(
+      "data-tip",
+      SECONDARY_PROBE_SETS_TOOLTIP,
     );
   });
 
