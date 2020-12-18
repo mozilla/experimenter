@@ -11,6 +11,7 @@ import {
   act,
 } from "@testing-library/react";
 import { Subject, MOCK_EXPERIMENT } from "./mocks";
+import { AUDIENCE_DOC_URL } from ".";
 import { MOCK_CONFIG } from "../../lib/mocks";
 
 describe("FormAudience", () => {
@@ -19,6 +20,10 @@ describe("FormAudience", () => {
     await waitFor(() => {
       expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
     });
+    expect(screen.getByTestId("learn-more-link")).toHaveAttribute(
+      "href",
+      AUDIENCE_DOC_URL,
+    );
     const targetingConfigSlug = screen.queryByTestId("targetingConfigSlug");
     expect(targetingConfigSlug).toBeInTheDocument();
     expect((targetingConfigSlug as HTMLSelectElement).value).toEqual(
