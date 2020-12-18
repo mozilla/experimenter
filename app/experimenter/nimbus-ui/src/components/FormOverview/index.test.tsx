@@ -196,7 +196,7 @@ describe("FormOverview", () => {
 
   it("displays feedback for per-field error", async () => {
     const submitErrors = {
-      name: ["That name is terrble, man"],
+      name: ["That name is terrible, man"],
     };
     render(<Subject {...{ submitErrors }} />);
     const errorFeedback = screen.getByText(submitErrors["name"][0]);

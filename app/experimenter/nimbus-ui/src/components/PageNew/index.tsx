@@ -89,6 +89,7 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
             isLoading: loading,
             isServerValid,
             submitErrors,
+            setSubmitErrors,
             onSubmit: onFormSubmit,
             onCancel: onFormCancel,
           }}

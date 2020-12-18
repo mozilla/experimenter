@@ -11,7 +11,6 @@ import { SUBMIT_ERROR } from "../../lib/constants";
 import { UPDATE_EXPERIMENT_PROBESETS_MUTATION } from "../../gql/experiments";
 import { updateExperimentProbeSets_updateExperimentProbeSets as UpdateExperimentProbeSetsResult } from "../../types/updateExperimentProbeSets";
 import { UpdateExperimentProbeSetsInput } from "../../types/globalTypes";
-import { useConfig } from "../../hooks/useConfig";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import FormMetrics from "../FormMetrics";
 import LinkExternal from "../LinkExternal";
@@ -21,8 +20,6 @@ export const CORE_METRICS_DOC_URL =
   "https://docs.google.com/document/d/155EUgzn22VTX8mFwesSROT3Z6JORSfb5VyoMoLra7ws/edit#heading=h.uq23fsvh16rc";
 
 const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
-  const { probeSets } = useConfig();
-
   const [updateExperimentProbeSets, { loading }] = useMutation<
     { updateExperimentProbeSets: UpdateExperimentProbeSetsResult },
     { input: UpdateExperimentProbeSetsInput }
@@ -104,10 +101,10 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
             <FormMetrics
               {...{
                 experiment,
-                probeSets,
                 isLoading: loading,
                 isServerValid,
                 submitErrors,
+                setSubmitErrors,
                 onSave,
                 onNext,
               }}

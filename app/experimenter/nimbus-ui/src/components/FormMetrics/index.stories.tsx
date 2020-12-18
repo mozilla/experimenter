@@ -14,10 +14,12 @@ const onNext = action("onNext");
 storiesOf("components/FormMetrics", module)
   .add("basic", () => <Subject {...{ onSave, onNext }} />)
   .add("loading", () => <Subject isLoading {...{ onSave, onNext }} />)
-  .add("errors", () => (
+  .add("server/submit errors", () => (
     <Subject
       submitErrors={{
         "*": ["Big bad server thing broke!"],
+        primaryProbeSetIds: ["You primary probed the wrong bear."],
+        secondaryProbeSetIds: ["You secondary probed the wrong bear."],
       }}
       {...{ onSave, onNext }}
     />
