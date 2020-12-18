@@ -12,7 +12,7 @@ import {
 } from "@testing-library/react";
 import { navigate } from "@reach/router";
 import fetchMock from "jest-fetch-mock";
-import PageEditBranches, { SUBMIT_ERROR_MESSAGE } from ".";
+import PageEditBranches, { SUBMIT_ERROR_MESSAGE, BRANCHES_DOC_URL } from ".";
 import FormBranches from "../FormBranches";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
@@ -90,6 +90,10 @@ describe("PageEditBranches", () => {
     });
     expect(screen.getByTestId("FormBranches")).toBeInTheDocument();
     expect(screen.getByTestId("feature-config")).toBeInTheDocument();
+    expect(screen.getByTestId("learn-more-link")).toHaveAttribute(
+      "href",
+      BRANCHES_DOC_URL,
+    );
 
     for (const feature of MOCK_CONFIG!.featureConfig!) {
       const { slug } = feature!;
@@ -128,8 +132,8 @@ describe("PageEditBranches", () => {
       expect(screen.getByTestId("PageEditBranches")).toBeInTheDocument();
     });
     await act(async () => {
-      const saveButton = await screen.getByTestId("save-button");
-      await fireEvent.click(saveButton);
+      const saveButton = screen.getByTestId("save-button");
+      fireEvent.click(saveButton);
     });
     expect(mockSetSubmitErrors).not.toHaveBeenCalled();
   });
@@ -151,8 +155,8 @@ describe("PageEditBranches", () => {
     });
 
     await act(async () => {
-      const saveButton = await screen.getByTestId("save-button");
-      await fireEvent.click(saveButton);
+      const saveButton = screen.getByTestId("save-button");
+      fireEvent.click(saveButton);
     });
 
     expect(mockSetSubmitErrors).toHaveBeenCalledWith({
@@ -181,8 +185,8 @@ describe("PageEditBranches", () => {
     });
 
     await act(async () => {
-      const saveButton = await screen.getByTestId("save-button");
-      await fireEvent.click(saveButton);
+      const saveButton = screen.getByTestId("save-button");
+      fireEvent.click(saveButton);
     });
 
     expect(mockSetSubmitErrors).toHaveBeenCalledWith(

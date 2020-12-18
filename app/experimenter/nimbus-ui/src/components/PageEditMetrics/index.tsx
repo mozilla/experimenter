@@ -17,6 +17,9 @@ import FormMetrics from "../FormMetrics";
 import LinkExternal from "../LinkExternal";
 import { editCommonRedirects } from "../../lib/experiment";
 
+export const CORE_METRICS_DOC_URL =
+  "https://docs.google.com/document/d/155EUgzn22VTX8mFwesSROT3Z6JORSfb5VyoMoLra7ws/edit#heading=h.uq23fsvh16rc";
+
 const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
   const { probeSets } = useConfig();
 
@@ -89,8 +92,14 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
               Every experiment analysis automatically includes how your
               experiment has impacted{" "}
               <strong>Retention, Search Count, and Ad Click</strong> metrics.
-              Get more information on {/* TODO: EXP-656 find this URL */}
-              <LinkExternal href="">Core Firefox Metrics.</LinkExternal>
+              Get more information on{" "}
+              <LinkExternal
+                href={CORE_METRICS_DOC_URL}
+                data-testid="core-metrics-link"
+              >
+                Core Firefox Metrics
+              </LinkExternal>
+              .
             </p>
             <FormMetrics
               {...{

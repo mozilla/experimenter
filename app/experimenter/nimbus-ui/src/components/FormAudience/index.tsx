@@ -15,9 +15,8 @@ import { useConfig } from "../../hooks/useConfig";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { getConfig_nimbusConfig_channel } from "../../types/getConfig";
 
-// TODO: EXP-656 find this doco URL
-const AUDIENCE_DOC_URL =
-  "https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=FJT&title=Project+Nimbus";
+export const AUDIENCE_DOC_URL =
+  "https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=109990007";
 
 export const FormAudience = ({
   experiment,
@@ -201,7 +200,9 @@ export const FormAudience = ({
       <Form.Group className="bg-light p-4">
         <p className="text-secondary">
           Please ask a data scientist to help you determine these values.{" "}
-          <LinkExternal href={AUDIENCE_DOC_URL}>Learn more</LinkExternal>
+          <LinkExternal href={AUDIENCE_DOC_URL} data-testid="learn-more-link">
+            Learn more
+          </LinkExternal>
         </p>
 
         <Form.Row>
