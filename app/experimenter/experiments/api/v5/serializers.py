@@ -364,19 +364,22 @@ class NimbusReadyForReviewSerializer(
         model = NimbusExperiment
         exclude = ("id",)
 
+    def _validate_branch(self, branch):
+        error = {}
+        if branch["description"] == "":
+            error["description"] = ["Description cannot be blank."]
+        return error
+
     def validate_reference_branch(self, value):
-        if value["description"] == "":
-            raise serializers.ValidationError("Description cannot be blank.")
+        error = self._validate_branch(value)
+        if error:
+            raise serializers.ValidationError(error)
         return value
 
     def validate_treatment_branches(self, value):
         errors = []
         for branch in value:
-            error = None
-            if branch["description"] == "":
-                error = ["Description cannot be blank."]
-            errors.append(error)
-
+            errors.append(self._validate_branch(branch))
         if any(x is not None for x in errors):
             raise serializers.ValidationError(errors)
         return value

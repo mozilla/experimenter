@@ -14,6 +14,7 @@ type FormBranchProps = React.ComponentProps<typeof FormBranch>;
 export const SubjectBranch = ({
   fieldNamePrefix = "referenceBranch",
   branch = MOCK_ANNOTATED_BRANCH,
+  reviewErrors,
   equalRatio = false,
   isReference = false,
   experimentFeatureConfig = MOCK_FEATURE_CONFIG,
@@ -48,7 +49,7 @@ export const SubjectBranch = ({
             // react-hook-form types seem broken for nested fields
             touched: (touched.referenceBranch ||
               {}) as FormBranchProps["touched"],
-            reviewErrors: undefined,
+            reviewErrors,
             branch,
             isReference,
             equalRatio,

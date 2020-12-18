@@ -82,6 +82,35 @@ storiesOf("components/FormBranches/FormBranch", module)
         featureValue: "this is a default value",
       }}
     />
+  ))
+  .add("with review error (missing control branch)", () => (
+    <SubjectBranch
+      {...commonFormBranchProps}
+      experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
+      branch={{
+        ...MOCK_ANNOTATED_BRANCH,
+        featureEnabled: true,
+        featureValue: "this is a default value",
+      }}
+      reviewErrors={["This field may not be null"]}
+    />
+  ))
+  .add("with review errors", () => (
+    <SubjectBranch
+      {...commonFormBranchProps}
+      experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
+      branch={{
+        ...MOCK_ANNOTATED_BRANCH,
+        featureEnabled: true,
+        featureValue: "this is a default value",
+      }}
+      reviewErrors={{
+        name: ["Bad name"],
+        description: ["No way, bad description"],
+        ratio: ["Bad ratio yuck"],
+        feature_value: ["Terrible JSON, dang"],
+      }}
+    />
   ));
 
 storiesOf("components/FormBranches", module)
@@ -139,8 +168,16 @@ storiesOf("components/FormBranches", module)
           __typename: "NimbusReadyForReviewType",
           ready: false,
           message: {
-            reference_branch: ["Description may not be blank"],
-            treatment_branches: [null, ["Description may not be blank"]],
+            reference_branch: ["This field may not be null"],
+            treatment_branches: [
+              null,
+              {
+                name: ["Bad name"],
+                description: ["Bad description"],
+                ratio: ["Bad ratio yuck"],
+                feature_value: ["Terrible JSON, dang"],
+              },
+            ],
           },
         },
       }}
