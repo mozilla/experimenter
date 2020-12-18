@@ -11,7 +11,7 @@ import {
   act,
 } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
-import PageEditMetrics from ".";
+import PageEditMetrics, { CORE_METRICS_DOC_URL } from ".";
 import FormMetrics from "../FormMetrics";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
@@ -91,6 +91,10 @@ describe("PageEditMetrics", () => {
     await waitFor(() => {
       expect(screen.getByTestId("PageEditMetrics")).toBeInTheDocument();
       expect(screen.getByTestId("header-experiment")).toBeInTheDocument();
+      expect(screen.getByTestId("core-metrics-link")).toHaveAttribute(
+        "href",
+        CORE_METRICS_DOC_URL,
+      );
     });
   });
 
