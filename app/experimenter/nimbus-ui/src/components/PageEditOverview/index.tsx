@@ -87,6 +87,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
               isMissingField,
               experiment,
               submitErrors,
+              setSubmitErrors,
               onSubmit: onFormSubmit,
               onNext: onFormNext,
             }}

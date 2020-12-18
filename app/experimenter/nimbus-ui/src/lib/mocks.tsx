@@ -128,8 +128,8 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     {
       __typename: "NimbusProbeSetType",
       id: "1",
-      name: "Inverse responsive methodology",
-      slug: "inverse-responsive-methodology",
+      name: "Probe Set A",
+      slug: "probe-set-a",
       probes: [
         {
           __typename: "NimbusProbeType",
@@ -152,6 +152,20 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
           eventValue: "automated-national-infrastructure",
         },
       ],
+    },
+    {
+      __typename: "NimbusProbeSetType",
+      id: "2",
+      name: "Probe Set B",
+      slug: "probe-set-b",
+      probes: [],
+    },
+    {
+      __typename: "NimbusProbeSetType",
+      id: "3",
+      name: "Probe Set C",
+      slug: "probe-set-c",
+      probes: [],
     },
   ],
   targetingConfigSlug: [

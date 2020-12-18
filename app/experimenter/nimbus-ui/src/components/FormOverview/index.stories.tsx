@@ -15,7 +15,7 @@ const onNext = action("onNext");
 storiesOf("components/FormOverview", module)
   .add("basic", () => <Subject {...{ onSubmit, onCancel }} />)
   .add("loading", () => <Subject isLoading {...{ onSubmit, onCancel }} />)
-  .add("errors", () => (
+  .add("server/submit errors", () => (
     <Subject
       submitErrors={{
         "*": ["Big bad server thing broke!"],
