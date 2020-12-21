@@ -70,8 +70,11 @@ describe("PageRequestReview", () => {
     });
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(
+      expect(
+        navigate,
+      ).toHaveBeenCalledWith(
         `${BASE_PATH}/${experiment.slug}/edit/audience?show-errors`,
+        { replace: true },
       );
     });
   });
@@ -87,8 +90,11 @@ describe("PageRequestReview", () => {
     });
     render(<Subject mocks={[mock]} />);
     await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(
+      expect(
+        navigate,
+      ).toHaveBeenCalledWith(
         `${BASE_PATH}/${experiment.slug}/edit/overview?show-errors`,
+        { replace: true },
       );
     });
   });
@@ -101,6 +107,9 @@ describe("PageRequestReview", () => {
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledWith(
         `${BASE_PATH}/${experiment.slug}/design`,
+        {
+          replace: true,
+        },
       );
     });
   });
@@ -113,6 +122,9 @@ describe("PageRequestReview", () => {
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledWith(
         `${BASE_PATH}/${experiment.slug}/design`,
+        {
+          replace: true,
+        },
       );
     });
   });

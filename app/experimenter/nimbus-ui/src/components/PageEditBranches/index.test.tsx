@@ -53,6 +53,9 @@ describe("PageEditBranches", () => {
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledWith(
         `${BASE_PATH}/${experiment.slug}/request-review`,
+        {
+          replace: true,
+        },
       );
     });
   });
@@ -65,6 +68,9 @@ describe("PageEditBranches", () => {
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledWith(
         `${BASE_PATH}/${experiment.slug}/design`,
+        {
+          replace: true,
+        },
       );
     });
   });
@@ -77,6 +83,9 @@ describe("PageEditBranches", () => {
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledWith(
         `${BASE_PATH}/${experiment.slug}/design`,
+        {
+          replace: true,
+        },
       );
     });
   });

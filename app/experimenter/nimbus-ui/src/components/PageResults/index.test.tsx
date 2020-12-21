@@ -15,11 +15,6 @@ import { getStatus as mockGetStatus } from "../../lib/experiment";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
-jest.mock("@reach/router", () => ({
-  ...jest.requireActual("@reach/router"),
-  navigate: jest.fn(),
-}));
-
 const Subject = () => (
   <RouterSlugProvider>
     <PageResults />
@@ -148,6 +143,9 @@ jest.mock("../AppLayoutWithExperiment", () => ({
           review: {
             isMissingField: () => false,
             refetch: () => {},
+            ready: true,
+            invalidPages: [],
+            missingFields: [],
           },
         })}
       </div>

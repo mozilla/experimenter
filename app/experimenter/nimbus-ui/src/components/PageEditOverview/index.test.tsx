@@ -86,6 +86,9 @@ describe("PageEditOverview", () => {
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledWith(
         `${BASE_PATH}/${experiment.slug}/request-review`,
+        {
+          replace: true,
+        },
       );
     });
   });
@@ -98,6 +101,9 @@ describe("PageEditOverview", () => {
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledWith(
         `${BASE_PATH}/${experiment.slug}/design`,
+        {
+          replace: true,
+        },
       );
     });
   });
@@ -110,6 +116,9 @@ describe("PageEditOverview", () => {
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledWith(
         `${BASE_PATH}/${experiment.slug}/design`,
+        {
+          replace: true,
+        },
       );
     });
   });
