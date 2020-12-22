@@ -7,7 +7,7 @@ import {
   getProposedEndDate,
   getProposedEnrollmentRange,
 } from "./dateUtils";
-import { mockSingleDirectoryExperimentFactory as expFactory } from "./mocks";
+import { mockSingleDirectoryExperiment as expFactory } from "./mocks";
 
 const FAKE_DATE = "Thu Dec 12 2020";
 

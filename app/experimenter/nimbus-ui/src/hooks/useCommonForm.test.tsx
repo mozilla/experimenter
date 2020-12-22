@@ -11,7 +11,6 @@ import { metricsFieldNames } from "../components/FormMetrics";
 import { Subject as AudienceSubject } from "../components/FormAudience/mocks";
 import { audienceFieldNames } from "../components/FormAudience";
 import { mockExperimentQuery } from "../lib/mocks";
-import * as CommonForm from ".";
 
 describe("hooks/useCommonForm", () => {
   describe("works as expected", () => {
