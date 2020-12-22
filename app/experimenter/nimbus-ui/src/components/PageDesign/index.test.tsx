@@ -14,11 +14,6 @@ import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import { getStatus as mockGetStatus } from "../../lib/experiment";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
-jest.mock("@reach/router", () => ({
-  ...jest.requireActual("@reach/router"),
-  navigate: jest.fn(),
-}));
-
 let mockExperiment: getExperiment_experimentBySlug;
 const mockAnalysisData: AnalysisData | undefined = mockAnalysis();
 let redirectPath: string | void;
@@ -81,6 +76,9 @@ jest.mock("../AppLayoutWithExperiment", () => ({
           review: {
             isMissingField: () => false,
             refetch: () => {},
+            ready: true,
+            invalidPages: [],
+            missingFields: [],
           },
         })}
       </div>
