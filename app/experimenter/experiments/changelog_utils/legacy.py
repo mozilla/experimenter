@@ -3,8 +3,8 @@ from rest_framework import serializers
 
 from experimenter.base.serializers import CountrySerializer, LocaleSerializer
 from experimenter.experiments.api.v1.serializers import (
-    ExperimentVariantSerializer,
     ExperimentRolloutPreferenceSerializer,
+    ExperimentVariantSerializer,
 )
 from experimenter.experiments.email import send_experiment_change_email
 from experimenter.experiments.models import Experiment, ExperimentChangeLog
