@@ -658,7 +658,7 @@ test = ["pytest", "pytest-benchmark", "pytest-cov", "pytest-mock", "snapshottest
 
 [[package]]
 name = "graphene-django"
-version = "2.13.0"
+version = "2.14.0"
 description = "Graphene Django integration"
 category = "main"
 optional = false
@@ -671,7 +671,7 @@ graphql-core = ">=2.1.0,<3"
 promise = ">=2.1"
 singledispatch = ">=3.4.0.3"
 six = ">=1.10.0"
-unidecode = ">=1.1.1,<2"
+text-unidecode = "*"
 
 [package.extras]
 dev = ["black (==19.10b0)", "flake8 (==3.7.9)", "flake8-black (==0.1.1)", "flake8-bugbear (==20.1.4)", "pytest (>=3.6.3)", "pytest-cov", "coveralls", "mock", "pytz", "pytest-django (>=3.3.2)", "djangorestframework (>=3.6.3)", "django-filter (<2)", "django-filter (>=2)"]
@@ -1551,7 +1551,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "65c77380bf5a7a804231c33c01f25993e5ce32ddf3431d0ef8c7803314008667"
+content-hash = "8f76b58d2f002e7eea737a55e30a53399b66eb0d1462cba297f6c1943f583607"
 
 [metadata.files]
 aiohttp = [
@@ -1880,8 +1880,8 @@ graphene = [
     {file = "graphene-2.1.8.tar.gz", hash = "sha256:2cbe6d4ef15cfc7b7805e0760a0e5b80747161ce1b0f990dfdc0d2cf497c12f9"},
 ]
 graphene-django = [
-    {file = "graphene-django-2.13.0.tar.gz", hash = "sha256:8a4efc7bf954ba0b5a28d3cdb090b36941aca6b83d211e3cd3ab29cf53ac6154"},
-    {file = "graphene_django-2.13.0-py2.py3-none-any.whl", hash = "sha256:0e33cdec0774284175c387c2af1e0ef4eb0f4e10a56a3a1b2d39bc3a74d9a538"},
+    {file = "graphene-django-2.14.0.tar.gz", hash = "sha256:37b399a983e6e70d26696d0052b416a030d14f6d8a591d67711916e1fea95861"},
+    {file = "graphene_django-2.14.0-py2.py3-none-any.whl", hash = "sha256:68d5c52f775dea6f5e0578b2c09c0a7cddeb48a957a0000b289d6e6145d6a86d"},
 ]
 graphql-core = [
     {file = "graphql-core-2.3.2.tar.gz", hash = "sha256:aac46a9ac524c9855910c14c48fc5d60474def7f99fd10245e76608eba7af746"},
