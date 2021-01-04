@@ -14,32 +14,7 @@ from experimenter.experiments.models.nimbus import (
 )
 
 
-class NimbusStatusRestrictionMixin:
-    required_status = NimbusExperiment.Status.DRAFT
-
-    def validate(self, data):
-        data = super().validate(data)
-        if self.instance and self.instance.status != self.required_status:
-            status = self.instance.status
-            raise serializers.ValidationError(
-                {
-                    "experiment": [
-                        f"Nimbus Experiment has status '{status}', but can only "
-                        f"be changed when set to '{self.required_status}'."
-                    ]
-                }
-            )
-        return data
-
-
-class NimbusChangeLogMixin:
-    def save(self, *args, **kwargs):
-        experiment = super().save(*args, **kwargs)
-        generate_nimbus_changelog(experiment, self.context["user"])
-        return experiment
-
-
-class NimbusBranchSerializer(NimbusChangeLogMixin, serializers.ModelSerializer):
+class NimbusBranchSerializer(serializers.ModelSerializer):
     def validate_name(self, value):
         slug_name = slugify(value)
         if not slug_name:
@@ -79,21 +54,32 @@ class NimbusBranchSerializer(NimbusChangeLogMixin, serializers.ModelSerializer):
         )
 
 
-class NimbusExperimentOverviewSerializer(
-    NimbusChangeLogMixin, NimbusStatusRestrictionMixin, serializers.ModelSerializer
-):
-    slug = serializers.ReadOnlyField()
+class NimbusChangeLogMixin:
+    def save(self, *args, **kwargs):
+        experiment = super().save(*args, **kwargs)
+        generate_nimbus_changelog(experiment, self.context["user"])
+        return experiment
 
-    class Meta:
-        model = NimbusExperiment
-        fields = (
-            "name",
-            "slug",
-            "application",
-            "public_description",
-            "hypothesis",
-        )
 
+class NimbusStatusRestrictionMixin:
+    required_status = NimbusExperiment.Status.DRAFT
+
+    def validate(self, data):
+        data = super().validate(data)
+        if self.instance and self.instance.status != self.required_status:
+            status = self.instance.status
+            raise serializers.ValidationError(
+                {
+                    "experiment": [
+                        f"Nimbus Experiment has status '{status}', but can only "
+                        f"be changed when set to '{self.required_status}'."
+                    ]
+                }
+            )
+        return data
+
+
+class NimbusExperimentOverviewMixin:
     def validate_name(self, name):
         slug = slugify(name)
 
@@ -130,24 +116,7 @@ class NimbusExperimentOverviewSerializer(
         return super().create(validated_data)
 
 
-class NimbusBranchUpdateSerializer(
-    NimbusChangeLogMixin, NimbusStatusRestrictionMixin, serializers.ModelSerializer
-):
-    reference_branch = NimbusBranchSerializer()
-    treatment_branches = NimbusBranchSerializer(many=True)
-    feature_config = serializers.PrimaryKeyRelatedField(
-        queryset=NimbusFeatureConfig.objects.all(),
-        allow_null=True,
-    )
-
-    class Meta:
-        model = NimbusExperiment
-        fields = (
-            "feature_config",
-            "reference_branch",
-            "treatment_branches",
-        )
-
+class NimbusExperimentBranchMixin:
     def _validate_feature_value_against_schema(self, schema, value):
         try:
             json_value = json.loads(value)
@@ -161,8 +130,10 @@ class NimbusBranchUpdateSerializer(
     def validate(self, data):
         data = super().validate(data)
         # Determine if we require a feature_config
-        feature_config_required = data["reference_branch"].get("feature_enabled", False)
-        for branch in data["treatment_branches"]:
+        feature_config_required = data.get("reference_branch", {}).get(
+            "feature_enabled", False
+        )
+        for branch in data.get("treatment_branches", []):
             branch_required = branch.get("feature_enabled", False)
             feature_config_required = feature_config_required or branch_required
         feature_config = data.get("feature_config", None)
@@ -203,45 +174,35 @@ class NimbusBranchUpdateSerializer(
 
         if error_result:
             raise serializers.ValidationError(error_result)
+
         return data
 
     def update(self, experiment, data):
-        control_branch_data = data.pop("reference_branch")
-        treatment_branches = data.pop("treatment_branches")
-        with transaction.atomic():
-            instance = super().update(experiment, data)
-            NimbusBranch.objects.filter(experiment=instance).delete()
-            experiment.reference_branch = NimbusBranch.objects.create(
-                experiment=instance,
-                slug=slugify(control_branch_data["name"]),
-                **control_branch_data,
-            )
-            for branch_data in treatment_branches:
-                NimbusBranch.objects.create(
+        control_branch_data = data.pop("reference_branch", {})
+        treatment_branches_data = data.pop("treatment_branches", {})
+        instance = super().update(experiment, data)
+
+        if control_branch_data or treatment_branches_data:
+            with transaction.atomic():
+                NimbusBranch.objects.filter(experiment=instance).delete()
+                experiment.reference_branch = NimbusBranch.objects.create(
                     experiment=instance,
-                    slug=slugify(branch_data["name"]),
-                    **branch_data,
+                    slug=slugify(control_branch_data["name"]),
+                    **control_branch_data,
                 )
-            instance.save()
+                for branch_data in treatment_branches_data:
+                    NimbusBranch.objects.create(
+                        experiment=instance,
+                        slug=slugify(branch_data["name"]),
+                        **branch_data,
+                    )
+                instance.save()
+
         return instance
 
 
-class NimbusProbeSetUpdateSerializer(
-    NimbusChangeLogMixin, NimbusStatusRestrictionMixin, serializers.ModelSerializer
-):
-    primary_probe_sets = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=NimbusProbeSet.objects.all()
-    )
-
-    secondary_probe_sets = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=NimbusProbeSet.objects.all()
-    )
-
-    class Meta:
-        model = NimbusExperiment
-        fields = ("primary_probe_sets", "secondary_probe_sets")
-
-    def validate_primary_probe_sets(self, value):
+class NimbusExperimentProbeSetMixin:
+    def validate_primary_probe_set_ids(self, value):
         if len(value) > NimbusExperiment.MAX_PRIMARY_PROBE_SETS:
             raise serializers.ValidationError(
                 "Exceeded maximum primary probe set limit of "
@@ -259,12 +220,12 @@ class NimbusProbeSetUpdateSerializer(
 
         """
         data = super().validate(data)
-        primary_probe_sets = set(data["primary_probe_sets"])
-        secondary_probe_sets = set(data["secondary_probe_sets"])
-        if primary_probe_sets.intersection(secondary_probe_sets):
+        primary_probe_set_ids = set(data.get("primary_probe_set_ids", []))
+        secondary_probe_set_ids = set(data.get("secondary_probe_set_ids", []))
+        if primary_probe_set_ids.intersection(secondary_probe_set_ids):
             raise serializers.ValidationError(
                 {
-                    "primary_probe_sets": (
+                    "primary_probe_set_ids": (
                         "Primary probe sets cannot overlap with secondary probe sets."
                     )
                 }
@@ -272,40 +233,27 @@ class NimbusProbeSetUpdateSerializer(
         return data
 
     def update(self, experiment, data):
-        primary_probe_sets = data.pop("primary_probe_sets")
-        secondary_probe_sets = data.pop("secondary_probe_sets")
-        with transaction.atomic():
-            experiment = super().update(experiment, data)
-            experiment.probe_sets.clear()
-            for probe_set in primary_probe_sets:
-                experiment.probe_sets.add(
-                    probe_set, through_defaults={"is_primary": True}
-                )
-            for probe_set in secondary_probe_sets:
-                experiment.probe_sets.add(
-                    probe_set, through_defaults={"is_primary": False}
-                )
-            experiment.save()
+        primary_probe_set_ids = data.pop("primary_probe_set_ids", [])
+        secondary_probe_set_ids = data.pop("secondary_probe_set_ids", [])
+        experiment = super().update(experiment, data)
+
+        if primary_probe_set_ids or secondary_probe_set_ids:
+            with transaction.atomic():
+                experiment.probe_sets.clear()
+                for probe_set in primary_probe_set_ids:
+                    experiment.probe_sets.add(
+                        probe_set, through_defaults={"is_primary": True}
+                    )
+                for probe_set in secondary_probe_set_ids:
+                    experiment.probe_sets.add(
+                        probe_set, through_defaults={"is_primary": False}
+                    )
+                experiment.save()
+
         return experiment
 
 
-class NimbusAudienceUpdateSerializer(
-    NimbusChangeLogMixin, NimbusStatusRestrictionMixin, serializers.ModelSerializer
-):
-    population_percent = serializers.DecimalField(7, 4, min_value=0.0, max_value=100.0)
-
-    class Meta:
-        model = NimbusExperiment
-        fields = (
-            "channel",
-            "firefox_min_version",
-            "population_percent",
-            "proposed_duration",
-            "proposed_enrollment",
-            "targeting_config_slug",
-            "total_enrolled_clients",
-        )
-
+class NimbusAudienceUpdateMixin:
     def validate_channel(self, value):
         # If we have an instance, we can validate the channel against the application
         if value and self.instance and self.instance.application:
@@ -319,9 +267,42 @@ class NimbusAudienceUpdateSerializer(
         return value
 
 
-class NimbusStatusUpdateSerializer(
-    NimbusChangeLogMixin, NimbusStatusRestrictionMixin, serializers.ModelSerializer
+class NimbusExperimentUpdateSerializer(
+    NimbusChangeLogMixin,
+    NimbusStatusRestrictionMixin,
+    NimbusExperimentOverviewMixin,
+    NimbusExperimentBranchMixin,
+    NimbusExperimentProbeSetMixin,
+    NimbusAudienceUpdateMixin,
+    serializers.ModelSerializer,
 ):
+    name = serializers.CharField(min_length=0, max_length=255, required=False)
+    slug = serializers.ReadOnlyField()
+    application = serializers.ChoiceField(
+        choices=NimbusExperiment.Application.choices, required=False
+    )
+    public_description = serializers.CharField(
+        min_length=0, max_length=1024, required=False, allow_blank=True
+    )
+    hypothesis = serializers.CharField(min_length=0, max_length=1024, required=False)
+    reference_branch = NimbusBranchSerializer(required=False)
+    treatment_branches = NimbusBranchSerializer(many=True, required=False)
+    feature_config = serializers.PrimaryKeyRelatedField(
+        queryset=NimbusFeatureConfig.objects.all(),
+        allow_null=True,
+        required=False,
+    )
+    primary_probe_set_ids = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=NimbusProbeSet.objects.all(), required=False
+    )
+
+    secondary_probe_set_ids = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=NimbusProbeSet.objects.all(), required=False
+    )
+    population_percent = serializers.DecimalField(
+        7, 4, min_value=0.0, max_value=100.0, required=False
+    )
+
     def validate_status(self, value):
         if value != NimbusExperiment.Status.REVIEW:
             raise serializers.ValidationError(
@@ -331,7 +312,7 @@ class NimbusStatusUpdateSerializer(
 
     class Meta:
         model = NimbusExperiment
-        fields = ("status",)
+        exclude = []
 
 
 class NimbusReadyForReviewSerializer(

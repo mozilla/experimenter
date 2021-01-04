@@ -9,22 +9,6 @@ from experimenter.experiments.api.v5.types import (
 )
 
 
-class ExperimentInput(graphene.InputObjectType):
-    client_mutation_id = graphene.String()
-    name = graphene.String(required=True)
-    hypothesis = graphene.String(required=True)
-
-
-class CreateExperimentInput(ExperimentInput):
-    name = graphene.String(required=True)
-    application = NimbusExperimentApplication(required=True)
-
-
-class UpdateExperimentInput(ExperimentInput):
-    id = graphene.ID(required=True)
-    public_description = graphene.String()
-
-
 class BranchType(graphene.InputObjectType):
     name = graphene.String(required=True)
     description = graphene.String(required=True)
@@ -45,41 +29,20 @@ class TreatmentBranchType(BranchType):
         )
 
 
-class UpdateExperimentBranchesInput(graphene.InputObjectType):
+class ExperimentInput(graphene.InputObjectType):
     client_mutation_id = graphene.String()
-    nimbus_experiment_id = graphene.Int(required=True)
+    id = graphene.Int()
+    status = NimbusExperimentStatus()
+    name = graphene.String()
+    hypothesis = graphene.String()
+    name = graphene.String()
+    application = NimbusExperimentApplication()
+    public_description = graphene.String()
     feature_config_id = graphene.Int()
-    reference_branch = graphene.Field(ReferenceBranchType, required=True)
-    treatment_branches = graphene.List(
-        TreatmentBranchType,
-        required=True,
-        description=(
-            "List of treatment branches for this experiment. Branches will be created, "
-            "updated, or deleted to match the list provided."
-        ),
-    )
-
-
-class UpdateExperimentProbeSetsInput(graphene.InputObjectType):
-    client_mutation_id = graphene.String()
-    nimbus_experiment_id = graphene.Int(required=True)
-    primary_probe_set_ids = graphene.List(
-        graphene.Int,
-        required=True,
-        description="List of primary probeset ids that should be set on the experiment.",
-    )
-    secondary_probe_set_ids = graphene.List(
-        graphene.Int,
-        required=True,
-        description=(
-            "List of secondary probeset ids that should be set on the experiment."
-        ),
-    )
-
-
-class UpdateExperimentAudienceInput(graphene.InputObjectType):
-    client_mutation_id = graphene.String()
-    nimbus_experiment_id = graphene.Int(required=True)
+    reference_branch = graphene.Field(ReferenceBranchType)
+    treatment_branches = graphene.List(TreatmentBranchType)
+    primary_probe_set_ids = graphene.List(graphene.Int)
+    secondary_probe_set_ids = graphene.List(graphene.Int)
     channel = NimbusExperimentChannel()
     firefox_min_version = NimbusExperimentFirefoxMinVersion()
     population_percent = graphene.String()
@@ -87,9 +50,3 @@ class UpdateExperimentAudienceInput(graphene.InputObjectType):
     proposed_enrollment = graphene.String()
     targeting_config_slug = NimbusExperimentTargetingConfigSlug()
     total_enrolled_clients = graphene.Int()
-
-
-class UpdateExperimentStatusInput(graphene.InputObjectType):
-    client_mutation_id = graphene.String()
-    nimbus_experiment_id = graphene.Int(required=True)
-    status = NimbusExperimentStatus(required=True)

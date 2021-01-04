@@ -3,31 +3,31 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { UpdateExperimentInput } from "./globalTypes";
+import { ExperimentInput } from "./globalTypes";
 
 // ====================================================
 // GraphQL mutation operation: updateExperimentOverview
 // ====================================================
 
-export interface updateExperimentOverview_updateExperimentOverview_nimbusExperiment {
+export interface updateExperimentOverview_updateExperiment_nimbusExperiment {
   __typename: "NimbusExperimentType";
   name: string;
   hypothesis: string | null;
   publicDescription: string | null;
 }
 
-export interface updateExperimentOverview_updateExperimentOverview {
-  __typename: "UpdateExperimentOverview";
+export interface updateExperimentOverview_updateExperiment {
+  __typename: "UpdateExperiment";
   clientMutationId: string | null;
   message: ObjectField | null;
   status: number | null;
-  nimbusExperiment: updateExperimentOverview_updateExperimentOverview_nimbusExperiment | null;
+  nimbusExperiment: updateExperimentOverview_updateExperiment_nimbusExperiment | null;
 }
 
 export interface updateExperimentOverview {
-  updateExperimentOverview: updateExperimentOverview_updateExperimentOverview | null;
+  updateExperiment: updateExperimentOverview_updateExperiment | null;
 }
 
 export interface updateExperimentOverviewVariables {
-  input: UpdateExperimentInput;
+  input: ExperimentInput;
 }

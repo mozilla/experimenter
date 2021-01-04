@@ -3,7 +3,7 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { CreateExperimentInput, NimbusExperimentApplication } from "./globalTypes";
+import { ExperimentInput, NimbusExperimentApplication } from "./globalTypes";
 
 // ====================================================
 // GraphQL mutation operation: createExperiment
@@ -30,5 +30,5 @@ export interface createExperiment {
 }
 
 export interface createExperimentVariables {
-  input: CreateExperimentInput;
+  input: ExperimentInput;
 }

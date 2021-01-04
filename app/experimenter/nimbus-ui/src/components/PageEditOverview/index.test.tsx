@@ -63,7 +63,7 @@ describe("PageEditOverview", () => {
     mutationMock = mockExperimentMutation(
       UPDATE_EXPERIMENT_OVERVIEW_MUTATION,
       { ...mockSubmitData, id: experiment.id },
-      "updateExperimentOverview",
+      "updateExperiment",
       {
         experiment: mockSubmitData,
       },
@@ -140,7 +140,7 @@ describe("PageEditOverview", () => {
     const expectedErrors = {
       name: { message: "already exists" },
     };
-    mutationMock.result.data.updateExperimentOverview.message = expectedErrors;
+    mutationMock.result.data.updateExperiment.message = expectedErrors;
     render(<Subject mocks={[mock, mutationMock]} />);
     let submitButton: HTMLButtonElement;
     await waitFor(() => {
@@ -156,7 +156,7 @@ describe("PageEditOverview", () => {
 
   it("handles experiment form submission with bad server data", async () => {
     // @ts-ignore - intentionally breaking this type for error handling
-    delete mutationMock.result.data.updateExperimentOverview;
+    delete mutationMock.result.data.updateExperiment;
     render(<Subject mocks={[mock, mutationMock]} />);
     let submitButton: HTMLButtonElement;
     await waitFor(() => {

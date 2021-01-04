@@ -56,7 +56,7 @@ describe("PageEditMetrics", () => {
 
   beforeEach(() => {
     mockSubmitData = {
-      nimbusExperimentId: parseInt(experiment.id),
+      id: experiment.id!,
       primaryProbeSetIds: experiment.primaryProbeSets!.map((p) =>
         parseInt(p!.id),
       ),
@@ -81,7 +81,7 @@ describe("PageEditMetrics", () => {
     mutationMock = mockExperimentMutation(
       UPDATE_EXPERIMENT_PROBESETS_MUTATION,
       mockSubmitData,
-      "updateExperimentProbeSets",
+      "updateExperiment",
       mockResponse,
     );
   });
@@ -158,7 +158,7 @@ describe("PageEditMetrics", () => {
 
   it("handles experiment form submission with bad server data", async () => {
     // @ts-ignore - intentionally breaking this type for error handling
-    delete mutationMock.result.data.updateExperimentProbeSets;
+    delete mutationMock.result.data.updateExperiment;
     render(<Subject mocks={[mock, mutationMock]} />);
     let submitButton: HTMLButtonElement;
     await waitFor(() => {
@@ -188,7 +188,7 @@ describe("PageEditMetrics", () => {
   });
 
   it("handles server validation error", async () => {
-    mutationMock.result.data.updateExperimentProbeSets.message = {
+    mutationMock.result.data.updateExperiment.message = {
       primaryProbeSets: ["Bad probe sets"],
     };
     render(<Subject mocks={[mock, mutationMock]} />);

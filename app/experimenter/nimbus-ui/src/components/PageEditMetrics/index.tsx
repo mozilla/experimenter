@@ -9,8 +9,8 @@ import React, { useState, useRef, useCallback } from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { SUBMIT_ERROR } from "../../lib/constants";
 import { UPDATE_EXPERIMENT_PROBESETS_MUTATION } from "../../gql/experiments";
-import { updateExperimentProbeSets_updateExperimentProbeSets as UpdateExperimentProbeSetsResult } from "../../types/updateExperimentProbeSets";
-import { UpdateExperimentProbeSetsInput } from "../../types/globalTypes";
+import { updateExperimentProbeSets_updateExperiment as UpdateExperimentProbeSetsResult } from "../../types/updateExperimentProbeSets";
+import { ExperimentInput } from "../../types/globalTypes";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import FormMetrics from "../FormMetrics";
 import LinkExternal from "../LinkExternal";
@@ -21,8 +21,8 @@ export const CORE_METRICS_DOC_URL =
 
 const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
   const [updateExperimentProbeSets, { loading }] = useMutation<
-    { updateExperimentProbeSets: UpdateExperimentProbeSetsResult },
-    { input: UpdateExperimentProbeSetsInput }
+    { updateExperiment: UpdateExperimentProbeSetsResult },
+    { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_PROBESETS_MUTATION);
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
@@ -36,22 +36,22 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
       secondaryProbeSetIds,
     }: Record<string, number[]>) => {
       try {
-        const nimbusExperimentId = parseInt(currentExperiment.current!.id, 10);
+        const nimbusExperimentId = currentExperiment.current!.id;
         const result = await updateExperimentProbeSets({
           variables: {
             input: {
-              nimbusExperimentId,
+              id: nimbusExperimentId,
               primaryProbeSetIds,
               secondaryProbeSetIds,
             },
           },
         });
 
-        if (!result.data?.updateExperimentProbeSets) {
+        if (!result.data?.updateExperiment) {
           throw new Error("Save failed, no error available");
         }
 
-        const { message } = result.data.updateExperimentProbeSets;
+        const { message } = result.data.updateExperiment;
 
         if (message && message !== "success" && typeof message === "object") {
           setIsServerValid(false);

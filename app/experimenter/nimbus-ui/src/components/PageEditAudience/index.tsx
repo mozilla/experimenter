@@ -6,8 +6,8 @@ import React, { useCallback, useRef, useState } from "react";
 import { navigate, RouteComponentProps } from "@reach/router";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import { useMutation } from "@apollo/client";
-import { UpdateExperimentAudienceInput } from "../../types/globalTypes";
-import { updateExperimentAudience_updateExperimentAudience as UpdateExperimentAudienceResult } from "../../types/updateExperimentAudience";
+import { ExperimentInput } from "../../types/globalTypes";
+import { updateExperimentAudience_updateExperiment as UpdateExperimentAudienceResult } from "../../types/updateExperimentAudience";
 import { UPDATE_EXPERIMENT_AUDIENCE_MUTATION } from "../../gql/experiments";
 import { SUBMIT_ERROR } from "../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
@@ -16,8 +16,8 @@ import { editCommonRedirects } from "../../lib/experiment";
 
 const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
   const [updateExperimentAudience, { loading }] = useMutation<
-    { updateExperimentAudience: UpdateExperimentAudienceResult },
-    { input: UpdateExperimentAudienceInput }
+    { updateExperiment: UpdateExperimentAudienceResult },
+    { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_AUDIENCE_MUTATION);
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
@@ -37,11 +37,11 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
     }: Record<string, any>) => {
       try {
         // issue #3954: Need to parse string IDs into numbers
-        const nimbusExperimentId = parseInt(currentExperiment.current!.id, 10);
+        const nimbusExperimentId = currentExperiment.current!.id;
         const result = await updateExperimentAudience({
           variables: {
             input: {
-              nimbusExperimentId,
+              id: nimbusExperimentId,
               channel,
               firefoxMinVersion,
               targetingConfigSlug,
@@ -53,11 +53,11 @@ const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {
           },
         });
 
-        if (!result.data?.updateExperimentAudience) {
+        if (!result.data?.updateExperiment) {
           throw new Error(SUBMIT_ERROR);
         }
 
-        const { message } = result.data.updateExperimentAudience;
+        const { message } = result.data.updateExperiment;
 
         if (message && message !== "success" && typeof message === "object") {
           setIsServerValid(false);
