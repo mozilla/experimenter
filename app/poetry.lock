@@ -406,7 +406,7 @@ requests = ">=2.0.0"
 
 [[package]]
 name = "django-storages"
-version = "1.11"
+version = "1.11.1"
 description = "Support for many storage backends in Django"
 category = "main"
 optional = false
@@ -1550,7 +1550,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "db76da81182121e92a84a42dd71aca4149aec50c1bffe37985ef3bab22117c7c"
+content-hash = "30a347c7dede80c7305dbb1027bf5bd2a1005ab98936e509064dd779131e32cd"
 
 [metadata.files]
 aiohttp = [
@@ -1794,8 +1794,8 @@ django-mozilla-product-details = [
     {file = "django_mozilla_product_details-0.14.1-py2.py3-none-any.whl", hash = "sha256:5fa2a8c3f2b9489aeb39b42c3612a43b0be5e778ffab07a5a2cf23b1eced4d64"},
 ]
 django-storages = [
-    {file = "django-storages-1.11.tar.gz", hash = "sha256:7af56611c62a1c174aab4e862efb7fdd98296dccf76f42135f5b6851fc313c97"},
-    {file = "django_storages-1.11-py3-none-any.whl", hash = "sha256:056ec3e9e2b0c6f363913976072ffba2923e79e4859578047da139ba1637497e"},
+    {file = "django-storages-1.11.1.tar.gz", hash = "sha256:c823dbf56c9e35b0999a13d7e05062b837bae36c518a40255d522fbe3750fbb4"},
+    {file = "django_storages-1.11.1-py3-none-any.whl", hash = "sha256:f28765826d507a0309cfaa849bd084894bc71d81bf0d09479168d44785396f80"},
 ]
 django-widget-tweaks = [
     {file = "django-widget-tweaks-1.4.8.tar.gz", hash = "sha256:9f91ca4217199b7671971d3c1f323a2bec71a0c27dec6260b3c006fa541bc489"},
