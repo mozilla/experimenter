@@ -11,6 +11,7 @@ import LinkExternal from "../LinkExternal";
 import { getStatus } from "../../lib/experiment";
 import MonitoringLink from "../MonitoringLink";
 import { getConfigLabel, ConfigOptions } from "../../lib/getConfigLabel";
+import NotSet from "../NotSet";
 
 type SummaryProps = {
   experiment: getExperiment_experimentBySlug;
@@ -53,15 +54,5 @@ export const displayConfigLabelOrNotSet = (
   if (!value) return <NotSet />;
   return getConfigLabel(value, options);
 };
-
-export const NotSet = ({
-  "data-testid": testid = "not-set",
-}: {
-  "data-testid"?: string;
-}) => (
-  <span className="text-danger" data-testid={testid}>
-    Not set
-  </span>
-);
 
 export default Summary;

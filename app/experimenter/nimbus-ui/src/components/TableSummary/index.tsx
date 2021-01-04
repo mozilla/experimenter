@@ -6,8 +6,9 @@ import React from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { Table } from "react-bootstrap";
 import { useConfig } from "../../hooks";
-import { displayConfigLabelOrNotSet, NotSet } from "../Summary";
+import { displayConfigLabelOrNotSet } from "../Summary";
 import RichText from "../RichText";
+import NotSet from "../NotSet";
 
 type TableSummaryProps = {
   experiment: getExperiment_experimentBySlug;
