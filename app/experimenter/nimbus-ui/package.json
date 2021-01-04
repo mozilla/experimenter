@@ -46,7 +46,7 @@
     "react-dom": "^16.13.1",
     "react-helmet": "^6.1.0",
     "react-hook-form": "^6.12.2",
-    "react-scripts": "3.4.0",
+    "react-scripts": "4.0.1",
     "react-select": "^3.1.1",
     "react-select-event": "^5.1.0",
     "react-tooltip": "^4.2.10",
