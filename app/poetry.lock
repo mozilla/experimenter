@@ -492,18 +492,18 @@ testing = ["pre-commit"]
 
 [[package]]
 name = "factory-boy"
-version = "3.1.0"
+version = "3.2.0"
 description = "A versatile test fixtures replacement based on thoughtbot's factory_bot for Ruby."
 category = "main"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.6"
 
 [package.dependencies]
 Faker = ">=0.7.0"
 
 [package.extras]
 dev = ["coverage", "django", "flake8", "isort", "pillow", "sqlalchemy", "mongoengine", "wheel (>=0.32.0)", "tox", "zest.releaser"]
-doc = ["sphinx", "sphinx-rtd-theme"]
+doc = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-spelling"]
 
 [[package]]
 name = "faker"
@@ -1550,7 +1550,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "1301e4e95caaf8b3ccc8c21888c82e0a1c2cacadf07705171458a053ae2e2b49"
+content-hash = "aa470582071bfd9e562f05b5ee53928dfb7ce06ce8294670f5008acaf5b3e955"
 
 [metadata.files]
 aiohttp = [
@@ -1819,8 +1819,8 @@ execnet = [
     {file = "execnet-1.7.1.tar.gz", hash = "sha256:cacb9df31c9680ec5f95553976c4da484d407e85e41c83cb812aa014f0eddc50"},
 ]
 factory-boy = [
-    {file = "factory_boy-3.1.0-py2.py3-none-any.whl", hash = "sha256:d8626622550c8ba31392f9e19fdbcef9f139cf1ad643c5923f20490a7b3e2e3d"},
-    {file = "factory_boy-3.1.0.tar.gz", hash = "sha256:ded73e49135c24bd4d3f45bf1eb168f8d290090f5cf4566b8df3698317dc9c08"},
+    {file = "factory_boy-3.2.0-py2.py3-none-any.whl", hash = "sha256:1d3db4b44b8c8c54cdd8b83ae4bdb9aeb121e464400035f1f03ae0e1eade56a4"},
+    {file = "factory_boy-3.2.0.tar.gz", hash = "sha256:401cc00ff339a022f84d64a4339503d1689e8263a4478d876e58a3295b155c5b"},
 ]
 faker = [
     {file = "Faker-4.1.6-py3-none-any.whl", hash = "sha256:078e2473f1283fc6d91d6b2d2d97e6db7ce9e7fb81ed19cef8d37926546010e2"},
