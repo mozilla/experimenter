@@ -1254,7 +1254,7 @@ watchdog = ">=0.6.0"
 
 [[package]]
 name = "pytest-xdist"
-version = "2.1.0"
+version = "2.2.0"
 description = "pytest xdist plugin for distributed testing and loop-on-failing modes"
 category = "main"
 optional = false
@@ -1551,7 +1551,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "2685bd34b23210da9fb724ade4b40da164e7b18e0c2396fc314f5790bd90cabf"
+content-hash = "60f5ea5b7f0a9f9926dff38c5c5f1e3e00d9de8e1692772b17deca7f3e412dc5"
 
 [metadata.files]
 aiohttp = [
@@ -2140,8 +2140,8 @@ pytest-watch = [
     {file = "pytest-watch-4.2.0.tar.gz", hash = "sha256:06136f03d5b361718b8d0d234042f7b2f203910d8568f63df2f866b547b3d4b9"},
 ]
 pytest-xdist = [
-    {file = "pytest-xdist-2.1.0.tar.gz", hash = "sha256:82d938f1a24186520e2d9d3a64ef7d9ac7ecdf1a0659e095d18e596b8cbd0672"},
-    {file = "pytest_xdist-2.1.0-py3-none-any.whl", hash = "sha256:7c629016b3bb006b88ac68e2b31551e7becf173c76b977768848e2bbed594d90"},
+    {file = "pytest-xdist-2.2.0.tar.gz", hash = "sha256:1d8edbb1a45e8e1f8e44b1260583107fc23f8bc8da6d18cb331ff61d41258ecf"},
+    {file = "pytest_xdist-2.2.0-py3-none-any.whl", hash = "sha256:f127e11e84ad37cc1de1088cb2990f3c354630d428af3f71282de589c5bb779b"},
 ]
 python-dateutil = [
     {file = "python-dateutil-2.8.1.tar.gz", hash = "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"},
