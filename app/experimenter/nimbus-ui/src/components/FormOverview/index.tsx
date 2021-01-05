@@ -187,7 +187,7 @@ const FormOverview = ({
       )}
 
       <div className="d-flex flex-row-reverse bd-highlight">
-        {onNext && (
+        {!!experiment && onNext && (
           <div className="p-2">
             <button
               onClick={handleNext}
@@ -211,7 +211,7 @@ const FormOverview = ({
             {isLoading ? (
               <span>{experiment ? "Saving" : "Submitting"}</span>
             ) : (
-              <span>{experiment ? "Save" : "Create experiment"}</span>
+              <span>{experiment ? "Save" : "Next"}</span>
             )}
           </button>
         </div>

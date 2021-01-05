@@ -10,6 +10,7 @@ export function humanDate(date: string): string {
   return new Date(date).toLocaleString("en-US", {
     month: "short",
     day: "numeric",
+    year: "numeric",
   });
 }
 
