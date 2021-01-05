@@ -405,5 +405,6 @@ KINTO_COLLECTION_NIMBUS_MOBILE = "nimbus-mobile-experiments"
 DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
 GS_PROJECT_ID = "experiments-analysis"
 GS_BUCKET_NAME = "mozanalysis"
+GS_LOCATION = "statistics"
 
 NIMBUS_SCHEMA_VERSION = pkg_resources.get_distribution("mozilla-nimbus-shared").version
