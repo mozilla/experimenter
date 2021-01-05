@@ -35,7 +35,7 @@ describe("getProposedEndDate", () => {
         proposedDuration: 2,
       }),
     );
-    expect(actual).toBe("Dec 14");
+    expect(actual).toBe("Dec 14, 2020");
   });
   it("should render a duration if no startDate is set", () => {
     const actual = getProposedEndDate(
@@ -71,7 +71,7 @@ describe("getProposedEnrollmentRange", () => {
         proposedEnrollment: 4,
       }),
     );
-    expect(actual).toBe("Dec 12 to Dec 16");
+    expect(actual).toBe("Dec 12, 2020 to Dec 16, 2020");
   });
   it("should render the enrollment duration if no startDate is set", () => {
     const actual = getProposedEnrollmentRange(

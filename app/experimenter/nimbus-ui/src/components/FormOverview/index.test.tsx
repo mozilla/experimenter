@@ -25,8 +25,9 @@ describe("FormOverview", () => {
   });
 
   it("calls onNext when next clicked", async () => {
+    const { experiment } = mockExperimentQuery("boo");
     const onNext = jest.fn();
-    render(<Subject {...{ onNext }} />);
+    render(<Subject {...{ onNext, experiment }} />);
 
     const nextButton = screen.getByText("Next");
     await act(async () => void fireEvent.click(nextButton));
@@ -80,7 +81,7 @@ describe("FormOverview", () => {
     const onSubmit = jest.fn();
     render(<Subject {...{ onSubmit }} />);
 
-    const submitButton = screen.getByText("Create experiment");
+    const submitButton = screen.getByText("Next");
     await act(async () => fillOutNewForm(expected));
     await act(async () => void fireEvent.click(submitButton));
 
