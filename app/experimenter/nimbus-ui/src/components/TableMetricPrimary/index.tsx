@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { AnalysisData } from "../../lib/visualization/types";
+import { AnalysisDataOverall } from "../../lib/visualization/types";
 import TableVisualizationRow from "../TableVisualizationRow";
 import { getExperiment_experimentBySlug_primaryProbeSets } from "../../types/getExperiment";
 import {
@@ -20,7 +20,7 @@ type PrimaryMetricStatistic = {
 };
 
 type TableMetricPrimaryProps = {
-  results: AnalysisData["overall"];
+  results: AnalysisDataOverall;
   probeSet: getExperiment_experimentBySlug_primaryProbeSets;
 };
 

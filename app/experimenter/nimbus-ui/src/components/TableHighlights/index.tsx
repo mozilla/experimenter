@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { AnalysisData } from "../../lib/visualization/types";
+import { AnalysisDataOverall } from "../../lib/visualization/types";
 import {
   HIGHLIGHTS_METRICS_LIST,
   METRICS_TIPS,
@@ -19,7 +19,7 @@ import { ReactComponent as Info } from "../../images/info.svg";
 
 type TableHighlightsProps = {
   primaryProbeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[];
-  results: AnalysisData["overall"];
+  results: AnalysisDataOverall;
 };
 
 const getHighlightMetrics = (
