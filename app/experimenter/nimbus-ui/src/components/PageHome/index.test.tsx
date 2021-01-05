@@ -18,7 +18,7 @@ describe("PageHome", () => {
     render(<Subject />);
 
     expect(screen.getByTestId("PageHome")).toBeInTheDocument();
-    expect(screen.getByText("New experiment")).toBeInTheDocument();
+    expect(screen.getByText("Create new")).toBeInTheDocument();
   });
   it("displays loading when experiments are still loading", () => {
     (jest.spyOn(apollo, "useQuery") as jest.Mock).mockReturnValueOnce({

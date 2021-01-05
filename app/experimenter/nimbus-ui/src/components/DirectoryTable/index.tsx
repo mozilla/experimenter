@@ -74,20 +74,29 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
     { label: "Feature", component: DirectoryColumnFeature },
   ];
   return (
-    <div className="directory-table pb-4" data-testid="DirectoryTable">
+    <div className="directory-table pb-2" data-testid="DirectoryTable">
       <table className="table">
         <thead>
           <tr>
-            {columns.map(({ label }, i) => (
+            {experiments.length ? (
+              columns.map(({ label }, i) => (
+                <th
+                  className={`border-top-0 ${
+                    i === 0 ? "font-weight-bold" : "font-weight-normal"
+                  }`}
+                  key={label}
+                >
+                  {label}
+                </th>
+              ))
+            ) : (
               <th
-                className={`border-top-0 ${
-                  i === 0 ? "font-weight-bold" : "font-weight-normal"
-                }`}
-                key={label}
+                colSpan={columns.length}
+                className="border-top-0 font-weight-bold"
               >
-                {label}
+                {columns[0].label}
               </th>
-            ))}
+            )}
           </tr>
         </thead>
         <tbody>
