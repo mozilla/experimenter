@@ -64,9 +64,11 @@ const StartEnd = ({
         <span className="flex-fill" data-testid="label-start-date">
           {humanDate(startDate!)}
         </span>
-        <span className="flex-fill text-right" data-testid="label-end-date">
-          {humanDate(endDate!)}
-        </span>
+        {endDate && (
+          <span className="flex-fill text-right" data-testid="label-end-date">
+            {humanDate(endDate!)}
+          </span>
+        )}
       </>
     )}
   </div>

@@ -26,7 +26,7 @@ const HeaderExperiment = ({ name, slug, status }: HeaderExperimentProps) => (
     </p>
     <p className="header-experiment-status position-relative mt-2 d-inline-block">
       <StatusPill label="Draft" active={status.draft} />
-      <StatusPill label="Review" active={status.review} />
+      <StatusPill label="Review" active={status.review || status.accepted} />
       <StatusPill label="Live" active={status.live} />
       <StatusPill label="Complete" active={status.complete} padded={false} />
     </p>
