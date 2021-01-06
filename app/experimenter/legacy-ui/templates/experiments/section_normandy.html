@@ -39,6 +39,11 @@ Info {% endblock %} {% block section_content %} {% if experiment.recipe_slug %}
   <strong class="mr-2">Normandy Recipe Data: </strong>
 </p>
 <p>
-  <a href="{{ experiment.api_recipe_url }}" target="_blank">Preview</a>
+  <a
+    href="{{ experiment.api_recipe_url }}"
+    target="_blank"
+    rel="noopener noreferrer"
+    >Preview</a
+  >
 </p>
 {% endif %} {% endblock %}
