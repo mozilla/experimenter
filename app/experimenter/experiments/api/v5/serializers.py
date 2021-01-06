@@ -180,25 +180,28 @@ class NimbusExperimentBranchMixin:
     def update(self, experiment, data):
         control_branch_data = data.pop("reference_branch", {})
         treatment_branches_data = data.pop("treatment_branches", {})
-        instance = super().update(experiment, data)
 
-        if control_branch_data or treatment_branches_data:
-            with transaction.atomic():
-                NimbusBranch.objects.filter(experiment=instance).delete()
+        with transaction.atomic():
+            experiment = super().update(experiment, data)
+            experiment.delete_branches()
+
+            if control_branch_data:
                 experiment.reference_branch = NimbusBranch.objects.create(
-                    experiment=instance,
+                    experiment=experiment,
                     slug=slugify(control_branch_data["name"]),
                     **control_branch_data,
                 )
+                experiment.save()
+
+            if treatment_branches_data:
                 for branch_data in treatment_branches_data:
                     NimbusBranch.objects.create(
-                        experiment=instance,
+                        experiment=experiment,
                         slug=slugify(branch_data["name"]),
                         **branch_data,
                     )
-                instance.save()
 
-        return instance
+        return experiment
 
 
 class NimbusExperimentProbeSetMixin:

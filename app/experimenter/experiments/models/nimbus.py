@@ -113,10 +113,10 @@ class NimbusExperiment(NimbusConstants, models.Model):
 
     @property
     def treatment_branches(self):
+        branches = self.branches.order_by("id")
         if self.reference_branch:
-            return self.branches.exclude(id=self.reference_branch.id).order_by("id")
-        else:
-            return self.branches.order_by("id")
+            branches = branches.exclude(id=self.reference_branch.id)
+        return list(branches)
 
     @property
     def primary_probe_sets(self):
@@ -179,6 +179,11 @@ class NimbusExperiment(NimbusConstants, models.Model):
         return settings.MONITORING_URL.format(
             slug=self.slug, from_date=start_date, to_date=end_date
         )
+
+    def delete_branches(self):
+        self.reference_branch = None
+        self.save()
+        self.branches.all().delete()
 
 
 class NimbusBranch(models.Model):
