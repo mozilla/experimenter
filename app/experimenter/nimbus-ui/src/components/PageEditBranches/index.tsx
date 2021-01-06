@@ -11,8 +11,8 @@ import LinkExternal from "../LinkExternal";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import { useMutation } from "@apollo/client";
 import { UPDATE_EXPERIMENT_BRANCHES_MUTATION } from "../../gql/experiments";
-import { UpdateExperimentBranchesInput } from "../../types/globalTypes";
-import { updateExperimentBranches_updateExperimentBranches as UpdateExperimentBranchesResult } from "../../types/updateExperimentBranches";
+import { ExperimentInput } from "../../types/globalTypes";
+import { updateExperimentBranches_updateExperiment as UpdateExperimentBranchesResult } from "../../types/updateExperimentBranches";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { editCommonRedirects } from "../../lib/experiment";
 
@@ -25,8 +25,8 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
   const { featureConfig } = useConfig();
 
   const [updateExperimentBranches, { loading }] = useMutation<
-    { updateExperimentBranches: UpdateExperimentBranchesResult },
-    { input: UpdateExperimentBranchesInput }
+    { updateExperiment: UpdateExperimentBranchesResult },
+    { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_BRANCHES_MUTATION);
 
   const currentExperiment = useRef<getExperiment_experimentBySlug>();
@@ -44,11 +44,11 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
     ) => {
       try {
         // issue #3954: Need to parse string IDs into numbers
-        const nimbusExperimentId = parseInt(currentExperiment.current!.id, 10);
+        const nimbusExperimentId = currentExperiment.current!.id;
         const result = await updateExperimentBranches({
           variables: {
             input: {
-              nimbusExperimentId,
+              id: nimbusExperimentId,
               featureConfigId,
               referenceBranch,
               treatmentBranches,
@@ -56,11 +56,11 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
           },
         });
 
-        if (!result.data?.updateExperimentBranches) {
+        if (!result.data?.updateExperiment) {
           throw new Error(SUBMIT_ERROR_MESSAGE);
         }
 
-        const { message } = result.data.updateExperimentBranches;
+        const { message } = result.data.updateExperiment;
 
         if (message !== "success" && typeof message === "object") {
           return void setSubmitErrors(message);

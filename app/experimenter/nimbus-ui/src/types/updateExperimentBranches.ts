@@ -3,51 +3,51 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { UpdateExperimentBranchesInput } from "./globalTypes";
+import { ExperimentInput } from "./globalTypes";
 
 // ====================================================
 // GraphQL mutation operation: updateExperimentBranches
 // ====================================================
 
-export interface updateExperimentBranches_updateExperimentBranches_nimbusExperiment_featureConfig {
+export interface updateExperimentBranches_updateExperiment_nimbusExperiment_featureConfig {
   __typename: "NimbusFeatureConfigType";
   name: string;
 }
 
-export interface updateExperimentBranches_updateExperimentBranches_nimbusExperiment_referenceBranch {
+export interface updateExperimentBranches_updateExperiment_nimbusExperiment_referenceBranch {
   __typename: "NimbusBranchType";
   name: string;
   description: string;
   ratio: number;
 }
 
-export interface updateExperimentBranches_updateExperimentBranches_nimbusExperiment_treatmentBranches {
+export interface updateExperimentBranches_updateExperiment_nimbusExperiment_treatmentBranches {
   __typename: "NimbusBranchType";
   name: string;
   description: string;
   ratio: number;
 }
 
-export interface updateExperimentBranches_updateExperimentBranches_nimbusExperiment {
+export interface updateExperimentBranches_updateExperiment_nimbusExperiment {
   __typename: "NimbusExperimentType";
-  id: string;
-  featureConfig: updateExperimentBranches_updateExperimentBranches_nimbusExperiment_featureConfig | null;
-  referenceBranch: updateExperimentBranches_updateExperimentBranches_nimbusExperiment_referenceBranch | null;
-  treatmentBranches: (updateExperimentBranches_updateExperimentBranches_nimbusExperiment_treatmentBranches | null)[] | null;
+  id: number | null;
+  featureConfig: updateExperimentBranches_updateExperiment_nimbusExperiment_featureConfig | null;
+  referenceBranch: updateExperimentBranches_updateExperiment_nimbusExperiment_referenceBranch | null;
+  treatmentBranches: (updateExperimentBranches_updateExperiment_nimbusExperiment_treatmentBranches | null)[] | null;
 }
 
-export interface updateExperimentBranches_updateExperimentBranches {
-  __typename: "UpdateExperimentBranches";
+export interface updateExperimentBranches_updateExperiment {
+  __typename: "UpdateExperiment";
   clientMutationId: string | null;
   message: ObjectField | null;
   status: number | null;
-  nimbusExperiment: updateExperimentBranches_updateExperimentBranches_nimbusExperiment | null;
+  nimbusExperiment: updateExperimentBranches_updateExperiment_nimbusExperiment | null;
 }
 
 export interface updateExperimentBranches {
-  updateExperimentBranches: updateExperimentBranches_updateExperimentBranches | null;
+  updateExperiment: updateExperimentBranches_updateExperiment | null;
 }
 
 export interface updateExperimentBranchesVariables {
-  input: UpdateExperimentBranchesInput;
+  input: ExperimentInput;
 }

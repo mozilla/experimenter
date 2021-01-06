@@ -3,13 +3,9 @@ from django.utils.text import slugify
 from parameterized import parameterized
 
 from experimenter.experiments.api.v5.serializers import (
-    NimbusAudienceUpdateSerializer,
     NimbusBranchSerializer,
-    NimbusBranchUpdateSerializer,
-    NimbusExperimentOverviewSerializer,
-    NimbusProbeSetUpdateSerializer,
+    NimbusExperimentUpdateSerializer,
     NimbusReadyForReviewSerializer,
-    NimbusStatusUpdateSerializer,
 )
 from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models import NimbusExperiment
@@ -53,7 +49,7 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
             "public_description": "Test description",
         }
 
-        serializer = NimbusExperimentOverviewSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             data=data, context={"user": self.user}
         )
         self.assertTrue(serializer.is_valid())
@@ -75,7 +71,7 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
             "public_description": "Test description",
         }
 
-        serializer = NimbusExperimentOverviewSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             data=data, context={"user": self.user}
         )
         self.assertFalse(serializer.is_valid())
@@ -97,7 +93,7 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
             "public_description": "Test description",
         }
 
-        serializer = NimbusExperimentOverviewSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             data=data, context={"user": self.user}
         )
         self.assertFalse(serializer.is_valid())
@@ -115,7 +111,7 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
             "public_description": "Test description",
         }
 
-        serializer = NimbusExperimentOverviewSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             data=data, context={"user": self.user}
         )
         self.assertFalse(serializer.is_valid())
@@ -129,7 +125,7 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
             "public_description": "Does it do the thing?",
         }
 
-        serializer = NimbusExperimentOverviewSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             data=data, context={"user": self.user}
         )
 
@@ -160,11 +156,11 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
             "public_description": "New public description",
         }
 
-        serializer = NimbusExperimentOverviewSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment, data=data, context={"user": self.user}
         )
 
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
         experiment = serializer.save()
         self.assertEqual(experiment.changes.count(), 2)
@@ -260,7 +256,7 @@ class TestNimbusBranchUpdateSerializer(TestCase):
             "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
         }
-        serializer = NimbusBranchUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment, data=input, partial=True, context={"user": self.user}
         )
         self.assertTrue(serializer.is_valid())
@@ -310,10 +306,10 @@ class TestNimbusBranchUpdateSerializer(TestCase):
             "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
         }
-        serializer = NimbusBranchUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment, data=input, partial=True, context={"user": self.user}
         )
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
         experiment = serializer.save()
         for key, val in reference_branch.items():
             self.assertEqual(getattr(experiment.reference_branch, key), val)
@@ -360,7 +356,7 @@ class TestNimbusBranchUpdateSerializer(TestCase):
             "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
         }
-        serializer = NimbusBranchUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment, data=input, partial=True, context={"user": self.user}
         )
         self.assertFalse(serializer.is_valid())
@@ -401,7 +397,7 @@ class TestNimbusBranchUpdateSerializer(TestCase):
             "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
         }
-        serializer = NimbusBranchUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment, data=input, partial=True, context={"user": self.user}
         )
         self.assertFalse(serializer.is_valid())
@@ -440,7 +436,7 @@ class TestNimbusBranchUpdateSerializer(TestCase):
             "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
         }
-        serializer = NimbusBranchUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment, data=input, partial=True, context={"user": self.user}
         )
         self.assertFalse(serializer.is_valid())
@@ -485,7 +481,7 @@ class TestNimbusBranchUpdateSerializer(TestCase):
             "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
         }
-        serializer = NimbusBranchUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment, data=input, partial=True, context={"user": self.user}
         )
         self.assertFalse(serializer.is_valid())
@@ -501,17 +497,17 @@ class TestNimbusProbeSetUpdateSerializer(TestCase):
     def test_serializer_updates_probe_sets_on_experiment(self):
         user = UserFactory()
         experiment = NimbusExperimentFactory(probe_sets=[])
-        primary_probe_sets = [
+        primary_probe_set_ids = [
             NimbusProbeSetFactory().id
             for i in range(NimbusExperiment.MAX_PRIMARY_PROBE_SETS)
         ]
-        secondary_probe_sets = [NimbusProbeSetFactory().id for i in range(3)]
+        secondary_probe_set_ids = [NimbusProbeSetFactory().id for i in range(3)]
 
-        serializer = NimbusProbeSetUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment,
             {
-                "primary_probe_sets": primary_probe_sets,
-                "secondary_probe_sets": secondary_probe_sets,
+                "primary_probe_set_ids": primary_probe_set_ids,
+                "secondary_probe_set_ids": secondary_probe_set_ids,
             },
             context={"user": user},
         )
@@ -522,16 +518,16 @@ class TestNimbusProbeSetUpdateSerializer(TestCase):
         self.assertEqual(experiment.changes.count(), 1)
 
         self.assertEqual(
-            set(primary_probe_sets) | set(secondary_probe_sets),
+            set(primary_probe_set_ids) | set(secondary_probe_set_ids),
             set(experiment.probe_sets.all().values_list("id", flat=True)),
         )
         self.assertEqual(
             set([p.id for p in experiment.primary_probe_sets]),
-            set(primary_probe_sets),
+            set(primary_probe_set_ids),
         )
         self.assertEqual(
             set([p.id for p in experiment.secondary_probe_sets]),
-            set(secondary_probe_sets),
+            set(secondary_probe_set_ids),
         )
 
     def test_serializer_rejects_duplicate_probes(self):
@@ -539,13 +535,13 @@ class TestNimbusProbeSetUpdateSerializer(TestCase):
         experiment = NimbusExperimentFactory(probe_sets=[])
         probe_sets = [NimbusProbeSetFactory() for i in range(3)]
 
-        serializer = NimbusProbeSetUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment,
             {
-                "primary_probe_sets": [
+                "primary_probe_set_ids": [
                     p.id for p in probe_sets[: NimbusExperiment.MAX_PRIMARY_PROBE_SETS]
                 ],
-                "secondary_probe_sets": [p.id for p in probe_sets],
+                "secondary_probe_set_ids": [p.id for p in probe_sets],
             },
             context={"user": user},
         )
@@ -554,7 +550,7 @@ class TestNimbusProbeSetUpdateSerializer(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertEqual(experiment.changes.count(), 0)
         self.assertEqual(
-            serializer.errors["primary_probe_sets"][0],
+            serializer.errors["primary_probe_set_ids"][0],
             "Primary probe sets cannot overlap with secondary probe sets.",
         )
 
@@ -563,11 +559,11 @@ class TestNimbusProbeSetUpdateSerializer(TestCase):
         experiment = NimbusExperimentFactory(probe_sets=[])
         probe_sets = [NimbusProbeSetFactory() for i in range(3)]
 
-        serializer = NimbusProbeSetUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment,
             {
-                "primary_probe_sets": [p.id for p in probe_sets],
-                "secondary_probe_sets": [],
+                "primary_probe_set_ids": [p.id for p in probe_sets],
+                "secondary_probe_set_ids": [],
             },
             context={"user": user},
         )
@@ -577,7 +573,7 @@ class TestNimbusProbeSetUpdateSerializer(TestCase):
         self.assertEqual(experiment.changes.count(), 0)
         self.assertIn(
             "Exceeded maximum primary probe set limit of",
-            serializer.errors["primary_probe_sets"][0],
+            serializer.errors["primary_probe_set_ids"][0],
         )
 
 
@@ -594,7 +590,7 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
             targeting_config_slug=None,
             total_enrolled_clients=0,
         )
-        serializer = NimbusAudienceUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment,
             {
                 "channel": NimbusConstants.Channel.DESKTOP_BETA.value,
@@ -638,7 +634,7 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
             targeting_config_slug=None,
             total_enrolled_clients=0,
         )
-        serializer = NimbusAudienceUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment,
             {
                 "channel": NimbusConstants.Channel.DESKTOP_BETA.value,
@@ -675,7 +671,7 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
     def test_population_percent_bounds_check(self, expected_valid, population_percent):
         user = UserFactory()
         experiment = NimbusExperimentFactory()
-        serializer = NimbusAudienceUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment,
             {"population_percent": population_percent},
             context={"user": user},
@@ -696,7 +692,7 @@ class TestNimbusStatusUpdateSerializer(TestCase):
 
     def test_status_update(self):
         experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.DRAFT)
-        serializer = NimbusStatusUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment,
             data={"status": NimbusExperiment.Status.REVIEW},
             context={"user": self.user},
@@ -709,7 +705,7 @@ class TestNimbusStatusUpdateSerializer(TestCase):
 
     def test_status_with_invalid_target_status(self):
         experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.DRAFT)
-        serializer = NimbusStatusUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment,
             data={"status": NimbusExperiment.Status.ACCEPTED},
             context={"user": self.user},
@@ -723,7 +719,7 @@ class TestNimbusStatusUpdateSerializer(TestCase):
 
     def test_status_with_invalid_existing_status(self):
         experiment = NimbusExperimentFactory(status=NimbusExperiment.Status.ACCEPTED)
-        serializer = NimbusStatusUpdateSerializer(
+        serializer = NimbusExperimentUpdateSerializer(
             experiment,
             data={"status": NimbusExperiment.Status.REVIEW},
             context={"user": self.user},

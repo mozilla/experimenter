@@ -11,7 +11,7 @@ import { ReactComponent as DeleteIcon } from "../../images/x.svg";
 
 import { useMutation } from "@apollo/client";
 import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { CreateExperimentInput } from "../../types/globalTypes";
+import { ExperimentInput } from "../../types/globalTypes";
 import { createExperiment_createExperiment as CreateExperimentResult } from "../../types/createExperiment";
 import { navigate } from "@reach/router";
 import { SUBMIT_ERROR } from "../../lib/constants";
@@ -25,7 +25,7 @@ type PageNewProps = {} & RouteComponentProps;
 const PageNew: React.FunctionComponent<PageNewProps> = () => {
   const [createExperiment, { loading }] = useMutation<
     { createExperiment: CreateExperimentResult },
-    { input: CreateExperimentInput }
+    { input: ExperimentInput }
   >(CREATE_EXPERIMENT_MUTATION);
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});

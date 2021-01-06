@@ -103,6 +103,7 @@ class NimbusReadyForReviewType(graphene.ObjectType):
 
 
 class NimbusExperimentType(DjangoObjectType):
+    id = graphene.Int()
     status = NimbusExperimentStatus()
     application = NimbusExperimentApplication()
     firefox_min_version = NimbusExperimentFirefoxMinVersion()

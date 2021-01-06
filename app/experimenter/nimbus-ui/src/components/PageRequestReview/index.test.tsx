@@ -133,7 +133,7 @@ describe("PageRequestReview", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
     });
-    const mutationMock = createMutationMock(experiment.id);
+    const mutationMock = createMutationMock(experiment.id!);
 
     render(<Subject mocks={[mock, mutationMock]} />);
     let submitButton: HTMLButtonElement;
@@ -151,9 +151,9 @@ describe("PageRequestReview", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
     });
-    const mutationMock = createMutationMock(experiment.id);
+    const mutationMock = createMutationMock(experiment.id!);
     // @ts-ignore - intentionally breaking this type for error handling
-    delete mutationMock.result.data.updateExperimentStatus;
+    delete mutationMock.result.data.updateExperiment;
     render(<Subject mocks={[mock, mutationMock]} />);
     let submitButton: HTMLButtonElement;
     await waitFor(
@@ -170,7 +170,7 @@ describe("PageRequestReview", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
     });
-    const mutationMock = createMutationMock(experiment.id);
+    const mutationMock = createMutationMock(experiment.id!);
     mutationMock.result.errors = [new Error("Boo")];
     render(<Subject mocks={[mock, mutationMock]} />);
     let submitButton: HTMLButtonElement;
@@ -188,10 +188,10 @@ describe("PageRequestReview", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
     });
-    const mutationMock = createMutationMock(experiment.id);
+    const mutationMock = createMutationMock(experiment.id!);
     const errorMessage =
       "Nimbus Experiments can only transition from DRAFT to REVIEW.";
-    mutationMock.result.data.updateExperimentStatus.message = {
+    mutationMock.result.data.updateExperiment.message = {
       status: [errorMessage],
     };
     render(<Subject mocks={[mock, mutationMock]} />);
