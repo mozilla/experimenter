@@ -20,20 +20,20 @@ import { navigate } from "@reach/router";
 import { UPDATE_EXPERIMENT_AUDIENCE_MUTATION } from "../../gql/experiments";
 import { BASE_PATH, SUBMIT_ERROR } from "../../lib/constants";
 import {
-  updateExperimentAudience_updateExperimentAudience,
-  updateExperimentAudience_updateExperimentAudience_nimbusExperiment,
+  updateExperimentAudience_updateExperiment,
+  updateExperimentAudience_updateExperiment_nimbusExperiment,
 } from "../../types/updateExperimentAudience";
 import {
   NimbusExperimentChannel,
   NimbusExperimentFirefoxMinVersion,
   NimbusExperimentStatus,
   NimbusExperimentTargetingConfigSlug,
-  UpdateExperimentAudienceInput,
+  ExperimentInput,
 } from "../../types/globalTypes";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 
-let mockSubmitData: Partial<UpdateExperimentAudienceInput>;
+let mockSubmitData: Partial<ExperimentInput>;
 let mutationMock: ReturnType<typeof mockUpdateExperimentAudienceMutation>;
 
 describe("PageEditAudience", () => {
@@ -48,7 +48,7 @@ describe("PageEditAudience", () => {
   beforeEach(() => {
     mockSubmitData = { ...MOCK_FORM_DATA };
     mutationMock = mockUpdateExperimentAudienceMutation(
-      { ...mockSubmitData, nimbusExperimentId: parseInt(experiment.id, 10) },
+      { ...mockSubmitData, id: experiment.id },
       {
         experiment: {
           ...MOCK_FORM_DATA,
@@ -137,7 +137,7 @@ describe("PageEditAudience", () => {
     const expectedErrors = {
       channel: { message: "this is garbage" },
     };
-    mutationMock.result.data.updateExperimentAudience.message = expectedErrors;
+    mutationMock.result.data.updateExperiment.message = expectedErrors;
     render(<Subject mocks={[mock, mutationMock]} />);
     let submitButton: HTMLButtonElement;
     await waitFor(() => {
@@ -153,7 +153,7 @@ describe("PageEditAudience", () => {
 
   it("handles form submission with bad server data", async () => {
     // @ts-ignore - intentionally breaking this type for error handling
-    delete mutationMock.result.data.updateExperimentAudience;
+    delete mutationMock.result.data.updateExperiment;
     render(<Subject mocks={[mock, mutationMock]} />);
     let submitButton: HTMLButtonElement;
     await waitFor(() => {
@@ -222,7 +222,7 @@ jest.mock("../FormAudience", () => ({
 }));
 
 export const mockUpdateExperimentAudienceMutation = (
-  input: Partial<UpdateExperimentAudienceInput>,
+  input: Partial<ExperimentInput>,
   {
     clientMutationId = "8675309",
     status = 200,
@@ -232,11 +232,11 @@ export const mockUpdateExperimentAudienceMutation = (
     clientMutationId?: string | null;
     status?: number;
     message?: string | Record<string, any>;
-    experiment: updateExperimentAudience_updateExperimentAudience_nimbusExperiment;
+    experiment: updateExperimentAudience_updateExperiment_nimbusExperiment;
   },
 ) => {
-  const updateExperimentAudience: updateExperimentAudience_updateExperimentAudience = {
-    __typename: "UpdateExperimentAudience",
+  const updateExperiment: updateExperimentAudience_updateExperiment = {
+    __typename: "UpdateExperiment",
     clientMutationId,
     status,
     message,
@@ -253,7 +253,7 @@ export const mockUpdateExperimentAudienceMutation = (
     result: {
       errors: undefined as undefined | any[],
       data: {
-        updateExperimentAudience,
+        updateExperiment,
       },
     },
   };

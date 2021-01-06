@@ -15,22 +15,33 @@ type CreateExperiment {
   status: Int
 }
 
-input CreateExperimentInput {
-  clientMutationId: String
-  name: String!
-  hypothesis: String!
-  application: NimbusExperimentApplication!
-}
-
 scalar DateTime
 
+input ExperimentInput {
+  clientMutationId: String
+  id: Int
+  status: NimbusExperimentStatus
+  hypothesis: String
+  name: String
+  application: NimbusExperimentApplication
+  publicDescription: String
+  featureConfigId: Int
+  referenceBranch: ReferenceBranchType
+  treatmentBranches: [TreatmentBranchType]
+  primaryProbeSetIds: [Int]
+  secondaryProbeSetIds: [Int]
+  channel: NimbusExperimentChannel
+  firefoxMinVersion: NimbusExperimentFirefoxMinVersion
+  populationPercent: String
+  proposedDuration: Int
+  proposedEnrollment: String
+  targetingConfigSlug: NimbusExperimentTargetingConfigSlug
+  totalEnrolledClients: Int
+}
+
 type Mutation {
-  createExperiment(input: CreateExperimentInput!): CreateExperiment
-  updateExperimentOverview(input: UpdateExperimentInput!): UpdateExperimentOverview
-  updateExperimentBranches(input: UpdateExperimentBranchesInput!): UpdateExperimentBranches
-  updateExperimentProbeSets(input: UpdateExperimentProbeSetsInput!): UpdateExperimentProbeSets
-  updateExperimentAudience(input: UpdateExperimentAudienceInput!): UpdateExperimentAudience
-  updateExperimentStatus(input: UpdateExperimentStatusInput!): UpdateExperimentStatus
+  createExperiment(input: ExperimentInput!): CreateExperiment
+  updateExperiment(input: ExperimentInput!): UpdateExperiment
 }
 
 type NimbusBranchType {
@@ -132,7 +143,7 @@ enum NimbusExperimentTargetingConfigSlug {
 }
 
 type NimbusExperimentType {
-  id: ID!
+  id: Int
   owner: NimbusExperimentOwner
   status: NimbusExperimentStatus
   name: String!
@@ -256,78 +267,9 @@ input TreatmentBranchType {
   featureValue: String
 }
 
-type UpdateExperimentAudience {
+type UpdateExperiment {
   clientMutationId: String
   nimbusExperiment: NimbusExperimentType
   message: ObjectField
   status: Int
-}
-
-input UpdateExperimentAudienceInput {
-  clientMutationId: String
-  nimbusExperimentId: Int!
-  channel: NimbusExperimentChannel
-  firefoxMinVersion: NimbusExperimentFirefoxMinVersion
-  populationPercent: String
-  proposedDuration: Int
-  proposedEnrollment: String
-  targetingConfigSlug: NimbusExperimentTargetingConfigSlug
-  totalEnrolledClients: Int
-}
-
-type UpdateExperimentBranches {
-  clientMutationId: String
-  nimbusExperiment: NimbusExperimentType
-  message: ObjectField
-  status: Int
-}
-
-input UpdateExperimentBranchesInput {
-  clientMutationId: String
-  nimbusExperimentId: Int!
-  featureConfigId: Int
-  referenceBranch: ReferenceBranchType!
-  treatmentBranches: [TreatmentBranchType]!
-}
-
-input UpdateExperimentInput {
-  clientMutationId: String
-  name: String!
-  hypothesis: String!
-  id: ID!
-  publicDescription: String
-}
-
-type UpdateExperimentOverview {
-  clientMutationId: String
-  nimbusExperiment: NimbusExperimentType
-  message: ObjectField
-  status: Int
-}
-
-type UpdateExperimentProbeSets {
-  clientMutationId: String
-  nimbusExperiment: NimbusExperimentType
-  message: ObjectField
-  status: Int
-}
-
-input UpdateExperimentProbeSetsInput {
-  clientMutationId: String
-  nimbusExperimentId: Int!
-  primaryProbeSetIds: [Int]!
-  secondaryProbeSetIds: [Int]!
-}
-
-type UpdateExperimentStatus {
-  clientMutationId: String
-  nimbusExperiment: NimbusExperimentType
-  message: ObjectField
-  status: Int
-}
-
-input UpdateExperimentStatusInput {
-  clientMutationId: String
-  nimbusExperimentId: Int!
-  status: NimbusExperimentStatus!
 }

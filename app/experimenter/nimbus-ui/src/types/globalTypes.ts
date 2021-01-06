@@ -72,11 +72,26 @@ export enum NimbusProbeKind {
   SCALAR = "SCALAR",
 }
 
-export interface CreateExperimentInput {
+export interface ExperimentInput {
   clientMutationId?: string | null;
-  name: string;
-  hypothesis: string;
-  application: NimbusExperimentApplication;
+  id?: number | null;
+  status?: NimbusExperimentStatus | null;
+  hypothesis?: string | null;
+  name?: string | null;
+  application?: NimbusExperimentApplication | null;
+  publicDescription?: string | null;
+  featureConfigId?: number | null;
+  referenceBranch?: ReferenceBranchType | null;
+  treatmentBranches?: (TreatmentBranchType | null)[] | null;
+  primaryProbeSetIds?: (number | null)[] | null;
+  secondaryProbeSetIds?: (number | null)[] | null;
+  channel?: NimbusExperimentChannel | null;
+  firefoxMinVersion?: NimbusExperimentFirefoxMinVersion | null;
+  populationPercent?: string | null;
+  proposedDuration?: number | null;
+  proposedEnrollment?: string | null;
+  targetingConfigSlug?: NimbusExperimentTargetingConfigSlug | null;
+  totalEnrolledClients?: number | null;
 }
 
 export interface ReferenceBranchType {
@@ -93,47 +108,6 @@ export interface TreatmentBranchType {
   ratio: number;
   featureEnabled?: boolean | null;
   featureValue?: string | null;
-}
-
-export interface UpdateExperimentAudienceInput {
-  clientMutationId?: string | null;
-  nimbusExperimentId: number;
-  channel?: NimbusExperimentChannel | null;
-  firefoxMinVersion?: NimbusExperimentFirefoxMinVersion | null;
-  populationPercent?: string | null;
-  proposedDuration?: number | null;
-  proposedEnrollment?: string | null;
-  targetingConfigSlug?: NimbusExperimentTargetingConfigSlug | null;
-  totalEnrolledClients?: number | null;
-}
-
-export interface UpdateExperimentBranchesInput {
-  clientMutationId?: string | null;
-  nimbusExperimentId: number;
-  featureConfigId?: number | null;
-  referenceBranch: ReferenceBranchType;
-  treatmentBranches: (TreatmentBranchType | null)[];
-}
-
-export interface UpdateExperimentInput {
-  clientMutationId?: string | null;
-  name: string;
-  hypothesis: string;
-  id: string;
-  publicDescription?: string | null;
-}
-
-export interface UpdateExperimentProbeSetsInput {
-  clientMutationId?: string | null;
-  nimbusExperimentId: number;
-  primaryProbeSetIds: (number | null)[];
-  secondaryProbeSetIds: (number | null)[];
-}
-
-export interface UpdateExperimentStatusInput {
-  clientMutationId?: string | null;
-  nimbusExperimentId: number;
-  status: NimbusExperimentStatus;
 }
 
 //==============================================================

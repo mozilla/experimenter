@@ -3,15 +3,15 @@
 // @generated
 // This file was automatically generated and should not be edited.
 
-import { UpdateExperimentAudienceInput, NimbusExperimentChannel, NimbusExperimentFirefoxMinVersion, NimbusExperimentTargetingConfigSlug } from "./globalTypes";
+import { ExperimentInput, NimbusExperimentChannel, NimbusExperimentFirefoxMinVersion, NimbusExperimentTargetingConfigSlug } from "./globalTypes";
 
 // ====================================================
 // GraphQL mutation operation: updateExperimentAudience
 // ====================================================
 
-export interface updateExperimentAudience_updateExperimentAudience_nimbusExperiment {
+export interface updateExperimentAudience_updateExperiment_nimbusExperiment {
   __typename: "NimbusExperimentType";
-  id: string;
+  id: number | null;
   totalEnrolledClients: number;
   channel: NimbusExperimentChannel | null;
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion | null;
@@ -21,18 +21,18 @@ export interface updateExperimentAudience_updateExperimentAudience_nimbusExperim
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug | null;
 }
 
-export interface updateExperimentAudience_updateExperimentAudience {
-  __typename: "UpdateExperimentAudience";
+export interface updateExperimentAudience_updateExperiment {
+  __typename: "UpdateExperiment";
   clientMutationId: string | null;
   message: ObjectField | null;
   status: number | null;
-  nimbusExperiment: updateExperimentAudience_updateExperimentAudience_nimbusExperiment | null;
+  nimbusExperiment: updateExperimentAudience_updateExperiment_nimbusExperiment | null;
 }
 
 export interface updateExperimentAudience {
-  updateExperimentAudience: updateExperimentAudience_updateExperimentAudience | null;
+  updateExperiment: updateExperimentAudience_updateExperiment | null;
 }
 
 export interface updateExperimentAudienceVariables {
-  input: UpdateExperimentAudienceInput;
+  input: ExperimentInput;
 }

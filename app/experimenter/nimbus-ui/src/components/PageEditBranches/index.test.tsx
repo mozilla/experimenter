@@ -22,11 +22,11 @@ import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
   NimbusExperimentStatus,
   NimbusFeatureConfigApplication,
-  UpdateExperimentBranchesInput,
+  ExperimentInput,
 } from "../../types/globalTypes";
 import {
-  updateExperimentBranches_updateExperimentBranches_nimbusExperiment,
-  updateExperimentBranches_updateExperimentBranches,
+  updateExperimentBranches_updateExperiment_nimbusExperiment,
+  updateExperimentBranches_updateExperiment,
 } from "../../types/updateExperimentBranches";
 import { FormBranchesSaveState } from "../FormBranches/reducer";
 import { extractUpdateBranch } from "../FormBranches/reducer/update";
@@ -133,7 +133,7 @@ describe("PageEditBranches", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     setMockUpdateState(experiment);
     const mockMutation = mockUpdateExperimentBranchesMutation(
-      { ...mockUpdateState, nimbusExperimentId: 1 },
+      { ...mockUpdateState, id: 1 },
       { experiment },
     );
     render(<Subject mocks={[mock, mockMutation, mock]} />);
@@ -152,11 +152,11 @@ describe("PageEditBranches", () => {
     setMockUpdateState(experiment);
 
     const mockMutation = mockUpdateExperimentBranchesMutation(
-      { ...mockUpdateState, nimbusExperimentId: 1 },
+      { ...mockUpdateState, id: 1 },
       { experiment },
     );
     // @ts-ignore - intentionally breaking this type for error handling
-    delete mockMutation.result.data.updateExperimentBranches;
+    delete mockMutation.result.data.updateExperiment;
 
     render(<Subject mocks={[mock, mockMutation, mock]} />);
     await waitFor(() => {
@@ -178,11 +178,11 @@ describe("PageEditBranches", () => {
     setMockUpdateState(experiment);
 
     const mockMutation = mockUpdateExperimentBranchesMutation(
-      { ...mockUpdateState, nimbusExperimentId: 1 },
+      { ...mockUpdateState, id: 1 },
       { experiment },
     );
 
-    mockMutation.result.data.updateExperimentBranches.message = {
+    mockMutation.result.data.updateExperiment.message = {
       reference_branch: {
         name: ["This name stinks."],
       },
@@ -199,7 +199,7 @@ describe("PageEditBranches", () => {
     });
 
     expect(mockSetSubmitErrors).toHaveBeenCalledWith(
-      mockMutation.result.data.updateExperimentBranches.message,
+      mockMutation.result.data.updateExperiment.message,
     );
   });
 });
@@ -233,9 +233,10 @@ function setMockUpdateState(experiment: getExperiment_experimentBySlug) {
     featureConfigId,
     // @ts-ignore type mismatch covers discarded annotation properties
     referenceBranch: extractUpdateBranch(experiment.referenceBranch!),
-    treatmentBranches: experiment.treatmentBranches!.map((branch) =>
-      // @ts-ignore type mismatch covers discarded annotation properties
-      extractUpdateBranch(branch!),
+    treatmentBranches: experiment.treatmentBranches!.map(
+      (branch) =>
+        // @ts-ignore type mismatch covers discarded annotation properties
+        extractUpdateBranch(branch!)!,
     ),
   };
 }
@@ -279,7 +280,7 @@ jest.mock("../FormBranches", () => ({
 }));
 
 export const mockUpdateExperimentBranchesMutation = (
-  input: Partial<UpdateExperimentBranchesInput>,
+  input: Partial<ExperimentInput>,
   {
     clientMutationId = "8675309",
     status = 200,
@@ -289,11 +290,11 @@ export const mockUpdateExperimentBranchesMutation = (
     clientMutationId?: string | null;
     status?: number;
     message?: string | Record<string, any>;
-    experiment: updateExperimentBranches_updateExperimentBranches_nimbusExperiment;
+    experiment: updateExperimentBranches_updateExperiment_nimbusExperiment;
   },
 ) => {
-  const updateExperimentBranches: updateExperimentBranches_updateExperimentBranches = {
-    __typename: "UpdateExperimentBranches",
+  const updateExperiment: updateExperimentBranches_updateExperiment = {
+    __typename: "UpdateExperiment",
     clientMutationId,
     status,
     message,
@@ -309,7 +310,7 @@ export const mockUpdateExperimentBranchesMutation = (
     result: {
       errors: undefined as undefined | any[],
       data: {
-        updateExperimentBranches,
+        updateExperiment,
       },
     },
   };
