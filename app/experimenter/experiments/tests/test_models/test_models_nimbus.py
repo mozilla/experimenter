@@ -165,6 +165,21 @@ class TestNimbusExperiment(TestCase):
             ),
         )
 
+    def test_clear_branches_deletes_branches_without_deleting_experiment(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT
+        )
+        self.assertIsNotNone(experiment.reference_branch)
+        self.assertEqual(experiment.branches.count(), 2)
+        self.assertEqual(experiment.changes.count(), 1)
+
+        experiment.delete_branches()
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertIsNone(experiment.reference_branch)
+        self.assertEqual(experiment.branches.count(), 0)
+        self.assertEqual(experiment.changes.count(), 1)
+
 
 class TestNimbusBranch(TestCase):
     def test_str(self):
