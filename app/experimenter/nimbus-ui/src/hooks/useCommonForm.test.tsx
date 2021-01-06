@@ -60,7 +60,7 @@ describe("hooks/useCommonForm", () => {
 
     it("clears submit error onChange of multiselect", async () => {
       const submitErrors = {
-        primaryProbeSetIds: ["You primary probed the wrong bear."],
+        primary_probe_set_ids: ["You primary probed the wrong bear."],
       };
       const { experiment } = mockExperimentQuery("boo", {
         primaryProbeSets: [],
@@ -71,7 +71,7 @@ describe("hooks/useCommonForm", () => {
 
       const primaryProbeSets = screen.getByTestId("primary-probe-sets");
       const errorFeedback = screen.getByText(
-        submitErrors.primaryProbeSetIds[0],
+        submitErrors.primary_probe_set_ids[0],
       );
       expect(errorFeedback).toBeInTheDocument();
       expect(

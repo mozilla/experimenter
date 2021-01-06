@@ -13,6 +13,7 @@ import {
 import { Subject, MOCK_EXPERIMENT } from "./mocks";
 import { AUDIENCE_DOC_URL } from ".";
 import { MOCK_CONFIG } from "../../lib/mocks";
+import { snakeToCamelCase } from "../../lib/caseConversions";
 
 describe("FormAudience", () => {
   it("renders without error", async () => {
@@ -52,18 +53,19 @@ describe("FormAudience", () => {
     const submitErrors = {
       "*": ["Big bad server thing happened"],
       channel: ["Cannot tune in this channel"],
-      firefoxMinVersion: ["Bad min version"],
-      targetingConfigSlug: ["This slug is icky"],
-      populationPercent: ["This is not a percentage"],
-      totalEnrolledClients: ["Need a number here, bud."],
-      proposedEnrollment: ["Emoji are not numbers"],
-      proposedDuration: ["No negative numbers"],
+      firefox_min_version: ["Bad min version"],
+      targeting_config_slug: ["This slug is icky"],
+      population_percent: ["This is not a percentage"],
+      total_enrolled_clients: ["Need a number here, bud."],
+      proposed_enrollment: ["Emoji are not numbers"],
+      proposed_duration: ["No negative numbers"],
     };
     const { container } = render(<Subject submitErrors={submitErrors} />);
     await waitFor(() => {
       expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
     });
-    for (const [fieldName, [error]] of Object.entries(submitErrors)) {
+    for (const [submitErrorName, [error]] of Object.entries(submitErrors)) {
+      const fieldName = snakeToCamelCase(submitErrorName);
       if (fieldName === "*") {
         expect(screen.getByTestId("submit-error")).toHaveTextContent(error);
       } else {
@@ -194,6 +196,7 @@ describe("FormAudience", () => {
       "channel",
       "populationPercent",
       "totalEnrolledClients",
+      "populationPercent",
       "proposedEnrollment",
       "proposedDuration",
       "firefoxMinVersion",
@@ -230,6 +233,7 @@ describe("FormAudience", () => {
               __typename: "NimbusReadyForReviewType",
               ready: false,
               message: {
+                population_percent: ["This field may not be null."],
                 proposed_duration: ["This field may not be null."],
                 proposed_enrollment: ["This field may not be null."],
                 firefox_min_version: ["This field may not be null."],
@@ -246,6 +250,9 @@ describe("FormAudience", () => {
     expect(screen.queryByTestId("missing-channel")).toBeInTheDocument();
     expect(screen.queryByTestId("missing-ff-min")).toBeInTheDocument();
     expect(screen.queryByTestId("missing-config")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("missing-population-percent"),
+    ).toBeInTheDocument();
     expect(screen.queryByTestId("missing-enrollment")).toBeInTheDocument();
     expect(screen.queryByTestId("missing-duration")).toBeInTheDocument();
   });

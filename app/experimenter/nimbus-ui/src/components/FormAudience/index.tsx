@@ -192,7 +192,15 @@ export const FormAudience = ({
 
         <Form.Row>
           <Form.Group as={Col} className="mx-5" controlId="populationPercent">
-            <Form.Label>Percent of clients</Form.Label>
+            <Form.Label>
+              Percent of clients
+              {isMissingField("population_percent") && (
+                <InlineErrorIcon
+                  name="population-percent"
+                  message="A valid percent of clients must be set"
+                />
+              )}
+            </Form.Label>
             <InputGroup>
               <Form.Control
                 {...formControlAttrs("populationPercent")}
