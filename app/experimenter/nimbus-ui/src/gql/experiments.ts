@@ -5,7 +5,7 @@
 import { gql } from "@apollo/client";
 
 export const CREATE_EXPERIMENT_MUTATION = gql`
-  mutation createExperiment($input: CreateExperimentInput!) {
+  mutation createExperiment($input: ExperimentInput!) {
     createExperiment(input: $input) {
       clientMutationId
       message
@@ -21,8 +21,8 @@ export const CREATE_EXPERIMENT_MUTATION = gql`
 `;
 
 export const UPDATE_EXPERIMENT_OVERVIEW_MUTATION = gql`
-  mutation updateExperimentOverview($input: UpdateExperimentInput!) {
-    updateExperimentOverview(input: $input) {
+  mutation updateExperimentOverview($input: ExperimentInput!) {
+    updateExperiment(input: $input) {
       clientMutationId
       message
       status
@@ -36,8 +36,8 @@ export const UPDATE_EXPERIMENT_OVERVIEW_MUTATION = gql`
 `;
 
 export const UPDATE_EXPERIMENT_STATUS_MUTATION = gql`
-  mutation updateExperimentStatus($input: UpdateExperimentStatusInput!) {
-    updateExperimentStatus(input: $input) {
+  mutation updateExperimentStatus($input: ExperimentInput!) {
+    updateExperiment(input: $input) {
       clientMutationId
       message
       status
@@ -49,8 +49,8 @@ export const UPDATE_EXPERIMENT_STATUS_MUTATION = gql`
 `;
 
 export const UPDATE_EXPERIMENT_BRANCHES_MUTATION = gql`
-  mutation updateExperimentBranches($input: UpdateExperimentBranchesInput!) {
-    updateExperimentBranches(input: $input) {
+  mutation updateExperimentBranches($input: ExperimentInput!) {
+    updateExperiment(input: $input) {
       clientMutationId
       message
       status
@@ -75,18 +75,16 @@ export const UPDATE_EXPERIMENT_BRANCHES_MUTATION = gql`
 `;
 
 export const UPDATE_EXPERIMENT_PROBESETS_MUTATION = gql`
-  mutation updateExperimentProbeSets($input: UpdateExperimentProbeSetsInput!) {
-    updateExperimentProbeSets(input: $input) {
+  mutation updateExperimentProbeSets($input: ExperimentInput!) {
+    updateExperiment(input: $input) {
       clientMutationId
       nimbusExperiment {
         id
         primaryProbeSets {
           id
-          name
         }
         secondaryProbeSets {
           id
-          name
         }
       }
       message
@@ -96,8 +94,8 @@ export const UPDATE_EXPERIMENT_PROBESETS_MUTATION = gql`
 `;
 
 export const UPDATE_EXPERIMENT_AUDIENCE_MUTATION = gql`
-  mutation updateExperimentAudience($input: UpdateExperimentAudienceInput!) {
-    updateExperimentAudience(input: $input) {
+  mutation updateExperimentAudience($input: ExperimentInput!) {
+    updateExperiment(input: $input) {
       clientMutationId
       message
       status

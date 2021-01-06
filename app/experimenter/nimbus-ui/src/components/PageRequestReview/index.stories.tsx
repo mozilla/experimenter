@@ -16,7 +16,7 @@ const { mock, experiment } = mockExperimentQuery("demo-slug");
 storiesOf("pages/RequestReview", module)
   .addDecorator(withLinks)
   .add("success", () => (
-    <RouterSlugProvider mocks={[mock, createMutationMock(experiment.id)]}>
+    <RouterSlugProvider mocks={[mock, createMutationMock(experiment.id!)]}>
       <PageRequestReview polling={false} />
     </RouterSlugProvider>
   ))

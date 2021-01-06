@@ -49,7 +49,7 @@ describe("extractUpdateState", () => {
       ],
     };
     const updateState = extractUpdateState(state, formData);
-    expect(updateState.referenceBranch.name).toEqual(
+    expect(updateState.referenceBranch!.name).toEqual(
       formData.referenceBranch.name,
     );
     expect(updateState.treatmentBranches![0]!.description).toEqual(

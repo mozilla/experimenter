@@ -9,10 +9,10 @@ import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import { SUBMIT_ERROR } from "../../lib/constants";
 import { UPDATE_EXPERIMENT_STATUS_MUTATION } from "../../gql/experiments";
 import {
-  UpdateExperimentStatusInput,
+  ExperimentInput,
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
-import { updateExperimentStatus_updateExperimentStatus as UpdateExperimentStatus } from "../../types/updateExperimentStatus";
+import { updateExperimentStatus_updateExperiment as UpdateExperimentStatus } from "../../types/updateExperimentStatus";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import FormRequestReview from "../FormRequestReview";
 import Summary from "../Summary";
@@ -30,8 +30,8 @@ const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = ({
   const currentExperiment = useRef<getExperiment_experimentBySlug>();
 
   const [submitForReview, { loading }] = useMutation<
-    { updateExperimentStatus: UpdateExperimentStatus },
-    { input: UpdateExperimentStatusInput }
+    { updateExperiment: UpdateExperimentStatus },
+    { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_STATUS_MUTATION);
 
   const onLaunchClicked = useCallback(async () => {
@@ -39,17 +39,17 @@ const PageRequestReview: React.FunctionComponent<PageRequestReviewProps> = ({
       const result = await submitForReview({
         variables: {
           input: {
-            nimbusExperimentId: parseInt(currentExperiment.current!.id),
+            id: currentExperiment.current!.id,
             status: NimbusExperimentStatus.REVIEW,
           },
         },
       });
 
-      if (!result.data?.updateExperimentStatus) {
+      if (!result.data?.updateExperiment) {
         throw new Error(SUBMIT_ERROR);
       }
 
-      const { message } = result.data.updateExperimentStatus;
+      const { message } = result.data.updateExperiment;
 
       if (message && message !== "success" && typeof message === "object") {
         return void setSubmitError(message.status.join(", "));

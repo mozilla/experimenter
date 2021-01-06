@@ -6,14 +6,14 @@ import { UPDATE_EXPERIMENT_STATUS_MUTATION } from "../../gql/experiments";
 import { mockExperimentMutation } from "../../lib/mocks";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
-export function createMutationMock(id: string) {
+export function createMutationMock(id: number) {
   return mockExperimentMutation(
     UPDATE_EXPERIMENT_STATUS_MUTATION,
     {
-      nimbusExperimentId: parseInt(id),
+      id,
       status: NimbusExperimentStatus.REVIEW,
     },
-    "updateExperimentStatus",
+    "updateExperiment",
     {
       experiment: {
         status: NimbusExperimentStatus.REVIEW,

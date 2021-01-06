@@ -9,8 +9,8 @@ import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import { useMutation } from "@apollo/client";
 import { UPDATE_EXPERIMENT_OVERVIEW_MUTATION } from "../../gql/experiments";
 import { SUBMIT_ERROR } from "../../lib/constants";
-import { UpdateExperimentInput } from "../../types/globalTypes";
-import { updateExperimentOverview_updateExperimentOverview as UpdateExperimentOverviewResult } from "../../types/updateExperimentOverview";
+import { ExperimentInput } from "../../types/globalTypes";
+import { updateExperimentOverview_updateExperiment as UpdateExperimentOverviewResult } from "../../types/updateExperimentOverview";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { editCommonRedirects } from "../../lib/experiment";
 
@@ -18,8 +18,8 @@ type PageEditOverviewProps = {} & RouteComponentProps;
 
 const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
   const [updateExperimentOverview, { loading }] = useMutation<
-    { updateExperimentOverview: UpdateExperimentOverviewResult },
-    { input: UpdateExperimentInput }
+    { updateExperiment: UpdateExperimentOverviewResult },
+    { input: ExperimentInput }
   >(UPDATE_EXPERIMENT_OVERVIEW_MUTATION);
 
   const [submitErrors, setSubmitErrors] = useState<Record<string, any>>({});
@@ -41,11 +41,11 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
           },
         });
 
-        if (!result.data?.updateExperimentOverview) {
+        if (!result.data?.updateExperiment) {
           throw new Error("Save failed, no error available");
         }
 
-        const { message } = result.data.updateExperimentOverview;
+        const { message } = result.data.updateExperiment;
 
         if (message && message !== "success" && typeof message === "object") {
           setIsServerValid(false);

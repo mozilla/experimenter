@@ -35,6 +35,7 @@ import { getStatus } from "./experiment";
 import {
   NimbusFeatureConfigApplication,
   NimbusProbeKind,
+  ExperimentInput,
 } from "../types/globalTypes";
 import { ExperimentReview } from "../hooks";
 
@@ -285,7 +286,7 @@ export function mockExperimentQuery<
   let experiment: getExperiment["experimentBySlug"] = Object.assign(
     {
       __typename: "NimbusExperimentType",
-      id: "1",
+      id: 1,
       owner: {
         __typename: "NimbusExperimentOwner",
         email: "example@mozilla.com",
@@ -385,7 +386,7 @@ export const MOCK_REVIEW: ExperimentReview = {
 
 export const mockExperimentMutation = (
   mutation: DocumentNode,
-  input: Record<string, string | number | string[] | number[]>,
+  input: ExperimentInput,
   key: string,
   {
     status = 200,

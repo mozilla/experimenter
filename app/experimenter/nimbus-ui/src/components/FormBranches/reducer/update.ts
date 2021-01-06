@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { UpdateExperimentBranchesInput } from "../../../types/globalTypes";
+import { ExperimentInput } from "../../../types/globalTypes";
 import { FormBranchesState, AnnotatedBranch } from "./state";
 
 export type FormBranchesSaveState = Pick<
-  UpdateExperimentBranchesInput,
+  ExperimentInput,
   "featureConfigId" | "referenceBranch" | "treatmentBranches"
 >;
 
@@ -40,8 +40,9 @@ export function extractUpdateState(
     treatmentBranches:
       treatmentBranches === null
         ? []
-        : treatmentBranches.map((branch, idx) =>
-            extractUpdateBranch(branch, formData.treatmentBranches?.[idx]!),
+        : treatmentBranches.map(
+            (branch, idx) =>
+              extractUpdateBranch(branch, formData.treatmentBranches?.[idx]!)!,
           ),
   };
 }
