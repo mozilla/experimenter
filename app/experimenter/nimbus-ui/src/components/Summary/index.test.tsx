@@ -16,6 +16,27 @@ describe("Summary", () => {
     expect(screen.getByTestId("summary-timeline")).toBeInTheDocument();
     expect(screen.getByTestId("table-summary")).toBeInTheDocument();
     expect(screen.getByTestId("table-audience")).toBeInTheDocument();
+    expect(screen.queryAllByTestId("table-branch")).toHaveLength(2);
+    expect(screen.getByTestId("branches-section-title")).toHaveTextContent(
+      "Branches (2)",
+    );
+  });
+
+  it("renders as expected with no defined branches", () => {
+    const { experiment } = mockExperimentQuery("demo-slug");
+    render(
+      <Subject
+        experiment={{
+          ...experiment,
+          referenceBranch: null,
+          treatmentBranches: null,
+        }}
+      />,
+    );
+    expect(screen.queryAllByTestId("table-branch")).toHaveLength(0);
+    expect(screen.getByTestId("branches-section-title")).toHaveTextContent(
+      "Branches (0)",
+    );
   });
 
   describe("JSON representation link", () => {

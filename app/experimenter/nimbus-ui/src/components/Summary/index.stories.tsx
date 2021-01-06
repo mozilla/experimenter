@@ -21,6 +21,13 @@ storiesOf("components/Summary", module)
       status: NimbusExperimentStatus.ACCEPTED,
     });
     return <Subject {...{ experiment }} />;
+  })
+  .add("no branches", () => {
+    const { experiment } = mockExperimentQuery("demo-slug", {
+      referenceBranch: null,
+      treatmentBranches: null,
+    });
+    return <Subject {...{ experiment }} />;
   });
 
 const Subject = ({
