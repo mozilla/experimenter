@@ -7,6 +7,7 @@ import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import SummaryTimeline from "../SummaryTimeline";
 import TableSummary from "../TableSummary";
 import TableAudience from "../TableAudience";
+import TableBranches from "../TableBranches";
 import LinkExternal from "../LinkExternal";
 import { getStatus } from "../../lib/experiment";
 import MonitoringLink from "../MonitoringLink";
@@ -19,6 +20,10 @@ type SummaryProps = {
 
 const Summary = ({ experiment }: SummaryProps) => {
   const status = getStatus(experiment);
+  const branchCount = [
+    experiment.referenceBranch,
+    ...(experiment.treatmentBranches || []),
+  ].filter((branch) => !!branch).length;
 
   return (
     <div data-testid="summary">
@@ -43,6 +48,11 @@ const Summary = ({ experiment }: SummaryProps) => {
 
       <h2 className="h5 mb-3">Audience</h2>
       <TableAudience {...{ experiment }} />
+
+      <h2 className="h5 mb-3" data-testid="branches-section-title">
+        Branches ({branchCount})
+      </h2>
+      <TableBranches {...{ experiment }} />
     </div>
   );
 };
