@@ -248,32 +248,31 @@ class TestNimbusBranchUpdateSerializer(TestCase):
         reference_branch = {"name": "control", "description": "a control", "ratio": 1}
         treatment_branches = [
             {"name": "treatment1", "description": "desc1", "ratio": 1},
-            {"name": "testment2", "description": "desc2", "ratio": 1},
+            {"name": "treatment2", "description": "desc2", "ratio": 1},
         ]
 
-        input = {
+        data = {
             "feature_config": None,
             "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
         }
         serializer = NimbusExperimentUpdateSerializer(
-            experiment, data=input, partial=True, context={"user": self.user}
+            experiment, data=data, partial=True, context={"user": self.user}
         )
         self.assertTrue(serializer.is_valid())
-        experiment = serializer.save()
+        serializer.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
         for key, val in reference_branch.items():
             self.assertEqual(getattr(experiment.reference_branch, key), val)
 
-        experiment_treatment_branches = experiment.branches.exclude(
-            id=experiment.reference_branch.id
-        ).order_by("id")
-        for index, branch in enumerate(treatment_branches):
-            for key, val in branch.items():
-                self.assertEqual(getattr(experiment_treatment_branches[index], key), val)
+        for branch_data in treatment_branches:
+            branch = experiment.branches.get(name=branch_data["name"])
+            for key, val in branch_data.items():
+                self.assertEqual(getattr(branch, key), val)
 
     def test_serializer_feature_config_validation(self):
-        feature_config = NimbusFeatureConfig(schema=BASIC_JSON_SCHEMA)
-        feature_config.save()
+        feature_config = NimbusFeatureConfigFactory.create(schema=BASIC_JSON_SCHEMA)
         experiment = NimbusExperimentFactory(
             status=NimbusExperiment.Status.DRAFT,
         )
@@ -293,7 +292,7 @@ class TestNimbusBranchUpdateSerializer(TestCase):
         treatment_branches = [
             {"name": "treatment1", "description": "desc1", "ratio": 1},
             {
-                "name": "testment2",
+                "name": "treatment2",
                 "description": "desc2",
                 "ratio": 1,
                 "feature_enabled": True,
@@ -301,29 +300,29 @@ class TestNimbusBranchUpdateSerializer(TestCase):
             },
         ]
 
-        input = {
+        data = {
             "feature_config": feature_config.id,
             "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
         }
         serializer = NimbusExperimentUpdateSerializer(
-            experiment, data=input, partial=True, context={"user": self.user}
+            experiment, data=data, partial=True, context={"user": self.user}
         )
-        self.assertTrue(serializer.is_valid(), serializer.errors)
-        experiment = serializer.save()
+
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
         for key, val in reference_branch.items():
             self.assertEqual(getattr(experiment.reference_branch, key), val)
 
-        experiment_treatment_branches = experiment.branches.exclude(
-            id=experiment.reference_branch.id
-        ).order_by("id")
-        for index, branch in enumerate(treatment_branches):
-            for key, val in branch.items():
-                self.assertEqual(getattr(experiment_treatment_branches[index], key), val)
+        for branch_data in treatment_branches:
+            branch = experiment.branches.get(name=branch_data["name"])
+            for key, val in branch_data.items():
+                self.assertEqual(getattr(branch, key), val)
 
     def test_serializer_feature_config_validation_reference_value_schema_error(self):
-        feature_config = NimbusFeatureConfig(schema=BASIC_JSON_SCHEMA)
-        feature_config.save()
+        feature_config = NimbusFeatureConfigFactory.create(schema=BASIC_JSON_SCHEMA)
         experiment = NimbusExperimentFactory(
             status=NimbusExperiment.Status.DRAFT,
         )
@@ -351,13 +350,13 @@ class TestNimbusBranchUpdateSerializer(TestCase):
             },
         ]
 
-        input = {
+        data = {
             "feature_config": feature_config.id,
             "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
         }
         serializer = NimbusExperimentUpdateSerializer(
-            experiment, data=input, partial=True, context={"user": self.user}
+            experiment, data=data, partial=True, context={"user": self.user}
         )
         self.assertFalse(serializer.is_valid())
         self.assert_(
@@ -392,13 +391,13 @@ class TestNimbusBranchUpdateSerializer(TestCase):
             },
         ]
 
-        input = {
+        data = {
             "feature_config": feature_config.id,
             "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
         }
         serializer = NimbusExperimentUpdateSerializer(
-            experiment, data=input, partial=True, context={"user": self.user}
+            experiment, data=data, partial=True, context={"user": self.user}
         )
         self.assertFalse(serializer.is_valid())
         self.assert_(
@@ -432,12 +431,12 @@ class TestNimbusBranchUpdateSerializer(TestCase):
             },
         ]
 
-        input = {
+        data = {
             "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
         }
         serializer = NimbusExperimentUpdateSerializer(
-            experiment, data=input, partial=True, context={"user": self.user}
+            experiment, data=data, partial=True, context={"user": self.user}
         )
         self.assertFalse(serializer.is_valid())
         self.assertEqual(
@@ -476,13 +475,13 @@ class TestNimbusBranchUpdateSerializer(TestCase):
             },
         ]
 
-        input = {
+        data = {
             "feature_config": feature_config.id,
             "reference_branch": reference_branch,
             "treatment_branches": treatment_branches,
         }
         serializer = NimbusExperimentUpdateSerializer(
-            experiment, data=input, partial=True, context={"user": self.user}
+            experiment, data=data, partial=True, context={"user": self.user}
         )
         self.assertFalse(serializer.is_valid())
         self.assert_(
