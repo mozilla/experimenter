@@ -20,32 +20,46 @@ export const DirectoryColumnTitle: React.FC<
   getAllExperiments_experiments & { subPath?: string; sbLink?: string }
 > = ({ slug, name, subPath = "", sbLink = "pages/Summary" }) => {
   return (
-    <td className="w-33">
-      <Link to={slug + subPath} data-sb-kind={sbLink}>
+    <td className="w-33" data-testid="directory-table-cell">
+      <Link
+        to={slug + subPath}
+        data-sb-kind={sbLink}
+        data-testid="directory-title-name"
+      >
         {name}
       </Link>
       <br />
-      <span className="text-monospace text-secondary small">{slug}</span>
+      <span
+        className="text-monospace text-secondary small"
+        data-testid="directory-title-slug"
+      >
+        {slug}
+      </span>
     </td>
   );
 };
 
 export const DirectoryColumnOwner: ColumnComponent = ({ owner }) => (
-  <td>{owner?.username || <NotSet />}</td>
+  <td data-testid="directory-table-cell">{owner?.username || <NotSet />}</td>
 );
 
 export const DirectoryColumnFeature: ColumnComponent = ({ featureConfig }) => (
-  <td>
+  <td data-testid="directory-table-cell">
     {featureConfig ? (
       <>
-        {featureConfig.name}
+        <span data-testid="directory-feature-config-name">
+          {featureConfig.name}
+        </span>
         <br />
-        <span className="text-monospace text-secondary small">
+        <span
+          className="text-monospace text-secondary small"
+          data-testid="directory-feature-config-slug"
+        >
           {featureConfig.slug}
         </span>
       </>
     ) : (
-      "(None)"
+      <span data-testid="directory-feature-config-none">(None)</span>
     )}
   </td>
 );
@@ -85,6 +99,7 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
                     i === 0 ? "font-weight-bold" : "font-weight-normal"
                   }`}
                   key={label}
+                  data-testid="directory-table-header"
                 >
                   {label}
                 </th>
@@ -93,6 +108,7 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
               <th
                 colSpan={columns.length}
                 className="border-top-0 font-weight-bold"
+                data-testid="directory-table-header"
               >
                 {columns[0].label}
               </th>
@@ -102,15 +118,20 @@ const DirectoryTable: React.FunctionComponent<DirectoryTableProps> = ({
         <tbody>
           {experiments.length ? (
             experiments.map((experiment) => (
-              <tr key={experiment.slug}>
+              <tr key={experiment.slug} data-testid="directory-table-row">
                 {columns.map(({ label, component: ColumnComponent }, i) => {
                   return <ColumnComponent key={label + i} {...experiment} />;
                 })}
               </tr>
             ))
           ) : (
-            <tr>
-              <td colSpan={columns.length}>No experiments found.</td>
+            <tr data-testid="directory-table-row">
+              <td
+                colSpan={columns.length}
+                data-testid="directory-table-no-experiments"
+              >
+                No experiments found.
+              </td>
             </tr>
           )}
         </tbody>
@@ -129,17 +150,23 @@ export const DirectoryLiveTable: React.FC<DirectoryTableProps> = (props) => (
       {
         label: "Enrolling",
         component: (experiment) => (
-          <td>{getProposedEnrollmentRange(experiment)}</td>
+          <td data-testid="directory-table-cell">
+            {getProposedEnrollmentRange(experiment)}
+          </td>
         ),
       },
       {
         label: "Ending",
-        component: (experiment) => <td>{getProposedEndDate(experiment)}</td>,
+        component: (experiment) => (
+          <td data-testid="directory-table-cell">
+            {getProposedEndDate(experiment)}
+          </td>
+        ),
       },
       {
         label: "Monitoring",
         component: ({ monitoringDashboardUrl }) => (
-          <td>
+          <td data-testid="directory-table-cell">
             {monitoringDashboardUrl && (
               <LinkExternal
                 href={monitoringDashboardUrl!}
@@ -166,16 +193,20 @@ export const DirectoryCompleteTable: React.FC<DirectoryTableProps> = (
       { label: "Feature", component: DirectoryColumnFeature },
       {
         label: "Started",
-        component: ({ startDate: d }) => <td>{d && humanDate(d)}</td>,
+        component: ({ startDate: d }) => (
+          <td data-testid="directory-table-cell">{d && humanDate(d)}</td>
+        ),
       },
       {
         label: "Ended",
-        component: ({ endDate: d }) => <td>{d && humanDate(d)}</td>,
+        component: ({ endDate: d }) => (
+          <td data-testid="directory-table-cell">{d && humanDate(d)}</td>
+        ),
       },
       {
         label: "Results",
         component: ({ slug }) => (
-          <td>
+          <td data-testid="directory-table-cell">
             <Link to={`${slug}/results`} data-sb-kind="pages/Results">
               Results
             </Link>
