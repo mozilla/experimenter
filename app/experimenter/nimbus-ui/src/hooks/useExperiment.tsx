@@ -15,6 +15,7 @@ const fieldPageMap: { [page: string]: string[] } = {
     "targeting_config_slug",
     "proposed_enrollment",
     "proposed_duration",
+    "population_percent",
   ],
 };
 
