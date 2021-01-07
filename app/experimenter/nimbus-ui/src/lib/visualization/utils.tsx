@@ -3,6 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { DISPLAY_TYPE, METRIC, TABLE_LABEL } from "./constants";
+import { AnalysisData } from "./types";
+
+// `show_analysis` is the feature flag for turning visualization on/off.
+// `overall` will be `null` if the analysis isn't available yet.
+export const analysisAvailable = (analysis: AnalysisData | undefined) =>
+  analysis?.show_analysis === true && analysis?.overall !== null;
 
 export const getTableDisplayType = (
   metricKey: string,

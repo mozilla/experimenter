@@ -11,6 +11,7 @@ import Nav from "react-bootstrap/Nav";
 import classNames from "classnames";
 import { BASE_PATH } from "../../lib/constants";
 import { AnalysisData } from "../../lib/visualization/types";
+import { analysisAvailable } from "../../lib/visualization/utils";
 import { StatusCheck } from "../../lib/experiment";
 import { ReactComponent as ChevronLeft } from "./chevron-left.svg";
 import { ReactComponent as Cog } from "./cog.svg";
@@ -22,6 +23,7 @@ import { ReactComponent as NotAllowed } from "./not-allowed.svg";
 import { ReactComponent as AlertCircle } from "./alert-circle.svg";
 import { ReactComponent as BarChart } from "./bar-chart.svg";
 import "./index.scss";
+import LinkExternal from "../LinkExternal";
 
 type AppLayoutWithSidebarProps = {
   testid?: string;
@@ -32,6 +34,7 @@ type AppLayoutWithSidebarProps = {
     ready: boolean;
   };
   analysis?: AnalysisData;
+  analysisError?: Error;
 } & RouteComponentProps;
 
 const editPages = [
@@ -63,6 +66,7 @@ export const AppLayoutWithSidebar = ({
   status,
   review,
   analysis,
+  analysisError,
 }: AppLayoutWithSidebarProps) => {
   const { slug } = useParams();
 
@@ -95,7 +99,7 @@ export const AppLayoutWithSidebar = ({
                     <Clipboard className="sidebar-icon" />
                     Design
                   </LinkNav>
-                  {analysis?.show_analysis ? (
+                  {analysisAvailable(analysis) ? (
                     <LinkNav
                       route={`${slug}/results`}
                       storiesOf={"pages/Results"}
@@ -106,9 +110,20 @@ export const AppLayoutWithSidebar = ({
                     </LinkNav>
                   ) : (
                     <DisabledItem name="Results" testId="show-no-results">
-                      {status?.accepted
-                        ? "Waiting for experiment to launch"
-                        : "Experiment results not yet ready"}
+                      {status?.accepted ? (
+                        "Waiting for experiment to launch"
+                      ) : analysisError ? (
+                        <>
+                          Could not get visualization data. Please contact data
+                          science in{" "}
+                          <LinkExternal href="https://mozilla.slack.com/archives/C0149JH7C1M">
+                            #cirrus
+                          </LinkExternal>
+                          .
+                        </>
+                      ) : (
+                        "Experiment results not yet ready"
+                      )}
                     </DisabledItem>
                   )}
                 </>
