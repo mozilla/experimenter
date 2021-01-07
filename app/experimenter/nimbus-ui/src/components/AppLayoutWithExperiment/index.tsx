@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { navigate, RouteComponentProps, useParams } from "@reach/router";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
 import HeaderExperiment from "../HeaderExperiment";
@@ -35,6 +35,7 @@ type AppLayoutWithExperimentProps = {
     status,
     review,
     analysis,
+    analysisError,
   }: {
     status: StatusCheck;
     review?: {
@@ -42,6 +43,7 @@ type AppLayoutWithExperimentProps = {
       invalidPages: string[];
     };
     analysis?: AnalysisData;
+    analysisError?: Error;
   }) => string | void;
 } & RouteComponentProps;
 
@@ -65,9 +67,14 @@ const AppLayoutWithExperiment = ({
     stopPolling,
     review,
   } = useExperiment(slug);
-  const { execute: fetchAnalysis, result: analysis } = useAnalysis();
-  const [analysisFetched, setAnalysisFetched] = useState<boolean>(false);
+  const {
+    execute: fetchAnalysis,
+    result: analysis,
+    error: analysisError,
+    status: analysisFetchStatus,
+  } = useAnalysis();
   const status = getStatus(experiment);
+  const analysisFetched = analysisFetchStatus !== "not-requested";
 
   // If the redirect prop function is supplied let's call it with
   // experiment status, review, and analysis details. If it returns
@@ -90,7 +97,6 @@ const AppLayoutWithExperiment = ({
   useEffect(() => {
     if (!analysisFetched && !loading && status.locked) {
       fetchAnalysis([experiment?.slug]);
-      setAnalysisFetched(true);
     }
   }, [fetchAnalysis, loading, experiment, analysisFetched, status]);
 
@@ -103,7 +109,7 @@ const AppLayoutWithExperiment = ({
     };
   }, [startPolling, stopPolling, experiment, polling]);
 
-  if (loading || (analysisRequired && !analysis)) {
+  if (loading || (analysisRequired && !analysisFetched)) {
     return <PageLoading />;
   }
 
@@ -114,7 +120,7 @@ const AppLayoutWithExperiment = ({
   const { name } = experiment;
 
   return (
-    <Layout {...{ sidebar, children, review, analysis, status }}>
+    <Layout {...{ sidebar, children, review, analysis, analysisError, status }}>
       <section data-testid={testId}>
         <Head
           title={title ? `${experiment.name} – ${title}` : experiment.name}
@@ -144,11 +150,19 @@ type LayoutProps = {
   status: StatusCheck;
   review: ExperimentReview;
   analysis?: AnalysisData;
+  analysisError?: Error;
 };
 
-const Layout = ({ sidebar, children, review, status, analysis }: LayoutProps) =>
+const Layout = ({
+  sidebar,
+  children,
+  review,
+  status,
+  analysis,
+  analysisError,
+}: LayoutProps) =>
   sidebar ? (
-    <AppLayoutWithSidebar {...{ status, review, analysis }}>
+    <AppLayoutWithSidebar {...{ status, review, analysis, analysisError }}>
       {children}
     </AppLayoutWithSidebar>
   ) : (

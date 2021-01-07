@@ -18,31 +18,10 @@ const { mock } = mockExperimentQuery("demo-slug", {
 
 storiesOf("pages/Results", module)
   .addDecorator(withLinks)
-  .add("basic, analysis available", () => {
+  .add("basic", () => {
     fetchMock
       .restore()
       .getOnce("/api/v3/visualization/demo-slug/", mockAnalysis());
-    return (
-      <RouterSlugProvider mocks={[mock]}>
-        <PageResults />
-      </RouterSlugProvider>
-    );
-  })
-  .add("analysis unavailable", () => {
-    fetchMock
-      .restore()
-      .getOnce(
-        "/api/v3/visualization/demo-slug/",
-        mockAnalysis({ show_analysis: false }),
-      );
-    return (
-      <RouterSlugProvider mocks={[mock]}>
-        <PageResults />
-      </RouterSlugProvider>
-    );
-  })
-  .add("analysis fetch errors", () => {
-    fetchMock.restore().getOnce("/api/v3/visualization/demo-slug/", 500);
     return (
       <RouterSlugProvider mocks={[mock]}>
         <PageResults />

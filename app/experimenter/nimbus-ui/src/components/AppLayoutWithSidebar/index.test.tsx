@@ -21,6 +21,7 @@ const { mock } = mockExperimentQuery("my-special-slug");
 const Subject = ({
   status = NimbusExperimentStatus.DRAFT,
   withAnalysis = false,
+  analysisError,
   review,
 }: RouteComponentProps & {
   status?: NimbusExperimentStatus;
@@ -29,12 +30,14 @@ const Subject = ({
     invalidPages: string[];
   };
   withAnalysis?: boolean;
+  analysisError?: boolean;
 }) => (
   <RouterSlugProvider mocks={[mock]} path="/my-special-slug/edit">
     <AppLayoutWithSidebar
       {...{
         status: mockGetStatus(status),
         review,
+        analysisError: analysisError ? new Error("boop") : undefined,
         analysis: withAnalysis
           ? {
               show_analysis: true,
@@ -190,12 +193,23 @@ describe("AppLayoutWithSidebar", () => {
       );
     });
 
-    it("when accepted displays design link and disabled results item", async () => {
+    it("when accepted, displays design link and disabled results item", async () => {
       render(<Subject status={NimbusExperimentStatus.ACCEPTED} />);
 
       expect(screen.queryByTestId("show-no-results")).toBeInTheDocument();
       expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
         "Waiting for experiment to launch",
+      );
+    });
+
+    it("when complete and analysis results fetch errors", async () => {
+      render(
+        <Subject status={NimbusExperimentStatus.COMPLETE} analysisError />,
+      );
+
+      expect(screen.queryByTestId("show-no-results")).toBeInTheDocument();
+      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
+        "Could not get visualization data. Please contact data science",
       );
     });
 

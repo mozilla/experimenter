@@ -4,6 +4,13 @@
 
 import { SIGNIFICANCE } from "./constants";
 
+export const MOCK_UNAVAILABLE_ANALYSIS = {
+  show_analysis: true,
+  daily: null,
+  weekly: null,
+  overall: null,
+};
+
 export const mockAnalysis = (modifications = {}) =>
   Object.assign(
     {

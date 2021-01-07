@@ -4,13 +4,13 @@
 
 import React from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { AnalysisData } from "../../lib/visualization/types";
+import { AnalysisDataOverall } from "../../lib/visualization/types";
 import { useConfig } from "../../hooks";
 import { getConfigLabel } from "../../lib/getConfigLabel";
 
 type TableHighlightsOverviewProps = {
   experiment: getExperiment_experimentBySlug;
-  results: AnalysisData["overall"];
+  results: AnalysisDataOverall;
 };
 
 const TableHighlightsOverview = ({
