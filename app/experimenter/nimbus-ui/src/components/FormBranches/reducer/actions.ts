@@ -8,7 +8,7 @@ import {
   createAnnotatedBranch,
 } from "./state";
 import { FormData } from "./update";
-import snakeToCamelCase from "../../../lib/snakeToCamelCase";
+import { snakeToCamelCase } from "../../../lib/caseConversions";
 
 export const REFERENCE_BRANCH_IDX = -1;
 

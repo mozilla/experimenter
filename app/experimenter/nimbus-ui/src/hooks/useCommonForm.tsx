@@ -6,6 +6,7 @@ import React from "react";
 import { RegisterOptions, FieldError } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import { useForm } from "react-hook-form";
+import { camelToSnakeCase } from "../lib/caseConversions";
 
 // TODO: 'any' type on `onChange={(selectedOptions) => ...`,
 // it wants this, but can't seem to coerce it into SelectOption type
@@ -36,9 +37,9 @@ export function useCommonForm<FieldNames extends string>(
   const isDirtyUnsaved = isDirty && !(isValid && isSubmitted);
 
   const hideSubmitError = <K extends FieldNames>(name: K) => {
-    if (submitErrors[name]) {
+    if (submitErrors[camelToSnakeCase(name)]) {
       const modifiedSubmitErrors = { ...submitErrors };
-      delete modifiedSubmitErrors[name];
+      delete modifiedSubmitErrors[camelToSnakeCase(name)];
       setSubmitErrors(modifiedSubmitErrors);
     }
   };
@@ -56,8 +57,12 @@ export function useCommonForm<FieldNames extends string>(
     ref: register(registerOptions),
     defaultValue: defaultValues[name],
     onChange: () => hideSubmitError(name),
-    isInvalid: Boolean(submitErrors[name] || (touched[name] && errors[name])),
-    isValid: Boolean(!submitErrors[name] && touched[name] && !errors[name]),
+    isInvalid: Boolean(
+      submitErrors[camelToSnakeCase(name)] || (touched[name] && errors[name]),
+    ),
+    isValid: Boolean(
+      !submitErrors[camelToSnakeCase(name)] && touched[name] && !errors[name],
+    ),
   });
 
   const getValuesFromOptions = (selectedOptions: SelectOption[] | null) =>
@@ -76,7 +81,9 @@ export function useCommonForm<FieldNames extends string>(
       setValuesFromOptions(getValuesFromOptions(selectedOptions));
       hideSubmitError(name);
     },
-    className: Boolean(submitErrors[name] || (touched[name] && errors[name]))
+    className: Boolean(
+      submitErrors[camelToSnakeCase(name)] || (touched[name] && errors[name]),
+    )
       ? "is-invalid border border-danger rounded"
       : "",
   });
@@ -88,14 +95,14 @@ export function useCommonForm<FieldNames extends string>(
           {(errors[name] as FieldError).message}
         </Form.Control.Feedback>
       )}
-      {submitErrors[name] && (
+      {submitErrors[camelToSnakeCase(name)] && (
         <Form.Control.Feedback type="invalid" data-for={name}>
-          {submitErrors[name]}
+          {submitErrors[camelToSnakeCase(name)]}
         </Form.Control.Feedback>
       )}
       {/* for testing - can't wrap the errors in a container with a test ID
       because of Bootstrap's adjacent class CSS rules */}
-      {!errors[name] && !submitErrors[name] && (
+      {!errors[name] && !submitErrors[camelToSnakeCase(name)] && (
         <span data-testid={`${name}-form-errors`} />
       )}
     </>
