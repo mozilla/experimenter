@@ -15,6 +15,7 @@ from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusBucketRange,
+    NimbusDocumentationLink,
     NimbusExperiment,
     NimbusFeatureConfig,
     NimbusIsolationGroup,
@@ -114,6 +115,22 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             self.reference_branch = NimbusBranchFactory.create(experiment=self)
             self.save()
 
+    @factory.post_generation
+    def document_links(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if isinstance(extracted, Iterable):
+            # A list of links were passed in, use them
+            for link in extracted:
+                self.documentation_links.add(link)
+        else:
+            for i in range(3):
+                self.documentation_links.add(
+                    NimbusDocumentationLinkFactory.create(experiment=self)
+                )
+
     @classmethod
     def create_with_status(cls, target_status, **kwargs):
         experiment = cls.create(**kwargs)
@@ -151,6 +168,15 @@ class NimbusBranchFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = NimbusBranch
+
+
+class NimbusDocumentationLinkFactory(factory.django.DjangoModelFactory):
+    experiment = factory.SubFactory(NimbusExperimentFactory)
+    title = factory.LazyAttribute(lambda o: faker.catch_phrase())
+    link = factory.LazyAttribute(lambda o: faker.uri())
+
+    class Meta:
+        model = NimbusDocumentationLink
 
 
 class NimbusIsolationGroupFactory(factory.django.DjangoModelFactory):

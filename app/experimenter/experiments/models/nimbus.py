@@ -195,6 +195,25 @@ class NimbusBranch(models.Model):
         return self.name
 
 
+class NimbusDocumentationLink(models.Model):
+    experiment = models.ForeignKey(
+        NimbusExperiment,
+        related_name="documentation_links",
+        on_delete=models.CASCADE,
+    )
+    title = models.CharField(max_length=255, null=False)
+    link = models.URLField(max_length=255, null=False)
+
+    class Meta:
+        verbose_name = "Nimbus Documentation Link"
+        verbose_name_plural = "Nimbus Documentation Links"
+        unique_together = (("title", "experiment"),)
+        ordering = ("id",)
+
+    def __str__(self):
+        return f"{self.title} ({self.link})"
+
+
 class NimbusIsolationGroup(models.Model):
     application = models.CharField(
         max_length=255, choices=NimbusExperiment.Application.choices
