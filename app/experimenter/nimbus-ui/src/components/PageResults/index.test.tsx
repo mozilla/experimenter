@@ -8,7 +8,10 @@ import fetchMock from "jest-fetch-mock";
 import PageResults from ".";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery } from "../../lib/mocks";
-import { mockAnalysis } from "../../lib/visualization/mocks";
+import {
+  mockAnalysis,
+  MOCK_UNAVAILABLE_ANALYSIS,
+} from "../../lib/visualization/mocks";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import { AnalysisData } from "../../lib/visualization/types";
 import { getStatus as mockGetStatus } from "../../lib/experiment";
@@ -74,29 +77,6 @@ describe("PageResults", () => {
     });
   });
 
-  it("fetches analysis data and displays as expected when analysis is not ready", async () => {
-    mockAnalysisData = mockAnalysis({ show_analysis: false });
-
-    render(<Subject />);
-
-    await waitFor(() => {
-      expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
-    });
-    expect(screen.queryByTestId("analysis-unavailable")).toBeInTheDocument();
-    expect(screen.queryByTestId("summary")).toBeInTheDocument();
-  });
-
-  it("displays analysis error when analysis fetch error occurs", async () => {
-    mockAnalysisData = undefined;
-
-    render(<Subject />);
-
-    await waitFor(() => {
-      expect(screen.queryByTestId("PageResults")).toBeInTheDocument();
-    });
-    expect(screen.queryByTestId("analysis-error")).toBeInTheDocument();
-  });
-
   it("redirects to the edit overview page if the experiment status is draft", async () => {
     mockExperiment = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.DRAFT,
@@ -113,8 +93,17 @@ describe("PageResults", () => {
     expect(redirectPath).toEqual("edit/overview");
   });
 
-  it("redirects to the design page if the analysis results are not ready", async () => {
+  it("redirects to the design page if the visualization flag is set to false", async () => {
     mockAnalysisData = mockAnalysis({ show_analysis: false });
+    mockExperiment = mockExperimentQuery("demo-slug", {
+      status: NimbusExperimentStatus.COMPLETE,
+    }).experiment;
+    render(<Subject />);
+    expect(redirectPath).toEqual("design");
+  });
+
+  it("redirects to the design page if the visualization results are not ready", async () => {
+    mockAnalysisData = MOCK_UNAVAILABLE_ANALYSIS;
     mockExperiment = mockExperimentQuery("demo-slug", {
       status: NimbusExperimentStatus.COMPLETE,
     }).experiment;

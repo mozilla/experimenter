@@ -3,12 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export interface AnalysisData {
-  daily: AnalysisPoint[];
-  weekly: AnalysisPoint[];
-  overall: { [branch: string]: BranchDescription };
+  daily: AnalysisPoint[] | null;
+  weekly: AnalysisPoint[] | null;
+  overall: { [branch: string]: BranchDescription } | null;
   show_analysis: boolean;
   other_metrics?: { [metric: string]: string };
 }
+
+export type AnalysisDataOverall = Exclude<AnalysisData["overall"], null>;
 
 export interface AnalysisPoint {
   metric: string;

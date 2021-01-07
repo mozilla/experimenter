@@ -9,7 +9,7 @@ import {
   TABLE_LABEL,
   METRIC_TYPE,
 } from "../../lib/visualization/constants";
-import { AnalysisData } from "../../lib/visualization/types";
+import { AnalysisDataOverall } from "../../lib/visualization/types";
 import TableVisualizationRow from "../TableVisualizationRow";
 
 type SecondaryMetricStatistic = {
@@ -20,7 +20,7 @@ type SecondaryMetricStatistic = {
 };
 
 type TableMetricSecondaryProps = {
-  results: AnalysisData["overall"];
+  results: AnalysisDataOverall;
   probeSetSlug: string;
   probeSetName: string;
   isDefault?: boolean;

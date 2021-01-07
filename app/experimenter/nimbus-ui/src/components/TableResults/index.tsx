@@ -9,14 +9,14 @@ import {
   METRIC_TYPE,
   TABLE_LABEL,
 } from "../../lib/visualization/constants";
-import { AnalysisData } from "../../lib/visualization/types";
+import { AnalysisDataOverall } from "../../lib/visualization/types";
 import { getTableDisplayType } from "../../lib/visualization/utils";
 import { getExperiment_experimentBySlug_primaryProbeSets } from "../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
 
 type TableResultsProps = {
   primaryProbeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[];
-  results: AnalysisData["overall"];
+  results: AnalysisDataOverall;
 };
 
 const getResultMetrics = (
