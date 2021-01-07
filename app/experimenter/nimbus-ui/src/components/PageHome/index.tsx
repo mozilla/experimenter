@@ -6,6 +6,7 @@ import React from "react";
 import AppLayout from "../AppLayout";
 import { RouteComponentProps, Link } from "@reach/router";
 import Head from "../Head";
+import { Tabs, Tab } from "react-bootstrap";
 import { useQuery } from "@apollo/client";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
 import { GET_EXPERIMENTS_QUERY } from "../../gql/experiments";
@@ -34,12 +35,24 @@ export const Body = () => {
 
   const { live, complete, review, draft } = sortByStatus(data.experiments);
   return (
-    <>
-      <DirectoryLiveTable title="Live Experiments" experiments={live} />
-      <DirectoryCompleteTable title="Completed" experiments={complete} />
-      <DirectoryTable title="In Review" experiments={review} />
-      <DirectoryDraftsTable title="Drafts" experiments={draft} />
-    </>
+    <Tabs defaultActiveKey="active">
+      <Tab eventKey="active" title="Active">
+        <div className="mt-4">
+          <DirectoryLiveTable title="Live Experiments" experiments={live} />
+          <DirectoryTable title="In Review" experiments={review} />
+        </div>
+      </Tab>
+      <Tab eventKey="completed" title="Completed">
+        <div className="mt-4">
+          <DirectoryCompleteTable title="Completed" experiments={complete} />
+        </div>
+      </Tab>
+      <Tab eventKey="drafts" title="Drafts">
+        <div className="mt-4">
+          <DirectoryDraftsTable title="Drafts" experiments={draft} />
+        </div>
+      </Tab>
+    </Tabs>
   );
 };
 
@@ -48,16 +61,19 @@ const PageHome: React.FunctionComponent<PageHomeProps> = () => {
     <AppLayout testid="PageHome">
       <Head title="Experiments" />
 
-      <h2 className="mb-4">
-        Nimbus Experiments{" "}
-        <Link
-          to="new"
-          data-sb-kind="pages/New"
-          className="btn btn-primary btn-small ml-2"
-        >
-          New experiment
-        </Link>
-      </h2>
+      <div className="d-flex mb-4">
+        <h2 className="mb-0 mr-1">Nimbus Experiments </h2>
+        <div>
+          <Link
+            to="new"
+            data-sb-kind="pages/New"
+            className="btn btn-primary btn-small ml-2"
+          >
+            Create new
+          </Link>
+        </div>
+      </div>
+
       <Body />
     </AppLayout>
   );
