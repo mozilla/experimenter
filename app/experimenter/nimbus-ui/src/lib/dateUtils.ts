@@ -6,12 +6,27 @@ import { getAllExperiments_experiments } from "../types/getAllExperiments";
 import { getExperiment_experimentBySlug } from "../types/getExperiment";
 import pluralize from "./pluralize";
 
-export function humanDate(date: string): string {
-  return new Date(date).toLocaleString("en-US", {
+export function humanDate(
+  date: string,
+  year: boolean | "past" = "past",
+): string {
+  const today = new Date();
+  const parsedDate = new Date(date);
+  const options: Intl.DateTimeFormatOptions = {
     month: "short",
     day: "numeric",
-    year: "numeric",
-  });
+  };
+
+  // Only show the year if the date's year is not the current
+  // year, or if the option is explicitly enabled
+  if (
+    (year === "past" && today.getFullYear() !== parsedDate.getFullYear()) ||
+    year === true
+  ) {
+    options.year = "numeric";
+  }
+
+  return parsedDate.toLocaleString("en-US", options);
 }
 
 export function addDaysToDate(datestring: string, days: number): string {

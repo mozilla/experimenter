@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  humanDate,
   addDaysToDate,
   getProposedEndDate,
   getProposedEnrollmentRange,
@@ -10,6 +11,21 @@ import {
 import { mockSingleDirectoryExperiment as expFactory } from "./mocks";
 
 const FAKE_DATE = "Thu Dec 12 2020";
+const FAKE_ISO_DATE = "2020-12-25T15:28:01.821657+00:00";
+
+describe("humanDate", () => {
+  it("should produce the date and month", () => {
+    expect(humanDate(FAKE_ISO_DATE, false)).toEqual("Dec 25");
+  });
+
+  it("with year explicitly enabled, should produce the date, month, and year", () => {
+    expect(humanDate(FAKE_ISO_DATE, true)).toEqual("Dec 25, 2020");
+  });
+
+  it("with year set to 'past', should produce the date, month, and year", () => {
+    expect(humanDate(FAKE_ISO_DATE, "past")).toEqual("Dec 25, 2020");
+  });
+});
 
 describe("addDaysToDate", () => {
   it("should add days to a date and return a date string", () => {
