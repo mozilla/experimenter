@@ -72,10 +72,10 @@ export interface getExperiment_experimentBySlug {
   slug: string;
   status: NimbusExperimentStatus | null;
   monitoringDashboardUrl: string | null;
-  hypothesis: string | null;
+  hypothesis: string;
   application: NimbusExperimentApplication | null;
-  publicDescription: string | null;
-  owner: getExperiment_experimentBySlug_owner | null;
+  publicDescription: string;
+  owner: getExperiment_experimentBySlug_owner;
   referenceBranch: getExperiment_experimentBySlug_referenceBranch | null;
   treatmentBranches: (getExperiment_experimentBySlug_treatmentBranches | null)[] | null;
   featureConfig: getExperiment_experimentBySlug_featureConfig | null;
@@ -86,8 +86,8 @@ export interface getExperiment_experimentBySlug {
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug | null;
   populationPercent: string | null;
   totalEnrolledClients: number;
-  proposedEnrollment: number | null;
-  proposedDuration: number | null;
+  proposedEnrollment: number;
+  proposedDuration: number;
   readyForReview: getExperiment_experimentBySlug_readyForReview | null;
   startDate: DateTime | null;
   endDate: DateTime | null;

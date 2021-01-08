@@ -40,11 +40,8 @@ export function addDaysToDate(datestring: string, days: number): string {
  *  or a number of days (e.g. "5 days") if startDate is not set.
  */
 export function getProposedEndDate(
-  experiment?: getExperiment_experimentBySlug | getAllExperiments_experiments,
-): string | null {
-  if (!experiment?.proposedDuration) {
-    return null;
-  }
+  experiment: getExperiment_experimentBySlug | getAllExperiments_experiments,
+): string {
   const { startDate, proposedDuration } = experiment;
   if (startDate) {
     return humanDate(addDaysToDate(startDate, proposedDuration));
@@ -61,11 +58,8 @@ export function getProposedEndDate(
  *      e.g. 2 days
  */
 export function getProposedEnrollmentRange(
-  experiment?: getExperiment_experimentBySlug | getAllExperiments_experiments,
-): string | null {
-  if (!experiment?.proposedEnrollment) {
-    return null;
-  }
+  experiment: getExperiment_experimentBySlug | getAllExperiments_experiments,
+): string {
   const { startDate, proposedEnrollment } = experiment;
   if (startDate) {
     return `${humanDate(startDate)} to ${humanDate(

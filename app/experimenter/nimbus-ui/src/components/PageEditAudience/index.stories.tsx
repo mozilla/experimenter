@@ -15,8 +15,8 @@ const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
   channel: null,
   firefoxMinVersion: null,
   targetingConfigSlug: null,
-  proposedEnrollment: null,
-  proposedDuration: null,
+  proposedEnrollment: 0,
+  proposedDuration: 0,
   readyForReview: {
     __typename: "NimbusReadyForReviewType",
     ready: false,

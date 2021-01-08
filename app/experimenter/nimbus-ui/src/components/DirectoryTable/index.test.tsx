@@ -40,13 +40,6 @@ describe("DirectoryColumnOwner", () => {
       experiment.owner!.username,
     );
   });
-
-  it("renders the NotSet label if owner is not present", () => {
-    render(<DirectoryColumnOwner {...experiment} owner={null} />);
-    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
-      "Not set",
-    );
-  });
 });
 
 describe("DirectoryColumnFeature", () => {

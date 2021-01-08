@@ -580,13 +580,13 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
     def test_serializer_updates_audience_on_experiment(self):
         user = UserFactory()
         experiment = NimbusExperimentFactory(
-            channel=None,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
             application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=None,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             population_percent=0.0,
-            proposed_duration=None,
-            proposed_enrollment=None,
-            targeting_config_slug=None,
+            proposed_duration=0,
+            proposed_enrollment=0,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             total_enrolled_clients=0,
         )
         serializer = NimbusExperimentUpdateSerializer(
@@ -605,7 +605,7 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
             context={"user": user},
         )
         self.assertEqual(experiment.changes.count(), 0)
-        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.is_valid(), serializer.errors)
         experiment = serializer.save()
         self.assertEqual(experiment.changes.count(), 1)
         self.assertEqual(experiment.channel, NimbusConstants.Channel.DESKTOP_BETA.value)
@@ -624,13 +624,13 @@ class TestNimbusAudienceUpdateSerializer(TestCase):
     def test_serializer_updates_audience_on_experiment_invalid_channels(self):
         user = UserFactory()
         experiment = NimbusExperimentFactory(
-            channel=None,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
             application=NimbusExperiment.Application.FENIX,
-            firefox_min_version=None,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             population_percent=0.0,
-            proposed_duration=None,
-            proposed_enrollment=None,
-            targeting_config_slug=None,
+            proposed_duration=0,
+            proposed_enrollment=0,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             total_enrolled_clients=0,
         )
         serializer = NimbusExperimentUpdateSerializer(
@@ -714,6 +714,7 @@ class TestNimbusStatusUpdateSerializer(TestCase):
         self.assertEqual(
             serializer.errors,
             {"status": ["Nimbus Experiments can only transition from DRAFT to REVIEW."]},
+            serializer.errors,
         )
 
     def test_status_with_invalid_existing_status(self):

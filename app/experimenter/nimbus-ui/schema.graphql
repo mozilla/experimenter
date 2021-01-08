@@ -21,8 +21,8 @@ input ExperimentInput {
   clientMutationId: String
   id: Int
   status: NimbusExperimentStatus
-  hypothesis: String
   name: String
+  hypothesis: String
   application: NimbusExperimentApplication
   publicDescription: String
   featureConfigId: Int
@@ -77,6 +77,7 @@ enum NimbusExperimentApplication {
 }
 
 enum NimbusExperimentChannel {
+  NO_CHANNEL
   DESKTOP_BETA
   DESKTOP_NIGHTLY
   DESKTOP_RELEASE
@@ -87,6 +88,7 @@ enum NimbusExperimentChannel {
 }
 
 enum NimbusExperimentFirefoxMinVersion {
+  NO_VERSION
   FIREFOX_80
   FIREFOX_81
   FIREFOX_82
@@ -135,6 +137,7 @@ enum NimbusExperimentStatus {
 }
 
 enum NimbusExperimentTargetingConfigSlug {
+  NO_TARGETING
   ALL_ENGLISH
   US_ONLY
   TARGETING_FIRST_RUN
@@ -144,21 +147,21 @@ enum NimbusExperimentTargetingConfigSlug {
 
 type NimbusExperimentType {
   id: Int
-  owner: NimbusExperimentOwner
+  owner: NimbusExperimentOwner!
   status: NimbusExperimentStatus
   name: String!
   slug: String!
-  publicDescription: String
+  publicDescription: String!
   isPaused: Boolean!
-  proposedDuration: Int
-  proposedEnrollment: Int
+  proposedDuration: Int!
+  proposedEnrollment: Int!
   populationPercent: String
   totalEnrolledClients: Int!
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion
   application: NimbusExperimentApplication
   channel: NimbusExperimentChannel
   projects: [ProjectType!]!
-  hypothesis: String
+  hypothesis: String!
   featureConfig: NimbusFeatureConfigType
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug
   referenceBranch: NimbusBranchType
