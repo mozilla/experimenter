@@ -35,7 +35,6 @@ class ExperimentInput(graphene.InputObjectType):
     status = NimbusExperimentStatus()
     name = graphene.String()
     hypothesis = graphene.String()
-    name = graphene.String()
     application = NimbusExperimentApplication()
     public_description = graphene.String()
     feature_config_id = graphene.Int()

@@ -23,11 +23,11 @@ export interface getAllExperiments_experiments_featureConfig {
 export interface getAllExperiments_experiments {
   __typename: "NimbusExperimentType";
   name: string;
-  owner: getAllExperiments_experiments_owner | null;
+  owner: getAllExperiments_experiments_owner;
   slug: string;
   startDate: DateTime | null;
-  proposedDuration: number | null;
-  proposedEnrollment: number | null;
+  proposedDuration: number;
+  proposedEnrollment: number;
   endDate: DateTime | null;
   status: NimbusExperimentStatus | null;
   monitoringDashboardUrl: string | null;

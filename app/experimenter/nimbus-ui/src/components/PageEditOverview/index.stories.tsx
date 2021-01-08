@@ -12,7 +12,7 @@ import PageEditOverview from ".";
 
 const { mock } = mockExperimentQuery("demo-slug");
 const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
-  publicDescription: null,
+  publicDescription: "",
   readyForReview: {
     __typename: "NimbusReadyForReviewType",
     ready: false,

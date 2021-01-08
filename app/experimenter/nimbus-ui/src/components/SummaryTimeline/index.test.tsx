@@ -58,7 +58,7 @@ describe("SummaryTimeline", () => {
   });
 
   it("renders with missing details", () => {
-    render(<Subject proposedDuration={null} proposedEnrollment={null} />);
+    render(<Subject proposedDuration={0} proposedEnrollment={0} />);
 
     expect(screen.queryByTestId("label-duration-not-set")).toBeInTheDocument();
     expect(

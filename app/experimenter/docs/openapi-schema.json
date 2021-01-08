@@ -2898,6 +2898,7 @@
           },
           "channel": {
             "enum": [
+              "",
               "beta",
               "nightly",
               "release",
@@ -2906,8 +2907,7 @@
               "org.mozilla.fenix",
               "org.mozilla.firefox"
             ],
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "userFacingName": {
             "type": "string",

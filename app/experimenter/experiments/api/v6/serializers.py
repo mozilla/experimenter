@@ -104,30 +104,33 @@ class NimbusExperimentArgumentsSerializer(serializers.ModelSerializer):
             return obj.reference_branch.slug
 
     def get_targeting(self, obj):
-        if obj.targeting_config:
-            version_expr = ""
-            if obj.firefox_min_version:
-                version_expr = "{version_check} && ".format(
-                    version_check=NimbusExperiment.TARGETING_VERSION.format(
-                        version=obj.firefox_min_version
-                    )
+        version_expr = ""
+        if obj.firefox_min_version:
+            version_expr = "{version_check} && ".format(
+                version_check=NimbusExperiment.TARGETING_VERSION.format(
+                    version=obj.firefox_min_version
                 )
-
-            channel_expr = ""
-            if obj.channel:
-                channel_expr = "{channel_check} && ".format(
-                    channel_check=NimbusExperiment.TARGETING_CHANNEL.format(
-                        channel=obj.channel
-                    )
-                )
-
-            targeting_config = obj.targeting_config.targeting.format(experiment=obj)
-
-            # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
-            return (
-                f"{channel_expr}{version_expr}{targeting_config} "
-                "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
             )
+
+        channel_expr = ""
+        if obj.channel:
+            channel_expr = "{channel_check} && ".format(
+                channel_check=NimbusExperiment.TARGETING_CHANNEL.format(
+                    channel=obj.channel
+                )
+            )
+
+        targeting_expr = ""
+        if obj.targeting_config:
+            targeting_expr = "{targeting_check} && ".format(
+                targeting_check=obj.targeting_config.targeting.format(experiment=obj)
+            )
+
+        # TODO: Remove opt-out after Firefox 84 is the earliest supported Desktop
+        return (
+            f"{channel_expr}{version_expr}{targeting_expr}"
+            "'app.shield.optoutstudies.enabled'|preferenceValue"
+        )
 
 
 class NimbusExperimentSerializer(NimbusExperimentArgumentsSerializer):

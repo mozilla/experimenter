@@ -18,30 +18,31 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
     maxDiff = None
 
     def test_outputs_expected_schema_for_empty_experiment(self):
-        experiment = NimbusExperiment()
+        owner = UserFactory.create()
+        experiment = NimbusExperiment.objects.create(owner=owner)
         data = dict(NimbusExperimentChangeLogSerializer(experiment).data)
         self.assertEqual(
             data,
             {
-                "application": None,
+                "application": "",
                 "branches": [],
-                "channel": None,
+                "channel": NimbusExperiment.Channel.NO_CHANNEL,
                 "reference_branch": None,
                 "feature_config": None,
-                "firefox_min_version": None,
+                "firefox_min_version": NimbusExperiment.Version.NO_VERSION,
                 "hypothesis": NimbusExperiment.HYPOTHESIS_DEFAULT,
                 "is_paused": False,
                 "name": "",
-                "owner": None,
+                "owner": owner.email,
                 "population_percent": "0.0000",
                 "probe_sets": [],
                 "projects": [],
-                "proposed_duration": None,
-                "proposed_enrollment": None,
-                "public_description": None,
+                "proposed_duration": NimbusExperiment.DEFAULT_PROPOSED_DURATION,
+                "proposed_enrollment": NimbusExperiment.DEFAULT_PROPOSED_ENROLLMENT,
+                "public_description": "",
                 "slug": "",
                 "status": NimbusExperiment.Status.DRAFT.value,
-                "targeting_config_slug": None,
+                "targeting_config_slug": NimbusExperiment.TargetingConfig.NO_TARGETING,
                 "total_enrolled_clients": 0,
             },
         )

@@ -60,14 +60,6 @@ storiesOf("components/DirectoryTable", module)
       />
     );
   })
-  .add("missing owner", () => {
-    return (
-      <DirectoryTable
-        title="Mocked Experiments"
-        experiments={mockDirectoryExperiments([{ owner: null }])}
-      />
-    );
-  })
   .add("no feature", () => {
     return (
       <DirectoryTable

@@ -22,7 +22,9 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(str(experiment), experiment.name)
 
     def test_targeting_config_not_set(self):
-        experiment = NimbusExperimentFactory.create(targeting_config_slug=None)
+        experiment = NimbusExperimentFactory.create(
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING
+        )
         self.assertIsNone(experiment.targeting_config)
 
     def test_targeting_config_set(self):
