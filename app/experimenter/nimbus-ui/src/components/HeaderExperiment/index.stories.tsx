@@ -19,6 +19,8 @@ storiesOf("components/HeaderExperiment", module)
       <HeaderExperiment
         name={experiment.name}
         slug={experiment.slug}
+        startDate={experiment.startDate}
+        endDate={experiment.endDate}
         status={mockGetStatus(experiment.status)}
       />
     </AppLayout>
@@ -28,6 +30,8 @@ storiesOf("components/HeaderExperiment", module)
       <HeaderExperiment
         name={experiment.name}
         slug={experiment.slug}
+        startDate={experiment.startDate}
+        endDate={experiment.endDate}
         status={mockGetStatus(NimbusExperimentStatus.REVIEW)}
       />
     </AppLayout>
@@ -37,6 +41,8 @@ storiesOf("components/HeaderExperiment", module)
       <HeaderExperiment
         name={experiment.name}
         slug={experiment.slug}
+        startDate={experiment.startDate}
+        endDate={null}
         status={mockGetStatus(NimbusExperimentStatus.LIVE)}
       />
     </AppLayout>
@@ -46,6 +52,19 @@ storiesOf("components/HeaderExperiment", module)
       <HeaderExperiment
         name={experiment.name}
         slug={experiment.slug}
+        startDate={experiment.startDate}
+        endDate={experiment.endDate}
+        status={mockGetStatus(NimbusExperimentStatus.COMPLETE)}
+      />
+    </AppLayout>
+  ))
+  .add("includes dates", () => (
+    <AppLayout>
+      <HeaderExperiment
+        name={experiment.name}
+        slug={experiment.slug}
+        startDate={experiment.startDate}
+        endDate={experiment.endDate}
         status={mockGetStatus(NimbusExperimentStatus.COMPLETE)}
       />
     </AppLayout>
