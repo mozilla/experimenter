@@ -11,7 +11,10 @@ def set_owner(apps, schema_editor):
     NimbusExperiment = apps.get_model("experiments", "NimbusExperiment")
     db_alias = schema_editor.connection.alias
     if NimbusExperiment.objects.exists():
-        user, _ = User.objects.get_or_create(email="nobody@example.com")
+        dummy_user = "nobody@example.com"
+        user, _ = User.objects.get_or_create(
+            email=dummy_user, username=dummy_user, first_name="no", last_name="body"
+        )
         NimbusExperiment.objects.using(db_alias).filter(owner=None).update(owner=user)
 
 
