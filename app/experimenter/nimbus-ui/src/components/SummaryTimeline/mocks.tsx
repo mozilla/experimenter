@@ -16,8 +16,8 @@ export const Subject = ({
 }: {
   startDate?: string;
   endDate?: string;
-  proposedDuration?: number | null;
-  proposedEnrollment?: number | null;
+  proposedDuration?: number;
+  proposedEnrollment?: number;
   status?: NimbusExperimentStatus;
 }) => {
   const { experiment } = mockExperimentQuery("something-vague", {

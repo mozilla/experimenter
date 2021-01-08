@@ -14,6 +14,11 @@ import { Subject, MOCK_EXPERIMENT } from "./mocks";
 import { AUDIENCE_DOC_URL } from ".";
 import { MOCK_CONFIG } from "../../lib/mocks";
 import { snakeToCamelCase } from "../../lib/caseConversions";
+import {
+  NimbusExperimentFirefoxMinVersion,
+  NimbusExperimentTargetingConfigSlug,
+  NimbusExperimentChannel,
+} from "../../types/globalTypes";
 
 describe("FormAudience", () => {
   it("renders without error", async () => {
@@ -76,22 +81,41 @@ describe("FormAudience", () => {
     }
   });
 
-  it("renders without error with a partial experiment", async () => {
+  it("renders without error with default values", async () => {
     render(
       <Subject
         config={{
           ...MOCK_CONFIG,
           targetingConfigSlug: [
-            { __typename: "NimbusLabelValueType", label: null, value: null },
+            {
+              __typename: "NimbusLabelValueType",
+              label: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
+              value: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
+            },
+          ],
+          firefoxMinVersion: [
+            {
+              __typename: "NimbusLabelValueType",
+              label: NimbusExperimentFirefoxMinVersion.NO_VERSION,
+              value: NimbusExperimentFirefoxMinVersion.NO_VERSION,
+            },
+          ],
+          channel: [
+            {
+              __typename: "NimbusLabelValueType",
+              label: NimbusExperimentChannel.NO_CHANNEL,
+              value: NimbusExperimentChannel.NO_CHANNEL,
+            },
           ],
         }}
         experiment={{
           ...MOCK_EXPERIMENT,
-          firefoxMinVersion: null,
-          targetingConfigSlug: null,
-          populationPercent: null,
-          proposedEnrollment: null,
-          proposedDuration: null,
+          firefoxMinVersion: NimbusExperimentFirefoxMinVersion.NO_VERSION,
+          channel: NimbusExperimentChannel.NO_CHANNEL,
+          populationPercent: "0.0",
+          proposedDuration: 0,
+          proposedEnrollment: 0,
+          targetingConfigSlug: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
         }}
       />,
     );
@@ -100,11 +124,11 @@ describe("FormAudience", () => {
     });
 
     for (const [fieldName, expected] of [
-      ["populationPercent", "0"],
-      ["proposedEnrollment", "7"],
-      ["proposedDuration", "28"],
-      ["firefoxMinVersion", ""],
-      ["targetingConfigSlug", ""],
+      ["firefoxMinVersion", NimbusExperimentFirefoxMinVersion.NO_VERSION],
+      ["populationPercent", "0.0"],
+      ["proposedDuration", "0"],
+      ["proposedEnrollment", "0"],
+      ["targetingConfigSlug", NimbusExperimentTargetingConfigSlug.NO_TARGETING],
     ] as const) {
       const field = screen.queryByTestId(fieldName);
       expect(field).toBeInTheDocument();

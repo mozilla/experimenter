@@ -13,7 +13,7 @@ export interface createExperiment_createExperiment_nimbusExperiment {
   __typename: "NimbusExperimentType";
   name: string;
   slug: string;
-  hypothesis: string | null;
+  hypothesis: string;
   application: NimbusExperimentApplication | null;
 }
 

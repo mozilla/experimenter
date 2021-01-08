@@ -19,5 +19,5 @@ storiesOf("components/SummaryTimeline", module)
   })
   .add("complete", () => <Subject status={NimbusExperimentStatus.COMPLETE} />)
   .add("missing details", () => (
-    <Subject proposedDuration={null} proposedEnrollment={null} />
+    <Subject proposedDuration={0} proposedEnrollment={0} />
   ));

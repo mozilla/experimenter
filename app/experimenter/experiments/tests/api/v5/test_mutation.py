@@ -434,13 +434,13 @@ class TestMutations(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
-            channel=None,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
             application=NimbusConstants.Application.DESKTOP,
-            firefox_min_version=None,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             population_percent=0.0,
-            proposed_duration=None,
-            proposed_enrollment=None,
-            targeting_config_slug=None,
+            proposed_duration=0,
+            proposed_enrollment=0,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             total_enrolled_clients=0,
         )
         response = self.query(
@@ -495,12 +495,12 @@ class TestMutations(GraphQLTestCase):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
-            channel=None,
-            firefox_min_version=None,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            firefox_min_version=NimbusExperiment.Channel.NO_CHANNEL,
             population_percent=0.0,
-            proposed_duration=None,
-            proposed_enrollment=None,
-            targeting_config_slug=None,
+            proposed_duration=0,
+            proposed_enrollment=0,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             total_enrolled_clients=0,
         )
         response = self.query(

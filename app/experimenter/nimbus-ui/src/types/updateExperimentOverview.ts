@@ -12,8 +12,8 @@ import { ExperimentInput } from "./globalTypes";
 export interface updateExperimentOverview_updateExperiment_nimbusExperiment {
   __typename: "NimbusExperimentType";
   name: string;
-  hypothesis: string | null;
-  publicDescription: string | null;
+  hypothesis: string;
+  publicDescription: string;
 }
 
 export interface updateExperimentOverview_updateExperiment {

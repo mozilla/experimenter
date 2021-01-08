@@ -40,10 +40,6 @@ describe("addDaysToDate", () => {
 });
 
 describe("getProposedEndDate", () => {
-  it("should return null if no proposedDuration is set", () => {
-    const actual = getProposedEndDate(expFactory({ proposedDuration: null }));
-    expect(actual).toBeNull();
-  });
   it("should render a proposed end date if startDate and proposedDuration are set", () => {
     const actual = getProposedEndDate(
       expFactory({
@@ -74,12 +70,6 @@ describe("getProposedEndDate", () => {
 });
 
 describe("getProposedEnrollmentRange", () => {
-  it("should return null if no proposedEnrollment is set", () => {
-    const actual = getProposedEnrollmentRange(
-      expFactory({ proposedEnrollment: null }),
-    );
-    expect(actual).toBeNull();
-  });
   it("should render a date range if startDate and proposedEnrollment are set", () => {
     const actual = getProposedEnrollmentRange(
       expFactory({
