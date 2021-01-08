@@ -27,9 +27,10 @@ describe("PageDesign", () => {
         <PageDesign />
       </RouterSlugProvider>,
     );
-    await waitFor(() => {
+    waitFor(() => {
       expect(screen.queryByTestId("PageDesign")).toBeInTheDocument();
     });
+    expect(screen.queryByTestId("summary")).toBeInTheDocument();
   });
 
   it("redirects to the edit overview page if the experiment status is draft", async () => {
