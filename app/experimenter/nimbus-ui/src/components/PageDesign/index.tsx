@@ -11,7 +11,7 @@ const PageDesign: React.FunctionComponent<RouteComponentProps> = () => {
     <AppLayoutWithExperiment
       title="Design"
       testId="PageDesign"
-      analysisRequired
+      analysisRequiredInSidebar
       redirect={({ status }) => {
         if (!status?.locked) {
           return "edit/overview";
