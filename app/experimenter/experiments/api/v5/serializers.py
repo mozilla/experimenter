@@ -178,12 +178,14 @@ class NimbusExperimentBranchMixin:
         return data
 
     def update(self, experiment, data):
-        control_branch_data = data.pop("reference_branch", {})
-        treatment_branches_data = data.pop("treatment_branches", {})
-
         with transaction.atomic():
+            if set(data.keys()).intersection({"reference_branch", "treatment_branches"}):
+                experiment.delete_branches()
+
+            control_branch_data = data.pop("reference_branch", {})
+            treatment_branches_data = data.pop("treatment_branches", [])
+
             experiment = super().update(experiment, data)
-            experiment.delete_branches()
 
             if control_branch_data:
                 experiment.reference_branch = NimbusBranch.objects.create(
