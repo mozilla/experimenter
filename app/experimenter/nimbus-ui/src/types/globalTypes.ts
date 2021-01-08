@@ -20,6 +20,7 @@ export enum NimbusExperimentChannel {
   FENIX_BETA = "FENIX_BETA",
   FENIX_NIGHTLY = "FENIX_NIGHTLY",
   FENIX_RELEASE = "FENIX_RELEASE",
+  NO_CHANNEL = "NO_CHANNEL",
 }
 
 export enum NimbusExperimentFirefoxMinVersion {
@@ -44,6 +45,7 @@ export enum NimbusExperimentFirefoxMinVersion {
   FIREFOX_97 = "FIREFOX_97",
   FIREFOX_98 = "FIREFOX_98",
   FIREFOX_99 = "FIREFOX_99",
+  NO_VERSION = "NO_VERSION",
 }
 
 export enum NimbusExperimentStatus {
@@ -56,6 +58,7 @@ export enum NimbusExperimentStatus {
 
 export enum NimbusExperimentTargetingConfigSlug {
   ALL_ENGLISH = "ALL_ENGLISH",
+  NO_TARGETING = "NO_TARGETING",
   TARGETING_FIRST_RUN = "TARGETING_FIRST_RUN",
   TARGETING_FIRST_RUN_CHROME_ATTRIBUTION = "TARGETING_FIRST_RUN_CHROME_ATTRIBUTION",
   TARGETING_HOMEPAGE_GOOGLE = "TARGETING_HOMEPAGE_GOOGLE",
@@ -76,8 +79,8 @@ export interface ExperimentInput {
   clientMutationId?: string | null;
   id?: number | null;
   status?: NimbusExperimentStatus | null;
-  hypothesis?: string | null;
   name?: string | null;
+  hypothesis?: string | null;
   application?: NimbusExperimentApplication | null;
   publicDescription?: string | null;
   featureConfigId?: number | null;

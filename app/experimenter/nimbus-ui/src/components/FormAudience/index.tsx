@@ -68,13 +68,13 @@ export const FormAudience = ({
   );
 
   const defaultValues = {
-    channel: experiment.channel || "",
-    firefoxMinVersion: experiment.firefoxMinVersion || "",
-    targetingConfigSlug: experiment.targetingConfigSlug || "",
-    populationPercent: experiment.populationPercent || 0,
+    channel: experiment.channel,
+    firefoxMinVersion: experiment.firefoxMinVersion,
+    targetingConfigSlug: experiment.targetingConfigSlug,
+    populationPercent: experiment.populationPercent,
     totalEnrolledClients: experiment.totalEnrolledClients,
-    proposedEnrollment: experiment.proposedEnrollment || 7,
-    proposedDuration: experiment.proposedDuration || 28,
+    proposedEnrollment: experiment.proposedEnrollment,
+    proposedDuration: experiment.proposedDuration,
   };
 
   const {

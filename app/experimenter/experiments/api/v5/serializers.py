@@ -317,7 +317,26 @@ class NimbusExperimentUpdateSerializer(
 
     class Meta:
         model = NimbusExperiment
-        exclude = []
+        fields = [
+            "status",
+            "name",
+            "hypothesis",
+            "slug",
+            "application",
+            "public_description",
+            "feature_config",
+            "reference_branch",
+            "treatment_branches",
+            "primary_probe_set_ids",
+            "secondary_probe_set_ids",
+            "channel",
+            "firefox_min_version",
+            "population_percent",
+            "proposed_duration",
+            "proposed_enrollment",
+            "targeting_config_slug",
+            "total_enrolled_clients",
+        ]
 
 
 class NimbusReadyForReviewSerializer(

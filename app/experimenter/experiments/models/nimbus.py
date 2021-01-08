@@ -17,8 +17,6 @@ from experimenter.projects.models import Project
 class NimbusExperiment(NimbusConstants, models.Model):
     owner = models.ForeignKey(
         get_user_model(),
-        blank=True,
-        null=True,
         on_delete=models.CASCADE,
         related_name="owned_nimbusexperiments",
     )
@@ -27,20 +25,16 @@ class NimbusExperiment(NimbusConstants, models.Model):
         default=NimbusConstants.Status.DRAFT.value,
         choices=NimbusConstants.Status.choices,
     )
-    name = models.CharField(max_length=255, unique=True, null=False)
-    slug = models.SlugField(
-        max_length=NimbusConstants.MAX_SLUG_LEN, unique=True, null=False
-    )
-    public_description = models.TextField(blank=True, null=True)
+    name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, unique=True)
+    public_description = models.TextField(default="")
     is_paused = models.BooleanField(default=False)
     proposed_duration = models.PositiveIntegerField(
-        blank=True,
-        null=True,
+        default=NimbusConstants.DEFAULT_PROPOSED_DURATION,
         validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
     )
     proposed_enrollment = models.PositiveIntegerField(
-        blank=True,
-        null=True,
+        default=NimbusConstants.DEFAULT_PROPOSED_ENROLLMENT,
         validators=[MaxValueValidator(NimbusConstants.MAX_DURATION)],
     )
     population_percent = models.DecimalField(max_digits=7, decimal_places=4, default=0.0)
@@ -48,25 +42,19 @@ class NimbusExperiment(NimbusConstants, models.Model):
     firefox_min_version = models.CharField(
         max_length=255,
         choices=NimbusConstants.Version.choices,
-        blank=True,
-        null=True,
+        default=NimbusConstants.Version.NO_VERSION,
     )
     application = models.CharField(
         max_length=255,
         choices=NimbusConstants.Application.choices,
-        blank=True,
-        null=True,
     )
     channel = models.CharField(
         max_length=255,
-        blank=True,
-        null=True,
         choices=NimbusConstants.Channel.choices,
+        default=NimbusConstants.Channel.NO_CHANNEL,
     )
     projects = models.ManyToManyField(Project, blank=True)
-    hypothesis = models.TextField(
-        default=NimbusConstants.HYPOTHESIS_DEFAULT, blank=True, null=True
-    )
+    hypothesis = models.TextField(default=NimbusConstants.HYPOTHESIS_DEFAULT)
     probe_sets = models.ManyToManyField(
         "NimbusProbeSet", through="NimbusExperimentProbeSets"
     )
@@ -75,9 +63,8 @@ class NimbusExperiment(NimbusConstants, models.Model):
     )
     targeting_config_slug = models.CharField(
         max_length=255,
-        blank=True,
-        null=True,
         choices=NimbusConstants.TargetingConfig.choices,
+        default=NimbusConstants.TargetingConfig.NO_TARGETING,
     )
     reference_branch = models.OneToOneField(
         "NimbusBranch", blank=True, null=True, on_delete=models.CASCADE

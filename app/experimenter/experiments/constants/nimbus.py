@@ -98,6 +98,7 @@ class NimbusConstants(object):
     }
 
     class Channel(models.TextChoices):
+        NO_CHANNEL = ""
         DESKTOP_BETA = "beta"
         DESKTOP_NIGHTLY = "nightly"
         DESKTOP_RELEASE = "release"
@@ -108,12 +109,14 @@ class NimbusConstants(object):
 
     ApplicationChannels = {
         Application.DESKTOP: [
+            Channel.NO_CHANNEL,
             Channel.DESKTOP_UNBRANDED,
             Channel.DESKTOP_NIGHTLY,
             Channel.DESKTOP_BETA,
             Channel.DESKTOP_RELEASE,
         ],
         Application.FENIX: [
+            Channel.NO_CHANNEL,
             Channel.FENIX_NIGHTLY,
             Channel.FENIX_BETA,
             Channel.FENIX_RELEASE,
@@ -121,6 +124,7 @@ class NimbusConstants(object):
     }
 
     class Version(models.TextChoices):
+        NO_VERSION = ""
         FIREFOX_80 = "80.!"
         FIREFOX_81 = "81.!"
         FIREFOX_82 = "82.!"
@@ -175,6 +179,7 @@ class NimbusConstants(object):
     }
 
     class TargetingConfig(models.TextChoices):
+        NO_TARGETING = ""
         ALL_ENGLISH = TARGETING_ALL_ENGLISH.slug
         US_ONLY = TARGETING_US_ONLY.slug
         TARGETING_FIRST_RUN = TARGETING_FIRST_RUN.slug
@@ -201,3 +206,5 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     """  # noqa
 
     MAX_PRIMARY_PROBE_SETS = 2
+    DEFAULT_PROPOSED_DURATION = 28
+    DEFAULT_PROPOSED_ENROLLMENT = 7
