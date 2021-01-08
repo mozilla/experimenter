@@ -491,6 +491,24 @@ class TestNimbusBranchUpdateSerializer(TestCase):
         )
         self.assertEqual(len(serializer.errors), 1)
 
+    def test_does_not_delete_branches_when_other_fields_specified(self):
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT
+        )
+        branch_count = experiment.branches.count()
+
+        serializer = NimbusExperimentUpdateSerializer(
+            instance=experiment,
+            data={"name": "new name"},
+            context={"user": UserFactory()},
+        )
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+        self.assertEqual(experiment.branches.count(), branch_count)
+        self.assertEqual(experiment.name, "new name")
+
 
 class TestNimbusProbeSetUpdateSerializer(TestCase):
     def test_serializer_updates_probe_sets_on_experiment(self):
