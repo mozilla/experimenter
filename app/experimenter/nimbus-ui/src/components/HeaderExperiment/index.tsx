@@ -7,13 +7,20 @@ import React from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { StatusCheck } from "../../lib/experiment";
 import "./index.scss";
+import { humanDate, stringDateSubtract } from "../../lib/dateUtils";
 
 type HeaderExperimentProps = Pick<
   getExperiment_experimentBySlug,
-  "name" | "slug"
+  "name" | "slug" | "startDate" | "endDate"
 > & { status: StatusCheck };
 
-const HeaderExperiment = ({ name, slug, status }: HeaderExperimentProps) => (
+const HeaderExperiment = ({
+  name,
+  slug,
+  startDate = "",
+  endDate = "",
+  status,
+}: HeaderExperimentProps) => (
   <header className="border-bottom" data-testid="header-experiment">
     <h1 className="h5 font-weight-normal" data-testid="header-experiment-name">
       {name}
@@ -24,12 +31,36 @@ const HeaderExperiment = ({ name, slug, status }: HeaderExperimentProps) => (
     >
       {slug}
     </p>
-    <p className="header-experiment-status position-relative mt-2 d-inline-block">
-      <StatusPill label="Draft" active={status.draft} />
-      <StatusPill label="Review" active={status.review || status.accepted} />
-      <StatusPill label="Live" active={status.live} />
-      <StatusPill label="Complete" active={status.complete} padded={false} />
-    </p>
+    <div className="row">
+      <div className="col">
+        <p className="header-experiment-status position-relative mt-2 d-inline-block">
+          <StatusPill label="Draft" active={status.draft} />
+          <StatusPill
+            label="Review"
+            active={status.review || status.accepted}
+          />
+          <StatusPill label="Live" active={status.live} />
+          <StatusPill
+            label="Complete"
+            active={status.complete}
+            padded={false}
+          />
+        </p>
+      </div>
+      {(status.live || status.complete) && (
+        <div className="text-right col mt-2" data-testid="header-dates">
+          <span className="font-weight-bold">{humanDate(startDate!)}</span> to{" "}
+          {endDate ? (
+            <>
+              <span className="font-weight-bold">{humanDate(endDate!)}</span> (
+              {stringDateSubtract(endDate!, startDate!)})
+            </>
+          ) : (
+            <span className="font-weight-bold">Present</span>
+          )}
+        </div>
+      )}
+    </div>
   </header>
 );
 
