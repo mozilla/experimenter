@@ -21,9 +21,21 @@ import {
 
 const experiment = mockSingleDirectoryExperiment();
 
+const TestTable = ({ children }: { children: React.ReactNode }) => (
+  <table>
+    <tbody>
+      <tr>{children}</tr>
+    </tbody>
+  </table>
+);
+
 describe("DirectoryColumnTitle", () => {
   it("renders the experiment name and slug", () => {
-    render(<DirectoryColumnTitle {...experiment} />);
+    render(
+      <TestTable>
+        <DirectoryColumnTitle {...experiment} />
+      </TestTable>,
+    );
     expect(screen.getByTestId("directory-title-name")).toHaveTextContent(
       experiment.name,
     );
@@ -35,16 +47,39 @@ describe("DirectoryColumnTitle", () => {
 
 describe("DirectoryColumnOwner", () => {
   it("renders the experiment owner if present", () => {
-    render(<DirectoryColumnOwner {...experiment} />);
+    render(
+      <TestTable>
+        <DirectoryColumnOwner {...experiment} />
+      </TestTable>,
+    );
     expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
       experiment.owner!.username,
+    );
+  });
+
+  it("renders the NotSet label if owner is not present", () => {
+    render(
+      <TestTable>
+        {/**
+         * Intentionally disable ts check because we can still possibly
+         * have no owner on older experiments that didn't assign one
+         * @ts-ignore */}
+        <DirectoryColumnOwner {...experiment} owner={null} />
+      </TestTable>,
+    );
+    expect(screen.getByTestId("directory-table-cell")).toHaveTextContent(
+      "Not set",
     );
   });
 });
 
 describe("DirectoryColumnFeature", () => {
   it("renders the feature config if present", () => {
-    render(<DirectoryColumnFeature {...experiment} />);
+    render(
+      <TestTable>
+        <DirectoryColumnFeature {...experiment} />
+      </TestTable>,
+    );
     expect(
       screen.getByTestId("directory-feature-config-name"),
     ).toHaveTextContent(experiment.featureConfig!.name);
@@ -54,7 +89,11 @@ describe("DirectoryColumnFeature", () => {
   });
 
   it("renders the None label if feature config is not present", () => {
-    render(<DirectoryColumnFeature {...experiment} featureConfig={null} />);
+    render(
+      <TestTable>
+        <DirectoryColumnFeature {...experiment} featureConfig={null} />
+      </TestTable>,
+    );
     expect(
       screen.getByTestId("directory-feature-config-none"),
     ).toBeInTheDocument();
