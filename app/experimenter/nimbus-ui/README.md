@@ -51,7 +51,7 @@ You can read up over on their page if you want to know all the details, but if y
 
 All of our GraphQL resolvers produce types that are compatible with TypeScript, so there is no need to write new types for the queries you perform with Apollo.
 
-To generate types, just run `yarn generate-types`. This will generate type declarations inside a `types/` directory at the root of this app. Once generated you can import and use as you see fit.  If there are changes to the graphql API on the server, run `make generate_types` to export the server schema and update the typescript stubs.
+To generate types, just run `yarn generate-types`. This will generate type declarations inside a `types/` directory at the root of this app. Once generated you can import and use as you see fit. If there are changes to the graphql API on the server, run `make generate_types` to export the server schema and update the typescript stubs.
 
 For example, a query that looks like this:
 
@@ -184,6 +184,16 @@ if (message !== "success") {
 
 console.log("Retrieved record", record);
 ```
+
+## Access Visualization Data Locally
+
+The Results page renders experiment analysis data and can only be accessed when an experiment is complete, the analysis feature flag is on, and the analysis data returned from the visualization API endpoint is available.
+
+To see the Results page and data locally:
+
+1. Ensure your [Google Credentials](https://github.com/mozilla/experimenter#google-credentials) are configured
+2. Set `FEATURE_ANALYSIS=true` in your local `.env` file
+3. Create a Nimbus Experiment at `localhost/admin` with experiment slug "testing-nimbus" status "complete," a branch/branch slug named "control", and another branch/branch slug named "treatment". Alternately, change an existing, complete Nimbus experiment with branches in place to reflect the experiment slug `testing-nimbus`.
 
 ## Testing and Mocking
 

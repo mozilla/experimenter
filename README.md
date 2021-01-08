@@ -26,7 +26,7 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 1.  Install [docker](https://www.docker.com/) on your machine
 
-  - On linux, [setup docker to run as non-root](https://docs.docker.com/engine/security/rootless/)
+- On linux, [setup docker to run as non-root](https://docs.docker.com/engine/security/rootless/)
 
 1.  Clone the repo
 
@@ -71,11 +71,11 @@ One might choose the semi dockerized approach for:
 
 Notes:
 
-* Node ^14.0.0 is required
+- Node ^14.0.0 is required
 
-* [osx catalina, reinstall command line tools](https://medium.com/flawless-app-stories/gyp-no-xcode-or-clt-version-detected-macos-catalina-anansewaa-38b536389e8d)
+- [osx catalina, reinstall command line tools](https://medium.com/flawless-app-stories/gyp-no-xcode-or-clt-version-detected-macos-catalina-anansewaa-38b536389e8d)
 
-* [poetry](https://python-poetry.org/docs/#installation)
+- [poetry](https://python-poetry.org/docs/#installation)
 
 ### Semi Dockerized Setup
 
@@ -126,14 +126,16 @@ git config blame.ignoreRevsFile .git-blame-ignore-revs
 On certain pages an API endpoint is called to receive experiment analysis data from Jetstream to display visualization tables. To see experiment visualization data, you must provide GCP credentials.
 
 1. Generate a GCP private key file.
-  - Ask in #experimenter for the GCP link to create a new key file.
-  - Add Key > Create New Key > JSON > save this file.
-  - Do not lose or share this file. It's unique to you and you'll only get it once.
+
+- Ask in #experimenter for the GCP link to create a new key file.
+- Add Key > Create New Key > JSON > save this file.
+- Do not lose or share this file. It's unique to you and you'll only get it once.
+
 2. Rename the file to `google-credentials.json` and place it anywhere inside the `/app` directory.
 3. Update your `.env` so that `GOOGLE_APPLICATION_CREDENTIALS` points to this file. If your file is inside the `/app` directory it would look like this:
-    ```
-    GOOGLE_APPLICATION_CREDENTIALS=/app/google-credentials.json
-    ```
+   ```
+   GOOGLE_APPLICATION_CREDENTIALS=/app/google-credentials.json
+   ```
 
 ## Usage
 
@@ -214,12 +216,14 @@ Start a linux VM container with VNC available over `vnc://localhost:5900` with p
 
 ## Frontend
 
-Experimenter has three front-end UIs right now:
+Experimenter has two front-end UIs:
 
-- [`core`](./app/experimenter/legacy-ui/core) is the current UI used for Experimenter intake.
-- [`nimbus-ui`](./app/experimenter/nimbus-ui) is a new React UI for an upcoming Experimenter refactor.
+- [`core`](./app/experimenter/legacy-ui/core) is the legacy UI used for Experimenter intake which will remain until `nimbus-ui` supersedes it
+- [`nimbus-ui`](./app/experimenter/nimbus-ui) is the Nimbus Console UI for Experimenter that is actively being developed
 
 Learn more about the organization of these UIs [here](./app/experimenter/legacy-ui/README.md).
+
+**Also see the [nimbus-ui README](https://github.com/mozilla/experimenter/tree/main/app/experimenter/nimbus-ui) for relevent Nimbus documentation.**
 
 ## API
 
