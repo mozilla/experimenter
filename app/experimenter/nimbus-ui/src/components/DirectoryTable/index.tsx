@@ -40,6 +40,8 @@ export const DirectoryColumnTitle: React.FC<
 };
 
 export const DirectoryColumnOwner: ColumnComponent = ({ owner }) => (
+  // #4380 made it so owner is never null, but we have experiments pre-this
+  // that may be absent an owner, so keep this fallback in place.
   <td data-testid="directory-table-cell">{owner?.username || <NotSet />}</td>
 );
 
