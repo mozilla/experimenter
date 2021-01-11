@@ -4,7 +4,7 @@
 
 import React from "react";
 import { act, render, screen, waitFor } from "@testing-library/react";
-import AppLayoutWithSidebar from ".";
+import AppLayoutWithSidebar, { RESULTS_LOADING_TEXT } from ".";
 import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
 import { BASE_PATH } from "../../lib/constants";
 import { RouteComponentProps } from "@reach/router";
@@ -23,6 +23,7 @@ const Subject = ({
   withAnalysis = false,
   analysisError,
   review,
+  analysisLoadingInSidebar = false,
 }: RouteComponentProps & {
   status?: NimbusExperimentStatus;
   review?: {
@@ -31,12 +32,14 @@ const Subject = ({
   };
   withAnalysis?: boolean;
   analysisError?: boolean;
+  analysisLoadingInSidebar?: boolean;
 }) => (
   <RouterSlugProvider mocks={[mock]} path="/my-special-slug/edit">
     <AppLayoutWithSidebar
       {...{
         status: mockGetStatus(status),
         review,
+        analysisLoadingInSidebar,
         analysisError: analysisError ? new Error("boop") : undefined,
         analysis: withAnalysis
           ? {
@@ -210,6 +213,20 @@ describe("AppLayoutWithSidebar", () => {
       expect(screen.queryByTestId("show-no-results")).toBeInTheDocument();
       expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
         "Could not get visualization data. Please contact data science",
+      );
+    });
+
+    it("when complete and analysis is required in sidebar and loading", async () => {
+      render(
+        <Subject
+          status={NimbusExperimentStatus.COMPLETE}
+          analysisLoadingInSidebar
+        />,
+      );
+
+      expect(screen.queryByTestId("show-no-results")).toBeInTheDocument();
+      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
+        RESULTS_LOADING_TEXT,
       );
     });
 

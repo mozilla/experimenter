@@ -30,7 +30,8 @@ type AppLayoutWithExperimentProps = {
   title?: string;
   polling?: boolean;
   sidebar?: boolean;
-  analysisRequired?: boolean;
+  analysisRequired?: boolean; // the page and sidebar need analysis data
+  analysisRequiredInSidebar?: boolean; // only the sidebar needs analysis data
   redirect?: ({
     status,
     review,
@@ -56,6 +57,7 @@ const AppLayoutWithExperiment = ({
   sidebar = true,
   polling = false,
   analysisRequired = false,
+  analysisRequiredInSidebar = false,
   redirect,
 }: AppLayoutWithExperimentProps) => {
   const { slug } = useParams();
@@ -74,7 +76,9 @@ const AppLayoutWithExperiment = ({
     status: analysisFetchStatus,
   } = useAnalysis();
   const status = getStatus(experiment);
+  const analysisLoading = analysisFetchStatus === "loading";
   const analysisFetched = analysisFetchStatus !== "not-requested";
+  const analysisLoadingInSidebar = analysisRequiredInSidebar && analysisLoading;
 
   // If the redirect prop function is supplied let's call it with
   // experiment status, review, and analysis details. If it returns
@@ -109,7 +113,9 @@ const AppLayoutWithExperiment = ({
     };
   }, [startPolling, stopPolling, experiment, polling]);
 
-  if (loading || (analysisRequired && !analysisFetched)) {
+  // If the analysis is required for the sidebar and page, show the loader
+  // until experiment data and analysis data have finished fetching
+  if (loading || (analysisRequired && (!analysisFetched || analysisLoading))) {
     return <PageLoading />;
   }
 
@@ -120,7 +126,17 @@ const AppLayoutWithExperiment = ({
   const { name, startDate, endDate } = experiment;
 
   return (
-    <Layout {...{ sidebar, children, review, analysis, analysisError, status }}>
+    <Layout
+      {...{
+        sidebar,
+        children,
+        review,
+        analysis,
+        analysisLoadingInSidebar,
+        analysisError,
+        status,
+      }}
+    >
       <section data-testid={testId}>
         <Head
           title={title ? `${experiment.name} – ${title}` : experiment.name}
@@ -152,6 +168,7 @@ type LayoutProps = {
   status: StatusCheck;
   review: ExperimentReview;
   analysis?: AnalysisData;
+  analysisLoadingInSidebar: boolean;
   analysisError?: Error;
 };
 
@@ -161,10 +178,13 @@ const Layout = ({
   review,
   status,
   analysis,
+  analysisLoadingInSidebar,
   analysisError,
 }: LayoutProps) =>
   sidebar ? (
-    <AppLayoutWithSidebar {...{ status, review, analysis, analysisError }}>
+    <AppLayoutWithSidebar
+      {...{ status, review, analysis, analysisLoadingInSidebar, analysisError }}
+    >
       {children}
     </AppLayoutWithSidebar>
   ) : (
