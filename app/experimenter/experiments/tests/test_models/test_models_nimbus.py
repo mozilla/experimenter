@@ -10,6 +10,7 @@ from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusBucketRangeFactory,
     NimbusChangeLogFactory,
+    NimbusDocumentationLinkFactory,
     NimbusExperimentFactory,
     NimbusIsolationGroupFactory,
 )
@@ -187,6 +188,12 @@ class TestNimbusBranch(TestCase):
     def test_str(self):
         branch = NimbusBranchFactory.create()
         self.assertEqual(str(branch), branch.name)
+
+
+class TestNimbusDocumentLink(TestCase):
+    def test_str(self):
+        doco_link = NimbusDocumentationLinkFactory.create()
+        self.assertEqual(str(doco_link), f"{doco_link.title} ({doco_link.link})")
 
 
 @parameterized_class(

@@ -17,6 +17,11 @@ class BranchType(graphene.InputObjectType):
     feature_value = graphene.String()
 
 
+class DocumentationLinkType(graphene.InputObjectType):
+    title = graphene.String(required=True)
+    link = graphene.String(required=True)
+
+
 class ReferenceBranchType(BranchType):
     class Meta:
         description = "The control branch"
@@ -38,6 +43,7 @@ class ExperimentInput(graphene.InputObjectType):
     application = NimbusExperimentApplication()
     public_description = graphene.String()
     feature_config_id = graphene.Int()
+    documentation_links = graphene.List(DocumentationLinkType)
     reference_branch = graphene.Field(ReferenceBranchType)
     treatment_branches = graphene.List(TreatmentBranchType)
     primary_probe_set_ids = graphene.List(graphene.Int)

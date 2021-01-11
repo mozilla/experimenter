@@ -75,6 +75,11 @@ export enum NimbusProbeKind {
   SCALAR = "SCALAR",
 }
 
+export interface DocumentationLinkType {
+  title: string;
+  link: string;
+}
+
 export interface ExperimentInput {
   clientMutationId?: string | null;
   id?: number | null;
@@ -84,6 +89,7 @@ export interface ExperimentInput {
   application?: NimbusExperimentApplication | null;
   publicDescription?: string | null;
   featureConfigId?: number | null;
+  documentationLinks?: (DocumentationLinkType | null)[] | null;
   referenceBranch?: ReferenceBranchType | null;
   treatmentBranches?: (TreatmentBranchType | null)[] | null;
   primaryProbeSetIds?: (number | null)[] | null;

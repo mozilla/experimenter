@@ -19,6 +19,7 @@ from experimenter.experiments.models.nimbus import (  # noqa: F401
     NimbusBranch,
     NimbusBucketRange,
     NimbusChangeLog,
+    NimbusDocumentationLink,
     NimbusEmail,
     NimbusExperiment,
     NimbusExperimentProbeSets,

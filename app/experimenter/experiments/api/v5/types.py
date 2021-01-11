@@ -1,5 +1,6 @@
 import graphene
 from django.contrib.auth import get_user_model
+from graphene_django import DjangoListField
 from graphene_django.types import DjangoObjectType
 
 from experimenter.experiments.api.v5.serializers import NimbusReadyForReviewSerializer
@@ -7,6 +8,7 @@ from experimenter.experiments.constants.nimbus import NimbusConstants
 from experimenter.experiments.models.nimbus import (
     NimbusBranch,
     NimbusBucketRange,
+    NimbusDocumentationLink,
     NimbusExperiment,
     NimbusFeatureConfig,
     NimbusIsolationGroup,
@@ -53,6 +55,12 @@ class NimbusBranchType(DjangoObjectType):
     class Meta:
         model = NimbusBranch
         exclude = ("id", "experiment", "nimbusexperiment")
+
+
+class NimbusDocumentationLinkType(DjangoObjectType):
+    class Meta:
+        model = NimbusDocumentationLink
+        exclude = ("id", "experiment")
 
 
 class NimbusFeatureConfigType(DjangoObjectType):
@@ -109,6 +117,7 @@ class NimbusExperimentType(DjangoObjectType):
     firefox_min_version = NimbusExperimentFirefoxMinVersion()
     population_percent = graphene.String()
     channel = NimbusExperimentChannel()
+    documentation_links = DjangoListField(NimbusDocumentationLinkType)
     treatment_branches = graphene.List(NimbusBranchType)
     targeting_config_slug = NimbusExperimentTargetingConfigSlug()
     primary_probe_sets = graphene.List(NimbusProbeSetType)
