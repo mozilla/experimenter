@@ -10,6 +10,9 @@ import { AnalysisData } from "./types";
 export const analysisAvailable = (analysis: AnalysisData | undefined) =>
   analysis?.show_analysis === true && analysis?.overall !== null;
 
+export const analysisUnavailable = (analysis: AnalysisData | undefined) =>
+  analysis && !analysisAvailable(analysis);
+
 export const getTableDisplayType = (
   metricKey: string,
   tableLabel: string,
