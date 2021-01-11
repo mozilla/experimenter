@@ -56,6 +56,16 @@ storiesOf("components/AppLayoutWithSidebar", module)
       </AppLayoutWithSidebar>
     </RouterSlugProvider>
   ))
+  .add("analysis results loading", () => (
+    <RouterSlugProvider>
+      <AppLayoutWithSidebar
+        status={mockGetStatus(NimbusExperimentStatus.LIVE)}
+        analysisLoadingInSidebar
+      >
+        <p>App contents go here</p>
+      </AppLayoutWithSidebar>
+    </RouterSlugProvider>
+  ))
   .add("analysis results error", () => (
     <RouterSlugProvider>
       <AppLayoutWithSidebar

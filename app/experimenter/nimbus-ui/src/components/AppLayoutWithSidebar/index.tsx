@@ -25,6 +25,8 @@ import { ReactComponent as BarChart } from "./bar-chart.svg";
 import "./index.scss";
 import LinkExternal from "../LinkExternal";
 
+export const RESULTS_LOADING_TEXT = "Checking results availability...";
+
 type AppLayoutWithSidebarProps = {
   testid?: string;
   children: React.ReactNode;
@@ -34,6 +36,7 @@ type AppLayoutWithSidebarProps = {
     ready: boolean;
   };
   analysis?: AnalysisData;
+  analysisLoadingInSidebar?: boolean;
   analysisError?: Error;
 } & RouteComponentProps;
 
@@ -66,6 +69,7 @@ export const AppLayoutWithSidebar = ({
   status,
   review,
   analysis,
+  analysisLoadingInSidebar = false,
   analysisError,
 }: AppLayoutWithSidebarProps) => {
   const { slug } = useParams();
@@ -112,6 +116,8 @@ export const AppLayoutWithSidebar = ({
                     <DisabledItem name="Results" testId="show-no-results">
                       {status?.accepted ? (
                         "Waiting for experiment to launch"
+                      ) : analysisLoadingInSidebar ? (
+                        RESULTS_LOADING_TEXT
                       ) : analysisError ? (
                         <>
                           Could not get visualization data. Please contact data

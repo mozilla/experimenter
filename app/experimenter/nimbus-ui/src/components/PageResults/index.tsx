@@ -12,7 +12,7 @@ import TableHighlightsOverview from "../TableHighlightsOverview";
 import TableMetricPrimary from "../TableMetricPrimary";
 import TableMetricSecondary from "../TableMetricSecondary";
 import MonitoringLink from "../MonitoringLink";
-import { analysisAvailable } from "../../lib/visualization/utils";
+import { analysisUnavailable } from "../../lib/visualization/utils";
 
 const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
   <AppLayoutWithExperiment
@@ -24,7 +24,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
         return "edit/overview";
       }
 
-      if (!analysisAvailable(analysis)) {
+      if (analysisUnavailable(analysis)) {
         return "design";
       }
     }}
@@ -33,7 +33,7 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
       // For testing - users will be redirected if the analysis is unavailable
       // before reaching this return, but tests reach this return and
       // analysis.overall is expected to be an object (EXP-800)
-      if (!analysisAvailable(analysis)) return <></>;
+      if (analysisUnavailable(analysis)) return <></>;
 
       const slugUnderscored = experiment.slug.replace(/-/g, "_");
       return (
