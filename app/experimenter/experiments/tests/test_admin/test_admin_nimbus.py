@@ -40,6 +40,23 @@ class TestNimbusBranchAdminForm(TestCase):
         }
         """
 
+    def test_form_skips_json_validation_for_invalid_feature_config_schema(self):
+        feature_config = NimbusFeatureConfigFactory(schema="bad schema")
+        experiment = NimbusExperimentFactory.create(feature_config=feature_config)
+        branch = NimbusBranchFactory.create(experiment=experiment)
+
+        form = NimbusBranchAdminForm(
+            instance=branch,
+            data={
+                "experiment": experiment,
+                "name": branch.name,
+                "slug": branch.slug,
+                "ratio": branch.ratio,
+                "feature_value": "{whatever",
+            },
+        )
+        self.assertTrue(form.is_valid())
+
     def test_form_rejects_invalid_json(self):
         feature_config = NimbusFeatureConfigFactory(schema=self.schema)
         experiment = NimbusExperimentFactory.create(feature_config=feature_config)

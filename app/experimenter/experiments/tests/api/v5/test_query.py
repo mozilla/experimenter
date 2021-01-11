@@ -115,6 +115,39 @@ class TestNimbusQuery(GraphQLTestCase):
             {b.slug for b in experiment.treatment_branches},
         )
 
+    def test_experiments_with_documentation_links_return_link_data(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT,
+        )
+        documentation_links = experiment.documentation_links.all()
+        self.assert_(len(documentation_links) > 0)
+
+        response = self.query(
+            """
+            query {
+                experiments {
+                    documentationLinks {
+                        title
+                        link
+                    }
+                }
+            }
+            """,
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experiments"][0]
+        for key in (
+            "title",
+            "link",
+        ):
+            self.assertEqual(
+                {b[key] for b in experiment_data["documentationLinks"]},
+                {getattr(b, key) for b in documentation_links},
+            )
+
     def test_experiments_by_status(self):
         user_email = "user@example.com"
         draft_exp = NimbusExperimentFactory.create_with_status(

@@ -9,6 +9,7 @@ from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.models.nimbus import (
     NimbusBranch,
+    NimbusDocumentationLink,
     NimbusFeatureConfig,
     NimbusProbeSet,
 )
@@ -272,10 +273,36 @@ class NimbusAudienceUpdateMixin:
         return value
 
 
+class NimbusDocumentationLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NimbusDocumentationLink
+        fields = (
+            "title",
+            "link",
+        )
+
+
+class NimbusExperimentDocumentationLinkMixin:
+    def update(self, experiment, data):
+        documentation_links_data = data.pop("documentation_links", None)
+        experiment = super().update(experiment, data)
+        if documentation_links_data is not None:
+            with transaction.atomic():
+                experiment.documentation_links.all().delete()
+                if documentation_links_data:
+                    for link_data in documentation_links_data:
+                        NimbusDocumentationLink.objects.create(
+                            experiment=experiment, **link_data
+                        )
+
+        return experiment
+
+
 class NimbusExperimentUpdateSerializer(
     NimbusChangeLogMixin,
     NimbusStatusRestrictionMixin,
     NimbusExperimentOverviewMixin,
+    NimbusExperimentDocumentationLinkMixin,
     NimbusExperimentBranchMixin,
     NimbusExperimentProbeSetMixin,
     NimbusAudienceUpdateMixin,
@@ -290,6 +317,7 @@ class NimbusExperimentUpdateSerializer(
         min_length=0, max_length=1024, required=False, allow_blank=True
     )
     hypothesis = serializers.CharField(min_length=0, max_length=1024, required=False)
+    documentation_links = NimbusDocumentationLinkSerializer(many=True, required=False)
     reference_branch = NimbusBranchSerializer(required=False)
     treatment_branches = NimbusBranchSerializer(many=True, required=False)
     feature_config = serializers.PrimaryKeyRelatedField(
@@ -321,6 +349,7 @@ class NimbusExperimentUpdateSerializer(
             "status",
             "name",
             "hypothesis",
+            "documentation_links",
             "slug",
             "application",
             "public_description",
@@ -355,6 +384,7 @@ class NimbusReadyForReviewSerializer(
         NimbusExperiment.Application.choices, required=True
     )
     hypothesis = serializers.CharField(required=True)
+    documentation_links = NimbusDocumentationLinkSerializer(many=True)
     targeting_config_slug = serializers.ChoiceField(
         NimbusExperiment.TargetingConfig.choices, required=True
     )

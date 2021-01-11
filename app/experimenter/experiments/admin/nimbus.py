@@ -7,6 +7,7 @@ from django.contrib import admin
 from experimenter.experiments.models import (
     NimbusBranch,
     NimbusChangeLog,
+    NimbusDocumentationLink,
     NimbusExperiment,
     NimbusExperimentProbeSets,
     NimbusFeatureConfig,
@@ -24,11 +25,14 @@ class NimbusBranchAdminForm(forms.ModelForm):
         feature_value = self.cleaned_data["feature_value"]
         feature_config = self.cleaned_data["experiment"].feature_config
 
-        if feature_value and feature_config:
-            feature_schema = json.loads(
-                self.cleaned_data["experiment"].feature_config.schema
-            )
+        feature_schema = None
+        if feature_config and feature_config.schema:
+            try:
+                feature_schema = json.loads(feature_config.schema)
+            except json.JSONDecodeError:
+                pass
 
+        if feature_value and feature_schema:
             try:
                 json_value = json.loads(feature_value)
             except json.JSONDecodeError as e:
@@ -47,6 +51,12 @@ class NimbusBranchInlineAdmin(admin.StackedInline):
     model = NimbusBranch
     extra = 0
     form = NimbusBranchAdminForm
+
+
+class NimbusDocumentationLinkInlineAdmin(admin.TabularInline):
+    model = NimbusDocumentationLink
+    extra = 1
+    fields = ("title", "link")
 
 
 class NimbusExperimentChangeLogInlineAdmin(admin.TabularInline):
@@ -89,6 +99,7 @@ class NimbusProbeSetInlineAdmin(admin.TabularInline):
 
 class NimbusExperimentAdmin(admin.ModelAdmin):
     inlines = (
+        NimbusDocumentationLinkInlineAdmin,
         NimbusBranchInlineAdmin,
         NimbusProbeSetInlineAdmin,
         NimbusExperimentChangeLogInlineAdmin,
@@ -122,5 +133,6 @@ class NimbusFeatureConfigAdmin(admin.ModelAdmin):
 
 admin.site.register(NimbusExperiment, NimbusExperimentAdmin)
 admin.site.register(NimbusFeatureConfig, NimbusFeatureConfigAdmin)
+admin.site.register(NimbusDocumentationLink)
 admin.site.register(NimbusProbe)
 admin.site.register(NimbusProbeSet)

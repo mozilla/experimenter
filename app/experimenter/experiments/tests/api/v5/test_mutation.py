@@ -45,6 +45,27 @@ mutation($input: ExperimentInput!) {
 """
 
 
+UPDATE_EXPERIMENT_DOCUMENTATION_LINKS_MUTATION = """\
+mutation ($input: ExperimentInput !) {
+  updateExperiment(input: $input){
+    clientMutationId
+    nimbusExperiment {
+      id
+      status
+      name
+      slug
+      documentationLinks {
+        title
+        link
+      }
+    }
+    message
+    status
+  }
+}
+"""
+
+
 UPDATE_EXPERIMENT_BRANCHES_MUTATION = """\
 mutation ($input: ExperimentInput !) {
   updateExperiment(input: $input){
@@ -267,6 +288,54 @@ class TestMutations(GraphQLTestCase):
             {"name": ["Ensure this field has no more than 255 characters."]},
         )
         self.assertEqual(result["status"], 200)
+
+    def test_update_experiment_documentation_links(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create(status=NimbusExperiment.Status.DRAFT)
+        experiment_id = experiment.id
+
+        documentation_links = [
+            {"title": "foo", "link": "https://example.com/bar"},
+            {"title": "baz", "link": "https://example.com/quux"},
+            {"title": "xyzzy", "link": "https://example.com/plotz"},
+        ]
+
+        response = self.query(
+            UPDATE_EXPERIMENT_DOCUMENTATION_LINKS_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "clientMutationId": "randomid",
+                    "documentationLinks": documentation_links,
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(
+            result["nimbusExperiment"],
+            {
+                "id": experiment.id,
+                "status": experiment.status.upper(),
+                "name": experiment.name,
+                "slug": experiment.slug,
+                "documentationLinks": documentation_links,
+            },
+        )
+
+        experiment = NimbusExperiment.objects.get(id=experiment_id)
+        experiment_links = experiment.documentation_links.all()
+        for key in (
+            "title",
+            "link",
+        ):
+            self.assertEqual(
+                {b[key] for b in documentation_links},
+                {getattr(b, key) for b in experiment_links},
+            )
 
     def test_does_not_delete_branches_when_other_fields_specified(self):
         user_email = "user@example.com"

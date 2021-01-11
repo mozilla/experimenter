@@ -17,6 +17,11 @@ type CreateExperiment {
 
 scalar DateTime
 
+input DocumentationLinkType {
+  title: String!
+  link: String!
+}
+
 input ExperimentInput {
   clientMutationId: String
   id: Int
@@ -26,6 +31,7 @@ input ExperimentInput {
   application: NimbusExperimentApplication
   publicDescription: String
   featureConfigId: Int
+  documentationLinks: [DocumentationLinkType]
   referenceBranch: ReferenceBranchType
   treatmentBranches: [TreatmentBranchType]
   primaryProbeSetIds: [Int]
@@ -69,6 +75,11 @@ type NimbusConfigurationType {
   targetingConfigSlug: [NimbusLabelValueType]
   hypothesisDefault: String
   maxPrimaryProbeSets: Int
+}
+
+type NimbusDocumentationLinkType {
+  title: String!
+  link: String!
 }
 
 enum NimbusExperimentApplication {
@@ -165,6 +176,7 @@ type NimbusExperimentType {
   featureConfig: NimbusFeatureConfigType
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug
   referenceBranch: NimbusBranchType
+  documentationLinks: [NimbusDocumentationLinkType!]
   bucketRange: NimbusBucketRangeType
   treatmentBranches: [NimbusBranchType]
   primaryProbeSets: [NimbusProbeSetType]
