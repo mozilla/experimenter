@@ -5,6 +5,7 @@
 import React from "react";
 import { RouteComponentProps } from "@reach/router";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
+import Summary from "../Summary";
 
 const PageDesign: React.FunctionComponent<RouteComponentProps> = () => {
   return (
@@ -18,7 +19,7 @@ const PageDesign: React.FunctionComponent<RouteComponentProps> = () => {
         }
       }}
     >
-      {({ experiment }) => <p>{experiment.name}</p>}
+      {({ experiment }) => <Summary {...{ experiment }} />}
     </AppLayoutWithExperiment>
   );
 };
