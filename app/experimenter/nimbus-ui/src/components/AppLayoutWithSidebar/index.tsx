@@ -2,30 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactNode } from "react";
+import React from "react";
 import { RouteComponentProps, useParams, Link } from "@reach/router";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Nav from "react-bootstrap/Nav";
-import classNames from "classnames";
 import { BASE_PATH } from "../../lib/constants";
-import { AnalysisData } from "../../lib/visualization/types";
-import { analysisAvailable } from "../../lib/visualization/utils";
 import { StatusCheck } from "../../lib/experiment";
-import { ReactComponent as ChevronLeft } from "./chevron-left.svg";
+import { DisabledItem } from "../DisabledItem";
+import { LinkNav } from "../LinkNav";
+import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
 import { ReactComponent as Cog } from "./cog.svg";
 import { ReactComponent as Layers } from "./layers.svg";
 import { ReactComponent as ChartArrow } from "./chart-arrow.svg";
 import { ReactComponent as Person } from "./person.svg";
-import { ReactComponent as Clipboard } from "./clipboard.svg";
-import { ReactComponent as NotAllowed } from "./not-allowed.svg";
+import { ReactComponent as Clipboard } from "../../images/clipboard.svg";
 import { ReactComponent as AlertCircle } from "./alert-circle.svg";
-import { ReactComponent as BarChart } from "./bar-chart.svg";
-import "./index.scss";
-import LinkExternal from "../LinkExternal";
-
-export const RESULTS_LOADING_TEXT = "Checking results availability...";
 
 type AppLayoutWithSidebarProps = {
   testid?: string;
@@ -35,9 +28,6 @@ type AppLayoutWithSidebarProps = {
     invalidPages: string[];
     ready: boolean;
   };
-  analysis?: AnalysisData;
-  analysisLoadingInSidebar?: boolean;
-  analysisError?: Error;
 } & RouteComponentProps;
 
 const editPages = [
@@ -68,9 +58,6 @@ export const AppLayoutWithSidebar = ({
   testid = "AppLayoutWithSidebar",
   status,
   review,
-  analysis,
-  analysisLoadingInSidebar = false,
-  analysisError,
 }: AppLayoutWithSidebarProps) => {
   const { slug } = useParams();
 
@@ -83,7 +70,7 @@ export const AppLayoutWithSidebar = ({
           xl="2"
           className="bg-light pt-2 border-right shadow-sm"
         >
-          <nav data-testid="nav-sidebar">
+          <nav data-testid="nav-sidebar" className="navbar">
             <Nav className="flex-column font-weight-semibold" as="ul">
               <LinkNav
                 storiesOf="pages/Home"
@@ -93,105 +80,61 @@ export const AppLayoutWithSidebar = ({
                 <ChevronLeft className="ml-n1" width="18" height="18" />
                 Experiments
               </LinkNav>
-              {status?.locked ? (
-                <>
-                  <LinkNav
-                    route={`${slug}/design`}
-                    storiesOf={"pages/Design"}
-                    testid={"nav-design"}
-                  >
-                    <Clipboard className="sidebar-icon" />
-                    Design
-                  </LinkNav>
-                  {analysisAvailable(analysis) ? (
-                    <LinkNav
-                      route={`${slug}/results`}
-                      storiesOf={"pages/Results"}
-                      testid={"nav-results"}
-                    >
-                      <BarChart className="sidebar-icon" />
-                      Results
-                    </LinkNav>
-                  ) : (
-                    <DisabledItem name="Results" testId="show-no-results">
-                      {status?.accepted ? (
-                        "Waiting for experiment to launch"
-                      ) : analysisLoadingInSidebar ? (
-                        RESULTS_LOADING_TEXT
-                      ) : analysisError ? (
-                        <>
-                          Could not get visualization data. Please contact data
-                          science in{" "}
-                          <LinkExternal href="https://mozilla.slack.com/archives/C0149JH7C1M">
-                            #cirrus
-                          </LinkExternal>
-                          .
-                        </>
-                      ) : (
-                        "Experiment results not yet ready"
-                      )}
-                    </DisabledItem>
+              {editPages.map((page, idx) => (
+                <LinkNav
+                  key={`sidebar-${page.name}-${idx}`}
+                  route={`${slug}/edit/${page.slug}`}
+                  storiesOf={`pages/Edit${page.name}`}
+                  testid={`nav-edit-${page.slug}`}
+                  disabled={status?.review}
+                >
+                  {page.icon}
+                  {page.name}
+                  {review?.invalidPages.includes(page.slug) && (
+                    <AlertCircle
+                      className="ml-3"
+                      width="18"
+                      height="18"
+                      data-testid={`missing-detail-alert-${page.slug}`}
+                    />
                   )}
-                </>
+                </LinkNav>
+              ))}
+              {!review || review.ready || status?.review ? (
+                <LinkNav
+                  route={`${slug}/request-review`}
+                  storiesOf="pages/RequestReview"
+                  testid="nav-request-review"
+                >
+                  <Clipboard className="sidebar-icon" />
+                  Review &amp; Launch
+                </LinkNav>
               ) : (
-                <>
-                  {editPages.map((page, idx) => (
-                    <LinkNav
-                      key={`sidebar-${page.name}-${idx}`}
-                      route={`${slug}/edit/${page.slug}`}
-                      storiesOf={`pages/Edit${page.name}`}
-                      testid={`nav-edit-${page.slug}`}
-                      disabled={status?.review}
-                    >
-                      {page.icon}
-                      {page.name}
-                      {review?.invalidPages.includes(page.slug) && (
-                        <AlertCircle
-                          className="ml-3"
-                          width="18"
-                          height="18"
-                          data-testid={`missing-detail-alert-${page.slug}`}
-                        />
-                      )}
-                    </LinkNav>
-                  ))}
-                  {!review || review.ready || status?.review ? (
-                    <LinkNav
-                      route={`${slug}/request-review`}
-                      storiesOf="pages/RequestReview"
-                      testid="nav-request-review"
-                    >
-                      <Clipboard className="sidebar-icon" />
-                      Review &amp; Launch
-                    </LinkNav>
-                  ) : (
-                    <DisabledItem
-                      name="Review &amp; Launch"
-                      testId="missing-details"
-                    >
-                      Missing details in:{" "}
-                      {review.invalidPages.map((missingPage, idx) => {
-                        const editPage = editPages.find(
-                          (p) => p.slug === missingPage,
-                        )!;
+                <DisabledItem
+                  name="Review &amp; Launch"
+                  testId="missing-details"
+                >
+                  Missing details in:{" "}
+                  {review.invalidPages.map((missingPage, idx) => {
+                    const editPage = editPages.find(
+                      (p) => p.slug === missingPage,
+                    )!;
 
-                        return (
-                          <React.Fragment key={`missing-${idx}`}>
-                            <Link
-                              data-sb-kind={`pages/Edit${editPage.name}`}
-                              data-testid={`missing-detail-link-${editPage.slug}`}
-                              to={`${BASE_PATH}/${slug}/edit/${editPage.slug}?show-errors`}
-                            >
-                              {editPage.name}
-                            </Link>
+                    return (
+                      <React.Fragment key={`missing-${idx}`}>
+                        <Link
+                          data-sb-kind={`pages/Edit${editPage.name}`}
+                          data-testid={`missing-detail-link-${editPage.slug}`}
+                          to={`${BASE_PATH}/${slug}/edit/${editPage.slug}?show-errors`}
+                        >
+                          {editPage.name}
+                        </Link>
 
-                            {idx !== review.invalidPages.length - 1 && ", "}
-                          </React.Fragment>
-                        );
-                      })}
-                    </DisabledItem>
-                  )}
-                </>
+                        {idx !== review.invalidPages.length - 1 && ", "}
+                      </React.Fragment>
+                    );
+                  })}
+                </DisabledItem>
               )}
             </Nav>
           </nav>
@@ -203,77 +146,5 @@ export const AppLayoutWithSidebar = ({
     </Container>
   );
 };
-
-type LinkNavProps = {
-  children: React.ReactNode;
-  disabled?: boolean;
-  route?: string;
-  storiesOf: string;
-  testid?: string;
-  className?: string;
-  textColor?: string;
-};
-
-const LinkNav = ({
-  route,
-  children,
-  disabled = false,
-  storiesOf,
-  testid = "nav-home",
-  className,
-  textColor,
-}: LinkNavProps) => {
-  const to = route ? `${BASE_PATH}/${route}` : BASE_PATH;
-  // an alternative to reach-router's `isCurrent` with identical
-  // functionality; explicitely setting it here allows us to test.
-  // eslint-disable-next-line
-  const isCurrentPage = location.pathname === to;
-
-  // If we supplied a text color, use it. Otherwise use current page colors
-  textColor = textColor || (isCurrentPage ? "text-primary" : "text-dark");
-  // But if the link is disabled, override any existing color
-  textColor = disabled ? "text-muted" : textColor;
-
-  return (
-    <Nav.Item as="li" className={classNames("mx-1 my-2", className)}>
-      {disabled ? (
-        <span
-          className={classNames(textColor, "d-flex align-items-center")}
-          data-testid={testid}
-        >
-          {children}
-        </span>
-      ) : (
-        <Link
-          {...{ to }}
-          data-sb-kind={storiesOf}
-          className={classNames(textColor, "d-flex align-items-center")}
-          data-testid={testid}
-        >
-          {children}
-        </Link>
-      )}
-    </Nav.Item>
-  );
-};
-
-type DisabledItemProps = {
-  name: string;
-  testId: string;
-  children: ReactNode;
-};
-
-const DisabledItem = ({ name, children, testId }: DisabledItemProps) => (
-  <div
-    className="mx-1 my-2 d-flex text-muted font-weight-normal"
-    data-testid={testId}
-  >
-    <NotAllowed className="mt-1 sidebar-icon" />
-    <div>
-      <p className="mb-1">{name}</p>
-      <p className="mt-0 small">{children}</p>
-    </div>
-  </div>
-);
 
 export default AppLayoutWithSidebar;

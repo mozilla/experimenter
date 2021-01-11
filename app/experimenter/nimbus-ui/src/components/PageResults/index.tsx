@@ -11,7 +11,7 @@ import TableHighlights from "../TableHighlights";
 import TableHighlightsOverview from "../TableHighlightsOverview";
 import TableMetricPrimary from "../TableMetricPrimary";
 import TableMetricSecondary from "../TableMetricSecondary";
-import MonitoringLink from "../MonitoringLink";
+import LinkMonitoring from "../LinkMonitoring";
 import { analysisUnavailable } from "../../lib/visualization/utils";
 
 const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
@@ -38,8 +38,10 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
       const slugUnderscored = experiment.slug.replace(/-/g, "_");
       return (
         <>
-          <MonitoringLink {...experiment} />
-          <h3 className="h5 mb-3 mt-4">Overview</h3>
+          <LinkMonitoring {...experiment} />
+          <h3 className="h5 mb-3 mt-4" id="overview">
+            Overview
+          </h3>
           <p className="mb-4">
             Detailed analysis{" "}
             <LinkExternal
@@ -61,7 +63,9 @@ const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
             results={analysis?.overall!}
           />
 
-          <h2 className="h5 mb-3">Results</h2>
+          <h2 className="h5 mb-3" id="results-summary">
+            Results Summary
+          </h2>
           <TableResults
             primaryProbeSets={experiment.primaryProbeSets!}
             results={analysis?.overall!}
