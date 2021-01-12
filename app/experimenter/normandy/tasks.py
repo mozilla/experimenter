@@ -201,6 +201,10 @@ def update_population_percent(experiment, recipe_data, filter_objects):
         if experiment.population_percent != percent_decimal:
             changed_data = {"population_percent": percent_decimal}
 
+    # no namespace  or bucket sample so population is 100%
+    elif experiment.population_percent != decimal.Decimal(100):
+        changed_data = {"population_percent": decimal.Decimal(100)}
+
     if changed_data:
         user_email = (
             recipe_data.get("creator", {}).get("email", "")
