@@ -1,6 +1,3 @@
-import json
-
-import jsonschema
 from django import forms
 from django.contrib import admin
 
@@ -16,41 +13,9 @@ from experimenter.experiments.models import (
 )
 
 
-class NimbusBranchAdminForm(forms.ModelForm):
-    class Meta:
-        model = NimbusBranch
-        exclude = ("id",)
-
-    def clean_feature_value(self):
-        feature_value = self.cleaned_data["feature_value"]
-        feature_config = self.cleaned_data["experiment"].feature_config
-
-        feature_schema = None
-        if feature_config and feature_config.schema:
-            try:
-                feature_schema = json.loads(feature_config.schema)
-            except json.JSONDecodeError:
-                pass
-
-        if feature_value and feature_schema:
-            try:
-                json_value = json.loads(feature_value)
-            except json.JSONDecodeError as e:
-                raise forms.ValidationError(f"Invaid JSON: {e}")
-
-            if json_value:
-                try:
-                    jsonschema.validate(json_value, feature_schema)
-                except jsonschema.ValidationError as e:
-                    raise forms.ValidationError(f"Does not match feature schema: {e}")
-
-        return feature_value
-
-
 class NimbusBranchInlineAdmin(admin.StackedInline):
     model = NimbusBranch
     extra = 0
-    form = NimbusBranchAdminForm
 
 
 class NimbusDocumentationLinkInlineAdmin(admin.TabularInline):
@@ -110,25 +75,8 @@ class NimbusExperimentAdmin(admin.ModelAdmin):
     form = NimbusExperimentAdminForm
 
 
-class NimbusFeatureConfigAdminForm(forms.ModelForm):
-    class Meta:
-        model = NimbusFeatureConfig
-        exclude = ("id",)
-
-    def clean_schema(self):
-        schema = self.cleaned_data["schema"]
-
-        try:
-            json.loads(schema)
-        except json.JSONDecodeError as e:
-            raise forms.ValidationError(f"Invaid JSON: {e}")
-
-        return schema
-
-
 class NimbusFeatureConfigAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
-    form = NimbusFeatureConfigAdminForm
 
 
 admin.site.register(NimbusExperiment, NimbusExperimentAdmin)
