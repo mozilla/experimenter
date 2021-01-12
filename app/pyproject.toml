@@ -30,7 +30,7 @@ raven = "6.10.0"
 redis = "3.5.3"
 requests = {version = "2.25.1", extras = ["security"]}
 whitenoise = "5.2.0"
-parameterized = "0.7.5"
+parameterized = "0.8.1"
 pytest-cov = "2.10.1"
 django-mozilla-product-details = "0.14.1"
 django-countries = "7.0"
