@@ -7,7 +7,6 @@ import { gql } from "@apollo/client";
 export const CREATE_EXPERIMENT_MUTATION = gql`
   mutation createExperiment($input: ExperimentInput!) {
     createExperiment(input: $input) {
-      clientMutationId
       message
       status
       nimbusExperiment {
@@ -23,7 +22,6 @@ export const CREATE_EXPERIMENT_MUTATION = gql`
 export const UPDATE_EXPERIMENT_OVERVIEW_MUTATION = gql`
   mutation updateExperimentOverview($input: ExperimentInput!) {
     updateExperiment(input: $input) {
-      clientMutationId
       message
       status
       nimbusExperiment {
@@ -38,7 +36,6 @@ export const UPDATE_EXPERIMENT_OVERVIEW_MUTATION = gql`
 export const UPDATE_EXPERIMENT_STATUS_MUTATION = gql`
   mutation updateExperimentStatus($input: ExperimentInput!) {
     updateExperiment(input: $input) {
-      clientMutationId
       message
       status
       nimbusExperiment {
@@ -51,7 +48,6 @@ export const UPDATE_EXPERIMENT_STATUS_MUTATION = gql`
 export const UPDATE_EXPERIMENT_BRANCHES_MUTATION = gql`
   mutation updateExperimentBranches($input: ExperimentInput!) {
     updateExperiment(input: $input) {
-      clientMutationId
       message
       status
       nimbusExperiment {
@@ -77,7 +73,6 @@ export const UPDATE_EXPERIMENT_BRANCHES_MUTATION = gql`
 export const UPDATE_EXPERIMENT_PROBESETS_MUTATION = gql`
   mutation updateExperimentProbeSets($input: ExperimentInput!) {
     updateExperiment(input: $input) {
-      clientMutationId
       nimbusExperiment {
         id
         primaryProbeSets {
@@ -96,7 +91,6 @@ export const UPDATE_EXPERIMENT_PROBESETS_MUTATION = gql`
 export const UPDATE_EXPERIMENT_AUDIENCE_MUTATION = gql`
   mutation updateExperimentAudience($input: ExperimentInput!) {
     updateExperiment(input: $input) {
-      clientMutationId
       message
       status
       nimbusExperiment {

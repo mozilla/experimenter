@@ -19,7 +19,7 @@ from experimenter.experiments.api.v5.types import NimbusExperimentType, ObjectFi
 from experimenter.experiments.models import NimbusExperiment
 
 
-def handle_with_serializer(cls, serializer, client_mutation_id):
+def handle_with_serializer(cls, serializer):
     if serializer.is_valid():
         obj = serializer.save()
         msg = "success"
@@ -30,12 +30,10 @@ def handle_with_serializer(cls, serializer, client_mutation_id):
         nimbus_experiment=obj,
         message=msg,
         status=200,
-        client_mutation_id=client_mutation_id,
     )
 
 
 class CreateExperiment(graphene.Mutation):
-    client_mutation_id = graphene.String()
     nimbus_experiment = graphene.Field(NimbusExperimentType)
     message = ObjectField()
     status = graphene.Int()
@@ -48,11 +46,10 @@ class CreateExperiment(graphene.Mutation):
         serializer = NimbusExperimentUpdateSerializer(
             data=input, context={"user": info.context.user}
         )
-        return handle_with_serializer(cls, serializer, input.client_mutation_id)
+        return handle_with_serializer(cls, serializer)
 
 
 class UpdateExperiment(graphene.Mutation):
-    client_mutation_id = graphene.String()
     nimbus_experiment = graphene.Field(NimbusExperimentType)
     message = ObjectField()
     status = graphene.Int()
@@ -68,7 +65,7 @@ class UpdateExperiment(graphene.Mutation):
         serializer = NimbusExperimentUpdateSerializer(
             exp, data=input, partial=True, context={"user": info.context.user}
         )
-        return handle_with_serializer(cls, serializer, input.client_mutation_id)
+        return handle_with_serializer(cls, serializer)
 
 
 class Mutation(graphene.ObjectType):

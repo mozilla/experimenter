@@ -9,7 +9,6 @@ type ApplicationChannel {
 }
 
 type CreateExperiment {
-  clientMutationId: String
   nimbusExperiment: NimbusExperimentType
   message: ObjectField
   status: Int
@@ -23,7 +22,6 @@ input DocumentationLinkType {
 }
 
 input ExperimentInput {
-  clientMutationId: String
   id: Int
   status: NimbusExperimentStatus
   name: String
@@ -299,7 +297,6 @@ input TreatmentBranchType {
 }
 
 type UpdateExperiment {
-  clientMutationId: String
   nimbusExperiment: NimbusExperimentType
   message: ObjectField
   status: Int

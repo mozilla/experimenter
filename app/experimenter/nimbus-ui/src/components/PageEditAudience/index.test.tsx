@@ -224,12 +224,10 @@ jest.mock("./FormAudience", () => ({
 export const mockUpdateExperimentAudienceMutation = (
   input: Partial<ExperimentInput>,
   {
-    clientMutationId = "8675309",
     status = 200,
     message = "success",
     experiment,
   }: {
-    clientMutationId?: string | null;
     status?: number;
     message?: string | Record<string, any>;
     experiment: updateExperimentAudience_updateExperiment_nimbusExperiment;
@@ -237,7 +235,6 @@ export const mockUpdateExperimentAudienceMutation = (
 ) => {
   const updateExperiment: updateExperimentAudience_updateExperiment = {
     __typename: "UpdateExperiment",
-    clientMutationId,
     status,
     message,
     nimbusExperiment: experiment,
