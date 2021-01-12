@@ -156,7 +156,7 @@ const AppLayoutWithExperiment = ({
             {title}
           </h2>
         )}
-        <div className="mt-4">{children({ experiment, review, analysis })}</div>
+        <div className="my-4">{children({ experiment, review, analysis })}</div>
       </section>
     </Layout>
   );

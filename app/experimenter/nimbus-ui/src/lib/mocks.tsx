@@ -350,6 +350,7 @@ export function mockExperimentQuery<
       },
       startDate: new Date().toISOString(),
       endDate: new Date(Date.now() + 12096e5).toISOString(),
+      riskMitigationLink: "https://docs.google.com/document/d/banzinga/edit",
     },
     modifications,
   );
