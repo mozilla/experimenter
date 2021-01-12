@@ -93,7 +93,9 @@ describe("hooks/useCommonForm", () => {
         render(<OverviewSubject {...{ experiment }} />);
 
         overviewFieldNames.forEach((name) => {
-          if (name !== "application") {
+          // TODO EXP-805 test errors form saving once
+          // documentationLinks uses useCommonForm
+          if (!["application", "documentationLinks"].includes(name)) {
             expect(
               screen.queryByTestId(`${name}-form-errors`),
             ).toBeInTheDocument();
@@ -108,7 +110,13 @@ describe("hooks/useCommonForm", () => {
         });
 
         overviewFieldNames.forEach((name) => {
-          if (!["publicDescription", "riskMitigationLink"].includes(name)) {
+          if (
+            ![
+              "publicDescription",
+              "documentationLinks",
+              "riskMitigationLink",
+            ].includes(name)
+          ) {
             expect(
               screen.queryByTestId(`${name}-form-errors`),
             ).toBeInTheDocument();
