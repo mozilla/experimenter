@@ -317,6 +317,9 @@ class NimbusExperimentUpdateSerializer(
         min_length=0, max_length=1024, required=False, allow_blank=True
     )
     hypothesis = serializers.CharField(min_length=0, max_length=1024, required=False)
+    risk_mitigation_link = serializers.URLField(
+        min_length=0, max_length=255, required=False
+    )
     documentation_links = NimbusDocumentationLinkSerializer(many=True, required=False)
     reference_branch = NimbusBranchSerializer(required=False)
     treatment_branches = NimbusBranchSerializer(many=True, required=False)
@@ -349,6 +352,7 @@ class NimbusExperimentUpdateSerializer(
             "status",
             "name",
             "hypothesis",
+            "risk_mitigation_link",
             "documentation_links",
             "slug",
             "application",
@@ -384,6 +388,9 @@ class NimbusReadyForReviewSerializer(
         NimbusExperiment.Application.choices, required=True
     )
     hypothesis = serializers.CharField(required=True)
+    risk_mitigation_link = serializers.URLField(
+        min_length=0, max_length=255, required=True
+    )
     documentation_links = NimbusDocumentationLinkSerializer(many=True)
     targeting_config_slug = serializers.ChoiceField(
         NimbusExperiment.TargetingConfig.choices, required=True

@@ -29,6 +29,7 @@ class TestNimbusQuery(GraphQLTestCase):
                     name
                     slug
                     publicDescription
+                    riskMitigationLink
                 }
             }
             """,

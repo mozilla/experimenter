@@ -30,6 +30,7 @@ input ExperimentInput {
   hypothesis: String
   application: NimbusExperimentApplication
   publicDescription: String
+  riskMitigationLink: String
   featureConfigId: Int
   documentationLinks: [DocumentationLinkType]
   referenceBranch: ReferenceBranchType
@@ -163,6 +164,7 @@ type NimbusExperimentType {
   name: String!
   slug: String!
   publicDescription: String!
+  riskMitigationLink: String!
   isPaused: Boolean!
   proposedDuration: Int!
   proposedEnrollment: Int!
