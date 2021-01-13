@@ -65,6 +65,12 @@ export interface getExperiment_experimentBySlug_readyForReview {
   message: ObjectField | null;
 }
 
+export interface getExperiment_experimentBySlug_documentationLinks {
+  __typename: "NimbusDocumentationLinkType";
+  title: string;
+  link: string;
+}
+
 export interface getExperiment_experimentBySlug {
   __typename: "NimbusExperimentType";
   id: number | null;
@@ -92,6 +98,7 @@ export interface getExperiment_experimentBySlug {
   startDate: DateTime | null;
   endDate: DateTime | null;
   riskMitigationLink: string;
+  documentationLinks: getExperiment_experimentBySlug_documentationLinks[] | null;
 }
 
 export interface getExperiment {
