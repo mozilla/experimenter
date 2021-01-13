@@ -7,7 +7,7 @@ import { GET_EXPERIMENT_QUERY } from "../gql/experiments";
 import { getExperiment } from "../types/getExperiment";
 
 const fieldPageMap: { [page: string]: string[] } = {
-  overview: ["public_description"],
+  overview: ["public_description", "risk_mitigation_link"],
   branches: ["reference_branch", "treatment_branches"],
   audience: [
     "channel",

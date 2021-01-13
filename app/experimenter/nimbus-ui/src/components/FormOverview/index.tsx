@@ -9,6 +9,7 @@ import { getExperiment } from "../../types/getExperiment";
 import { useExitWarning, useCommonForm } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
 import InlineErrorIcon from "../InlineErrorIcon";
+import LinkExternal from "../LinkExternal";
 
 type FormOverviewProps = {
   isLoading: boolean;
@@ -22,11 +23,15 @@ type FormOverviewProps = {
   onNext?: (ev: React.FormEvent) => void;
 };
 
+export const RISK_MITIGATION_TEMPLATE_LINK =
+  "https://docs.google.com/document/d/1zfG2g6pYe9aB7ItViQaw8OcOsXXdRUP70zpZoNC2xcA/edit";
+
 export const overviewFieldNames = [
   "name",
   "hypothesis",
   "application",
   "publicDescription",
+  "riskMitigationLink",
 ] as const;
 
 const FormOverview = ({
@@ -47,6 +52,7 @@ const FormOverview = ({
     hypothesis: experiment?.hypothesis || (hypothesisDefault as string).trim(),
     application: "",
     publicDescription: experiment?.publicDescription as string,
+    riskMitigationLink: experiment?.riskMitigationLink as string,
   };
 
   const {
@@ -164,26 +170,52 @@ const FormOverview = ({
       </Form.Group>
 
       {experiment && (
-        <Form.Group controlId="publicDescription">
-          <Form.Label className="d-flex align-items-center">
-            Public description
-            {isMissingField!("public_description") && (
-              <InlineErrorIcon
-                name="description"
-                message="Public description cannot be blank"
-              />
-            )}
-          </Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            {...formControlAttrs("publicDescription", {})}
-          />
-          <Form.Text className="text-muted">
-            This description will be public to users on about:studies
-          </Form.Text>
-          <FormErrors name="publicDescription" />
-        </Form.Group>
+        <>
+          <Form.Group controlId="publicDescription">
+            <Form.Label className="d-flex align-items-center">
+              Public description
+              {isMissingField!("public_description") && (
+                <InlineErrorIcon
+                  name="description"
+                  message="Public description cannot be blank"
+                />
+              )}
+            </Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              {...formControlAttrs("publicDescription", {})}
+            />
+            <Form.Text className="text-muted">
+              This description will be public to users on about:studies
+            </Form.Text>
+            <FormErrors name="publicDescription" />
+          </Form.Group>
+
+          <Form.Group controlId="riskMitigationLink">
+            <Form.Label>
+              Risk Mitigation Checklist Link
+              {isMissingField!("risk_mitigation_link") && (
+                <InlineErrorIcon
+                  name="risk_mitigation_link"
+                  message="A Risk Mitigation Checklist is required"
+                />
+              )}
+            </Form.Label>
+            <Form.Control
+              {...formControlAttrs("riskMitigationLink", {})}
+              type="url"
+            />
+            <Form.Text className="text-muted">
+              Go to the{" "}
+              <LinkExternal href={RISK_MITIGATION_TEMPLATE_LINK}>
+                risk mitigation checklist
+              </LinkExternal>{" "}
+              to make a copy and add the link above
+            </Form.Text>
+            <FormErrors name="riskMitigationLink" />
+          </Form.Group>
+        </>
       )}
 
       <div className="d-flex flex-row-reverse bd-highlight">
