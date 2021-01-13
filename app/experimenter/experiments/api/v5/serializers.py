@@ -318,7 +318,7 @@ class NimbusExperimentUpdateSerializer(
     )
     hypothesis = serializers.CharField(min_length=0, max_length=1024, required=False)
     risk_mitigation_link = serializers.URLField(
-        min_length=0, max_length=255, required=False
+        min_length=0, max_length=255, required=False, allow_blank=True
     )
     documentation_links = NimbusDocumentationLinkSerializer(many=True, required=False)
     reference_branch = NimbusBranchSerializer(required=False)

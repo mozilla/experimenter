@@ -65,6 +65,19 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
         # Owner should match the email of the user who created the experiment
         self.assertEqual(experiment.owner, self.user)
 
+    def test_serializer_accepts_blank_risk_mitigation_link(self):
+        data = {
+            "name": "Test 1234",
+            "hypothesis": "Test hypothesis",
+            "application": NimbusExperiment.Application.DESKTOP.value,
+            "public_description": "Test description",
+            "risk_mitigation_link": "",
+        }
+        serializer = NimbusExperimentUpdateSerializer(
+            data=data, context={"user": self.user}
+        )
+        self.assertTrue(serializer.is_valid())
+
     def test_serializer_rejects_bad_name(self):
         data = {
             "name": "&^%&^%&^%&^%^&%^&",
