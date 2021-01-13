@@ -108,7 +108,7 @@ describe("hooks/useCommonForm", () => {
         });
 
         overviewFieldNames.forEach((name) => {
-          if (name !== "publicDescription") {
+          if (!["publicDescription", "riskMitigationLink"].includes(name)) {
             expect(
               screen.queryByTestId(`${name}-form-errors`),
             ).toBeInTheDocument();

@@ -28,7 +28,12 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
   const [isServerValid, setIsServerValid] = useState(true);
 
   const onFormSubmit = useCallback(
-    async ({ name, hypothesis, publicDescription }: Record<string, any>) => {
+    async ({
+      name,
+      hypothesis,
+      riskMitigationLink,
+      publicDescription,
+    }: Record<string, any>) => {
       try {
         const result = await updateExperimentOverview({
           variables: {
@@ -37,6 +42,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
               name,
               hypothesis,
               publicDescription,
+              riskMitigationLink,
             },
           },
         });

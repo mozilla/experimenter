@@ -65,6 +65,7 @@ describe("FormOverview", () => {
       ["Public name", expected.name],
       ["Hypothesis", expected.hypothesis],
       ["Public description", expected.publicDescription],
+      ["Risk Mitigation Checklist Link", expected.riskMitigationLink],
     ]) {
       const fieldName = screen.getByLabelText(labelText) as HTMLInputElement;
       expect(fieldName.value).toEqual(fieldValue);
@@ -96,6 +97,7 @@ describe("FormOverview", () => {
       name: experiment.name,
       hypothesis: experiment.hypothesis as string,
       publicDescription: experiment.publicDescription as string,
+      riskMitigationLink: experiment.riskMitigationLink as string,
     };
 
     const onSubmit = jest.fn();
