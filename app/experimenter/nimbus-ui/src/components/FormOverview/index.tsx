@@ -5,11 +5,16 @@
 import React, { useCallback, useEffect } from "react";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
 import { getExperiment } from "../../types/getExperiment";
 import { useExitWarning, useCommonForm } from "../../hooks";
+import ReactTooltip from "react-tooltip";
 import { useConfig } from "../../hooks/useConfig";
 import InlineErrorIcon from "../InlineErrorIcon";
 import LinkExternal from "../LinkExternal";
+import { ReactComponent as Info } from "../../images/info.svg";
+import { ReactComponent as DeleteIcon } from "../../images/x.svg";
 
 type FormOverviewProps = {
   isLoading: boolean;
@@ -25,6 +30,15 @@ type FormOverviewProps = {
 
 export const RISK_MITIGATION_TEMPLATE_LINK =
   "https://docs.google.com/document/d/1zfG2g6pYe9aB7ItViQaw8OcOsXXdRUP70zpZoNC2xcA/edit";
+export const DOCUMENTATION_LINKS_TOOLTIP =
+  "Any additional links you would like to add, for example, Jira DS Ticket, Jira QA ticket, or experiment brief.";
+
+// TODO: #4400 - Replace this hard coded list with an enum from the GQL config
+export const documentationLinkOptions: Record<string, string> = {
+  dsTicket: "Data Science Jira Ticket",
+  engTicket: "Engineering Ticket (Bugzilla/Jira/Github)",
+  designDoc: "Experiment Design Document",
+};
 
 export const overviewFieldNames = [
   "name",
@@ -32,6 +46,7 @@ export const overviewFieldNames = [
   "application",
   "publicDescription",
   "riskMitigationLink",
+  "documentationLinks",
 ] as const;
 
 const FormOverview = ({
@@ -47,12 +62,18 @@ const FormOverview = ({
 }: FormOverviewProps) => {
   const { application, hypothesisDefault } = useConfig();
 
+  const hasExistingDocLinks =
+    experiment?.documentationLinks && experiment?.documentationLinks.length > 0;
   const defaultValues = {
     name: experiment?.name || "",
     hypothesis: experiment?.hypothesis || (hypothesisDefault as string).trim(),
     application: "",
     publicDescription: experiment?.publicDescription as string,
     riskMitigationLink: experiment?.riskMitigationLink as string,
+    documentationLinks: hasExistingDocLinks
+      ? experiment?.documentationLinks!
+      : // Cast so we don't have to provide __typename in the default
+        ([{ title: "", link: "" }] as { title: string; link: string }[]),
   };
 
   const {
@@ -214,6 +235,78 @@ const FormOverview = ({
               to make a copy and add the link above
             </Form.Text>
             <FormErrors name="riskMitigationLink" />
+          </Form.Group>
+
+          <Form.Group controlId="documentationLinks">
+            <Form.Label>
+              Additional Links
+              <Info
+                data-tip={DOCUMENTATION_LINKS_TOOLTIP}
+                data-testid="tooltip-documentation-links"
+                width="20"
+                height="20"
+                className="ml-1"
+              />
+              <ReactTooltip />
+            </Form.Label>
+            <div>
+              {defaultValues.documentationLinks.map((docLink, docIdx) => (
+                <Form.Group
+                  className="mb-0"
+                  data-testid="DocumentationLink"
+                  key={`doc-link-${docIdx}`}
+                >
+                  <Form.Row>
+                    <Form.Group as={Col} sm={4} md={3}>
+                      <Form.Control as="select" defaultValue={docLink.title}>
+                        <option value="" disabled>
+                          Select document type...
+                        </option>
+                        {Object.keys(documentationLinkOptions).map(
+                          (key, optIdx) => (
+                            <option
+                              key={`doc-link-${docIdx}-opt-${optIdx}`}
+                              value={key}
+                            >
+                              {documentationLinkOptions[key]}
+                            </option>
+                          ),
+                        )}
+                      </Form.Control>
+                    </Form.Group>
+                    <Form.Group as={Col}>
+                      <Form.Control
+                        placeholder="Link"
+                        type="url"
+                        defaultValue={docLink.link}
+                      />
+                    </Form.Group>
+                    <Form.Group as={Col} className="flex-grow-0">
+                      <Button
+                        data-testid="remove-documentation-link"
+                        variant="light"
+                        className="bg-transparent border-0 p-0 m-0 mt-px"
+                        title="Remove link"
+                        onClick={() => {}}
+                      >
+                        <DeleteIcon width="18" height="18" />
+                      </Button>
+                    </Form.Group>
+                  </Form.Row>
+                </Form.Group>
+              ))}
+            </div>
+
+            <div className="pt-2 mb-5 text-right">
+              <Button
+                data-testid="add-additional-link"
+                variant="outline-primary"
+                size="sm"
+                onClick={() => {}}
+              >
+                + Add Link
+              </Button>
+            </div>
           </Form.Group>
         </>
       )}
