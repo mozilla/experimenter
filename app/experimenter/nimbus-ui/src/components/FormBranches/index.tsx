@@ -3,30 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useMemo } from "react";
-import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
+import { FormProvider, SubmitHandler } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
-
-import { useExitWarning } from "../../hooks";
+import { useExitWarning, useForm } from "../../hooks";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
   getConfig_nimbusConfig,
   getConfig_nimbusConfig_featureConfig,
 } from "../../types/getConfig";
-
 import { useFormBranchesReducer, FormBranchesSaveState } from "./reducer";
-
+import { FormData } from "./reducer/update";
 import FormBranch from "./FormBranch";
+import { IsDirtyUnsaved } from "../../hooks/useCommonForm/useCommonFormMethods";
 
-export const FormBranches = ({
-  isLoading,
-  experiment,
-  featureConfig,
-  onSave,
-  onNext,
-}: {
+type FormBranchesProps = {
   isLoading: boolean;
   experiment: getExperiment_experimentBySlug;
   featureConfig: getConfig_nimbusConfig["featureConfig"];
@@ -36,7 +29,15 @@ export const FormBranches = ({
     clearSubmitErrors: Function,
   ) => void;
   onNext: () => void;
-}) => {
+};
+
+export const FormBranches = ({
+  isLoading,
+  experiment,
+  featureConfig,
+  onSave,
+  onNext,
+}: FormBranchesProps) => {
   const reviewErrors =
     typeof experiment?.readyForReview?.message !== "string"
       ? experiment?.readyForReview?.message
@@ -62,22 +63,25 @@ export const FormBranches = ({
     [referenceBranch, treatmentBranches],
   );
 
-  const formMethods = useForm({
-    mode: "onBlur",
-    defaultValues,
-  });
+  // TODO: EXP-614 submitErrors type is any, but in practical use it's AnnotatedBranch["errors"]
+  const setSubmitErrors = (submitErrors: any) =>
+    dispatch({ type: "setSubmitErrors", submitErrors });
+
+  const formMethods = useForm(defaultValues);
 
   const {
     reset,
     getValues,
     handleSubmit,
-    formState: { isDirty, errors, touched },
+    formState: { isDirty, isSubmitted, isValid, errors, touched },
   } = formMethods;
+
+  const isDirtyUnsaved = IsDirtyUnsaved(isDirty, isValid, isSubmitted);
 
   const shouldWarnOnExit = useExitWarning();
   useEffect(() => {
-    shouldWarnOnExit(isDirty);
-  }, [shouldWarnOnExit, isDirty]);
+    shouldWarnOnExit(isDirtyUnsaved);
+  }, [shouldWarnOnExit, isDirtyUnsaved]);
 
   // reset the form when defaultValues change, i.e. the reducer updates
   // with submit errors and we need to mark fields as untouched
@@ -89,12 +93,8 @@ export const FormBranches = ({
   const isNextDisabled = isLoading;
 
   const commitFormData = () => {
-    dispatch({ type: "commitFormData", formData: getValues() });
+    dispatch({ type: "commitFormData", formData: getValues() as FormData });
   };
-
-  // TODO: EXP-614 submitErrors type is any, but in practical use it's AnnotatedBranch["errors"]
-  const setSubmitErrors = (submitErrors: any) =>
-    dispatch({ type: "setSubmitErrors", submitErrors });
 
   const clearSubmitErrors = () => dispatch({ type: "clearSubmitErrors" });
 
@@ -155,6 +155,7 @@ export const FormBranches = ({
     onFeatureConfigChange: handleFeatureConfigChange,
     onAddFeatureConfig: handleAddFeatureConfig,
     onRemoveFeatureConfig: handleRemoveFeatureConfig,
+    setSubmitErrors,
   };
 
   type FormBranchProps = React.ComponentProps<typeof FormBranch>;
@@ -217,6 +218,7 @@ export const FormBranches = ({
                 isReference: true,
                 branch: { ...referenceBranch, key: "branch-reference" },
                 reviewErrors: reviewErrors?.["reference_branch"],
+                defaultValues: defaultValues.referenceBranch || {},
               }}
             />
           )}
@@ -238,6 +240,8 @@ export const FormBranches = ({
                       branch,
                       reviewErrors: reviewErrors?.["treatment_branches"]?.[idx],
                       onRemove: handleRemoveBranch(idx),
+                      defaultValues:
+                        defaultValues.treatmentBranches?.[idx] || {},
                     }}
                   />
                 ),

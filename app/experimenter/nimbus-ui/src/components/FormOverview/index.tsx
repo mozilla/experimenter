@@ -49,6 +49,8 @@ export const overviewFieldNames = [
   "documentationLinks",
 ] as const;
 
+type OverviewFieldName = typeof overviewFieldNames[number];
+
 const FormOverview = ({
   isLoading,
   isServerValid,
@@ -84,7 +86,7 @@ const FormOverview = ({
     handleSubmit,
     reset,
     isSubmitted,
-  } = useCommonForm<typeof overviewFieldNames[number]>(
+  } = useCommonForm<OverviewFieldName>(
     defaultValues,
     isServerValid,
     submitErrors,

@@ -3,14 +3,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
-import { Subject as OverviewSubject } from "../components/FormOverview/mocks";
-import { overviewFieldNames } from "../components/FormOverview";
-import { Subject as MetricsSubject } from "../components/FormMetrics/mocks";
-import { metricsFieldNames } from "../components/FormMetrics";
-import { Subject as AudienceSubject } from "../components/FormAudience/mocks";
-import { audienceFieldNames } from "../components/FormAudience";
-import { mockExperimentQuery } from "../lib/mocks";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
+import { Subject as OverviewSubject } from "../../components/FormOverview/mocks";
+import { overviewFieldNames } from "../../components/FormOverview";
+import { Subject as MetricsSubject } from "../../components/FormMetrics/mocks";
+import { metricsFieldNames } from "../../components/FormMetrics";
+import { Subject as AudienceSubject } from "../../components/FormAudience/mocks";
+import { audienceFieldNames } from "../../components/FormAudience";
+import { branchFieldNames } from "../../components/FormBranches/FormBranch";
+import {
+  SubjectBranch as BranchSubject,
+  MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+} from "../../components/FormBranches/mocks";
+import { mockExperimentQuery } from "../../lib/mocks";
 
 describe("hooks/useCommonForm", () => {
   describe("works as expected", () => {
@@ -87,6 +98,7 @@ describe("hooks/useCommonForm", () => {
   describe("is used on expected fields", () => {
     // TODO EXP-780 - improve these tests by mocking `useCommonForm` to ensure `<FormErrors />`,
     // `formControlAttrs`, and `formSelectAttrs` are all called with the expected field names
+    // and/or move these form tests into their corresponding form test files
     describe("FormOverview", () => {
       it("with experiment data", () => {
         const { experiment } = mockExperimentQuery("boo");
@@ -142,6 +154,43 @@ describe("hooks/useCommonForm", () => {
       audienceFieldNames.forEach((name) => {
         expect(screen.queryByTestId(`${name}-form-errors`)).toBeInTheDocument();
         expect(screen.queryByTestId(name)).toBeInTheDocument();
+      });
+    });
+
+    it("FormBranch", () => {
+      const { container } = render(
+        <BranchSubject
+          experimentFeatureConfig={MOCK_FEATURE_CONFIG_WITH_SCHEMA}
+        />,
+      );
+
+      branchFieldNames.forEach((name) => {
+        const fieldName = `referenceBranch.${name}`;
+        // all branch field names call `formControlAttrs`
+        expect(screen.queryByTestId(fieldName)).toBeInTheDocument();
+
+        // featureValue must be "enabled" to show the submit error
+        if (name === "featureValue") {
+          (async () => {
+            const field = container.querySelector(
+              `[name="${fieldName}"]`,
+            ) as HTMLInputElement;
+            act(() => {
+              fireEvent.focus(field!);
+              fireEvent.change(field!, { target: { value: true } });
+            });
+            await waitFor(() => {
+              expect(
+                screen.queryByTestId(`${fieldName}-form-errors`),
+              ).toBeInTheDocument();
+            });
+          })();
+          // featureEnabled does not call FormErrors because it is a global error
+        } else if (name !== "featureEnabled") {
+          expect(
+            screen.queryByTestId(`${fieldName}-form-errors`),
+          ).toBeInTheDocument();
+        }
       });
     });
   });

@@ -146,7 +146,7 @@ storiesOf("components/FormBranches", module)
       }}
     />
   ))
-  .add("with submit errors", () => {
+  .add("with server/submit errors", () => {
     const [isLoading, setIsLoading] = useState(false);
     const [saveOrClear, setSaveOrClear] = useState(false);
     const onSave: React.ComponentProps<typeof FormBranches>["onSave"] = (
