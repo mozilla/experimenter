@@ -28,6 +28,7 @@ class NimbusExperiment(NimbusConstants, models.Model):
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(max_length=NimbusConstants.MAX_SLUG_LEN, unique=True)
     public_description = models.TextField(default="")
+    risk_mitigation_link = models.URLField(max_length=255, blank=True)
     is_paused = models.BooleanField(default=False)
     proposed_duration = models.PositiveIntegerField(
         default=NimbusConstants.DEFAULT_PROPOSED_DURATION,
