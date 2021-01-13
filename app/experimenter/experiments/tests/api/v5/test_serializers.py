@@ -46,6 +46,7 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
             "name": "Test 1234",
             "hypothesis": "Test hypothesis",
             "application": NimbusExperiment.Application.DESKTOP.value,
+            "risk_mitigation_link": "https://example.com/risk",
             "public_description": "Test description",
         }
 
@@ -59,6 +60,7 @@ class TestCreateNimbusExperimentOverviewSerializer(TestCase):
         self.assertEqual(experiment.name, data["name"])
         self.assertEqual(experiment.application, data["application"])
         self.assertEqual(experiment.hypothesis, data["hypothesis"])
+        self.assertEqual(experiment.risk_mitigation_link, data["risk_mitigation_link"])
         self.assertEqual(experiment.public_description, data["public_description"])
         # Owner should match the email of the user who created the experiment
         self.assertEqual(experiment.owner, self.user)
