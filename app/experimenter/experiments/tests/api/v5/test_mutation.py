@@ -36,6 +36,7 @@ mutation($input: ExperimentInput!) {
             name
             hypothesis
             publicDescription
+            riskMitigationLink
         }
         message
         status
@@ -232,6 +233,7 @@ class TestMutations(GraphQLTestCase):
                     "name": "new name",
                     "hypothesis": "new hypothesis",
                     "publicDescription": "new public description",
+                    "riskMitigationLink": "https://example.com/risk",
                     "clientMutationId": "randomid",
                 }
             },
@@ -248,6 +250,7 @@ class TestMutations(GraphQLTestCase):
                 "name": "new name",
                 "hypothesis": "new hypothesis",
                 "publicDescription": "new public description",
+                "riskMitigationLink": "https://example.com/risk",
             },
         )
 
@@ -272,6 +275,7 @@ class TestMutations(GraphQLTestCase):
                     "id": experiment.id,
                     "name": long_name,
                     "hypothesis": "new hypothesis",
+                    "riskMitigationLink": "i like pie",
                     "clientMutationId": "randomid",
                 }
             },
@@ -285,7 +289,10 @@ class TestMutations(GraphQLTestCase):
         self.assertEqual(result["clientMutationId"], "randomid")
         self.assertEqual(
             result["message"],
-            {"name": ["Ensure this field has no more than 255 characters."]},
+            {
+                "name": ["Ensure this field has no more than 255 characters."],
+                "risk_mitigation_link": ["Enter a valid URL."],
+            },
         )
         self.assertEqual(result["status"], 200)
 

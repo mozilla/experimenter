@@ -88,6 +88,7 @@ export interface ExperimentInput {
   hypothesis?: string | null;
   application?: NimbusExperimentApplication | null;
   publicDescription?: string | null;
+  riskMitigationLink?: string | null;
   featureConfigId?: number | null;
   documentationLinks?: (DocumentationLinkType | null)[] | null;
   referenceBranch?: ReferenceBranchType | null;

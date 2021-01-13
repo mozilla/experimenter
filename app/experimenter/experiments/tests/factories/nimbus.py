@@ -36,6 +36,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         lambda o: slugify(o.name)[: NimbusConstants.MAX_SLUG_LEN]
     )
     public_description = factory.LazyAttribute(lambda o: faker.text(200))
+    risk_mitigation_link = factory.LazyAttribute(lambda o: faker.uri())
     proposed_duration = factory.LazyAttribute(lambda o: random.randint(10, 60))
     proposed_enrollment = factory.LazyAttribute(
         lambda o: random.randint(2, o.proposed_duration)
