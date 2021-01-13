@@ -6,6 +6,7 @@ import React from "react";
 import { render, screen, act, fireEvent } from "@testing-library/react";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { Subject } from "./mocks";
+import { DOCUMENTATION_LINKS_TOOLTIP } from ".";
 
 describe("FormOverview", () => {
   it("renders as expected", async () => {
@@ -107,6 +108,13 @@ describe("FormOverview", () => {
     const nameField = screen.getByLabelText("Public name");
 
     expect(nextButton).toBeEnabled();
+
+    expect(screen.getByTestId("tooltip-documentation-links")).toHaveAttribute(
+      "data-tip",
+      DOCUMENTATION_LINKS_TOOLTIP,
+    );
+    // TODO: This will be changed to iterate across default/existing DocumentationLinks in #4371
+    expect(screen.getByTestId("DocumentationLink")).toBeInTheDocument();
 
     await act(async () => checkExistingForm(expected));
 

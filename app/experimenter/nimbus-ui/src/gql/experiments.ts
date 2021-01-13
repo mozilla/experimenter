@@ -187,6 +187,11 @@ export const GET_EXPERIMENT_QUERY = gql`
       endDate
 
       riskMitigationLink
+
+      documentationLinks {
+        title
+        link
+      }
     }
   }
 `;
