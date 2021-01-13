@@ -91,6 +91,7 @@ export interface getExperiment_experimentBySlug {
   readyForReview: getExperiment_experimentBySlug_readyForReview | null;
   startDate: DateTime | null;
   endDate: DateTime | null;
+  riskMitigationLink: string;
 }
 
 export interface getExperiment {
