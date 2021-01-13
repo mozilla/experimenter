@@ -59,6 +59,7 @@ describe("PageEditOverview", () => {
       name: experiment.name,
       hypothesis: experiment.hypothesis!,
       publicDescription: experiment.publicDescription!,
+      riskMitigationLink: experiment.riskMitigationLink!,
     };
     mutationMock = mockExperimentMutation(
       UPDATE_EXPERIMENT_OVERVIEW_MUTATION,
