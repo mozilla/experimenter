@@ -90,6 +90,7 @@ export interface getExperiment_experimentBySlug {
   channel: NimbusExperimentChannel | null;
   firefoxMinVersion: NimbusExperimentFirefoxMinVersion | null;
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug | null;
+  targetingConfigTargeting: string | null;
   populationPercent: string | null;
   totalEnrolledClients: number;
   proposedEnrollment: number;

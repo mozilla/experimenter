@@ -265,6 +265,57 @@ class TestNimbusQuery(GraphQLTestCase):
         experiment = content["data"]["experimentBySlug"]
         self.assertIsNone(experiment)
 
+    def test_experiment_targeting_config_targeting(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT
+        )
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    targetingConfigTargeting
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        expected_targeting_config = NimbusExperiment.TARGETING_CONFIGS[
+            experiment.targeting_config_slug
+        ]
+        self.assertEqual(
+            experiment_data["targetingConfigTargeting"],
+            expected_targeting_config.targeting,
+        )
+
+    def test_experiment_no_targeting_config_targeting(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT, targeting_config_slug=""
+        )
+        response = self.query(
+            """
+            query experimentBySlug($slug: String!) {
+                experimentBySlug(slug: $slug) {
+                    targetingConfigTargeting
+                }
+            }
+            """,
+            variables={"slug": experiment.slug},
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        experiment_data = content["data"]["experimentBySlug"]
+        self.assertEqual(
+            experiment_data["targetingConfigTargeting"],
+            "",
+        )
+
     def test_nimbus_config(self):
         user_email = "user@example.com"
         # Create some probes and feature configs

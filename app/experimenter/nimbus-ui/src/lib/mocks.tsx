@@ -339,6 +339,7 @@ export function mockExperimentQuery<
       channel: "DESKTOP_NIGHTLY",
       firefoxMinVersion: "FIREFOX_80",
       targetingConfigSlug: "US_ONLY",
+      targetingConfigTargeting: "localeLanguageCode == 'en' && region == 'US'",
       populationPercent: "40",
       totalEnrolledClients: 68000,
       proposedEnrollment: 1,
