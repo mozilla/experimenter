@@ -413,64 +413,6 @@ class TestUpdateExperimentTask(MockNormandyTasksMixin, MockNormandyMixin, TestCa
             experiment.changes.filter(message="Updated Population Percent").exists()
         )
 
-    def test_live_experiment_updates_population_percent_without_sampling(self):
-        experiment = ExperimentFactory.create(
-            status=Experiment.STATUS_LIVE,
-            normandy_id=1234,
-            population_percent=None,
-        )
-
-        mock_response_data = {
-            "approved_revision": {
-                "enabled": True,
-                "filter_object": [{"type": "version", "versions": [99.0]}],
-            }
-        }
-        mock_response = mock.Mock()
-        mock_response.json = mock.Mock()
-        mock_response.json.return_value = mock_response_data
-        mock_response.raise_for_status = mock.Mock()
-        mock_response.raise_for_status.side_effect = None
-        mock_response.status_code = 200
-
-        self.mock_normandy_requests_get.return_value = mock_response
-
-        tasks.update_launched_experiments()
-        experiment = Experiment.objects.get(normandy_id=1234)
-        self.assertEqual(experiment.population_percent, decimal.Decimal("100.000"))
-        self.assertTrue(
-            experiment.changes.filter(message="Updated Population Percent").exists()
-        )
-
-    def test_live_experiment_no_updates_for_pop_percent_of_100_and_no_sample(self):
-        experiment = ExperimentFactory.create(
-            status=Experiment.STATUS_LIVE,
-            normandy_id=1234,
-            population_percent=100.00,
-        )
-
-        mock_response_data = {
-            "approved_revision": {
-                "enabled": True,
-                "filter_object": [{"type": "version", "versions": [99.0]}],
-            }
-        }
-        mock_response = mock.Mock()
-        mock_response.json = mock.Mock()
-        mock_response.json.return_value = mock_response_data
-        mock_response.raise_for_status = mock.Mock()
-        mock_response.raise_for_status.side_effect = None
-        mock_response.status_code = 200
-
-        self.mock_normandy_requests_get.return_value = mock_response
-
-        tasks.update_launched_experiments()
-        experiment = Experiment.objects.get(normandy_id=1234)
-        self.assertEqual(experiment.population_percent, decimal.Decimal("100.000"))
-        self.assertFalse(
-            experiment.changes.filter(message="Updated Population Percent").exists()
-        )
-
     def test_firefox_version_updates(self):
         experiment = ExperimentFactory.create(
             status=Experiment.STATUS_LIVE,
