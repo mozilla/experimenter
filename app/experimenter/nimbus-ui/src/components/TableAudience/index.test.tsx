@@ -103,6 +103,25 @@ describe("TableAudience", () => {
       expect(screen.queryByTestId("experiment-target")).not.toBeInTheDocument();
     });
   });
+
+  describe("renders 'Full targeting expression' row as expected", () => {
+    it("when set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug");
+      render(<Subject {...{ experiment }} />);
+      expect(
+        screen.getByTestId("experiment-target-expression"),
+      ).toHaveTextContent(experiment.targetingConfigTargeting!);
+    });
+    it("when targetingConfigTargeting is empty", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        targetingConfigTargeting: "",
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(
+        screen.queryByTestId("experiment-target-expression"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });
 
 const Subject = ({

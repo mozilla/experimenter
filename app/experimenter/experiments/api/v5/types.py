@@ -120,6 +120,7 @@ class NimbusExperimentType(DjangoObjectType):
     documentation_links = DjangoListField(NimbusDocumentationLinkType)
     treatment_branches = graphene.List(NimbusBranchType)
     targeting_config_slug = NimbusExperimentTargetingConfigSlug()
+    targeting_config_targeting = graphene.String()
     primary_probe_sets = graphene.List(NimbusProbeSetType)
     secondary_probe_sets = graphene.List(NimbusProbeSetType)
     ready_for_review = graphene.Field(NimbusReadyForReviewType)
@@ -150,3 +151,10 @@ class NimbusExperimentType(DjangoObjectType):
         )
         ready = serializer.is_valid()
         return NimbusReadyForReviewType(message=serializer.errors, ready=ready)
+
+    def resolve_targeting_config_targeting(self, info):
+        targeting_config = self.TARGETING_CONFIGS.get(self.targeting_config_slug, None)
+        if targeting_config:
+            return targeting_config.targeting
+        else:
+            return ""
