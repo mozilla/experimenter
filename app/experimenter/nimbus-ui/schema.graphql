@@ -181,6 +181,7 @@ type NimbusExperimentType {
   documentationLinks: [NimbusDocumentationLinkType!]
   bucketRange: NimbusBucketRangeType
   treatmentBranches: [NimbusBranchType]
+  targetingConfigTargeting: String
   primaryProbeSets: [NimbusProbeSetType]
   secondaryProbeSets: [NimbusProbeSetType]
   readyForReview: NimbusReadyForReviewType
