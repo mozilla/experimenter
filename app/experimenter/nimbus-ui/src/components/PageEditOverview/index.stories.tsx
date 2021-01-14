@@ -18,6 +18,7 @@ const { mock: mockMissingFields } = mockExperimentQuery("demo-slug", {
     ready: false,
     message: {
       public_description: ["This field may not be null."],
+      risk_mitigation_link: ["This field may not be null."],
     },
   },
 });

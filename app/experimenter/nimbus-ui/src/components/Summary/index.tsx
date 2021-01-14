@@ -13,6 +13,7 @@ import { getStatus } from "../../lib/experiment";
 import MonitoringLink from "../MonitoringLink";
 import { getConfigLabel, ConfigOptions } from "../../lib/getConfigLabel";
 import NotSet from "../NotSet";
+import { ReactComponent as ExternalIcon } from "../../images/external.svg";
 
 type SummaryProps = {
   experiment: getExperiment_experimentBySlug;
@@ -39,7 +40,10 @@ const Summary = ({ experiment }: SummaryProps) => {
               href={`/api/v6/experiments/${experiment.slug}/`}
               data-testid="link-json"
             >
-              See full JSON representation
+              <span className="mr-1 align-middle">
+                See full JSON representation
+              </span>
+              <ExternalIcon />
             </LinkExternal>
           </span>
         )}
