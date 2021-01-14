@@ -65,6 +65,17 @@ const TableAudience = ({ experiment }: TableAudienceProps) => {
             </td>
           </tr>
         )}
+        {experiment.targetingConfigTargeting !== "" && (
+          <tr>
+            <th>Full targeting expression</th>
+            <td
+              data-testid="experiment-target-expression"
+              className="text-monospace"
+            >
+              {experiment.targetingConfigTargeting}
+            </td>
+          </tr>
+        )}
       </tbody>
     </Table>
   );
