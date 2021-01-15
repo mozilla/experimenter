@@ -214,7 +214,7 @@ const FormOverview = ({
           </Form.Group>
 
           <Form.Group controlId="riskMitigationLink">
-            <Form.Label>
+            <Form.Label className="d-flex align-items-center">
               Risk Mitigation Checklist Link
               {isMissingField!("risk_mitigation_link") && (
                 <InlineErrorIcon
