@@ -51,7 +51,7 @@ const TableMetricSecondary = ({
 
   return (
     <div data-testid="table-metric-secondary">
-      <h2 className="h5 mb-3">
+      <h2 className="h5 mb-3" id={probeSetSlug}>
         <div>{probeSetName}</div>
         <div
           className={`badge ${secondaryType.badge}`}
