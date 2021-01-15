@@ -4,16 +4,16 @@
 
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import MonitoringLink from "./index";
+import LinkMonitoring from ".";
 
-storiesOf("Components/MonitoringLink", module)
+storiesOf("Components/LinkMonitoring", module)
   .add("basic", () => (
     <div className="m-3">
-      <MonitoringLink monitoringDashboardUrl="https://grafana.telemetry.mozilla.org" />
+      <LinkMonitoring monitoringDashboardUrl="https://grafana.telemetry.mozilla.org" />
     </div>
   ))
   .add("no link", () => (
     <div className="m-3">
-      <MonitoringLink monitoringDashboardUrl="" />
+      <LinkMonitoring monitoringDashboardUrl="" />
     </div>
   ));
