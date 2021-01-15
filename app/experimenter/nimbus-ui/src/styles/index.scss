@@ -76,3 +76,14 @@ $sizes: (
 .border-3 {
   border-width: 3px !important;
 }
+
+.inherit-color {
+  color: inherit;
+}
+
+.sidebar-icon {
+  @extend .mr-3;
+  min-width: 18px;
+  width: 18px;
+  height: 18px;
+}

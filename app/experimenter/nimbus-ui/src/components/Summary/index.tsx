@@ -10,7 +10,7 @@ import TableAudience from "../TableAudience";
 import TableBranches from "../TableBranches";
 import LinkExternal from "../LinkExternal";
 import { getStatus } from "../../lib/experiment";
-import MonitoringLink from "../MonitoringLink";
+import LinkMonitoring from "../LinkMonitoring";
 import { getConfigLabel, ConfigOptions } from "../../lib/getConfigLabel";
 import NotSet from "../NotSet";
 import { ReactComponent as ExternalIcon } from "../../images/external.svg";
@@ -28,7 +28,7 @@ const Summary = ({ experiment }: SummaryProps) => {
 
   return (
     <div data-testid="summary">
-      <MonitoringLink {...experiment} />
+      <LinkMonitoring {...experiment} />
       <h2 className="h5 mb-3">Timeline</h2>
       <SummaryTimeline {...{ experiment }} />
 

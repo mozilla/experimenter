@@ -47,7 +47,9 @@ const TableMetricPrimary = ({
 
   return (
     <div data-testid="table-metric-primary">
-      <h2 className="h5 mb-3">{probeSet.name}</h2>
+      <h2 className="h5 mb-3" id={probeSet.slug}>
+        {probeSet.name}
+      </h2>
       <table className="table-visualization-center">
         <thead>
           <tr>

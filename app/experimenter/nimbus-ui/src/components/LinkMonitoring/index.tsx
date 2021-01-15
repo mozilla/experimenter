@@ -6,12 +6,14 @@ import React from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import LinkExternal from "../LinkExternal";
 
-export const MonitoringLink: React.FC<Pick<
+export const LinkMonitoring: React.FC<Pick<
   getExperiment_experimentBySlug,
   "monitoringDashboardUrl"
 >> = ({ monitoringDashboardUrl }) => (
   <>
-    <h3 className="h5 mb-3">Monitoring</h3>
+    <h3 className="h5 mb-3" id="monitoring">
+      Monitoring
+    </h3>
     {monitoringDashboardUrl ? (
       <p>
         <LinkExternal
@@ -28,4 +30,4 @@ export const MonitoringLink: React.FC<Pick<
   </>
 );
 
-export default MonitoringLink;
+export default LinkMonitoring;

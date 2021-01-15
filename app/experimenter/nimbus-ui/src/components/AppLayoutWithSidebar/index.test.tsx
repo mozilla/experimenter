@@ -4,7 +4,7 @@
 
 import React from "react";
 import { act, render, screen, waitFor } from "@testing-library/react";
-import AppLayoutWithSidebar, { RESULTS_LOADING_TEXT } from ".";
+import AppLayoutWithSidebar from ".";
 import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
 import { BASE_PATH } from "../../lib/constants";
 import { RouteComponentProps } from "@reach/router";
@@ -20,35 +20,19 @@ const { mock } = mockExperimentQuery("my-special-slug");
 
 const Subject = ({
   status = NimbusExperimentStatus.DRAFT,
-  withAnalysis = false,
-  analysisError,
   review,
-  analysisLoadingInSidebar = false,
 }: RouteComponentProps & {
   status?: NimbusExperimentStatus;
   review?: {
     ready: boolean;
     invalidPages: string[];
   };
-  withAnalysis?: boolean;
-  analysisError?: boolean;
-  analysisLoadingInSidebar?: boolean;
 }) => (
   <RouterSlugProvider mocks={[mock]} path="/my-special-slug/edit">
     <AppLayoutWithSidebar
       {...{
         status: mockGetStatus(status),
         review,
-        analysisLoadingInSidebar,
-        analysisError: analysisError ? new Error("boop") : undefined,
-        analysis: withAnalysis
-          ? {
-              show_analysis: true,
-              daily: [],
-              weekly: [],
-              overall: {},
-            }
-          : undefined,
       }}
     >
       <p data-testid="test-child">Hello, world!</p>
@@ -169,76 +153,6 @@ describe("AppLayoutWithSidebar", () => {
       // In review these should all not be <a> tags, but instead <span>s
       ["overview", "branches", "metrics", "audience"].forEach((slug) => {
         expect(screen.getByTestId(`nav-edit-${slug}`).tagName).toEqual("SPAN");
-      });
-    });
-
-    it("when live, hides edit and review links, displays design link and disabled results item", async () => {
-      render(<Subject status={NimbusExperimentStatus.LIVE} />);
-
-      [
-        "edit-overview",
-        "edit-branches",
-        "edit-metrics",
-        "edit-audience",
-        "edit-request-review",
-      ].forEach((slug) => {
-        expect(screen.queryByTestId(`nav-${slug}`)).not.toBeInTheDocument();
-      });
-
-      expect(screen.queryByTestId("nav-design")).toBeInTheDocument();
-      expect(screen.queryByTestId("nav-design")).toHaveAttribute(
-        "href",
-        `${BASE_PATH}/my-special-slug/design`,
-      );
-      expect(screen.queryByTestId("show-no-results")).toBeInTheDocument();
-      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
-        "Experiment results not yet ready",
-      );
-    });
-
-    it("when accepted, displays design link and disabled results item", async () => {
-      render(<Subject status={NimbusExperimentStatus.ACCEPTED} />);
-
-      expect(screen.queryByTestId("show-no-results")).toBeInTheDocument();
-      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
-        "Waiting for experiment to launch",
-      );
-    });
-
-    it("when complete and analysis results fetch errors", async () => {
-      render(
-        <Subject status={NimbusExperimentStatus.COMPLETE} analysisError />,
-      );
-
-      expect(screen.queryByTestId("show-no-results")).toBeInTheDocument();
-      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
-        "Could not get visualization data. Please contact data science",
-      );
-    });
-
-    it("when complete and analysis is required in sidebar and loading", async () => {
-      render(
-        <Subject
-          status={NimbusExperimentStatus.COMPLETE}
-          analysisLoadingInSidebar
-        />,
-      );
-
-      expect(screen.queryByTestId("show-no-results")).toBeInTheDocument();
-      expect(screen.queryByTestId("show-no-results")).toHaveTextContent(
-        RESULTS_LOADING_TEXT,
-      );
-    });
-
-    it("when complete and has analysis results displays design and results items", async () => {
-      render(<Subject status={NimbusExperimentStatus.COMPLETE} withAnalysis />);
-
-      ["design", "results"].forEach((slug) => {
-        expect(screen.queryByTestId(`nav-${slug}`)).toBeInTheDocument();
-        expect(screen.queryByTestId(`nav-${slug}`)).toHaveAttribute(
-          "href",
-          `${BASE_PATH}/my-special-slug/${slug}`,
-        );
       });
     });
   });

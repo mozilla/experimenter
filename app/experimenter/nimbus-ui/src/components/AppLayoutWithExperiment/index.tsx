@@ -5,6 +5,7 @@
 import React, { useEffect } from "react";
 import { navigate, RouteComponentProps, useParams } from "@reach/router";
 import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
+import AppLayoutSidebarLocked from "../AppLayoutSidebarLocked";
 import HeaderExperiment from "../HeaderExperiment";
 import PageLoading from "../PageLoading";
 import PageExperimentNotFound from "../PageExperimentNotFound";
@@ -14,6 +15,10 @@ import AppLayout from "../AppLayout";
 import { AnalysisData } from "../../lib/visualization/types";
 import Head from "../Head";
 import { getStatus, StatusCheck } from "../../lib/experiment";
+import {
+  getExperiment_experimentBySlug_primaryProbeSets,
+  getExperiment_experimentBySlug_secondaryProbeSets,
+} from "../../types/getExperiment";
 import { BASE_PATH } from "../../lib/constants";
 
 type AppLayoutWithExperimentChildrenProps = {
@@ -123,7 +128,13 @@ const AppLayoutWithExperiment = ({
     return <PageExperimentNotFound {...{ slug }} />;
   }
 
-  const { name, startDate, endDate } = experiment;
+  const {
+    name,
+    startDate,
+    endDate,
+    primaryProbeSets,
+    secondaryProbeSets,
+  } = experiment;
 
   return (
     <Layout
@@ -135,6 +146,8 @@ const AppLayoutWithExperiment = ({
         analysisLoadingInSidebar,
         analysisError,
         status,
+        primaryProbeSets,
+        secondaryProbeSets,
       }}
     >
       <section data-testid={testId}>
@@ -170,6 +183,12 @@ type LayoutProps = {
   analysis?: AnalysisData;
   analysisLoadingInSidebar: boolean;
   analysisError?: Error;
+  primaryProbeSets:
+    | (getExperiment_experimentBySlug_primaryProbeSets | null)[]
+    | null;
+  secondaryProbeSets:
+    | (getExperiment_experimentBySlug_secondaryProbeSets | null)[]
+    | null;
 };
 
 const Layout = ({
@@ -180,13 +199,28 @@ const Layout = ({
   analysis,
   analysisLoadingInSidebar,
   analysisError,
+  primaryProbeSets,
+  secondaryProbeSets,
 }: LayoutProps) =>
   sidebar ? (
-    <AppLayoutWithSidebar
-      {...{ status, review, analysis, analysisLoadingInSidebar, analysisError }}
-    >
-      {children}
-    </AppLayoutWithSidebar>
+    status?.locked ? (
+      <AppLayoutSidebarLocked
+        {...{
+          status,
+          analysis,
+          analysisLoadingInSidebar,
+          analysisError,
+          primaryProbeSets,
+          secondaryProbeSets,
+        }}
+      >
+        {children}
+      </AppLayoutSidebarLocked>
+    ) : (
+      <AppLayoutWithSidebar {...{ status, review }}>
+        {children}
+      </AppLayoutWithSidebar>
+    )
   ) : (
     <AppLayout>{children}</AppLayout>
   );
