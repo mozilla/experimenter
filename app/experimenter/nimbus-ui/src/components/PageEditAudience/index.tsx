@@ -11,7 +11,7 @@ import { updateExperimentAudience_updateExperiment as UpdateExperimentAudienceRe
 import { UPDATE_EXPERIMENT_AUDIENCE_MUTATION } from "../../gql/experiments";
 import { SUBMIT_ERROR } from "../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import FormAudience from "../FormAudience";
+import FormAudience from "./FormAudience";
 import { editCommonRedirects } from "../../lib/experiment";
 
 const PageEditAudience: React.FunctionComponent<RouteComponentProps> = () => {

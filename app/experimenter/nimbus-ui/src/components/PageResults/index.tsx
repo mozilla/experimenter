@@ -6,11 +6,11 @@ import React from "react";
 import { RouteComponentProps } from "@reach/router";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import LinkExternal from "../LinkExternal";
-import TableResults from "../TableResults";
-import TableHighlights from "../TableHighlights";
-import TableHighlightsOverview from "../TableHighlightsOverview";
-import TableMetricPrimary from "../TableMetricPrimary";
-import TableMetricSecondary from "../TableMetricSecondary";
+import TableResults from "./TableResults";
+import TableHighlights from "./TableHighlights";
+import TableHighlightsOverview from "./TableHighlightsOverview";
+import TableMetricPrimary from "./TableMetricPrimary";
+import TableMetricSecondary from "./TableMetricSecondary";
 import LinkMonitoring from "../LinkMonitoring";
 import { analysisUnavailable } from "../../lib/visualization/utils";
 

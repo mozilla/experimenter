@@ -5,8 +5,8 @@
 import React, { useCallback, useRef } from "react";
 import { navigate, RouteComponentProps } from "@reach/router";
 import { useConfig } from "../../hooks";
-import FormBranches from "../FormBranches";
-import { FormBranchesSaveState } from "../FormBranches/reducer";
+import FormBranches from "./FormBranches";
+import { FormBranchesSaveState } from "./FormBranches/reducer";
 import LinkExternal from "../LinkExternal";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import { useMutation } from "@apollo/client";

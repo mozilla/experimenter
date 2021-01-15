@@ -14,7 +14,7 @@ import {
 } from "../../types/globalTypes";
 import { updateExperimentStatus_updateExperiment as UpdateExperimentStatus } from "../../types/updateExperimentStatus";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import FormRequestReview from "../FormRequestReview";
+import FormRequestReview from "./FormRequestReview";
 import Summary from "../Summary";
 import { getStatus } from "../../lib/experiment";
 
