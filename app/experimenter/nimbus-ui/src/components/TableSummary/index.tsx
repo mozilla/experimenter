@@ -9,6 +9,8 @@ import { useConfig } from "../../hooks";
 import { displayConfigLabelOrNotSet } from "../Summary";
 import RichText from "../RichText";
 import NotSet from "../NotSet";
+import LinkExternal from "../LinkExternal";
+import { ReactComponent as ExternalIcon } from "../../images/external.svg";
 
 type TableSummaryProps = {
   experiment: getExperiment_experimentBySlug;
@@ -56,6 +58,42 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
             )}
           </td>
         </tr>
+        <tr>
+          <th>Risk mitigation checklist</th>
+          <td data-testid="experiment-risk-mitigation-link">
+            {experiment.riskMitigationLink ? (
+              <LinkExternal href={experiment.riskMitigationLink}>
+                <span className="mr-1 align-middle">
+                  {experiment.riskMitigationLink}
+                </span>
+                <ExternalIcon />
+              </LinkExternal>
+            ) : (
+              <NotSet />
+            )}
+          </td>
+        </tr>
+        {experiment.documentationLinks &&
+          experiment.documentationLinks?.length > 0 && (
+            <tr>
+              <th>Additional links</th>
+              <td data-testid="experiment-additional-links">
+                {experiment.documentationLinks.map((documentationLink, idx) => (
+                  <LinkExternal
+                    href={documentationLink.link}
+                    data-testid="experiment-additional-link"
+                    key={`doc-link-${idx}`}
+                    className="d-block"
+                  >
+                    <span className="mr-1 align-middle">
+                      {documentationLink.title}
+                    </span>
+                    <ExternalIcon />
+                  </LinkExternal>
+                ))}
+              </td>
+            </tr>
+          )}
         {experiment.featureConfig?.name && (
           <tr>
             <th>Feature config</th>

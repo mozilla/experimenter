@@ -62,6 +62,7 @@ storiesOf("components/TableSummary", module)
     const { experiment } = mockExperimentQuery("demo-slug", {
       primaryProbeSets: [],
       secondaryProbeSets: [],
+      documentationLinks: [],
     });
     return (
       <Subject>
@@ -74,6 +75,8 @@ storiesOf("components/TableSummary", module)
       primaryProbeSets: [],
       secondaryProbeSets: [],
       publicDescription: "",
+      riskMitigationLink: "",
+      documentationLinks: [],
     });
 
     return (

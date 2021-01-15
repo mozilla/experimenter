@@ -146,6 +146,61 @@ describe("TableSummary", () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe("renders 'Risk mitigation checklist' row as expected", () => {
+    it("when set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        riskMitigationLink: "https://mozilla.org",
+      });
+      render(<Subject {...{ experiment }} />);
+      const link = screen
+        .getByTestId("experiment-risk-mitigation-link")
+        .querySelector("a");
+      expect(link).toHaveTextContent(experiment.riskMitigationLink);
+      expect(link).toHaveAttribute("href", experiment.riskMitigationLink);
+    });
+    it("when not set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        riskMitigationLink: undefined,
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(
+        screen.getByTestId("experiment-risk-mitigation-link"),
+      ).toHaveTextContent("Not set");
+    });
+  });
+
+  describe("renders 'Additional links' row as expected", () => {
+    it("when set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        documentationLinks: [
+          {
+            __typename: "NimbusDocumentationLinkType",
+            title: "Mozilla",
+            link: "https://mozilla.org",
+          },
+          {
+            __typename: "NimbusDocumentationLinkType",
+            title: "Twitter",
+            link: "https://twitter.com",
+          },
+        ],
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(screen.getAllByTestId("experiment-additional-link")).toHaveLength(
+        experiment.documentationLinks!.length,
+      );
+    });
+    it("when not set", () => {
+      const { experiment } = mockExperimentQuery("demo-slug", {
+        documentationLinks: [],
+      });
+      render(<Subject {...{ experiment }} />);
+      expect(
+        screen.queryByTestId("experiment-additional-links"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });
 
 const Subject = ({
