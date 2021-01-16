@@ -2,23 +2,28 @@
 
 [![CircleCI](https://circleci.com/gh/mozilla/experimenter.svg?style=svg)](https://circleci.com/gh/mozilla/experimenter)
 
-<p align="center">
-  <img src="https://cdn1.iconfinder.com/data/icons/simple-arrow/512/arrow_20-128.png"><br/>
-  <b>1. Design 2. Launch 3. Analyze</b>
-  <br><br>
-</p>
-
 Experimenter is a platform for managing experiments in [Mozilla Firefox](https://www.mozilla.org/en-US/firefox/?utm_medium=referral&utm_source=firefox-com).
 
-## Deployments
+## Important Links
 
-### Staging
+| Link            | Prod                                         | Staging                                                | Local Dev (Default)                           |
+| --------------- | -------------------------------------------- | ------------------------------------------------------ | --------------------------------------------- |
+| Legacy Home     | https://experimenter.services.mozilla.com/   | https://stage.experimenter.nonprod.dataops.mozgcp.net/ | https://localhost                             |
+| Nimbus Home     | [/nimbus](nimbus_home_prod)                  | [/nimbus](nimbus_home_stage)                           | [/nimbus](nimbus_home_local)                  |
+| Nimbus REST API | [/api/v6/experiments/](nimbus_rest_api_prod) | [/api/v6/experiments/](nimbus_rest_api_stage)          | [/api/v6/experiments/](nimbus_rest_api_local) |
+| GQL Playground  | [/api/v5/nimbus-api-graphql][gql_prod]       | [/api/v5/nimbus-api-graphql][gql_stage]                | [/api/v5/nimbus-api-graphql][gql_local]       |
+| Storybook       | [Storybook Directory](storybook_prod)        |                                                        | https://localhost:3001                        |
 
-<https://stage.experimenter.nonprod.dataops.mozgcp.net/>
-
-### Production
-
-<https://experimenter.services.mozilla.com/>
+[nimbus_home_prod]: https://experimenter.services.mozilla.com/nimbus
+[nimbus_home_stage]: https://stage.experimenter.nonprod.dataops.mozgcp.net/nimbus
+[nimbus_home_local]: https://localhost/nimbus
+[nimbus_rest_api_prod]: https://experimenter.services.mozilla.com/api/v6/experiments/
+[nimbus_rest_api_stage]: https://stage.experimenter.nonprod.dataops.mozgcp.net/api/v6/experiments/
+[nimbus_rest_api_local]: https://localhost/api/v6/experiments/
+[gql_prod]: https://experimenter.services.mozilla.com/api/v5/nimbus-api-graphql/
+[gql_stage]: https://stage.experimenter.nonprod.dataops.mozgcp.net/api/v5/nimbus-api-graphql/
+[gql_local]: https://localhost/api/v5/nimbus-api-graphql/
+[storybook_prod]: https://storage.googleapis.com/mozilla-storybooks-experimenter/index.html
 
 ## Installation
 
