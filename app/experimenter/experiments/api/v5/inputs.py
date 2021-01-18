@@ -3,6 +3,7 @@ import graphene
 from experimenter.experiments.api.v5.types import (
     NimbusExperimentApplication,
     NimbusExperimentChannel,
+    NimbusExperimentDocumentationLink,
     NimbusExperimentFirefoxMinVersion,
     NimbusExperimentStatus,
     NimbusExperimentTargetingConfigSlug,
@@ -18,7 +19,7 @@ class BranchType(graphene.InputObjectType):
 
 
 class DocumentationLinkType(graphene.InputObjectType):
-    title = graphene.String(required=True)
+    title = NimbusExperimentDocumentationLink(required=True)
     link = graphene.String(required=True)
 
 

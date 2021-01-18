@@ -260,8 +260,14 @@ class TestNimbusExperimentDocumentationLinkMixin(TestCase):
         data = {
             "public_description": "changed",
             "documentation_links": [
-                {"title": "expected 1", "link": "https://example.com/1"},
-                {"title": "expected 2", "link": "https://example.com/2"},
+                {
+                    "title": NimbusExperiment.DocumentationLink.DS_JIRA.value,
+                    "link": "https://example.com/1",
+                },
+                {
+                    "title": NimbusExperiment.DocumentationLink.ENG_TICKET.value,
+                    "link": "https://example.com/2",
+                },
             ],
         }
         serializer = NimbusExperimentUpdateSerializer(

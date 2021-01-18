@@ -123,6 +123,11 @@ class NimbusConstants(object):
         ],
     }
 
+    class DocumentationLink(models.TextChoices):
+        DS_JIRA = "DS_JIRA", "Data Science Jira Ticket"
+        DESIGN_DOC = "DESIGN_DOC", "Experiment Design Document"
+        ENG_TICKET = "ENG_TICKET", "Engineering Ticket (Bugzilla/Jira/GitHub)"
+
     class Version(models.TextChoices):
         NO_VERSION = ""
         FIREFOX_80 = "80.!"

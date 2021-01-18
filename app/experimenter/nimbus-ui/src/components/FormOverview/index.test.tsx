@@ -7,6 +7,7 @@ import { render, screen, act, fireEvent } from "@testing-library/react";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { Subject } from "./mocks";
 import { DOCUMENTATION_LINKS_TOOLTIP } from ".";
+import { NimbusDocumentationLinkTitle } from "../../types/globalTypes";
 
 describe("FormOverview", () => {
   it("renders as expected", async () => {
@@ -33,6 +34,38 @@ describe("FormOverview", () => {
     const nextButton = screen.getByText("Next");
     await act(async () => void fireEvent.click(nextButton));
     expect(onNext).toHaveBeenCalled();
+  });
+
+  it("renders initial documentation links", () => {
+    const { experiment } = mockExperimentQuery("boo", {
+      documentationLinks: [
+        {
+          __typename: "NimbusDocumentationLinkType",
+          title: NimbusDocumentationLinkTitle.DESIGN_DOC,
+          link: "https://mozilla.com",
+        },
+        {
+          __typename: "NimbusDocumentationLinkType",
+          title: NimbusDocumentationLinkTitle.DS_JIRA,
+          link: "https://mozilla.com",
+        },
+      ],
+    });
+    render(<Subject {...{ experiment }} />);
+    expect(screen.getByTestId("tooltip-documentation-links")).toHaveAttribute(
+      "data-tip",
+      DOCUMENTATION_LINKS_TOOLTIP,
+    );
+    const linkEls = screen.queryAllByTestId("DocumentationLink");
+    expect(linkEls).toHaveLength(experiment.documentationLinks!.length);
+    linkEls.forEach((linkEl, index) => {
+      const selected = linkEl.querySelector(
+        "option[selected]",
+      ) as HTMLSelectElement;
+      expect(selected.value).toEqual(
+        experiment.documentationLinks![index].title,
+      );
+    });
   });
 
   const fillOutNewForm = async (expected: Record<string, string>) => {
@@ -108,13 +141,6 @@ describe("FormOverview", () => {
     const nameField = screen.getByLabelText("Public name");
 
     expect(nextButton).toBeEnabled();
-
-    expect(screen.getByTestId("tooltip-documentation-links")).toHaveAttribute(
-      "data-tip",
-      DOCUMENTATION_LINKS_TOOLTIP,
-    );
-    // TODO: This will be changed to iterate across default/existing DocumentationLinks in #4371
-    expect(screen.getByTestId("DocumentationLink")).toBeInTheDocument();
 
     await act(async () => checkExistingForm(expected));
 
