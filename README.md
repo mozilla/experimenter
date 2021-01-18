@@ -6,14 +6,16 @@ Experimenter is a platform for managing experiments in [Mozilla Firefox](https:/
 
 ## Important Links
 
-| Link            | Prod                                         | Staging                                                | Local Dev (Default)                           |
-| --------------- | -------------------------------------------- | ------------------------------------------------------ | --------------------------------------------- |
-| Legacy Home     | https://experimenter.services.mozilla.com/   | https://stage.experimenter.nonprod.dataops.mozgcp.net/ | https://localhost                             |
-| Nimbus Home     | [/nimbus][nimbus_home_prod]                  | [/nimbus][nimbus_home_stage]                           | [/nimbus][nimbus_home_local]                  |
-| Nimbus REST API | [/api/v6/experiments/][nimbus_rest_api_prod] | [/api/v6/experiments/][nimbus_rest_api_stage]          | [/api/v6/experiments/][nimbus_rest_api_local] |
-| GQL Playground  | [/api/v5/nimbus-api-graphql][gql_prod]       | [/api/v5/nimbus-api-graphql][gql_stage]                | [/api/v5/nimbus-api-graphql][gql_local]       |
-| Storybook       | [Storybook Directory][storybook_prod]        |                                                        | https://localhost:3001                        |
+| Link            | Prod                                                  | Staging                                                            | Local Dev (Default)                           |
+| --------------- | ----------------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------- |
+| Legacy Home     | [experimenter.services.mozilla.com][legacy_home_prod] | [stage.experimenter.nonprod.dataops.mozgcp.net][legacy_home_stage] | https://localhost                             |
+| Nimbus Home     | [/nimbus][nimbus_home_prod]                           | [/nimbus][nimbus_home_stage]                                       | [/nimbus][nimbus_home_local]                  |
+| Nimbus REST API | [/api/v6/experiments/][nimbus_rest_api_prod]          | [/api/v6/experiments/][nimbus_rest_api_stage]                      | [/api/v6/experiments/][nimbus_rest_api_local] |
+| GQL Playground  | [/api/v5/nimbus-api-graphql][gql_prod]                | [/api/v5/nimbus-api-graphql][gql_stage]                            | [/api/v5/nimbus-api-graphql][gql_local]       |
+| Storybook       | [Storybook Directory][storybook_prod]                 |                                                                    | https://localhost:3001                        |
 
+[legacy_home_prod]: https://experimenter.services.mozilla.com/
+[legacy_home_stage]: https://stage.experimenter.nonprod.dataops.mozgcp.net/
 [nimbus_home_prod]: https://experimenter.services.mozilla.com/nimbus
 [nimbus_home_stage]: https://stage.experimenter.nonprod.dataops.mozgcp.net/nimbus
 [nimbus_home_local]: https://localhost/nimbus
