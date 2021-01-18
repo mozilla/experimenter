@@ -15,9 +15,7 @@ import { ExperimentInput } from "../../types/globalTypes";
 import { updateExperimentBranches_updateExperiment as UpdateExperimentBranchesResult } from "../../types/updateExperimentBranches";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { editCommonRedirects } from "../../lib/experiment";
-
-export const BRANCHES_DOC_URL =
-  "https://docs.google.com/document/d/155EUgzn22VTX8mFwesSROT3Z6JORSfb5VyoMoLra7ws/edit#heading=h.i8g4ppfvkq0x";
+import { EXTERNAL_URLS } from "../../lib/constants";
 
 export const SUBMIT_ERROR_MESSAGE = "Save failed, no error available";
 
@@ -94,7 +92,7 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
               configuration to each branch. Experiments can only change one flag
               at a time.{" "}
               <LinkExternal
-                href={BRANCHES_DOC_URL}
+                href={EXTERNAL_URLS.BRANCHES_GOOGLE_DOC}
                 data-testid="learn-more-link"
               >
                 Learn more

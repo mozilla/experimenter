@@ -14,9 +14,7 @@ import { useConfig } from "../../hooks/useConfig";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { getConfig_nimbusConfig_channel } from "../../types/getConfig";
 import { useCommonForm } from "../../hooks";
-
-export const AUDIENCE_DOC_URL =
-  "https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=109990007";
+import { EXTERNAL_URLS } from "../../lib/constants";
 
 type FormAudienceProps = {
   experiment: getExperiment_experimentBySlug;
@@ -185,7 +183,10 @@ export const FormAudience = ({
       <Form.Group className="bg-light p-4">
         <p className="text-secondary">
           Please ask a data scientist to help you determine these values.{" "}
-          <LinkExternal href={AUDIENCE_DOC_URL} data-testid="learn-more-link">
+          <LinkExternal
+            href={EXTERNAL_URLS.WORKFLOW_MANA_DOC}
+            data-testid="learn-more-link"
+          >
             Learn more
           </LinkExternal>
         </p>

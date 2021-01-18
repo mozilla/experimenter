@@ -15,6 +15,7 @@ import InlineErrorIcon from "../InlineErrorIcon";
 import LinkExternal from "../LinkExternal";
 import { ReactComponent as Info } from "../../images/info.svg";
 import { ReactComponent as DeleteIcon } from "../../images/x.svg";
+import { EXTERNAL_URLS } from "../../lib/constants";
 
 type FormOverviewProps = {
   isLoading: boolean;
@@ -28,8 +29,6 @@ type FormOverviewProps = {
   onNext?: (ev: React.FormEvent) => void;
 };
 
-export const RISK_MITIGATION_TEMPLATE_LINK =
-  "https://docs.google.com/document/d/1zfG2g6pYe9aB7ItViQaw8OcOsXXdRUP70zpZoNC2xcA/edit";
 export const DOCUMENTATION_LINKS_TOOLTIP =
   "Any additional links you would like to add, for example, Jira DS Ticket, Jira QA ticket, or experiment brief.";
 
@@ -229,7 +228,7 @@ const FormOverview = ({
             />
             <Form.Text className="text-muted">
               Go to the{" "}
-              <LinkExternal href={RISK_MITIGATION_TEMPLATE_LINK}>
+              <LinkExternal href={EXTERNAL_URLS.RISK_MITIGATION_TEMPLATE_DOC}>
                 risk mitigation checklist
               </LinkExternal>{" "}
               to make a copy and add the link above

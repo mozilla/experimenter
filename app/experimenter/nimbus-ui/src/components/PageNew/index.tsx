@@ -14,11 +14,8 @@ import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
 import { ExperimentInput } from "../../types/globalTypes";
 import { createExperiment_createExperiment as CreateExperimentResult } from "../../types/createExperiment";
 import { navigate } from "@reach/router";
-import { SUBMIT_ERROR } from "../../lib/constants";
+import { EXTERNAL_URLS, SUBMIT_ERROR } from "../../lib/constants";
 import Head from "../Head";
-
-const TRAINING_DOC_URL =
-  "https://mana.mozilla.org/wiki/display/FJT/Project+Nimbus";
 
 type PageNewProps = {} & RouteComponentProps;
 
@@ -78,7 +75,7 @@ const PageNew: React.FunctionComponent<PageNewProps> = () => {
 
       <p>
         Before launching an experiment, review the{" "}
-        <LinkExternal href={TRAINING_DOC_URL}>
+        <LinkExternal href={EXTERNAL_URLS.NIMBUS_MANA_DOC}>
           training and planning documentation
         </LinkExternal>
         .
