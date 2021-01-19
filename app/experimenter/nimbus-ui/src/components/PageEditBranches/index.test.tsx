@@ -12,12 +12,12 @@ import {
 } from "@testing-library/react";
 import { navigate } from "@reach/router";
 import fetchMock from "jest-fetch-mock";
-import PageEditBranches, { SUBMIT_ERROR_MESSAGE, BRANCHES_DOC_URL } from ".";
+import PageEditBranches, { SUBMIT_ERROR_MESSAGE } from ".";
 import FormBranches from "../FormBranches";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { UPDATE_EXPERIMENT_BRANCHES_MUTATION } from "../../gql/experiments";
-import { BASE_PATH } from "../../lib/constants";
+import { BASE_PATH, EXTERNAL_URLS } from "../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
   NimbusExperimentStatus,
@@ -101,7 +101,7 @@ describe("PageEditBranches", () => {
     expect(screen.getByTestId("feature-config")).toBeInTheDocument();
     expect(screen.getByTestId("learn-more-link")).toHaveAttribute(
       "href",
-      BRANCHES_DOC_URL,
+      EXTERNAL_URLS.BRANCHES_GOOGLE_DOC,
     );
 
     for (const feature of MOCK_CONFIG!.featureConfig!) {
