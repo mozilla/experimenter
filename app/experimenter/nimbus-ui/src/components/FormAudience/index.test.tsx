@@ -11,7 +11,6 @@ import {
   act,
 } from "@testing-library/react";
 import { Subject, MOCK_EXPERIMENT } from "./mocks";
-import { AUDIENCE_DOC_URL } from ".";
 import { MOCK_CONFIG } from "../../lib/mocks";
 import { snakeToCamelCase } from "../../lib/caseConversions";
 import {
@@ -19,6 +18,7 @@ import {
   NimbusExperimentTargetingConfigSlug,
   NimbusExperimentChannel,
 } from "../../types/globalTypes";
+import { EXTERNAL_URLS } from "../../lib/constants";
 
 describe("FormAudience", () => {
   it("renders without error", async () => {
@@ -28,7 +28,7 @@ describe("FormAudience", () => {
     });
     expect(screen.getByTestId("learn-more-link")).toHaveAttribute(
       "href",
-      AUDIENCE_DOC_URL,
+      EXTERNAL_URLS.WORKFLOW_MANA_DOC,
     );
     const targetingConfigSlug = screen.queryByTestId("targetingConfigSlug");
     expect(targetingConfigSlug).toBeInTheDocument();

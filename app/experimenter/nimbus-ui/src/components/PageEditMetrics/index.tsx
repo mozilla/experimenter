@@ -7,7 +7,7 @@ import { useMutation } from "@apollo/client";
 import React, { useState, useRef, useCallback } from "react";
 
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { SUBMIT_ERROR } from "../../lib/constants";
+import { EXTERNAL_URLS, SUBMIT_ERROR } from "../../lib/constants";
 import { UPDATE_EXPERIMENT_PROBESETS_MUTATION } from "../../gql/experiments";
 import { updateExperimentProbeSets_updateExperiment as UpdateExperimentProbeSetsResult } from "../../types/updateExperimentProbeSets";
 import { ExperimentInput } from "../../types/globalTypes";
@@ -15,9 +15,6 @@ import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import FormMetrics from "../FormMetrics";
 import LinkExternal from "../LinkExternal";
 import { editCommonRedirects } from "../../lib/experiment";
-
-export const CORE_METRICS_DOC_URL =
-  "https://docs.google.com/document/d/155EUgzn22VTX8mFwesSROT3Z6JORSfb5VyoMoLra7ws/edit#heading=h.uq23fsvh16rc";
 
 const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
   const [updateExperimentProbeSets, { loading }] = useMutation<
@@ -91,7 +88,7 @@ const PageEditMetrics: React.FunctionComponent<RouteComponentProps> = () => {
               <strong>Retention, Search Count, and Ad Click</strong> metrics.
               Get more information on{" "}
               <LinkExternal
-                href={CORE_METRICS_DOC_URL}
+                href={EXTERNAL_URLS.METRICS_GOOGLE_DOC}
                 data-testid="core-metrics-link"
               >
                 Core Firefox Metrics
