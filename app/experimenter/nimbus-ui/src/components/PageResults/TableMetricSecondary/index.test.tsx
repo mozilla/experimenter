@@ -17,7 +17,7 @@ describe("TableMetricSecondary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
-          results={mockAnalysis().overall}
+          results={mockAnalysis()}
           probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
           probeSetName={experiment.secondaryProbeSets![0]!.name}
           isDefault={false}
@@ -35,7 +35,7 @@ describe("TableMetricSecondary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
-          results={mockAnalysis().overall}
+          results={mockAnalysis()}
           probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
           probeSetName={experiment.secondaryProbeSets![0]!.name}
           isDefault={false}
@@ -56,7 +56,7 @@ describe("TableMetricSecondary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
-          results={mockAnalysis().overall}
+          results={mockAnalysis()}
           probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
           probeSetName={experiment.secondaryProbeSets![0]!.name}
           isDefault={false}
@@ -73,7 +73,7 @@ describe("TableMetricSecondary", () => {
     render(
       <RouterSlugProvider mocks={[mock]}>
         <TableMetricSecondary
-          results={mockAnalysis().overall}
+          results={mockAnalysis()}
           probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
           probeSetName={experiment.secondaryProbeSets![0]!.name}
           isDefault={false}

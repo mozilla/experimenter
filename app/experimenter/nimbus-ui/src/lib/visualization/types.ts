@@ -11,6 +11,7 @@ export interface AnalysisData {
 }
 
 export type AnalysisDataOverall = Exclude<AnalysisData["overall"], null>;
+export type AnalysisDataWeekly = Exclude<AnalysisData["weekly"], null>;
 
 export interface AnalysisPoint {
   metric: string;
@@ -22,7 +23,7 @@ export interface AnalysisPoint {
   point: number;
   lower?: number;
   upper?: number;
-  window_index?: string;
+  window_index?: number;
 }
 
 export interface FormattedAnalysisPoint {
@@ -30,6 +31,8 @@ export interface FormattedAnalysisPoint {
   lower?: number;
   upper?: number;
   count?: number;
+  branch?: string;
+  window_index?: number;
 }
 
 export interface BranchDescription {

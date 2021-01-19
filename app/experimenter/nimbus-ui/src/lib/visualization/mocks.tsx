@@ -9,6 +9,123 @@ export const MOCK_UNAVAILABLE_ANALYSIS = {
   overall: null,
 };
 
+export const weeklyMockAnalysis = (modifications = {}) =>
+  Object.assign(
+    {
+      control: {
+        is_control: true,
+        branch_data: {
+          feature_d: {
+            absolute: {
+              first: {
+                point: 0.05,
+                lower: 0.024357271316207685,
+                upper: 0.08411463700173483,
+                window_index: 1,
+              },
+              all: [
+                {
+                  point: 0.05,
+                  lower: 0.024357271316207685,
+                  upper: 0.08411463700173483,
+                  window_index: 1,
+                },
+                {
+                  point: 0.05,
+                  lower: 0.024357271316207685,
+                  upper: 0.08411463700173483,
+                  window_index: 2,
+                },
+              ],
+            },
+            difference: {
+              first: {},
+              all: [],
+            },
+            relative_uplift: {
+              first: {},
+              all: [],
+            },
+          },
+        },
+      },
+      treatment: {
+        is_control: false,
+        branch_data: {
+          feature_d: {
+            absolute: {
+              first: {
+                point: 0.049019607843137254,
+                lower: 0.023872203557007872,
+                upper: 0.08249069209461024,
+                window_index: 1,
+              },
+              all: [
+                {
+                  point: 0.049019607843137254,
+                  lower: 0.023872203557007872,
+                  upper: 0.08249069209461024,
+                  window_index: 1,
+                },
+                {
+                  point: 0.06019607843137254,
+                  lower: 0.023872203557007872,
+                  upper: 0.08249069209461024,
+                  window_index: 2,
+                },
+              ],
+            },
+            difference: {
+              first: {
+                point: -0.0006569487628876534,
+                upper: 0.04316381736512019,
+                lower: 0.04175095963994029,
+                window_index: 1,
+              },
+              all: [
+                {
+                  point: -0.0006569487628876534,
+                  upper: 0.04316381736512019,
+                  lower: -0.04175095963994029,
+                  window_index: 1,
+                },
+                {
+                  point: -0.0006569487628876534,
+                  upper: 0.04316381736512019,
+                  lower: -0.04175095963994029,
+                  window_index: 2,
+                },
+              ],
+            },
+            relative_uplift: {
+              first: {
+                lower: -0.455210299676828,
+                upper: 0.5104985718410426,
+                point: -0.06233954570562385,
+                window_index: 1,
+              },
+              all: [
+                {
+                  lower: -0.455210299676828,
+                  upper: 0.5104985718410426,
+                  point: -0.06233954570562385,
+                  window_index: 1,
+                },
+                {
+                  lower: -0.455210299676828,
+                  upper: 0.5104985718410426,
+                  point: -0.06233954570562385,
+                  window_index: 2,
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+    modifications,
+  );
+
 export const mockAnalysis = (modifications = {}) =>
   Object.assign(
     {
@@ -17,7 +134,7 @@ export const mockAnalysis = (modifications = {}) =>
       },
       show_analysis: true,
       daily: [],
-      weekly: {},
+      weekly: weeklyMockAnalysis(),
       overall: {
         control: {
           is_control: true,
