@@ -63,7 +63,8 @@ class UpdateExperiment(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, input: ExperimentInput):
         exp = NimbusExperiment.objects.get(id=input.id)
-        input["feature_config"] = input.pop("feature_config_id", None)
+        if "feature_config_id" in input:
+            input["feature_config"] = input.pop("feature_config_id", None)
         serializer = NimbusExperimentUpdateSerializer(
             exp, data=input, partial=True, context={"user": info.context.user}
         )

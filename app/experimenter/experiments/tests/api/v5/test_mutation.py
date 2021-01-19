@@ -372,6 +372,35 @@ class TestMutations(GraphQLTestCase):
         experiment = NimbusExperiment.objects.first()
         self.assertEqual(experiment.branches.count(), branch_count)
 
+    def test_does_not_clear_feature_config_when_other_fields_specified(self):
+        user_email = "user@example.com"
+        experiment = NimbusExperimentFactory.create_with_status(
+            NimbusExperiment.Status.DRAFT
+        )
+        expected_feature_config = experiment.feature_config
+
+        response = self.query(
+            UPDATE_EXPERIMENT_OVERVIEW_MUTATION,
+            variables={
+                "input": {
+                    "id": experiment.id,
+                    "name": "new name",
+                    "hypothesis": "new hypothesis",
+                    "publicDescription": "new public description",
+                    "clientMutationId": "randomid",
+                }
+            },
+            headers={settings.OPENIDC_EMAIL_HEADER: user_email},
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        content = json.loads(response.content)
+        result = content["data"]["updateExperiment"]
+        self.assertEqual(result["message"], "success")
+        self.assertEqual(result["status"], 200)
+
+        experiment = NimbusExperiment.objects.first()
+        self.assertEqual(experiment.feature_config, expected_feature_config)
+
     def test_update_experiment_branches_with_feature_config(self):
         user_email = "user@example.com"
         feature = NimbusFeatureConfigFactory(schema="{}")
