@@ -48,7 +48,7 @@ storiesOf("components/AppLayoutSidebarLocked", module)
         analysis={{
           show_analysis: true,
           daily: [],
-          weekly: [],
+          weekly: {},
           overall: {},
           other_metrics: mockAnalysis().other_metrics,
         }}

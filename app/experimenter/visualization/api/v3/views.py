@@ -98,16 +98,18 @@ def append_conversion_count(results, primary_metrics_set):
     for branch in results:
         branch_data = results[branch][BRANCH_DATA]
         for primary_metric in primary_metrics_set:
-            population_count = branch_data[Metric.USER_COUNT][BranchComparison.ABSOLUTE][
-                "point"
+            absolute_user_counts = branch_data[Metric.USER_COUNT][
+                BranchComparison.ABSOLUTE
             ]
-            conversion_percent = branch_data[primary_metric][BranchComparison.ABSOLUTE][
-                "point"
+            absolute_primary_metric_vals = branch_data[primary_metric][
+                BranchComparison.ABSOLUTE
             ]
+
+            population_count = absolute_user_counts["first"]["point"]
+            conversion_percent = absolute_primary_metric_vals["first"]["point"]
             conversion_count = population_count * conversion_percent
-            branch_data[primary_metric][BranchComparison.ABSOLUTE][
-                "count"
-            ] = conversion_count
+
+            absolute_primary_metric_vals["first"]["count"] = conversion_count
 
 
 def get_week_x_retention(week_index, weekly_data):
@@ -139,7 +141,7 @@ def process_data_for_consumption(overall_data, weekly_data, experiment):
     return results, other_metrics
 
 
-def generate_results_object(data, experiment):
+def generate_results_object(data, experiment, window="overall"):
     # These are metrics sent from Jetstream that are not explicitly chosen
     # by users to be either primary or secondary
     other_metrics = {}
@@ -152,6 +154,7 @@ def generate_results_object(data, experiment):
         upper = row.get("upper")
         point = row.get("point")
         statistic = row.get("statistic")
+        window_index = row.get("window_index")
 
         results[branch] = results.get(
             branch,
@@ -169,9 +172,9 @@ def generate_results_object(data, experiment):
             results[branch][BRANCH_DATA][metric] = results[branch][BRANCH_DATA].get(
                 metric,
                 {
-                    BranchComparison.ABSOLUTE: {},
-                    BranchComparison.DIFFERENCE: {},
-                    BranchComparison.UPLIFT: {},
+                    BranchComparison.ABSOLUTE: {"all": [], "first": {}},
+                    BranchComparison.DIFFERENCE: {"all": [], "first": {}},
+                    BranchComparison.UPLIFT: {"all": [], "first": {}},
                 },
             )
 
@@ -185,11 +188,21 @@ def generate_results_object(data, experiment):
                     {"significance": compute_significance(lower, upper)}
                 )
 
-            results[branch][BRANCH_DATA][metric][comparison].update(
-                {"lower": lower, "upper": upper, "point": point}
-            )
+            data_point = {
+                "lower": lower,
+                "upper": upper,
+                "point": point,
+            }
+            if window == "weekly":
+                data_point["window_index"] = window_index
 
-            if metric not in result_metrics:
+            results_at_comparison = results[branch][BRANCH_DATA][metric][comparison]
+            if len(results_at_comparison["all"]) == 0:
+                results_at_comparison["first"] = data_point
+
+            results[branch][BRANCH_DATA][metric][comparison]["all"].append(data_point)
+
+            if metric not in result_metrics and window == "overall":
                 metric_title = " ".join([word.title() for word in metric.split("_")])
                 other_metrics[metric] = metric_title
 
@@ -206,18 +219,21 @@ def get_data(slug, window, experiment):
 def analysis_results_view(request, slug):
     windows = ["daily", "weekly", "overall"]
     experiment = get_object_or_404(NimbusExperiment.objects.filter(slug=slug))
+    raw_data = {}
     experiment_data = {"show_analysis": settings.FEATURE_ANALYSIS}
 
     recipe_slug = experiment.slug.replace("-", "_")
 
     for window in windows:
-        data = get_data(recipe_slug, window, experiment)
+        data = raw_data[window] = get_data(recipe_slug, window, experiment)
 
         if data and window == "overall":
             data, other_metrics = process_data_for_consumption(
-                data, experiment_data["weekly"], experiment
+                data, raw_data["weekly"], experiment
             )
             experiment_data["other_metrics"] = other_metrics
+        elif data and window == "weekly":
+            data, _, _ = generate_results_object(data, experiment, window)
 
         experiment_data[window] = data
 

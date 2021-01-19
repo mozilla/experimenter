@@ -50,13 +50,15 @@ const TableHighlights = ({
         {Object.keys(results).map((branch) => {
           const userCountMetric =
             results[branch]["branch_data"][METRIC.USER_COUNT];
+          const participantCount =
+            userCountMetric[BRANCH_COMPARISON.ABSOLUTE]["first"]["point"];
           return (
             <tr key={branch} className="border-top">
               <th className="align-middle p-1 p-lg-3" scope="row">
                 <p>{branch}</p>
                 <p className="h6">
-                  {userCountMetric[BRANCH_COMPARISON.ABSOLUTE]["point"]}{" "}
-                  participants ({userCountMetric["percent"]}%)
+                  {participantCount} participants ({userCountMetric["percent"]}
+                  %)
                 </p>
               </th>
               <td className="p-1 p-lg-3 align-middle">
