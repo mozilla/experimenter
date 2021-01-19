@@ -11,14 +11,14 @@ import {
   act,
 } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
-import PageEditMetrics, { CORE_METRICS_DOC_URL } from ".";
+import PageEditMetrics from ".";
 import FormMetrics from "../FormMetrics";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
 import { MockedResponse } from "@apollo/client/testing";
 import { navigate } from "@reach/router";
 import { UPDATE_EXPERIMENT_PROBESETS_MUTATION } from "../../gql/experiments";
-import { BASE_PATH, SUBMIT_ERROR } from "../../lib/constants";
+import { BASE_PATH, EXTERNAL_URLS, SUBMIT_ERROR } from "../../lib/constants";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
@@ -93,7 +93,7 @@ describe("PageEditMetrics", () => {
       expect(screen.getByTestId("header-experiment")).toBeInTheDocument();
       expect(screen.getByTestId("core-metrics-link")).toHaveAttribute(
         "href",
-        CORE_METRICS_DOC_URL,
+        EXTERNAL_URLS.METRICS_GOOGLE_DOC,
       );
     });
   });
