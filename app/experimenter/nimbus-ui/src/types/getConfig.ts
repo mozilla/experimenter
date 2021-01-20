@@ -69,6 +69,12 @@ export interface getConfig_nimbusConfig_targetingConfigSlug {
   value: string | null;
 }
 
+export interface getConfig_nimbusConfig_documentationLink {
+  __typename: "NimbusLabelValueType";
+  label: string | null;
+  value: string | null;
+}
+
 export interface getConfig_nimbusConfig {
   __typename: "NimbusConfigurationType";
   application: (getConfig_nimbusConfig_application | null)[] | null;
@@ -79,6 +85,7 @@ export interface getConfig_nimbusConfig {
   probeSets: (getConfig_nimbusConfig_probeSets | null)[] | null;
   targetingConfigSlug: (getConfig_nimbusConfig_targetingConfigSlug | null)[] | null;
   hypothesisDefault: string | null;
+  documentationLink: (getConfig_nimbusConfig_documentationLink | null)[] | null;
 }
 
 export interface getConfig {

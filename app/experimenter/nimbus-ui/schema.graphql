@@ -18,7 +18,7 @@ type CreateExperiment {
 scalar DateTime
 
 input DocumentationLinkType {
-  title: String!
+  title: NimbusExperimentDocumentationLink!
   link: String!
 }
 
@@ -76,10 +76,17 @@ type NimbusConfigurationType {
   targetingConfigSlug: [NimbusLabelValueType]
   hypothesisDefault: String
   maxPrimaryProbeSets: Int
+  documentationLink: [NimbusLabelValueType]
+}
+
+enum NimbusDocumentationLinkTitle {
+  DS_JIRA
+  DESIGN_DOC
+  ENG_TICKET
 }
 
 type NimbusDocumentationLinkType {
-  title: String!
+  title: NimbusDocumentationLinkTitle!
   link: String!
 }
 
@@ -97,6 +104,12 @@ enum NimbusExperimentChannel {
   FENIX_BETA
   FENIX_NIGHTLY
   FENIX_RELEASE
+}
+
+enum NimbusExperimentDocumentationLink {
+  DS_JIRA
+  DESIGN_DOC
+  ENG_TICKET
 }
 
 enum NimbusExperimentFirefoxMinVersion {

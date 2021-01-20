@@ -16,6 +16,7 @@ import LinkExternal from "../LinkExternal";
 import { ReactComponent as Info } from "../../images/info.svg";
 import { ReactComponent as DeleteIcon } from "../../images/x.svg";
 import { EXTERNAL_URLS } from "../../lib/constants";
+import { NimbusDocumentationLinkTitle } from "../../types/globalTypes";
 
 type FormOverviewProps = {
   isLoading: boolean;
@@ -31,13 +32,6 @@ type FormOverviewProps = {
 
 export const DOCUMENTATION_LINKS_TOOLTIP =
   "Any additional links you would like to add, for example, Jira DS Ticket, Jira QA ticket, or experiment brief.";
-
-// TODO: #4400 - Replace this hard coded list with an enum from the GQL config
-export const documentationLinkOptions: Record<string, string> = {
-  dsTicket: "Data Science Jira Ticket",
-  engTicket: "Engineering Ticket (Bugzilla/Jira/Github)",
-  designDoc: "Experiment Design Document",
-};
 
 export const overviewFieldNames = [
   "name",
@@ -59,7 +53,7 @@ const FormOverview = ({
   onCancel,
   onNext,
 }: FormOverviewProps) => {
-  const { application, hypothesisDefault } = useConfig();
+  const { application, hypothesisDefault, documentationLink } = useConfig();
 
   const hasExistingDocLinks =
     experiment?.documentationLinks && experiment?.documentationLinks.length > 0;
@@ -69,10 +63,14 @@ const FormOverview = ({
     application: "",
     publicDescription: experiment?.publicDescription as string,
     riskMitigationLink: experiment?.riskMitigationLink as string,
-    documentationLinks: hasExistingDocLinks
+    documentationLinks: (hasExistingDocLinks
       ? experiment?.documentationLinks!
-      : // Cast so we don't have to provide __typename in the default
-        ([{ title: "", link: "" }] as { title: string; link: string }[]),
+      : [
+          {
+            title: "",
+            link: "",
+          },
+        ]) as { title: NimbusDocumentationLinkTitle | ""; link: string }[],
   };
 
   const {
@@ -261,16 +259,15 @@ const FormOverview = ({
                         <option value="" disabled>
                           Select document type...
                         </option>
-                        {Object.keys(documentationLinkOptions).map(
-                          (key, optIdx) => (
+                        {documentationLink &&
+                          documentationLink.map((linkType, optIdx) => (
                             <option
                               key={`doc-link-${docIdx}-opt-${optIdx}`}
-                              value={key}
+                              value={linkType!.value as string}
                             >
-                              {documentationLinkOptions[key]}
+                              {linkType!.label}
                             </option>
-                          ),
-                        )}
+                          ))}
                       </Form.Control>
                     </Form.Group>
                     <Form.Group as={Col}>

@@ -51,6 +51,11 @@ class NimbusExperimentApplication(graphene.Enum):
         enum = NimbusConstants.Application
 
 
+class NimbusExperimentDocumentationLink(graphene.Enum):
+    class Meta:
+        enum = NimbusConstants.DocumentationLink
+
+
 class NimbusBranchType(DjangoObjectType):
     class Meta:
         model = NimbusBranch

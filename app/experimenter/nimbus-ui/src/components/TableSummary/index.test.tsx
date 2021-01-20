@@ -7,6 +7,7 @@ import { render, screen } from "@testing-library/react";
 import { MockedCache, mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import TableSummary from ".";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import { NimbusDocumentationLinkTitle } from "../../types/globalTypes";
 
 describe("TableSummary", () => {
   it("renders rows displaying required fields at experiment creation as expected", () => {
@@ -176,12 +177,12 @@ describe("TableSummary", () => {
         documentationLinks: [
           {
             __typename: "NimbusDocumentationLinkType",
-            title: "Mozilla",
+            title: NimbusDocumentationLinkTitle.DESIGN_DOC,
             link: "https://mozilla.org",
           },
           {
             __typename: "NimbusDocumentationLinkType",
-            title: "Twitter",
+            title: NimbusDocumentationLinkTitle.DS_JIRA,
             link: "https://twitter.com",
           },
         ],
