@@ -51,6 +51,10 @@ export const GET_CONFIG_QUERY = gql`
         value
       }
       hypothesisDefault
+      documentationLink {
+        label
+        value
+      }
     }
   }
 `;

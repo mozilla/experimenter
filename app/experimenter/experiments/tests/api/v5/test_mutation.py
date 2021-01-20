@@ -302,9 +302,18 @@ class TestMutations(GraphQLTestCase):
         experiment_id = experiment.id
 
         documentation_links = [
-            {"title": "foo", "link": "https://example.com/bar"},
-            {"title": "baz", "link": "https://example.com/quux"},
-            {"title": "xyzzy", "link": "https://example.com/plotz"},
+            {
+                "title": NimbusExperiment.DocumentationLink.DS_JIRA.value,
+                "link": "https://example.com/bar",
+            },
+            {
+                "title": NimbusExperiment.DocumentationLink.ENG_TICKET.value,
+                "link": "https://example.com/quux",
+            },
+            {
+                "title": NimbusExperiment.DocumentationLink.DESIGN_DOC.value,
+                "link": "https://example.com/plotz",
+            },
         ]
 
         response = self.query(

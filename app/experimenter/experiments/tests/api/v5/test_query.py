@@ -356,6 +356,10 @@ class TestNimbusQuery(GraphQLTestCase):
                         label
                         value
                     }
+                    documentationLink {
+                        label
+                        value
+                    }
                     hypothesisDefault
                     maxPrimaryProbeSets
                 }
@@ -377,6 +381,7 @@ class TestNimbusQuery(GraphQLTestCase):
         assertChoices(config["channel"], NimbusExperiment.Channel)
         assertChoices(config["firefoxMinVersion"], NimbusExperiment.Version)
         assertChoices(config["targetingConfigSlug"], NimbusExperiment.TargetingConfig)
+        assertChoices(config["documentationLink"], NimbusExperiment.DocumentationLink)
         self.assertEqual(len(config["featureConfig"]), 10)
         self.assertEqual(len(config["probeSets"]), 10)
         app_channels = config["applicationChannels"]
