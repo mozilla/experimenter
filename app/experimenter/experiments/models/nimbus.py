@@ -202,7 +202,11 @@ class NimbusDocumentationLink(models.Model):
         related_name="documentation_links",
         on_delete=models.CASCADE,
     )
-    title = models.CharField(max_length=255, null=False)
+    title = models.CharField(
+        max_length=255,
+        null=False,
+        choices=NimbusConstants.DocumentationLink.choices,
+    )
     link = models.URLField(max_length=255, null=False)
 
     class Meta:

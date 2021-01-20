@@ -177,6 +177,23 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     },
   ],
   hypothesisDefault: "Enter a hypothesis",
+  documentationLink: [
+    {
+      __typename: "NimbusLabelValueType",
+      value: "DS_JIRA",
+      label: "Data Science Jira Ticket",
+    },
+    {
+      __typename: "NimbusLabelValueType",
+      value: "DESIGN_DOC",
+      label: "Experiment Design Document",
+    },
+    {
+      __typename: "NimbusLabelValueType",
+      value: "ENG_TICKET",
+      label: "Engineering Ticket (Bugzilla/Jira/Github)",
+    },
+  ],
 };
 
 // Disabling this rule for now because we'll eventually

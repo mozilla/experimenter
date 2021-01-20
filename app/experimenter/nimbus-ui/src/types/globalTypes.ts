@@ -7,6 +7,12 @@
 // START Enums and Input Objects
 //==============================================================
 
+export enum NimbusDocumentationLinkTitle {
+  DESIGN_DOC = "DESIGN_DOC",
+  DS_JIRA = "DS_JIRA",
+  ENG_TICKET = "ENG_TICKET",
+}
+
 export enum NimbusExperimentApplication {
   DESKTOP = "DESKTOP",
   FENIX = "FENIX",
@@ -21,6 +27,12 @@ export enum NimbusExperimentChannel {
   FENIX_NIGHTLY = "FENIX_NIGHTLY",
   FENIX_RELEASE = "FENIX_RELEASE",
   NO_CHANNEL = "NO_CHANNEL",
+}
+
+export enum NimbusExperimentDocumentationLink {
+  DESIGN_DOC = "DESIGN_DOC",
+  DS_JIRA = "DS_JIRA",
+  ENG_TICKET = "ENG_TICKET",
 }
 
 export enum NimbusExperimentFirefoxMinVersion {
@@ -76,7 +88,7 @@ export enum NimbusProbeKind {
 }
 
 export interface DocumentationLinkType {
-  title: string;
+  title: NimbusExperimentDocumentationLink;
   link: string;
 }
 

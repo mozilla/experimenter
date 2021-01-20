@@ -127,9 +127,11 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             for link in extracted:
                 self.documentation_links.add(link)
         else:
-            for i in range(3):
+            for title, _ in NimbusExperiment.DocumentationLink.choices:
                 self.documentation_links.add(
-                    NimbusDocumentationLinkFactory.create(experiment=self)
+                    NimbusDocumentationLinkFactory.create_with_title(
+                        experiment=self, title=title
+                    )
                 )
 
     @classmethod
@@ -178,6 +180,13 @@ class NimbusDocumentationLinkFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = NimbusDocumentationLink
+
+    @classmethod
+    def create_with_title(cls, title, experiment):
+        return cls.create(
+            title=title,
+            experiment=experiment,
+        )
 
 
 class NimbusIsolationGroupFactory(factory.django.DjangoModelFactory):
