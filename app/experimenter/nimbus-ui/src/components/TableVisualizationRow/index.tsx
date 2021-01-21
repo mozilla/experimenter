@@ -178,12 +178,17 @@ const TableVisualizationRow: React.FC<{
     className = tooltipText = "";
     const percent = branch_data[METRIC.USER_COUNT]["percent"];
     const userCountMetric =
-      branch_data[METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE]["point"];
+      branch_data[METRIC.USER_COUNT][BRANCH_COMPARISON.ABSOLUTE]["first"][
+        "point"
+      ];
 
     const branchType = is_control ? VARIANT_TYPE.CONTROL : VARIANT_TYPE.VARIANT;
     branchComparison =
       branchComparison || dataTypeMapping[tableLabel][branchType];
-    const { lower, upper, point, count } = metricData[branchComparison];
+
+    const { lower, upper, point, count } = metricData[branchComparison][
+      "first"
+    ];
     const significance = metricData["significance"];
 
     switch (displayType) {

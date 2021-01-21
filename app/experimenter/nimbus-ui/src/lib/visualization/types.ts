@@ -4,7 +4,7 @@
 
 export interface AnalysisData {
   daily: AnalysisPoint[] | null;
-  weekly: AnalysisPoint[] | null;
+  weekly: { [branch: string]: BranchDescription } | null;
   overall: { [branch: string]: BranchDescription } | null;
   show_analysis: boolean;
   other_metrics?: { [metric: string]: string };
@@ -25,26 +25,29 @@ export interface AnalysisPoint {
   window_index?: string;
 }
 
+export interface FormattedAnalysisPoint {
+  point?: number;
+  lower?: number;
+  upper?: number;
+  count?: number;
+}
+
 export interface BranchDescription {
   is_control: boolean;
   branch_data: {
     [metric: string]: {
       [index: string]: any;
       absolute: {
-        point: number;
-        lower?: number;
-        upper?: number;
-        count?: number;
+        first: FormattedAnalysisPoint;
+        all: FormattedAnalysisPoint[];
       };
       difference: {
-        point?: number;
-        lower?: number;
-        upper?: number;
+        first: FormattedAnalysisPoint;
+        all: FormattedAnalysisPoint[];
       };
       relative_uplift: {
-        point?: number;
-        lower?: number;
-        upper?: number;
+        first: FormattedAnalysisPoint;
+        all: FormattedAnalysisPoint[];
       };
       percent?: number;
       significance?: string;
