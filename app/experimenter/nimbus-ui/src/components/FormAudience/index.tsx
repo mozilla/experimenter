@@ -27,6 +27,8 @@ type FormAudienceProps = {
   onNext?: (ev: React.FormEvent) => void;
 };
 
+type AudienceFieldName = typeof audienceFieldNames[number];
+
 export const audienceFieldNames = [
   "channel",
   "firefoxMinVersion",
@@ -82,7 +84,7 @@ export const FormAudience = ({
     handleSubmit,
     reset,
     isSubmitted,
-  } = useCommonForm<typeof audienceFieldNames[number]>(
+  } = useCommonForm<AudienceFieldName>(
     defaultValues,
     isServerValid,
     submitErrors,

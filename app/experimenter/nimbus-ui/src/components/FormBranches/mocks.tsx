@@ -3,11 +3,58 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { FormProvider } from "react-hook-form";
+import { formBranchesActionReducer } from "./reducer/actions";
 import FormBranches from ".";
 import FormBranch from "./FormBranch";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { AnnotatedBranch } from "./reducer";
+import { useForm } from "../../hooks";
+import { FormBranchesState } from "./reducer/state";
+
+export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
+  treatmentBranches: [
+    {
+      __typename: "NimbusBranchType",
+      name: "Managed zero tolerance projection",
+      slug: "managed-zero-tolerance-projection",
+      description: "Next ask then he in degree order.",
+      ratio: 1,
+      featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
+      featureEnabled: false,
+    },
+    {
+      __typename: "NimbusBranchType",
+      name: "Salt way link",
+      slug: "salt-way-link",
+      description: "Flame the dark true.",
+      ratio: 2,
+      featureValue: '{"frosted-wake": "simple-hesitation"}',
+      featureEnabled: true,
+    },
+  ],
+}).experiment;
+
+const MOCK_STATE: FormBranchesState = {
+  equalRatio: true,
+  lastId: 0,
+  globalErrors: [],
+  featureConfig: MOCK_EXPERIMENT.featureConfig,
+  referenceBranch: {
+    ...MOCK_EXPERIMENT.referenceBranch!,
+    key: "branch-reference",
+    errors: {},
+    isValid: true,
+    isDirty: false,
+  },
+  treatmentBranches: MOCK_EXPERIMENT.treatmentBranches!.map((branch, idx) => ({
+    ...branch!,
+    key: `branch-${idx}`,
+    errors: {},
+    isValid: true,
+    isDirty: false,
+  })),
+};
 
 type FormBranchProps = React.ComponentProps<typeof FormBranch>;
 
@@ -27,11 +74,14 @@ export const SubjectBranch = ({
     referenceBranch: branch,
     treatmentBranches: [branch],
   };
+  // TODO: EXP-614 submitErrors type is any, but in practical use it's AnnotatedBranch["errors"]
+  const setSubmitErrors = (submitErrors: any) =>
+    formBranchesActionReducer(MOCK_STATE, {
+      type: "setSubmitErrors",
+      submitErrors,
+    });
 
-  const formMethods = useForm({
-    mode: "onBlur",
-    defaultValues,
-  });
+  const formMethods = useForm(defaultValues);
 
   const {
     formState: { errors, touched },
@@ -58,6 +108,8 @@ export const SubjectBranch = ({
             onAddFeatureConfig,
             onRemoveFeatureConfig,
             onFeatureConfigChange,
+            defaultValues: defaultValues.referenceBranch || {},
+            setSubmitErrors,
           }}
         />
       </form>
@@ -99,29 +151,6 @@ export const SubjectBranches = ({
     </div>
   );
 };
-
-export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {
-  treatmentBranches: [
-    {
-      __typename: "NimbusBranchType",
-      name: "Managed zero tolerance projection",
-      slug: "managed-zero-tolerance-projection",
-      description: "Next ask then he in degree order.",
-      ratio: 1,
-      featureValue: '{"effect-effect-whole": "close-teach-exactly"}',
-      featureEnabled: false,
-    },
-    {
-      __typename: "NimbusBranchType",
-      name: "Salt way link",
-      slug: "salt-way-link",
-      description: "Flame the dark true.",
-      ratio: 2,
-      featureValue: '{"frosted-wake": "simple-hesitation"}',
-      featureEnabled: true,
-    },
-  ],
-}).experiment;
 
 export const MOCK_BRANCH = MOCK_EXPERIMENT.treatmentBranches![0]!;
 export const MOCK_ANNOTATED_BRANCH: AnnotatedBranch = {

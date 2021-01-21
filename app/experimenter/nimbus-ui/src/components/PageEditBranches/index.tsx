@@ -63,7 +63,6 @@ const PageEditBranches: React.FunctionComponent<RouteComponentProps> = () => {
         if (message !== "success" && typeof message === "object") {
           return void setSubmitErrors(message);
         }
-
         clearSubmitErrors();
       } catch (error) {
         setSubmitErrors({ "*": [error.message] });
