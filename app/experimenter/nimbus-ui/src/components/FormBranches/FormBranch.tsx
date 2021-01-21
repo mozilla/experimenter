@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { useFormContext, RegisterOptions, FieldError } from "react-hook-form";
+import { FieldError } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
@@ -11,7 +11,6 @@ import Badge from "react-bootstrap/Badge";
 import { ReactComponent as DeleteIcon } from "../../images/x.svg";
 
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-
 import {
   getConfig_nimbusConfig,
   getConfig_nimbusConfig_featureConfig,
@@ -19,14 +18,17 @@ import {
 
 import { AnnotatedBranch } from "./reducer";
 import InlineErrorIcon from "../InlineErrorIcon";
+import { useCommonNestedForm } from "../../hooks";
 
-type FormBranchFields = {
-  name: string;
-  description: string;
-  ratio: string | number;
-  featureValue: string | null;
-  featureEnabled: boolean;
-};
+export const branchFieldNames = [
+  "name",
+  "description",
+  "ratio",
+  "featureValue",
+  "featureEnabled",
+] as const;
+
+type BranchFieldName = typeof branchFieldNames[number];
 
 export const FormBranch = ({
   fieldNamePrefix,
@@ -42,6 +44,8 @@ export const FormBranch = ({
   onAddFeatureConfig,
   onRemoveFeatureConfig,
   onFeatureConfigChange,
+  defaultValues,
+  setSubmitErrors,
 }: {
   fieldNamePrefix: string;
   touched: Record<string, boolean>;
@@ -58,16 +62,22 @@ export const FormBranch = ({
   onFeatureConfigChange: (
     featureConfig: getConfig_nimbusConfig_featureConfig | null,
   ) => void;
+  defaultValues: Record<string, any>;
+  setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>;
 }) => {
   const id = fieldNamePrefix;
-
-  const {
-    register,
-    watch,
-    formState: { isSubmitted },
-  } = useFormContext();
-
   const submitErrors = { ...branch.errors };
+
+  const { FormErrors, formControlAttrs, watch } = useCommonNestedForm<
+    BranchFieldName
+  >(
+    defaultValues,
+    setSubmitErrors,
+    fieldNamePrefix,
+    submitErrors,
+    errors,
+    touched,
+  );
 
   const featureEnabled = watch(`${fieldNamePrefix}.featureEnabled`);
 
@@ -85,46 +95,6 @@ export const FormBranch = ({
 
   const handleRemoveClick = () => onRemove && onRemove();
 
-  const formControlCommon = (
-    name: keyof FormBranchFields,
-    registerOptions: RegisterOptions | false = {
-      required: "This field may not be blank.",
-    },
-  ) => ({
-    "data-testid": `${fieldNamePrefix}.${name}`,
-    name: `${fieldNamePrefix}.${name}`,
-    ref: register(registerOptions || {}),
-    isInvalid:
-      // Server-side errors signal invalid when field is not touched
-      (!touched[name] && !!submitErrors[name]) ||
-      // Client-side errors signal invalid after a field has been touched
-      (registerOptions && (isSubmitted || touched[name]) && !!errors[name]),
-    isValid:
-      // Valid after touched and no client-side errors
-      registerOptions && (isSubmitted || touched[name]) && !errors[name],
-  });
-
-  const FormErrors = ({ name }: { name: keyof FormBranchFields }) => (
-    <>
-      {errors[name] && (
-        <Form.Control.Feedback
-          type="invalid"
-          data-for={`${fieldNamePrefix}.${name}`}
-        >
-          {errors[name]!.message}
-        </Form.Control.Feedback>
-      )}
-      {!touched[name] && submitErrors[name] && (
-        <Form.Control.Feedback
-          type="invalid"
-          data-for={`${fieldNamePrefix}.${name}`}
-        >
-          {submitErrors[name]}
-        </Form.Control.Feedback>
-      )}
-    </>
-  );
-
   return (
     <div
       className="mb-3 border border-secondary rounded"
@@ -141,15 +111,12 @@ export const FormBranch = ({
                 </Badge>
               )}
             </Form.Label>
-            <Form.Control {...formControlCommon("name")} type="text" />
+            <Form.Control {...formControlAttrs("name")} type="text" />
             <FormErrors name="name" />
           </Form.Group>
           <Form.Group as={Col} controlId={`${id}-description`}>
             <Form.Label>Description</Form.Label>
-            <Form.Control
-              {...formControlCommon("description", false)}
-              type="text"
-            />
+            <Form.Control {...formControlAttrs("description")} type="text" />
             <FormErrors name="description" />
           </Form.Group>
           <Form.Group as={Col} controlId={`${id}-ratio`} sm={2} md={2}>
@@ -158,7 +125,13 @@ export const FormBranch = ({
               <p data-testid="equal-ratio" className="p-0 m-0">
                 Equal
                 <Form.Control
-                  {...formControlCommon("ratio", { valueAsNumber: true })}
+                  {...formControlAttrs(
+                    "ratio",
+                    {
+                      valueAsNumber: true,
+                    },
+                    false,
+                  )}
                   type="hidden"
                   value="1"
                 />
@@ -166,7 +139,7 @@ export const FormBranch = ({
             ) : (
               <>
                 <Form.Control
-                  {...formControlCommon("ratio", {
+                  {...formControlAttrs("ratio", {
                     valueAsNumber: true,
                     validate: (value) =>
                       (!!value && !isNaN(value)) || "Ratio must be a number.",
@@ -263,7 +236,7 @@ export const FormBranch = ({
             </Col>
             <Form.Group as={Col} controlId={`${id}.featureEnabled`}>
               <Form.Check
-                {...formControlCommon("featureEnabled", false)}
+                {...formControlAttrs("featureEnabled", {}, false)}
                 type="switch"
                 label={featureEnabled ? "On" : "Off"}
               />
@@ -277,7 +250,7 @@ export const FormBranch = ({
                 <Form.Label>Value</Form.Label>
                 {/* TODO: EXP-732 Maybe do some JSON schema validation here client-side? */}
                 <Form.Control
-                  {...formControlCommon("featureValue")}
+                  {...formControlAttrs("featureValue")}
                   as="textarea"
                   rows={4}
                 />
@@ -286,7 +259,7 @@ export const FormBranch = ({
             </Form.Row>
           ) : (
             <Form.Control
-              {...formControlCommon("featureValue", false)}
+              {...formControlAttrs("featureValue", {}, false)}
               type="hidden"
               value=""
             />

@@ -12,7 +12,7 @@ import {
   getExperiment_experimentBySlug_secondaryProbeSets,
 } from "../../types/getExperiment";
 import { useCommonForm, useConfig, useExitWarning } from "../../hooks";
-import { SelectOption } from "../../hooks/useCommonForm";
+import { SelectOption } from "../../hooks/useCommonForm/useCommonFormMethods";
 import ReactTooltip from "react-tooltip";
 import { ReactComponent as Info } from "../../images/info.svg";
 
@@ -38,6 +38,8 @@ type ProbeSet =
 type ProbeSets =
   | (getExperiment_experimentBySlug_primaryProbeSets | null)[]
   | (getExperiment_experimentBySlug_secondaryProbeSets | null)[];
+
+type MetricsFieldName = typeof metricsFieldNames[number];
 
 export const PRIMARY_PROBE_SETS_TOOLTIP =
   "Specific metrics you’d like to impact in your experiment, which will be part of the analysis.";
@@ -104,7 +106,7 @@ const FormMetrics = ({
     handleSubmit,
     reset,
     isSubmitted,
-  } = useCommonForm<typeof metricsFieldNames[number]>(
+  } = useCommonForm<MetricsFieldName>(
     defaultValues,
     isServerValid,
     submitErrors,

@@ -146,31 +146,6 @@ describe("FormBranch", () => {
     await assertInvalidField(container, "referenceBranch.ratio");
   });
 
-  it("should display server-side errors but hide when field touched", async () => {
-    const branch = {
-      ...MOCK_ANNOTATED_BRANCH,
-      errors: {
-        name: ["This name is trouble"],
-      },
-    };
-
-    const { container } = render(<SubjectBranch branch={branch} />);
-    await assertInvalidField(container, "referenceBranch.name");
-
-    const field = screen.getByTestId("referenceBranch.name");
-    expect(field).not.toBeNull();
-    act(() => {
-      fireEvent.change(field, { target: { value: "new value" } });
-      fireEvent.blur(field);
-    });
-
-    await waitFor(() => {
-      expect(screen.getByTestId("referenceBranch.name")).not.toHaveClass(
-        "is-invalid",
-      );
-    });
-  });
-
   it("should display server-side errors even when client-side validation is not defined", async () => {
     const branch = {
       ...MOCK_ANNOTATED_BRANCH,
