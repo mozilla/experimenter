@@ -11,7 +11,7 @@ from experimenter.experiments.tests.factories import (
     NimbusExperimentFactory,
     NimbusProbeSetFactory,
 )
-from experimenter.visualization.api.v3.views import Significance
+from experimenter.visualization.tests.api.constants import TestConstants
 
 
 @override_settings(FEATURE_ANALYSIS=False)
@@ -49,7 +49,9 @@ class TestVisualizationView(TestCase):
             json_data,
         )
 
-    def add_probe_set_data(self, data, formatted_data, primary_probe_set):
+    def add_probe_set_data(
+        self, data, formatted_data_with_pop, formatted_data_without_pop, primary_probe_set
+    ):
         range_data = {
             "point": 4,
             "upper": 8,
@@ -59,10 +61,21 @@ class TestVisualizationView(TestCase):
         primary_metric = f"{primary_probe_set.slug}_ever_used"
 
         for branch in branches:
-            formatted_data[branch]["branch_data"][primary_metric] = {
-                "absolute": {**range_data, **{"count": 48}},
-                "difference": {},
-                "relative_uplift": {},
+            formatted_data_with_pop[branch]["branch_data"][primary_metric] = {
+                "absolute": {
+                    "first": {**range_data, **{"count": 48}},
+                    "all": [{**range_data, **{"count": 48}}],
+                },
+                "difference": {"all": [], "first": {}},
+                "relative_uplift": {"all": [], "first": {}},
+            }
+            formatted_data_without_pop[branch]["branch_data"][primary_metric] = {
+                "absolute": {
+                    "first": {**range_data, **{"window_index": "1"}},
+                    "all": [{**range_data, **{"window_index": "1"}}],
+                },
+                "difference": {"all": [], "first": {}},
+                "relative_uplift": {"all": [], "first": {}},
             }
             data.append(
                 {
@@ -86,137 +99,18 @@ class TestVisualizationView(TestCase):
     @patch("django.core.files.storage.default_storage.exists")
     def test_analysis_results_view_data(self, status, mock_exists, mock_open):
         user_email = "user@example.com"
-        DATA_IDENTITY_ROW = {
-            "point": 12,
-            "upper": 13,
-            "lower": 10,
-            "metric": "identity",
-            "statistic": "count",
-            "window_index": "1",
-        }
-        CONTROL_DATA_ROW = {
-            **DATA_IDENTITY_ROW,
-            **{
-                "branch": "control",
-            },
-        }
-        VARIANT_DATA_ROW = {
-            **DATA_IDENTITY_ROW,
-            **{
-                "branch": "variant",
-            },
-        }
-        VARIANT_DATA_DEFAULT_METRIC_ROW = {
-            **DATA_IDENTITY_ROW,
-            **{
-                "metric": "some_count",
-                "statistic": "mean",
-                "branch": "variant",
-            },
-        }
-        VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW = {
-            **DATA_IDENTITY_ROW,
-            **{
-                "comparison": "difference",
-                "metric": "search_count",
-                "statistic": "mean",
-                "branch": "variant",
-            },
-        }
-        VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW = {
-            **VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW,
-            **{
-                "point": -2,
-                "upper": -1,
-                "lower": -5,
-                "metric": "retained",
-                "statistic": "binomial",
-            },
-        }
-        CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW = {
-            **VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW,
-            **{
-                "point": 12,
-                "upper": 13,
-                "lower": -5,
-                "branch": "control",
-            },
-        }
-        DATA_WITHOUT_POPULATION_PERCENTAGE = [
-            CONTROL_DATA_ROW,
-            VARIANT_DATA_ROW,
-            VARIANT_DATA_DEFAULT_METRIC_ROW,
-            VARIANT_POSITIVE_SIGNIFICANCE_DATA_ROW,
-            VARIANT_NEGATIVE_SIGNIFICANCE_DATA_ROW,
-            CONTROL_NEUTRAL_SIGNIFICANCE_DATA_ROW,
-        ]
-        FORMATTED_DATA_WITH_POPULATION_PERCENTAGE = {
-            "control": {
-                "is_control": False,
-                "branch_data": {
-                    "identity": {
-                        "absolute": {"lower": 10, "point": 12, "upper": 13},
-                        "difference": {},
-                        "relative_uplift": {},
-                        "percent": 50,
-                    },
-                    "retained": {
-                        "absolute": {},
-                        "difference": {
-                            "point": 12,
-                            "upper": 13,
-                            "lower": -5,
-                        },
-                        "relative_uplift": {},
-                        "significance": Significance.NEUTRAL,
-                    },
-                },
-            },
-            "variant": {
-                "is_control": False,
-                "branch_data": {
-                    "identity": {
-                        "absolute": {"lower": 10, "point": 12, "upper": 13},
-                        "difference": {},
-                        "relative_uplift": {},
-                        "percent": 50,
-                    },
-                    "search_count": {
-                        "absolute": {},
-                        "difference": {"lower": 10, "point": 12, "upper": 13},
-                        "relative_uplift": {},
-                        "significance": Significance.POSITIVE,
-                    },
-                    "some_count": {
-                        "absolute": {"lower": 10, "point": 12, "upper": 13},
-                        "difference": {},
-                        "relative_uplift": {},
-                    },
-                    "retained": {
-                        "absolute": {},
-                        "difference": {
-                            "point": -2,
-                            "upper": -1,
-                            "lower": -5,
-                        },
-                        "relative_uplift": {},
-                        "significance": Significance.NEGATIVE,
-                    },
-                },
-            },
-        }
 
         FULL_DATA = {
-            "daily": DATA_WITHOUT_POPULATION_PERCENTAGE,
-            "weekly": DATA_WITHOUT_POPULATION_PERCENTAGE,
-            "overall": FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
+            "daily": TestConstants.DATA_WITHOUT_POPULATION_PERCENTAGE,
+            "weekly": TestConstants.FORMATTED_DATA_WITHOUT_POPULATION_PERCENTAGE,
+            "overall": TestConstants.FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
             "other_metrics": {"some_count": "Some Count"},
             "show_analysis": False,
         }
 
         class File:
             def read(self):
-                return json.dumps(DATA_WITHOUT_POPULATION_PERCENTAGE)
+                return json.dumps(TestConstants.DATA_WITHOUT_POPULATION_PERCENTAGE)
 
         mock_open.return_value = File()
         mock_exists.return_value = True
@@ -230,8 +124,9 @@ class TestVisualizationView(TestCase):
         )
 
         self.add_probe_set_data(
-            DATA_WITHOUT_POPULATION_PERCENTAGE,
-            FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
+            TestConstants.DATA_WITHOUT_POPULATION_PERCENTAGE,
+            TestConstants.FORMATTED_DATA_WITH_POPULATION_PERCENTAGE,
+            TestConstants.FORMATTED_DATA_WITHOUT_POPULATION_PERCENTAGE,
             primary_probe_set,
         )
 

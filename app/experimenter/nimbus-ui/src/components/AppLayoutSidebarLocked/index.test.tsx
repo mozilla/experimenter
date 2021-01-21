@@ -49,7 +49,7 @@ const Subject = ({
           ? {
               show_analysis: true,
               daily: [],
-              weekly: [],
+              weekly: {},
               overall: mockAnalysis().overall,
               other_metrics: mockAnalysis().other_metrics,
             }
