@@ -8,7 +8,6 @@ import {
   createAnnotatedBranch,
 } from "./state";
 import { FormData } from "./update";
-import { snakeToCamelCase } from "../../../../lib/caseConversions";
 
 export const REFERENCE_BRANCH_IDX = -1;
 
@@ -194,16 +193,15 @@ function setSubmitErrors(
     referenceBranch = {
       ...referenceBranch,
       // TODO: EXP-614 submitErrors type is any, but in practical use it's AnnotatedBranch["errors"]
-      errors: normalizeFieldNames(
-        submitErrors["reference_branch"],
-      ) as AnnotatedBranch["errors"],
+      errors: (submitErrors["reference_branch"] ||
+        {}) as AnnotatedBranch["errors"],
     };
   }
 
   if (treatmentBranches && submitErrors["treatment_branches"]) {
     treatmentBranches = treatmentBranches.map((treatmentBranch, idx) => ({
       ...treatmentBranch,
-      errors: normalizeFieldNames(submitErrors["treatment_branches"][idx]),
+      errors: submitErrors["treatment_branches"][idx] || {},
     }));
   }
 
@@ -214,21 +212,6 @@ function setSubmitErrors(
     treatmentBranches,
   };
 }
-
-// Server-side field names are in snake-case, client-side field names are
-// in camel-case, this utility converts from server to client convention
-const normalizeFieldNames = (
-  errors: Record<string, string[]> | undefined,
-): Record<string, string[]> =>
-  errors
-    ? Object.entries(errors).reduce(
-        (acc, [key, value]) => ({
-          ...acc,
-          [snakeToCamelCase(key)]: value,
-        }),
-        {},
-      )
-    : {};
 
 type ClearSubmitErrorsAction = {
   type: "clearSubmitErrors";

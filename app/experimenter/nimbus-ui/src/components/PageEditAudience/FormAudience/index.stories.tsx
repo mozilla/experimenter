@@ -15,12 +15,12 @@ storiesOf("pages/EditAudience/FormAudience", module)
       submitErrors={{
         "*": ["Big bad server thing happened"],
         channel: ["Cannot tune in this channel"],
-        firefoxMinVersion: ["Bad min version"],
-        targetingConfigSlug: ["This slug is icky"],
-        populationPercent: ["This is not a percentage"],
-        totalEnrolledClients: ["Need a number here, bud."],
-        proposedEnrollment: ["Emoji are not numbers"],
-        proposedDuration: ["No negative numbers"],
+        firefox_min_version: ["Bad min version"],
+        targeting_config_slug: ["This slug is icky"],
+        population_percent: ["This is not a percentage"],
+        total_enrolled_clients: ["Need a number here, bud."],
+        proposed_enrollment: ["Emoji are not numbers"],
+        proposed_duration: ["No negative numbers"],
       }}
     />
   ));
