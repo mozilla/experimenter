@@ -3,17 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import { ReactComponent as ExternalIcon } from "../../images/external.svg";
+import { getStatus } from "../../lib/experiment";
+import { ConfigOptions, getConfigLabel } from "../../lib/getConfigLabel";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import LinkExternal from "../LinkExternal";
+import LinkMonitoring from "../LinkMonitoring";
+import NotSet from "../NotSet";
 import SummaryTimeline from "./SummaryTimeline";
-import TableSummary from "./TableSummary";
 import TableAudience from "./TableAudience";
 import TableBranches from "./TableBranches";
-import LinkExternal from "../LinkExternal";
-import { getStatus } from "../../lib/experiment";
-import LinkMonitoring from "../LinkMonitoring";
-import { getConfigLabel, ConfigOptions } from "../../lib/getConfigLabel";
-import NotSet from "../NotSet";
-import { ReactComponent as ExternalIcon } from "../../images/external.svg";
+import TableSummary from "./TableSummary";
 
 type SummaryProps = {
   experiment: getExperiment_experimentBySlug;

@@ -3,9 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from "react";
-import { mockExperimentQuery } from "../../../lib/mocks";
 import { FormAudience } from ".";
-import { MOCK_CONFIG, MockedCache } from "../../../lib/mocks";
+import {
+  MockedCache,
+  mockExperimentQuery,
+  MOCK_CONFIG,
+} from "../../../lib/mocks";
 import { getConfig_nimbusConfig } from "../../../types/getConfig";
 
 export const Subject = ({

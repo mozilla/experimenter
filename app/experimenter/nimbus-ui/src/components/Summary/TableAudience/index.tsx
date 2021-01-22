@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import { Table } from "react-bootstrap";
-import { useConfig } from "../../../hooks";
 import { displayConfigLabelOrNotSet } from "..";
+import { useConfig } from "../../../hooks";
+import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import NotSet from "../../NotSet";
 
 type TableAudienceProps = {

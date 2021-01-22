@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { screen, render, waitFor } from "@testing-library/react";
 import PageDesign from ".";
-import { RouterSlugProvider } from "../../lib/test-utils";
+import { getStatus as mockGetStatus } from "../../lib/experiment";
 import { mockExperimentQuery } from "../../lib/mocks";
+import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockAnalysis } from "../../lib/visualization/mocks";
 import { AnalysisData } from "../../lib/visualization/types";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
-import { getStatus as mockGetStatus } from "../../lib/experiment";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 
 let mockExperiment: getExperiment_experimentBySlug;
 const mockAnalysisData: AnalysisData | undefined = mockAnalysis();

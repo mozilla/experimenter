@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { snakeToCamelCase } from "../../../../lib/caseConversions";
 import {
   AnnotatedBranch,
-  FormBranchesState,
   createAnnotatedBranch,
+  FormBranchesState,
 } from "./state";
 import { FormData } from "./update";
-import { snakeToCamelCase } from "../../../../lib/caseConversions";
 
 export const REFERENCE_BRANCH_IDX = -1;
 

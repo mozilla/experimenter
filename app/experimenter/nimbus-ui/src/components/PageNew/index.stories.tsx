@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
 import { Operation } from "@apollo/client";
-import { MockedCache, SimulatedMockLink } from "../../lib/mocks";
-import { storiesOf } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
-import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import PageNew from ".";
 import { withLinks } from "@storybook/addon-links";
+import { storiesOf } from "@storybook/react";
+import React from "react";
+import PageNew from ".";
+import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
+import { MockedCache, SimulatedMockLink } from "../../lib/mocks";
 
 storiesOf("pages/New", module)
   .addDecorator(withLinks)

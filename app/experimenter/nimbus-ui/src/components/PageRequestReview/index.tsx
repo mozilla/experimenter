@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { RouteComponentProps } from "@reach/router";
-import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
-import { SUBMIT_ERROR } from "../../lib/constants";
+import React, { useCallback, useRef, useState } from "react";
 import { UPDATE_EXPERIMENT_STATUS_MUTATION } from "../../gql/experiments";
+import { SUBMIT_ERROR } from "../../lib/constants";
+import { getStatus } from "../../lib/experiment";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
   ExperimentInput,
   NimbusExperimentStatus,
 } from "../../types/globalTypes";
 import { updateExperimentStatus_updateExperiment as UpdateExperimentStatus } from "../../types/updateExperimentStatus";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import FormRequestReview from "./FormRequestReview";
+import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import Summary from "../Summary";
-import { getStatus } from "../../lib/experiment";
+import FormRequestReview from "./FormRequestReview";
 
 type PageRequestReviewProps = {
   polling?: boolean;

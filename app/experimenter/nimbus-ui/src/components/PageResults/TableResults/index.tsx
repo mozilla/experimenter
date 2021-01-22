@@ -4,9 +4,9 @@
 
 import React from "react";
 import {
-  RESULTS_METRICS_LIST,
   METRICS_TIPS,
   METRIC_TYPE,
+  RESULTS_METRICS_LIST,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
 import { AnalysisDataOverall } from "../../../lib/visualization/types";

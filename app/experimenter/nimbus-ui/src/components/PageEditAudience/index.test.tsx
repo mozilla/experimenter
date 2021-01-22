@@ -2,34 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import {
-  screen,
-  render,
-  waitFor,
-  fireEvent,
-  act,
-} from "@testing-library/react";
-import fetchMock from "jest-fetch-mock";
-import PageEditAudience from ".";
-import FormAudience from "./FormAudience";
-import { RouterSlugProvider } from "../../lib/test-utils";
-import { mockExperimentQuery } from "../../lib/mocks";
 import { MockedResponse } from "@apollo/client/testing";
 import { navigate } from "@reach/router";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
+import fetchMock from "jest-fetch-mock";
+import React from "react";
+import PageEditAudience from ".";
 import { UPDATE_EXPERIMENT_AUDIENCE_MUTATION } from "../../gql/experiments";
 import { BASE_PATH, SUBMIT_ERROR } from "../../lib/constants";
+import { mockExperimentQuery } from "../../lib/mocks";
+import { RouterSlugProvider } from "../../lib/test-utils";
 import {
-  updateExperimentAudience_updateExperiment,
-  updateExperimentAudience_updateExperiment_nimbusExperiment,
-} from "../../types/updateExperimentAudience";
-import {
+  ExperimentInput,
   NimbusExperimentChannel,
   NimbusExperimentFirefoxMinVersion,
   NimbusExperimentStatus,
   NimbusExperimentTargetingConfigSlug,
-  ExperimentInput,
 } from "../../types/globalTypes";
+import {
+  updateExperimentAudience_updateExperiment,
+  updateExperimentAudience_updateExperiment_nimbusExperiment,
+} from "../../types/updateExperimentAudience";
+import FormAudience from "./FormAudience";
 
 const { mock, experiment } = mockExperimentQuery("demo-slug");
 

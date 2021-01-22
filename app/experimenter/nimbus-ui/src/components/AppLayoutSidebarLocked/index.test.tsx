@@ -2,20 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import { render, screen } from "@testing-library/react";
-import { RESULTS_LOADING_TEXT, AppLayoutSidebarLocked } from ".";
-import { RouterSlugProvider } from "../../lib/test-utils";
-import { BASE_PATH } from "../../lib/constants";
 import { RouteComponentProps } from "@reach/router";
+import { render, screen } from "@testing-library/react";
+import React from "react";
+import { AppLayoutSidebarLocked, RESULTS_LOADING_TEXT } from ".";
+import { BASE_PATH } from "../../lib/constants";
 import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
+import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockAnalysis } from "../../lib/visualization/mocks";
+import { AnalysisData } from "../../lib/visualization/types";
 import {
   getExperiment_experimentBySlug_primaryProbeSets,
   getExperiment_experimentBySlug_secondaryProbeSets,
 } from "../../types/getExperiment";
-import { AnalysisData } from "../../lib/visualization/types";
+import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 const { mock } = mockExperimentQuery("my-special-slug/design");
 

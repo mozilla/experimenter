@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  humanDate,
   addDaysToDate,
   getProposedEndDate,
   getProposedEnrollmentRange,
+  humanDate,
 } from "./dateUtils";
 import { mockSingleDirectoryExperiment as expFactory } from "./mocks";
 

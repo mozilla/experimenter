@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
 import { render, screen } from "@testing-library/react";
-import { Subject, MOCK_EXPERIMENT } from "./mocks";
+import React from "react";
+import { MOCK_EXPERIMENT, Subject } from "./mocks";
 
 describe("TableBranches", () => {
   it("renders as expected with defaults", () => {

@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { AnalysisDataOverall } from "../../../lib/visualization/types";
 import { useConfig } from "../../../hooks";
 import { getConfigLabel } from "../../../lib/getConfigLabel";
+import { AnalysisDataOverall } from "../../../lib/visualization/types";
+import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 
 type TableHighlightsOverviewProps = {
   experiment: getExperiment_experimentBySlug;

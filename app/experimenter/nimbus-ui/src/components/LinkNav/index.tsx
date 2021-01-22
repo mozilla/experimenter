@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import classNames from "classnames";
-import Nav from "react-bootstrap/Nav";
 import { Link } from "@reach/router";
+import classNames from "classnames";
+import React from "react";
+import Nav from "react-bootstrap/Nav";
 import { BASE_PATH } from "../../lib/constants";
 
 type LinkNavProps = {

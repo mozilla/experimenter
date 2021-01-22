@@ -1,23 +1,23 @@
-import React from "react";
 import { RouteComponentProps, useParams } from "@reach/router";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
+import React from "react";
 import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
+import Row from "react-bootstrap/Row";
 import Scrollspy from "react-scrollspy";
+import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
+import { ReactComponent as Clipboard } from "../../images/clipboard.svg";
+import { StatusCheck } from "../../lib/experiment";
 import { AnalysisData } from "../../lib/visualization/types";
 import { analysisAvailable } from "../../lib/visualization/utils";
-import { StatusCheck } from "../../lib/experiment";
-import { DisabledItem } from "../DisabledItem";
-import { LinkNav } from "../LinkNav";
 import {
   getExperiment_experimentBySlug_primaryProbeSets,
   getExperiment_experimentBySlug_secondaryProbeSets,
 } from "../../types/getExperiment";
-import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
-import { ReactComponent as Clipboard } from "../../images/clipboard.svg";
-import { ReactComponent as BarChart } from "./bar-chart.svg";
+import { DisabledItem } from "../DisabledItem";
 import LinkExternal from "../LinkExternal";
+import { LinkNav } from "../LinkNav";
+import { ReactComponent as BarChart } from "./bar-chart.svg";
 
 export const RESULTS_LOADING_TEXT = "Checking results availability...";
 

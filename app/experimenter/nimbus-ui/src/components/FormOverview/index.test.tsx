@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
-import { render, screen, act, fireEvent } from "@testing-library/react";
-import { mockExperimentQuery } from "../../lib/mocks";
-import { Subject } from "./mocks";
 import { DOCUMENTATION_LINKS_TOOLTIP } from ".";
+import { mockExperimentQuery } from "../../lib/mocks";
 import { NimbusDocumentationLinkTitle } from "../../types/globalTypes";
+import { Subject } from "./mocks";
 
 describe("FormOverview", () => {
   it("renders as expected", async () => {

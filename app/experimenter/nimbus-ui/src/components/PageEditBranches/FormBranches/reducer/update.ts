@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ExperimentInput } from "../../../../types/globalTypes";
-import { FormBranchesState, AnnotatedBranch } from "./state";
+import { AnnotatedBranch, FormBranchesState } from "./state";
 
 export type FormBranchesSaveState = Pick<
   ExperimentInput,

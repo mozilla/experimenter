@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import { Table } from "react-bootstrap";
-import { useConfig } from "../../../hooks";
 import { displayConfigLabelOrNotSet } from "..";
-import RichText from "../../RichText";
-import NotSet from "../../NotSet";
-import LinkExternal from "../../LinkExternal";
+import { useConfig } from "../../../hooks";
 import { ReactComponent as ExternalIcon } from "../../../images/external.svg";
+import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import LinkExternal from "../../LinkExternal";
+import NotSet from "../../NotSet";
+import RichText from "../../RichText";
 
 type TableSummaryProps = {
   experiment: getExperiment_experimentBySlug;
