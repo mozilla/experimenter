@@ -16,7 +16,7 @@ import DirectoryTable, {
   DirectoryLiveTable,
   DirectoryCompleteTable,
   DirectoryDraftsTable,
-} from "../DirectoryTable";
+} from "./DirectoryTable";
 
 type PageHomeProps = {} & RouteComponentProps;
 

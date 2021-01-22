@@ -12,7 +12,7 @@ import {
 } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import PageEditAudience from ".";
-import FormAudience from "../FormAudience";
+import FormAudience from "./FormAudience";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery } from "../../lib/mocks";
 import { MockedResponse } from "@apollo/client/testing";
@@ -197,7 +197,7 @@ jest.mock("@reach/router", () => ({
 
 const mockSubmit = jest.fn();
 
-jest.mock("../FormAudience", () => ({
+jest.mock("./FormAudience", () => ({
   __esModule: true,
   default: (props: React.ComponentProps<typeof FormAudience>) => {
     const handleSubmit = (ev: React.FormEvent) => {

@@ -4,10 +4,10 @@
 
 import React from "react";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import SummaryTimeline from "../SummaryTimeline";
-import TableSummary from "../TableSummary";
-import TableAudience from "../TableAudience";
-import TableBranches from "../TableBranches";
+import SummaryTimeline from "./SummaryTimeline";
+import TableSummary from "./TableSummary";
+import TableAudience from "./TableAudience";
+import TableBranches from "./TableBranches";
 import LinkExternal from "../LinkExternal";
 import { getStatus } from "../../lib/experiment";
 import LinkMonitoring from "../LinkMonitoring";
