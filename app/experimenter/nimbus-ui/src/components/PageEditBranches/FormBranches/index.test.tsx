@@ -170,6 +170,38 @@ describe("FormBranches", () => {
     });
   });
 
+  it("requires only a branch name before save", async () => {
+    const onSave = jest.fn();
+    render(
+      <SubjectBranches
+        {...{
+          onSave,
+          experiment: {
+            ...MOCK_EXPERIMENT,
+            referenceBranch: {
+              __typename: "NimbusBranchType",
+              name: "",
+              slug: "",
+              description: "",
+              ratio: 1,
+              featureValue: null,
+              featureEnabled: false,
+            },
+            treatmentBranches: null,
+          },
+        }}
+      />,
+    );
+
+    const field = screen.getByTestId("referenceBranch.name");
+    act(() => {
+      fireEvent.change(field, { target: { value: "Big beautiful branch" } });
+      fireEvent.blur(field);
+    });
+
+    await clickAndWaitForSave(onSave);
+  });
+
   it("supports adding a treatment branch", async () => {
     const onSave = jest.fn();
     const { container } = render(

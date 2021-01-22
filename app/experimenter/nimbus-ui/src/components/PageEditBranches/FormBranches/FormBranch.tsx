@@ -10,6 +10,7 @@ import Form from "react-bootstrap/Form";
 import { FieldError } from "react-hook-form";
 import { useCommonNestedForm } from "../../../hooks";
 import { ReactComponent as DeleteIcon } from "../../../images/x.svg";
+import { NUMBER_FIELD, REQUIRED_FIELD } from "../../../lib/constants";
 import {
   getConfig_nimbusConfig,
   getConfig_nimbusConfig_featureConfig,
@@ -109,7 +110,10 @@ export const FormBranch = ({
                 </Badge>
               )}
             </Form.Label>
-            <Form.Control {...formControlAttrs("name")} type="text" />
+            <Form.Control
+              {...formControlAttrs("name", REQUIRED_FIELD)}
+              type="text"
+            />
             <FormErrors name="name" />
           </Form.Group>
           <Form.Group as={Col} controlId={`${id}-description`}>
@@ -139,8 +143,7 @@ export const FormBranch = ({
                 <Form.Control
                   {...formControlAttrs("ratio", {
                     valueAsNumber: true,
-                    validate: (value) =>
-                      (!!value && !isNaN(value)) || "Ratio must be a number.",
+                    ...NUMBER_FIELD,
                   })}
                   type="number"
                   min="1"

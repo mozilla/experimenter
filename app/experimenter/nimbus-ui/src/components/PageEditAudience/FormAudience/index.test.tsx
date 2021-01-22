@@ -11,7 +11,7 @@ import {
 } from "@testing-library/react";
 import React from "react";
 import { snakeToCamelCase } from "../../../lib/caseConversions";
-import { EXTERNAL_URLS } from "../../../lib/constants";
+import { EXTERNAL_URLS, FIELD_MESSAGES } from "../../../lib/constants";
 import { MOCK_CONFIG } from "../../../lib/mocks";
 import {
   NimbusExperimentChannel,
@@ -71,43 +71,7 @@ describe("FormAudience", () => {
   });
 
   it("renders without error with default values", async () => {
-    render(
-      <Subject
-        config={{
-          ...MOCK_CONFIG,
-          targetingConfigSlug: [
-            {
-              __typename: "NimbusLabelValueType",
-              label: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
-              value: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
-            },
-          ],
-          firefoxMinVersion: [
-            {
-              __typename: "NimbusLabelValueType",
-              label: NimbusExperimentFirefoxMinVersion.NO_VERSION,
-              value: NimbusExperimentFirefoxMinVersion.NO_VERSION,
-            },
-          ],
-          channel: [
-            {
-              __typename: "NimbusLabelValueType",
-              label: NimbusExperimentChannel.NO_CHANNEL,
-              value: NimbusExperimentChannel.NO_CHANNEL,
-            },
-          ],
-        }}
-        experiment={{
-          ...MOCK_EXPERIMENT,
-          firefoxMinVersion: NimbusExperimentFirefoxMinVersion.NO_VERSION,
-          channel: NimbusExperimentChannel.NO_CHANNEL,
-          populationPercent: "0.0",
-          proposedDuration: 0,
-          proposedEnrollment: 0,
-          targetingConfigSlug: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
-        }}
-      />,
-    );
+    renderSubjectWithDefaultValues();
     await waitFor(() => {
       expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
     });
@@ -185,6 +149,18 @@ describe("FormAudience", () => {
     });
   });
 
+  it("does not have any required modified fields", async () => {
+    const onSubmit = jest.fn();
+    renderSubjectWithDefaultValues(onSubmit);
+    await waitFor(() => {
+      expect(screen.queryByTestId("FormAudience")).toBeInTheDocument();
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("submit-button"));
+    });
+    expect(onSubmit).toHaveBeenCalled();
+  });
+
   it("does not call onSubmit when submitted while loading", async () => {
     const onSubmit = jest.fn();
     render(<Subject {...{ onSubmit, isLoading: true }} />);
@@ -198,7 +174,7 @@ describe("FormAudience", () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it("marks input fields as invalid when blank", async () => {
+  it("displays expected message on number-based inputs when invalid", async () => {
     const onSubmit = jest.fn();
     const { container } = render(<Subject {...{ onSubmit }} />);
     await waitFor(() => {
@@ -206,25 +182,21 @@ describe("FormAudience", () => {
     });
 
     for (const fieldName of [
-      "channel",
       "populationPercent",
       "totalEnrolledClients",
-      "populationPercent",
       "proposedEnrollment",
       "proposedDuration",
-      "firefoxMinVersion",
-      "targetingConfigSlug",
     ]) {
       await act(async () => {
         const field = screen.getByTestId(fieldName);
         fireEvent.click(field);
-        fireEvent.change(field, { target: { value: "" } });
+        fireEvent.change(field, { target: { value: "hi" } });
         fireEvent.blur(field);
       });
 
       expect(
         container.querySelector(`.invalid-feedback[data-for=${fieldName}`),
-      ).toHaveTextContent("This field may not be blank.");
+      ).toHaveTextContent(FIELD_MESSAGES.NUMBER);
     }
   });
 
@@ -270,3 +242,44 @@ describe("FormAudience", () => {
     expect(screen.queryByTestId("missing-duration")).toBeInTheDocument();
   });
 });
+
+const renderSubjectWithDefaultValues = (onSubmit = () => {}) => {
+  render(
+    <Subject
+      {...{ onSubmit }}
+      config={{
+        ...MOCK_CONFIG,
+        targetingConfigSlug: [
+          {
+            __typename: "NimbusLabelValueType",
+            label: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
+            value: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
+          },
+        ],
+        firefoxMinVersion: [
+          {
+            __typename: "NimbusLabelValueType",
+            label: NimbusExperimentFirefoxMinVersion.NO_VERSION,
+            value: NimbusExperimentFirefoxMinVersion.NO_VERSION,
+          },
+        ],
+        channel: [
+          {
+            __typename: "NimbusLabelValueType",
+            label: NimbusExperimentChannel.NO_CHANNEL,
+            value: NimbusExperimentChannel.NO_CHANNEL,
+          },
+        ],
+      }}
+      experiment={{
+        ...MOCK_EXPERIMENT,
+        firefoxMinVersion: NimbusExperimentFirefoxMinVersion.NO_VERSION,
+        channel: NimbusExperimentChannel.NO_CHANNEL,
+        populationPercent: "0.0",
+        proposedDuration: 0,
+        proposedEnrollment: 0,
+        targetingConfigSlug: NimbusExperimentTargetingConfigSlug.NO_TARGETING,
+      }}
+    />,
+  );
+};

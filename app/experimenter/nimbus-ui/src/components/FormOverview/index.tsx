@@ -12,7 +12,7 @@ import { useCommonForm, useExitWarning } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
 import { ReactComponent as Info } from "../../images/info.svg";
 import { ReactComponent as DeleteIcon } from "../../images/x.svg";
-import { EXTERNAL_URLS } from "../../lib/constants";
+import { EXTERNAL_URLS, REQUIRED_FIELD } from "../../lib/constants";
 import { getExperiment } from "../../types/getExperiment";
 import { NimbusDocumentationLinkTitle } from "../../types/globalTypes";
 import InlineErrorIcon from "../InlineErrorIcon";
@@ -135,7 +135,7 @@ const FormOverview = ({
       <Form.Group controlId="name">
         <Form.Label>Public name</Form.Label>
         <Form.Control
-          {...formControlAttrs("name")}
+          {...formControlAttrs("name", REQUIRED_FIELD)}
           type="text"
           autoFocus={!experiment}
         />
@@ -148,7 +148,7 @@ const FormOverview = ({
       <Form.Group controlId="hypothesis">
         <Form.Label>Hypothesis</Form.Label>
         <Form.Control
-          {...formControlAttrs("hypothesis")}
+          {...formControlAttrs("hypothesis", REQUIRED_FIELD)}
           as="textarea"
           rows={5}
         />
@@ -169,7 +169,10 @@ const FormOverview = ({
             readOnly
           />
         ) : (
-          <Form.Control {...formControlAttrs("application")} as="select">
+          <Form.Control
+            {...formControlAttrs("application", REQUIRED_FIELD)}
+            as="select"
+          >
             <option value="">Select...</option>
             {application!.map((app, idx) => (
               <option key={`application-${idx}`} value={app!.value as string}>
@@ -204,7 +207,7 @@ const FormOverview = ({
             <Form.Control
               as="textarea"
               rows={3}
-              {...formControlAttrs("publicDescription", {})}
+              {...formControlAttrs("publicDescription")}
             />
             <Form.Text className="text-muted">
               This description will be public to users on about:studies
@@ -223,7 +226,7 @@ const FormOverview = ({
               )}
             </Form.Label>
             <Form.Control
-              {...formControlAttrs("riskMitigationLink", {})}
+              {...formControlAttrs("riskMitigationLink")}
               type="url"
             />
             <Form.Text className="text-muted">
