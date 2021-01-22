@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useReducer, useMemo } from "react";
+import { useMemo, useReducer } from "react";
 import { getExperiment_experimentBySlug } from "../../../../types/getExperiment";
-import { createInitialState } from "./state";
 import { formBranchesActionReducer } from "./actions";
+import { createInitialState } from "./state";
 import { extractUpdateState } from "./update";
 
 export { REFERENCE_BRANCH_IDX } from "./actions";

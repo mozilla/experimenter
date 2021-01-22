@@ -3,18 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from "react";
-import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
-import InputGroup from "react-bootstrap/InputGroup";
 import Col from "react-bootstrap/Col";
-import LinkExternal from "../../LinkExternal";
-import InlineErrorIcon from "../../InlineErrorIcon";
-import { useConfig } from "../../../hooks/useConfig";
-
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
-import { getConfig_nimbusConfig_channel } from "../../../types/getConfig";
+import Form from "react-bootstrap/Form";
+import InputGroup from "react-bootstrap/InputGroup";
 import { useCommonForm } from "../../../hooks";
+import { useConfig } from "../../../hooks/useConfig";
 import { EXTERNAL_URLS } from "../../../lib/constants";
+import { getConfig_nimbusConfig_channel } from "../../../types/getConfig";
+import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import InlineErrorIcon from "../../InlineErrorIcon";
+import LinkExternal from "../../LinkExternal";
 
 type FormAudienceProps = {
   experiment: getExperiment_experimentBySlug;

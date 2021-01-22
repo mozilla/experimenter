@@ -4,9 +4,9 @@
 
 import {
   ApolloClient,
-  InMemoryCache,
   createHttpLink,
   from,
+  InMemoryCache,
   InMemoryCacheConfig,
 } from "@apollo/client";
 import config from "./config";

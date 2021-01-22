@@ -4,10 +4,10 @@
 
 import classNames from "classnames";
 import React from "react";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import { StatusCheck } from "../../lib/experiment";
-import "./index.scss";
 import { humanDate, stringDateSubtract } from "../../lib/dateUtils";
+import { StatusCheck } from "../../lib/experiment";
+import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import "./index.scss";
 
 type HeaderExperimentProps = Pick<
   getExperiment_experimentBySlug,

@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { AnalysisDataOverall } from "../../../lib/visualization/types";
-import TableVisualizationRow from "../TableVisualizationRow";
-import { getExperiment_experimentBySlug_primaryProbeSets } from "../../../types/getExperiment";
 import {
+  DISPLAY_TYPE,
   PRIMARY_METRIC_COLUMNS,
   TABLE_LABEL,
-  DISPLAY_TYPE,
 } from "../../../lib/visualization/constants";
+import { AnalysisDataOverall } from "../../../lib/visualization/types";
+import { getExperiment_experimentBySlug_primaryProbeSets } from "../../../types/getExperiment";
+import TableVisualizationRow from "../TableVisualizationRow";
 
 type PrimaryMetricStatistic = {
   name: string;

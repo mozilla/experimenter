@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import { screen, render, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
+import React from "react";
 import PageResults from ".";
-import { RouterSlugProvider } from "../../lib/test-utils";
+import { getStatus as mockGetStatus } from "../../lib/experiment";
 import { mockExperimentQuery } from "../../lib/mocks";
+import { RouterSlugProvider } from "../../lib/test-utils";
 import {
   mockAnalysis,
   MOCK_UNAVAILABLE_ANALYSIS,
 } from "../../lib/visualization/mocks";
-import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import { AnalysisData } from "../../lib/visualization/types";
-import { getStatus as mockGetStatus } from "../../lib/experiment";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
+import { NimbusExperimentStatus } from "../../types/globalTypes";
+import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 
 const Subject = () => (
   <RouterSlugProvider>

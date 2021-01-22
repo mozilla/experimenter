@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
 import { render, waitFor } from "@testing-library/react";
-import { useExperiment } from "./useExperiment";
+import React from "react";
 import { MockedCache, mockExperimentQuery } from "../lib/mocks";
+import { useExperiment } from "./useExperiment";
 
 describe("hooks/useExperiment", () => {
   describe("useExperiment", () => {

@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
+import { Table } from "react-bootstrap";
 import {
   getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_referenceBranch,
   getExperiment_experimentBySlug_treatmentBranches,
 } from "../../../types/getExperiment";
-import { Table } from "react-bootstrap";
 import NotSet from "../../NotSet";
 
 type Branch =

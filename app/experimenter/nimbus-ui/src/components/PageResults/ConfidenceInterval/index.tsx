@@ -6,7 +6,6 @@
 // TODO: EXP-638 remove this ^
 
 import React from "react";
-
 import { SIGNIFICANCE } from "../../../lib/visualization/constants";
 
 const renderBounds = (lower: number, upper: number, significance: string) => {

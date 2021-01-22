@@ -4,11 +4,11 @@
 
 import React from "react";
 import ProgressBar from "react-bootstrap/ProgressBar";
+import { humanDate } from "../../../lib/dateUtils";
+import { getStatus, StatusCheck } from "../../../lib/experiment";
 import pluralize from "../../../lib/pluralize";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import NotSet from "../../NotSet";
-import { getStatus, StatusCheck } from "../../../lib/experiment";
-import { humanDate } from "../../../lib/dateUtils";
 
 const SummaryTimeline = ({
   experiment,

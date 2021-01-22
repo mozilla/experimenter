@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import { MockedResponse } from "@apollo/client/testing";
 import {
   createHistory,
   createMemorySource,
@@ -11,7 +11,7 @@ import {
   Router,
 } from "@reach/router";
 import { render } from "@testing-library/react";
-import { MockedResponse } from "@apollo/client/testing";
+import React from "react";
 import { MockedCache } from "./mocks";
 
 export function renderWithRouter(

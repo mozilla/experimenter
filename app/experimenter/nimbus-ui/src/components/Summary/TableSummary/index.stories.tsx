@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
 import { storiesOf } from "@storybook/react";
-import { mockExperimentQuery, MOCK_CONFIG } from "../../../lib/mocks";
-import AppLayout from "../../AppLayout";
+import React from "react";
 import TableSummary from ".";
+import { mockExperimentQuery, MOCK_CONFIG } from "../../../lib/mocks";
 import { RouterSlugProvider } from "../../../lib/test-utils";
+import AppLayout from "../../AppLayout";
 
 storiesOf("components/Summary/TableSummary", module)
   .add("all fields filled out", () => {

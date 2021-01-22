@@ -2,22 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
 import { render, screen } from "@testing-library/react";
+import React from "react";
 import DirectoryTable, {
-  DirectoryColumnTitle,
-  DirectoryColumnOwner,
   DirectoryColumnFeature,
-  DirectoryLiveTable,
+  DirectoryColumnOwner,
+  DirectoryColumnTitle,
   DirectoryCompleteTable,
   DirectoryDraftsTable,
+  DirectoryLiveTable,
 } from ".";
-import { mockSingleDirectoryExperiment } from "../../../lib/mocks";
 import {
   getProposedEndDate,
   getProposedEnrollmentRange,
   humanDate,
 } from "../../../lib/dateUtils";
+import { mockSingleDirectoryExperiment } from "../../../lib/mocks";
 
 const experiment = mockSingleDirectoryExperiment();
 

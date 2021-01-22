@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
 import { RouteComponentProps } from "@reach/router";
+import React from "react";
+import { analysisUnavailable } from "../../lib/visualization/utils";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
 import LinkExternal from "../LinkExternal";
-import TableResults from "./TableResults";
+import LinkMonitoring from "../LinkMonitoring";
 import TableHighlights from "./TableHighlights";
 import TableHighlightsOverview from "./TableHighlightsOverview";
 import TableMetricPrimary from "./TableMetricPrimary";
 import TableMetricSecondary from "./TableMetricSecondary";
-import LinkMonitoring from "../LinkMonitoring";
-import { analysisUnavailable } from "../../lib/visualization/utils";
+import TableResults from "./TableResults";
 
 const PageResults: React.FunctionComponent<RouteComponentProps> = () => (
   <AppLayoutWithExperiment
