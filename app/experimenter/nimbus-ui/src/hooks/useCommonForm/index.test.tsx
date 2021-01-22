@@ -12,15 +12,15 @@ import {
 } from "@testing-library/react";
 import { Subject as OverviewSubject } from "../../components/FormOverview/mocks";
 import { overviewFieldNames } from "../../components/FormOverview";
-import { Subject as MetricsSubject } from "../../components/FormMetrics/mocks";
-import { metricsFieldNames } from "../../components/FormMetrics";
-import { Subject as AudienceSubject } from "../../components/FormAudience/mocks";
-import { audienceFieldNames } from "../../components/FormAudience";
-import { branchFieldNames } from "../../components/FormBranches/FormBranch";
+import { Subject as MetricsSubject } from "../../components/PageEditMetrics/FormMetrics/mocks";
+import { metricsFieldNames } from "../../components/PageEditMetrics/FormMetrics";
+import { Subject as AudienceSubject } from "../../components/PageEditAudience/FormAudience/mocks";
+import { audienceFieldNames } from "../../components/PageEditAudience/FormAudience";
+import { branchFieldNames } from "../../components/PageEditBranches/FormBranches/FormBranch";
 import {
   SubjectBranch as BranchSubject,
   MOCK_FEATURE_CONFIG_WITH_SCHEMA,
-} from "../../components/FormBranches/mocks";
+} from "../../components/PageEditBranches/FormBranches/mocks";
 import { mockExperimentQuery } from "../../lib/mocks";
 
 describe("hooks/useCommonForm", () => {

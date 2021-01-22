@@ -12,7 +12,7 @@ import {
 } from "@testing-library/react";
 import fetchMock from "jest-fetch-mock";
 import PageEditMetrics from ".";
-import FormMetrics from "../FormMetrics";
+import FormMetrics from "./FormMetrics";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentMutation, mockExperimentQuery } from "../../lib/mocks";
 import { MockedResponse } from "@apollo/client/testing";
@@ -209,7 +209,7 @@ describe("PageEditMetrics", () => {
 });
 
 // Mocking form component because validation is exercised in its own tests.
-jest.mock("../FormMetrics", () => ({
+jest.mock("./FormMetrics", () => ({
   __esModule: true,
   default: (props: React.ComponentProps<typeof FormMetrics>) => {
     const handleSubmit = (ev: React.FormEvent) => {

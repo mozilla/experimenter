@@ -12,7 +12,7 @@ import { UPDATE_EXPERIMENT_PROBESETS_MUTATION } from "../../gql/experiments";
 import { updateExperimentProbeSets_updateExperiment as UpdateExperimentProbeSetsResult } from "../../types/updateExperimentProbeSets";
 import { ExperimentInput } from "../../types/globalTypes";
 import AppLayoutWithExperiment from "../AppLayoutWithExperiment";
-import FormMetrics from "../FormMetrics";
+import FormMetrics from "./FormMetrics";
 import LinkExternal from "../LinkExternal";
 import { editCommonRedirects } from "../../lib/experiment";
 
