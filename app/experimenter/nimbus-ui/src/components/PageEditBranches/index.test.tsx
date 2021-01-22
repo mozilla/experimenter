@@ -13,7 +13,7 @@ import {
 import { navigate } from "@reach/router";
 import fetchMock from "jest-fetch-mock";
 import PageEditBranches, { SUBMIT_ERROR_MESSAGE } from ".";
-import FormBranches from "../FormBranches";
+import FormBranches from "./FormBranches";
 import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { UPDATE_EXPERIMENT_BRANCHES_MUTATION } from "../../gql/experiments";
@@ -28,8 +28,8 @@ import {
   updateExperimentBranches_updateExperiment_nimbusExperiment,
   updateExperimentBranches_updateExperiment,
 } from "../../types/updateExperimentBranches";
-import { FormBranchesSaveState } from "../FormBranches/reducer";
-import { extractUpdateBranch } from "../FormBranches/reducer/update";
+import { FormBranchesSaveState } from "./FormBranches/reducer";
+import { extractUpdateBranch } from "./FormBranches/reducer/update";
 
 describe("PageEditBranches", () => {
   beforeAll(() => {
@@ -241,7 +241,7 @@ function setMockUpdateState(experiment: getExperiment_experimentBySlug) {
   };
 }
 
-jest.mock("../FormBranches", () => ({
+jest.mock("./FormBranches", () => ({
   __esModule: true,
   default: ({
     experiment,
