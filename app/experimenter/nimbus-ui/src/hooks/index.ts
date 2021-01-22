@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export * from "./useExitWarning";
-export * from "./useExperiment";
-export * from "./useConfig";
 export * from "./useAnalysis";
 export * from "./useCommonForm";
 export * from "./useCommonForm/useCommonNestedForm";
 export * from "./useCommonForm/useForm";
+export * from "./useConfig";
+export * from "./useExitWarning";
+export * from "./useExperiment";

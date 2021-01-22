@@ -2,21 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
 import {
+  act,
+  fireEvent,
   render,
   screen,
-  fireEvent,
-  act,
   waitFor,
 } from "@testing-library/react";
-
+import React from "react";
 import { MOCK_CONFIG } from "../../../lib/mocks";
 import {
-  SubjectBranch,
   MOCK_ANNOTATED_BRANCH,
   MOCK_FEATURE_CONFIG,
   MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+  SubjectBranch,
 } from "./mocks";
 
 describe("FormBranch", () => {

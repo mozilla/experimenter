@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { RegisterOptions, FieldError, UseFormMethods } from "react-hook-form";
 import Form from "react-bootstrap/Form";
+import { FieldError, RegisterOptions, UseFormMethods } from "react-hook-form";
 import { camelToSnakeCase } from "../../lib/caseConversions";
 
 // TODO: 'any' type on `onChange={(selectedOptions) => ...`,

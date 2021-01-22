@@ -3,23 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useMemo } from "react";
-import { FormProvider, SubmitHandler } from "react-hook-form";
-import Form from "react-bootstrap/Form";
-import Col from "react-bootstrap/Col";
-import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
-
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
+import { FormProvider, SubmitHandler } from "react-hook-form";
 import { useExitWarning, useForm } from "../../../hooks";
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import { IsDirtyUnsaved } from "../../../hooks/useCommonForm/useCommonFormMethods";
 import {
   getConfig_nimbusConfig,
   getConfig_nimbusConfig_featureConfig,
 } from "../../../types/getConfig";
-
-import { useFormBranchesReducer, FormBranchesSaveState } from "./reducer";
-import { FormData } from "./reducer/update";
+import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import FormBranch from "./FormBranch";
-import { IsDirtyUnsaved } from "../../../hooks/useCommonForm/useCommonFormMethods";
+import { FormBranchesSaveState, useFormBranchesReducer } from "./reducer";
+import { FormData } from "./reducer/update";
 
 type FormBranchesProps = {
   isLoading: boolean;

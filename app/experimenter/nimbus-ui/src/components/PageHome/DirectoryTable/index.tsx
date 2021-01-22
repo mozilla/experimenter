@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import { getAllExperiments_experiments } from "../../../types/getAllExperiments";
 import { Link } from "@reach/router";
-import LinkExternal from "../../LinkExternal";
-import NotSet from "../../NotSet";
+import React from "react";
 import {
   getProposedEndDate,
   getProposedEnrollmentRange,
   humanDate,
 } from "../../../lib/dateUtils";
+import { getAllExperiments_experiments } from "../../../types/getAllExperiments";
+import LinkExternal from "../../LinkExternal";
+import NotSet from "../../NotSet";
 
 // These are all render functions for column type sin the table.
 export type ColumnComponent = React.FC<getAllExperiments_experiments>;

@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode } from "react";
+import "./services/apollo";
 import "./services/config";
 import "./services/sentry";
-import "./services/apollo";
 
 describe("index", () => {
   const origError = global.console.error;

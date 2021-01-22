@@ -3,8 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { useFormContext } from "react-hook-form";
-import { RegisterOptions, UseFormMethods } from "react-hook-form";
+import {
+  RegisterOptions,
+  useFormContext,
+  UseFormMethods,
+} from "react-hook-form";
 import { useCommonFormMethods } from "./useCommonFormMethods";
 
 export function useCommonNestedForm<FieldNames extends string>(

@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import { storiesOf } from "@storybook/react";
 import { withLinks } from "@storybook/addon-links";
-import { RouterSlugProvider } from "../../lib/test-utils";
+import { storiesOf } from "@storybook/react";
+import React from "react";
 import AppLayoutSidebarLocked from ".";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
+import { RouterSlugProvider } from "../../lib/test-utils";
 import { mockAnalysis } from "../../lib/visualization/mocks";
+import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 const { experiment } = mockExperimentQuery("demo-slug");
 

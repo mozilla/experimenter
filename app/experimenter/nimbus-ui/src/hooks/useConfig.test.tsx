@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import { useConfig } from "./useConfig";
-import { MockedCache, MOCK_CONFIG } from "../lib/mocks";
 import { render, waitFor } from "@testing-library/react";
+import React from "react";
+import { MockedCache, MOCK_CONFIG } from "../lib/mocks";
 import serverConfig from "../services/config";
+import { useConfig } from "./useConfig";
 
 describe("hooks/useConfig", () => {
   describe("useConfig", () => {

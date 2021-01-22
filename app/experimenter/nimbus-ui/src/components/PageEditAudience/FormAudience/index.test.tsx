@@ -2,23 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
 import {
+  act,
+  fireEvent,
+  render,
   screen,
   waitFor,
-  render,
-  fireEvent,
-  act,
 } from "@testing-library/react";
-import { Subject, MOCK_EXPERIMENT } from "./mocks";
-import { MOCK_CONFIG } from "../../../lib/mocks";
+import React from "react";
 import { snakeToCamelCase } from "../../../lib/caseConversions";
+import { EXTERNAL_URLS } from "../../../lib/constants";
+import { MOCK_CONFIG } from "../../../lib/mocks";
 import {
+  NimbusExperimentChannel,
   NimbusExperimentFirefoxMinVersion,
   NimbusExperimentTargetingConfigSlug,
-  NimbusExperimentChannel,
 } from "../../../types/globalTypes";
-import { EXTERNAL_URLS } from "../../../lib/constants";
+import { MOCK_EXPERIMENT, Subject } from "./mocks";
 
 describe("FormAudience", () => {
   it("renders without error", async () => {

@@ -3,18 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from "react";
-import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
+import Form from "react-bootstrap/Form";
 import Select from "react-select";
+import ReactTooltip from "react-tooltip";
+import { useCommonForm, useConfig, useExitWarning } from "../../../hooks";
+import { SelectOption } from "../../../hooks/useCommonForm/useCommonFormMethods";
+import { ReactComponent as Info } from "../../../images/info.svg";
 import {
   getExperiment,
   getExperiment_experimentBySlug_primaryProbeSets,
   getExperiment_experimentBySlug_secondaryProbeSets,
 } from "../../../types/getExperiment";
-import { useCommonForm, useConfig, useExitWarning } from "../../../hooks";
-import { SelectOption } from "../../../hooks/useCommonForm/useCommonFormMethods";
-import ReactTooltip from "react-tooltip";
-import { ReactComponent as Info } from "../../../images/info.svg";
 
 export const metricsFieldNames = [
   "primaryProbeSetIds",

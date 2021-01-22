@@ -5,9 +5,9 @@
 import React from "react";
 import {
   DISPLAY_TYPE,
+  METRIC_TYPE,
   SECONDARY_METRIC_COLUMNS,
   TABLE_LABEL,
-  METRIC_TYPE,
 } from "../../../lib/visualization/constants";
 import { AnalysisDataOverall } from "../../../lib/visualization/types";
 import TableVisualizationRow from "../TableVisualizationRow";

@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import { storiesOf } from "@storybook/react";
 import { withLinks } from "@storybook/addon-links";
+import { storiesOf } from "@storybook/react";
+import React from "react";
 import TableVisualizationRow from ".";
+import {
+  BRANCH_COMPARISON,
+  DISPLAY_TYPE,
+  TABLE_LABEL,
+} from "../../../lib/visualization/constants";
 import {
   mockAnalysis,
   mockIncompleteAnalysis,
 } from "../../../lib/visualization/mocks";
-import {
-  DISPLAY_TYPE,
-  BRANCH_COMPARISON,
-  TABLE_LABEL,
-} from "../../../lib/visualization/constants";
 
 const MOCK_ANALYSIS = mockAnalysis();
 const MOCK_INCOMPLETE_ANALYSIS = mockIncompleteAnalysis();

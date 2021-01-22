@@ -3,19 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { AnalysisDataOverall } from "../../../lib/visualization/types";
+import { ReactComponent as Info } from "../../../images/info.svg";
 import {
-  HIGHLIGHTS_METRICS_LIST,
-  METRICS_TIPS,
-  METRIC,
   BRANCH_COMPARISON,
+  HIGHLIGHTS_METRICS_LIST,
+  METRIC,
+  METRICS_TIPS,
   SEGMENT_TIPS,
   TABLE_LABEL,
 } from "../../../lib/visualization/constants";
+import { AnalysisDataOverall } from "../../../lib/visualization/types";
 import { getTableDisplayType } from "../../../lib/visualization/utils";
 import { getExperiment_experimentBySlug_primaryProbeSets } from "../../../types/getExperiment";
 import TableVisualizationRow from "../TableVisualizationRow";
-import { ReactComponent as Info } from "../../../images/info.svg";
 
 type TableHighlightsProps = {
   primaryProbeSets: (getExperiment_experimentBySlug_primaryProbeSets | null)[];

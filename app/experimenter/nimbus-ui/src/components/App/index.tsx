@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import { Router, Redirect, RouteComponentProps } from "@reach/router";
 import { useQuery } from "@apollo/client";
+import { Redirect, RouteComponentProps, Router } from "@reach/router";
+import React from "react";
 import { GET_CONFIG_QUERY } from "../../gql/config";
-import PageLoading from "../PageLoading";
-import PageHome from "../PageHome";
-import PageNew from "../PageNew";
-import PageSummary from "../PageSummary";
 import PageDesign from "../PageDesign";
-import PageResults from "../PageResults";
-import PageEditOverview from "../PageEditOverview";
+import PageEditAudience from "../PageEditAudience";
 import PageEditBranches from "../PageEditBranches";
 import PageEditMetrics from "../PageEditMetrics";
-import PageEditAudience from "../PageEditAudience";
+import PageEditOverview from "../PageEditOverview";
+import PageHome from "../PageHome";
+import PageLoading from "../PageLoading";
+import PageNew from "../PageNew";
 import PageRequestReview from "../PageRequestReview";
+import PageResults from "../PageResults";
+import PageSummary from "../PageSummary";
 
 type RootProps = {
   children: React.ReactNode;

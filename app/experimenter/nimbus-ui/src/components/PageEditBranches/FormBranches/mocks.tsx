@@ -4,12 +4,12 @@
 
 import React, { useEffect } from "react";
 import { FormProvider } from "react-hook-form";
-import { formBranchesActionReducer } from "./reducer/actions";
 import FormBranches from ".";
-import FormBranch from "./FormBranch";
-import { mockExperimentQuery, MOCK_CONFIG } from "../../../lib/mocks";
-import { AnnotatedBranch } from "./reducer";
 import { useForm } from "../../../hooks";
+import { mockExperimentQuery, MOCK_CONFIG } from "../../../lib/mocks";
+import FormBranch from "./FormBranch";
+import { AnnotatedBranch } from "./reducer";
+import { formBranchesActionReducer } from "./reducer/actions";
 import { FormBranchesState } from "./reducer/state";
 
 export const MOCK_EXPERIMENT = mockExperimentQuery("demo-slug", {

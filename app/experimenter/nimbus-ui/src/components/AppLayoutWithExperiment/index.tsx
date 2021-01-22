@@ -2,24 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from "react";
 import { navigate, RouteComponentProps, useParams } from "@reach/router";
-import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
-import AppLayoutSidebarLocked from "../AppLayoutSidebarLocked";
-import HeaderExperiment from "../HeaderExperiment";
-import PageLoading from "../PageLoading";
-import PageExperimentNotFound from "../PageExperimentNotFound";
-import { useAnalysis, useExperiment, ExperimentReview } from "../../hooks";
-import { getExperiment_experimentBySlug } from "../../types/getExperiment";
-import AppLayout from "../AppLayout";
-import { AnalysisData } from "../../lib/visualization/types";
-import Head from "../Head";
+import React, { useEffect } from "react";
+import { ExperimentReview, useAnalysis, useExperiment } from "../../hooks";
+import { BASE_PATH } from "../../lib/constants";
 import { getStatus, StatusCheck } from "../../lib/experiment";
+import { AnalysisData } from "../../lib/visualization/types";
 import {
+  getExperiment_experimentBySlug,
   getExperiment_experimentBySlug_primaryProbeSets,
   getExperiment_experimentBySlug_secondaryProbeSets,
 } from "../../types/getExperiment";
-import { BASE_PATH } from "../../lib/constants";
+import AppLayout from "../AppLayout";
+import AppLayoutSidebarLocked from "../AppLayoutSidebarLocked";
+import AppLayoutWithSidebar from "../AppLayoutWithSidebar";
+import Head from "../Head";
+import HeaderExperiment from "../HeaderExperiment";
+import PageExperimentNotFound from "../PageExperimentNotFound";
+import PageLoading from "../PageLoading";
 
 type AppLayoutWithExperimentChildrenProps = {
   experiment: getExperiment_experimentBySlug;

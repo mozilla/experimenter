@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createApolloClient, cache } from "./apollo";
 import { ApolloClient, InMemoryCache } from "@apollo/client/core";
+import { cache, createApolloClient } from "./apollo";
 
 describe("services/apollo", () => {
   describe("cache", () => {

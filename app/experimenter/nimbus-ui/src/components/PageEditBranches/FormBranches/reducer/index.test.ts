@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { formBranchesActionReducer, FormBranchesAction } from "./actions";
+import { MOCK_EXPERIMENT } from "../mocks";
+import { FormBranchesAction, formBranchesActionReducer } from "./actions";
 import { FormBranchesState } from "./state";
 import { extractUpdateState } from "./update";
-import { MOCK_EXPERIMENT } from "../mocks";
 
 const MOCK_STATE: FormBranchesState = {
   equalRatio: true,

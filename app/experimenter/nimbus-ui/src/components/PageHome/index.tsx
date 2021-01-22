@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import AppLayout from "../AppLayout";
-import { RouteComponentProps, Link } from "@reach/router";
-import Head from "../Head";
-import { Tabs, Tab } from "react-bootstrap";
 import { useQuery } from "@apollo/client";
-import { getAllExperiments_experiments } from "../../types/getAllExperiments";
+import { Link, RouteComponentProps } from "@reach/router";
+import React from "react";
+import { Tab, Tabs } from "react-bootstrap";
 import { GET_EXPERIMENTS_QUERY } from "../../gql/experiments";
+import { getAllExperiments_experiments } from "../../types/getAllExperiments";
+import AppLayout from "../AppLayout";
+import Head from "../Head";
 import PageLoading from "../PageLoading";
-import sortByStatus from "./sortByStatus";
 import DirectoryTable, {
-  DirectoryLiveTable,
   DirectoryCompleteTable,
   DirectoryDraftsTable,
+  DirectoryLiveTable,
 } from "./DirectoryTable";
+import sortByStatus from "./sortByStatus";
 
 type PageHomeProps = {} & RouteComponentProps;
 
