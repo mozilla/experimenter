@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
 import { render, screen } from "@testing-library/react";
+import React from "react";
+import TableSummary from ".";
 import {
   MockedCache,
   mockExperimentQuery,
   MOCK_CONFIG,
 } from "../../../lib/mocks";
-import TableSummary from ".";
-import { NimbusDocumentationLinkTitle } from "../../../types/globalTypes";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
+import { NimbusDocumentationLinkTitle } from "../../../types/globalTypes";
 
 describe("TableSummary", () => {
   it("renders rows displaying required fields at experiment creation as expected", () => {

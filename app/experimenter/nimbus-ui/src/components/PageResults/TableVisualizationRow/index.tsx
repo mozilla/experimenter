@@ -1,23 +1,20 @@
 import React from "react";
 import ReactTooltip from "react-tooltip";
-
-import ConfidenceInterval from "../ConfidenceInterval";
 import {
-  SIGNIFICANCE,
-  METRIC,
   BRANCH_COMPARISON,
+  DISPLAY_TYPE,
+  GENERAL_TIPS,
+  METRIC,
+  SIGNIFICANCE,
+  SIGNIFICANCE_TIPS,
   TABLE_LABEL,
   VARIANT_TYPE,
-  DISPLAY_TYPE,
-} from "../../../lib/visualization/constants";
-import {
-  SIGNIFICANCE_TIPS,
-  GENERAL_TIPS,
 } from "../../../lib/visualization/constants";
 import { BranchDescription } from "../../../lib/visualization/types";
+import ConfidenceInterval from "../ConfidenceInterval";
 import { ReactComponent as SignificanceNegative } from "./significance-negative.svg";
-import { ReactComponent as SignificancePositive } from "./significance-positive.svg";
 import { ReactComponent as SignificanceNeutral } from "./significance-neutral.svg";
+import { ReactComponent as SignificancePositive } from "./significance-positive.svg";
 
 // This is a mapping for which view on the analysis
 // to display given the branch and table type.

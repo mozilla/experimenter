@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import { storiesOf } from "@storybook/react";
 import { withLinks } from "@storybook/addon-links";
-import { mockExperimentQuery } from "../../../lib/mocks";
+import { storiesOf } from "@storybook/react";
+import React from "react";
 import TableMetricSecondary from ".";
+import { mockExperimentQuery } from "../../../lib/mocks";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
 
 storiesOf("pages/Results/TableMetricSecondary", module)

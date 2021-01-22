@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { act, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { render, screen, waitFor, act } from "@testing-library/react";
 import AppLayoutWithExperiment, { POLL_INTERVAL } from ".";
-import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
-import { mockExperimentQuery } from "../../lib/mocks";
-import { NimbusExperimentStatus } from "../../types/globalTypes";
 import { BASE_PATH } from "../../lib/constants";
+import { mockExperimentQuery } from "../../lib/mocks";
+import { renderWithRouter, RouterSlugProvider } from "../../lib/test-utils";
+import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 jest.useFakeTimers();
 

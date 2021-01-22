@@ -3,20 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect } from "react";
-import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
-import { getExperiment } from "../../types/getExperiment";
-import { useExitWarning, useCommonForm } from "../../hooks";
+import Form from "react-bootstrap/Form";
 import ReactTooltip from "react-tooltip";
+import { useCommonForm, useExitWarning } from "../../hooks";
 import { useConfig } from "../../hooks/useConfig";
-import InlineErrorIcon from "../InlineErrorIcon";
-import LinkExternal from "../LinkExternal";
 import { ReactComponent as Info } from "../../images/info.svg";
 import { ReactComponent as DeleteIcon } from "../../images/x.svg";
 import { EXTERNAL_URLS } from "../../lib/constants";
+import { getExperiment } from "../../types/getExperiment";
 import { NimbusDocumentationLinkTitle } from "../../types/globalTypes";
+import InlineErrorIcon from "../InlineErrorIcon";
+import LinkExternal from "../LinkExternal";
 
 type FormOverviewProps = {
   isLoading: boolean;

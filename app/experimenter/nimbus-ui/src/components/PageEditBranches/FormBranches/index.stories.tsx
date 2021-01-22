@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from "react";
-import { storiesOf } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
+import { storiesOf } from "@storybook/react";
+import React, { useState } from "react";
 import { FormBranches } from ".";
 import {
-  SubjectBranch,
-  SubjectBranches,
-  MOCK_EXPERIMENT,
   MOCK_ANNOTATED_BRANCH,
+  MOCK_EXPERIMENT,
   MOCK_FEATURE_CONFIG,
   MOCK_FEATURE_CONFIG_WITH_SCHEMA,
+  SubjectBranch,
+  SubjectBranches,
 } from "./mocks";
 
 const onRemove = action("onRemove");

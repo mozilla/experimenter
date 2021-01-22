@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { render, screen } from "@testing-library/react";
 import React from "react";
-import { screen, render } from "@testing-library/react";
 import HeaderExperiment from ".";
-import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
 import { humanDate } from "../../lib/dateUtils";
+import { mockExperimentQuery, mockGetStatus } from "../../lib/mocks";
 import { NimbusExperimentStatus } from "../../types/globalTypes";
 
 describe("HeaderExperiment", () => {

@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import * as apollo from "@apollo/client";
 import {
   render,
   screen,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
+import React from "react";
 import PageHome from ".";
 import { mockDirectoryExperimentsQuery, MockedCache } from "../../lib/mocks";
 import { getAllExperiments_experiments } from "../../types/getAllExperiments";
-import * as apollo from "@apollo/client";
 
 describe("PageHome", () => {
   it("renders as expected", () => {

@@ -4,8 +4,8 @@
 
 import { useApolloClient } from "@apollo/client";
 import { GET_CONFIG_QUERY } from "../gql/config";
-import { getConfig } from "../types/getConfig";
 import serverConvig from "../services/config";
+import { getConfig } from "../types/getConfig";
 
 /**
  * Hook to retrieve GraphQL and Server config valyes.

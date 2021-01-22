@@ -2,42 +2,42 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
 import {
-  InMemoryCache,
   ApolloClient,
-  ApolloProvider,
   ApolloLink,
-  Operation,
+  ApolloProvider,
   FetchResult,
+  InMemoryCache,
+  Operation,
 } from "@apollo/client";
+import { MockedResponse, MockLink } from "@apollo/client/testing";
 import { Observable } from "@apollo/client/utilities";
-import { MockLink, MockedResponse } from "@apollo/client/testing";
 import { equal } from "@wry/equality";
 import { DocumentNode, print } from "graphql";
-import { cacheConfig } from "../services/apollo";
+import React from "react";
+import { GET_CONFIG_QUERY } from "../gql/config";
 import {
   GET_EXPERIMENTS_QUERY,
   GET_EXPERIMENT_QUERY,
 } from "../gql/experiments";
-import {
-  getExperiment,
-  getExperiment_experimentBySlug,
-} from "../types/getExperiment";
-import { getConfig_nimbusConfig } from "../types/getConfig";
+import { ExperimentReview } from "../hooks";
+import { cacheConfig } from "../services/apollo";
 import {
   getAllExperiments,
   getAllExperiments_experiments,
 } from "../types/getAllExperiments";
-import { GET_CONFIG_QUERY } from "../gql/config";
-import { NimbusExperimentStatus } from "../types/globalTypes";
-import { getStatus } from "./experiment";
+import { getConfig_nimbusConfig } from "../types/getConfig";
 import {
+  getExperiment,
+  getExperiment_experimentBySlug,
+} from "../types/getExperiment";
+import {
+  ExperimentInput,
+  NimbusExperimentStatus,
   NimbusFeatureConfigApplication,
   NimbusProbeKind,
-  ExperimentInput,
 } from "../types/globalTypes";
-import { ExperimentReview } from "../hooks";
+import { getStatus } from "./experiment";
 
 export interface MockedProps {
   config?: Partial<typeof MOCK_CONFIG> | null;

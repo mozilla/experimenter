@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactNode } from "react";
-import { screen, waitFor } from "@testing-library/react";
-import { renderWithRouter } from "../../lib/test-utils";
-import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
 import * as apollo from "@apollo/client";
+import { screen, waitFor } from "@testing-library/react";
+import React, { ReactNode } from "react";
 import App from ".";
+import { MockedCache, mockExperimentQuery } from "../../lib/mocks";
+import { renderWithRouter } from "../../lib/test-utils";
 
 const { mock } = mockExperimentQuery("my-special-slug");
 

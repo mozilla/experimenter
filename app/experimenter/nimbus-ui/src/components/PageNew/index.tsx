@@ -2,20 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from "react";
-import { RouteComponentProps } from "@reach/router";
-import AppLayout from "../AppLayout";
-import LinkExternal from "../LinkExternal";
-import FormOverview from "../FormOverview";
-import { ReactComponent as DeleteIcon } from "../../images/x.svg";
-
 import { useMutation } from "@apollo/client";
+import { navigate, RouteComponentProps } from "@reach/router";
+import React, { useCallback, useState } from "react";
 import { CREATE_EXPERIMENT_MUTATION } from "../../gql/experiments";
-import { ExperimentInput } from "../../types/globalTypes";
-import { createExperiment_createExperiment as CreateExperimentResult } from "../../types/createExperiment";
-import { navigate } from "@reach/router";
+import { ReactComponent as DeleteIcon } from "../../images/x.svg";
 import { EXTERNAL_URLS, SUBMIT_ERROR } from "../../lib/constants";
+import { createExperiment_createExperiment as CreateExperimentResult } from "../../types/createExperiment";
+import { ExperimentInput } from "../../types/globalTypes";
+import AppLayout from "../AppLayout";
+import FormOverview from "../FormOverview";
 import Head from "../Head";
+import LinkExternal from "../LinkExternal";
 
 type PageNewProps = {} & RouteComponentProps;
 

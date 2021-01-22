@@ -2,23 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Link, RouteComponentProps, useParams } from "@reach/router";
 import React from "react";
-import { RouteComponentProps, useParams, Link } from "@reach/router";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
+import Row from "react-bootstrap/Row";
+import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
+import { ReactComponent as Clipboard } from "../../images/clipboard.svg";
 import { BASE_PATH } from "../../lib/constants";
 import { StatusCheck } from "../../lib/experiment";
 import { DisabledItem } from "../DisabledItem";
 import { LinkNav } from "../LinkNav";
-import { ReactComponent as ChevronLeft } from "../../images/chevron-left.svg";
+import { ReactComponent as AlertCircle } from "./alert-circle.svg";
+import { ReactComponent as ChartArrow } from "./chart-arrow.svg";
 import { ReactComponent as Cog } from "./cog.svg";
 import { ReactComponent as Layers } from "./layers.svg";
-import { ReactComponent as ChartArrow } from "./chart-arrow.svg";
 import { ReactComponent as Person } from "./person.svg";
-import { ReactComponent as Clipboard } from "../../images/clipboard.svg";
-import { ReactComponent as AlertCircle } from "./alert-circle.svg";
 
 type AppLayoutWithSidebarProps = {
   testid?: string;

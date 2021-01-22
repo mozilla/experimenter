@@ -3,22 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from "react";
-import { FieldError } from "react-hook-form";
-import Form from "react-bootstrap/Form";
-import Col from "react-bootstrap/Col";
-import Button from "react-bootstrap/Button";
 import Badge from "react-bootstrap/Badge";
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
+import { FieldError } from "react-hook-form";
+import { useCommonNestedForm } from "../../../hooks";
 import { ReactComponent as DeleteIcon } from "../../../images/x.svg";
-
-import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import {
   getConfig_nimbusConfig,
   getConfig_nimbusConfig_featureConfig,
 } from "../../../types/getConfig";
-
-import { AnnotatedBranch } from "./reducer";
+import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import InlineErrorIcon from "../../InlineErrorIcon";
-import { useCommonNestedForm } from "../../../hooks";
+import { AnnotatedBranch } from "./reducer";
 
 export const branchFieldNames = [
   "name",

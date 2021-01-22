@@ -2,32 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
+import { navigate } from "@reach/router";
 import {
+  act,
+  fireEvent,
+  render,
   screen,
   waitFor,
-  render,
-  fireEvent,
-  act,
 } from "@testing-library/react";
-import { navigate } from "@reach/router";
 import fetchMock from "jest-fetch-mock";
+import React from "react";
 import PageEditBranches, { SUBMIT_ERROR_MESSAGE } from ".";
-import FormBranches from "./FormBranches";
-import { RouterSlugProvider } from "../../lib/test-utils";
-import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
 import { UPDATE_EXPERIMENT_BRANCHES_MUTATION } from "../../gql/experiments";
 import { BASE_PATH, EXTERNAL_URLS } from "../../lib/constants";
+import { mockExperimentQuery, MOCK_CONFIG } from "../../lib/mocks";
+import { RouterSlugProvider } from "../../lib/test-utils";
 import { getExperiment_experimentBySlug } from "../../types/getExperiment";
 import {
+  ExperimentInput,
   NimbusExperimentStatus,
   NimbusFeatureConfigApplication,
-  ExperimentInput,
 } from "../../types/globalTypes";
 import {
-  updateExperimentBranches_updateExperiment_nimbusExperiment,
   updateExperimentBranches_updateExperiment,
+  updateExperimentBranches_updateExperiment_nimbusExperiment,
 } from "../../types/updateExperimentBranches";
+import FormBranches from "./FormBranches";
 import { FormBranchesSaveState } from "./FormBranches/reducer";
 import { extractUpdateBranch } from "./FormBranches/reducer/update";
 
