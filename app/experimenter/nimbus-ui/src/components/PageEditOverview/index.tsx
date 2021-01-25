@@ -33,6 +33,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
       hypothesis,
       riskMitigationLink,
       publicDescription,
+      documentationLinks,
     }: Record<string, any>) => {
       try {
         const result = await updateExperimentOverview({
@@ -43,6 +44,7 @@ const PageEditOverview: React.FunctionComponent<PageEditOverviewProps> = () => {
               hypothesis,
               publicDescription,
               riskMitigationLink,
+              documentationLinks,
             },
           },
         });
