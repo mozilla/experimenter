@@ -875,11 +875,11 @@ zookeeper = ["kazoo (>=1.3.1)"]
 
 [[package]]
 name = "markdown2"
-version = "2.3.10"
+version = "2.4.0"
 description = "A fast and complete Python implementation of Markdown"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.5, <4"
 
 [[package]]
 name = "markus"
@@ -1551,7 +1551,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "7cead26520f01bf2b7e6c06501926fdb347391dcfe79e8524418740c0624f8ae"
+content-hash = "46544f48b3e9ba3932ed2bdf72639ab2c90273a3c8757146127f03227f2c6c70"
 
 [metadata.files]
 aiohttp = [
@@ -1936,8 +1936,8 @@ kombu = [
     {file = "kombu-5.0.2.tar.gz", hash = "sha256:f4965fba0a4718d47d470beeb5d6446e3357a62402b16c510b6a2f251e05ac3c"},
 ]
 markdown2 = [
-    {file = "markdown2-2.3.10-py2.py3-none-any.whl", hash = "sha256:fef148e5fd68d4532286c3e2943e9d2c076a8ad781b0a70a9d599a0ffe91652d"},
-    {file = "markdown2-2.3.10.tar.gz", hash = "sha256:85956d8119fa6378156fef65545d66705a842819d2e1b50379a2b9d2aaa17cf0"},
+    {file = "markdown2-2.4.0-py2.py3-none-any.whl", hash = "sha256:8d4ef4a2d090c99532069c4611a9a2b9bea6ae1fa29b6c3727c95d1e31a8f6c5"},
+    {file = "markdown2-2.4.0.tar.gz", hash = "sha256:28d769f0e544e6f68f684f01e9b186747b079a6927d9ca77ebc8c640a2829b1b"},
 ]
 markus = [
     {file = "markus-2.2.0-py3-none-any.whl", hash = "sha256:ed9a275aa4cbfc02e5cf0f2abbd34bc3720c43e432c1448ac7cc36c507111103"},
