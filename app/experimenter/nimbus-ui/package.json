@@ -35,7 +35,7 @@
     "@apollo/client": "^3.3.7",
     "@reach/router": "^1.3.4",
     "@sentry/browser": "^5.27.3",
-    "@types/react-select": "^3.0.28",
+    "@types/react-select": "^3.1.2",
     "apollo": "^2.31.1",
     "bootstrap": "^4.5.2",
     "classnames": "^2.2.6",
