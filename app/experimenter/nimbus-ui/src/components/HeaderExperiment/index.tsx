@@ -35,6 +35,11 @@ const HeaderExperiment = ({
       <div className="col">
         <p className="header-experiment-status position-relative mt-2 d-inline-block">
           <StatusPill label="Draft" active={status.draft} />
+          {
+            /* istanbul ignore next until EXP-866 final */ status.preview && (
+              <StatusPill label="Preview" active={status.preview} />
+            )
+          }
           <StatusPill
             label="Review"
             active={status.review || status.accepted}
