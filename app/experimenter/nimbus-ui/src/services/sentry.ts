@@ -45,7 +45,7 @@ function beforeSend(data: Sentry.Event): Sentry.Event {
     // if this is a known errno, then use grouping with fingerprints
     // Docs: https://docs.sentry.io/hosted/learn/rollups/#fallback-grouping
     if (data.tags?.errno) {
-      data.fingerprint = ["errno" + data.tags.errno];
+      data.fingerprint = ["errno" + data.tags.errno.toString()];
       // if it is a known error change the error level to info.
       data.level = Sentry.Severity.Info;
     }
