@@ -150,9 +150,7 @@ class NimbusExperimentType(DjangoObjectType):
     def resolve_ready_for_review(self, info):
         serializer = NimbusReadyForReviewSerializer(
             self,
-            data=NimbusReadyForReviewSerializer(
-                self,
-            ).data,
+            data=NimbusReadyForReviewSerializer(self).data,
         )
         ready = serializer.is_valid()
         return NimbusReadyForReviewType(message=serializer.errors, ready=ready)

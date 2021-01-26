@@ -14,7 +14,7 @@
 import graphene
 
 from experimenter.experiments.api.v5.inputs import ExperimentInput
-from experimenter.experiments.api.v5.serializers import NimbusExperimentUpdateSerializer
+from experimenter.experiments.api.v5.serializers import NimbusExperimentSerializer
 from experimenter.experiments.api.v5.types import NimbusExperimentType, ObjectField
 from experimenter.experiments.models import NimbusExperiment
 
@@ -43,7 +43,7 @@ class CreateExperiment(graphene.Mutation):
 
     @classmethod
     def mutate(cls, root, info, input: ExperimentInput):
-        serializer = NimbusExperimentUpdateSerializer(
+        serializer = NimbusExperimentSerializer(
             data=input, context={"user": info.context.user}
         )
         return handle_with_serializer(cls, serializer)
@@ -62,7 +62,7 @@ class UpdateExperiment(graphene.Mutation):
         exp = NimbusExperiment.objects.get(id=input.id)
         if "feature_config_id" in input:
             input["feature_config"] = input.pop("feature_config_id", None)
-        serializer = NimbusExperimentUpdateSerializer(
+        serializer = NimbusExperimentSerializer(
             exp, data=input, partial=True, context={"user": info.context.user}
         )
         return handle_with_serializer(cls, serializer)
