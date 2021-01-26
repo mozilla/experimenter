@@ -1,115 +1,10 @@
-import json
-
 from django.test import TestCase
 
-from experimenter.experiments.admin.nimbus import (
-    NimbusBranchAdminForm,
-    NimbusExperimentAdminForm,
-    NimbusFeatureConfigAdminForm,
-)
+from experimenter.experiments.admin.nimbus import NimbusExperimentAdminForm
 from experimenter.experiments.tests.factories import (
     NimbusBranchFactory,
     NimbusExperimentFactory,
-    NimbusFeatureConfigFactory,
 )
-
-
-class TestNimbusBranchAdminForm(TestCase):
-    def setUp(self):
-        self.schema = """
-        {
-            "$id": "https://example.com/person.schema.json",
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "title": "Person",
-            "type": "object",
-            "properties": {
-                "firstName": {
-                "type": "string",
-                "description": "The person's first name."
-                },
-                "lastName": {
-                "type": "string",
-                "description": "The person's last name."
-                },
-                "age": {
-                "description": "Age in years",
-                "type": "integer",
-                "minimum": 0
-                }
-            }
-        }
-        """
-
-    def test_form_skips_json_validation_for_invalid_feature_config_schema(self):
-        feature_config = NimbusFeatureConfigFactory(schema="bad schema")
-        experiment = NimbusExperimentFactory.create(feature_config=feature_config)
-        branch = NimbusBranchFactory.create(experiment=experiment)
-
-        form = NimbusBranchAdminForm(
-            instance=branch,
-            data={
-                "experiment": experiment,
-                "name": branch.name,
-                "slug": branch.slug,
-                "ratio": branch.ratio,
-                "feature_value": "{whatever",
-            },
-        )
-        self.assertTrue(form.is_valid())
-
-    def test_form_rejects_invalid_json(self):
-        feature_config = NimbusFeatureConfigFactory(schema=self.schema)
-        experiment = NimbusExperimentFactory.create(feature_config=feature_config)
-        branch = NimbusBranchFactory.create(experiment=experiment)
-
-        form = NimbusBranchAdminForm(
-            instance=branch,
-            data={"experiment": experiment, "feature_value": "{invalid"},
-        )
-        self.assertFalse(form.is_valid())
-        self.assertIn("feature_value", form.errors)
-
-    def test_form_rejects_invalid_feature_value(self):
-        feature_config = NimbusFeatureConfigFactory(schema=self.schema)
-        experiment = NimbusExperimentFactory.create(feature_config=feature_config)
-        branch = NimbusBranchFactory.create(experiment=experiment)
-
-        form = NimbusBranchAdminForm(
-            instance=branch,
-            data={
-                "experiment": experiment,
-                "feature_value": json.dumps(
-                    {
-                        "firstName": 1,
-                        "lastName": 2,
-                        "age": "three",
-                    }
-                ),
-            },
-        )
-        self.assertFalse(form.is_valid())
-        self.assertIn("feature_value", form.errors)
-
-    def test_form_accepts_valid_feature_value(self):
-        feature_config = NimbusFeatureConfigFactory(schema=self.schema)
-        experiment = NimbusExperimentFactory.create(feature_config=feature_config)
-        branch = NimbusBranchFactory.create(experiment=experiment)
-
-        form = NimbusBranchAdminForm(
-            instance=branch,
-            data={
-                "experiment": experiment,
-                "feature_value": json.dumps(
-                    {
-                        "firstName": "John",
-                        "lastName": "Jacob",
-                        "age": 3,
-                    }
-                ),
-            },
-        )
-        self.assertFalse(form.is_valid())
-        self.assertNotIn("feature_value", form.errors)
 
 
 class TestNimbusExperimentAdminForm(TestCase):
@@ -140,19 +35,3 @@ class TestNimbusExperimentAdminForm(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertNotIn("reference_branch", form.errors)
-
-
-class TestNimbusFeatureConfigAdminForm(TestCase):
-    def test_form_rejects_invalid_json(self):
-        form = NimbusFeatureConfigAdminForm(
-            data={"schema": "{invalid"},
-        )
-        self.assertFalse(form.is_valid())
-        self.assertIn("schema", form.errors)
-
-    def test_form_accepts_valid_json(self):
-        form = NimbusFeatureConfigAdminForm(
-            data={"schema": '{"schema": "my schema"}'},
-        )
-        self.assertFalse(form.is_valid())
-        self.assertNotIn("schema", form.errors)
