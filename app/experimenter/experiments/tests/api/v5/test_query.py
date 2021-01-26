@@ -268,7 +268,8 @@ class TestNimbusQuery(GraphQLTestCase):
     def test_experiment_targeting_config_targeting(self):
         user_email = "user@example.com"
         experiment = NimbusExperimentFactory.create_with_status(
-            NimbusExperiment.Status.DRAFT
+            NimbusExperiment.Status.DRAFT,
+            targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
         )
         response = self.query(
             """
