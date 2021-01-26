@@ -55,68 +55,6 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
         )
 
 
-class NimbusChangeLogMixin:
-    def save(self, *args, **kwargs):
-        experiment = super().save(*args, **kwargs)
-        generate_nimbus_changelog(experiment, self.context["user"])
-        return experiment
-
-
-class NimbusStatusRestrictionMixin:
-    required_status = NimbusExperiment.Status.DRAFT
-
-    def validate(self, data):
-        data = super().validate(data)
-        if self.instance and self.instance.status != self.required_status:
-            status = self.instance.status
-            raise serializers.ValidationError(
-                {
-                    "experiment": [
-                        f"Nimbus Experiment has status '{status}', but can only "
-                        f"be changed when set to '{self.required_status}'."
-                    ]
-                }
-            )
-        return data
-
-
-class NimbusExperimentOverviewMixin:
-    def validate_name(self, name):
-        slug = slugify(name)
-
-        if not slug:
-            raise serializers.ValidationError(
-                "Name needs to contain alphanumeric characters"
-            )
-
-        if (
-            self.instance is None
-            and slug
-            and NimbusExperiment.objects.filter(slug=slug).exists()
-        ):
-            raise serializers.ValidationError(
-                "Name maps to a pre-existing slug, please choose another name"
-            )
-
-        return name
-
-    def validate_hypothesis(self, hypothesis):
-        if hypothesis.strip() == NimbusExperiment.HYPOTHESIS_DEFAULT.strip():
-            raise serializers.ValidationError(
-                "Please describe the hypothesis of your experiment."
-            )
-        return hypothesis
-
-    def create(self, validated_data):
-        validated_data.update(
-            {
-                "slug": slugify(validated_data["name"]),
-                "owner": self.context["user"],
-            }
-        )
-        return super().create(validated_data)
-
-
 class NimbusExperimentBranchMixin:
     def _validate_feature_value_against_schema(self, schema, value):
         try:
@@ -239,38 +177,47 @@ class NimbusExperimentProbeSetMixin:
         return data
 
     def update(self, experiment, data):
-        primary_probe_set_ids = data.pop("primary_probe_set_ids", [])
-        secondary_probe_set_ids = data.pop("secondary_probe_set_ids", [])
-        experiment = super().update(experiment, data)
-
-        if primary_probe_set_ids or secondary_probe_set_ids:
-            with transaction.atomic():
+        with transaction.atomic():
+            if set(data.keys()).intersection(
+                {"primary_probe_set_ids", "secondary_probe_set_ids"}
+            ):
                 experiment.probe_sets.clear()
+
+            primary_probe_set_ids = data.pop("primary_probe_set_ids", [])
+            secondary_probe_set_ids = data.pop("secondary_probe_set_ids", [])
+            experiment = super().update(experiment, data)
+
+            if primary_probe_set_ids:
                 for probe_set in primary_probe_set_ids:
                     experiment.probe_sets.add(
                         probe_set, through_defaults={"is_primary": True}
                     )
+
+            if secondary_probe_set_ids:
                 for probe_set in secondary_probe_set_ids:
                     experiment.probe_sets.add(
                         probe_set, through_defaults={"is_primary": False}
                     )
-                experiment.save()
 
         return experiment
 
 
-class NimbusAudienceUpdateMixin:
-    def validate_channel(self, value):
-        # If we have an instance, we can validate the channel against the application
-        if value and self.instance and self.instance.application:
-            if (
-                value
-                not in NimbusExperiment.ApplicationChannels[self.instance.application]
-            ):
-                raise serializers.ValidationError(
-                    "Invalid channel for experiment application."
-                )
-        return value
+class NimbusStatusRestrictionMixin:
+    REQUIRED_STATUS = NimbusExperiment.Status.DRAFT
+
+    def validate(self, data):
+        data = super().validate(data)
+        if self.instance and self.instance.status != self.REQUIRED_STATUS:
+            status = self.instance.status
+            raise serializers.ValidationError(
+                {
+                    "experiment": [
+                        f"Nimbus Experiment has status '{status}', but can only "
+                        f"be changed when set to '{self.REQUIRED_STATUS}'."
+                    ]
+                }
+            )
+        return data
 
 
 class NimbusDocumentationLinkSerializer(serializers.ModelSerializer):
@@ -298,17 +245,16 @@ class NimbusExperimentDocumentationLinkMixin:
         return experiment
 
 
-class NimbusExperimentUpdateSerializer(
-    NimbusChangeLogMixin,
-    NimbusStatusRestrictionMixin,
-    NimbusExperimentOverviewMixin,
-    NimbusExperimentDocumentationLinkMixin,
+class NimbusExperimentSerializer(
     NimbusExperimentBranchMixin,
+    NimbusExperimentDocumentationLinkMixin,
     NimbusExperimentProbeSetMixin,
-    NimbusAudienceUpdateMixin,
+    NimbusStatusRestrictionMixin,
     serializers.ModelSerializer,
 ):
-    name = serializers.CharField(min_length=0, max_length=255, required=False)
+    name = serializers.CharField(
+        min_length=0, max_length=255, required=False, allow_blank=True
+    )
     slug = serializers.ReadOnlyField()
     application = serializers.ChoiceField(
         choices=NimbusExperiment.Application.choices, required=False
@@ -316,11 +262,13 @@ class NimbusExperimentUpdateSerializer(
     public_description = serializers.CharField(
         min_length=0, max_length=1024, required=False, allow_blank=True
     )
-    hypothesis = serializers.CharField(min_length=0, max_length=1024, required=False)
     risk_mitigation_link = serializers.URLField(
         min_length=0, max_length=255, required=False, allow_blank=True
     )
     documentation_links = NimbusDocumentationLinkSerializer(many=True, required=False)
+    hypothesis = serializers.CharField(
+        min_length=0, max_length=1024, required=False, allow_blank=True
+    )
     reference_branch = NimbusBranchSerializer(required=False)
     treatment_branches = NimbusBranchSerializer(many=True, required=False)
     feature_config = serializers.PrimaryKeyRelatedField(
@@ -351,10 +299,10 @@ class NimbusExperimentUpdateSerializer(
         fields = [
             "status",
             "name",
-            "hypothesis",
+            "slug",
             "risk_mitigation_link",
             "documentation_links",
-            "slug",
+            "hypothesis",
             "application",
             "public_description",
             "feature_config",
@@ -370,6 +318,63 @@ class NimbusExperimentUpdateSerializer(
             "targeting_config_slug",
             "total_enrolled_clients",
         ]
+
+    def validate_name(self, name):
+        if not (self.instance or name):
+            raise serializers.ValidationError("Name is required to create an experiment")
+
+        if name:
+            slug = slugify(name)
+
+            if not slug:
+                raise serializers.ValidationError(
+                    "Name needs to contain alphanumeric characters"
+                )
+
+            if (
+                self.instance is None
+                and slug
+                and NimbusExperiment.objects.filter(slug=slug).exists()
+            ):
+                raise serializers.ValidationError(
+                    "Name maps to a pre-existing slug, please choose another name"
+                )
+
+        return name
+
+    def validate_hypothesis(self, hypothesis):
+        if hypothesis.strip() == NimbusExperiment.HYPOTHESIS_DEFAULT.strip():
+            raise serializers.ValidationError(
+                "Please describe the hypothesis of your experiment."
+            )
+        return hypothesis
+
+    def validate_channel(self, value):
+        # If we have an instance, we can validate the channel against the application
+        if value and self.instance and self.instance.application:
+            if (
+                value
+                not in NimbusExperiment.ApplicationChannels[self.instance.application]
+            ):
+                raise serializers.ValidationError(
+                    "Invalid channel for experiment application."
+                )
+        return value
+
+    def create(self, validated_data):
+        validated_data.update(
+            {
+                "slug": slugify(validated_data["name"]),
+                "owner": self.context["user"],
+            }
+        )
+        return super().create(validated_data)
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            experiment = super().save(*args, **kwargs)
+            generate_nimbus_changelog(experiment, self.context["user"])
+            return experiment
 
 
 class NimbusReadyForReviewSerializer(
