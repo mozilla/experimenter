@@ -299,7 +299,6 @@ const mkSimulatedQueries = ({
       return {
         data: {
           createExperiment: {
-            clientMutationId: "8675309",
             message,
             status,
             nimbusExperiment,
