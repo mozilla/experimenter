@@ -22,7 +22,6 @@ mutation($input: ExperimentInput!) {
         }
         message
         status
-        clientMutationId
     }
 }
 """
@@ -40,7 +39,6 @@ mutation($input: ExperimentInput!) {
         }
         message
         status
-        clientMutationId
     }
 }
 """
@@ -49,7 +47,6 @@ mutation($input: ExperimentInput!) {
 UPDATE_EXPERIMENT_DOCUMENTATION_LINKS_MUTATION = """\
 mutation ($input: ExperimentInput !) {
   updateExperiment(input: $input){
-    clientMutationId
     nimbusExperiment {
       id
       status
@@ -70,7 +67,6 @@ mutation ($input: ExperimentInput !) {
 UPDATE_EXPERIMENT_BRANCHES_MUTATION = """\
 mutation ($input: ExperimentInput !) {
   updateExperiment(input: $input){
-    clientMutationId
     nimbusExperiment {
       id
       featureConfig {
@@ -100,7 +96,6 @@ mutation ($input: ExperimentInput !) {
 UPDATE_EXPERIMENT_PROBESETS_MUTATION = """\
 mutation ($input: ExperimentInput!) {
   updateExperiment(input: $input){
-    clientMutationId
     nimbusExperiment {
       id
       primaryProbeSets {
@@ -119,7 +114,6 @@ mutation ($input: ExperimentInput!) {
 UPDATE_EXPERIMENT_AUDIENCE_MUTATION = """\
 mutation ($input: ExperimentInput!){
   updateExperiment(input: $input){
-    clientMutationId
     nimbusExperiment {
       id
       totalEnrolledClients
@@ -139,7 +133,6 @@ mutation ($input: ExperimentInput!){
 UPDATE_EXPERIMENT_STATUS_MUTATION = """\
 mutation ($input: ExperimentInput!){
   updateExperiment(input: $input){
-    clientMutationId
     nimbusExperiment {
       id
       status
@@ -164,7 +157,6 @@ class TestMutations(GraphQLTestCase):
                     "name": "Test 1234",
                     "hypothesis": "Test hypothesis",
                     "application": NimbusExperiment.Application.DESKTOP.name,
-                    "clientMutationId": "randomid",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -182,7 +174,6 @@ class TestMutations(GraphQLTestCase):
             },
         )
 
-        self.assertEqual(result["clientMutationId"], "randomid")
         self.assertEqual(result["message"], "success")
         self.assertEqual(result["status"], 200)
 
@@ -199,7 +190,6 @@ class TestMutations(GraphQLTestCase):
                     "name": long_name,
                     "hypothesis": "Test hypothesis",
                     "application": NimbusExperiment.Application.DESKTOP.name,
-                    "clientMutationId": "randomid",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -209,7 +199,6 @@ class TestMutations(GraphQLTestCase):
         result = content["data"]["createExperiment"]
         self.assertEqual(result["nimbusExperiment"], None)
 
-        self.assertEqual(result["clientMutationId"], "randomid")
         self.assertEqual(
             result["message"],
             {"name": ["Ensure this field has no more than 255 characters."]},
@@ -234,7 +223,6 @@ class TestMutations(GraphQLTestCase):
                     "hypothesis": "new hypothesis",
                     "publicDescription": "new public description",
                     "riskMitigationLink": "https://example.com/risk",
-                    "clientMutationId": "randomid",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -254,7 +242,6 @@ class TestMutations(GraphQLTestCase):
             },
         )
 
-        self.assertEqual(result["clientMutationId"], "randomid")
         self.assertEqual(result["message"], "success")
         self.assertEqual(result["status"], 200)
 
@@ -276,7 +263,6 @@ class TestMutations(GraphQLTestCase):
                     "name": long_name,
                     "hypothesis": "new hypothesis",
                     "riskMitigationLink": "i like pie",
-                    "clientMutationId": "randomid",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -286,7 +272,6 @@ class TestMutations(GraphQLTestCase):
         result = content["data"]["updateExperiment"]
         self.assertEqual(result["nimbusExperiment"], None)
 
-        self.assertEqual(result["clientMutationId"], "randomid")
         self.assertEqual(
             result["message"],
             {
@@ -321,7 +306,6 @@ class TestMutations(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "clientMutationId": "randomid",
                     "documentationLinks": documentation_links,
                 }
             },
@@ -367,7 +351,6 @@ class TestMutations(GraphQLTestCase):
                     "name": "new name",
                     "hypothesis": "new hypothesis",
                     "publicDescription": "new public description",
-                    "clientMutationId": "randomid",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -396,7 +379,6 @@ class TestMutations(GraphQLTestCase):
                     "name": "new name",
                     "hypothesis": "new hypothesis",
                     "publicDescription": "new public description",
-                    "clientMutationId": "randomid",
                 }
             },
             headers={settings.OPENIDC_EMAIL_HEADER: user_email},
@@ -423,7 +405,6 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "id": experiment.id,
                     "featureConfigId": feature.id,
-                    "clientMutationId": "randomid",
                     "referenceBranch": reference_branch,
                     "treatmentBranches": treatment_branches,
                 }
@@ -465,7 +446,6 @@ class TestMutations(GraphQLTestCase):
                 "input": {
                     "id": experiment.id,
                     "featureConfigId": 2,
-                    "clientMutationId": "randomid",
                     "referenceBranch": reference_branch,
                     "treatmentBranches": treatment_branches,
                 }
@@ -491,7 +471,6 @@ class TestMutations(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "clientMutationId": "randomid",
                     "primaryProbeSetIds": [p.id for p in probe_sets[:2]],
                     "secondaryProbeSetIds": [p.id for p in probe_sets[2:]],
                 }
@@ -529,7 +508,6 @@ class TestMutations(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "clientMutationId": "randomid",
                     "primaryProbeSetIds": [123],
                     "secondaryProbeSetIds": [],
                 }
@@ -562,7 +540,6 @@ class TestMutations(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "clientMutationId": "randomid",
                     "channel": NimbusConstants.Channel.DESKTOP_BETA.name,
                     "firefoxMinVersion": NimbusConstants.Version.FIREFOX_80.name,
                     "populationPercent": "10",
@@ -622,7 +599,6 @@ class TestMutations(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "clientMutationId": "randomid",
                     "populationPercent": "10.23471",
                 }
             },
@@ -650,7 +626,6 @@ class TestMutations(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "clientMutationId": "randomid",
                     "status": NimbusExperiment.Status.REVIEW.name,
                 }
             },
@@ -679,7 +654,6 @@ class TestMutations(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "clientMutationId": "randomid",
                     "status": NimbusExperiment.Status.REVIEW.name,
                 }
             },

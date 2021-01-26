@@ -36,7 +36,6 @@ class TreatmentBranchType(BranchType):
 
 
 class ExperimentInput(graphene.InputObjectType):
-    client_mutation_id = graphene.String()
     id = graphene.Int()
     status = NimbusExperimentStatus()
     name = graphene.String()
