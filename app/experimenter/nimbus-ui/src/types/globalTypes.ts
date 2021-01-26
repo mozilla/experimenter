@@ -93,7 +93,6 @@ export interface DocumentationLinkType {
 }
 
 export interface ExperimentInput {
-  clientMutationId?: string | null;
   id?: number | null;
   status?: NimbusExperimentStatus | null;
   name?: string | null;

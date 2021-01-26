@@ -431,7 +431,6 @@ export const mockExperimentMutation = (
       errors: undefined as undefined | any[],
       data: {
         [key]: {
-          clientMutationId: "8675309",
           message,
           status,
           nimbusExperiment: experiment,
