@@ -3,6 +3,7 @@ import json
 from django.conf import settings
 from django.test import TestCase
 from mozilla_nimbus_shared import check_schema
+from parameterized import parameterized
 
 from experimenter.experiments.api.v6.serializers import (
     NimbusExperimentSerializer,
@@ -26,7 +27,7 @@ class TestNimbusExperimentSerializer(TestCase):
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
-            channel=NimbusExperiment.Channel.DESKTOP_NIGHTLY,
+            channel=NimbusExperiment.Channel.NIGHTLY,
             probe_sets=[probe_set],
         )
 
@@ -39,8 +40,10 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment_data,
             {
                 "arguments": {},
-                "application": experiment.application,
-                "channel": experiment.channel,
+                "application": "firefox-desktop",
+                "appName": "firefox_desktop",
+                "appId": "firefox-desktop",
+                "channel": "nightly",
                 # DRF manually replaces the isoformat suffix so we have to do the same
                 "endDate": experiment.end_date.isoformat().replace("+00:00", "Z"),
                 "id": experiment.slug,
@@ -104,19 +107,93 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertIsNone(serializer.data["branches"][0]["feature"]["value"])
         check_schema("experiments/NimbusExperiment", serializer.data)
 
-    def test_sets_application_channel_for_fenix_experiment(self):
+    @parameterized.expand(
+        [
+            [
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Channel.NIGHTLY,
+                "org.mozilla.fenix",
+                "org.mozilla.fenix",
+                "fenix",
+            ],
+            [
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Channel.BETA,
+                "org.mozilla.firefox.beta",
+                "org.mozilla.firefox.beta",
+                "fenix",
+            ],
+            [
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Channel.RELEASE,
+                "org.mozilla.firefox",
+                "org.mozilla.firefox",
+                "fenix",
+            ],
+            [
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Channel.UNBRANDED,
+                "",
+                "",
+                "fenix",
+            ],
+            [
+                NimbusExperiment.Application.FENIX,
+                NimbusExperiment.Channel.NO_CHANNEL,
+                "",
+                "",
+                "fenix",
+            ],
+            [
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Channel.NIGHTLY,
+                "firefox-desktop",
+                "firefox-desktop",
+                "firefox_desktop",
+            ],
+            [
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Channel.BETA,
+                "firefox-desktop",
+                "firefox-desktop",
+                "firefox_desktop",
+            ],
+            [
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Channel.RELEASE,
+                "firefox-desktop",
+                "firefox-desktop",
+                "firefox_desktop",
+            ],
+            [
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Channel.UNBRANDED,
+                "firefox-desktop",
+                "firefox-desktop",
+                "firefox_desktop",
+            ],
+            [
+                NimbusExperiment.Application.DESKTOP,
+                NimbusExperiment.Channel.NO_CHANNEL,
+                "firefox-desktop",
+                "firefox-desktop",
+                "firefox_desktop",
+            ],
+        ]
+    )
+    def test_sets_app_id_name_channel_for_application(
+        self, application, channel, expected_application, expected_appId, expected_appName
+    ):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.ACCEPTED,
-            application=NimbusExperiment.Application.FENIX,
-            channel=NimbusExperiment.Channel.FENIX_NIGHTLY,
+            application=application,
+            channel=channel,
         )
         serializer = NimbusExperimentSerializer(experiment)
-        self.assertEqual(
-            serializer.data["application"], NimbusExperiment.Channel.FENIX_NIGHTLY
-        )
-        self.assertEqual(
-            serializer.data["channel"], NimbusExperiment.Channel.FENIX_NIGHTLY
-        )
+        self.assertEqual(serializer.data["application"], expected_application)
+        self.assertEqual(serializer.data["channel"], channel)
+        self.assertEqual(serializer.data["appName"], expected_appName)
+        self.assertEqual(serializer.data["appId"], expected_appId)
         check_schema("experiments/NimbusExperiment", serializer.data)
 
     def test_serializer_outputs_expected_schema_without_feature(self):
@@ -163,7 +240,7 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusExperiment.Status.ACCEPTED,
             firefox_min_version=NimbusExperiment.Version.NO_VERSION,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
-            channel=NimbusExperiment.Channel.DESKTOP_NIGHTLY,
+            channel=NimbusExperiment.Channel.NIGHTLY,
         )
 
         serializer = NimbusExperimentSerializer(experiment)

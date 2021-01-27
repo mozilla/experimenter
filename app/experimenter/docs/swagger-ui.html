@@ -2893,7 +2893,7 @@
           "schemaVersion": {
             "type": "string",
             "readOnly": true,
-            "default": "1.2.0"
+            "default": "1.3.0"
           },
           "slug": {
             "type": "string",
@@ -2913,16 +2913,21 @@
             "type": "string",
             "readOnly": true
           },
+          "appName": {
+            "type": "string",
+            "readOnly": true
+          },
+          "appId": {
+            "type": "string",
+            "readOnly": true
+          },
           "channel": {
             "enum": [
               "",
-              "beta",
-              "nightly",
-              "release",
               "default",
-              "org.mozilla.firefox.beta",
-              "org.mozilla.fenix",
-              "org.mozilla.firefox"
+              "nightly",
+              "beta",
+              "release"
             ],
             "type": "string"
           },

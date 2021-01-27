@@ -349,18 +349,6 @@ class NimbusExperimentSerializer(
             )
         return hypothesis
 
-    def validate_channel(self, value):
-        # If we have an instance, we can validate the channel against the application
-        if value and self.instance and self.instance.application:
-            if (
-                value
-                not in NimbusExperiment.ApplicationChannels[self.instance.application]
-            ):
-                raise serializers.ValidationError(
-                    "Invalid channel for experiment application."
-                )
-        return value
-
     def create(self, validated_data):
         validated_data.update(
             {
