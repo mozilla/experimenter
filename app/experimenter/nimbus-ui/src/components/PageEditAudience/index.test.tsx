@@ -170,7 +170,7 @@ describe("PageEditAudience", () => {
 
 const MOCK_FORM_DATA = {
   channel: NimbusExperimentChannel.DESKTOP_NIGHTLY,
-  firefoxMinVersion: NimbusExperimentFirefoxMinVersion.FIREFOX_80,
+  firefoxMinVersion: NimbusExperimentFirefoxMinVersion.FIREFOX_83,
   targetingConfigSlug: NimbusExperimentTargetingConfigSlug.US_ONLY,
   populationPercent: "40",
   totalEnrolledClients: 68000,
