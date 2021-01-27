@@ -52,9 +52,10 @@ class NimbusBranchSerializer(serializers.ModelSerializer):
             }
 
 
-class NimbusExperimentArgumentsSerializer(serializers.ModelSerializer):
+class NimbusExperimentSerializer(serializers.ModelSerializer):
     schemaVersion = serializers.ReadOnlyField(default=settings.NIMBUS_SCHEMA_VERSION)
     id = serializers.ReadOnlyField(source="slug")
+    arguments = serializers.ReadOnlyField(default={})
     application = serializers.SerializerMethodField()
     userFacingName = serializers.ReadOnlyField(source="name")
     userFacingDescription = serializers.ReadOnlyField(source="public_description")
@@ -75,6 +76,7 @@ class NimbusExperimentArgumentsSerializer(serializers.ModelSerializer):
             "schemaVersion",
             "slug",
             "id",
+            "arguments",
             "application",
             "channel",
             "userFacingName",
@@ -131,17 +133,6 @@ class NimbusExperimentArgumentsSerializer(serializers.ModelSerializer):
             f"{channel_expr}{version_expr}{targeting_expr}"
             "'app.shield.optoutstudies.enabled'|preferenceValue"
         )
-
-
-class NimbusExperimentSerializer(NimbusExperimentArgumentsSerializer):
-    arguments = serializers.SerializerMethodField()
-
-    class Meta:
-        model = NimbusExperiment
-        fields = NimbusExperimentArgumentsSerializer.Meta.fields + ("arguments",)
-
-    def get_arguments(self, obj):
-        return NimbusExperimentArgumentsSerializer(instance=obj).data
 
 
 class NimbusProbeSerializer(serializers.ModelSerializer):

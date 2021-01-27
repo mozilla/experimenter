@@ -900,7 +900,7 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment,
             {
                 "channel": NimbusConstants.Channel.DESKTOP_BETA.value,
-                "firefox_min_version": NimbusConstants.Version.FIREFOX_80.value,
+                "firefox_min_version": NimbusConstants.Version.FIREFOX_83.value,
                 "population_percent": 10,
                 "proposed_duration": 42,
                 "proposed_enrollment": 120,
@@ -917,7 +917,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(experiment.changes.count(), 1)
         self.assertEqual(experiment.channel, NimbusConstants.Channel.DESKTOP_BETA.value)
         self.assertEqual(
-            experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_80.value
+            experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_83.value
         )
         self.assertEqual(experiment.population_percent, 10)
         self.assertEqual(experiment.proposed_duration, 42)
@@ -943,7 +943,7 @@ class TestNimbusExperimentSerializer(TestCase):
             experiment,
             {
                 "channel": NimbusConstants.Channel.DESKTOP_BETA.value,
-                "firefox_min_version": NimbusConstants.Version.FIREFOX_80.value,
+                "firefox_min_version": NimbusConstants.Version.FIREFOX_83.value,
                 "population_percent": 10,
                 "proposed_duration": 42,
                 "proposed_enrollment": 120,
