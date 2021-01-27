@@ -112,9 +112,6 @@ enum NimbusExperimentDocumentationLink {
 
 enum NimbusExperimentFirefoxMinVersion {
   NO_VERSION
-  FIREFOX_80
-  FIREFOX_81
-  FIREFOX_82
   FIREFOX_83
   FIREFOX_84
   FIREFOX_85

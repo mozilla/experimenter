@@ -24,68 +24,70 @@ class TestNimbusExperimentSerializer(TestCase):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.COMPLETE,
             application=NimbusExperiment.Application.DESKTOP,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_80,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             channel=NimbusExperiment.Channel.DESKTOP_NIGHTLY,
             probe_sets=[probe_set],
         )
 
         serializer = NimbusExperimentSerializer(experiment)
-        all_experiment_data = serializer.data.copy()
-        arguments_data = all_experiment_data.pop("arguments")
-        for experiment_data in arguments_data, all_experiment_data:
-            branches_data = [dict(b) for b in experiment_data.pop("branches")]
+        experiment_data = serializer.data.copy()
+        bucket_data = dict(experiment_data.pop("bucketConfig"))
+        branches_data = [dict(b) for b in experiment_data.pop("branches")]
 
-            self.assertEqual(
-                experiment_data,
+        self.assertDictEqual(
+            experiment_data,
+            {
+                "arguments": {},
+                "application": experiment.application,
+                "channel": experiment.channel,
+                # DRF manually replaces the isoformat suffix so we have to do the same
+                "endDate": experiment.end_date.isoformat().replace("+00:00", "Z"),
+                "id": experiment.slug,
+                "isEnrollmentPaused": False,
+                "proposedDuration": experiment.proposed_duration,
+                "proposedEnrollment": experiment.proposed_enrollment,
+                "referenceBranch": experiment.reference_branch.slug,
+                "schemaVersion": settings.NIMBUS_SCHEMA_VERSION,
+                "slug": experiment.slug,
+                # DRF manually replaces the isoformat suffix so we have to do the same
+                "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
+                "targeting": (
+                    'browserSettings.update.channel == "nightly" && '
+                    "version|versionCompare('83.!') >= 0 && localeLanguageCode == "
+                    "'en' && 'app.shield.optoutstudies.enabled'|preferenceValue"
+                ),
+                "userFacingDescription": experiment.public_description,
+                "userFacingName": experiment.name,
+                "probeSets": [probe_set.slug],
+            },
+        )
+        self.assertEqual(
+            bucket_data,
+            {
+                "randomizationUnit": (
+                    experiment.bucket_range.isolation_group.randomization_unit
+                ),
+                "namespace": experiment.bucket_range.isolation_group.namespace,
+                "start": experiment.bucket_range.start,
+                "count": experiment.bucket_range.count,
+                "total": experiment.bucket_range.isolation_group.total,
+            },
+        )
+        self.assertEqual(len(branches_data), 2)
+        for branch in experiment.branches.all():
+            self.assertIn(
                 {
-                    "application": experiment.application,
-                    "channel": experiment.channel,
-                    "bucketConfig": {
-                        "randomizationUnit": (
-                            experiment.bucket_range.isolation_group.randomization_unit
-                        ),
-                        "namespace": experiment.bucket_range.isolation_group.namespace,
-                        "start": experiment.bucket_range.start,
-                        "count": experiment.bucket_range.count,
-                        "total": experiment.bucket_range.isolation_group.total,
+                    "slug": branch.slug,
+                    "ratio": branch.ratio,
+                    "feature": {
+                        "featureId": experiment.feature_config.slug,
+                        "enabled": branch.feature_enabled,
+                        "value": json.loads(branch.feature_value),
                     },
-                    # DRF manually replaces the isoformat suffix so we have to do the same
-                    "endDate": experiment.end_date.isoformat().replace("+00:00", "Z"),
-                    "id": experiment.slug,
-                    "isEnrollmentPaused": False,
-                    "proposedDuration": experiment.proposed_duration,
-                    "proposedEnrollment": experiment.proposed_enrollment,
-                    "referenceBranch": experiment.reference_branch.slug,
-                    "schemaVersion": settings.NIMBUS_SCHEMA_VERSION,
-                    "slug": experiment.slug,
-                    # DRF manually replaces the isoformat suffix so we have to do the same
-                    "startDate": experiment.start_date.isoformat().replace("+00:00", "Z"),
-                    "targeting": (
-                        'browserSettings.update.channel == "nightly" '
-                        "&& version|versionCompare('80.!') >= 0 "
-                        "&& localeLanguageCode == 'en' "
-                        "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
-                    ),
-                    "userFacingDescription": experiment.public_description,
-                    "userFacingName": experiment.name,
-                    "probeSets": [probe_set.slug],
                 },
+                branches_data,
             )
-            self.assertEqual(len(branches_data), 2)
-            for branch in experiment.branches.all():
-                self.assertIn(
-                    {
-                        "slug": branch.slug,
-                        "ratio": branch.ratio,
-                        "feature": {
-                            "featureId": experiment.feature_config.slug,
-                            "enabled": branch.feature_enabled,
-                            "value": json.loads(branch.feature_value),
-                        },
-                    },
-                    branches_data,
-                )
 
         check_schema("experiments/NimbusExperiment", serializer.data)
 
@@ -137,7 +139,7 @@ class TestNimbusExperimentSerializer(TestCase):
     def test_serializer_outputs_targeting_for_experiment_without_channels(self):
         experiment = NimbusExperimentFactory.create_with_status(
             NimbusExperiment.Status.ACCEPTED,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_80,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_83,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ALL_ENGLISH,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
@@ -147,7 +149,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertEqual(
             serializer.data["targeting"],
             (
-                "version|versionCompare('80.!') >= 0 "
+                "version|versionCompare('83.!') >= 0 "
                 "&& localeLanguageCode == 'en' "
                 "&& 'app.shield.optoutstudies.enabled'|preferenceValue"
             ),
