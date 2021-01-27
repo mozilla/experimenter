@@ -122,7 +122,7 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     {
       __typename: "NimbusLabelValueType",
       label: "Firefox 80",
-      value: "FIREFOX_80",
+      value: "FIREFOX_83",
     },
   ],
   probeSets: [
@@ -354,7 +354,7 @@ export function mockExperimentQuery<
         },
       ],
       channel: "DESKTOP_NIGHTLY",
-      firefoxMinVersion: "FIREFOX_80",
+      firefoxMinVersion: "FIREFOX_83",
       targetingConfigSlug: "US_ONLY",
       targetingConfigTargeting: "localeLanguageCode == 'en' && region == 'US'",
       populationPercent: "40",
