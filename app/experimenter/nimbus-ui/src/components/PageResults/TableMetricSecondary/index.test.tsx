@@ -10,7 +10,7 @@ import { RouterSlugProvider } from "../../../lib/test-utils";
 import { mockAnalysis } from "../../../lib/visualization/mocks";
 
 describe("TableMetricSecondary", () => {
-  it("has the correct headings", async () => {
+  it("has the correct headings", () => {
     const EXPECTED_HEADINGS = ["Count", "Relative Improvement"];
     const { mock, experiment } = mockExperimentQuery("demo-slug");
 
@@ -30,7 +30,7 @@ describe("TableMetricSecondary", () => {
     });
   });
 
-  it("has correctly labelled result significance", async () => {
+  it("has correctly labelled result significance", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     render(
       <RouterSlugProvider mocks={[mock]}>
@@ -51,7 +51,7 @@ describe("TableMetricSecondary", () => {
     expect(neutralSignificance).not.toBeInTheDocument();
   });
 
-  it("has the expected control and treatment labels", async () => {
+  it("has the expected control and treatment labels", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     render(
       <RouterSlugProvider mocks={[mock]}>
@@ -68,7 +68,7 @@ describe("TableMetricSecondary", () => {
     expect(screen.getByText("treatment")).toBeInTheDocument();
   });
 
-  it("shows the negative improvement bar", async () => {
+  it("shows the negative improvement bar", () => {
     const { mock, experiment } = mockExperimentQuery("demo-slug");
     render(
       <RouterSlugProvider mocks={[mock]}>
@@ -87,5 +87,21 @@ describe("TableMetricSecondary", () => {
     expect(screen.getByTestId("negative-block")).toBeInTheDocument();
     expect(positiveBlock).not.toBeInTheDocument();
     expect(neutralBlock).not.toBeInTheDocument();
+  });
+
+  it("shows expected count values", () => {
+    const { mock, experiment } = mockExperimentQuery("demo-slug");
+    render(
+      <RouterSlugProvider mocks={[mock]}>
+        <TableMetricSecondary
+          results={mockAnalysis().overall}
+          probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
+          probeSetName={experiment.secondaryProbeSets![0]!.name}
+          isDefault={false}
+        />
+      </RouterSlugProvider>,
+    );
+
+    expect(screen.queryAllByText("0.02 to 0.08")).toHaveLength(2);
   });
 });
