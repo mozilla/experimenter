@@ -130,9 +130,7 @@ const countField = (
   metricName: string,
   tableLabel: string,
 ) => {
-  const interval = `${Math.round(lower * 1000) / 100} to ${
-    Math.round(upper * 1000) / 100
-  }`;
+  const interval = `${lower.toFixed(2)} to ${upper.toFixed(2)}`;
   return showSignificanceField(significance, interval, metricName, tableLabel);
 };
 
