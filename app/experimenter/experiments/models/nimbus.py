@@ -88,6 +88,10 @@ class NimbusExperiment(NimbusConstants, models.Model):
         )
 
     @property
+    def is_desktop_experiment(self):
+        return self.application == self.Application.DESKTOP
+
+    @property
     def is_fenix_experiment(self):
         return self.application == self.Application.FENIX
 

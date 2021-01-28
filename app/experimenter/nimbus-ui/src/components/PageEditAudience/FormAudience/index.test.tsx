@@ -36,21 +36,10 @@ describe("FormAudience", () => {
       MOCK_CONFIG!.targetingConfigSlug![0]!.value,
     );
 
-    // Assert that we have all the channels for our application available
-    for (const channel of MOCK_CONFIG.channel!.filter((channel) =>
-      ["DESKTOP_NIGHTLY"].includes(channel?.value!),
-    )) {
+    // Assert that we have all the channels available
+    for (const channel of MOCK_CONFIG.channel!) {
       const { label } = channel!;
       expect(screen.getByText(label!)).toBeInTheDocument();
-    }
-
-    // Assert that none of the channels that don't belong to our application are available
-    for (const channel of MOCK_CONFIG.channel!.filter(
-      (channel) =>
-        !["DESKTOP_NIGHTLY", "DESKTOP_BETA"].includes(channel?.value!),
-    )) {
-      const { label } = channel!;
-      expect(screen.queryByText(label!)).not.toBeInTheDocument();
     }
   });
 

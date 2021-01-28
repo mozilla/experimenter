@@ -65,34 +65,17 @@ export const MOCK_CONFIG: getConfig_nimbusConfig = {
     {
       __typename: "NimbusLabelValueType",
       label: "Desktop Beta",
-      value: "DESKTOP_BETA",
+      value: "BETA",
     },
     {
       __typename: "NimbusLabelValueType",
       label: "Desktop Nightly",
-      value: "DESKTOP_NIGHTLY",
+      value: "NIGHTLY",
     },
     {
       __typename: "NimbusLabelValueType",
       label: "Platypus Doorstop",
       value: "PLATYPUS_DOORSTOP",
-    },
-  ],
-  applicationChannels: [
-    {
-      __typename: "ApplicationChannel",
-      label: "Desktop",
-      channels: [
-        "Desktop Unbranded",
-        "Desktop Nightly",
-        "Desktop Beta",
-        "Desktop Release",
-      ],
-    },
-    {
-      __typename: "ApplicationChannel",
-      label: "Fenix",
-      channels: ["Fenix Nightly", "Fenix Beta", "Fenix Release"],
     },
   ],
   featureConfig: [
@@ -353,7 +336,7 @@ export function mockExperimentQuery<
           name: "Feature B",
         },
       ],
-      channel: "DESKTOP_NIGHTLY",
+      channel: "NIGHTLY",
       firefoxMinVersion: "FIREFOX_83",
       targetingConfigSlug: "US_ONLY",
       targetingConfigTargeting: "localeLanguageCode == 'en' && region == 'US'",

@@ -19,14 +19,11 @@ export enum NimbusExperimentApplication {
 }
 
 export enum NimbusExperimentChannel {
-  DESKTOP_BETA = "DESKTOP_BETA",
-  DESKTOP_NIGHTLY = "DESKTOP_NIGHTLY",
-  DESKTOP_RELEASE = "DESKTOP_RELEASE",
-  DESKTOP_UNBRANDED = "DESKTOP_UNBRANDED",
-  FENIX_BETA = "FENIX_BETA",
-  FENIX_NIGHTLY = "FENIX_NIGHTLY",
-  FENIX_RELEASE = "FENIX_RELEASE",
+  BETA = "BETA",
+  NIGHTLY = "NIGHTLY",
   NO_CHANNEL = "NO_CHANNEL",
+  RELEASE = "RELEASE",
+  UNBRANDED = "UNBRANDED",
 }
 
 export enum NimbusExperimentDocumentationLink {
