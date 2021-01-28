@@ -13,7 +13,7 @@ describe("TableAudience", () => {
   describe("renders 'Channel' row as expected", () => {
     it("with one channel", () => {
       const { experiment } = mockExperimentQuery("demo-slug", {
-        channel: NimbusExperimentChannel.DESKTOP_BETA,
+        channel: NimbusExperimentChannel.BETA,
       });
       render(<Subject {...{ experiment }} />);
       expect(screen.getByTestId("experiment-channel")).toHaveTextContent(

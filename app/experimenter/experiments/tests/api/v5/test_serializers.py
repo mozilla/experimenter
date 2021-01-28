@@ -899,7 +899,7 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(
             experiment,
             {
-                "channel": NimbusConstants.Channel.DESKTOP_BETA.value,
+                "channel": NimbusConstants.Channel.BETA.value,
                 "firefox_min_version": NimbusConstants.Version.FIREFOX_83.value,
                 "population_percent": 10,
                 "proposed_duration": 42,
@@ -915,7 +915,7 @@ class TestNimbusExperimentSerializer(TestCase):
         self.assertTrue(serializer.is_valid(), serializer.errors)
         experiment = serializer.save()
         self.assertEqual(experiment.changes.count(), 1)
-        self.assertEqual(experiment.channel, NimbusConstants.Channel.DESKTOP_BETA.value)
+        self.assertEqual(experiment.channel, NimbusConstants.Channel.BETA.value)
         self.assertEqual(
             experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_83.value
         )
@@ -927,39 +927,6 @@ class TestNimbusExperimentSerializer(TestCase):
             NimbusConstants.TargetingConfig.ALL_ENGLISH.value,
         )
         self.assertEqual(experiment.total_enrolled_clients, 100)
-
-    def test_serializer_updates_audience_on_experiment_invalid_channels(self):
-        experiment = NimbusExperimentFactory(
-            channel=NimbusExperiment.Channel.NO_CHANNEL,
-            application=NimbusExperiment.Application.FENIX,
-            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
-            population_percent=0.0,
-            proposed_duration=0,
-            proposed_enrollment=0,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
-            total_enrolled_clients=0,
-        )
-        serializer = NimbusExperimentSerializer(
-            experiment,
-            {
-                "channel": NimbusConstants.Channel.DESKTOP_BETA.value,
-                "firefox_min_version": NimbusConstants.Version.FIREFOX_83.value,
-                "population_percent": 10,
-                "proposed_duration": 42,
-                "proposed_enrollment": 120,
-                "targeting_config_slug": (
-                    NimbusConstants.TargetingConfig.ALL_ENGLISH.value
-                ),
-                "total_enrolled_clients": 100,
-            },
-            context={"user": self.user},
-        )
-        self.assertEqual(experiment.changes.count(), 0)
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(
-            serializer.errors,
-            {"channel": ["Invalid channel for experiment application."]},
-        )
 
     @parameterized.expand(
         [

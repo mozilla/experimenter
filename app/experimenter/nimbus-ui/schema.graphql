@@ -3,11 +3,6 @@ schema {
   mutation: Mutation
 }
 
-type ApplicationChannel {
-  label: String
-  channels: [String]
-}
-
 type CreateExperiment {
   nimbusExperiment: NimbusExperimentType
   message: ObjectField
@@ -67,7 +62,6 @@ type NimbusBucketRangeType {
 type NimbusConfigurationType {
   application: [NimbusLabelValueType]
   channel: [NimbusLabelValueType]
-  applicationChannels: [ApplicationChannel]
   featureConfig: [NimbusFeatureConfigType]
   firefoxMinVersion: [NimbusLabelValueType]
   probeSets: [NimbusProbeSetType]
@@ -95,13 +89,10 @@ enum NimbusExperimentApplication {
 
 enum NimbusExperimentChannel {
   NO_CHANNEL
-  DESKTOP_BETA
-  DESKTOP_NIGHTLY
-  DESKTOP_RELEASE
-  DESKTOP_UNBRANDED
-  FENIX_BETA
-  FENIX_NIGHTLY
-  FENIX_RELEASE
+  UNBRANDED
+  NIGHTLY
+  BETA
+  RELEASE
 }
 
 enum NimbusExperimentDocumentationLink {

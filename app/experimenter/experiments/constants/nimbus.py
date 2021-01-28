@@ -92,6 +92,8 @@ class NimbusConstants(object):
         DESKTOP = "firefox-desktop"
         FENIX = "fenix"
 
+    FIREFOX_DESKTOP_APP_NAME = "firefox_desktop"
+
     KINTO_APPLICATION_COLLECTION = {
         Application.DESKTOP: settings.KINTO_COLLECTION_NIMBUS_DESKTOP,
         Application.FENIX: settings.KINTO_COLLECTION_NIMBUS_MOBILE,
@@ -99,28 +101,20 @@ class NimbusConstants(object):
 
     class Channel(models.TextChoices):
         NO_CHANNEL = ""
-        DESKTOP_BETA = "beta"
-        DESKTOP_NIGHTLY = "nightly"
-        DESKTOP_RELEASE = "release"
-        DESKTOP_UNBRANDED = "default"
-        FENIX_BETA = "org.mozilla.firefox.beta"
-        FENIX_NIGHTLY = "org.mozilla.fenix"
-        FENIX_RELEASE = "org.mozilla.firefox"
+        UNBRANDED = "default"
+        NIGHTLY = "nightly"
+        BETA = "beta"
+        RELEASE = "release"
 
-    ApplicationChannels = {
-        Application.DESKTOP: [
-            Channel.NO_CHANNEL,
-            Channel.DESKTOP_UNBRANDED,
-            Channel.DESKTOP_NIGHTLY,
-            Channel.DESKTOP_BETA,
-            Channel.DESKTOP_RELEASE,
-        ],
-        Application.FENIX: [
-            Channel.NO_CHANNEL,
-            Channel.FENIX_NIGHTLY,
-            Channel.FENIX_BETA,
-            Channel.FENIX_RELEASE,
-        ],
+    class FenixAppId(models.TextChoices):
+        NIGHTLY = "org.mozilla.fenix"
+        BETA = "org.mozilla.firefox.beta"
+        RELEASE = "org.mozilla.firefox"
+
+    CHANNEL_FENIX_APP_ID = {
+        Channel.NIGHTLY: FenixAppId.NIGHTLY,
+        Channel.BETA: FenixAppId.BETA,
+        Channel.RELEASE: FenixAppId.RELEASE,
     }
 
     class DocumentationLink(models.TextChoices):

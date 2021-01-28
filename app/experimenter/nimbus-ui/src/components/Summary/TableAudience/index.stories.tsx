@@ -13,7 +13,7 @@ import AppLayout from "../../AppLayout";
 storiesOf("components/Summary/TableAudience", module)
   .add("all fields filled out", () => {
     const { experiment } = mockExperimentQuery("demo-slug", {
-      channel: NimbusExperimentChannel.DESKTOP_BETA,
+      channel: NimbusExperimentChannel.BETA,
     });
     return (
       <Subject>
