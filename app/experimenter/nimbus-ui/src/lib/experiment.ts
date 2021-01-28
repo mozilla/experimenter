@@ -6,19 +6,9 @@ import { getAllExperiments_experiments } from "../types/getAllExperiments";
 import { getExperiment_experimentBySlug } from "../types/getExperiment";
 import { NimbusExperimentStatus } from "../types/globalTypes";
 
-export type StatusCheck = {
-  draft: boolean;
-  review: boolean;
-  accepted: boolean;
-  live: boolean;
-  complete: boolean;
-  locked: boolean;
-  released: boolean;
-};
-
 export function getStatus(
   experiment?: getExperiment_experimentBySlug | getAllExperiments_experiments,
-): StatusCheck {
+) {
   const status = experiment?.status;
 
   const released = status
@@ -29,6 +19,8 @@ export function getStatus(
 
   return {
     draft: status === NimbusExperimentStatus.DRAFT,
+    // @ts-ignore EXP-866 mock value until backend API & types are updated
+    preview: status === "PREVIEW",
     review: status === NimbusExperimentStatus.REVIEW,
     accepted: status === NimbusExperimentStatus.ACCEPTED,
     live: status === NimbusExperimentStatus.LIVE,
@@ -39,6 +31,8 @@ export function getStatus(
     released,
   };
 }
+
+export type StatusCheck = ReturnType<typeof getStatus>;
 
 export function editCommonRedirects({ status }: { status: StatusCheck }) {
   if (status.review) {

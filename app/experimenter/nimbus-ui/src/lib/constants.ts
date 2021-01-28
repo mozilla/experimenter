@@ -19,4 +19,7 @@ export const EXTERNAL_URLS = {
     "https://docs.google.com/document/d/155EUgzn22VTX8mFwesSROT3Z6JORSfb5VyoMoLra7ws/edit#heading=h.i8g4ppfvkq0x",
   METRICS_GOOGLE_DOC:
     "https://docs.google.com/document/d/155EUgzn22VTX8mFwesSROT3Z6JORSfb5VyoMoLra7ws/edit#heading=h.uq23fsvh16rc",
+  // EXP-866 TBD URL
+  PREVIEW_LAUNCH_DOC:
+    "https://mana.mozilla.org/wiki/display/FJT/Project+Nimbus",
 };
