@@ -57,6 +57,8 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source="slug")
     arguments = serializers.ReadOnlyField(default={})
     application = serializers.SerializerMethodField()
+    appName = serializers.SerializerMethodField()
+    appId = serializers.SerializerMethodField()
     userFacingName = serializers.ReadOnlyField(source="name")
     userFacingDescription = serializers.ReadOnlyField(source="public_description")
     isEnrollmentPaused = serializers.ReadOnlyField(source="is_paused")
@@ -78,6 +80,8 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "id",
             "arguments",
             "application",
+            "appName",
+            "appId",
             "channel",
             "userFacingName",
             "userFacingDescription",
@@ -94,9 +98,19 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         )
 
     def get_application(self, obj):
+        return self.get_appId(obj)
+
+    def get_appName(self, obj):
+        if obj.is_desktop_experiment:
+            return obj.FIREFOX_DESKTOP_APP_NAME
+        return str(obj.application)
+
+    def get_appId(self, obj):
         if obj.is_fenix_experiment:
-            return obj.channel
-        return obj.application
+            if obj.channel in NimbusExperiment.CHANNEL_FENIX_APP_ID:
+                return str(NimbusExperiment.CHANNEL_FENIX_APP_ID[obj.channel])
+            return ""
+        return str(obj.application)
 
     def get_probeSets(self, obj):
         return list(obj.probe_sets.all().order_by("slug").values_list("slug", flat=True))

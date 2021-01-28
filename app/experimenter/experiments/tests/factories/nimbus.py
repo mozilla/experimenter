@@ -54,7 +54,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         lambda o: random.choice(list(NimbusExperiment.Application)).value
     )
     channel = factory.LazyAttribute(
-        lambda o: random.choice(NimbusExperiment.ApplicationChannels[o.application])
+        lambda o: random.choice(list(NimbusExperiment.Channel)).value
     )
     hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
     feature_config = factory.SubFactory(

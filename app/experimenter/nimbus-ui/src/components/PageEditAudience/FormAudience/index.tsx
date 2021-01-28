@@ -10,7 +10,6 @@ import InputGroup from "react-bootstrap/InputGroup";
 import { useCommonForm } from "../../../hooks";
 import { useConfig } from "../../../hooks/useConfig";
 import { EXTERNAL_URLS } from "../../../lib/constants";
-import { getConfig_nimbusConfig_channel } from "../../../types/getConfig";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import InlineErrorIcon from "../../InlineErrorIcon";
 import LinkExternal from "../../LinkExternal";
@@ -49,22 +48,6 @@ export const FormAudience = ({
   onNext,
 }: FormAudienceProps) => {
   const config = useConfig();
-
-  // This could be improved on the GraphQL side, but right now in order
-  // to filter available channels we need to
-  //   - identify the application label by experiment application value
-  //   - use that label to identify the available channels
-  //   - and then filter all channels against our eligible subset
-  const experimentApplication = config.application?.find(
-    (a) => a?.value === experiment.application,
-  );
-  const applicationChannels = config.applicationChannels?.find(
-    (ac) => ac?.label === experimentApplication?.label,
-  )?.channels;
-  const channelOptions = config.channel?.filter(
-    (item): item is getConfig_nimbusConfig_channel =>
-      item !== null && (applicationChannels?.includes(item.label) || false),
-  );
 
   const defaultValues = {
     channel: experiment.channel,
@@ -136,7 +119,7 @@ export const FormAudience = ({
               )}
             </Form.Label>
             <Form.Control {...formControlAttrs("channel")} as="select">
-              <SelectOptions options={channelOptions!} />
+              <SelectOptions options={config.channel} />
             </Form.Control>
             <FormErrors name="channel" />
           </Form.Group>

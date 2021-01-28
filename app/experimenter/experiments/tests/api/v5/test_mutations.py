@@ -540,7 +540,7 @@ class TestMutations(GraphQLTestCase):
             variables={
                 "input": {
                     "id": experiment.id,
-                    "channel": NimbusConstants.Channel.DESKTOP_BETA.name,
+                    "channel": NimbusConstants.Channel.BETA.name,
                     "firefoxMinVersion": NimbusConstants.Version.FIREFOX_83.name,
                     "populationPercent": "10",
                     "proposedDuration": 42,
@@ -559,7 +559,7 @@ class TestMutations(GraphQLTestCase):
             result["nimbusExperiment"],
             {
                 "id": experiment.id,
-                "channel": NimbusConstants.Channel.DESKTOP_BETA.name,
+                "channel": NimbusConstants.Channel.BETA.name,
                 "firefoxMinVersion": NimbusConstants.Version.FIREFOX_83.name,
                 "populationPercent": "10.0000",
                 "proposedDuration": 42,
@@ -569,7 +569,7 @@ class TestMutations(GraphQLTestCase):
             },
         )
         experiment = NimbusExperiment.objects.get(id=experiment.id)
-        self.assertEqual(experiment.channel, NimbusConstants.Channel.DESKTOP_BETA.value)
+        self.assertEqual(experiment.channel, NimbusConstants.Channel.BETA.value)
         self.assertEqual(
             experiment.firefox_min_version, NimbusConstants.Version.FIREFOX_83.value
         )
