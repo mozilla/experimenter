@@ -16,6 +16,10 @@ from experimenter.visualization.tests.api.constants import TestConstants
 
 @override_settings(FEATURE_ANALYSIS=False)
 class TestVisualizationView(TestCase):
+
+    # issue #4475: full diff enabled for more information on failure
+    maxDiff = None
+
     @parameterized.expand(
         [
             NimbusExperiment.Status.ACCEPTED,
@@ -92,7 +96,7 @@ class TestVisualizationView(TestCase):
     @parameterized.expand(
         [
             NimbusExperiment.Status.ACCEPTED,
-            # NimbusExperiment.Status.COMPLETE, ref: #4475
+            NimbusExperiment.Status.COMPLETE,
         ]
     )
     @patch("django.core.files.storage.default_storage.open")
