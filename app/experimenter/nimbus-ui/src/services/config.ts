@@ -2,19 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export interface Config {
-  graphql_url: string;
-  sentry_dsn: string;
-  version: string;
-}
-
 export function getDefault() {
   return {
     graphql_url: "",
     sentry_dsn: "",
     version: "",
+    featureFlags: {
+      exp866Preview: false,
+    },
   };
 }
+
+export type Config = ReturnType<typeof getDefault>;
 
 export function readConfig(mountingElement: HTMLElement) {
   const content = mountingElement.dataset.config;
@@ -67,5 +66,5 @@ export function update(newData: { [key: string]: any }) {
   config = Object.assign(config, newData);
 }
 
-let config: Config = getDefault();
+let config = getDefault();
 export default config;
