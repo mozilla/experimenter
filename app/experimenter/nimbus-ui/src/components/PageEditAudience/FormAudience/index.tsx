@@ -9,7 +9,7 @@ import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import { useCommonForm } from "../../../hooks";
 import { useConfig } from "../../../hooks/useConfig";
-import { EXTERNAL_URLS } from "../../../lib/constants";
+import { EXTERNAL_URLS, NUMBER_FIELD } from "../../../lib/constants";
 import { getExperiment_experimentBySlug } from "../../../types/getExperiment";
 import InlineErrorIcon from "../../InlineErrorIcon";
 import LinkExternal from "../../LinkExternal";
@@ -188,7 +188,7 @@ export const FormAudience = ({
             </Form.Label>
             <InputGroup>
               <Form.Control
-                {...formControlAttrs("populationPercent")}
+                {...formControlAttrs("populationPercent", NUMBER_FIELD)}
                 aria-describedby="populationPercent-unit"
                 type="number"
                 min="0"
@@ -209,7 +209,7 @@ export const FormAudience = ({
           >
             <Form.Label>Expected number of clients</Form.Label>
             <Form.Control
-              {...formControlAttrs("totalEnrolledClients")}
+              {...formControlAttrs("totalEnrolledClients", NUMBER_FIELD)}
               type="number"
               min="0"
             />
@@ -230,7 +230,7 @@ export const FormAudience = ({
             </Form.Label>
             <InputGroup>
               <Form.Control
-                {...formControlAttrs("proposedEnrollment")}
+                {...formControlAttrs("proposedEnrollment", NUMBER_FIELD)}
                 type="number"
                 min="0"
                 aria-describedby="proposedEnrollment-unit"
@@ -256,7 +256,7 @@ export const FormAudience = ({
             </Form.Label>
             <InputGroup className="mb-3">
               <Form.Control
-                {...formControlAttrs("proposedDuration")}
+                {...formControlAttrs("proposedDuration", NUMBER_FIELD)}
                 type="number"
                 min="0"
                 aria-describedby="proposedDuration-unit"
