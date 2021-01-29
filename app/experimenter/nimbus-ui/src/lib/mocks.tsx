@@ -33,6 +33,7 @@ import {
 } from "../types/getExperiment";
 import {
   ExperimentInput,
+  NimbusDocumentationLinkTitle,
   NimbusExperimentStatus,
   NimbusFeatureConfigApplication,
   NimbusProbeKind,
@@ -353,7 +354,10 @@ export function mockExperimentQuery<
       endDate: new Date(Date.now() + 12096e5).toISOString(),
       riskMitigationLink: "https://docs.google.com/document/d/banzinga/edit",
       documentationLinks: [
-        { title: "Bingo bongo", link: "https://bingo.bongo" },
+        {
+          title: NimbusDocumentationLinkTitle.DS_JIRA,
+          link: "https://bingo.bongo",
+        },
       ],
     },
     modifications,

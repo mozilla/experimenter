@@ -5,6 +5,7 @@
 import React from "react";
 import Form from "react-bootstrap/Form";
 import { FieldError, RegisterOptions, UseFormMethods } from "react-hook-form";
+import { SubmitErrors } from ".";
 import { camelToSnakeCase } from "../../lib/caseConversions";
 
 // TODO: 'any' type on `onChange={(selectedOptions) => ...`,
@@ -25,7 +26,7 @@ export const IsDirtyUnsaved = (
 export function useCommonFormMethods<FieldNames extends string>(
   defaultValues: Record<string, any>,
   setSubmitErrors: React.Dispatch<React.SetStateAction<Record<string, any>>>,
-  submitErrors: Record<string, string[]>,
+  submitErrors: SubmitErrors,
   register: UseFormMethods["register"],
   errors: UseFormMethods["errors"],
   touched: UseFormMethods["formState"]["touched"],
