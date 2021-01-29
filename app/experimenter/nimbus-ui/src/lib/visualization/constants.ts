@@ -90,6 +90,12 @@ export const BRANCH_COMPARISON = {
   UPLIFT: "relative_uplift",
 };
 
+export const BRANCH_COMPARISON_TITLE = {
+  ABSOLUTE: "Absolute",
+  DIFFERENCE: "Difference",
+  UPLIFT: "Relative Uplift",
+};
+
 export const TABLE_LABEL = {
   HIGHLIGHTS: "highlights",
   RESULTS: "results",

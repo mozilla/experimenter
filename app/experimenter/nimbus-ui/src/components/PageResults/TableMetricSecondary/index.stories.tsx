@@ -25,7 +25,7 @@ storiesOf("pages/Results/TableMetricSecondary", module)
 
     return (
       <TableMetricSecondary
-        results={mockAnalysis().overall}
+        results={mockAnalysis()}
         probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
         probeSetName={experiment.secondaryProbeSets![0]!.name}
         isDefault={false}
@@ -36,7 +36,7 @@ storiesOf("pages/Results/TableMetricSecondary", module)
     const { experiment } = mockExperimentQuery("demo-slug");
     return (
       <TableMetricSecondary
-        results={mockAnalysis().overall}
+        results={mockAnalysis()}
         probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
         probeSetName={experiment.secondaryProbeSets![0]!.name}
         isDefault={false}
@@ -57,7 +57,7 @@ storiesOf("pages/Results/TableMetricSecondary", module)
 
     return (
       <TableMetricSecondary
-        results={mockAnalysis().overall}
+        results={mockAnalysis()}
         probeSetSlug={experiment.secondaryProbeSets![0]!.slug}
         probeSetName={experiment.secondaryProbeSets![0]!.name}
         isDefault={false}

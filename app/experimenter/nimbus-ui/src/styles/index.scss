@@ -69,7 +69,6 @@ $sizes: (
 .table-visualization-center {
   @extend .table;
   @extend .text-center;
-  @extend .mb-5;
   @extend .border-bottom;
 }
 
