@@ -100,20 +100,18 @@ describe("hooks/useCommonForm", () => {
     // `formControlAttrs`, and `formSelectAttrs` are all called with the expected field names
     // and/or move these form tests into their corresponding form test files
     describe("FormOverview", () => {
-      it("with experiment data", () => {
+      it("with experiment data", async () => {
         const { experiment } = mockExperimentQuery("boo");
         render(<OverviewSubject {...{ experiment }} />);
 
-        overviewFieldNames.forEach((name) => {
+        for (const name of overviewFieldNames) {
           // TODO EXP-805 test errors form saving once
           // documentationLinks uses useCommonForm
           if (!["application", "documentationLinks"].includes(name)) {
-            expect(
-              screen.queryByTestId(`${name}-form-errors`),
-            ).toBeInTheDocument();
-            expect(screen.queryByTestId(name)).toBeInTheDocument();
+            await screen.findByTestId(`${name}-form-errors`);
+            await screen.findByTestId(name);
           }
-        });
+        }
       });
 
       it("without experiment data", async () => {

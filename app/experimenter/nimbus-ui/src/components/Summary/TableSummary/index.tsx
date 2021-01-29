@@ -19,7 +19,10 @@ type TableSummaryProps = {
 // `<tr>`s showing optional fields that are not set are not displayed.
 
 const TableSummary = ({ experiment }: TableSummaryProps) => {
-  const { application } = useConfig();
+  const {
+    application,
+    documentationLink: configDocumentationLinks,
+  } = useConfig();
 
   return (
     <Table striped bordered data-testid="table-summary" className="mb-4">
@@ -86,7 +89,11 @@ const TableSummary = ({ experiment }: TableSummaryProps) => {
                     className="d-block"
                   >
                     <span className="mr-1 align-middle">
-                      {documentationLink.title}
+                      {
+                        configDocumentationLinks!.find(
+                          (d) => d?.value === documentationLink.title,
+                        )?.label
+                      }
                     </span>
                     <ExternalIcon />
                   </LinkExternal>

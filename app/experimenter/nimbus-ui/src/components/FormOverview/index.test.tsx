@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import React from "react";
 import { DOCUMENTATION_LINKS_TOOLTIP } from ".";
 import { mockExperimentQuery } from "../../lib/mocks";
@@ -36,7 +42,7 @@ describe("FormOverview", () => {
     expect(onNext).toHaveBeenCalled();
   });
 
-  it("renders initial documentation links", () => {
+  it("renders initial documentation links", async () => {
     const { experiment } = mockExperimentQuery("boo", {
       documentationLinks: [
         {
@@ -52,11 +58,9 @@ describe("FormOverview", () => {
       ],
     });
     render(<Subject {...{ experiment }} />);
-    expect(screen.getByTestId("tooltip-documentation-links")).toHaveAttribute(
-      "data-tip",
-      DOCUMENTATION_LINKS_TOOLTIP,
-    );
-    const linkEls = screen.queryAllByTestId("DocumentationLink");
+    const tooltip = await screen.findByTestId("tooltip-documentation-links");
+    expect(tooltip).toHaveAttribute("data-tip", DOCUMENTATION_LINKS_TOOLTIP);
+    const linkEls = await screen.findAllByTestId("DocumentationLink");
     expect(linkEls).toHaveLength(experiment.documentationLinks!.length);
     linkEls.forEach((linkEl, index) => {
       const selected = linkEl.querySelector(
@@ -94,15 +98,56 @@ describe("FormOverview", () => {
     }
   };
 
-  const checkExistingForm = async (expected: Record<string, string>) => {
+  const getDocumentationLinkFields = (index: number) => {
+    const testIdBase = `documentationLinks[${index}]`;
+    const titleField = screen.getByTestId(
+      `${testIdBase}.title`,
+    ) as HTMLInputElement;
+    const linkField = screen.getByTestId(
+      `${testIdBase}.link`,
+    ) as HTMLInputElement;
+    const removeButton = screen.queryByTestId(
+      `${testIdBase}.remove`,
+    ) as HTMLButtonElement;
+    return { titleField, linkField, removeButton };
+  };
+
+  const assertDocumentationLinkFields = (
+    value: { title: string; link: string },
+    index: number,
+  ) => {
+    const { titleField, linkField } = getDocumentationLinkFields(index);
+    expect(titleField.value).toEqual(value.title);
+    expect(linkField.value).toEqual(value.link);
+  };
+
+  const fillDocumentationLinkFields = (
+    value: { title: NimbusDocumentationLinkTitle; link: string },
+    index: number,
+  ) => {
+    const { titleField, linkField } = getDocumentationLinkFields(index);
+    fireEvent.change(titleField, {
+      target: { value: value.title },
+    });
+    fireEvent.change(linkField, {
+      target: { value: value.link },
+    });
+  };
+
+  const checkExistingForm = async (expected: Record<string, any>) => {
     for (const [labelText, fieldValue] of [
       ["Public name", expected.name],
       ["Hypothesis", expected.hypothesis],
       ["Public description", expected.publicDescription],
       ["Risk Mitigation Checklist Link", expected.riskMitigationLink],
+      ["documentationLinks", expected.documentationLinks],
     ]) {
-      const fieldName = screen.getByLabelText(labelText) as HTMLInputElement;
-      expect(fieldName.value).toEqual(fieldValue);
+      if (labelText === "documentationLinks") {
+        fieldValue.forEach(assertDocumentationLinkFields);
+      } else {
+        const fieldName = screen.getByLabelText(labelText) as HTMLInputElement;
+        expect(fieldName.value).toEqual(fieldValue);
+      }
     }
   };
 
@@ -132,6 +177,7 @@ describe("FormOverview", () => {
       hypothesis: experiment.hypothesis as string,
       publicDescription: experiment.publicDescription as string,
       riskMitigationLink: experiment.riskMitigationLink as string,
+      documentationLinks: experiment.documentationLinks as Record<string, any>,
     };
 
     const onSubmit = jest.fn();
@@ -184,6 +230,90 @@ describe("FormOverview", () => {
     expect(onSubmit).toHaveBeenCalled();
   });
 
+  it("correctly renders, updates, filters, and deletes documentation links", async () => {
+    const { experiment } = mockExperimentQuery("boo", {
+      documentationLinks: [
+        {
+          __typename: "NimbusDocumentationLinkType",
+          title: NimbusDocumentationLinkTitle.DS_JIRA,
+          link: "https://bingo.bongo",
+        },
+      ],
+    });
+
+    const onSubmit = jest.fn();
+    render(<Subject {...{ experiment, onSubmit }} />);
+    const submitButton = screen.getByText("Save");
+    const addButton = screen.getByText("+ Add Link");
+
+    // Assert that the initial documentation link sets are rendered
+    experiment.documentationLinks!.map(assertDocumentationLinkFields);
+
+    // The first remove button should not be present
+    expect(getDocumentationLinkFields(0).removeButton).toBeNull();
+
+    // Update the values of the first set
+    await act(async () => {
+      experiment.documentationLinks![0] = {
+        __typename: "NimbusDocumentationLinkType",
+        title: NimbusDocumentationLinkTitle.ENG_TICKET,
+        link: "https://ooga.booga",
+      };
+      fillDocumentationLinkFields(experiment.documentationLinks![0], 0);
+    });
+
+    // Add a new set and populate it
+    await act(async () => void fireEvent.click(addButton));
+    await act(async () => {
+      experiment.documentationLinks!.push({
+        __typename: "NimbusDocumentationLinkType",
+        title: NimbusDocumentationLinkTitle.DESIGN_DOC,
+        link: "https://boingo.oingo",
+      });
+      fillDocumentationLinkFields(experiment.documentationLinks![1], 1);
+    });
+
+    // Add a new set and PARTIALLY populate it
+    // This set should be filtered out and therefore will
+    // not be added to expected output
+    await act(async () => void fireEvent.click(addButton));
+    await act(async () =>
+      fillDocumentationLinkFields(
+        {
+          title: NimbusDocumentationLinkTitle.DESIGN_DOC,
+          link: "",
+        },
+        2,
+      ),
+    );
+
+    // Add a new set, and populate it with the data from the second field
+    await act(async () => void fireEvent.click(addButton));
+    await act(async () => {
+      fillDocumentationLinkFields(experiment.documentationLinks![1], 3);
+    });
+
+    // Now delete the second set
+    await act(
+      async () =>
+        void fireEvent.click(getDocumentationLinkFields(1).removeButton),
+    );
+
+    expect(screen.queryAllByTestId("DocumentationLink").length).toEqual(
+      // Add one because this array doesn't include the field that will be filtered out
+      experiment.documentationLinks!.length + 1,
+    );
+
+    await act(async () => void fireEvent.click(submitButton));
+
+    expect(onSubmit.mock.calls[0][0].documentationLinks).toEqual(
+      experiment.documentationLinks!.map(({ title, link }) => ({
+        title,
+        link,
+      })),
+    );
+  });
+
   it("disables create submission when loading", async () => {
     const onSubmit = jest.fn();
     render(<Subject {...{ onSubmit, isLoading: true }} />);
@@ -216,7 +346,9 @@ describe("FormOverview", () => {
     render(<Subject {...{ onSubmit, experiment, isLoading: true }} />);
 
     const submitButton = screen.getByTestId("submit-button");
-    expect(submitButton).toHaveTextContent("Saving");
+    waitFor(() => {
+      expect(submitButton).toHaveTextContent("Saving");
+    });
   });
 
   it("displays an alert for overall submit error", async () => {
@@ -254,7 +386,9 @@ describe("FormOverview", () => {
     const isMissingField = jest.fn(() => true);
     render(<Subject {...{ isMissingField, experiment }} />);
 
-    expect(isMissingField).toHaveBeenCalled();
-    expect(screen.queryByTestId("missing-description")).toBeInTheDocument();
+    waitFor(() => {
+      expect(isMissingField).toHaveBeenCalled();
+      expect(screen.queryByTestId("missing-description")).toBeInTheDocument();
+    });
   });
 });
