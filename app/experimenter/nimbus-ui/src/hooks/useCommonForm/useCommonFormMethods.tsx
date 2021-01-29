@@ -38,13 +38,11 @@ export function useCommonFormMethods<FieldNames extends string>(
     }
   };
 
-  // Fields are required by default. Pass an empty object `{}` as `registerOptions`
-  // to allow form submission without that field being required.
+  // Fields are optional by default. Pass `REQUIRED_FIELD` into `registerOptions`
+  // to require a valid field before form submission is allowed.
   const formControlAttrs = <K extends FieldNames>(
     name: K,
-    registerOptions: RegisterOptions = {
-      required: "This field may not be blank.",
-    },
+    registerOptions: RegisterOptions = {},
     setDefaultValue = true,
     prefix?: string,
   ) => {

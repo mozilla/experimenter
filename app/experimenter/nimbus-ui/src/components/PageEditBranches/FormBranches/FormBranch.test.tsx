@@ -10,6 +10,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import React from "react";
+import { FIELD_MESSAGES } from "../../../lib/constants";
 import { MOCK_CONFIG } from "../../../lib/mocks";
 import {
   MOCK_ANNOTATED_BRANCH,
@@ -136,13 +137,36 @@ describe("FormBranch", () => {
     const branch = {
       ...MOCK_ANNOTATED_BRANCH,
     };
-    const { container } = render(<SubjectBranch branch={branch} />);
+    const { container } = render(<SubjectBranch {...{ branch }} />);
     const field = screen.getByTestId("referenceBranch.ratio");
     act(() => {
       fireEvent.change(field, { target: { value: "abc" } });
       fireEvent.blur(field);
     });
     await assertInvalidField(container, "referenceBranch.ratio");
+    expect(
+      container.querySelector(
+        ".invalid-feedback[data-for='referenceBranch.ratio']",
+      ),
+    ).toHaveTextContent(FIELD_MESSAGES.NUMBER);
+  });
+
+  it("displays expected message on required fields", async () => {
+    const branch = {
+      ...MOCK_ANNOTATED_BRANCH,
+    };
+    const { container } = render(<SubjectBranch {...{ branch }} />);
+    const field = screen.getByTestId("referenceBranch.name");
+    act(() => {
+      fireEvent.change(field, { target: { value: "" } });
+      fireEvent.blur(field);
+    });
+    await assertInvalidField(container, "referenceBranch.name");
+    expect(
+      container.querySelector(
+        ".invalid-feedback[data-for='referenceBranch.name']",
+      ),
+    ).toHaveTextContent(FIELD_MESSAGES.REQUIRED);
   });
 
   it("should display server-side errors even when client-side validation is not defined", async () => {

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { RegisterOptions } from "react-hook-form";
+
 export const BASE_PATH = "/nimbus";
 
 export const UNKNOWN_ERROR =
@@ -23,3 +25,16 @@ export const EXTERNAL_URLS = {
   PREVIEW_LAUNCH_DOC:
     "https://mana.mozilla.org/wiki/display/FJT/Project+Nimbus",
 };
+
+export const FIELD_MESSAGES = {
+  REQUIRED: "This field may not be blank.",
+  NUMBER: "This field must be a number.",
+};
+
+export const REQUIRED_FIELD = {
+  required: FIELD_MESSAGES.REQUIRED,
+} as RegisterOptions;
+
+export const NUMBER_FIELD = {
+  validate: (value) => (!!value && !isNaN(value)) || FIELD_MESSAGES.NUMBER,
+} as RegisterOptions;
