@@ -43,7 +43,10 @@ const TableResults = ({
   const resultsMetricsList = getResultMetrics(primaryProbeSets);
 
   return (
-    <table className="table-visualization-center" data-testid="table-results">
+    <table
+      className="table-visualization-center mb-5"
+      data-testid="table-results"
+    >
       <thead>
         <tr>
           <th scope="col" className="border-bottom-0 bg-light" />

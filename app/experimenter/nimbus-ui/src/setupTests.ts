@@ -3,4 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import "@testing-library/jest-dom/extend-expect";
+import "jest-canvas-mock";
 import "mutationobserver-shim";
+jest.mock("vega-embed");

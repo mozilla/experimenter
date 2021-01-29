@@ -46,7 +46,7 @@ const TableMetricPrimary = ({
   const metricKey = `${probeSet.slug}_ever_used`;
 
   return (
-    <div data-testid="table-metric-primary">
+    <div data-testid="table-metric-primary" className="mb-5">
       <h2 className="h5 mb-3" id={probeSet.slug}>
         {probeSet.name}
       </h2>
