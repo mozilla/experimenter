@@ -71,6 +71,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
     proposedDuration = serializers.ReadOnlyField(source="proposed_duration")
     proposedEnrollment = serializers.ReadOnlyField(source="proposed_enrollment")
     referenceBranch = serializers.SerializerMethodField()
+    featureIds = serializers.SerializerMethodField()
 
     class Meta:
         model = NimbusExperiment
@@ -95,6 +96,7 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             "proposedDuration",
             "proposedEnrollment",
             "referenceBranch",
+            "featureIds",
         )
 
     def get_application(self, obj):
@@ -147,6 +149,11 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
             f"{channel_expr}{version_expr}{targeting_expr}"
             "'app.shield.optoutstudies.enabled'|preferenceValue"
         )
+
+    def get_featureIds(self, obj):
+        if obj.feature_config:
+            return [obj.feature_config.slug]
+        return []
 
 
 class NimbusProbeSerializer(serializers.ModelSerializer):
