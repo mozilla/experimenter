@@ -279,10 +279,10 @@ const FormOverview = ({
                           ]) ||
                         {},
                       //@ts-ignore react-hook-form types seem broken for nested fields
-                      errors: (errors?.documentationLink?.[index] ||
+                      errors: (errors?.documentationLinks?.[index] ||
                         {}) as FormDocumentationLinkProps["errors"],
                       //@ts-ignore react-hook-form types seem broken for nested fields
-                      touched: (touched?.documentationLink?.[index] ||
+                      touched: (touched?.documentationLinks?.[index] ||
                         {}) as FormDocumentationLinkProps["touched"],
                       onRemove: () => {
                         removeDocumentationLink(documentationLink);
